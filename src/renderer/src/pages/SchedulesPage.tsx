@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { useSettingsStore } from '@/stores/settings-store'
+import { usePlatform } from '@/hooks/usePlatform'
 import type { ScheduleEntry, ScheduleTaskType } from '@shared/types'
 import { getNextRunTime } from './schedules-utils'
 
@@ -24,6 +25,8 @@ interface TaskDef {
   label: string
   icon: typeof Sparkles
   group: 'cleaner' | 'maintenance'
+  /** Platform feature flag — task is hidden when this feature is false */
+  requiresFeature?: 'registry' | 'drivers'
 }
 
 const ALL_TASKS: TaskDef[] = [
@@ -33,13 +36,21 @@ const ALL_TASKS: TaskDef[] = [
   { type: 'cleaner:gaming', label: 'Gaming', icon: Gamepad2, group: 'cleaner' },
   { type: 'cleaner:recycleBin', label: 'Recycle Bin', icon: Trash, group: 'cleaner' },
   { type: 'cleaner:databases', label: 'Databases', icon: Database, group: 'cleaner' },
-  { type: 'registry', label: 'Registry Fixes', icon: Zap, group: 'maintenance' },
-  { type: 'drivers', label: 'Driver Updates', icon: Download, group: 'maintenance' },
+  { type: 'registry', label: 'Registry Fixes', icon: Zap, group: 'maintenance', requiresFeature: 'registry' },
+  { type: 'drivers', label: 'Driver Updates', icon: Download, group: 'maintenance', requiresFeature: 'drivers' },
   { type: 'software-update', label: 'Software Updates', icon: Sparkles, group: 'maintenance' },
 ]
 
+/** Filter ALL_TASKS to only those available on the current platform */
+function usePlatformTasks(): TaskDef[] {
+  const { features } = usePlatform()
+  return useMemo(
+    () => ALL_TASKS.filter((t) => !t.requiresFeature || features[t.requiresFeature]),
+    [features]
+  )
+}
+
 const CLEANER_TASKS = ALL_TASKS.filter((t) => t.group === 'cleaner').map((t) => t.type)
-const ALL_TASK_TYPES = ALL_TASKS.map((t) => t.type)
 
 interface Preset {
   label: string
@@ -47,44 +58,47 @@ interface Preset {
   entry: Partial<ScheduleEntry>
 }
 
-const PRESETS: Preset[] = [
-  {
-    label: 'Weekly Full Clean',
-    description: 'All cleaner categories every Monday at 9 AM',
-    entry: {
-      name: 'Weekly Full Clean',
-      frequency: 'weekly',
-      day: 1,
-      hour: 9,
-      tasks: [...CLEANER_TASKS],
-      autoApply: true
-    }
-  },
-  {
-    label: 'Daily Light Sweep',
-    description: 'System, browsers & recycle bin daily at 8 AM',
-    entry: {
-      name: 'Daily Light Sweep',
-      frequency: 'daily',
-      day: 0,
-      hour: 8,
-      tasks: ['cleaner:system', 'cleaner:browsers', 'cleaner:recycleBin'],
-      autoApply: true
-    }
-  },
-  {
-    label: 'Monthly Deep Maintenance',
-    description: 'Full clean + registry, drivers & software on the 1st at 10 AM',
-    entry: {
-      name: 'Monthly Deep Maintenance',
-      frequency: 'monthly',
-      day: 1,
-      hour: 10,
-      tasks: [...ALL_TASK_TYPES],
-      autoApply: true
-    }
-  },
-]
+function buildPresets(availableTasks: TaskDef[]): Preset[] {
+  const allTypes = availableTasks.map((t) => t.type)
+  return [
+    {
+      label: 'Weekly Full Clean',
+      description: 'All cleaner categories every Monday at 9 AM',
+      entry: {
+        name: 'Weekly Full Clean',
+        frequency: 'weekly',
+        day: 1,
+        hour: 9,
+        tasks: [...CLEANER_TASKS],
+        autoApply: true
+      }
+    },
+    {
+      label: 'Daily Light Sweep',
+      description: 'System, browsers & recycle bin daily at 8 AM',
+      entry: {
+        name: 'Daily Light Sweep',
+        frequency: 'daily',
+        day: 0,
+        hour: 8,
+        tasks: ['cleaner:system', 'cleaner:browsers', 'cleaner:recycleBin'],
+        autoApply: true
+      }
+    },
+    {
+      label: 'Monthly Deep Maintenance',
+      description: 'Full clean + registry, drivers & software on the 1st at 10 AM',
+      entry: {
+        name: 'Monthly Deep Maintenance',
+        frequency: 'monthly',
+        day: 1,
+        hour: 10,
+        tasks: [...allTypes],
+        autoApply: true
+      }
+    },
+  ]
+}
 
 function makeBlankEntry(): Partial<ScheduleEntry> {
   return {
@@ -101,6 +115,8 @@ function makeBlankEntry(): Partial<ScheduleEntry> {
 
 export function SchedulesPage() {
   const { settings, updateSettings } = useSettingsStore()
+  const platformTasks = usePlatformTasks()
+  const presets = useMemo(() => buildPresets(platformTasks), [platformTasks])
   const schedules = settings.schedules ?? []
 
   const save = (updated: ScheduleEntry[]) => {
@@ -253,6 +269,7 @@ export function SchedulesPage() {
       {/* Preset picker */}
       {showPresets && (
         <PresetPicker
+          presets={presets}
           onSelect={handlePresetSelect}
           onClose={() => setShowPresets(false)}
         />
@@ -263,6 +280,7 @@ export function SchedulesPage() {
         <ScheduleDialog
           initial={dialogInitial}
           isEditing={!!editingId}
+          availableTasks={platformTasks}
           onSave={handleSave}
           onClose={() => { setShowDialog(false); setEditingId(null) }}
         />
@@ -399,9 +417,11 @@ function ScheduleCard({
 // ─── Preset Picker Dialog ─────────────────────────────────
 
 function PresetPicker({
+  presets,
   onSelect,
   onClose
 }: {
+  presets: Preset[]
   onSelect: (preset: Partial<ScheduleEntry> | null) => void
   onClose: () => void
 }) {
@@ -420,7 +440,7 @@ function PresetPicker({
         </div>
 
         <div className="space-y-2.5">
-          {PRESETS.map((preset) => (
+          {presets.map((preset) => (
             <button
               key={preset.label}
               onClick={() => onSelect(preset.entry)}
@@ -455,11 +475,13 @@ function PresetPicker({
 function ScheduleDialog({
   initial,
   isEditing,
+  availableTasks,
   onSave,
   onClose
 }: {
   initial: Partial<ScheduleEntry>
   isEditing: boolean
+  availableTasks: TaskDef[]
   onSave: (entry: ScheduleEntry) => void
   onClose: () => void
 }) {
@@ -476,7 +498,8 @@ function ScheduleDialog({
     )
   }
 
-  const selectAll = () => setTasks([...ALL_TASK_TYPES])
+  const allAvailableTypes = availableTasks.map((t) => t.type)
+  const selectAll = () => setTasks([...allAvailableTypes])
   const deselectAll = () => setTasks([])
 
   const canSave = name.trim().length > 0 && tasks.length > 0
@@ -502,8 +525,8 @@ function ScheduleDialog({
   const selectStyle = "rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none"
   const selectBorder = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }
 
-  const cleanerTasks = ALL_TASKS.filter((t) => t.group === 'cleaner')
-  const maintTasks = ALL_TASKS.filter((t) => t.group === 'maintenance')
+  const cleanerTasks = availableTasks.filter((t) => t.group === 'cleaner')
+  const maintTasks = availableTasks.filter((t) => t.group === 'maintenance')
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">

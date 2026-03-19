@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { useScanStore } from '@/stores/scan-store'
 import { useHistoryStore } from '@/stores/history-store'
-import { useSettingsStore } from '@/stores/settings-store'
+import { useSettingsStore, refreshSettings } from '@/stores/settings-store'
 import { ScanStatus } from '@shared/enums'
 import type { ScanResult } from '@shared/types'
 import { formatBytes, formatNumber } from '@/lib/utils'
@@ -220,9 +220,10 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
       scheduleName: payload.scheduleName
     })
 
-    // Notify main process
+    // Notify main process and refresh renderer state so the UI shows updated status
     window.kudu.notifyScheduledScanComplete?.(totalSize, totalItems)
     window.kudu.scheduleRunComplete?.(payload.scheduleId, status)
+    refreshSettings()
 
     const desc = payload.autoApply
       ? `Cleaned ${formatNumber(totalCleaned)} items (${formatBytes(totalSpaceSaved)}).`
@@ -233,6 +234,7 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
     store.setProgress(null)
     status = 'failed'
     window.kudu.scheduleRunComplete?.(payload.scheduleId, status)
+    refreshSettings()
     toast.error(`"${payload.scheduleName}" failed`, { description: 'An error occurred during the scheduled task.' })
   }
 }
