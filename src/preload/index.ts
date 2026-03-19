@@ -161,7 +161,7 @@ const api = {
   createRestorePoint: (description: string): Promise<RestorePointResult> =>
     ipcRenderer.invoke(IPC.RESTORE_POINT_CREATE, description),
 
-  // Scheduled scans
+  // Scheduled scans (legacy)
   scheduleNextScan: (): Promise<string | null> => ipcRenderer.invoke(IPC.SCHEDULE_NEXT_SCAN),
   applyStartup: (enabled: boolean): Promise<void> => ipcRenderer.invoke(IPC.SETTINGS_APPLY_STARTUP, enabled),
   applyTray: (enabled: boolean) => ipcRenderer.send(IPC.SETTINGS_APPLY_TRAY, enabled),
@@ -172,6 +172,15 @@ const api = {
   },
   notifyScheduledScanComplete: (totalSize: number, itemCount: number) =>
     ipcRenderer.send(IPC.SCHEDULE_SCAN_COMPLETE, totalSize, itemCount),
+
+  // Multi-schedule
+  onScheduleRunTrigger: (callback: (data: { scheduleId: string; scheduleName: string; tasks: string[]; autoApply: boolean }) => void) => {
+    const handler = (_event: any, data: any) => callback(data)
+    ipcRenderer.on(IPC.SCHEDULE_RUN_TRIGGER, handler)
+    return () => { ipcRenderer.removeListener(IPC.SCHEDULE_RUN_TRIGGER, handler) }
+  },
+  scheduleRunComplete: (scheduleId: string, status: string) =>
+    ipcRenderer.send(IPC.SCHEDULE_RUN_COMPLETE, scheduleId, status),
 
   // Scan history
   historyGet: (): Promise<ScanHistoryEntry[]> => ipcRenderer.invoke(IPC.HISTORY_GET),

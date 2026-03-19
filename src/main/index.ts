@@ -7,7 +7,7 @@ const execFileAsync = promisify(execFile)
 import { IPC } from '../shared/channels'
 import { registerCleanerIpc } from './ipc'
 import { getSettings } from './services/settings-store'
-import { startScheduler, stopScheduler, getNextScanTime, notifyScheduledScanComplete } from './services/scheduler'
+import { startScheduler, stopScheduler, getNextScanTime, notifyScheduledScanComplete, completeScheduleRun } from './services/scheduler'
 import { initAutoUpdater } from './services/auto-updater'
 import { cloudAgent } from './services/cloud-agent'
 import { runCli } from './cli'
@@ -339,8 +339,8 @@ app.whenReady().then(() => {
     console.error('Failed to configure auto-launch:', err)
   })
 
-  // Create tray if minimize-to-tray is enabled or scheduled scans are on
-  if (settings.minimizeToTray || settings.schedule.enabled) {
+  // Create tray if minimize-to-tray is enabled or any schedule is active
+  if (settings.minimizeToTray || settings.schedules.some((s) => s.enabled)) {
     createTray()
   }
 
@@ -365,7 +365,7 @@ app.whenReady().then(() => {
   ipcMain.on(IPC.SETTINGS_APPLY_TRAY, (_event, enabled: boolean) => {
     if (enabled) {
       createTray()
-    } else if (!getSettings().schedule.enabled) {
+    } else if (!getSettings().schedules.some((s) => s.enabled)) {
       destroyTray()
     }
   })
@@ -382,6 +382,14 @@ app.whenReady().then(() => {
     notifyScheduledScanComplete(totalSize, itemCount)
   })
 
+  // Handle multi-schedule run completion
+  const VALID_RUN_STATUSES = new Set(['success', 'partial', 'failed', 'never'])
+  ipcMain.on(IPC.SCHEDULE_RUN_COMPLETE, (_event, scheduleId: unknown, status: unknown) => {
+    if (typeof scheduleId !== 'string' || typeof status !== 'string') return
+    if (!VALID_RUN_STATUSES.has(status)) return
+    completeScheduleRun(scheduleId, status as 'success' | 'partial' | 'failed' | 'never')
+  })
+
   app.on('activate', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       // Window exists but may be hidden (minimize-to-tray) — restore it
@@ -395,8 +403,8 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   const settings = getSettings()
-  // Don't quit if minimize-to-tray or scheduled scans are enabled
-  if (settings.minimizeToTray || settings.schedule.enabled) {
+  // Don't quit if minimize-to-tray or any schedule is enabled
+  if (settings.minimizeToTray || settings.schedules.some((s) => s.enabled)) {
     // Stay alive in tray
     return
   }

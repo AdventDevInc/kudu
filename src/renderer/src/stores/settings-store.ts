@@ -29,6 +29,7 @@ const defaultSettings: KuduSettings = {
     day: 1,
     hour: 9
   },
+  schedules: [],
   cloud: {
     apiKey: '',
     serverUrl: '',
@@ -54,6 +55,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         ...partial,
         cleaner: { ...s.settings.cleaner, ...(partial.cleaner ?? {}) },
         schedule: { ...s.settings.schedule, ...(partial.schedule ?? {}) },
+        // schedules is an array — replace entirely when provided
+        schedules: partial.schedules ?? s.settings.schedules,
         cloud: { ...s.settings.cloud, ...(partial.cloud ?? {}) }
       }
     }))

@@ -29,6 +29,7 @@ describe('settings-store', () => {
           day: 1,
           hour: 9,
         },
+        schedules: [],
         cloud: {
           apiKey: '',
           serverUrl: '',

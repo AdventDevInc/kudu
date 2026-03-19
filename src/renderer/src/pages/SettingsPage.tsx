@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Github, Bug, ExternalLink, Plus, X, FolderOpen, Clock, RefreshCw, Download, CheckCircle, AlertCircle, Loader, Unlink, Link } from 'lucide-react'
+import { Github, Bug, ExternalLink, Plus, X, FolderOpen, RefreshCw, Download, CheckCircle, AlertCircle, Loader, Unlink, Link } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
@@ -8,29 +8,10 @@ import { useAppUpdateStore } from '@/stores/app-update-store'
 import { usePlatform } from '@/hooks/usePlatform'
 import logoSrc from '@/assets/logo.png'
 
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-function formatNextScan(iso: string): string {
-  const date = new Date(iso)
-  const now = new Date()
-  const diff = date.getTime() - now.getTime()
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const days = Math.floor(hours / 24)
-
-  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  const dateStr = date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })
-
-  if (days === 0 && hours > 0) return `Today at ${timeStr} (in ${hours}h)`
-  if (days === 1) return `Tomorrow at ${timeStr}`
-  if (days < 7) return `${dateStr} at ${timeStr} (in ${days} days)`
-  return `${dateStr} at ${timeStr}`
-}
-
 export function SettingsPage() {
   const { features, platform } = usePlatform()
   const { settings, updateSettings, setSettings } = useSettingsStore()
   const [newExclusion, setNewExclusion] = useState('')
-  const [nextScan, setNextScan] = useState<string | null>(null)
   const updateStatus = useAppUpdateStore((s) => s.status)
 
   // Cloud agent state
@@ -104,15 +85,6 @@ export function SettingsPage() {
     setCloudReconnecting(false)
   }
 
-  // Fetch next scan time whenever schedule settings change
-  useEffect(() => {
-    if (settings.schedule.enabled) {
-      window.kudu?.scheduleNextScan?.().then(setNextScan).catch(() => setNextScan(null))
-    } else {
-      setNextScan(null)
-    }
-  }, [settings.schedule.enabled, settings.schedule.frequency, settings.schedule.hour, settings.schedule.day])
-
   const save = (partial: Partial<typeof settings>) => {
     updateSettings(partial)
     window.kudu?.settingsSet?.(partial).catch(() => {})
@@ -132,23 +104,6 @@ export function SettingsPage() {
   const saveTray = (enabled: boolean) => {
     save({ minimizeToTray: enabled })
     window.kudu?.applyTray?.(enabled)
-  }
-
-  const saveSchedule = (schedule: typeof settings.schedule) => {
-    save({ schedule })
-    // When enabling scheduled scans, also enable run-at-startup and tray
-    // so the app stays alive to run them
-    if (schedule.enabled && !settings.runAtStartup) {
-      save({ runAtStartup: true })
-      window.kudu?.applyStartup?.(true).catch(() => {
-        save({ runAtStartup: false })
-        toast.error('Failed to enable startup. Scheduled scans may not run after reboot.')
-      })
-    }
-    if (schedule.enabled && !settings.minimizeToTray) {
-      save({ minimizeToTray: true })
-      window.kudu?.applyTray?.(true)
-    }
   }
 
   const addExclusion = () => {
@@ -438,60 +393,6 @@ export function SettingsPage() {
         </div>
       </Section>
 
-      <Section title="Scheduled Scans">
-        <Row label="Enable scheduled scans" desc="Automatically scan on a schedule">
-          <Toggle checked={settings.schedule.enabled} onChange={(v) => saveSchedule({ ...settings.schedule, enabled: v })} />
-        </Row>
-        {settings.schedule.enabled && (
-          <>
-            <Row label="Frequency" desc="How often to scan">
-              <select value={settings.schedule.frequency}
-                onChange={(e) => saveSchedule({ ...settings.schedule, frequency: e.target.value as 'daily' | 'weekly' | 'monthly' })}
-                className={selectStyle} style={selectBorder}>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-              </select>
-            </Row>
-            {settings.schedule.frequency === 'weekly' && (
-              <Row label="Day of week" desc="Which day to scan">
-                <select value={settings.schedule.day}
-                  onChange={(e) => saveSchedule({ ...settings.schedule, day: Number(e.target.value) })}
-                  className={selectStyle} style={selectBorder}>
-                  {DAY_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
-                </select>
-              </Row>
-            )}
-            {settings.schedule.frequency === 'monthly' && (
-              <Row label="Day of month" desc="Which day to scan">
-                <select value={settings.schedule.day}
-                  onChange={(e) => saveSchedule({ ...settings.schedule, day: Number(e.target.value) })}
-                  className={selectStyle} style={selectBorder}>
-                  {Array.from({ length: 28 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>{ordinal(i + 1)}</option>
-                  ))}
-                </select>
-              </Row>
-            )}
-            <Row label="Time" desc="Time of day to scan" last={!nextScan}>
-              <select value={settings.schedule.hour}
-                onChange={(e) => saveSchedule({ ...settings.schedule, hour: Number(e.target.value) })}
-                className={selectStyle} style={selectBorder}>
-                {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>)}
-              </select>
-            </Row>
-            {nextScan && (
-              <div className="flex items-center gap-2.5 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                <Clock className="h-3.5 w-3.5 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
-                <span className="text-[12px]" style={{ color: '#8e8e96' }}>
-                  Next scan: {formatNextScan(nextScan)}
-                </span>
-              </div>
-            )}
-          </>
-        )}
-      </Section>
-
       <Section title="About">
         <div className="py-3">
           <div className="flex items-center gap-4">
@@ -583,12 +484,6 @@ export function SettingsPage() {
       </Section>
     </div>
   )
-}
-
-function ordinal(n: number): string {
-  const s = ['th', 'st', 'nd', 'rd']
-  const v = n % 100
-  return n + (s[(v - 20) % 10] || s[v] || s[0])
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

@@ -22,6 +22,7 @@ import { PerformanceMonitorPage } from './pages/PerformanceMonitorPage'
 import { UninstallerPage } from './pages/UninstallerPage'
 import { ServiceManagerPage } from './pages/ServiceManagerPage'
 import { SoftwareUpdaterPage } from './pages/SoftwareUpdaterPage'
+import { SchedulesPage } from './pages/SchedulesPage'
 import { Onboarding } from './components/Onboarding'
 import { useStatsStore } from './stores/stats-store'
 import { useHistoryStore } from './stores/history-store'
@@ -93,6 +94,7 @@ export function App() {
           {/* Consolidated pages */}
           <Route path="/hardening" element={<SystemHardeningPage />} />
           <Route path="/updates" element={<UpdatesPage />} />
+          <Route path="/schedules" element={<SchedulesPage />} />
           {/* Legacy routes — redirect to consolidated pages */}
           <Route path="/privacy" element={<SystemHardeningPage />} />
           <Route path="/debloater" element={<SystemHardeningPage />} />

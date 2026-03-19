@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
-import type { KuduSettings, AppStats } from '../../shared/types'
+import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType } from '../../shared/types'
 
 let _dataDir: string | null = null
 let _configPath: string | null = null
@@ -54,6 +54,7 @@ const defaults: StoreData = {
       day: 1,
       hour: 9
     },
+    schedules: [],
     cloud: {
       apiKey: '',
       serverUrl: '',
@@ -150,6 +151,30 @@ function readStore(): StoreData {
       // Decrypt API key if stored encrypted
       if (merged.settings.cloud.apiKey) {
         merged.settings.cloud.apiKey = decryptApiKey(merged.settings.cloud.apiKey)
+      }
+      // Migrate legacy single schedule → schedules array
+      if (merged.settings.schedule.enabled && merged.settings.schedules.length === 0) {
+        const allCleanerTasks: ScheduleTaskType[] = [
+          'cleaner:system', 'cleaner:browsers', 'cleaner:apps',
+          'cleaner:gaming', 'cleaner:recycleBin', 'cleaner:databases'
+        ]
+        const migrated: ScheduleEntry = {
+          id: randomUUID(),
+          name: 'Scheduled Scan',
+          enabled: true,
+          frequency: merged.settings.schedule.frequency,
+          day: merged.settings.schedule.day,
+          hour: merged.settings.schedule.hour,
+          tasks: allCleanerTasks,
+          autoApply: false,
+          lastRunAt: null,
+          lastRunStatus: 'never',
+          createdAt: new Date().toISOString()
+        }
+        merged.settings.schedules = [migrated]
+        merged.settings.schedule.enabled = false
+        // Persist migration immediately
+        try { writeStore(merged) } catch { /* best-effort */ }
       }
       return merged
     }

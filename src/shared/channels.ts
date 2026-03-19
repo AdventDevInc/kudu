@@ -73,10 +73,14 @@ export const IPC = {
   ELEVATION_RELAUNCH: 'elevation:relaunch',
   RESTORE_POINT_CREATE: 'system:restore-point:create',
 
-  // Scheduled scans
+  // Scheduled scans (legacy single-schedule)
   SCHEDULE_NEXT_SCAN: 'schedule:next-scan',
   SCHEDULE_SCAN_TRIGGER: 'schedule:scan-trigger',
   SCHEDULE_SCAN_COMPLETE: 'schedule:scan-complete',
+
+  // Multi-schedule
+  SCHEDULE_RUN_TRIGGER: 'schedule:run-trigger',
+  SCHEDULE_RUN_COMPLETE: 'schedule:run-complete',
 
   // Settings apply (renderer -> main)
   SETTINGS_APPLY_STARTUP: 'settings:apply-startup',

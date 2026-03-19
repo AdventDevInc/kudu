@@ -41,6 +41,8 @@ export interface ScanHistoryEntry {
   errorCount: number
   /** true when the entry was created by the scheduler rather than a manual action */
   scheduled?: boolean
+  /** Name of the schedule that triggered this entry */
+  scheduleName?: string
 }
 
 // ─── Cloud Action History ────────────────────────────────────
@@ -498,6 +500,34 @@ export interface UninstallResult {
   leftoversSize: number
 }
 
+// ─── Schedules ────────────────────────────────────────────
+export type ScheduleTaskType =
+  | 'cleaner:system'
+  | 'cleaner:browsers'
+  | 'cleaner:apps'
+  | 'cleaner:gaming'
+  | 'cleaner:recycleBin'
+  | 'cleaner:databases'
+  | 'registry'
+  | 'drivers'
+  | 'software-update'
+
+export type ScheduleRunStatus = 'success' | 'partial' | 'failed' | 'never'
+
+export interface ScheduleEntry {
+  id: string
+  name: string
+  enabled: boolean
+  frequency: 'daily' | 'weekly' | 'monthly'
+  day: number
+  hour: number
+  tasks: ScheduleTaskType[]
+  autoApply: boolean
+  lastRunAt: string | null
+  lastRunStatus: ScheduleRunStatus
+  createdAt: string
+}
+
 export interface KuduSettings {
   minimizeToTray: boolean
   showNotificationOnComplete: boolean
@@ -521,6 +551,7 @@ export interface KuduSettings {
     day: number
     hour: number
   }
+  schedules: ScheduleEntry[]
   cloud: {
     apiKey: string
     serverUrl: string

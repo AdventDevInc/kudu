@@ -13,7 +13,8 @@ import {
   Radar,
   Activity,
   Trash2,
-  Download
+  Download,
+  CalendarClock
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -55,7 +56,8 @@ const navGroups: NavGroup[] = [
       { icon: Zap, label: 'Startup', path: '/startup' },
       { icon: Wifi, label: 'Network', path: '/network' },
       { icon: Trash2, label: 'Uninstaller', path: '/uninstaller' },
-      { icon: Download, label: 'Updates', path: '/updates' }
+      { icon: Download, label: 'Updates', path: '/updates' },
+      { icon: CalendarClock, label: 'Schedules', path: '/schedules' }
     ]
   },
   {

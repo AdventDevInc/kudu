@@ -5,12 +5,12 @@ vi.mock('electron', () => ({
   BrowserWindow: class {},
   Notification: { isSupported: () => false },
 }))
-vi.mock('./settings-store', () => ({ getSettings: () => ({}) }))
+vi.mock('./settings-store', () => ({ getSettings: () => ({}), setSettings: () => {} }))
 vi.mock('./history-store', () => ({ getHistory: () => [] }))
 vi.mock('./logger', () => ({ logInfo: () => {}, logError: () => {} }))
 
-import { getNextScanTime, isSameDay } from './scheduler'
-import type { KuduSettings } from '../../shared/types'
+import { getNextScanTime, getNextRunTime, isSameDay } from './scheduler'
+import type { KuduSettings, ScheduleEntry } from '../../shared/types'
 
 function makeSettings(
   overrides: Partial<KuduSettings['schedule']> & { enabled?: boolean } = {}
@@ -36,6 +36,7 @@ function makeSettings(
       day: overrides.day ?? 1,
       hour: overrides.hour ?? 9,
     },
+    schedules: [],
     cloud: {
       apiKey: '',
       serverUrl: '',
@@ -176,5 +177,76 @@ describe('getNextScanTime', () => {
     const settings = makeSettings({ frequency: 'daily', hour: 8 })
     const result = getNextScanTime(settings)!
     expect(result.getTime()).toBeGreaterThan(new Date('2025-06-15T12:00:00').getTime())
+  })
+
+  it('returns soonest schedule when multiple schedules exist', () => {
+    vi.setSystemTime(new Date('2025-06-15T07:00:00')) // Sunday
+    const settings = makeSettings({ enabled: false })
+    settings.schedules = [
+      makeEntry({ frequency: 'daily', hour: 20 }),    // today at 20:00
+      makeEntry({ frequency: 'daily', hour: 10 }),    // today at 10:00 (soonest)
+      makeEntry({ frequency: 'weekly', day: 3, hour: 9 }),  // Wed at 9:00
+    ]
+    const result = getNextScanTime(settings)!
+    expect(result.getHours()).toBe(10)
+    expect(result.getDate()).toBe(15) // today
+  })
+})
+
+// ─── getNextRunTime (per-entry) ───────────────────────────
+
+function makeEntry(overrides: Partial<ScheduleEntry> = {}): ScheduleEntry {
+  return {
+    id: 'test-' + Math.random(),
+    name: 'Test Schedule',
+    enabled: true,
+    frequency: 'daily',
+    day: 1,
+    hour: 9,
+    tasks: ['cleaner:system'],
+    autoApply: false,
+    lastRunAt: null,
+    lastRunStatus: 'never',
+    createdAt: new Date().toISOString(),
+    ...overrides,
+  }
+}
+
+describe('getNextRunTime', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('returns null when entry is disabled', () => {
+    expect(getNextRunTime(makeEntry({ enabled: false }))).toBeNull()
+  })
+
+  it('returns today for daily schedule if hour has not passed', () => {
+    vi.setSystemTime(new Date('2025-06-15T07:00:00'))
+    const result = getNextRunTime(makeEntry({ frequency: 'daily', hour: 9 }))!
+    expect(result.getDate()).toBe(15)
+    expect(result.getHours()).toBe(9)
+  })
+
+  it('returns tomorrow for daily schedule if hour has passed', () => {
+    vi.setSystemTime(new Date('2025-06-15T10:00:00'))
+    const result = getNextRunTime(makeEntry({ frequency: 'daily', hour: 9 }))!
+    expect(result.getDate()).toBe(16)
+  })
+
+  it('returns correct day of week for weekly schedule', () => {
+    vi.setSystemTime(new Date('2025-06-15T07:00:00')) // Sunday
+    const result = getNextRunTime(makeEntry({ frequency: 'weekly', day: 3, hour: 9 }))!
+    expect(result.getDay()).toBe(3) // Wednesday
+  })
+
+  it('clamps day for monthly schedule in short months', () => {
+    vi.setSystemTime(new Date('2025-02-01T07:00:00'))
+    const result = getNextRunTime(makeEntry({ frequency: 'monthly', day: 31, hour: 9 }))!
+    expect(result.getDate()).toBeLessThanOrEqual(28)
   })
 })

@@ -1,46 +1,43 @@
 import { BrowserWindow, Notification } from 'electron'
 import { IPC } from '../../shared/channels'
-import { getSettings } from './settings-store'
-import { getHistory } from './history-store'
+import { getSettings, setSettings } from './settings-store'
 import { logInfo } from './logger'
-import type { KuduSettings } from '../../shared/types'
+import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null
 let initialCheckTimer: ReturnType<typeof setTimeout> | null = null
 
+// ─── Per-entry helpers ────────────────────────────────────
+
 /**
- * Calculate the next scheduled scan time based on settings.
+ * Calculate the next run time for a single schedule entry.
  */
-export function getNextScanTime(settings: KuduSettings): Date | null {
-  if (!settings.schedule.enabled) return null
+export function getNextRunTime(entry: ScheduleEntry): Date | null {
+  if (!entry.enabled) return null
 
   const now = new Date()
   const next = new Date()
-  next.setHours(settings.schedule.hour, 0, 0, 0)
+  next.setHours(entry.hour, 0, 0, 0)
 
-  switch (settings.schedule.frequency) {
+  switch (entry.frequency) {
     case 'daily':
-      // If today's time has passed, schedule for tomorrow
       if (next <= now) next.setDate(next.getDate() + 1)
       break
 
     case 'weekly':
-      // day = 0 (Sun) through 6 (Sat)
-      next.setDate(next.getDate() + ((settings.schedule.day - next.getDay() + 7) % 7))
+      next.setDate(next.getDate() + ((entry.day - next.getDay() + 7) % 7))
       if (next <= now) next.setDate(next.getDate() + 7)
       break
 
     case 'monthly': {
-      // Clamp day to valid range for the target month BEFORE calling setDate
-      // to avoid overflow (e.g. setDate(31) on Feb 1 silently rolls to March)
       const clampDay = (d: Date, day: number) => {
         const max = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
         d.setDate(Math.min(day, max))
       }
-      clampDay(next, settings.schedule.day)
+      clampDay(next, entry.day)
       if (next <= now) {
         next.setMonth(next.getMonth() + 1)
-        clampDay(next, settings.schedule.day)
+        clampDay(next, entry.day)
       }
       break
     }
@@ -50,41 +47,41 @@ export function getNextScanTime(settings: KuduSettings): Date | null {
 }
 
 /**
- * Check if a scheduled scan is due and should run now.
+ * Check if a schedule entry is due to run now.
+ * Uses the entry's own lastRunAt instead of global history.
  */
-function isDue(settings: KuduSettings): boolean {
-  if (!settings.schedule.enabled) return false
+function isDueEntry(entry: ScheduleEntry): boolean {
+  if (!entry.enabled) return false
 
-  const history = getHistory()
   const now = new Date()
-  const lastScan = history.length > 0 ? new Date(history[0].timestamp) : null
+  const lastRun = entry.lastRunAt ? new Date(entry.lastRunAt) : null
 
-  // Use a ±2 minute window around the target time to avoid missing the scan
-  // when the 60s polling interval straddles the exact hour boundary
   const target = new Date()
-  target.setHours(settings.schedule.hour, 0, 0, 0)
+  target.setHours(entry.hour, 0, 0, 0)
   const withinWindow = Math.abs(now.getTime() - target.getTime()) <= 2 * 60_000
 
-  switch (settings.schedule.frequency) {
+  switch (entry.frequency) {
     case 'daily':
-      // Due if: within window of scheduled hour AND we haven't scanned today
       if (!withinWindow) return false
-      if (lastScan && isSameDay(lastScan, now)) return false
+      if (lastRun && isSameDay(lastRun, now)) return false
       return true
 
     case 'weekly':
-      // Due if: correct day of week, within window, haven't scanned this week-slot
-      if (now.getDay() !== settings.schedule.day) return false
+      if (now.getDay() !== entry.day) return false
       if (!withinWindow) return false
-      if (lastScan && isSameDay(lastScan, now)) return false
+      if (lastRun && isSameDay(lastRun, now)) return false
       return true
 
-    case 'monthly':
-      // Due if: correct day of month, within window, haven't scanned today
-      if (now.getDate() !== settings.schedule.day) return false
+    case 'monthly': {
+      // Clamp day to the last day of the current month (same as getNextRunTime)
+      // so that e.g. day=31 fires on the 28th in February
+      const maxDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+      const effectiveDay = Math.min(entry.day, maxDay)
+      if (now.getDate() !== effectiveDay) return false
       if (!withinWindow) return false
-      if (lastScan && isSameDay(lastScan, now)) return false
+      if (lastRun && isSameDay(lastRun, now)) return false
       return true
+    }
   }
 
   return false
@@ -98,22 +95,73 @@ export function isSameDay(a: Date, b: Date): boolean {
   )
 }
 
-/**
- * Trigger a scheduled scan by notifying the renderer process.
- * The renderer handles the actual scan orchestration.
- */
-function triggerScheduledScan(mainWindow: BrowserWindow | null): void {
-  logInfo('Scheduled scan triggered')
+// ─── Legacy single-schedule compat ────────────────────────
 
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send(IPC.SCHEDULE_SCAN_TRIGGER)
+/**
+ * Get the soonest next scan time across all enabled schedules.
+ * Also supports legacy single schedule for backward compat.
+ */
+export function getNextScanTime(settings: KuduSettings): Date | null {
+  // New multi-schedule path
+  if (settings.schedules.length > 0) {
+    let soonest: Date | null = null
+    for (const entry of settings.schedules) {
+      const next = getNextRunTime(entry)
+      if (next && (!soonest || next < soonest)) {
+        soonest = next
+      }
+    }
+    return soonest
   }
 
-  // Show a system notification (skip in daemon/headless mode)
+  // Legacy fallback
+  if (!settings.schedule.enabled) return null
+  const legacyEntry: ScheduleEntry = {
+    id: 'legacy',
+    name: 'Scheduled Scan',
+    enabled: settings.schedule.enabled,
+    frequency: settings.schedule.frequency,
+    day: settings.schedule.day,
+    hour: settings.schedule.hour,
+    tasks: [],
+    autoApply: false,
+    lastRunAt: null,
+    lastRunStatus: 'never',
+    createdAt: ''
+  }
+  return getNextRunTime(legacyEntry)
+}
+
+// ─── Trigger & notify ─────────────────────────────────────
+
+/** Track in-flight schedules to prevent re-triggering before completion */
+const inFlight = new Set<string>()
+
+function triggerScheduleEntry(mainWindow: BrowserWindow | null, entry: ScheduleEntry): void {
+  // Skip if this schedule is already in-flight
+  if (inFlight.has(entry.id)) return
+
+  // Skip if window is unavailable — mark as failed to prevent re-triggering
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    logInfo(`Schedule "${entry.name}" skipped — no window available`)
+    completeScheduleRun(entry.id, 'failed')
+    return
+  }
+
+  logInfo(`Schedule triggered: "${entry.name}" (${entry.id})`)
+  inFlight.add(entry.id)
+
+  mainWindow.webContents.send(IPC.SCHEDULE_RUN_TRIGGER, {
+    scheduleId: entry.id,
+    scheduleName: entry.name,
+    tasks: entry.tasks,
+    autoApply: entry.autoApply
+  })
+
   if (!process.argv.includes('--daemon') && Notification.isSupported()) {
     const notification = new Notification({
-      title: 'Kudu - Scheduled Scan',
-      body: 'Running a scheduled system scan...',
+      title: 'Kudu - Scheduled Task',
+      body: `Running "${entry.name}"...`,
       silent: true
     })
     notification.show()
@@ -138,20 +186,43 @@ export function notifyScheduledScanComplete(totalSize: number, itemCount: number
 }
 
 /**
- * Start the scheduler that checks every minute if a scan is due.
+ * Update a schedule entry's last run info after completion.
+ */
+export function completeScheduleRun(scheduleId: string, status: ScheduleRunStatus): void {
+  inFlight.delete(scheduleId)
+  const settings = getSettings()
+  const updated = settings.schedules.map((s) =>
+    s.id === scheduleId
+      ? { ...s, lastRunAt: new Date().toISOString(), lastRunStatus: status }
+      : s
+  )
+  setSettings({ schedules: updated })
+}
+
+// ─── Scheduler loop ───────────────────────────────────────
+
+function checkSchedules(getMainWindow: () => BrowserWindow | null): void {
+  const settings = getSettings()
+
+  // Check each enabled schedule
+  for (const entry of settings.schedules) {
+    if (isDueEntry(entry)) {
+      triggerScheduleEntry(getMainWindow(), entry)
+    }
+  }
+}
+
+/**
+ * Start the scheduler that checks every minute if any schedule is due.
  */
 export function startScheduler(getMainWindow: () => BrowserWindow | null): void {
   if (schedulerTimer) return
 
   logInfo('Scheduler started')
 
-  // Check every 60 seconds
   schedulerTimer = setInterval(() => {
     try {
-      const settings = getSettings()
-      if (isDue(settings)) {
-        triggerScheduledScan(getMainWindow())
-      }
+      checkSchedules(getMainWindow)
     } catch (err) {
       logInfo(`Scheduler error: ${err}`)
     }
@@ -161,10 +232,7 @@ export function startScheduler(getMainWindow: () => BrowserWindow | null): void 
   initialCheckTimer = setTimeout(() => {
     initialCheckTimer = null
     try {
-      const settings = getSettings()
-      if (isDue(settings)) {
-        triggerScheduledScan(getMainWindow())
-      }
+      checkSchedules(getMainWindow)
     } catch (err) {
       logInfo(`Scheduler initial check error: ${err}`)
     }
