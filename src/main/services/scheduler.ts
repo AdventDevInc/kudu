@@ -1,6 +1,6 @@
 import { BrowserWindow, Notification } from 'electron'
 import { IPC } from '../../shared/channels'
-import { getSettings, setSettings } from './settings-store'
+import { getSettings, updateScheduleEntry } from './settings-store'
 import { logInfo } from './logger'
 import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
 
@@ -136,6 +136,10 @@ export function getNextScanTime(settings: KuduSettings): Date | null {
 
 /** Track in-flight schedules to prevent re-triggering before completion */
 const inFlight = new Set<string>()
+const inFlightTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+/** Safety timeout: if the renderer never calls back, clear inFlight after 10 min */
+const IN_FLIGHT_TIMEOUT_MS = 10 * 60_000
 
 function triggerScheduleEntry(mainWindow: BrowserWindow | null, entry: ScheduleEntry): void {
   // Skip if this schedule is already in-flight
@@ -150,6 +154,16 @@ function triggerScheduleEntry(mainWindow: BrowserWindow | null, entry: ScheduleE
 
   logInfo(`Schedule triggered: "${entry.name}" (${entry.id})`)
   inFlight.add(entry.id)
+
+  // Safety timeout — if the renderer never responds (crash, reload, etc.),
+  // auto-clear so the schedule isn't stuck forever
+  inFlightTimers.set(entry.id, setTimeout(() => {
+    if (inFlight.has(entry.id)) {
+      logInfo(`Schedule "${entry.name}" timed out — clearing inFlight`)
+      inFlight.delete(entry.id)
+      inFlightTimers.delete(entry.id)
+    }
+  }, IN_FLIGHT_TIMEOUT_MS))
 
   mainWindow.webContents.send(IPC.SCHEDULE_RUN_TRIGGER, {
     scheduleId: entry.id,
@@ -187,16 +201,20 @@ export function notifyScheduledScanComplete(totalSize: number, itemCount: number
 
 /**
  * Update a schedule entry's last run info after completion.
+ * Uses updateScheduleEntry for atomic read-modify-write inside the lock,
+ * so concurrent completions from different schedules don't clobber each other.
  */
 export function completeScheduleRun(scheduleId: string, status: ScheduleRunStatus): void {
   inFlight.delete(scheduleId)
-  const settings = getSettings()
-  const updated = settings.schedules.map((s) =>
-    s.id === scheduleId
-      ? { ...s, lastRunAt: new Date().toISOString(), lastRunStatus: status }
-      : s
-  )
-  setSettings({ schedules: updated })
+  const timer = inFlightTimers.get(scheduleId)
+  if (timer) {
+    clearTimeout(timer)
+    inFlightTimers.delete(scheduleId)
+  }
+  updateScheduleEntry(scheduleId, {
+    lastRunAt: new Date().toISOString(),
+    lastRunStatus: status
+  })
 }
 
 // ─── Scheduler loop ───────────────────────────────────────
@@ -252,4 +270,8 @@ export function stopScheduler(): void {
     schedulerTimer = null
     logInfo('Scheduler stopped')
   }
+  // Clean up any pending inFlight timers
+  for (const timer of inFlightTimers.values()) clearTimeout(timer)
+  inFlightTimers.clear()
+  inFlight.clear()
 }

@@ -216,6 +216,28 @@ export function setSettings(partial: Partial<KuduSettings>): void {
   })
 }
 
+/**
+ * Atomically update a single schedule entry within the write lock.
+ * Unlike setSettings({ schedules: [...] }), this reads the latest schedules
+ * inside the lock so concurrent completions don't clobber each other.
+ */
+export function updateScheduleEntry(scheduleId: string, patch: Partial<import('../../shared/types').ScheduleEntry>): void {
+  const prev = writeLock
+  let unlock: () => void
+  writeLock = new Promise<void>((r) => { unlock = r })
+  prev.then(() => {
+    try {
+      const data = readStore()
+      data.settings.schedules = data.settings.schedules.map((s) =>
+        s.id === scheduleId ? { ...s, ...patch } : s
+      )
+      writeStore(data)
+    } finally {
+      unlock!()
+    }
+  })
+}
+
 /** Wait for any pending setSettings() writes to complete */
 export function flushSettings(): Promise<void> {
   return writeLock

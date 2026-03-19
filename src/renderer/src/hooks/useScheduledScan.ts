@@ -57,14 +57,6 @@ const CLEANER_TASKS: Record<string, {
  */
 async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
   const store = useScanStore.getState()
-
-  // Don't clobber a manual scan/clean already in progress
-  if (store.status === ScanStatus.Scanning || store.status === ScanStatus.Cleaning) {
-    window.kudu.scheduleRunComplete?.(payload.scheduleId, 'failed')
-    toast.warning(`"${payload.scheduleName}" skipped`, { description: 'A scan or cleanup is already in progress.' })
-    return
-  }
-
   const startTime = Date.now()
 
   let status: 'success' | 'partial' | 'failed' = 'success'
@@ -256,10 +248,27 @@ export function useScheduledScan(): void {
   useEffect(() => {
     if (!window.kudu?.onScheduleRunTrigger) return undefined
 
+    const waitForIdle = async (): Promise<boolean> => {
+      // Wait up to 5 minutes for any manual scan/clean to finish
+      for (let waited = 0; waited < 300_000; waited += 10_000) {
+        const s = useScanStore.getState().status
+        if (s !== ScanStatus.Scanning && s !== ScanStatus.Cleaning) return true
+        await new Promise((r) => setTimeout(r, 10_000))
+      }
+      return false
+    }
+
     const processQueue = async () => {
       while (queueRef.current.length > 0) {
         const next = queueRef.current.shift()!
         try {
+          // Wait for any manual work to finish before running
+          const idle = await waitForIdle()
+          if (!idle) {
+            window.kudu.scheduleRunComplete?.(next.scheduleId, 'failed')
+            toast.warning(`"${next.scheduleName}" skipped`, { description: 'Timed out waiting for manual scan to finish.' })
+            continue
+          }
           await runSchedule(next)
         } catch {
           // Ensure completion is reported even on unexpected errors
