@@ -102,6 +102,52 @@ describe('validateSettingsPartial', () => {
   it('accepts empty object', () => {
     expect(validateSettingsPartial({})).toEqual({})
   })
+
+  it('accepts valid schedules array', () => {
+    const input = {
+      schedules: [{
+        id: 'abc-123',
+        name: 'Weekly Clean',
+        enabled: true,
+        frequency: 'weekly',
+        day: 1,
+        hour: 9,
+        tasks: ['cleaner:system', 'cleaner:browsers'],
+        autoApply: false,
+        lastRunAt: null,
+        lastRunStatus: 'never',
+        createdAt: '2025-01-01T00:00:00Z'
+      }]
+    }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('rejects schedules with invalid task types', () => {
+    expect(validateSettingsPartial({
+      schedules: [{
+        id: 'x', name: 'X', enabled: true, frequency: 'daily', day: 0, hour: 9,
+        tasks: ['badtask'], autoApply: false, lastRunAt: null, lastRunStatus: 'never', createdAt: '2025-01-01T00:00:00Z'
+      }]
+    })).toBeNull()
+  })
+
+  it('rejects non-array schedules', () => {
+    expect(validateSettingsPartial({ schedules: 'not-array' })).toBeNull()
+  })
+
+  it('rejects too many schedules', () => {
+    const schedules = Array.from({ length: 11 }, (_, i) => ({
+      id: `id-${i}`, name: `S${i}`, enabled: true, frequency: 'daily', day: 0, hour: 9,
+      tasks: ['cleaner:system'], autoApply: false, lastRunAt: null, lastRunStatus: 'never', createdAt: '2025-01-01T00:00:00Z'
+    }))
+    expect(validateSettingsPartial({ schedules })).toBeNull()
+  })
+
+  it('rejects schedule entry with missing fields', () => {
+    expect(validateSettingsPartial({
+      schedules: [{ id: 'x', name: 'X' }]
+    })).toBeNull()
+  })
 })
 
 describe('validateHistoryEntry', () => {

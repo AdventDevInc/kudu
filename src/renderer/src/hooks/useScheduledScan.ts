@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { useScanStore } from '@/stores/scan-store'
 import { useHistoryStore } from '@/stores/history-store'
+import { useSettingsStore } from '@/stores/settings-store'
 import { ScanStatus } from '@shared/enums'
 import type { ScanResult } from '@shared/types'
 import { formatBytes, formatNumber } from '@/lib/utils'
@@ -56,6 +57,14 @@ const CLEANER_TASKS: Record<string, {
  */
 async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
   const store = useScanStore.getState()
+
+  // Don't clobber a manual scan/clean already in progress
+  if (store.status === ScanStatus.Scanning || store.status === ScanStatus.Cleaning) {
+    window.kudu.scheduleRunComplete?.(payload.scheduleId, 'failed')
+    toast.warning(`"${payload.scheduleName}" skipped`, { description: 'A scan or cleanup is already in progress.' })
+    return
+  }
+
   const startTime = Date.now()
 
   let status: 'success' | 'partial' | 'failed' = 'success'
@@ -69,8 +78,20 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
     toast.info(`Running "${payload.scheduleName}"`, { description: 'Scheduled task started...' })
     store.setStatus(ScanStatus.Scanning)
     store.setResults([])
-    // ── Cleaner tasks ──
+    // ── Restore point before auto-apply cleaning ──
     const cleanerTasks = payload.tasks.filter((t) => t.startsWith('cleaner:'))
+    if (payload.autoApply && cleanerTasks.length > 0) {
+      const { createRestorePoint } = useSettingsStore.getState().settings.cleaner
+      if (createRestorePoint) {
+        try {
+          await window.kudu.createRestorePoint(`Kudu scheduled clean — ${payload.scheduleName}`)
+        } catch {
+          // Best-effort — don't block the clean
+        }
+      }
+    }
+
+    // ── Cleaner tasks ──
     for (const taskType of cleanerTasks) {
       const task = CLEANER_TASKS[taskType]
       if (!task) continue

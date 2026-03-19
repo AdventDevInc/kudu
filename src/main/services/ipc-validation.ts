@@ -14,7 +14,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   const allowedTopKeys = new Set([
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
-    'cleaner', 'exclusions', 'schedule', 'cloud'
+    'cleaner', 'exclusions', 'schedule', 'schedules', 'cloud'
   ])
 
   for (const key of Object.keys(obj)) {
@@ -55,6 +55,34 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if ('hour' in s && (typeof s.hour !== 'number' || s.hour < 0 || s.hour > 23)) return null
     if ('day' in s && (typeof s.day !== 'number' || s.day < 0 || s.day > 6)) return null
     if ('frequency' in s && !['daily', 'weekly', 'monthly'].includes(s.frequency as string)) return null
+  }
+
+  // Validate schedules array if present
+  if ('schedules' in obj && obj.schedules !== undefined) {
+    if (!Array.isArray(obj.schedules)) return null
+    if (obj.schedules.length > 10) return null
+    const validTaskTypes = new Set([
+      'cleaner:system', 'cleaner:browsers', 'cleaner:apps', 'cleaner:gaming',
+      'cleaner:recycleBin', 'cleaner:databases', 'registry', 'drivers', 'software-update'
+    ])
+    const validFrequencies = new Set(['daily', 'weekly', 'monthly'])
+    const validStatuses = new Set(['success', 'partial', 'failed', 'never'])
+    for (const entry of obj.schedules) {
+      if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return null
+      const e = entry as Record<string, unknown>
+      if (typeof e.id !== 'string' || e.id.length > 100) return null
+      if (typeof e.name !== 'string' || e.name.length > 100) return null
+      if (typeof e.enabled !== 'boolean') return null
+      if (!validFrequencies.has(e.frequency as string)) return null
+      if (typeof e.day !== 'number' || e.day < 0 || e.day > 31) return null
+      if (typeof e.hour !== 'number' || e.hour < 0 || e.hour > 23) return null
+      if (!Array.isArray(e.tasks) || e.tasks.length > 20) return null
+      if (!e.tasks.every((t: unknown) => typeof t === 'string' && validTaskTypes.has(t as string))) return null
+      if (typeof e.autoApply !== 'boolean') return null
+      if (e.lastRunAt !== null && (typeof e.lastRunAt !== 'string' || e.lastRunAt.length > 50)) return null
+      if (!validStatuses.has(e.lastRunStatus as string)) return null
+      if (typeof e.createdAt !== 'string' || e.createdAt.length > 50) return null
+    }
   }
 
   // Validate cleaner has expected shape if present
