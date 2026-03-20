@@ -9,12 +9,6 @@ const MAX_ACCUMULATED = 500
 const SEEN_TTL_MS = 4 * 60 * 60 * 1000 // 4 hours
 const SEEN_MAX_SIZE = 10_000
 
-// Linux default ephemeral port range starts at 32768 (see /proc/sys/net/ipv4/ip_local_port_range).
-// Inbound client connections always originate from ephemeral ports; outbound connections from
-// daemons like DNS resolvers or SMTP relays typically target well-known service ports below this
-// threshold, even when they bind to their own listening port as the source.
-const EPHEMERAL_PORT_START = 32768
-
 // ─── CIDR Matching Helpers ──────────────────────────────────
 
 interface ParsedCidr {
@@ -291,10 +285,12 @@ class ThreatMonitorService {
       for (const conn of connections) {
         if (this.flaggedConnections.length + newFlags.length >= MAX_ACCUMULATED) break
 
-        // On servers, skip likely-inbound connections: local port is a listening port AND
-        // remote port is ephemeral (>= 32768). This avoids suppressing outbound connections
-        // from daemons (DNS, SMTP, SIP) that may bind to their listening port as source.
-        if (listeningPorts && listeningPorts.has(conn.localPort) && conn.remotePort >= EPHEMERAL_PORT_START) continue
+        // On servers, skip inbound connections: the local port matches a port we are
+        // listening on, so this connection was accept()'d from a remote client.
+        // The OS ephemeral port allocator never assigns a port that is already bound
+        // in LISTEN state, so localPort ∈ listeningPorts reliably identifies inbound
+        // traffic without fragile remote-port-range heuristics.
+        if (listeningPorts && listeningPorts.has(conn.localPort)) continue
 
         const dedupKey = `${conn.remoteAddress}:${conn.remotePort}`
         if (this.seenConnections.has(dedupKey)) continue
