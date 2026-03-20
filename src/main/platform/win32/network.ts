@@ -27,8 +27,22 @@ export function createWin32Network(): PlatformNetwork {
           // cols: [TCP, localAddr, foreignAddr, ESTABLISHED, PID]
           if (cols.length < 5) continue
 
+          const local = cols[1]
           const foreign = cols[2]
           const pidStr = cols[4]
+
+          // Parse local port
+          let localPort: number
+          if (local.startsWith('[')) {
+            const closeBracket = local.indexOf(']')
+            if (closeBracket === -1) continue
+            localPort = parseInt(local.slice(closeBracket + 2), 10)
+          } else {
+            const lastColon = local.lastIndexOf(':')
+            if (lastColon === -1) continue
+            localPort = parseInt(local.slice(lastColon + 1), 10)
+          }
+          if (isNaN(localPort)) continue
 
           // Parse foreign address — handle IPv6 bracket notation and plain IPv4
           let remoteAddress: string
@@ -52,10 +66,45 @@ export function createWin32Network(): PlatformNetwork {
           if (LOOPBACK.has(remoteAddress)) continue
 
           const pid = parseInt(pidStr, 10)
-          results.push({ remoteAddress, remotePort, pid: isNaN(pid) ? null : pid })
+          results.push({ remoteAddress, remotePort, localPort, pid: isNaN(pid) ? null : pid })
         }
 
         return results
+      } catch {
+        return []
+      }
+    },
+
+    async getListeningPorts(): Promise<number[]> {
+      try {
+        const { stdout } = await execFileAsync('netstat', [
+          '-ano', '-p', 'tcp',
+        ], { timeout: 15_000, windowsHide: true })
+
+        const ports: number[] = []
+        for (const line of stdout.split('\n')) {
+          const trimmed = line.trim()
+          if (!trimmed.startsWith('TCP')) continue
+          if (!trimmed.includes('LISTENING')) continue
+
+          const cols = trimmed.split(/\s+/)
+          if (cols.length < 4) continue
+
+          const local = cols[1]
+          let port: number
+          if (local.startsWith('[')) {
+            const closeBracket = local.indexOf(']')
+            if (closeBracket === -1) continue
+            port = parseInt(local.slice(closeBracket + 2), 10)
+          } else {
+            const lastColon = local.lastIndexOf(':')
+            if (lastColon === -1) continue
+            port = parseInt(local.slice(lastColon + 1), 10)
+          }
+          if (!isNaN(port) && port > 0) ports.push(port)
+        }
+
+        return ports
       } catch {
         return []
       }

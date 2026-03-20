@@ -34,8 +34,22 @@ export function createDarwinNetwork(): PlatformNetwork {
             const arrowIdx = name.indexOf('->')
             if (arrowIdx === -1) continue
 
+            const local = name.slice(0, arrowIdx)
             const remote = name.slice(arrowIdx + 2)
-            if (!remote) continue
+            if (!remote || !local) continue
+
+            // Parse local port
+            let localPort: number
+            if (local.startsWith('[')) {
+              const closeBracket = local.indexOf(']')
+              if (closeBracket === -1) continue
+              localPort = parseInt(local.slice(closeBracket + 2), 10)
+            } else {
+              const lastColon = local.lastIndexOf(':')
+              if (lastColon === -1) continue
+              localPort = parseInt(local.slice(lastColon + 1), 10)
+            }
+            if (isNaN(localPort)) continue
 
             // Parse remote address:port
             let remoteAddress: string
@@ -58,11 +72,36 @@ export function createDarwinNetwork(): PlatformNetwork {
             if (LOOPBACK.has(remoteAddress)) continue
             if (isNaN(remotePort)) continue
 
-            results.push({ remoteAddress, remotePort, pid: currentPid })
+            results.push({ remoteAddress, remotePort, localPort, pid: currentPid })
           }
         }
 
         return results
+      } catch {
+        return []
+      }
+    },
+
+    async getListeningPorts(): Promise<number[]> {
+      try {
+        // lsof -i -sTCP:LISTEN -F n -n -P lists listening TCP sockets
+        // Output: n*:port or n[::]:port lines
+        const { stdout } = await execFileAsync('/usr/sbin/lsof', [
+          '-i', '-n', '-P', '-sTCP:LISTEN', '-F', 'n',
+        ], { timeout: 15_000 })
+
+        const ports: number[] = []
+        for (const line of stdout.split('\n')) {
+          if (!line.startsWith('n')) continue
+          const name = line.slice(1)
+          // Format: *:port, [::]:port, addr:port, [::1]:port
+          const lastColon = name.lastIndexOf(':')
+          if (lastColon === -1) continue
+          const port = parseInt(name.slice(lastColon + 1), 10)
+          if (!isNaN(port) && port > 0) ports.push(port)
+        }
+
+        return ports
       } catch {
         return []
       }

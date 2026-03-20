@@ -139,6 +139,9 @@ class ThreatMonitorService {
   private seenConnections: Map<string, number> = new Map()
   private seenDomains: Map<string, number> = new Map()
 
+  // When true, only outbound connections are checked (inbound to listening ports are skipped)
+  private isServerMode = false
+
   // Callback fired immediately when new threats are detected
   private onThreatDetected: ThreatCallback | null = null
 
@@ -147,12 +150,17 @@ class ThreatMonitorService {
     this.onThreatDetected = cb
   }
 
-  start(): void {
+  async start(): Promise<void> {
     this.loadAndBuildLookups()
+    this.isServerMode = await getPlatform().security.isServer()
 
     if (!this.blacklist) {
       logInfo('Threat monitor: no blacklist loaded, monitoring will start after blacklist update')
       return
+    }
+
+    if (this.isServerMode) {
+      logInfo('Threat monitor: server mode detected — only outbound connections will be flagged')
     }
 
     this.startTimers()
@@ -169,7 +177,7 @@ class ThreatMonitorService {
     this.lastDnsScanAt = null
   }
 
-  reloadBlacklist(): void {
+  async reloadBlacklist(): Promise<void> {
     const wasRunning = this.connectionTimer !== null
     if (wasRunning) {
       if (this.connectionTimer) { clearInterval(this.connectionTimer); this.connectionTimer = null }
@@ -177,6 +185,7 @@ class ThreatMonitorService {
     }
 
     this.loadAndBuildLookups()
+    this.isServerMode = await getPlatform().security.isServer()
     // Clear dedup sets so new blacklist entries can trigger alerts
     this.seenConnections.clear()
     this.seenDomains.clear()
@@ -246,15 +255,25 @@ class ThreatMonitorService {
     if (this.connectionScanRunning) return
     this.connectionScanRunning = true
     try {
-      const connections = await getPlatform().network.getEstablishedConnections()
+      const platform = getPlatform()
+      const [connections, listeningPortsArr] = await Promise.all([
+        platform.network.getEstablishedConnections(),
+        this.isServerMode ? platform.network.getListeningPorts() : null,
+      ])
       this.lastConnectionScanAt = new Date().toISOString()
       const newFlags: FlaggedConnection[] = []
       const now = Date.now()
+
+      // In server mode, use listening ports to filter out inbound connections
+      const listeningPorts = listeningPortsArr ? new Set(listeningPortsArr) : null
 
       this.evictExpired(this.seenConnections)
 
       for (const conn of connections) {
         if (this.flaggedConnections.length + newFlags.length >= MAX_ACCUMULATED) break
+
+        // On servers, skip inbound connections (local port matches a listening port)
+        if (listeningPorts && listeningPorts.has(conn.localPort)) continue
 
         const dedupKey = `${conn.remoteAddress}:${conn.remotePort}`
         if (this.seenConnections.has(dedupKey)) continue

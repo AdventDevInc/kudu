@@ -292,6 +292,7 @@ export interface PlatformMalwarePaths {
 export interface ActiveConnection {
   remoteAddress: string
   remotePort: number
+  localPort: number
   pid: number | null
 }
 
@@ -308,6 +309,8 @@ export interface WifiProfile {
 export interface PlatformNetwork {
   /** Get established TCP connections with remote address, port, and PID */
   getEstablishedConnections(): Promise<ActiveConnection[]>
+  /** Get TCP ports currently in LISTEN state. Used to distinguish inbound vs outbound connections on servers. */
+  getListeningPorts(): Promise<number[]>
   /** Get DNS cache entries. Returns empty array if not supported on this platform. */
   getDnsCacheEntries(): Promise<DnsCacheEntry[]>
   /** Flush the DNS resolver cache. Returns true on success. */

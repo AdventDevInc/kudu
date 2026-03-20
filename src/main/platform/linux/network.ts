@@ -26,22 +26,32 @@ export function createLinuxNetwork(): PlatformNetwork {
           const cols = line.trim().split(/\s+/)
           // Columns: Netid State Recv-Q Send-Q Local Peer Process
           // When using "state established" filter, State column may be omitted
-          // Find the column with remote address by looking for addr:port pattern
+          // Find addr:port columns — first is local, second is remote
+          let localCol: string | undefined
           let remoteCol: string | undefined
           let processCol: string | undefined
 
           for (let i = 0; i < cols.length; i++) {
-            // Remote address is typically the 5th or 4th column
             if (cols[i]?.includes(':') && !cols[i].startsWith('users:')) {
-              // Keep track — we want the second addr:port (remote)
-              remoteCol = cols[i]
+              // First addr:port is local, second is remote
+              if (!localCol) {
+                localCol = cols[i]
+              } else {
+                remoteCol = cols[i]
+              }
             }
             if (cols[i]?.startsWith('users:')) {
               processCol = cols[i]
             }
           }
 
-          if (!remoteCol) continue
+          if (!remoteCol || !localCol) continue
+
+          // Parse local port
+          const localLastColon = localCol.lastIndexOf(':')
+          if (localLastColon === -1) continue
+          const localPort = parseInt(localCol.slice(localLastColon + 1), 10)
+          if (isNaN(localPort)) continue
 
           // Parse remote address — handle IPv6 bracket notation and plain IPv4
           let remoteAddress: string
@@ -71,10 +81,43 @@ export function createLinuxNetwork(): PlatformNetwork {
             if (pidMatch) pid = parseInt(pidMatch[1], 10)
           }
 
-          results.push({ remoteAddress, remotePort, pid })
+          results.push({ remoteAddress, remotePort, localPort, pid })
         }
 
         return results
+      } catch {
+        return []
+      }
+    },
+
+    async getListeningPorts(): Promise<number[]> {
+      try {
+        // ss -tln lists TCP sockets in LISTEN state with numeric ports
+        const { stdout } = await execFileAsync('/usr/bin/ss', [
+          '-tln',
+        ], { timeout: 10_000 })
+
+        const ports: number[] = []
+        for (const line of stdout.split('\n')) {
+          const trimmed = line.trim()
+          if (trimmed.startsWith('State') || !trimmed) continue
+
+          const cols = trimmed.split(/\s+/)
+          // Columns: State Recv-Q Send-Q Local Address:Port Peer Address:Port
+          // Find the first addr:port column (local)
+          for (const col of cols) {
+            if (!col.includes(':')) continue
+            const lastColon = col.lastIndexOf(':')
+            if (lastColon === -1) continue
+            const port = parseInt(col.slice(lastColon + 1), 10)
+            if (!isNaN(port) && port > 0) {
+              ports.push(port)
+            }
+            break
+          }
+        }
+
+        return ports
       } catch {
         return []
       }
