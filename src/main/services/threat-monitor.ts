@@ -9,6 +9,12 @@ const MAX_ACCUMULATED = 500
 const SEEN_TTL_MS = 4 * 60 * 60 * 1000 // 4 hours
 const SEEN_MAX_SIZE = 10_000
 
+// Linux default ephemeral port range starts at 32768 (see /proc/sys/net/ipv4/ip_local_port_range).
+// Inbound client connections always originate from ephemeral ports; outbound connections from
+// daemons like DNS resolvers or SMTP relays typically target well-known service ports below this
+// threshold, even when they bind to their own listening port as the source.
+const EPHEMERAL_PORT_START = 32768
+
 // ─── CIDR Matching Helpers ──────────────────────────────────
 
 interface ParsedCidr {
@@ -142,6 +148,10 @@ class ThreatMonitorService {
   // When true, only outbound connections are checked (inbound to listening ports are skipped)
   private isServerMode = false
 
+  // Guards against start()/reloadBlacklist() resurrecting timers after stop() is called
+  // while the async isServer() call is in flight
+  private stopped = true
+
   // Callback fired immediately when new threats are detected
   private onThreatDetected: ThreatCallback | null = null
 
@@ -151,8 +161,12 @@ class ThreatMonitorService {
   }
 
   async start(): Promise<void> {
+    this.stopped = false
     this.loadAndBuildLookups()
     this.isServerMode = await getPlatform().security.isServer()
+
+    // stop() was called while isServer() was in flight — don't resurrect timers
+    if (this.stopped) return
 
     if (!this.blacklist) {
       logInfo('Threat monitor: no blacklist loaded, monitoring will start after blacklist update')
@@ -167,6 +181,7 @@ class ThreatMonitorService {
   }
 
   stop(): void {
+    this.stopped = true
     if (this.connectionTimer) { clearInterval(this.connectionTimer); this.connectionTimer = null }
     if (this.dnsTimer) { clearInterval(this.dnsTimer); this.dnsTimer = null }
     this.flaggedConnections = []
@@ -186,6 +201,10 @@ class ThreatMonitorService {
 
     this.loadAndBuildLookups()
     this.isServerMode = await getPlatform().security.isServer()
+
+    // stop() was called while isServer() was in flight — don't resurrect timers
+    if (this.stopped) return
+
     // Clear dedup sets so new blacklist entries can trigger alerts
     this.seenConnections.clear()
     this.seenDomains.clear()
@@ -272,8 +291,10 @@ class ThreatMonitorService {
       for (const conn of connections) {
         if (this.flaggedConnections.length + newFlags.length >= MAX_ACCUMULATED) break
 
-        // On servers, skip inbound connections (local port matches a listening port)
-        if (listeningPorts && listeningPorts.has(conn.localPort)) continue
+        // On servers, skip likely-inbound connections: local port is a listening port AND
+        // remote port is ephemeral (>= 32768). This avoids suppressing outbound connections
+        // from daemons (DNS, SMTP, SIP) that may bind to their listening port as source.
+        if (listeningPorts && listeningPorts.has(conn.localPort) && conn.remotePort >= EPHEMERAL_PORT_START) continue
 
         const dedupKey = `${conn.remoteAddress}:${conn.remotePort}`
         if (this.seenConnections.has(dedupKey)) continue
