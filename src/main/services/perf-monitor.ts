@@ -1,5 +1,6 @@
 import * as si from 'systeminformation'
-import { execFile } from 'child_process'
+import { execFile, spawn } from 'child_process'
+import type { ChildProcess } from 'child_process'
 import { promisify } from 'util'
 import { IPC } from '../../shared/channels'
 import type {
@@ -23,6 +24,16 @@ export class PerfMonitorService {
   // Guards to prevent overlapping async calls from piling up if si hangs
   private snapshotRunning = false
   private processesRunning = false
+
+  // Windows CPU utility monitoring via typeperf
+  // Uses '% Processor Utility' counter which matches Task Manager's frequency-aware
+  // measurement, unlike systeminformation's time-based '% Processor Time'.
+  private typeperfProcess: ChildProcess | null = null
+  private typeperfFailed = false
+  private typeperfBuffer = ''
+  private typeperfTotalIdx = -1
+  private typeperfCoreIndices: number[] = []
+  private latestCpuUtility: { overall: number; perCore: number[] } | null = null
 
   async getSystemInfo(): Promise<PerfSystemInfo> {
     if (this.cachedSystemInfo) return this.cachedSystemInfo
@@ -69,6 +80,9 @@ export class PerfMonitorService {
       }
     }
 
+    // Start Windows-specific CPU utility monitor (matches Task Manager)
+    this.startCpuUtilityMonitor()
+
     // Fast interval: system metrics every 1s
     this.fastTimer = setInterval(() => this.collectSnapshot(), 1000)
     // Collect immediately
@@ -88,6 +102,7 @@ export class PerfMonitorService {
       clearInterval(this.slowTimer)
       this.slowTimer = null
     }
+    this.stopCpuUtilityMonitor()
     this.sender = null
   }
 
@@ -204,6 +219,126 @@ export class PerfMonitorService {
     return map
   }
 
+  /**
+   * Spawn a persistent typeperf process on Windows to read the '% Processor Utility'
+   * counter. This counter accounts for CPU frequency scaling (turbo boost) and matches
+   * what Windows Task Manager displays. Falls back to si.currentLoad() if the counter
+   * is unavailable (e.g. non-English locale or older Windows).
+   */
+  private startCpuUtilityMonitor(): void {
+    if (process.platform !== 'win32') return
+
+    // Reset state from any previous run so a stale exit handler can't interfere
+    this.typeperfFailed = false
+    this.typeperfBuffer = ''
+    this.typeperfTotalIdx = -1
+    this.typeperfCoreIndices = []
+    this.latestCpuUtility = null
+
+    try {
+      const proc = spawn(
+        'typeperf',
+        ['\\Processor Information(*)\\% Processor Utility', '-si', '1'],
+        { stdio: ['ignore', 'pipe', 'ignore'], windowsHide: true }
+      )
+
+      this.typeperfProcess = proc
+
+      proc.stdout!.on('data', (chunk: Buffer) => {
+        this.typeperfBuffer += chunk.toString()
+        const lines = this.typeperfBuffer.split('\n')
+        // Keep the last (potentially incomplete) line in the buffer
+        this.typeperfBuffer = lines.pop() || ''
+
+        for (const rawLine of lines) {
+          const line = rawLine.trim()
+          if (!line) continue
+
+          if (this.typeperfTotalIdx === -1 && line.startsWith('"(PDH-CSV')) {
+            // Header row — identify _Total and per-core column indices
+            const cols = this.parseTypeperfCSV(line)
+            for (let i = 1; i < cols.length; i++) {
+              if (cols[i].includes('_Total')) {
+                this.typeperfTotalIdx = i
+              } else if (/\(\d+,\d+\)/.test(cols[i])) {
+                // Per-logical-processor columns look like (0,0), (0,1), etc.
+                this.typeperfCoreIndices.push(i)
+              }
+            }
+          } else if (this.typeperfTotalIdx > 0 && line.startsWith('"')) {
+            // Data row
+            const values = this.parseTypeperfCSV(line)
+            if (values.length > this.typeperfTotalIdx) {
+              const overall = parseFloat(values[this.typeperfTotalIdx])
+              const perCore: number[] = []
+              for (const idx of this.typeperfCoreIndices) {
+                if (idx < values.length) {
+                  const val = parseFloat(values[idx])
+                  if (!isNaN(val)) perCore.push(Math.max(0, Math.min(100, val)))
+                }
+              }
+              if (!isNaN(overall)) {
+                this.latestCpuUtility = {
+                  overall: Math.max(0, Math.min(100, overall)),
+                  perCore
+                }
+              }
+            }
+          }
+        }
+      })
+
+      // Scope handlers to this specific process instance so that a stale
+      // exit/error from a previous run cannot poison a newly spawned one.
+      proc.on('error', () => {
+        if (this.typeperfProcess === proc) {
+          this.typeperfFailed = true
+        }
+      })
+
+      proc.on('exit', () => {
+        if (this.typeperfProcess === proc) {
+          // Always fall back — even if we had data before, it is now stale
+          this.typeperfFailed = true
+          this.typeperfProcess = null
+        }
+      })
+    } catch {
+      this.typeperfFailed = true
+    }
+  }
+
+  private stopCpuUtilityMonitor(): void {
+    if (this.typeperfProcess) {
+      this.typeperfProcess.kill()
+      this.typeperfProcess = null
+    }
+    this.latestCpuUtility = null
+    this.typeperfFailed = false
+    this.typeperfBuffer = ''
+    this.typeperfTotalIdx = -1
+    this.typeperfCoreIndices = []
+  }
+
+  /** Parse a CSV line from typeperf (double-quote delimited fields). */
+  private parseTypeperfCSV(line: string): string[] {
+    const result: string[] = []
+    let current = ''
+    let inQuotes = false
+    for (const ch of line) {
+      if (ch === '"') {
+        inQuotes = !inQuotes
+      } else if (ch === ',' && !inQuotes) {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += ch
+      }
+    }
+    result.push(current.trim())
+    return result
+  }
+
   private async collectSnapshot(): Promise<void> {
     if (!this.sender || this.sender.isDestroyed()) {
       this.stopMonitoring()
@@ -213,19 +348,24 @@ export class PerfMonitorService {
     this.snapshotRunning = true
 
     try {
+      // On Windows, prefer the utility counter from typeperf (matches Task Manager).
+      // Skip the si.currentLoad() call entirely when utility data is available.
+      const hasUtility = process.platform === 'win32' && !this.typeperfFailed && this.latestCpuUtility
+
       const [load, mem, disk, net] = await Promise.all([
-        si.currentLoad(),
+        hasUtility ? Promise.resolve(null) : si.currentLoad(),
         si.mem(),
         si.disksIO(),
         si.networkStats()
       ])
 
+      const cpuData = hasUtility
+        ? this.latestCpuUtility!
+        : { overall: load!.currentLoad, perCore: load!.cpus.map((c) => c.load) }
+
       const snapshot: PerfSnapshot = {
         timestamp: Date.now(),
-        cpu: {
-          overall: load.currentLoad,
-          perCore: load.cpus.map((c) => c.load)
-        },
+        cpu: cpuData,
         memory: {
           usedBytes: mem.active,
           totalBytes: mem.total,
