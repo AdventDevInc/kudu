@@ -1,4 +1,5 @@
 import * as si from 'systeminformation'
+import * as os from 'os'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { IPC } from '../../shared/channels'
@@ -23,6 +24,10 @@ export class PerfMonitorService {
   // Guards to prevent overlapping async calls from piling up if si hangs
   private snapshotRunning = false
   private processesRunning = false
+  // Cache expensive si.networkStats() — poll every 5s, reuse in between
+  private cachedNetworkStats = { rxBytesPerSec: 0, txBytesPerSec: 0 }
+  private lastNetworkPoll = 0
+  private readonly NETWORK_POLL_INTERVAL_MS = 5000
 
   async getSystemInfo(): Promise<PerfSystemInfo> {
     if (this.cachedSystemInfo) return this.cachedSystemInfo
@@ -213,12 +218,28 @@ export class PerfMonitorService {
     this.snapshotRunning = true
 
     try {
-      const [load, mem, disk, net] = await Promise.all([
+      // Only poll si.networkStats() every 5s — it costs ~320ms per call.
+      const now = Date.now()
+      const needsNetworkPoll = now - this.lastNetworkPoll >= this.NETWORK_POLL_INTERVAL_MS
+
+      const [load, disk, net] = await Promise.all([
         si.currentLoad(),
-        si.mem(),
         si.disksIO(),
-        si.networkStats()
+        needsNetworkPoll ? si.networkStats() : Promise.resolve(null)
       ])
+
+      if (net) {
+        this.cachedNetworkStats = {
+          rxBytesPerSec: net.reduce((sum, n) => sum + n.rx_sec, 0),
+          txBytesPerSec: net.reduce((sum, n) => sum + n.tx_sec, 0)
+        }
+        this.lastNetworkPoll = now
+      }
+
+      // Use os.totalmem()/os.freemem() instead of si.mem() — saves ~290ms per tick.
+      // os.freemem() on Windows returns "available" memory (same basis as Task Manager).
+      const totalMem = os.totalmem()
+      const usedMem = totalMem - os.freemem()
 
       const snapshot: PerfSnapshot = {
         timestamp: Date.now(),
@@ -227,19 +248,16 @@ export class PerfMonitorService {
           perCore: load.cpus.map((c) => c.load)
         },
         memory: {
-          usedBytes: mem.active,
-          totalBytes: mem.total,
-          cachedBytes: mem.cached,
-          percent: (mem.active / mem.total) * 100
+          usedBytes: usedMem,
+          totalBytes: totalMem,
+          cachedBytes: 0,
+          percent: (usedMem / totalMem) * 100
         },
         disk: {
           readBytesPerSec: disk?.rIO_sec ?? 0,
           writeBytesPerSec: disk?.wIO_sec ?? 0
         },
-        network: {
-          rxBytesPerSec: net.reduce((sum, n) => sum + n.rx_sec, 0),
-          txBytesPerSec: net.reduce((sum, n) => sum + n.tx_sec, 0)
-        },
+        network: this.cachedNetworkStats,
         uptime: si.time().uptime
       }
 
