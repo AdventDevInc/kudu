@@ -157,21 +157,25 @@ class ThreatMonitorService {
   async start(): Promise<void> {
     this.stopped = false
     this.loadAndBuildLookups()
-    this.isServerMode = await getPlatform().security.isServer()
-
-    // stop() was called while isServer() was in flight — don't resurrect timers
-    if (this.stopped) return
 
     if (!this.blacklist) {
       logInfo('Threat monitor: no blacklist loaded, monitoring will start after blacklist update')
       return
     }
 
+    // Start scanning immediately with current isServerMode (defaults to false, i.e.
+    // flag everything). This avoids a multi-second blind window while isServer()
+    // shells out to systemctl/loginctl on Linux.
+    this.startTimers()
+
+    // Detect server mode in the background; subsequent scans pick up the updated value.
+    // Until this resolves, scans flag all connections — the safe direction (no missed threats).
+    const serverMode = await getPlatform().security.isServer()
+    if (this.stopped) return
+    this.isServerMode = serverMode
     if (this.isServerMode) {
       logInfo('Threat monitor: server mode detected — only outbound connections will be flagged')
     }
-
-    this.startTimers()
   }
 
   stop(): void {
@@ -194,11 +198,6 @@ class ThreatMonitorService {
     }
 
     this.loadAndBuildLookups()
-    this.isServerMode = await getPlatform().security.isServer()
-
-    // stop() was called while isServer() was in flight — don't resurrect timers
-    if (this.stopped) return
-
     // Clear dedup sets so new blacklist entries can trigger alerts
     this.seenConnections.clear()
     this.seenDomains.clear()
@@ -208,8 +207,15 @@ class ThreatMonitorService {
 
     if (this.blacklist) {
       logInfo(`Threat monitor: blacklist reloaded v${this.blacklist.version} (${this.blacklist.domains.length} domains, ${this.blacklist.ips.length} IPs, ${this.blacklist.cidrs.length} CIDRs)`)
+      // Restart scanning immediately with the previous isServerMode value.
+      // This avoids a blind window while isServer() re-probes.
       this.startTimers()
     }
+
+    // Refresh server mode in the background; subsequent scans pick up the updated value
+    const serverMode = await getPlatform().security.isServer()
+    if (this.stopped) return
+    this.isServerMode = serverMode
   }
 
   getThreatSnapshot(): ThreatSnapshot | null {
