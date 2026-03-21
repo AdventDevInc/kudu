@@ -9,6 +9,7 @@ interface SettingsState {
 }
 
 const defaultSettings: KuduSettings = {
+  language: 'en',
   minimizeToTray: false,
   showNotificationOnComplete: true,
   showThreatNotifications: true,

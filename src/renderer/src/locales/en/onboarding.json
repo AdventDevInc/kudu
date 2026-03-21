@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Welcome to Kudu",
+  "welcomeDescription": "Your all-in-one Windows system cleaner. Kudu removes junk files, fixes registry issues, manages startup programs, and keeps your PC running fast.",
+  "featureSmartCleaning": "Smart Cleaning",
+  "featureFasterBoot": "Faster Boot",
+  "featureSafeSecure": "Safe & Secure",
+  "getStarted": "Get Started",
+  "recommendedSetupTitle": "Recommended Setup",
+  "recommendedSetupDescription": "We recommend these settings for the best experience. You can change them later in Settings.",
+  "runAtStartupLabel": "Run at startup",
+  "runAtStartupDescription": "Launch Kudu when Windows starts so your PC stays clean automatically",
+  "minimizeToTrayLabel": "Minimize to tray",
+  "minimizeToTrayDescription": "Keep Kudu running quietly in the background",
+  "weeklyAutoCleanLabel": "Weekly automatic clean",
+  "weeklyAutoCleanDescription": "Scan and clean junk files every Monday at 9:00 AM",
+  "back": "Back",
+  "continue": "Continue",
+  "allSetTitle": "You're All Set!",
+  "allSetDescription": "Kudu will keep your PC running smoothly in the background.",
+  "firstScanScheduled": "Your first automatic scan is scheduled for Monday at 9:00 AM.",
+  "startCleaning": "Start Cleaning"
+}

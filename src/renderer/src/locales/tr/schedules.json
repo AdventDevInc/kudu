@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Zamanlamalar",
+  "pageDescription": "Taramaları, temizlemeleri ve güncellemeleri bir zamanlamaya göre otomatikleştirin",
+  "newScheduleButton": "Yeni Zamanlama",
+  "createScheduleButton": "Zamanlama Oluştur",
+  "emptyStateTitle": "Henüz zamanlama yok",
+  "emptyStateDescription": "Taramaları, temizlemeleri ve güncellemeleri otomatik olarak çalıştırmak için bir zamanlama oluşturun.",
+  "maxSchedulesReached": "En fazla {{max}} zamanlamaya ulaşıldı.",
+  "duplicatedToast": "\"{{name}}\" çoğaltıldı",
+  "deletedToast": "\"{{name}}\" silindi",
+  "updatedToast": "\"{{name}}\" güncellendi",
+  "createdToast": "\"{{name}}\" oluşturuldu",
+  "failedEnableStartup": "Başlangıç etkinleştirilemedi. Zamanlamalar yeniden başlatmadan sonra çalışmayabilir.",
+  "deleteConfirmTitle": "Zamanlamayı sil",
+  "deleteConfirmDescription": "Bu zamanlama kalıcı olarak kaldırılacaktır. Bu işlem geri alınamaz.",
+  "deleteConfirmLabel": "Sil",
+  "card": {
+    "autoApplyBadge": "Otomatik uygula",
+    "editAction": "Düzenle",
+    "duplicateAction": "Çoğalt",
+    "deleteAction": "Sil",
+    "noTasksSelected": "Görev seçilmedi",
+    "nextRun": "Sonraki: {{time}}",
+    "lastRun": "Son: {{time}}",
+    "neverRun": "Hiç çalıştırılmadı"
+  },
+  "presets": {
+    "dialogTitle": "Bir şablon seçin",
+    "weeklyFullCleanLabel": "Haftalık Tam Temizlik",
+    "weeklyFullCleanDescription": "Her Pazartesi saat 09:00'da tüm temizleyici kategorileri",
+    "dailyLightSweepLabel": "Günlük Hafif Temizlik",
+    "dailyLightSweepDescription": "Sistem, tarayıcılar ve geri dönüşüm kutusu her gün saat 08:00'de",
+    "monthlyDeepMaintenanceLabel": "Aylık Derin Bakım",
+    "monthlyDeepMaintenanceDescription": "Her ayın 1'inde saat 10:00'da tam temizlik + kayıt defteri, sürücüler ve yazılımlar",
+    "customLabel": "Özel",
+    "customDescription": "Boş bir zamanlamayla sıfırdan başlayın"
+  },
+  "dialog": {
+    "editTitle": "Zamanlamayı Düzenle",
+    "newTitle": "Yeni Zamanlama",
+    "nameLabel": "Ad",
+    "namePlaceholder": "örn. Haftalık Derin Temizlik",
+    "frequencyLabel": "Sıklık",
+    "frequencyDaily": "Günlük",
+    "frequencyWeekly": "Haftalık",
+    "frequencyMonthly": "Aylık",
+    "dayLabel": "Gün",
+    "timeLabel": "Saat",
+    "tasksLabel": "Görevler",
+    "selectAll": "Tümünü seç",
+    "deselectAll": "Tüm seçimleri kaldır",
+    "cleanerGroup": "Temizleyici",
+    "maintenanceGroup": "Bakım",
+    "autoApplyLabel": "Otomatik uygula",
+    "autoApplyDescription": "Dosyaları otomatik olarak temizleyin, kayıt defteri sorunlarını düzeltin ve güncellemeleri onay istemeden yükleyin.",
+    "autoApplyWarning": "İşlemler zamanlamaya göre otomatik olarak çalıştırılacaktır. Hariç tutma listenizin güncel olduğundan emin olun.",
+    "cancelButton": "İptal",
+    "saveChangesButton": "Değişiklikleri Kaydet",
+    "createScheduleButton": "Zamanlama Oluştur"
+  },
+  "tasks": {
+    "system": "Sistem",
+    "browsers": "Tarayıcılar",
+    "applications": "Uygulamalar",
+    "gaming": "Oyun",
+    "recycleBin": "Geri Dönüşüm Kutusu",
+    "databases": "Veritabanları",
+    "registryFixes": "Kayıt Defteri Düzeltmeleri",
+    "driverUpdates": "Sürücü Güncellemeleri",
+    "softwareUpdates": "Yazılım Güncellemeleri"
+  },
+  "dayNames": {
+    "sunday": "Pazar",
+    "monday": "Pazartesi",
+    "tuesday": "Salı",
+    "wednesday": "Çarşamba",
+    "thursday": "Perşembe",
+    "friday": "Cuma",
+    "saturday": "Cumartesi"
+  },
+  "frequency": {
+    "everyDayAt": "Her gün saat {{time}}",
+    "everyWeekdayAt": "Her {{day}} saat {{time}}",
+    "monthlyAt": "Her ayın {{ordinalDay}} günü saat {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Bugün saat {{time}}",
+    "tomorrowAt": "Yarın saat {{time}}",
+    "inDaysAt": "{{count}} gün sonra saat {{time}}",
+    "dateAt": "{{date}} saat {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Az önce",
+    "minutesAgo": "{{count}} dk önce",
+    "hoursAgo": "{{count}} sa önce",
+    "daysAgo": "{{count}} g önce"
+  },
+  "copyNameSuffix": "(kopya)"
+}

@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Открыть Kudu",
+  "quit": "Выход",
+  "scheduledTaskNotificationTitle": "Kudu — Запланированная задача",
+  "scheduledTaskNotificationBody": "Выполняется \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu — Сканирование завершено",
+  "scanCompleteNotificationBody": "Найдено {{itemCount}} элементов ({{sizeMB}} МБ), которые можно очистить.",
+  "scheduledScanName": "Запланированное сканирование"
+}

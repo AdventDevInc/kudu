@@ -1,0 +1,18 @@
+{
+  "scanning": "Memindai...",
+  "cleaning": "Membersihkan...",
+  "foundLabel": "Ditemukan:",
+  "itemsUnit": "item",
+  "sizeLabel": "Ukuran:",
+  "health": "Kesehatan",
+  "cancel": "Batal",
+  "confirm": "Konfirmasi",
+  "adminBannerMessage": "Beberapa fitur memerlukan hak administrator.",
+  "relaunchAsAdmin": "Luncurkan ulang sebagai Admin",
+  "justNow": "Baru saja",
+  "minutesAgo": "{{minutes}}m yang lalu",
+  "hoursAgo": "{{hours}}j yang lalu",
+  "daysAgo": "{{days}}h yang lalu",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

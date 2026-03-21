@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Cpu, MemoryStick, Monitor, Clock } from 'lucide-react'
 import { formatBytes } from '@/lib/utils'
 import type { PerfSystemInfo } from '@shared/types'
@@ -17,13 +18,14 @@ function formatUptime(seconds: number): string {
 }
 
 export function SystemInfoHeader({ info, uptime }: SystemInfoHeaderProps) {
+  const { t } = useTranslation('performance')
   if (!info) return null
 
   const items = [
-    { icon: Cpu, label: 'CPU', value: `${info.cpuModel}`, sub: `${info.cpuCores}C / ${info.cpuThreads}T` },
-    { icon: MemoryStick, label: 'Memory', value: formatBytes(info.totalMemBytes, 1), sub: '' },
-    { icon: Monitor, label: 'OS', value: info.osVersion, sub: '' },
-    { icon: Clock, label: 'Uptime', value: formatUptime(uptime), sub: '' }
+    { icon: Cpu, label: t('systemInfoCpu'), value: `${info.cpuModel}`, sub: `${info.cpuCores}C / ${info.cpuThreads}T` },
+    { icon: MemoryStick, label: t('systemInfoMemory'), value: formatBytes(info.totalMemBytes, 1), sub: '' },
+    { icon: Monitor, label: t('systemInfoOs'), value: info.osVersion, sub: '' },
+    { icon: Clock, label: t('systemInfoUptime'), value: formatUptime(uptime), sub: '' }
   ]
 
   return (

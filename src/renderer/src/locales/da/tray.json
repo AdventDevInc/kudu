@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Åbn Kudu",
+  "quit": "Afslut",
+  "scheduledTaskNotificationTitle": "Kudu - Planlagt opgave",
+  "scheduledTaskNotificationBody": "Kører \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Scanning fuldført",
+  "scanCompleteNotificationBody": "Fandt {{itemCount}} elementer ({{sizeMB}} MB), der kan ryddes op.",
+  "scheduledScanName": "Planlagt scanning"
+}

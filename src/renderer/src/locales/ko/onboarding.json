@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Kudu에 오신 것을 환영합니다",
+  "welcomeDescription": "올인원 Windows 시스템 정리 도구입니다. Kudu는 정크 파일을 제거하고, 레지스트리 문제를 수정하며, 시작 프로그램을 관리하여 PC를 빠르게 유지합니다.",
+  "featureSmartCleaning": "스마트 정리",
+  "featureFasterBoot": "더 빠른 부팅",
+  "featureSafeSecure": "안전 및 보안",
+  "getStarted": "시작하기",
+  "recommendedSetupTitle": "권장 설정",
+  "recommendedSetupDescription": "최상의 사용 환경을 위해 다음 설정을 권장합니다. 나중에 설정에서 변경할 수 있습니다.",
+  "runAtStartupLabel": "시작 시 실행",
+  "runAtStartupDescription": "Windows가 시작될 때 Kudu를 실행하여 PC를 자동으로 깨끗하게 유지합니다",
+  "minimizeToTrayLabel": "트레이로 최소화",
+  "minimizeToTrayDescription": "Kudu를 백그라운드에서 조용히 실행 상태로 유지합니다",
+  "weeklyAutoCleanLabel": "주간 자동 정리",
+  "weeklyAutoCleanDescription": "매주 월요일 오전 9:00에 정크 파일을 검사하고 정리합니다",
+  "back": "뒤로",
+  "continue": "계속",
+  "allSetTitle": "모든 설정이 완료되었습니다!",
+  "allSetDescription": "Kudu가 백그라운드에서 PC를 원활하게 실행되도록 유지합니다.",
+  "firstScanScheduled": "첫 번째 자동 검사는 월요일 오전 9:00에 예약되었습니다.",
+  "startCleaning": "정리 시작"
+}

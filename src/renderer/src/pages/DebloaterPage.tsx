@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PackageMinus, Search, Trash2, Shield, CheckCircle2, Package, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -13,16 +14,17 @@ import type { BloatwareApp } from '@shared/types'
 
 type FilterType = 'all' | BloatwareApp['category']
 
-const categoryColors: Record<BloatwareApp['category'], { bg: string; text: string; label: string }> = {
-  microsoft: { bg: 'rgba(59,130,246,0.1)', text: '#3b82f6', label: 'Microsoft' },
-  oem: { bg: 'rgba(239,68,68,0.1)', text: '#ef4444', label: 'OEM' },
-  gaming: { bg: 'rgba(168,85,247,0.1)', text: '#a855f7', label: 'Gaming' },
-  media: { bg: 'rgba(236,72,153,0.1)', text: '#ec4899', label: 'Media' },
-  communication: { bg: 'rgba(20,184,166,0.1)', text: '#14b8a6', label: 'Communication' },
-  utility: { bg: 'rgba(245,158,11,0.1)', text: '#f59e0b', label: 'Utility' }
+const categoryColors: Record<BloatwareApp['category'], { bg: string; text: string; labelKey: string }> = {
+  microsoft: { bg: 'rgba(59,130,246,0.1)', text: '#3b82f6', labelKey: 'debloater.categoryMicrosoft' },
+  oem: { bg: 'rgba(239,68,68,0.1)', text: '#ef4444', labelKey: 'debloater.categoryOem' },
+  gaming: { bg: 'rgba(168,85,247,0.1)', text: '#a855f7', labelKey: 'debloater.categoryGaming' },
+  media: { bg: 'rgba(236,72,153,0.1)', text: '#ec4899', labelKey: 'debloater.categoryMedia' },
+  communication: { bg: 'rgba(20,184,166,0.1)', text: '#14b8a6', labelKey: 'debloater.categoryCommunication' },
+  utility: { bg: 'rgba(245,158,11,0.1)', text: '#f59e0b', labelKey: 'debloater.categoryUtility' }
 }
 
 export function DebloaterPage({ embedded }: { embedded?: boolean }) {
+  const { t } = useTranslation('hardening')
   const apps = useDebloaterStore((s) => s.apps)
   const scanning = useDebloaterStore((s) => s.scanning)
   const filter = useDebloaterStore((s) => s.filter)
@@ -55,11 +57,11 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       store.getState().setHasScanned(true)
     } catch (err) {
       console.error('Debloater scan failed:', err)
-      toast.error('Bloatware scan failed', { description: 'Make sure PowerShell is available' })
-      store.getState().setError('Failed to scan for bloatware. Make sure PowerShell is available.')
+      toast.error(t('debloater.scanFailedToast'), { description: t('debloater.scanFailedDescription') })
+      store.getState().setError(t('debloater.scanFailedError'))
     }
     store.getState().setScanning(false)
-  }, [])
+  }, [t])
 
   // Auto-scan on first visit
   useEffect(() => {
@@ -83,7 +85,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       // Build category breakdown by app category
       const byCategory: Record<string, { found: number; removed: number }> = {}
       for (const a of selectedApps) {
-        const label = categoryColors[a.category]?.label || a.category
+        const label = t(categoryColors[a.category]?.labelKey) || a.category
         if (!byCategory[label]) byCategory[label] = { found: 0, removed: 0 }
         byCategory[label].found++
       }
@@ -114,25 +116,25 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       }
     } catch (err) {
       console.error('Debloater remove failed:', err)
-      toast.error('Failed to remove apps', { description: 'Administrator privileges may be required' })
-      store.getState().setError('Failed to remove some apps. Administrator privileges may be required.')
+      toast.error(t('debloater.removeFailedToast'), { description: t('debloater.removeFailedDescription') })
+      store.getState().setError(t('debloater.removeFailedError'))
     } finally {
       store.getState().setRemoving(false)
       store.getState().setRemoveProgress(null)
     }
-  }, [])
+  }, [t])
 
   const filtered = filter === 'all' ? apps : apps.filter((a) => a.category === filter)
   const selectedCount = apps.filter((a) => a.selected).length
 
-  const filters: { label: string; value: FilterType }[] = [
-    { label: 'All', value: 'all' },
-    { label: 'Microsoft', value: 'microsoft' },
-    { label: 'OEM', value: 'oem' },
-    { label: 'Gaming', value: 'gaming' },
-    { label: 'Media', value: 'media' },
-    { label: 'Communication', value: 'communication' },
-    { label: 'Utility', value: 'utility' }
+  const filters: { labelKey: string; value: FilterType }[] = [
+    { labelKey: 'debloater.filterAll', value: 'all' },
+    { labelKey: 'debloater.filterMicrosoft', value: 'microsoft' },
+    { labelKey: 'debloater.filterOem', value: 'oem' },
+    { labelKey: 'debloater.filterGaming', value: 'gaming' },
+    { labelKey: 'debloater.filterMedia', value: 'media' },
+    { labelKey: 'debloater.filterCommunication', value: 'communication' },
+    { labelKey: 'debloater.filterUtility', value: 'utility' }
   ]
 
   const headerAction = (
@@ -140,13 +142,13 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       <button onClick={handleScan} disabled={scanning || removing}
         className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}>
-        <Search className="h-4 w-4" strokeWidth={1.8} /> Scan
+        <Search className="h-4 w-4" strokeWidth={1.8} /> {t('debloater.scanButton')}
       </button>
       <button onClick={() => setShowConfirm(true)} disabled={selectedCount === 0 || scanning || removing}
         className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
         style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#fff' }}>
         {removing ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} /> : <Trash2 className="h-4 w-4" strokeWidth={2} />}
-        {removing ? 'Removing...' : `Remove (${selectedCount})`}
+        {removing ? t('debloater.removingButton') : t('debloater.removeButton', { count: selectedCount })}
       </button>
     </div>
   )
@@ -155,8 +157,8 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
     <div className={embedded ? '' : 'animate-fade-in'}>
       {!embedded && (
         <PageHeader
-          title="Debloater"
-          description="Remove pre-installed Windows apps and OEM bloatware"
+          title={t('debloater.pageTitle')}
+          description={t('debloater.pageDescription')}
           action={headerAction}
         />
       )}
@@ -171,13 +173,13 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
         style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.08)' }}>
         <Shield className="h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} />
         <p className="text-[12px]" style={{ color: '#8e8e96' }}>
-          <span className="font-semibold text-red-500">Irreversible</span> — Removed apps can only be reinstalled from the Microsoft Store. Review selections carefully.
+          {t('debloater.irreversibleWarning')}
         </p>
       </div>
 
       {error && <ErrorAlert message={error} onDismiss={() => store.getState().setError(null)} className="mb-5" />}
 
-      {scanning && <ScanProgress status="scanning" progress={0} currentPath="Scanning installed packages..." className="mb-5" />}
+      {scanning && <ScanProgress status="scanning" progress={0} currentPath={t('debloater.scanningPackages')} className="mb-5" />}
 
       {removing && removeProgress && (
         <div className="mb-5 rounded-2xl p-4"
@@ -186,7 +188,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
             <div className="flex items-center gap-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-red-400" strokeWidth={2} />
               <span className="text-[13px] font-medium text-zinc-200">
-                Removing {removeProgress.current} of {removeProgress.total}
+                {t('debloater.removingProgress', { current: removeProgress.current, total: removeProgress.total })}
               </span>
             </div>
             <span className="text-[12px] font-mono" style={{ color: '#6e6e76' }}>
@@ -212,8 +214,8 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
           style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}>
           <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
           <p className="text-[13px] text-zinc-200">
-            Removed {removeResult.removed} app{removeResult.removed !== 1 ? 's' : ''}
-            {removeResult.failed > 0 && <span className="text-red-400"> ({removeResult.failed} failed)</span>}
+            {t(removeResult.removed !== 1 ? 'debloater.removedAppsPlural' : 'debloater.removedApps', { count: removeResult.removed })}
+            {removeResult.failed > 0 && <span className="text-red-400"> {t('debloater.failedCount', { count: removeResult.failed })}</span>}
           </p>
         </div>
       )}
@@ -231,7 +233,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
                   background: filter === f.value ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)',
                   color: filter === f.value ? '#f59e0b' : '#6e6e76'
                 }}>
-                {f.label} ({count})
+                {t(f.labelKey)} ({count})
               </button>
             )
           })}
@@ -241,19 +243,19 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
             <button onClick={() => store.getState().selectAll()}
               className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
               style={{ background: 'rgba(255,255,255,0.04)', color: '#6e6e76' }}>
-              Select All
+              {t('debloater.selectAll')}
             </button>
             <button onClick={() => store.getState().deselectAll()}
               className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
               style={{ background: 'rgba(255,255,255,0.04)', color: '#6e6e76' }}>
-              Deselect All
+              {t('debloater.deselectAll')}
             </button>
           </div>
         </div>
       )}
 
       {apps.length === 0 && !scanning && (
-        <EmptyState icon={PackageMinus} title="No bloatware detected" description='Click "Scan" to find pre-installed apps and OEM bloatware.' />
+        <EmptyState icon={PackageMinus} title={t('debloater.emptyStateTitle')} description={t('debloater.emptyStateDescription')} />
       )}
 
       {/* App grid */}
@@ -271,7 +273,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
                 }}
                 className="accent-amber-500" />
             </div>
-            <span>{filtered.length} app{filtered.length !== 1 ? 's' : ''} found</span>
+            <span>{t(filtered.length !== 1 ? 'debloater.appsFoundPlural' : 'debloater.appsFound', { count: filtered.length })}</span>
           </div>
 
           {filtered.map((app) => (
@@ -298,7 +300,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
                   <span className="text-[13px] font-medium text-zinc-200">{app.name}</span>
                   <span className="rounded-md px-2 py-0.5 text-[10px] font-medium"
                     style={{ background: categoryColors[app.category].bg, color: categoryColors[app.category].text }}>
-                    {categoryColors[app.category].label}
+                    {t(categoryColors[app.category].labelKey)}
                   </span>
                 </div>
                 <p className="mt-0.5 text-[11px]" style={{ color: '#6e6e76' }}>{app.description}</p>
@@ -315,8 +317,8 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       )}
 
       <ConfirmDialog open={showConfirm} onConfirm={handleRemove} onCancel={() => setShowConfirm(false)}
-        title="Remove Selected Apps" description={`This will permanently remove ${selectedCount} app${selectedCount !== 1 ? 's' : ''}. They can be reinstalled from the Microsoft Store if needed.`}
-        confirmLabel="Remove Selected" variant="danger" />
+        title={t('debloater.confirmTitle')} description={t('debloater.confirmDescription', { count: selectedCount })}
+        confirmLabel={t('debloater.confirmLabel')} variant="danger" />
     </div>
   )
 }

@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Velkommen til Kudu",
+  "welcomeDescription": "Din alt-i-en systemrenser til Windows. Kudu fjerner uønskede filer, løser problemer i registreringsdatabasen, administrerer opstartsprogrammer og holder din PC kørende hurtigt.",
+  "featureSmartCleaning": "Smart rengøring",
+  "featureFasterBoot": "Hurtigere opstart",
+  "featureSafeSecure": "Sikker & beskyttet",
+  "getStarted": "Kom i gang",
+  "recommendedSetupTitle": "Anbefalet opsætning",
+  "recommendedSetupDescription": "Vi anbefaler disse indstillinger for den bedste oplevelse. Du kan ændre dem senere i Indstillinger.",
+  "runAtStartupLabel": "Kør ved opstart",
+  "runAtStartupDescription": "Start Kudu, når Windows starter, så din PC holdes ren automatisk",
+  "minimizeToTrayLabel": "Minimer til systembakken",
+  "minimizeToTrayDescription": "Lad Kudu køre stille i baggrunden",
+  "weeklyAutoCleanLabel": "Ugentlig automatisk rengøring",
+  "weeklyAutoCleanDescription": "Scan efter og ryd op i uønskede filer hver mandag kl. 9.00",
+  "back": "Tilbage",
+  "continue": "Fortsæt",
+  "allSetTitle": "Så er du klar!",
+  "allSetDescription": "Kudu holder din PC kørende problemfrit i baggrunden.",
+  "firstScanScheduled": "Din første automatiske scanning er planlagt til mandag kl. 9.00.",
+  "startCleaning": "Start rengøring"
+}

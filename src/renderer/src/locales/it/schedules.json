@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Pianificazioni",
+  "pageDescription": "Automatizza scansioni, pulizie e aggiornamenti in base a una pianificazione",
+  "newScheduleButton": "Nuova pianificazione",
+  "createScheduleButton": "Crea pianificazione",
+  "emptyStateTitle": "Nessuna pianificazione",
+  "emptyStateDescription": "Crea una pianificazione per eseguire automaticamente scansioni, pulizie e aggiornamenti.",
+  "maxSchedulesReached": "Raggiunto il numero massimo di {{max}} pianificazioni.",
+  "duplicatedToast": "Duplicato \"{{name}}\"",
+  "deletedToast": "Eliminato \"{{name}}\"",
+  "updatedToast": "Aggiornato \"{{name}}\"",
+  "createdToast": "Creato \"{{name}}\"",
+  "failedEnableStartup": "Impossibile abilitare l'avvio automatico. Le pianificazioni potrebbero non essere eseguite dopo il riavvio.",
+  "deleteConfirmTitle": "Elimina pianificazione",
+  "deleteConfirmDescription": "Questa pianificazione verrà rimossa definitivamente. Questa azione non può essere annullata.",
+  "deleteConfirmLabel": "Elimina",
+  "card": {
+    "autoApplyBadge": "Applicazione automatica",
+    "editAction": "Modifica",
+    "duplicateAction": "Duplica",
+    "deleteAction": "Elimina",
+    "noTasksSelected": "Nessuna attività selezionata",
+    "nextRun": "Successiva: {{time}}",
+    "lastRun": "Ultima: {{time}}",
+    "neverRun": "Mai eseguita"
+  },
+  "presets": {
+    "dialogTitle": "Scegli un modello",
+    "weeklyFullCleanLabel": "Pulizia completa settimanale",
+    "weeklyFullCleanDescription": "Tutte le categorie di pulizia ogni lunedì alle 9:00",
+    "dailyLightSweepLabel": "Pulizia leggera giornaliera",
+    "dailyLightSweepDescription": "Sistema, browser e cestino ogni giorno alle 8:00",
+    "monthlyDeepMaintenanceLabel": "Manutenzione approfondita mensile",
+    "monthlyDeepMaintenanceDescription": "Pulizia completa + registro, driver e software il giorno 1 alle 10:00",
+    "customLabel": "Personalizzata",
+    "customDescription": "Inizia da zero con una pianificazione vuota"
+  },
+  "dialog": {
+    "editTitle": "Modifica pianificazione",
+    "newTitle": "Nuova pianificazione",
+    "nameLabel": "Nome",
+    "namePlaceholder": "es. Pulizia approfondita settimanale",
+    "frequencyLabel": "Frequenza",
+    "frequencyDaily": "Giornaliera",
+    "frequencyWeekly": "Settimanale",
+    "frequencyMonthly": "Mensile",
+    "dayLabel": "Giorno",
+    "timeLabel": "Ora",
+    "tasksLabel": "Attività",
+    "selectAll": "Seleziona tutto",
+    "deselectAll": "Deseleziona tutto",
+    "cleanerGroup": "Pulizia",
+    "maintenanceGroup": "Manutenzione",
+    "autoApplyLabel": "Applicazione automatica",
+    "autoApplyDescription": "Pulisce automaticamente i file, corregge i problemi del registro e installa gli aggiornamenti senza conferma.",
+    "autoApplyWarning": "Le azioni verranno eseguite automaticamente secondo la pianificazione. Assicurati che l'elenco delle esclusioni sia aggiornato.",
+    "cancelButton": "Annulla",
+    "saveChangesButton": "Salva modifiche",
+    "createScheduleButton": "Crea pianificazione"
+  },
+  "tasks": {
+    "system": "Sistema",
+    "browsers": "Browser",
+    "applications": "Applicazioni",
+    "gaming": "Giochi",
+    "recycleBin": "Cestino",
+    "databases": "Database",
+    "registryFixes": "Correzioni del registro",
+    "driverUpdates": "Aggiornamenti driver",
+    "softwareUpdates": "Aggiornamenti software"
+  },
+  "dayNames": {
+    "sunday": "Domenica",
+    "monday": "Lunedì",
+    "tuesday": "Martedì",
+    "wednesday": "Mercoledì",
+    "thursday": "Giovedì",
+    "friday": "Venerdì",
+    "saturday": "Sabato"
+  },
+  "frequency": {
+    "everyDayAt": "Ogni giorno alle {{time}}",
+    "everyWeekdayAt": "Ogni {{day}} alle {{time}}",
+    "monthlyAt": "Il giorno {{ordinalDay}} di ogni mese alle {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Oggi alle {{time}}",
+    "tomorrowAt": "Domani alle {{time}}",
+    "inDaysAt": "Tra {{count}} giorni alle {{time}}",
+    "dateAt": "{{date}} alle {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Proprio ora",
+    "minutesAgo": "{{count}} min fa",
+    "hoursAgo": "{{count}} h fa",
+    "daysAgo": "{{count}} g fa"
+  },
+  "copyNameSuffix": "(copia)"
+}

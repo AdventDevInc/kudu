@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Server,
   Search,
@@ -37,25 +38,42 @@ const STATUS_COLORS: Record<string, string> = {
   Unknown: '#6e6e76'
 }
 
-const CATEGORY_LABELS: Record<ServiceCategory | 'all', string> = {
-  all: 'All Categories',
-  telemetry: 'Telemetry',
-  xbox: 'Xbox',
-  print: 'Print',
-  fax: 'Fax',
-  media: 'Media',
-  network: 'Network',
-  bluetooth: 'Bluetooth',
-  remote: 'Remote',
-  'hyper-v': 'Hyper-V',
-  developer: 'Developer',
-  misc: 'Misc',
-  core: 'Core',
-  security: 'Security',
-  unknown: 'Other'
+const START_TYPE_KEY_MAP: Record<string, string> = {
+  Automatic: 'serviceManager.startTypeAutomatic',
+  Manual: 'serviceManager.startTypeManual',
+  Disabled: 'serviceManager.startTypeDisabled',
+  Unknown: 'serviceManager.startTypeUnknown'
+}
+
+const STATUS_KEY_MAP: Record<string, string> = {
+  Running: 'serviceManager.statusRunning',
+  Stopped: 'serviceManager.statusStopped',
+  Paused: 'serviceManager.statusPaused',
+  StartPending: 'serviceManager.statusStartPending',
+  StopPending: 'serviceManager.statusStopPending',
+  Unknown: 'serviceManager.statusUnknown'
+}
+
+const CATEGORY_LABEL_KEYS: Record<ServiceCategory | 'all', string> = {
+  all: 'serviceManager.filterAllCategories',
+  telemetry: 'serviceManager.categoryTelemetry',
+  xbox: 'serviceManager.categoryXbox',
+  print: 'serviceManager.categoryPrint',
+  fax: 'serviceManager.categoryFax',
+  media: 'serviceManager.categoryMedia',
+  network: 'serviceManager.categoryNetwork',
+  bluetooth: 'serviceManager.categoryBluetooth',
+  remote: 'serviceManager.categoryRemote',
+  'hyper-v': 'serviceManager.categoryHyperV',
+  developer: 'serviceManager.categoryDeveloper',
+  misc: 'serviceManager.categoryMisc',
+  core: 'serviceManager.categoryCore',
+  security: 'serviceManager.categorySecurity',
+  unknown: 'serviceManager.categoryOther'
 }
 
 export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
+  const { t } = useTranslation('hardening')
   const services = useServiceStore((s) => s.services)
   const scanning = useServiceStore((s) => s.scanning)
   const applying = useServiceStore((s) => s.applying)
@@ -94,15 +112,15 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       s.setServices(result.services)
       s.setHasScanned(true)
     } catch (err) {
-      toast.error('Service scan failed')
+      toast.error(t('serviceManager.scanFailedToast'))
       useServiceStore
         .getState()
-        .setError(err instanceof Error ? err.message : 'Failed to scan services')
+        .setError(err instanceof Error ? err.message : t('serviceManager.scanFailedError'))
     } finally {
       useServiceStore.getState().setScanning(false)
       useServiceStore.getState().setScanProgress(null)
     }
-  }, [])
+  }, [t])
 
   // Auto-scan on first visit
   useEffect(() => {
@@ -127,8 +145,8 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
     try {
       const result = await window.kudu.serviceApply(changes)
       useServiceStore.getState().setApplyResult(result)
-      if (result.succeeded > 0) toast.success(`${result.succeeded} service${result.succeeded > 1 ? 's' : ''} disabled`)
-      if (result.failed > 0) toast.error(`${result.failed} service${result.failed > 1 ? 's' : ''} failed`)
+      if (result.succeeded > 0) toast.success(t(result.succeeded > 1 ? 'serviceManager.serviceDisabledToastPlural' : 'serviceManager.serviceDisabledToast', { count: result.succeeded }))
+      if (result.failed > 0) toast.error(t(result.failed > 1 ? 'serviceManager.serviceFailedToastPlural' : 'serviceManager.serviceFailedToast', { count: result.failed }))
 
       // Re-scan to refresh state
       const scanResult = await window.kudu.serviceScan()
@@ -157,14 +175,14 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
         errorCount: result.failed
       })
     } catch (err) {
-      toast.error('Failed to apply service changes')
+      toast.error(t('serviceManager.applyFailedToast'))
       useServiceStore
         .getState()
-        .setError(err instanceof Error ? err.message : 'Failed to apply changes')
+        .setError(err instanceof Error ? err.message : t('serviceManager.applyFailedError'))
     } finally {
       useServiceStore.getState().setApplying(false)
     }
-  }, [])
+  }, [t])
 
   const handleSelectRecommended = useCallback(() => {
     useServiceStore.getState().selectRecommended()
@@ -218,19 +236,19 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
   // ─── Group by safety level ────────────────────────────────
   const safetyGroups = useMemo(() => {
     const groups: { key: 'safe' | 'caution' | 'unsafe'; label: string; services: typeof filteredServices }[] = [
-      { key: 'safe', label: 'Safe to Disable', services: filteredServices.filter((s) => s.safety === 'safe') },
-      { key: 'caution', label: 'Use Caution', services: filteredServices.filter((s) => s.safety === 'caution') },
-      { key: 'unsafe', label: 'System Critical', services: filteredServices.filter((s) => s.safety === 'unsafe') }
+      { key: 'safe', label: t('serviceManager.safeToDisableGroup'), services: filteredServices.filter((s) => s.safety === 'safe') },
+      { key: 'caution', label: t('serviceManager.useCautionGroup'), services: filteredServices.filter((s) => s.safety === 'caution') },
+      { key: 'unsafe', label: t('serviceManager.systemCriticalGroup'), services: filteredServices.filter((s) => s.safety === 'unsafe') }
     ]
     return groups.filter((g) => g.services.length > 0)
-  }, [filteredServices])
+  }, [filteredServices, t])
 
   return (
     <div className={embedded ? '' : 'mx-auto max-w-5xl px-8 py-8'}>
       {!embedded && (
         <PageHeader
-          title="Services Manager"
-          description="View, manage, and disable unnecessary Windows services to improve performance"
+          title={t('serviceManager.pageTitle')}
+          description={t('serviceManager.pageDescription')}
         />
       )}
 
@@ -250,7 +268,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           ) : (
             <RefreshCw className="h-4 w-4" strokeWidth={2} />
           )}
-          {scanning ? 'Scanning...' : 'Scan Services'}
+          {scanning ? t('serviceManager.scanningButton') : t('serviceManager.scanServicesButton')}
         </button>
 
         {hasScanned && (
@@ -267,7 +285,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               }}
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
-              Apply Recommended ({totalSafeToDisable})
+              {t('serviceManager.applyRecommendedButton', { count: totalSafeToDisable })}
             </button>
 
             <button
@@ -284,7 +302,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               ) : (
                 <Shield className="h-4 w-4" strokeWidth={2} />
               )}
-              {applying ? 'Applying...' : `Disable Selected (${selectedCount})`}
+              {applying ? t('serviceManager.applyingButton') : t('serviceManager.disableSelectedButton', { count: selectedCount })}
             </button>
           </>
         )}
@@ -298,10 +316,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
         >
           <Shield className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={2} />
           <div className="text-[12.5px] leading-relaxed" style={{ color: '#a1a1aa' }}>
-            <span className="font-medium" style={{ color: '#22c55e' }}>Green</span> = safe to disable,{' '}
-            <span className="font-medium" style={{ color: '#f59e0b' }}>Amber</span> = may affect functionality,{' '}
-            <span className="font-medium" style={{ color: '#ef4444' }}>Red</span> = system-critical.
-            Use &quot;Apply Recommended&quot; for a safe one-click preset.
+            <span className="font-medium" style={{ color: '#22c55e' }}>{t('serviceManager.infoBannerGreen')}</span> {t('serviceManager.infoBannerSafeToDisable')}{' '}
+            <span className="font-medium" style={{ color: '#f59e0b' }}>{t('serviceManager.infoBannerAmber')}</span> {t('serviceManager.infoBannerMayAffect')}{' '}
+            <span className="font-medium" style={{ color: '#ef4444' }}>{t('serviceManager.infoBannerRed')}</span> {t('serviceManager.infoBannerSystemCritical')}
+            {' '}{t('serviceManager.infoBannerUseRecommended')}
           </div>
         </div>
       )}
@@ -323,7 +341,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
         >
           <div className="mb-2 flex items-center justify-between">
             <span className="text-[12.5px] font-medium" style={{ color: '#a1a1aa' }}>
-              {scanProgress.phase === 'enumerating' ? 'Enumerating services...' : 'Classifying services...'}
+              {scanProgress.phase === 'enumerating' ? t('serviceManager.scanProgressEnumerating') : t('serviceManager.scanProgressClassifying')}
             </span>
             {scanProgress.total > 0 && (
               <span className="text-[12px]" style={{ color: '#6e6e76' }}>
@@ -364,8 +382,8 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               <CheckCircle2 className="h-4 w-4" style={{ color: '#22c55e' }} />
             )}
             <span className="text-[13px] font-medium text-white">
-              {applyResult.succeeded} service{applyResult.succeeded !== 1 ? 's' : ''} disabled
-              {applyResult.failed > 0 && `, ${applyResult.failed} failed`}
+              {t(applyResult.succeeded !== 1 ? 'serviceManager.servicesDisabledPlural' : 'serviceManager.servicesDisabled', { count: applyResult.succeeded })}
+              {applyResult.failed > 0 && `, ${t('serviceManager.servicesFailed', { count: applyResult.failed })}`}
             </span>
           </div>
           {applyResult.errors.length > 0 && (
@@ -384,8 +402,8 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       {!hasScanned && !scanning && (
         <EmptyState
           icon={Server}
-          title="Scan Windows Services"
-          description="Enumerate all services and identify which ones can be safely disabled to improve performance."
+          title={t('serviceManager.emptyStateTitle')}
+          description={t('serviceManager.emptyStateDescription')}
           action={
             <button
               onClick={handleScan}
@@ -393,7 +411,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
             >
               <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
-              Scan Services
+              {t('serviceManager.scanServicesButton')}
             </button>
           }
         />
@@ -403,10 +421,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       {hasScanned && !scanning && (
         <>
           <div className="mb-5 grid grid-cols-4 gap-3">
-            <StatCard label="Total" value={services.length} color="#a1a1aa" />
-            <StatCard label="Running" value={runningCount} color="#22c55e" />
-            <StatCard label="Disabled" value={disabledCount} color="#6e6e76" />
-            <StatCard label="Safe to Disable" value={totalSafeToDisable} color="#f59e0b" />
+            <StatCard label={t('serviceManager.statTotal')} value={services.length} color="#a1a1aa" />
+            <StatCard label={t('serviceManager.statRunning')} value={runningCount} color="#22c55e" />
+            <StatCard label={t('serviceManager.statDisabled')} value={disabledCount} color="#6e6e76" />
+            <StatCard label={t('serviceManager.statSafeToDisable')} value={totalSafeToDisable} color="#f59e0b" />
           </div>
 
           {/* ── Filter bar ─────────────────────────────────────── */}
@@ -418,7 +436,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               <Search className="h-4 w-4 shrink-0" style={{ color: '#52525b' }} strokeWidth={1.8} />
               <input
                 type="text"
-                placeholder="Search services..."
+                placeholder={t('serviceManager.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => useServiceStore.getState().setSearchQuery(e.target.value)}
                 className="w-full bg-transparent text-[13px] text-white placeholder-zinc-600 outline-none"
@@ -428,10 +446,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             <FilterDropdown
               value={safetyFilter}
               options={[
-                { value: 'all', label: 'All Safety' },
-                { value: 'safe', label: 'Safe' },
-                { value: 'caution', label: 'Caution' },
-                { value: 'unsafe', label: 'Unsafe' }
+                { value: 'all', label: t('serviceManager.filterAllSafety') },
+                { value: 'safe', label: t('serviceManager.filterSafe') },
+                { value: 'caution', label: t('serviceManager.filterCaution') },
+                { value: 'unsafe', label: t('serviceManager.filterUnsafe') }
               ]}
               onChange={(v) => useServiceStore.getState().setSafetyFilter(v as any)}
             />
@@ -439,10 +457,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             <FilterDropdown
               value={categoryFilter}
               options={[
-                { value: 'all', label: 'All Categories' },
+                { value: 'all', label: t('serviceManager.filterAllCategories') },
                 ...Array.from(presentCategories)
                   .sort()
-                  .map((c) => ({ value: c, label: CATEGORY_LABELS[c] || c }))
+                  .map((c) => ({ value: c, label: t(CATEGORY_LABEL_KEYS[c]) || c }))
               ]}
               onChange={(v) => useServiceStore.getState().setCategoryFilter(v as any)}
             />
@@ -450,10 +468,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             <FilterDropdown
               value={statusFilter}
               options={[
-                { value: 'all', label: 'All Status' },
-                { value: 'running', label: 'Running' },
-                { value: 'stopped', label: 'Stopped' },
-                { value: 'disabled', label: 'Disabled' }
+                { value: 'all', label: t('serviceManager.filterAllStatus') },
+                { value: 'running', label: t('serviceManager.filterRunning') },
+                { value: 'stopped', label: t('serviceManager.filterStopped') },
+                { value: 'disabled', label: t('serviceManager.filterDisabled') }
               ]}
               onChange={(v) => useServiceStore.getState().setStatusFilter(v as any)}
             />
@@ -465,7 +483,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               className="rounded-xl py-12 text-center text-[13px]"
               style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.06)', color: '#52525b' }}
             >
-              No services match your filters
+              {t('serviceManager.noServicesMatch')}
             </div>
           ) : (
             <div className="space-y-3">
@@ -476,7 +494,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           )}
 
           <div className="mt-2 text-right text-[11.5px]" style={{ color: '#52525b' }}>
-            Showing {filteredServices.length} of {services.length} services
+            {t('serviceManager.showingCount', { filtered: filteredServices.length, total: services.length })}
           </div>
         </>
       )}
@@ -484,9 +502,9 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       {/* ── Confirm dialog ───────────────────────────────────── */}
       <ConfirmDialog
         open={showConfirm}
-        title="Disable Selected Services"
-        description={`This will disable ${selectedCount} service${selectedCount !== 1 ? 's' : ''} and stop any that are currently running. This requires administrator privileges.`}
-        confirmLabel="Disable Services"
+        title={t('serviceManager.confirmTitle')}
+        description={t('serviceManager.confirmDescription', { count: selectedCount })}
+        confirmLabel={t('serviceManager.confirmLabel')}
         variant="danger"
         onConfirm={handleApply}
         onCancel={() => setShowConfirm(false)}
@@ -506,6 +524,7 @@ function SafetyGroup({
   label: string
   services: WindowsService[]
 }) {
+  const { t } = useTranslation('hardening')
   const [collapsed, setCollapsed] = useState(false)
   const colors = SAFETY_COLORS[safetyKey]
   const selectedInGroup = services.filter((s) => s.selected).length
@@ -532,10 +551,10 @@ function SafetyGroup({
           {label}
         </span>
         <span className="text-[12px]" style={{ color: '#6e6e76' }}>
-          {services.length} service{services.length !== 1 ? 's' : ''}
-          {alreadyDisabled > 0 && ` · ${alreadyDisabled} already disabled`}
+          {t(services.length !== 1 ? 'serviceManager.servicesCountPlural' : 'serviceManager.servicesCount', { count: services.length })}
+          {alreadyDisabled > 0 && ` · ${t('serviceManager.alreadyDisabled', { count: alreadyDisabled })}`}
           {selectedInGroup > 0 && (
-            <span style={{ color: colors.dot }}> · {selectedInGroup} selected</span>
+            <span style={{ color: colors.dot }}> · {t('serviceManager.selectedCount', { count: selectedInGroup })}</span>
           )}
         </span>
       </button>
@@ -553,10 +572,10 @@ function SafetyGroup({
             }}
           >
             <span />
-            <span>Service</span>
-            <span>Startup Type</span>
-            <span>Status</span>
-            <span className="text-center">Deps</span>
+            <span>{t('serviceManager.columnService')}</span>
+            <span>{t('serviceManager.columnStartupType')}</span>
+            <span>{t('serviceManager.columnStatus')}</span>
+            <span className="text-center">{t('serviceManager.columnDeps')}</span>
           </div>
 
           {/* Rows */}
@@ -572,6 +591,7 @@ function SafetyGroup({
 }
 
 function ServiceRow({ service: svc }: { service: WindowsService }) {
+  const { t } = useTranslation('hardening')
   const isUnsafe = svc.safety === 'unsafe'
   const colors = SAFETY_COLORS[svc.safety]
 
@@ -609,7 +629,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
               className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold"
               style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}
             >
-              CRITICAL
+              {t('serviceManager.criticalBadge')}
             </span>
           )}
         </div>
@@ -637,7 +657,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
                   : '#a1a1aa'
           }}
         >
-          {svc.startType === 'AutomaticDelayed' ? 'Auto (Delayed)' : svc.startType}
+          {svc.startType === 'AutomaticDelayed' ? t('serviceManager.startTypeAutoDelayed') : t(START_TYPE_KEY_MAP[svc.startType] || 'serviceManager.startTypeUnknown')}
         </span>
       </div>
 
@@ -648,7 +668,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
           style={{ background: STATUS_COLORS[svc.status] || '#6e6e76' }}
         />
         <span className="text-[12px]" style={{ color: STATUS_COLORS[svc.status] || '#6e6e76' }}>
-          {svc.status}
+          {t(STATUS_KEY_MAP[svc.status] || 'serviceManager.statusUnknown')}
         </span>
       </div>
 
@@ -658,7 +678,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
           <span
             className="flex items-center gap-0.5 text-[11px]"
             style={{ color: '#6e6e76' }}
-            title={`${svc.dependents.length} service(s) depend on this`}
+            title={t('serviceManager.dependentsTitle', { count: svc.dependents.length })}
           >
             <Link2 className="h-3 w-3" strokeWidth={1.8} />
             {svc.dependents.length}

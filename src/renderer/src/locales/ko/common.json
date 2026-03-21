@@ -1,0 +1,18 @@
+{
+  "scanning": "검사 중...",
+  "cleaning": "정리 중...",
+  "foundLabel": "발견됨:",
+  "itemsUnit": "개 항목",
+  "sizeLabel": "크기:",
+  "health": "상태",
+  "cancel": "취소",
+  "confirm": "확인",
+  "adminBannerMessage": "일부 기능은 관리자 권한이 필요합니다.",
+  "relaunchAsAdmin": "관리자 권한으로 다시 실행",
+  "justNow": "방금 전",
+  "minutesAgo": "{{minutes}}분 전",
+  "hoursAgo": "{{hours}}시간 전",
+  "daysAgo": "{{days}}일 전",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

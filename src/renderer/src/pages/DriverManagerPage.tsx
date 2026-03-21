@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Cpu,
   Search,
@@ -28,6 +29,7 @@ import type {
 } from '@shared/types'
 
 export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
+  const { t } = useTranslation('updates')
   const packages = useDriverStore((s) => s.packages)
   const scanning = useDriverStore((s) => s.scanning)
   const scanProgress = useDriverStore((s) => s.scanProgress)
@@ -95,16 +97,16 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       useDriverStore.getState().selectAllStale()
     } else {
       console.error('Driver scan failed:', staleResult.reason)
-      toast.error('Driver scan failed', { description: 'Make sure the app is running as Administrator' })
-      s.setError('Failed to scan driver packages. Make sure the app is running as Administrator.')
+      toast.error(t('driverManager.scanFailedToast'), { description: t('driverManager.scanFailedDescription') })
+      s.setError(t('driverManager.scanFailedError'))
     }
 
     if (updateResult.status === 'fulfilled') {
       s.setUpdates(updateResult.value.updates)
     } else {
       console.error('Driver update scan failed:', updateResult.reason)
-      toast.error('Driver update check failed', { description: 'Make sure Windows Update service is running' })
-      s.setUpdateError('Failed to check for driver updates. Make sure Windows Update service is running.')
+      toast.error(t('driverManager.updateScanFailedToast'), { description: t('driverManager.updateScanFailedDescription') })
+      s.setUpdateError(t('driverManager.updateScanFailedError'))
     }
 
     const final = useDriverStore.getState()
@@ -137,8 +139,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         useDriverStore.getState().setInstallResult(result)
       } catch (err) {
         console.error('Driver install failed:', err)
-        toast.error('Driver install failed', { description: 'Administrator privileges are required' })
-        useDriverStore.getState().setUpdateError('Failed to install driver updates. Administrator privileges are required.')
+        toast.error(t('driverManager.installFailedToast'), { description: t('driverManager.installFailedDescription') })
+        useDriverStore.getState().setUpdateError(t('driverManager.installFailedError'))
       } finally {
         const s = useDriverStore.getState()
         s.setInstalling(false)
@@ -177,7 +179,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           totalItemsSkipped: result.failed,
           totalSpaceSaved: result.spaceRecovered,
           categories: Object.entries(byClass).map(([name, d]) => ({
-            name: `Drivers: ${name}`,
+            name: t('driverManager.historyCategoryDrivers', { name }),
             itemsFound: d.found,
             itemsCleaned: d.cleaned,
             spaceSaved: d.size
@@ -187,8 +189,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         recomputeStats()
       } catch (err) {
         console.error('Driver clean failed:', err)
-        toast.error('Driver cleanup failed', { description: 'Administrator privileges are required' })
-        useDriverStore.getState().setError('Failed to remove driver packages. Administrator privileges are required.')
+        toast.error(t('driverManager.cleanFailedToast'), { description: t('driverManager.cleanFailedDescription') })
+        useDriverStore.getState().setError(t('driverManager.cleanFailedError'))
       } finally {
         useDriverStore.getState().setCleaning(false)
       }
@@ -233,19 +235,19 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   // Build confirmation description
   const confirmParts: string[] = []
   if (selectedUpdateCount > 0) {
-    confirmParts.push(`install ${selectedUpdateCount} driver update${selectedUpdateCount !== 1 ? 's' : ''}`)
+    confirmParts.push(t('driverManager.confirmDescriptionInstall', { count: selectedUpdateCount }))
   }
   if (selectedStaleCount > 0) {
-    confirmParts.push(`remove ${selectedStaleCount} stale driver package${selectedStaleCount !== 1 ? 's' : ''}`)
+    confirmParts.push(t('driverManager.confirmDescriptionRemove', { count: selectedStaleCount }))
   }
-  const confirmDesc = `This will ${confirmParts.join(' and ')}. ${selectedUpdateCount > 0 ? 'A system restart may be required after installing updates. ' : ''}Currently active drivers will not be affected.`
+  const confirmDesc = `${t('driverManager.confirmDescriptionPrefix')} ${confirmParts.join(` ${t('driverManager.confirmDescriptionAnd')} `)}. ${selectedUpdateCount > 0 ? `${t('driverManager.confirmDescriptionRebootNote')} ` : ''}${t('driverManager.confirmDescriptionSuffix')}`
 
   return (
     <div className={embedded ? '' : 'animate-fade-in'}>
       {!embedded && (
         <PageHeader
-          title="Driver Manager"
-          description="Scan for outdated drivers, install updates, and clean stale packages — all in one step"
+          title={t('driverManager.pageTitle')}
+          description={t('driverManager.pageDescription')}
         />
       )}
 
@@ -258,7 +260,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
         >
           <Search className={`h-4 w-4 ${isScanning ? 'animate-pulse' : ''}`} strokeWidth={1.8} />
-          {isScanning ? 'Scanning...' : 'Scan Drivers'}
+          {isScanning ? t('driverManager.scanningButton') : t('driverManager.scanDriversButton')}
         </button>
         <button
           onClick={() => setShowConfirm(true)}
@@ -273,11 +275,11 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           )}
           {applying
             ? installing
-              ? 'Installing...'
+              ? t('driverManager.installingButton')
               : cleaning
-                ? 'Cleaning...'
-                : 'Applying...'
-            : `Update & Clean (${totalSelected})`}
+                ? t('driverManager.cleaningButton')
+                : t('driverManager.applyingButton')
+            : t('driverManager.updateAndCleanButton', { count: totalSelected })}
         </button>
       </div>
 
@@ -288,9 +290,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       >
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
         <p className="text-[12px]" style={{ color: '#8e8e96' }}>
-          <span className="font-semibold text-amber-500">Safe operation</span> — Installs newer
-          driver versions from Windows Update and removes old driver packages. Active drivers are
-          never touched.
+          <span className="font-semibold text-amber-500">{t('driverManager.safeOperationBold')}</span> — {t('driverManager.safeOperationText')}
         </p>
       </div>
 
@@ -308,7 +308,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         />
       )}
       {scanning && !scanProgress && (
-        <ScanProgress status="scanning" progress={0} currentPath="Enumerating driver packages..." className="mb-5" />
+        <ScanProgress status="scanning" progress={0} currentPath={t('driverManager.enumeratingPackages')} className="mb-5" />
       )}
 
       {/* Update progress (during scan or install) */}
@@ -322,10 +322,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               <Loader2 className="h-4 w-4 animate-spin text-blue-400" strokeWidth={2} />
               <span className="text-[13px] font-medium text-zinc-200">
                 {updateProgress.phase === 'checking'
-                  ? 'Checking for updates...'
+                  ? t('driverManager.updateProgressChecking')
                   : updateProgress.phase === 'downloading'
-                    ? 'Downloading drivers...'
-                    : 'Installing drivers...'}
+                    ? t('driverManager.updateProgressDownloading')
+                    : t('driverManager.updateProgressInstalling')}
                 {updateProgress.total > 0 && ` (${updateProgress.current}/${updateProgress.total})`}
               </span>
             </div>
@@ -348,7 +348,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         </div>
       )}
       {updateScanning && !updateProgress && !scanning && (
-        <ScanProgress status="scanning" progress={0} currentPath="Querying Windows Update for driver updates..." className="mb-5" />
+        <ScanProgress status="scanning" progress={0} currentPath={t('driverManager.queryingWindowsUpdate')} className="mb-5" />
       )}
 
       {/* Results summary */}
@@ -357,12 +357,12 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
           <div className="text-[13px] text-zinc-200">
             <p>
-              Installed {installResult.installed} driver update{installResult.installed !== 1 ? 's' : ''}
-              {installResult.failed > 0 && <span className="text-red-400"> ({installResult.failed} failed)</span>}
+              {installResult.installed !== 1 ? t('driverManager.installedDriverUpdatesPlural', { count: installResult.installed }) : t('driverManager.installedDriverUpdates', { count: installResult.installed })}
+              {installResult.failed > 0 && <span className="text-red-400"> {t('driverManager.failedCount', { count: installResult.failed })}</span>}
             </p>
             {installResult.rebootRequired && (
               <p className="mt-1 text-[12px] text-amber-400">
-                A system restart is required to complete the installation.
+                {t('driverManager.rebootRequired')}
               </p>
             )}
           </div>
@@ -372,9 +372,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         <div className="mb-5 flex items-center gap-3 rounded-2xl p-4" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}>
           <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
           <p className="text-[13px] text-zinc-200">
-            Removed {cleanResult.removed} stale package{cleanResult.removed !== 1 ? 's' : ''}
-            {cleanResult.spaceRecovered > 0 && <span className="text-green-400"> — {formatBytes(cleanResult.spaceRecovered)} recovered</span>}
-            {cleanResult.failed > 0 && <span className="text-red-400"> ({cleanResult.failed} failed)</span>}
+            {cleanResult.removed !== 1 ? t('driverManager.removedStalePackagesPlural', { count: cleanResult.removed }) : t('driverManager.removedStalePackages', { count: cleanResult.removed })}
+            {cleanResult.spaceRecovered > 0 && <span className="text-green-400"> — {t('driverManager.spaceRecovered', { size: formatBytes(cleanResult.spaceRecovered) })}</span>}
+            {cleanResult.failed > 0 && <span className="text-red-400"> {t('driverManager.failedCount', { count: cleanResult.failed })}</span>}
           </p>
         </div>
       )}
@@ -383,8 +383,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       {!hasScanned && !isScanning && (
         <EmptyState
           icon={Cpu}
-          title="No drivers scanned yet"
-          description="Scan to find available updates and stale driver packages to clean up."
+          title={t('driverManager.emptyStateTitle')}
+          description={t('driverManager.emptyStateDescription')}
           action={
             <button
               onClick={handleScan}
@@ -393,7 +393,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
-              Scan Drivers
+              {t('driverManager.scanDriversButton')}
             </button>
           }
         />
@@ -406,8 +406,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           style={{ background: 'rgba(34,197,94,0.03)', border: '1px solid rgba(34,197,94,0.08)' }}
         >
           <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" strokeWidth={1.5} />
-          <p className="text-[15px] font-medium text-zinc-200">All drivers are up to date</p>
-          <p className="mt-1 text-[12px]" style={{ color: '#6e6e76' }}>No updates available and no stale packages found.</p>
+          <p className="text-[15px] font-medium text-zinc-200">{t('driverManager.allUpToDateTitle')}</p>
+          <p className="mt-1 text-[12px]" style={{ color: '#6e6e76' }}>{t('driverManager.allUpToDateDescription')}</p>
         </div>
       )}
 
@@ -418,7 +418,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             <div className="flex items-center gap-2.5">
               <ArrowUpCircle className="h-4.5 w-4.5 text-blue-400" strokeWidth={1.8} />
               <span className="text-[13px] font-semibold text-zinc-200">
-                Updates Available ({updates.length})
+                {t('driverManager.updatesAvailable', { count: updates.length })}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -427,7 +427,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
                 style={{ background: 'rgba(255,255,255,0.04)', color: '#6e6e76' }}
               >
-                {allUpdatesSelected ? 'Deselect All' : 'Select All'}
+                {allUpdatesSelected ? t('driverManager.deselectAll') : t('driverManager.selectAll')}
               </button>
             </div>
           </div>
@@ -460,7 +460,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                     </span>
                   </div>
                   <p className="mt-0.5 text-[11px]" style={{ color: '#6e6e76' }}>
-                    {upd.provider} — {upd.currentVersion ? `v${upd.currentVersion}` : 'Unknown'} → v{upd.availableVersion}
+                    {upd.provider} — {upd.currentVersion ? `v${upd.currentVersion}` : t('driverManager.versionUnknown')} → v{upd.availableVersion}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
@@ -486,7 +486,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             <div className="flex items-center gap-2.5">
               <Trash2 className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
               <span className="text-[13px] font-semibold text-zinc-200">
-                Stale Packages ({stalePackages.length})
+                {t('driverManager.stalePackages', { count: stalePackages.length })}
               </span>
               {totalStaleSize > 0 && (
                 <span className="rounded-md px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>
@@ -500,7 +500,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
                 style={{ background: 'rgba(255,255,255,0.04)', color: '#6e6e76' }}
               >
-                {allStaleSelected ? 'Deselect All' : 'Select All'}
+                {allStaleSelected ? t('driverManager.deselectAll') : t('driverManager.selectAll')}
               </button>
             </div>
           </div>
@@ -550,9 +550,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         open={showConfirm}
         onConfirm={handleApply}
         onCancel={() => setShowConfirm(false)}
-        title="Update & Clean Drivers"
+        title={t('driverManager.confirmTitle')}
         description={confirmDesc}
-        confirmLabel="Update & Clean"
+        confirmLabel={t('driverManager.confirmLabel')}
         variant="danger"
       />
     </div>

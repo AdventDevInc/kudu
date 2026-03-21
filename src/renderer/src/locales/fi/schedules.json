@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Aikataulut",
+  "pageDescription": "Automatisoi tarkistukset, puhdistukset ja päivitykset aikataulun mukaan",
+  "newScheduleButton": "Uusi aikataulu",
+  "createScheduleButton": "Luo aikataulu",
+  "emptyStateTitle": "Ei vielä aikatauluja",
+  "emptyStateDescription": "Luo aikataulu, jotta tarkistukset, puhdistukset ja päivitykset suoritetaan automaattisesti.",
+  "maxSchedulesReached": "Enimmäismäärä {{max}} aikataulua on saavutettu.",
+  "duplicatedToast": "Monistettu \"{{name}}\"",
+  "deletedToast": "Poistettu \"{{name}}\"",
+  "updatedToast": "Päivitetty \"{{name}}\"",
+  "createdToast": "Luotu \"{{name}}\"",
+  "failedEnableStartup": "Käynnistyksen yhteydessä suoritusta ei voitu ottaa käyttöön. Aikataulut eivät ehkä käynnisty uudelleenkäynnistyksen jälkeen.",
+  "deleteConfirmTitle": "Poista aikataulu",
+  "deleteConfirmDescription": "Tämä aikataulu poistetaan pysyvästi. Tätä toimintoa ei voi kumota.",
+  "deleteConfirmLabel": "Poista",
+  "card": {
+    "autoApplyBadge": "Käytä automaattisesti",
+    "editAction": "Muokkaa",
+    "duplicateAction": "Monista",
+    "deleteAction": "Poista",
+    "noTasksSelected": "Tehtäviä ei ole valittu",
+    "nextRun": "Seuraava: {{time}}",
+    "lastRun": "Viimeisin: {{time}}",
+    "neverRun": "Ei koskaan suoritettu"
+  },
+  "presets": {
+    "dialogTitle": "Valitse malli",
+    "weeklyFullCleanLabel": "Viikoittainen täysi puhdistus",
+    "weeklyFullCleanDescription": "Kaikki puhdistusluokat joka maanantai klo 9",
+    "dailyLightSweepLabel": "Päivittäinen kevyt puhdistus",
+    "dailyLightSweepDescription": "Järjestelmä, selaimet ja roskakori päivittäin klo 8",
+    "monthlyDeepMaintenanceLabel": "Kuukausittainen perusteellinen ylläpito",
+    "monthlyDeepMaintenanceDescription": "Täysi puhdistus + rekisteri, ohjaimet ja ohjelmistot kuukauden 1. päivänä klo 10",
+    "customLabel": "Mukautettu",
+    "customDescription": "Aloita tyhjästä uudella aikataululla"
+  },
+  "dialog": {
+    "editTitle": "Muokkaa aikataulua",
+    "newTitle": "Uusi aikataulu",
+    "nameLabel": "Nimi",
+    "namePlaceholder": "esim. Viikoittainen perusteellinen puhdistus",
+    "frequencyLabel": "Toistuvuus",
+    "frequencyDaily": "Päivittäin",
+    "frequencyWeekly": "Viikoittain",
+    "frequencyMonthly": "Kuukausittain",
+    "dayLabel": "Päivä",
+    "timeLabel": "Aika",
+    "tasksLabel": "Tehtävät",
+    "selectAll": "Valitse kaikki",
+    "deselectAll": "Poista kaikkien valinta",
+    "cleanerGroup": "Puhdistus",
+    "maintenanceGroup": "Ylläpito",
+    "autoApplyLabel": "Käytä automaattisesti",
+    "autoApplyDescription": "Puhdista tiedostot, korjaa rekisteriongelmat ja asenna päivitykset automaattisesti ilman vahvistusta.",
+    "autoApplyWarning": "Toiminnot suoritetaan automaattisesti aikataulun mukaan. Varmista, että poissulkemisluettelosi on ajan tasalla.",
+    "cancelButton": "Peruuta",
+    "saveChangesButton": "Tallenna muutokset",
+    "createScheduleButton": "Luo aikataulu"
+  },
+  "tasks": {
+    "system": "Järjestelmä",
+    "browsers": "Selaimet",
+    "applications": "Sovellukset",
+    "gaming": "Pelaaminen",
+    "recycleBin": "Roskakori",
+    "databases": "Tietokannat",
+    "registryFixes": "Rekisterikorjaukset",
+    "driverUpdates": "Ohjainpäivitykset",
+    "softwareUpdates": "Ohjelmistopäivitykset"
+  },
+  "dayNames": {
+    "sunday": "Sunnuntai",
+    "monday": "Maanantai",
+    "tuesday": "Tiistai",
+    "wednesday": "Keskiviikko",
+    "thursday": "Torstai",
+    "friday": "Perjantai",
+    "saturday": "Lauantai"
+  },
+  "frequency": {
+    "everyDayAt": "Joka päivä klo {{time}}",
+    "everyWeekdayAt": "Joka {{day}} klo {{time}}",
+    "monthlyAt": "Joka kuukauden {{ordinalDay}} klo {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Tänään klo {{time}}",
+    "tomorrowAt": "Huomenna klo {{time}}",
+    "inDaysAt": "{{count}} päivän kuluttua klo {{time}}",
+    "dateAt": "{{date}} klo {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Juuri nyt",
+    "minutesAgo": "{{count}} min sitten",
+    "hoursAgo": "{{count}} h sitten",
+    "daysAgo": "{{count}} pv sitten"
+  },
+  "copyNameSuffix": "(kopio)"
+}

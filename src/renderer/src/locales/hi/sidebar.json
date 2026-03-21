@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "सिस्टम क्लीनर",
+  "dashboard": "डैशबोर्ड",
+  "securityHeading": "सुरक्षा",
+  "malwareScanner": "मैलवेयर स्कैनर",
+  "threatMonitor": "खतरा मॉनिटर",
+  "systemHardening": "सिस्टम सुदृढ़ीकरण",
+  "maintainHeading": "रखरखाव",
+  "cleaner": "क्लीनर",
+  "registry": "रजिस्ट्री",
+  "startup": "स्टार्टअप",
+  "network": "नेटवर्क",
+  "uninstaller": "अनइंस्टॉलर",
+  "updates": "अपडेट्स",
+  "schedules": "अनुसूचियाँ",
+  "toolsHeading": "उपकरण",
+  "performance": "प्रदर्शन",
+  "diskAnalyzer": "डिस्क विश्लेषक",
+  "history": "इतिहास",
+  "settings": "सेटिंग्स"
+}

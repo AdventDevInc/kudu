@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "系统清理工具",
+  "dashboard": "仪表板",
+  "securityHeading": "安全",
+  "malwareScanner": "恶意软件扫描",
+  "threatMonitor": "威胁监控",
+  "systemHardening": "系统加固",
+  "maintainHeading": "维护",
+  "cleaner": "清理",
+  "registry": "注册表",
+  "startup": "启动项",
+  "network": "网络",
+  "uninstaller": "卸载程序",
+  "updates": "更新",
+  "schedules": "计划任务",
+  "toolsHeading": "工具",
+  "performance": "性能",
+  "diskAnalyzer": "磁盘分析",
+  "history": "历史记录",
+  "settings": "设置"
+}

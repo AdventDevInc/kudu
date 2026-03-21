@@ -1,0 +1,28 @@
+{
+  "pageTitle": "खतरा मॉनिटर",
+  "pageDescription": "ज्ञात खतरा सूचियों के विरुद्ध नेटवर्क कनेक्शनों की रीयल-टाइम निगरानी।",
+  "cloudNotConfigured": {
+    "title": "Cloud कॉन्फ़िगर नहीं है",
+    "description": "खतरा निगरानी सक्षम करने के लिए Settings में अपने डिवाइस को Kudu Cloud से लिंक करें। खतरा ब्लैकलिस्ट cloud सेवा द्वारा प्रदान की जाती है।"
+  },
+  "loading": "लोड हो रहा है...",
+  "inactive": {
+    "title": "खतरा मॉनिटर निष्क्रिय है",
+    "description": "कोई खतरा ब्लैकलिस्ट लोड नहीं है। cloud agent के कनेक्ट होने पर ब्लैकलिस्ट स्वचालित रूप से प्राप्त की जाएगी।"
+  },
+  "statusBar": {
+    "blacklistVersion": "ब्लैकलिस्ट",
+    "connectionsScanned": "कनेक्शन स्कैन किए गए {{time}}",
+    "dnsScanned": "DNS स्कैन किया गया {{time}}",
+    "threatsDetected": "{{count}} खतरा पता चला",
+    "threatsDetectedPlural": "{{count}} खतरे पता चले",
+    "noThreatsDetected": "कोई खतरा पता नहीं चला"
+  },
+  "allClear": {
+    "title": "सब स्पष्ट है",
+    "description": "कोई संदिग्ध कनेक्शन या DNS प्रविष्टियाँ पता नहीं चलीं। मॉनिटर पृष्ठभूमि में स्कैन करना जारी रखता है।"
+  },
+  "flaggedConnections": "चिह्नित कनेक्शन",
+  "flaggedDnsEntries": "चिह्नित DNS प्रविष्टियाँ",
+  "connectionPid": "PID {{pid}}"
+}

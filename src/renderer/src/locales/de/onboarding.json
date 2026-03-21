@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Willkommen bei Kudu",
+  "welcomeDescription": "Ihr All-in-One-Systemreiniger für Windows. Kudu entfernt Junk-Dateien, behebt Registrierungsprobleme, verwaltet Autostartprogramme und sorgt dafür, dass Ihr PC schnell bleibt.",
+  "featureSmartCleaning": "Intelligente Reinigung",
+  "featureFasterBoot": "Schnellerer Start",
+  "featureSafeSecure": "Sicher & geschützt",
+  "getStarted": "Erste Schritte",
+  "recommendedSetupTitle": "Empfohlene Einrichtung",
+  "recommendedSetupDescription": "Wir empfehlen diese Einstellungen für die beste Nutzungserfahrung. Sie können sie später in den Einstellungen ändern.",
+  "runAtStartupLabel": "Beim Start ausführen",
+  "runAtStartupDescription": "Kudu starten, wenn Windows gestartet wird, damit Ihr PC automatisch sauber bleibt",
+  "minimizeToTrayLabel": "In den Infobereich minimieren",
+  "minimizeToTrayDescription": "Kudu unauffällig im Hintergrund weiter ausführen",
+  "weeklyAutoCleanLabel": "Wöchentliche automatische Reinigung",
+  "weeklyAutoCleanDescription": "Jeden Montag um 9:00 Uhr nach Junk-Dateien suchen und diese bereinigen",
+  "back": "Zurück",
+  "continue": "Weiter",
+  "allSetTitle": "Alles ist bereit!",
+  "allSetDescription": "Kudu sorgt im Hintergrund dafür, dass Ihr PC reibungslos läuft.",
+  "firstScanScheduled": "Ihr erster automatischer Scan ist für Montag um 9:00 Uhr geplant.",
+  "startCleaning": "Reinigung starten"
+}

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Radar, ShieldCheck, Globe, Wifi, CloudOff, Clock } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -15,6 +16,7 @@ function formatTime(iso: string): string {
 }
 
 export function ThreatMonitorPage() {
+  const { t } = useTranslation('threatMonitor')
   const snapshot = useThreatMonitorStore((s) => s.snapshot)
   const loaded = useThreatMonitorStore((s) => s.loaded)
   const load = useThreatMonitorStore((s) => s.load)
@@ -30,13 +32,13 @@ export function ThreatMonitorPage() {
     return (
       <div className="p-8">
         <PageHeader
-          title="Threat Monitor"
-          description="Real-time monitoring of network connections against known threat lists."
+          title={t('pageTitle')}
+          description={t('pageDescription')}
         />
         <EmptyState
           icon={CloudOff}
-          title="Cloud not configured"
-          description="Link your device to Kudu Cloud in Settings to enable threat monitoring. The threat blacklist is provided by the cloud service."
+          title={t('cloudNotConfigured.title')}
+          description={t('cloudNotConfigured.description')}
         />
       </div>
     )
@@ -47,11 +49,11 @@ export function ThreatMonitorPage() {
     return (
       <div className="p-8">
         <PageHeader
-          title="Threat Monitor"
-          description="Real-time monitoring of network connections against known threat lists."
+          title={t('pageTitle')}
+          description={t('pageDescription')}
         />
         <div className="flex items-center justify-center py-20">
-          <div className="text-[13px]" style={{ color: '#6e6e76' }}>Loading...</div>
+          <div className="text-[13px]" style={{ color: '#6e6e76' }}>{t('loading')}</div>
         </div>
       </div>
     )
@@ -62,13 +64,13 @@ export function ThreatMonitorPage() {
     return (
       <div className="p-8">
         <PageHeader
-          title="Threat Monitor"
-          description="Real-time monitoring of network connections against known threat lists."
+          title={t('pageTitle')}
+          description={t('pageDescription')}
         />
         <EmptyState
           icon={Radar}
-          title="Threat monitor inactive"
-          description="No threat blacklist is loaded. The blacklist will be fetched automatically when the cloud agent connects."
+          title={t('inactive.title')}
+          description={t('inactive.description')}
         />
       </div>
     )
@@ -80,8 +82,8 @@ export function ThreatMonitorPage() {
   return (
     <div className="p-8">
       <PageHeader
-        title="Threat Monitor"
-        description="Real-time monitoring of network connections against known threat lists."
+        title={t('pageTitle')}
+        description={t('pageDescription')}
       />
 
       {/* Status bar */}
@@ -91,26 +93,26 @@ export function ThreatMonitorPage() {
       >
         {blacklistVersion && (
           <span style={{ color: '#6e6e76' }}>
-            Blacklist <span className="font-medium text-zinc-400">v{blacklistVersion}</span>
+            {t('statusBar.blacklistVersion')} <span className="font-medium text-zinc-400">v{blacklistVersion}</span>
           </span>
         )}
         {lastConnectionScanAt && (
           <span className="flex items-center gap-1.5" style={{ color: '#6e6e76' }}>
             <Clock className="h-3 w-3" />
-            Connections scanned {formatTime(lastConnectionScanAt)}
+            {t('statusBar.connectionsScanned', { time: formatTime(lastConnectionScanAt) })}
           </span>
         )}
         {lastDnsScanAt && (
           <span className="flex items-center gap-1.5" style={{ color: '#6e6e76' }}>
             <Clock className="h-3 w-3" />
-            DNS scanned {formatTime(lastDnsScanAt)}
+            {t('statusBar.dnsScanned', { time: formatTime(lastDnsScanAt) })}
           </span>
         )}
         <span
           className="ml-auto font-medium"
           style={{ color: totalThreats > 0 ? '#ef4444' : '#22c55e' }}
         >
-          {totalThreats > 0 ? `${totalThreats} threat${totalThreats > 1 ? 's' : ''} detected` : 'No threats detected'}
+          {totalThreats > 0 ? (totalThreats > 1 ? t('statusBar.threatsDetectedPlural', { count: totalThreats }) : t('statusBar.threatsDetected', { count: totalThreats })) : t('statusBar.noThreatsDetected')}
         </span>
       </div>
 
@@ -118,8 +120,8 @@ export function ThreatMonitorPage() {
       {totalThreats === 0 && (
         <EmptyState
           icon={ShieldCheck}
-          title="All clear"
-          description="No suspicious connections or DNS entries have been detected. The monitor continues scanning in the background."
+          title={t('allClear.title')}
+          description={t('allClear.description')}
         />
       )}
 
@@ -128,7 +130,7 @@ export function ThreatMonitorPage() {
         <section className="mb-8">
           <h2 className="mb-3 flex items-center gap-2 text-[14px] font-semibold text-zinc-300">
             <Wifi className="h-4 w-4 text-red-400" strokeWidth={2} />
-            Flagged Connections
+            {t('flaggedConnections')}
             <span
               className="ml-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold leading-none"
               style={{ background: '#ef4444', color: '#fff' }}
@@ -149,7 +151,7 @@ export function ThreatMonitorPage() {
         <section>
           <h2 className="mb-3 flex items-center gap-2 text-[14px] font-semibold text-zinc-300">
             <Globe className="h-4 w-4 text-red-400" strokeWidth={2} />
-            Flagged DNS Entries
+            {t('flaggedDnsEntries')}
             <span
               className="ml-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold leading-none"
               style={{ background: '#ef4444', color: '#fff' }}
@@ -169,6 +171,7 @@ export function ThreatMonitorPage() {
 }
 
 function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
+  const { t } = useTranslation('threatMonitor')
   return (
     <div
       className="flex items-center gap-4 rounded-lg px-4 py-3 text-[13px]"
@@ -178,7 +181,7 @@ function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
         <span className="font-medium text-zinc-200">{conn.remoteAddress}</span>
         <span className="text-zinc-500">:{conn.remotePort}</span>
         {conn.pid != null && (
-          <span className="ml-3 text-zinc-600">PID {conn.pid}</span>
+          <span className="ml-3 text-zinc-600">{t('connectionPid', { pid: conn.pid })}</span>
         )}
       </div>
       <div className="flex items-center gap-3 text-[12px]">

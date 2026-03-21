@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Προγραμματισμοί",
+  "pageDescription": "Αυτοματοποιήστε σαρώσεις, καθαρισμούς και ενημερώσεις βάσει προγράμματος",
+  "newScheduleButton": "Νέος προγραμματισμός",
+  "createScheduleButton": "Δημιουργία προγραμματισμού",
+  "emptyStateTitle": "Δεν υπάρχουν ακόμη προγραμματισμοί",
+  "emptyStateDescription": "Δημιουργήστε έναν προγραμματισμό για να εκτελούνται αυτόματα σαρώσεις, καθαρισμοί και ενημερώσεις.",
+  "maxSchedulesReached": "Έχετε φτάσει το μέγιστο των {{max}} προγραμματισμών.",
+  "duplicatedToast": "Έγινε αντιγραφή του \"{{name}}\"",
+  "deletedToast": "Το \"{{name}}\" διαγράφηκε",
+  "updatedToast": "Το \"{{name}}\" ενημερώθηκε",
+  "createdToast": "Το \"{{name}}\" δημιουργήθηκε",
+  "failedEnableStartup": "Αποτυχία ενεργοποίησης της εκκίνησης. Οι προγραμματισμοί ενδέχεται να μην εκτελούνται μετά από επανεκκίνηση.",
+  "deleteConfirmTitle": "Διαγραφή προγραμματισμού",
+  "deleteConfirmDescription": "Αυτός ο προγραμματισμός θα αφαιρεθεί οριστικά. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+  "deleteConfirmLabel": "Διαγραφή",
+  "card": {
+    "autoApplyBadge": "Αυτόματη εφαρμογή",
+    "editAction": "Επεξεργασία",
+    "duplicateAction": "Αντιγραφή",
+    "deleteAction": "Διαγραφή",
+    "noTasksSelected": "Δεν έχουν επιλεγεί εργασίες",
+    "nextRun": "Επόμενη: {{time}}",
+    "lastRun": "Τελευταία: {{time}}",
+    "neverRun": "Δεν εκτελέστηκε ποτέ"
+  },
+  "presets": {
+    "dialogTitle": "Επιλέξτε ένα πρότυπο",
+    "weeklyFullCleanLabel": "Εβδομαδιαίος πλήρης καθαρισμός",
+    "weeklyFullCleanDescription": "Όλες οι κατηγορίες καθαρισμού κάθε Δευτέρα στις 9 π.μ.",
+    "dailyLightSweepLabel": "Καθημερινός ελαφρύς καθαρισμός",
+    "dailyLightSweepDescription": "Σύστημα, προγράμματα περιήγησης και κάδος ανακύκλωσης καθημερινά στις 8 π.μ.",
+    "monthlyDeepMaintenanceLabel": "Μηνιαία εκτεταμένη συντήρηση",
+    "monthlyDeepMaintenanceDescription": "Πλήρης καθαρισμός + μητρώο, προγράμματα οδήγησης και λογισμικό την 1η κάθε μήνα στις 10 π.μ.",
+    "customLabel": "Προσαρμοσμένο",
+    "customDescription": "Ξεκινήστε από την αρχή με έναν κενό προγραμματισμό"
+  },
+  "dialog": {
+    "editTitle": "Επεξεργασία προγραμματισμού",
+    "newTitle": "Νέος προγραμματισμός",
+    "nameLabel": "Όνομα",
+    "namePlaceholder": "π.χ. Εβδομαδιαίος εκτεταμένος καθαρισμός",
+    "frequencyLabel": "Συχνότητα",
+    "frequencyDaily": "Καθημερινά",
+    "frequencyWeekly": "Εβδομαδιαία",
+    "frequencyMonthly": "Μηνιαία",
+    "dayLabel": "Ημέρα",
+    "timeLabel": "Ώρα",
+    "tasksLabel": "Εργασίες",
+    "selectAll": "Επιλογή όλων",
+    "deselectAll": "Κατάργηση επιλογής όλων",
+    "cleanerGroup": "Καθαρισμός",
+    "maintenanceGroup": "Συντήρηση",
+    "autoApplyLabel": "Αυτόματη εφαρμογή",
+    "autoApplyDescription": "Καθαρίζει αυτόματα αρχεία, διορθώνει προβλήματα μητρώου και εγκαθιστά ενημερώσεις χωρίς επιβεβαίωση.",
+    "autoApplyWarning": "Οι ενέργειες θα εκτελούνται αυτόματα σύμφωνα με το πρόγραμμα. Βεβαιωθείτε ότι η λίστα εξαιρέσεών σας είναι ενημερωμένη.",
+    "cancelButton": "Ακύρωση",
+    "saveChangesButton": "Αποθήκευση αλλαγών",
+    "createScheduleButton": "Δημιουργία προγραμματισμού"
+  },
+  "tasks": {
+    "system": "Σύστημα",
+    "browsers": "Προγράμματα περιήγησης",
+    "applications": "Εφαρμογές",
+    "gaming": "Παιχνίδια",
+    "recycleBin": "Κάδος ανακύκλωσης",
+    "databases": "Βάσεις δεδομένων",
+    "registryFixes": "Διορθώσεις μητρώου",
+    "driverUpdates": "Ενημερώσεις προγραμμάτων οδήγησης",
+    "softwareUpdates": "Ενημερώσεις λογισμικού"
+  },
+  "dayNames": {
+    "sunday": "Κυριακή",
+    "monday": "Δευτέρα",
+    "tuesday": "Τρίτη",
+    "wednesday": "Τετάρτη",
+    "thursday": "Πέμπτη",
+    "friday": "Παρασκευή",
+    "saturday": "Σάββατο"
+  },
+  "frequency": {
+    "everyDayAt": "Κάθε μέρα στις {{time}}",
+    "everyWeekdayAt": "Κάθε {{day}} στις {{time}}",
+    "monthlyAt": "Την {{ordinalDay}} κάθε μήνα στις {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Σήμερα στις {{time}}",
+    "tomorrowAt": "Αύριο στις {{time}}",
+    "inDaysAt": "Σε {{count}} ημέρες στις {{time}}",
+    "dateAt": "{{date}} στις {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Μόλις τώρα",
+    "minutesAgo": "πριν από {{count}}λ",
+    "hoursAgo": "πριν από {{count}}ω",
+    "daysAgo": "πριν από {{count}}η"
+  },
+  "copyNameSuffix": "(αντίγραφο)"
+}

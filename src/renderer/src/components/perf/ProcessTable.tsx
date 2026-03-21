@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Search, ArrowUpDown, Zap, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn, formatBytes } from '@/lib/utils'
@@ -7,6 +8,7 @@ import { usePerfStore } from '@/stores/perf-store'
 import type { PerfProcess } from '@shared/types'
 
 export function ProcessTable() {
+  const { t } = useTranslation('performance')
   const processList = usePerfStore((s) => s.processList)
   const processCount = usePerfStore((s) => s.processCount)
   const filter = usePerfStore((s) => s.processFilter)
@@ -45,12 +47,12 @@ export function ProcessTable() {
     try {
       const result = await window.kudu.perfKillProcess(killTarget.pid)
       if (result.success) {
-        toast.success(`Ended ${killTarget.name} (PID ${killTarget.pid})`)
+        toast.success(t('endProcessSuccessToast', { name: killTarget.name, pid: killTarget.pid }))
       } else {
-        toast.error(result.error || 'Failed to end process')
+        toast.error(result.error || t('endProcessFailedToast'))
       }
     } catch {
-      toast.error('Failed to end process')
+      toast.error(t('endProcessFailedToast'))
     } finally {
       setKilling(false)
       setKillTarget(null)
@@ -85,9 +87,9 @@ export function ProcessTable() {
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-baseline gap-2">
-          <span className="text-[13px] font-semibold text-white">Processes</span>
+          <span className="text-[13px] font-semibold text-white">{t('processes')}</span>
           <span className="text-[11px]" style={{ color: '#6e6e76' }}>
-            {processCount} total
+            {processCount} {t('totalSuffix')}
           </span>
         </div>
         <div
@@ -99,7 +101,7 @@ export function ProcessTable() {
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter processes..."
+            placeholder={t('filterProcessesPlaceholder')}
             className="bg-transparent text-[12px] text-zinc-300 placeholder-zinc-600 outline-none"
             style={{ width: 160 }}
           />
@@ -113,10 +115,10 @@ export function ProcessTable() {
 
       {/* Column headers */}
       <div className="mb-2 flex items-center gap-2 px-2">
-        <SortHeader column="name" label="Name" width="40%" />
-        <SortHeader column="pid" label="PID" width="12%" />
-        <SortHeader column="cpuPercent" label="CPU" width="20%" />
-        <SortHeader column="memBytes" label="Memory" width="18%" />
+        <SortHeader column="name" label={t('columnName')} width="40%" />
+        <SortHeader column="pid" label={t('columnPid')} width="12%" />
+        <SortHeader column="cpuPercent" label={t('columnCpu')} width="20%" />
+        <SortHeader column="memBytes" label={t('columnMemory')} width="18%" />
         <div style={{ width: '10%' }} />
       </div>
 
@@ -134,10 +136,10 @@ export function ProcessTable() {
                 <span
                   className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase"
                   style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}
-                  title={`Startup item: ${p.startupItemName}`}
+                  title={t('startupItemTooltip', { name: p.startupItemName })}
                 >
                   <Zap className="mr-0.5 inline h-2.5 w-2.5" />
-                  Startup
+                  {t('startupBadge')}
                 </span>
               )}
             </div>
@@ -175,7 +177,7 @@ export function ProcessTable() {
                 className="rounded-lg px-2 py-1 text-[10px] font-medium opacity-0 transition-all group-hover:opacity-100"
                 style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}
               >
-                End
+                {t('endButton')}
               </button>
             </div>
           </div>
@@ -186,9 +188,9 @@ export function ProcessTable() {
         open={!!killTarget}
         onConfirm={handleKill}
         onCancel={() => setKillTarget(null)}
-        title={`End ${killTarget?.name ?? 'process'}?`}
-        description={`This will forcefully terminate ${killTarget?.name} (PID ${killTarget?.pid}). Unsaved data in this application may be lost.`}
-        confirmLabel={killing ? 'Ending...' : 'End Process'}
+        title={t('endProcessTitle', { name: killTarget?.name ?? 'process' })}
+        description={t('endProcessDescription', { name: killTarget?.name, pid: killTarget?.pid })}
+        confirmLabel={killing ? t('endProcessEnding') : t('endProcessConfirm')}
         variant="danger"
       />
     </div>

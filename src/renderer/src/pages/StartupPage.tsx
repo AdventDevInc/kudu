@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Zap, Shield, RefreshCw, Clock, Activity, TrendingDown, ChevronDown, ChevronUp, BarChart3, Trash2 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import { toast } from 'sonner'
@@ -24,17 +25,17 @@ const impactBarColors: Record<string, string> = {
   low: '#22c55e'
 }
 
-const sourceLabels: Record<StartupItem['source'], string> = {
-  'registry-hkcu': 'User Registry',
-  'registry-hklm': 'System Registry',
-  'startup-folder': 'Startup Folder',
-  'task-scheduler': 'Task Scheduler',
-  'launch-agent-user': 'User Launch Agent',
-  'launch-agent-global': 'Global Launch Agent',
-  'login-item': 'Login Item',
-  'systemd-user': 'Systemd User Service',
-  'autostart-desktop': 'XDG Autostart',
-  'cron': 'Cron Job',
+const sourceKeys: Record<StartupItem['source'], string> = {
+  'registry-hkcu': 'sourceUserRegistry',
+  'registry-hklm': 'sourceSystemRegistry',
+  'startup-folder': 'sourceStartupFolder',
+  'task-scheduler': 'sourceTaskScheduler',
+  'launch-agent-user': 'sourceLaunchAgentUser',
+  'launch-agent-global': 'sourceLaunchAgentGlobal',
+  'login-item': 'sourceLoginItem',
+  'systemd-user': 'sourceSystemdUser',
+  'autostart-desktop': 'sourceAutostartDesktop',
+  'cron': 'sourceCron',
 }
 
 function formatMs(ms: number): string {
@@ -44,6 +45,7 @@ function formatMs(ms: number): string {
 }
 
 function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; loading: boolean }) {
+  const { t } = useTranslation('startup')
   const [expanded, setExpanded] = useState(true)
 
   if (loading) {
@@ -51,7 +53,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
       <div className="mb-5 rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 border-t-amber-500" />
-          <span className="text-[13px] text-zinc-500">Analyzing boot trace data...</span>
+          <span className="text-[13px] text-zinc-500">{t('bootTraceAnalyzing')}</span>
         </div>
       </div>
     )
@@ -64,8 +66,8 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
           <BarChart3 className="h-4.5 w-4.5" strokeWidth={1.8} />
           <span className="text-[13px]">
             {trace?.needsAdmin
-              ? 'Boot trace data requires administrator privileges — restart the app as administrator to view startup impact analysis.'
-              : 'Boot trace analysis is not available on this platform.'}
+              ? t('bootTraceNeedsAdmin')
+              : t('bootTraceNotAvailable')}
           </span>
         </div>
       </div>
@@ -82,9 +84,9 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
   }})
 
   const pieData = [
-    { name: 'Core Boot', value: Math.max(0, trace.mainPathMs - trace.startupAppsMs), fill: '#3b82f6' },
-    { name: 'Startup Apps', value: trace.startupAppsMs, fill: '#f59e0b' },
-    { name: 'Other', value: Math.max(0, trace.totalBootMs - trace.mainPathMs), fill: '#27272a' }
+    { name: t('pieCoreBoot'), value: Math.max(0, trace.mainPathMs - trace.startupAppsMs), fill: '#3b82f6' },
+    { name: t('pieStartupApps'), value: trace.startupAppsMs, fill: '#f59e0b' },
+    { name: t('pieOther'), value: Math.max(0, trace.totalBootMs - trace.mainPathMs), fill: '#27272a' }
   ].filter((d) => d.value > 0)
 
   const highCount = trace.entries.filter((e) => e.impact === 'high').length
@@ -102,19 +104,19 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
             <Activity className="h-4.5 w-4.5" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
           </div>
           <div>
-            <h3 className="text-[14px] font-medium text-zinc-200">Startup Impact Analysis</h3>
+            <h3 className="text-[14px] font-medium text-zinc-200">{t('bootTraceTitle')}</h3>
             <p className="text-[12px]" style={{ color: '#52525e' }}>
               {trace.lastBootDate
-                ? `Last boot: ${new Date(trace.lastBootDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-                : 'Based on last boot trace'}
+                ? t('bootTraceLastBoot', { date: new Date(trace.lastBootDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) })
+                : t('bootTraceBasedOnLastBoot')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-4 text-[12px]">
-            <span className="text-zinc-500">Total boot: <span className="font-semibold text-zinc-300">{formatMs(trace.totalBootMs)}</span></span>
+            <span className="text-zinc-500">{t('bootTraceTotalBoot')} <span className="font-semibold text-zinc-300">{formatMs(trace.totalBootMs)}</span></span>
             {highCount > 0 && (
-              <span className="text-red-400/80">{highCount} high-impact {highCount === 1 ? 'app' : 'apps'}</span>
+              <span className="text-red-400/80">{highCount === 1 ? t('bootTraceHighImpactApp', { count: highCount }) : t('bootTraceHighImpactApps', { count: highCount })}</span>
             )}
           </div>
           {expanded ? <ChevronUp className="h-4 w-4 text-zinc-600" /> : <ChevronDown className="h-4 w-4 text-zinc-600" />}
@@ -125,16 +127,16 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
         <div className="px-5 pb-5">
           {/* Stat cards row */}
           <div className="grid grid-cols-2 gap-3 mb-5 sm:grid-cols-4">
-            <StatMini icon={Clock} label="Total Boot Time" value={formatMs(trace.totalBootMs)} color="#3b82f6" />
-            <StatMini icon={Zap} label="Startup Apps Delay" value={formatMs(trace.startupAppsMs)} color="#f59e0b" />
-            <StatMini icon={Activity} label="Apps Measured" value={String(trace.entries.length)} color="#8b5cf6" />
-            <StatMini icon={TrendingDown} label="Potential Savings" value={potentialSavings > 0 ? formatMs(potentialSavings) : '—'} color="#22c55e" />
+            <StatMini icon={Clock} label={t('statTotalBootTime')} value={formatMs(trace.totalBootMs)} color="#3b82f6" />
+            <StatMini icon={Zap} label={t('statStartupAppsDelay')} value={formatMs(trace.startupAppsMs)} color="#f59e0b" />
+            <StatMini icon={Activity} label={t('statAppsMeasured')} value={String(trace.entries.length)} color="#8b5cf6" />
+            <StatMini icon={TrendingDown} label={t('statPotentialSavings')} value={potentialSavings > 0 ? formatMs(potentialSavings) : '—'} color="#22c55e" />
           </div>
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             {/* Bar chart — per-app delay */}
             <div className="lg:col-span-2 rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-              <h4 className="mb-3 text-[12px] font-medium text-zinc-400">Boot Time Impact by Application</h4>
+              <h4 className="mb-3 text-[12px] font-medium text-zinc-400">{t('chartBootTimeImpact')}</h4>
               {barData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={Math.max(200, barData.length * 32 + 20)}>
                   <BarChart data={barData} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
@@ -165,7 +167,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
                       }}
                       labelStyle={{ color: '#e4e4e7' }}
                       itemStyle={{ color: '#a1a1aa' }}
-                      formatter={(value: unknown) => [formatMs(value as number), 'Delay']}
+                      formatter={(value: unknown) => [formatMs(value as number), t('chartTooltipDelay')]}
                       labelFormatter={(label: unknown, payload: readonly { payload?: { fullName?: string } }[]) =>
                         payload?.[0]?.payload?.fullName || String(label)
                       }
@@ -179,14 +181,14 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
                 </ResponsiveContainer>
               ) : (
                 <div className="flex h-[200px] items-center justify-center text-[13px] text-zinc-600">
-                  No per-app boot data available
+                  {t('chartNoPerAppData')}
                 </div>
               )}
             </div>
 
             {/* Pie chart — boot time breakdown */}
             <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
-              <h4 className="mb-3 text-[12px] font-medium text-zinc-400">Boot Time Breakdown</h4>
+              <h4 className="mb-3 text-[12px] font-medium text-zinc-400">{t('chartBootTimeBreakdown')}</h4>
               <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
@@ -250,6 +252,7 @@ function StatMini({ icon: Icon, label, value, color }: { icon: React.ElementType
 }
 
 export function StartupPage() {
+  const { t } = useTranslation('startup')
   const items = useStartupStore((s) => s.items)
   const loading = useStartupStore((s) => s.loading)
   const sortBy = useStartupStore((s) => s.sortBy)
@@ -269,7 +272,7 @@ export function StartupPage() {
       store.getState().setItems(list)
     } catch (err) {
       console.error('Failed to load startup items:', err)
-      store.getState().setError('Failed to load startup items. Make sure the app is running properly.')
+      store.getState().setError(t('errorFailedToLoad'))
     }
     store.getState().setLoading(false)
   }, [])
@@ -301,8 +304,8 @@ export function StartupPage() {
       const success = await window.kudu.startupToggle(item.name, item.location, item.command, item.source, enabled)
       if (!success) {
         store.getState().updateItem(item.id, { enabled: !enabled })
-        toast.error(`Failed to ${enabled ? 'enable' : 'disable'} ${item.displayName}`, { description: 'This may require administrator privileges' })
-        store.getState().setError(`Failed to ${enabled ? 'enable' : 'disable'} ${item.displayName}. This may require administrator privileges.`)
+        toast.error(enabled ? t('toastFailedToEnable', { name: item.displayName }) : t('toastFailedToDisable', { name: item.displayName }), { description: t('toastAdminRequired') })
+        store.getState().setError(t('errorFailedToToggle', { action: enabled ? 'enable' : 'disable', name: item.displayName }))
         return
       }
       await useHistoryStore.getState().addEntry({
@@ -314,13 +317,13 @@ export function StartupPage() {
         totalItemsCleaned: 1,
         totalItemsSkipped: 0,
         totalSpaceSaved: 0,
-        categories: [{ name: enabled ? 'Enabled' : 'Disabled', itemsFound: 1, itemsCleaned: 1, spaceSaved: 0 }],
+        categories: [{ name: enabled ? t('historyCategoryEnabled') : t('historyCategoryDisabled'), itemsFound: 1, itemsCleaned: 1, spaceSaved: 0 }],
         errorCount: 0
       })
     } catch {
       store.getState().updateItem(item.id, { enabled: !enabled })
-      toast.error(`Failed to ${enabled ? 'enable' : 'disable'} ${item.displayName}`, { description: 'This may require administrator privileges' })
-      store.getState().setError(`Failed to ${enabled ? 'enable' : 'disable'} ${item.displayName}. This may require administrator privileges.`)
+      toast.error(enabled ? t('toastFailedToEnable', { name: item.displayName }) : t('toastFailedToDisable', { name: item.displayName }), { description: t('toastAdminRequired') })
+      store.getState().setError(t('errorFailedToToggle', { action: enabled ? 'enable' : 'disable', name: item.displayName }))
     }
   }
 
@@ -339,16 +342,16 @@ export function StartupPage() {
           totalItemsCleaned: 1,
           totalItemsSkipped: 0,
           totalSpaceSaved: 0,
-          categories: [{ name: 'Removed', itemsFound: 1, itemsCleaned: 1, spaceSaved: 0 }],
+          categories: [{ name: t('historyCategoryRemoved'), itemsFound: 1, itemsCleaned: 1, spaceSaved: 0 }],
           errorCount: 0
         })
       } else {
-        toast.error(`Failed to remove ${item.displayName}`, { description: 'This may require administrator privileges' })
-        store.getState().setError(`Failed to remove ${item.displayName}. This may require administrator privileges.`)
+        toast.error(t('toastFailedToRemove', { name: item.displayName }), { description: t('toastAdminRequired') })
+        store.getState().setError(t('errorFailedToRemove', { name: item.displayName }))
       }
     } catch {
-      toast.error(`Failed to remove ${item.displayName}`, { description: 'This may require administrator privileges' })
-      store.getState().setError(`Failed to remove ${item.displayName}. This may require administrator privileges.`)
+      toast.error(t('toastFailedToRemove', { name: item.displayName }), { description: t('toastAdminRequired') })
+      store.getState().setError(t('errorFailedToRemove', { name: item.displayName }))
     }
     store.getState().setDeleteTarget(null)
   }
@@ -360,22 +363,22 @@ export function StartupPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Startup Manager"
-        description="Manage programs that run at startup"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         action={
           <div className="flex items-center gap-2.5">
             <select value={filterBy} onChange={(e) => store.getState().setFilterBy(e.target.value as any)}
               className="rounded-xl px-4 py-2.5 text-[13px] text-zinc-400 outline-none"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <option value="all">All Items</option>
-              <option value="active">Active Only</option>
-              <option value="disabled">Disabled Only</option>
+              <option value="all">{t('filterAll')}</option>
+              <option value="active">{t('filterActive')}</option>
+              <option value="disabled">{t('filterDisabled')}</option>
             </select>
             <select value={sortBy} onChange={(e) => store.getState().setSortBy(e.target.value as any)}
               className="rounded-xl px-4 py-2.5 text-[13px] text-zinc-400 outline-none"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <option value="impact">Sort by Impact</option>
-              <option value="name">Sort by Name</option>
+              <option value="impact">{t('sortByImpact')}</option>
+              <option value="name">{t('sortByName')}</option>
             </select>
             <button onClick={() => { loadItems(); loadBootTrace() }} disabled={loading}
               className="flex items-center justify-center rounded-xl p-2.5 text-zinc-500 transition-colors"
@@ -392,7 +395,7 @@ export function StartupPage() {
       {error && <ErrorAlert message={error} onDismiss={() => store.getState().setError(null)} className="mb-5" />}
 
       {items.length === 0 && !loading && !error && (
-        <EmptyState icon={Zap} title="No startup items found" description="Unable to detect startup programs." />
+        <EmptyState icon={Zap} title={t('emptyStateTitle')} description={t('emptyStateDescription')} />
       )}
 
       <div className="space-y-2.5">
@@ -415,7 +418,7 @@ export function StartupPage() {
               <div className="mt-0.5 flex items-center gap-2 text-[12px]" style={{ color: '#52525e' }}>
                 <span>{item.publisher}</span>
                 <span style={{ color: '#2a2a30' }}>·</span>
-                <span>{sourceLabels[item.source]}</span>
+                <span>{t(sourceKeys[item.source])}</span>
               </div>
               <div className="mt-1 truncate font-mono text-[11px]" style={{ color: '#3a3a42' }} title={item.command}>
                 {item.command}
@@ -425,7 +428,7 @@ export function StartupPage() {
             {/* Impact */}
             <span className="rounded-lg px-3 py-1.5 text-[11px] font-semibold capitalize"
               style={{ background: impactStyles[item.impact].bg, color: impactStyles[item.impact].text }}>
-              {item.impact} impact
+              {t('impactLabel', { level: item.impact })}
             </span>
 
             {/* Toggle + Delete */}
@@ -442,7 +445,7 @@ export function StartupPage() {
                 onClick={() => store.getState().setDeleteTarget(item)}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:text-red-400"
                 style={{ background: 'rgba(255,255,255,0.02)' }}
-                title={`Remove ${item.displayName}`}
+                title={t('removeButtonTitle', { name: item.displayName })}
               >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
               </button>
@@ -456,10 +459,10 @@ export function StartupPage() {
           open
           onCancel={() => store.getState().setDeleteTarget(null)}
           onConfirm={() => handleDelete(deleteTarget)}
-          title={`Remove ${deleteTarget.displayName}?`}
-          description="This will permanently remove this startup entry. The program will no longer start with Windows."
+          title={t('confirmRemoveTitle', { name: deleteTarget.displayName })}
+          description={t('confirmRemoveDescription')}
           details={deleteTarget.command && deleteTarget.command !== 'undefined' ? deleteTarget.command : undefined}
-          confirmLabel="Remove"
+          confirmLabel={t('confirmRemoveLabel')}
           variant="danger"
         />
       )}

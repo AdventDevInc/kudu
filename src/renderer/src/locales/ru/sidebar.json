@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "ОЧИСТКА СИСТЕМЫ",
+  "dashboard": "Панель управления",
+  "securityHeading": "БЕЗОПАСНОСТЬ",
+  "malwareScanner": "Сканер вредоносных программ",
+  "threatMonitor": "Монитор угроз",
+  "systemHardening": "Укрепление системы",
+  "maintainHeading": "ОБСЛУЖИВАНИЕ",
+  "cleaner": "Очистка",
+  "registry": "Реестр",
+  "startup": "Автозагрузка",
+  "network": "Сеть",
+  "uninstaller": "Удаление программ",
+  "updates": "Обновления",
+  "schedules": "Расписания",
+  "toolsHeading": "ИНСТРУМЕНТЫ",
+  "performance": "Производительность",
+  "diskAnalyzer": "Анализ диска",
+  "history": "История",
+  "settings": "Настройки"
+}

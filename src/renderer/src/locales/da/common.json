@@ -1,0 +1,18 @@
+{
+  "scanning": "Scanner...",
+  "cleaning": "Rydder op...",
+  "foundLabel": "Fundet:",
+  "itemsUnit": "elementer",
+  "sizeLabel": "Størrelse:",
+  "health": "Tilstand",
+  "cancel": "Annuller",
+  "confirm": "Bekræft",
+  "adminBannerMessage": "Nogle funktioner kræver administratorrettigheder.",
+  "relaunchAsAdmin": "Genstart som administrator",
+  "justNow": "Lige nu",
+  "minutesAgo": "{{minutes}}m siden",
+  "hoursAgo": "{{hours}}t siden",
+  "daysAgo": "{{days}}d siden",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

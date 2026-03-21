@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Ütemezések",
+  "pageDescription": "Vizsgálatok, tisztítások és frissítések automatizálása ütemezés szerint",
+  "newScheduleButton": "Új ütemezés",
+  "createScheduleButton": "Ütemezés létrehozása",
+  "emptyStateTitle": "Még nincsenek ütemezések",
+  "emptyStateDescription": "Hozzon létre egy ütemezést a vizsgálatok, tisztítások és frissítések automatikus futtatásához.",
+  "maxSchedulesReached": "Elérte az ütemezések maximális számát: {{max}}.",
+  "duplicatedToast": "„{{name}}” másolva",
+  "deletedToast": "„{{name}}” törölve",
+  "updatedToast": "„{{name}}” frissítve",
+  "createdToast": "„{{name}}” létrehozva",
+  "failedEnableStartup": "Nem sikerült engedélyezni az automatikus indítást. Előfordulhat, hogy az ütemezések újraindítás után nem futnak le.",
+  "deleteConfirmTitle": "Ütemezés törlése",
+  "deleteConfirmDescription": "Ez az ütemezés véglegesen el lesz távolítva. Ez a művelet nem vonható vissza.",
+  "deleteConfirmLabel": "Törlés",
+  "card": {
+    "autoApplyBadge": "Automatikus alkalmazás",
+    "editAction": "Szerkesztés",
+    "duplicateAction": "Másolás",
+    "deleteAction": "Törlés",
+    "noTasksSelected": "Nincs kiválasztott feladat",
+    "nextRun": "Következő: {{time}}",
+    "lastRun": "Utolsó: {{time}}",
+    "neverRun": "Még nem futott"
+  },
+  "presets": {
+    "dialogTitle": "Válasszon sablont",
+    "weeklyFullCleanLabel": "Heti teljes tisztítás",
+    "weeklyFullCleanDescription": "Minden tisztítási kategória minden hétfőn 9:00-kor",
+    "dailyLightSweepLabel": "Napi könnyű tisztítás",
+    "dailyLightSweepDescription": "Rendszer, böngészők és Lomtár naponta 8:00-kor",
+    "monthlyDeepMaintenanceLabel": "Havi mélykarbantartás",
+    "monthlyDeepMaintenanceDescription": "Teljes tisztítás + beállításjegyzék, illesztőprogramok és szoftverek minden hónap 1-jén 10:00-kor",
+    "customLabel": "Egyéni",
+    "customDescription": "Kezdés üres ütemezéssel"
+  },
+  "dialog": {
+    "editTitle": "Ütemezés szerkesztése",
+    "newTitle": "Új ütemezés",
+    "nameLabel": "Név",
+    "namePlaceholder": "pl. Heti mélytisztítás",
+    "frequencyLabel": "Gyakoriság",
+    "frequencyDaily": "Naponta",
+    "frequencyWeekly": "Hetente",
+    "frequencyMonthly": "Havonta",
+    "dayLabel": "Nap",
+    "timeLabel": "Időpont",
+    "tasksLabel": "Feladatok",
+    "selectAll": "Összes kijelölése",
+    "deselectAll": "Összes kijelölés megszüntetése",
+    "cleanerGroup": "Tisztító",
+    "maintenanceGroup": "Karbantartás",
+    "autoApplyLabel": "Automatikus alkalmazás",
+    "autoApplyDescription": "Fájlok automatikus tisztítása, beállításjegyzék-hibák javítása és frissítések telepítése megerősítés nélkül.",
+    "autoApplyWarning": "A műveletek az ütemezés szerint automatikusan futnak. Győződjön meg róla, hogy a kizárási lista naprakész.",
+    "cancelButton": "Mégse",
+    "saveChangesButton": "Módosítások mentése",
+    "createScheduleButton": "Ütemezés létrehozása"
+  },
+  "tasks": {
+    "system": "Rendszer",
+    "browsers": "Böngészők",
+    "applications": "Alkalmazások",
+    "gaming": "Játékok",
+    "recycleBin": "Lomtár",
+    "databases": "Adatbázisok",
+    "registryFixes": "Beállításjegyzék javítása",
+    "driverUpdates": "Illesztőprogram-frissítések",
+    "softwareUpdates": "Szoftverfrissítések"
+  },
+  "dayNames": {
+    "sunday": "Vasárnap",
+    "monday": "Hétfő",
+    "tuesday": "Kedd",
+    "wednesday": "Szerda",
+    "thursday": "Csütörtök",
+    "friday": "Péntek",
+    "saturday": "Szombat"
+  },
+  "frequency": {
+    "everyDayAt": "Minden nap {{time}}-kor",
+    "everyWeekdayAt": "Minden {{day}} {{time}}-kor",
+    "monthlyAt": "Minden hónap {{ordinalDay}} napján {{time}}-kor"
+  },
+  "nextRun": {
+    "todayAt": "Ma {{time}}-kor",
+    "tomorrowAt": "Holnap {{time}}-kor",
+    "inDaysAt": "{{count}} nap múlva, {{time}}-kor",
+    "dateAt": "{{date}} {{time}}-kor"
+  },
+  "lastRun": {
+    "justNow": "Épp most",
+    "minutesAgo": "{{count}} p perce",
+    "hoursAgo": "{{count}} ó",
+    "daysAgo": "{{count}} n"
+  },
+  "copyNameSuffix": "(másolat)"
+}

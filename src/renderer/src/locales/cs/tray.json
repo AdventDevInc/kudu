@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Otevřít Kudu",
+  "quit": "Ukončit",
+  "scheduledTaskNotificationTitle": "Kudu – Naplánovaná úloha",
+  "scheduledTaskNotificationBody": "Spouští se „{{name}}“…",
+  "scanCompleteNotificationTitle": "Kudu – Kontrola dokončena",
+  "scanCompleteNotificationBody": "Bylo nalezeno {{itemCount}} položek ({{sizeMB}} MB), které lze vyčistit.",
+  "scheduledScanName": "Naplánovaná kontrola"
+}

@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Fenyegetésfigyelő",
+  "pageDescription": "A hálózati kapcsolatok valós idejű figyelése ismert fenyegetési listák alapján.",
+  "cloudNotConfigured": {
+    "title": "A felhő nincs beállítva",
+    "description": "A fenyegetésfigyelés engedélyezéséhez kapcsolja össze eszközét a Kudu Cloud szolgáltatással a Beállításokban. A fenyegetési tiltólistát a felhőszolgáltatás biztosítja."
+  },
+  "loading": "Betöltés...",
+  "inactive": {
+    "title": "A fenyegetésfigyelő inaktív",
+    "description": "Nincs betöltve fenyegetési tiltólista. A tiltólista automatikusan letöltődik, amikor a felhőügynök csatlakozik."
+  },
+  "statusBar": {
+    "blacklistVersion": "Tiltólista",
+    "connectionsScanned": "Kapcsolatok ellenőrizve: {{time}}",
+    "dnsScanned": "DNS ellenőrizve: {{time}}",
+    "threatsDetected": "{{count}} fenyegetés észlelve",
+    "threatsDetectedPlural": "{{count}} fenyegetés észlelve",
+    "noThreatsDetected": "Nem észleltünk fenyegetést"
+  },
+  "allClear": {
+    "title": "Minden rendben",
+    "description": "Nem észleltünk gyanús kapcsolatokat vagy DNS-bejegyzéseket. A figyelő a háttérben továbbra is ellenőriz."
+  },
+  "flaggedConnections": "Megjelölt kapcsolatok",
+  "flaggedDnsEntries": "Megjelölt DNS-bejegyzések",
+  "connectionPid": "PID {{pid}}"
+}

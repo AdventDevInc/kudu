@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "システム クリーナー",
+  "dashboard": "ダッシュボード",
+  "securityHeading": "セキュリティ",
+  "malwareScanner": "マルウェア スキャナー",
+  "threatMonitor": "脅威の監視",
+  "systemHardening": "システムの強化",
+  "maintainHeading": "メンテナンス",
+  "cleaner": "クリーナー",
+  "registry": "レジストリ",
+  "startup": "スタートアップ",
+  "network": "ネットワーク",
+  "uninstaller": "アンインストーラー",
+  "updates": "更新",
+  "schedules": "スケジュール",
+  "toolsHeading": "ツール",
+  "performance": "パフォーマンス",
+  "diskAnalyzer": "ディスク アナライザー",
+  "history": "履歴",
+  "settings": "設定"
+}

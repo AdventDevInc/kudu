@@ -1,0 +1,18 @@
+{
+  "scanning": "Đang quét...",
+  "cleaning": "Đang dọn dẹp...",
+  "foundLabel": "Đã tìm thấy:",
+  "itemsUnit": "mục",
+  "sizeLabel": "Kích thước:",
+  "health": "Tình trạng",
+  "cancel": "Hủy",
+  "confirm": "Xác nhận",
+  "adminBannerMessage": "Một số tính năng yêu cầu quyền quản trị viên.",
+  "relaunchAsAdmin": "Khởi chạy lại với quyền quản trị viên",
+  "justNow": "Vừa xong",
+  "minutesAgo": "{{minutes}} phút trước",
+  "hoursAgo": "{{hours}} giờ trước",
+  "daysAgo": "{{days}} ngày trước",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

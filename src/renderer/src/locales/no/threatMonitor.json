@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Trusselovervåking",
+  "pageDescription": "Sanntidsovervåking av nettverkstilkoblinger mot kjente trussellister.",
+  "cloudNotConfigured": {
+    "title": "Cloud er ikke konfigurert",
+    "description": "Koble enheten din til Kudu Cloud i Innstillinger for å aktivere trusselovervåking. Svartelisten for trusler leveres av skytjenesten."
+  },
+  "loading": "Laster inn...",
+  "inactive": {
+    "title": "Trusselovervåking er inaktiv",
+    "description": "Ingen svarteliste for trusler er lastet inn. Svartelisten hentes automatisk når cloud-agenten kobler til."
+  },
+  "statusBar": {
+    "blacklistVersion": "Svarteliste",
+    "connectionsScanned": "Tilkoblinger skannet {{time}}",
+    "dnsScanned": "DNS skannet {{time}}",
+    "threatsDetected": "{{count}} trussel oppdaget",
+    "threatsDetectedPlural": "{{count}} trusler oppdaget",
+    "noThreatsDetected": "Ingen trusler oppdaget"
+  },
+  "allClear": {
+    "title": "Alt klart",
+    "description": "Ingen mistenkelige tilkoblinger eller DNS-oppføringer er oppdaget. Overvåkingen fortsetter å skanne i bakgrunnen."
+  },
+  "flaggedConnections": "Flaggede tilkoblinger",
+  "flaggedDnsEntries": "Flaggede DNS-oppføringer",
+  "connectionPid": "PID {{pid}}"
+}

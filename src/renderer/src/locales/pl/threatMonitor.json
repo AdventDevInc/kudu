@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Monitor zagrożeń",
+  "pageDescription": "Monitorowanie połączeń sieciowych w czasie rzeczywistym względem znanych list zagrożeń.",
+  "cloudNotConfigured": {
+    "title": "Chmura nie jest skonfigurowana",
+    "description": "Połącz urządzenie z Kudu Cloud w Ustawieniach, aby włączyć monitorowanie zagrożeń. Czarna lista zagrożeń jest dostarczana przez usługę chmurową."
+  },
+  "loading": "Ładowanie...",
+  "inactive": {
+    "title": "Monitor zagrożeń jest nieaktywny",
+    "description": "Nie załadowano żadnej czarnej listy zagrożeń. Czarna lista zostanie pobrana automatycznie po połączeniu agenta chmurowego."
+  },
+  "statusBar": {
+    "blacklistVersion": "Czarna lista",
+    "connectionsScanned": "Połączenia przeskanowane {{time}}",
+    "dnsScanned": "DNS przeskanowano {{time}}",
+    "threatsDetected": "Wykryto {{count}} zagrożenie",
+    "threatsDetectedPlural": "Wykryto {{count}} zagrożenia",
+    "noThreatsDetected": "Nie wykryto zagrożeń"
+  },
+  "allClear": {
+    "title": "Brak zagrożeń",
+    "description": "Nie wykryto żadnych podejrzanych połączeń ani wpisów DNS. Monitor nadal skanuje w tle."
+  },
+  "flaggedConnections": "Oznaczone połączenia",
+  "flaggedDnsEntries": "Oznaczone wpisy DNS",
+  "connectionPid": "PID {{pid}}"
+}

@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Bienvenido a Kudu",
+  "welcomeDescription": "Su limpiador de sistema todo en uno para Windows. Kudu elimina archivos basura, corrige problemas del registro, administra los programas de inicio y mantiene su PC funcionando con rapidez.",
+  "featureSmartCleaning": "Limpieza inteligente",
+  "featureFasterBoot": "Inicio más rápido",
+  "featureSafeSecure": "Seguro y protegido",
+  "getStarted": "Comenzar",
+  "recommendedSetupTitle": "Configuración recomendada",
+  "recommendedSetupDescription": "Recomendamos esta configuración para obtener la mejor experiencia. Puede cambiarla más tarde en Configuración.",
+  "runAtStartupLabel": "Ejecutar al iniciar",
+  "runAtStartupDescription": "Inicie Kudu cuando Windows se inicie para que su PC se mantenga limpia automáticamente",
+  "minimizeToTrayLabel": "Minimizar a la bandeja",
+  "minimizeToTrayDescription": "Mantenga Kudu ejecutándose silenciosamente en segundo plano",
+  "weeklyAutoCleanLabel": "Limpieza automática semanal",
+  "weeklyAutoCleanDescription": "Analice y limpie los archivos basura todos los lunes a las 9:00 a. m.",
+  "back": "Atrás",
+  "continue": "Continuar",
+  "allSetTitle": "¡Todo listo!",
+  "allSetDescription": "Kudu mantendrá su PC funcionando sin problemas en segundo plano.",
+  "firstScanScheduled": "Su primer análisis automático está programado para el lunes a las 9:00 a. m.",
+  "startCleaning": "Iniciar limpieza"
+}

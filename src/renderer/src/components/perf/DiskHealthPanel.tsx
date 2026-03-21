@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { HardDrive, Thermometer, AlertTriangle, CheckCircle, XCircle, HelpCircle, ShieldAlert } from 'lucide-react'
 import type { DiskSmartInfo } from '@shared/types'
 import { formatBytes } from '@/lib/utils'
@@ -13,7 +14,15 @@ const statusConfig = {
   Unknown: { icon: HelpCircle, color: '#6e6e76', bg: 'rgba(110,110,118,0.1)' }
 }
 
+const statusI18nKeys = {
+  Healthy: 'diskStatusHealthy',
+  Caution: 'diskStatusCaution',
+  Bad: 'diskStatusBad',
+  Unknown: 'diskStatusUnknown'
+} as const
+
 function DiskCard({ disk }: { disk: DiskSmartInfo }) {
+  const { t } = useTranslation('performance')
   const status = statusConfig[disk.healthStatus]
   const StatusIcon = status.icon
 
@@ -46,7 +55,7 @@ function DiskCard({ disk }: { disk: DiskSmartInfo }) {
         >
           <StatusIcon className="h-3.5 w-3.5" style={{ color: status.color }} />
           <span className="text-[11px] font-semibold" style={{ color: status.color }}>
-            {disk.healthStatus}
+            {t(statusI18nKeys[disk.healthStatus])}
           </span>
         </div>
       </div>
@@ -58,16 +67,16 @@ function DiskCard({ disk }: { disk: DiskSmartInfo }) {
       >
         <StatItem
           icon={<Thermometer className="h-3.5 w-3.5" />}
-          label="Temperature"
+          label={t('temperature')}
           value={disk.temperature !== null ? `${disk.temperature}°C` : '--'}
           warn={disk.temperature !== null && disk.temperature > 60}
         />
         <StatItem
-          label="Power-On Hours"
+          label={t('powerOnHours')}
           value={disk.powerOnHours !== null ? formatHours(disk.powerOnHours) : '--'}
         />
         <StatItem
-          label="Remaining Life"
+          label={t('remainingLife')}
           value={disk.remainingLife !== null ? `${disk.remainingLife}%` : '--'}
           warn={disk.remainingLife !== null && disk.remainingLife < 20}
         />
@@ -80,14 +89,14 @@ function DiskCard({ disk }: { disk: DiskSmartInfo }) {
           style={{ background: 'rgba(255,255,255,0.02)' }}
         >
           {disk.readErrors !== null && (
-            <StatItem label="Read Errors" value={String(disk.readErrors)} warn={disk.readErrors > 0} />
+            <StatItem label={t('readErrors')} value={String(disk.readErrors)} warn={disk.readErrors > 0} />
           )}
           {disk.writeErrors !== null && (
-            <StatItem label="Write Errors" value={String(disk.writeErrors)} warn={disk.writeErrors > 0} />
+            <StatItem label={t('writeErrors')} value={String(disk.writeErrors)} warn={disk.writeErrors > 0} />
           )}
           {disk.reallocatedSectors !== null && (
             <StatItem
-              label="Reallocated Sectors"
+              label={t('reallocatedSectors')}
               value={String(disk.reallocatedSectors)}
               warn={disk.reallocatedSectors > 0}
             />
@@ -136,6 +145,7 @@ function formatHours(hours: number): string {
 }
 
 export function DiskHealthPanel({ disks }: DiskHealthPanelProps) {
+  const { t } = useTranslation('performance')
   if (disks.length === 0) return null
 
   const hasDetailedData = disks.some(
@@ -145,12 +155,12 @@ export function DiskHealthPanel({ disks }: DiskHealthPanelProps) {
   return (
     <div className="mb-6">
       <div className="mb-3 flex items-center gap-2">
-        <h3 className="text-[13px] font-semibold text-zinc-400">Disk Health (S.M.A.R.T.)</h3>
+        <h3 className="text-[13px] font-semibold text-zinc-400">{t('diskHealthTitle')}</h3>
         {!hasDetailedData && (
           <div className="flex items-center gap-1 rounded-md px-2 py-0.5" style={{ background: 'rgba(245,158,11,0.08)' }}>
             <ShieldAlert className="h-3 w-3" style={{ color: '#92700c' }} />
             <span className="text-[10px] font-medium" style={{ color: '#92700c' }}>
-              Run as Administrator for detailed S.M.A.R.T. data
+              {t('diskHealthAdminHint')}
             </span>
           </div>
         )}

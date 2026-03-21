@@ -16,6 +16,7 @@ function makeSettings(
   overrides: Partial<KuduSettings['schedule']> & { enabled?: boolean } = {}
 ): KuduSettings {
   return {
+    language: 'en',
     minimizeToTray: false,
     showNotificationOnComplete: true,
     showThreatNotifications: true,

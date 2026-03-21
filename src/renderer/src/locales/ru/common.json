@@ -1,0 +1,18 @@
+{
+  "scanning": "Сканирование...",
+  "cleaning": "Очистка...",
+  "foundLabel": "Найдено:",
+  "itemsUnit": "элементов",
+  "sizeLabel": "Размер:",
+  "health": "Состояние",
+  "cancel": "Отмена",
+  "confirm": "Подтвердить",
+  "adminBannerMessage": "Для некоторых функций требуются права администратора.",
+  "relaunchAsAdmin": "Перезапустить от имени администратора",
+  "justNow": "Только что",
+  "minutesAgo": "{{minutes}} мин назад",
+  "hoursAgo": "{{hours}} ч назад",
+  "daysAgo": "{{days}} дн назад",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

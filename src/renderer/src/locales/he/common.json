@@ -1,0 +1,18 @@
+{
+  "scanning": "סורק...",
+  "cleaning": "מנקה...",
+  "foundLabel": "נמצאו:",
+  "itemsUnit": "פריטים",
+  "sizeLabel": "גודל:",
+  "health": "תקינות",
+  "cancel": "ביטול",
+  "confirm": "אישור",
+  "adminBannerMessage": "חלק מהתכונות דורשות הרשאות מנהל מערכת.",
+  "relaunchAsAdmin": "הפעל מחדש כמנהל מערכת",
+  "justNow": "זה עתה",
+  "minutesAgo": "לפני {{minutes}} דק׳",
+  "hoursAgo": "לפני {{hours}} שע׳",
+  "daysAgo": "לפני {{days}} ימים",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

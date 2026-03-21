@@ -1,0 +1,99 @@
+{
+  "pageTitle": "กำหนดการ",
+  "pageDescription": "ทำให้การสแกน การล้างข้อมูล และการอัปเดตทำงานอัตโนมัติตามกำหนดเวลา",
+  "newScheduleButton": "กำหนดการใหม่",
+  "createScheduleButton": "สร้างกำหนดการ",
+  "emptyStateTitle": "ยังไม่มีกำหนดการ",
+  "emptyStateDescription": "สร้างกำหนดการเพื่อเรียกใช้การสแกน การล้างข้อมูล และการอัปเดตโดยอัตโนมัติ",
+  "maxSchedulesReached": "ถึงจำนวนกำหนดการสูงสุด {{max}} รายการแล้ว",
+  "duplicatedToast": "ทำสำเนา \"{{name}}\" แล้ว",
+  "deletedToast": "ลบ \"{{name}}\" แล้ว",
+  "updatedToast": "อัปเดต \"{{name}}\" แล้ว",
+  "createdToast": "สร้าง \"{{name}}\" แล้ว",
+  "failedEnableStartup": "ไม่สามารถเปิดใช้งานการเริ่มต้นระบบได้ กำหนดการอาจไม่ทำงานหลังจากรีบูต",
+  "deleteConfirmTitle": "ลบกำหนดการ",
+  "deleteConfirmDescription": "กำหนดการนี้จะถูกลบอย่างถาวร การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  "deleteConfirmLabel": "ลบ",
+  "card": {
+    "autoApplyBadge": "นำไปใช้โดยอัตโนมัติ",
+    "editAction": "แก้ไข",
+    "duplicateAction": "ทำสำเนา",
+    "deleteAction": "ลบ",
+    "noTasksSelected": "ยังไม่ได้เลือกงาน",
+    "nextRun": "ถัดไป: {{time}}",
+    "lastRun": "ล่าสุด: {{time}}",
+    "neverRun": "ยังไม่เคยเรียกใช้"
+  },
+  "presets": {
+    "dialogTitle": "เลือกเทมเพลต",
+    "weeklyFullCleanLabel": "ล้างข้อมูลเต็มรูปแบบรายสัปดาห์",
+    "weeklyFullCleanDescription": "ทุกหมวดหมู่ของตัวล้างข้อมูล ทุกวันจันทร์ เวลา 9:00 น.",
+    "dailyLightSweepLabel": "ล้างข้อมูลแบบเบารายวัน",
+    "dailyLightSweepDescription": "ระบบ เบราว์เซอร์ และถังรีไซเคิล ทุกวัน เวลา 8:00 น.",
+    "monthlyDeepMaintenanceLabel": "บำรุงรักษาเชิงลึกรายเดือน",
+    "monthlyDeepMaintenanceDescription": "ล้างข้อมูลเต็มรูปแบบ + Registry ไดรเวอร์ และซอฟต์แวร์ ในวันที่ 1 เวลา 10:00 น.",
+    "customLabel": "กำหนดเอง",
+    "customDescription": "เริ่มต้นใหม่ด้วยกำหนดการว่างเปล่า"
+  },
+  "dialog": {
+    "editTitle": "แก้ไขกำหนดการ",
+    "newTitle": "กำหนดการใหม่",
+    "nameLabel": "ชื่อ",
+    "namePlaceholder": "เช่น ล้างข้อมูลเชิงลึกรายสัปดาห์",
+    "frequencyLabel": "ความถี่",
+    "frequencyDaily": "รายวัน",
+    "frequencyWeekly": "รายสัปดาห์",
+    "frequencyMonthly": "รายเดือน",
+    "dayLabel": "วัน",
+    "timeLabel": "เวลา",
+    "tasksLabel": "งาน",
+    "selectAll": "เลือกทั้งหมด",
+    "deselectAll": "ยกเลิกการเลือกทั้งหมด",
+    "cleanerGroup": "ตัวล้างข้อมูล",
+    "maintenanceGroup": "การบำรุงรักษา",
+    "autoApplyLabel": "นำไปใช้โดยอัตโนมัติ",
+    "autoApplyDescription": "ล้างไฟล์ แก้ไขปัญหา Registry และติดตั้งการอัปเดตโดยอัตโนมัติโดยไม่ต้องยืนยัน",
+    "autoApplyWarning": "การดำเนินการจะทำงานโดยอัตโนมัติตามกำหนดเวลา โปรดตรวจสอบให้แน่ใจว่ารายการยกเว้นของคุณเป็นปัจจุบัน",
+    "cancelButton": "ยกเลิก",
+    "saveChangesButton": "บันทึกการเปลี่ยนแปลง",
+    "createScheduleButton": "สร้างกำหนดการ"
+  },
+  "tasks": {
+    "system": "ระบบ",
+    "browsers": "เบราว์เซอร์",
+    "applications": "แอปพลิเคชัน",
+    "gaming": "เกม",
+    "recycleBin": "ถังรีไซเคิล",
+    "databases": "ฐานข้อมูล",
+    "registryFixes": "การแก้ไข Registry",
+    "driverUpdates": "การอัปเดตไดรเวอร์",
+    "softwareUpdates": "การอัปเดตซอฟต์แวร์"
+  },
+  "dayNames": {
+    "sunday": "วันอาทิตย์",
+    "monday": "วันจันทร์",
+    "tuesday": "วันอังคาร",
+    "wednesday": "วันพุธ",
+    "thursday": "วันพฤหัสบดี",
+    "friday": "วันศุกร์",
+    "saturday": "วันเสาร์"
+  },
+  "frequency": {
+    "everyDayAt": "ทุกวัน เวลา {{time}}",
+    "everyWeekdayAt": "ทุกวัน{{day}} เวลา {{time}}",
+    "monthlyAt": "วันที่ {{ordinalDay}} ของทุกเดือน เวลา {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "วันนี้ เวลา {{time}}",
+    "tomorrowAt": "พรุ่งนี้ เวลา {{time}}",
+    "inDaysAt": "อีก {{count}} วัน เวลา {{time}}",
+    "dateAt": "{{date}} เวลา {{time}}"
+  },
+  "lastRun": {
+    "justNow": "เมื่อสักครู่",
+    "minutesAgo": "{{count}} นาทีที่แล้ว",
+    "hoursAgo": "{{count}} ชั่วโมงที่แล้ว",
+    "daysAgo": "{{count}} วันที่แล้ว"
+  },
+  "copyNameSuffix": "(สำเนา)"
+}

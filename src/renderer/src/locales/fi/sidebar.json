@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "JÄRJESTELMÄN PUHDISTUS",
+  "dashboard": "Yhteenveto",
+  "securityHeading": "TIETOTURVA",
+  "malwareScanner": "Haittaohjelmien tarkistus",
+  "threatMonitor": "Uhkamonitori",
+  "systemHardening": "Järjestelmän suojaus",
+  "maintainHeading": "YLLÄPITO",
+  "cleaner": "Puhdistus",
+  "registry": "Rekisteri",
+  "startup": "Käynnistys",
+  "network": "Verkko",
+  "uninstaller": "Asennuksen poisto",
+  "updates": "Päivitykset",
+  "schedules": "Aikataulut",
+  "toolsHeading": "TYÖKALUT",
+  "performance": "Suorituskyky",
+  "diskAnalyzer": "Levyanalyysi",
+  "history": "Historia",
+  "settings": "Asetukset"
+}

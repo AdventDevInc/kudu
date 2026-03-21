@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "منظف النظام",
+  "dashboard": "لوحة المعلومات",
+  "securityHeading": "الأمان",
+  "malwareScanner": "فاحص البرامج الضارة",
+  "threatMonitor": "مراقبة التهديدات",
+  "systemHardening": "تحصين النظام",
+  "maintainHeading": "الصيانة",
+  "cleaner": "المنظف",
+  "registry": "السجل",
+  "startup": "بدء التشغيل",
+  "network": "الشبكة",
+  "uninstaller": "إلغاء التثبيت",
+  "updates": "التحديثات",
+  "schedules": "الجداول",
+  "toolsHeading": "الأدوات",
+  "performance": "الأداء",
+  "diskAnalyzer": "محلل القرص",
+  "history": "السجل",
+  "settings": "الإعدادات"
+}

@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "RENDSZERTISZTÍTÓ",
+  "dashboard": "Irányítópult",
+  "securityHeading": "BIZTONSÁG",
+  "malwareScanner": "Kártevőkereső",
+  "threatMonitor": "Fenyegetésfigyelő",
+  "systemHardening": "Rendszermegerősítés",
+  "maintainHeading": "KARBANTARTÁS",
+  "cleaner": "Tisztító",
+  "registry": "Beállításjegyzék",
+  "startup": "Automatikus indítás",
+  "network": "Hálózat",
+  "uninstaller": "Eltávolító",
+  "updates": "Frissítések",
+  "schedules": "Ütemezések",
+  "toolsHeading": "ESZKÖZÖK",
+  "performance": "Teljesítmény",
+  "diskAnalyzer": "Lemezelemző",
+  "history": "Előzmények",
+  "settings": "Beállítások"
+}

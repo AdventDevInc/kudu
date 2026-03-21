@@ -1,0 +1,18 @@
+{
+  "scanning": "Σάρωση...",
+  "cleaning": "Καθαρισμός...",
+  "foundLabel": "Βρέθηκαν:",
+  "itemsUnit": "στοιχεία",
+  "sizeLabel": "Μέγεθος:",
+  "health": "Κατάσταση",
+  "cancel": "Ακύρωση",
+  "confirm": "Επιβεβαίωση",
+  "adminBannerMessage": "Ορισμένες λειτουργίες απαιτούν δικαιώματα διαχειριστή.",
+  "relaunchAsAdmin": "Επανεκκίνηση ως διαχειριστής",
+  "justNow": "Μόλις τώρα",
+  "minutesAgo": "πριν από {{minutes}} λ.",
+  "hoursAgo": "πριν από {{hours}} ώ.",
+  "daysAgo": "πριν από {{days}} ημ.",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

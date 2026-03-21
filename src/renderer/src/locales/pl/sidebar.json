@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "OCZYSZCZANIE SYSTEMU",
+  "dashboard": "Pulpit",
+  "securityHeading": "ZABEZPIECZENIA",
+  "malwareScanner": "Skaner malware",
+  "threatMonitor": "Monitor zagrożeń",
+  "systemHardening": "Wzmacnianie systemu",
+  "maintainHeading": "KONSERWACJA",
+  "cleaner": "Oczyszczanie",
+  "registry": "Rejestr",
+  "startup": "Uruchamianie",
+  "network": "Sieć",
+  "uninstaller": "Deinstalator",
+  "updates": "Aktualizacje",
+  "schedules": "Harmonogramy",
+  "toolsHeading": "NARZĘDZIA",
+  "performance": "Wydajność",
+  "diskAnalyzer": "Analiza dysku",
+  "history": "Historia",
+  "settings": "Ustawienia"
+}

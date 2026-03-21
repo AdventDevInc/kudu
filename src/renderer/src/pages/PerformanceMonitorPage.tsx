@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Pause, Play } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -13,6 +14,7 @@ import { formatBytes, formatSpeed } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 
 export function PerformanceMonitorPage() {
+  const { t } = useTranslation('performance')
   const systemInfo = usePerfStore((s) => s.systemInfo)
   const snapshot = usePerfStore((s) => s.currentSnapshot)
   const history = usePerfStore((s) => s.history)
@@ -54,7 +56,7 @@ export function PerformanceMonitorPage() {
         await window.kudu.perfStartMonitoring()
         setMonitoring(true)
       } catch {
-        toast.error('Failed to start performance monitoring')
+        toast.error(t('failedToStartToast'))
       }
     }
 
@@ -87,8 +89,8 @@ export function PerformanceMonitorPage() {
   return (
     <div className="mx-auto max-w-[1200px]">
       <PageHeader
-        title="Performance Monitor"
-        description="Live system resource monitoring with per-process breakdown"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         action={
           <>
             {/* Time range pills */}
@@ -128,7 +130,7 @@ export function PerformanceMonitorPage() {
               }}
             >
               {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-              {paused ? 'Resume' : 'Pause'}
+              {paused ? t('resume') : t('pause')}
             </button>
           </>
         }
@@ -141,39 +143,39 @@ export function PerformanceMonitorPage() {
       {/* Gauges */}
       <div className="mb-6 grid grid-cols-4 gap-4">
         <GaugeCard
-          label="CPU"
+          label={t('gaugeCpu')}
           percent={snapshot?.cpu.overall ?? 0}
           detail={
             snapshot
-              ? `${snapshot.cpu.perCore.length} threads`
-              : '--'
+              ? t('cpuThreadsDetail', { count: snapshot.cpu.perCore.length })
+              : t('noDataPlaceholder')
           }
         />
         <GaugeCard
-          label="Memory"
+          label={t('gaugeMemory')}
           percent={snapshot?.memory.percent ?? 0}
           detail={
             snapshot
               ? `${formatBytes(snapshot.memory.usedBytes, 1)} / ${formatBytes(snapshot.memory.totalBytes, 1)}`
-              : '--'
+              : t('noDataPlaceholder')
           }
         />
         <GaugeCard
-          label="Disk I/O"
+          label={t('gaugeDiskIo')}
           percent={Math.min(100, ((snapshot?.disk.readBytesPerSec ?? 0) + (snapshot?.disk.writeBytesPerSec ?? 0)) / (200 * 1024 * 1024) * 100)}
           detail={
             snapshot
-              ? `R: ${formatSpeed(snapshot.disk.readBytesPerSec)} / W: ${formatSpeed(snapshot.disk.writeBytesPerSec)}`
-              : '--'
+              ? t('diskIoDetail', { read: formatSpeed(snapshot.disk.readBytesPerSec), write: formatSpeed(snapshot.disk.writeBytesPerSec) })
+              : t('noDataPlaceholder')
           }
         />
         <GaugeCard
-          label="Network"
+          label={t('gaugeNetwork')}
           percent={Math.min(100, ((snapshot?.network.rxBytesPerSec ?? 0) + (snapshot?.network.txBytesPerSec ?? 0)) / (125 * 1024 * 1024) * 100)}
           detail={
             snapshot
               ? `${formatSpeed(snapshot.network.rxBytesPerSec)} / ${formatSpeed(snapshot.network.txBytesPerSec)}`
-              : '--'
+              : t('noDataPlaceholder')
           }
         />
       </div>
@@ -184,21 +186,21 @@ export function PerformanceMonitorPage() {
           history={history}
           timeRange={timeRange}
           dataKey="cpu"
-          label="CPU Usage"
+          label={t('chartCpuUsage')}
           color="#f59e0b"
         />
         <TimeSeriesChart
           history={history}
           timeRange={timeRange}
           dataKey="memory"
-          label="Memory Usage"
+          label={t('chartMemoryUsage')}
           color="#3b82f6"
         />
         <TimeSeriesChart
           history={history}
           timeRange={timeRange}
           dataKey="disk"
-          label="Disk I/O"
+          label={t('chartDiskIo')}
           color="#22c55e"
         />
       </div>

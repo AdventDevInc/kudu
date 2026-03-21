@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Download, Cpu } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
@@ -14,35 +15,34 @@ interface TabDef {
   description: string
 }
 
-const PM_DESCRIPTIONS: Record<string, string> = {
-  win32: 'Third-party apps via winget',
-  darwin: 'Third-party apps via Homebrew',
-  linux: 'Third-party apps via package manager',
+const PM_DESCRIPTION_KEYS: Record<string, string> = {
+  win32: 'tabs.softwareDescriptionWindows',
+  darwin: 'tabs.softwareDescriptionMac',
+  linux: 'tabs.softwareDescriptionLinux',
 }
 
-const driverTab: TabDef = { id: 'drivers', label: 'Drivers', icon: Cpu, description: 'Updates & stale cleanup' }
-
 export function UpdatesPage() {
+  const { t } = useTranslation('updates')
   const { platform, features } = usePlatform()
   const [activeTab, setActiveTab] = useState('software')
 
   const visibleTabs = useMemo(() => {
     const softwareTab: TabDef = {
       id: 'software',
-      label: 'Software',
+      label: t('tabs.software'),
       icon: Download,
-      description: PM_DESCRIPTIONS[platform] || PM_DESCRIPTIONS.linux,
+      description: t(PM_DESCRIPTION_KEYS[platform] || PM_DESCRIPTION_KEYS.linux),
     }
     const result: TabDef[] = [softwareTab]
-    if (features.drivers) result.push(driverTab)
+    if (features.drivers) result.push({ id: 'drivers', label: t('tabs.drivers'), icon: Cpu, description: t('tabs.driversDescription') })
     return result
-  }, [platform, features.drivers])
+  }, [platform, features.drivers, t])
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Updates"
-        description="Keep your software and drivers up to date"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
       />
 
       {/* Tab bar */}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import { RTL_LANGUAGES } from './lib/languages'
 import { useScheduledScan } from './hooks/useScheduledScan'
 import { AppShell } from './components/layout/AppShell'
 import { DashboardPage } from './pages/DashboardPage'
@@ -31,11 +33,17 @@ import { useBackgroundScans } from './hooks/useBackgroundScans'
 import { usePlatformLoader, PlatformContext } from './hooks/usePlatform'
 
 export function App() {
+  const { i18n } = useTranslation()
   const loadHistory = useHistoryStore((s) => s.load)
   const historyLoaded = useHistoryStore((s) => s.loaded)
   const recomputeStats = useStatsStore((s) => s.recompute)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
+
+  // Sync RTL direction based on current language
+  useEffect(() => {
+    document.documentElement.dir = RTL_LANGUAGES.includes(i18n.language) ? 'rtl' : 'ltr'
+  }, [i18n.language])
 
   useEffect(() => {
     window.kudu?.onboardingGet?.().then((done) => {

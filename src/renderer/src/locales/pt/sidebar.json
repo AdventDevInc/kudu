@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "LIMPADOR DO SISTEMA",
+  "dashboard": "Painel",
+  "securityHeading": "SEGURANÇA",
+  "malwareScanner": "Scanner de malware",
+  "threatMonitor": "Monitor de ameaças",
+  "systemHardening": "Endurecimento do sistema",
+  "maintainHeading": "MANUTENÇÃO",
+  "cleaner": "Limpador",
+  "registry": "Registro",
+  "startup": "Inicialização",
+  "network": "Rede",
+  "uninstaller": "Desinstalador",
+  "updates": "Atualizações",
+  "schedules": "Agendamentos",
+  "toolsHeading": "FERRAMENTAS",
+  "performance": "Desempenho",
+  "diskAnalyzer": "Analisador de disco",
+  "history": "Histórico",
+  "settings": "Configurações"
+}

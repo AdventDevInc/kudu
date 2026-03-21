@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Bedreigingsmonitor",
+  "pageDescription": "Realtime bewaking van netwerkverbindingen aan de hand van bekende dreigingslijsten.",
+  "cloudNotConfigured": {
+    "title": "Cloud niet geconfigureerd",
+    "description": "Koppel uw apparaat in Instellingen aan Kudu Cloud om bedreigingsbewaking in te schakelen. De zwarte lijst met bedreigingen wordt geleverd door de cloudservice."
+  },
+  "loading": "Laden...",
+  "inactive": {
+    "title": "Bedreigingsmonitor inactief",
+    "description": "Er is geen zwarte lijst met bedreigingen geladen. De zwarte lijst wordt automatisch opgehaald wanneer de cloudagent verbinding maakt."
+  },
+  "statusBar": {
+    "blacklistVersion": "Zwarte lijst",
+    "connectionsScanned": "Verbindingen gescand {{time}}",
+    "dnsScanned": "DNS gescand {{time}}",
+    "threatsDetected": "{{count}} bedreiging gedetecteerd",
+    "threatsDetectedPlural": "{{count}} bedreigingen gedetecteerd",
+    "noThreatsDetected": "Geen bedreigingen gedetecteerd"
+  },
+  "allClear": {
+    "title": "Alles in orde",
+    "description": "Er zijn geen verdachte verbindingen of DNS-vermeldingen gedetecteerd. De monitor blijft op de achtergrond scannen."
+  },
+  "flaggedConnections": "Gemarkeerde verbindingen",
+  "flaggedDnsEntries": "Gemarkeerde DNS-vermeldingen",
+  "connectionPid": "PID {{pid}}"
+}

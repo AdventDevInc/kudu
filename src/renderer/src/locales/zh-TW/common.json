@@ -1,0 +1,18 @@
+{
+  "scanning": "正在掃描...",
+  "cleaning": "正在清理...",
+  "foundLabel": "找到：",
+  "itemsUnit": "個項目",
+  "sizeLabel": "大小：",
+  "health": "健康狀態",
+  "cancel": "取消",
+  "confirm": "確認",
+  "adminBannerMessage": "部分功能需要系統管理員權限。",
+  "relaunchAsAdmin": "以系統管理員身分重新啟動",
+  "justNow": "剛剛",
+  "minutesAgo": "{{minutes}} 分鐘前",
+  "hoursAgo": "{{hours}} 小時前",
+  "daysAgo": "{{days}} 天前",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

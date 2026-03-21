@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Programări",
+  "pageDescription": "Automatizați scanările, curățările și actualizările după un program",
+  "newScheduleButton": "Programare nouă",
+  "createScheduleButton": "Creați programarea",
+  "emptyStateTitle": "Încă nu există programări",
+  "emptyStateDescription": "Creați o programare pentru a rula automat scanări, curățări și actualizări.",
+  "maxSchedulesReached": "A fost atins numărul maxim de {{max}} programări.",
+  "duplicatedToast": "S-a duplicat „{{name}}”",
+  "deletedToast": "S-a șters „{{name}}”",
+  "updatedToast": "S-a actualizat „{{name}}”",
+  "createdToast": "S-a creat „{{name}}”",
+  "failedEnableStartup": "Activarea pornirii automate a eșuat. Este posibil ca programările să nu ruleze după repornire.",
+  "deleteConfirmTitle": "Ștergeți programarea",
+  "deleteConfirmDescription": "Această programare va fi eliminată definitiv. Această acțiune nu poate fi anulată.",
+  "deleteConfirmLabel": "Ștergeți",
+  "card": {
+    "autoApplyBadge": "Aplicare automată",
+    "editAction": "Editați",
+    "duplicateAction": "Duplicați",
+    "deleteAction": "Ștergeți",
+    "noTasksSelected": "Nu sunt selectate sarcini",
+    "nextRun": "Următoarea: {{time}}",
+    "lastRun": "Ultima: {{time}}",
+    "neverRun": "Nu a rulat niciodată"
+  },
+  "presets": {
+    "dialogTitle": "Alegeți un șablon",
+    "weeklyFullCleanLabel": "Curățare completă săptămânală",
+    "weeklyFullCleanDescription": "Toate categoriile de curățare în fiecare luni la 9:00",
+    "dailyLightSweepLabel": "Curățare ușoară zilnică",
+    "dailyLightSweepDescription": "Sistem, browsere și coș de reciclare zilnic la 8:00",
+    "monthlyDeepMaintenanceLabel": "Întreținere aprofundată lunară",
+    "monthlyDeepMaintenanceDescription": "Curățare completă + registry, drivere și software în ziua de 1 la 10:00",
+    "customLabel": "Personalizat",
+    "customDescription": "Începeți de la zero cu o programare goală"
+  },
+  "dialog": {
+    "editTitle": "Editați programarea",
+    "newTitle": "Programare nouă",
+    "nameLabel": "Nume",
+    "namePlaceholder": "de ex. Curățare aprofundată săptămânală",
+    "frequencyLabel": "Frecvență",
+    "frequencyDaily": "Zilnic",
+    "frequencyWeekly": "Săptămânal",
+    "frequencyMonthly": "Lunar",
+    "dayLabel": "Zi",
+    "timeLabel": "Oră",
+    "tasksLabel": "Sarcini",
+    "selectAll": "Selectați tot",
+    "deselectAll": "Deselectați tot",
+    "cleanerGroup": "Curățare",
+    "maintenanceGroup": "Întreținere",
+    "autoApplyLabel": "Aplicare automată",
+    "autoApplyDescription": "Curățați automat fișierele, remediați problemele din registry și instalați actualizări fără confirmare.",
+    "autoApplyWarning": "Acțiunile vor rula automat conform programării. Asigurați-vă că lista de excluderi este actualizată.",
+    "cancelButton": "Anulați",
+    "saveChangesButton": "Salvați modificările",
+    "createScheduleButton": "Creați programarea"
+  },
+  "tasks": {
+    "system": "Sistem",
+    "browsers": "Browsere",
+    "applications": "Aplicații",
+    "gaming": "Jocuri",
+    "recycleBin": "Coș de reciclare",
+    "databases": "Baze de date",
+    "registryFixes": "Remedieri registry",
+    "driverUpdates": "Actualizări drivere",
+    "softwareUpdates": "Actualizări software"
+  },
+  "dayNames": {
+    "sunday": "Duminică",
+    "monday": "Luni",
+    "tuesday": "Marți",
+    "wednesday": "Miercuri",
+    "thursday": "Joi",
+    "friday": "Vineri",
+    "saturday": "Sâmbătă"
+  },
+  "frequency": {
+    "everyDayAt": "În fiecare zi la {{time}}",
+    "everyWeekdayAt": "În fiecare {{day}} la {{time}}",
+    "monthlyAt": "În ziua de {{ordinalDay}} a fiecărei luni la {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Astăzi la {{time}}",
+    "tomorrowAt": "Mâine la {{time}}",
+    "inDaysAt": "Peste {{count}} zile la {{time}}",
+    "dateAt": "{{date}} la {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Chiar acum",
+    "minutesAgo": "acum {{count}}m",
+    "hoursAgo": "acum {{count}}h",
+    "daysAgo": "acum {{count}}z"
+  },
+  "copyNameSuffix": "(copie)"
+}

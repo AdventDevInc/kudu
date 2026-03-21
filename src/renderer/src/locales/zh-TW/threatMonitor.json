@@ -1,0 +1,28 @@
+{
+  "pageTitle": "威脅監控",
+  "pageDescription": "即時監控網路連線，並比對已知威脅清單。",
+  "cloudNotConfigured": {
+    "title": "雲端尚未設定",
+    "description": "請在「設定」中將您的裝置連結至 Kudu Cloud，以啟用威脅監控。威脅黑名單由雲端服務提供。"
+  },
+  "loading": "載入中...",
+  "inactive": {
+    "title": "威脅監控未啟用",
+    "description": "尚未載入任何威脅黑名單。當雲端代理程式連線時，將自動擷取黑名單。"
+  },
+  "statusBar": {
+    "blacklistVersion": "黑名單",
+    "connectionsScanned": "已掃描連線 {{time}}",
+    "dnsScanned": "已掃描 DNS {{time}}",
+    "threatsDetected": "已偵測到 {{count}} 個威脅",
+    "threatsDetectedPlural": "已偵測到 {{count}} 個威脅",
+    "noThreatsDetected": "未偵測到威脅"
+  },
+  "allClear": {
+    "title": "一切正常",
+    "description": "未偵測到可疑的連線或 DNS 項目。監控程式會持續在背景進行掃描。"
+  },
+  "flaggedConnections": "已標記的連線",
+  "flaggedDnsEntries": "已標記的 DNS 項目",
+  "connectionPid": "PID {{pid}}"
+}

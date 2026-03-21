@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Tidsplaner",
+  "pageDescription": "Automatiser skanninger, oppryddinger og oppdateringer etter en tidsplan",
+  "newScheduleButton": "Ny tidsplan",
+  "createScheduleButton": "Opprett tidsplan",
+  "emptyStateTitle": "Ingen tidsplaner ennå",
+  "emptyStateDescription": "Opprett en tidsplan for å kjøre skanninger, oppryddinger og oppdateringer automatisk.",
+  "maxSchedulesReached": "Maksimalt antall tidsplaner er nådd: {{max}}.",
+  "duplicatedToast": "Dupliserte \"{{name}}\"",
+  "deletedToast": "Slettet \"{{name}}\"",
+  "updatedToast": "Oppdaterte \"{{name}}\"",
+  "createdToast": "Opprettet \"{{name}}\"",
+  "failedEnableStartup": "Kunne ikke aktivere oppstart. Tidsplaner kjøres kanskje ikke etter omstart.",
+  "deleteConfirmTitle": "Slett tidsplan",
+  "deleteConfirmDescription": "Denne tidsplanen blir fjernet permanent. Denne handlingen kan ikke angres.",
+  "deleteConfirmLabel": "Slett",
+  "card": {
+    "autoApplyBadge": "Bruk automatisk",
+    "editAction": "Rediger",
+    "duplicateAction": "Dupliser",
+    "deleteAction": "Slett",
+    "noTasksSelected": "Ingen oppgaver valgt",
+    "nextRun": "Neste: {{time}}",
+    "lastRun": "Sist: {{time}}",
+    "neverRun": "Aldri kjørt"
+  },
+  "presets": {
+    "dialogTitle": "Velg en mal",
+    "weeklyFullCleanLabel": "Ukentlig full opprydding",
+    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09.00",
+    "dailyLightSweepLabel": "Daglig lett opprydding",
+    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08.00",
+    "monthlyDeepMaintenanceLabel": "Månedlig grundig vedlikehold",
+    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. hver måned kl. 10.00",
+    "customLabel": "Tilpasset",
+    "customDescription": "Start fra bunnen av med en tom tidsplan"
+  },
+  "dialog": {
+    "editTitle": "Rediger tidsplan",
+    "newTitle": "Ny tidsplan",
+    "nameLabel": "Navn",
+    "namePlaceholder": "f.eks. Ukentlig grundig opprydding",
+    "frequencyLabel": "Frekvens",
+    "frequencyDaily": "Daglig",
+    "frequencyWeekly": "Ukentlig",
+    "frequencyMonthly": "Månedlig",
+    "dayLabel": "Dag",
+    "timeLabel": "Tid",
+    "tasksLabel": "Oppgaver",
+    "selectAll": "Velg alle",
+    "deselectAll": "Fjern markering for alle",
+    "cleanerGroup": "Opprydding",
+    "maintenanceGroup": "Vedlikehold",
+    "autoApplyLabel": "Bruk automatisk",
+    "autoApplyDescription": "Rydd filer automatisk, reparer registerproblemer og installer oppdateringer uten bekreftelse.",
+    "autoApplyWarning": "Handlinger kjøres automatisk etter tidsplanen. Sørg for at ekskluderingslisten er oppdatert.",
+    "cancelButton": "Avbryt",
+    "saveChangesButton": "Lagre endringer",
+    "createScheduleButton": "Opprett tidsplan"
+  },
+  "tasks": {
+    "system": "System",
+    "browsers": "Nettlesere",
+    "applications": "Programmer",
+    "gaming": "Spill",
+    "recycleBin": "Papirkurv",
+    "databases": "Databaser",
+    "registryFixes": "Registerreparasjoner",
+    "driverUpdates": "Driveroppdateringer",
+    "softwareUpdates": "Programvareoppdateringer"
+  },
+  "dayNames": {
+    "sunday": "Søndag",
+    "monday": "Mandag",
+    "tuesday": "Tirsdag",
+    "wednesday": "Onsdag",
+    "thursday": "Torsdag",
+    "friday": "Fredag",
+    "saturday": "Lørdag"
+  },
+  "frequency": {
+    "everyDayAt": "Hver dag kl. {{time}}",
+    "everyWeekdayAt": "Hver {{day}} kl. {{time}}",
+    "monthlyAt": "{{ordinalDay}} i hver måned kl. {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "I dag kl. {{time}}",
+    "tomorrowAt": "I morgen kl. {{time}}",
+    "inDaysAt": "Om {{count}} dager kl. {{time}}",
+    "dateAt": "{{date}} kl. {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Akkurat nå",
+    "minutesAgo": "{{count}} m siden",
+    "hoursAgo": "{{count}} t siden",
+    "daysAgo": "{{count}} d siden"
+  },
+  "copyNameSuffix": "(kopi)"
+}

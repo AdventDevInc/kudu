@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HardDrive, ChevronRight, Folder, File, RefreshCw, FileType2, Wrench, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -71,7 +72,7 @@ function squarify(items: { name: string; size: number; fill: string }[], x: numb
   }
 }
 
-function layoutTreemap(items: { name: string; size: number; fill: string }[], width: number, height: number): TreemapRect[] {
+function layoutTreemap(items: { name: string; size: number; fill: string }[], width: number, height: number, otherLabel?: (count: number) => string): TreemapRect[] {
   if (!items.length || width <= 0 || height <= 0) return []
   const total = items.reduce((s, i) => s + i.size, 0)
   if (total <= 0) return []
@@ -82,7 +83,7 @@ function layoutTreemap(items: { name: string; size: number; fill: string }[], wi
   const grouped = [...big]
   if (small.length > 0) {
     const otherSize = small.reduce((s, i) => s + i.size, 0)
-    grouped.push({ name: `${small.length} other items`, size: otherSize, fill: '#52525b' })
+    grouped.push({ name: otherLabel ? otherLabel(small.length) : `${small.length} other items`, size: otherSize, fill: '#52525b' })
   }
   const sorted = grouped.sort((a, b) => b.size - a.size)
   const rects: TreemapRect[] = []
@@ -91,6 +92,7 @@ function layoutTreemap(items: { name: string; size: number; fill: string }[], wi
 }
 
 export function DiskAnalyzerPage() {
+  const { t } = useTranslation('disk')
   const { platform } = usePlatform()
   const isWin = platform === 'win32'
   const drives = useDiskStore((s) => s.drives)
@@ -124,8 +126,8 @@ export function DiskAnalyzerPage() {
       store.setData(result); store.setBreadcrumb([result])
     } catch (err) {
       console.error('Disk analysis failed:', err)
-      toast.error(`Failed to analyze drive ${selectedDrive}${isWin ? ':' : ''}`, { description: 'Make sure the drive is accessible' })
-      store.setError(`Failed to analyze drive ${selectedDrive}${isWin ? ':' : ''}. Make sure the drive is accessible.`)
+      toast.error(isWin ? t('failedToAnalyzeToastWindows', { drive: selectedDrive }) : t('failedToAnalyzeToastOther', { drive: selectedDrive }), { description: t('failedToAnalyzeDescMakeAccessible') })
+      store.setError(isWin ? t('failedToAnalyzeErrorWindows', { drive: selectedDrive }) : t('failedToAnalyzeErrorOther', { drive: selectedDrive }))
     }
     store.setAnalyzing(false)
   }
@@ -137,7 +139,7 @@ export function DiskAnalyzerPage() {
       store.setFileTypes(result)
     } catch (err) {
       console.error('File type scan failed:', err)
-      store.setError(`Failed to scan file types on ${selectedDrive}${isWin ? ':' : ''}.`)
+      store.setError(isWin ? t('failedToScanFileTypesWindows', { drive: selectedDrive }) : t('failedToScanFileTypesOther', { drive: selectedDrive }))
     }
     store.setFileTypesLoading(false)
   }
@@ -158,21 +160,21 @@ export function DiskAnalyzerPage() {
   const handleRunSfc = async () => {
     store.setRepairRunning(true)
     store.setSfcResult(null)
-    store.setRepairProgress({ tool: 'sfc', phase: 'running', percent: 0, message: 'Starting System File Checker...' })
+    store.setRepairProgress({ tool: 'sfc', phase: 'running', percent: 0, message: t('startingSfc') })
     try {
       // SFC always targets the system drive (C:), not the analysis drive
       const result = await window.kudu.diskRepairSfc('C')
       store.setSfcResult(result)
       if (result.needsAdmin) {
-        toast.error('Administrator privileges required', { description: 'Relaunch Kudu as administrator to run SFC.' })
+        toast.error(t('adminRequiredToast'), { description: t('adminRequiredSfcDesc') })
       } else if (result.success) {
-        toast.success('SFC completed', { description: result.summary })
+        toast.success(t('sfcCompletedToast'), { description: result.summary })
       } else {
-        toast.error('SFC finished with issues', { description: result.summary })
+        toast.error(t('sfcFinishedWithIssuesToast'), { description: result.summary })
       }
     } catch (err) {
       console.error('SFC failed:', err)
-      toast.error('SFC failed to run')
+      toast.error(t('sfcFailedToast'))
     }
     store.setRepairRunning(false)
     store.setRepairProgress(null)
@@ -181,20 +183,20 @@ export function DiskAnalyzerPage() {
   const handleRunDism = async () => {
     store.setRepairRunning(true)
     store.setDismResult(null)
-    store.setRepairProgress({ tool: 'dism', phase: 'running', percent: 0, message: 'Starting DISM RestoreHealth...' })
+    store.setRepairProgress({ tool: 'dism', phase: 'running', percent: 0, message: t('startingDism') })
     try {
       const result = await window.kudu.diskRepairDism()
       store.setDismResult(result)
       if (result.needsAdmin) {
-        toast.error('Administrator privileges required', { description: 'Relaunch Kudu as administrator to run DISM.' })
+        toast.error(t('adminRequiredToast'), { description: t('adminRequiredDismDesc') })
       } else if (result.success) {
-        toast.success('DISM completed', { description: result.summary })
+        toast.success(t('dismCompletedToast'), { description: result.summary })
       } else {
-        toast.error('DISM finished with issues', { description: result.summary })
+        toast.error(t('dismFinishedWithIssuesToast'), { description: result.summary })
       }
     } catch (err) {
       console.error('DISM failed:', err)
-      toast.error('DISM failed to run')
+      toast.error(t('dismFailedToast'))
     }
     store.setRepairRunning(false)
     store.setRepairProgress(null)
@@ -212,7 +214,7 @@ export function DiskAnalyzerPage() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader title="Disk Analyzer" description="Visualize disk space usage"
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')}
         action={
           <div className="flex items-center gap-2.5">
             <select value={selectedDrive} onChange={(e) => store.setSelectedDrive(e.target.value)}
@@ -226,7 +228,7 @@ export function DiskAnalyzerPage() {
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}>
               {analyzing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <HardDrive className="h-4 w-4" strokeWidth={2} />}
-              Analyze
+              {t('analyzeButton')}
             </button>
           </div>
         }
@@ -234,7 +236,7 @@ export function DiskAnalyzerPage() {
 
       {error && <ErrorAlert message={error} onDismiss={() => store.setError(null)} className="mb-5" />}
 
-      {analyzing && <ScanProgress status="scanning" progress={0} currentPath={isWin ? `Analyzing ${selectedDrive}:\\...` : `Analyzing ${selectedDrive}...`} className="mb-5" />}
+      {analyzing && <ScanProgress status="scanning" progress={0} currentPath={isWin ? t('analyzingProgressWindows', { drive: selectedDrive }) : t('analyzingProgressOther', { drive: selectedDrive })} className="mb-5" />}
 
       {/* View mode toggle — always visible so Repair tab is accessible without analyzing first */}
       <div className="mb-5 flex items-center gap-1 rounded-xl p-1" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', width: 'fit-content' }}>
@@ -242,25 +244,25 @@ export function DiskAnalyzerPage() {
           className="flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-all"
           style={{ background: viewMode === 'folders' ? 'rgba(245,158,11,0.15)' : 'transparent', color: viewMode === 'folders' ? '#f59e0b' : '#6e6e76' }}>
           <Folder className="h-3.5 w-3.5" strokeWidth={2} />
-          Folders
+          {t('viewFolders')}
         </button>
         <button onClick={() => setViewMode('filetypes')}
           className="flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-all"
           style={{ background: viewMode === 'filetypes' ? 'rgba(245,158,11,0.15)' : 'transparent', color: viewMode === 'filetypes' ? '#f59e0b' : '#6e6e76' }}>
           <FileType2 className="h-3.5 w-3.5" strokeWidth={2} />
-          File Types
+          {t('viewFileTypes')}
         </button>
         {isWin && (
           <button onClick={() => setViewMode('repair')}
             className="flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-all"
             style={{ background: viewMode === 'repair' ? 'rgba(245,158,11,0.15)' : 'transparent', color: viewMode === 'repair' ? '#f59e0b' : '#6e6e76' }}>
             <Wrench className="h-3.5 w-3.5" strokeWidth={2} />
-            Repair
+            {t('viewRepair')}
           </button>
         )}
       </div>
 
-      {!data && !analyzing && !error && viewMode !== 'repair' && <EmptyState icon={HardDrive} title="No analysis data" description="Select a drive and click Analyze to visualize disk space usage." />}
+      {!data && !analyzing && !error && viewMode !== 'repair' && <EmptyState icon={HardDrive} title={t('emptyStateTitle')} description={t('emptyStateDescription')} />}
 
       {data && (
         <>
@@ -285,7 +287,7 @@ export function DiskAnalyzerPage() {
               {treemapData.length > 0 && (
                 <div className="mb-6 overflow-hidden rounded-2xl p-1.5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="relative h-[280px] w-full">
-                    {layoutTreemap(treemapData, 100, 100).map((rect) => (
+                    {layoutTreemap(treemapData, 100, 100, (count) => t('otherItems', { count })).map((rect) => (
                       <div key={rect.name}
                         className="absolute overflow-hidden rounded-md p-2 opacity-75 transition-opacity hover:opacity-100 cursor-pointer"
                         style={{
@@ -311,9 +313,9 @@ export function DiskAnalyzerPage() {
                 <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="flex items-center gap-4 px-5 py-3 text-[11px] font-medium uppercase tracking-wider"
                     style={{ background: '#14141a', color: '#4e4e56', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <div className="flex-1">Name</div>
-                    <div className="w-28 text-right">Size</div>
-                    <div className="w-44">Usage</div>
+                    <div className="flex-1">{t('folderTableHeaderName')}</div>
+                    <div className="w-28 text-right">{t('folderTableHeaderSize')}</div>
+                    <div className="w-44">{t('folderTableHeaderUsage')}</div>
                   </div>
                   <div>
                     {[...currentNode.children].sort((a, b) => b.size - a.size).map((child) => {
@@ -344,10 +346,10 @@ export function DiskAnalyzerPage() {
 
           {viewMode === 'filetypes' && (
             <>
-              {fileTypesLoading && <ScanProgress status="scanning" progress={0} currentPath={isWin ? `Scanning file types on ${selectedDrive}:\\...` : `Scanning file types on ${selectedDrive}...`} className="mb-5" />}
+              {fileTypesLoading && <ScanProgress status="scanning" progress={0} currentPath={isWin ? t('scanningFileTypesWindows', { drive: selectedDrive }) : t('scanningFileTypesOther', { drive: selectedDrive })} className="mb-5" />}
 
               {!fileTypesLoading && fileTypes.length === 0 && (
-                <EmptyState icon={FileType2} title="No file type data" description="Click Analyze first, then switch to File Types view to scan." />
+                <EmptyState icon={FileType2} title={t('fileTypesEmptyTitle')} description={t('fileTypesEmptyDescription')} />
               )}
 
               {!fileTypesLoading && fileTypes.length > 0 && (
@@ -355,15 +357,15 @@ export function DiskAnalyzerPage() {
                   {/* Summary cards */}
                   <div className="mb-5 grid grid-cols-3 gap-3">
                     <div className="rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#4e4e56' }}>Total Scanned</div>
+                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#4e4e56' }}>{t('summaryTotalScanned')}</div>
                       <div className="mt-1 text-[18px] font-semibold text-zinc-200">{formatBytes(fileTypesTotal)}</div>
                     </div>
                     <div className="rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#4e4e56' }}>File Types</div>
+                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#4e4e56' }}>{t('summaryFileTypes')}</div>
                       <div className="mt-1 text-[18px] font-semibold text-zinc-200">{fileTypes.length}</div>
                     </div>
                     <div className="rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#4e4e56' }}>Largest Type</div>
+                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#4e4e56' }}>{t('summaryLargestType')}</div>
                       <div className="mt-1 text-[18px] font-semibold text-zinc-200">{fileTypes[0]?.extension ?? '-'}</div>
                     </div>
                   </div>
@@ -373,7 +375,8 @@ export function DiskAnalyzerPage() {
                     <div className="relative h-[280px] w-full">
                       {layoutTreemap(
                         fileTypes.slice(0, 30).map((ft, i) => ({ name: ft.extension, size: ft.totalSize, fill: COLORS[i % COLORS.length] })),
-                        100, 100
+                        100, 100,
+                        (count) => t('otherItems', { count })
                       ).map((rect) => (
                         <div key={rect.name}
                           className="absolute overflow-hidden rounded-md p-2 opacity-75 transition-opacity hover:opacity-100"
@@ -398,10 +401,10 @@ export function DiskAnalyzerPage() {
                   <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid rgba(255,255,255,0.05)' }}>
                     <div className="flex items-center gap-4 px-5 py-3 text-[11px] font-medium uppercase tracking-wider"
                       style={{ background: '#14141a', color: '#4e4e56', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <div className="flex-1">Extension</div>
-                      <div className="w-20 text-right">Files</div>
-                      <div className="w-28 text-right">Size</div>
-                      <div className="w-44">Share</div>
+                      <div className="flex-1">{t('fileTypeTableHeaderExtension')}</div>
+                      <div className="w-20 text-right">{t('fileTypeTableHeaderFiles')}</div>
+                      <div className="w-28 text-right">{t('fileTypeTableHeaderSize')}</div>
+                      <div className="w-44">{t('fileTypeTableHeaderShare')}</div>
                     </div>
                     <div>
                       {fileTypes.map((ft, i) => {
@@ -444,10 +447,10 @@ export function DiskAnalyzerPage() {
             <div className="flex items-start gap-3">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" strokeWidth={1.8} />
               <div>
-                <p className="text-[13px] font-medium text-zinc-200">Windows System Repair</p>
+                <p className="text-[13px] font-medium text-zinc-200">{t('repairTitle')}</p>
                 <p className="mt-1 text-[12px]" style={{ color: '#6e6e76' }}>
-                  Use these built-in Windows tools to scan for and repair corrupted system files.
-                  Run <span className="text-zinc-400 font-medium">DISM</span> first to repair the component store, then <span className="text-zinc-400 font-medium">SFC</span> to fix system files.
+                  {t('repairDescription')}{' '}
+                  {t('repairRunOrder', { dism: 'DISM', sfc: 'SFC' })}
                 </p>
               </div>
             </div>
@@ -459,7 +462,7 @@ export function DiskAnalyzerPage() {
               <div className="flex items-center gap-3 mb-3">
                 <RefreshCw className="h-4 w-4 animate-spin text-amber-400" strokeWidth={2} />
                 <span className="text-[13px] font-medium text-zinc-200">
-                  {repairProgress.tool === 'sfc' ? 'System File Checker' : 'DISM RestoreHealth'}
+                  {repairProgress.tool === 'sfc' ? t('repairProgressSfc') : t('repairProgressDism')}
                 </span>
                 <span className="ml-auto font-mono text-[12px]" style={{ color: '#6e6e76' }}>{repairProgress.percent}%</span>
               </div>
@@ -479,13 +482,12 @@ export function DiskAnalyzerPage() {
                   <ShieldCheck className="h-5 w-5 text-amber-400" strokeWidth={1.8} />
                 </div>
                 <div>
-                  <p className="text-[13px] font-medium text-zinc-200">DISM RestoreHealth</p>
-                  <p className="text-[11px]" style={{ color: '#52525e' }}>Repair Windows component store</p>
+                  <p className="text-[13px] font-medium text-zinc-200">{t('dismCardTitle')}</p>
+                  <p className="text-[11px]" style={{ color: '#52525e' }}>{t('dismCardSubtitle')}</p>
                 </div>
               </div>
               <p className="mb-4 text-[12px] leading-relaxed" style={{ color: '#6e6e76' }}>
-                Scans the Windows component store for corruption and repairs it using Windows Update.
-                Run this before SFC if system files can't be repaired.
+                {t('dismCardDescription')}
               </p>
 
               {dismResult && (
@@ -503,13 +505,13 @@ export function DiskAnalyzerPage() {
                   </div>
                   {dismResult.requiresReboot && (
                     <p className="mt-2 flex items-center gap-1.5 text-[11px] text-amber-400">
-                      <AlertTriangle className="h-3 w-3" strokeWidth={2} /> A restart is recommended to complete repairs
+                      <AlertTriangle className="h-3 w-3" strokeWidth={2} /> {t('restartRecommended')}
                     </p>
                   )}
                   {dismResult.log && (
                     <button onClick={() => setShowRepairLog(showRepairLog === 'dism' ? null : 'dism')}
                       className="mt-2 text-[11px] font-medium text-amber-500 hover:text-amber-400">
-                      {showRepairLog === 'dism' ? 'Hide Log' : 'Show Log'}
+                      {showRepairLog === 'dism' ? t('hideLog') : t('showLog')}
                     </button>
                   )}
                   {showRepairLog === 'dism' && dismResult.log && (
@@ -525,8 +527,8 @@ export function DiskAnalyzerPage() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
                 style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}>
                 {repairRunning && repairProgress?.tool === 'dism'
-                  ? <><RefreshCw className="h-4 w-4 animate-spin" /> Running...</>
-                  : <><ShieldCheck className="h-4 w-4" strokeWidth={2} /> Run DISM</>}
+                  ? <><RefreshCw className="h-4 w-4 animate-spin" /> {t('dismRunning')}</>
+                  : <><ShieldCheck className="h-4 w-4" strokeWidth={2} /> {t('runDism')}</>}
               </button>
             </div>
 
@@ -537,13 +539,12 @@ export function DiskAnalyzerPage() {
                   <Wrench className="h-5 w-5 text-amber-400" strokeWidth={1.8} />
                 </div>
                 <div>
-                  <p className="text-[13px] font-medium text-zinc-200">SFC /scannow</p>
-                  <p className="text-[11px]" style={{ color: '#52525e' }}>Scan and repair system files</p>
+                  <p className="text-[13px] font-medium text-zinc-200">{t('sfcCardTitle')}</p>
+                  <p className="text-[11px]" style={{ color: '#52525e' }}>{t('sfcCardSubtitle')}</p>
                 </div>
               </div>
               <p className="mb-4 text-[12px] leading-relaxed" style={{ color: '#6e6e76' }}>
-                Scans all protected Windows system files and replaces corrupted or missing files
-                with a cached copy from the component store.
+                {t('sfcCardDescription')}
               </p>
 
               {sfcResult && (
@@ -561,13 +562,13 @@ export function DiskAnalyzerPage() {
                   </div>
                   {sfcResult.requiresReboot && (
                     <p className="mt-2 flex items-center gap-1.5 text-[11px] text-amber-400">
-                      <AlertTriangle className="h-3 w-3" strokeWidth={2} /> A restart is recommended to complete repairs
+                      <AlertTriangle className="h-3 w-3" strokeWidth={2} /> {t('restartRecommended')}
                     </p>
                   )}
                   {sfcResult.log && (
                     <button onClick={() => setShowRepairLog(showRepairLog === 'sfc' ? null : 'sfc')}
                       className="mt-2 text-[11px] font-medium text-amber-500 hover:text-amber-400">
-                      {showRepairLog === 'sfc' ? 'Hide Log' : 'Show Log'}
+                      {showRepairLog === 'sfc' ? t('hideLog') : t('showLog')}
                     </button>
                   )}
                   {showRepairLog === 'sfc' && sfcResult.log && (
@@ -583,8 +584,8 @@ export function DiskAnalyzerPage() {
                 className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
                 style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}>
                 {repairRunning && repairProgress?.tool === 'sfc'
-                  ? <><RefreshCw className="h-4 w-4 animate-spin" /> Running...</>
-                  : <><Wrench className="h-4 w-4" strokeWidth={2} /> Run SFC</>}
+                  ? <><RefreshCw className="h-4 w-4 animate-spin" /> {t('sfcRunning')}</>
+                  : <><Wrench className="h-4 w-4" strokeWidth={2} /> {t('runSfc')}</>}
               </button>
             </div>
           </div>

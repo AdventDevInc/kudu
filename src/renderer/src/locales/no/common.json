@@ -1,0 +1,18 @@
+{
+  "scanning": "Skanner...",
+  "cleaning": "Rydder...",
+  "foundLabel": "Funnet:",
+  "itemsUnit": "elementer",
+  "sizeLabel": "Størrelse:",
+  "health": "Tilstand",
+  "cancel": "Avbryt",
+  "confirm": "Bekreft",
+  "adminBannerMessage": "Noen funksjoner krever administratorrettigheter.",
+  "relaunchAsAdmin": "Start på nytt som administrator",
+  "justNow": "Akkurat nå",
+  "minutesAgo": "{{minutes}} m siden",
+  "hoursAgo": "{{hours}} t siden",
+  "daysAgo": "{{days}} d siden",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

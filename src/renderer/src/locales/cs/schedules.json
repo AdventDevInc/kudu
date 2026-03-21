@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Plány",
+  "pageDescription": "Automatizujte kontroly, čištění a aktualizace podle plánu",
+  "newScheduleButton": "Nový plán",
+  "createScheduleButton": "Vytvořit plán",
+  "emptyStateTitle": "Zatím nejsou žádné plány",
+  "emptyStateDescription": "Vytvořte plán pro automatické spouštění kontrol, čištění a aktualizací.",
+  "maxSchedulesReached": "Bylo dosaženo maximálního počtu plánů: {{max}}.",
+  "duplicatedToast": "Duplikováno „{{name}}“",
+  "deletedToast": "Odstraněno „{{name}}“",
+  "updatedToast": "Aktualizováno „{{name}}“",
+  "createdToast": "Vytvořeno „{{name}}“",
+  "failedEnableStartup": "Nepodařilo se povolit spouštění po startu. Plány se po restartu nemusí spustit.",
+  "deleteConfirmTitle": "Odstranit plán",
+  "deleteConfirmDescription": "Tento plán bude trvale odstraněn. Tuto akci nelze vrátit zpět.",
+  "deleteConfirmLabel": "Odstranit",
+  "card": {
+    "autoApplyBadge": "Automaticky použít",
+    "editAction": "Upravit",
+    "duplicateAction": "Duplikovat",
+    "deleteAction": "Odstranit",
+    "noTasksSelected": "Nejsou vybrány žádné úlohy",
+    "nextRun": "Další: {{time}}",
+    "lastRun": "Poslední: {{time}}",
+    "neverRun": "Nikdy nespustit"
+  },
+  "presets": {
+    "dialogTitle": "Vyberte šablonu",
+    "weeklyFullCleanLabel": "Týdenní úplné čištění",
+    "weeklyFullCleanDescription": "Všechny kategorie čištění každé pondělí v 9:00",
+    "dailyLightSweepLabel": "Denní lehké čištění",
+    "dailyLightSweepDescription": "Systém, prohlížeče a koš každý den v 8:00",
+    "monthlyDeepMaintenanceLabel": "Měsíční hloubková údržba",
+    "monthlyDeepMaintenanceDescription": "Úplné čištění + registr, ovladače a software vždy 1. den v měsíci v 10:00",
+    "customLabel": "Vlastní",
+    "customDescription": "Začněte od začátku s prázdným plánem"
+  },
+  "dialog": {
+    "editTitle": "Upravit plán",
+    "newTitle": "Nový plán",
+    "nameLabel": "Název",
+    "namePlaceholder": "např. Týdenní hloubkové čištění",
+    "frequencyLabel": "Frekvence",
+    "frequencyDaily": "Denně",
+    "frequencyWeekly": "Týdně",
+    "frequencyMonthly": "Měsíčně",
+    "dayLabel": "Den",
+    "timeLabel": "Čas",
+    "tasksLabel": "Úlohy",
+    "selectAll": "Vybrat vše",
+    "deselectAll": "Zrušit výběr všeho",
+    "cleanerGroup": "Čištění",
+    "maintenanceGroup": "Údržba",
+    "autoApplyLabel": "Automaticky použít",
+    "autoApplyDescription": "Automaticky vyčistit soubory, opravit problémy registru a nainstalovat aktualizace bez potvrzení.",
+    "autoApplyWarning": "Akce se budou automaticky spouštět podle plánu. Ujistěte se, že je váš seznam výjimek aktuální.",
+    "cancelButton": "Zrušit",
+    "saveChangesButton": "Uložit změny",
+    "createScheduleButton": "Vytvořit plán"
+  },
+  "tasks": {
+    "system": "Systém",
+    "browsers": "Prohlížeče",
+    "applications": "Aplikace",
+    "gaming": "Hry",
+    "recycleBin": "Koš",
+    "databases": "Databáze",
+    "registryFixes": "Opravy registru",
+    "driverUpdates": "Aktualizace ovladačů",
+    "softwareUpdates": "Aktualizace softwaru"
+  },
+  "dayNames": {
+    "sunday": "Neděle",
+    "monday": "Pondělí",
+    "tuesday": "Úterý",
+    "wednesday": "Středa",
+    "thursday": "Čtvrtek",
+    "friday": "Pátek",
+    "saturday": "Sobota"
+  },
+  "frequency": {
+    "everyDayAt": "Každý den v {{time}}",
+    "everyWeekdayAt": "Každé {{day}} v {{time}}",
+    "monthlyAt": "{{ordinalDay}} každého měsíce v {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Dnes v {{time}}",
+    "tomorrowAt": "Zítra v {{time}}",
+    "inDaysAt": "Za {{count}} dní v {{time}}",
+    "dateAt": "{{date}} v {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Právě teď",
+    "minutesAgo": "před {{count}} min",
+    "hoursAgo": "před {{count}} h",
+    "daysAgo": "před {{count}} d"
+  },
+  "copyNameSuffix": "(kopie)"
+}

@@ -1,0 +1,99 @@
+{
+  "pageTitle": "计划任务",
+  "pageDescription": "按计划自动执行扫描、清理和更新",
+  "newScheduleButton": "新建计划任务",
+  "createScheduleButton": "创建计划任务",
+  "emptyStateTitle": "暂无计划任务",
+  "emptyStateDescription": "创建计划任务以自动执行扫描、清理和更新。",
+  "maxSchedulesReached": "最多只能创建 {{max}} 个计划任务。",
+  "duplicatedToast": "已复制“{{name}}”",
+  "deletedToast": "已删除“{{name}}”",
+  "updatedToast": "已更新“{{name}}”",
+  "createdToast": "已创建“{{name}}”",
+  "failedEnableStartup": "启用开机启动失败。重启后计划任务可能无法运行。",
+  "deleteConfirmTitle": "删除计划任务",
+  "deleteConfirmDescription": "此计划任务将被永久删除。此操作无法撤销。",
+  "deleteConfirmLabel": "删除",
+  "card": {
+    "autoApplyBadge": "自动应用",
+    "editAction": "编辑",
+    "duplicateAction": "复制",
+    "deleteAction": "删除",
+    "noTasksSelected": "未选择任务",
+    "nextRun": "下次：{{time}}",
+    "lastRun": "上次：{{time}}",
+    "neverRun": "从未运行"
+  },
+  "presets": {
+    "dialogTitle": "选择模板",
+    "weeklyFullCleanLabel": "每周完整清理",
+    "weeklyFullCleanDescription": "每周一上午 9:00 执行所有清理类别",
+    "dailyLightSweepLabel": "每日轻度清理",
+    "dailyLightSweepDescription": "每天上午 8:00 清理系统、浏览器和回收站",
+    "monthlyDeepMaintenanceLabel": "每月深度维护",
+    "monthlyDeepMaintenanceDescription": "每月 1 日上午 10:00 执行完整清理 + 注册表、驱动程序和软件维护",
+    "customLabel": "自定义",
+    "customDescription": "从空白计划任务开始创建"
+  },
+  "dialog": {
+    "editTitle": "编辑计划任务",
+    "newTitle": "新建计划任务",
+    "nameLabel": "名称",
+    "namePlaceholder": "例如：每周深度清理",
+    "frequencyLabel": "频率",
+    "frequencyDaily": "每天",
+    "frequencyWeekly": "每周",
+    "frequencyMonthly": "每月",
+    "dayLabel": "日期",
+    "timeLabel": "时间",
+    "tasksLabel": "任务",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "cleanerGroup": "清理",
+    "maintenanceGroup": "维护",
+    "autoApplyLabel": "自动应用",
+    "autoApplyDescription": "自动清理文件、修复注册表问题并安装更新，无需确认。",
+    "autoApplyWarning": "操作将按计划自动执行。请确保您的排除列表已保持最新。",
+    "cancelButton": "取消",
+    "saveChangesButton": "保存更改",
+    "createScheduleButton": "创建计划任务"
+  },
+  "tasks": {
+    "system": "系统",
+    "browsers": "浏览器",
+    "applications": "应用程序",
+    "gaming": "游戏",
+    "recycleBin": "回收站",
+    "databases": "数据库",
+    "registryFixes": "注册表修复",
+    "driverUpdates": "驱动程序更新",
+    "softwareUpdates": "软件更新"
+  },
+  "dayNames": {
+    "sunday": "星期日",
+    "monday": "星期一",
+    "tuesday": "星期二",
+    "wednesday": "星期三",
+    "thursday": "星期四",
+    "friday": "星期五",
+    "saturday": "星期六"
+  },
+  "frequency": {
+    "everyDayAt": "每天 {{time}}",
+    "everyWeekdayAt": "每{{day}} {{time}}",
+    "monthlyAt": "每月 {{ordinalDay}} {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "今天 {{time}}",
+    "tomorrowAt": "明天 {{time}}",
+    "inDaysAt": "{{count}} 天后 {{time}}",
+    "dateAt": "{{date}} {{time}}"
+  },
+  "lastRun": {
+    "justNow": "刚刚",
+    "minutesAgo": "{{count}} 分钟前",
+    "hoursAgo": "{{count}} 小时前",
+    "daysAgo": "{{count}} 天前"
+  },
+  "copyNameSuffix": "（副本）"
+}

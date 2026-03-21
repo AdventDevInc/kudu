@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Download,
   Search,
@@ -24,47 +25,48 @@ import { useUpdaterStore, severityOrder } from '@/stores/updater-store'
 import { useHistoryStore } from '@/stores/history-store'
 import type { UpdateProgress, UpdatableApp, UpToDateApp } from '@shared/types'
 
-const SEVERITY_STYLES = {
+const SEVERITY_STYLES_BASE = {
   major: {
     bg: 'rgba(239,68,68,0.08)',
     border: 'rgba(239,68,68,0.18)',
     text: '#f87171',
-    label: 'Major',
+    labelKey: 'softwareUpdater.severityMajor',
   },
   minor: {
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.18)',
     text: '#fbbf24',
-    label: 'Minor',
+    labelKey: 'softwareUpdater.severityMinor',
   },
   patch: {
     bg: 'rgba(34,197,94,0.08)',
     border: 'rgba(34,197,94,0.18)',
     text: '#4ade80',
-    label: 'Patch',
+    labelKey: 'softwareUpdater.severityPatch',
   },
   unknown: {
     bg: 'rgba(113,113,122,0.08)',
     border: 'rgba(113,113,122,0.18)',
     text: '#a1a1aa',
-    label: 'Update',
+    labelKey: 'softwareUpdater.severityUpdate',
   },
 }
 
-const SORT_LABELS: Record<string, string> = {
-  name: 'Name',
-  severity: 'Severity',
-  source: 'Source',
+const SORT_LABEL_KEYS: Record<string, string> = {
+  name: 'softwareUpdater.sortName',
+  severity: 'softwareUpdater.sortSeverity',
+  source: 'softwareUpdater.sortSource',
 }
 
-const FILTER_LABELS: Record<string, string> = {
-  all: 'All',
-  major: 'Major',
-  minor: 'Minor',
-  patch: 'Patch',
+const FILTER_LABEL_KEYS: Record<string, string> = {
+  all: 'softwareUpdater.filterAll',
+  major: 'softwareUpdater.filterMajor',
+  minor: 'softwareUpdater.filterMinor',
+  patch: 'softwareUpdater.filterPatch',
 }
 
 export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
+  const { t } = useTranslation('updates')
   const apps = useUpdaterStore((s) => s.apps)
   const loading = useUpdaterStore((s) => s.loading)
   const updating = useUpdaterStore((s) => s.updating)
@@ -136,13 +138,13 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       s.setHasChecked(true)
 
       if (result.packageManagerAvailable && result.totalCount === 0) {
-        toast.success('All software is up to date!')
+        toast.success(t('softwareUpdater.toastAllUpToDate'))
       } else if (result.totalCount > 0) {
-        toast.info(`Found ${result.totalCount} update${result.totalCount !== 1 ? 's' : ''} available`)
+        toast.info(result.totalCount !== 1 ? t('softwareUpdater.toastUpdatesFoundPlural', { count: result.totalCount }) : t('softwareUpdater.toastUpdatesFound', { count: result.totalCount }))
       }
     } catch (err) {
       console.error('Update check failed:', err)
-      useUpdaterStore.getState().setError('Failed to check for updates.')
+      useUpdaterStore.getState().setError(t('softwareUpdater.errorCheckFailed'))
     } finally {
       useUpdaterStore.getState().setLoading(false)
     }
@@ -173,12 +175,12 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           const succeededIds = ids.filter((id) => !failedIds.has(id))
           s.removeApps(succeededIds)
           toast.success(
-            `Updated ${result.succeeded} app${result.succeeded !== 1 ? 's' : ''} successfully`,
+            result.succeeded !== 1 ? t('softwareUpdater.toastUpdateSuccessPlural', { count: result.succeeded }) : t('softwareUpdater.toastUpdateSuccess', { count: result.succeeded }),
           )
         }
         if (result.failed > 0) {
           toast.error(
-            `${result.failed} update${result.failed !== 1 ? 's' : ''} failed`,
+            result.failed !== 1 ? t('softwareUpdater.toastUpdateFailedPlural', { count: result.failed }) : t('softwareUpdater.toastUpdateFailed', { count: result.failed }),
           )
         }
 
@@ -201,13 +203,13 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           totalItemsSkipped: 0,
           totalSpaceSaved: 0,
           categories: Object.entries(bySeverity).map(([name, d]) => ({
-            name: `${name} updates`, itemsFound: d.found, itemsCleaned: d.updated, spaceSaved: 0
+            name: t('softwareUpdater.historyCategoryUpdates', { name }), itemsFound: d.found, itemsCleaned: d.updated, spaceSaved: 0
           })),
           errorCount: result.failed
         })
       } catch (err) {
         console.error('Update failed:', err)
-        useUpdaterStore.getState().setError('Update operation failed unexpectedly.')
+        useUpdaterStore.getState().setError(t('softwareUpdater.errorUpdateFailed'))
       } finally {
         useUpdaterStore.getState().setUpdating(false)
       }
@@ -260,8 +262,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
     <div className={embedded ? '' : 'animate-fade-in'}>
       {!embedded && (
         <PageHeader
-          title="Software Updater"
-          description="Check for outdated software and install updates"
+          title={t('softwareUpdater.pageTitle')}
+          description={t('softwareUpdater.pageDescription')}
         />
       )}
 
@@ -281,7 +283,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           ) : (
             <RefreshCw className="h-4 w-4" strokeWidth={2} />
           )}
-          {loading ? 'Checking...' : hasChecked ? 'Re-check' : 'Check for Updates'}
+          {loading ? t('softwareUpdater.checkingButton') : hasChecked ? t('softwareUpdater.recheckButton') : t('softwareUpdater.checkForUpdatesButton')}
         </button>
 
         {/* Search */}
@@ -298,7 +300,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               type="text"
               value={searchQuery}
               onChange={(e) => useUpdaterStore.getState().setSearchQuery(e.target.value)}
-              placeholder="Search apps..."
+              placeholder={t('softwareUpdater.searchPlaceholder')}
               className="bg-transparent text-[13px] text-zinc-300 placeholder-zinc-600 outline-none w-48"
             />
           </div>
@@ -316,7 +318,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               }}
             >
               <Filter className="h-3.5 w-3.5" strokeWidth={1.8} />
-              {FILTER_LABELS[severityFilter]}
+              {t(FILTER_LABEL_KEYS[severityFilter])}
               <ChevronDown className="h-3 w-3" strokeWidth={2} />
             </button>
             {showFilterMenu && (
@@ -328,7 +330,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                   minWidth: 120,
                 }}
               >
-                {Object.entries(FILTER_LABELS).map(([key, label]) => (
+                {Object.entries(FILTER_LABEL_KEYS).map(([key, labelKey]) => (
                   <button
                     key={key}
                     onClick={() => {
@@ -337,7 +339,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                     }}
                     className="flex w-full items-center gap-2 px-4 py-2 text-[12px] text-zinc-300 hover:bg-white/5 transition-colors"
                   >
-                    {label}
+                    {t(labelKey)}
                     {severityFilter === key && (
                       <CheckCircle2 className="ml-auto h-3 w-3 text-amber-400" strokeWidth={2} />
                     )}
@@ -360,7 +362,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               }}
             >
               <ArrowUpDown className="h-3.5 w-3.5" strokeWidth={1.8} />
-              {SORT_LABELS[sortField]}
+              {t(SORT_LABEL_KEYS[sortField])}
               <ChevronDown className="h-3 w-3" strokeWidth={2} />
             </button>
             {showSortMenu && (
@@ -372,7 +374,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                   minWidth: 140,
                 }}
               >
-                {Object.entries(SORT_LABELS).map(([field, label]) => (
+                {Object.entries(SORT_LABEL_KEYS).map(([field, labelKey]) => (
                   <button
                     key={field}
                     onClick={() => {
@@ -387,10 +389,10 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                     }}
                     className="flex w-full items-center gap-2 px-4 py-2 text-[12px] text-zinc-300 hover:bg-white/5 transition-colors"
                   >
-                    {label}
+                    {t(labelKey)}
                     {sortField === field && (
                       <span className="ml-auto text-amber-400 text-[10px]">
-                        {sortDirection === 'asc' ? 'A-Z' : 'Z-A'}
+                        {sortDirection === 'asc' ? t('softwareUpdater.sortAsc') : t('softwareUpdater.sortDesc')}
                       </span>
                     )}
                   </button>
@@ -414,35 +416,29 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           <p className="text-[12px] text-zinc-400">
             {packageManagerName === 'brew' ? (
               <>
-                <span className="font-semibold text-red-400">brew not found</span> — Homebrew is
-                required. Install it from{' '}
-                <span className="text-zinc-300">brew.sh</span>.
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.brewNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.brewRequired')}{' '}
+                <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.brewSite')}</span>.
               </>
             ) : packageManagerName === 'winget' ? (
               <>
-                <span className="font-semibold text-red-400">winget not found</span> — Windows Package
-                Manager is required. Install it from the{' '}
-                <span className="text-zinc-300">Microsoft Store</span> (search "App Installer") or from
-                GitHub.
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.wingetNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.wingetRequired')}{' '}
+                <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.wingetStore')}</span> {t('softwareUpdater.packageManagerNotFound.wingetSearchTerm')}
               </>
             ) : packageManagerName === 'apt' ? (
               <>
-                <span className="font-semibold text-red-400">apt not found</span> — APT package
-                manager is required. It should be pre-installed on Debian and Ubuntu systems.
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.aptNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.aptRequired')}
               </>
             ) : packageManagerName === 'dnf' ? (
               <>
-                <span className="font-semibold text-red-400">dnf not found</span> — DNF package
-                manager is required. It should be pre-installed on Fedora and RHEL systems.
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.dnfNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.dnfRequired')}
               </>
             ) : packageManagerName === 'pacman' ? (
               <>
-                <span className="font-semibold text-red-400">pacman not found</span> — Pacman package
-                manager is required. It should be pre-installed on Arch Linux systems.
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.pacmanNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.pacmanRequired')}
               </>
             ) : (
               <span className="font-semibold text-red-400">
-                No supported package manager found. Supported: apt (Debian/Ubuntu), dnf (Fedora/RHEL), or pacman (Arch).
+                {t('softwareUpdater.packageManagerNotFound.noPackageManager')}
               </span>
             )}
           </p>
@@ -461,10 +457,10 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       {/* Stat cards */}
       {hasChecked && packageManagerAvailable && apps.length > 0 && (
         <div className="grid grid-cols-4 gap-3 mb-5">
-          <StatCard icon={Package} label="Outdated Apps" value={apps.length} variant="accent" />
-          <StatCard icon={AlertTriangle} label="Major Updates" value={majorCount} variant="danger" />
-          <StatCard icon={AlertTriangle} label="Minor Updates" value={minorCount} variant="default" />
-          <StatCard icon={CheckCircle2} label="Patches" value={patchCount} variant="success" />
+          <StatCard icon={Package} label={t('softwareUpdater.statOutdatedApps')} value={apps.length} variant="accent" />
+          <StatCard icon={AlertTriangle} label={t('softwareUpdater.statMajorUpdates')} value={majorCount} variant="danger" />
+          <StatCard icon={AlertTriangle} label={t('softwareUpdater.statMinorUpdates')} value={minorCount} variant="default" />
+          <StatCard icon={CheckCircle2} label={t('softwareUpdater.statPatches')} value={patchCount} variant="success" />
         </div>
       )}
 
@@ -481,10 +477,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             <div className="flex items-center gap-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-amber-400" strokeWidth={2} />
               <span className="text-[13px] font-medium text-zinc-200">
-                Updating {progress.currentApp}{' '}
-                <span style={{ color: '#6e6e76' }}>
-                  ({progress.current} of {progress.total})
-                </span>
+                {t('softwareUpdater.updatingProgress', { app: progress.currentApp, current: progress.current, total: progress.total })}
               </span>
             </div>
             <span className="text-[12px] font-mono" style={{ color: '#6e6e76' }}>
@@ -505,7 +498,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           </div>
           {progress.status === 'failed' && (
             <p className="mt-2 text-[11px] text-red-400">
-              Failed to update {progress.currentApp}
+              {t('softwareUpdater.failedToUpdate', { app: progress.currentApp })}
             </p>
           )}
         </div>
@@ -531,14 +524,13 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           <div className="text-[13px] text-zinc-200">
             {updateResult.succeeded > 0 && (
               <span className="text-green-400">
-                {updateResult.succeeded} app{updateResult.succeeded !== 1 ? 's' : ''} updated
-                successfully
+                {updateResult.succeeded !== 1 ? t('softwareUpdater.updateResultAppsUpdatedPlural', { count: updateResult.succeeded }) : t('softwareUpdater.updateResultAppsUpdated', { count: updateResult.succeeded })}
               </span>
             )}
             {updateResult.succeeded > 0 && updateResult.failed > 0 && <span> — </span>}
             {updateResult.failed > 0 && (
               <span className="text-red-400">
-                {updateResult.failed} failed
+                {t('softwareUpdater.updateResultFailed', { count: updateResult.failed })}
               </span>
             )}
             {updateResult.errors.length > 0 && (
@@ -590,12 +582,12 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 <CheckCircle2 className="h-3 w-3" style={{ color: '#1a0a00' }} strokeWidth={3} />
               )}
             </div>
-            {allSelected ? 'Deselect all' : 'Select all'}
+            {allSelected ? t('softwareUpdater.deselectAll') : t('softwareUpdater.selectAll')}
           </button>
 
           {selectedCount > 0 && (
             <span className="text-[12px]" style={{ color: '#6e6e76' }}>
-              {selectedCount} selected
+              {t('softwareUpdater.selectedCount', { count: selectedCount })}
             </span>
           )}
 
@@ -616,7 +608,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             }}
           >
             <Download className="h-4 w-4" strokeWidth={2} />
-            Update Selected ({selectedCount})
+            {t('softwareUpdater.updateSelectedButton', { count: selectedCount })}
           </button>
         </div>
       )}
@@ -625,8 +617,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       {!hasChecked && !loading && (
         <EmptyState
           icon={RefreshCw}
-          title="No update check performed"
-          description="Scan your installed software to find available updates."
+          title={t('softwareUpdater.emptyStateTitle')}
+          description={t('softwareUpdater.emptyStateDescription')}
           action={
             <button
               onClick={handleCheck}
@@ -638,7 +630,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               }}
             >
               <RefreshCw className="h-4 w-4" strokeWidth={2} />
-              Check for Updates
+              {t('softwareUpdater.checkForUpdatesButton')}
             </button>
           }
         />
@@ -648,9 +640,9 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="h-10 w-10 animate-spin text-amber-400 mb-4" strokeWidth={1.5} />
-          <p className="text-[13px] text-zinc-400">Checking for updates...</p>
+          <p className="text-[13px] text-zinc-400">{t('softwareUpdater.checkingForUpdates')}</p>
           <p className="text-[11px] mt-1" style={{ color: '#52525e' }}>
-            This may take a moment while your package manager queries available updates
+            {t('softwareUpdater.checkingSubtext')}
           </p>
         </div>
       )}
@@ -659,8 +651,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       {hasChecked && !loading && apps.length === 0 && packageManagerAvailable && (
         <EmptyState
           icon={Sparkles}
-          title="Everything is up to date!"
-          description="All your installed software is running the latest version. Check back later for new updates."
+          title={t('softwareUpdater.allUpToDateTitle')}
+          description={t('softwareUpdater.allUpToDateDescription')}
         />
       )}
 
@@ -668,7 +660,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       {hasChecked && !loading && filteredApps.length === 0 && apps.length > 0 && (
         <div className="flex flex-col items-center justify-center py-16">
           <Search className="h-10 w-10 text-zinc-600 mb-4" strokeWidth={1.5} />
-          <p className="text-[13px] text-zinc-400">No apps match your filters</p>
+          <p className="text-[13px] text-zinc-400">{t('softwareUpdater.noAppsMatchFilters')}</p>
         </div>
       )}
 
@@ -702,7 +694,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
             )}
             <CheckCircle2 className="h-4 w-4 text-green-500" strokeWidth={1.8} />
-            Up to date ({upToDate.length})
+            {t('softwareUpdater.upToDateSection', { count: upToDate.length })}
           </button>
 
           {showUpToDate && (
@@ -729,7 +721,9 @@ function AppRow({
   onToggle: () => void
   onUpdate: () => void
 }) {
-  const severity = SEVERITY_STYLES[app.severity]
+  const { t } = useTranslation('updates')
+  const base = SEVERITY_STYLES_BASE[app.severity]
+  const severity = { ...base, label: t(base.labelKey) }
 
   return (
     <div
@@ -813,13 +807,14 @@ function AppRow({
         style={{ border: '1px solid rgba(34,197,94,0.15)' }}
       >
         <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
-        Update
+        {t('softwareUpdater.updateButton')}
       </button>
     </div>
   )
 }
 
 function UpToDateRow({ app }: { app: UpToDateApp }) {
+  const { t } = useTranslation('updates')
   return (
     <div
       className="flex items-center gap-4 rounded-xl px-5 py-3"
@@ -845,7 +840,7 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
         className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-medium"
         style={{ background: 'rgba(34,197,94,0.06)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.1)' }}
       >
-        Latest
+        {t('softwareUpdater.latestBadge')}
       </span>
     </div>
   )

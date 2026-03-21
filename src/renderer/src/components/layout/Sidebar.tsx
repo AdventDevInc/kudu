@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard,
   Sparkles,
@@ -27,51 +28,51 @@ import { usePlatform } from '@/hooks/usePlatform'
 
 interface NavItemDef {
   icon: LucideIcon
-  label: string
+  labelKey: string
   path: string
 }
 
 interface NavGroup {
-  heading?: string
+  headingKey?: string
   items: NavItemDef[]
 }
 
 const navGroups: NavGroup[] = [
   {
-    items: [{ icon: LayoutDashboard, label: 'Dashboard', path: '/' }]
+    items: [{ icon: LayoutDashboard, labelKey: 'dashboard', path: '/' }]
   },
   {
-    heading: 'SECURITY',
+    headingKey: 'securityHeading',
     items: [
-      { icon: ShieldAlert, label: 'Malware Scanner', path: '/malware' },
-      { icon: Radar, label: 'Threat Monitor', path: '/threat-monitor' },
-      { icon: Shield, label: 'System Hardening', path: '/hardening' }
+      { icon: ShieldAlert, labelKey: 'malwareScanner', path: '/malware' },
+      { icon: Radar, labelKey: 'threatMonitor', path: '/threat-monitor' },
+      { icon: Shield, labelKey: 'systemHardening', path: '/hardening' }
     ]
   },
   {
-    heading: 'MAINTAIN',
+    headingKey: 'maintainHeading',
     items: [
-      { icon: Sparkles, label: 'Cleaner', path: '/cleaner' },
-      { icon: Database, label: 'Registry', path: '/registry' },
-      { icon: Zap, label: 'Startup', path: '/startup' },
-      { icon: Wifi, label: 'Network', path: '/network' },
-      { icon: Trash2, label: 'Uninstaller', path: '/uninstaller' },
-      { icon: Download, label: 'Updates', path: '/updates' },
-      { icon: CalendarClock, label: 'Schedules', path: '/schedules' }
+      { icon: Sparkles, labelKey: 'cleaner', path: '/cleaner' },
+      { icon: Database, labelKey: 'registry', path: '/registry' },
+      { icon: Zap, labelKey: 'startup', path: '/startup' },
+      { icon: Wifi, labelKey: 'network', path: '/network' },
+      { icon: Trash2, labelKey: 'uninstaller', path: '/uninstaller' },
+      { icon: Download, labelKey: 'updates', path: '/updates' },
+      { icon: CalendarClock, labelKey: 'schedules', path: '/schedules' }
     ]
   },
   {
-    heading: 'TOOLS',
+    headingKey: 'toolsHeading',
     items: [
-      { icon: Activity, label: 'Performance', path: '/performance' },
-      { icon: HardDrive, label: 'Disk Analyzer', path: '/disk' },
-      { icon: History, label: 'History', path: '/history' }
+      { icon: Activity, labelKey: 'performance', path: '/performance' },
+      { icon: HardDrive, labelKey: 'diskAnalyzer', path: '/disk' },
+      { icon: History, labelKey: 'history', path: '/history' }
     ]
   }
 ]
 
 const bottomNavItems: NavItemDef[] = [
-  { icon: Settings, label: 'Settings', path: '/settings' }
+  { icon: Settings, labelKey: 'settings', path: '/settings' }
 ]
 
 // Map nav paths to badge counts from stores
@@ -88,6 +89,7 @@ function useBadgeCounts(): Record<string, number> {
 }
 
 export function Sidebar() {
+  const { t } = useTranslation('sidebar')
   const badgeCounts = useBadgeCounts()
   const { features } = usePlatform()
   const threatMonitorLoaded = useThreatMonitorStore((s) => s.loaded)
@@ -112,9 +114,9 @@ export function Sidebar() {
       <div className="drag-region flex items-center gap-3 px-5 pb-4 pt-6">
         <img src={logoSrc} alt="Kudu" className="h-9 w-9 shrink-0 rounded-xl" />
         <div>
-          <div className="text-[14px] font-semibold text-white">Kudu</div>
+          <div className="text-[14px] font-semibold text-white">{t('appName')}</div>
           <div className="text-[10px] font-medium tracking-wide" style={{ color: '#636369' }}>
-            SYSTEM CLEANER
+            {t('subtitle')}
           </div>
         </div>
       </div>
@@ -123,12 +125,12 @@ export function Sidebar() {
       <nav className="mt-2 min-h-0 flex-1 overflow-y-auto px-3">
         {filteredNavGroups.map((group, gi) => (
           <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
-            {group.heading && (
+            {group.headingKey && (
               <div
                 className="mb-1 px-3 pt-1 text-[10px] font-semibold tracking-widest"
                 style={{ color: '#4e4e56' }}
               >
-                {group.heading}
+                {t(group.headingKey)}
               </div>
             )}
             <div className="space-y-0.5">
@@ -160,6 +162,7 @@ function BottomNav() {
 }
 
 function NavItem({ item, badge, badgeCount }: { item: NavItemDef; badge?: boolean; badgeCount?: number }) {
+  const { t } = useTranslation('sidebar')
   const location = useLocation()
   const navigate = useNavigate()
   const isActive = location.pathname === item.path
@@ -188,7 +191,7 @@ function NavItem({ item, badge, badgeCount }: { item: NavItemDef; badge?: boolea
         )}
         strokeWidth={isActive ? 2.2 : 1.8}
       />
-      <span>{item.label}</span>
+      <span>{t(item.labelKey)}</span>
       {(badge || (badgeCount != null && badgeCount > 0)) && (
         <span
           className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-semibold leading-none"

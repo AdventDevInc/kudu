@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Schedules",
+  "pageDescription": "Automate scans, cleanups, and updates on a schedule",
+  "newScheduleButton": "New Schedule",
+  "createScheduleButton": "Create Schedule",
+  "emptyStateTitle": "No schedules yet",
+  "emptyStateDescription": "Create a schedule to automatically run scans, cleanups, and updates.",
+  "maxSchedulesReached": "Maximum of {{max}} schedules reached.",
+  "duplicatedToast": "Duplicated \"{{name}}\"",
+  "deletedToast": "Deleted \"{{name}}\"",
+  "updatedToast": "Updated \"{{name}}\"",
+  "createdToast": "Created \"{{name}}\"",
+  "failedEnableStartup": "Failed to enable startup. Schedules may not run after reboot.",
+  "deleteConfirmTitle": "Delete schedule",
+  "deleteConfirmDescription": "This schedule will be permanently removed. This action cannot be undone.",
+  "deleteConfirmLabel": "Delete",
+  "card": {
+    "autoApplyBadge": "Auto-apply",
+    "editAction": "Edit",
+    "duplicateAction": "Duplicate",
+    "deleteAction": "Delete",
+    "noTasksSelected": "No tasks selected",
+    "nextRun": "Next: {{time}}",
+    "lastRun": "Last: {{time}}",
+    "neverRun": "Never run"
+  },
+  "presets": {
+    "dialogTitle": "Choose a template",
+    "weeklyFullCleanLabel": "Weekly Full Clean",
+    "weeklyFullCleanDescription": "All cleaner categories every Monday at 9 AM",
+    "dailyLightSweepLabel": "Daily Light Sweep",
+    "dailyLightSweepDescription": "System, browsers & recycle bin daily at 8 AM",
+    "monthlyDeepMaintenanceLabel": "Monthly Deep Maintenance",
+    "monthlyDeepMaintenanceDescription": "Full clean + registry, drivers & software on the 1st at 10 AM",
+    "customLabel": "Custom",
+    "customDescription": "Start from scratch with a blank schedule"
+  },
+  "dialog": {
+    "editTitle": "Edit Schedule",
+    "newTitle": "New Schedule",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Weekly Deep Clean",
+    "frequencyLabel": "Frequency",
+    "frequencyDaily": "Daily",
+    "frequencyWeekly": "Weekly",
+    "frequencyMonthly": "Monthly",
+    "dayLabel": "Day",
+    "timeLabel": "Time",
+    "tasksLabel": "Tasks",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "cleanerGroup": "Cleaner",
+    "maintenanceGroup": "Maintenance",
+    "autoApplyLabel": "Auto-apply",
+    "autoApplyDescription": "Automatically clean files, fix registry issues, and install updates without confirmation.",
+    "autoApplyWarning": "Actions will run automatically on schedule. Make sure your exclusions list is up to date.",
+    "cancelButton": "Cancel",
+    "saveChangesButton": "Save Changes",
+    "createScheduleButton": "Create Schedule"
+  },
+  "tasks": {
+    "system": "System",
+    "browsers": "Browsers",
+    "applications": "Applications",
+    "gaming": "Gaming",
+    "recycleBin": "Recycle Bin",
+    "databases": "Databases",
+    "registryFixes": "Registry Fixes",
+    "driverUpdates": "Driver Updates",
+    "softwareUpdates": "Software Updates"
+  },
+  "dayNames": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "frequency": {
+    "everyDayAt": "Every day at {{time}}",
+    "everyWeekdayAt": "Every {{day}} at {{time}}",
+    "monthlyAt": "{{ordinalDay}} of every month at {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Today at {{time}}",
+    "tomorrowAt": "Tomorrow at {{time}}",
+    "inDaysAt": "In {{count}} days at {{time}}",
+    "dateAt": "{{date}} at {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
+  },
+  "copyNameSuffix": "(copy)"
+}

@@ -1,0 +1,18 @@
+{
+  "scanning": "Bezig met scannen...",
+  "cleaning": "Bezig met opschonen...",
+  "foundLabel": "Gevonden:",
+  "itemsUnit": "items",
+  "sizeLabel": "Grootte:",
+  "health": "Status",
+  "cancel": "Annuleren",
+  "confirm": "Bevestigen",
+  "adminBannerMessage": "Voor sommige functies zijn beheerdersrechten vereist.",
+  "relaunchAsAdmin": "Opnieuw starten als administrator",
+  "justNow": "Zojuist",
+  "minutesAgo": "{{minutes}} m geleden",
+  "hoursAgo": "{{hours}} u geleden",
+  "daysAgo": "{{days}} d geleden",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

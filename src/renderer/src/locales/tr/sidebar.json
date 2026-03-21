@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "SİSTEM TEMİZLEYİCİ",
+  "dashboard": "Gösterge Paneli",
+  "securityHeading": "GÜVENLİK",
+  "malwareScanner": "Kötü Amaçlı Yazılım Tarayıcısı",
+  "threatMonitor": "Tehdit İzleyicisi",
+  "systemHardening": "Sistem Güçlendirme",
+  "maintainHeading": "BAKIM",
+  "cleaner": "Temizleyici",
+  "registry": "Kayıt Defteri",
+  "startup": "Başlangıç",
+  "network": "Ağ",
+  "uninstaller": "Kaldırıcı",
+  "updates": "Güncellemeler",
+  "schedules": "Zamanlamalar",
+  "toolsHeading": "ARAÇLAR",
+  "performance": "Performans",
+  "diskAnalyzer": "Disk Çözümleyicisi",
+  "history": "Geçmiş",
+  "settings": "Ayarlar"
+}

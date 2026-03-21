@@ -1,0 +1,18 @@
+{
+  "scanning": "Taranıyor...",
+  "cleaning": "Temizleniyor...",
+  "foundLabel": "Bulunan:",
+  "itemsUnit": "öğe",
+  "sizeLabel": "Boyut:",
+  "health": "Durum",
+  "cancel": "İptal",
+  "confirm": "Onayla",
+  "adminBannerMessage": "Bazı özellikler yönetici ayrıcalıkları gerektirir.",
+  "relaunchAsAdmin": "Yönetici olarak yeniden başlat",
+  "justNow": "Az önce",
+  "minutesAgo": "{{minutes}} dk önce",
+  "hoursAgo": "{{hours}} sa önce",
+  "daysAgo": "{{days}} g önce",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

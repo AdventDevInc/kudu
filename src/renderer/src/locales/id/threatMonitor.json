@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Monitor Ancaman",
+  "pageDescription": "Pemantauan real-time koneksi jaringan terhadap daftar ancaman yang diketahui.",
+  "cloudNotConfigured": {
+    "title": "Cloud belum dikonfigurasi",
+    "description": "Tautkan perangkat Anda ke Kudu Cloud di Pengaturan untuk mengaktifkan pemantauan ancaman. Daftar hitam ancaman disediakan oleh layanan cloud."
+  },
+  "loading": "Memuat...",
+  "inactive": {
+    "title": "Monitor ancaman tidak aktif",
+    "description": "Tidak ada daftar hitam ancaman yang dimuat. Daftar hitam akan diambil secara otomatis saat agen cloud terhubung."
+  },
+  "statusBar": {
+    "blacklistVersion": "Daftar hitam",
+    "connectionsScanned": "Koneksi dipindai {{time}}",
+    "dnsScanned": "DNS dipindai {{time}}",
+    "threatsDetected": "{{count}} ancaman terdeteksi",
+    "threatsDetectedPlural": "{{count}} ancaman terdeteksi",
+    "noThreatsDetected": "Tidak ada ancaman yang terdeteksi"
+  },
+  "allClear": {
+    "title": "Aman",
+    "description": "Tidak ada koneksi atau entri DNS mencurigakan yang terdeteksi. Monitor terus memindai di latar belakang."
+  },
+  "flaggedConnections": "Koneksi yang Ditandai",
+  "flaggedDnsEntries": "Entri DNS yang Ditandai",
+  "connectionPid": "PID {{pid}}"
+}

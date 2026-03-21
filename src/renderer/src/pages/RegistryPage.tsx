@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '@/hooks/usePlatform'
 import {
   Database, Search, Wrench, Shield, CheckCircle2, ChevronDown,
@@ -17,6 +18,25 @@ import type { RegistryEntry } from '@shared/types'
 import type { LucideIcon } from 'lucide-react'
 
 type CardType = RegistryEntry['type']
+
+const typeKeyMap: Record<CardType, string> = {
+  obsolete: 'entryTypeObsolete',
+  invalid: 'entryTypeInvalid',
+  orphaned: 'entryTypeOrphaned',
+  broken: 'entryTypeBroken',
+  vulnerability: 'entryTypeVulnerability',
+  privacy: 'entryTypeVulnerability', // kept for type compat
+  performance: 'entryTypePerformance',
+  network: 'entryTypeNetwork',
+  service: 'entryTypeService',
+  task: 'entryTypeTask'
+}
+
+const riskKeyMap: Record<RegistryEntry['risk'], string> = {
+  low: 'riskLow',
+  medium: 'riskMedium',
+  high: 'riskHigh'
+}
 
 const typeColors: Record<CardType, { bg: string; text: string }> = {
   obsolete: { bg: 'rgba(255,255,255,0.05)', text: '#8e8e96' },
@@ -38,8 +58,8 @@ const riskColors: Record<RegistryEntry['risk'], string> = {
 interface CardDef {
   types: CardType[]
   icon: LucideIcon
-  title: string
-  description: string
+  titleKey: string
+  descriptionKey: string
   color: { bg: string; text: string }
   /** Total number of checks for this card (undefined = dynamic/variable) */
   totalChecks?: number
@@ -49,47 +69,47 @@ const cards: CardDef[] = [
   {
     types: ['obsolete', 'invalid', 'orphaned', 'broken'],
     icon: Trash2,
-    title: 'Registry Cleanup',
-    description: 'Broken app paths, orphaned uninstall entries, invalid file associations, and stale references',
+    titleKey: 'cardRegistryCleanup',
+    descriptionKey: 'cardRegistryCleanupDescription',
     color: { bg: 'rgba(245,158,11,0.1)', text: '#f59e0b' }
   },
   {
     types: ['vulnerability'],
     icon: ShieldAlert,
-    title: 'Security',
-    description: 'UAC, Defender, firewall, RDP, SMBv1, and other critical security settings',
+    titleKey: 'cardSecurity',
+    descriptionKey: 'cardSecurityDescription',
     color: typeColors.vulnerability,
     totalChecks: 12
   },
   {
     types: ['performance'],
     icon: Gauge,
-    title: 'Performance',
-    description: 'SysMain (Superfetch) optimization',
+    titleKey: 'cardPerformance',
+    descriptionKey: 'cardPerformanceDescription',
     color: typeColors.performance,
     totalChecks: 1
   },
   {
     types: ['network'],
     icon: Wifi,
-    title: 'Network',
-    description: 'LLMNR and WPAD auto-proxy — common attack vectors',
+    titleKey: 'cardNetwork',
+    descriptionKey: 'cardNetworkDescription',
     color: typeColors.network,
     totalChecks: 2
   },
   {
     types: ['service'],
     icon: Server,
-    title: 'Services',
-    description: 'Print Spooler and Fax service audit',
+    titleKey: 'cardServices',
+    descriptionKey: 'cardServicesDescription',
     color: typeColors.service,
     totalChecks: 2
   },
   {
     types: ['task'],
     icon: CalendarClock,
-    title: 'Scheduled Tasks',
-    description: 'Orphaned tasks, telemetry collectors, and third-party update tasks',
+    titleKey: 'cardScheduledTasks',
+    descriptionKey: 'cardScheduledTasksDescription',
     color: typeColors.task
   }
 ]
@@ -119,12 +139,13 @@ function HealthRing({ percent, color, size = 36 }: { percent: number; color: str
 
 export function RegistryPage() {
   const { features } = usePlatform()
+  const { t } = useTranslation('registry')
 
   if (!features.registry) {
     return (
       <div className="animate-fade-in">
-        <PageHeader title="Registry Cleaner" description="Windows registry scanning and repair" />
-        <EmptyState icon={Database} title="Not available" description="Registry cleaning is only available on Windows" />
+        <PageHeader title={t('pageHeaderUnavailableTitle')} description={t('pageHeaderUnavailableDescription')} />
+        <EmptyState icon={Database} title={t('notAvailableTitle')} description={t('notAvailableDescription')} />
       </div>
     )
   }
@@ -133,6 +154,7 @@ export function RegistryPage() {
 }
 
 function RegistryPageContent() {
+  const { t } = useTranslation('registry')
   const entries = useRegistryStore((s) => s.entries)
   const scanning = useRegistryStore((s) => s.scanning)
   const scanned = useRegistryStore((s) => s.scanned)
@@ -170,8 +192,8 @@ function RegistryPageContent() {
       useRegistryStore.getState().setScanned(true)
     } catch (err) {
       console.error('Registry scan failed:', err)
-      toast.error('Registry scan failed', { description: 'Make sure the app has sufficient permissions' })
-      useRegistryStore.getState().setError('Failed to scan registry. Make sure the app is running with sufficient permissions.')
+      toast.error(t('toastScanFailed'), { description: t('toastScanFailedDescription') })
+      useRegistryStore.getState().setError(t('toastScanFailedError'))
     }
     useRegistryStore.getState().setScanning(false)
   }, [])
@@ -186,7 +208,7 @@ function RegistryPageContent() {
     const currentEntries = useRegistryStore.getState().entries
     const selectedEntries = currentEntries.filter((e) => e.selected)
     const selectedIds = selectedEntries.map((e) => e.id)
-    store.setFixProgress({ current: 0, total: selectedIds.length, currentEntry: 'Creating backup...' })
+    store.setFixProgress({ current: 0, total: selectedIds.length, currentEntry: t('creatingBackup') })
     try {
       const result = await window.kudu.registryFix(selectedIds)
       const s = useRegistryStore.getState()
@@ -222,8 +244,8 @@ function RegistryPageContent() {
       recomputeStats()
     } catch (err) {
       console.error('Registry fix failed:', err)
-      toast.error('Registry fix failed', { description: 'Some entries may require administrator privileges' })
-      useRegistryStore.getState().setError('Failed to fix registry entries. Some entries may require administrator privileges.')
+      toast.error(t('toastFixFailed'), { description: t('toastFixFailedDescription') })
+      useRegistryStore.getState().setError(t('toastFixFailedError'))
     }
     useRegistryStore.getState().setFixing(false)
     useRegistryStore.getState().setFixProgress(null)
@@ -235,19 +257,19 @@ function RegistryPageContent() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Registry & System"
-        description="Clean broken entries and harden your system"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         action={
           <div className="flex items-center gap-2.5">
             <button onClick={handleScan} disabled={busy}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <Search className="h-4 w-4" strokeWidth={1.8} /> Scan
+              <Search className="h-4 w-4" strokeWidth={1.8} /> {t('scanButton')}
             </button>
             <button onClick={() => setShowConfirm(true)} disabled={selectedCount === 0 || busy}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}>
-              <Wrench className="h-4 w-4" strokeWidth={2} /> Fix ({selectedCount})
+              <Wrench className="h-4 w-4" strokeWidth={2} /> {t('fixButton', { count: selectedCount })}
             </button>
           </div>
         }
@@ -258,12 +280,12 @@ function RegistryPageContent() {
         style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.08)' }}>
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
         <p className="text-[12px]" style={{ color: '#8e8e96' }}>
-          <span className="font-semibold text-amber-500">Advanced Feature</span> — A registry backup (.reg) will be created before any modifications.
+          <span className="font-semibold text-amber-500">{t('advancedFeatureLabel')}</span> — {t('advancedFeatureDescription')}
         </p>
       </div>
 
       {error && <ErrorAlert message={error} onDismiss={() => useRegistryStore.getState().setError(null)} className="mb-5" />}
-      {scanning && <ScanProgress status="scanning" progress={0} currentPath="Scanning registry..." className="mb-5" />}
+      {scanning && <ScanProgress status="scanning" progress={0} currentPath={t('scanProgressText')} className="mb-5" />}
 
       {/* Fix progress */}
       {fixing && fixProgress && (
@@ -271,7 +293,7 @@ function RegistryPageContent() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-amber-400" />
-              <span className="text-[13px] font-medium text-zinc-200">Fixing entries...</span>
+              <span className="text-[13px] font-medium text-zinc-200">{t('fixingEntries')}</span>
             </div>
             <span className="font-mono text-[12px]" style={{ color: '#6e6e76' }}>
               {fixProgress.current} / {fixProgress.total}
@@ -297,11 +319,11 @@ function RegistryPageContent() {
             style={{ background: fixResult.failed > 0 ? 'rgba(239,68,68,0.04)' : 'rgba(34,197,94,0.06)' }}>
             <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
             <p className="flex-1 text-[13px] text-zinc-200">
-              Fixed {fixResult.fixed} entries
+              {t('fixedEntries', { count: fixResult.fixed })}
               {fixResult.failed > 0 && (
                 <button onClick={() => useRegistryStore.getState().setShowFailures(!showFailures)}
                   className="ml-2 text-red-400 underline decoration-red-400/30 hover:decoration-red-400 transition-colors">
-                  {fixResult.failed} failed — {showFailures ? 'hide details' : 'show details'}
+                  {t('failedCount', { count: fixResult.failed })} — {showFailures ? t('failedHideDetails') : t('failedShowDetails')}
                 </button>
               )}
             </p>
@@ -326,8 +348,8 @@ function RegistryPageContent() {
       {!scanned && !scanning && (
         <EmptyState
           icon={Database}
-          title="No registry issues found"
-          description='Check for broken registry entries and system hardening opportunities.'
+          title={t('emptyStateTitle')}
+          description={t('emptyStateDescription')}
           action={
             <button
               onClick={handleScan}
@@ -336,7 +358,7 @@ function RegistryPageContent() {
               style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
-              Start Scan
+              {t('startScan')}
             </button>
           }
         />
@@ -390,38 +412,38 @@ function RegistryPageContent() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[14px] font-semibold text-zinc-200">{card.title}</span>
+                      <span className="text-[14px] font-semibold text-zinc-200">{t(card.titleKey)}</span>
                       {isClean ? (
                         <span className="rounded-full px-2 py-0.5 text-[11px] font-medium"
                           style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
-                          All clear
+                          {t('allClear')}
                         </span>
                       ) : (
                         <>
                           <span className="rounded-full px-2 py-0.5 text-[11px] font-medium"
                             style={{ background: 'rgba(255,255,255,0.05)', color: '#6e6e76' }}>
-                            {issueCount} issue{issueCount !== 1 ? 's' : ''}
+                            {issueCount !== 1 ? t('issueCountPlural', { count: issueCount }) : t('issueCount', { count: issueCount })}
                           </span>
                           {highRiskCount > 0 && (
                             <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                               style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
-                              {highRiskCount} high risk
+                              {t('highRisk', { count: highRiskCount })}
                             </span>
                           )}
                           {mediumRiskCount > 0 && highRiskCount === 0 && (
                             <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                               style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>
-                              {mediumRiskCount} medium risk
+                              {t('mediumRisk', { count: mediumRiskCount })}
                             </span>
                           )}
                         </>
                       )}
                     </div>
                     <p className="mt-0.5 text-[12px]" style={{ color: '#5e5e66' }}>
-                      {card.description}
+                      {t(card.descriptionKey)}
                       {hasPercentage && !isClean && (
                         <span style={{ color: healthPercent! >= 80 ? '#22c55e' : healthPercent! >= 50 ? '#f59e0b' : '#ef4444' }}>
-                          {' '}— {card.totalChecks! - issueCount}/{card.totalChecks!} checks passed
+                          {' '}— {t('checksPassed', { passed: card.totalChecks! - issueCount, total: card.totalChecks! })}
                         </span>
                       )}
                     </p>
@@ -481,11 +503,11 @@ function RegistryPageContent() {
                           <p className="text-[12px] text-zinc-300">{entry.issue}</p>
                           <p className="mt-0.5 font-mono text-[10px]" style={{ color: '#4e4e56' }}>{entry.keyPath}</p>
                         </div>
-                        <span className="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium capitalize"
+                        <span className="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium"
                           style={{ background: typeColors[entry.type].bg, color: typeColors[entry.type].text }}>
-                          {entry.type}
+                          {t(typeKeyMap[entry.type])}
                         </span>
-                        <span className="shrink-0 text-[11px] font-medium capitalize" style={{ color: riskColors[entry.risk] }}>{entry.risk}</span>
+                        <span className="shrink-0 text-[11px] font-medium" style={{ color: riskColors[entry.risk] }}>{t(riskKeyMap[entry.risk])}</span>
                       </div>
                     ))}
                   </div>
@@ -497,8 +519,8 @@ function RegistryPageContent() {
       )}
 
       <ConfirmDialog open={showConfirm} onConfirm={handleFix} onCancel={() => setShowConfirm(false)}
-        title="Fix Registry Entries" description={`This will modify ${selectedCount} registry entries. A backup will be created first.`}
-        confirmLabel="Fix Selected" variant="warning" />
+        title={t('confirmFixTitle')} description={t('confirmFixDescription', { count: selectedCount })}
+        confirmLabel={t('confirmFixLabel')} variant="warning" />
     </div>
   )
 }

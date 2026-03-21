@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn, formatBytes, formatNumber } from '@/lib/utils'
 
 interface ScanProgressProps {
@@ -18,6 +19,7 @@ export function ScanProgress({
   sizeFound = 0,
   className
 }: ScanProgressProps) {
+  const { t } = useTranslation('common')
   return (
     <div
       className={cn('rounded-2xl p-5', className)}
@@ -27,7 +29,7 @@ export function ScanProgress({
         <div className="flex items-center gap-2.5">
           <Loader2 className="h-4 w-4 animate-spin text-amber-400" />
           <span className="text-[13px] font-medium text-zinc-200">
-            {status === 'scanning' ? 'Scanning...' : 'Cleaning...'}
+            {status === 'scanning' ? t('scanning') : t('cleaning')}
           </span>
         </div>
         <span className="font-mono text-[12px]" style={{ color: '#6e6e76' }}>
@@ -54,11 +56,11 @@ export function ScanProgress({
 
       <div className="flex items-center gap-4 text-[12px]" style={{ color: '#6e6e76' }}>
         <span>
-          Found: <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span> items
+          {t('found')}: <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span> {t('items')}
         </span>
         <span style={{ color: '#2a2a30' }}>|</span>
         <span>
-          Size: <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
+          {t('size')}: <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
         </span>
       </div>
     </div>

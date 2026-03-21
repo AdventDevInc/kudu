@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Kudu'ya Hoş Geldiniz",
+  "welcomeDescription": "Hepsi bir arada Windows sistem temizleyiciniz. Kudu gereksiz dosyaları kaldırır, kayıt defteri sorunlarını düzeltir, başlangıç programlarını yönetir ve bilgisayarınızın hızlı çalışmasını sağlar.",
+  "featureSmartCleaning": "Akıllı Temizlik",
+  "featureFasterBoot": "Daha Hızlı Açılış",
+  "featureSafeSecure": "Güvenli ve Emniyetli",
+  "getStarted": "Başlayın",
+  "recommendedSetupTitle": "Önerilen Kurulum",
+  "recommendedSetupDescription": "En iyi deneyim için bu ayarları öneriyoruz. Bunları daha sonra Ayarlar'dan değiştirebilirsiniz.",
+  "runAtStartupLabel": "Başlangıçta çalıştır",
+  "runAtStartupDescription": "Bilgisayarınızın otomatik olarak temiz kalması için Windows başladığında Kudu'yu başlatın",
+  "minimizeToTrayLabel": "Sistem tepsisine küçült",
+  "minimizeToTrayDescription": "Kudu'nun arka planda sessizce çalışmaya devam etmesini sağlayın",
+  "weeklyAutoCleanLabel": "Haftalık otomatik temizlik",
+  "weeklyAutoCleanDescription": "Her Pazartesi saat 09:00'da gereksiz dosyaları tara ve temizle",
+  "back": "Geri",
+  "continue": "Devam",
+  "allSetTitle": "Her Şey Hazır!",
+  "allSetDescription": "Kudu, bilgisayarınızın arka planda sorunsuz çalışmasını sağlayacak.",
+  "firstScanScheduled": "İlk otomatik taramanız Pazartesi saat 09:00 için planlandı.",
+  "startCleaning": "Temizlemeyi Başlat"
+}

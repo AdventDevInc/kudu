@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Agendamentos",
+  "pageDescription": "Automatize verificações, limpezas e atualizações em um agendamento",
+  "newScheduleButton": "Novo agendamento",
+  "createScheduleButton": "Criar agendamento",
+  "emptyStateTitle": "Ainda não há agendamentos",
+  "emptyStateDescription": "Crie um agendamento para executar automaticamente verificações, limpezas e atualizações.",
+  "maxSchedulesReached": "Máximo de {{max}} agendamentos atingido.",
+  "duplicatedToast": "\"{{name}}\" duplicado",
+  "deletedToast": "\"{{name}}\" excluído",
+  "updatedToast": "\"{{name}}\" atualizado",
+  "createdToast": "\"{{name}}\" criado",
+  "failedEnableStartup": "Falha ao ativar a inicialização. Os agendamentos podem não ser executados após a reinicialização.",
+  "deleteConfirmTitle": "Excluir agendamento",
+  "deleteConfirmDescription": "Este agendamento será removido permanentemente. Esta ação não pode ser desfeita.",
+  "deleteConfirmLabel": "Excluir",
+  "card": {
+    "autoApplyBadge": "Aplicação automática",
+    "editAction": "Editar",
+    "duplicateAction": "Duplicar",
+    "deleteAction": "Excluir",
+    "noTasksSelected": "Nenhuma tarefa selecionada",
+    "nextRun": "Próxima: {{time}}",
+    "lastRun": "Última: {{time}}",
+    "neverRun": "Nunca executado"
+  },
+  "presets": {
+    "dialogTitle": "Escolha um modelo",
+    "weeklyFullCleanLabel": "Limpeza completa semanal",
+    "weeklyFullCleanDescription": "Todas as categorias de limpeza toda segunda-feira às 9h",
+    "dailyLightSweepLabel": "Limpeza leve diária",
+    "dailyLightSweepDescription": "Sistema, navegadores e lixeira diariamente às 8h",
+    "monthlyDeepMaintenanceLabel": "Manutenção profunda mensal",
+    "monthlyDeepMaintenanceDescription": "Limpeza completa + registro, drivers e software no dia 1 às 10h",
+    "customLabel": "Personalizado",
+    "customDescription": "Comece do zero com um agendamento em branco"
+  },
+  "dialog": {
+    "editTitle": "Editar agendamento",
+    "newTitle": "Novo agendamento",
+    "nameLabel": "Nome",
+    "namePlaceholder": "ex.: Limpeza profunda semanal",
+    "frequencyLabel": "Frequência",
+    "frequencyDaily": "Diariamente",
+    "frequencyWeekly": "Semanalmente",
+    "frequencyMonthly": "Mensalmente",
+    "dayLabel": "Dia",
+    "timeLabel": "Hora",
+    "tasksLabel": "Tarefas",
+    "selectAll": "Selecionar tudo",
+    "deselectAll": "Desmarcar tudo",
+    "cleanerGroup": "Limpeza",
+    "maintenanceGroup": "Manutenção",
+    "autoApplyLabel": "Aplicação automática",
+    "autoApplyDescription": "Limpe arquivos, corrija problemas do registro e instale atualizações automaticamente, sem confirmação.",
+    "autoApplyWarning": "As ações serão executadas automaticamente conforme o agendamento. Certifique-se de que sua lista de exclusões esteja atualizada.",
+    "cancelButton": "Cancelar",
+    "saveChangesButton": "Salvar alterações",
+    "createScheduleButton": "Criar agendamento"
+  },
+  "tasks": {
+    "system": "Sistema",
+    "browsers": "Navegadores",
+    "applications": "Aplicativos",
+    "gaming": "Jogos",
+    "recycleBin": "Lixeira",
+    "databases": "Bancos de dados",
+    "registryFixes": "Correções do registro",
+    "driverUpdates": "Atualizações de drivers",
+    "softwareUpdates": "Atualizações de software"
+  },
+  "dayNames": {
+    "sunday": "Domingo",
+    "monday": "Segunda-feira",
+    "tuesday": "Terça-feira",
+    "wednesday": "Quarta-feira",
+    "thursday": "Quinta-feira",
+    "friday": "Sexta-feira",
+    "saturday": "Sábado"
+  },
+  "frequency": {
+    "everyDayAt": "Todos os dias às {{time}}",
+    "everyWeekdayAt": "Toda {{day}} às {{time}}",
+    "monthlyAt": "{{ordinalDay}} de cada mês às {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Hoje às {{time}}",
+    "tomorrowAt": "Amanhã às {{time}}",
+    "inDaysAt": "Em {{count}} dias às {{time}}",
+    "dateAt": "{{date}} às {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Agora mesmo",
+    "minutesAgo": "há {{count}} min",
+    "hoursAgo": "há {{count}} h",
+    "daysAgo": "há {{count}} d"
+  },
+  "copyNameSuffix": "(cópia)"
+}

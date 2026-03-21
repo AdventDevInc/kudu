@@ -1,6 +1,7 @@
 import { BrowserWindow, Notification } from 'electron'
 import { IPC } from '../../shared/channels'
 import { getSettings, updateScheduleEntry } from './settings-store'
+import { t } from '../i18n'
 import { logInfo } from './logger'
 import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
 
@@ -174,8 +175,8 @@ function triggerScheduleEntry(mainWindow: BrowserWindow | null, entry: ScheduleE
 
   if (!process.argv.includes('--daemon') && Notification.isSupported()) {
     const notification = new Notification({
-      title: 'Kudu - Scheduled Task',
-      body: `Running "${entry.name}"...`,
+      title: t('scheduledTaskNotificationTitle'),
+      body: t('scheduledTaskNotificationBody', { name: entry.name }),
       silent: true
     })
     notification.show()
@@ -192,8 +193,8 @@ export function notifyScheduledScanComplete(totalSize: number, itemCount: number
 
   const sizeMB = (totalSize / (1024 * 1024)).toFixed(1)
   const notification = new Notification({
-    title: 'Kudu - Scan Complete',
-    body: `Found ${itemCount} items (${sizeMB} MB) that can be cleaned.`,
+    title: t('scanCompleteNotificationTitle'),
+    body: t('scanCompleteNotificationBody', { itemCount, sizeMB }),
     silent: false
   })
   notification.show()

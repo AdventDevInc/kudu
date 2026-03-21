@@ -1,0 +1,18 @@
+{
+  "scanning": "جارٍ الفحص...",
+  "cleaning": "جارٍ التنظيف...",
+  "foundLabel": "تم العثور على:",
+  "itemsUnit": "عناصر",
+  "sizeLabel": "الحجم:",
+  "health": "الحالة",
+  "cancel": "إلغاء",
+  "confirm": "تأكيد",
+  "adminBannerMessage": "تتطلب بعض الميزات امتيازات المسؤول.",
+  "relaunchAsAdmin": "إعادة التشغيل كمسؤول",
+  "justNow": "الآن",
+  "minutesAgo": "منذ {{minutes}} د",
+  "hoursAgo": "منذ {{hours}} س",
+  "daysAgo": "منذ {{days}} ي",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Welkom bij Kudu",
+  "welcomeDescription": "Uw alles-in-één systeemopschoner voor Windows. Kudu verwijdert ongewenste bestanden, herstelt registerproblemen, beheert opstartprogramma's en houdt uw pc snel.",
+  "featureSmartCleaning": "Slim opschonen",
+  "featureFasterBoot": "Sneller opstarten",
+  "featureSafeSecure": "Veilig en beveiligd",
+  "getStarted": "Aan de slag",
+  "recommendedSetupTitle": "Aanbevolen instellingen",
+  "recommendedSetupDescription": "Wij raden deze instellingen aan voor de beste ervaring. U kunt ze later wijzigen in Instellingen.",
+  "runAtStartupLabel": "Uitvoeren bij opstarten",
+  "runAtStartupDescription": "Start Kudu wanneer Windows wordt gestart, zodat uw pc automatisch schoon blijft",
+  "minimizeToTrayLabel": "Minimaliseren naar systeemvak",
+  "minimizeToTrayDescription": "Laat Kudu stil op de achtergrond actief blijven",
+  "weeklyAutoCleanLabel": "Wekelijkse automatische opschoning",
+  "weeklyAutoCleanDescription": "Scan en verwijder ongewenste bestanden elke maandag om 9:00 uur",
+  "back": "Terug",
+  "continue": "Doorgaan",
+  "allSetTitle": "Alles is ingesteld!",
+  "allSetDescription": "Kudu houdt uw pc soepel draaiend op de achtergrond.",
+  "firstScanScheduled": "Uw eerste automatische scan is gepland op maandag om 9:00 uur.",
+  "startCleaning": "Opschonen starten"
+}

@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Öppna Kudu",
+  "quit": "Avsluta",
+  "scheduledTaskNotificationTitle": "Kudu - Schemalagd aktivitet",
+  "scheduledTaskNotificationBody": "Kör \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Genomsökning slutförd",
+  "scanCompleteNotificationBody": "Hittade {{itemCount}} objekt ({{sizeMB}} MB) som kan rensas.",
+  "scheduledScanName": "Schemalagd genomsökning"
+}

@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AlertTriangle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { PerfSnapshot } from '@shared/types'
@@ -9,6 +10,7 @@ interface AlertBannerProps {
 }
 
 export const AlertBanner = memo(function AlertBanner({ snapshot, history }: AlertBannerProps) {
+  const { t } = useTranslation('performance')
   const [dismissed, setDismissed] = useState<string[]>([])
 
   if (!snapshot) return null
@@ -18,12 +20,12 @@ export const AlertBanner = memo(function AlertBanner({ snapshot, history }: Aler
   // CPU > 90% sustained for 5+ ticks
   const recentCpu = history.slice(-5)
   if (recentCpu.length >= 5 && recentCpu.every((s) => s.cpu.overall > 90)) {
-    alerts.push({ id: 'cpu-high', message: 'CPU usage is critically high (>90% sustained)' })
+    alerts.push({ id: 'cpu-high', message: t('cpuHighAlert') })
   }
 
   // Memory > 85%
   if (snapshot.memory.percent > 85) {
-    alerts.push({ id: 'mem-high', message: `Memory usage is high (${snapshot.memory.percent.toFixed(0)}%)` })
+    alerts.push({ id: 'mem-high', message: t('memoryHighAlert', { percent: snapshot.memory.percent.toFixed(0) }) })
   }
 
   const visible = alerts.filter((a) => !dismissed.includes(a.id))

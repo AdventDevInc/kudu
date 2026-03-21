@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Abrir Kudu",
+  "quit": "Sair",
+  "scheduledTaskNotificationTitle": "Kudu - Tarefa Agendada",
+  "scheduledTaskNotificationBody": "A executar \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Verificação Concluída",
+  "scanCompleteNotificationBody": "Foram encontrados {{itemCount}} itens ({{sizeMB}} MB) que podem ser limpos.",
+  "scheduledScanName": "Verificação Agendada"
+}

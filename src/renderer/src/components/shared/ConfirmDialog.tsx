@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { AlertTriangle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface ConfirmDialogProps {
   open: boolean
@@ -18,10 +19,11 @@ export function ConfirmDialog({
   onCancel,
   title,
   description,
-  confirmLabel = 'Confirm',
+  confirmLabel,
   variant = 'default',
   details
 }: ConfirmDialogProps) {
+  const { t } = useTranslation('common')
   if (!open) return null
 
   return (
@@ -71,7 +73,7 @@ export function ConfirmDialog({
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
             onClick={onConfirm}
@@ -81,7 +83,7 @@ export function ConfirmDialog({
               color: variant === 'danger' ? '#ef4444' : variant === 'warning' ? '#f59e0b' : '#1a0a00'
             }}
           >
-            {confirmLabel}
+            {confirmLabel ?? t('confirm')}
           </button>
         </div>
       </div>

@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Schema's",
+  "pageDescription": "Automatiseer scans, opschoonacties en updates volgens een schema",
+  "newScheduleButton": "Nieuw schema",
+  "createScheduleButton": "Schema maken",
+  "emptyStateTitle": "Nog geen schema's",
+  "emptyStateDescription": "Maak een schema om scans, opschoonacties en updates automatisch uit te voeren.",
+  "maxSchedulesReached": "Maximum van {{max}} schema's bereikt.",
+  "duplicatedToast": "\"{{name}}\" gedupliceerd",
+  "deletedToast": "\"{{name}}\" verwijderd",
+  "updatedToast": "\"{{name}}\" bijgewerkt",
+  "createdToast": "\"{{name}}\" gemaakt",
+  "failedEnableStartup": "Inschakelen bij opstarten is mislukt. Schema's worden mogelijk niet uitgevoerd na een herstart.",
+  "deleteConfirmTitle": "Schema verwijderen",
+  "deleteConfirmDescription": "Dit schema wordt permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+  "deleteConfirmLabel": "Verwijderen",
+  "card": {
+    "autoApplyBadge": "Automatisch toepassen",
+    "editAction": "Bewerken",
+    "duplicateAction": "Dupliceren",
+    "deleteAction": "Verwijderen",
+    "noTasksSelected": "Geen taken geselecteerd",
+    "nextRun": "Volgende: {{time}}",
+    "lastRun": "Laatste: {{time}}",
+    "neverRun": "Nooit uitgevoerd"
+  },
+  "presets": {
+    "dialogTitle": "Kies een sjabloon",
+    "weeklyFullCleanLabel": "Wekelijkse volledige opschoning",
+    "weeklyFullCleanDescription": "Alle opschooncategorieën elke maandag om 9:00",
+    "dailyLightSweepLabel": "Dagelijkse lichte opschoning",
+    "dailyLightSweepDescription": "Systeem, browsers en prullenbak dagelijks om 8:00",
+    "monthlyDeepMaintenanceLabel": "Maandelijks diepgaand onderhoud",
+    "monthlyDeepMaintenanceDescription": "Volledige opschoning + register, drivers en software op de 1e om 10:00",
+    "customLabel": "Aangepast",
+    "customDescription": "Begin vanaf nul met een leeg schema"
+  },
+  "dialog": {
+    "editTitle": "Schema bewerken",
+    "newTitle": "Nieuw schema",
+    "nameLabel": "Naam",
+    "namePlaceholder": "bijv. Wekelijkse grondige opschoning",
+    "frequencyLabel": "Frequentie",
+    "frequencyDaily": "Dagelijks",
+    "frequencyWeekly": "Wekelijks",
+    "frequencyMonthly": "Maandelijks",
+    "dayLabel": "Dag",
+    "timeLabel": "Tijd",
+    "tasksLabel": "Taken",
+    "selectAll": "Alles selecteren",
+    "deselectAll": "Alles deselecteren",
+    "cleanerGroup": "Opschoner",
+    "maintenanceGroup": "Onderhoud",
+    "autoApplyLabel": "Automatisch toepassen",
+    "autoApplyDescription": "Bestanden automatisch opschonen, registerproblemen oplossen en updates installeren zonder bevestiging.",
+    "autoApplyWarning": "Acties worden automatisch volgens schema uitgevoerd. Controleer of uw uitsluitingenlijst up-to-date is.",
+    "cancelButton": "Annuleren",
+    "saveChangesButton": "Wijzigingen opslaan",
+    "createScheduleButton": "Schema maken"
+  },
+  "tasks": {
+    "system": "Systeem",
+    "browsers": "Browsers",
+    "applications": "Toepassingen",
+    "gaming": "Gaming",
+    "recycleBin": "Prullenbak",
+    "databases": "Databases",
+    "registryFixes": "Registeroplossingen",
+    "driverUpdates": "Driverupdates",
+    "softwareUpdates": "Software-updates"
+  },
+  "dayNames": {
+    "sunday": "Zondag",
+    "monday": "Maandag",
+    "tuesday": "Dinsdag",
+    "wednesday": "Woensdag",
+    "thursday": "Donderdag",
+    "friday": "Vrijdag",
+    "saturday": "Zaterdag"
+  },
+  "frequency": {
+    "everyDayAt": "Elke dag om {{time}}",
+    "everyWeekdayAt": "Elke {{day}} om {{time}}",
+    "monthlyAt": "Elke maand op {{ordinalDay}} om {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Vandaag om {{time}}",
+    "tomorrowAt": "Morgen om {{time}}",
+    "inDaysAt": "Over {{count}} dagen om {{time}}",
+    "dateAt": "{{date}} om {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Zojuist",
+    "minutesAgo": "{{count}} m geleden",
+    "hoursAgo": "{{count}} u geleden",
+    "daysAgo": "{{count}} d geleden"
+  },
+  "copyNameSuffix": "(kopie)"
+}

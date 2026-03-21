@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Tehdit İzleyicisi",
+  "pageDescription": "Ağ bağlantılarının bilinen tehdit listelerine karşı gerçek zamanlı izlenmesi.",
+  "cloudNotConfigured": {
+    "title": "Bulut yapılandırılmadı",
+    "description": "Tehdit izlemeyi etkinleştirmek için cihazınızı Ayarlar'dan Kudu Cloud'a bağlayın. Tehdit kara listesi bulut hizmeti tarafından sağlanır."
+  },
+  "loading": "Yükleniyor...",
+  "inactive": {
+    "title": "Tehdit izleyicisi etkin değil",
+    "description": "Hiçbir tehdit kara listesi yüklenmedi. Kara liste, bulut aracısı bağlandığında otomatik olarak alınacaktır."
+  },
+  "statusBar": {
+    "blacklistVersion": "Kara liste",
+    "connectionsScanned": "{{time}} bağlantılar tarandı",
+    "dnsScanned": "{{time}} DNS tarandı",
+    "threatsDetected": "{{count}} tehdit algılandı",
+    "threatsDetectedPlural": "{{count}} tehdit algılandı",
+    "noThreatsDetected": "Tehdit algılanmadı"
+  },
+  "allClear": {
+    "title": "Her şey yolunda",
+    "description": "Şüpheli bağlantı veya DNS girdisi algılanmadı. İzleyici arka planda taramaya devam ediyor."
+  },
+  "flaggedConnections": "İşaretlenen Bağlantılar",
+  "flaggedDnsEntries": "İşaretlenen DNS Girdileri",
+  "connectionPid": "PID {{pid}}"
+}

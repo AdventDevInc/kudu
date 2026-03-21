@@ -1,0 +1,18 @@
+{
+  "scanning": "Se scanează...",
+  "cleaning": "Se curăță...",
+  "foundLabel": "Găsite:",
+  "itemsUnit": "elemente",
+  "sizeLabel": "Dimensiune:",
+  "health": "Stare",
+  "cancel": "Anulare",
+  "confirm": "Confirmare",
+  "adminBannerMessage": "Unele funcții necesită privilegii de administrator.",
+  "relaunchAsAdmin": "Relansează ca administrator",
+  "justNow": "Chiar acum",
+  "minutesAgo": "acum {{minutes}} min",
+  "hoursAgo": "acum {{hours}} h",
+  "daysAgo": "acum {{days}} z",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

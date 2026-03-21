@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "打开 Kudu",
+  "quit": "退出",
+  "scheduledTaskNotificationTitle": "Kudu - 计划任务",
+  "scheduledTaskNotificationBody": "正在运行“{{name}}”...",
+  "scanCompleteNotificationTitle": "Kudu - 扫描完成",
+  "scanCompleteNotificationBody": "发现 {{itemCount}} 个可清理项（{{sizeMB}} MB）。",
+  "scheduledScanName": "计划扫描"
+}

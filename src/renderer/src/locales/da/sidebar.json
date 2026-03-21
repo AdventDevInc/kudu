@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "SYSTEMRENSER",
+  "dashboard": "Dashboard",
+  "securityHeading": "SIKKERHED",
+  "malwareScanner": "Malwarescanner",
+  "threatMonitor": "Trusselsovervågning",
+  "systemHardening": "Systemhærdning",
+  "maintainHeading": "VEDLIGEHOLD",
+  "cleaner": "Renser",
+  "registry": "Registreringsdatabase",
+  "startup": "Opstart",
+  "network": "Netværk",
+  "uninstaller": "Afinstallationsprogram",
+  "updates": "Opdateringer",
+  "schedules": "Tidsplaner",
+  "toolsHeading": "VÆRKTØJER",
+  "performance": "Ydeevne",
+  "diskAnalyzer": "Diskanalyse",
+  "history": "Historik",
+  "settings": "Indstillinger"
+}

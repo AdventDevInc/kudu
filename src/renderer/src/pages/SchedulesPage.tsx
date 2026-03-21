@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CalendarClock, Plus, Clock, CheckCircle2, XCircle, Minus,
   Pencil, Trash2, Copy, Sparkles, Database, Globe, AppWindow,
@@ -16,7 +17,7 @@ import { getNextRunTime } from './schedules-utils'
 
 // ─── Constants ────────────────────────────────────────────
 
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+const DAY_NAME_KEYS = ['dayNames.sunday', 'dayNames.monday', 'dayNames.tuesday', 'dayNames.wednesday', 'dayNames.thursday', 'dayNames.friday', 'dayNames.saturday']
 
 const MAX_SCHEDULES = 10
 
@@ -29,28 +30,37 @@ interface TaskDef {
   requiresFeature?: 'registry' | 'drivers'
 }
 
-const ALL_TASKS: TaskDef[] = [
-  { type: 'cleaner:system', label: 'System', icon: Monitor, group: 'cleaner' },
-  { type: 'cleaner:browsers', label: 'Browsers', icon: Globe, group: 'cleaner' },
-  { type: 'cleaner:apps', label: 'Applications', icon: AppWindow, group: 'cleaner' },
-  { type: 'cleaner:gaming', label: 'Gaming', icon: Gamepad2, group: 'cleaner' },
-  { type: 'cleaner:recycleBin', label: 'Recycle Bin', icon: Trash, group: 'cleaner' },
-  { type: 'cleaner:databases', label: 'Databases', icon: Database, group: 'cleaner' },
-  { type: 'registry', label: 'Registry Fixes', icon: Zap, group: 'maintenance', requiresFeature: 'registry' },
-  { type: 'drivers', label: 'Driver Updates', icon: Download, group: 'maintenance', requiresFeature: 'drivers' },
-  { type: 'software-update', label: 'Software Updates', icon: Sparkles, group: 'maintenance' },
+const ALL_TASKS_BASE: Array<Omit<TaskDef, 'label'> & { labelKey: string }> = [
+  { type: 'cleaner:system', labelKey: 'tasks.system', icon: Monitor, group: 'cleaner' },
+  { type: 'cleaner:browsers', labelKey: 'tasks.browsers', icon: Globe, group: 'cleaner' },
+  { type: 'cleaner:apps', labelKey: 'tasks.applications', icon: AppWindow, group: 'cleaner' },
+  { type: 'cleaner:gaming', labelKey: 'tasks.gaming', icon: Gamepad2, group: 'cleaner' },
+  { type: 'cleaner:recycleBin', labelKey: 'tasks.recycleBin', icon: Trash, group: 'cleaner' },
+  { type: 'cleaner:databases', labelKey: 'tasks.databases', icon: Database, group: 'cleaner' },
+  { type: 'registry', labelKey: 'tasks.registryFixes', icon: Zap, group: 'maintenance', requiresFeature: 'registry' },
+  { type: 'drivers', labelKey: 'tasks.driverUpdates', icon: Download, group: 'maintenance', requiresFeature: 'drivers' },
+  { type: 'software-update', labelKey: 'tasks.softwareUpdates', icon: Sparkles, group: 'maintenance' },
 ]
 
-/** Filter ALL_TASKS to only those available on the current platform */
-function usePlatformTasks(): TaskDef[] {
-  const { features } = usePlatform()
+function useAllTasks(): TaskDef[] {
+  const { t } = useTranslation('schedules')
   return useMemo(
-    () => ALL_TASKS.filter((t) => !t.requiresFeature || features[t.requiresFeature]),
-    [features]
+    () => ALL_TASKS_BASE.map((task) => ({ ...task, label: t(task.labelKey) })),
+    [t]
   )
 }
 
-const CLEANER_TASKS = ALL_TASKS.filter((t) => t.group === 'cleaner').map((t) => t.type)
+/** Filter tasks to only those available on the current platform */
+function usePlatformTasks(): TaskDef[] {
+  const { features } = usePlatform()
+  const allTasks = useAllTasks()
+  return useMemo(
+    () => allTasks.filter((task) => !task.requiresFeature || features[task.requiresFeature]),
+    [allTasks, features]
+  )
+}
+
+const CLEANER_TASKS = ALL_TASKS_BASE.filter((t) => t.group === 'cleaner').map((t) => t.type)
 
 interface Preset {
   label: string
@@ -58,14 +68,14 @@ interface Preset {
   entry: Partial<ScheduleEntry>
 }
 
-function buildPresets(availableTasks: TaskDef[]): Preset[] {
-  const allTypes = availableTasks.map((t) => t.type)
+function buildPresets(availableTasks: TaskDef[], t: (key: string) => string): Preset[] {
+  const allTypes = availableTasks.map((task) => task.type)
   return [
     {
-      label: 'Weekly Full Clean',
-      description: 'All cleaner categories every Monday at 9 AM',
+      label: t('presets.weeklyFullCleanLabel'),
+      description: t('presets.weeklyFullCleanDescription'),
       entry: {
-        name: 'Weekly Full Clean',
+        name: t('presets.weeklyFullCleanLabel'),
         frequency: 'weekly',
         day: 1,
         hour: 9,
@@ -74,10 +84,10 @@ function buildPresets(availableTasks: TaskDef[]): Preset[] {
       }
     },
     {
-      label: 'Daily Light Sweep',
-      description: 'System, browsers & recycle bin daily at 8 AM',
+      label: t('presets.dailyLightSweepLabel'),
+      description: t('presets.dailyLightSweepDescription'),
       entry: {
-        name: 'Daily Light Sweep',
+        name: t('presets.dailyLightSweepLabel'),
         frequency: 'daily',
         day: 0,
         hour: 8,
@@ -86,10 +96,10 @@ function buildPresets(availableTasks: TaskDef[]): Preset[] {
       }
     },
     {
-      label: 'Monthly Deep Maintenance',
-      description: 'Full clean + registry, drivers & software on the 1st at 10 AM',
+      label: t('presets.monthlyDeepMaintenanceLabel'),
+      description: t('presets.monthlyDeepMaintenanceDescription'),
       entry: {
-        name: 'Monthly Deep Maintenance',
+        name: t('presets.monthlyDeepMaintenanceLabel'),
         frequency: 'monthly',
         day: 1,
         hour: 10,
@@ -114,9 +124,11 @@ function makeBlankEntry(): Partial<ScheduleEntry> {
 // ─── Main Page ────────────────────────────────────────────
 
 export function SchedulesPage() {
+  const { t } = useTranslation('schedules')
   const { settings, updateSettings } = useSettingsStore()
   const platformTasks = usePlatformTasks()
-  const presets = useMemo(() => buildPresets(platformTasks), [platformTasks])
+  const allTasks = useAllTasks()
+  const presets = useMemo(() => buildPresets(platformTasks, t), [platformTasks, t])
   const schedules = settings.schedules ?? []
 
   const save = (updated: ScheduleEntry[]) => {
@@ -132,7 +144,7 @@ export function SchedulesPage() {
       window.kudu?.applyStartup?.(true).catch(() => {
         updateSettings({ runAtStartup: false })
         window.kudu?.settingsSet?.({ runAtStartup: false }).catch(() => {})
-        toast.error('Failed to enable startup. Schedules may not run after reboot.')
+        toast.error(t('failedEnableStartup'))
       })
     }
     if (!settings.minimizeToTray) {
@@ -149,7 +161,7 @@ export function SchedulesPage() {
 
   const handleNew = () => {
     if (schedules.length >= MAX_SCHEDULES) {
-      toast.error(`Maximum of ${MAX_SCHEDULES} schedules reached.`)
+      toast.error(t('maxSchedulesReached', { max: MAX_SCHEDULES }))
       return
     }
     setEditingId(null)
@@ -174,7 +186,7 @@ export function SchedulesPage() {
 
   const handleDuplicate = (id: string) => {
     if (schedules.length >= MAX_SCHEDULES) {
-      toast.error(`Maximum of ${MAX_SCHEDULES} schedules reached.`)
+      toast.error(t('maxSchedulesReached', { max: MAX_SCHEDULES }))
       return
     }
     const entry = schedules.find((s) => s.id === id)
@@ -182,13 +194,13 @@ export function SchedulesPage() {
     const dup: ScheduleEntry = {
       ...entry,
       id: crypto.randomUUID(),
-      name: `${entry.name} (copy)`,
+      name: `${entry.name} ${t('copyNameSuffix')}`,
       lastRunAt: null,
       lastRunStatus: 'never',
       createdAt: new Date().toISOString()
     }
     save([...schedules, dup])
-    toast.success(`Duplicated "${entry.name}"`)
+    toast.success(t('duplicatedToast', { name: entry.name }))
   }
 
   const handleDelete = () => {
@@ -196,7 +208,7 @@ export function SchedulesPage() {
     const entry = schedules.find((s) => s.id === deleteId)
     save(schedules.filter((s) => s.id !== deleteId))
     setDeleteId(null)
-    if (entry) toast.success(`Deleted "${entry.name}"`)
+    if (entry) toast.success(t('deletedToast', { name: entry.name }))
   }
 
   const handleToggle = (id: string, enabled: boolean) => {
@@ -213,7 +225,7 @@ export function SchedulesPage() {
     if (entry.enabled) ensureBackgroundMode()
     setShowDialog(false)
     setEditingId(null)
-    toast.success(editingId ? `Updated "${entry.name}"` : `Created "${entry.name}"`)
+    toast.success(editingId ? t('updatedToast', { name: entry.name }) : t('createdToast', { name: entry.name }))
   }
 
   const [dialogInitial, setDialogInitial] = useState<Partial<ScheduleEntry>>(makeBlankEntry())
@@ -221,8 +233,8 @@ export function SchedulesPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Schedules"
-        description="Automate scans, cleanups, and updates on a schedule"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         action={
           <button
             onClick={handleNew}
@@ -230,7 +242,7 @@ export function SchedulesPage() {
             style={{ background: '#f59e0b', color: '#1a0a00' }}
           >
             <Plus className="h-4 w-4" strokeWidth={2.2} />
-            New Schedule
+            {t('newScheduleButton')}
           </button>
         }
       />
@@ -238,8 +250,8 @@ export function SchedulesPage() {
       {schedules.length === 0 ? (
         <EmptyState
           icon={CalendarClock}
-          title="No schedules yet"
-          description="Create a schedule to automatically run scans, cleanups, and updates."
+          title={t('emptyStateTitle')}
+          description={t('emptyStateDescription')}
           action={
             <button
               onClick={handleNew}
@@ -247,7 +259,7 @@ export function SchedulesPage() {
               style={{ background: '#f59e0b', color: '#1a0a00' }}
             >
               <Plus className="h-4 w-4" strokeWidth={2.2} />
-              Create Schedule
+              {t('createScheduleButton')}
             </button>
           }
         />
@@ -291,9 +303,9 @@ export function SchedulesPage() {
         open={!!deleteId}
         onConfirm={handleDelete}
         onCancel={() => setDeleteId(null)}
-        title="Delete schedule"
-        description="This schedule will be permanently removed. This action cannot be undone."
-        confirmLabel="Delete"
+        title={t('deleteConfirmTitle')}
+        description={t('deleteConfirmDescription')}
+        confirmLabel={t('deleteConfirmLabel')}
         variant="danger"
       />
     </div>
@@ -315,8 +327,10 @@ function ScheduleCard({
   onDuplicate: () => void
   onDelete: () => void
 }) {
+  const { t } = useTranslation('schedules')
+  const allTasks = useAllTasks()
   const nextRun = useMemo(() => getNextRunTime(entry), [entry])
-  const frequencyText = useMemo(() => formatFrequency(entry), [entry])
+  const frequencyText = useMemo(() => formatFrequency(entry, t), [entry, t])
   const taskCount = entry.tasks.length
 
   return (
@@ -337,7 +351,7 @@ function ScheduleCard({
                 className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
                 style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}
               >
-                Auto-apply
+                {t('card.autoApplyBadge')}
               </span>
             )}
           </div>
@@ -349,9 +363,9 @@ function ScheduleCard({
         <div className="flex items-center gap-2">
           {/* Actions — visible on hover */}
           <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-            <IconBtn icon={Pencil} title="Edit" onClick={onEdit} />
-            <IconBtn icon={Copy} title="Duplicate" onClick={onDuplicate} />
-            <IconBtn icon={Trash2} title="Delete" onClick={onDelete} color="#ef4444" />
+            <IconBtn icon={Pencil} title={t('card.editAction')} onClick={onEdit} />
+            <IconBtn icon={Copy} title={t('card.duplicateAction')} onClick={onDuplicate} />
+            <IconBtn icon={Trash2} title={t('card.deleteAction')} onClick={onDelete} color="#ef4444" />
           </div>
 
           <Toggle checked={entry.enabled} onChange={onToggle} />
@@ -360,12 +374,12 @@ function ScheduleCard({
 
       {/* Task pills */}
       <div className="mt-3 flex flex-wrap gap-1.5">
-        {entry.tasks.map((t) => {
-          const def = ALL_TASKS.find((d) => d.type === t)
+        {entry.tasks.map((taskType) => {
+          const def = allTasks.find((d) => d.type === taskType)
           if (!def) return null
           return (
             <span
-              key={t}
+              key={taskType}
               className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-medium"
               style={{ background: 'rgba(255,255,255,0.04)', color: '#8e8e96' }}
             >
@@ -375,7 +389,7 @@ function ScheduleCard({
           )
         })}
         {taskCount === 0 && (
-          <span className="text-[11px]" style={{ color: '#52525e' }}>No tasks selected</span>
+          <span className="text-[11px]" style={{ color: '#52525e' }}>{t('card.noTasksSelected')}</span>
         )}
       </div>
 
@@ -386,7 +400,7 @@ function ScheduleCard({
           <div className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
             <span className="text-[12px]" style={{ color: '#8e8e96' }}>
-              Next: {formatNextRun(nextRun)}
+              {t('card.nextRun', { time: formatNextRun(nextRun, t) })}
             </span>
           </div>
         )}
@@ -406,7 +420,7 @@ function ScheduleCard({
             <Minus className="h-3.5 w-3.5 shrink-0" style={{ color: '#3a3a42' }} strokeWidth={1.8} />
           )}
           <span className="text-[12px]" style={{ color: '#6e6e76' }}>
-            {entry.lastRunAt ? `Last: ${formatLastRun(entry.lastRunAt)}` : 'Never run'}
+            {entry.lastRunAt ? t('card.lastRun', { time: formatLastRun(entry.lastRunAt, t) }) : t('card.neverRun')}
           </span>
         </div>
       </div>
@@ -425,6 +439,7 @@ function PresetPicker({
   onSelect: (preset: Partial<ScheduleEntry> | null) => void
   onClose: () => void
 }) {
+  const { t } = useTranslation('schedules')
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
@@ -433,7 +448,7 @@ function PresetPicker({
         style={{ background: '#18181c', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
       >
         <div className="mb-5 flex items-center justify-between">
-          <h3 className="text-[16px] font-semibold text-white">Choose a template</h3>
+          <h3 className="text-[16px] font-semibold text-white">{t('presets.dialogTitle')}</h3>
           <button onClick={onClose} className="text-zinc-600 transition-colors hover:text-zinc-400">
             <X className="h-5 w-5" strokeWidth={1.8} />
           </button>
@@ -461,8 +476,8 @@ function PresetPicker({
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)' }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)' }}
           >
-            <p className="text-[14px] font-medium text-zinc-200">Custom</p>
-            <p className="mt-1 text-[12px]" style={{ color: '#6e6e76' }}>Start from scratch with a blank schedule</p>
+            <p className="text-[14px] font-medium text-zinc-200">{t('presets.customLabel')}</p>
+            <p className="mt-1 text-[12px]" style={{ color: '#6e6e76' }}>{t('presets.customDescription')}</p>
           </button>
         </div>
       </div>
@@ -485,6 +500,7 @@ function ScheduleDialog({
   onSave: (entry: ScheduleEntry) => void
   onClose: () => void
 }) {
+  const { t } = useTranslation('schedules')
   const [name, setName] = useState(initial.name ?? '')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>(initial.frequency ?? 'weekly')
   const [day, setDay] = useState(initial.day ?? 1)
@@ -537,7 +553,7 @@ function ScheduleDialog({
       >
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-[16px] font-semibold text-white">
-            {isEditing ? 'Edit Schedule' : 'New Schedule'}
+            {isEditing ? t('dialog.editTitle') : t('dialog.newTitle')}
           </h3>
           <button onClick={onClose} className="text-zinc-600 transition-colors hover:text-zinc-400">
             <X className="h-5 w-5" strokeWidth={1.8} />
@@ -546,12 +562,12 @@ function ScheduleDialog({
 
         {/* Name */}
         <div className="mb-5">
-          <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>Name</label>
+          <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.nameLabel')}</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Weekly Deep Clean"
+            placeholder={t('dialog.namePlaceholder')}
             maxLength={60}
             className="w-full rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
@@ -561,7 +577,7 @@ function ScheduleDialog({
         {/* Schedule timing */}
         <div className="mb-5 grid grid-cols-3 gap-3">
           <div>
-            <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>Frequency</label>
+            <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.frequencyLabel')}</label>
             <select
               value={frequency}
               onChange={(e) => {
@@ -574,29 +590,29 @@ function ScheduleDialog({
               className={cn(selectStyle, 'w-full')}
               style={selectBorder}
             >
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="daily">{t('dialog.frequencyDaily')}</option>
+              <option value="weekly">{t('dialog.frequencyWeekly')}</option>
+              <option value="monthly">{t('dialog.frequencyMonthly')}</option>
             </select>
           </div>
 
           {frequency === 'weekly' && (
             <div>
-              <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>Day</label>
+              <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.dayLabel')}</label>
               <select
                 value={day}
                 onChange={(e) => setDay(Number(e.target.value))}
                 className={cn(selectStyle, 'w-full')}
                 style={selectBorder}
               >
-                {DAY_NAMES.map((n, i) => <option key={i} value={i}>{n}</option>)}
+                {DAY_NAME_KEYS.map((key, i) => <option key={i} value={i}>{t(key)}</option>)}
               </select>
             </div>
           )}
 
           {frequency === 'monthly' && (
             <div>
-              <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>Day</label>
+              <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.dayLabel')}</label>
               <select
                 value={day}
                 onChange={(e) => setDay(Number(e.target.value))}
@@ -611,7 +627,7 @@ function ScheduleDialog({
           )}
 
           <div>
-            <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>Time</label>
+            <label className="mb-1.5 block text-[12px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.timeLabel')}</label>
             <select
               value={hour}
               onChange={(e) => setHour(Number(e.target.value))}
@@ -628,10 +644,10 @@ function ScheduleDialog({
         {/* Tasks */}
         <div className="mb-5">
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-[12px] font-medium" style={{ color: '#6e6e76' }}>Tasks</label>
+            <label className="text-[12px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.tasksLabel')}</label>
             <div className="flex gap-3">
-              <button onClick={selectAll} className="text-[11px] font-medium" style={{ color: '#f59e0b' }}>Select all</button>
-              <button onClick={deselectAll} className="text-[11px] font-medium" style={{ color: '#6e6e76' }}>Deselect all</button>
+              <button onClick={selectAll} className="text-[11px] font-medium" style={{ color: '#f59e0b' }}>{t('dialog.selectAll')}</button>
+              <button onClick={deselectAll} className="text-[11px] font-medium" style={{ color: '#6e6e76' }}>{t('dialog.deselectAll')}</button>
             </div>
           </div>
 
@@ -640,7 +656,7 @@ function ScheduleDialog({
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
           >
             {/* Cleaner group */}
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#4e4e56' }}>Cleaner</p>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#4e4e56' }}>{t('dialog.cleanerGroup')}</p>
             <div className="mb-4 grid grid-cols-2 gap-1.5">
               {cleanerTasks.map((task) => (
                 <TaskCheckbox
@@ -653,7 +669,7 @@ function ScheduleDialog({
             </div>
 
             {/* Maintenance group */}
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#4e4e56' }}>Maintenance</p>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#4e4e56' }}>{t('dialog.maintenanceGroup')}</p>
             <div className="grid grid-cols-2 gap-1.5">
               {maintTasks.map((task) => (
                 <TaskCheckbox
@@ -673,9 +689,9 @@ function ScheduleDialog({
           style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
         >
           <div className="flex-1">
-            <p className="text-[13px] font-medium text-zinc-300">Auto-apply</p>
+            <p className="text-[13px] font-medium text-zinc-300">{t('dialog.autoApplyLabel')}</p>
             <p className="mt-1 text-[12px] leading-relaxed" style={{ color: '#52525e' }}>
-              Automatically clean files, fix registry issues, and install updates without confirmation.
+              {t('dialog.autoApplyDescription')}
             </p>
           </div>
           <Toggle checked={autoApply} onChange={setAutoApply} />
@@ -688,7 +704,7 @@ function ScheduleDialog({
           >
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
             <p className="text-[12px] leading-relaxed" style={{ color: '#d97706' }}>
-              Actions will run automatically on schedule. Make sure your exclusions list is up to date.
+              {t('dialog.autoApplyWarning')}
             </p>
           </div>
         )}
@@ -702,7 +718,7 @@ function ScheduleDialog({
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
-            Cancel
+            {t('dialog.cancelButton')}
           </button>
           <button
             onClick={handleSubmit}
@@ -713,7 +729,7 @@ function ScheduleDialog({
             )}
             style={{ background: '#f59e0b', color: '#1a0a00' }}
           >
-            {isEditing ? 'Save Changes' : 'Create Schedule'}
+            {isEditing ? t('dialog.saveChangesButton') : t('dialog.createScheduleButton')}
           </button>
         </div>
       </div>
@@ -789,33 +805,33 @@ function IconBtn({ icon: Icon, title, onClick, color }: { icon: typeof Pencil; t
 
 // ─── Utilities ────────────────────────────────────────────
 
-function formatFrequency(entry: ScheduleEntry): string {
+function formatFrequency(entry: ScheduleEntry, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const time = `${String(entry.hour).padStart(2, '0')}:00`
   switch (entry.frequency) {
     case 'daily':
-      return `Every day at ${time}`
+      return t('frequency.everyDayAt', { time })
     case 'weekly':
-      return `Every ${DAY_NAMES[entry.day] ?? 'Monday'} at ${time}`
+      return t('frequency.everyWeekdayAt', { day: t(DAY_NAME_KEYS[entry.day] ?? 'dayNames.monday'), time })
     case 'monthly':
-      return `${ordinal(entry.day)} of every month at ${time}`
+      return t('frequency.monthlyAt', { ordinalDay: ordinal(entry.day), time })
   }
 }
 
-function formatNextRun(date: Date): string {
+function formatNextRun(date: Date, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const now = new Date()
   const diffMs = date.getTime() - now.getTime()
   const diffD = Math.floor(diffMs / 86_400_000)
   const time = `${String(date.getHours()).padStart(2, '0')}:00`
 
-  if (diffD === 0 && date.getDate() === now.getDate()) return `Today at ${time}`
+  if (diffD === 0 && date.getDate() === now.getDate()) return t('nextRun.todayAt', { time })
   const tomorrow = new Date(now)
   tomorrow.setDate(tomorrow.getDate() + 1)
-  if (date.getFullYear() === tomorrow.getFullYear() && date.getMonth() === tomorrow.getMonth() && date.getDate() === tomorrow.getDate()) return `Tomorrow at ${time}`
-  if (diffD < 7) return `In ${diffD} days at ${time}`
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ` at ${time}`
+  if (date.getFullYear() === tomorrow.getFullYear() && date.getMonth() === tomorrow.getMonth() && date.getDate() === tomorrow.getDate()) return t('nextRun.tomorrowAt', { time })
+  if (diffD < 7) return t('nextRun.inDaysAt', { count: diffD, time })
+  return t('nextRun.dateAt', { date: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), time })
 }
 
-function formatLastRun(iso: string): string {
+function formatLastRun(iso: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const date = new Date(iso)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
@@ -823,10 +839,10 @@ function formatLastRun(iso: string): string {
   const diffH = Math.floor(diffMs / 3_600_000)
   const diffD = Math.floor(diffMs / 86_400_000)
 
-  if (diffM < 1) return 'Just now'
-  if (diffM < 60) return `${diffM}m ago`
-  if (diffH < 24) return `${diffH}h ago`
-  if (diffD < 7) return `${diffD}d ago`
+  if (diffM < 1) return t('lastRun.justNow')
+  if (diffM < 60) return t('lastRun.minutesAgo', { count: diffM })
+  if (diffH < 24) return t('lastRun.hoursAgo', { count: diffH })
+  if (diffD < 7) return t('lastRun.daysAgo', { count: diffD })
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 

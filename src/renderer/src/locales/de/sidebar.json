@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "SYSTEMBEREINIGUNG",
+  "dashboard": "Dashboard",
+  "securityHeading": "SICHERHEIT",
+  "malwareScanner": "Malware-Scanner",
+  "threatMonitor": "Bedrohungsüberwachung",
+  "systemHardening": "Systemhärtung",
+  "maintainHeading": "WARTUNG",
+  "cleaner": "Bereinigung",
+  "registry": "Registrierung",
+  "startup": "Autostart",
+  "network": "Netzwerk",
+  "uninstaller": "Deinstallation",
+  "updates": "Updates",
+  "schedules": "Zeitpläne",
+  "toolsHeading": "TOOLS",
+  "performance": "Leistung",
+  "diskAnalyzer": "Datenträgeranalyse",
+  "history": "Verlauf",
+  "settings": "Einstellungen"
+}

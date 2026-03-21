@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Ласкаво просимо до Kudu",
+  "welcomeDescription": "Ваш універсальний засіб для очищення системи Windows. Kudu видаляє непотрібні файли, виправляє проблеми реєстру, керує програмами автозапуску та підтримує швидку роботу вашого ПК.",
+  "featureSmartCleaning": "Розумне очищення",
+  "featureFasterBoot": "Швидший запуск",
+  "featureSafeSecure": "Безпечно й надійно",
+  "getStarted": "Почати",
+  "recommendedSetupTitle": "Рекомендоване налаштування",
+  "recommendedSetupDescription": "Ми рекомендуємо ці параметри для найкращої роботи. Ви зможете змінити їх пізніше в Налаштуваннях.",
+  "runAtStartupLabel": "Запускати під час старту системи",
+  "runAtStartupDescription": "Запускати Kudu під час запуску Windows, щоб ваш ПК автоматично залишався чистим",
+  "minimizeToTrayLabel": "Згортати в трей",
+  "minimizeToTrayDescription": "Нехай Kudu тихо працює у фоновому режимі",
+  "weeklyAutoCleanLabel": "Щотижневе автоматичне очищення",
+  "weeklyAutoCleanDescription": "Сканувати й очищати непотрібні файли щопонеділка о 9:00",
+  "back": "Назад",
+  "continue": "Продовжити",
+  "allSetTitle": "Усе готово!",
+  "allSetDescription": "Kudu підтримуватиме плавну роботу вашого ПК у фоновому режимі.",
+  "firstScanScheduled": "Ваше перше автоматичне сканування заплановано на понеділок о 9:00.",
+  "startCleaning": "Почати очищення"
+}

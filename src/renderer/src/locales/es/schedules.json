@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Programaciones",
+  "pageDescription": "Automatice análisis, limpiezas y actualizaciones según una programación",
+  "newScheduleButton": "Nueva programación",
+  "createScheduleButton": "Crear programación",
+  "emptyStateTitle": "Aún no hay programaciones",
+  "emptyStateDescription": "Cree una programación para ejecutar automáticamente análisis, limpiezas y actualizaciones.",
+  "maxSchedulesReached": "Se alcanzó el máximo de {{max}} programaciones.",
+  "duplicatedToast": "Se duplicó \"{{name}}\"",
+  "deletedToast": "Se eliminó \"{{name}}\"",
+  "updatedToast": "Se actualizó \"{{name}}\"",
+  "createdToast": "Se creó \"{{name}}\"",
+  "failedEnableStartup": "No se pudo habilitar el inicio automático. Es posible que las programaciones no se ejecuten después de reiniciar.",
+  "deleteConfirmTitle": "Eliminar programación",
+  "deleteConfirmDescription": "Esta programación se eliminará permanentemente. Esta acción no se puede deshacer.",
+  "deleteConfirmLabel": "Eliminar",
+  "card": {
+    "autoApplyBadge": "Aplicación automática",
+    "editAction": "Editar",
+    "duplicateAction": "Duplicar",
+    "deleteAction": "Eliminar",
+    "noTasksSelected": "No hay tareas seleccionadas",
+    "nextRun": "Siguiente: {{time}}",
+    "lastRun": "Última: {{time}}",
+    "neverRun": "Nunca se ejecutó"
+  },
+  "presets": {
+    "dialogTitle": "Elija una plantilla",
+    "weeklyFullCleanLabel": "Limpieza completa semanal",
+    "weeklyFullCleanDescription": "Todas las categorías de limpieza todos los lunes a las 9:00",
+    "dailyLightSweepLabel": "Limpieza ligera diaria",
+    "dailyLightSweepDescription": "Sistema, navegadores y papelera de reciclaje todos los días a las 8:00",
+    "monthlyDeepMaintenanceLabel": "Mantenimiento profundo mensual",
+    "monthlyDeepMaintenanceDescription": "Limpieza completa + registro, controladores y software el día 1 a las 10:00",
+    "customLabel": "Personalizado",
+    "customDescription": "Empiece desde cero con una programación en blanco"
+  },
+  "dialog": {
+    "editTitle": "Editar programación",
+    "newTitle": "Nueva programación",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "p. ej. Limpieza profunda semanal",
+    "frequencyLabel": "Frecuencia",
+    "frequencyDaily": "Diaria",
+    "frequencyWeekly": "Semanal",
+    "frequencyMonthly": "Mensual",
+    "dayLabel": "Día",
+    "timeLabel": "Hora",
+    "tasksLabel": "Tareas",
+    "selectAll": "Seleccionar todo",
+    "deselectAll": "Deseleccionar todo",
+    "cleanerGroup": "Limpiador",
+    "maintenanceGroup": "Mantenimiento",
+    "autoApplyLabel": "Aplicación automática",
+    "autoApplyDescription": "Limpie archivos, repare problemas del registro e instale actualizaciones automáticamente sin confirmación.",
+    "autoApplyWarning": "Las acciones se ejecutarán automáticamente según la programación. Asegúrese de que su lista de exclusiones esté actualizada.",
+    "cancelButton": "Cancelar",
+    "saveChangesButton": "Guardar cambios",
+    "createScheduleButton": "Crear programación"
+  },
+  "tasks": {
+    "system": "Sistema",
+    "browsers": "Navegadores",
+    "applications": "Aplicaciones",
+    "gaming": "Juegos",
+    "recycleBin": "Papelera de reciclaje",
+    "databases": "Bases de datos",
+    "registryFixes": "Reparaciones del registro",
+    "driverUpdates": "Actualizaciones de controladores",
+    "softwareUpdates": "Actualizaciones de software"
+  },
+  "dayNames": {
+    "sunday": "Domingo",
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado"
+  },
+  "frequency": {
+    "everyDayAt": "Todos los días a las {{time}}",
+    "everyWeekdayAt": "Todos los {{day}} a las {{time}}",
+    "monthlyAt": "El {{ordinalDay}} de cada mes a las {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Hoy a las {{time}}",
+    "tomorrowAt": "Mañana a las {{time}}",
+    "inDaysAt": "En {{count}} días a las {{time}}",
+    "dateAt": "{{date}} a las {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Justo ahora",
+    "minutesAgo": "Hace {{count}} min",
+    "hoursAgo": "Hace {{count}} h",
+    "daysAgo": "Hace {{count}} d"
+  },
+  "copyNameSuffix": "(copia)"
+}

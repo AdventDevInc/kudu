@@ -1,0 +1,18 @@
+{
+  "scanning": "Scanning...",
+  "cleaning": "Cleaning...",
+  "foundLabel": "Found:",
+  "itemsUnit": "items",
+  "sizeLabel": "Size:",
+  "health": "Health",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "adminBannerMessage": "Some features require administrator privileges.",
+  "relaunchAsAdmin": "Relaunch as Admin",
+  "justNow": "Just now",
+  "minutesAgo": "{{minutes}}m ago",
+  "hoursAgo": "{{hours}}h ago",
+  "daysAgo": "{{days}}d ago",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

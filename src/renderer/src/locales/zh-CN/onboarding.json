@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "欢迎使用 Kudu",
+  "welcomeDescription": "您的 Windows 一体化系统清理工具。Kudu 可删除垃圾文件、修复注册表问题、管理启动程序，并让您的 PC 保持快速运行。",
+  "featureSmartCleaning": "智能清理",
+  "featureFasterBoot": "更快启动",
+  "featureSafeSecure": "安全可靠",
+  "getStarted": "开始使用",
+  "recommendedSetupTitle": "推荐设置",
+  "recommendedSetupDescription": "我们建议启用这些设置，以获得最佳体验。您稍后可以在“设置”中更改它们。",
+  "runAtStartupLabel": "开机时运行",
+  "runAtStartupDescription": "在 Windows 启动时启动 Kudu，让您的 PC 自动保持清洁",
+  "minimizeToTrayLabel": "最小化到托盘",
+  "minimizeToTrayDescription": "让 Kudu 在后台安静运行",
+  "weeklyAutoCleanLabel": "每周自动清理",
+  "weeklyAutoCleanDescription": "每周一上午 9:00 扫描并清理垃圾文件",
+  "back": "返回",
+  "continue": "继续",
+  "allSetTitle": "一切就绪！",
+  "allSetDescription": "Kudu 将在后台让您的 PC 保持流畅运行。",
+  "firstScanScheduled": "您的首次自动扫描已安排在周一上午 9:00。",
+  "startCleaning": "开始清理"
+}

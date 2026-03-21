@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Buka Kudu",
+  "quit": "Keluar",
+  "scheduledTaskNotificationTitle": "Kudu - Tugas Berjadual",
+  "scheduledTaskNotificationBody": "Menjalankan \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Imbasan Selesai",
+  "scanCompleteNotificationBody": "Menemui {{itemCount}} item ({{sizeMB}} MB) yang boleh dibersihkan.",
+  "scheduledScanName": "Imbasan Berjadual"
+}

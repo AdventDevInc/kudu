@@ -1,0 +1,18 @@
+{
+  "scanning": "กำลังสแกน...",
+  "cleaning": "กำลังล้างข้อมูล...",
+  "foundLabel": "พบ:",
+  "itemsUnit": "รายการ",
+  "sizeLabel": "ขนาด:",
+  "health": "สถานะ",
+  "cancel": "ยกเลิก",
+  "confirm": "ยืนยัน",
+  "adminBannerMessage": "บางฟีเจอร์ต้องใช้สิทธิ์ผู้ดูแลระบบ",
+  "relaunchAsAdmin": "เปิดใหม่ในฐานะผู้ดูแลระบบ",
+  "justNow": "เมื่อสักครู่",
+  "minutesAgo": "{{minutes}} นาทีที่แล้ว",
+  "hoursAgo": "{{hours}} ชม. ที่แล้ว",
+  "daysAgo": "{{days}} วันที่แล้ว",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

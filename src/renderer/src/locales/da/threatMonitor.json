@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Trusselsmonitor",
+  "pageDescription": "Overvågning i realtid af netværksforbindelser mod kendte trusselslister.",
+  "cloudNotConfigured": {
+    "title": "Cloud er ikke konfigureret",
+    "description": "Knyt din enhed til Kudu Cloud i Indstillinger for at aktivere trusselsovervågning. Trusselssortlisten leveres af cloudtjenesten."
+  },
+  "loading": "Indlæser...",
+  "inactive": {
+    "title": "Trusselsmonitor er inaktiv",
+    "description": "Ingen trusselssortliste er indlæst. Sortlisten hentes automatisk, når cloudagenten opretter forbindelse."
+  },
+  "statusBar": {
+    "blacklistVersion": "Sortliste",
+    "connectionsScanned": "Forbindelser scannet {{time}}",
+    "dnsScanned": "DNS scannet {{time}}",
+    "threatsDetected": "{{count}} trussel registreret",
+    "threatsDetectedPlural": "{{count}} trusler registreret",
+    "noThreatsDetected": "Ingen trusler registreret"
+  },
+  "allClear": {
+    "title": "Alt er i orden",
+    "description": "Der er ikke registreret mistænkelige forbindelser eller DNS-poster. Monitoren fortsætter med at scanne i baggrunden."
+  },
+  "flaggedConnections": "Markerede forbindelser",
+  "flaggedDnsEntries": "Markerede DNS-poster",
+  "connectionPid": "PID {{pid}}"
+}

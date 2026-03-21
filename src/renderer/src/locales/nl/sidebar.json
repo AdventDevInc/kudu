@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "SYSTEEMOPSCHONER",
+  "dashboard": "Dashboard",
+  "securityHeading": "BEVEILIGING",
+  "malwareScanner": "Malwarescanner",
+  "threatMonitor": "Bedreigingsmonitor",
+  "systemHardening": "Systeembeveiliging",
+  "maintainHeading": "ONDERHOUD",
+  "cleaner": "Opschoner",
+  "registry": "Register",
+  "startup": "Opstarten",
+  "network": "Netwerk",
+  "uninstaller": "Verwijderen",
+  "updates": "Updates",
+  "schedules": "Schema's",
+  "toolsHeading": "HULPMIDDELEN",
+  "performance": "Prestaties",
+  "diskAnalyzer": "Schijfanalyse",
+  "history": "Geschiedenis",
+  "settings": "Instellingen"
+}

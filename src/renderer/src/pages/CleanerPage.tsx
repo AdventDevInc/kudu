@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Monitor,
   Globe,
@@ -32,22 +33,23 @@ import { toast } from 'sonner'
 
 interface CategoryDef {
   type: CleanerType
-  label: string
+  labelKey: string
   icon: LucideIcon
-  description: string
+  descriptionKey: string
 }
 
 const categories: CategoryDef[] = [
-  { type: CleanerType.System, label: 'System', icon: Monitor, description: 'Temp files, logs, caches, dumps, updates' },
-  { type: CleanerType.Browser, label: 'Browsers', icon: Globe, description: 'Browser caches only' },
-  { type: CleanerType.App, label: 'Applications', icon: AppWindow, description: 'App caches and dev tools' },
-  { type: CleanerType.Gaming, label: 'Gaming', icon: Gamepad2, description: 'Launcher caches, redistributables' },
-  { type: CleanerType.RecycleBin, label: 'Recycle Bin', icon: Trash2, description: 'Deleted files' },
-  { type: CleanerType.Shortcut, label: 'Shortcuts', icon: Link2Off, description: 'Broken shortcuts and dead links' },
-  { type: CleanerType.Database, label: 'Databases', icon: Database, description: 'Vacuum SQLite databases' }
+  { type: CleanerType.System, labelKey: 'categorySystem', icon: Monitor, descriptionKey: 'categorySystemDescription' },
+  { type: CleanerType.Browser, labelKey: 'categoryBrowsers', icon: Globe, descriptionKey: 'categoryBrowsersDescription' },
+  { type: CleanerType.App, labelKey: 'categoryApplications', icon: AppWindow, descriptionKey: 'categoryApplicationsDescription' },
+  { type: CleanerType.Gaming, labelKey: 'categoryGaming', icon: Gamepad2, descriptionKey: 'categoryGamingDescription' },
+  { type: CleanerType.RecycleBin, labelKey: 'categoryRecycleBin', icon: Trash2, descriptionKey: 'categoryRecycleBinDescription' },
+  { type: CleanerType.Shortcut, labelKey: 'categoryShortcuts', icon: Link2Off, descriptionKey: 'categoryShortcutsDescription' },
+  { type: CleanerType.Database, labelKey: 'categoryDatabases', icon: Database, descriptionKey: 'categoryDatabasesDescription' }
 ]
 
 export function CleanerPage() {
+  const { t } = useTranslation('cleaner')
   const store = useScanStore()
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
@@ -112,7 +114,7 @@ export function CleanerPage() {
           }
           store.addResults(results.filter((r) => r.subcategory !== '__elevation_required'))
         } catch {
-          failed.push(cat.label)
+          failed.push(t(cat.labelKey))
         }
       }
       if (failed.length > 0) setFailedCategories(failed)
@@ -138,12 +140,12 @@ export function CleanerPage() {
             `Kudu clean — ${new Date().toLocaleString()}`
           )
           if (rpResult.success) {
-            toast.success('Restore point created')
+            toast.success(t('toastRestorePointCreated'))
           } else {
-            toast.warning('Restore point skipped', { description: rpResult.error })
+            toast.warning(t('toastRestorePointSkipped'), { description: rpResult.error })
           }
         } catch {
-          toast.warning('Restore point skipped', { description: 'Could not create restore point' })
+          toast.warning(t('toastRestorePointSkipped'), { description: t('toastRestorePointSkippedDescription') })
         }
       }
 
@@ -178,7 +180,7 @@ export function CleanerPage() {
               totalSkipped += result.filesSkipped || 0
               if (result.needsElevation) anyNeedsElevation = true
               if (result.errors?.length) allErrors.push(...result.errors)
-              categoryBreakdown[cat.label] = {
+              categoryBreakdown[t(cat.labelKey)] = {
                 found: catItemsAll.length,
                 cleaned: result.filesDeleted || 0,
                 space: result.totalCleaned || 0
@@ -186,7 +188,7 @@ export function CleanerPage() {
             }
           } catch { /* continue */ }
         } else if (catItemsAll.length > 0) {
-          categoryBreakdown[cat.label] = { found: catItemsAll.length, cleaned: 0, space: 0 }
+          categoryBreakdown[t(cat.labelKey)] = { found: catItemsAll.length, cleaned: 0, space: 0 }
         }
       }
 
@@ -238,8 +240,8 @@ export function CleanerPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="System Cleaner"
-        description="Scan and clean junk files from your system"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         action={
           <div className="flex items-center gap-2.5">
             <button
@@ -249,7 +251,7 @@ export function CleanerPage() {
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
-              Scan
+              {t('scanButton')}
             </button>
             <button
               onClick={() => setShowConfirm(true)}
@@ -262,7 +264,7 @@ export function CleanerPage() {
               }}
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
-              Clean
+              {t('cleanButton')}
             </button>
           </div>
         }
@@ -293,8 +295,8 @@ export function CleanerPage() {
                   <cat.icon className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
                 )}
                 <div className="flex-1 min-w-0">
-                  <span className="text-[13px] font-medium">{cat.label}</span>
-                  <p className="text-[11px]" style={{ color: '#4e4e56' }}>{cat.description}</p>
+                  <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
+                  <p className="text-[11px]" style={{ color: '#4e4e56' }}>{t(cat.descriptionKey)}</p>
                 </div>
                 {count > 0 && (
                   <span
@@ -310,13 +312,13 @@ export function CleanerPage() {
 
           {hasResults && (
             <div className="mt-5 rounded-2xl p-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>Total recoverable</p>
+              <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>{t('totalRecoverable')}</p>
               <p className="text-[20px] font-bold tracking-tight text-amber-400">{formatBytes(store.getTotalSize())}</p>
               <p className="text-[11px]" style={{ color: '#52525e' }}>
-                {formatNumber(store.results.reduce((s, r) => s + r.itemCount, 0))} items
+                {t('itemsCount', { count: formatNumber(store.results.reduce((s, r) => s + r.itemCount, 0)) })}
               </p>
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>Selected</p>
+                <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>{t('selectedLabel')}</p>
                 <p className="text-[15px] font-semibold text-zinc-200">{formatBytes(store.getSelectedSize())}</p>
               </div>
             </div>
@@ -343,7 +345,7 @@ export function CleanerPage() {
             >
               <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
               <p className="text-[12px]" style={{ color: '#8e8e96' }}>
-                Some scanners failed: <span className="text-amber-400 font-medium">{failedCategories.join(', ')}</span>
+                {t('scannersFailed')} <span className="text-amber-400 font-medium">{failedCategories.join(', ')}</span>
               </p>
             </div>
           )}
@@ -356,11 +358,11 @@ export function CleanerPage() {
               <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] text-zinc-300">
-                  <span className="font-medium">{elevationSkipped.length} categories</span>
-                  <span style={{ color: '#8e8e96' }}> skipped — administrator privileges required</span>
+                  <span className="font-medium">{t('categoriesSkipped', { count: elevationSkipped.length })}</span>
+                  <span style={{ color: '#8e8e96' }}> {t('categoriesSkippedSuffix')}</span>
                 </p>
                 <p className="text-[11px] mt-0.5 truncate" style={{ color: '#52525e' }}>
-                  {elevationSkipped.slice(0, 4).join(', ')}{elevationSkipped.length > 4 ? ` +${elevationSkipped.length - 4} more` : ''}
+                  {elevationSkipped.slice(0, 4).join(', ')}{elevationSkipped.length > 4 ? ` ${t('categoriesSkippedMore', { count: elevationSkipped.length - 4 })}` : ''}
                 </p>
               </div>
               <button
@@ -368,7 +370,7 @@ export function CleanerPage() {
                 className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
                 style={{ border: '1px solid rgba(245,158,11,0.2)' }}
               >
-                Relaunch as Admin
+                {t('relaunchAsAdmin')}
               </button>
             </div>
           )}
@@ -381,11 +383,11 @@ export function CleanerPage() {
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
                 <div>
-                  <p className="text-[13px] font-medium text-zinc-200">Cleaning complete!</p>
+                  <p className="text-[13px] font-medium text-zinc-200">{t('cleaningComplete')}</p>
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    Cleaned {formatBytes(store.cleanResult.totalCleaned)} · {formatNumber(store.cleanResult.filesDeleted)} items deleted
+                    {t('cleanedSummary', { size: formatBytes(store.cleanResult.totalCleaned), count: formatNumber(store.cleanResult.filesDeleted) })}
                     {store.cleanResult.filesSkipped > 0 && (
-                      <span style={{ color: '#a1a1aa' }}> · {formatNumber(store.cleanResult.filesSkipped)} skipped (in use or protected)</span>
+                      <span style={{ color: '#a1a1aa' }}> · {t('skippedSummary', { count: formatNumber(store.cleanResult.filesSkipped) })}</span>
                     )}
                   </p>
                 </div>
@@ -397,31 +399,31 @@ export function CleanerPage() {
                 >
                   <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
                   <p className="flex-1 text-[12px]" style={{ color: '#8e8e96' }}>
-                    Some files couldn't be deleted due to insufficient permissions
+                    {t('permissionError')}
                   </p>
                   <button
                     onClick={handleRelaunch}
                     className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
                     style={{ border: '1px solid rgba(245,158,11,0.2)' }}
                   >
-                    Relaunch as Admin
+                    {t('relaunchAsAdmin')}
                   </button>
                 </div>
               )}
               {store.cleanResult.errors.length > 0 && (
                 <details className="mt-2 ml-8">
                   <summary className="text-[11px] cursor-pointer" style={{ color: '#6e6e76' }}>
-                    {store.cleanResult.errors.length} items couldn't be deleted
+                    {t('itemsCouldntBeDeleted', { count: store.cleanResult.errors.length })}
                   </summary>
                   <div className="mt-1 max-h-32 overflow-y-auto space-y-0.5">
                     {store.cleanResult.errors.slice(0, 20).map((err, i) => (
                       <p key={i} className="text-[11px] font-mono truncate" style={{ color: '#52525e' }}>
-                        {err.path.split(/[/\\]/).slice(-3).join('/')} — {err.reason === 'permission-denied' ? 'permission denied (needs admin)' : err.reason}
+                        {err.path.split(/[/\\]/).slice(-3).join('/')} — {err.reason === 'permission-denied' ? t('permissionDenied') : err.reason}
                       </p>
                     ))}
                     {store.cleanResult.errors.length > 20 && (
                       <p className="text-[11px]" style={{ color: '#52525e' }}>
-                        ... and {store.cleanResult.errors.length - 20} more
+                        {t('andMore', { count: store.cleanResult.errors.length - 20 })}
                       </p>
                     )}
                   </div>
@@ -433,8 +435,8 @@ export function CleanerPage() {
           {!hasResults && !isScanning && (
             <EmptyState
               icon={Search}
-              title="No scan results"
-              description='Analyze your system for files that can be safely removed.'
+              title={t('noScanResultsTitle')}
+              description={t('noScanResultsDescription')}
               action={
                 <button
                   onClick={handleScan}
@@ -443,7 +445,7 @@ export function CleanerPage() {
                   style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
                 >
                   <Search className="h-4 w-4" strokeWidth={1.8} />
-                  Start Scan
+                  {t('startScan')}
                 </button>
               }
             />
@@ -453,19 +455,19 @@ export function CleanerPage() {
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
                 <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#52525e' }}>
-                  {categories.find((c) => c.type === activeCategory)?.label} Items
+                  {t('categoryItemsHeading', { category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '') })}
                 </span>
                 <button
                   onClick={() => store.toggleCategory(activeCategory)}
                   className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
                 >
-                  Toggle All
+                  {t('toggleAll')}
                 </button>
               </div>
 
               {categoryResults(activeCategory).length === 0 && (
                 <div className="py-12 text-center text-[13px]" style={{ color: '#4e4e56' }}>
-                  No items found in this category
+                  {t('noItemsInCategory')}
                 </div>
               )}
 
@@ -550,7 +552,7 @@ export function CleanerPage() {
                               {/* Stats */}
                               <span className="rounded-md px-2 py-0.5 font-mono text-[11px] shrink-0"
                                 style={{ background: 'rgba(255,255,255,0.04)', color: '#6e6e76' }}>
-                                {formatNumber(result.itemCount)} {result.itemCount === 1 ? 'item' : 'items'}
+                                {t(result.itemCount === 1 ? 'itemCount' : 'itemCountPlural', { count: formatNumber(result.itemCount) })}
                               </span>
                               <span className="font-mono text-[12px] font-medium shrink-0" style={{ color: '#8e8e96' }}>
                                 {formatBytes(result.totalSize)}
@@ -593,7 +595,7 @@ export function CleanerPage() {
                                 })}
                                 {result.items.length > 50 && (
                                   <div className="px-4 py-2.5 pl-14 text-[11px]" style={{ color: '#4e4e56' }}>
-                                    ... and {formatNumber(result.items.length - 50)} more items
+                                    {t('moreItems', { count: formatNumber(result.items.length - 50) })}
                                   </div>
                                 )}
                               </div>
@@ -614,9 +616,9 @@ export function CleanerPage() {
         open={showConfirm}
         onConfirm={handleClean}
         onCancel={() => setShowConfirm(false)}
-        title="Clean Selected Files"
-        description={`This will permanently delete ${formatNumber(store.getSelectedIds().length)} items (${formatBytes(store.getSelectedSize())}). This action cannot be undone.`}
-        confirmLabel="Clean Now"
+        title={t('confirmCleanTitle')}
+        description={t('confirmCleanDescription', { count: formatNumber(store.getSelectedIds().length), size: formatBytes(store.getSelectedSize()) })}
+        confirmLabel={t('confirmCleanLabel')}
         variant="warning"
       />
     </div>

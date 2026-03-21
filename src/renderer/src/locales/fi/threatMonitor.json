@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Uhkamonitori",
+  "pageDescription": "Verkkoyhteyksien reaaliaikainen valvonta tunnettuja uhkalistoja vastaan.",
+  "cloudNotConfigured": {
+    "title": "Pilvipalvelua ei ole määritetty",
+    "description": "Yhdistä laitteesi Kudu Cloudiin Asetuksissa ottaaksesi uhkavalvonnan käyttöön. Uhkien estoluettelo toimitetaan pilvipalvelun kautta."
+  },
+  "loading": "Ladataan...",
+  "inactive": {
+    "title": "Uhkamonitori ei ole aktiivinen",
+    "description": "Uhkien estoluetteloa ei ole ladattu. Estoluettelo noudetaan automaattisesti, kun pilviagentti muodostaa yhteyden."
+  },
+  "statusBar": {
+    "blacklistVersion": "Estoluettelo",
+    "connectionsScanned": "Yhteydet tarkistettu {{time}}",
+    "dnsScanned": "DNS tarkistettu {{time}}",
+    "threatsDetected": "{{count}} uhka havaittu",
+    "threatsDetectedPlural": "{{count}} uhkaa havaittu",
+    "noThreatsDetected": "Uhkiä ei havaittu"
+  },
+  "allClear": {
+    "title": "Ei uhkia",
+    "description": "Epäilyttäviä yhteyksiä tai DNS-merkintöjä ei havaittu. Monitori jatkaa tarkistusta taustalla."
+  },
+  "flaggedConnections": "Merkittyt yhteydet",
+  "flaggedDnsEntries": "Merkityt DNS-merkinnät",
+  "connectionPid": "PID {{pid}}"
+}

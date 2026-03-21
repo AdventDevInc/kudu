@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "מנקה מערכת",
+  "dashboard": "לוח מחוונים",
+  "securityHeading": "אבטחה",
+  "malwareScanner": "סורק נוזקות",
+  "threatMonitor": "ניטור איומים",
+  "systemHardening": "הקשחת המערכת",
+  "maintainHeading": "תחזוקה",
+  "cleaner": "מנקה",
+  "registry": "רישום",
+  "startup": "אתחול",
+  "network": "רשת",
+  "uninstaller": "מסיר התקנה",
+  "updates": "עדכונים",
+  "schedules": "לוחות זמנים",
+  "toolsHeading": "כלים",
+  "performance": "ביצועים",
+  "diskAnalyzer": "מנתח דיסק",
+  "history": "היסטוריה",
+  "settings": "הגדרות"
+}

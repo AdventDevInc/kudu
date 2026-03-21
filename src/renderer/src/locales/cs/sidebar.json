@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "ČIŠTĚNÍ SYSTÉMU",
+  "dashboard": "Přehled",
+  "securityHeading": "ZABEZPEČENÍ",
+  "malwareScanner": "Skener malwaru",
+  "threatMonitor": "Monitor hrozeb",
+  "systemHardening": "Zabezpečení systému",
+  "maintainHeading": "ÚDRŽBA",
+  "cleaner": "Čištění",
+  "registry": "Registr",
+  "startup": "Po spuštění",
+  "network": "Síť",
+  "uninstaller": "Odinstalace",
+  "updates": "Aktualizace",
+  "schedules": "Plány",
+  "toolsHeading": "NÁSTROJE",
+  "performance": "Výkon",
+  "diskAnalyzer": "Analýza disku",
+  "history": "Historie",
+  "settings": "Nastavení"
+}

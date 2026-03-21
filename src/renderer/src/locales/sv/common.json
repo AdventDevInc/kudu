@@ -1,0 +1,18 @@
+{
+  "scanning": "Söker...",
+  "cleaning": "Rensar...",
+  "foundLabel": "Hittade:",
+  "itemsUnit": "objekt",
+  "sizeLabel": "Storlek:",
+  "health": "Hälsa",
+  "cancel": "Avbryt",
+  "confirm": "Bekräfta",
+  "adminBannerMessage": "Vissa funktioner kräver administratörsbehörighet.",
+  "relaunchAsAdmin": "Starta om som administratör",
+  "justNow": "Just nu",
+  "minutesAgo": "{{minutes}} min sedan",
+  "hoursAgo": "{{hours}} h sedan",
+  "daysAgo": "{{days}} d sedan",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

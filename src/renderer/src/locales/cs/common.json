@@ -1,0 +1,18 @@
+{
+  "scanning": "Probíhá kontrola...",
+  "cleaning": "Probíhá čištění...",
+  "foundLabel": "Nalezeno:",
+  "itemsUnit": "položek",
+  "sizeLabel": "Velikost:",
+  "health": "Stav",
+  "cancel": "Zrušit",
+  "confirm": "Potvrdit",
+  "adminBannerMessage": "Některé funkce vyžadují oprávnění správce.",
+  "relaunchAsAdmin": "Spustit znovu jako správce",
+  "justNow": "Právě teď",
+  "minutesAgo": "před {{minutes}} min",
+  "hoursAgo": "před {{hours}} h",
+  "daysAgo": "před {{days}} d",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

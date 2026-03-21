@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Monitorizare amenințări",
+  "pageDescription": "Monitorizare în timp real a conexiunilor de rețea în raport cu listele de amenințări cunoscute.",
+  "cloudNotConfigured": {
+    "title": "Cloud neconfigurat",
+    "description": "Conectați dispozitivul la Kudu Cloud în Setări pentru a activa monitorizarea amenințărilor. Lista neagră de amenințări este furnizată de serviciul cloud."
+  },
+  "loading": "Se încarcă...",
+  "inactive": {
+    "title": "Monitorizarea amenințărilor este inactivă",
+    "description": "Nu este încărcată nicio listă neagră de amenințări. Lista neagră va fi preluată automat când agentul cloud se conectează."
+  },
+  "statusBar": {
+    "blacklistVersion": "Listă neagră",
+    "connectionsScanned": "Conexiuni scanate {{time}}",
+    "dnsScanned": "DNS scanat {{time}}",
+    "threatsDetected": "{{count}} amenințare detectată",
+    "threatsDetectedPlural": "{{count}} amenințări detectate",
+    "noThreatsDetected": "Nu au fost detectate amenințări"
+  },
+  "allClear": {
+    "title": "Nicio problemă",
+    "description": "Nu au fost detectate conexiuni suspecte sau intrări DNS. Monitorizarea continuă scanarea în fundal."
+  },
+  "flaggedConnections": "Conexiuni semnalate",
+  "flaggedDnsEntries": "Intrări DNS semnalate",
+  "connectionPid": "PID {{pid}}"
+}

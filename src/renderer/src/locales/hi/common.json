@@ -1,0 +1,18 @@
+{
+  "scanning": "स्कैन किया जा रहा है...",
+  "cleaning": "साफ़ किया जा रहा है...",
+  "foundLabel": "मिला:",
+  "itemsUnit": "आइटम",
+  "sizeLabel": "आकार:",
+  "health": "स्थिति",
+  "cancel": "रद्द करें",
+  "confirm": "पुष्टि करें",
+  "adminBannerMessage": "कुछ सुविधाओं के लिए व्यवस्थापक विशेषाधिकार आवश्यक हैं।",
+  "relaunchAsAdmin": "Admin के रूप में पुनः लॉन्च करें",
+  "justNow": "अभी-अभी",
+  "minutesAgo": "{{minutes}}मि पहले",
+  "hoursAgo": "{{hours}}घं पहले",
+  "daysAgo": "{{days}}दि पहले",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

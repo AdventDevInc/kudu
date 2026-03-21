@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Kudu megnyitása",
+  "quit": "Kilépés",
+  "scheduledTaskNotificationTitle": "Kudu - Ütemezett feladat",
+  "scheduledTaskNotificationBody": "\"{{name}}\" futtatása...",
+  "scanCompleteNotificationTitle": "Kudu - Vizsgálat befejezve",
+  "scanCompleteNotificationBody": "{{itemCount}} tisztítható elem található ({{sizeMB}} MB).",
+  "scheduledScanName": "Ütemezett vizsgálat"
+}

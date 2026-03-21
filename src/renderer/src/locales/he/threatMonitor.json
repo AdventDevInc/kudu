@@ -1,0 +1,28 @@
+{
+  "pageTitle": "ניטור איומים",
+  "pageDescription": "ניטור בזמן אמת של חיבורי רשת מול רשימות איומים מוכרות.",
+  "cloudNotConfigured": {
+    "title": "הענן לא הוגדר",
+    "description": "קשר את המכשיר שלך ל-Kudu Cloud בהגדרות כדי להפעיל ניטור איומים. הרשימה השחורה של האיומים מסופקת על ידי שירות הענן."
+  },
+  "loading": "טוען...",
+  "inactive": {
+    "title": "ניטור האיומים אינו פעיל",
+    "description": "לא נטענה רשימה שחורה של איומים. הרשימה השחורה תיאסף אוטומטית כאשר סוכן הענן יתחבר."
+  },
+  "statusBar": {
+    "blacklistVersion": "רשימה שחורה",
+    "connectionsScanned": "חיבורים נסרקו {{time}}",
+    "dnsScanned": "DNS נסרק {{time}}",
+    "threatsDetected": "זוהה איום {{count}}",
+    "threatsDetectedPlural": "זוהו {{count}} איומים",
+    "noThreatsDetected": "לא זוהו איומים"
+  },
+  "allClear": {
+    "title": "הכול תקין",
+    "description": "לא זוהו חיבורים חשודים או רשומות DNS. הניטור ממשיך לסרוק ברקע."
+  },
+  "flaggedConnections": "חיבורים שסומנו",
+  "flaggedDnsEntries": "רשומות DNS שסומנו",
+  "connectionPid": "PID {{pid}}"
+}

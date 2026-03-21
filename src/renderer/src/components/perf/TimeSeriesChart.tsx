@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import type { PerfSnapshot } from '@shared/types'
 
@@ -16,6 +17,7 @@ const rangeSeconds = { '60s': 60, '5m': 300, '15m': 900 }
 const MAX_CHART_POINTS = 120
 
 export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRange, dataKey, label, color }: TimeSeriesChartProps) {
+  const { t } = useTranslation('performance')
   const data = useMemo(() => {
     const count = rangeSeconds[timeRange]
     const slice = history.slice(-count)
@@ -79,7 +81,7 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
             }}
             labelFormatter={() => ''}
             formatter={(val) =>
-              isDisk ? [`${Number(val).toFixed(1)} MB/s`] : [`${Number(val).toFixed(1)}%`]
+              isDisk ? [`${Number(val).toFixed(1)} ${t('chartDiskUnit')}`] : [`${Number(val).toFixed(1)}${t('chartPercentUnit')}`]
             }
           />
           {isDisk ? (
@@ -91,7 +93,7 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
                 fill={`url(#${gradientId})`}
                 strokeWidth={1.5}
                 isAnimationActive={false}
-                name="Read"
+                name={t('chartDiskReadName')}
               />
               <Area
                 type="monotone"
@@ -100,7 +102,7 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
                 fill="url(#gradient-disk-write)"
                 strokeWidth={1.5}
                 isAnimationActive={false}
-                name="Write"
+                name={t('chartDiskWriteName')}
               />
             </>
           ) : (

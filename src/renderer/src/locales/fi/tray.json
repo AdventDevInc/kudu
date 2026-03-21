@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Avaa Kudu",
+  "quit": "Lopeta",
+  "scheduledTaskNotificationTitle": "Kudu - Ajastettu tehtävä",
+  "scheduledTaskNotificationBody": "Suoritetaan \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Tarkistus valmis",
+  "scanCompleteNotificationBody": "Löytyi {{itemCount}} kohdetta ({{sizeMB}} MB), jotka voidaan puhdistaa.",
+  "scheduledScanName": "Ajastettu tarkistus"
+}

@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Monitoraggio minacce",
+  "pageDescription": "Monitoraggio in tempo reale delle connessioni di rete rispetto a elenchi di minacce conosciute.",
+  "cloudNotConfigured": {
+    "title": "Cloud non configurato",
+    "description": "Collega il dispositivo a Kudu Cloud nelle Impostazioni per abilitare il monitoraggio delle minacce. La blacklist delle minacce è fornita dal servizio cloud."
+  },
+  "loading": "Caricamento...",
+  "inactive": {
+    "title": "Monitoraggio minacce inattivo",
+    "description": "Nessuna blacklist delle minacce è caricata. La blacklist verrà recuperata automaticamente quando l'agente cloud si connetterà."
+  },
+  "statusBar": {
+    "blacklistVersion": "Blacklist",
+    "connectionsScanned": "Connessioni analizzate {{time}}",
+    "dnsScanned": "DNS analizzati {{time}}",
+    "threatsDetected": "{{count}} minaccia rilevata",
+    "threatsDetectedPlural": "{{count}} minacce rilevate",
+    "noThreatsDetected": "Nessuna minaccia rilevata"
+  },
+  "allClear": {
+    "title": "Nessuna minaccia rilevata",
+    "description": "Non sono state rilevate connessioni sospette o voci DNS sospette. Il monitoraggio continua in background."
+  },
+  "flaggedConnections": "Connessioni segnalate",
+  "flaggedDnsEntries": "Voci DNS segnalate",
+  "connectionPid": "PID {{pid}}"
+}

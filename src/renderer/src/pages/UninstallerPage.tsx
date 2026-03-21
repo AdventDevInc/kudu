@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Package,
   Search,
@@ -42,26 +43,27 @@ function isUnused(prog: InstalledProgram): boolean {
   return Date.now() - prog.lastUsed > UNUSED_THRESHOLD_MS
 }
 
-function formatLastUsed(ts: number): string {
-  if (ts <= 0) return 'Never detected'
+function formatLastUsed(ts: number, t: (key: string, opts?: Record<string, unknown>) => string): string {
+  if (ts <= 0) return t('lastUsedNeverDetected')
   const days = Math.floor((Date.now() - ts) / (24 * 60 * 60 * 1000))
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 30) return `${days} days ago`
+  if (days === 0) return t('lastUsedToday')
+  if (days === 1) return t('lastUsedYesterday')
+  if (days < 30) return t('lastUsedDaysAgo', { days })
   const months = Math.floor(days / 30)
-  if (months < 12) return `${months}mo ago`
+  if (months < 12) return t('lastUsedMonthsAgo', { months })
   const years = Math.floor(months / 12)
-  return `${years}y ago`
+  return t('lastUsedYearsAgo', { years })
 }
 
-const SORT_LABELS: Record<string, string> = {
-  displayName: 'Name',
-  estimatedSize: 'Size',
-  installDate: 'Date',
-  publisher: 'Publisher',
+const SORT_LABEL_KEYS: Record<string, string> = {
+  displayName: 'sortByName',
+  estimatedSize: 'sortBySize',
+  installDate: 'sortByDate',
+  publisher: 'sortByPublisher',
 }
 
 export function UninstallerPage() {
+  const { t } = useTranslation('uninstaller')
   const programs = useUninstallerStore((s) => s.programs)
   const loading = useUninstallerStore((s) => s.loading)
   const uninstalling = useUninstallerStore((s) => s.uninstalling)
@@ -123,8 +125,8 @@ export function UninstallerPage() {
       s.setHasLoaded(true)
     } catch (err) {
       console.error('Failed to list programs:', err)
-      toast.error('Failed to load installed programs')
-      useUninstallerStore.getState().setError('Failed to load installed programs.')
+      toast.error(t('failedToLoadToast'))
+      useUninstallerStore.getState().setError(t('failedToLoadError'))
     } finally {
       useUninstallerStore.getState().setLoading(false)
     }
@@ -166,7 +168,7 @@ export function UninstallerPage() {
             totalSpaceSaved: result.leftoversSize,
             categories: [
               {
-                name: `Uninstall: ${result.programName}`,
+                name: t('historyCategoryUninstall', { programName: result.programName }),
                 itemsFound: result.leftoversFound,
                 itemsCleaned: result.leftoversCleaned,
                 spaceSaved: result.leftoversSize,
@@ -179,8 +181,8 @@ export function UninstallerPage() {
       }
     } catch (err) {
       console.error('Uninstall failed:', err)
-      toast.error('Uninstall failed unexpectedly')
-      useUninstallerStore.getState().setError('Uninstall operation failed unexpectedly.')
+      toast.error(t('uninstallFailedToast'))
+      useUninstallerStore.getState().setError(t('uninstallFailedError'))
     } finally {
       useUninstallerStore.getState().setUninstalling(false)
     }
@@ -227,7 +229,7 @@ export function UninstallerPage() {
               totalSpaceSaved: result.leftoversSize,
               categories: [
                 {
-                  name: `Uninstall: ${result.programName}`,
+                  name: t('historyCategoryUninstall', { programName: result.programName }),
                   itemsFound: result.leftoversFound,
                   itemsCleaned: result.leftoversCleaned,
                   spaceSaved: result.leftoversSize,
@@ -252,7 +254,7 @@ export function UninstallerPage() {
     if (failCount === 0) {
       s.setUninstallResult({
         success: true,
-        programName: `${successCount} program${successCount !== 1 ? 's' : ''}`,
+        programName: successCount !== 1 ? t('batchResultProgramsPlural', { count: successCount }) : t('batchResultProgramsSingular', { count: successCount }),
         exitCode: null,
         leftoversFound: totalLeftoversCleaned,
         leftoversCleaned: totalLeftoversCleaned,
@@ -261,9 +263,9 @@ export function UninstallerPage() {
     } else {
       s.setUninstallResult({
         success: successCount > 0,
-        programName: `${successCount + failCount} program${successCount + failCount !== 1 ? 's' : ''}`,
+        programName: (successCount + failCount) !== 1 ? t('batchResultProgramsPlural', { count: successCount + failCount }) : t('batchResultProgramsSingular', { count: successCount + failCount }),
         exitCode: null,
-        error: `${failCount} failed, ${successCount} succeeded`,
+        error: t('batchResultFailedSucceeded', { failed: failCount, succeeded: successCount }),
         leftoversFound: totalLeftoversCleaned,
         leftoversCleaned: totalLeftoversCleaned,
         leftoversSize: totalLeftoversSize,
@@ -320,8 +322,8 @@ export function UninstallerPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Program Uninstaller"
-        description="Uninstall programs and automatically clean leftover files"
+        title={t('pageTitle')}
+        description={t('pageDescription')}
       />
 
       {/* Actions */}
@@ -340,7 +342,7 @@ export function UninstallerPage() {
           ) : (
             <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
           )}
-          {loading ? 'Loading...' : hasLoaded ? 'Refresh' : 'Load Programs'}
+          {loading ? t('loading') : hasLoaded ? t('refresh') : t('loadPrograms')}
         </button>
 
         {/* Filter tabs — only show when Prefetch data is available */}
@@ -357,7 +359,7 @@ export function UninstallerPage() {
                 color: filterMode === 'all' ? '#e4e4e7' : '#6e6e76',
               }}
             >
-              All ({programs.length})
+              {t('filterAll', { count: programs.length })}
             </button>
             <button
               onClick={() => useUninstallerStore.getState().setFilterMode('unused')}
@@ -369,7 +371,7 @@ export function UninstallerPage() {
               }}
             >
               <AlertTriangle className="h-3 w-3" strokeWidth={2} />
-              Unused ({unusedPrograms.length})
+              {t('filterUnused', { count: unusedPrograms.length })}
             </button>
           </div>
         )}
@@ -388,7 +390,7 @@ export function UninstallerPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => useUninstallerStore.getState().setSearchQuery(e.target.value)}
-              placeholder="Search programs..."
+              placeholder={t('searchPlaceholder')}
               className="bg-transparent text-[13px] text-zinc-300 placeholder-zinc-600 outline-none w-48"
             />
           </div>
@@ -406,7 +408,7 @@ export function UninstallerPage() {
               }}
             >
               <ArrowUpDown className="h-3.5 w-3.5" strokeWidth={1.8} />
-              {SORT_LABELS[sortField]}
+              {t(SORT_LABEL_KEYS[sortField])}
               <ChevronDown className="h-3 w-3" strokeWidth={2} />
             </button>
             {showSortMenu && (
@@ -414,7 +416,7 @@ export function UninstallerPage() {
                 className="absolute top-full left-0 z-50 mt-1 rounded-xl py-1 shadow-xl"
                 style={{ background: '#1e1e22', border: '1px solid rgba(255,255,255,0.08)', minWidth: 140 }}
               >
-                {Object.entries(SORT_LABELS).map(([field, label]) => (
+                {Object.entries(SORT_LABEL_KEYS).map(([field, labelKey]) => (
                   <button
                     key={field}
                     onClick={() => {
@@ -429,10 +431,10 @@ export function UninstallerPage() {
                     }}
                     className="flex w-full items-center gap-2 px-4 py-2 text-[12px] text-zinc-300 hover:bg-white/5 transition-colors"
                   >
-                    {label}
+                    {t(labelKey)}
                     {sortField === field && (
                       <span className="ml-auto text-amber-400 text-[10px]">
-                        {sortDirection === 'asc' ? 'A-Z' : 'Z-A'}
+                        {sortDirection === 'asc' ? t('sortAscending') : t('sortDescending')}
                       </span>
                     )}
                   </button>
@@ -454,7 +456,7 @@ export function UninstallerPage() {
             }}
           >
             <Trash2 className="h-4 w-4" strokeWidth={1.8} />
-            Uninstall Selected ({selectedIds.size})
+            {t('uninstallSelected', { count: selectedIds.size })}
           </button>
         )}
       </div>
@@ -473,12 +475,14 @@ export function UninstallerPage() {
             <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
             <div>
               <p className="text-[13px] font-medium text-zinc-200">
-                {unusedPrograms.length} program{unusedPrograms.length !== 1 ? 's' : ''} not used in {UNUSED_THRESHOLD_DAYS}+ days
+                {unusedPrograms.length !== 1
+                  ? t('unusedBannerTitlePlural', { count: unusedPrograms.length, days: UNUSED_THRESHOLD_DAYS })
+                  : t('unusedBannerTitle', { count: unusedPrograms.length, days: UNUSED_THRESHOLD_DAYS })}
               </p>
               <p className="text-[11px] mt-0.5" style={{ color: '#6e6e76' }}>
                 {unusedTotalSize > 0
-                  ? `Using ~${formatBytes(unusedTotalSize)} of disk space. Click to view.`
-                  : 'Click to view unused programs.'}
+                  ? t('unusedBannerDescriptionWithSize', { size: formatBytes(unusedTotalSize) })
+                  : t('unusedBannerDescriptionNoSize')}
               </p>
             </div>
           </div>
@@ -486,7 +490,7 @@ export function UninstallerPage() {
             className="rounded-full px-3 py-1 text-[11px] font-medium"
             style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
           >
-            View
+            {t('unusedBannerViewButton')}
           </span>
         </div>
       )}
@@ -501,9 +505,7 @@ export function UninstallerPage() {
       >
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
         <p className="text-[12px]" style={{ color: '#8e8e96' }}>
-          <span className="font-semibold text-amber-500">Safe uninstall</span> — Runs each
-          program's native uninstaller, then automatically scans for and cleans leftover files and
-          folders.
+          <span className="font-semibold text-amber-500">{t('safeUninstallLabel')}</span> — {t('safeUninstallDescription')}
         </p>
       </div>
 
@@ -530,12 +532,12 @@ export function UninstallerPage() {
               <Loader2 className="h-4 w-4 animate-spin text-amber-400" strokeWidth={2} />
               <span className="text-[13px] font-medium text-zinc-200">
                 {progress.phase === 'uninstalling'
-                  ? `Uninstalling ${progress.currentProgram}...`
+                  ? t('progressUninstalling', { programName: progress.currentProgram })
                   : progress.phase === 'scanning-leftovers'
-                    ? 'Scanning for leftover files...'
+                    ? t('progressScanningLeftovers')
                     : progress.phase === 'cleaning-leftovers'
-                      ? 'Cleaning leftover files...'
-                      : 'Loading...'}
+                      ? t('progressCleaningLeftovers')
+                      : t('progressLoading')}
               </span>
             </div>
             <span className="text-[12px] font-mono" style={{ color: '#6e6e76' }}>
@@ -579,23 +581,23 @@ export function UninstallerPage() {
           <div className="text-[13px] text-zinc-200">
             {uninstallResult.success ? (
               <p>
-                Successfully uninstalled{' '}
+                {t('successfullyUninstalled')}{' '}
                 <span className="font-medium">{uninstallResult.programName}</span>
                 {uninstallResult.leftoversCleaned > 0 && (
                   <span className="text-green-400">
                     {' '}
-                    — {uninstallResult.leftoversCleaned} leftover
-                    {uninstallResult.leftoversCleaned !== 1 ? 's' : ''} cleaned (
-                    {formatBytes(uninstallResult.leftoversSize)} recovered)
+                    — {uninstallResult.leftoversCleaned !== 1
+                      ? t('leftoversCleanedPlural', { count: uninstallResult.leftoversCleaned, size: formatBytes(uninstallResult.leftoversSize) })
+                      : t('leftoversCleaned', { count: uninstallResult.leftoversCleaned, size: formatBytes(uninstallResult.leftoversSize) })}
                   </span>
                 )}
                 {uninstallResult.leftoversFound === 0 && (
-                  <span style={{ color: '#6e6e76' }}> — no leftover files found</span>
+                  <span style={{ color: '#6e6e76' }}> — {t('noLeftoverFilesFound')}</span>
                 )}
               </p>
             ) : (
               <p>
-                Failed to uninstall{' '}
+                {t('failedToUninstall')}{' '}
                 <span className="font-medium">{uninstallResult.programName}</span>
                 {uninstallResult.error && (
                   <span style={{ color: '#8e8e96' }}> — {uninstallResult.error}</span>
@@ -610,8 +612,8 @@ export function UninstallerPage() {
       {!hasLoaded && !loading && (
         <EmptyState
           icon={Package}
-          title="No programs loaded"
-          description="Load the list of installed programs to view, search, and uninstall them."
+          title={t('emptyStateTitle')}
+          description={t('emptyStateDescription')}
           action={
             <button
               onClick={handleLoad}
@@ -623,7 +625,7 @@ export function UninstallerPage() {
               }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
-              Load Programs
+              {t('loadPrograms')}
             </button>
           }
         />
@@ -633,7 +635,7 @@ export function UninstallerPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="h-10 w-10 animate-spin text-amber-400 mb-4" strokeWidth={1.5} />
-          <p className="text-[13px] text-zinc-400">Loading installed programs...</p>
+          <p className="text-[13px] text-zinc-400">{t('loadingInstalledPrograms')}</p>
         </div>
       )}
 
@@ -642,7 +644,7 @@ export function UninstallerPage() {
         <div className="flex flex-col items-center justify-center py-16">
           <Search className="h-10 w-10 text-zinc-600 mb-4" strokeWidth={1.5} />
           <p className="text-[13px] text-zinc-400">
-            {filterMode === 'unused' ? 'No unused programs found' : 'No programs match your search'}
+            {filterMode === 'unused' ? t('noUnusedProgramsFound') : t('noProgramsMatchSearch')}
           </p>
         </div>
       )}
@@ -650,7 +652,7 @@ export function UninstallerPage() {
       {hasLoaded && !loading && programs.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16">
           <CheckCircle2 className="h-10 w-10 text-green-500 mb-4" strokeWidth={1.5} />
-          <p className="text-[13px] text-zinc-400">No installed programs found</p>
+          <p className="text-[13px] text-zinc-400">{t('noInstalledProgramsFound')}</p>
         </div>
       )}
 
@@ -670,7 +672,7 @@ export function UninstallerPage() {
               }}
               disabled={uninstalling}
               className="text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-30"
-              title={filteredPrograms.every((p) => selectedIds.has(p.id)) ? 'Deselect all' : 'Select all'}
+              title={filteredPrograms.every((p) => selectedIds.has(p.id)) ? t('deselectAll') : t('selectAll')}
             >
               {filteredPrograms.length > 0 && filteredPrograms.every((p) => selectedIds.has(p.id)) ? (
                 <CheckSquare className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
@@ -686,8 +688,10 @@ export function UninstallerPage() {
               <Package className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
             )}
             <span className="text-[13px] font-semibold text-zinc-200">
-              {filterMode === 'unused' ? 'Unused Programs' : 'Installed Programs'} ({filteredPrograms.length}
-              {searchQuery && ` of ${filterMode === 'unused' ? unusedPrograms.length : programs.length}`})
+              {filterMode === 'unused' ? t('unusedProgramsHeading') : t('installedProgramsHeading')}{' '}
+              {searchQuery
+                ? t('programCount', { filtered: filteredPrograms.length, total: filterMode === 'unused' ? unusedPrograms.length : programs.length })
+                : `(${filteredPrograms.length})`}
             </span>
           </div>
 
@@ -745,25 +749,25 @@ export function UninstallerPage() {
                           className="rounded-md px-2 py-0.5 text-[10px] font-medium shrink-0"
                           style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
                         >
-                          Unused
+                          {t('unusedBadge')}
                         </span>
                       )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-3">
                       <p className="text-[11px] truncate" style={{ color: '#6e6e76' }}>
-                        {prog.publisher || 'Unknown publisher'}
+                        {prog.publisher || t('unknownPublisher')}
                         {prog.installDate ? ` — ${formatDate(prog.installDate)}` : ''}
                       </p>
                       {prog.lastUsed > 0 && (
                         <span className="flex items-center gap-1 text-[10px] shrink-0" style={{ color: unused ? '#f59e0b' : '#4e4e56' }}>
                           <Clock className="h-3 w-3" strokeWidth={1.8} />
-                          {formatLastUsed(prog.lastUsed)}
+                          {formatLastUsed(prog.lastUsed, t)}
                         </span>
                       )}
                       {prog.lastUsed === 0 && filterMode === 'unused' && (
                         <span className="flex items-center gap-1 text-[10px] shrink-0" style={{ color: '#f59e0b' }}>
                           <Clock className="h-3 w-3" strokeWidth={1.8} />
-                          Never detected
+                          {t('lastUsedNeverDetected')}
                         </span>
                       )}
                     </div>
@@ -781,7 +785,7 @@ export function UninstallerPage() {
                       style={{ border: '1px solid rgba(239,68,68,0.15)' }}
                     >
                       <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-                      Uninstall
+                      {t('uninstallButton')}
                     </button>
                   </div>
                 </div>
@@ -796,9 +800,9 @@ export function UninstallerPage() {
         open={!!confirmProgram}
         onConfirm={handleUninstall}
         onCancel={() => setConfirmProgram(null)}
-        title={`Uninstall ${confirmProgram?.displayName ?? ''}?`}
-        description={`This will run the program's native uninstaller. After completion, Kudu will scan for and clean leftover files automatically.`}
-        confirmLabel="Uninstall"
+        title={t('confirmUninstallTitle', { programName: confirmProgram?.displayName ?? '' })}
+        description={t('confirmUninstallDescription')}
+        confirmLabel={t('confirmUninstallLabel')}
         variant="danger"
       />
 
@@ -807,13 +811,13 @@ export function UninstallerPage() {
         open={confirmBatch}
         onConfirm={handleBatchUninstall}
         onCancel={() => setConfirmBatch(false)}
-        title={`Uninstall ${selectedIds.size} program${selectedIds.size !== 1 ? 's' : ''}?`}
-        description={`This will run each program's native uninstaller one by one. After each, Kudu will scan for and clean leftover files automatically.`}
+        title={selectedIds.size !== 1 ? t('confirmBatchTitlePlural', { count: selectedIds.size }) : t('confirmBatchTitle', { count: selectedIds.size })}
+        description={t('confirmBatchDescription')}
         details={programs
           .filter((p) => selectedIds.has(p.id))
           .map((p) => p.displayName)
           .join(', ')}
-        confirmLabel={`Uninstall ${selectedIds.size}`}
+        confirmLabel={t('confirmBatchLabel', { count: selectedIds.size })}
         variant="danger"
       />
     </div>

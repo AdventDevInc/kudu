@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Mở Kudu",
+  "quit": "Thoát",
+  "scheduledTaskNotificationTitle": "Kudu - Tác vụ theo lịch",
+  "scheduledTaskNotificationBody": "Đang chạy \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Quét hoàn tất",
+  "scanCompleteNotificationBody": "Đã tìm thấy {{itemCount}} mục ({{sizeMB}} MB) có thể dọn dẹp.",
+  "scheduledScanName": "Quét theo lịch"
+}

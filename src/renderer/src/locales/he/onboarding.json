@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "ברוכים הבאים ל-Kudu",
+  "welcomeDescription": "מנקה המערכת הכול-באחד שלך עבור Windows. Kudu מסיר קבצי זבל, מתקן בעיות ברישום, מנהל תוכניות אתחול ושומר על המחשב שלך מהיר.",
+  "featureSmartCleaning": "ניקוי חכם",
+  "featureFasterBoot": "אתחול מהיר יותר",
+  "featureSafeSecure": "בטוח ומאובטח",
+  "getStarted": "התחל",
+  "recommendedSetupTitle": "הגדרה מומלצת",
+  "recommendedSetupDescription": "אנו ממליצים על הגדרות אלה לקבלת החוויה הטובה ביותר. ניתן לשנות אותן מאוחר יותר בהגדרות.",
+  "runAtStartupLabel": "הפעל בעת האתחול",
+  "runAtStartupDescription": "הפעל את Kudu כאשר Windows מופעלת כדי שהמחשב שלך יישאר נקי באופן אוטומטי",
+  "minimizeToTrayLabel": "מזער למגש המערכת",
+  "minimizeToTrayDescription": "השאר את Kudu פועל בשקט ברקע",
+  "weeklyAutoCleanLabel": "ניקוי אוטומטי שבועי",
+  "weeklyAutoCleanDescription": "סרוק ונקה קבצי זבל בכל יום שני בשעה 9:00",
+  "back": "חזרה",
+  "continue": "המשך",
+  "allSetTitle": "הכול מוכן!",
+  "allSetDescription": "Kudu תשמור על פעולת המחשב שלך בצורה חלקה ברקע.",
+  "firstScanScheduled": "הסריקה האוטומטית הראשונה שלך מתוזמנת ליום שני בשעה 9:00.",
+  "startCleaning": "התחל בניקוי"
+}

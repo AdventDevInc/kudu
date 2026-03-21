@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Search,
   Sparkles,
@@ -24,19 +25,20 @@ type NetworkCategory = NetworkItem['type']
 
 interface CategoryDef {
   type: NetworkCategory
-  label: string
+  labelKey: string
   icon: LucideIcon
-  description: string
+  descriptionKey: string
 }
 
 const categories: CategoryDef[] = [
-  { type: 'dns-cache', label: 'DNS Cache', icon: Globe, description: 'Cached domain name lookups' },
-  { type: 'wifi-profile', label: 'Wi-Fi Profiles', icon: Wifi, description: 'Saved wireless networks' },
-  { type: 'arp-cache', label: 'ARP Cache', icon: Network, description: 'IP-to-MAC address mappings' },
-  { type: 'network-history', label: 'Network History', icon: History, description: 'Past network connections' }
+  { type: 'dns-cache', labelKey: 'categoryDnsCache', icon: Globe, descriptionKey: 'categoryDnsCacheDesc' },
+  { type: 'wifi-profile', labelKey: 'categoryWifiProfiles', icon: Wifi, descriptionKey: 'categoryWifiProfilesDesc' },
+  { type: 'arp-cache', labelKey: 'categoryArpCache', icon: Network, descriptionKey: 'categoryArpCacheDesc' },
+  { type: 'network-history', labelKey: 'categoryNetworkHistory', icon: History, descriptionKey: 'categoryNetworkHistoryDesc' }
 ]
 
 export function NetworkCleanupPage() {
+  const { t } = useTranslation('network')
   const { platform } = usePlatform()
   const visibleCategories = useMemo(() =>
     categories.filter((c) => {
@@ -69,7 +71,7 @@ export function NetworkCleanupPage() {
       s.setSelectedIds(preSelected)
       s.setStatus('complete')
     } catch {
-      toast.error('Network scan failed')
+      toast.error(t('scanFailedToast'))
       useNetworkStore.getState().setStatus('idle')
     }
   }, [])
@@ -116,7 +118,7 @@ export function NetworkCleanupPage() {
 
       useNetworkStore.getState().setStatus('complete')
     } catch {
-      toast.error('Network cleanup failed')
+      toast.error(t('cleanupFailedToast'))
       useNetworkStore.getState().setStatus('idle')
     }
   }, [historyStore, recomputeStats])
@@ -129,8 +131,8 @@ export function NetworkCleanupPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Network Cleanup"
-        description={platform === 'win32' ? 'Clear DNS cache, saved Wi-Fi profiles, and network history' : 'Clear DNS cache and saved Wi-Fi profiles'}
+        title={t('pageTitle')}
+        description={platform === 'win32' ? t('pageDescriptionWindows') : t('pageDescriptionOther')}
         action={
           <div className="flex items-center gap-2.5">
             <button
@@ -140,7 +142,7 @@ export function NetworkCleanupPage() {
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
-              Scan
+              {t('scanButton')}
             </button>
             <button
               onClick={() => setShowConfirm(true)}
@@ -153,7 +155,7 @@ export function NetworkCleanupPage() {
               }}
             >
               <Sparkles className="h-4 w-4" strokeWidth={2} />
-              Clean
+              {t('cleanButton')}
             </button>
           </div>
         }
@@ -180,8 +182,8 @@ export function NetworkCleanupPage() {
                 )}
                 <cat.icon className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[13px] font-medium">{cat.label}</span>
-                  <p className="text-[11px]" style={{ color: '#4e4e56' }}>{cat.description}</p>
+                  <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
+                  <p className="text-[11px]" style={{ color: '#4e4e56' }}>{t(cat.descriptionKey)}</p>
                 </div>
                 {count > 0 && (
                   <span
@@ -197,12 +199,12 @@ export function NetworkCleanupPage() {
 
           {hasItems && (
             <div className="mt-5 rounded-2xl p-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>Total found</p>
+              <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>{t('totalFound')}</p>
               <p className="text-[20px] font-bold tracking-tight text-amber-400">{items.length}</p>
-              <p className="text-[11px]" style={{ color: '#52525e' }}>network items</p>
+              <p className="text-[11px]" style={{ color: '#52525e' }}>{t('networkItems')}</p>
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>Selected</p>
-                <p className="text-[15px] font-semibold text-zinc-200">{selectedIds.size} items</p>
+                <p className="text-[11px] font-medium" style={{ color: '#52525e' }}>{t('selected')}</p>
+                <p className="text-[15px] font-semibold text-zinc-200">{t('selectedItems', { count: selectedIds.size })}</p>
               </div>
             </div>
           )}
@@ -213,14 +215,14 @@ export function NetworkCleanupPage() {
           {isScanning && (
             <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-              <span className="text-[13px] text-zinc-400">Scanning network configuration...</span>
+              <span className="text-[13px] text-zinc-400">{t('scanningStatus')}</span>
             </div>
           )}
 
           {isCleaning && (
             <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
-              <span className="text-[13px] text-zinc-400">Cleaning selected items...</span>
+              <span className="text-[13px] text-zinc-400">{t('cleaningStatus')}</span>
             </div>
           )}
 
@@ -232,10 +234,10 @@ export function NetworkCleanupPage() {
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
                 <div>
-                  <p className="text-[13px] font-medium text-zinc-200">Cleanup complete!</p>
+                  <p className="text-[13px] font-medium text-zinc-200">{t('cleanupComplete')}</p>
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    {cleanResult.cleaned} cleaned
-                    {cleanResult.failed > 0 && <span> · {cleanResult.failed} failed</span>}
+                    {t('cleanedCount', { count: cleanResult.cleaned })}
+                    {cleanResult.failed > 0 && <span> · {t('failedCount', { count: cleanResult.failed })}</span>}
                   </p>
                 </div>
               </div>
@@ -252,8 +254,8 @@ export function NetworkCleanupPage() {
           {!hasItems && !isScanning && (
             <EmptyState
               icon={Search}
-              title="No scan results"
-              description='Discover network items that can be cleaned.'
+              title={t('emptyStateTitle')}
+              description={t('emptyStateDescription')}
               action={
                 <button
                   onClick={handleScan}
@@ -262,7 +264,7 @@ export function NetworkCleanupPage() {
                   style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
                 >
                   <Search className="h-4 w-4" strokeWidth={1.8} />
-                  Start Scan
+                  {t('startScanButton')}
                 </button>
               }
             />
@@ -272,21 +274,21 @@ export function NetworkCleanupPage() {
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
                 <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#52525e' }}>
-                  {categories.find((c) => c.type === activeCategory)?.label}
+                  {t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '')}
                 </span>
                 {categoryItems.length > 0 && (
                   <button
                     onClick={() => useNetworkStore.getState().toggleCategory(activeCategory)}
                     className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
                   >
-                    Toggle All
+                    {t('toggleAll')}
                   </button>
                 )}
               </div>
 
               {categoryItems.length === 0 && (
                 <div className="py-12 text-center text-[13px]" style={{ color: '#4e4e56' }}>
-                  No items found in this category
+                  {t('noItemsInCategory')}
                 </div>
               )}
 
@@ -353,9 +355,9 @@ export function NetworkCleanupPage() {
         open={showConfirm}
         onConfirm={handleClean}
         onCancel={() => setShowConfirm(false)}
-        title="Clean Network Items"
-        description={`This will clean ${selectedIds.size} network item${selectedIds.size === 1 ? '' : 's'}. DNS and ARP caches will rebuild automatically.${selectedIds.size > 0 && items.some((i) => i.type === 'wifi-profile' && selectedIds.has(i.id)) ? ' Warning: removing Wi-Fi profiles will delete saved passwords — you will need to re-enter them to reconnect.' : ''}${platform === 'win32' && items.some((i) => i.type === 'network-history' && selectedIds.has(i.id)) ? ' Network history entries will be permanently removed.' : ''}`}
-        confirmLabel="Clean Now"
+        title={t('confirmTitle')}
+        description={`${t('confirmDescription', { count: selectedIds.size })}${selectedIds.size > 0 && items.some((i) => i.type === 'wifi-profile' && selectedIds.has(i.id)) ? ' ' + t('confirmWifiWarning') : ''}${platform === 'win32' && items.some((i) => i.type === 'network-history' && selectedIds.has(i.id)) ? ' ' + t('confirmNetworkHistoryWarning') : ''}`}
+        confirmLabel={t('confirmLabel')}
         variant="warning"
       />
     </div>

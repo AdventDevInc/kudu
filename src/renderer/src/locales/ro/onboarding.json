@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Bine ați venit la Kudu",
+  "welcomeDescription": "Soluția dvs. completă pentru curățarea sistemului Windows. Kudu elimină fișierele inutile, remediază problemele din registry, gestionează programele de pornire și menține PC-ul dvs. rapid.",
+  "featureSmartCleaning": "Curățare inteligentă",
+  "featureFasterBoot": "Pornire mai rapidă",
+  "featureSafeSecure": "Sigur și securizat",
+  "getStarted": "Începeți",
+  "recommendedSetupTitle": "Configurare recomandată",
+  "recommendedSetupDescription": "Vă recomandăm aceste setări pentru cea mai bună experiență. Le puteți modifica mai târziu din Setări.",
+  "runAtStartupLabel": "Rulare la pornire",
+  "runAtStartupDescription": "Lansați Kudu când pornește Windows, astfel încât PC-ul dvs. să rămână curat automat",
+  "minimizeToTrayLabel": "Minimizare în zona de notificare",
+  "minimizeToTrayDescription": "Mențineți Kudu rulând discret în fundal",
+  "weeklyAutoCleanLabel": "Curățare automată săptămânală",
+  "weeklyAutoCleanDescription": "Scanați și curățați fișierele inutile în fiecare luni la 9:00 AM",
+  "back": "Înapoi",
+  "continue": "Continuați",
+  "allSetTitle": "Totul este pregătit!",
+  "allSetDescription": "Kudu va menține PC-ul dvs. funcționând fără probleme în fundal.",
+  "firstScanScheduled": "Prima dvs. scanare automată este programată pentru luni la 9:00 AM.",
+  "startCleaning": "Începeți curățarea"
+}

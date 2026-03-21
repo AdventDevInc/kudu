@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "PEMBERSIH SISTEM",
+  "dashboard": "Dasbor",
+  "securityHeading": "KEAMANAN",
+  "malwareScanner": "Pemindai Malware",
+  "threatMonitor": "Pemantau Ancaman",
+  "systemHardening": "Penguatan Sistem",
+  "maintainHeading": "PEMELIHARAAN",
+  "cleaner": "Pembersih",
+  "registry": "Registry",
+  "startup": "Startup",
+  "network": "Jaringan",
+  "uninstaller": "Penghapus Instalasi",
+  "updates": "Pembaruan",
+  "schedules": "Jadwal",
+  "toolsHeading": "ALAT",
+  "performance": "Performa",
+  "diskAnalyzer": "Penganalisis Disk",
+  "history": "Riwayat",
+  "settings": "Pengaturan"
+}

@@ -529,6 +529,7 @@ export interface ScheduleEntry {
 }
 
 export interface KuduSettings {
+  language: string
   minimizeToTray: boolean
   showNotificationOnComplete: boolean
   showThreatNotifications: boolean

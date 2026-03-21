@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Deschide Kudu",
+  "quit": "Ieșire",
+  "scheduledTaskNotificationTitle": "Kudu - Activitate programată",
+  "scheduledTaskNotificationBody": "Se rulează „{{name}}”...",
+  "scanCompleteNotificationTitle": "Kudu - Scanare finalizată",
+  "scanCompleteNotificationBody": "Au fost găsite {{itemCount}} elemente ({{sizeMB}} MB) care pot fi curățate.",
+  "scheduledScanName": "Scanare programată"
+}

@@ -1,0 +1,18 @@
+{
+  "scanning": "Skanowanie...",
+  "cleaning": "Czyszczenie...",
+  "foundLabel": "Znaleziono:",
+  "itemsUnit": "elementów",
+  "sizeLabel": "Rozmiar:",
+  "health": "Stan",
+  "cancel": "Anuluj",
+  "confirm": "Potwierdź",
+  "adminBannerMessage": "Niektóre funkcje wymagają uprawnień administratora.",
+  "relaunchAsAdmin": "Uruchom ponownie jako administrator",
+  "justNow": "Przed chwilą",
+  "minutesAgo": "{{minutes}} min temu",
+  "hoursAgo": "{{hours}} godz. temu",
+  "daysAgo": "{{days}} dni temu",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

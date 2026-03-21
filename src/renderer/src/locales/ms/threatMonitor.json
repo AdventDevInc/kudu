@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Pemantau Ancaman",
+  "pageDescription": "Pemantauan masa nyata bagi sambungan rangkaian terhadap senarai ancaman yang diketahui.",
+  "cloudNotConfigured": {
+    "title": "Cloud belum dikonfigurasikan",
+    "description": "Pautkan peranti anda ke Kudu Cloud dalam Tetapan untuk mendayakan pemantauan ancaman. Senarai hitam ancaman disediakan oleh perkhidmatan cloud."
+  },
+  "loading": "Memuatkan...",
+  "inactive": {
+    "title": "Pemantau ancaman tidak aktif",
+    "description": "Tiada senarai hitam ancaman dimuatkan. Senarai hitam akan diambil secara automatik apabila ejen cloud bersambung."
+  },
+  "statusBar": {
+    "blacklistVersion": "Senarai hitam",
+    "connectionsScanned": "Sambungan diimbas {{time}}",
+    "dnsScanned": "DNS diimbas {{time}}",
+    "threatsDetected": "{{count}} ancaman dikesan",
+    "threatsDetectedPlural": "{{count}} ancaman dikesan",
+    "noThreatsDetected": "Tiada ancaman dikesan"
+  },
+  "allClear": {
+    "title": "Semua selamat",
+    "description": "Tiada sambungan atau entri DNS yang mencurigakan dikesan. Pemantau akan terus mengimbas di latar belakang."
+  },
+  "flaggedConnections": "Sambungan Ditandai",
+  "flaggedDnsEntries": "Entri DNS Ditandai",
+  "connectionPid": "PID {{pid}}"
+}

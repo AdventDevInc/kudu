@@ -1,0 +1,99 @@
+{
+  "pageTitle": "排程",
+  "pageDescription": "依排程自動執行掃描、清理與更新",
+  "newScheduleButton": "新增排程",
+  "createScheduleButton": "建立排程",
+  "emptyStateTitle": "尚無排程",
+  "emptyStateDescription": "建立排程以自動執行掃描、清理與更新。",
+  "maxSchedulesReached": "已達到 {{max}} 個排程的上限。",
+  "duplicatedToast": "已複製「{{name}}」",
+  "deletedToast": "已刪除「{{name}}」",
+  "updatedToast": "已更新「{{name}}」",
+  "createdToast": "已建立「{{name}}」",
+  "failedEnableStartup": "啟用開機啟動失敗。重新開機後，排程可能無法執行。",
+  "deleteConfirmTitle": "刪除排程",
+  "deleteConfirmDescription": "此排程將被永久移除。此動作無法復原。",
+  "deleteConfirmLabel": "刪除",
+  "card": {
+    "autoApplyBadge": "自動套用",
+    "editAction": "編輯",
+    "duplicateAction": "複製",
+    "deleteAction": "刪除",
+    "noTasksSelected": "未選取任何工作",
+    "nextRun": "下次：{{time}}",
+    "lastRun": "上次：{{time}}",
+    "neverRun": "從未執行"
+  },
+  "presets": {
+    "dialogTitle": "選擇範本",
+    "weeklyFullCleanLabel": "每週完整清理",
+    "weeklyFullCleanDescription": "每週一上午 9:00 清理所有清理工具類別",
+    "dailyLightSweepLabel": "每日輕量清理",
+    "dailyLightSweepDescription": "每日上午 8:00 清理系統、瀏覽器與資源回收筒",
+    "monthlyDeepMaintenanceLabel": "每月深度維護",
+    "monthlyDeepMaintenanceDescription": "每月 1 日上午 10:00 執行完整清理 + 登錄修復、驅動程式與軟體更新",
+    "customLabel": "自訂",
+    "customDescription": "從空白排程開始建立"
+  },
+  "dialog": {
+    "editTitle": "編輯排程",
+    "newTitle": "新增排程",
+    "nameLabel": "名稱",
+    "namePlaceholder": "例如：每週深度清理",
+    "frequencyLabel": "頻率",
+    "frequencyDaily": "每日",
+    "frequencyWeekly": "每週",
+    "frequencyMonthly": "每月",
+    "dayLabel": "日期",
+    "timeLabel": "時間",
+    "tasksLabel": "工作",
+    "selectAll": "全選",
+    "deselectAll": "取消全選",
+    "cleanerGroup": "清理工具",
+    "maintenanceGroup": "維護",
+    "autoApplyLabel": "自動套用",
+    "autoApplyDescription": "自動清理檔案、修復登錄問題，並安裝更新，無需確認。",
+    "autoApplyWarning": "動作將依排程自動執行。請確認您的排除清單已保持最新。",
+    "cancelButton": "取消",
+    "saveChangesButton": "儲存變更",
+    "createScheduleButton": "建立排程"
+  },
+  "tasks": {
+    "system": "系統",
+    "browsers": "瀏覽器",
+    "applications": "應用程式",
+    "gaming": "遊戲",
+    "recycleBin": "資源回收筒",
+    "databases": "資料庫",
+    "registryFixes": "登錄修復",
+    "driverUpdates": "驅動程式更新",
+    "softwareUpdates": "軟體更新"
+  },
+  "dayNames": {
+    "sunday": "星期日",
+    "monday": "星期一",
+    "tuesday": "星期二",
+    "wednesday": "星期三",
+    "thursday": "星期四",
+    "friday": "星期五",
+    "saturday": "星期六"
+  },
+  "frequency": {
+    "everyDayAt": "每天 {{time}}",
+    "everyWeekdayAt": "每週{{day}} {{time}}",
+    "monthlyAt": "每月 {{ordinalDay}} {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "今天 {{time}}",
+    "tomorrowAt": "明天 {{time}}",
+    "inDaysAt": "{{count}} 天後 {{time}}",
+    "dateAt": "{{date}} {{time}}"
+  },
+  "lastRun": {
+    "justNow": "剛剛",
+    "minutesAgo": "{{count}} 分鐘前",
+    "hoursAgo": "{{count}} 小時前",
+    "daysAgo": "{{count}} 天前"
+  },
+  "copyNameSuffix": "（副本）"
+}

@@ -34,6 +34,7 @@ const defaults: StoreData = {
   machineId: '',
   onboardingComplete: false,
   settings: {
+    language: 'en',
     minimizeToTray: false,
     showNotificationOnComplete: true,
     showThreatNotifications: true,

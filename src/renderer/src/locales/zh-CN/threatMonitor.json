@@ -1,0 +1,28 @@
+{
+  "pageTitle": "威胁监视器",
+  "pageDescription": "根据已知威胁列表实时监控网络连接。",
+  "cloudNotConfigured": {
+    "title": "云服务未配置",
+    "description": "请在“设置”中将您的设备关联到 Kudu Cloud 以启用威胁监控。威胁黑名单由云服务提供。"
+  },
+  "loading": "正在加载...",
+  "inactive": {
+    "title": "威胁监视器未启用",
+    "description": "未加载任何威胁黑名单。云代理连接后将自动获取黑名单。"
+  },
+  "statusBar": {
+    "blacklistVersion": "黑名单",
+    "connectionsScanned": "已扫描连接 {{time}}",
+    "dnsScanned": "已扫描 DNS {{time}}",
+    "threatsDetected": "已检测到 {{count}} 个威胁",
+    "threatsDetectedPlural": "已检测到 {{count}} 个威胁",
+    "noThreatsDetected": "未检测到威胁"
+  },
+  "allClear": {
+    "title": "一切正常",
+    "description": "未检测到可疑连接或 DNS 条目。监视器将继续在后台扫描。"
+  },
+  "flaggedConnections": "已标记的连接",
+  "flaggedDnsEntries": "已标记的 DNS 条目",
+  "connectionPid": "PID {{pid}}"
+}

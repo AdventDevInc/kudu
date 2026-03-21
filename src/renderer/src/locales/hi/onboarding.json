@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Kudu में आपका स्वागत है",
+  "welcomeDescription": "आपका ऑल-इन-वन Windows सिस्टम क्लीनर। Kudu जंक फ़ाइलें हटाता है, रजिस्ट्री समस्याओं को ठीक करता है, स्टार्टअप प्रोग्राम प्रबंधित करता है, और आपके PC को तेज़ चलने में मदद करता है।",
+  "featureSmartCleaning": "स्मार्ट क्लीनिंग",
+  "featureFasterBoot": "तेज़ बूट",
+  "featureSafeSecure": "सुरक्षित और संरक्षित",
+  "getStarted": "शुरू करें",
+  "recommendedSetupTitle": "अनुशंसित सेटअप",
+  "recommendedSetupDescription": "सर्वोत्तम अनुभव के लिए हम इन सेटिंग्स की अनुशंसा करते हैं। आप इन्हें बाद में सेटिंग्स में बदल सकते हैं।",
+  "runAtStartupLabel": "स्टार्टअप पर चलाएँ",
+  "runAtStartupDescription": "जब Windows शुरू हो, तब Kudu लॉन्च करें ताकि आपका PC अपने-आप साफ़ बना रहे",
+  "minimizeToTrayLabel": "ट्रे में छोटा करें",
+  "minimizeToTrayDescription": "Kudu को बैकग्राउंड में शांतिपूर्वक चलता रहने दें",
+  "weeklyAutoCleanLabel": "साप्ताहिक स्वचालित सफ़ाई",
+  "weeklyAutoCleanDescription": "हर सोमवार सुबह 9:00 बजे जंक फ़ाइलों को स्कैन करें और साफ़ करें",
+  "back": "वापस",
+  "continue": "जारी रखें",
+  "allSetTitle": "सब तैयार है!",
+  "allSetDescription": "Kudu बैकग्राउंड में आपके PC को सुचारु रूप से चलाता रहेगा।",
+  "firstScanScheduled": "आपका पहला स्वचालित स्कैन सोमवार सुबह 9:00 बजे के लिए निर्धारित है।",
+  "startCleaning": "सफ़ाई शुरू करें"
+}

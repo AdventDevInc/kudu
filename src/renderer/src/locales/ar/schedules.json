@@ -1,0 +1,99 @@
+{
+  "pageTitle": "الجداول",
+  "pageDescription": "أتمتة الفحوصات وعمليات التنظيف والتحديثات وفق جدول زمني",
+  "newScheduleButton": "جدول جديد",
+  "createScheduleButton": "إنشاء جدول",
+  "emptyStateTitle": "لا توجد جداول بعد",
+  "emptyStateDescription": "أنشئ جدولاً لتشغيل الفحوصات وعمليات التنظيف والتحديثات تلقائياً.",
+  "maxSchedulesReached": "تم الوصول إلى الحد الأقصى وهو {{max}} من الجداول.",
+  "duplicatedToast": "تمت مضاعفة \"{{name}}\"",
+  "deletedToast": "تم حذف \"{{name}}\"",
+  "updatedToast": "تم تحديث \"{{name}}\"",
+  "createdToast": "تم إنشاء \"{{name}}\"",
+  "failedEnableStartup": "فشل تمكين بدء التشغيل. قد لا تعمل الجداول بعد إعادة التشغيل.",
+  "deleteConfirmTitle": "حذف الجدول",
+  "deleteConfirmDescription": "ستتم إزالة هذا الجدول نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+  "deleteConfirmLabel": "حذف",
+  "card": {
+    "autoApplyBadge": "تطبيق تلقائي",
+    "editAction": "تحرير",
+    "duplicateAction": "مضاعفة",
+    "deleteAction": "حذف",
+    "noTasksSelected": "لم يتم تحديد أي مهام",
+    "nextRun": "التالي: {{time}}",
+    "lastRun": "الأخير: {{time}}",
+    "neverRun": "لم يتم التشغيل مطلقاً"
+  },
+  "presets": {
+    "dialogTitle": "اختر قالباً",
+    "weeklyFullCleanLabel": "تنظيف كامل أسبوعي",
+    "weeklyFullCleanDescription": "جميع فئات المنظف كل يوم اثنين الساعة 9 صباحاً",
+    "dailyLightSweepLabel": "تنظيف خفيف يومي",
+    "dailyLightSweepDescription": "النظام والمتصفحات وسلة المحذوفات يومياً الساعة 8 صباحاً",
+    "monthlyDeepMaintenanceLabel": "صيانة عميقة شهرية",
+    "monthlyDeepMaintenanceDescription": "تنظيف كامل + السجل وبرامج التشغيل والبرامج في اليوم الأول من كل شهر الساعة 10 صباحاً",
+    "customLabel": "مخصص",
+    "customDescription": "ابدأ من الصفر بجدول فارغ"
+  },
+  "dialog": {
+    "editTitle": "تحرير الجدول",
+    "newTitle": "جدول جديد",
+    "nameLabel": "الاسم",
+    "namePlaceholder": "مثال: تنظيف عميق أسبوعي",
+    "frequencyLabel": "التكرار",
+    "frequencyDaily": "يومي",
+    "frequencyWeekly": "أسبوعي",
+    "frequencyMonthly": "شهري",
+    "dayLabel": "اليوم",
+    "timeLabel": "الوقت",
+    "tasksLabel": "المهام",
+    "selectAll": "تحديد الكل",
+    "deselectAll": "إلغاء تحديد الكل",
+    "cleanerGroup": "المنظف",
+    "maintenanceGroup": "الصيانة",
+    "autoApplyLabel": "تطبيق تلقائي",
+    "autoApplyDescription": "تنظيف الملفات وإصلاح مشكلات السجل وتثبيت التحديثات تلقائياً دون تأكيد.",
+    "autoApplyWarning": "سيتم تنفيذ الإجراءات تلقائياً وفق الجدول الزمني. تأكد من أن قائمة الاستثناءات لديك محدثة.",
+    "cancelButton": "إلغاء",
+    "saveChangesButton": "حفظ التغييرات",
+    "createScheduleButton": "إنشاء جدول"
+  },
+  "tasks": {
+    "system": "النظام",
+    "browsers": "المتصفحات",
+    "applications": "التطبيقات",
+    "gaming": "الألعاب",
+    "recycleBin": "سلة المحذوفات",
+    "databases": "قواعد البيانات",
+    "registryFixes": "إصلاحات السجل",
+    "driverUpdates": "تحديثات برامج التشغيل",
+    "softwareUpdates": "تحديثات البرامج"
+  },
+  "dayNames": {
+    "sunday": "الأحد",
+    "monday": "الاثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت"
+  },
+  "frequency": {
+    "everyDayAt": "كل يوم في {{time}}",
+    "everyWeekdayAt": "كل {{day}} في {{time}}",
+    "monthlyAt": "{{ordinalDay}} من كل شهر في {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "اليوم في {{time}}",
+    "tomorrowAt": "غداً في {{time}}",
+    "inDaysAt": "بعد {{count}} أيام في {{time}}",
+    "dateAt": "{{date}} في {{time}}"
+  },
+  "lastRun": {
+    "justNow": "الآن",
+    "minutesAgo": "منذ {{count}} د",
+    "hoursAgo": "منذ {{count}} س",
+    "daysAgo": "منذ {{count}} ي"
+  },
+  "copyNameSuffix": "(نسخة)"
+}

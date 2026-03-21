@@ -1,0 +1,28 @@
+{
+  "pageTitle": "مراقب التهديدات",
+  "pageDescription": "مراقبة اتصالات الشبكة في الوقت الفعلي مقابل قوائم التهديدات المعروفة.",
+  "cloudNotConfigured": {
+    "title": "لم يتم تكوين السحابة",
+    "description": "اربط جهازك بـ Kudu Cloud من الإعدادات لتمكين مراقبة التهديدات. يتم توفير القائمة السوداء للتهديدات بواسطة الخدمة السحابية."
+  },
+  "loading": "جارٍ التحميل...",
+  "inactive": {
+    "title": "مراقب التهديدات غير نشط",
+    "description": "لم يتم تحميل أي قائمة سوداء للتهديدات. سيتم جلب القائمة السوداء تلقائيًا عند اتصال عامل السحابة."
+  },
+  "statusBar": {
+    "blacklistVersion": "القائمة السوداء",
+    "connectionsScanned": "تم فحص الاتصالات {{time}}",
+    "dnsScanned": "تم فحص DNS {{time}}",
+    "threatsDetected": "تم اكتشاف {{count}} تهديد",
+    "threatsDetectedPlural": "تم اكتشاف {{count}} تهديدات",
+    "noThreatsDetected": "لم يتم اكتشاف أي تهديدات"
+  },
+  "allClear": {
+    "title": "لا توجد تهديدات",
+    "description": "لم يتم اكتشاف أي اتصالات أو إدخالات DNS مشبوهة. يواصل المراقب الفحص في الخلفية."
+  },
+  "flaggedConnections": "الاتصالات المُعلَّمة",
+  "flaggedDnsEntries": "إدخالات DNS المُعلَّمة",
+  "connectionPid": "PID {{pid}}"
+}

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Shield, Eye, PackageMinus, Server } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
@@ -10,18 +11,19 @@ import type { LucideIcon } from 'lucide-react'
 
 interface TabDef {
   id: string
-  label: string
+  labelKey: string
   icon: LucideIcon
-  description: string
+  descriptionKey: string
 }
 
 const tabs: TabDef[] = [
-  { id: 'privacy', label: 'Privacy', icon: Eye, description: 'Telemetry, ads, tracking' },
-  { id: 'bloatware', label: 'Bloatware', icon: PackageMinus, description: 'Pre-installed apps' },
-  { id: 'services', label: 'Services', icon: Server, description: 'Unnecessary services' }
+  { id: 'privacy', labelKey: 'tabs.privacy', icon: Eye, descriptionKey: 'tabs.privacyDescription' },
+  { id: 'bloatware', labelKey: 'tabs.bloatware', icon: PackageMinus, descriptionKey: 'tabs.bloatwareDescription' },
+  { id: 'services', labelKey: 'tabs.services', icon: Server, descriptionKey: 'tabs.servicesDescription' }
 ]
 
 export function SystemHardeningPage() {
+  const { t } = useTranslation('hardening')
   const { features, platform } = usePlatform()
   const [activeTab, setActiveTab] = useState('privacy')
 
@@ -36,10 +38,10 @@ export function SystemHardeningPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="System Hardening"
+        title={t('pageTitle')}
         description={platform === 'win32'
-          ? 'Strip down Windows — remove telemetry, bloatware, and unnecessary services'
-          : 'Harden your system — manage privacy settings and unnecessary services'}
+          ? t('descriptionWindows')
+          : t('descriptionOther')}
       />
 
       {/* Tab bar */}
@@ -61,9 +63,9 @@ export function SystemHardeningPage() {
               style={isActive ? { background: 'rgba(245,158,11,0.08)' } : undefined}
             >
               <TabIcon className="h-4 w-4 shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
-              <span>{tab.label}</span>
+              <span>{t(tab.labelKey)}</span>
               <span className="hidden text-[11px] sm:inline" style={{ color: isActive ? '#b08c2a' : '#4e4e56' }}>
-                {tab.description}
+                {t(tab.descriptionKey)}
               </span>
             </button>
           )

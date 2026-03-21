@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Розклади",
+  "pageDescription": "Автоматизуйте сканування, очищення та оновлення за розкладом",
+  "newScheduleButton": "Новий розклад",
+  "createScheduleButton": "Створити розклад",
+  "emptyStateTitle": "Розкладів ще немає",
+  "emptyStateDescription": "Створіть розклад, щоб автоматично запускати сканування, очищення та оновлення.",
+  "maxSchedulesReached": "Досягнуто максимальної кількості розкладів: {{max}}.",
+  "duplicatedToast": "Дубльовано \"{{name}}\"",
+  "deletedToast": "Видалено \"{{name}}\"",
+  "updatedToast": "Оновлено \"{{name}}\"",
+  "createdToast": "Створено \"{{name}}\"",
+  "failedEnableStartup": "Не вдалося ввімкнути автозапуск. Розклади можуть не запускатися після перезавантаження.",
+  "deleteConfirmTitle": "Видалити розклад",
+  "deleteConfirmDescription": "Цей розклад буде остаточно видалено. Цю дію неможливо скасувати.",
+  "deleteConfirmLabel": "Видалити",
+  "card": {
+    "autoApplyBadge": "Автозастосування",
+    "editAction": "Редагувати",
+    "duplicateAction": "Дублювати",
+    "deleteAction": "Видалити",
+    "noTasksSelected": "Завдання не вибрано",
+    "nextRun": "Наступний: {{time}}",
+    "lastRun": "Останній: {{time}}",
+    "neverRun": "Ніколи не запускався"
+  },
+  "presets": {
+    "dialogTitle": "Виберіть шаблон",
+    "weeklyFullCleanLabel": "Щотижневе повне очищення",
+    "weeklyFullCleanDescription": "Усі категорії очищення щопонеділка о 9:00",
+    "dailyLightSweepLabel": "Щоденне легке очищення",
+    "dailyLightSweepDescription": "Система, браузери й кошик щодня о 8:00",
+    "monthlyDeepMaintenanceLabel": "Щомісячне глибоке обслуговування",
+    "monthlyDeepMaintenanceDescription": "Повне очищення + реєстр, драйвери та програми 1-го числа о 10:00",
+    "customLabel": "Власний",
+    "customDescription": "Почніть з нуля з порожнім розкладом"
+  },
+  "dialog": {
+    "editTitle": "Редагувати розклад",
+    "newTitle": "Новий розклад",
+    "nameLabel": "Назва",
+    "namePlaceholder": "наприклад, Щотижневе глибоке очищення",
+    "frequencyLabel": "Частота",
+    "frequencyDaily": "Щодня",
+    "frequencyWeekly": "Щотижня",
+    "frequencyMonthly": "Щомісяця",
+    "dayLabel": "День",
+    "timeLabel": "Час",
+    "tasksLabel": "Завдання",
+    "selectAll": "Вибрати все",
+    "deselectAll": "Зняти вибір з усього",
+    "cleanerGroup": "Очищення",
+    "maintenanceGroup": "Обслуговування",
+    "autoApplyLabel": "Автозастосування",
+    "autoApplyDescription": "Автоматично очищати файли, виправляти помилки реєстру та встановлювати оновлення без підтвердження.",
+    "autoApplyWarning": "Дії виконуватимуться автоматично за розкладом. Переконайтеся, що список винятків актуальний.",
+    "cancelButton": "Скасувати",
+    "saveChangesButton": "Зберегти зміни",
+    "createScheduleButton": "Створити розклад"
+  },
+  "tasks": {
+    "system": "Система",
+    "browsers": "Браузери",
+    "applications": "Програми",
+    "gaming": "Ігри",
+    "recycleBin": "Кошик",
+    "databases": "Бази даних",
+    "registryFixes": "Виправлення реєстру",
+    "driverUpdates": "Оновлення драйверів",
+    "softwareUpdates": "Оновлення програм"
+  },
+  "dayNames": {
+    "sunday": "Неділя",
+    "monday": "Понеділок",
+    "tuesday": "Вівторок",
+    "wednesday": "Середа",
+    "thursday": "Четвер",
+    "friday": "П’ятниця",
+    "saturday": "Субота"
+  },
+  "frequency": {
+    "everyDayAt": "Щодня о {{time}}",
+    "everyWeekdayAt": "Що{{day}} о {{time}}",
+    "monthlyAt": "{{ordinalDay}} числа кожного місяця о {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Сьогодні о {{time}}",
+    "tomorrowAt": "Завтра о {{time}}",
+    "inDaysAt": "Через {{count}} дн. о {{time}}",
+    "dateAt": "{{date}} о {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Щойно",
+    "minutesAgo": "{{count}} хв тому",
+    "hoursAgo": "{{count}} год тому",
+    "daysAgo": "{{count}} дн. тому"
+  },
+  "copyNameSuffix": "(копія)"
+}

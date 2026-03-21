@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Άνοιγμα του Kudu",
+  "quit": "Έξοδος",
+  "scheduledTaskNotificationTitle": "Kudu - Προγραμματισμένη εργασία",
+  "scheduledTaskNotificationBody": "Εκτέλεση του \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - Η σάρωση ολοκληρώθηκε",
+  "scanCompleteNotificationBody": "Βρέθηκαν {{itemCount}} στοιχεία ({{sizeMB}} MB) που μπορούν να καθαριστούν.",
+  "scheduledScanName": "Προγραμματισμένη σάρωση"
+}

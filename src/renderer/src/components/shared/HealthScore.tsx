@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 interface HealthScoreProps {
@@ -20,6 +21,7 @@ function getScoreColor(score: number): string {
 }
 
 export function HealthScore({ score, size = 'md', className }: HealthScoreProps) {
+  const { t } = useTranslation('common')
   const [animatedScore, setAnimatedScore] = useState(0)
   const config = sizeConfig[size]
   const radius = (config.width - config.strokeWidth * 2) / 2
@@ -76,7 +78,7 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
         </span>
         {size !== 'sm' && (
           <span className={cn(config.labelSize, 'font-medium uppercase tracking-widest')} style={{ color: '#52525e' }}>
-            Health
+            {t('health')}
           </span>
         )}
       </div>

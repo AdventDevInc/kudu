@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   HardDrive,
   Sparkles,
@@ -62,6 +63,7 @@ const CLEANER_SCAN_FNS: { type: CleanerType; scan: () => Promise<ScanResult[]>; 
 ]
 
 export function DashboardPage() {
+  const { t } = useTranslation('dashboard')
   const { features } = usePlatform()
   const stats = useStatsStore((s) => s.stats)
   const recomputeStats = useStatsStore((s) => s.recompute)
@@ -97,9 +99,9 @@ export function DashboardPage() {
 
     // History-based tools
     const historyTools = [
-      { key: 'cleaner' as const, label: 'Cleaner', icon: Search, color: '#f59e0b' },
-      ...(features.registry ? [{ key: 'registry' as const, label: 'Registry', icon: Database, color: '#3b82f6' }] : []),
-      ...(features.drivers ? [{ key: 'drivers' as const, label: 'Drivers', icon: Cpu, color: '#a855f7' }] : [])
+      { key: 'cleaner' as const, label: t('toolLabelCleaner'), icon: Search, color: '#f59e0b' },
+      ...(features.registry ? [{ key: 'registry' as const, label: t('toolLabelRegistry'), icon: Database, color: '#3b82f6' }] : []),
+      ...(features.drivers ? [{ key: 'drivers' as const, label: t('toolLabelDrivers'), icon: Cpu, color: '#a855f7' }] : [])
     ]
 
     const historyResults = historyTools.map((t) => ({
@@ -110,9 +112,9 @@ export function DashboardPage() {
 
     // Session-based tools (tracked by whether they've been run this session)
     const sessionTools = [
-      { key: 'updater', label: 'Updater', icon: Download, color: '#06b6d4', active: updaterHasChecked },
-      { key: 'services', label: 'Services', icon: Server, color: '#ec4899', active: serviceHasScanned },
-      { key: 'startup', label: 'Startup', icon: Zap, color: '#22c55e', active: startupItems.length > 0 }
+      { key: 'updater', label: t('toolLabelUpdater'), icon: Download, color: '#06b6d4', active: updaterHasChecked },
+      { key: 'services', label: t('toolLabelServices'), icon: Server, color: '#ec4899', active: serviceHasScanned },
+      { key: 'startup', label: t('toolLabelStartup'), icon: Zap, color: '#22c55e', active: startupItems.length > 0 }
     ]
 
     const sessionResults = sessionTools.map((t) => ({
@@ -165,20 +167,20 @@ export function DashboardPage() {
 
     for (const { type, scan, clean } of CLEANER_SCAN_FNS) {
       try {
-        setPhaseLabel(`Scanning ${type}...`)
+        setPhaseLabel(t('phaseLabelScanningType', { type }))
         const results = await scan()
         // Select items from non-excluded subcategories
         const selectedIds = results
           .filter((r) => !excluded.has(r.subcategory))
           .flatMap((r) => r.items.map((i) => i.id))
         if (selectedIds.length > 0) {
-          setPhaseLabel(`Cleaning ${type}...`)
+          setPhaseLabel(t('phaseLabelCleaningType', { type }))
           const res = await clean(selectedIds)
           totalSpace += res.totalCleaned || 0
           totalFiles += res.filesDeleted || 0
         }
       } catch {
-        toast.error(`Failed to clean ${type}`)
+        toast.error(t('toastFailedToCleanType', { type }))
       }
     }
     return { space: totalSpace, files: totalFiles }
@@ -187,16 +189,16 @@ export function DashboardPage() {
   // Scan+fix registry
   const runRegistry = useCallback(async (): Promise<number> => {
     try {
-      setPhaseLabel('Scanning registry...')
+      setPhaseLabel(t('phaseLabelScanningRegistry'))
       const entries = await window.kudu.registryScan()
       if (!Array.isArray(entries)) return 0
       const selectedIds = entries.filter((e) => e?.selected).map((e) => e.id)
       if (selectedIds.length === 0) return 0
-      setPhaseLabel('Fixing registry...')
+      setPhaseLabel(t('phaseLabelFixingRegistry'))
       const res = await window.kudu.registryFix(selectedIds)
       return res?.fixed ?? 0
     } catch {
-      toast.error('Registry scan failed')
+      toast.error(t('toastRegistryScanFailed'))
       return 0
     }
   }, [])
@@ -204,15 +206,15 @@ export function DashboardPage() {
   // Scan for malware and quarantine threats
   const runMalwareScan = useCallback(async (): Promise<{ found: number; quarantined: number }> => {
     try {
-      setPhaseLabel('Scanning for malware...')
+      setPhaseLabel(t('phaseLabelScanningMalware'))
       const result = await window.kudu.malwareScan()
       if (result.threats.length === 0) return { found: 0, quarantined: 0 }
-      setPhaseLabel('Quarantining threats...')
+      setPhaseLabel(t('phaseLabelQuarantiningThreats'))
       const paths = result.threats.map((t) => t.path)
       const actionResult = await window.kudu.malwareQuarantine(paths)
       return { found: result.threats.length, quarantined: actionResult.succeeded }
     } catch {
-      toast.error('Malware scan failed')
+      toast.error(t('toastMalwareScanFailed'))
       return { found: 0, quarantined: 0 }
     }
   }, [])
@@ -220,11 +222,11 @@ export function DashboardPage() {
   // Check privacy settings (report only)
   const runPrivacyCheck = useCallback(async (): Promise<{ score: number; issues: number }> => {
     try {
-      setPhaseLabel('Checking privacy settings...')
+      setPhaseLabel(t('phaseLabelCheckingPrivacy'))
       const state = await window.kudu.privacyScan()
       return { score: state.score, issues: state.total - state.protected }
     } catch {
-      toast.error('Privacy check failed')
+      toast.error(t('toastPrivacyCheckFailed'))
       return { score: 0, issues: 0 }
     }
   }, [])
@@ -232,11 +234,11 @@ export function DashboardPage() {
   // Check startup items (report only)
   const runStartupCheck = useCallback(async (): Promise<number> => {
     try {
-      setPhaseLabel('Checking startup items...')
+      setPhaseLabel(t('phaseLabelCheckingStartup'))
       const items = await window.kudu.startupList()
       return items.filter((i) => i.enabled && i.impact === 'high').length
     } catch {
-      toast.error('Startup check failed')
+      toast.error(t('toastStartupCheckFailed'))
       return 0
     }
   }, [])
@@ -244,11 +246,11 @@ export function DashboardPage() {
   // Check for software updates (report only)
   const runSoftwareUpdateCheck = useCallback(async (): Promise<number> => {
     try {
-      setPhaseLabel('Checking for software updates...')
+      setPhaseLabel(t('phaseLabelCheckingSoftwareUpdates'))
       const result = await window.kudu.softwareUpdateCheck()
       return result.apps.length
     } catch {
-      toast.error('Software update check failed')
+      toast.error(t('toastSoftwareUpdateCheckFailed'))
       return 0
     }
   }, [])
@@ -256,15 +258,15 @@ export function DashboardPage() {
   // Scan+remove stale drivers (excludes driver updates)
   const runDrivers = useCallback(async (): Promise<{ removed: number; space: number }> => {
     try {
-      setPhaseLabel('Scanning drivers...')
+      setPhaseLabel(t('phaseLabelScanningDrivers'))
       const scanResult = await window.kudu.driverScan()
       const stalePackages = scanResult.packages.filter((p) => !p.isCurrent && p.selected)
       if (stalePackages.length === 0) return { removed: 0, space: 0 }
-      setPhaseLabel('Removing stale drivers...')
+      setPhaseLabel(t('phaseLabelRemovingStaleDrivers'))
       const cleanResult = await window.kudu.driverClean(stalePackages.map((p) => p.publishedName))
       return { removed: cleanResult.removed, space: cleanResult.spaceRecovered }
     } catch {
-      toast.error('Driver cleanup failed')
+      toast.error(t('toastDriverCleanupFailed'))
       return { removed: 0, space: 0 }
     }
   }, [])
@@ -308,10 +310,10 @@ export function DashboardPage() {
         totalSpaceSaved: space,
         categories: [
           ...(files > 0
-            ? [{ name: 'Quick Clean', itemsFound: files, itemsCleaned: files, spaceSaved: space }]
+            ? [{ name: t('historyCategoryQuickClean'), itemsFound: files, itemsCleaned: files, spaceSaved: space }]
             : []),
           ...(regFixed > 0
-            ? [{ name: 'Registry', itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
+            ? [{ name: t('historyCategoryRegistry'), itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
             : [])
         ],
         errorCount: 0
@@ -386,16 +388,16 @@ export function DashboardPage() {
         totalSpaceSaved: space + drivers.space,
         categories: [
           ...(files > 0
-            ? [{ name: 'Full Clean', itemsFound: files, itemsCleaned: files, spaceSaved: space }]
+            ? [{ name: t('historyCategoryFullClean'), itemsFound: files, itemsCleaned: files, spaceSaved: space }]
             : []),
           ...(regFixed > 0
-            ? [{ name: 'Registry', itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
+            ? [{ name: t('historyCategoryRegistry'), itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
             : []),
           ...(drivers.removed > 0
-            ? [{ name: 'Stale Drivers', itemsFound: drivers.removed, itemsCleaned: drivers.removed, spaceSaved: drivers.space }]
+            ? [{ name: t('historyCategoryStaleDrivers'), itemsFound: drivers.removed, itemsCleaned: drivers.removed, spaceSaved: drivers.space }]
             : []),
           ...(malware.quarantined > 0
-            ? [{ name: 'Malware', itemsFound: malware.found, itemsCleaned: malware.quarantined, spaceSaved: 0 }]
+            ? [{ name: t('historyCategoryMalware'), itemsFound: malware.found, itemsCleaned: malware.quarantined, spaceSaved: 0 }]
             : [])
         ],
         errorCount: 0
@@ -413,7 +415,7 @@ export function DashboardPage() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader title="Dashboard" description="System overview and quick actions" />
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
       {/* Hero row — health + stats */}
       <div className="mb-6 grid grid-cols-4 gap-4">
@@ -434,7 +436,7 @@ export function DashboardPage() {
                     background: tool.usedRecently ? tool.color + '18' : 'rgba(255,255,255,0.03)',
                     border: `1px solid ${tool.usedRecently ? tool.color + '30' : 'rgba(255,255,255,0.04)'}`
                   }}
-                  title={`${tool.label}: ${tool.usedRecently ? 'Used recently' : tool.usedEver ? 'Not used recently' : 'Never used'}`}
+                  title={`${tool.label}: ${tool.usedRecently ? t('toolTipUsedRecently') : tool.usedEver ? t('toolTipNotUsedRecently') : t('toolTipNeverUsed')}`}
                 >
                   <Icon
                     className="h-3.5 w-3.5"
@@ -457,14 +459,14 @@ export function DashboardPage() {
 
         <StatCard
           icon={HardDrive}
-          label="Space Recovered"
+          label={t('statSpaceRecovered')}
           value={stats.totalSpaceSaved}
           displayValue={formatBytes(stats.totalSpaceSaved)}
           variant="accent"
         />
         <StatCard
           icon={FileStack}
-          label="Files Cleaned"
+          label={t('statFilesCleaned')}
           value={stats.totalFilesCleaned}
           variant="success"
         />
@@ -474,17 +476,17 @@ export function DashboardPage() {
           style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
         >
           <h3 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: '#52525e' }}>
-            Status
+            {t('statusHeading')}
           </h3>
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-[12px]" style={{ color: '#6e6e76' }}>Last Scan</span>
+              <span className="text-[12px]" style={{ color: '#6e6e76' }}>{t('statusLastScan')}</span>
               <span className="text-[12px] font-medium text-zinc-300">
-                {stats.lastScanDate ? formatDate(stats.lastScanDate) : 'Never'}
+                {stats.lastScanDate ? formatDate(stats.lastScanDate) : t('statusLastScanNever')}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-[12px]" style={{ color: '#6e6e76' }}>Total Scans</span>
+              <span className="text-[12px]" style={{ color: '#6e6e76' }}>{t('statusTotalScans')}</span>
               <span className="text-[12px] font-medium text-zinc-300">
                 {formatNumber(stats.totalScans)}
               </span>
@@ -493,12 +495,12 @@ export function DashboardPage() {
               onClick={() => navigate('/settings')}
               className="flex w-full items-center justify-between rounded-lg px-0 py-0 transition-colors group"
             >
-              <span className="text-[12px]" style={{ color: '#6e6e76' }}>Cloud</span>
+              <span className="text-[12px]" style={{ color: '#6e6e76' }}>{t('statusCloud')}</span>
               <span className="flex items-center gap-1.5 text-[12px] font-medium group-hover:underline" style={{ color: isCloudLinked ? '#22c55e' : '#52525e' }}>
                 {isCloudLinked ? (
-                  <><Cloud className="h-3 w-3" strokeWidth={2} /> Connected</>
+                  <><Cloud className="h-3 w-3" strokeWidth={2} /> {t('statusCloudConnected')}</>
                 ) : (
-                  <><CloudOff className="h-3 w-3" strokeWidth={2} /> Not connected</>
+                  <><CloudOff className="h-3 w-3" strokeWidth={2} /> {t('statusCloudNotConnected')}</>
                 )}
               </span>
             </button>
@@ -525,12 +527,12 @@ export function DashboardPage() {
             <Sparkles className="h-5 w-5" style={{ color: '#1a0a00' }} strokeWidth={2.2} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-zinc-200">Quick Clean</p>
+            <p className="text-[14px] font-semibold text-zinc-200">{t('quickCleanTitle')}</p>
             <p className="text-[12px]" style={{ color: '#52525e' }}>
-              {features.registry ? 'Clean junk files + fix registry issues' : 'Clean junk files and temporary data'}
+              {features.registry ? t('quickCleanDescriptionWithRegistry') : t('quickCleanDescriptionWithoutRegistry')}
             </p>
             <p className="text-[11px] mt-0.5" style={{ color: '#3f3f46' }}>
-              Respects your category selections from the Cleaner page
+              {t('quickCleanSubtext')}
             </p>
           </div>
         </button>
@@ -552,12 +554,12 @@ export function DashboardPage() {
             <Shield className="h-5 w-5 text-white" strokeWidth={2.2} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-semibold text-zinc-200">Full Clean, Optimize & Protect</p>
+            <p className="text-[14px] font-semibold text-zinc-200">{t('fullCleanTitle')}</p>
             <p className="text-[12px]" style={{ color: '#52525e' }}>
-              {features.registry ? 'Clean + registry + drivers + malware scan + privacy & update check' : 'Clean junk + malware scan + privacy & update check'}
+              {features.registry ? t('fullCleanDescriptionWithRegistry') : t('fullCleanDescriptionWithoutRegistry')}
             </p>
             <p className="text-[11px] mt-0.5" style={{ color: '#3f3f46' }}>
-              Cleans and quarantines automatically, then reports optimization opportunities
+              {t('fullCleanSubtext')}
             </p>
           </div>
         </button>
@@ -571,7 +573,7 @@ export function DashboardPage() {
         >
           <div className="flex items-center gap-3">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-400" strokeWidth={2} />
-            <span className="flex-1 text-[13px] text-zinc-400">{phaseLabel || 'Working...'}</span>
+            <span className="flex-1 text-[13px] text-zinc-400">{phaseLabel || t('progressWorking')}</span>
             {stepProgress.total > 0 && (
               <span className="text-[11px] font-mono" style={{ color: '#52525e' }}>
                 {stepProgress.current}/{stepProgress.total}
@@ -597,56 +599,56 @@ export function DashboardPage() {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
             <div>
-              <p className="text-[13px] font-medium text-zinc-200">Cleanup complete!</p>
+              <p className="text-[13px] font-medium text-zinc-200">{t('resultCleanupComplete')}</p>
               <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1">
                 {result.spaceRecovered > 0 && (
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    {formatBytes(result.spaceRecovered)} recovered
+                    {t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}
                   </p>
                 )}
                 {result.filesCleaned > 0 && (
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    {formatNumber(result.filesCleaned)} files cleaned
+                    {t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}
                   </p>
                 )}
                 {result.registryFixed > 0 && (
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    {result.registryFixed} registry entries fixed
+                    {t('resultRegistryFixed', { count: result.registryFixed })}
                   </p>
                 )}
                 {result.driversRemoved > 0 && (
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    {result.driversRemoved} stale drivers removed
+                    {t('resultDriversRemoved', { count: result.driversRemoved })}
                   </p>
                 )}
                 {result.threatsFound > 0 && (
                   <p className="text-[12px]" style={{ color: result.threatsQuarantined > 0 ? '#22c55e' : '#ef4444' }}>
-                    {result.threatsQuarantined} threat{result.threatsQuarantined !== 1 ? 's' : ''} quarantined
+                    {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })}
                   </p>
                 )}
                 {result.threatsFound === 0 && result.privacyScore > 0 && (
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    No threats found
+                    {t('resultNoThreatsFound')}
                   </p>
                 )}
                 {result.privacyIssues > 0 && (
                   <button onClick={() => navigate('/hardening')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
-                    {result.privacyIssues} privacy improvement{result.privacyIssues !== 1 ? 's' : ''} available &rarr;
+                    {t(result.privacyIssues !== 1 ? 'resultPrivacyImprovementsPlural' : 'resultPrivacyImprovements', { count: result.privacyIssues })} &rarr;
                   </button>
                 )}
                 {result.startupHighImpact > 0 && (
                   <button onClick={() => navigate('/startup')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
-                    {result.startupHighImpact} high-impact startup item{result.startupHighImpact !== 1 ? 's' : ''} &rarr;
+                    {t(result.startupHighImpact !== 1 ? 'resultStartupHighImpactPlural' : 'resultStartupHighImpact', { count: result.startupHighImpact })} &rarr;
                   </button>
                 )}
                 {result.updatesAvailable > 0 && (
                   <button onClick={() => navigate('/updates')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
-                    {result.updatesAvailable} software update{result.updatesAvailable !== 1 ? 's' : ''} available &rarr;
+                    {t(result.updatesAvailable !== 1 ? 'resultSoftwareUpdatesPlural' : 'resultSoftwareUpdates', { count: result.updatesAvailable })} &rarr;
                   </button>
                 )}
                 {result.spaceRecovered === 0 && result.filesCleaned === 0 && result.registryFixed === 0 && result.driversRemoved === 0 && result.threatsFound === 0 && result.privacyIssues === 0 && result.startupHighImpact === 0 && result.updatesAvailable === 0 && (
                   <p className="text-[12px]" style={{ color: '#6e6e76' }}>
-                    System is already clean — nothing to do
+                    {t('resultSystemAlreadyClean')}
                   </p>
                 )}
               </div>
@@ -663,13 +665,13 @@ export function DashboardPage() {
           style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
         >
           <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#52525e' }}>
-            Quick Actions
+            {t('quickActionsHeading')}
           </h3>
           <div className="grid grid-cols-4 gap-2.5">
-            <QuickAction icon={Search} label="Cleaner" onClick={() => navigate('/cleaner')} />
-            {features.registry && <QuickAction icon={Database} label="Registry" onClick={() => navigate('/registry')} />}
-            <QuickAction icon={Wifi} label="Network" onClick={() => navigate('/network')} />
-            <QuickAction icon={BarChart3} label="Disk Map" onClick={() => navigate('/disk')} />
+            <QuickAction icon={Search} label={t('quickActionCleaner')} onClick={() => navigate('/cleaner')} />
+            {features.registry && <QuickAction icon={Database} label={t('quickActionRegistry')} onClick={() => navigate('/registry')} />}
+            <QuickAction icon={Wifi} label={t('quickActionNetwork')} onClick={() => navigate('/network')} />
+            <QuickAction icon={BarChart3} label={t('quickActionDiskMap')} onClick={() => navigate('/disk')} />
           </div>
         </div>
 
@@ -679,7 +681,7 @@ export function DashboardPage() {
           style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
         >
           <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#52525e' }}>
-            Recent Activity
+            {t('recentActivityHeading')}
           </h3>
           <div className="space-y-1">
             {activity.slice(0, 4).map((entry) => (
@@ -687,7 +689,7 @@ export function DashboardPage() {
             ))}
             {activity.length === 0 && (
               <p className="py-4 text-center text-[13px]" style={{ color: '#4e4e56' }}>
-                No recent activity
+                {t('recentActivityEmpty')}
               </p>
             )}
           </div>
@@ -700,12 +702,12 @@ export function DashboardPage() {
         style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
       >
         <h3 className="mb-5 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#52525e' }}>
-          Storage Overview
+          {t('storageOverviewHeading')}
         </h3>
         <div className="space-y-5">
           {drives.length === 0 && (
             <p className="py-4 text-center text-[13px]" style={{ color: '#4e4e56' }}>
-              Unable to load drive information
+              {t('storageOverviewEmpty')}
             </p>
           )}
           {drives.map((drive) => (
@@ -718,11 +720,11 @@ export function DashboardPage() {
         open={showQuickConfirm}
         onConfirm={() => { setShowQuickConfirm(false); handleQuickClean() }}
         onCancel={() => setShowQuickConfirm(false)}
-        title="Quick Clean"
+        title={t('quickCleanConfirmTitle')}
         description={features.registry
-          ? 'This will scan and clean junk files across all non-excluded categories and fix selected registry issues. Your category exclusions from the Cleaner page are respected.'
-          : 'This will scan and clean junk files across all non-excluded categories. Your category exclusions from the Cleaner page are respected.'}
-        confirmLabel="Start Quick Clean"
+          ? t('quickCleanConfirmDescriptionWithRegistry')
+          : t('quickCleanConfirmDescriptionWithoutRegistry')}
+        confirmLabel={t('quickCleanConfirmLabel')}
         variant="warning"
       />
 
@@ -730,11 +732,11 @@ export function DashboardPage() {
         open={showFullConfirm}
         onConfirm={() => { setShowFullConfirm(false); handleFullClean() }}
         onCancel={() => setShowFullConfirm(false)}
-        title="Full Clean, Optimize & Protect"
+        title={t('fullCleanConfirmTitle')}
         description={features.registry
-          ? 'This will clean junk files, fix registry issues, remove stale drivers, and scan for malware (quarantining any threats). It will also check your privacy settings, startup items, and available software updates.'
-          : 'This will clean junk files and scan for malware (quarantining any threats). It will also check your privacy settings, startup items, and available software updates.'}
-        confirmLabel="Start Full Clean"
+          ? t('fullCleanConfirmDescriptionWithRegistry')
+          : t('fullCleanConfirmDescriptionWithoutRegistry')}
+        confirmLabel={t('fullCleanConfirmLabel')}
         variant="warning"
       />
     </div>

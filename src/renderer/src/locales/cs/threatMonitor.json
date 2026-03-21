@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Monitor hrozeb",
+  "pageDescription": "Monitorování síťových připojení v reálném čase podle známých seznamů hrozeb.",
+  "cloudNotConfigured": {
+    "title": "Cloud není nakonfigurován",
+    "description": "Propojte své zařízení s Kudu Cloud v Nastavení, aby bylo možné zapnout monitorování hrozeb. Seznam blokovaných hrozeb poskytuje cloudová služba."
+  },
+  "loading": "Načítání...",
+  "inactive": {
+    "title": "Monitor hrozeb je neaktivní",
+    "description": "Není načten žádný seznam blokovaných hrozeb. Seznam bude automaticky načten, jakmile se cloudový agent připojí."
+  },
+  "statusBar": {
+    "blacklistVersion": "Seznam blokovaných",
+    "connectionsScanned": "Připojení zkontrolována {{time}}",
+    "dnsScanned": "DNS zkontrolováno {{time}}",
+    "threatsDetected": "Zjištěna {{count}} hrozba",
+    "threatsDetectedPlural": "Zjištěno {{count}} hrozeb",
+    "noThreatsDetected": "Nebyly zjištěny žádné hrozby"
+  },
+  "allClear": {
+    "title": "Vše v pořádku",
+    "description": "Nebyly zjištěny žádné podezřelé připojení ani záznamy DNS. Monitor pokračuje ve skenování na pozadí."
+  },
+  "flaggedConnections": "Označená připojení",
+  "flaggedDnsEntries": "Označené záznamy DNS",
+  "connectionPid": "PID {{pid}}"
+}

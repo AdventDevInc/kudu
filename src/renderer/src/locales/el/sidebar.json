@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "ΚΑΘΑΡΙΣΜΟΣ ΣΥΣΤΗΜΑΤΟΣ",
+  "dashboard": "Πίνακας ελέγχου",
+  "securityHeading": "ΑΣΦΑΛΕΙΑ",
+  "malwareScanner": "Σαρωτής κακόβουλου λογισμικού",
+  "threatMonitor": "Παρακολούθηση απειλών",
+  "systemHardening": "Ενίσχυση συστήματος",
+  "maintainHeading": "ΣΥΝΤΗΡΗΣΗ",
+  "cleaner": "Καθαρισμός",
+  "registry": "Μητρώο",
+  "startup": "Εκκίνηση",
+  "network": "Δίκτυο",
+  "uninstaller": "Κατάργηση εγκατάστασης",
+  "updates": "Ενημερώσεις",
+  "schedules": "Προγραμματισμοί",
+  "toolsHeading": "ΕΡΓΑΛΕΙΑ",
+  "performance": "Απόδοση",
+  "diskAnalyzer": "Ανάλυση δίσκου",
+  "history": "Ιστορικό",
+  "settings": "Ρυθμίσεις"
+}

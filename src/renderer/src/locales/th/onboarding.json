@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "ยินดีต้อนรับสู่ Kudu",
+  "welcomeDescription": "เครื่องมือทำความสะอาดระบบ Windows แบบครบวงจรของคุณ Kudu จะลบไฟล์ขยะ แก้ไขปัญหารีจิสทรี จัดการโปรแกรมเริ่มต้นระบบ และช่วยให้พีซีของคุณทำงานได้รวดเร็วอยู่เสมอ",
+  "featureSmartCleaning": "การทำความสะอาดอัจฉริยะ",
+  "featureFasterBoot": "บูตได้เร็วขึ้น",
+  "featureSafeSecure": "ปลอดภัยและมั่นคง",
+  "getStarted": "เริ่มต้นใช้งาน",
+  "recommendedSetupTitle": "การตั้งค่าที่แนะนำ",
+  "recommendedSetupDescription": "เราแนะนำการตั้งค่าเหล่านี้เพื่อประสบการณ์การใช้งานที่ดีที่สุด คุณสามารถเปลี่ยนแปลงได้ภายหลังใน การตั้งค่า",
+  "runAtStartupLabel": "เรียกใช้เมื่อเริ่มต้นระบบ",
+  "runAtStartupDescription": "เปิด Kudu เมื่อ Windows เริ่มทำงาน เพื่อให้พีซีของคุณสะอาดอยู่เสมอโดยอัตโนมัติ",
+  "minimizeToTrayLabel": "ย่อไปยังถาดระบบ",
+  "minimizeToTrayDescription": "ให้ Kudu ทำงานอย่างเงียบ ๆ ในเบื้องหลัง",
+  "weeklyAutoCleanLabel": "ทำความสะอาดอัตโนมัติทุกสัปดาห์",
+  "weeklyAutoCleanDescription": "สแกนและล้างไฟล์ขยะทุกวันจันทร์ เวลา 9:00 น.",
+  "back": "ย้อนกลับ",
+  "continue": "ดำเนินการต่อ",
+  "allSetTitle": "พร้อมใช้งานแล้ว!",
+  "allSetDescription": "Kudu จะช่วยให้พีซีของคุณทำงานได้อย่างราบรื่นอยู่เสมอในเบื้องหลัง",
+  "firstScanScheduled": "การสแกนอัตโนมัติครั้งแรกของคุณถูกกำหนดไว้ในวันจันทร์ เวลา 9:00 น.",
+  "startCleaning": "เริ่มการทำความสะอาด"
+}

@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Zeitpläne",
+  "pageDescription": "Scans, Bereinigungen und Updates nach Zeitplan automatisieren",
+  "newScheduleButton": "Neuer Zeitplan",
+  "createScheduleButton": "Zeitplan erstellen",
+  "emptyStateTitle": "Noch keine Zeitpläne",
+  "emptyStateDescription": "Erstellen Sie einen Zeitplan, um Scans, Bereinigungen und Updates automatisch auszuführen.",
+  "maxSchedulesReached": "Maximal {{max}} Zeitpläne erreicht.",
+  "duplicatedToast": "\"{{name}}\" dupliziert",
+  "deletedToast": "\"{{name}}\" gelöscht",
+  "updatedToast": "\"{{name}}\" aktualisiert",
+  "createdToast": "\"{{name}}\" erstellt",
+  "failedEnableStartup": "Autostart konnte nicht aktiviert werden. Zeitpläne werden nach einem Neustart möglicherweise nicht ausgeführt.",
+  "deleteConfirmTitle": "Zeitplan löschen",
+  "deleteConfirmDescription": "Dieser Zeitplan wird dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+  "deleteConfirmLabel": "Löschen",
+  "card": {
+    "autoApplyBadge": "Automatisch anwenden",
+    "editAction": "Bearbeiten",
+    "duplicateAction": "Duplizieren",
+    "deleteAction": "Löschen",
+    "noTasksSelected": "Keine Aufgaben ausgewählt",
+    "nextRun": "Nächster: {{time}}",
+    "lastRun": "Letzter: {{time}}",
+    "neverRun": "Nie ausgeführt"
+  },
+  "presets": {
+    "dialogTitle": "Vorlage auswählen",
+    "weeklyFullCleanLabel": "Wöchentliche vollständige Bereinigung",
+    "weeklyFullCleanDescription": "Alle Bereinigungskategorien jeden Montag um 9 Uhr",
+    "dailyLightSweepLabel": "Tägliche leichte Bereinigung",
+    "dailyLightSweepDescription": "System, Browser und Papierkorb täglich um 8 Uhr",
+    "monthlyDeepMaintenanceLabel": "Monatliche intensive Wartung",
+    "monthlyDeepMaintenanceDescription": "Vollständige Bereinigung + Registry, Treiber und Software am 1. um 10 Uhr",
+    "customLabel": "Benutzerdefiniert",
+    "customDescription": "Mit einem leeren Zeitplan von Grund auf beginnen"
+  },
+  "dialog": {
+    "editTitle": "Zeitplan bearbeiten",
+    "newTitle": "Neuer Zeitplan",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Wöchentliche intensive Bereinigung",
+    "frequencyLabel": "Häufigkeit",
+    "frequencyDaily": "Täglich",
+    "frequencyWeekly": "Wöchentlich",
+    "frequencyMonthly": "Monatlich",
+    "dayLabel": "Tag",
+    "timeLabel": "Uhrzeit",
+    "tasksLabel": "Aufgaben",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "cleanerGroup": "Bereinigung",
+    "maintenanceGroup": "Wartung",
+    "autoApplyLabel": "Automatisch anwenden",
+    "autoApplyDescription": "Dateien automatisch bereinigen, Registry-Probleme beheben und Updates ohne Bestätigung installieren.",
+    "autoApplyWarning": "Aktionen werden automatisch nach Zeitplan ausgeführt. Stellen Sie sicher, dass Ihre Ausschlussliste aktuell ist.",
+    "cancelButton": "Abbrechen",
+    "saveChangesButton": "Änderungen speichern",
+    "createScheduleButton": "Zeitplan erstellen"
+  },
+  "tasks": {
+    "system": "System",
+    "browsers": "Browser",
+    "applications": "Anwendungen",
+    "gaming": "Spiele",
+    "recycleBin": "Papierkorb",
+    "databases": "Datenbanken",
+    "registryFixes": "Registry-Reparaturen",
+    "driverUpdates": "Treiber-Updates",
+    "softwareUpdates": "Software-Updates"
+  },
+  "dayNames": {
+    "sunday": "Sonntag",
+    "monday": "Montag",
+    "tuesday": "Dienstag",
+    "wednesday": "Mittwoch",
+    "thursday": "Donnerstag",
+    "friday": "Freitag",
+    "saturday": "Samstag"
+  },
+  "frequency": {
+    "everyDayAt": "Jeden Tag um {{time}}",
+    "everyWeekdayAt": "Jeden {{day}} um {{time}}",
+    "monthlyAt": "Am {{ordinalDay}} jedes Monats um {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Heute um {{time}}",
+    "tomorrowAt": "Morgen um {{time}}",
+    "inDaysAt": "In {{count}} Tagen um {{time}}",
+    "dateAt": "{{date}} um {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Gerade eben",
+    "minutesAgo": "vor {{count}} Min.",
+    "hoursAgo": "vor {{count}} Std.",
+    "daysAgo": "vor {{count}} T."
+  },
+  "copyNameSuffix": "(Kopie)"
+}

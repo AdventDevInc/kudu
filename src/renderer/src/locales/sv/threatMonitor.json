@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Hotövervakning",
+  "pageDescription": "Övervakning i realtid av nätverksanslutningar mot kända hotlistor.",
+  "cloudNotConfigured": {
+    "title": "Molnet är inte konfigurerat",
+    "description": "Länka din enhet till Kudu Cloud i Inställningar för att aktivera hotövervakning. Hotets svartlista tillhandahålls av molntjänsten."
+  },
+  "loading": "Läser in...",
+  "inactive": {
+    "title": "Hotövervakning inaktiv",
+    "description": "Ingen svartlista för hot har lästs in. Svartlistan hämtas automatiskt när molnagenten ansluter."
+  },
+  "statusBar": {
+    "blacklistVersion": "Svartlista",
+    "connectionsScanned": "Anslutningar skannade {{time}}",
+    "dnsScanned": "DNS skannat {{time}}",
+    "threatsDetected": "{{count}} hot upptäckt",
+    "threatsDetectedPlural": "{{count}} hot upptäckta",
+    "noThreatsDetected": "Inga hot upptäckta"
+  },
+  "allClear": {
+    "title": "Inga hot hittades",
+    "description": "Inga misstänkta anslutningar eller DNS-poster har upptäckts. Övervakningen fortsätter att skanna i bakgrunden."
+  },
+  "flaggedConnections": "Flaggade anslutningar",
+  "flaggedDnsEntries": "Flaggade DNS-poster",
+  "connectionPid": "PID {{pid}}"
+}

@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Giám sát mối đe dọa",
+  "pageDescription": "Giám sát theo thời gian thực các kết nối mạng đối chiếu với danh sách mối đe dọa đã biết.",
+  "cloudNotConfigured": {
+    "title": "Cloud chưa được cấu hình",
+    "description": "Liên kết thiết bị của bạn với Kudu Cloud trong Cài đặt để bật tính năng giám sát mối đe dọa. Danh sách chặn mối đe dọa được cung cấp bởi dịch vụ đám mây."
+  },
+  "loading": "Đang tải...",
+  "inactive": {
+    "title": "Trình giám sát mối đe dọa không hoạt động",
+    "description": "Chưa tải danh sách chặn mối đe dọa. Danh sách chặn sẽ được tự động tải về khi tác nhân đám mây kết nối."
+  },
+  "statusBar": {
+    "blacklistVersion": "Danh sách chặn",
+    "connectionsScanned": "Đã quét kết nối {{time}}",
+    "dnsScanned": "Đã quét DNS {{time}}",
+    "threatsDetected": "Đã phát hiện {{count}} mối đe dọa",
+    "threatsDetectedPlural": "Đã phát hiện {{count}} mối đe dọa",
+    "noThreatsDetected": "Không phát hiện mối đe dọa"
+  },
+  "allClear": {
+    "title": "An toàn",
+    "description": "Không phát hiện kết nối hoặc mục DNS đáng ngờ nào. Trình giám sát tiếp tục quét trong nền."
+  },
+  "flaggedConnections": "Kết nối bị gắn cờ",
+  "flaggedDnsEntries": "Mục DNS bị gắn cờ",
+  "connectionPid": "PID {{pid}}"
+}

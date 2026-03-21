@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Расписания",
+  "pageDescription": "Автоматизируйте сканирование, очистку и обновления по расписанию",
+  "newScheduleButton": "Новое расписание",
+  "createScheduleButton": "Создать расписание",
+  "emptyStateTitle": "Расписаний пока нет",
+  "emptyStateDescription": "Создайте расписание, чтобы автоматически запускать сканирование, очистку и обновления.",
+  "maxSchedulesReached": "Достигнут максимум расписаний: {{max}}.",
+  "duplicatedToast": "Дубликат «{{name}}» создан",
+  "deletedToast": "«{{name}}» удалено",
+  "updatedToast": "«{{name}}» обновлено",
+  "createdToast": "«{{name}}» создано",
+  "failedEnableStartup": "Не удалось включить автозапуск. После перезагрузки расписания могут не выполняться.",
+  "deleteConfirmTitle": "Удалить расписание",
+  "deleteConfirmDescription": "Это расписание будет удалено безвозвратно. Это действие нельзя отменить.",
+  "deleteConfirmLabel": "Удалить",
+  "card": {
+    "autoApplyBadge": "Автоприменение",
+    "editAction": "Изменить",
+    "duplicateAction": "Дублировать",
+    "deleteAction": "Удалить",
+    "noTasksSelected": "Задачи не выбраны",
+    "nextRun": "Следующий: {{time}}",
+    "lastRun": "Последний: {{time}}",
+    "neverRun": "Никогда не выполнялось"
+  },
+  "presets": {
+    "dialogTitle": "Выберите шаблон",
+    "weeklyFullCleanLabel": "Еженедельная полная очистка",
+    "weeklyFullCleanDescription": "Все категории очистки каждый понедельник в 9:00",
+    "dailyLightSweepLabel": "Ежедневная быстрая очистка",
+    "dailyLightSweepDescription": "Система, браузеры и корзина каждый день в 8:00",
+    "monthlyDeepMaintenanceLabel": "Ежемесячное глубокое обслуживание",
+    "monthlyDeepMaintenanceDescription": "Полная очистка + реестр, драйверы и программы 1-го числа в 10:00",
+    "customLabel": "Пользовательский",
+    "customDescription": "Начните с пустого расписания"
+  },
+  "dialog": {
+    "editTitle": "Изменить расписание",
+    "newTitle": "Новое расписание",
+    "nameLabel": "Название",
+    "namePlaceholder": "Например, Еженедельная глубокая очистка",
+    "frequencyLabel": "Частота",
+    "frequencyDaily": "Ежедневно",
+    "frequencyWeekly": "Еженедельно",
+    "frequencyMonthly": "Ежемесячно",
+    "dayLabel": "День",
+    "timeLabel": "Время",
+    "tasksLabel": "Задачи",
+    "selectAll": "Выбрать все",
+    "deselectAll": "Снять выделение со всех",
+    "cleanerGroup": "Очистка",
+    "maintenanceGroup": "Обслуживание",
+    "autoApplyLabel": "Автоприменение",
+    "autoApplyDescription": "Автоматически очищать файлы, исправлять ошибки реестра и устанавливать обновления без подтверждения.",
+    "autoApplyWarning": "Действия будут выполняться автоматически по расписанию. Убедитесь, что список исключений актуален.",
+    "cancelButton": "Отмена",
+    "saveChangesButton": "Сохранить изменения",
+    "createScheduleButton": "Создать расписание"
+  },
+  "tasks": {
+    "system": "Система",
+    "browsers": "Браузеры",
+    "applications": "Приложения",
+    "gaming": "Игры",
+    "recycleBin": "Корзина",
+    "databases": "Базы данных",
+    "registryFixes": "Исправление реестра",
+    "driverUpdates": "Обновление драйверов",
+    "softwareUpdates": "Обновление программ"
+  },
+  "dayNames": {
+    "sunday": "Воскресенье",
+    "monday": "Понедельник",
+    "tuesday": "Вторник",
+    "wednesday": "Среда",
+    "thursday": "Четверг",
+    "friday": "Пятница",
+    "saturday": "Суббота"
+  },
+  "frequency": {
+    "everyDayAt": "Каждый день в {{time}}",
+    "everyWeekdayAt": "Каждый {{day}} в {{time}}",
+    "monthlyAt": "{{ordinalDay}} числа каждого месяца в {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Сегодня в {{time}}",
+    "tomorrowAt": "Завтра в {{time}}",
+    "inDaysAt": "Через {{count}} дн. в {{time}}",
+    "dateAt": "{{date}} в {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Только что",
+    "minutesAgo": "{{count}} мин. назад",
+    "hoursAgo": "{{count}} ч назад",
+    "daysAgo": "{{count}} дн. назад"
+  },
+  "copyNameSuffix": "(копия)"
+}

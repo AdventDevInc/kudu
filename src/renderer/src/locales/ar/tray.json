@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "فتح Kudu",
+  "quit": "إنهاء",
+  "scheduledTaskNotificationTitle": "Kudu - مهمة مجدولة",
+  "scheduledTaskNotificationBody": "جارٍ تشغيل \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - اكتمل الفحص",
+  "scanCompleteNotificationBody": "تم العثور على {{itemCount}} عنصرًا ({{sizeMB}} ميجابايت) يمكن تنظيفها.",
+  "scheduledScanName": "فحص مجدول"
+}

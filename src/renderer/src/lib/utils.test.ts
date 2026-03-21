@@ -1,4 +1,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
+// Initialize i18next with English translations so formatDate's i18next.t() calls work
+import i18next from 'i18next'
+i18next.init({
+  lng: 'en',
+  resources: {
+    en: {
+      common: {
+        justNow: 'Just now',
+        minutesAgo: '{{minutes}}m ago',
+        hoursAgo: '{{hours}}h ago',
+        daysAgo: '{{days}}d ago'
+      }
+    }
+  },
+  defaultNS: 'common'
+})
+
 import { formatBytes, formatNumber, formatSpeed, formatDate } from './utils'
 
 describe('formatBytes', () => {

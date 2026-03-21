@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "เปิด Kudu",
+  "quit": "ออก",
+  "scheduledTaskNotificationTitle": "Kudu - งานที่กำหนดเวลาไว้",
+  "scheduledTaskNotificationBody": "กำลังเรียกใช้ \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - การสแกนเสร็จสมบูรณ์",
+  "scanCompleteNotificationBody": "พบ {{itemCount}} รายการ ({{sizeMB}} MB) ที่สามารถล้างได้",
+  "scheduledScanName": "การสแกนตามกำหนดเวลา"
+}

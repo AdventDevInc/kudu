@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "مرحبًا بك في Kudu",
+  "welcomeDescription": "منظف نظام Windows المتكامل. يزيل Kudu الملفات غير الضرورية، ويصلح مشكلات السجل، ويدير برامج بدء التشغيل، ويحافظ على عمل الكمبيوتر بسرعة.",
+  "featureSmartCleaning": "تنظيف ذكي",
+  "featureFasterBoot": "بدء تشغيل أسرع",
+  "featureSafeSecure": "آمن ومحمي",
+  "getStarted": "البدء",
+  "recommendedSetupTitle": "الإعداد الموصى به",
+  "recommendedSetupDescription": "نوصي بهذه الإعدادات للحصول على أفضل تجربة. يمكنك تغييرها لاحقًا من الإعدادات.",
+  "runAtStartupLabel": "التشغيل عند بدء التشغيل",
+  "runAtStartupDescription": "تشغيل Kudu عند بدء تشغيل Windows للحفاظ على نظافة الكمبيوتر تلقائيًا",
+  "minimizeToTrayLabel": "تصغير إلى منطقة الإعلام",
+  "minimizeToTrayDescription": "إبقاء Kudu يعمل بهدوء في الخلفية",
+  "weeklyAutoCleanLabel": "تنظيف تلقائي أسبوعي",
+  "weeklyAutoCleanDescription": "فحص الملفات غير الضرورية وتنظيفها كل يوم اثنين الساعة 9:00 صباحًا",
+  "back": "رجوع",
+  "continue": "متابعة",
+  "allSetTitle": "أنت جاهز تمامًا!",
+  "allSetDescription": "سيحافظ Kudu على عمل الكمبيوتر بسلاسة في الخلفية.",
+  "firstScanScheduled": "تمت جدولة أول فحص تلقائي لك يوم الاثنين الساعة 9:00 صباحًا.",
+  "startCleaning": "بدء التنظيف"
+}

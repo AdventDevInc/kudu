@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Bem-vindo ao Kudu",
+  "welcomeDescription": "O seu limpador de sistema Windows tudo-em-um. O Kudu remove ficheiros desnecessários, corrige problemas do registo, gere programas de arranque e mantém o seu PC rápido.",
+  "featureSmartCleaning": "Limpeza Inteligente",
+  "featureFasterBoot": "Arranque Mais Rápido",
+  "featureSafeSecure": "Seguro e Protegido",
+  "getStarted": "Começar",
+  "recommendedSetupTitle": "Configuração Recomendada",
+  "recommendedSetupDescription": "Recomendamos estas definições para a melhor experiência. Pode alterá-las mais tarde em Definições.",
+  "runAtStartupLabel": "Executar no arranque",
+  "runAtStartupDescription": "Iniciar o Kudu quando o Windows arrancar para que o seu PC se mantenha limpo automaticamente",
+  "minimizeToTrayLabel": "Minimizar para a área de notificação",
+  "minimizeToTrayDescription": "Manter o Kudu em execução silenciosamente em segundo plano",
+  "weeklyAutoCleanLabel": "Limpeza automática semanal",
+  "weeklyAutoCleanDescription": "Analisar e limpar ficheiros desnecessários todas as segundas-feiras às 9:00",
+  "back": "Voltar",
+  "continue": "Continuar",
+  "allSetTitle": "Está tudo pronto!",
+  "allSetDescription": "O Kudu manterá o seu PC a funcionar sem problemas em segundo plano.",
+  "firstScanScheduled": "A sua primeira análise automática está agendada para segunda-feira às 9:00.",
+  "startCleaning": "Iniciar limpeza"
+}

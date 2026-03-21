@@ -1,0 +1,18 @@
+{
+  "scanning": "Vizsgálat...",
+  "cleaning": "Tisztítás...",
+  "foundLabel": "Találatok:",
+  "itemsUnit": "elem",
+  "sizeLabel": "Méret:",
+  "health": "Állapot",
+  "cancel": "Mégse",
+  "confirm": "Megerősítés",
+  "adminBannerMessage": "Egyes funkciók használatához rendszergazdai jogosultság szükséges.",
+  "relaunchAsAdmin": "Újraindítás rendszergazdaként",
+  "justNow": "Épp most",
+  "minutesAgo": "{{minutes}} perce",
+  "hoursAgo": "{{hours}} órája",
+  "daysAgo": "{{days}} napja",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

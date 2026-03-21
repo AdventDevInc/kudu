@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "Kudu を開く",
+  "quit": "終了",
+  "scheduledTaskNotificationTitle": "Kudu - スケジュールされたタスク",
+  "scheduledTaskNotificationBody": "\"{{name}}\" を実行しています...",
+  "scanCompleteNotificationTitle": "Kudu - スキャン完了",
+  "scanCompleteNotificationBody": "クリーンアップ可能な項目が {{itemCount}} 件（{{sizeMB}} MB）見つかりました。",
+  "scheduledScanName": "スケジュールされたスキャン"
+}

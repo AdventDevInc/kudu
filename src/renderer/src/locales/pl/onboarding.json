@@ -1,0 +1,22 @@
+{
+  "welcomeTitle": "Witamy w Kudu",
+  "welcomeDescription": "Twój kompleksowy program do czyszczenia systemu Windows. Kudu usuwa niepotrzebne pliki, naprawia problemy z rejestrem, zarządza programami uruchamianymi przy starcie i dba o szybkie działanie komputera.",
+  "featureSmartCleaning": "Inteligentne czyszczenie",
+  "featureFasterBoot": "Szybsze uruchamianie",
+  "featureSafeSecure": "Bezpiecznie i pewnie",
+  "getStarted": "Rozpocznij",
+  "recommendedSetupTitle": "Zalecana konfiguracja",
+  "recommendedSetupDescription": "Zalecamy te ustawienia, aby zapewnić najlepsze działanie. Możesz je później zmienić w Ustawieniach.",
+  "runAtStartupLabel": "Uruchamiaj przy starcie systemu",
+  "runAtStartupDescription": "Uruchamiaj Kudu podczas startu Windows, aby komputer był automatycznie utrzymywany w czystości",
+  "minimizeToTrayLabel": "Minimalizuj do zasobnika",
+  "minimizeToTrayDescription": "Pozwól Kudu działać cicho w tle",
+  "weeklyAutoCleanLabel": "Cotygodniowe automatyczne czyszczenie",
+  "weeklyAutoCleanDescription": "Skanuj i czyść niepotrzebne pliki w każdy poniedziałek o 9:00",
+  "back": "Wstecz",
+  "continue": "Dalej",
+  "allSetTitle": "Wszystko gotowe!",
+  "allSetDescription": "Kudu będzie dbać o płynne działanie komputera w tle.",
+  "firstScanScheduled": "Pierwsze automatyczne skanowanie zaplanowano na poniedziałek o 9:00.",
+  "startCleaning": "Rozpocznij czyszczenie"
+}

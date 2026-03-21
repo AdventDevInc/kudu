@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "פתח את Kudu",
+  "quit": "יציאה",
+  "scheduledTaskNotificationTitle": "Kudu - משימה מתוזמנת",
+  "scheduledTaskNotificationBody": "מפעיל את \"{{name}}\"...",
+  "scanCompleteNotificationTitle": "Kudu - הסריקה הושלמה",
+  "scanCompleteNotificationBody": "נמצאו {{itemCount}} פריטים ({{sizeMB}} MB) שניתן לנקות.",
+  "scheduledScanName": "סריקה מתוזמנת"
+}

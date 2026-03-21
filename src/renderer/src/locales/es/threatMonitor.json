@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Monitor de amenazas",
+  "pageDescription": "Supervisión en tiempo real de las conexiones de red frente a listas de amenazas conocidas.",
+  "cloudNotConfigured": {
+    "title": "Cloud no configurado",
+    "description": "Vincule su dispositivo a Kudu Cloud en Configuración para habilitar la supervisión de amenazas. La lista negra de amenazas la proporciona el servicio en la nube."
+  },
+  "loading": "Cargando...",
+  "inactive": {
+    "title": "Monitor de amenazas inactivo",
+    "description": "No hay ninguna lista negra de amenazas cargada. La lista negra se obtendrá automáticamente cuando se conecte el agente de la nube."
+  },
+  "statusBar": {
+    "blacklistVersion": "Lista negra",
+    "connectionsScanned": "Conexiones analizadas {{time}}",
+    "dnsScanned": "DNS analizado {{time}}",
+    "threatsDetected": "{{count}} amenaza detectada",
+    "threatsDetectedPlural": "{{count}} amenazas detectadas",
+    "noThreatsDetected": "No se detectaron amenazas"
+  },
+  "allClear": {
+    "title": "Todo en orden",
+    "description": "No se han detectado conexiones sospechosas ni entradas DNS. El monitor continúa analizando en segundo plano."
+  },
+  "flaggedConnections": "Conexiones marcadas",
+  "flaggedDnsEntries": "Entradas DNS marcadas",
+  "connectionPid": "PID {{pid}}"
+}

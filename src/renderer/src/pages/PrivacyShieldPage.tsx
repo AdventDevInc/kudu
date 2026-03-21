@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ShieldCheck,
   ShieldAlert,
@@ -28,8 +29,8 @@ import type { LucideIcon } from 'lucide-react'
 
 interface CategoryDef {
   id: PrivacySetting['category']
-  label: string
-  description: string
+  labelKey: string
+  descriptionKey: string
   icon: LucideIcon
   color: string
   bg: string
@@ -39,8 +40,8 @@ interface CategoryDef {
 const categories: CategoryDef[] = [
   {
     id: 'telemetry',
-    label: 'Telemetry & Data Collection',
-    description: 'Control diagnostic and usage data collection',
+    labelKey: 'privacyCategories.telemetryLabel',
+    descriptionKey: 'privacyCategories.telemetryDescription',
     icon: Radio,
     color: '#ef4444',
     bg: 'rgba(239,68,68,0.08)',
@@ -48,8 +49,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'ads',
-    label: 'Ads & Suggestions',
-    description: 'Block promoted apps, ad suggestions, and lock screen spotlight',
+    labelKey: 'privacyCategories.adsLabel',
+    descriptionKey: 'privacyCategories.adsDescription',
     icon: Megaphone,
     color: '#f59e0b',
     bg: 'rgba(245,158,11,0.08)',
@@ -57,8 +58,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'search',
-    label: 'Search & Cortana',
-    description: 'Keep searches local and disable web-based search features',
+    labelKey: 'privacyCategories.searchLabel',
+    descriptionKey: 'privacyCategories.searchDescription',
     icon: Search,
     color: '#3b82f6',
     bg: 'rgba(59,130,246,0.08)',
@@ -66,8 +67,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'sync',
-    label: 'Sync & Cloud',
-    description: 'Control clipboard syncing, settings sync, and device tracking',
+    labelKey: 'privacyCategories.syncLabel',
+    descriptionKey: 'privacyCategories.syncDescription',
     icon: RefreshCw,
     color: '#8b5cf6',
     bg: 'rgba(139,92,246,0.08)',
@@ -75,8 +76,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'services',
-    label: 'Telemetry Services',
-    description: 'Disable background services that collect and upload telemetry',
+    labelKey: 'privacyCategories.servicesLabel',
+    descriptionKey: 'privacyCategories.servicesDescription',
     icon: Eye,
     color: '#14b8a6',
     bg: 'rgba(20,184,166,0.08)',
@@ -84,8 +85,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'tasks',
-    label: 'Scheduled Tasks',
-    description: 'Disable telemetry scheduled tasks running in the background',
+    labelKey: 'privacyCategories.tasksLabel',
+    descriptionKey: 'privacyCategories.tasksDescription',
     icon: CalendarClock,
     color: '#a3e635',
     bg: 'rgba(163,230,53,0.08)',
@@ -93,8 +94,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'kernel',
-    label: 'Kernel Hardening',
-    description: 'Kernel security parameters and memory protection via sysctl',
+    labelKey: 'privacyCategories.kernelLabel',
+    descriptionKey: 'privacyCategories.kernelDescription',
     icon: Cpu,
     color: '#a855f7',
     bg: 'rgba(168,85,247,0.08)',
@@ -102,8 +103,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'network',
-    label: 'Network Hardening',
-    description: 'Network stack hardening and traffic filtering via sysctl',
+    labelKey: 'privacyCategories.networkLabel',
+    descriptionKey: 'privacyCategories.networkDescription',
     icon: Globe,
     color: '#06b6d4',
     bg: 'rgba(6,182,212,0.08)',
@@ -111,8 +112,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'access',
-    label: 'Access Control',
-    description: 'Access control policies, SSH hardening, and system restrictions',
+    labelKey: 'privacyCategories.accessLabel',
+    descriptionKey: 'privacyCategories.accessDescription',
     icon: Lock,
     color: '#f97316',
     bg: 'rgba(249,115,22,0.08)',
@@ -120,8 +121,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'ai',
-    label: 'AI Features',
-    description: 'Disable Copilot, Recall, and other AI features that analyze your data',
+    labelKey: 'privacyCategories.aiLabel',
+    descriptionKey: 'privacyCategories.aiDescription',
     icon: BrainCircuit,
     color: '#ec4899',
     bg: 'rgba(236,72,153,0.08)',
@@ -129,8 +130,8 @@ const categories: CategoryDef[] = [
   },
   {
     id: 'browser',
-    label: 'Browser Telemetry',
-    description: 'Stop browsers from reporting usage data to Microsoft, Google, and Mozilla',
+    labelKey: 'privacyCategories.browserLabel',
+    descriptionKey: 'privacyCategories.browserDescription',
     icon: Compass,
     color: '#0ea5e9',
     bg: 'rgba(14,165,233,0.08)',
@@ -163,6 +164,7 @@ function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
 }
 
 export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
+  const { t } = useTranslation('hardening')
   const state = usePrivacyStore(s => s.state)
   const status = usePrivacyStore(s => s.status)
   const applyResult = usePrivacyStore(s => s.applyResult)
@@ -206,14 +208,14 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       usePrivacyStore.getState().setStatus('done')
     } catch (err) {
       console.error('Privacy scan failed:', err)
-      toast.error('Privacy scan failed')
+      toast.error(t('privacy.scanFailed'))
       usePrivacyStore.getState().setStatus('idle')
     } finally {
       progressCleanupRef.current?.()
       progressCleanupRef.current = null
       usePrivacyStore.getState().setProgress(null)
     }
-  }, [])
+  }, [t])
 
   const handleApplyAll = useCallback(async () => {
     const store = usePrivacyStore.getState()
@@ -265,10 +267,10 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       })
     } catch (err) {
       console.error('Privacy apply failed:', err)
-      usePrivacyStore.getState().setApplyResult({ succeeded: 0, failed: unprotectedIds.length, errors: [{ id: '', label: 'All settings', reason: 'IPC call failed — try running as administrator' }] })
+      usePrivacyStore.getState().setApplyResult({ succeeded: 0, failed: unprotectedIds.length, errors: [{ id: '', label: t('privacy.allSettingsLabel'), reason: t('privacy.ipcCallFailed') }] })
       usePrivacyStore.getState().setStatus('done')
     }
-  }, [])
+  }, [t])
 
   const handleApplyCategory = useCallback(async (categoryId: string) => {
     const store = usePrivacyStore.getState()
@@ -285,8 +287,8 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       const updated = await window.kudu.privacyScan()
       usePrivacyStore.getState().setState(updated)
       usePrivacyStore.getState().setStatus('done')
-      if (result.succeeded > 0) toast.success(`${result.succeeded} privacy setting${result.succeeded > 1 ? 's' : ''} applied`)
-      if (result.failed > 0) toast.error(`${result.failed} setting${result.failed > 1 ? 's' : ''} failed to apply`)
+      if (result.succeeded > 0) toast.success(t(result.succeeded > 1 ? 'privacy.settingsAppliedToastPlural' : 'privacy.settingsAppliedToast', { count: result.succeeded }))
+      if (result.failed > 0) toast.error(t(result.failed > 1 ? 'privacy.settingsFailedToastPlural' : 'privacy.settingsFailedToast', { count: result.failed }))
 
       await useHistoryStore.getState().addEntry({
         id: Date.now().toString(),
@@ -302,11 +304,11 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       })
     } catch (err) {
       console.error('Privacy apply failed:', err)
-      toast.error('Failed to apply privacy settings', { description: 'Try running as administrator' })
-      usePrivacyStore.getState().setApplyResult({ succeeded: 0, failed: ids.length, errors: [{ id: '', label: categoryId, reason: 'IPC call failed — try running as administrator' }] })
+      toast.error(t('privacy.applyFailed'), { description: t('privacy.applyFailedDescription') })
+      usePrivacyStore.getState().setApplyResult({ succeeded: 0, failed: ids.length, errors: [{ id: '', label: categoryId, reason: t('privacy.ipcCallFailed') }] })
       usePrivacyStore.getState().setStatus('done')
     }
-  }, [])
+  }, [t])
 
   const handleToggleSingle = useCallback(async (settingId: string) => {
     const store = usePrivacyStore.getState()
@@ -322,16 +324,16 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       usePrivacyStore.getState().setStatus('done')
 
       if (result.failed > 0) {
-        const reason = result.errors[0]?.reason || 'Unknown error'
-        toast.error(`Failed to apply "${setting.label}"`, { description: reason })
+        const reason = result.errors[0]?.reason || t('privacy.unknownError')
+        toast.error(t('privacy.settingApplyFailed', { label: setting.label }), { description: reason })
       } else {
-        toast.success(`${setting.label} enabled`)
+        toast.success(t('privacy.settingEnabled', { label: setting.label }))
       }
     } catch {
-      toast.error('Failed to apply privacy setting')
+      toast.error(t('privacy.settingApplyFailedGeneric'))
       usePrivacyStore.getState().setStatus('done')
     }
-  }, [])
+  }, [t])
 
   const isScanning = status === 'scanning'
   const isApplying = status === 'applying'
@@ -347,7 +349,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
       >
         <Eye className="h-4 w-4" strokeWidth={1.8} />
-        Scan
+        {t('privacy.scanButton')}
       </button>
       {state && unprotectedCount > 0 && (
         <button
@@ -361,7 +363,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           }}
         >
           <ShieldCheck className="h-4 w-4" strokeWidth={2} />
-          Protect All ({unprotectedCount})
+          {t('privacy.protectAllButton', { count: unprotectedCount })}
         </button>
       )}
     </div>
@@ -371,8 +373,8 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
     <div className={embedded ? '' : 'animate-fade-in'}>
       {!embedded && (
         <PageHeader
-          title="Privacy Shield"
-          description="Control telemetry, ads, tracking, and data collection across your system"
+          title={t('privacy.pageTitle')}
+          description={t('privacy.pageDescription')}
           action={headerAction}
         />
       )}
@@ -389,9 +391,9 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           <div className="rounded-2xl p-5 flex items-center gap-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
             <ScoreRing score={state.score} />
             <div>
-              <p className="text-[14px] font-semibold text-zinc-200">Privacy Score</p>
+              <p className="text-[14px] font-semibold text-zinc-200">{t('privacy.privacyScore')}</p>
               <p className="text-[12px] mt-0.5" style={{ color: '#6e6e76' }}>
-                {state.score >= 80 ? 'Well protected' : state.score >= 50 ? 'Needs improvement' : 'At risk'}
+                {state.score >= 80 ? t('privacy.scoreWellProtected') : state.score >= 50 ? t('privacy.scoreNeedsImprovement') : t('privacy.scoreAtRisk')}
               </p>
             </div>
           </div>
@@ -405,7 +407,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                 <ShieldAlert className="h-5 w-5 text-amber-500" strokeWidth={1.8} />
               )}
               <span className="text-[13px] font-medium text-zinc-200">
-                {unprotectedCount === 0 ? 'Fully Protected' : `${unprotectedCount} Unprotected`}
+                {unprotectedCount === 0 ? t('privacy.fullyProtected') : t('privacy.unprotectedCount', { count: unprotectedCount })}
               </span>
             </div>
             <div className="flex items-center gap-3 mt-3">
@@ -426,7 +428,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
 
           {/* Category breakdown */}
           <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <p className="text-[11px] font-medium mb-2" style={{ color: '#52525e' }}>Categories</p>
+            <p className="text-[11px] font-medium mb-2" style={{ color: '#52525e' }}>{t('privacy.categoriesLabel')}</p>
             <div className="space-y-1.5">
               {categories.map(cat => {
                 const catSettings = state.settings.filter(s => s.category === cat.id)
@@ -437,7 +439,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                   <div key={cat.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <div className="h-1.5 w-1.5 rounded-full" style={{ background: allGood ? '#22c55e' : cat.color }} />
-                      <span className="text-[11px] text-zinc-400">{cat.label.split(' ')[0]}</span>
+                      <span className="text-[11px] text-zinc-400">{t(cat.labelKey).split(' ')[0]}</span>
                     </div>
                     <span className="text-[11px] font-mono" style={{ color: allGood ? '#22c55e' : '#6e6e76' }}>
                       {protectedInCat}/{catSettings.length}
@@ -456,7 +458,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           <div className="flex items-center gap-3 mb-3">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-400 border-t-transparent" />
             <span className="text-[13px] font-medium text-zinc-200">
-              {progress ? `Checking: ${progress.currentLabel}` : 'Preparing scan...'}
+              {progress ? t('privacy.scanProgressChecking', { label: progress.currentLabel }) : t('privacy.scanProgressPreparing')}
             </span>
             {progress && (
               <span className="ml-auto text-[12px] font-mono text-zinc-500">
@@ -480,7 +482,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           {progress && (
             <div className="flex flex-wrap gap-1.5">
               {categories.map(cat => {
-                const catLabel = cat.label.split(' ')[0]
+                const catLabel = t(cat.labelKey).split(' ')[0]
                 const isCurrent = progress.category === cat.id
                 const catIdx = categories.findIndex(c => c.id === cat.id)
                 const currentCatIdx = categories.findIndex(c => c.id === progress.category)
@@ -520,7 +522,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       {isApplying && (
         <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
           <Loader2 className="h-4 w-4 animate-spin text-green-400" />
-          <span className="text-[13px] text-zinc-400">Applying privacy protections...</span>
+          <span className="text-[13px] text-zinc-400">{t('privacy.applyingProtections')}</span>
         </div>
       )}
 
@@ -537,11 +539,11 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
             <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
             <div>
               <p className="text-[13px] font-medium text-zinc-200">
-                {applyResult.succeeded} setting{applyResult.succeeded !== 1 ? 's' : ''} applied
+                {t(applyResult.succeeded !== 1 ? 'privacy.settingsAppliedPlural' : 'privacy.settingsApplied', { count: applyResult.succeeded })}
               </p>
               {applyResult.failed > 0 && (
                 <p className="text-[12px] mt-0.5" style={{ color: '#f59e0b' }}>
-                  {applyResult.failed} failed — may require administrator privileges
+                  {t('privacy.settingsFailedRequireAdmin', { count: applyResult.failed })}
                 </p>
               )}
             </div>
@@ -562,8 +564,8 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       {!state && !isScanning && (
         <EmptyState
           icon={Eye}
-          title="Privacy Shield"
-          description='Click "Scan" to audit your privacy and security settings and apply recommended hardening.'
+          title={t('privacy.emptyStateTitle')}
+          description={t('privacy.emptyStateDescription')}
         />
       )}
 
@@ -600,20 +602,20 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[14px] font-semibold text-zinc-200">{cat.label}</span>
+                      <span className="text-[14px] font-semibold text-zinc-200">{t(cat.labelKey)}</span>
                       {allProtected ? (
                         <span className="rounded-full px-2 py-0.5 text-[11px] font-medium"
                           style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
-                          All protected
+                          {t('privacy.allProtectedBadge')}
                         </span>
                       ) : (
                         <span className="rounded-full px-2 py-0.5 text-[11px] font-medium"
                           style={{ background: cat.bg, color: cat.color }}>
-                          {unprotectedInCat} unprotected
+                          {t('privacy.unprotectedBadge', { count: unprotectedInCat })}
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[12px]" style={{ color: '#5e5e66' }}>{cat.description}</p>
+                    <p className="mt-0.5 text-[12px]" style={{ color: '#5e5e66' }}>{t(cat.descriptionKey)}</p>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
@@ -627,7 +629,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                         className="rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors disabled:opacity-40"
                         style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}
                       >
-                        Protect All
+                        {t('privacy.protectAllCategoryButton')}
                       </button>
                     )}
                     {allProtected && (
@@ -665,7 +667,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                             {setting.requiresAdmin && (
                               <span className="rounded px-1 py-0.5 text-[9px] font-semibold uppercase"
                                 style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>
-                                Admin
+                                {t('privacy.adminBadge')}
                               </span>
                             )}
                           </div>
@@ -701,7 +703,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.08)' }}>
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500 mt-0.5" strokeWidth={1.8} />
           <p className="text-[11px]" style={{ color: '#8e8e96' }}>
-            Some settings require <span className="font-semibold text-amber-500">administrator privileges</span> to modify. Run Kudu as administrator for full protection.
+            {t('privacy.adminWarning')}
           </p>
         </div>
       )}

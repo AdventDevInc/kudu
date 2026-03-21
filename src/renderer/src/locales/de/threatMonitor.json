@@ -1,0 +1,28 @@
+{
+  "pageTitle": "Bedrohungsmonitor",
+  "pageDescription": "Echtzeitüberwachung von Netzwerkverbindungen anhand bekannter Bedrohungslisten.",
+  "cloudNotConfigured": {
+    "title": "Cloud nicht konfiguriert",
+    "description": "Verknüpfen Sie Ihr Gerät in den Einstellungen mit Kudu Cloud, um die Bedrohungsüberwachung zu aktivieren. Die Bedrohungs-Blacklist wird vom Cloud-Dienst bereitgestellt."
+  },
+  "loading": "Wird geladen...",
+  "inactive": {
+    "title": "Bedrohungsmonitor inaktiv",
+    "description": "Es ist keine Bedrohungs-Blacklist geladen. Die Blacklist wird automatisch abgerufen, wenn der Cloud-Agent eine Verbindung herstellt."
+  },
+  "statusBar": {
+    "blacklistVersion": "Blacklist",
+    "connectionsScanned": "Verbindungen gescannt {{time}}",
+    "dnsScanned": "DNS gescannt {{time}}",
+    "threatsDetected": "{{count}} Bedrohung erkannt",
+    "threatsDetectedPlural": "{{count}} Bedrohungen erkannt",
+    "noThreatsDetected": "Keine Bedrohungen erkannt"
+  },
+  "allClear": {
+    "title": "Alles in Ordnung",
+    "description": "Es wurden keine verdächtigen Verbindungen oder DNS-Einträge erkannt. Der Monitor scannt weiterhin im Hintergrund."
+  },
+  "flaggedConnections": "Markierte Verbindungen",
+  "flaggedDnsEntries": "Markierte DNS-Einträge",
+  "connectionPid": "PID {{pid}}"
+}

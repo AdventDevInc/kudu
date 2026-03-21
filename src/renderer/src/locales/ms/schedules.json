@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Jadual",
+  "pageDescription": "Automatikkan imbasan, pembersihan dan kemas kini mengikut jadual",
+  "newScheduleButton": "Jadual Baharu",
+  "createScheduleButton": "Cipta Jadual",
+  "emptyStateTitle": "Belum ada jadual",
+  "emptyStateDescription": "Cipta jadual untuk menjalankan imbasan, pembersihan dan kemas kini secara automatik.",
+  "maxSchedulesReached": "Maksimum {{max}} jadual telah dicapai.",
+  "duplicatedToast": "\"{{name}}\" diduplikasi",
+  "deletedToast": "\"{{name}}\" dipadam",
+  "updatedToast": "\"{{name}}\" dikemas kini",
+  "createdToast": "\"{{name}}\" dicipta",
+  "failedEnableStartup": "Gagal mendayakan permulaan. Jadual mungkin tidak berjalan selepas but semula.",
+  "deleteConfirmTitle": "Padam jadual",
+  "deleteConfirmDescription": "Jadual ini akan dialih keluar secara kekal. Tindakan ini tidak boleh dibuat asal.",
+  "deleteConfirmLabel": "Padam",
+  "card": {
+    "autoApplyBadge": "Guna secara automatik",
+    "editAction": "Edit",
+    "duplicateAction": "Duplikasi",
+    "deleteAction": "Padam",
+    "noTasksSelected": "Tiada tugas dipilih",
+    "nextRun": "Seterusnya: {{time}}",
+    "lastRun": "Terakhir: {{time}}",
+    "neverRun": "Belum pernah dijalankan"
+  },
+  "presets": {
+    "dialogTitle": "Pilih templat",
+    "weeklyFullCleanLabel": "Pembersihan Penuh Mingguan",
+    "weeklyFullCleanDescription": "Semua kategori pembersih setiap Isnin pada 9 AM",
+    "dailyLightSweepLabel": "Pembersihan Ringan Harian",
+    "dailyLightSweepDescription": "Sistem, pelayar & tong kitar semula setiap hari pada 8 AM",
+    "monthlyDeepMaintenanceLabel": "Penyelenggaraan Mendalam Bulanan",
+    "monthlyDeepMaintenanceDescription": "Pembersihan penuh + registry, driver & perisian pada 1 haribulan pada 10 AM",
+    "customLabel": "Tersuai",
+    "customDescription": "Mulakan dari awal dengan jadual kosong"
+  },
+  "dialog": {
+    "editTitle": "Edit Jadual",
+    "newTitle": "Jadual Baharu",
+    "nameLabel": "Nama",
+    "namePlaceholder": "cth. Pembersihan Mendalam Mingguan",
+    "frequencyLabel": "Kekerapan",
+    "frequencyDaily": "Harian",
+    "frequencyWeekly": "Mingguan",
+    "frequencyMonthly": "Bulanan",
+    "dayLabel": "Hari",
+    "timeLabel": "Masa",
+    "tasksLabel": "Tugas",
+    "selectAll": "Pilih semua",
+    "deselectAll": "Nyahpilih semua",
+    "cleanerGroup": "Pembersih",
+    "maintenanceGroup": "Penyelenggaraan",
+    "autoApplyLabel": "Guna secara automatik",
+    "autoApplyDescription": "Bersihkan fail, baiki isu registry dan pasang kemas kini secara automatik tanpa pengesahan.",
+    "autoApplyWarning": "Tindakan akan dijalankan secara automatik mengikut jadual. Pastikan senarai pengecualian anda dikemas kini.",
+    "cancelButton": "Batal",
+    "saveChangesButton": "Simpan Perubahan",
+    "createScheduleButton": "Cipta Jadual"
+  },
+  "tasks": {
+    "system": "Sistem",
+    "browsers": "Pelayar",
+    "applications": "Aplikasi",
+    "gaming": "Permainan",
+    "recycleBin": "Tong Kitar Semula",
+    "databases": "Pangkalan Data",
+    "registryFixes": "Pembaikan Registry",
+    "driverUpdates": "Kemas Kini Driver",
+    "softwareUpdates": "Kemas Kini Perisian"
+  },
+  "dayNames": {
+    "sunday": "Ahad",
+    "monday": "Isnin",
+    "tuesday": "Selasa",
+    "wednesday": "Rabu",
+    "thursday": "Khamis",
+    "friday": "Jumaat",
+    "saturday": "Sabtu"
+  },
+  "frequency": {
+    "everyDayAt": "Setiap hari pada {{time}}",
+    "everyWeekdayAt": "Setiap {{day}} pada {{time}}",
+    "monthlyAt": "{{ordinalDay}} setiap bulan pada {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Hari ini pada {{time}}",
+    "tomorrowAt": "Esok pada {{time}}",
+    "inDaysAt": "Dalam {{count}} hari pada {{time}}",
+    "dateAt": "{{date}} pada {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Baru sahaja",
+    "minutesAgo": "{{count}}m lalu",
+    "hoursAgo": "{{count}}j lalu",
+    "daysAgo": "{{count}}h lalu"
+  },
+  "copyNameSuffix": "(salinan)"
+}

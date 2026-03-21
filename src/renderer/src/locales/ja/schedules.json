@@ -1,0 +1,99 @@
+{
+  "pageTitle": "スケジュール",
+  "pageDescription": "スケジュールに従ってスキャン、クリーンアップ、更新を自動化します",
+  "newScheduleButton": "新しいスケジュール",
+  "createScheduleButton": "スケジュールを作成",
+  "emptyStateTitle": "スケジュールはまだありません",
+  "emptyStateDescription": "スケジュールを作成すると、スキャン、クリーンアップ、更新を自動的に実行できます。",
+  "maxSchedulesReached": "スケジュールは最大 {{max}} 件までです。",
+  "duplicatedToast": "「{{name}}」を複製しました",
+  "deletedToast": "「{{name}}」を削除しました",
+  "updatedToast": "「{{name}}」を更新しました",
+  "createdToast": "「{{name}}」を作成しました",
+  "failedEnableStartup": "スタートアップの有効化に失敗しました。再起動後にスケジュールが実行されない場合があります。",
+  "deleteConfirmTitle": "スケジュールを削除",
+  "deleteConfirmDescription": "このスケジュールは完全に削除されます。この操作は元に戻せません。",
+  "deleteConfirmLabel": "削除",
+  "card": {
+    "autoApplyBadge": "自動適用",
+    "editAction": "編集",
+    "duplicateAction": "複製",
+    "deleteAction": "削除",
+    "noTasksSelected": "タスクが選択されていません",
+    "nextRun": "次回: {{time}}",
+    "lastRun": "前回: {{time}}",
+    "neverRun": "未実行"
+  },
+  "presets": {
+    "dialogTitle": "テンプレートを選択",
+    "weeklyFullCleanLabel": "毎週のフルクリーン",
+    "weeklyFullCleanDescription": "毎週月曜日の午前9時に、すべてのクリーナーカテゴリを実行",
+    "dailyLightSweepLabel": "毎日の軽量クリーン",
+    "dailyLightSweepDescription": "毎日午前8時に、システム、ブラウザー、ごみ箱を実行",
+    "monthlyDeepMaintenanceLabel": "毎月の詳細メンテナンス",
+    "monthlyDeepMaintenanceDescription": "毎月1日の午前10時に、フルクリーン + レジストリ、ドライバー、ソフトウェアを実行",
+    "customLabel": "カスタム",
+    "customDescription": "空のスケジュールから作成を開始します"
+  },
+  "dialog": {
+    "editTitle": "スケジュールを編集",
+    "newTitle": "新しいスケジュール",
+    "nameLabel": "名前",
+    "namePlaceholder": "例: 毎週の詳細クリーン",
+    "frequencyLabel": "頻度",
+    "frequencyDaily": "毎日",
+    "frequencyWeekly": "毎週",
+    "frequencyMonthly": "毎月",
+    "dayLabel": "曜日",
+    "timeLabel": "時刻",
+    "tasksLabel": "タスク",
+    "selectAll": "すべて選択",
+    "deselectAll": "すべて選択解除",
+    "cleanerGroup": "クリーナー",
+    "maintenanceGroup": "メンテナンス",
+    "autoApplyLabel": "自動適用",
+    "autoApplyDescription": "確認なしで、ファイルのクリーンアップ、レジストリの問題の修正、更新プログラムのインストールを自動的に実行します。",
+    "autoApplyWarning": "操作はスケジュールに従って自動的に実行されます。除外リストが最新であることを確認してください。",
+    "cancelButton": "キャンセル",
+    "saveChangesButton": "変更を保存",
+    "createScheduleButton": "スケジュールを作成"
+  },
+  "tasks": {
+    "system": "システム",
+    "browsers": "ブラウザー",
+    "applications": "アプリケーション",
+    "gaming": "ゲーム",
+    "recycleBin": "ごみ箱",
+    "databases": "データベース",
+    "registryFixes": "レジストリの修正",
+    "driverUpdates": "ドライバーの更新",
+    "softwareUpdates": "ソフトウェアの更新"
+  },
+  "dayNames": {
+    "sunday": "日曜日",
+    "monday": "月曜日",
+    "tuesday": "火曜日",
+    "wednesday": "水曜日",
+    "thursday": "木曜日",
+    "friday": "金曜日",
+    "saturday": "土曜日"
+  },
+  "frequency": {
+    "everyDayAt": "毎日 {{time}}",
+    "everyWeekdayAt": "毎週{{day}} {{time}}",
+    "monthlyAt": "毎月{{ordinalDay}} {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "今日 {{time}}",
+    "tomorrowAt": "明日 {{time}}",
+    "inDaysAt": "{{count}}日後 {{time}}",
+    "dateAt": "{{date}} {{time}}"
+  },
+  "lastRun": {
+    "justNow": "たった今",
+    "minutesAgo": "{{count}}分前",
+    "hoursAgo": "{{count}}時間前",
+    "daysAgo": "{{count}}日前"
+  },
+  "copyNameSuffix": "（コピー）"
+}

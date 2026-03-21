@@ -1,0 +1,22 @@
+{
+  "appName": "Kudu",
+  "subtitle": "ตัวล้างระบบ",
+  "dashboard": "แดชบอร์ด",
+  "securityHeading": "ความปลอดภัย",
+  "malwareScanner": "ตัวสแกนมัลแวร์",
+  "threatMonitor": "การตรวจสอบภัยคุกคาม",
+  "systemHardening": "การเสริมความปลอดภัยของระบบ",
+  "maintainHeading": "การบำรุงรักษา",
+  "cleaner": "ตัวล้างข้อมูล",
+  "registry": "รีจิสทรี",
+  "startup": "การเริ่มต้นระบบ",
+  "network": "เครือข่าย",
+  "uninstaller": "ตัวถอนการติดตั้ง",
+  "updates": "การอัปเดต",
+  "schedules": "กำหนดการ",
+  "toolsHeading": "เครื่องมือ",
+  "performance": "ประสิทธิภาพ",
+  "diskAnalyzer": "ตัววิเคราะห์ดิสก์",
+  "history": "ประวัติ",
+  "settings": "การตั้งค่า"
+}

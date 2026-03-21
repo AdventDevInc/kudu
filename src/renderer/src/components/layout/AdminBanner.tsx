@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ShieldAlert, X } from 'lucide-react'
 
 export function AdminBanner() {
+  const { t } = useTranslation('common')
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
@@ -23,13 +25,13 @@ export function AdminBanner() {
     >
       <ShieldAlert size={18} className="shrink-0 text-amber-500" />
       <span className="text-zinc-300">
-        Some features require administrator privileges.
+        {t('adminBannerMessage')}
       </span>
       <button
         onClick={() => window.kudu.elevationRelaunch()}
         className="ml-1 shrink-0 rounded px-3 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
       >
-        Relaunch as Admin
+        {t('relaunchAsAdmin')}
       </button>
       <button
         onClick={() => setDismissed(true)}

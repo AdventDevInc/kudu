@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Github, Bug, ExternalLink, Plus, X, FolderOpen, RefreshCw, Download, CheckCircle, AlertCircle, Loader, Unlink, Link } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -6,9 +7,12 @@ import { cn } from '@/lib/utils'
 import { useSettingsStore } from '@/stores/settings-store'
 import { useAppUpdateStore } from '@/stores/app-update-store'
 import { usePlatform } from '@/hooks/usePlatform'
+import { LANGUAGES } from '@/lib/languages'
+import i18next from 'i18next'
 import logoSrc from '@/assets/logo.png'
 
 export function SettingsPage() {
+  const { t } = useTranslation('settings')
   const { features, platform } = usePlatform()
   const { settings, updateSettings, setSettings } = useSettingsStore()
   const [newExclusion, setNewExclusion] = useState('')
@@ -48,15 +52,15 @@ export function SettingsPage() {
       const result = await window.kudu?.cloudLink?.(cloudApiKey.trim())
       if (result?.success) {
         setCloudApiKey('')
-        toast.success('Device linked to cloud dashboard')
+        toast.success(t('cloudDeviceLinkedToast'))
         // Refresh settings to get the new cloud config
         const fresh = await window.kudu?.settingsGet?.()
         if (fresh) setSettings(fresh)
       } else {
-        toast.error('Failed to link device', { description: result?.error || 'Check your API key and try again' })
+        toast.error(t('cloudLinkFailedToast'), { description: result?.error || t('cloudLinkFailedDefaultDesc') })
       }
     } catch {
-      toast.error('Failed to link device', { description: 'Could not connect to cloud server' })
+      toast.error(t('cloudLinkFailedToast'), { description: t('cloudLinkFailedConnectionDesc') })
     }
     setCloudLinking(false)
   }
@@ -65,11 +69,11 @@ export function SettingsPage() {
     setCloudUnlinking(true)
     try {
       await window.kudu?.cloudUnlink?.()
-      toast.success('Device unlinked from cloud dashboard')
+      toast.success(t('cloudDeviceUnlinkedToast'))
       const fresh = await window.kudu?.settingsGet?.()
       if (fresh) setSettings(fresh)
     } catch {
-      toast.error('Failed to unlink device')
+      toast.error(t('cloudUnlinkFailedToast'))
     }
     setCloudUnlinking(false)
   }
@@ -80,7 +84,7 @@ export function SettingsPage() {
       await window.kudu?.cloudReconnect?.()
       refreshCloudStatus()
     } catch {
-      toast.error('Failed to reconnect', { description: 'Check your network connection and try again' })
+      toast.error(t('cloudReconnectFailedToast'), { description: t('cloudReconnectFailedDesc') })
     }
     setCloudReconnecting(false)
   }
@@ -97,7 +101,7 @@ export function SettingsPage() {
     } catch {
       // Revert the toggle — the OS rejected the change
       save({ runAtStartup: !enabled })
-      toast.error('Failed to update startup setting. Make sure Kudu has permission to create scheduled tasks.')
+      toast.error(t('startupSettingFailedToast'))
     }
   }
 
@@ -128,48 +132,65 @@ export function SettingsPage() {
 
   return (
     <div className="animate-fade-in max-w-2xl">
-      <PageHeader title="Settings" description="Configure Kudu preferences" />
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
-      <Section title="General">
-        <Row label="Run at startup" desc="Launch Kudu when Windows starts">
+      <Section title={t('sectionGeneral')}>
+        <Row label={t('languageLabel')} desc={t('languageDesc')}>
+          <select
+            value={settings.language}
+            onChange={(e) => {
+              save({ language: e.target.value })
+              i18next.changeLanguage(e.target.value)
+            }}
+            className={selectStyle}
+            style={selectBorder}
+          >
+            {LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.nativeName} ({lang.name})
+              </option>
+            ))}
+          </select>
+        </Row>
+        <Row label={t('runAtStartupLabel')} desc={t('runAtStartupDesc')}>
           <Toggle checked={settings.runAtStartup} onChange={saveStartup} />
         </Row>
-        <Row label="Minimize to tray" desc="Keep running in system tray when closed">
+        <Row label={t('minimizeToTrayLabel')} desc={t('minimizeToTrayDesc')}>
           <Toggle checked={settings.minimizeToTray} onChange={saveTray} />
         </Row>
-        <Row label="Show notifications" desc="Display a notification when operations complete">
+        <Row label={t('showNotificationsLabel')} desc={t('showNotificationsDesc')}>
           <Toggle checked={settings.showNotificationOnComplete} onChange={(v) => save({ showNotificationOnComplete: v })} />
         </Row>
-        <Row label="Threat detection alerts" desc="Show a system notification when suspicious network activity is detected">
+        <Row label={t('threatDetectionAlertsLabel')} desc={t('threatDetectionAlertsDesc')}>
           <Toggle checked={settings.showThreatNotifications} onChange={(v) => save({ showThreatNotifications: v })} />
         </Row>
-        <Row label="Auto-update" desc="Automatically download and install updates">
+        <Row label={t('autoUpdateLabel')} desc={t('autoUpdateDesc')}>
           <Toggle checked={settings.autoUpdate} onChange={(v) => save({ autoUpdate: v })} />
         </Row>
-        <Row label="Auto-restart for updates" desc="Restart automatically when an update is downloaded">
+        <Row label={t('autoRestartLabel')} desc={t('autoRestartDesc')}>
           <Toggle checked={settings.autoRestart} onChange={(v) => save({ autoRestart: v })} />
         </Row>
-        <Row label="Update check interval" desc="How often to check for updates in the background" last>
+        <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')} last>
           <select value={settings.updateCheckIntervalHours}
             onChange={(e) => save({ updateCheckIntervalHours: Number(e.target.value) })}
             className={selectStyle} style={selectBorder}>
-            <option value={1}>Every hour</option>
-            <option value={4}>Every 4 hours</option>
-            <option value={12}>Every 12 hours</option>
-            <option value={24}>Once a day</option>
+            <option value={1}>{t('updateCheckEveryHour')}</option>
+            <option value={4}>{t('updateCheckEvery4Hours')}</option>
+            <option value={12}>{t('updateCheckEvery12Hours')}</option>
+            <option value={24}>{t('updateCheckOnceADay')}</option>
           </select>
         </Row>
       </Section>
 
-      <Section title="Cloud Dashboard">
+      <Section title={t('sectionCloudDashboard')}>
         {!isLinked ? (
           <div className="space-y-4 py-1">
             <div className="rounded-xl p-4" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
               <p className="text-[13px] font-medium text-zinc-200">
-                Free for up to 5 devices
+                {t('cloudFreeForDevices')}
               </p>
               <p className="mt-1.5 text-[12px] leading-relaxed" style={{ color: '#8e8e96' }}>
-                Monitor threats across all your systems, manage centralized cleaning profiles, trigger remote scans, and get real-time health telemetry — all from one dashboard.
+                {t('cloudDescription')}
               </p>
               <button
                 onClick={() => window.open('https://cloud.usekudu.com', '_blank')}
@@ -177,18 +198,18 @@ export function SettingsPage() {
                 style={{ background: '#f59e0b', color: '#09090b' }}
               >
                 <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
-                Sign up free
+                {t('cloudSignUpFree')}
               </button>
             </div>
             <p className="text-[13px] text-zinc-400">
-              Already have an account? Paste your API key below to link this device.
+              {t('cloudAlreadyHaveAccount')}
             </p>
             <div className="space-y-2.5">
               <input
                 type="text"
                 value={settings.cloud.serverUrl}
                 onChange={(e) => save({ cloud: { ...settings.cloud, serverUrl: e.target.value } })}
-                placeholder="Server URL (leave blank for default)"
+                placeholder={t('cloudServerUrlPlaceholder')}
                 className="w-full rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
               />
@@ -198,7 +219,7 @@ export function SettingsPage() {
                   value={cloudApiKey}
                   onChange={(e) => setCloudApiKey(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCloudLink()}
-                  placeholder="Paste your API key"
+                  placeholder={t('cloudApiKeyPlaceholder')}
                   className="flex-1 rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                 />
@@ -209,17 +230,17 @@ export function SettingsPage() {
                   style={{ background: '#f59e0b', color: '#09090b' }}
                 >
                   <Link className="h-3.5 w-3.5" strokeWidth={1.8} />
-                  {cloudLinking ? 'Linking...' : 'Link Device'}
+                  {cloudLinking ? t('cloudLinking') : t('cloudLinkDevice')}
                 </button>
               </div>
             </div>
             <p className="text-[11px]" style={{ color: '#4e4e56' }}>
-              Only CPU &amp; memory usage, disk space, network stats, uptime, and periodic health reports ({features.registry ? 'registry, drivers, ' : ''}updates, privacy, malware). No file paths or personal data.
+              {t('cloudTelemetryDisclaimer', { registryExtra: features.registry ? t('cloudTelemetryRegistryExtra') : '' })}
             </p>
           </div>
         ) : (
           <>
-            <Row label="Status">
+            <Row label={t('cloudStatusLabel')}>
               <div className="flex items-center gap-2">
                 <div
                   className={cn('h-2.5 w-2.5 rounded-full', cloudStatus?.status === 'connecting' && 'animate-pulse')}
@@ -232,7 +253,7 @@ export function SettingsPage() {
                   }}
                 />
                 <span className="text-[13px] text-zinc-400 capitalize">
-                  {cloudStatus?.status ?? 'Loading...'}
+                  {cloudStatus?.status ?? t('cloudStatusLoading')}
                 </span>
                 {(cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
                   <button
@@ -242,7 +263,7 @@ export function SettingsPage() {
                     style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     <RefreshCw className={cn('h-3 w-3', cloudReconnecting && 'animate-spin')} strokeWidth={2} />
-                    {cloudReconnecting ? 'Connecting...' : 'Reconnect'}
+                    {cloudReconnecting ? t('cloudConnecting') : t('cloudReconnect')}
                   </button>
                 )}
               </div>
@@ -257,66 +278,66 @@ export function SettingsPage() {
                 </span>
               </div>
             )}
-            <Row label="Device ID" desc={cloudStatus?.maskedApiKey ? `Key: ${cloudStatus.maskedApiKey}` : undefined}>
+            <Row label={t('cloudDeviceIdLabel')} desc={cloudStatus?.maskedApiKey ? t('cloudDeviceIdKeyDesc', { maskedApiKey: cloudStatus.maskedApiKey }) : undefined}>
               <span className="font-mono text-[12px] text-zinc-500">
                 {cloudStatus?.deviceId?.slice(0, 8) ?? '—'}
               </span>
             </Row>
             {cloudStatus?.lastTelemetryAt && (
-              <Row label="Last telemetry" desc="System stats (CPU, memory, disk, network)">
+              <Row label={t('cloudLastTelemetryLabel')} desc={t('cloudLastTelemetryDesc')}>
                 <span className="text-[12px] text-zinc-500">
                   {new Date(cloudStatus.lastTelemetryAt).toLocaleTimeString()}
                 </span>
               </Row>
             )}
             {cloudStatus?.lastHealthReportAt && (
-              <Row label="Last health report" desc={features.registry ? 'Registry, drivers, updates, privacy, malware' : 'Updates, privacy, malware'}>
+              <Row label={t('cloudLastHealthReportLabel')} desc={features.registry ? t('cloudLastHealthReportDescWindows') : t('cloudLastHealthReportDescOther')}>
                 <span className="text-[12px] text-zinc-500">
                   {new Date(cloudStatus.lastHealthReportAt).toLocaleTimeString()}
                 </span>
               </Row>
             )}
-            <Row label="Share disk health" desc="Include disk SMART data in telemetry">
+            <Row label={t('cloudShareDiskHealthLabel')} desc={t('cloudShareDiskHealthDesc')}>
               <Toggle checked={settings.cloud.shareDiskHealth} onChange={(v) => save({ cloud: { ...settings.cloud, shareDiskHealth: v } })} />
             </Row>
-            <Row label="Share process list" desc="Include running processes in telemetry">
+            <Row label={t('cloudShareProcessListLabel')} desc={t('cloudShareProcessListDesc')}>
               <Toggle checked={settings.cloud.shareProcessList} onChange={(v) => save({ cloud: { ...settings.cloud, shareProcessList: v } })} />
             </Row>
-            <Row label="Threat monitor" desc="Scan connections against known-malicious IPs and domains">
+            <Row label={t('cloudThreatMonitorLabel')} desc={t('cloudThreatMonitorDesc')}>
               <Toggle checked={settings.cloud.shareThreatMonitor} onChange={(v) => save({ cloud: { ...settings.cloud, shareThreatMonitor: v } })} />
             </Row>
-            <Row label="Threat list" desc={cloudStatus?.threatBlacklist ? `v${cloudStatus.threatBlacklist.version} — updated ${new Date(cloudStatus.threatBlacklist.updatedAt).toLocaleDateString()}` : 'Waiting for cloud to push a threat list'}>
+            <Row label={t('cloudThreatListLabel')} desc={cloudStatus?.threatBlacklist ? t('cloudThreatListDescLoaded', { version: cloudStatus.threatBlacklist.version, updatedDate: new Date(cloudStatus.threatBlacklist.updatedAt).toLocaleDateString() }) : t('cloudThreatListDescWaiting')}>
               {cloudStatus?.threatBlacklist ? (
                 <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {(cloudStatus.threatBlacklist.domains + cloudStatus.threatBlacklist.ips + cloudStatus.threatBlacklist.cidrs).toLocaleString()} rules
-                  <span style={{ color: 'rgba(255,255,255,0.3)' }}> ({cloudStatus.threatBlacklist.domains.toLocaleString()} domains, {cloudStatus.threatBlacklist.ips.toLocaleString()} IPs, {cloudStatus.threatBlacklist.cidrs.toLocaleString()} CIDRs)</span>
+                  {t('cloudThreatListRules', { totalRules: (cloudStatus.threatBlacklist.domains + cloudStatus.threatBlacklist.ips + cloudStatus.threatBlacklist.cidrs).toLocaleString() })}
+                  <span style={{ color: 'rgba(255,255,255,0.3)' }}> {t('cloudThreatListBreakdown', { domains: cloudStatus.threatBlacklist.domains.toLocaleString(), ips: cloudStatus.threatBlacklist.ips.toLocaleString(), cidrs: cloudStatus.threatBlacklist.cidrs.toLocaleString() })}</span>
                 </span>
               ) : (
-                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>Not loaded</span>
+                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('cloudThreatListNotLoaded')}</span>
               )}
             </Row>
-            <Row label="Remote power control" desc="Allow cloud to shutdown or restart this device">
+            <Row label={t('cloudRemotePowerLabel')} desc={t('cloudRemotePowerDesc')}>
               <Toggle checked={settings.cloud.allowRemotePower} onChange={(v) => save({ cloud: { ...settings.cloud, allowRemotePower: v } })} />
             </Row>
-            <Row label="Remote cleanup" desc={features.registry ? 'Allow cloud to delete files, remove bloatware, and fix registry' : 'Allow cloud to delete files and perform cleanup'}>
+            <Row label={t('cloudRemoteCleanupLabel')} desc={features.registry ? t('cloudRemoteCleanupDescWindows') : t('cloudRemoteCleanupDescOther')}>
               <Toggle checked={settings.cloud.allowRemoteCleanup} onChange={(v) => save({ cloud: { ...settings.cloud, allowRemoteCleanup: v } })} />
             </Row>
-            <Row label="Remote installs" desc={platform === 'win32' ? 'Allow cloud to install software, driver, and Windows updates' : 'Allow cloud to install software and system updates'}>
+            <Row label={t('cloudRemoteInstallsLabel')} desc={platform === 'win32' ? t('cloudRemoteInstallsDescWindows') : t('cloudRemoteInstallsDescOther')}>
               <Toggle checked={settings.cloud.allowRemoteInstalls} onChange={(v) => save({ cloud: { ...settings.cloud, allowRemoteInstalls: v } })} />
             </Row>
-            <Row label="Remote config changes" desc="Allow cloud to toggle startup items, services, and privacy settings">
+            <Row label={t('cloudRemoteConfigLabel')} desc={t('cloudRemoteConfigDesc')}>
               <Toggle checked={settings.cloud.allowRemoteConfig} onChange={(v) => save({ cloud: { ...settings.cloud, allowRemoteConfig: v } })} />
             </Row>
-            <Row label="Telemetry interval" desc="How often system stats are sent">
+            <Row label={t('cloudTelemetryIntervalLabel')} desc={t('cloudTelemetryIntervalDesc')}>
               <select
                 value={settings.cloud.telemetryIntervalSec}
                 onChange={(e) => save({ cloud: { ...settings.cloud, telemetryIntervalSec: Number(e.target.value) } })}
                 className={selectStyle} style={selectBorder}
               >
-                <option value={30}>30 seconds</option>
-                <option value={60}>1 minute</option>
-                <option value={300}>5 minutes</option>
-                <option value={900}>15 minutes</option>
+                <option value={30}>{t('cloudTelemetryInterval30s')}</option>
+                <option value={60}>{t('cloudTelemetryInterval1m')}</option>
+                <option value={300}>{t('cloudTelemetryInterval5m')}</option>
+                <option value={900}>{t('cloudTelemetryInterval15m')}</option>
               </select>
             </Row>
             <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
@@ -327,41 +348,41 @@ export function SettingsPage() {
                 style={{ border: '1px solid rgba(239,68,68,0.2)' }}
               >
                 <Unlink className="h-3.5 w-3.5" strokeWidth={1.8} />
-                {cloudUnlinking ? 'Unlinking...' : 'Unlink Device'}
+                {cloudUnlinking ? t('cloudUnlinking') : t('cloudUnlinkDevice')}
               </button>
             </div>
           </>
         )}
       </Section>
 
-      <Section title="Cleaning Preferences">
-        <Row label="Secure delete (slower)" desc="Overwrite files before deletion for sensitive data (slower)">
+      <Section title={t('sectionCleaningPreferences')}>
+        <Row label={t('secureDeleteLabel')} desc={t('secureDeleteDesc')}>
           <Toggle checked={settings.cleaner.secureDelete} onChange={(v) => save({ cleaner: { ...settings.cleaner, secureDelete: v } })} />
         </Row>
-        <Row label="Close browsers before clean" desc="Automatically close browsers to unlock cache files">
+        <Row label={t('closeBrowsersLabel')} desc={t('closeBrowsersDesc')}>
           <Toggle checked={settings.cleaner.closeBrowsersBeforeClean} onChange={(v) => save({ cleaner: { ...settings.cleaner, closeBrowsersBeforeClean: v } })} />
         </Row>
         {features.restorePoint && (
-          <Row label="Create restore point" desc="Create a system restore point before cleaning (requires admin)">
+          <Row label={t('createRestorePointLabel')} desc={t('createRestorePointDesc')}>
             <Toggle checked={settings.cleaner.createRestorePoint} onChange={(v) => save({ cleaner: { ...settings.cleaner, createRestorePoint: v } })} />
           </Row>
         )}
-        <Row label="Skip recent files" desc="Don't delete files modified within this time" last>
+        <Row label={t('skipRecentFilesLabel')} desc={t('skipRecentFilesDesc')} last>
           <select value={settings.cleaner.skipRecentMinutes}
             onChange={(e) => save({ cleaner: { ...settings.cleaner, skipRecentMinutes: Number(e.target.value) } })}
             className={selectStyle} style={selectBorder}>
-            <option value={30}>30 minutes</option>
-            <option value={60}>1 hour</option>
-            <option value={120}>2 hours</option>
-            <option value={1440}>24 hours</option>
+            <option value={30}>{t('skipRecent30Min')}</option>
+            <option value={60}>{t('skipRecent1Hour')}</option>
+            <option value={120}>{t('skipRecent2Hours')}</option>
+            <option value={1440}>{t('skipRecent24Hours')}</option>
           </select>
         </Row>
       </Section>
 
-      <Section title="Exclusions">
+      <Section title={t('sectionExclusions')}>
         <div className="space-y-2 pb-3">
           {settings.exclusions.length === 0 && (
-            <p className="text-[13px]" style={{ color: '#4e4e56' }}>No exclusions configured</p>
+            <p className="text-[13px]" style={{ color: '#4e4e56' }}>{t('noExclusionsConfigured')}</p>
           )}
           {settings.exclusions.map((exc, i) => (
             <div key={i} className="flex items-center justify-between rounded-xl px-4 py-2.5"
@@ -381,25 +402,25 @@ export function SettingsPage() {
           <div className="flex items-center gap-2.5">
             <input type="text" value={newExclusion} onChange={(e) => setNewExclusion(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addExclusion()}
-              placeholder={platform === 'win32' ? 'C:\\path\\to\\exclude or *.ext' : '/path/to/exclude or *.ext'}
+              placeholder={platform === 'win32' ? t('exclusionPlaceholderWindows') : t('exclusionPlaceholderOther')}
               className="flex-1 rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }} />
             <button onClick={addExclusion}
               className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-colors"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <Plus className="h-3.5 w-3.5" /> Add
+              <Plus className="h-3.5 w-3.5" /> {t('addButton')}
             </button>
           </div>
         </div>
       </Section>
 
-      <Section title="About">
+      <Section title={t('sectionAbout')}>
         <div className="py-3">
           <div className="flex items-center gap-4">
             <img src={logoSrc} alt="Kudu" className="h-11 w-11 rounded-xl" />
             <div>
-              <p className="text-[14px] font-medium text-zinc-200">Kudu v{__APP_VERSION__}</p>
-              <p className="text-[12px]" style={{ color: '#52525e' }}>MIT License · Open Source</p>
+              <p className="text-[14px] font-medium text-zinc-200">{t('appVersion', { version: __APP_VERSION__ })}</p>
+              <p className="text-[12px]" style={{ color: '#52525e' }}>{t('license')}</p>
             </div>
           </div>
 
@@ -409,35 +430,35 @@ export function SettingsPage() {
                 onClick={() => window.kudu?.updaterCheck?.()}
                 className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-400 transition-colors"
                 style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-                <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} /> Check for updates
+                <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('checkForUpdates')}
               </button>
             )}
             {updateStatus.state === 'checking' && (
               <span className="flex items-center gap-2 text-[12px] text-zinc-500">
-                <Loader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} /> Checking for updates...
+                <Loader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} /> {t('checkingForUpdates')}
               </span>
             )}
             {updateStatus.state === 'not-available' && (
               <>
                 <span className="flex items-center gap-2 text-[12px] text-zinc-500">
-                  <CheckCircle className="h-3.5 w-3.5" style={{ color: '#22c55e' }} strokeWidth={1.8} /> You're up to date
+                  <CheckCircle className="h-3.5 w-3.5" style={{ color: '#22c55e' }} strokeWidth={1.8} /> {t('upToDate')}
                 </span>
                 <button
                   onClick={() => window.kudu?.updaterCheck?.()}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-colors"
                   style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <RefreshCw className="h-3 w-3" strokeWidth={1.8} /> Check again
+                  <RefreshCw className="h-3 w-3" strokeWidth={1.8} /> {t('checkAgain')}
                 </button>
               </>
             )}
             {updateStatus.state === 'available' && (
               <>
-                <span className="text-[12px] text-zinc-400">v{updateStatus.version} available</span>
+                <span className="text-[12px] text-zinc-400">{t('versionAvailable', { version: updateStatus.version })}</span>
                 <button
                   onClick={() => window.kudu?.updaterDownload?.()}
                   className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-200 transition-colors"
                   style={{ background: '#f59e0b', color: '#09090b' }}>
-                  <Download className="h-3.5 w-3.5" strokeWidth={1.8} /> Download
+                  <Download className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('download')}
                 </button>
               </>
             )}
@@ -445,7 +466,7 @@ export function SettingsPage() {
               <div className="flex flex-1 items-center gap-3">
                 <Loader className="h-3.5 w-3.5 shrink-0 animate-spin text-zinc-500" strokeWidth={1.8} />
                 <div className="flex-1">
-                  <div className="mb-1 text-[12px] text-zinc-400">Downloading... {updateStatus.progress ?? 0}%</div>
+                  <div className="mb-1 text-[12px] text-zinc-400">{t('downloading', { progress: updateStatus.progress ?? 0 })}</div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
                     <div className="h-full rounded-full transition-all" style={{ width: `${updateStatus.progress ?? 0}%`, background: '#f59e0b' }} />
                   </div>
@@ -457,7 +478,7 @@ export function SettingsPage() {
                 onClick={() => window.kudu?.updaterInstall?.()}
                 className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium transition-colors"
                 style={{ background: '#22c55e', color: '#09090b' }}>
-                <Download className="h-3.5 w-3.5" strokeWidth={1.8} /> Restart & Install v{updateStatus.version}
+                <Download className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('restartAndInstall', { version: updateStatus.version })}
               </button>
             )}
             {updateStatus.state === 'error' && (
@@ -470,15 +491,15 @@ export function SettingsPage() {
                   onClick={() => window.kudu?.updaterCheck?.()}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-colors"
                   style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
-                  Retry
+                  {t('retry')}
                 </button>
               </>
             )}
           </div>
 
           <div className="mt-5 flex items-center gap-2.5">
-            <LinkButton icon={Github} label="GitHub" href="https://github.com/adventdevinc/kudu" />
-            <LinkButton icon={Bug} label="Report Bug" href="https://github.com/adventdevinc/kudu/issues" />
+            <LinkButton icon={Github} label={t('github')} href="https://github.com/adventdevinc/kudu" />
+            <LinkButton icon={Bug} label={t('reportBug')} href="https://github.com/adventdevinc/kudu/issues" />
           </div>
         </div>
       </Section>

@@ -9,6 +9,7 @@ describe('settings-store', () => {
   beforeEach(() => {
     useSettingsStore.setState({
       settings: {
+        language: 'en',
         minimizeToTray: false,
         showNotificationOnComplete: true,
         showThreatNotifications: true,

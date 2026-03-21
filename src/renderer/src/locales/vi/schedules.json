@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Lịch biểu",
+  "pageDescription": "Tự động hóa quét, dọn dẹp và cập nhật theo lịch",
+  "newScheduleButton": "Lịch biểu mới",
+  "createScheduleButton": "Tạo lịch biểu",
+  "emptyStateTitle": "Chưa có lịch biểu nào",
+  "emptyStateDescription": "Tạo lịch biểu để tự động chạy quét, dọn dẹp và cập nhật.",
+  "maxSchedulesReached": "Đã đạt tối đa {{max}} lịch biểu.",
+  "duplicatedToast": "Đã nhân bản \"{{name}}\"",
+  "deletedToast": "Đã xóa \"{{name}}\"",
+  "updatedToast": "Đã cập nhật \"{{name}}\"",
+  "createdToast": "Đã tạo \"{{name}}\"",
+  "failedEnableStartup": "Không thể bật khởi động cùng hệ thống. Lịch biểu có thể không chạy sau khi khởi động lại.",
+  "deleteConfirmTitle": "Xóa lịch biểu",
+  "deleteConfirmDescription": "Lịch biểu này sẽ bị xóa vĩnh viễn. Không thể hoàn tác hành động này.",
+  "deleteConfirmLabel": "Xóa",
+  "card": {
+    "autoApplyBadge": "Tự động áp dụng",
+    "editAction": "Chỉnh sửa",
+    "duplicateAction": "Nhân bản",
+    "deleteAction": "Xóa",
+    "noTasksSelected": "Chưa chọn tác vụ nào",
+    "nextRun": "Tiếp theo: {{time}}",
+    "lastRun": "Lần cuối: {{time}}",
+    "neverRun": "Chưa từng chạy"
+  },
+  "presets": {
+    "dialogTitle": "Chọn mẫu",
+    "weeklyFullCleanLabel": "Dọn dẹp toàn bộ hằng tuần",
+    "weeklyFullCleanDescription": "Tất cả danh mục dọn dẹp vào mỗi Thứ Hai lúc 9:00 SA",
+    "dailyLightSweepLabel": "Dọn dẹp nhẹ hằng ngày",
+    "dailyLightSweepDescription": "Hệ thống, trình duyệt và Thùng rác hằng ngày lúc 8:00 SA",
+    "monthlyDeepMaintenanceLabel": "Bảo trì chuyên sâu hằng tháng",
+    "monthlyDeepMaintenanceDescription": "Dọn dẹp toàn bộ + registry, driver và phần mềm vào ngày 1 lúc 10:00 SA",
+    "customLabel": "Tùy chỉnh",
+    "customDescription": "Bắt đầu từ đầu với một lịch biểu trống"
+  },
+  "dialog": {
+    "editTitle": "Chỉnh sửa lịch biểu",
+    "newTitle": "Lịch biểu mới",
+    "nameLabel": "Tên",
+    "namePlaceholder": "ví dụ: Dọn dẹp chuyên sâu hằng tuần",
+    "frequencyLabel": "Tần suất",
+    "frequencyDaily": "Hằng ngày",
+    "frequencyWeekly": "Hằng tuần",
+    "frequencyMonthly": "Hằng tháng",
+    "dayLabel": "Ngày",
+    "timeLabel": "Thời gian",
+    "tasksLabel": "Tác vụ",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "cleanerGroup": "Dọn dẹp",
+    "maintenanceGroup": "Bảo trì",
+    "autoApplyLabel": "Tự động áp dụng",
+    "autoApplyDescription": "Tự động dọn dẹp tệp, sửa lỗi registry và cài đặt bản cập nhật mà không cần xác nhận.",
+    "autoApplyWarning": "Các hành động sẽ tự động chạy theo lịch. Hãy bảo đảm danh sách loại trừ của bạn đã được cập nhật.",
+    "cancelButton": "Hủy",
+    "saveChangesButton": "Lưu thay đổi",
+    "createScheduleButton": "Tạo lịch biểu"
+  },
+  "tasks": {
+    "system": "Hệ thống",
+    "browsers": "Trình duyệt",
+    "applications": "Ứng dụng",
+    "gaming": "Trò chơi",
+    "recycleBin": "Thùng rác",
+    "databases": "Cơ sở dữ liệu",
+    "registryFixes": "Sửa lỗi registry",
+    "driverUpdates": "Cập nhật driver",
+    "softwareUpdates": "Cập nhật phần mềm"
+  },
+  "dayNames": {
+    "sunday": "Chủ Nhật",
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy"
+  },
+  "frequency": {
+    "everyDayAt": "Mỗi ngày lúc {{time}}",
+    "everyWeekdayAt": "Mỗi {{day}} lúc {{time}}",
+    "monthlyAt": "Ngày {{ordinalDay}} hằng tháng lúc {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Hôm nay lúc {{time}}",
+    "tomorrowAt": "Ngày mai lúc {{time}}",
+    "inDaysAt": "Sau {{count}} ngày lúc {{time}}",
+    "dateAt": "{{date}} lúc {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Vừa xong",
+    "minutesAgo": "{{count}} phút trước",
+    "hoursAgo": "{{count}} giờ trước",
+    "daysAgo": "{{count}} ngày trước"
+  },
+  "copyNameSuffix": "(bản sao)"
+}

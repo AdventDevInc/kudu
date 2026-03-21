@@ -1,0 +1,99 @@
+{
+  "pageTitle": "일정",
+  "pageDescription": "일정에 따라 검사, 정리 및 업데이트를 자동화합니다",
+  "newScheduleButton": "새 일정",
+  "createScheduleButton": "일정 만들기",
+  "emptyStateTitle": "아직 일정이 없습니다",
+  "emptyStateDescription": "검사, 정리 및 업데이트를 자동으로 실행할 일정을 만드세요.",
+  "maxSchedulesReached": "최대 {{max}}개의 일정에 도달했습니다.",
+  "duplicatedToast": "\"{{name}}\" 복제됨",
+  "deletedToast": "\"{{name}}\" 삭제됨",
+  "updatedToast": "\"{{name}}\" 업데이트됨",
+  "createdToast": "\"{{name}}\" 생성됨",
+  "failedEnableStartup": "시작 프로그램 활성화에 실패했습니다. 다시 시작 후 일정이 실행되지 않을 수 있습니다.",
+  "deleteConfirmTitle": "일정 삭제",
+  "deleteConfirmDescription": "이 일정은 영구적으로 제거됩니다. 이 작업은 되돌릴 수 없습니다.",
+  "deleteConfirmLabel": "삭제",
+  "card": {
+    "autoApplyBadge": "자동 적용",
+    "editAction": "편집",
+    "duplicateAction": "복제",
+    "deleteAction": "삭제",
+    "noTasksSelected": "선택된 작업 없음",
+    "nextRun": "다음: {{time}}",
+    "lastRun": "마지막: {{time}}",
+    "neverRun": "실행한 적 없음"
+  },
+  "presets": {
+    "dialogTitle": "템플릿 선택",
+    "weeklyFullCleanLabel": "주간 전체 정리",
+    "weeklyFullCleanDescription": "매주 월요일 오전 9시에 모든 정리 항목 실행",
+    "dailyLightSweepLabel": "일일 빠른 정리",
+    "dailyLightSweepDescription": "매일 오전 8시에 시스템, 브라우저 및 휴지통 정리",
+    "monthlyDeepMaintenanceLabel": "월간 정밀 유지 관리",
+    "monthlyDeepMaintenanceDescription": "매월 1일 오전 10시에 전체 정리 + 레지스트리, 드라이버 및 소프트웨어 관리",
+    "customLabel": "사용자 지정",
+    "customDescription": "빈 일정에서 처음부터 시작"
+  },
+  "dialog": {
+    "editTitle": "일정 편집",
+    "newTitle": "새 일정",
+    "nameLabel": "이름",
+    "namePlaceholder": "예: 주간 정밀 정리",
+    "frequencyLabel": "빈도",
+    "frequencyDaily": "매일",
+    "frequencyWeekly": "매주",
+    "frequencyMonthly": "매월",
+    "dayLabel": "요일",
+    "timeLabel": "시간",
+    "tasksLabel": "작업",
+    "selectAll": "모두 선택",
+    "deselectAll": "모두 선택 해제",
+    "cleanerGroup": "정리",
+    "maintenanceGroup": "유지 관리",
+    "autoApplyLabel": "자동 적용",
+    "autoApplyDescription": "확인 없이 파일을 자동으로 정리하고, 레지스트리 문제를 수정하며, 업데이트를 설치합니다.",
+    "autoApplyWarning": "작업이 일정에 따라 자동으로 실행됩니다. 제외 목록이 최신 상태인지 확인하세요.",
+    "cancelButton": "취소",
+    "saveChangesButton": "변경 사항 저장",
+    "createScheduleButton": "일정 만들기"
+  },
+  "tasks": {
+    "system": "시스템",
+    "browsers": "브라우저",
+    "applications": "응용 프로그램",
+    "gaming": "게임",
+    "recycleBin": "휴지통",
+    "databases": "데이터베이스",
+    "registryFixes": "레지스트리 수정",
+    "driverUpdates": "드라이버 업데이트",
+    "softwareUpdates": "소프트웨어 업데이트"
+  },
+  "dayNames": {
+    "sunday": "일요일",
+    "monday": "월요일",
+    "tuesday": "화요일",
+    "wednesday": "수요일",
+    "thursday": "목요일",
+    "friday": "금요일",
+    "saturday": "토요일"
+  },
+  "frequency": {
+    "everyDayAt": "매일 {{time}}",
+    "everyWeekdayAt": "매주 {{day}} {{time}}",
+    "monthlyAt": "매월 {{ordinalDay}} {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "오늘 {{time}}",
+    "tomorrowAt": "내일 {{time}}",
+    "inDaysAt": "{{count}}일 후 {{time}}",
+    "dateAt": "{{date}} {{time}}"
+  },
+  "lastRun": {
+    "justNow": "방금 전",
+    "minutesAgo": "{{count}}분 전",
+    "hoursAgo": "{{count}}시간 전",
+    "daysAgo": "{{count}}일 전"
+  },
+  "copyNameSuffix": "(복사본)"
+}

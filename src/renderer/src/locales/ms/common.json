@@ -1,0 +1,18 @@
+{
+  "scanning": "Mengimbas...",
+  "cleaning": "Membersihkan...",
+  "foundLabel": "Ditemui:",
+  "itemsUnit": "item",
+  "sizeLabel": "Saiz:",
+  "health": "Kesihatan",
+  "cancel": "Batal",
+  "confirm": "Sahkan",
+  "adminBannerMessage": "Sesetengah ciri memerlukan keistimewaan pentadbir.",
+  "relaunchAsAdmin": "Lancarkan semula sebagai Pentadbir",
+  "justNow": "Baru sahaja",
+  "minutesAgo": "{{minutes}}m lalu",
+  "hoursAgo": "{{hours}}j lalu",
+  "daysAgo": "{{days}}h lalu",
+  "zeroBytes": "0 B",
+  "zeroSpeed": "0 B/s"
+}

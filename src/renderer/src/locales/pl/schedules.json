@@ -1,0 +1,99 @@
+{
+  "pageTitle": "Harmonogramy",
+  "pageDescription": "Automatyzuj skanowania, czyszczenie i aktualizacje według harmonogramu",
+  "newScheduleButton": "Nowy harmonogram",
+  "createScheduleButton": "Utwórz harmonogram",
+  "emptyStateTitle": "Brak harmonogramów",
+  "emptyStateDescription": "Utwórz harmonogram, aby automatycznie uruchamiać skanowania, czyszczenie i aktualizacje.",
+  "maxSchedulesReached": "Osiągnięto maksymalną liczbę harmonogramów: {{max}}.",
+  "duplicatedToast": "Zduplikowano „{{name}}”",
+  "deletedToast": "Usunięto „{{name}}”",
+  "updatedToast": "Zaktualizowano „{{name}}”",
+  "createdToast": "Utworzono „{{name}}”",
+  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
+  "deleteConfirmTitle": "Usuń harmonogram",
+  "deleteConfirmDescription": "Ten harmonogram zostanie trwale usunięty. Tej operacji nie można cofnąć.",
+  "deleteConfirmLabel": "Usuń",
+  "card": {
+    "autoApplyBadge": "Automatyczne zastosowanie",
+    "editAction": "Edytuj",
+    "duplicateAction": "Duplikuj",
+    "deleteAction": "Usuń",
+    "noTasksSelected": "Nie wybrano zadań",
+    "nextRun": "Następne: {{time}}",
+    "lastRun": "Ostatnie: {{time}}",
+    "neverRun": "Nigdy nie uruchomiono"
+  },
+  "presets": {
+    "dialogTitle": "Wybierz szablon",
+    "weeklyFullCleanLabel": "Cotygodniowe pełne czyszczenie",
+    "weeklyFullCleanDescription": "Wszystkie kategorie czyszczenia w każdy poniedziałek o 9:00",
+    "dailyLightSweepLabel": "Codzienne lekkie czyszczenie",
+    "dailyLightSweepDescription": "System, przeglądarki i kosz codziennie o 8:00",
+    "monthlyDeepMaintenanceLabel": "Miesięczna gruntowna konserwacja",
+    "monthlyDeepMaintenanceDescription": "Pełne czyszczenie + rejestr, sterowniki i oprogramowanie 1. dnia miesiąca o 10:00",
+    "customLabel": "Niestandardowy",
+    "customDescription": "Rozpocznij od pustego harmonogramu"
+  },
+  "dialog": {
+    "editTitle": "Edytuj harmonogram",
+    "newTitle": "Nowy harmonogram",
+    "nameLabel": "Nazwa",
+    "namePlaceholder": "np. Cotygodniowe gruntowne czyszczenie",
+    "frequencyLabel": "Częstotliwość",
+    "frequencyDaily": "Codziennie",
+    "frequencyWeekly": "Co tydzień",
+    "frequencyMonthly": "Co miesiąc",
+    "dayLabel": "Dzień",
+    "timeLabel": "Godzina",
+    "tasksLabel": "Zadania",
+    "selectAll": "Zaznacz wszystko",
+    "deselectAll": "Odznacz wszystko",
+    "cleanerGroup": "Czyszczenie",
+    "maintenanceGroup": "Konserwacja",
+    "autoApplyLabel": "Automatyczne zastosowanie",
+    "autoApplyDescription": "Automatycznie czyść pliki, naprawiaj problemy z rejestrem i instaluj aktualizacje bez potwierdzenia.",
+    "autoApplyWarning": "Działania będą uruchamiane automatycznie zgodnie z harmonogramem. Upewnij się, że lista wykluczeń jest aktualna.",
+    "cancelButton": "Anuluj",
+    "saveChangesButton": "Zapisz zmiany",
+    "createScheduleButton": "Utwórz harmonogram"
+  },
+  "tasks": {
+    "system": "System",
+    "browsers": "Przeglądarki",
+    "applications": "Aplikacje",
+    "gaming": "Gry",
+    "recycleBin": "Kosz",
+    "databases": "Bazy danych",
+    "registryFixes": "Naprawa rejestru",
+    "driverUpdates": "Aktualizacje sterowników",
+    "softwareUpdates": "Aktualizacje oprogramowania"
+  },
+  "dayNames": {
+    "sunday": "Niedziela",
+    "monday": "Poniedziałek",
+    "tuesday": "Wtorek",
+    "wednesday": "Środa",
+    "thursday": "Czwartek",
+    "friday": "Piątek",
+    "saturday": "Sobota"
+  },
+  "frequency": {
+    "everyDayAt": "Codziennie o {{time}}",
+    "everyWeekdayAt": "W każdy {{day}} o {{time}}",
+    "monthlyAt": "{{ordinalDay}} każdego miesiąca o {{time}}"
+  },
+  "nextRun": {
+    "todayAt": "Dzisiaj o {{time}}",
+    "tomorrowAt": "Jutro o {{time}}",
+    "inDaysAt": "Za {{count}} dni o {{time}}",
+    "dateAt": "{{date}} o {{time}}"
+  },
+  "lastRun": {
+    "justNow": "Przed chwilą",
+    "minutesAgo": "{{count}} min temu",
+    "hoursAgo": "{{count}} godz. temu",
+    "daysAgo": "{{count}} dni temu"
+  },
+  "copyNameSuffix": "(kopia)"
+}
