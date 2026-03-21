@@ -31,11 +31,12 @@ fail() {
   FAIL=$((FAIL + 1))
 }
 
-# Run a CLI command, capture output and exit code.
+# Run a CLI command, capture stdout and exit code.
+# Stderr is discarded — Chromium may emit noise (D-Bus, GPU warnings).
 # Sets: CLI_OUTPUT, CLI_EXIT
 run_cli() {
   CLI_EXIT=0
-  CLI_OUTPUT=$($ELECTRON "$@" 2>&1) || CLI_EXIT=$?
+  CLI_OUTPUT=$($ELECTRON "$@" 2>/dev/null) || CLI_EXIT=$?
 }
 
 assert_exit() {
