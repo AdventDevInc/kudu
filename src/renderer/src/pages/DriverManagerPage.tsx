@@ -179,7 +179,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           totalItemsSkipped: result.failed,
           totalSpaceSaved: result.spaceRecovered,
           categories: Object.entries(byClass).map(([name, d]) => ({
-            name: t('driverManager.historyCategoryDrivers', { name }),
+            name: `Drivers: ${name}`,
             itemsFound: d.found,
             itemsCleaned: d.cleaned,
             spaceSaved: d.size

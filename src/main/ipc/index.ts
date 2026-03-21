@@ -22,7 +22,7 @@ import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
 import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
-import { getSettings, setSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
+import { getSettings, setSettings, flushSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
 import { isAdmin } from '../services/elevation'
 import { getHistory, addHistoryEntry, clearHistory } from '../services/history-store'
 import { getCloudHistory, clearCloudHistory } from '../services/cloud-history-store'
@@ -70,7 +70,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
 
   // Settings — validate shape before persisting
   ipcMain.handle(IPC.SETTINGS_GET, () => getSettings())
-  ipcMain.handle(IPC.SETTINGS_SET, (_event, settings) => {
+  ipcMain.handle(IPC.SETTINGS_SET, async (_event, settings) => {
     const validated = validateSettingsPartial(settings)
     if (!validated) return { success: false, error: 'Invalid settings' }
     setSettings(validated)
@@ -81,6 +81,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       updateCheckInterval(validated.updateCheckIntervalHours)
     }
     if (typeof validated.language === 'string') {
+      await flushSettings()
       app.emit('kudu:language-changed')
     }
     return { success: true }

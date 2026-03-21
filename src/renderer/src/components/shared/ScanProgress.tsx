@@ -56,11 +56,11 @@ export function ScanProgress({
 
       <div className="flex items-center gap-4 text-[12px]" style={{ color: '#6e6e76' }}>
         <span>
-          {t('found')}: <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span> {t('items')}
+          {t('foundLabel')} <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span> {t('itemsUnit')}
         </span>
         <span style={{ color: '#2a2a30' }}>|</span>
         <span>
-          {t('size')}: <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
+          {t('sizeLabel')} <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
         </span>
       </div>
     </div>

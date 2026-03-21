@@ -310,10 +310,10 @@ export function DashboardPage() {
         totalSpaceSaved: space,
         categories: [
           ...(files > 0
-            ? [{ name: t('historyCategoryQuickClean'), itemsFound: files, itemsCleaned: files, spaceSaved: space }]
+            ? [{ name: 'Quick Clean', itemsFound: files, itemsCleaned: files, spaceSaved: space }]
             : []),
           ...(regFixed > 0
-            ? [{ name: t('historyCategoryRegistry'), itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
+            ? [{ name: 'Registry', itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
             : [])
         ],
         errorCount: 0
@@ -388,16 +388,16 @@ export function DashboardPage() {
         totalSpaceSaved: space + drivers.space,
         categories: [
           ...(files > 0
-            ? [{ name: t('historyCategoryFullClean'), itemsFound: files, itemsCleaned: files, spaceSaved: space }]
+            ? [{ name: 'Full Clean', itemsFound: files, itemsCleaned: files, spaceSaved: space }]
             : []),
           ...(regFixed > 0
-            ? [{ name: t('historyCategoryRegistry'), itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
+            ? [{ name: 'Registry', itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }]
             : []),
           ...(drivers.removed > 0
-            ? [{ name: t('historyCategoryStaleDrivers'), itemsFound: drivers.removed, itemsCleaned: drivers.removed, spaceSaved: drivers.space }]
+            ? [{ name: 'Stale Drivers', itemsFound: drivers.removed, itemsCleaned: drivers.removed, spaceSaved: drivers.space }]
             : []),
           ...(malware.quarantined > 0
-            ? [{ name: t('historyCategoryMalware'), itemsFound: malware.found, itemsCleaned: malware.quarantined, spaceSaved: 0 }]
+            ? [{ name: 'Malware', itemsFound: malware.found, itemsCleaned: malware.quarantined, spaceSaved: 0 }]
             : [])
         ],
         errorCount: 0

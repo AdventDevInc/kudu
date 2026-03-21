@@ -77,10 +77,5 @@
   "toastPrivacyCheckFailed": "Privacy check failed",
   "toastStartupCheckFailed": "Startup check failed",
   "toastSoftwareUpdateCheckFailed": "Software update check failed",
-  "toastDriverCleanupFailed": "Driver cleanup failed",
-  "historyCategoryQuickClean": "Quick Clean",
-  "historyCategoryRegistry": "Registry",
-  "historyCategoryFullClean": "Full Clean",
-  "historyCategoryStaleDrivers": "Stale Drivers",
-  "historyCategoryMalware": "Malware"
+  "toastDriverCleanupFailed": "Driver cleanup failed"
 }

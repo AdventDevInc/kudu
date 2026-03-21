@@ -76,8 +76,7 @@
     "toastUpdateFailed": "{{count}} update failed",
     "toastUpdateFailedPlural": "{{count}} updates failed",
     "errorCheckFailed": "Failed to check for updates.",
-    "errorUpdateFailed": "Update operation failed unexpectedly.",
-    "historyCategoryUpdates": "{{name}} updates"
+    "errorUpdateFailed": "Update operation failed unexpectedly."
   },
   "driverManager": {
     "pageTitle": "Driver Manager",
@@ -130,7 +129,6 @@
     "installFailedError": "Failed to install driver updates. Administrator privileges are required.",
     "cleanFailedToast": "Driver cleanup failed",
     "cleanFailedDescription": "Administrator privileges are required",
-    "cleanFailedError": "Failed to remove driver packages. Administrator privileges are required.",
-    "historyCategoryDrivers": "Drivers: {{name}}"
+    "cleanFailedError": "Failed to remove driver packages. Administrator privileges are required."
   }
 }

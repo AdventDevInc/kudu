@@ -203,7 +203,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           totalItemsSkipped: 0,
           totalSpaceSaved: 0,
           categories: Object.entries(bySeverity).map(([name, d]) => ({
-            name: t('softwareUpdater.historyCategoryUpdates', { name }), itemsFound: d.found, itemsCleaned: d.updated, spaceSaved: 0
+            name: `${name} updates`, itemsFound: d.found, itemsCleaned: d.updated, spaceSaved: 0
           })),
           errorCount: result.failed
         })

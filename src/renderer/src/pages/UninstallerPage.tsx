@@ -168,7 +168,7 @@ export function UninstallerPage() {
             totalSpaceSaved: result.leftoversSize,
             categories: [
               {
-                name: t('historyCategoryUninstall', { programName: result.programName }),
+                name: `Uninstall: ${result.programName}`,
                 itemsFound: result.leftoversFound,
                 itemsCleaned: result.leftoversCleaned,
                 spaceSaved: result.leftoversSize,
@@ -229,7 +229,7 @@ export function UninstallerPage() {
               totalSpaceSaved: result.leftoversSize,
               categories: [
                 {
-                  name: t('historyCategoryUninstall', { programName: result.programName }),
+                  name: `Uninstall: ${result.programName}`,
                   itemsFound: result.leftoversFound,
                   itemsCleaned: result.leftoversCleaned,
                   spaceSaved: result.leftoversSize,

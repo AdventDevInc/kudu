@@ -63,6 +63,5 @@
   "confirmBatchLabel": "Uninstall {{count}}",
   "batchResultProgramsSingular": "{{count}} program",
   "batchResultProgramsPlural": "{{count}} programs",
-  "batchResultFailedSucceeded": "{{failed}} failed, {{succeeded}} succeeded",
-  "historyCategoryUninstall": "Uninstall: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} failed, {{succeeded}} succeeded"
 }
