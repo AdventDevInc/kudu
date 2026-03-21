@@ -38,3 +38,7 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: CLI smoke test
+        run: bash scripts/cli-smoke-test.sh
+        timeout-minutes: 5
