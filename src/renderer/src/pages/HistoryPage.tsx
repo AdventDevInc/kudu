@@ -101,7 +101,7 @@ export function HistoryPage() {
       byType[label].items += e.totalItemsCleaned
     }
     return Object.entries(byType).map(([name, d]) => ({ name, ...d }))
-  }, [entries])
+  }, [entries, typeConfig])
 
   // --- Chart data: category breakdown across all scans ---
   const categoryBreakdown = useMemo(() => {

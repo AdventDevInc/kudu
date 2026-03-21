@@ -184,7 +184,7 @@ export function DashboardPage() {
       }
     }
     return { space: totalSpace, files: totalFiles }
-  }, [scanStore.excludedSubcategories])
+  }, [scanStore.excludedSubcategories, t])
 
   // Scan+fix registry
   const runRegistry = useCallback(async (): Promise<number> => {
@@ -201,7 +201,7 @@ export function DashboardPage() {
       toast.error(t('toastRegistryScanFailed'))
       return 0
     }
-  }, [])
+  }, [t])
 
   // Scan for malware and quarantine threats
   const runMalwareScan = useCallback(async (): Promise<{ found: number; quarantined: number }> => {
@@ -217,7 +217,7 @@ export function DashboardPage() {
       toast.error(t('toastMalwareScanFailed'))
       return { found: 0, quarantined: 0 }
     }
-  }, [])
+  }, [t])
 
   // Check privacy settings (report only)
   const runPrivacyCheck = useCallback(async (): Promise<{ score: number; issues: number }> => {
@@ -229,7 +229,7 @@ export function DashboardPage() {
       toast.error(t('toastPrivacyCheckFailed'))
       return { score: 0, issues: 0 }
     }
-  }, [])
+  }, [t])
 
   // Check startup items (report only)
   const runStartupCheck = useCallback(async (): Promise<number> => {
@@ -241,7 +241,7 @@ export function DashboardPage() {
       toast.error(t('toastStartupCheckFailed'))
       return 0
     }
-  }, [])
+  }, [t])
 
   // Check for software updates (report only)
   const runSoftwareUpdateCheck = useCallback(async (): Promise<number> => {
@@ -253,7 +253,7 @@ export function DashboardPage() {
       toast.error(t('toastSoftwareUpdateCheckFailed'))
       return 0
     }
-  }, [])
+  }, [t])
 
   // Scan+remove stale drivers (excludes driver updates)
   const runDrivers = useCallback(async (): Promise<{ removed: number; space: number }> => {
@@ -269,7 +269,7 @@ export function DashboardPage() {
       toast.error(t('toastDriverCleanupFailed'))
       return { removed: 0, space: 0 }
     }
-  }, [])
+  }, [t])
 
   const handleQuickClean = useCallback(async () => {
     if (phase !== 'idle' && phase !== 'done') return
