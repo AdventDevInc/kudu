@@ -91,6 +91,12 @@ Kudu is **100% free, open-source, and transparent**. No ads, no upsells, no tele
 </tr>
 </table>
 
+## Languages
+
+Kudu is available in 30 languages:
+
+English, Spanish, French, German, Portuguese, Italian, Japanese, Korean, Chinese (Simplified), Chinese (Traditional), Russian, Arabic, Hindi, Turkish, Dutch, Polish, Swedish, Norwegian, Danish, Finnish, Czech, Thai, Vietnamese, Indonesian, Malay, Ukrainian, Romanian, Greek, Hebrew, Hungarian
+
 ## Disclaimer
 
 Kudu is intended for **advanced users** who understand system maintenance. You are responsible for reviewing items before removal. We accept no liability for data loss or system instability. Create backups before cleaning — especially for registry and debloat operations. This software is provided **"as is"** without warranty.
