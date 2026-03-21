@@ -229,6 +229,36 @@ function createTray(): void {
   })
 }
 
+/** Rebuild the tray context menu (e.g. after a language change) */
+function rebuildTrayMenu(): void {
+  if (!tray) return
+  tray.setToolTip(t('trayTooltip'))
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: t('openKudu'),
+      click: () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.show()
+          mainWindow.focus()
+        } else {
+          createWindow()
+        }
+      }
+    },
+    { type: 'separator' },
+    {
+      label: t('quit'),
+      click: () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.removeAllListeners('close')
+        }
+        app.quit()
+      }
+    }
+  ])
+  tray.setContextMenu(contextMenu)
+}
+
 function destroyTray(): void {
   if (tray) {
     tray.destroy()
@@ -369,6 +399,11 @@ app.whenReady().then(() => {
     } else if (!getSettings().schedules.some((s) => s.enabled)) {
       destroyTray()
     }
+  })
+
+  // Rebuild tray menu when language changes so labels update immediately
+  app.on('kudu:language-changed' as any, () => {
+    rebuildTrayMenu()
   })
 
   // IPC to get next scan time for the UI

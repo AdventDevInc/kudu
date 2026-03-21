@@ -80,6 +80,9 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     if (typeof validated.updateCheckIntervalHours === 'number') {
       updateCheckInterval(validated.updateCheckIntervalHours)
     }
+    if (typeof validated.language === 'string') {
+      app.emit('kudu:language-changed')
+    }
     return { success: true }
   })
 

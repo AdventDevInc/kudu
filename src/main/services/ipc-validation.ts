@@ -12,6 +12,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   const obj = input as Record<string, unknown>
 
   const allowedTopKeys = new Set([
+    'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
     'cleaner', 'exclusions', 'schedule', 'schedules', 'cloud'
@@ -19,6 +20,11 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
 
   for (const key of Object.keys(obj)) {
     if (!allowedTopKeys.has(key)) return null
+  }
+
+  // Validate language is a safe locale code string (e.g. 'en', 'zh-CN')
+  if ('language' in obj && obj.language !== undefined) {
+    if (typeof obj.language !== 'string' || obj.language.length > 10 || !/^[a-z]{2}(-[A-Za-z]{2,4})?$/.test(obj.language)) return null
   }
 
   // Validate boolean fields have correct types
