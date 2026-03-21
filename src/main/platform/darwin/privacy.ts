@@ -374,6 +374,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     label: 'Stealth Mode',
     description: 'Enable stealth mode so your Mac does not respond to probe requests (ICMP ping)',
     requiresAdmin: true,
+    dependsOn: 'macos-firewall',
     async check() {
       try {
         const out = await socketfilterfwGet('--getstealthmode')
@@ -405,6 +406,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     label: 'Block Signed App Auto-Allow',
     description: 'Prevent signed applications from automatically bypassing the firewall',
     requiresAdmin: true,
+    dependsOn: 'macos-firewall',
     async check() {
       try {
         const out = await socketfilterfwGet('--getallowsigned')

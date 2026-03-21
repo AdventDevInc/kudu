@@ -47,7 +47,8 @@
     "settingsFailedToastPlural": "{{count}} settings failed to apply",
     "ipcCallFailed": "IPC call failed — try running as administrator",
     "allSettingsLabel": "All settings",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "requiresSettingEnabled": "Enable \"{{label}}\" first"
   },
   "privacyCategories": {
     "telemetryLabel": "Telemetry & Data Collection",

@@ -31,6 +31,7 @@ interface SettingDef {
   label: string
   description: string
   requiresAdmin: boolean
+  dependsOn?: string                  // ID of a setting that must be enabled first
   check: () => Promise<boolean>       // returns true if already privacy-friendly
   apply: () => Promise<void>          // applies the privacy-friendly state
 }
@@ -812,7 +813,8 @@ export async function scanPrivacy(
         label: def.label,
         description: def.description,
         enabled,
-        requiresAdmin: def.requiresAdmin
+        requiresAdmin: def.requiresAdmin,
+        ...(def.dependsOn ? { dependsOn: def.dependsOn } : {})
       })
     }
 

@@ -283,6 +283,7 @@ export interface PrivacySetting {
   description: string
   enabled: boolean          // true = privacy-friendly (tracking disabled)
   requiresAdmin: boolean
+  dependsOn?: string        // ID of a setting that must be enabled first
 }
 
 export interface PrivacyShieldState {

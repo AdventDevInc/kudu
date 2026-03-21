@@ -655,7 +655,14 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                 {/* Expanded settings */}
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                    {catSettings.map((setting, i) => (
+                    {catSettings.map((setting, i) => {
+                      const depSetting = setting.dependsOn
+                        ? state?.settings.find(s => s.id === setting.dependsOn)
+                        : undefined
+                      const depMissing = depSetting !== undefined && !depSetting.enabled
+                      const toggleDisabled = busy || setting.enabled || depMissing
+
+                      return (
                       <div key={setting.id}
                         className="flex items-center gap-4 px-5 py-3.5"
                         style={{
@@ -672,12 +679,17 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                             )}
                           </div>
                           <p className="mt-0.5 text-[11px]" style={{ color: '#5e5e66' }}>{setting.description}</p>
+                          {depMissing && depSetting && (
+                            <p className="mt-0.5 text-[10px]" style={{ color: '#f59e0b' }}>
+                              {t('privacy.requiresSettingEnabled', { label: depSetting.label })}
+                            </p>
+                          )}
                         </div>
 
                         {/* Toggle switch */}
                         <button
-                          onClick={() => !setting.enabled && handleToggleSingle(setting.id)}
-                          disabled={busy || setting.enabled}
+                          onClick={() => !setting.enabled && !depMissing && handleToggleSingle(setting.id)}
+                          disabled={toggleDisabled}
                           className="relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60"
                           style={{ background: setting.enabled ? '#22c55e' : 'rgba(255,255,255,0.08)' }}
                         >
@@ -688,7 +700,8 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                             }} />
                         </button>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>
