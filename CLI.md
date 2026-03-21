@@ -25,8 +25,12 @@ kudu --cli [options] [categories...]
 |------|-------------|
 | `--clean` | Delete found items after scanning (without this flag, scan-only) |
 | `--json` | Output results as JSON instead of human-readable text |
+| `--verbose` | Show detailed progress, timing, and debug info |
+| `-q`, `--quiet` | Suppress all output except errors and final result |
 | `-h`, `--help` | Show help message |
 | `-v`, `--version` | Show version |
+
+`--verbose` and `--quiet` are mutually exclusive.
 
 ## Examples
 
@@ -78,9 +82,32 @@ When `--json` is passed, output is a single JSON object:
 
 The `clean` key is only present when `--clean` is used.
 
+## Prometheus Metrics
+
+Print metrics in Prometheus text format (useful for `node_exporter` textfile collector):
+
+```bash
+kudu --cli metrics
+kudu --cli metrics --json    # JSON array of metric objects
+```
+
+Start a persistent HTTP metrics server:
+
+```bash
+kudu --cli metrics-server              # default port 9100
+kudu --cli metrics-server --port 9200  # custom port
+# Endpoints: /metrics (Prometheus), /health (JSON)
+```
+
 ## Exit Codes
 
 | Code | Meaning |
 |------|---------|
 | `0` | Success |
-| `1` | Errors occurred during scan or clean |
+| `1` | General error |
+| `2` | Invalid arguments |
+| `3` | Permission denied (needs elevation) |
+| `4` | Partial success (some operations failed) |
+| `5` | Nothing found (scan returned zero items) |
+| `6` | Unknown command |
+| `7` | Threats/issues found requiring attention |

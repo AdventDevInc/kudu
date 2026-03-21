@@ -9,6 +9,36 @@ import type { ScanResult, CleanResult } from '../shared/types'
 import { getPlatform } from './platform'
 import { randomUUID } from 'crypto'
 
+// ─── Types ──────────────────────────────────────────────────
+
+type Verbosity = 'quiet' | 'normal' | 'verbose'
+
+export interface CliContext {
+  json: boolean
+  verbosity: Verbosity
+}
+
+export const ExitCode = {
+  SUCCESS: 0,
+  GENERAL_ERROR: 1,
+  INVALID_ARGS: 2,
+  PERMISSION_DENIED: 3,
+  PARTIAL_SUCCESS: 4,
+  NOTHING_FOUND: 5,
+  UNKNOWN_COMMAND: 6,
+  SCAN_THREATS: 7,
+} as const
+
+export interface ParsedCliArgs {
+  command: string | undefined
+  commandArgs: string[]
+  ctx: CliContext
+  help: boolean
+  version: boolean
+  hasLegacyFlags: boolean
+  hasCleanFlag: boolean
+}
+
 // ─── Output helpers ──────────────────────────────────────────
 
 function log(msg: string): void {
@@ -22,9 +52,21 @@ function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`
 }
 
-function out(data: unknown, json: boolean): void {
-  if (json) {
+function cliLog(ctx: CliContext, msg: string): void {
+  if (ctx.verbosity === 'quiet') return
+  process.stdout.write(msg + '\n')
+}
+
+function cliVerbose(ctx: CliContext, msg: string): void {
+  if (ctx.verbosity !== 'verbose') return
+  process.stdout.write(`  [verbose] ${msg}\n`)
+}
+
+function cliOut(ctx: CliContext, data: unknown): void {
+  if (ctx.json) {
     log(JSON.stringify(data, null, 2))
+  } else if (ctx.verbosity === 'quiet') {
+    return
   } else if (Array.isArray(data)) {
     for (const item of data) {
       if (typeof item === 'string') log(`  ${item}`)
@@ -37,6 +79,56 @@ function out(data: unknown, json: boolean): void {
   } else {
     log(String(data))
   }
+}
+
+function cliUsage(ctx: CliContext, usage: string): void {
+  if (ctx.json) {
+    log(JSON.stringify({ error: 'invalid_usage', usage }))
+  } else {
+    // Always show usage errors, even in quiet mode
+    log(`Usage: ${usage}`)
+  }
+}
+
+function cliNotFound(ctx: CliContext, type: string, name: string): void {
+  if (ctx.json) {
+    log(JSON.stringify({ error: 'not_found', type, name }))
+  } else {
+    // Always show not-found errors, even in quiet mode
+    log(`${type} not found: ${name}`)
+  }
+}
+
+/** Whether to show interactive progress (carriage-return overwrites) */
+function showProgress(ctx: CliContext): boolean {
+  return ctx.verbosity !== 'quiet' && !ctx.json
+}
+
+// ─── Argument parsing ───────────────────────────────────────
+
+const GLOBAL_FLAGS = new Set(['--json', '--verbose', '--quiet', '-q', '--help', '-h', '--version', '-v'])
+
+export function parseCliArgs(argv: string[]): ParsedCliArgs {
+  const cliIndex = argv.indexOf('--cli')
+  const cliArgs = argv.slice(cliIndex + 1)
+
+  const json = cliArgs.includes('--json')
+  const verbose = cliArgs.includes('--verbose')
+  const quiet = cliArgs.includes('--quiet') || cliArgs.includes('-q')
+  const help = cliArgs.includes('--help') || cliArgs.includes('-h')
+  const version = cliArgs.includes('--version') || cliArgs.includes('-v')
+
+  const verbosity: Verbosity = verbose ? 'verbose' : quiet ? 'quiet' : 'normal'
+  const ctx: CliContext = { json, verbosity }
+
+  const command = cliArgs.find(a => !a.startsWith('--') && !a.startsWith('-'))
+  const commandArgs = cliArgs.filter(a => a !== command && !GLOBAL_FLAGS.has(a))
+
+  const legacyCats = ['system', 'browser', 'app', 'gaming', 'recycle-bin']
+  const hasLegacyFlags = legacyCats.some(c => cliArgs.includes(`--${c}`)) || cliArgs.includes('--all')
+  const hasCleanFlag = cliArgs.includes('--clean')
+
+  return { command, commandArgs, ctx, help, version, hasLegacyFlags, hasCleanFlag }
 }
 
 // ─── Legacy scan implementations (file-based cleaners) ───────
@@ -391,6 +483,7 @@ Debloater:
 Disk Analyzer:
   disk drives                List available drives
   disk analyze <drive>       Analyze disk usage (e.g. disk analyze C)
+  disk file-types <drive>    Analyze file types on a drive
 
 Network Cleanup:
   network scan               Scan DNS cache, Wi-Fi profiles, ARP cache
@@ -449,11 +542,27 @@ Service Management (Linux):
   service uninstall            Remove the systemd service
   service status               Show service status
 
+Prometheus Metrics:
+  metrics                    Print current metrics (Prometheus text format)
+  metrics-server [--port N]  Start HTTP metrics endpoint (default: port 9100)
+
 Global Options:
   --json          Output as JSON
+  --verbose       Show detailed progress, timing, and debug info
+  -q, --quiet     Suppress all output except errors and final result
   --all           Select all items for action commands
   -h, --help      Show this help
   -v, --version   Show version
+
+Exit Codes:
+  0  Success
+  1  General error
+  2  Invalid arguments
+  3  Permission denied (needs elevation)
+  4  Partial success (some operations failed)
+  5  Nothing found (scan returned zero items)
+  6  Unknown command
+  7  Threats/issues found requiring attention
 
 Examples:
   kudu --cli scan --all --clean        Scan & clean all file categories
@@ -463,6 +572,8 @@ Examples:
   kudu --cli malware scan              Run malware scan
   kudu --cli perf info                 Show system specs
   kudu --cli config set cloud.apiKey my-key   Set cloud API key
+  kudu --cli metrics                   Print Prometheus metrics
+  kudu --cli metrics-server --port 9200  Start metrics endpoint
   kudu --daemon                        Run headless cloud agent
   sudo kudu --cli service install      Install as Linux service
 `.trim())
@@ -470,365 +581,380 @@ Examples:
 
 // ─── Subcommand handlers ─────────────────────────────────────
 
-async function handleRegistry(args: string[], json: boolean): Promise<void> {
+async function handleRegistry(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanRegistry, fixRegistryEntries } = await import('./ipc/registry-cleaner.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning registry...')
+    cliLog(ctx, 'Scanning registry...')
+    const startTime = Date.now()
     const entries = await scanRegistry()
-    if (json) {
-      out({ entries, count: entries.length }, true)
+    cliVerbose(ctx, `Registry scan completed in ${Date.now() - startTime}ms`)
+    if (ctx.json) {
+      cliOut(ctx, { entries, count: entries.length })
     } else {
-      log(`Found ${entries.length} registry issues`)
-      for (const e of entries) log(`  [${e.risk}] ${e.keyPath} — ${e.issue}`)
+      cliLog(ctx, `Found ${entries.length} registry issues`)
+      for (const e of entries) cliLog(ctx, `  [${e.risk}] ${e.keyPath} — ${e.issue}`)
     }
   } else if (sub === 'fix') {
-    if (!json) log('Scanning registry...')
+    cliLog(ctx, 'Scanning registry...')
     const entries = await scanRegistry()
     if (entries.length === 0) {
-      out(json ? { message: 'No issues found' } : 'No registry issues found.', json)
+      cliOut(ctx, ctx.json ? { message: 'No issues found' } : 'No registry issues found.')
       return
     }
     const toFix = args.includes('--all') ? entries : entries.filter(e => e.risk === 'high')
-    if (!json) log(`Fixing ${toFix.length} of ${entries.length} issues...`)
+    cliLog(ctx, `Fixing ${toFix.length} of ${entries.length} issues...`)
     const result = await fixRegistryEntries(toFix, (current, total) => {
-      if (!json) process.stdout.write(`\r  Progress: ${current}/${total}`)
+      if (showProgress(ctx)) process.stdout.write(`\r  Progress: ${current}/${total}`)
     })
-    if (!json) log('')
-    out(result, json)
+    if (showProgress(ctx)) log('')
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli registry <scan|fix> [--all] [--json]')
+    cliUsage(ctx, 'kudu --cli registry <scan|fix> [--all] [--json]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleStartup(args: string[], json: boolean): Promise<void> {
+async function handleStartup(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { listStartupItems, toggleStartupItem, deleteStartupItem, getBootTrace } = await import('./ipc/startup-manager.ipc')
 
   if (sub === 'list') {
     const items = await listStartupItems()
-    if (json) {
-      out(items, true)
+    if (ctx.json) {
+      cliOut(ctx, items)
     } else {
-      log(`Found ${items.length} startup items`)
+      cliLog(ctx, `Found ${items.length} startup items`)
       for (const item of items) {
         const status = item.enabled ? 'enabled' : 'disabled'
-        log(`  [${status}] ${item.displayName || item.name} — ${item.impact || 'unknown'} impact`)
+        cliLog(ctx, `  [${status}] ${item.displayName || item.name} — ${item.impact || 'unknown'} impact`)
       }
     }
   } else if (sub === 'boot-trace') {
     const trace = await getBootTrace()
-    out(trace, json)
+    cliOut(ctx, trace)
   } else if (sub === 'disable' || sub === 'enable') {
     const name = args.slice(1).join(' ')
-    if (!name) { log(`Usage: kudu --cli startup ${sub} <name>`); return }
+    if (!name) { cliUsage(ctx, `kudu --cli startup ${sub} <name>`); return ExitCode.INVALID_ARGS }
     const items = await listStartupItems()
     const item = items.find(i => i.name === name || i.displayName === name)
-    if (!item) { log(`Startup item not found: ${name}`); return }
+    if (!item) { cliNotFound(ctx, 'Startup item', name); return ExitCode.NOTHING_FOUND }
     const enabled = sub === 'enable'
     const result = await toggleStartupItem(item.name, item.location, item.command, item.source, enabled)
-    out(result, json)
+    cliOut(ctx, result)
   } else if (sub === 'delete') {
     const name = args.slice(1).join(' ')
-    if (!name) { log('Usage: kudu --cli startup delete <name>'); return }
+    if (!name) { cliUsage(ctx, 'kudu --cli startup delete <name>'); return ExitCode.INVALID_ARGS }
     const items = await listStartupItems()
     const item = items.find(i => i.name === name || i.displayName === name)
-    if (!item) { log(`Startup item not found: ${name}`); return }
+    if (!item) { cliNotFound(ctx, 'Startup item', name); return ExitCode.NOTHING_FOUND }
     const result = await deleteStartupItem(item.name, item.location, item.source)
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli startup <list|boot-trace|disable|enable|delete> [name]')
+    cliUsage(ctx, 'kudu --cli startup <list|boot-trace|disable|enable|delete> [name]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleDebloat(args: string[], json: boolean): Promise<void> {
+async function handleDebloat(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanBloatware, removeBloatware } = await import('./ipc/debloater.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning for bloatware...')
+    cliLog(ctx, 'Scanning for bloatware...')
     const apps = await scanBloatware()
-    if (json) {
-      out({ apps, count: apps.length }, true)
+    if (ctx.json) {
+      cliOut(ctx, { apps, count: apps.length })
     } else {
-      log(`Found ${apps.length} removable apps`)
-      for (const a of apps) log(`  ${a.name} (${a.packageName}) — ${a.size} — ${a.description}`)
+      cliLog(ctx, `Found ${apps.length} removable apps`)
+      for (const a of apps) cliLog(ctx, `  ${a.name} (${a.packageName}) — ${a.size} — ${a.description}`)
     }
   } else if (sub === 'remove') {
     const allFlag = args.includes('--all')
     if (allFlag) {
-      if (!json) log('Scanning for bloatware...')
+      cliLog(ctx, 'Scanning for bloatware...')
       const apps = await scanBloatware()
-      if (apps.length === 0) { out(json ? { message: 'No bloatware found' } : 'No bloatware found.', json); return }
+      if (apps.length === 0) { cliOut(ctx, ctx.json ? { message: 'No bloatware found' } : 'No bloatware found.'); return }
       const packageNames = apps.map(a => a.packageName)
-      if (!json) log(`Removing ${packageNames.length} apps...`)
+      cliLog(ctx, `Removing ${packageNames.length} apps...`)
       const result = await removeBloatware(packageNames, (current, total, currentApp, status) => {
-        if (!json) log(`  [${current}/${total}] ${currentApp}: ${status}`)
+        cliLog(ctx, `  [${current}/${total}] ${currentApp}: ${status}`)
       })
-      out(result, json)
+      cliOut(ctx, result)
     } else {
       const pkgArg = args.find(a => a !== 'remove' && !a.startsWith('--'))
-      if (!pkgArg) { log('Usage: kudu --cli debloat remove <pkg1,pkg2,...> or --all'); return }
+      if (!pkgArg) { cliUsage(ctx, 'kudu --cli debloat remove <pkg1,pkg2,...> or --all'); return ExitCode.INVALID_ARGS }
       const packageNames = pkgArg.split(',').map(s => s.trim()).filter(Boolean)
-      if (!json) log(`Removing ${packageNames.length} apps...`)
+      cliLog(ctx, `Removing ${packageNames.length} apps...`)
       const result = await removeBloatware(packageNames, (current, total, currentApp, status) => {
-        if (!json) log(`  [${current}/${total}] ${currentApp}: ${status}`)
+        cliLog(ctx, `  [${current}/${total}] ${currentApp}: ${status}`)
       })
-      out(result, json)
+      cliOut(ctx, result)
     }
   } else {
-    log('Usage: kudu --cli debloat <scan|remove> [packages|--all]')
+    cliUsage(ctx, 'kudu --cli debloat <scan|remove> [packages|--all]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleDisk(args: string[], json: boolean): Promise<void> {
+async function handleDisk(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { getDrives, analyzeDisk, getFileTypes } = await import('./ipc/disk-analyzer.ipc')
 
   if (sub === 'drives') {
     const drives = await getDrives()
-    if (json) {
-      out(drives, true)
+    if (ctx.json) {
+      cliOut(ctx, drives)
     } else {
-      for (const d of drives) log(`  ${d.letter}: ${d.label || 'Local Disk'} — ${formatBytes(d.usedSpace)} / ${formatBytes(d.totalSize)} (${(d.usedSpace / d.totalSize * 100).toFixed(1)}% used)`)
+      for (const d of drives) cliLog(ctx, `  ${d.letter}: ${d.label || 'Local Disk'} — ${formatBytes(d.usedSpace)} / ${formatBytes(d.totalSize)} (${(d.usedSpace / d.totalSize * 100).toFixed(1)}% used)`)
     }
   } else if (sub === 'analyze') {
     const drive = args[1]?.replace(':', '')
-    if (!drive) { log('Usage: kudu --cli disk analyze <drive-letter>'); return }
-    if (!json) log(`Analyzing drive ${drive}:...`)
+    if (!drive) { cliUsage(ctx, 'kudu --cli disk analyze <drive-letter>'); return ExitCode.INVALID_ARGS }
+    cliLog(ctx, `Analyzing drive ${drive}:...`)
     const tree = await analyzeDisk(drive)
-    if (json) {
-      out(tree, true)
+    if (ctx.json) {
+      cliOut(ctx, tree)
     } else {
       const printNode = (node: any, depth: number): void => {
         if (depth > 2) return
-        log(`${'  '.repeat(depth + 1)}${node.name} — ${formatBytes(node.size)}`)
+        cliLog(ctx, `${'  '.repeat(depth + 1)}${node.name} — ${formatBytes(node.size)}`)
         if (node.children) for (const child of node.children.slice(0, 10)) printNode(child, depth + 1)
       }
       printNode(tree, 0)
     }
   } else if (sub === 'file-types') {
     const drive = args[1]?.replace(':', '')
-    if (!drive) { log('Usage: kudu --cli disk file-types <drive-letter>'); return }
-    if (!json) log(`Analyzing file types on ${drive}:...`)
+    if (!drive) { cliUsage(ctx, 'kudu --cli disk file-types <drive-letter>'); return ExitCode.INVALID_ARGS }
+    cliLog(ctx, `Analyzing file types on ${drive}:...`)
     const types = await getFileTypes(drive)
-    if (json) {
-      out(types, true)
+    if (ctx.json) {
+      cliOut(ctx, types)
     } else {
-      for (const t of types) log(`  ${t.extension}: ${t.fileCount} files, ${formatBytes(t.totalSize)}`)
+      for (const t of types) cliLog(ctx, `  ${t.extension}: ${t.fileCount} files, ${formatBytes(t.totalSize)}`)
     }
   } else {
-    log('Usage: kudu --cli disk <drives|analyze|file-types> [drive-letter]')
+    cliUsage(ctx, 'kudu --cli disk <drives|analyze|file-types> [drive-letter]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleNetwork(args: string[], json: boolean): Promise<void> {
+async function handleNetwork(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanNetwork, cleanNetworkItems } = await import('./ipc/network-cleanup.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning network...')
+    cliLog(ctx, 'Scanning network...')
     const items = await scanNetwork()
-    if (json) {
-      out({ items, count: items.length }, true)
+    if (ctx.json) {
+      cliOut(ctx, { items, count: items.length })
     } else {
-      log(`Found ${items.length} network items`)
-      for (const item of items) log(`  [${item.type}] ${item.label} — ${item.detail}`)
+      cliLog(ctx, `Found ${items.length} network items`)
+      for (const item of items) cliLog(ctx, `  [${item.type}] ${item.label} — ${item.detail}`)
     }
   } else if (sub === 'clean') {
-    if (!json) log('Scanning network...')
+    cliLog(ctx, 'Scanning network...')
     const items = await scanNetwork()
-    if (items.length === 0) { out(json ? { message: 'Nothing to clean' } : 'No network items found.', json); return }
+    if (items.length === 0) { cliOut(ctx, ctx.json ? { message: 'Nothing to clean' } : 'No network items found.'); return }
     const toClean = args.includes('--all') ? items : items.filter(i => i.selected)
-    if (!json) log(`Cleaning ${toClean.length} items...`)
+    cliLog(ctx, `Cleaning ${toClean.length} items...`)
     const result = await cleanNetworkItems(toClean)
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli network <scan|clean> [--all]')
+    cliUsage(ctx, 'kudu --cli network <scan|clean> [--all]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleMalware(args: string[], json: boolean): Promise<void> {
+async function handleMalware(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanMalware, quarantineMalware, deleteMalware } = await import('./ipc/malware-scanner.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning for malware...')
+    cliLog(ctx, 'Scanning for malware...')
+    const startTime = Date.now()
     const result = await scanMalware((progress) => {
-      if (!json) process.stdout.write(`\r  Scanning: ${progress.currentPath || '...'}`)
+      if (showProgress(ctx)) process.stdout.write(`\r  Scanning: ${progress.currentPath || '...'}`)
     })
-    if (!json) log('')
-    if (json) {
-      out({ threats: result.threats, count: result.threats.length }, true)
+    if (showProgress(ctx)) log('')
+    cliVerbose(ctx, `Malware scan completed in ${Date.now() - startTime}ms`)
+    if (ctx.json) {
+      cliOut(ctx, { threats: result.threats, count: result.threats.length })
     } else {
-      log(`Found ${result.threats.length} threats`)
-      for (const t of result.threats) log(`  [${t.severity}] ${t.fileName} — ${t.path}`)
+      cliLog(ctx, `Found ${result.threats.length} threats`)
+      for (const t of result.threats) cliLog(ctx, `  [${t.severity}] ${t.fileName} — ${t.path}`)
     }
+    if (result.threats.length > 0) return ExitCode.SCAN_THREATS
   } else if (sub === 'quarantine') {
     const path = args.slice(1).filter(a => !a.startsWith('--')).join(' ')
-    if (!path) { log('Usage: kudu --cli malware quarantine <path>'); return }
+    if (!path) { cliUsage(ctx, 'kudu --cli malware quarantine <path>'); return ExitCode.INVALID_ARGS }
     const result = await quarantineMalware([path])
-    out(result, json)
+    cliOut(ctx, result)
   } else if (sub === 'delete') {
     const path = args.slice(1).filter(a => !a.startsWith('--')).join(' ')
-    if (!path) { log('Usage: kudu --cli malware delete <path>'); return }
+    if (!path) { cliUsage(ctx, 'kudu --cli malware delete <path>'); return ExitCode.INVALID_ARGS }
     const result = await deleteMalware([path])
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli malware <scan|quarantine|delete> [path]')
+    cliUsage(ctx, 'kudu --cli malware <scan|quarantine|delete> [path]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handlePrivacy(args: string[], json: boolean): Promise<void> {
+async function handlePrivacy(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanPrivacy, applyPrivacySettings } = await import('./ipc/privacy-shield.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning privacy settings...')
+    cliLog(ctx, 'Scanning privacy settings...')
     const result = await scanPrivacy()
-    if (json) {
-      out({ settings: result.settings, count: result.settings.length }, true)
+    if (ctx.json) {
+      cliOut(ctx, { settings: result.settings, count: result.settings.length })
     } else {
-      log(`Found ${result.settings.length} privacy settings`)
+      cliLog(ctx, `Found ${result.settings.length} privacy settings`)
       for (const s of result.settings) {
         const status = s.enabled ? 'ON' : 'OFF'
-        log(`  [${status}] ${s.label} — ${s.description}`)
+        cliLog(ctx, `  [${status}] ${s.label} — ${s.description}`)
       }
     }
   } else if (sub === 'apply') {
-    if (!json) log('Scanning privacy settings...')
+    cliLog(ctx, 'Scanning privacy settings...')
     const scanResult = await scanPrivacy()
     const toApply = args.includes('--all')
       ? scanResult.settings.map(s => s.id)
       : scanResult.settings.filter(s => !s.enabled).map(s => s.id)
-    if (toApply.length === 0) { out(json ? { message: 'Nothing to apply' } : 'All recommended settings already applied.', json); return }
-    if (!json) log(`Applying ${toApply.length} privacy settings...`)
+    if (toApply.length === 0) { cliOut(ctx, ctx.json ? { message: 'Nothing to apply' } : 'All recommended settings already applied.'); return }
+    cliLog(ctx, `Applying ${toApply.length} privacy settings...`)
     const applyResult = await applyPrivacySettings(toApply)
-    out(applyResult, json)
+    cliOut(ctx, applyResult)
   } else {
-    log('Usage: kudu --cli privacy <scan|apply> [--all]')
+    cliUsage(ctx, 'kudu --cli privacy <scan|apply> [--all]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleDrivers(args: string[], json: boolean): Promise<void> {
+async function handleDrivers(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanDrivers, cleanDrivers, scanDriverUpdates, installDriverUpdates } = await import('./ipc/driver-manager.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning driver packages...')
+    cliLog(ctx, 'Scanning driver packages...')
     const result = await scanDrivers((progress) => {
-      if (!json) process.stdout.write(`\r  ${progress}`)
+      if (showProgress(ctx)) process.stdout.write(`\r  ${progress}`)
     })
-    if (!json) log('')
-    if (json) {
-      out({ packages: result.packages, count: result.packages.length }, true)
+    if (showProgress(ctx)) log('')
+    if (ctx.json) {
+      cliOut(ctx, { packages: result.packages, count: result.packages.length })
     } else {
-      log(`Found ${result.packages.length} driver packages`)
-      for (const p of result.packages) log(`  ${p.publishedName} — ${p.className} — ${p.version}`)
+      cliLog(ctx, `Found ${result.packages.length} driver packages`)
+      for (const p of result.packages) cliLog(ctx, `  ${p.publishedName} — ${p.className} — ${p.version}`)
     }
   } else if (sub === 'clean') {
     const nameArg = args.find(a => a !== 'clean' && !a.startsWith('--'))
-    if (!nameArg) { log('Usage: kudu --cli drivers clean <name1,name2,...>'); return }
+    if (!nameArg) { cliUsage(ctx, 'kudu --cli drivers clean <name1,name2,...>'); return ExitCode.INVALID_ARGS }
     const names = nameArg.split(',').map(s => s.trim()).filter(Boolean)
-    if (!json) log(`Removing ${names.length} driver packages...`)
+    cliLog(ctx, `Removing ${names.length} driver packages...`)
     const result = await cleanDrivers(names)
-    out(result, json)
+    cliOut(ctx, result)
   } else if (sub === 'check-updates') {
-    if (!json) log('Checking for driver updates...')
+    cliLog(ctx, 'Checking for driver updates...')
     const updateResult = await scanDriverUpdates((progress) => {
-      if (!json) process.stdout.write(`\r  ${progress}`)
+      if (showProgress(ctx)) process.stdout.write(`\r  ${progress}`)
     })
-    if (!json) log('')
-    if (json) {
-      out({ updates: updateResult.updates, count: updateResult.updates.length }, true)
+    if (showProgress(ctx)) log('')
+    if (ctx.json) {
+      cliOut(ctx, { updates: updateResult.updates, count: updateResult.updates.length })
     } else {
-      log(`Found ${updateResult.updates.length} driver updates`)
-      for (const u of updateResult.updates) log(`  ${u.updateTitle}`)
+      cliLog(ctx, `Found ${updateResult.updates.length} driver updates`)
+      for (const u of updateResult.updates) cliLog(ctx, `  ${u.updateTitle}`)
     }
   } else if (sub === 'update') {
-    if (!json) log('Checking for driver updates...')
+    cliLog(ctx, 'Checking for driver updates...')
     const updateResult = await scanDriverUpdates()
-    if (updateResult.updates.length === 0) { out(json ? { message: 'No updates available' } : 'Drivers are up to date.', json); return }
+    if (updateResult.updates.length === 0) { cliOut(ctx, ctx.json ? { message: 'No updates available' } : 'Drivers are up to date.'); return }
     const toInstall = args.includes('--all')
       ? updateResult.updates.map(u => u.updateId)
       : (() => {
           const idArg = args.find(a => a !== 'update' && !a.startsWith('--'))
           return idArg ? idArg.split(',').map(s => s.trim()).filter(Boolean) : []
         })()
-    if (toInstall.length === 0) { log('Usage: kudu --cli drivers update <id,...> or --all'); return }
-    if (!json) log(`Installing ${toInstall.length} driver updates...`)
+    if (toInstall.length === 0) { cliUsage(ctx, 'kudu --cli drivers update <id,...> or --all'); return ExitCode.INVALID_ARGS }
+    cliLog(ctx, `Installing ${toInstall.length} driver updates...`)
     const result = await installDriverUpdates(toInstall, (progress) => {
-      if (!json) process.stdout.write(`\r  ${progress}`)
+      if (showProgress(ctx)) process.stdout.write(`\r  ${progress}`)
     })
-    if (!json) log('')
-    out(result, json)
+    if (showProgress(ctx)) log('')
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli drivers <scan|clean|check-updates|update> [names|--all]')
+    cliUsage(ctx, 'kudu --cli drivers <scan|clean|check-updates|update> [names|--all]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleServices(args: string[], json: boolean): Promise<void> {
+async function handleServices(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanServices, applyServiceChanges } = await import('./ipc/service-manager.ipc')
 
   if (sub === 'scan') {
-    if (!json) log('Scanning services...')
+    cliLog(ctx, 'Scanning services...')
     const result = await scanServices()
-    if (json) {
-      out({ services: result.services, count: result.services.length }, true)
+    if (ctx.json) {
+      cliOut(ctx, { services: result.services, count: result.services.length })
     } else {
-      log(`Found ${result.services.length} optimizable services`)
-      for (const s of result.services) log(`  [${s.startType}] ${s.displayName} (${s.name}) — ${s.description || ''}`)
+      cliLog(ctx, `Found ${result.services.length} optimizable services`)
+      for (const s of result.services) cliLog(ctx, `  [${s.startType}] ${s.displayName} (${s.name}) — ${s.description || ''}`)
     }
   } else if (sub === 'disable' || sub === 'manual') {
     const name = args.slice(1).filter(a => !a.startsWith('--')).join(' ')
-    if (!name) { log(`Usage: kudu --cli services ${sub} <service-name>`); return }
+    if (!name) { cliUsage(ctx, `kudu --cli services ${sub} <service-name>`); return ExitCode.INVALID_ARGS }
     const targetType = sub === 'disable' ? 'Disabled' : 'Manual'
-    if (!json) log(`Setting ${name} to ${targetType}...`)
+    cliLog(ctx, `Setting ${name} to ${targetType}...`)
     const result = await applyServiceChanges([{ name, targetStartType: targetType }])
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli services <scan|disable|manual> [service-name]')
+    cliUsage(ctx, 'kudu --cli services <scan|disable|manual> [service-name]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handlePrograms(args: string[], json: boolean): Promise<void> {
+async function handlePrograms(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { getInstalledProgramsFull } = await import('./services/program-uninstaller')
 
   if (sub === 'list') {
-    if (!json) log('Loading installed programs...')
+    cliLog(ctx, 'Loading installed programs...')
     const programs = await getInstalledProgramsFull()
-    if (json) {
-      out({ programs, count: programs.length }, true)
+    if (ctx.json) {
+      cliOut(ctx, { programs, count: programs.length })
     } else {
-      log(`Found ${programs.length} installed programs`)
-      for (const p of programs) log(`  ${p.displayName} ${p.displayVersion || ''} — ${p.publisher || 'Unknown publisher'} — ${p.estimatedSize ? formatBytes(p.estimatedSize * 1024) : ''}`)
+      cliLog(ctx, `Found ${programs.length} installed programs`)
+      for (const p of programs) cliLog(ctx, `  ${p.displayName} ${p.displayVersion || ''} — ${p.publisher || 'Unknown publisher'} — ${p.estimatedSize ? formatBytes(p.estimatedSize * 1024) : ''}`)
     }
   } else {
-    log('Usage: kudu --cli programs list')
+    cliUsage(ctx, 'kudu --cli programs list')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleUpdates(args: string[], json: boolean): Promise<void> {
+async function handleUpdates(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { checkForUpdates, runUpdates } = await import('./services/software-updater')
 
   if (sub === 'check') {
-    if (!json) log('Checking for software updates...')
+    cliLog(ctx, 'Checking for software updates...')
     const result = await checkForUpdates()
-    if (json) {
-      out(result, true)
+    if (ctx.json) {
+      cliOut(ctx, result)
     } else {
-      if (!result.packageManagerAvailable) { log(`  ${result.packageManagerName ?? 'package manager'} is not available on this system`); return }
-      log(`Found ${result.apps.length} available updates, ${result.upToDate.length} up to date`)
-      for (const a of result.apps) log(`  ${a.name}: ${a.currentVersion} → ${a.availableVersion} (${a.severity})`)
+      if (!result.packageManagerAvailable) { cliLog(ctx, `  ${result.packageManagerName ?? 'package manager'} is not available on this system`); return }
+      cliLog(ctx, `Found ${result.apps.length} available updates, ${result.upToDate.length} up to date`)
+      for (const a of result.apps) cliLog(ctx, `  ${a.name}: ${a.currentVersion} → ${a.availableVersion} (${a.severity})`)
     }
   } else if (sub === 'run') {
-    if (!json) log('Checking for software updates...')
+    cliLog(ctx, 'Checking for software updates...')
     const check = await checkForUpdates()
-    if (check.apps.length === 0) { out(json ? { message: 'Everything up to date' } : 'All software is up to date.', json); return }
+    if (check.apps.length === 0) { cliOut(ctx, ctx.json ? { message: 'Everything up to date' } : 'All software is up to date.'); return }
     const allFlag = args.includes('--all')
     const toUpdate = allFlag
       ? check.apps.map(a => a.id)
@@ -836,120 +962,125 @@ async function handleUpdates(args: string[], json: boolean): Promise<void> {
           const idArg = args.find(a => a !== 'run' && !a.startsWith('--'))
           return idArg ? idArg.split(',').map(s => s.trim()).filter(Boolean) : []
         })()
-    if (toUpdate.length === 0) { log('Usage: kudu --cli updates run <id,...> or --all'); return }
-    if (!json) log(`Updating ${toUpdate.length} apps...`)
+    if (toUpdate.length === 0) { cliUsage(ctx, 'kudu --cli updates run <id,...> or --all'); return ExitCode.INVALID_ARGS }
+    cliLog(ctx, `Updating ${toUpdate.length} apps...`)
     const result = await runUpdates(toUpdate, (progress) => {
-      if (!json) log(`  [${progress.current}/${progress.total}] ${progress.currentApp}: ${progress.status}`)
+      cliLog(ctx, `  [${progress.current}/${progress.total}] ${progress.currentApp}: ${progress.status}`)
     })
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli updates <check|run> [ids|--all]')
+    cliUsage(ctx, 'kudu --cli updates <check|run> [ids|--all]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handlePerf(args: string[], json: boolean): Promise<void> {
+async function handlePerf(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { PerfMonitorService } = await import('./services/perf-monitor')
   const perf = new PerfMonitorService()
 
   if (sub === 'info') {
     const info = await perf.getSystemInfo()
-    if (json) {
-      out(info, true)
+    if (ctx.json) {
+      cliOut(ctx, info)
     } else {
-      log(`  CPU: ${info.cpuModel} (${info.cpuCores}C/${info.cpuThreads}T)`)
-      log(`  RAM: ${formatBytes(info.totalMemBytes)}`)
-      log(`  OS:  ${info.osVersion}`)
-      log(`  Host: ${info.hostname}`)
+      cliLog(ctx, `  CPU: ${info.cpuModel} (${info.cpuCores}C/${info.cpuThreads}T)`)
+      cliLog(ctx, `  RAM: ${formatBytes(info.totalMemBytes)}`)
+      cliLog(ctx, `  OS:  ${info.osVersion}`)
+      cliLog(ctx, `  Host: ${info.hostname}`)
     }
   } else if (sub === 'disk-health') {
-    if (!json) log('Checking disk health...')
+    cliLog(ctx, 'Checking disk health...')
     const disks = await perf.getDiskHealth()
-    if (json) {
-      out(disks, true)
+    if (ctx.json) {
+      cliOut(ctx, disks)
     } else {
       for (const d of disks) {
-        log(`  ${d.model} (${d.type}) — ${d.healthStatus}`)
-        if (d.temperature) log(`    Temperature: ${d.temperature}°C`)
-        if (d.remainingLife !== null) log(`    Remaining life: ${d.remainingLife}%`)
-        if (d.powerOnHours !== null) log(`    Power-on hours: ${d.powerOnHours}`)
+        cliLog(ctx, `  ${d.model} (${d.type}) — ${d.healthStatus}`)
+        if (d.temperature) cliLog(ctx, `    Temperature: ${d.temperature}°C`)
+        if (d.remainingLife !== null) cliLog(ctx, `    Remaining life: ${d.remainingLife}%`)
+        if (d.powerOnHours !== null) cliLog(ctx, `    Power-on hours: ${d.powerOnHours}`)
       }
     }
   } else if (sub === 'kill') {
     const pid = parseInt(args[1])
-    if (isNaN(pid)) { log('Usage: kudu --cli perf kill <pid>'); return }
+    if (isNaN(pid)) { cliUsage(ctx, 'kudu --cli perf kill <pid>'); return ExitCode.INVALID_ARGS }
     const result = await perf.killProcess(pid)
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli perf <info|disk-health|kill> [pid]')
+    cliUsage(ctx, 'kudu --cli perf <info|disk-health|kill> [pid]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleLeftovers(args: string[], json: boolean): Promise<void> {
+async function handleLeftovers(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { scanForLeftovers } = await import('./services/uninstall-leftovers')
 
   if (sub === 'scan' || sub === 'clean') {
-    if (!json) log('Scanning for uninstall leftovers...')
+    cliLog(ctx, 'Scanning for uninstall leftovers...')
     const results = await scanForLeftovers(() => null)
     const totalItems = results.reduce((s, r) => s + r.itemCount, 0)
     const totalSize = results.reduce((s, r) => s + r.totalSize, 0)
-    if (json && sub === 'scan') {
-      out({ results, totalItems, totalSize }, true)
+    if (ctx.json && sub === 'scan') {
+      cliOut(ctx, { results, totalItems, totalSize })
     } else if (sub === 'scan') {
-      log(`Found ${totalItems} leftover items (${formatBytes(totalSize)})`)
-      for (const r of results) log(`  ${r.subcategory}: ${r.itemCount} items, ${formatBytes(r.totalSize)}`)
+      cliLog(ctx, `Found ${totalItems} leftover items (${formatBytes(totalSize)})`)
+      for (const r of results) cliLog(ctx, `  ${r.subcategory}: ${r.itemCount} items, ${formatBytes(r.totalSize)}`)
     }
     if (sub === 'clean') {
-      if (totalItems === 0) { out(json ? { message: 'No leftovers found' } : 'No leftovers found.', json); return }
-      if (!json) log(`Cleaning ${totalItems} items (${formatBytes(totalSize)})...`)
+      if (totalItems === 0) { cliOut(ctx, ctx.json ? { message: 'No leftovers found' } : 'No leftovers found.'); return ExitCode.NOTHING_FOUND }
+      cliLog(ctx, `Cleaning ${totalItems} items (${formatBytes(totalSize)})...`)
       const itemIds = results.flatMap(r => r.items.map(i => i.id))
       const cleanResult = await cleanItems(itemIds)
-      out(cleanResult, json)
+      cliOut(ctx, cleanResult)
     }
   } else {
-    log('Usage: kudu --cli leftovers <scan|clean>')
+    cliUsage(ctx, 'kudu --cli leftovers <scan|clean>')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleHistory(args: string[], json: boolean): Promise<void> {
+async function handleHistory(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { getHistory, clearHistory } = await import('./services/history-store')
 
   if (sub === 'list') {
     const history = getHistory()
-    if (json) {
-      out(history, true)
+    if (ctx.json) {
+      cliOut(ctx, history)
     } else {
-      if (history.length === 0) { log('  No scan history.'); return }
+      if (history.length === 0) { cliLog(ctx, '  No scan history.'); return }
       for (const entry of history) {
-        log(`  [${entry.timestamp}] ${entry.type} — ${entry.totalItemsCleaned} items cleaned, ${formatBytes(entry.totalSpaceSaved)} saved`)
+        cliLog(ctx, `  [${entry.timestamp}] ${entry.type} — ${entry.totalItemsCleaned} items cleaned, ${formatBytes(entry.totalSpaceSaved)} saved`)
       }
     }
   } else if (sub === 'clear') {
     clearHistory()
-    out(json ? { message: 'History cleared' } : 'Scan history cleared.', json)
+    cliOut(ctx, ctx.json ? { message: 'History cleared' } : 'Scan history cleared.')
   } else {
-    log('Usage: kudu --cli history <list|clear>')
+    cliUsage(ctx, 'kudu --cli history <list|clear>')
+    return ExitCode.INVALID_ARGS
   }
 }
 
-async function handleRestorePoint(args: string[], json: boolean): Promise<void> {
+async function handleRestorePoint(args: string[], ctx: CliContext): Promise<number | void> {
   const { createRestorePoint } = await import('./services/restore-point')
   const description = args.slice(1).filter(a => !a.startsWith('--')).join(' ') || 'Kudu CLI restore point'
 
   if (args[0] === 'create') {
-    if (!json) log(`Creating restore point: ${description}...`)
+    cliLog(ctx, `Creating restore point: ${description}...`)
     const result = await createRestorePoint(description)
-    out(result, json)
+    cliOut(ctx, result)
   } else {
-    log('Usage: kudu --cli restore-point create [description]')
+    cliUsage(ctx, 'kudu --cli restore-point create [description]')
+    return ExitCode.INVALID_ARGS
   }
 }
 
 // ─── Config management ───────────────────────────────────────
 
-async function handleConfig(args: string[], json: boolean): Promise<void> {
+async function handleConfig(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { getSettings, setSettings, flushSettings } = await import('./services/settings-store')
 
@@ -957,29 +1088,33 @@ async function handleConfig(args: string[], json: boolean): Promise<void> {
     const key = args[1]
     const settings = getSettings() as Record<string, any>
     if (!key) {
-      out(settings, json)
+      cliOut(ctx, settings)
       return
     }
     // Support dotted paths like cloud.apiKey
     const value = key.split('.').reduce((obj: any, k: string) => obj?.[k], settings as any) as unknown
     if (value === undefined) {
-      log(`Unknown setting: ${key}`)
-      app.exit(1)
-      return
+      if (ctx.json) cliOut(ctx, { error: 'unknown_setting', key })
+      else log(`Unknown setting: ${key}`)
+      return ExitCode.INVALID_ARGS
     }
     // Mask the API key in non-JSON output
-    if (key === 'cloud.apiKey' && !json && typeof value === 'string' && value.length > 8) {
-      log(`  ${key}: ${value.slice(0, 4)}...${value.slice(-4)}`)
+    if (key === 'cloud.apiKey' && !ctx.json && typeof value === 'string' && value.length > 8) {
+      cliLog(ctx, `  ${key}: ${value.slice(0, 4)}...${value.slice(-4)}`)
     } else {
-      out(json ? { [key]: value } : `  ${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`, json)
+      cliOut(ctx, ctx.json ? { [key]: value } : `  ${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`)
     }
   } else if (sub === 'set') {
     const key = args[1]
     const rawValue = args.slice(2).join(' ')
     if (!key || !rawValue) {
-      log('Usage: kudu --cli config set <key> <value>')
-      log('Example: kudu --cli config set cloud.apiKey your-key-here')
-      return
+      if (ctx.json) {
+        cliOut(ctx, { error: 'invalid_usage', usage: 'config set <key> <value>' })
+      } else {
+        cliLog(ctx, 'Usage: kudu --cli config set <key> <value>')
+        cliLog(ctx, 'Example: kudu --cli config set cloud.apiKey your-key-here')
+      }
+      return ExitCode.INVALID_ARGS
     }
     // Parse the value — try JSON first, then treat as string
     let value: any = rawValue
@@ -1002,36 +1137,44 @@ async function handleConfig(args: string[], json: boolean): Promise<void> {
     cursor[parts[parts.length - 1]] = value
     setSettings(obj as any)
     await flushSettings()
-    if (!json) log(`  Set ${key} = ${typeof value === 'string' && key.includes('apiKey') ? '****' : value}`)
-    else out({ success: true, key, value: key.includes('apiKey') ? '****' : value }, true)
+    if (!ctx.json) cliLog(ctx, `  Set ${key} = ${typeof value === 'string' && key.includes('apiKey') ? '****' : value}`)
+    else cliOut(ctx, { success: true, key, value: key.includes('apiKey') ? '****' : value })
   } else {
-    log('Usage: kudu --cli config <get|set> [key] [value]')
-    log('')
-    log('Examples:')
-    log('  kudu --cli config get                        Show all settings')
-    log('  kudu --cli config get cloud.apiKey            Show API key')
-    log('  kudu --cli config set cloud.apiKey my-key     Set API key')
-    log('  kudu --cli config set cloud.serverUrl http://localhost:8000')
+    if (ctx.json) {
+      cliOut(ctx, { error: 'invalid_usage', usage: 'config <get|set> [key] [value]' })
+    } else {
+      cliLog(ctx, 'Usage: kudu --cli config <get|set> [key] [value]')
+      cliLog(ctx, '')
+      cliLog(ctx, 'Examples:')
+      cliLog(ctx, '  kudu --cli config get                        Show all settings')
+      cliLog(ctx, '  kudu --cli config get cloud.apiKey            Show API key')
+      cliLog(ctx, '  kudu --cli config set cloud.apiKey my-key     Set API key')
+      cliLog(ctx, '  kudu --cli config set cloud.serverUrl http://localhost:8000')
+    }
+    return ExitCode.INVALID_ARGS
   }
 }
 
 // ─── Service management (systemd) ────────────────────────────
 
-async function handleService(args: string[], json: boolean): Promise<void> {
+async function handleService(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
 
   if (process.platform !== 'linux') {
-    log('Error: Service management is only supported on Linux (systemd).')
-    if (process.platform === 'win32') {
-      log('On Windows, use Task Scheduler or NSSM to run as a service.')
-    } else if (process.platform === 'darwin') {
-      log('On macOS, use launchd with a plist file.')
+    if (ctx.json) {
+      cliOut(ctx, { error: 'unsupported_platform', message: 'Service management is only supported on Linux (systemd)', platform: process.platform })
+    } else {
+      log('Error: Service management is only supported on Linux (systemd).')
+      if (process.platform === 'win32') {
+        log('On Windows, use Task Scheduler or NSSM to run as a service.')
+      } else if (process.platform === 'darwin') {
+        log('On macOS, use launchd with a plist file.')
+      }
     }
-    app.exit(1)
-    return
+    return ExitCode.INVALID_ARGS
   }
 
-  const { writeFileSync, existsSync, unlinkSync } = await import('fs')
+  const { writeFileSync, existsSync: fsExistsSync, unlinkSync } = await import('fs')
   const { execFileSync } = await import('child_process')
 
   const serviceName = 'kudu'
@@ -1067,67 +1210,153 @@ WantedBy=multi-user.target
     try {
       writeFileSync(servicePath, unitContent, 'utf-8')
       execFileSync('systemctl', ['daemon-reload'])
-      if (!json) {
-        log(`Service installed: ${servicePath}`)
-        log('')
-        log('To start now:          sudo systemctl start kudu')
-        log('To enable on boot:     sudo systemctl enable kudu')
-        log('To do both:            sudo systemctl enable --now kudu')
-        log('To view logs:          journalctl -u kudu -f')
+      if (ctx.json) {
+        cliOut(ctx, { success: true, path: servicePath })
       } else {
-        out({ success: true, path: servicePath }, true)
+        cliLog(ctx, `Service installed: ${servicePath}`)
+        cliLog(ctx, '')
+        cliLog(ctx, 'To start now:          sudo systemctl start kudu')
+        cliLog(ctx, 'To enable on boot:     sudo systemctl enable kudu')
+        cliLog(ctx, 'To do both:            sudo systemctl enable --now kudu')
+        cliLog(ctx, 'To view logs:          journalctl -u kudu -f')
       }
     } catch (err: any) {
       if (err.message?.includes('EACCES') || err.message?.includes('Permission denied')) {
-        log('Error: Permission denied. Run with sudo:')
-        log(`  sudo kudu --cli service install`)
+        if (ctx.json) cliOut(ctx, { error: 'permission_denied', message: 'Run with sudo' })
+        else {
+          log('Error: Permission denied. Run with sudo:')
+          log('  sudo kudu --cli service install')
+        }
+        return ExitCode.PERMISSION_DENIED
       } else {
-        log(`Error installing service: ${err.message}`)
+        if (ctx.json) cliOut(ctx, { error: 'install_failed', message: err.message })
+        else log(`Error installing service: ${err.message}`)
+        return ExitCode.GENERAL_ERROR
       }
-      app.exit(1)
     }
   } else if (sub === 'uninstall') {
     try {
       // Stop and disable first, ignore errors if not running
       try { execFileSync('systemctl', ['stop', serviceName]) } catch { /* ok */ }
       try { execFileSync('systemctl', ['disable', serviceName]) } catch { /* ok */ }
-      if (existsSync(servicePath)) {
+      if (fsExistsSync(servicePath)) {
         unlinkSync(servicePath)
         execFileSync('systemctl', ['daemon-reload'])
       }
-      if (!json) log('Service uninstalled.')
-      else out({ success: true }, true)
+      if (ctx.json) cliOut(ctx, { success: true })
+      else cliLog(ctx, 'Service uninstalled.')
     } catch (err: any) {
       if (err.message?.includes('EACCES') || err.message?.includes('Permission denied')) {
-        log('Error: Permission denied. Run with sudo:')
-        log(`  sudo kudu --cli service uninstall`)
+        if (ctx.json) cliOut(ctx, { error: 'permission_denied', message: 'Run with sudo' })
+        else {
+          log('Error: Permission denied. Run with sudo:')
+          log('  sudo kudu --cli service uninstall')
+        }
+        return ExitCode.PERMISSION_DENIED
       } else {
-        log(`Error uninstalling service: ${err.message}`)
+        if (ctx.json) cliOut(ctx, { error: 'uninstall_failed', message: err.message })
+        else log(`Error uninstalling service: ${err.message}`)
+        return ExitCode.GENERAL_ERROR
       }
-      app.exit(1)
     }
   } else if (sub === 'status') {
     try {
-      const output = execFileSync('systemctl', ['status', serviceName], { encoding: 'utf-8' })
-      log(output)
+      if (ctx.json) {
+        const output = execFileSync('systemctl', ['show', serviceName, '--property=ActiveState,SubState,LoadState,MainPID'], { encoding: 'utf-8' })
+        const parsed = Object.fromEntries(output.trim().split('\n').map(l => l.split('=')))
+        cliOut(ctx, parsed)
+      } else {
+        const output = execFileSync('systemctl', ['status', serviceName], { encoding: 'utf-8' })
+        log(output)
+      }
     } catch (err: any) {
       // systemctl status returns exit code 3 if service is not running
-      if (err.stdout) log(err.stdout)
-      else if (err.stderr) log(err.stderr)
-      else log('Service is not installed or not running.')
+      if (ctx.json) {
+        try {
+          const output = execFileSync('systemctl', ['show', serviceName, '--property=ActiveState,SubState,LoadState,MainPID'], { encoding: 'utf-8' })
+          const parsed = Object.fromEntries(output.trim().split('\n').map(l => l.split('=')))
+          cliOut(ctx, parsed)
+        } catch {
+          cliOut(ctx, { error: 'not_installed', message: 'Service is not installed or not running' })
+        }
+      } else {
+        if (err.stdout) log(err.stdout)
+        else if (err.stderr) log(err.stderr)
+        else cliLog(ctx, 'Service is not installed or not running.')
+      }
     }
   } else {
-    log('Usage: kudu --cli service <install|uninstall|status>')
-    log('')
-    log('  install     Install Kudu as a systemd service')
-    log('  uninstall   Stop, disable, and remove the systemd service')
-    log('  status      Show current service status')
+    if (ctx.json) {
+      cliOut(ctx, { error: 'invalid_usage', usage: 'service <install|uninstall|status>' })
+    } else {
+      cliLog(ctx, 'Usage: kudu --cli service <install|uninstall|status>')
+      cliLog(ctx, '')
+      cliLog(ctx, '  install     Install Kudu as a systemd service')
+      cliLog(ctx, '  uninstall   Stop, disable, and remove the systemd service')
+      cliLog(ctx, '  status      Show current service status')
+    }
+    return ExitCode.INVALID_ARGS
   }
+}
+
+// ─── Prometheus metrics ─────────────────────────────────────
+
+async function handleMetrics(args: string[], ctx: CliContext): Promise<number | void> {
+  const { collectMetrics, formatPrometheus } = await import('./services/metrics')
+  const metrics = await collectMetrics()
+
+  if (ctx.json) {
+    cliOut(ctx, metrics)
+  } else {
+    log(formatPrometheus(metrics))
+  }
+}
+
+async function handleMetricsServer(args: string[], ctx: CliContext): Promise<void> {
+  const http = await import('http')
+  const { collectMetrics, formatPrometheus } = await import('./services/metrics')
+
+  const portIdx = args.indexOf('--port')
+  const port = portIdx !== -1 ? (parseInt(args[portIdx + 1]) || 9100) : 9100
+
+  const server = http.createServer(async (req, res) => {
+    if (req.url === '/metrics') {
+      try {
+        const metrics = await collectMetrics()
+        res.writeHead(200, { 'Content-Type': 'text/plain; version=0.0.4; charset=utf-8' })
+        res.end(formatPrometheus(metrics))
+      } catch (err: any) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' })
+        res.end(`Error collecting metrics: ${err.message}\n`)
+      }
+    } else if (req.url === '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'ok' }))
+    } else {
+      res.writeHead(404)
+      res.end('Not Found\n')
+    }
+  })
+
+  server.listen(port, () => {
+    cliLog(ctx, `Prometheus metrics server listening on http://0.0.0.0:${port}/metrics`)
+    cliLog(ctx, 'Press Ctrl+C to stop.')
+  })
+
+  const shutdown = (): void => {
+    server.close()
+    app.exit(ExitCode.SUCCESS)
+  }
+  process.on('SIGTERM', shutdown)
+  process.on('SIGINT', shutdown)
+
+  // Keep alive — the HTTP server keeps the event loop running
+  await new Promise(() => {})
 }
 
 // ─── Legacy file cleaner (backward compatible) ───────────────
 
-async function runLegacyScanClean(categories: string[], doClean: boolean, json: boolean): Promise<void> {
+async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: CliContext): Promise<number> {
   const scannerMap: Record<string, () => Promise<ScanResult[]>> = {
     system: scanSystem,
     browser: scanBrowserCli,
@@ -1138,27 +1367,30 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, json: 
   }
 
   const allResults: ScanResult[] = []
+  const scanErrors: Array<{ category: string; error: string }> = []
 
-  if (!json) {
-    log(`Kudu CLI v${app.getVersion()}`)
-    log(`Scanning: ${categories.join(', ')}`)
-    log('')
-  }
+  cliLog(ctx, `Kudu CLI v${app.getVersion()}`)
+  cliLog(ctx, `Scanning: ${categories.join(', ')}`)
+  cliLog(ctx, '')
 
   for (const cat of categories) {
     const scanner = scannerMap[cat]
     if (!scanner) continue
-    if (!json) log(`Scanning ${cat}...`)
+    cliLog(ctx, `Scanning ${cat}...`)
+    const startTime = Date.now()
     try {
       const results = await scanner()
       allResults.push(...results)
-      if (!json) {
+      cliVerbose(ctx, `${cat} scan took ${Date.now() - startTime}ms, found ${results.length} groups`)
+      if (showProgress(ctx)) {
         if (results.length === 0) log('  No items found.')
         else for (const r of results) log(`  ${r.subcategory}: ${r.itemCount} items, ${formatBytes(r.totalSize)}`)
         log('')
       }
     } catch (err: any) {
-      if (!json) { log(`  Error scanning ${cat}: ${err.message}`); log('') }
+      scanErrors.push({ category: cat, error: err.message })
+      cliLog(ctx, `  Error scanning ${cat}: ${err.message}`)
+      cliLog(ctx, '')
     }
   }
 
@@ -1167,7 +1399,7 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, json: 
 
   let cleanResult: CleanResult | null = null
   if (doClean && totalItems > 0) {
-    if (!json) log(`Cleaning ${totalItems} items (${formatBytes(totalSize)})...`)
+    cliLog(ctx, `Cleaning ${totalItems} items (${formatBytes(totalSize)})...`)
     const hasTrashPath = getPlatform().paths.trashPath() !== null
     // On macOS/Linux, trash items are real files scanned via scanDirectory — clean them with cleanItems
     // On Windows, recycle bin items are virtual (COM-based) and need special handling
@@ -1195,7 +1427,7 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, json: 
       errors: [...fileCleaned.errors, ...recycleCleaned.errors, ...dbCleaned.errors],
       needsElevation: fileCleaned.needsElevation || recycleCleaned.needsElevation || dbCleaned.needsElevation,
     }
-    if (!json) {
+    if (showProgress(ctx)) {
       log(`  Deleted: ${cleanResult.filesDeleted} items (${formatBytes(cleanResult.totalCleaned)})`)
       if (cleanResult.filesSkipped > 0) log(`  Skipped: ${cleanResult.filesSkipped} items`)
       if (cleanResult.errors.length > 0) {
@@ -1207,7 +1439,7 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, json: 
     }
   }
 
-  if (json) {
+  if (ctx.json) {
     const output: Record<string, unknown> = {
       scan: {
         categories,
@@ -1217,44 +1449,50 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, json: 
           items: r.items.map(i => ({ path: i.path, size: i.size, lastModified: i.lastModified })),
         })),
         totalItems, totalSize,
+        errors: scanErrors.length > 0 ? scanErrors : undefined,
       },
     }
     if (cleanResult) output.clean = cleanResult
     log(JSON.stringify(output, null, 2))
   } else {
-    log('─'.repeat(50))
-    log(`Total: ${totalItems} items, ${formatBytes(totalSize)}`)
-    if (cleanResult) log(`Cleaned: ${formatBytes(cleanResult.totalCleaned)}`)
-    else if (totalItems > 0) log('Run with --clean to delete these items.')
+    cliLog(ctx, '─'.repeat(50))
+    cliLog(ctx, `Total: ${totalItems} items, ${formatBytes(totalSize)}`)
+    if (cleanResult) cliLog(ctx, `Cleaned: ${formatBytes(cleanResult.totalCleaned)}`)
+    else if (totalItems > 0) cliLog(ctx, 'Run with --clean to delete these items.')
   }
 
-  app.exit(cleanResult?.errors.length ? 1 : 0)
+  // Determine exit code
+  if (cleanResult?.errors.length) {
+    if (cleanResult.needsElevation) return ExitCode.PERMISSION_DENIED
+    if (cleanResult.filesDeleted > 0) return ExitCode.PARTIAL_SUCCESS
+    return ExitCode.GENERAL_ERROR
+  }
+  if (totalItems === 0) return ExitCode.NOTHING_FOUND
+  return ExitCode.SUCCESS
 }
 
 // ─── Main CLI entry point ────────────────────────────────────
 
 export async function runCli(): Promise<void> {
-  const cliIndex = process.argv.indexOf('--cli')
-  const cliArgs = process.argv.slice(cliIndex + 1)
+  const parsed = parseCliArgs(process.argv)
 
-  const json = cliArgs.includes('--json')
-  const help = cliArgs.includes('--help') || cliArgs.includes('-h')
-  const version = cliArgs.includes('--version') || cliArgs.includes('-v')
+  if (parsed.help) { printHelp(); app.exit(ExitCode.SUCCESS); return }
+  if (parsed.version) { log(`Kudu v${app.getVersion()}`); app.exit(ExitCode.SUCCESS); return }
 
-  if (help) { printHelp(); app.exit(0); return }
-  if (version) { log(`Kudu v${app.getVersion()}`); app.exit(0); return }
+  const { ctx } = parsed
 
-  // Get the subcommand (first non-flag argument)
-  const command = cliArgs.find(a => !a.startsWith('--') && !a.startsWith('-'))
-  const subArgs = cliArgs.filter(a => a !== command)
+  // Validate mutually exclusive flags
+  const cliArgs = process.argv.slice(process.argv.indexOf('--cli') + 1)
+  if (cliArgs.includes('--verbose') && (cliArgs.includes('--quiet') || cliArgs.includes('-q'))) {
+    if (ctx.json) log(JSON.stringify({ error: 'invalid_args', message: '--verbose and --quiet are mutually exclusive' }))
+    else process.stderr.write('Error: --verbose and --quiet are mutually exclusive.\n')
+    app.exit(ExitCode.INVALID_ARGS)
+    return
+  }
 
-  // Legacy flags: --system, --browser, etc.
-  const legacyCats = ['system', 'browser', 'app', 'gaming', 'recycle-bin']
-  const hasLegacyFlags = legacyCats.some(c => cliArgs.includes(`--${c}`)) || cliArgs.includes('--all')
-  const hasCleanFlag = cliArgs.includes('--clean')
-
-  // If no command or legacy scan/clean mode
-  if (!command || command === 'scan' || command === 'clean' || hasLegacyFlags) {
+  // Legacy scan/clean mode — only enter when command is absent, 'scan', or 'clean'
+  if (!parsed.command || parsed.command === 'scan' || parsed.command === 'clean') {
+    const legacyCats = ['system', 'browser', 'app', 'gaming', 'recycle-bin']
     let categories: string[]
     if (cliArgs.includes('--all')) {
       categories = [...legacyCats]
@@ -1262,45 +1500,51 @@ export async function runCli(): Promise<void> {
       categories = legacyCats.filter(c => cliArgs.includes(`--${c}`))
       if (categories.length === 0) categories = [...legacyCats]
     }
-    const doClean = hasCleanFlag || command === 'clean'
-    await runLegacyScanClean(categories, doClean, json)
+    const doClean = parsed.hasCleanFlag || parsed.command === 'clean'
+    const exitCode = await runLegacyScanClean(categories, doClean, ctx)
+    app.exit(exitCode)
     return
   }
 
   // Route to subcommand handlers
-  const commandArgs = cliArgs.filter(a => a !== command && a !== '--json')
   try {
-    switch (command) {
-      case 'registry': await handleRegistry(commandArgs, json); break
-      case 'startup': await handleStartup(commandArgs, json); break
-      case 'debloat': await handleDebloat(commandArgs, json); break
-      case 'disk': await handleDisk(commandArgs, json); break
-      case 'network': await handleNetwork(commandArgs, json); break
-      case 'malware': await handleMalware(commandArgs, json); break
-      case 'privacy': await handlePrivacy(commandArgs, json); break
-      case 'drivers': await handleDrivers(commandArgs, json); break
-      case 'services': await handleServices(commandArgs, json); break
-      case 'programs': await handlePrograms(commandArgs, json); break
-      case 'updates': await handleUpdates(commandArgs, json); break
-      case 'perf': await handlePerf(commandArgs, json); break
-      case 'leftovers': await handleLeftovers(commandArgs, json); break
-      case 'history': await handleHistory(commandArgs, json); break
-      case 'restore-point': await handleRestorePoint(commandArgs, json); break
-      case 'config': await handleConfig(commandArgs, json); break
-      case 'service': await handleService(commandArgs, json); break
+    let exitCode: number | void
+    switch (parsed.command) {
+      case 'registry': exitCode = await handleRegistry(parsed.commandArgs, ctx); break
+      case 'startup': exitCode = await handleStartup(parsed.commandArgs, ctx); break
+      case 'debloat': exitCode = await handleDebloat(parsed.commandArgs, ctx); break
+      case 'disk': exitCode = await handleDisk(parsed.commandArgs, ctx); break
+      case 'network': exitCode = await handleNetwork(parsed.commandArgs, ctx); break
+      case 'malware': exitCode = await handleMalware(parsed.commandArgs, ctx); break
+      case 'privacy': exitCode = await handlePrivacy(parsed.commandArgs, ctx); break
+      case 'drivers': exitCode = await handleDrivers(parsed.commandArgs, ctx); break
+      case 'services': exitCode = await handleServices(parsed.commandArgs, ctx); break
+      case 'programs': exitCode = await handlePrograms(parsed.commandArgs, ctx); break
+      case 'updates': exitCode = await handleUpdates(parsed.commandArgs, ctx); break
+      case 'perf': exitCode = await handlePerf(parsed.commandArgs, ctx); break
+      case 'leftovers': exitCode = await handleLeftovers(parsed.commandArgs, ctx); break
+      case 'history': exitCode = await handleHistory(parsed.commandArgs, ctx); break
+      case 'restore-point': exitCode = await handleRestorePoint(parsed.commandArgs, ctx); break
+      case 'config': exitCode = await handleConfig(parsed.commandArgs, ctx); break
+      case 'service': exitCode = await handleService(parsed.commandArgs, ctx); break
+      case 'metrics': exitCode = await handleMetrics(parsed.commandArgs, ctx); break
+      case 'metrics-server': await handleMetricsServer(parsed.commandArgs, ctx); return
       default:
-        log(`Unknown command: ${command}`)
-        log('Run kudu --cli --help for usage information.')
-        app.exit(1)
+        if (ctx.json) log(JSON.stringify({ error: 'unknown_command', command: parsed.command }))
+        else {
+          log(`Unknown command: ${parsed.command}`)
+          log('Run kudu --cli --help for usage information.')
+        }
+        app.exit(ExitCode.UNKNOWN_COMMAND)
         return
     }
-    app.exit(0)
+    app.exit(exitCode ?? ExitCode.SUCCESS)
   } catch (err: any) {
-    if (json) {
+    if (ctx.json) {
       log(JSON.stringify({ error: err.message }))
     } else {
-      log(`Error: ${err.message}`)
+      process.stderr.write(`Error: ${err.message}\n`)
     }
-    app.exit(1)
+    app.exit(ExitCode.GENERAL_ERROR)
   }
 }
