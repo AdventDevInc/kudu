@@ -8,7 +8,9 @@ set -uo pipefail
 
 PASS=0
 FAIL=0
-ELECTRON="npx electron . --cli"
+# --no-sandbox is required on Linux CI where Electron's SUID sandbox
+# helper is not configured (GitHub Actions runners).
+ELECTRON="npx electron . --no-sandbox --cli"
 
 # ─── Helpers ──────────────────────────────────────────────────
 
@@ -138,9 +140,10 @@ assert_exit "metrics exits 0" 0
 assert_valid_json "metrics JSON"
 
 # 8. scan --json (read-only, may find items or not — exit 0 or 5)
+# -q suppresses progress text that would otherwise pollute JSON output
 echo ""
 echo "--- scan --json ---"
-run_cli scan --json --all
+run_cli scan --json -q --all
 assert_exit "scan exits 0 or 5" "0|5"
 assert_valid_json "scan JSON"
 assert_json_key "scan has 'scan' key" "scan"
