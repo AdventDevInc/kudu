@@ -2387,6 +2387,7 @@ class CloudAgentService {
         description: s.description,
         enabled: s.enabled,
         requiresAdmin: s.requiresAdmin,
+        ...(s.dependsOn ? { dependsOn: s.dependsOn } : {}),
       })),
       score: result.score,
       total: result.total,
