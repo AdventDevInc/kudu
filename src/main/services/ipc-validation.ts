@@ -135,6 +135,11 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if ('telemetryIntervalSec' in c && (typeof c.telemetryIntervalSec !== 'number' || c.telemetryIntervalSec < 10 || c.telemetryIntervalSec > 3600)) return null
     if ('shareDiskHealth' in c && typeof c.shareDiskHealth !== 'boolean') return null
     if ('shareProcessList' in c && typeof c.shareProcessList !== 'boolean') return null
+    if ('shareThreatMonitor' in c && typeof c.shareThreatMonitor !== 'boolean') return null
+    if ('allowRemotePower' in c && typeof c.allowRemotePower !== 'boolean') return null
+    if ('allowRemoteCleanup' in c && typeof c.allowRemoteCleanup !== 'boolean') return null
+    if ('allowRemoteInstalls' in c && typeof c.allowRemoteInstalls !== 'boolean') return null
+    if ('allowRemoteConfig' in c && typeof c.allowRemoteConfig !== 'boolean') return null
   }
 
   return obj
