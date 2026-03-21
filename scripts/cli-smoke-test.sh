@@ -8,9 +8,16 @@ set -uo pipefail
 
 PASS=0
 FAIL=0
-# --no-sandbox is required on Linux CI where Electron's SUID sandbox
-# helper is not configured (GitHub Actions runners).
-ELECTRON="npx electron . --no-sandbox --cli"
+
+# On Linux CI there is no display server, and Electron's SUID sandbox
+# helper is not configured.  We must pass Chromium flags directly on
+# the command line — the app sets them via app.commandLine.appendSwitch
+# but that runs too late for the native ozone platform selection.
+if [[ "${OSTYPE:-}" == linux* ]]; then
+  ELECTRON="npx electron . --no-sandbox --disable-gpu --ozone-platform=headless --cli"
+else
+  ELECTRON="npx electron . --cli"
+fi
 
 # ─── Helpers ──────────────────────────────────────────────────
 
