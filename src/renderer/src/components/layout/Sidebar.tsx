@@ -107,7 +107,7 @@ export function Sidebar() {
 
   return (
     <div
-      className="flex h-full w-[220px] shrink-0 flex-col"
+      className="flex h-full w-[240px] shrink-0 flex-col"
       style={{ background: '#111114', borderRight: '1px solid rgba(255,255,255,0.06)' }}
     >
       {/* Logo — doubles as drag region */}
