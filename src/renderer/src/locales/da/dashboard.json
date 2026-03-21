@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Oversigt",
+  "pageTitle": "Kontrolpanel",
   "pageDescription": "Systemoversigt og hurtige handlinger",
   "statSpaceRecovered": "Frigjort plads",
   "statFilesCleaned": "Rensede filer",
@@ -77,10 +77,5 @@
   "toastPrivacyCheckFailed": "Kontrol af privatliv mislykkedes",
   "toastStartupCheckFailed": "Kontrol af opstart mislykkedes",
   "toastSoftwareUpdateCheckFailed": "Kontrol af softwareopdateringer mislykkedes",
-  "toastDriverCleanupFailed": "Driverrensning mislykkedes",
-  "historyCategoryQuickClean": "Hurtig rensning",
-  "historyCategoryRegistry": "Registreringsdatabase",
-  "historyCategoryFullClean": "Fuld rensning",
-  "historyCategoryStaleDrivers": "Forældede drivere",
-  "historyCategoryMalware": "Malware"
+  "toastDriverCleanupFailed": "Oprydning af drivere mislykkedes"
 }

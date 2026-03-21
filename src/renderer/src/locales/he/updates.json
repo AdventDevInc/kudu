@@ -1,6 +1,6 @@
 {
   "pageTitle": "עדכונים",
-  "pageDescription": "שמור על התוכנות ומנהלי ההתקנים שלך מעודכנים",
+  "pageDescription": "שמור את התוכנות ומנהלי ההתקנים שלך מעודכנים",
   "tabs": {
     "software": "תוכנות",
     "drivers": "מנהלי התקנים",
@@ -59,9 +59,9 @@
     "selectedCount": "{{count}} נבחרו",
     "updateSelectedButton": "עדכן את הנבחרים ({{count}})",
     "emptyStateTitle": "לא בוצעה בדיקת עדכונים",
-    "emptyStateDescription": "סרוק את התוכנות המותקנות שלך כדי למצוא עדכונים זמינים.",
+    "emptyStateDescription": "סרוק את התוכנות המותקנות כדי למצוא עדכונים זמינים.",
     "checkingForUpdates": "בודק אם יש עדכונים...",
-    "checkingSubtext": "פעולה זו עשויה להימשך רגע בזמן שמנהל החבילות בודק עדכונים זמינים",
+    "checkingSubtext": "פעולה זו עשויה להימשך רגע בזמן שמנהל החבילות בודק אילו עדכונים זמינים",
     "allUpToDateTitle": "הכול מעודכן!",
     "allUpToDateDescription": "כל התוכנות המותקנות שלך פועלות בגרסה העדכנית ביותר. חזור מאוחר יותר לעדכונים חדשים.",
     "noAppsMatchFilters": "אין יישומים התואמים למסננים שלך",
@@ -76,12 +76,11 @@
     "toastUpdateFailed": "{{count}} עדכון נכשל",
     "toastUpdateFailedPlural": "{{count}} עדכונים נכשלו",
     "errorCheckFailed": "בדיקת העדכונים נכשלה.",
-    "errorUpdateFailed": "פעולת העדכון נכשלה באופן בלתי צפוי.",
-    "historyCategoryUpdates": "עדכונים של {{name}}"
+    "errorUpdateFailed": "פעולת העדכון נכשלה באופן בלתי צפוי."
   },
   "driverManager": {
     "pageTitle": "מנהל מנהלי התקנים",
-    "pageDescription": "סרוק לאיתור מנהלי התקנים לא מעודכנים, התקן עדכונים ונקה חבילות מיושנות — הכול בשלב אחד",
+    "pageDescription": "סרוק מנהלי התקנים לא מעודכנים, התקן עדכונים ונקה חבילות מיושנות — הכול בשלב אחד",
     "scanningButton": "סורק...",
     "scanDriversButton": "סרוק מנהלי התקנים",
     "installingButton": "מתקין...",
@@ -102,7 +101,7 @@
     "removedStalePackagesPlural": "הוסרו {{count}} חבילות מיושנות",
     "spaceRecovered": "{{size}} שוחזרו",
     "failedCount": "({{count}} נכשלו)",
-    "emptyStateTitle": "עדיין לא בוצעה סריקת מנהלי התקנים",
+    "emptyStateTitle": "עדיין לא בוצעה סריקה של מנהלי התקנים",
     "emptyStateDescription": "סרוק כדי למצוא עדכונים זמינים וחבילות מיושנות של מנהלי התקנים לניקוי.",
     "allUpToDateTitle": "כל מנהלי ההתקנים מעודכנים",
     "allUpToDateDescription": "אין עדכונים זמינים ולא נמצאו חבילות מיושנות.",
@@ -117,7 +116,7 @@
     "confirmDescriptionPrefix": "פעולה זו תבצע",
     "confirmDescriptionAnd": "וגם",
     "confirmDescriptionRebootNote": "ייתכן שתידרש הפעלה מחדש של המערכת לאחר התקנת העדכונים.",
-    "confirmDescriptionSuffix": "מנהלי התקנים הפעילים כעת לא יושפעו.",
+    "confirmDescriptionSuffix": "מנהלי התקנים פעילים כעת לא יושפעו.",
     "confirmLabel": "עדכן ונקה",
     "scanFailedToast": "סריקת מנהלי ההתקנים נכשלה",
     "scanFailedDescription": "ודא שהיישום פועל כמנהל מערכת",
@@ -130,7 +129,6 @@
     "installFailedError": "התקנת עדכוני מנהלי ההתקנים נכשלה. נדרשות הרשאות מנהל מערכת.",
     "cleanFailedToast": "ניקוי מנהלי ההתקנים נכשל",
     "cleanFailedDescription": "נדרשות הרשאות מנהל מערכת",
-    "cleanFailedError": "הסרת חבילות מנהלי ההתקנים נכשלה. נדרשות הרשאות מנהל מערכת.",
-    "historyCategoryDrivers": "מנהלי התקנים: {{name}}"
+    "cleanFailedError": "הסרת חבילות מנהלי ההתקנים נכשלה. נדרשות הרשאות מנהל מערכת."
   }
 }

@@ -1,6 +1,6 @@
 {
   "pageTitle": "Dasbor",
-  "pageDescription": "Ikhtisar sistem dan tindakan cepat",
+  "pageDescription": "Ringkasan sistem dan tindakan cepat",
   "statSpaceRecovered": "Ruang Dipulihkan",
   "statFilesCleaned": "File Dibersihkan",
   "statusHeading": "Status",
@@ -16,8 +16,8 @@
   "toolLabelUpdater": "Pembaruan",
   "toolLabelServices": "Layanan",
   "toolLabelStartup": "Startup",
-  "toolTipUsedRecently": "Baru saja digunakan",
-  "toolTipNotUsedRecently": "Sudah lama tidak digunakan",
+  "toolTipUsedRecently": "Baru-baru ini digunakan",
+  "toolTipNotUsedRecently": "Tidak baru-baru ini digunakan",
   "toolTipNeverUsed": "Tidak pernah digunakan",
   "quickCleanTitle": "Pembersihan Cepat",
   "quickCleanDescriptionWithRegistry": "Bersihkan file sampah + perbaiki masalah registry",
@@ -27,7 +27,7 @@
   "fullCleanDescriptionWithRegistry": "Bersihkan + registry + driver + pemindaian malware + pemeriksaan privasi & pembaruan",
   "fullCleanDescriptionWithoutRegistry": "Bersihkan file sampah + pemindaian malware + pemeriksaan privasi & pembaruan",
   "fullCleanSubtext": "Membersihkan dan mengarantina secara otomatis, lalu melaporkan peluang pengoptimalan",
-  "progressWorking": "Sedang memproses...",
+  "progressWorking": "Sedang bekerja...",
   "resultCleanupComplete": "Pembersihan selesai!",
   "resultSpaceRecovered": "{{size}} dipulihkan",
   "resultFilesCleaned": "{{count}} file dibersihkan",
@@ -50,7 +50,7 @@
   "quickActionDiskMap": "Peta Disk",
   "recentActivityHeading": "Aktivitas Terbaru",
   "recentActivityEmpty": "Tidak ada aktivitas terbaru",
-  "storageOverviewHeading": "Ikhtisar Penyimpanan",
+  "storageOverviewHeading": "Ringkasan Penyimpanan",
   "storageOverviewEmpty": "Tidak dapat memuat informasi drive",
   "quickCleanConfirmTitle": "Pembersihan Cepat",
   "quickCleanConfirmDescriptionWithRegistry": "Ini akan memindai dan membersihkan file sampah di semua kategori yang tidak dikecualikan serta memperbaiki masalah registry yang dipilih. Pengecualian kategori Anda dari halaman Pembersih akan tetap diterapkan.",
@@ -77,10 +77,5 @@
   "toastPrivacyCheckFailed": "Pemeriksaan privasi gagal",
   "toastStartupCheckFailed": "Pemeriksaan startup gagal",
   "toastSoftwareUpdateCheckFailed": "Pemeriksaan pembaruan perangkat lunak gagal",
-  "toastDriverCleanupFailed": "Pembersihan driver gagal",
-  "historyCategoryQuickClean": "Pembersihan Cepat",
-  "historyCategoryRegistry": "Registry",
-  "historyCategoryFullClean": "Pembersihan Penuh",
-  "historyCategoryStaleDrivers": "Driver Usang",
-  "historyCategoryMalware": "Malware"
+  "toastDriverCleanupFailed": "Pembersihan driver gagal"
 }

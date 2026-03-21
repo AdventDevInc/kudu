@@ -1,9 +1,11 @@
 {
+  "chooseLanguageTitle": "Välj språk",
+  "chooseLanguageDescription": "Du kan ändra detta senare i Inställningar.",
   "welcomeTitle": "Välkommen till Kudu",
   "welcomeDescription": "Din allt-i-ett-systemrensare för Windows. Kudu tar bort skräpfiler, åtgärdar problem i registret, hanterar autostartprogram och håller din PC snabb.",
   "featureSmartCleaning": "Smart rengöring",
   "featureFasterBoot": "Snabbare uppstart",
-  "featureSafeSecure": "Säker och trygg",
+  "featureSafeSecure": "Säkert och tryggt",
   "getStarted": "Kom igång",
   "recommendedSetupTitle": "Rekommenderad konfiguration",
   "recommendedSetupDescription": "Vi rekommenderar dessa inställningar för bästa upplevelse. Du kan ändra dem senare i Inställningar.",
@@ -12,11 +14,11 @@
   "minimizeToTrayLabel": "Minimera till aktivitetsfältet",
   "minimizeToTrayDescription": "Låt Kudu köras tyst i bakgrunden",
   "weeklyAutoCleanLabel": "Veckovis automatisk rengöring",
-  "weeklyAutoCleanDescription": "Skanna efter och rensa skräpfiler varje måndag kl. 09:00",
+  "weeklyAutoCleanDescription": "Sök efter och rensa skräpfiler varje måndag kl. 09:00",
   "back": "Tillbaka",
   "continue": "Fortsätt",
   "allSetTitle": "Allt är klart!",
   "allSetDescription": "Kudu håller din PC igång smidigt i bakgrunden.",
-  "firstScanScheduled": "Din första automatiska skanning är schemalagd till måndag kl. 09:00.",
+  "firstScanScheduled": "Din första automatiska genomsökning är schemalagd till måndag kl. 09:00.",
   "startCleaning": "Starta rengöring"
 }

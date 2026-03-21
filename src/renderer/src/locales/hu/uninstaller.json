@@ -1,6 +1,6 @@
 {
   "pageTitle": "Programeltávolító",
-  "pageDescription": "Programok eltávolítása és a hátramaradt fájlok automatikus törlése",
+  "pageDescription": "Programok eltávolítása és a hátramaradt fájlok automatikus tisztítása",
   "sortByName": "Név",
   "sortBySize": "Méret",
   "sortByDate": "Dátum",
@@ -27,7 +27,7 @@
   "uninstallFailedError": "Az eltávolítási művelet váratlanul meghiúsult.",
   "progressUninstalling": "{{programName}} eltávolítása...",
   "progressScanningLeftovers": "Hátramaradt fájlok keresése...",
-  "progressCleaningLeftovers": "Hátramaradt fájlok törlése...",
+  "progressCleaningLeftovers": "Hátramaradt fájlok tisztítása...",
   "progressLoading": "Betöltés...",
   "successfullyUninstalled": "Sikeresen eltávolítva",
   "leftoversCleaned": "{{count}} hátramaradt elem törölve ({{size}} felszabadítva)",
@@ -35,7 +35,7 @@
   "noLeftoverFilesFound": "nem találhatók hátramaradt fájlok",
   "failedToUninstall": "Az eltávolítás nem sikerült",
   "emptyStateTitle": "Nincsenek betöltött programok",
-  "emptyStateDescription": "A telepített programok listájának betöltésével megtekintheti, keresheti és eltávolíthatja őket.",
+  "emptyStateDescription": "A megtekintéshez, kereséshez és eltávolításhoz töltse be a telepített programok listáját.",
   "loadingInstalledPrograms": "Telepített programok betöltése...",
   "noUnusedProgramsFound": "Nem találhatók nem használt programok",
   "noProgramsMatchSearch": "Nincs a keresésnek megfelelő program",
@@ -52,7 +52,7 @@
   "lastUsedToday": "Ma",
   "lastUsedYesterday": "Tegnap",
   "lastUsedDaysAgo": "{{days}} napja",
-  "lastUsedMonthsAgo": "{{months}} hója",
+  "lastUsedMonthsAgo": "{{months}} hó",
   "lastUsedYearsAgo": "{{years}} éve",
   "confirmUninstallTitle": "Eltávolítja ezt: {{programName}}?",
   "confirmUninstallDescription": "Ez a program saját eltávolítóját fogja futtatni. A befejezés után a Kudu automatikusan megkeresi és törli a hátramaradt fájlokat.",
@@ -63,6 +63,5 @@
   "confirmBatchLabel": "{{count}} eltávolítása",
   "batchResultProgramsSingular": "{{count}} program",
   "batchResultProgramsPlural": "{{count}} program",
-  "batchResultFailedSucceeded": "{{failed}} sikertelen, {{succeeded}} sikeres",
-  "historyCategoryUninstall": "Eltávolítás: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} sikertelen, {{succeeded}} sikeres"
 }

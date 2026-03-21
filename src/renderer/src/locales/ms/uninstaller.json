@@ -63,6 +63,5 @@
   "confirmBatchLabel": "Nyahpasang {{count}}",
   "batchResultProgramsSingular": "{{count}} program",
   "batchResultProgramsPlural": "{{count}} program",
-  "batchResultFailedSucceeded": "{{failed}} gagal, {{succeeded}} berjaya",
-  "historyCategoryUninstall": "Nyahpasang: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} gagal, {{succeeded}} berjaya"
 }

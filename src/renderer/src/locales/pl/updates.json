@@ -1,6 +1,6 @@
 {
   "pageTitle": "Aktualizacje",
-  "pageDescription": "Utrzymuj oprogramowanie i sterowniki w aktualnym stanie",
+  "pageDescription": "Dbaj o aktualność oprogramowania i sterowników",
   "tabs": {
     "software": "Oprogramowanie",
     "drivers": "Sterowniki",
@@ -73,11 +73,10 @@
     "toastUpdatesFoundPlural": "Znaleziono {{count}} dostępne aktualizacje",
     "toastUpdateSuccess": "Pomyślnie zaktualizowano {{count}} aplikację",
     "toastUpdateSuccessPlural": "Pomyślnie zaktualizowano {{count}} aplikacje",
-    "toastUpdateFailed": "Nie udało się zainstalować {{count}} aktualizacji",
-    "toastUpdateFailedPlural": "Nie udało się zainstalować {{count}} aktualizacji",
+    "toastUpdateFailed": "Nie powiodła się {{count}} aktualizacja",
+    "toastUpdateFailedPlural": "Nie powiodły się {{count}} aktualizacje",
     "errorCheckFailed": "Nie udało się sprawdzić aktualizacji.",
-    "errorUpdateFailed": "Operacja aktualizacji nieoczekiwanie się nie powiodła.",
-    "historyCategoryUpdates": "Aktualizacje: {{name}}"
+    "errorUpdateFailed": "Operacja aktualizacji nieoczekiwanie się nie powiodła."
   },
   "driverManager": {
     "pageTitle": "Menedżer sterowników",
@@ -101,9 +100,9 @@
     "removedStalePackages": "Usunięto {{count}} nieaktualny pakiet",
     "removedStalePackagesPlural": "Usunięto {{count}} nieaktualne pakiety",
     "spaceRecovered": "Odzyskano {{size}}",
-    "failedCount": "({{count}} nieudanych)",
+    "failedCount": "(niepowodzenia: {{count}})",
     "emptyStateTitle": "Nie przeskanowano jeszcze sterowników",
-    "emptyStateDescription": "Przeskanuj system, aby znaleźć dostępne aktualizacje i nieaktualne pakiety sterowników do usunięcia.",
+    "emptyStateDescription": "Wykonaj skanowanie, aby znaleźć dostępne aktualizacje i nieaktualne pakiety sterowników do usunięcia.",
     "allUpToDateTitle": "Wszystkie sterowniki są aktualne",
     "allUpToDateDescription": "Brak dostępnych aktualizacji i nie znaleziono nieaktualnych pakietów.",
     "updatesAvailable": "Dostępne aktualizacje ({{count}})",
@@ -130,7 +129,6 @@
     "installFailedError": "Nie udało się zainstalować aktualizacji sterowników. Wymagane są uprawnienia administratora.",
     "cleanFailedToast": "Czyszczenie sterowników nie powiodło się",
     "cleanFailedDescription": "Wymagane są uprawnienia administratora",
-    "cleanFailedError": "Nie udało się usunąć pakietów sterowników. Wymagane są uprawnienia administratora.",
-    "historyCategoryDrivers": "Sterowniki: {{name}}"
+    "cleanFailedError": "Nie udało się usunąć pakietów sterowników. Wymagane są uprawnienia administratora."
   }
 }

@@ -16,8 +16,8 @@
   "uninstallSelected": "Odinstalovat vybrané ({{count}})",
   "unusedBannerTitle": "{{count}} program nebyl použit {{days}}+ dní",
   "unusedBannerTitlePlural": "{{count}} programů nebylo použito {{days}}+ dní",
-  "unusedBannerDescriptionWithSize": "Zabírá přibližně {{size}} místa na disku. Kliknutím zobrazíte.",
-  "unusedBannerDescriptionNoSize": "Kliknutím zobrazíte nepoužívané programy.",
+  "unusedBannerDescriptionWithSize": "Zabírají přibližně {{size}} místa na disku. Klikněte pro zobrazení.",
+  "unusedBannerDescriptionNoSize": "Klikněte pro zobrazení nepoužívaných programů.",
   "unusedBannerViewButton": "Zobrazit",
   "safeUninstallLabel": "Bezpečná odinstalace",
   "safeUninstallDescription": "Spustí nativní odinstalátor každého programu a poté automaticky vyhledá a vyčistí zbylé soubory a složky.",
@@ -30,9 +30,9 @@
   "progressCleaningLeftovers": "Čištění zbylých souborů...",
   "progressLoading": "Načítání...",
   "successfullyUninstalled": "Úspěšně odinstalováno",
-  "leftoversCleaned": "Vyčištěn {{count}} zbylý soubor (uvolněno {{size}})",
-  "leftoversCleanedPlural": "Vyčištěno {{count}} zbylých souborů (uvolněno {{size}})",
-  "noLeftoverFilesFound": "nenalezeny žádné zbylé soubory",
+  "leftoversCleaned": "Vyčištěn {{count}} zbytek (uvolněno {{size}})",
+  "leftoversCleanedPlural": "Vyčištěny {{count}} zbytky (uvolněno {{size}})",
+  "noLeftoverFilesFound": "nebyly nalezeny žádné zbylé soubory",
   "failedToUninstall": "Odinstalace se nezdařila",
   "emptyStateTitle": "Nebyly načteny žádné programy",
   "emptyStateDescription": "Načtěte seznam nainstalovaných programů, abyste je mohli zobrazit, vyhledat a odinstalovat.",
@@ -63,6 +63,5 @@
   "confirmBatchLabel": "Odinstalovat {{count}}",
   "batchResultProgramsSingular": "{{count}} program",
   "batchResultProgramsPlural": "{{count}} programů",
-  "batchResultFailedSucceeded": "{{failed}} selhalo, {{succeeded}} úspěšně",
-  "historyCategoryUninstall": "Odinstalace: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} selhalo, {{succeeded}} úspěšně"
 }

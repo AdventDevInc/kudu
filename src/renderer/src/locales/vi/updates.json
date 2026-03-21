@@ -30,26 +30,26 @@
     "severityPatch": "Bản vá",
     "severityUpdate": "Cập nhật",
     "packageManagerNotFound": {
-      "brewNotFound": "Không tìm thấy brew",
+      "brewNotFound": "không tìm thấy brew",
       "brewRequired": "Yêu cầu Homebrew. Cài đặt từ",
       "brewSite": "brew.sh",
-      "wingetNotFound": "Không tìm thấy winget",
+      "wingetNotFound": "không tìm thấy winget",
       "wingetRequired": "Yêu cầu Windows Package Manager. Cài đặt từ",
       "wingetStore": "Microsoft Store",
-      "wingetSearchTerm": "(tìm \"App Installer\") hoặc từ GitHub.",
-      "aptNotFound": "Không tìm thấy apt",
-      "aptRequired": "Yêu cầu trình quản lý gói APT. Công cụ này thường được cài đặt sẵn trên hệ thống Debian và Ubuntu.",
-      "dnfNotFound": "Không tìm thấy dnf",
-      "dnfRequired": "Yêu cầu trình quản lý gói DNF. Công cụ này thường được cài đặt sẵn trên hệ thống Fedora và RHEL.",
-      "pacmanNotFound": "Không tìm thấy pacman",
-      "pacmanRequired": "Yêu cầu trình quản lý gói Pacman. Công cụ này thường được cài đặt sẵn trên hệ thống Arch Linux.",
+      "wingetSearchTerm": "(tìm kiếm \"App Installer\") hoặc từ GitHub.",
+      "aptNotFound": "không tìm thấy apt",
+      "aptRequired": "Yêu cầu trình quản lý gói APT. Trình này thường được cài đặt sẵn trên hệ thống Debian và Ubuntu.",
+      "dnfNotFound": "không tìm thấy dnf",
+      "dnfRequired": "Yêu cầu trình quản lý gói DNF. Trình này thường được cài đặt sẵn trên hệ thống Fedora và RHEL.",
+      "pacmanNotFound": "không tìm thấy pacman",
+      "pacmanRequired": "Yêu cầu trình quản lý gói Pacman. Trình này thường được cài đặt sẵn trên hệ thống Arch Linux.",
       "noPackageManager": "Không tìm thấy trình quản lý gói được hỗ trợ. Hỗ trợ: apt (Debian/Ubuntu), dnf (Fedora/RHEL) hoặc pacman (Arch)."
     },
     "statOutdatedApps": "Ứng dụng đã cũ",
     "statMajorUpdates": "Bản cập nhật lớn",
     "statMinorUpdates": "Bản cập nhật nhỏ",
     "statPatches": "Bản vá",
-    "updatingProgress": "Đang cập nhật {{app}} ({{current}} trên {{total}})",
+    "updatingProgress": "Đang cập nhật {{app}} ({{current}} / {{total}})",
     "failedToUpdate": "Không thể cập nhật {{app}}",
     "updateResultAppsUpdated": "Đã cập nhật thành công {{count}} ứng dụng",
     "updateResultAppsUpdatedPlural": "Đã cập nhật thành công {{count}} ứng dụng",
@@ -61,10 +61,10 @@
     "emptyStateTitle": "Chưa thực hiện kiểm tra cập nhật",
     "emptyStateDescription": "Quét phần mềm đã cài đặt để tìm các bản cập nhật khả dụng.",
     "checkingForUpdates": "Đang kiểm tra bản cập nhật...",
-    "checkingSubtext": "Quá trình này có thể mất một lúc trong khi trình quản lý gói truy vấn các bản cập nhật khả dụng",
+    "checkingSubtext": "Quá trình này có thể mất ít phút trong khi trình quản lý gói truy vấn các bản cập nhật khả dụng",
     "allUpToDateTitle": "Mọi thứ đều đã được cập nhật!",
     "allUpToDateDescription": "Tất cả phần mềm đã cài đặt của bạn đang chạy phiên bản mới nhất. Hãy kiểm tra lại sau để tìm bản cập nhật mới.",
-    "noAppsMatchFilters": "Không có ứng dụng nào khớp với bộ lọc của bạn",
+    "noAppsMatchFilters": "Không có ứng dụng nào khớp với bộ lọc",
     "upToDateSection": "Đã cập nhật ({{count}})",
     "latestBadge": "Mới nhất",
     "updateButton": "Cập nhật",
@@ -76,8 +76,7 @@
     "toastUpdateFailed": "{{count}} bản cập nhật thất bại",
     "toastUpdateFailedPlural": "{{count}} bản cập nhật thất bại",
     "errorCheckFailed": "Không thể kiểm tra bản cập nhật.",
-    "errorUpdateFailed": "Thao tác cập nhật thất bại ngoài dự kiến.",
-    "historyCategoryUpdates": "Cập nhật {{name}}"
+    "errorUpdateFailed": "Thao tác cập nhật đã thất bại ngoài dự kiến."
   },
   "driverManager": {
     "pageTitle": "Trình quản lý trình điều khiển",
@@ -130,7 +129,6 @@
     "installFailedError": "Không thể cài đặt bản cập nhật trình điều khiển. Yêu cầu quyền Quản trị viên.",
     "cleanFailedToast": "Dọn dẹp trình điều khiển thất bại",
     "cleanFailedDescription": "Yêu cầu quyền Quản trị viên",
-    "cleanFailedError": "Không thể xóa các gói trình điều khiển. Yêu cầu quyền Quản trị viên.",
-    "historyCategoryDrivers": "Trình điều khiển: {{name}}"
+    "cleanFailedError": "Không thể xóa các gói trình điều khiển. Yêu cầu quyền Quản trị viên."
   }
 }

@@ -1,6 +1,8 @@
 {
+  "chooseLanguageTitle": "Choisissez votre langue",
+  "chooseLanguageDescription": "Vous pourrez modifier ce choix plus tard dans les Paramètres.",
   "welcomeTitle": "Bienvenue dans Kudu",
-  "welcomeDescription": "Votre nettoyeur système Windows tout-en-un. Kudu supprime les fichiers inutiles, corrige les problèmes du registre, gère les programmes au démarrage et maintient votre PC rapide.",
+  "welcomeDescription": "Votre nettoyeur système Windows tout-en-un. Kudu supprime les fichiers inutiles, corrige les problèmes du registre, gère les programmes de démarrage et maintient votre PC rapide.",
   "featureSmartCleaning": "Nettoyage intelligent",
   "featureFasterBoot": "Démarrage plus rapide",
   "featureSafeSecure": "Sûr et sécurisé",
@@ -8,15 +10,15 @@
   "recommendedSetupTitle": "Configuration recommandée",
   "recommendedSetupDescription": "Nous recommandons ces paramètres pour une expérience optimale. Vous pourrez les modifier plus tard dans les Paramètres.",
   "runAtStartupLabel": "Exécuter au démarrage",
-  "runAtStartupDescription": "Lancer Kudu au démarrage de Windows pour que votre PC reste propre automatiquement",
+  "runAtStartupDescription": "Lancer Kudu au démarrage de Windows afin que votre PC reste propre automatiquement",
   "minimizeToTrayLabel": "Réduire dans la zone de notification",
-  "minimizeToTrayDescription": "Laisser Kudu s’exécuter discrètement en arrière-plan",
+  "minimizeToTrayDescription": "Laisser Kudu fonctionner discrètement en arrière-plan",
   "weeklyAutoCleanLabel": "Nettoyage automatique hebdomadaire",
   "weeklyAutoCleanDescription": "Analyser et nettoyer les fichiers inutiles chaque lundi à 9:00",
   "back": "Retour",
   "continue": "Continuer",
   "allSetTitle": "Tout est prêt !",
   "allSetDescription": "Kudu maintiendra le bon fonctionnement de votre PC en arrière-plan.",
-  "firstScanScheduled": "Votre première analyse automatique est planifiée pour lundi à 9:00.",
+  "firstScanScheduled": "Votre première analyse automatique est programmée pour lundi à 9:00.",
   "startCleaning": "Commencer le nettoyage"
 }

@@ -1,14 +1,16 @@
 {
+  "chooseLanguageTitle": "Scegli la tua lingua",
+  "chooseLanguageDescription": "Puoi modificarla in seguito nelle Impostazioni.",
   "welcomeTitle": "Benvenuto in Kudu",
-  "welcomeDescription": "Il tuo strumento tutto in uno per la pulizia del sistema Windows. Kudu rimuove i file inutili, corregge i problemi del registro di sistema, gestisce i programmi di avvio e mantiene il tuo PC veloce.",
+  "welcomeDescription": "Il tuo strumento tutto in uno per la pulizia del sistema Windows. Kudu rimuove i file inutili, corregge i problemi del registro e gestisce i programmi di avvio, mantenendo il PC veloce.",
   "featureSmartCleaning": "Pulizia intelligente",
   "featureFasterBoot": "Avvio più rapido",
   "featureSafeSecure": "Sicuro e protetto",
   "getStarted": "Inizia",
   "recommendedSetupTitle": "Configurazione consigliata",
-  "recommendedSetupDescription": "Consigliamo queste impostazioni per un'esperienza ottimale. Potrai modificarle in seguito nelle Impostazioni.",
+  "recommendedSetupDescription": "Consigliamo queste impostazioni per un'esperienza ottimale. Puoi modificarle in seguito nelle Impostazioni.",
   "runAtStartupLabel": "Esegui all'avvio",
-  "runAtStartupDescription": "Avvia Kudu all'avvio di Windows per mantenere automaticamente pulito il tuo PC",
+  "runAtStartupDescription": "Avvia Kudu all'avvio di Windows per mantenere il PC pulito automaticamente",
   "minimizeToTrayLabel": "Riduci a icona nell'area di notifica",
   "minimizeToTrayDescription": "Mantieni Kudu in esecuzione silenziosamente in background",
   "weeklyAutoCleanLabel": "Pulizia automatica settimanale",
@@ -16,7 +18,7 @@
   "back": "Indietro",
   "continue": "Continua",
   "allSetTitle": "È tutto pronto!",
-  "allSetDescription": "Kudu manterrà il tuo PC efficiente in background.",
+  "allSetDescription": "Kudu manterrà il tuo PC sempre efficiente in background.",
   "firstScanScheduled": "La tua prima scansione automatica è programmata per lunedì alle 9:00.",
   "startCleaning": "Avvia pulizia"
 }

@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Gỡ cài đặt chương trình",
+  "pageTitle": "Trình gỡ cài đặt chương trình",
   "pageDescription": "Gỡ cài đặt chương trình và tự động dọn dẹp các tệp còn sót lại",
   "sortByName": "Tên",
   "sortBySize": "Kích thước",
@@ -16,13 +16,13 @@
   "uninstallSelected": "Gỡ cài đặt mục đã chọn ({{count}})",
   "unusedBannerTitle": "{{count}} chương trình không được sử dụng trong {{days}}+ ngày",
   "unusedBannerTitlePlural": "{{count}} chương trình không được sử dụng trong {{days}}+ ngày",
-  "unusedBannerDescriptionWithSize": "Đang sử dụng khoảng ~{{size}} dung lượng đĩa. Bấm để xem.",
-  "unusedBannerDescriptionNoSize": "Bấm để xem các chương trình không sử dụng.",
+  "unusedBannerDescriptionWithSize": "Đang sử dụng khoảng ~{{size}} dung lượng đĩa. Nhấp để xem.",
+  "unusedBannerDescriptionNoSize": "Nhấp để xem các chương trình không sử dụng.",
   "unusedBannerViewButton": "Xem",
   "safeUninstallLabel": "Gỡ cài đặt an toàn",
   "safeUninstallDescription": "Chạy trình gỡ cài đặt gốc của từng chương trình, sau đó tự động quét và dọn dẹp các tệp và thư mục còn sót lại.",
-  "failedToLoadToast": "Không tải được các chương trình đã cài đặt",
-  "failedToLoadError": "Không tải được các chương trình đã cài đặt.",
+  "failedToLoadToast": "Không thể tải các chương trình đã cài đặt",
+  "failedToLoadError": "Không thể tải các chương trình đã cài đặt.",
   "uninstallFailedToast": "Gỡ cài đặt thất bại ngoài dự kiến",
   "uninstallFailedError": "Thao tác gỡ cài đặt thất bại ngoài dự kiến.",
   "progressUninstalling": "Đang gỡ cài đặt {{programName}}...",
@@ -63,6 +63,5 @@
   "confirmBatchLabel": "Gỡ cài đặt {{count}}",
   "batchResultProgramsSingular": "{{count}} chương trình",
   "batchResultProgramsPlural": "{{count}} chương trình",
-  "batchResultFailedSucceeded": "{{failed}} thất bại, {{succeeded}} thành công",
-  "historyCategoryUninstall": "Gỡ cài đặt: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} thất bại, {{succeeded}} thành công"
 }

@@ -1,6 +1,6 @@
 {
   "pageTitle": "更新",
-  "pageDescription": "讓您的軟體和驅動程式保持在最新狀態",
+  "pageDescription": "讓您的軟體與驅動程式保持在最新狀態",
   "tabs": {
     "software": "軟體",
     "drivers": "驅動程式",
@@ -11,7 +11,7 @@
   },
   "softwareUpdater": {
     "pageTitle": "軟體更新程式",
-    "pageDescription": "檢查過時的軟體並安裝更新",
+    "pageDescription": "檢查過期軟體並安裝更新",
     "checkingButton": "檢查中...",
     "recheckButton": "重新檢查",
     "checkForUpdatesButton": "檢查更新",
@@ -38,14 +38,14 @@
       "wingetStore": "Microsoft Store",
       "wingetSearchTerm": "安裝（搜尋「App Installer」）或從 GitHub 安裝。",
       "aptNotFound": "找不到 apt",
-      "aptRequired": "需要 APT 套件管理員。它應已預先安裝於 Debian 和 Ubuntu 系統上。",
+      "aptRequired": "需要 APT 套件管理員。它應已預先安裝於 Debian 與 Ubuntu 系統上。",
       "dnfNotFound": "找不到 dnf",
-      "dnfRequired": "需要 DNF 套件管理員。它應已預先安裝於 Fedora 和 RHEL 系統上。",
+      "dnfRequired": "需要 DNF 套件管理員。它應已預先安裝於 Fedora 與 RHEL 系統上。",
       "pacmanNotFound": "找不到 pacman",
       "pacmanRequired": "需要 Pacman 套件管理員。它應已預先安裝於 Arch Linux 系統上。",
-      "noPackageManager": "找不到支援的套件管理員。支援項目：apt（Debian/Ubuntu）、dnf（Fedora/RHEL）或 pacman（Arch）。"
+      "noPackageManager": "找不到受支援的套件管理員。支援項目：apt（Debian/Ubuntu）、dnf（Fedora/RHEL）或 pacman（Arch）。"
     },
-    "statOutdatedApps": "過時的應用程式",
+    "statOutdatedApps": "過期應用程式",
     "statMajorUpdates": "重大更新",
     "statMinorUpdates": "次要更新",
     "statPatches": "修補程式",
@@ -59,13 +59,13 @@
     "selectedCount": "已選取 {{count}} 個",
     "updateSelectedButton": "更新所選項目（{{count}}）",
     "emptyStateTitle": "尚未執行更新檢查",
-    "emptyStateDescription": "掃描您已安裝的軟體以尋找可用更新。",
+    "emptyStateDescription": "掃描您已安裝的軟體以找出可用更新。",
     "checkingForUpdates": "正在檢查更新...",
     "checkingSubtext": "套件管理員正在查詢可用更新，這可能需要一些時間",
     "allUpToDateTitle": "所有項目皆為最新狀態！",
     "allUpToDateDescription": "您已安裝的所有軟體都在執行最新版本。請稍後再回來查看是否有新更新。",
     "noAppsMatchFilters": "沒有符合篩選條件的應用程式",
-    "upToDateSection": "最新狀態（{{count}}）",
+    "upToDateSection": "已是最新（{{count}}）",
     "latestBadge": "最新",
     "updateButton": "更新",
     "toastAllUpToDate": "所有軟體皆為最新狀態！",
@@ -76,18 +76,17 @@
     "toastUpdateFailed": "{{count}} 個更新失敗",
     "toastUpdateFailedPlural": "{{count}} 個更新失敗",
     "errorCheckFailed": "檢查更新失敗。",
-    "errorUpdateFailed": "更新作業意外失敗。",
-    "historyCategoryUpdates": "{{name}} 更新"
+    "errorUpdateFailed": "更新作業意外失敗。"
   },
   "driverManager": {
     "pageTitle": "驅動程式管理員",
-    "pageDescription": "掃描過時的驅動程式、安裝更新並清理過時套件 — 一次完成",
+    "pageDescription": "掃描過期驅動程式、安裝更新並清理過時套件 — 一次完成",
     "scanningButton": "掃描中...",
     "scanDriversButton": "掃描驅動程式",
     "installingButton": "安裝中...",
     "cleaningButton": "清理中...",
     "applyingButton": "套用中...",
-    "updateAndCleanButton": "更新與清理（{{count}}）",
+    "updateAndCleanButton": "更新並清理（{{count}}）",
     "safeOperationBold": "安全作業",
     "safeOperationText": "從 Windows Update 安裝較新的驅動程式版本，並移除舊的驅動程式套件。絕不會變更目前使用中的驅動程式。",
     "enumeratingPackages": "正在列舉驅動程式套件...",
@@ -103,7 +102,7 @@
     "spaceRecovered": "已回收 {{size}}",
     "failedCount": "（{{count}} 個失敗）",
     "emptyStateTitle": "尚未掃描驅動程式",
-    "emptyStateDescription": "執行掃描以尋找可用更新和可清理的過時驅動程式套件。",
+    "emptyStateDescription": "執行掃描以找出可用更新與可清理的過時驅動程式套件。",
     "allUpToDateTitle": "所有驅動程式皆為最新狀態",
     "allUpToDateDescription": "沒有可用更新，也未找到過時套件。",
     "updatesAvailable": "可用更新（{{count}}）",
@@ -118,7 +117,7 @@
     "confirmDescriptionAnd": "並",
     "confirmDescriptionRebootNote": "安裝更新後可能需要重新啟動系統。",
     "confirmDescriptionSuffix": "目前使用中的驅動程式不會受到影響。",
-    "confirmLabel": "更新與清理",
+    "confirmLabel": "更新並清理",
     "scanFailedToast": "驅動程式掃描失敗",
     "scanFailedDescription": "請確認應用程式是以系統管理員身分執行",
     "scanFailedError": "掃描驅動程式套件失敗。請確認應用程式是以系統管理員身分執行。",
@@ -130,7 +129,6 @@
     "installFailedError": "安裝驅動程式更新失敗。需要系統管理員權限。",
     "cleanFailedToast": "驅動程式清理失敗",
     "cleanFailedDescription": "需要系統管理員權限",
-    "cleanFailedError": "移除驅動程式套件失敗。需要系統管理員權限。",
-    "historyCategoryDrivers": "驅動程式：{{name}}"
+    "cleanFailedError": "移除驅動程式套件失敗。需要系統管理員權限。"
   }
 }

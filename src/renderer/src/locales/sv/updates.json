@@ -12,8 +12,8 @@
   "softwareUpdater": {
     "pageTitle": "Programuppdaterare",
     "pageDescription": "Sök efter inaktuell programvara och installera uppdateringar",
-    "checkingButton": "Kontrollerar...",
-    "recheckButton": "Kontrollera igen",
+    "checkingButton": "Söker...",
+    "recheckButton": "Sök igen",
     "checkForUpdatesButton": "Sök efter uppdateringar",
     "searchPlaceholder": "Sök appar...",
     "filterAll": "Alla",
@@ -57,7 +57,7 @@
     "deselectAll": "Avmarkera alla",
     "selectAll": "Markera alla",
     "selectedCount": "{{count}} valda",
-    "updateSelectedButton": "Uppdatera markerade ({{count}})",
+    "updateSelectedButton": "Uppdatera valda ({{count}})",
     "emptyStateTitle": "Ingen uppdateringskontroll har utförts",
     "emptyStateDescription": "Skanna din installerade programvara för att hitta tillgängliga uppdateringar.",
     "checkingForUpdates": "Söker efter uppdateringar...",
@@ -76,8 +76,7 @@
     "toastUpdateFailed": "{{count}} uppdatering misslyckades",
     "toastUpdateFailedPlural": "{{count}} uppdateringar misslyckades",
     "errorCheckFailed": "Det gick inte att söka efter uppdateringar.",
-    "errorUpdateFailed": "Uppdateringen misslyckades oväntat.",
-    "historyCategoryUpdates": "{{name}} uppdateringar"
+    "errorUpdateFailed": "Uppdateringen misslyckades oväntat."
   },
   "driverManager": {
     "pageTitle": "Drivrutinshanterare",
@@ -125,12 +124,11 @@
     "updateScanFailedToast": "Kontroll av drivrutinsuppdateringar misslyckades",
     "updateScanFailedDescription": "Kontrollera att tjänsten Windows Update körs",
     "updateScanFailedError": "Det gick inte att söka efter drivrutinsuppdateringar. Kontrollera att tjänsten Windows Update körs.",
-    "installFailedToast": "Installation av drivrutiner misslyckades",
+    "installFailedToast": "Installation av drivrutin misslyckades",
     "installFailedDescription": "Administratörsbehörighet krävs",
     "installFailedError": "Det gick inte att installera drivrutinsuppdateringar. Administratörsbehörighet krävs.",
     "cleanFailedToast": "Rensning av drivrutiner misslyckades",
     "cleanFailedDescription": "Administratörsbehörighet krävs",
-    "cleanFailedError": "Det gick inte att ta bort drivrutinspaket. Administratörsbehörighet krävs.",
-    "historyCategoryDrivers": "Drivrutiner: {{name}}"
+    "cleanFailedError": "Det gick inte att ta bort drivrutinspaket. Administratörsbehörighet krävs."
   }
 }

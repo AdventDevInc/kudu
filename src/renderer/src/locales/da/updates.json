@@ -1,6 +1,6 @@
 {
   "pageTitle": "Opdateringer",
-  "pageDescription": "Hold din software og dine drivere opdaterede",
+  "pageDescription": "Hold din software og dine drivere opdateret",
   "tabs": {
     "software": "Software",
     "drivers": "Drivere",
@@ -60,8 +60,8 @@
     "updateSelectedButton": "Opdater valgte ({{count}})",
     "emptyStateTitle": "Ingen opdateringskontrol udført",
     "emptyStateDescription": "Scan din installerede software for at finde tilgængelige opdateringer.",
-    "checkingForUpdates": "Kontrollerer for opdateringer...",
-    "checkingSubtext": "Dette kan tage et øjeblik, mens din pakkehåndtering forespørger på tilgængelige opdateringer",
+    "checkingForUpdates": "Søger efter opdateringer...",
+    "checkingSubtext": "Dette kan tage et øjeblik, mens din pakkehåndtering forespørger om tilgængelige opdateringer",
     "allUpToDateTitle": "Alt er opdateret!",
     "allUpToDateDescription": "Al din installerede software kører den nyeste version. Kom tilbage senere for nye opdateringer.",
     "noAppsMatchFilters": "Ingen apps matcher dine filtre",
@@ -71,13 +71,12 @@
     "toastAllUpToDate": "Al software er opdateret!",
     "toastUpdatesFound": "Fandt {{count}} tilgængelig opdatering",
     "toastUpdatesFoundPlural": "Fandt {{count}} tilgængelige opdateringer",
-    "toastUpdateSuccess": "Opdaterede {{count}} app",
-    "toastUpdateSuccessPlural": "Opdaterede {{count}} apps",
+    "toastUpdateSuccess": "{{count}} app blev opdateret",
+    "toastUpdateSuccessPlural": "{{count}} apps blev opdateret",
     "toastUpdateFailed": "{{count}} opdatering mislykkedes",
     "toastUpdateFailedPlural": "{{count}} opdateringer mislykkedes",
-    "errorCheckFailed": "Kunne ikke kontrollere for opdateringer.",
-    "errorUpdateFailed": "Opdateringen mislykkedes uventet.",
-    "historyCategoryUpdates": "{{name}}-opdateringer"
+    "errorCheckFailed": "Kunne ikke søge efter opdateringer.",
+    "errorUpdateFailed": "Opdateringen mislykkedes uventet."
   },
   "driverManager": {
     "pageTitle": "Driverhåndtering",
@@ -130,7 +129,6 @@
     "installFailedError": "Kunne ikke installere driveropdateringer. Administratorrettigheder er påkrævet.",
     "cleanFailedToast": "Oprydning af drivere mislykkedes",
     "cleanFailedDescription": "Administratorrettigheder er påkrævet",
-    "cleanFailedError": "Kunne ikke fjerne driverpakker. Administratorrettigheder er påkrævet.",
-    "historyCategoryDrivers": "Drivere: {{name}}"
+    "cleanFailedError": "Kunne ikke fjerne driverpakker. Administratorrettigheder er påkrævet."
   }
 }

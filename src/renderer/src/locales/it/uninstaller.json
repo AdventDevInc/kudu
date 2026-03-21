@@ -14,9 +14,9 @@
   "filterAll": "Tutti ({{count}})",
   "filterUnused": "Non utilizzati ({{count}})",
   "uninstallSelected": "Disinstalla selezionati ({{count}})",
-  "unusedBannerTitle": "{{count}} programma non utilizzato negli ultimi {{days}}+ giorni",
-  "unusedBannerTitlePlural": "{{count}} programmi non utilizzati negli ultimi {{days}}+ giorni",
-  "unusedBannerDescriptionWithSize": "Occupano circa {{size}} di spazio su disco. Fai clic per visualizzare.",
+  "unusedBannerTitle": "{{count}} programma non utilizzato da oltre {{days}} giorni",
+  "unusedBannerTitlePlural": "{{count}} programmi non utilizzati da oltre {{days}} giorni",
+  "unusedBannerDescriptionWithSize": "Utilizzano circa {{size}} di spazio su disco. Fai clic per visualizzare.",
   "unusedBannerDescriptionNoSize": "Fai clic per visualizzare i programmi non utilizzati.",
   "unusedBannerViewButton": "Visualizza",
   "safeUninstallLabel": "Disinstallazione sicura",
@@ -63,6 +63,5 @@
   "confirmBatchLabel": "Disinstalla {{count}}",
   "batchResultProgramsSingular": "{{count}} programma",
   "batchResultProgramsPlural": "{{count}} programmi",
-  "batchResultFailedSucceeded": "{{failed}} non riusciti, {{succeeded}} riusciti",
-  "historyCategoryUninstall": "Disinstallazione: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} non riusciti, {{succeeded}} riusciti"
 }

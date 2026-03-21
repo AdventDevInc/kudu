@@ -16,13 +16,13 @@
   "uninstallSelected": "Désinstaller la sélection ({{count}})",
   "unusedBannerTitle": "{{count}} programme non utilisé depuis {{days}}+ jours",
   "unusedBannerTitlePlural": "{{count}} programmes non utilisés depuis {{days}}+ jours",
-  "unusedBannerDescriptionWithSize": "Utilisent ~{{size}} d’espace disque. Cliquez pour afficher.",
+  "unusedBannerDescriptionWithSize": "Occupe ~{{size}} d’espace disque. Cliquez pour afficher.",
   "unusedBannerDescriptionNoSize": "Cliquez pour afficher les programmes inutilisés.",
   "unusedBannerViewButton": "Afficher",
-  "safeUninstallLabel": "Désinstallation sécurisée",
+  "safeUninstallLabel": "Désinstallation sûre",
   "safeUninstallDescription": "Exécute le programme de désinstallation natif de chaque programme, puis recherche et nettoie automatiquement les fichiers et dossiers résiduels.",
   "failedToLoadToast": "Échec du chargement des programmes installés",
-  "failedToLoadError": "Échec du chargement des programmes installés.",
+  "failedToLoadError": "Impossible de charger les programmes installés.",
   "uninstallFailedToast": "La désinstallation a échoué de manière inattendue",
   "uninstallFailedError": "L’opération de désinstallation a échoué de manière inattendue.",
   "progressUninstalling": "Désinstallation de {{programName}}...",
@@ -55,7 +55,7 @@
   "lastUsedMonthsAgo": "il y a {{months}} mois",
   "lastUsedYearsAgo": "il y a {{years}} an(s)",
   "confirmUninstallTitle": "Désinstaller {{programName}} ?",
-  "confirmUninstallDescription": "Cela exécutera le programme de désinstallation natif du programme. Une fois terminé, Kudu recherchera et nettoiera automatiquement les fichiers résiduels.",
+  "confirmUninstallDescription": "Cela exécutera le programme de désinstallation natif du programme. Une fois l’opération terminée, Kudu recherchera et nettoiera automatiquement les fichiers résiduels.",
   "confirmUninstallLabel": "Désinstaller",
   "confirmBatchTitle": "Désinstaller {{count}} programme ?",
   "confirmBatchTitlePlural": "Désinstaller {{count}} programmes ?",
@@ -63,6 +63,5 @@
   "confirmBatchLabel": "Désinstaller {{count}}",
   "batchResultProgramsSingular": "{{count}} programme",
   "batchResultProgramsPlural": "{{count}} programmes",
-  "batchResultFailedSucceeded": "{{failed}} échec(s), {{succeeded}} réussi(s)",
-  "historyCategoryUninstall": "Désinstallation : {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} échec(s), {{succeeded}} réussi(s)"
 }

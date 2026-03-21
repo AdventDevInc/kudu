@@ -1,6 +1,8 @@
 {
-  "welcomeTitle": "Selamat datang ke Kudu",
-  "welcomeDescription": "Pembersih sistem Windows serba lengkap anda. Kudu membuang fail sampah, membaiki isu registry, mengurus program permulaan, dan memastikan PC anda kekal berjalan pantas.",
+  "chooseLanguageTitle": "Pilih Bahasa Anda",
+  "chooseLanguageDescription": "Anda boleh mengubahnya kemudian dalam Tetapan.",
+  "welcomeTitle": "Selamat Datang ke Kudu",
+  "welcomeDescription": "Pembersih sistem Windows serba lengkap anda. Kudu membuang fail sampah, membaiki isu registry, mengurus program permulaan, dan memastikan PC anda kekal pantas.",
   "featureSmartCleaning": "Pembersihan Pintar",
   "featureFasterBoot": "Permulaan Lebih Pantas",
   "featureSafeSecure": "Selamat & Terjamin",
@@ -12,11 +14,11 @@
   "minimizeToTrayLabel": "Minimumkan ke dulang",
   "minimizeToTrayDescription": "Pastikan Kudu berjalan secara senyap di latar belakang",
   "weeklyAutoCleanLabel": "Pembersihan automatik mingguan",
-  "weeklyAutoCleanDescription": "Imbas dan bersihkan fail sampah setiap Isnin pada 9:00 AM",
+  "weeklyAutoCleanDescription": "Imbas dan bersihkan fail sampah setiap hari Isnin pada 9:00 AM",
   "back": "Kembali",
   "continue": "Teruskan",
   "allSetTitle": "Semuanya Sudah Sedia!",
   "allSetDescription": "Kudu akan memastikan PC anda berjalan lancar di latar belakang.",
-  "firstScanScheduled": "Imbasan automatik pertama anda dijadualkan pada hari Isnin jam 9:00 AM.",
+  "firstScanScheduled": "Imbasan automatik pertama anda dijadualkan pada hari Isnin pukul 9:00 AM.",
   "startCleaning": "Mulakan Pembersihan"
 }

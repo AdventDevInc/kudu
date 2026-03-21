@@ -38,11 +38,11 @@
       "wingetStore": "Microsoft Store",
       "wingetSearchTerm": "(zoek op \"App Installer\") of via GitHub.",
       "aptNotFound": "apt niet gevonden",
-      "aptRequired": "APT-pakketbeheer is vereist. Dit hoort vooraf geïnstalleerd te zijn op Debian- en Ubuntu-systemen.",
+      "aptRequired": "APT-pakketbeheer is vereist. Dit zou standaard geïnstalleerd moeten zijn op Debian- en Ubuntu-systemen.",
       "dnfNotFound": "dnf niet gevonden",
-      "dnfRequired": "DNF-pakketbeheer is vereist. Dit hoort vooraf geïnstalleerd te zijn op Fedora- en RHEL-systemen.",
+      "dnfRequired": "DNF-pakketbeheer is vereist. Dit zou standaard geïnstalleerd moeten zijn op Fedora- en RHEL-systemen.",
       "pacmanNotFound": "pacman niet gevonden",
-      "pacmanRequired": "Pacman-pakketbeheer is vereist. Dit hoort vooraf geïnstalleerd te zijn op Arch Linux-systemen.",
+      "pacmanRequired": "Pacman-pakketbeheer is vereist. Dit zou standaard geïnstalleerd moeten zijn op Arch Linux-systemen.",
       "noPackageManager": "Geen ondersteund pakketbeheer gevonden. Ondersteund: apt (Debian/Ubuntu), dnf (Fedora/RHEL) of pacman (Arch)."
     },
     "statOutdatedApps": "Verouderde apps",
@@ -58,12 +58,12 @@
     "selectAll": "Alles selecteren",
     "selectedCount": "{{count}} geselecteerd",
     "updateSelectedButton": "Geselecteerde bijwerken ({{count}})",
-    "emptyStateTitle": "Nog niet op updates gecontroleerd",
+    "emptyStateTitle": "Nog geen updatecontrole uitgevoerd",
     "emptyStateDescription": "Scan uw geïnstalleerde software om beschikbare updates te vinden.",
     "checkingForUpdates": "Controleren op updates...",
     "checkingSubtext": "Dit kan even duren terwijl uw pakketbeheer beschikbare updates opvraagt",
     "allUpToDateTitle": "Alles is up-to-date!",
-    "allUpToDateDescription": "Al uw geïnstalleerde software gebruikt de nieuwste versie. Controleer later opnieuw op nieuwe updates.",
+    "allUpToDateDescription": "Al uw geïnstalleerde software gebruikt de nieuwste versie. Kom later terug voor nieuwe updates.",
     "noAppsMatchFilters": "Geen apps komen overeen met uw filters",
     "upToDateSection": "Up-to-date ({{count}})",
     "latestBadge": "Nieuwste",
@@ -75,9 +75,8 @@
     "toastUpdateSuccessPlural": "{{count}} apps succesvol bijgewerkt",
     "toastUpdateFailed": "{{count}} update mislukt",
     "toastUpdateFailedPlural": "{{count}} updates mislukt",
-    "errorCheckFailed": "Controleren op updates mislukt.",
-    "errorUpdateFailed": "De updatebewerking is onverwacht mislukt.",
-    "historyCategoryUpdates": "Updates van {{name}}"
+    "errorCheckFailed": "Controleren op updates is mislukt.",
+    "errorUpdateFailed": "De updatebewerking is onverwacht mislukt."
   },
   "driverManager": {
     "pageTitle": "Driverbeheer",
@@ -121,16 +120,15 @@
     "confirmLabel": "Bijwerken en opschonen",
     "scanFailedToast": "Scannen van drivers mislukt",
     "scanFailedDescription": "Zorg ervoor dat de app als Administrator wordt uitgevoerd",
-    "scanFailedError": "Scannen van driverpakketten mislukt. Zorg ervoor dat de app als Administrator wordt uitgevoerd.",
+    "scanFailedError": "Scannen van driverpakketten is mislukt. Zorg ervoor dat de app als Administrator wordt uitgevoerd.",
     "updateScanFailedToast": "Controleren op driverupdates mislukt",
     "updateScanFailedDescription": "Zorg ervoor dat de Windows Update-service actief is",
-    "updateScanFailedError": "Controleren op driverupdates mislukt. Zorg ervoor dat de Windows Update-service actief is.",
+    "updateScanFailedError": "Controleren op driverupdates is mislukt. Zorg ervoor dat de Windows Update-service actief is.",
     "installFailedToast": "Installeren van drivers mislukt",
     "installFailedDescription": "Administratorrechten zijn vereist",
-    "installFailedError": "Installeren van driverupdates mislukt. Administratorrechten zijn vereist.",
+    "installFailedError": "Installeren van driverupdates is mislukt. Administratorrechten zijn vereist.",
     "cleanFailedToast": "Opschonen van drivers mislukt",
     "cleanFailedDescription": "Administratorrechten zijn vereist",
-    "cleanFailedError": "Verwijderen van driverpakketten mislukt. Administratorrechten zijn vereist.",
-    "historyCategoryDrivers": "Drivers: {{name}}"
+    "cleanFailedError": "Verwijderen van driverpakketten is mislukt. Administratorrechten zijn vereist."
   }
 }

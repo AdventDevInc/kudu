@@ -44,7 +44,7 @@
   "installedProgramsHeading": "Programas Instalados",
   "programCount": "({{filtered}} de {{total}})",
   "selectAll": "Selecionar tudo",
-  "deselectAll": "Desmarcar tudo",
+  "deselectAll": "Desselecionar tudo",
   "uninstallButton": "Desinstalar",
   "unusedBadge": "Não utilizado",
   "unknownPublisher": "Fornecedor desconhecido",
@@ -59,10 +59,9 @@
   "confirmUninstallLabel": "Desinstalar",
   "confirmBatchTitle": "Desinstalar {{count}} programa?",
   "confirmBatchTitlePlural": "Desinstalar {{count}} programas?",
-  "confirmBatchDescription": "Isto irá executar o desinstalador nativo de cada programa, um a um. Após cada um, o Kudu irá procurar e limpar automaticamente os ficheiros restantes.",
+  "confirmBatchDescription": "Isto irá executar o desinstalador nativo de cada programa, um por um. Após cada um, o Kudu irá procurar e limpar automaticamente os ficheiros restantes.",
   "confirmBatchLabel": "Desinstalar {{count}}",
   "batchResultProgramsSingular": "{{count}} programa",
   "batchResultProgramsPlural": "{{count}} programas",
-  "batchResultFailedSucceeded": "{{failed}} falharam, {{succeeded}} concluídos com sucesso",
-  "historyCategoryUninstall": "Desinstalação: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} falharam, {{succeeded}} concluídos com sucesso"
 }

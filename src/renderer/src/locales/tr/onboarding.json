@@ -1,4 +1,6 @@
 {
+  "chooseLanguageTitle": "Dilinizi Seçin",
+  "chooseLanguageDescription": "Bunu daha sonra Ayarlar'dan değiştirebilirsiniz.",
   "welcomeTitle": "Kudu'ya Hoş Geldiniz",
   "welcomeDescription": "Hepsi bir arada Windows sistem temizleyiciniz. Kudu gereksiz dosyaları kaldırır, kayıt defteri sorunlarını düzeltir, başlangıç programlarını yönetir ve bilgisayarınızın hızlı çalışmasını sağlar.",
   "featureSmartCleaning": "Akıllı Temizlik",
@@ -10,7 +12,7 @@
   "runAtStartupLabel": "Başlangıçta çalıştır",
   "runAtStartupDescription": "Bilgisayarınızın otomatik olarak temiz kalması için Windows başladığında Kudu'yu başlatın",
   "minimizeToTrayLabel": "Sistem tepsisine küçült",
-  "minimizeToTrayDescription": "Kudu'nun arka planda sessizce çalışmaya devam etmesini sağlayın",
+  "minimizeToTrayDescription": "Kudu'nun arka planda sessizce çalışmasını sağlayın",
   "weeklyAutoCleanLabel": "Haftalık otomatik temizlik",
   "weeklyAutoCleanDescription": "Her Pazartesi saat 09:00'da gereksiz dosyaları tara ve temizle",
   "back": "Geri",

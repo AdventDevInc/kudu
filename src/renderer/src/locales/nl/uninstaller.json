@@ -16,7 +16,7 @@
   "uninstallSelected": "Geselecteerde verwijderen ({{count}})",
   "unusedBannerTitle": "{{count}} programma niet gebruikt in {{days}}+ dagen",
   "unusedBannerTitlePlural": "{{count}} programma's niet gebruikt in {{days}}+ dagen",
-  "unusedBannerDescriptionWithSize": "Gebruikt ~{{size}} schijfruimte. Klik om te bekijken.",
+  "unusedBannerDescriptionWithSize": "Gebruikt ongeveer {{size}} schijfruimte. Klik om te bekijken.",
   "unusedBannerDescriptionNoSize": "Klik om ongebruikte programma's te bekijken.",
   "unusedBannerViewButton": "Bekijken",
   "safeUninstallLabel": "Veilig verwijderen",
@@ -63,6 +63,5 @@
   "confirmBatchLabel": "{{count}} verwijderen",
   "batchResultProgramsSingular": "{{count}} programma",
   "batchResultProgramsPlural": "{{count}} programma's",
-  "batchResultFailedSucceeded": "{{failed}} mislukt, {{succeeded}} geslaagd",
-  "historyCategoryUninstall": "Verwijderen: {{programName}}"
+  "batchResultFailedSucceeded": "{{failed}} mislukt, {{succeeded}} geslaagd"
 }
