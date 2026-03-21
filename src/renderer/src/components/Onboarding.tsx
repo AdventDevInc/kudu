@@ -58,7 +58,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       >
         <AnimatePresence mode="wait">
           {step === 0 && <LanguageStep key="language" onNext={() => setStep(1)} />}
-          {step === 1 && <WelcomeStep key="welcome" onNext={() => setStep(2)} />}
+          {step === 1 && <WelcomeStep key="welcome" onBack={() => setStep(0)} onNext={() => setStep(2)} />}
           {step === 2 && (
             <SettingsStep
               key="settings"
@@ -161,7 +161,7 @@ function LanguageStep({ onNext }: { onNext: () => void }) {
   )
 }
 
-function WelcomeStep({ onNext }: { onNext: () => void }) {
+function WelcomeStep({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const { t } = useTranslation('onboarding')
   return (
     <StepWrapper>
@@ -176,13 +176,22 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
           <Feature icon={Rocket} label={t('featureFasterBoot')} />
           <Feature icon={Check} label={t('featureSafeSecure')} />
         </div>
-        <button
-          onClick={onNext}
-          className="flex items-center gap-2 rounded-xl px-8 py-3 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
-          style={{ background: '#f59e0b' }}
-        >
-          {t('getStarted')} <ChevronRight className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-colors"
+            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <Globe className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={onNext}
+            className="flex items-center gap-2 rounded-xl px-8 py-3 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
+            style={{ background: '#f59e0b' }}
+          >
+            {t('getStarted')} <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </StepWrapper>
   )
