@@ -1338,9 +1338,22 @@ async function handleMetricsServer(args: string[], ctx: CliContext): Promise<voi
     }
   })
 
-  server.listen(port, () => {
-    cliLog(ctx, `Prometheus metrics server listening on http://0.0.0.0:${port}/metrics`)
-    cliLog(ctx, 'Press Ctrl+C to stop.')
+  // Wait for the server to start or fail
+  await new Promise<void>((resolve, reject) => {
+    server.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        reject(new Error(`Port ${port} is already in use`))
+      } else if (err.code === 'EACCES') {
+        reject(new Error(`Permission denied for port ${port} (try a port >= 1024)`))
+      } else {
+        reject(err)
+      }
+    })
+    server.listen(port, () => {
+      cliLog(ctx, `Prometheus metrics server listening on http://0.0.0.0:${port}/metrics`)
+      cliLog(ctx, 'Press Ctrl+C to stop.')
+      resolve()
+    })
   })
 
   const shutdown = (): void => {

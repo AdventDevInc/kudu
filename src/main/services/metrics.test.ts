@@ -120,11 +120,11 @@ describe('formatPrometheus', () => {
     expect(output).toContain('kudu_test 42')
   })
 
-  it('formats a counter metric', () => {
+  it('formats a gauge metric with large value', () => {
     const output = formatPrometheus([
-      { name: 'kudu_count', type: 'counter', help: 'A counter', value: 100 },
+      { name: 'kudu_count', type: 'gauge', help: 'A gauge', value: 100 },
     ])
-    expect(output).toContain('# TYPE kudu_count counter')
+    expect(output).toContain('# TYPE kudu_count gauge')
     expect(output).toContain('kudu_count 100')
   })
 

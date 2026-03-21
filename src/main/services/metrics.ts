@@ -60,36 +60,38 @@ export async function collectMetrics(): Promise<MetricLine[]> {
   }
 
   // History-based metrics
+  // These are gauges, not counters, because history is capped at 100 entries
+  // and can be cleared — so values may decrease, violating counter semantics.
   const history = getHistory()
 
   metrics.push({
     name: 'kudu_scans_total',
-    type: 'counter',
-    help: 'Total number of scans performed',
+    type: 'gauge',
+    help: 'Total number of scans in history',
     value: history.length,
   })
 
   const totalItemsCleaned = history.reduce((s, e) => s + e.totalItemsCleaned, 0)
   metrics.push({
     name: 'kudu_items_cleaned_total',
-    type: 'counter',
-    help: 'Total number of items cleaned',
+    type: 'gauge',
+    help: 'Total items cleaned across history',
     value: totalItemsCleaned,
   })
 
   const totalSpaceSaved = history.reduce((s, e) => s + e.totalSpaceSaved, 0)
   metrics.push({
     name: 'kudu_space_saved_bytes_total',
-    type: 'counter',
-    help: 'Total space saved in bytes',
+    type: 'gauge',
+    help: 'Total space saved in bytes across history',
     value: totalSpaceSaved,
   })
 
   const totalErrors = history.reduce((s, e) => s + e.errorCount, 0)
   metrics.push({
     name: 'kudu_scan_errors_total',
-    type: 'counter',
-    help: 'Total scan errors across all scans',
+    type: 'gauge',
+    help: 'Total scan errors across history',
     value: totalErrors,
   })
 
