@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import i18next from 'i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Rocket, Check, ChevronRight, ChevronLeft } from 'lucide-react'
+import { Sparkles, Rocket, Check, ChevronRight, ChevronLeft, Globe } from 'lucide-react'
+import { LANGUAGES } from '@/lib/languages'
 import logoSrc from '@/assets/logo.png'
 
 interface OnboardingProps {
@@ -15,7 +17,7 @@ interface OnboardingSettings {
   scheduledClean: boolean
 }
 
-const TOTAL_STEPS = 3
+const TOTAL_STEPS = 4
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const navigate = useNavigate()
@@ -55,21 +57,22 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.06)' }}
       >
         <AnimatePresence mode="wait">
-          {step === 0 && <WelcomeStep key="welcome" onNext={() => setStep(1)} />}
-          {step === 1 && (
+          {step === 0 && <LanguageStep key="language" onNext={() => setStep(1)} />}
+          {step === 1 && <WelcomeStep key="welcome" onNext={() => setStep(2)} />}
+          {step === 2 && (
             <SettingsStep
               key="settings"
               settings={settings}
               onChange={setSettings}
-              onBack={() => setStep(0)}
-              onNext={() => setStep(2)}
+              onBack={() => setStep(1)}
+              onNext={() => setStep(3)}
             />
           )}
-          {step === 2 && (
+          {step === 3 && (
             <FinishStep
               key="finish"
               scheduledClean={settings.scheduledClean}
-              onBack={() => setStep(1)}
+              onBack={() => setStep(2)}
               onFinish={applyAndFinish}
             />
           )}
@@ -103,6 +106,58 @@ function StepWrapper({ children }: { children: React.ReactNode }) {
     >
       {children}
     </motion.div>
+  )
+}
+
+function LanguageStep({ onNext }: { onNext: () => void }) {
+  const { t } = useTranslation('onboarding')
+  const [selected, setSelected] = useState(i18next.language)
+
+  const handleSelect = (code: string) => {
+    setSelected(code)
+    i18next.changeLanguage(code)
+    window.kudu?.settingsSet?.({ language: code }).catch(() => {})
+  }
+
+  return (
+    <StepWrapper>
+      <div className="flex flex-col items-center text-center">
+        <div
+          className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
+          style={{ background: 'rgba(245,158,11,0.1)' }}
+        >
+          <Globe className="h-8 w-8" style={{ color: '#f59e0b' }} strokeWidth={1.5} />
+        </div>
+        <h2 className="mb-1 text-[18px] font-bold text-zinc-100">{t('chooseLanguageTitle')}</h2>
+        <p className="mb-5 text-[13px] text-zinc-500">{t('chooseLanguageDescription')}</p>
+
+        <div className="mb-6 grid max-h-[240px] w-full grid-cols-2 gap-1.5 overflow-y-auto rounded-xl p-1">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              onClick={() => handleSelect(lang.code)}
+              className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition-colors"
+              style={{
+                background: selected === lang.code ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.02)',
+                border: selected === lang.code ? '1px solid rgba(245,158,11,0.3)' : '1px solid transparent',
+                color: selected === lang.code ? '#f59e0b' : '#a1a1aa'
+              }}
+            >
+              <span className="font-medium">{lang.nativeName}</span>
+              {selected === lang.code && <Check className="ml-auto h-3.5 w-3.5 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={2.5} />}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={onNext}
+          className="flex items-center gap-2 rounded-xl px-8 py-3 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
+          style={{ background: '#f59e0b' }}
+        >
+          {t('continue')} <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+    </StepWrapper>
   )
 }
 
