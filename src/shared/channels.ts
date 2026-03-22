@@ -46,6 +46,14 @@ export const IPC = {
   DEBLOATER_REMOVE: 'debloater:remove',
   DEBLOATER_REMOVE_PROGRESS: 'debloater:remove:progress',
 
+  // Duplicate Finder
+  DUPLICATES_SCAN: 'duplicates:scan',
+  DUPLICATES_DELETE: 'duplicates:delete',
+  DUPLICATES_CANCEL: 'duplicates:cancel',
+  DUPLICATES_PROGRESS: 'duplicates:progress',
+  DUPLICATES_SELECT_DIR: 'duplicates:select-dir',
+  DUPLICATES_OPEN_LOCATION: 'duplicates:open-location',
+
   // Disk analyzer
   DISK_ANALYZE: 'disk:analyze',
   DISK_DRIVES: 'disk:drives',

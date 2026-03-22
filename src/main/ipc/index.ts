@@ -10,6 +10,7 @@ import { registerRegistryCleanerIpc } from './registry-cleaner.ipc'
 import { registerStartupManagerIpc } from './startup-manager.ipc'
 import { registerDebloaterIpc } from './debloater.ipc'
 import { registerDiskAnalyzerIpc } from './disk-analyzer.ipc'
+import { registerDuplicateFinderIpc } from './duplicate-finder.ipc'
 import { registerNetworkCleanupIpc } from './network-cleanup.ipc'
 import { registerMalwareScannerIpc } from './malware-scanner.ipc'
 import { registerPrivacyShieldIpc } from './privacy-shield.ipc'
@@ -44,6 +45,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerStartupManagerIpc()
   registerDebloaterIpc(getWindow)
   registerDiskAnalyzerIpc(getWindow)
+  registerDuplicateFinderIpc(getWindow)
   registerNetworkCleanupIpc()
   registerMalwareScannerIpc(getWindow)
   registerUninstallLeftoversIpc(getWindow)

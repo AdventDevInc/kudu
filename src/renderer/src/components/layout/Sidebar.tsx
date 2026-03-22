@@ -15,7 +15,8 @@ import {
   Activity,
   Trash2,
   Download,
-  CalendarClock
+  CalendarClock,
+  CopyCheck
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -66,6 +67,7 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: Activity, labelKey: 'performance', path: '/performance' },
       { icon: HardDrive, labelKey: 'diskAnalyzer', path: '/disk' },
+      { icon: CopyCheck, labelKey: 'duplicateFinder', path: '/duplicates' },
       { icon: History, labelKey: 'history', path: '/history' }
     ]
   }

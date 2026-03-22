@@ -728,3 +728,59 @@ export interface ThreatSnapshot {
   lastConnectionScanAt: string | null
   lastDnsScanAt: string | null
 }
+
+// ─── Duplicate Finder ─────────────────────────────────────
+
+export interface DuplicateScanOptions {
+  directory: string
+  minFileSize: number
+  maxFileSize: number | null
+  excludePatterns: string[]
+  extensionFilter: string[]
+  maxDepth: number
+}
+
+export interface DuplicateFile {
+  path: string
+  size: number
+  lastModified: number
+}
+
+export interface DuplicateGroup {
+  hash: string
+  fullHash: string
+  fileSize: number
+  files: DuplicateFile[]
+  reclaimableSpace: number
+}
+
+export interface DuplicateScanResult {
+  groups: DuplicateGroup[]
+  totalDuplicates: number
+  totalReclaimable: number
+  totalFilesScanned: number
+  duration: number
+  cancelled: boolean
+}
+
+export type DuplicateScanPhase = 'walking' | 'grouping' | 'partial-hash' | 'full-hash' | 'complete'
+
+export interface DuplicateScanProgress {
+  phase: DuplicateScanPhase
+  currentPath: string
+  filesScanned: number
+  duplicatesFound: number
+  reclaimableSpace: number
+  progress: number
+  filesToHash?: number
+  filesHashed?: number
+}
+
+export type DuplicateDeleteMode = 'recycle' | 'permanent'
+
+export interface DuplicateDeleteResult {
+  deleted: number
+  failed: number
+  spaceRecovered: number
+  errors: { path: string; reason: string }[]
+}

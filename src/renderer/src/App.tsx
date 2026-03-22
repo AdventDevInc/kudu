@@ -13,6 +13,7 @@ import { DebloaterPage } from './pages/DebloaterPage'
 import { SystemHardeningPage } from './pages/SystemHardeningPage'
 import { UpdatesPage } from './pages/UpdatesPage'
 import { DiskAnalyzerPage } from './pages/DiskAnalyzerPage'
+import { DuplicateFinderPage } from './pages/DuplicateFinderPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NetworkCleanupPage } from './pages/NetworkCleanupPage'
 import { MalwareScannerPage } from './pages/MalwareScannerPage'
@@ -92,6 +93,7 @@ export function App() {
           <Route path="/registry" element={<RegistryPage />} />
           <Route path="/startup" element={<StartupPage />} />
           <Route path="/disk" element={<DiskAnalyzerPage />} />
+          <Route path="/duplicates" element={<DuplicateFinderPage />} />
           <Route path="/network" element={<NetworkCleanupPage />} />
           <Route path="/malware" element={<MalwareScannerPage />} />
           <Route path="/threat-monitor" element={<ThreatMonitorPage />} />

@@ -48,6 +48,11 @@ import type {
   FileTypeInfo,
   CloudActionEntry,
   ThreatSnapshot,
+  DuplicateScanOptions,
+  DuplicateScanResult,
+  DuplicateScanProgress,
+  DuplicateDeleteMode,
+  DuplicateDeleteResult,
 } from '../shared/types'
 
 const api = {
@@ -326,6 +331,23 @@ const api = {
     error: string | null
     threatBlacklist: { version: string; updatedAt: string; domains: number; ips: number; cidrs: number } | null
   }> => ipcRenderer.invoke(IPC.CLOUD_GET_STATUS),
+
+  // Duplicate Finder
+  duplicatesSelectDir: (): Promise<string | null> =>
+    ipcRenderer.invoke(IPC.DUPLICATES_SELECT_DIR),
+  duplicatesScan: (options: DuplicateScanOptions): Promise<DuplicateScanResult> =>
+    ipcRenderer.invoke(IPC.DUPLICATES_SCAN, options),
+  duplicatesCancel: (): Promise<void> =>
+    ipcRenderer.invoke(IPC.DUPLICATES_CANCEL),
+  duplicatesDelete: (paths: string[], mode: DuplicateDeleteMode): Promise<DuplicateDeleteResult> =>
+    ipcRenderer.invoke(IPC.DUPLICATES_DELETE, paths, mode),
+  duplicatesOpenLocation: (filePath: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.DUPLICATES_OPEN_LOCATION, filePath),
+  onDuplicatesProgress: (callback: (data: DuplicateScanProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: DuplicateScanProgress) => callback(data)
+    ipcRenderer.on(IPC.DUPLICATES_PROGRESS, handler)
+    return () => { ipcRenderer.removeListener(IPC.DUPLICATES_PROGRESS, handler) }
+  },
 
   // Threat Monitor
   threatMonitorGetSnapshot: (): Promise<ThreatSnapshot | null> => ipcRenderer.invoke(IPC.THREAT_MONITOR_GET_SNAPSHOT),
