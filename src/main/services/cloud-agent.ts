@@ -1326,6 +1326,7 @@ class CloudAgentService {
     'service-scan', 'service-apply',
     'malware-quarantine', 'malware-delete', 'registry-scan', 'registry-fix',
     'update-threat-blacklist', 'get-threat-status',
+    'cve-scan',
   ])
 
   /** Commands that only read data and can safely run in parallel */
@@ -1337,6 +1338,7 @@ class CloudAgentService {
     'privacy-scan', 'debloater-scan', 'service-scan', 'registry-scan',
     'malware-quarantine', // quarantine is read-like (moves to vault)
     'get-threat-status',
+    'cve-scan',
   ])
 
   private async executeCommand(cmd: CloudCommand): Promise<void> {
@@ -1522,6 +1524,10 @@ class CloudAgentService {
         case 'get-threat-status':
           await this.handleGetThreatStatus(cmd.requestId)
           break
+        // Phase 5: CVE scanning
+        case 'cve-scan':
+          await this.handleCveScan(cmd.requestId)
+          break
       }
       if (!timedOut) {
         this.logCloudAction(cmd, startedAt, true)
@@ -1600,6 +1606,7 @@ class CloudAgentService {
       case 'registry-fix': return `Fix ${cmd.entryIds?.length ?? 0} registry entries`
       case 'update-threat-blacklist': return 'Update threat blacklist'
       case 'get-threat-status': return 'Get threat status'
+      case 'cve-scan': return 'CVE vulnerability scan'
       default: return (cmd as CloudCommand).type
     }
   }
@@ -2731,6 +2738,40 @@ class CloudAgentService {
       blacklistVersion: snapshot.blacklistVersion,
       lastConnectionScanAt: snapshot.lastConnectionScanAt,
       lastDnsScanAt: snapshot.lastDnsScanAt,
+    })
+  }
+
+  // ─── CVE Scanning ──────────────────────────────────────
+
+  private async handleCveScan(requestId: string): Promise<void> {
+    cloudLog('INFO', 'CVE scan requested — submitting installed apps and fetching vulnerabilities')
+
+    // Step 1: Submit fresh installed apps so server can re-match
+    const apps = await getPlatform().commands.getInstalledApps()
+    await this.postApi(`/devices/${encodeURIComponent(this.deviceId)}/command-result`, {
+      requestId: `${requestId}-apps`,
+      success: true,
+      data: { apps, totalCount: apps.length },
+    })
+
+    // Step 2: Brief pause for server-side CVE matching
+    await new Promise((r) => setTimeout(r, 3000))
+
+    // Step 3: Fetch vulnerability results
+    const result = await this.getVulnerabilities()
+
+    // Step 4: Notify renderer so the CVE page updates live
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send(IPC.CVE_UPDATED, result)
+    }
+
+    // Step 5: Return results to server as command result
+    await this.postCommandResult(requestId, true, {
+      vulnerabilities: result.vulnerabilities.length,
+      summary: result.summary,
+      total: result.total,
+      librarySize: result.librarySize,
     })
   }
 }

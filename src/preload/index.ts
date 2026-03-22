@@ -367,6 +367,11 @@ const api = {
   // CVE Scanner
   cveFetch: (opts?: { page?: number; severity?: string; search?: string }): Promise<CvePageResult> =>
     ipcRenderer.invoke(IPC.CVE_FETCH, opts),
+  onCveUpdated: (callback: (data: CvePageResult) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: CvePageResult) => callback(data)
+    ipcRenderer.on(IPC.CVE_UPDATED, handler)
+    return () => { ipcRenderer.removeListener(IPC.CVE_UPDATED, handler) }
+  },
 
   // Progress events
   onScanProgress: (callback: (data: ProgressData) => void) => {

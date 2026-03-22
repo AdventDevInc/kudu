@@ -167,6 +167,7 @@ export const IPC = {
 
   // CVE Scanner
   CVE_FETCH: 'cve:fetch',
+  CVE_UPDATED: 'cve:updated',
 
   // Cloud Action History
   CLOUD_HISTORY_GET: 'cloud:history:get',

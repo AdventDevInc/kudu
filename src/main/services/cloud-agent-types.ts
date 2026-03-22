@@ -80,6 +80,8 @@ export type CloudCommand =
   // Phase 4: Threat monitoring
   | { type: 'update-threat-blacklist'; requestId: string; url: string }
   | { type: 'get-threat-status'; requestId: string }
+  // Phase 5: CVE scanning
+  | { type: 'cve-scan'; requestId: string }
 
 // ─── Threat Monitor ─────────────────────────────────────────
 
