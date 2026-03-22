@@ -3,7 +3,7 @@
   "subtitle": "ОЧИЩЕННЯ СИСТЕМИ",
   "dashboard": "Панель керування",
   "securityHeading": "БЕЗПЕКА",
-  "malwareScanner": "Сканер шкідливих програм",
+  "malwareScanner": "Сканер шкідливого ПЗ",
   "threatMonitor": "Монітор загроз",
   "systemHardening": "Посилення захисту системи",
   "maintainHeading": "ОБСЛУГОВУВАННЯ",
@@ -16,7 +16,9 @@
   "schedules": "Розклади",
   "toolsHeading": "ІНСТРУМЕНТИ",
   "performance": "Продуктивність",
-  "diskAnalyzer": "Аналізатор диска",
+  "diskAnalyzer": "Аналіз диска",
+  "duplicateFinder": "Пошук дублікатів",
   "history": "Історія",
-  "settings": "Параметри"
+  "settings": "Параметри",
+  "gameMode": "Ігровий режим"
 }

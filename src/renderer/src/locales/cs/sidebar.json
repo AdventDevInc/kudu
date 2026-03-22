@@ -16,7 +16,9 @@
   "schedules": "Plány",
   "toolsHeading": "NÁSTROJE",
   "performance": "Výkon",
-  "diskAnalyzer": "Analýza disku",
+  "diskAnalyzer": "Analyzátor disku",
+  "duplicateFinder": "Vyhledání duplicit",
   "history": "Historie",
-  "settings": "Nastavení"
+  "settings": "Nastavení",
+  "gameMode": "Herní režim"
 }

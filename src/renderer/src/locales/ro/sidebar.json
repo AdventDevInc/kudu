@@ -1,22 +1,24 @@
 {
   "appName": "Kudu",
-  "subtitle": "CLEANER DE SISTEM",
+  "subtitle": "UTILITAR DE CURĂȚARE A SISTEMULUI",
   "dashboard": "Tablou de bord",
   "securityHeading": "SECURITATE",
   "malwareScanner": "Scanner malware",
   "threatMonitor": "Monitorizare amenințări",
   "systemHardening": "Consolidare sistem",
   "maintainHeading": "ÎNTREȚINERE",
-  "cleaner": "Cleaner",
+  "cleaner": "Curățare",
   "registry": "Registry",
   "startup": "Pornire",
   "network": "Rețea",
-  "uninstaller": "Dezinstalator",
+  "uninstaller": "Dezinstalare",
   "updates": "Actualizări",
   "schedules": "Programări",
   "toolsHeading": "INSTRUMENTE",
   "performance": "Performanță",
   "diskAnalyzer": "Analiză disc",
+  "duplicateFinder": "Căutare duplicate",
   "history": "Istoric",
-  "settings": "Setări"
+  "settings": "Setări",
+  "gameMode": "Mod joc"
 }

@@ -17,6 +17,8 @@
   "toolsHeading": "ESZKÖZÖK",
   "performance": "Teljesítmény",
   "diskAnalyzer": "Lemezelemző",
+  "duplicateFinder": "Duplikátumkereső",
   "history": "Előzmények",
-  "settings": "Beállítások"
+  "settings": "Beállítások",
+  "gameMode": "Játék mód"
 }

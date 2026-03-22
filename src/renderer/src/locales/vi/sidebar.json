@@ -7,7 +7,7 @@
   "threatMonitor": "Giám sát mối đe dọa",
   "systemHardening": "Tăng cường bảo mật hệ thống",
   "maintainHeading": "BẢO TRÌ",
-  "cleaner": "Dọn dẹp",
+  "cleaner": "Trình dọn dẹp",
   "registry": "Registry",
   "startup": "Khởi động",
   "network": "Mạng",
@@ -16,7 +16,9 @@
   "schedules": "Lịch biểu",
   "toolsHeading": "CÔNG CỤ",
   "performance": "Hiệu năng",
-  "diskAnalyzer": "Phân tích ổ đĩa",
+  "diskAnalyzer": "Phân tích đĩa",
+  "duplicateFinder": "Tìm tệp trùng lặp",
   "history": "Lịch sử",
-  "settings": "Cài đặt"
+  "settings": "Cài đặt",
+  "gameMode": "Chế độ chơi game"
 }

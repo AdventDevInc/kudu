@@ -17,6 +17,8 @@
   "toolsHeading": "ALAT",
   "performance": "Performa",
   "diskAnalyzer": "Penganalisis Disk",
+  "duplicateFinder": "Pencari Duplikat",
   "history": "Riwayat",
-  "settings": "Pengaturan"
+  "settings": "Pengaturan",
+  "gameMode": "Mode Game"
 }

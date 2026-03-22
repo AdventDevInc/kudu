@@ -1,6 +1,6 @@
 {
   "appName": "Kudu",
-  "subtitle": "JÄRJESTELMÄN PUHDISTUS",
+  "subtitle": "JÄRJESTELMÄN PUHDISTUSOHJELMA",
   "dashboard": "Yhteenveto",
   "securityHeading": "TIETOTURVA",
   "malwareScanner": "Haittaohjelmien tarkistus",
@@ -17,6 +17,8 @@
   "toolsHeading": "TYÖKALUT",
   "performance": "Suorituskyky",
   "diskAnalyzer": "Levyanalyysi",
+  "duplicateFinder": "Kaksoiskappaleiden etsintä",
   "history": "Historia",
-  "settings": "Asetukset"
+  "settings": "Asetukset",
+  "gameMode": "Pelitila"
 }

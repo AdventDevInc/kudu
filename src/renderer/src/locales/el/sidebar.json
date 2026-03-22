@@ -3,7 +3,7 @@
   "subtitle": "ΚΑΘΑΡΙΣΜΟΣ ΣΥΣΤΗΜΑΤΟΣ",
   "dashboard": "Πίνακας ελέγχου",
   "securityHeading": "ΑΣΦΑΛΕΙΑ",
-  "malwareScanner": "Σαρωτής κακόβουλου λογισμικού",
+  "malwareScanner": "Σάρωση κακόβουλου λογισμικού",
   "threatMonitor": "Παρακολούθηση απειλών",
   "systemHardening": "Ενίσχυση συστήματος",
   "maintainHeading": "ΣΥΝΤΗΡΗΣΗ",
@@ -17,6 +17,8 @@
   "toolsHeading": "ΕΡΓΑΛΕΙΑ",
   "performance": "Απόδοση",
   "diskAnalyzer": "Ανάλυση δίσκου",
+  "duplicateFinder": "Εύρεση διπλότυπων",
   "history": "Ιστορικό",
-  "settings": "Ρυθμίσεις"
+  "settings": "Ρυθμίσεις",
+  "gameMode": "Λειτουργία παιχνιδιού"
 }

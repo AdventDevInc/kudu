@@ -17,6 +17,8 @@
   "toolsHeading": "เครื่องมือ",
   "performance": "ประสิทธิภาพ",
   "diskAnalyzer": "ตัววิเคราะห์ดิสก์",
+  "duplicateFinder": "ตัวค้นหาไฟล์ซ้ำ",
   "history": "ประวัติ",
-  "settings": "การตั้งค่า"
+  "settings": "การตั้งค่า",
+  "gameMode": "โหมดเกม"
 }
