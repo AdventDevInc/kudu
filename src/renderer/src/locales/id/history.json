@@ -22,7 +22,8 @@
     "privacy": "Perisai Privasi",
     "startup": "Manajer Startup",
     "services": "Manajer Layanan",
-    "softwareUpdate": "Pembaruan Perangkat Lunak"
+    "softwareUpdate": "Pembaruan Perangkat Lunak",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Total Pemindaian",

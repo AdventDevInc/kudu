@@ -22,7 +22,8 @@
     "privacy": "Datenschutzschild",
     "startup": "Autostart-Manager",
     "services": "Dienst-Manager",
-    "softwareUpdate": "Software-Update"
+    "softwareUpdate": "Software-Update",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Scans insgesamt",

@@ -6,6 +6,7 @@
   "malwareScanner": "Skener malwaru",
   "threatMonitor": "Monitor hrozeb",
   "systemHardening": "Zabezpečení systému",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "ÚDRŽBA",
   "cleaner": "Čištění",
   "registry": "Registr",

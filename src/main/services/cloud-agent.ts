@@ -169,6 +169,58 @@ class CloudAgentService {
     }
   }
 
+  async getVulnerabilities(
+    page?: number,
+    severity?: string,
+    search?: string,
+  ): Promise<import('../../shared/types').CvePageResult> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    const params = new URLSearchParams()
+    if (page && page > 1) params.set('page', String(page))
+    if (severity && severity !== 'all') params.set('severity', severity)
+    if (search) params.set('search', search.slice(0, 100))
+    const qs = params.toString()
+    const path = `/devices/${encodeURIComponent(this.deviceId)}/vulnerabilities${qs ? `?${qs}` : ''}`
+    const raw = (await this.getApi(path)) as Record<string, unknown>
+
+    // Validate and sanitize each vulnerability row from the API
+    const validSeverities = new Set(['critical', 'high', 'medium', 'low', 'none'])
+    const rawItems = Array.isArray(raw.data) ? raw.data : []
+    const vulnerabilities = rawItems
+      .filter((item: unknown): item is Record<string, unknown> =>
+        item !== null && typeof item === 'object' && !Array.isArray(item) &&
+        typeof (item as Record<string, unknown>).cveId === 'string' &&
+        typeof (item as Record<string, unknown>).appName === 'string'
+      )
+      .map((item) => ({
+        id: typeof item.id === 'number' ? item.id : 0,
+        cveId: String(item.cveId),
+        appName: String(item.appName),
+        installedVersion: typeof item.installedVersion === 'string' ? item.installedVersion : '',
+        severity: (typeof item.severity === 'string' && validSeverities.has(item.severity) ? item.severity : 'none') as import('../../shared/types').CveSeverity,
+        cvssScore: typeof item.cvssScore === 'number' ? item.cvssScore : null,
+        fixedIn: typeof item.fixedIn === 'string' ? item.fixedIn : null,
+        firstDetectedAt: typeof item.firstDetectedAt === 'string' ? item.firstDetectedAt : '',
+        lastScannedAt: typeof item.lastScannedAt === 'string' ? item.lastScannedAt : '',
+      }))
+
+    // Validate summary shape
+    const rawSummary = raw.summary as Record<string, unknown> | undefined
+    const summary = {
+      critical: typeof rawSummary?.critical === 'number' ? rawSummary.critical : 0,
+      high: typeof rawSummary?.high === 'number' ? rawSummary.high : 0,
+      medium: typeof rawSummary?.medium === 'number' ? rawSummary.medium : 0,
+      low: typeof rawSummary?.low === 'number' ? rawSummary.low : 0,
+    }
+
+    return {
+      vulnerabilities,
+      summary,
+      total: typeof raw.total === 'number' ? raw.total : 0,
+      nextPageUrl: typeof raw.next_page_url === 'string' ? raw.next_page_url : null,
+    }
+  }
+
   async link(apiKey: string): Promise<{ success: boolean; error?: string }> {
     try {
       // Stop any existing connection before re-linking
@@ -1778,10 +1830,11 @@ class CloudAgentService {
         }
         // Windows: COM-based recycle bin query
         try {
+          const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
+          const rbEncoded = Buffer.from(rbScript, 'utf16le').toString('base64')
           const { stdout } = await execFileAsync('powershell.exe', [
-            '-NoProfile', '-Command',
-            `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-          ])
+            '-NoProfile', '-EncodedCommand', rbEncoded
+          ], { windowsHide: true })
           const [countStr, sizeStr] = stdout.trim().split('|')
           const count = parseInt(countStr) || 0
           const size = parseInt(sizeStr) || 0

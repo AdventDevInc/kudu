@@ -10,6 +10,10 @@ import { getPlatform } from '../platform'
 
 const execFileAsync = promisify(execFile)
 
+function psEncoded(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+}
+
 interface DisabledEntry {
   name: string
   command: string
@@ -233,9 +237,7 @@ async function getScheduledLogonTasks(): Promise<StartupItem[]> {
       }
     `
 
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NonInteractive', '-Command', script
-    ], { timeout: 15000 })
+    const { stdout } = await execFileAsync('powershell', psEncoded(script), { timeout: 15000, windowsHide: true })
 
     const lines = stdout.trim().split('\n').map((l: string) => l.trim()).filter(Boolean)
     for (const line of lines) {
@@ -370,10 +372,9 @@ export async function toggleStartupItem(
         // Enable/disable scheduled tasks via PowerShell
         try {
           const action = enabled ? 'Enable-ScheduledTask' : 'Disable-ScheduledTask'
-          await execFileAsync('powershell', [
-            '-NoProfile', '-NonInteractive', '-Command',
+          await execFileAsync('powershell', psEncoded(
             `${action} -TaskName '${name.replace(/'/g, "''")}' -ErrorAction Stop`
-          ], { timeout: 10000 })
+          ), { timeout: 10000, windowsHide: true })
         } catch {
           return false
         }
@@ -466,10 +467,9 @@ export async function deleteStartupItem(
       try {
         if (source === 'task-scheduler') {
           if (!isSafeTaskName(name)) return false
-          await execFileAsync('powershell', [
-            '-NoProfile', '-NonInteractive', '-Command',
+          await execFileAsync('powershell', psEncoded(
             `Unregister-ScheduledTask -TaskName '${name.replace(/'/g, "''")}' -Confirm:$false -ErrorAction Stop`
-          ], { timeout: 10000 })
+          ), { timeout: 10000, windowsHide: true })
           deletedSource = true
         } else if (source === 'startup-folder') {
           // Validate that the path is actually within the Startup folder to prevent arbitrary file deletion
@@ -632,9 +632,7 @@ export async function getBootTrace(): Promise<StartupBootTrace> {
       } catch {}
     `
 
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NonInteractive', '-Command', bootScript
-    ], { timeout: 15000 })
+    const { stdout } = await execFileAsync('powershell', psEncoded(bootScript), { timeout: 15000, windowsHide: true })
 
     const lines = stdout.trim().split('\n').map((l: string) => l.trim()).filter(Boolean)
 

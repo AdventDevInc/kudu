@@ -6,6 +6,7 @@
   "malwareScanner": "ตัวสแกนมัลแวร์",
   "threatMonitor": "การตรวจสอบภัยคุกคาม",
   "systemHardening": "การเสริมความปลอดภัยของระบบ",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "การบำรุงรักษา",
   "cleaner": "ตัวล้างข้อมูล",
   "registry": "รีจิสทรี",

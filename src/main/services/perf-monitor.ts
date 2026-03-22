@@ -187,7 +187,7 @@ export class PerfMonitorService {
       const encoded = Buffer.from(script, 'utf16le').toString('base64')
 
       const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-EncodedCommand', encoded], {
-        timeout: 10000
+        timeout: 10000, windowsHide: true
       })
 
       const parsed = JSON.parse(stdout.trim())

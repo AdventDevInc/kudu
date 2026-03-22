@@ -22,7 +22,8 @@
     "privacy": "Sekretesskydd",
     "startup": "Autostarthanterare",
     "services": "Tjänstehanterare",
-    "softwareUpdate": "Programuppdatering"
+    "softwareUpdate": "Programuppdatering",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Totalt antal skanningar",

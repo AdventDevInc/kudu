@@ -22,7 +22,8 @@
     "privacy": "Защита конфиденциальности",
     "startup": "Диспетчер автозагрузки",
     "services": "Диспетчер служб",
-    "softwareUpdate": "Обновление программ"
+    "softwareUpdate": "Обновление программ",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Всего сканирований",

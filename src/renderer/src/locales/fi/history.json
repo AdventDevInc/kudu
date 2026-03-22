@@ -22,7 +22,8 @@
     "privacy": "Tietosuojakilpi",
     "startup": "Käynnistyksen hallinta",
     "services": "Palvelujen hallinta",
-    "softwareUpdate": "Ohjelmistopäivitys"
+    "softwareUpdate": "Ohjelmistopäivitys",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Skannauksia yhteensä",

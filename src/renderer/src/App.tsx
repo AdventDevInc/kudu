@@ -27,6 +27,7 @@ import { ServiceManagerPage } from './pages/ServiceManagerPage'
 import { SoftwareUpdaterPage } from './pages/SoftwareUpdaterPage'
 import { SchedulesPage } from './pages/SchedulesPage'
 import { GameModePage } from './pages/GameModePage'
+import { CveScannerPage } from './pages/CveScannerPage'
 import { Onboarding } from './components/Onboarding'
 import { useStatsStore } from './stores/stats-store'
 import { useHistoryStore } from './stores/history-store'
@@ -102,6 +103,7 @@ export function App() {
           <Route path="/network" element={<NetworkCleanupPage />} />
           <Route path="/malware" element={<MalwareScannerPage />} />
           <Route path="/threat-monitor" element={<ThreatMonitorPage />} />
+          <Route path="/cve" element={<CveScannerPage />} />
           <Route path="/game-mode" element={<GameModePage />} />
           <Route path="/performance" element={<PerformanceMonitorPage />} />
           <Route path="/uninstaller" element={<UninstallerPage />} />

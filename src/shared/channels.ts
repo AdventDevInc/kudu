@@ -165,6 +165,9 @@ export const IPC = {
   THREAT_MONITOR_GET_SNAPSHOT: 'threat-monitor:get-snapshot',
   THREAT_MONITOR_UPDATED: 'threat-monitor:updated',
 
+  // CVE Scanner
+  CVE_FETCH: 'cve:fetch',
+
   // Cloud Action History
   CLOUD_HISTORY_GET: 'cloud:history:get',
   CLOUD_HISTORY_CLEAR: 'cloud:history:clear',

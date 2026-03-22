@@ -6,6 +6,7 @@
   "malwareScanner": "Malwarescanner",
   "threatMonitor": "Bedreigingsmonitor",
   "systemHardening": "Systeemverharding",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "ONDERHOUD",
   "cleaner": "Opschoner",
   "registry": "Register",

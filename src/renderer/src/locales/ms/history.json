@@ -22,7 +22,8 @@
     "privacy": "Perisai Privasi",
     "startup": "Pengurus Startup",
     "services": "Pengurus Perkhidmatan",
-    "softwareUpdate": "Kemas Kini Perisian"
+    "softwareUpdate": "Kemas Kini Perisian",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Jumlah Imbasan",

@@ -22,7 +22,8 @@
     "privacy": "Ochrona prywatności",
     "startup": "Menedżer uruchamiania",
     "services": "Menedżer usług",
-    "softwareUpdate": "Aktualizacja oprogramowania"
+    "softwareUpdate": "Aktualizacja oprogramowania",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Łączna liczba skanowań",

@@ -20,6 +20,10 @@ import type {
 
 const execFileAsync = promisify(execFile)
 
+function psEncoded(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+}
+
 const DRIVER_STORE = join(
   process.env.SystemRoot || 'C:\\Windows',
   'System32',
@@ -168,9 +172,7 @@ async function getOemFolderMap(): Promise<Map<string, string[]>> {
           }
         }
     `
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NonInteractive', '-Command', script
-    ], { timeout: 15000 })
+    const { stdout } = await execFileAsync('powershell', psEncoded(script), { timeout: 15000, windowsHide: true })
 
     for (const line of stdout.trim().split('\n')) {
       const trimmed = line.trim()
@@ -197,9 +199,7 @@ async function getActiveDriverNames(): Promise<Set<string>> {
         Select-Object -ExpandProperty InfName |
         Sort-Object -Unique
     `
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NonInteractive', '-Command', script
-    ], { timeout: 30000 })
+    const { stdout } = await execFileAsync('powershell', psEncoded(script), { timeout: 30000, windowsHide: true })
 
     for (const line of stdout.trim().split('\n')) {
       const name = line.trim().toLowerCase()
@@ -449,9 +449,7 @@ export async function scanDriverUpdates(
         }
       `
 
-      const { stdout } = await execFileAsync('powershell', [
-        '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script
-      ], { timeout: 120000, maxBuffer: 10 * 1024 * 1024 })
+      const { stdout } = await execFileAsync('powershell', psEncoded(script), { timeout: 120000, maxBuffer: 10 * 1024 * 1024, windowsHide: true })
 
       const lines = stdout.trim().split('\n').map((l: string) => l.trim()).filter(Boolean)
 
@@ -597,9 +595,7 @@ export async function installDriverUpdates(
           Write-Output "RESULT|$ok|$fail|$reboot"
         `
 
-        const { stdout } = await execFileAsync('powershell', [
-          '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', script
-        ], { timeout: 600000, maxBuffer: 10 * 1024 * 1024 })
+        const { stdout } = await execFileAsync('powershell', psEncoded(script), { timeout: 600000, maxBuffer: 10 * 1024 * 1024, windowsHide: true })
 
         const lines = stdout.trim().split('\n').map((l: string) => l.trim()).filter(Boolean)
 

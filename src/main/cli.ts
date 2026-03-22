@@ -284,10 +284,11 @@ async function scanRecycleBin(): Promise<ScanResult[]> {
   const { promisify } = await import('util')
   const execFileAsync = promisify(execFile)
   try {
+    const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
+    const encoded = Buffer.from(rbScript, 'utf16le').toString('base64')
     const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command',
-      `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-    ])
+      '-NoProfile', '-EncodedCommand', encoded
+    ], { windowsHide: true })
     const [countStr, sizeStr] = stdout.trim().split('|')
     const count = parseInt(countStr) || 0
     const size = parseInt(sizeStr) || 0
@@ -382,11 +383,11 @@ async function cleanRecycleBin(sizeBytes: number = 0): Promise<CleanResult> {
   const { promisify } = await import('util')
   const execFileAsync = promisify(execFile)
   try {
+    const cleanScript = `$shell = New-Object -ComObject Shell.Application; $shell.NameSpace(0x0a).Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }; Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue`
+    const cleanEncoded = Buffer.from(cleanScript, 'utf16le').toString('base64')
     await execFileAsync('powershell.exe', [
-      '-NoProfile',
-      '-Command',
-      `$shell = New-Object -ComObject Shell.Application; $shell.NameSpace(0x0a).Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }; Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue`
-    ])
+      '-NoProfile', '-EncodedCommand', cleanEncoded
+    ], { windowsHide: true })
     return { totalCleaned: sizeBytes, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
   } catch (err: any) {
     return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [{ path: 'Recycle Bin', reason: err.message }], needsElevation: false }
@@ -525,6 +526,9 @@ Performance Monitor:
 Uninstall Leftovers:
   leftovers scan             Scan for uninstall leftovers
   leftovers clean            Clean found leftovers
+
+CVE Scanner:
+  cve list                   List known CVE vulnerabilities (requires cloud agent)
 
 Scan History:
   history list               Show scan history
@@ -1041,6 +1045,49 @@ async function handleLeftovers(args: string[], ctx: CliContext): Promise<number 
   }
 }
 
+async function handleCve(args: string[], ctx: CliContext): Promise<number | void> {
+  const sub = args[0]
+
+  if (sub === 'list') {
+    const { cloudAgent } = await import('./services/cloud-agent')
+    const status = cloudAgent.getStatus()
+    if (status.status !== 'connected') {
+      cliOut(ctx, ctx.json ? { error: 'Cloud agent not connected' } : 'Cloud agent is not connected. Link via Settings → Cloud.')
+      return ExitCode.GENERAL_ERROR
+    }
+    cliLog(ctx, 'Fetching CVE vulnerabilities...')
+    try {
+      const result = await cloudAgent.getVulnerabilities()
+      if (ctx.json) {
+        cliOut(ctx, result)
+      } else {
+        const s = result.summary
+        cliLog(ctx, `  Total: ${s.critical + s.high + s.medium + s.low}  Critical: ${s.critical}  High: ${s.high}  Medium: ${s.medium}  Low: ${s.low}`)
+        if (result.vulnerabilities.length === 0) {
+          cliLog(ctx, '  No vulnerabilities found.')
+        } else {
+          for (const v of result.vulnerabilities) {
+            const fix = v.fixedIn ? ` → fix: ${v.fixedIn}` : ''
+            const cvss = v.cvssScore != null ? ` (CVSS ${v.cvssScore})` : ''
+            cliLog(ctx, `  [${v.severity.toUpperCase().padEnd(8)}] ${v.appName} ${v.installedVersion} — ${v.cveId}${cvss}${fix}`)
+          }
+          if (result.nextPageUrl) {
+            cliLog(ctx, `  ... and more (${result.total} total). Use --json for full paginated data.`)
+          }
+        }
+      }
+      if (result.summary.critical > 0 || result.summary.high > 0) return ExitCode.SCAN_THREATS
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      cliOut(ctx, ctx.json ? { error: msg } : `Failed: ${msg}`)
+      return ExitCode.GENERAL_ERROR
+    }
+  } else {
+    cliUsage(ctx, 'kudu --cli cve <list>')
+    return ExitCode.INVALID_ARGS
+  }
+}
+
 async function handleHistory(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { getHistory, clearHistory } = await import('./services/history-store')
@@ -1540,6 +1587,7 @@ export async function runCli(): Promise<void> {
       case 'restore-point': exitCode = await handleRestorePoint(parsed.commandArgs, ctx); break
       case 'config': exitCode = await handleConfig(parsed.commandArgs, ctx); break
       case 'service': exitCode = await handleService(parsed.commandArgs, ctx); break
+      case 'cve': exitCode = await handleCve(parsed.commandArgs, ctx); break
       case 'metrics': exitCode = await handleMetrics(parsed.commandArgs, ctx); break
       case 'metrics-server': await handleMetricsServer(parsed.commandArgs, ctx); return
       default:

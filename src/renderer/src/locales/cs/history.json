@@ -22,7 +22,8 @@
     "privacy": "Štít soukromí",
     "startup": "Správce po spuštění",
     "services": "Správce služeb",
-    "softwareUpdate": "Aktualizace softwaru"
+    "softwareUpdate": "Aktualizace softwaru",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Celkem kontrol",

@@ -1452,10 +1452,11 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         // Detect if the system drive is an SSD
         let isSSD = false
         try {
+          const diskScript = `$disk = Get-PhysicalDisk | Where-Object { $_.DeviceID -eq (Get-Partition -DriveLetter C | Get-Disk).Number }; $disk.MediaType`
+          const diskEncoded = Buffer.from(diskScript, 'utf16le').toString('base64')
           const { stdout: driveInfo } = await execFileAsync('powershell', [
-            '-NoProfile', '-Command',
-            `$disk = Get-PhysicalDisk | Where-Object { $_.DeviceID -eq (Get-Partition -DriveLetter C | Get-Disk).Number }; $disk.MediaType`
-          ], { timeout: 10000 })
+            '-NoProfile', '-EncodedCommand', diskEncoded
+          ], { timeout: 10000, windowsHide: true })
           isSSD = driveInfo.trim().toUpperCase() === 'SSD'
         } catch { /* Assume HDD if detection fails — safer to leave SysMain enabled */ }
 
@@ -1740,10 +1741,11 @@ export async function fixRegistryEntries(
             if (!disableParts) throw new Error('Invalid task path')
             const safeDisablePath = disableParts.path.replace(/'/g, "''")
             const safeDisableName = disableParts.name.replace(/'/g, "''")
+            const disableScript = `Disable-ScheduledTask -TaskPath '${safeDisablePath}' -TaskName '${safeDisableName}' -ErrorAction Stop`
+            const disableEncoded = Buffer.from(disableScript, 'utf16le').toString('base64')
             await execFileAsync('powershell', [
-              '-NoProfile', '-NonInteractive', '-Command',
-              `Disable-ScheduledTask -TaskPath '${safeDisablePath}' -TaskName '${safeDisableName}' -ErrorAction Stop`
-            ], { timeout: 10000 })
+              '-NoProfile', '-NonInteractive', '-EncodedCommand', disableEncoded
+            ], { timeout: 10000, windowsHide: true })
             break
           }
 
@@ -1752,10 +1754,11 @@ export async function fixRegistryEntries(
             if (!deleteParts) throw new Error('Invalid task path')
             const safeDeletePath = deleteParts.path.replace(/'/g, "''")
             const safeDeleteName = deleteParts.name.replace(/'/g, "''")
+            const deleteScript = `Unregister-ScheduledTask -TaskPath '${safeDeletePath}' -TaskName '${safeDeleteName}' -Confirm:$false -ErrorAction Stop`
+            const deleteEncoded = Buffer.from(deleteScript, 'utf16le').toString('base64')
             await execFileAsync('powershell', [
-              '-NoProfile', '-NonInteractive', '-Command',
-              `Unregister-ScheduledTask -TaskPath '${safeDeletePath}' -TaskName '${safeDeleteName}' -Confirm:$false -ErrorAction Stop`
-            ], { timeout: 10000 })
+              '-NoProfile', '-NonInteractive', '-EncodedCommand', deleteEncoded
+            ], { timeout: 10000, windowsHide: true })
             break
           }
         }

@@ -6,6 +6,7 @@
   "malwareScanner": "Trình quét phần mềm độc hại",
   "threatMonitor": "Giám sát mối đe dọa",
   "systemHardening": "Tăng cường bảo mật hệ thống",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "BẢO TRÌ",
   "cleaner": "Trình dọn dẹp",
   "registry": "Registry",

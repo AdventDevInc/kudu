@@ -22,7 +22,8 @@
     "privacy": "Personvernskjold",
     "startup": "Oppstartsbehandling",
     "services": "Tjenestebehandling",
-    "softwareUpdate": "Programvareoppdatering"
+    "softwareUpdate": "Programvareoppdatering",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Totalt antall skanninger",

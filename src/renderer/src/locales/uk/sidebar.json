@@ -6,6 +6,7 @@
   "malwareScanner": "Сканер шкідливого ПЗ",
   "threatMonitor": "Монітор загроз",
   "systemHardening": "Посилення захисту системи",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "ОБСЛУГОВУВАННЯ",
   "cleaner": "Очищення",
   "registry": "Реєстр",

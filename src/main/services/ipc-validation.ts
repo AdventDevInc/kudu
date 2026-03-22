@@ -69,7 +69,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if (obj.schedules.length > 10) return null
     const validTaskTypes = new Set([
       'cleaner:system', 'cleaner:browsers', 'cleaner:apps', 'cleaner:gaming',
-      'cleaner:recycleBin', 'cleaner:databases', 'registry', 'drivers', 'software-update'
+      'cleaner:recycleBin', 'cleaner:databases', 'registry', 'drivers', 'software-update', 'cve-scan'
     ])
     const validFrequencies = new Set(['daily', 'weekly', 'monthly'])
     const validStatuses = new Set(['success', 'partial', 'failed', 'never'])
@@ -203,7 +203,7 @@ export function validateHistoryEntry(input: unknown): ScanHistoryEntry | null {
   const obj = input as Record<string, unknown>
 
   if (typeof obj.id !== 'string' || obj.id.length > 100) return null
-  if (!['cleaner', 'registry', 'debloater', 'network', 'drivers', 'malware', 'privacy', 'startup', 'services', 'software-update'].includes(obj.type as string)) return null
+  if (!['cleaner', 'registry', 'debloater', 'network', 'drivers', 'malware', 'privacy', 'startup', 'services', 'software-update', 'cve-scan'].includes(obj.type as string)) return null
   if (typeof obj.timestamp !== 'string' || obj.timestamp.length > 50) return null
   if (typeof obj.duration !== 'number' || obj.duration < 0) return null
   if (typeof obj.totalItemsFound !== 'number') return null

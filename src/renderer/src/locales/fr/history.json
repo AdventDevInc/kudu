@@ -22,7 +22,8 @@
     "privacy": "Bouclier de confidentialité",
     "startup": "Gestionnaire de démarrage",
     "services": "Gestionnaire de services",
-    "softwareUpdate": "Mise à jour des logiciels"
+    "softwareUpdate": "Mise à jour des logiciels",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Analyses totales",

@@ -17,7 +17,8 @@ import {
   Download,
   CalendarClock,
   CopyCheck,
-  Gamepad2
+  Gamepad2,
+  Bug
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -27,6 +28,8 @@ import { useAppUpdateStore } from '@/stores/app-update-store'
 import { useUpdaterStore } from '@/stores/updater-store'
 import { useDriverStore } from '@/stores/driver-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
+import { useCveStore } from '@/stores/cve-store'
+import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
 
 interface NavItemDef {
@@ -49,7 +52,8 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: ShieldAlert, labelKey: 'malwareScanner', path: '/malware' },
       { icon: Radar, labelKey: 'threatMonitor', path: '/threat-monitor' },
-      { icon: Shield, labelKey: 'systemHardening', path: '/hardening' }
+      { icon: Shield, labelKey: 'systemHardening', path: '/hardening' },
+      { icon: Bug, labelKey: 'cveScanner', path: '/cve' }
     ]
   },
   {
@@ -87,11 +91,13 @@ function useBadgeCounts(): Record<string, number> {
   const threatSnapshot = useThreatMonitorStore((s) => s.snapshot)
   const threatCount = (threatSnapshot?.flaggedConnections.length ?? 0) + (threatSnapshot?.flaggedDns.length ?? 0)
   const gameModeActive = useGameModeStore((s) => s.active)
+  const cveTotal = useCveStore((s) => s.total)
 
   return {
     '/updates': updaterApps.length + driverUpdates.length,
     '/threat-monitor': threatCount,
     '/game-mode': gameModeActive ? 1 : 0,
+    '/cve': cveTotal,
   }
 }
 
@@ -101,6 +107,7 @@ export function Sidebar() {
   const { features } = usePlatform()
   const threatMonitorLoaded = useThreatMonitorStore((s) => s.loaded)
   const threatBlacklistActive = useThreatMonitorStore((s) => s.snapshot) !== null
+  const isCloudLinked = !!useSettingsStore((s) => s.settings.cloud.apiKey)
 
   // Filter nav items based on platform features and cloud state
   const filteredNavGroups = navGroups.map((group) => ({
@@ -109,6 +116,7 @@ export function Sidebar() {
       if (item.path === '/registry' && !features.registry) return false
       if (item.path === '/game-mode' && !features.gameMode) return false
       if (item.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
+      if (item.path === '/cve' && !isCloudLinked) return false
       return true
     }),
   }))

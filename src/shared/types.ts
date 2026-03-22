@@ -28,6 +28,7 @@ export type HistoryEntryType =
   | 'startup'
   | 'services'
   | 'software-update'
+  | 'cve-scan'
 
 export interface ScanHistoryEntry {
   id: string
@@ -521,6 +522,7 @@ export type ScheduleTaskType =
   | 'registry'
   | 'drivers'
   | 'software-update'
+  | 'cve-scan'
 
 export type ScheduleRunStatus = 'success' | 'partial' | 'failed' | 'never'
 
@@ -802,6 +804,37 @@ export interface ThreatSnapshot {
   blacklistVersion: string | null
   lastConnectionScanAt: string | null
   lastDnsScanAt: string | null
+}
+
+// ─── CVE Vulnerability Scanner ────────────────────────────
+
+export type CveSeverity = 'critical' | 'high' | 'medium' | 'low' | 'none'
+
+export interface CveVulnerability {
+  id: number
+  cveId: string
+  appName: string
+  installedVersion: string
+  severity: CveSeverity
+  cvssScore: number | null
+  fixedIn: string | null
+  firstDetectedAt: string
+  lastScannedAt: string
+}
+
+/** Unfiltered severity counts (always the full picture, ignoring any active severity filter) */
+export interface CveSummary {
+  critical: number
+  high: number
+  medium: number
+  low: number
+}
+
+export interface CvePageResult {
+  vulnerabilities: CveVulnerability[]
+  summary: CveSummary
+  total: number
+  nextPageUrl: string | null
 }
 
 // ─── Duplicate Finder ─────────────────────────────────────

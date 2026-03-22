@@ -22,7 +22,8 @@
     "privacy": "מגן פרטיות",
     "startup": "מנהל אתחול",
     "services": "מנהל שירותים",
-    "softwareUpdate": "עדכון תוכנה"
+    "softwareUpdate": "עדכון תוכנה",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "סה״כ סריקות",

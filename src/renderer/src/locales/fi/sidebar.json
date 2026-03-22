@@ -6,6 +6,7 @@
   "malwareScanner": "Haittaohjelmien tarkistus",
   "threatMonitor": "Uhkamonitori",
   "systemHardening": "Järjestelmän suojaus",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "YLLÄPITO",
   "cleaner": "Puhdistus",
   "registry": "Rekisteri",

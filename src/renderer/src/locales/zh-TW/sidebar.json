@@ -6,6 +6,7 @@
   "malwareScanner": "惡意軟體掃描器",
   "threatMonitor": "威脅監控",
   "systemHardening": "系統強化",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "維護",
   "cleaner": "清理工具",
   "registry": "登錄",

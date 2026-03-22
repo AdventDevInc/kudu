@@ -6,6 +6,7 @@
   "malwareScanner": "マルウェア スキャナー",
   "threatMonitor": "脅威モニター",
   "systemHardening": "システム強化",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "メンテナンス",
   "cleaner": "クリーナー",
   "registry": "レジストリ",

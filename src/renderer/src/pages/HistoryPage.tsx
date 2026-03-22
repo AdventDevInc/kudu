@@ -28,7 +28,8 @@ const typeConfigBase: Record<HistoryEntryType, { labelKey: string; icon: typeof 
   privacy: { labelKey: 'typeLabels.privacy', icon: ShieldCheck, color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
   startup: { labelKey: 'typeLabels.startup', icon: Zap, color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
   services: { labelKey: 'typeLabels.services', icon: Settings2, color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
-  'software-update': { labelKey: 'typeLabels.softwareUpdate', icon: RefreshCw, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' }
+  'software-update': { labelKey: 'typeLabels.softwareUpdate', icon: RefreshCw, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
+  'cve-scan': { labelKey: 'typeLabels.cveScan', icon: Bug, color: '#dc2626', bg: 'rgba(220,38,38,0.1)' }
 }
 
 function useTypeConfig() {

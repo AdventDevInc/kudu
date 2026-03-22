@@ -22,7 +22,8 @@
     "privacy": "개인정보 보호",
     "startup": "시작 프로그램 관리자",
     "services": "서비스 관리자",
-    "softwareUpdate": "소프트웨어 업데이트"
+    "softwareUpdate": "소프트웨어 업데이트",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "총 검사 수",

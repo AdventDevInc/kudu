@@ -6,6 +6,7 @@
   "malwareScanner": "Σάρωση κακόβουλου λογισμικού",
   "threatMonitor": "Παρακολούθηση απειλών",
   "systemHardening": "Ενίσχυση συστήματος",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "ΣΥΝΤΗΡΗΣΗ",
   "cleaner": "Καθαρισμός",
   "registry": "Μητρώο",

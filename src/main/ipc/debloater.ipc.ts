@@ -9,6 +9,10 @@ import { validateStringArray } from '../services/ipc-validation'
 
 const execFileAsync = promisify(execFile)
 
+function psEncoded(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+}
+
 // Known bloatware packages with metadata
 export const KNOWN_BLOATWARE: Omit<BloatwareApp, 'id' | 'size' | 'selected'>[] = [
   // Microsoft apps
@@ -140,9 +144,7 @@ export async function scanBloatware(): Promise<BloatwareApp[]> {
   const apps: BloatwareApp[] = []
 
   try {
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NonInteractive', '-Command',
-      `Get-AppxPackage | ForEach-Object {
+    const appxScript = `Get-AppxPackage | ForEach-Object {
         $size = 0
         if ($_.InstallLocation -and (Test-Path $_.InstallLocation)) {
           $size = (Get-ChildItem -Path $_.InstallLocation -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
@@ -150,7 +152,7 @@ export async function scanBloatware(): Promise<BloatwareApp[]> {
         }
         [PSCustomObject]@{ Name = $_.Name; PackageFullName = $_.PackageFullName; InstallLocation = $_.InstallLocation; Size = $size }
       } | ConvertTo-Json -Compress`
-    ], { timeout: 60000 })
+    const { stdout } = await execFileAsync('powershell', psEncoded(appxScript), { timeout: 60000, windowsHide: true })
 
     let installedPackages: { Name: string; PackageFullName: string; InstallLocation: string; Size: number }[] = []
     try {
@@ -212,18 +214,16 @@ export async function removeBloatware(
     const safeName = pkgName.replace(/'/g, "''")
     onProgress?.(i + 1, validNames.length, pkgName, 'removing')
     try {
-      await execFileAsync('powershell', [
-        '-NoProfile', '-NonInteractive', '-Command',
+      await execFileAsync('powershell', psEncoded(
         `Get-AppxPackage '${safeName}' | Remove-AppxPackage -ErrorAction Stop`
-      ], { timeout: 30000 })
+      ), { timeout: 30000, windowsHide: true })
       removed++
       onProgress?.(i + 1, validNames.length, pkgName, 'done')
 
       try {
-        await execFileAsync('powershell', [
-          '-NoProfile', '-NonInteractive', '-Command',
+        await execFileAsync('powershell', psEncoded(
           `Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq '${safeName}' } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue`
-        ], { timeout: 15000 })
+        ), { timeout: 15000, windowsHide: true })
       } catch {
         // Deprovisioning failed (needs admin) — not critical
       }

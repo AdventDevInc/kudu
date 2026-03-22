@@ -22,7 +22,8 @@
     "privacy": "درع الخصوصية",
     "startup": "إدارة بدء التشغيل",
     "services": "إدارة الخدمات",
-    "softwareUpdate": "تحديث البرامج"
+    "softwareUpdate": "تحديث البرامج",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "إجمالي عمليات الفحص",

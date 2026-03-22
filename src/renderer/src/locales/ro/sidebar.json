@@ -6,6 +6,7 @@
   "malwareScanner": "Scanner malware",
   "threatMonitor": "Monitorizare amenințări",
   "systemHardening": "Consolidare sistem",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "ÎNTREȚINERE",
   "cleaner": "Curățare",
   "registry": "Registry",

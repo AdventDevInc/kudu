@@ -22,7 +22,8 @@
     "privacy": "Gizlilik Kalkanı",
     "startup": "Başlangıç Yöneticisi",
     "services": "Hizmet Yöneticisi",
-    "softwareUpdate": "Yazılım Güncellemesi"
+    "softwareUpdate": "Yazılım Güncellemesi",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Toplam Tarama",

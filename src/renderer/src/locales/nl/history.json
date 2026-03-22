@@ -22,7 +22,8 @@
     "privacy": "Privacyschild",
     "startup": "Opstartbeheer",
     "services": "Servicebeheer",
-    "softwareUpdate": "Software-update"
+    "softwareUpdate": "Software-update",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Totaal aantal scans",

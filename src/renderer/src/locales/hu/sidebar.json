@@ -6,6 +6,7 @@
   "malwareScanner": "Kártevőkereső",
   "threatMonitor": "Fenyegetésfigyelő",
   "systemHardening": "Rendszermegerősítés",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "KARBANTARTÁS",
   "cleaner": "Tisztító",
   "registry": "Beállításjegyzék",

@@ -22,7 +22,8 @@
     "privacy": "プライバシー保護",
     "startup": "スタートアップ マネージャー",
     "services": "サービス マネージャー",
-    "softwareUpdate": "ソフトウェア更新"
+    "softwareUpdate": "ソフトウェア更新",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "合計スキャン数",

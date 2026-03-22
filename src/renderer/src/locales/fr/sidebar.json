@@ -6,6 +6,7 @@
   "malwareScanner": "Analyseur de logiciels malveillants",
   "threatMonitor": "Surveillance des menaces",
   "systemHardening": "Renforcement du système",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "ENTRETIEN",
   "cleaner": "Nettoyeur",
   "registry": "Registre",

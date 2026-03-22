@@ -22,7 +22,8 @@
     "privacy": "Privatlivsbeskyttelse",
     "startup": "Startprogramstyring",
     "services": "Tjenestestyring",
-    "softwareUpdate": "Softwareopdatering"
+    "softwareUpdate": "Softwareopdatering",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Samlet antal scanninger",

@@ -6,6 +6,7 @@
   "malwareScanner": "मैलवेयर स्कैनर",
   "threatMonitor": "खतरा मॉनिटर",
   "systemHardening": "सिस्टम सुदृढ़ीकरण",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "रखरखाव",
   "cleaner": "क्लीनर",
   "registry": "रजिस्ट्री",

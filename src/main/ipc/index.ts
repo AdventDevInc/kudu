@@ -24,6 +24,7 @@ import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
 import { registerGameModeIpc } from './game-mode.ipc'
+import { registerCveScannerIpc } from './cve-scanner.ipc'
 import { getSettings, setSettings, flushSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
 import { isAdmin } from '../services/elevation'
 import { getHistory, addHistoryEntry, clearHistory } from '../services/history-store'
@@ -57,6 +58,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerServiceManagerIpc(getWindow)
   registerSoftwareUpdaterIpc(getWindow)
   registerCloudAgentIpc()
+  registerCveScannerIpc()
   registerGameModeIpc(getWindow)
 
   // Platform info

@@ -6,6 +6,7 @@
   "malwareScanner": "Skanning av skadlig kod",
   "threatMonitor": "Hotövervakning",
   "systemHardening": "Systemhärdning",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "UNDERHÅLL",
   "cleaner": "Rensning",
   "registry": "Registret",

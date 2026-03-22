@@ -6,6 +6,7 @@
   "malwareScanner": "Pemindai Malware",
   "threatMonitor": "Pemantau Ancaman",
   "systemHardening": "Penguatan Sistem",
+  "cveScanner": "CVE Scanner",
   "maintainHeading": "PEMELIHARAAN",
   "cleaner": "Pembersih",
   "registry": "Registry",

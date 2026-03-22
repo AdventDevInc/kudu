@@ -22,7 +22,8 @@
     "privacy": "Protezione privacy",
     "startup": "Gestione avvio",
     "services": "Gestione servizi",
-    "softwareUpdate": "Aggiornamento software"
+    "softwareUpdate": "Aggiornamento software",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Scansioni totali",

@@ -22,7 +22,8 @@
     "privacy": "Escudo de privacidad",
     "startup": "Administrador de inicio",
     "services": "Administrador de servicios",
-    "softwareUpdate": "Actualización de software"
+    "softwareUpdate": "Actualización de software",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Análisis totales",

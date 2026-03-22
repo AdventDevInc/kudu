@@ -22,7 +22,8 @@
     "privacy": "隐私防护",
     "startup": "启动项管理",
     "services": "服务管理",
-    "softwareUpdate": "软件更新"
+    "softwareUpdate": "软件更新",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "扫描总数",

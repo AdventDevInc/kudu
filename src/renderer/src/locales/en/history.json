@@ -22,7 +22,8 @@
     "privacy": "Privacy Shield",
     "startup": "Startup Manager",
     "services": "Service Manager",
-    "softwareUpdate": "Software Update"
+    "softwareUpdate": "Software Update",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Total Scans",

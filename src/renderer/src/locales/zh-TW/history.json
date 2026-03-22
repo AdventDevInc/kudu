@@ -22,7 +22,8 @@
     "privacy": "隱私防護",
     "startup": "啟動管理員",
     "services": "服務管理員",
-    "softwareUpdate": "軟體更新"
+    "softwareUpdate": "軟體更新",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "掃描總數",

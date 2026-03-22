@@ -22,7 +22,8 @@
     "privacy": "गोपनीयता सुरक्षा",
     "startup": "स्टार्टअप प्रबंधक",
     "services": "सेवा प्रबंधक",
-    "softwareUpdate": "सॉफ़्टवेयर अपडेट"
+    "softwareUpdate": "सॉफ़्टवेयर अपडेट",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "कुल स्कैन",

@@ -22,7 +22,8 @@
     "privacy": "Adatvédelmi pajzs",
     "startup": "Automatikus indítás kezelő",
     "services": "Szolgáltatáskezelő",
-    "softwareUpdate": "Szoftverfrissítés"
+    "softwareUpdate": "Szoftverfrissítés",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Vizsgálatok összesen",

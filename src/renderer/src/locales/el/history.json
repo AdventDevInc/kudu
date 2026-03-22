@@ -22,7 +22,8 @@
     "privacy": "Ασπίδα απορρήτου",
     "startup": "Διαχείριση εκκίνησης",
     "services": "Διαχείριση υπηρεσιών",
-    "softwareUpdate": "Ενημέρωση λογισμικού"
+    "softwareUpdate": "Ενημέρωση λογισμικού",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Συνολικές σαρώσεις",

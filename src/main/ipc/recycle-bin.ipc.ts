@@ -12,6 +12,10 @@ import { cacheItems } from '../services/scan-cache'
 
 const execFileAsync = promisify(execFile)
 
+function psEncoded(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+}
+
 // Windows: track last scanned size (virtual items have no real path)
 let lastScannedSize = 0
 // macOS/Linux: track last scanned item IDs for cleanItems()
@@ -39,11 +43,9 @@ export function registerRecycleBinIpc(): void {
 
     // Windows: COM-based recycle bin
     try {
-      const { stdout } = await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-Command',
+      const { stdout } = await execFileAsync('powershell.exe', psEncoded(
         `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-      ])
+      ), { windowsHide: true })
 
       const [countStr, sizeStr] = stdout.trim().split('|')
       const count = parseInt(countStr) || 0
@@ -91,18 +93,14 @@ export function registerRecycleBinIpc(): void {
     const sizeBeforeClean = lastScannedSize
     try {
       // Flags: SHERB_NOCONFIRMATION(1) | SHERB_NOPROGRESSUI(2) | SHERB_NOSOUND(4) = 7
-      await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-Command',
+      await execFileAsync('powershell.exe', psEncoded(
         `Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class RecycleBin { [DllImport("Shell32.dll", CharSet = CharSet.Unicode)] public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags); }'; [RecycleBin]::SHEmptyRecycleBin([IntPtr]::Zero, $null, 7)`
-      ])
+      ), { windowsHide: true })
 
       // Verify the bin is actually empty
-      const { stdout } = await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-Command',
+      const { stdout } = await execFileAsync('powershell.exe', psEncoded(
         `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); Write-Output $items.Count`
-      ])
+      ), { windowsHide: true })
       const remaining = parseInt(stdout.trim()) || 0
 
       if (remaining === 0) {

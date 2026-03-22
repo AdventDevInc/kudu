@@ -58,6 +58,7 @@ import type {
   GameModeDeactivateResult,
   GameModeStatus,
   GameModeProgress,
+  CvePageResult,
 } from '../shared/types'
 
 const api = {
@@ -362,6 +363,10 @@ const api = {
     ipcRenderer.on(IPC.THREAT_MONITOR_UPDATED, handler)
     return () => { ipcRenderer.removeListener(IPC.THREAT_MONITOR_UPDATED, handler) }
   },
+
+  // CVE Scanner
+  cveFetch: (opts?: { page?: number; severity?: string; search?: string }): Promise<CvePageResult> =>
+    ipcRenderer.invoke(IPC.CVE_FETCH, opts),
 
   // Progress events
   onScanProgress: (callback: (data: ProgressData) => void) => {

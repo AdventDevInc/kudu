@@ -22,7 +22,8 @@
     "privacy": "Scut de confidențialitate",
     "startup": "Manager pornire",
     "services": "Manager servicii",
-    "softwareUpdate": "Actualizare software"
+    "softwareUpdate": "Actualizare software",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Total scanări",

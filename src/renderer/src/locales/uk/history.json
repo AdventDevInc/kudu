@@ -22,7 +22,8 @@
     "privacy": "Захист приватності",
     "startup": "Керування автозапуском",
     "services": "Керування службами",
-    "softwareUpdate": "Оновлення програм"
+    "softwareUpdate": "Оновлення програм",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Усього сканувань",

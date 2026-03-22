@@ -22,7 +22,8 @@
     "privacy": "Bảo vệ quyền riêng tư",
     "startup": "Trình quản lý khởi động",
     "services": "Trình quản lý dịch vụ",
-    "softwareUpdate": "Cập nhật phần mềm"
+    "softwareUpdate": "Cập nhật phần mềm",
+    "cveScan": "CVE Scan"
   },
   "overview": {
     "totalScans": "Tổng số lần quét",
