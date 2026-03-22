@@ -64,7 +64,7 @@ function validateSnapshot(raw: unknown): boolean {
     const iv = iface as Record<string, unknown>
     if (typeof iv.path !== 'string' || !REGISTRY_PATH_RE.test(iv.path)) return false
     if (iv.originalTcpNoDelay !== null && (typeof iv.originalTcpNoDelay !== 'number' || !Number.isInteger(iv.originalTcpNoDelay) || iv.originalTcpNoDelay < 0 || iv.originalTcpNoDelay > 1)) return false
-    if (iv.originalTcpAckFrequency !== null && (typeof iv.originalTcpAckFrequency !== 'number' || !Number.isInteger(iv.originalTcpAckFrequency) || iv.originalTcpAckFrequency < 0 || iv.originalTcpAckFrequency > 1)) return false
+    if (iv.originalTcpAckFrequency !== null && (typeof iv.originalTcpAckFrequency !== 'number' || !Number.isInteger(iv.originalTcpAckFrequency) || iv.originalTcpAckFrequency < 0 || iv.originalTcpAckFrequency > 255)) return false
   }
 
   if (!Array.isArray(s.registryTweaks)) return false

@@ -108,7 +108,8 @@ function validateSnapshot(raw: unknown): GameModeSnapshot | null {
     const iv = iface as Record<string, unknown>
     if (typeof iv.path !== 'string' || !REGISTRY_PATH_RE.test(iv.path)) return null
     if (iv.originalTcpNoDelay !== null && (typeof iv.originalTcpNoDelay !== 'number' || !Number.isInteger(iv.originalTcpNoDelay) || iv.originalTcpNoDelay < 0 || iv.originalTcpNoDelay > 1)) return null
-    if (iv.originalTcpAckFrequency !== null && (typeof iv.originalTcpAckFrequency !== 'number' || !Number.isInteger(iv.originalTcpAckFrequency) || iv.originalTcpAckFrequency < 0 || iv.originalTcpAckFrequency > 1)) return null
+    // TcpAckFrequency is a DWORD with valid range 0-255 (default 2 per Microsoft docs)
+    if (iv.originalTcpAckFrequency !== null && (typeof iv.originalTcpAckFrequency !== 'number' || !Number.isInteger(iv.originalTcpAckFrequency) || iv.originalTcpAckFrequency < 0 || iv.originalTcpAckFrequency > 255)) return null
   }
 
   // Validate registryTweaks — only paths from our known allowlist
@@ -457,6 +458,7 @@ async function restoreNagle(
   interfaces: GameModeSnapshot['nagleInterfaces'],
 ): Promise<void> {
   if (!interfaces.length) return
+  const failed: string[] = []
   for (const iface of interfaces) {
     try {
       if (iface.originalTcpNoDelay !== null) {
@@ -469,7 +471,12 @@ async function restoreNagle(
       } else {
         await ps(`Remove-ItemProperty -Path '${iface.path}' -Name TcpAckFrequency -ErrorAction SilentlyContinue`)
       }
-    } catch { /* best effort per-interface */ }
+    } catch (err: any) {
+      failed.push(err?.message ?? 'unknown')
+    }
+  }
+  if (failed.length > 0) {
+    throw new Error(`Failed to restore ${failed.length} network interface(s)`)
   }
 }
 
