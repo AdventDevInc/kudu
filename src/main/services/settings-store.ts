@@ -67,6 +67,17 @@ const defaults: StoreData = {
       allowRemoteCleanup: true,
       allowRemoteInstalls: true,
       allowRemoteConfig: true
+    },
+    gameMode: {
+      enabledOptimizations: [
+        'svc-wsearch', 'svc-sysmain',
+        'proc-kill-updaters',
+        'mem-clear-standby',
+        'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
+        'sys-disable-game-bar', 'sys-disable-fse-opt',
+        'net-flush-dns'
+      ],
+      customProcessKillList: []
     }
   },
   stats: {

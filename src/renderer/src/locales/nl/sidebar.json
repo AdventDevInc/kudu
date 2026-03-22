@@ -5,7 +5,7 @@
   "securityHeading": "BEVEILIGING",
   "malwareScanner": "Malwarescanner",
   "threatMonitor": "Bedreigingsmonitor",
-  "systemHardening": "Systeembeveiliging",
+  "systemHardening": "Systeemverharding",
   "maintainHeading": "ONDERHOUD",
   "cleaner": "Opschoner",
   "registry": "Register",
@@ -17,6 +17,8 @@
   "toolsHeading": "HULPMIDDELEN",
   "performance": "Prestaties",
   "diskAnalyzer": "Schijfanalyse",
+  "duplicateFinder": "Dubbele bestanden zoeken",
   "history": "Geschiedenis",
-  "settings": "Instellingen"
+  "settings": "Instellingen",
+  "gameMode": "Spelmodus"
 }

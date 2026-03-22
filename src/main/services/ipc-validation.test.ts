@@ -148,6 +148,113 @@ describe('validateSettingsPartial', () => {
       schedules: [{ id: 'x', name: 'X' }]
     })).toBeNull()
   })
+
+  // ── gameMode validation ──────────────────────────
+
+  it('accepts valid gameMode settings', () => {
+    const input = {
+      gameMode: {
+        enabledOptimizations: ['svc-wsearch', 'mem-clear-standby', 'net-flush-dns'],
+        customProcessKillList: ['spotify.exe']
+      }
+    }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('accepts gameMode with empty arrays', () => {
+    const input = { gameMode: { enabledOptimizations: [], customProcessKillList: [] } }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('rejects gameMode with invalid optimization IDs', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: ['invalid-id'], customProcessKillList: [] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with non-array enabledOptimizations', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: 'svc-wsearch', customProcessKillList: [] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with too many optimizations', () => {
+    const enabledOptimizations = Array.from({ length: 31 }, () => 'svc-wsearch')
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations, customProcessKillList: [] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with non-string process names', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList: [123] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with empty process name strings', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList: [''] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with path traversal in process names', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList: ['..\\..\\evil.exe'] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with special characters in process names', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList: ['evil;rm -rf /'] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with too many custom processes', () => {
+    const customProcessKillList = Array.from({ length: 51 }, (_, i) => `proc${i}.exe`)
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with overly long process names', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList: ['x'.repeat(101)] }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode with unknown keys', () => {
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: [], customProcessKillList: [], extraField: true }
+    })).toBeNull()
+  })
+
+  it('rejects gameMode as non-object', () => {
+    expect(validateSettingsPartial({ gameMode: 'string' })).toBeNull()
+    expect(validateSettingsPartial({ gameMode: [] })).toBeNull()
+  })
+
+  it('accepts all valid optimization IDs', () => {
+    const allIds = [
+      'svc-wsearch', 'svc-sysmain', 'svc-wuauserv', 'svc-spooler', 'svc-diagtrack',
+      'proc-kill-browsers', 'proc-kill-chat', 'proc-kill-updaters', 'proc-kill-custom',
+      'mem-clear-standby',
+      'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
+      'sys-disable-game-bar', 'sys-disable-fse-opt', 'sys-disable-transparency',
+      'net-flush-dns', 'net-disable-nagle'
+    ]
+    expect(validateSettingsPartial({
+      gameMode: { enabledOptimizations: allIds, customProcessKillList: [] }
+    })).not.toBeNull()
+  })
+
+  it('accepts process names with dots, hyphens, underscores, and spaces', () => {
+    expect(validateSettingsPartial({
+      gameMode: {
+        enabledOptimizations: [],
+        customProcessKillList: ['my-app.exe', 'My App_v2.exe', 'test 123']
+      }
+    })).not.toBeNull()
+  })
 })
 
 describe('validateHistoryEntry', () => {

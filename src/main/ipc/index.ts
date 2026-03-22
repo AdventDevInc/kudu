@@ -23,6 +23,7 @@ import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
 import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
+import { registerGameModeIpc } from './game-mode.ipc'
 import { getSettings, setSettings, flushSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
 import { isAdmin } from '../services/elevation'
 import { getHistory, addHistoryEntry, clearHistory } from '../services/history-store'
@@ -56,6 +57,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerServiceManagerIpc(getWindow)
   registerSoftwareUpdaterIpc(getWindow)
   registerCloudAgentIpc()
+  registerGameModeIpc(getWindow)
 
   // Platform info
   const isWin = process.platform === 'win32'
@@ -67,6 +69,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       drivers: isWin,
       restorePoint: isWin,
       bootTrace: isWin,
+      gameMode: isWin,
     },
   }))
 

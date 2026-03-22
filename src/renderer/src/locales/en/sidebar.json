@@ -19,5 +19,6 @@
   "diskAnalyzer": "Disk Analyzer",
   "duplicateFinder": "Duplicate Finder",
   "history": "History",
-  "settings": "Settings"
+  "settings": "Settings",
+  "gameMode": "Game Mode"
 }

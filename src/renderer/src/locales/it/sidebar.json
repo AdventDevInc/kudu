@@ -17,6 +17,8 @@
   "toolsHeading": "STRUMENTI",
   "performance": "Prestazioni",
   "diskAnalyzer": "Analisi disco",
+  "duplicateFinder": "Ricerca duplicati",
   "history": "Cronologia",
-  "settings": "Impostazioni"
+  "settings": "Impostazioni",
+  "gameMode": "Modalità gioco"
 }

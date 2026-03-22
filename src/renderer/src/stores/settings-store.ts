@@ -42,6 +42,17 @@ const defaultSettings: KuduSettings = {
     allowRemoteCleanup: true,
     allowRemoteInstalls: true,
     allowRemoteConfig: true
+  },
+  gameMode: {
+    enabledOptimizations: [
+      'svc-wsearch', 'svc-sysmain',
+      'proc-kill-updaters',
+      'mem-clear-standby',
+      'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
+      'sys-disable-game-bar', 'sys-disable-fse-opt',
+      'net-flush-dns'
+    ],
+    customProcessKillList: []
   }
 }
 
@@ -58,7 +69,8 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         schedule: { ...s.settings.schedule, ...(partial.schedule ?? {}) },
         // schedules is an array — replace entirely when provided
         schedules: partial.schedules ?? s.settings.schedules,
-        cloud: { ...s.settings.cloud, ...(partial.cloud ?? {}) }
+        cloud: { ...s.settings.cloud, ...(partial.cloud ?? {}) },
+        gameMode: { ...s.settings.gameMode, ...(partial.gameMode ?? {}) }
       }
     }))
 }))

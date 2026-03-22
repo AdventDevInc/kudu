@@ -17,6 +17,8 @@
   "toolsHeading": "도구",
   "performance": "성능",
   "diskAnalyzer": "디스크 분석기",
+  "duplicateFinder": "중복 파일 찾기",
   "history": "기록",
-  "settings": "설정"
+  "settings": "설정",
+  "gameMode": "게임 모드"
 }

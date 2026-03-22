@@ -172,6 +172,12 @@ export const IPC = {
   HISTORY_CHANGED: 'history:changed',
   CLOUD_HISTORY_CHANGED: 'cloud:history:changed',
 
+  // Game Mode
+  GAME_MODE_ACTIVATE: 'game-mode:activate',
+  GAME_MODE_DEACTIVATE: 'game-mode:deactivate',
+  GAME_MODE_STATUS: 'game-mode:status',
+  GAME_MODE_PROGRESS: 'game-mode:progress',
+
   // Platform
   PLATFORM_INFO: 'platform:info',
 

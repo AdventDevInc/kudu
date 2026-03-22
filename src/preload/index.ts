@@ -53,6 +53,11 @@ import type {
   DuplicateScanProgress,
   DuplicateDeleteMode,
   DuplicateDeleteResult,
+  GameModeConfig,
+  GameModeActivateResult,
+  GameModeDeactivateResult,
+  GameModeStatus,
+  GameModeProgress,
 } from '../shared/types'
 
 const api = {
@@ -367,6 +372,19 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: { current: number; total: number; currentEntry: string }) => callback(data)
     ipcRenderer.on(IPC.REGISTRY_FIX_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.REGISTRY_FIX_PROGRESS, handler) }
+  },
+
+  // Game Mode
+  gameModeActivate: (config: GameModeConfig): Promise<GameModeActivateResult> =>
+    ipcRenderer.invoke(IPC.GAME_MODE_ACTIVATE, config),
+  gameModeDeactivate: (): Promise<GameModeDeactivateResult> =>
+    ipcRenderer.invoke(IPC.GAME_MODE_DEACTIVATE),
+  gameModeStatus: (): Promise<GameModeStatus> =>
+    ipcRenderer.invoke(IPC.GAME_MODE_STATUS),
+  onGameModeProgress: (callback: (data: GameModeProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: GameModeProgress) => callback(data)
+    ipcRenderer.on(IPC.GAME_MODE_PROGRESS, handler)
+    return () => { ipcRenderer.removeListener(IPC.GAME_MODE_PROGRESS, handler) }
   }
 }
 

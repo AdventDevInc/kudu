@@ -15,7 +15,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
-    'cleaner', 'exclusions', 'schedule', 'schedules', 'cloud'
+    'cleaner', 'exclusions', 'schedule', 'schedules', 'cloud', 'gameMode'
   ])
 
   for (const key of Object.keys(obj)) {
@@ -146,6 +146,37 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if ('allowRemoteCleanup' in c && typeof c.allowRemoteCleanup !== 'boolean') return null
     if ('allowRemoteInstalls' in c && typeof c.allowRemoteInstalls !== 'boolean') return null
     if ('allowRemoteConfig' in c && typeof c.allowRemoteConfig !== 'boolean') return null
+  }
+
+  // Validate gameMode has expected shape if present
+  if ('gameMode' in obj && obj.gameMode !== undefined) {
+    const g = obj.gameMode as Record<string, unknown>
+    if (typeof g !== 'object' || g === null || Array.isArray(g)) return null
+    const allowedGameModeKeys = new Set(['enabledOptimizations', 'customProcessKillList'])
+    for (const key of Object.keys(g)) {
+      if (!allowedGameModeKeys.has(key)) return null
+    }
+    if ('enabledOptimizations' in g) {
+      if (!Array.isArray(g.enabledOptimizations)) return null
+      if (g.enabledOptimizations.length > 30) return null
+      const validOptIds = new Set([
+        'svc-wsearch', 'svc-sysmain', 'svc-wuauserv', 'svc-spooler', 'svc-diagtrack',
+        'proc-kill-browsers', 'proc-kill-chat', 'proc-kill-updaters', 'proc-kill-custom',
+        'mem-clear-standby',
+        'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
+        'sys-disable-game-bar', 'sys-disable-fse-opt', 'sys-disable-transparency',
+        'net-flush-dns', 'net-disable-nagle'
+      ])
+      if (!g.enabledOptimizations.every((v: unknown) => typeof v === 'string' && validOptIds.has(v as string))) return null
+    }
+    if ('customProcessKillList' in g) {
+      if (!Array.isArray(g.customProcessKillList)) return null
+      if (g.customProcessKillList.length > 50) return null
+      if (!g.customProcessKillList.every((v: unknown) =>
+        typeof v === 'string' && v.length > 0 && v.length <= 100 &&
+        /^[A-Za-z0-9._\- ]+$/.test(v)
+      )) return null
+    }
   }
 
   return obj

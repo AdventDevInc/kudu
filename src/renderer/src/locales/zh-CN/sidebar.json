@@ -17,6 +17,8 @@
   "toolsHeading": "工具",
   "performance": "性能",
   "diskAnalyzer": "磁盘分析",
+  "duplicateFinder": "重复文件查找",
   "history": "历史记录",
-  "settings": "设置"
+  "settings": "设置",
+  "gameMode": "游戏模式"
 }

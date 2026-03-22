@@ -16,7 +16,9 @@
   "schedules": "الجداول",
   "toolsHeading": "الأدوات",
   "performance": "الأداء",
-  "diskAnalyzer": "محلل القرص",
+  "diskAnalyzer": "محلل الأقراص",
+  "duplicateFinder": "الباحث عن الملفات المكررة",
   "history": "السجل",
-  "settings": "الإعدادات"
+  "settings": "الإعدادات",
+  "gameMode": "وضع الألعاب"
 }

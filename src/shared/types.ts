@@ -6,6 +6,7 @@ export interface PlatformInfo {
     drivers: boolean
     restorePoint: boolean
     bootTrace: boolean
+    gameMode: boolean
   }
 }
 
@@ -566,6 +567,72 @@ export interface KuduSettings {
     allowRemoteInstalls: boolean
     allowRemoteConfig: boolean
   }
+  gameMode: GameModeConfig
+}
+
+// ─── Game Mode ──────────────────────────────────────────────
+
+export type GameModeOptimizationId =
+  | 'svc-wsearch'
+  | 'svc-sysmain'
+  | 'svc-wuauserv'
+  | 'svc-spooler'
+  | 'svc-diagtrack'
+  | 'proc-kill-browsers'
+  | 'proc-kill-chat'
+  | 'proc-kill-updaters'
+  | 'proc-kill-custom'
+  | 'mem-clear-standby'
+  | 'sys-focus-assist'
+  | 'sys-power-plan'
+  | 'sys-prevent-sleep'
+  | 'sys-disable-game-bar'
+  | 'sys-disable-fse-opt'
+  | 'sys-disable-transparency'
+  | 'net-flush-dns'
+  | 'net-disable-nagle'
+
+export type GameModeCategory = 'services' | 'processes' | 'memory' | 'system' | 'network'
+
+export interface GameModeConfig {
+  enabledOptimizations: GameModeOptimizationId[]
+  customProcessKillList: string[]
+}
+
+export interface GameModeSnapshot {
+  activatedAt: string
+  services: Array<{ name: string; originalStartType: string; wasRunning: boolean }>
+  killedProcesses: Array<{ pid: number; name: string }>
+  originalPowerPlanGuid: string | null
+  originalFocusAssistState: number | null
+  powerSaveBlockerId: number | null
+  nagleInterfaces: Array<{ path: string; originalTcpNoDelay: number | null; originalTcpAckFrequency: number | null }>
+  registryTweaks: Array<{ path: string; name: string; originalValue: number | null }>
+}
+
+export interface GameModeActivateResult {
+  succeeded: number
+  failed: number
+  errors: Array<{ optimizationId: string; reason: string }>
+  snapshot: GameModeSnapshot | null
+}
+
+export interface GameModeDeactivateResult {
+  restored: number
+  failed: number
+  errors: Array<{ optimizationId: string; reason: string }>
+}
+
+export interface GameModeProgress {
+  phase: 'activating' | 'deactivating'
+  current: number
+  total: number
+  currentLabel: string
+}
+
+export interface GameModeStatus {
+  active: boolean
+  activatedAt: string | null
 }
 
 // ─── Service Manager ────────────────────────────────────────

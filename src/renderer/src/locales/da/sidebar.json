@@ -4,7 +4,7 @@
   "dashboard": "Dashboard",
   "securityHeading": "SIKKERHED",
   "malwareScanner": "Malwarescanner",
-  "threatMonitor": "Trusselsovervågning",
+  "threatMonitor": "Trusselsmonitor",
   "systemHardening": "Systemhærdning",
   "maintainHeading": "VEDLIGEHOLD",
   "cleaner": "Renser",
@@ -17,6 +17,8 @@
   "toolsHeading": "VÆRKTØJER",
   "performance": "Ydeevne",
   "diskAnalyzer": "Diskanalyse",
+  "duplicateFinder": "Dubletsøger",
   "history": "Historik",
-  "settings": "Indstillinger"
+  "settings": "Indstillinger",
+  "gameMode": "Spiltilstand"
 }

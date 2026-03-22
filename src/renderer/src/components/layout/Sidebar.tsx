@@ -16,7 +16,8 @@ import {
   Trash2,
   Download,
   CalendarClock,
-  CopyCheck
+  CopyCheck,
+  Gamepad2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -25,6 +26,7 @@ import { useThreatMonitorStore } from '@/stores/threat-monitor-store'
 import { useAppUpdateStore } from '@/stores/app-update-store'
 import { useUpdaterStore } from '@/stores/updater-store'
 import { useDriverStore } from '@/stores/driver-store'
+import { useGameModeStore } from '@/stores/game-mode-store'
 import { usePlatform } from '@/hooks/usePlatform'
 
 interface NavItemDef {
@@ -65,6 +67,7 @@ const navGroups: NavGroup[] = [
   {
     headingKey: 'toolsHeading',
     items: [
+      { icon: Gamepad2, labelKey: 'gameMode', path: '/game-mode' },
       { icon: Activity, labelKey: 'performance', path: '/performance' },
       { icon: HardDrive, labelKey: 'diskAnalyzer', path: '/disk' },
       { icon: CopyCheck, labelKey: 'duplicateFinder', path: '/duplicates' },
@@ -83,10 +86,12 @@ function useBadgeCounts(): Record<string, number> {
   const driverUpdates = useDriverStore((s) => s.updates)
   const threatSnapshot = useThreatMonitorStore((s) => s.snapshot)
   const threatCount = (threatSnapshot?.flaggedConnections.length ?? 0) + (threatSnapshot?.flaggedDns.length ?? 0)
+  const gameModeActive = useGameModeStore((s) => s.active)
 
   return {
     '/updates': updaterApps.length + driverUpdates.length,
     '/threat-monitor': threatCount,
+    '/game-mode': gameModeActive ? 1 : 0,
   }
 }
 
@@ -102,6 +107,7 @@ export function Sidebar() {
     ...group,
     items: group.items.filter((item) => {
       if (item.path === '/registry' && !features.registry) return false
+      if (item.path === '/game-mode' && !features.gameMode) return false
       if (item.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
       return true
     }),

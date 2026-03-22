@@ -4,8 +4,8 @@
   "dashboard": "ダッシュボード",
   "securityHeading": "セキュリティ",
   "malwareScanner": "マルウェア スキャナー",
-  "threatMonitor": "脅威の監視",
-  "systemHardening": "システムの強化",
+  "threatMonitor": "脅威モニター",
+  "systemHardening": "システム強化",
   "maintainHeading": "メンテナンス",
   "cleaner": "クリーナー",
   "registry": "レジストリ",
@@ -17,6 +17,8 @@
   "toolsHeading": "ツール",
   "performance": "パフォーマンス",
   "diskAnalyzer": "ディスク アナライザー",
+  "duplicateFinder": "重複ファイル検索",
   "history": "履歴",
-  "settings": "設定"
+  "settings": "設定",
+  "gameMode": "ゲーム モード"
 }

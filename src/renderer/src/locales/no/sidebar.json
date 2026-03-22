@@ -3,7 +3,7 @@
   "subtitle": "SYSTEMRENSER",
   "dashboard": "Oversikt",
   "securityHeading": "SIKKERHET",
-  "malwareScanner": "Skanning etter skadelig programvare",
+  "malwareScanner": "Skanner for skadelig programvare",
   "threatMonitor": "Trusselovervåking",
   "systemHardening": "Systemherding",
   "maintainHeading": "VEDLIKEHOLD",
@@ -13,10 +13,12 @@
   "network": "Nettverk",
   "uninstaller": "Avinstalleringsprogram",
   "updates": "Oppdateringer",
-  "schedules": "Tidsplaner",
+  "schedules": "Planer",
   "toolsHeading": "VERKTØY",
   "performance": "Ytelse",
   "diskAnalyzer": "Diskanalyse",
+  "duplicateFinder": "Duplikatsøker",
   "history": "Historikk",
-  "settings": "Innstillinger"
+  "settings": "Innstillinger",
+  "gameMode": "Spillmodus"
 }

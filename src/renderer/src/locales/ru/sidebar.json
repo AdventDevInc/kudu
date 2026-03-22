@@ -17,6 +17,8 @@
   "toolsHeading": "ИНСТРУМЕНТЫ",
   "performance": "Производительность",
   "diskAnalyzer": "Анализ диска",
-  "history": "История",
-  "settings": "Настройки"
+  "duplicateFinder": "Поиск дубликатов",
+  "history": "Журнал",
+  "settings": "Параметры",
+  "gameMode": "Игровой режим"
 }
