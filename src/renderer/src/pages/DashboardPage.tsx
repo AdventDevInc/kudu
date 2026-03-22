@@ -17,7 +17,7 @@ import {
   Download,
   Server,
   Gamepad2,
-  ShieldAlert,
+  BarChart3,
   ArrowUpDown,
   MemoryStick,
   Activity
@@ -37,7 +37,6 @@ import { useUpdaterStore } from '@/stores/updater-store'
 import { useServiceStore } from '@/stores/service-store'
 import { useStartupStore } from '@/stores/startup-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
-import { useThreatMonitorStore } from '@/stores/threat-monitor-store'
 import type { DriveInfo, ActivityEntry, ScanResult, CleanResult, PerfSnapshot } from '@shared/types'
 import { CleanerType } from '@shared/enums'
 import { usePlatform } from '@/hooks/usePlatform'
@@ -89,8 +88,6 @@ export function DashboardPage() {
   const startupItems = useStartupStore((s) => s.items)
   const gameModeActive = useGameModeStore((s) => s.active)
   const gameModeActivatedAt = useGameModeStore((s) => s.activatedAt)
-  const threatSnapshot = useThreatMonitorStore((s) => s.snapshot)
-  const threatCount = (threatSnapshot?.flaggedConnections.length ?? 0) + (threatSnapshot?.flaggedDns.length ?? 0)
   const cleanStartRef = useRef<number>(0)
   const navigate = useNavigate()
   const [drives, setDrives] = useState<DriveInfo[]>([])
@@ -545,7 +542,7 @@ export function DashboardPage() {
         <div className="grid grid-cols-3 gap-4">
           <StatCard icon={HardDrive} label={t('statSpaceRecovered')} value={stats.totalSpaceSaved} displayValue={formatBytes(stats.totalSpaceSaved)} variant="accent" />
           <StatCard icon={FileStack} label={t('statFilesCleaned')} value={stats.totalFilesCleaned} variant="success" />
-          <StatCard icon={ShieldAlert} label={t('statThreatsBlocked')} value={threatCount} variant={threatCount > 0 ? 'danger' : 'default'} />
+          <StatCard icon={BarChart3} label={t('statTotalScans')} value={stats.totalScans} />
         </div>
 
         {/* ── Action Buttons ──────────────────────────── */}

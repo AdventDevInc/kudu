@@ -11,7 +11,7 @@
   "gameModeClickToOpen": "Click to configure",
   "statSpaceRecovered": "Space Recovered",
   "statFilesCleaned": "Files Cleaned",
-  "statThreatsBlocked": "Threats Blocked",
+  "statTotalScans": "Total Scans",
   "statusHeading": "Status",
   "statusLastScan": "Last Scan",
   "statusLastScanNever": "Never",
