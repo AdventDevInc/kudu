@@ -404,7 +404,9 @@ export function DashboardPage() {
 
   const cpuPct = perf?.cpuPercent ?? 0
   const ramPct = perf?.memPercent ?? 0
-  const diskPct = drives.length > 0 ? Math.round(Math.max(...drives.map((d) => (d.usedSpace / d.totalSize) * 100))) : 0
+  const diskPct = drives.length > 0
+    ? Math.round((drives.reduce((s, d) => s + d.usedSpace, 0) / drives.reduce((s, d) => s + d.totalSize, 0)) * 100)
+    : 0
 
   function formatGmElapsed(ms: number): string {
     const s = Math.floor(ms / 1000)
