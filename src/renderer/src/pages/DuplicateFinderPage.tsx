@@ -115,19 +115,26 @@ export function DuplicateFinderPage() {
 
   const handleDelete = async () => {
     setShowConfirm(false)
+    const deletingPaths = new Set(store.selectedPaths)
     store.setStatus('deleting')
     try {
-      const paths = Array.from(store.selectedPaths)
+      const paths = Array.from(deletingPaths)
       const result = await window.kudu?.duplicatesDelete?.(paths, store.deleteMode)
       if (result) {
         store.setDeleteResult(result)
         if (result.deleted > 0) {
+          // Build the set of successfully deleted paths (remove failures)
+          const failedPaths = new Set(result.errors.map((e) => e.path))
+          const successPaths = new Set<string>()
+          for (const p of deletingPaths) {
+            if (!failedPaths.has(p)) successPaths.add(p)
+          }
+          store.removeDeletedFiles(successPaths)
           toast.success(t('deleteSuccess', { count: result.deleted, size: formatBytes(result.spaceRecovered) }))
         }
         if (result.failed > 0) {
           toast.error(t('deleteFailed', { failed: result.failed }))
         }
-        // Re-scan to refresh results
         store.setStatus('complete')
       }
     } catch {

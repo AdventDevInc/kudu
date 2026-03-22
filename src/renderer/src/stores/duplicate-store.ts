@@ -40,6 +40,7 @@ interface DuplicateState {
   togglePath: (path: string) => void
   selectAllDuplicates: () => void
   deselectAll: () => void
+  removeDeletedFiles: (deletedPaths: Set<string>) => void
   reset: () => void
 }
 
@@ -91,6 +92,32 @@ export const useDuplicateStore = create<DuplicateState>((set, get) => ({
     set({ selectedPaths: selected })
   },
   deselectAll: () => set({ selectedPaths: new Set() }),
+  removeDeletedFiles: (deletedPaths) => {
+    const result = get().result
+    if (!result) return
+    // Remove deleted files from each group, drop groups with <2 files remaining
+    const groups = result.groups
+      .map((g) => {
+        const remaining = g.files.filter((f) => !deletedPaths.has(f.path))
+        return {
+          ...g,
+          files: remaining,
+          reclaimableSpace: remaining.length >= 2 ? g.fileSize * (remaining.length - 1) : 0
+        }
+      })
+      .filter((g) => g.files.length >= 2)
+    const totalDuplicates = groups.reduce((s, g) => s + g.files.length - 1, 0)
+    const totalReclaimable = groups.reduce((s, g) => s + g.reclaimableSpace, 0)
+    // Remove deleted paths from selection
+    const nextSelected = new Set<string>()
+    for (const p of get().selectedPaths) {
+      if (!deletedPaths.has(p)) nextSelected.add(p)
+    }
+    set({
+      result: { ...result, groups, totalDuplicates, totalReclaimable },
+      selectedPaths: nextSelected
+    })
+  },
   reset: () =>
     set({
       status: 'idle',

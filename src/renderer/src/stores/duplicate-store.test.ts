@@ -139,6 +139,79 @@ describe('duplicate-store', () => {
     expect(useDuplicateStore.getState().selectedPaths.size).toBe(0)
   })
 
+  it('removeDeletedFiles strips deleted paths from groups and recalculates totals', () => {
+    const result = makeResult([
+      {
+        hash: 'dddd4444dddd4444dddd4444dddd4444dddd4444dddd4444dddd4444dddd4444',
+        fileSize: 1000,
+        paths: ['/a.txt', '/b.txt', '/c.txt']
+      }
+    ])
+    useDuplicateStore.getState().setResult(result)
+    useDuplicateStore.getState().togglePath('/b.txt')
+    useDuplicateStore.getState().togglePath('/c.txt')
+
+    // Delete /b.txt only
+    useDuplicateStore.getState().removeDeletedFiles(new Set(['/b.txt']))
+
+    const state = useDuplicateStore.getState()
+    // Group should still exist with 2 files remaining
+    expect(state.result!.groups).toHaveLength(1)
+    expect(state.result!.groups[0].files).toHaveLength(2)
+    expect(state.result!.groups[0].files.map((f) => f.path).sort()).toEqual(['/a.txt', '/c.txt'])
+    // Reclaimable recalculated: 1000 * (2-1) = 1000
+    expect(state.result!.groups[0].reclaimableSpace).toBe(1000)
+    expect(state.result!.totalDuplicates).toBe(1)
+    expect(state.result!.totalReclaimable).toBe(1000)
+    // /b.txt removed from selection, /c.txt still selected
+    expect(state.selectedPaths.has('/b.txt')).toBe(false)
+    expect(state.selectedPaths.has('/c.txt')).toBe(true)
+  })
+
+  it('removeDeletedFiles drops groups with fewer than 2 files remaining', () => {
+    const result = makeResult([
+      {
+        hash: 'eeee5555eeee5555eeee5555eeee5555eeee5555eeee5555eeee5555eeee5555',
+        fileSize: 500,
+        paths: ['/x.txt', '/y.txt']
+      },
+      {
+        hash: 'ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666',
+        fileSize: 2000,
+        paths: ['/p.dat', '/q.dat', '/r.dat']
+      }
+    ])
+    useDuplicateStore.getState().setResult(result)
+
+    // Delete /y.txt — leaves first group with only 1 file, should be dropped
+    useDuplicateStore.getState().removeDeletedFiles(new Set(['/y.txt']))
+
+    const state = useDuplicateStore.getState()
+    expect(state.result!.groups).toHaveLength(1)
+    expect(state.result!.groups[0].fullHash).toBe('ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666')
+    expect(state.result!.totalDuplicates).toBe(2) // 3 files - 1 kept = 2
+    expect(state.result!.totalReclaimable).toBe(4000) // 2000 * 2
+  })
+
+  it('removeDeletedFiles handles deleting all duplicates from all groups', () => {
+    const result = makeResult([
+      {
+        hash: 'aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111',
+        fileSize: 100,
+        paths: ['/a', '/b']
+      }
+    ])
+    useDuplicateStore.getState().setResult(result)
+
+    // Delete both — group has 0 files, should be dropped
+    useDuplicateStore.getState().removeDeletedFiles(new Set(['/a', '/b']))
+
+    const state = useDuplicateStore.getState()
+    expect(state.result!.groups).toHaveLength(0)
+    expect(state.result!.totalDuplicates).toBe(0)
+    expect(state.result!.totalReclaimable).toBe(0)
+  })
+
   it('reset clears scan state but preserves config', () => {
     const store = useDuplicateStore.getState()
     store.setDirectory('/home/user')
