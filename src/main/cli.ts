@@ -1057,26 +1057,36 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
     }
     cliLog(ctx, 'Fetching CVE vulnerabilities...')
     try {
-      const result = await cloudAgent.getVulnerabilities()
+      const firstPage = await cloudAgent.getVulnerabilities()
       if (ctx.json) {
-        cliOut(ctx, result)
+        // Fetch all pages so --json output is complete
+        const allVulns = [...firstPage.vulnerabilities]
+        let page = 2
+        let hasMore = firstPage.nextPageUrl !== null
+        while (hasMore) {
+          const next = await cloudAgent.getVulnerabilities(page)
+          allVulns.push(...next.vulnerabilities)
+          hasMore = next.nextPageUrl !== null
+          page++
+        }
+        cliOut(ctx, { vulnerabilities: allVulns, summary: firstPage.summary, total: firstPage.total })
       } else {
-        const s = result.summary
+        const s = firstPage.summary
         cliLog(ctx, `  Total: ${s.critical + s.high + s.medium + s.low}  Critical: ${s.critical}  High: ${s.high}  Medium: ${s.medium}  Low: ${s.low}`)
-        if (result.vulnerabilities.length === 0) {
+        if (firstPage.vulnerabilities.length === 0) {
           cliLog(ctx, '  No vulnerabilities found.')
         } else {
-          for (const v of result.vulnerabilities) {
+          for (const v of firstPage.vulnerabilities) {
             const fix = v.fixedIn ? ` → fix: ${v.fixedIn}` : ''
             const cvss = v.cvssScore != null ? ` (CVSS ${v.cvssScore})` : ''
             cliLog(ctx, `  [${v.severity.toUpperCase().padEnd(8)}] ${v.appName} ${v.installedVersion} — ${v.cveId}${cvss}${fix}`)
           }
-          if (result.nextPageUrl) {
-            cliLog(ctx, `  ... and more (${result.total} total). Use --json for full paginated data.`)
+          if (firstPage.nextPageUrl) {
+            cliLog(ctx, `  ... and more (${firstPage.total} total). Use --json for full data.`)
           }
         }
       }
-      if (result.summary.critical > 0 || result.summary.high > 0) return ExitCode.SCAN_THREATS
+      if (firstPage.summary.critical > 0 || firstPage.summary.high > 0) return ExitCode.SCAN_THREATS
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
       cliOut(ctx, ctx.json ? { error: msg } : `Failed: ${msg}`)
