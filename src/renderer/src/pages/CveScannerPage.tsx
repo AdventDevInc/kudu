@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   ShieldCheck,
-  CloudOff,
   Search,
   RefreshCw,
   ChevronDown,
@@ -97,19 +96,11 @@ export function CveScannerPage() {
     fetchVulns({ page: newPage })
   }, [fetchVulns])
 
-  // Cloud not configured
-  if (!isLinked) {
-    return (
-      <div className="p-8">
-        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
-        <EmptyState
-          icon={CloudOff}
-          title={t('cloudNotConfigured.title')}
-          description={t('cloudNotConfigured.description')}
-        />
-      </div>
-    )
-  }
+  // Cloud not configured — redirect away (page is hidden from sidebar)
+  useEffect(() => {
+    if (!isLinked) navigate('/', { replace: true })
+  }, [isLinked, navigate])
+  if (!isLinked) return null
 
   // Loading (first fetch)
   if (status === 'loading' && vulnerabilities.length === 0 && !error) {
