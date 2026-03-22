@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Не завантажено",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Віддалене керування живленням",
   "cloudRemotePowerDesc": "Дозволити cloud вимикати або перезапускати цей пристрій",

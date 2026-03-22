@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Ikke lastet inn",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Ekstern strømstyring",
   "cloudRemotePowerDesc": "Tillat at skyen slår av eller starter denne enheten på nytt",

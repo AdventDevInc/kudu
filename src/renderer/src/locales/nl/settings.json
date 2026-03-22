@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Niet geladen",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Externe energiebeheer",
   "cloudRemotePowerDesc": "Cloud toestaan dit apparaat af te sluiten of opnieuw op te starten",

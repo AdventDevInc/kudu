@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Nincs betöltve",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Távoli energiagazdálkodás",
   "cloudRemotePowerDesc": "A cloud leállíthatja vagy újraindíthatja ezt az eszközt",

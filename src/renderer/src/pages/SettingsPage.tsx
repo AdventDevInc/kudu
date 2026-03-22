@@ -325,13 +325,13 @@ export function SettingsPage() {
                 <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('cloudThreatListNotLoaded')}</span>
               )}
             </Row>
-            <Row label={t('cloudCveMonitorLabel')} desc={cveSummary ? t('cloudCveDescLoaded', { findings: cveSummary.total, critical: cveSummary.critical, high: cveSummary.high, medium: cveSummary.medium, low: cveSummary.low }) : t('cloudCveMonitorDesc')}>
-              {cveSummary ? (
+            <Row label={t('cloudCveMonitorLabel')} desc={cveSummary && cveSummary.total > 0 ? t('cloudCveDescLoaded', { findings: cveSummary.total, critical: cveSummary.critical, high: cveSummary.high, medium: cveSummary.medium, low: cveSummary.low }) : t('cloudCveMonitorDesc')}>
+              {cveSummary && cveSummary.librarySize > 0 ? (
                 <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>
                   {t('cloudCveLibrarySize', { count: cveSummary.librarySize.toLocaleString() })}
                 </span>
               ) : (
-                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('cloudCveNotScanned')}</span>
+                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{cveSummary ? t('cloudCveNoFindings') : t('cloudCveNotScanned')}</span>
               )}
             </Row>
             <Row label={t('cloudRemotePowerLabel')} desc={t('cloudRemotePowerDesc')}>

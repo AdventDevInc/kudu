@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "未加载",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "远程电源控制",
   "cloudRemotePowerDesc": "允许云端关闭或重启此设备",

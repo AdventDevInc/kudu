@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "ยังไม่ได้โหลด",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "การควบคุมพลังงานจากระยะไกล",
   "cloudRemotePowerDesc": "อนุญาตให้คลาวด์สั่งปิดเครื่องหรือเริ่มระบบใหม่ของอุปกรณ์นี้",

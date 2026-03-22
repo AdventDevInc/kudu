@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Inte inläst",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Fjärrstyrning av ström",
   "cloudRemotePowerDesc": "Tillåt att molnet stänger av eller startar om den här enheten",

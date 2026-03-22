@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Ei ladattu",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Etävirranhallinta",
   "cloudRemotePowerDesc": "Salli pilven sammuttaa tai käynnistää tämä laite uudelleen",

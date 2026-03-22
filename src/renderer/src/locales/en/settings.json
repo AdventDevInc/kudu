@@ -68,6 +68,7 @@
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
   "cloudCveLibrarySize": "{{count}} CVEs tracked",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Remote power control",
   "cloudRemotePowerDesc": "Allow cloud to shutdown or restart this device",

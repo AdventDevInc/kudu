@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Belum dimuat",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Kontrol daya jarak jauh",
   "cloudRemotePowerDesc": "Izinkan cloud untuk mematikan atau memulai ulang perangkat ini",

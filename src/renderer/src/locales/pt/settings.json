@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "Não carregada",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Controlo remoto de energia",
   "cloudRemotePowerDesc": "Permitir que a cloud desligue ou reinicie este dispositivo",

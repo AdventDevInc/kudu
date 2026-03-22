@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "로드되지 않음",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "원격 전원 제어",
   "cloudRemotePowerDesc": "클라우드에서 이 장치를 종료하거나 다시 시작할 수 있도록 허용합니다",

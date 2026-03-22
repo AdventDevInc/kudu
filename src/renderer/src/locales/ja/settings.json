@@ -66,6 +66,7 @@
   "cloudThreatListNotLoaded": "未読み込み",
   "cloudCveMonitorLabel": "CVE scanner",
   "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
+  "cloudCveNoFindings": "No vulnerabilities found",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "リモート電源制御",
   "cloudRemotePowerDesc": "クラウドからこのデバイスのシャットダウンまたは再起動を許可します",
