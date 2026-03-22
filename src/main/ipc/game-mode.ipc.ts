@@ -609,8 +609,11 @@ export async function activateGameMode(
     }
   }
 
-  // Final write ensures the complete snapshot is persisted
-  writeSnapshot(snapshot)
+  // Only persist the snapshot if at least one optimization changed system state.
+  // If everything failed, don't leave an empty snapshot that blocks future activations.
+  if (succeeded > 0) {
+    writeSnapshot(snapshot)
+  }
 
   return { succeeded, failed: errors.length, errors, snapshot }
 }
@@ -696,7 +699,11 @@ export async function deactivateGameMode(
     }
   }
 
-  deleteSnapshot()
+  // Only delete the snapshot if everything restored successfully.
+  // If some restores failed, keep the snapshot so the user can retry.
+  if (errors.length === 0) {
+    deleteSnapshot()
+  }
   return { restored, failed: errors.length, errors }
 }
 

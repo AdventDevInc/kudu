@@ -33,6 +33,7 @@ import { useHistoryStore } from './stores/history-store'
 import { useAppUpdateStore } from './stores/app-update-store'
 import { useBackgroundScans } from './hooks/useBackgroundScans'
 import { usePlatformLoader, PlatformContext } from './hooks/usePlatform'
+import { initGameModeStore } from './stores/game-mode-store'
 
 export function App() {
   const { i18n } = useTranslation()
@@ -80,6 +81,9 @@ export function App() {
     const cleanup = initAppUpdate()
     return cleanup
   }, [initAppUpdate])
+
+  // Hydrate Game Mode status so the sidebar badge works on all pages
+  useEffect(() => { initGameModeStore() }, [])
 
   if (!onboardingChecked) return null
 

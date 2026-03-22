@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
-import { useGameModeStore, initGameModeStore } from '@/stores/game-mode-store'
+import { useGameModeStore } from '@/stores/game-mode-store'
 import type { GameModeOptimizationId, GameModeCategory } from '@shared/types'
 import type { LucideIcon } from 'lucide-react'
 
@@ -106,12 +106,9 @@ export function GameModePage() {
   const [customInput, setCustomInput] = useState('')
   const progressCleanupRef = useRef<(() => void) | null>(null)
 
-  // Hydrate on mount
+  // Cleanup progress listener on unmount
   useEffect(() => {
-    initGameModeStore()
-    return () => {
-      progressCleanupRef.current?.()
-    }
+    return () => { progressCleanupRef.current?.() }
   }, [])
 
   // Session timer
@@ -150,9 +147,14 @@ export function GameModePage() {
 
     try {
       const result = await window.kudu.gameModeActivate(config)
-      store.getState().setActive(true, result.snapshot?.activatedAt ?? new Date().toISOString())
+      // Only mark as active if at least one optimization succeeded
+      if (result.succeeded > 0) {
+        store.getState().setActive(true, result.snapshot?.activatedAt ?? new Date().toISOString())
+      }
       store.getState().setLastResult({ type: 'activate', succeeded: result.succeeded, failed: result.failed })
-      if (result.failed > 0) {
+      if (result.succeeded === 0 && result.failed > 0) {
+        toast.error(`All optimizations failed`)
+      } else if (result.failed > 0) {
         toast.warning(`${result.failed} optimization(s) failed`)
       }
     } catch (err: any) {
@@ -175,7 +177,13 @@ export function GameModePage() {
 
     try {
       const result = await window.kudu.gameModeDeactivate()
-      store.getState().setActive(false, null)
+      // Only mark as inactive if all restores succeeded (snapshot deleted).
+      // If some failed, the snapshot is kept and Game Mode remains active so the user can retry.
+      if (result.failed === 0) {
+        store.getState().setActive(false, null)
+      } else {
+        toast.warning(`${result.failed} setting(s) could not be restored — Game Mode stays active so you can retry`)
+      }
       store.getState().setLastResult({ type: 'deactivate', succeeded: result.restored, failed: result.failed })
     } catch (err: any) {
       toast.error(err?.message ?? 'Deactivation failed')
