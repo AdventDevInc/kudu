@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "（{{domains}} 個網域、{{ips}} 個 IP、{{cidrs}} 個 CIDR）",
   "cloudThreatListNotLoaded": "未載入",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "遠端電源控制",
   "cloudRemotePowerDesc": "允許雲端關機或重新啟動此裝置",
@@ -119,5 +117,7 @@
   "retry": "重試",
   "github": "GitHub",
   "reportBug": "回報錯誤",
-  "startupSettingFailedToast": "更新開機啟動設定失敗。請確認 Kudu 具有建立排程工作所需的權限。"
+  "startupSettingFailedToast": "更新開機啟動設定失敗。請確認 Kudu 具有建立排程工作所需的權限。",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "（{{domains}} ドメイン、{{ips}} IP、{{cidrs}} CIDR）",
   "cloudThreatListNotLoaded": "未読み込み",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "リモート電源制御",
   "cloudRemotePowerDesc": "クラウドからこのデバイスのシャットダウンまたは再起動を許可します",
@@ -119,5 +117,7 @@
   "retry": "再試行",
   "github": "GitHub",
   "reportBug": "バグを報告",
-  "startupSettingFailedToast": "スタートアップ設定の更新に失敗しました。Kudu にスケジュールされたタスクを作成する権限があることを確認してください。"
+  "startupSettingFailedToast": "スタートアップ設定の更新に失敗しました。Kudu にスケジュールされたタスクを作成する権限があることを確認してください。",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

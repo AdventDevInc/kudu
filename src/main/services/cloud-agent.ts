@@ -218,6 +218,7 @@ class CloudAgentService {
       summary,
       total: typeof raw.total === 'number' ? raw.total : 0,
       nextPageUrl: typeof raw.next_page_url === 'string' ? raw.next_page_url : null,
+      librarySize: typeof raw.library_size === 'number' ? raw.library_size : 0,
     }
   }
 

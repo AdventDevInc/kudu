@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domain, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Nincs betöltve",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Távoli energiagazdálkodás",
   "cloudRemotePowerDesc": "A cloud leállíthatja vagy újraindíthatja ezt az eszközt",
@@ -119,5 +117,7 @@
   "retry": "Újrapróbálkozás",
   "github": "GitHub",
   "reportBug": "Hibabejelentés",
-  "startupSettingFailedToast": "Nem sikerült frissíteni az indítási beállítást. Győződjön meg arról, hogy a Kudu rendelkezik jogosultsággal ütemezett feladatok létrehozásához."
+  "startupSettingFailedToast": "Nem sikerült frissíteni az indítási beállítást. Győződjön meg arról, hogy a Kudu rendelkezik jogosultsággal ütemezett feladatok létrehozásához.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

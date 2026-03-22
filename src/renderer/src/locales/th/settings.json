@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} โดเมน, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "ยังไม่ได้โหลด",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "การควบคุมพลังงานจากระยะไกล",
   "cloudRemotePowerDesc": "อนุญาตให้คลาวด์สั่งปิดเครื่องหรือเริ่มระบบใหม่ของอุปกรณ์นี้",
@@ -119,5 +117,7 @@
   "retry": "ลองอีกครั้ง",
   "github": "GitHub",
   "reportBug": "รายงานข้อบกพร่อง",
-  "startupSettingFailedToast": "อัปเดตการตั้งค่าการเริ่มต้นระบบไม่สำเร็จ โปรดตรวจสอบว่า Kudu มีสิทธิ์ในการสร้างงานที่กำหนดเวลาไว้"
+  "startupSettingFailedToast": "อัปเดตการตั้งค่าการเริ่มต้นระบบไม่สำเร็จ โปรดตรวจสอบว่า Kudu มีสิทธิ์ในการสร้างงานที่กำหนดเวลาไว้",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

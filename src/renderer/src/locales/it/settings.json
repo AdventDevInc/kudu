@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domini, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Non caricato",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Controllo alimentazione remoto",
   "cloudRemotePowerDesc": "Consenti al cloud di spegnere o riavviare questo dispositivo",
@@ -119,5 +117,7 @@
   "retry": "Riprova",
   "github": "GitHub",
   "reportBug": "Segnala bug",
-  "startupSettingFailedToast": "Impossibile aggiornare l'impostazione di avvio. Assicurati che Kudu abbia l'autorizzazione per creare attività pianificate."
+  "startupSettingFailedToast": "Impossibile aggiornare l'impostazione di avvio. Assicurati che Kudu abbia l'autorizzazione per creare attività pianificate.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

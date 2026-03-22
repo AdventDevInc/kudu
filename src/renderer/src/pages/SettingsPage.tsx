@@ -28,7 +28,7 @@ export function SettingsPage() {
   const [cloudLinking, setCloudLinking] = useState(false)
   const [cloudUnlinking, setCloudUnlinking] = useState(false)
   const [cloudReconnecting, setCloudReconnecting] = useState(false)
-  const [cveSummary, setCveSummary] = useState<{ total: number; critical: number; high: number; medium: number; low: number } | null>(null)
+  const [cveSummary, setCveSummary] = useState<{ total: number; critical: number; high: number; medium: number; low: number; librarySize: number } | null>(null)
 
   const isLinked = !!settings.cloud.apiKey
 
@@ -50,7 +50,7 @@ export function SettingsPage() {
   useEffect(() => {
     if (cloudStatus?.status !== 'connected') return
     window.kudu?.cveFetch?.({ page: 1 })
-      .then((r) => setCveSummary({ total: r.total, ...r.summary }))
+      .then((r) => setCveSummary({ total: r.total, librarySize: r.librarySize, ...r.summary }))
       .catch(() => {})
   }, [cloudStatus?.status])
 
@@ -325,11 +325,10 @@ export function SettingsPage() {
                 <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('cloudThreatListNotLoaded')}</span>
               )}
             </Row>
-            <Row label={t('cloudCveMonitorLabel')} desc={t('cloudCveMonitorDesc')}>
+            <Row label={t('cloudCveMonitorLabel')} desc={cveSummary ? t('cloudCveDescLoaded', { findings: cveSummary.total, critical: cveSummary.critical, high: cveSummary.high, medium: cveSummary.medium, low: cveSummary.low }) : t('cloudCveMonitorDesc')}>
               {cveSummary ? (
                 <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                  {t('cloudCveTotal', { total: cveSummary.total.toLocaleString() })}
-                  <span style={{ color: 'rgba(255,255,255,0.3)' }}> {t('cloudCveBreakdown', { critical: cveSummary.critical.toLocaleString(), high: cveSummary.high.toLocaleString(), medium: cveSummary.medium.toLocaleString(), low: cveSummary.low.toLocaleString() })}</span>
+                  {t('cloudCveLibrarySize', { count: cveSummary.librarySize.toLocaleString() })}
                 </span>
               ) : (
                 <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('cloudCveNotScanned')}</span>

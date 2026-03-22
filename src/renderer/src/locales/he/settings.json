@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} דומיינים, {{ips}} כתובות IP, {{cidrs}} CIDRs)",
   "cloudThreatListNotLoaded": "לא נטען",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "בקרת צריכת חשמל מרחוק",
   "cloudRemotePowerDesc": "אפשר לענן לכבות או להפעיל מחדש את המכשיר הזה",
@@ -119,5 +117,7 @@
   "retry": "נסה שוב",
   "github": "GitHub",
   "reportBug": "דווח על באג",
-  "startupSettingFailedToast": "עדכון הגדרת האתחול נכשל. ודא של-Kudu יש הרשאה ליצור משימות מתוזמנות."
+  "startupSettingFailedToast": "עדכון הגדרת האתחול נכשל. ודא של-Kudu יש הרשאה ליצור משימות מתוזמנות.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

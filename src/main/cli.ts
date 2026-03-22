@@ -1069,7 +1069,7 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
           hasMore = next.nextPageUrl !== null
           page++
         }
-        cliOut(ctx, { vulnerabilities: allVulns, summary: firstPage.summary, total: firstPage.total })
+        cliOut(ctx, { vulnerabilities: allVulns, summary: firstPage.summary, total: firstPage.total, librarySize: firstPage.librarySize })
       } else {
         const s = firstPage.summary
         cliLog(ctx, `  Total: ${s.critical + s.high + s.medium + s.low}  Critical: ${s.critical}  High: ${s.high}  Medium: ${s.medium}  Low: ${s.low}`)

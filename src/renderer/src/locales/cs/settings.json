@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domén, {{ips}} IP adres, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Nenačteno",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Vzdálené napájení",
   "cloudRemotePowerDesc": "Povolit cloudu vypnout nebo restartovat toto zařízení",
@@ -119,5 +117,7 @@
   "retry": "Zkusit znovu",
   "github": "GitHub",
   "reportBug": "Nahlásit chybu",
-  "startupSettingFailedToast": "Nastavení spouštění se nepodařilo aktualizovat. Ujistěte se, že má Kudu oprávnění k vytváření naplánovaných úloh."
+  "startupSettingFailedToast": "Nastavení spouštění se nepodařilo aktualizovat. Ujistěte se, že má Kudu oprávnění k vytváření naplánovaných úloh.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

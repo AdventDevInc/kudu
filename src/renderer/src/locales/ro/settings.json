@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domenii, {{ips}} IP-uri, {{cidrs}} CIDR-uri)",
   "cloudThreatListNotLoaded": "Neîncărcată",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Control alimentare la distanță",
   "cloudRemotePowerDesc": "Permiteți cloud-ului să oprească sau să repornească acest dispozitiv",
@@ -119,5 +117,7 @@
   "retry": "Încercați din nou",
   "github": "GitHub",
   "reportBug": "Raportați o eroare",
-  "startupSettingFailedToast": "Actualizarea setării de pornire a eșuat. Asigurați-vă că Kudu are permisiunea de a crea activități programate."
+  "startupSettingFailedToast": "Actualizarea setării de pornire a eșuat. Asigurați-vă că Kudu are permisiunea de a crea activități programate.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

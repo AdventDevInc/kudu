@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "(도메인 {{domains}}개, IP {{ips}}개, CIDR {{cidrs}}개)",
   "cloudThreatListNotLoaded": "로드되지 않음",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "원격 전원 제어",
   "cloudRemotePowerDesc": "클라우드에서 이 장치를 종료하거나 다시 시작할 수 있도록 허용합니다",
@@ -119,5 +117,7 @@
   "retry": "다시 시도",
   "github": "GitHub",
   "reportBug": "버그 신고",
-  "startupSettingFailedToast": "시작 설정을 업데이트하지 못했습니다. Kudu에 예약된 작업을 만들 수 있는 권한이 있는지 확인하세요."
+  "startupSettingFailedToast": "시작 설정을 업데이트하지 못했습니다. Kudu에 예약된 작업을 만들 수 있는 권한이 있는지 확인하세요.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

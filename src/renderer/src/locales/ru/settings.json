@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} доменов, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Не загружено",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Удалённое управление питанием",
   "cloudRemotePowerDesc": "Разрешить облаку выключать или перезапускать это устройство",
@@ -119,5 +117,7 @@
   "retry": "Повторить",
   "github": "GitHub",
   "reportBug": "Сообщить об ошибке",
-  "startupSettingFailedToast": "Не удалось обновить параметр автозапуска. Убедитесь, что у Kudu есть разрешение на создание запланированных задач."
+  "startupSettingFailedToast": "Не удалось обновить параметр автозапуска. Убедитесь, что у Kudu есть разрешение на создание запланированных задач.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

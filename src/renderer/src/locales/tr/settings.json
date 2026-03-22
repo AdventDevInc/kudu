@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} alan adı, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Yüklenmedi",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Uzaktan güç denetimi",
   "cloudRemotePowerDesc": "Cloud'un bu cihazı kapatmasına veya yeniden başlatmasına izin ver",
@@ -119,5 +117,7 @@
   "retry": "Yeniden Dene",
   "github": "GitHub",
   "reportBug": "Hata Bildir",
-  "startupSettingFailedToast": "Başlangıç ayarı güncellenemedi. Kudu'nun zamanlanmış görevler oluşturma iznine sahip olduğundan emin olun."
+  "startupSettingFailedToast": "Başlangıç ayarı güncellenemedi. Kudu'nun zamanlanmış görevler oluşturma iznine sahip olduğundan emin olun.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

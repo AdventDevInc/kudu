@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} miền, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Chưa tải",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Điều khiển nguồn từ xa",
   "cloudRemotePowerDesc": "Cho phép đám mây tắt máy hoặc khởi động lại thiết bị này",
@@ -119,5 +117,7 @@
   "retry": "Thử lại",
   "github": "GitHub",
   "reportBug": "Báo lỗi",
-  "startupSettingFailedToast": "Không thể cập nhật cài đặt khởi động. Hãy đảm bảo Kudu có quyền tạo tác vụ theo lịch."
+  "startupSettingFailedToast": "Không thể cập nhật cài đặt khởi động. Hãy đảm bảo Kudu có quyền tạo tác vụ theo lịch.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

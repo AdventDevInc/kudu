@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domener, {{ips}} IP-er, {{cidrs}} CIDR-er)",
   "cloudThreatListNotLoaded": "Ikke lastet inn",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Ekstern strømstyring",
   "cloudRemotePowerDesc": "Tillat at skyen slår av eller starter denne enheten på nytt",
@@ -119,5 +117,7 @@
   "retry": "Prøv igjen",
   "github": "GitHub",
   "reportBug": "Rapporter feil",
-  "startupSettingFailedToast": "Kunne ikke oppdatere oppstartsinnstillingen. Kontroller at Kudu har tillatelse til å opprette planlagte oppgaver."
+  "startupSettingFailedToast": "Kunne ikke oppdatere oppstartsinnstillingen. Kontroller at Kudu har tillatelse til å opprette planlagte oppgaver.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

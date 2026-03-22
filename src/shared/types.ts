@@ -835,6 +835,8 @@ export interface CvePageResult {
   summary: CveSummary
   total: number
   nextPageUrl: string | null
+  /** Total CVE entries tracked in the server database */
+  librarySize: number
 }
 
 // ─── Duplicate Finder ─────────────────────────────────────

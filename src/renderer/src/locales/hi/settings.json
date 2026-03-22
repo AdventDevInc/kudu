@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domains, {{ips}} IPs, {{cidrs}} CIDRs)",
   "cloudThreatListNotLoaded": "लोड नहीं हुई",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "दूरस्थ पावर नियंत्रण",
   "cloudRemotePowerDesc": "cloud को इस डिवाइस को shutdown या restart करने की अनुमति दें",
@@ -119,5 +117,7 @@
   "retry": "पुनः प्रयास करें",
   "github": "GitHub",
   "reportBug": "बग की रिपोर्ट करें",
-  "startupSettingFailedToast": "स्टार्टअप सेटिंग अपडेट करने में विफल। सुनिश्चित करें कि Kudu को scheduled tasks बनाने की अनुमति है।"
+  "startupSettingFailedToast": "स्टार्टअप सेटिंग अपडेट करने में विफल। सुनिश्चित करें कि Kudu को scheduled tasks बनाने की अनुमति है।",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

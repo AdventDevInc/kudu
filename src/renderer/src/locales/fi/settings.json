@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} verkkotunnusta, {{ips}} IP-osoitetta, {{cidrs}} CIDR-aluetta)",
   "cloudThreatListNotLoaded": "Ei ladattu",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Etävirranhallinta",
   "cloudRemotePowerDesc": "Salli pilven sammuttaa tai käynnistää tämä laite uudelleen",
@@ -119,5 +117,7 @@
   "retry": "Yritä uudelleen",
   "github": "GitHub",
   "reportBug": "Ilmoita virheestä",
-  "startupSettingFailedToast": "Käynnistysasetuksen päivittäminen epäonnistui. Varmista, että Kudulla on oikeus luoda ajoitettuja tehtäviä."
+  "startupSettingFailedToast": "Käynnistysasetuksen päivittäminen epäonnistui. Varmista, että Kudulla on oikeus luoda ajoitettuja tehtäviä.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

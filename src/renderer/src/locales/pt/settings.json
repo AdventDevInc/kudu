@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domínios, {{ips}} IPs, {{cidrs}} CIDRs)",
   "cloudThreatListNotLoaded": "Não carregada",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Controlo remoto de energia",
   "cloudRemotePowerDesc": "Permitir que a cloud desligue ou reinicie este dispositivo",
@@ -119,5 +117,7 @@
   "retry": "Tentar novamente",
   "github": "GitHub",
   "reportBug": "Reportar erro",
-  "startupSettingFailedToast": "Falha ao atualizar a definição de arranque. Certifique-se de que o Kudu tem permissão para criar tarefas agendadas."
+  "startupSettingFailedToast": "Falha ao atualizar a definição de arranque. Certifique-se de que o Kudu tem permissão para criar tarefas agendadas.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

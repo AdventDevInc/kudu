@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domain, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Belum dimuat",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Kontrol daya jarak jauh",
   "cloudRemotePowerDesc": "Izinkan cloud untuk mematikan atau memulai ulang perangkat ini",
@@ -119,5 +117,7 @@
   "retry": "Coba lagi",
   "github": "GitHub",
   "reportBug": "Laporkan Bug",
-  "startupSettingFailedToast": "Gagal memperbarui pengaturan startup. Pastikan Kudu memiliki izin untuk membuat tugas terjadwal."
+  "startupSettingFailedToast": "Gagal memperbarui pengaturan startup. Pastikan Kudu memiliki izin untuk membuat tugas terjadwal.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

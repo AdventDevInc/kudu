@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} domain, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Tidak dimuatkan",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "Kawalan kuasa jauh",
   "cloudRemotePowerDesc": "Benarkan awan mematikan atau memulakan semula peranti ini",
@@ -119,5 +117,7 @@
   "retry": "Cuba lagi",
   "github": "GitHub",
   "reportBug": "Laporkan Pepijat",
-  "startupSettingFailedToast": "Gagal mengemas kini tetapan permulaan. Pastikan Kudu mempunyai kebenaran untuk mencipta tugas berjadual."
+  "startupSettingFailedToast": "Gagal mengemas kini tetapan permulaan. Pastikan Kudu mempunyai kebenaran untuk mencipta tugas berjadual.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }

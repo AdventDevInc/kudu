@@ -65,9 +65,7 @@
   "cloudThreatListBreakdown": "({{domains}} نطاقات، {{ips}} عناوين IP، {{cidrs}} CIDRs)",
   "cloudThreatListNotLoaded": "غير محمّلة",
   "cloudCveMonitorLabel": "CVE scanner",
-  "cloudCveMonitorDesc": "Detect known vulnerabilities in installed software via NVD and OSV.dev",
-  "cloudCveTotal": "{{total}} vulnerabilities",
-  "cloudCveBreakdown": "({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveMonitorDesc": "Scan installed software for known security vulnerabilities",
   "cloudCveNotScanned": "Not scanned yet",
   "cloudRemotePowerLabel": "التحكم بالطاقة عن بُعد",
   "cloudRemotePowerDesc": "السماح للسحابة بإيقاف تشغيل هذا الجهاز أو إعادة تشغيله",
@@ -119,5 +117,7 @@
   "retry": "إعادة المحاولة",
   "github": "GitHub",
   "reportBug": "الإبلاغ عن خطأ",
-  "startupSettingFailedToast": "فشل تحديث إعداد بدء التشغيل. تأكد من أن Kudu لديه إذن لإنشاء مهام مجدولة."
+  "startupSettingFailedToast": "فشل تحديث إعداد بدء التشغيل. تأكد من أن Kudu لديه إذن لإنشاء مهام مجدولة.",
+  "cloudCveDescLoaded": "{{findings}} findings ({{critical}} critical, {{high}} high, {{medium}} medium, {{low}} low)",
+  "cloudCveLibrarySize": "{{count}} CVEs tracked"
 }
