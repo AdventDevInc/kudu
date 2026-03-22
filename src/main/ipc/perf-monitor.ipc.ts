@@ -1,6 +1,30 @@
 import { ipcMain } from 'electron'
+import os from 'os'
 import { IPC } from '../../shared/channels'
 import { PerfMonitorService } from '../services/perf-monitor'
+import type { PerfQuickStats } from '../../shared/types'
+
+// ── Lightweight CPU sampling for dashboard gauges ────────────
+// Uses Node.js os.cpus() which has near-zero cost and no
+// systeminformation dependency. Compares two samples to get %.
+let prevCpuTimes: { idle: number; total: number } | null = null
+
+function sampleCpu(): number {
+  const cpus = os.cpus()
+  let idle = 0, total = 0
+  for (const cpu of cpus) {
+    idle += cpu.times.idle
+    total += cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.idle + cpu.times.irq
+  }
+  if (!prevCpuTimes) {
+    prevCpuTimes = { idle, total }
+    return 0
+  }
+  const idleDiff = idle - prevCpuTimes.idle
+  const totalDiff = total - prevCpuTimes.total
+  prevCpuTimes = { idle, total }
+  return totalDiff > 0 ? Math.round((1 - idleDiff / totalDiff) * 100) : 0
+}
 
 // Critical Windows processes that must never be killed by the user.
 // Terminating these can cause a BSOD, logon failure, or system instability.
@@ -54,6 +78,19 @@ export function registerPerfMonitorIpc(getWindow: () => Electron.BrowserWindow |
       }
     })
   }
+
+  // Lightweight one-shot stats for dashboard gauges — no timers, no process list
+  ipcMain.handle(IPC.PERF_QUICK_STATS, (): PerfQuickStats => {
+    const totalMem = os.totalmem()
+    const freeMem = os.freemem()
+    const usedMem = totalMem - freeMem
+    return {
+      cpuPercent: sampleCpu(),
+      memUsedBytes: usedMem,
+      memTotalBytes: totalMem,
+      memPercent: Math.round((usedMem / totalMem) * 100),
+    }
+  })
 
   ipcMain.handle(IPC.PERF_GET_SYSTEM_INFO, () => service.getSystemInfo())
 

@@ -396,6 +396,14 @@ export interface PerfSystemInfo {
   hostname: string
 }
 
+/** Lightweight stats for dashboard gauges — no systeminformation dependency */
+export interface PerfQuickStats {
+  cpuPercent: number
+  memUsedBytes: number
+  memTotalBytes: number
+  memPercent: number
+}
+
 export interface PerfSnapshot {
   timestamp: number
   cpu: { overall: number; perCore: number[] }

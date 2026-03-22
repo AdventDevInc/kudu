@@ -258,6 +258,7 @@ const api = {
   },
 
   // Performance Monitor
+  perfQuickStats: (): Promise<import('../shared/types').PerfQuickStats> => ipcRenderer.invoke(IPC.PERF_QUICK_STATS),
   perfGetSystemInfo: (): Promise<PerfSystemInfo> => ipcRenderer.invoke(IPC.PERF_GET_SYSTEM_INFO),
   perfStartMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_START_MONITORING),
   perfStopMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_STOP_MONITORING),

@@ -18,9 +18,7 @@ import {
   Server,
   Gamepad2,
   BarChart3,
-  ArrowUpDown,
-  MemoryStick,
-  Activity
+  MemoryStick
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -37,7 +35,7 @@ import { useUpdaterStore } from '@/stores/updater-store'
 import { useServiceStore } from '@/stores/service-store'
 import { useStartupStore } from '@/stores/startup-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
-import type { DriveInfo, ActivityEntry, ScanResult, CleanResult, PerfSnapshot } from '@shared/types'
+import type { DriveInfo, ScanResult, CleanResult, PerfQuickStats } from '@shared/types'
 import { CleanerType } from '@shared/enums'
 import { usePlatform } from '@/hooks/usePlatform'
 
@@ -98,22 +96,24 @@ export function DashboardPage() {
   const [showFullConfirm, setShowFullConfirm] = useState(false)
   const [stepProgress, setStepProgress] = useState({ current: 0, total: 0 })
 
-  // ── Live system metrics ────────────────────────────────────
-  const [perf, setPerf] = useState<PerfSnapshot | null>(null)
+  // ── Lightweight system metrics (no heavy process polling) ──
+  const [perf, setPerf] = useState<PerfQuickStats | null>(null)
 
   useEffect(() => {
-    let cleanup: (() => void) | null = null
-
-    const start = async () => {
-      cleanup = window.kudu?.onPerfSnapshot?.((data) => setPerf(data)) ?? null
-      try { await window.kudu?.perfStartMonitoring?.() } catch { /* best effort */ }
+    let cancelled = false
+    // Initial sample seeds the CPU diff; first result will read 0%
+    window.kudu?.perfQuickStats?.().catch(() => {})
+    const poll = async () => {
+      try {
+        const data = await window.kudu?.perfQuickStats?.()
+        if (!cancelled && data) setPerf(data)
+      } catch { /* best effort */ }
     }
-    start()
-
-    return () => {
-      cleanup?.()
-      window.kudu?.perfStopMonitoring?.().catch(() => {})
-    }
+    // Poll every 3s — uses only os.cpus()/os.freemem(), near-zero cost
+    const iv = setInterval(poll, 3000)
+    // First real read after 1s (gives CPU diff time to accumulate)
+    const initial = setTimeout(poll, 1000)
+    return () => { cancelled = true; clearInterval(iv); clearTimeout(initial) }
   }, [])
 
   // ── Game Mode elapsed timer ────────────────────────────────
@@ -127,11 +127,11 @@ export function DashboardPage() {
     return () => clearInterval(iv)
   }, [gameModeActive, gameModeActivatedAt])
 
-  useEffect(() => {
-    window.kudu?.diskDrives?.()
-      .then(setDrives)
-      .catch((err) => console.error('Failed to load drives:', err))
+  const refreshDrives = useCallback(() => {
+    window.kudu?.diskDrives?.().then(setDrives).catch(() => {})
   }, [])
+
+  useEffect(() => { refreshDrives() }, [refreshDrives])
 
   // ── Health score ───────────────────────────────────────────
 
@@ -338,6 +338,7 @@ export function DashboardPage() {
     setResult(oneClickResult)
     setPhase('done')
     setPhaseLabel('')
+    refreshDrives()
   }, [phase, runCleaners, runRegistry, historyStore, recomputeStats, features])
 
   const handleFullClean = useCallback(async () => {
@@ -394,16 +395,16 @@ export function DashboardPage() {
     setResult(oneClickResult)
     setPhase('done')
     setPhaseLabel('')
+    refreshDrives()
   }, [phase, runCleaners, runRegistry, runDrivers, runMalwareScan, runPrivacyCheck, runStartupCheck, runSoftwareUpdateCheck, historyStore, recomputeStats, features])
 
   const isRunning = phase === 'scanning' || phase === 'cleaning'
 
   // ── Helpers ────────────────────────────────────────────────
 
-  const cpuPct = perf?.cpu.overall ?? 0
-  const ramPct = perf?.memory.percent ?? 0
+  const cpuPct = perf?.cpuPercent ?? 0
+  const ramPct = perf?.memPercent ?? 0
   const diskPct = drives.length > 0 ? Math.round(Math.max(...drives.map((d) => (d.usedSpace / d.totalSize) * 100))) : 0
-  const netSpeed = perf ? (perf.network.rxBytesPerSec + perf.network.txBytesPerSec) : 0
 
   function formatGmElapsed(ms: number): string {
     const s = Math.floor(ms / 1000)
@@ -423,9 +424,9 @@ export function DashboardPage() {
         {/* ── System Gauges Row ────────────────────────── */}
         <div className="grid grid-cols-4 gap-3">
           <MiniGauge icon={Cpu} label={t('gaugeCpu')} percent={Math.round(cpuPct)} detail={`${Math.round(cpuPct)}%`} />
-          <MiniGauge icon={MemoryStick} label={t('gaugeRam')} percent={Math.round(ramPct)} detail={perf ? `${formatBytes(perf.memory.usedBytes)} / ${formatBytes(perf.memory.totalBytes)}` : '—'} />
-          <MiniGauge icon={HardDrive} label={t('gaugeDisk')} percent={diskPct} detail={`${diskPct}%`} />
-          <MiniGauge icon={Activity} label={t('gaugeNetwork')} percent={Math.min(100, Math.round(netSpeed / 1048576 * 10))} detail={netSpeed > 0 ? `${(netSpeed / 1048576).toFixed(1)} MB/s` : t('gaugeNetworkIdle')} />
+          <MiniGauge icon={MemoryStick} label={t('gaugeRam')} percent={Math.round(ramPct)} detail={perf ? `${formatBytes(perf.memUsedBytes)} / ${formatBytes(perf.memTotalBytes)}` : '—'} />
+          <MiniGauge icon={HardDrive} label={t('gaugeDisk')} percent={diskPct} detail={`${diskPct}% ${t('gaugeDiskUsed')}`} />
+          <MiniGauge icon={BarChart3} label={t('gaugeScans')} percent={Math.min(100, stats.totalScans * 10)} detail={`${stats.totalScans} ${t('gaugeScansRun')}`} />
         </div>
 
         {/* ── Hero Row: Health + Game Mode ─────────────── */}

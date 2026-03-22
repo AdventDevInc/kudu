@@ -129,6 +129,7 @@ export const IPC = {
   ONBOARDING_SET: 'onboarding:set',
 
   // Performance Monitor
+  PERF_QUICK_STATS: 'perf:quick-stats',
   PERF_GET_SYSTEM_INFO: 'perf:system-info',
   PERF_START_MONITORING: 'perf:start',
   PERF_STOP_MONITORING: 'perf:stop',
