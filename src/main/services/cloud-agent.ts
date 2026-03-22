@@ -1342,7 +1342,6 @@ class CloudAgentService {
     'privacy-scan', 'debloater-scan', 'service-scan', 'registry-scan',
     'malware-quarantine', // quarantine is read-like (moves to vault)
     'get-threat-status',
-    'cve-scan',
   ])
 
   private async executeCommand(cmd: CloudCommand): Promise<void> {

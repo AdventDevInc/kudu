@@ -1055,16 +1055,22 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
       cliOut(ctx, ctx.json ? { error: 'No cloud API key configured' } : 'No cloud API key configured. Link via Settings → Cloud.')
       return ExitCode.GENERAL_ERROR
     }
-    // Start cloud agent (CLI mode doesn't auto-start it)
-    if (cloudAgent.getStatus().status === 'dormant') {
-      cliLog(ctx, 'Connecting to cloud...')
+    // Start cloud agent (CLI mode doesn't auto-start it) and wait for subscription
+    if (cloudAgent.getStatus().status !== 'connected') {
+      if (!ctx.json) cliLog(ctx, 'Connecting to cloud...')
       await cloudAgent.start()
+      // start() returns before the Pusher subscription completes — poll for connected
+      const deadline = Date.now() + 15_000
+      while (cloudAgent.getStatus().status !== 'connected' && Date.now() < deadline) {
+        if (cloudAgent.getStatus().status === 'error' || cloudAgent.getStatus().status === 'dormant') break
+        await new Promise((r) => setTimeout(r, 250))
+      }
     }
     if (cloudAgent.getStatus().status !== 'connected') {
       cliOut(ctx, ctx.json ? { error: 'Cloud agent failed to connect' } : 'Cloud agent failed to connect. Check your API key and network.')
       return ExitCode.GENERAL_ERROR
     }
-    cliLog(ctx, 'Fetching vulnerabilities...')
+    if (!ctx.json) cliLog(ctx, 'Fetching vulnerabilities...')
     try {
       const firstPage = await cloudAgent.getVulnerabilities()
       if (ctx.json) {
