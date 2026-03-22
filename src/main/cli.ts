@@ -1050,12 +1050,21 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
 
   if (sub === 'list') {
     const { cloudAgent } = await import('./services/cloud-agent')
-    const status = cloudAgent.getStatus()
-    if (status.status !== 'connected') {
-      cliOut(ctx, ctx.json ? { error: 'Cloud agent not connected' } : 'Cloud agent is not connected. Link via Settings → Cloud.')
+    const { getSettings } = await import('./services/settings-store')
+    if (!getSettings().cloud.apiKey) {
+      cliOut(ctx, ctx.json ? { error: 'No cloud API key configured' } : 'No cloud API key configured. Link via Settings → Cloud.')
       return ExitCode.GENERAL_ERROR
     }
-    cliLog(ctx, 'Fetching CVE vulnerabilities...')
+    // Start cloud agent (CLI mode doesn't auto-start it)
+    if (cloudAgent.getStatus().status === 'dormant') {
+      cliLog(ctx, 'Connecting to cloud...')
+      await cloudAgent.start()
+    }
+    if (cloudAgent.getStatus().status !== 'connected') {
+      cliOut(ctx, ctx.json ? { error: 'Cloud agent failed to connect' } : 'Cloud agent failed to connect. Check your API key and network.')
+      return ExitCode.GENERAL_ERROR
+    }
+    cliLog(ctx, 'Fetching vulnerabilities...')
     try {
       const firstPage = await cloudAgent.getVulnerabilities()
       if (ctx.json) {

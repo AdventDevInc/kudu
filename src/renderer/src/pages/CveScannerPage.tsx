@@ -60,17 +60,25 @@ export function CveScannerPage() {
 
   const [searchInput, setSearchInput] = useState(searchQuery)
 
-  // Auto-fetch on mount if linked
+  // Auto-fetch on mount if linked, with retry for cold-start race
+  // (cloud agent may still be connecting when the page mounts)
   useEffect(() => {
-    if (isLinked && status === 'idle') {
+    if (!isLinked) return
+    if (status === 'idle') {
       fetchVulns()
+      return
     }
-  }, [isLinked, status, fetchVulns])
+    // If first fetch failed with "not connected", retry after agent has time to connect
+    if (status === 'done' && error?.includes('not connected')) {
+      const timer = setTimeout(() => fetchVulns(), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isLinked, status, error, fetchVulns])
 
-  // Show toast on error
+  // Show toast on error (skip "not connected" — we retry that silently)
   useEffect(() => {
-    if (error) {
-      toast.error(error.includes('not connected') ? t('toast.fetchFailedNotConnected') : t('toast.fetchFailed'))
+    if (error && !error.includes('not connected')) {
+      toast.error(t('toast.fetchFailed'))
     }
   }, [error, t])
 
