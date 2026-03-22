@@ -183,6 +183,10 @@ class CloudAgentService {
     const path = `/devices/${encodeURIComponent(this.deviceId)}/vulnerabilities${qs ? `?${qs}` : ''}`
     const raw = (await this.getApi(path)) as Record<string, unknown>
 
+    // Debug: log the top-level keys and library_size value to trace missing data
+    cloudLog('DEBUG', 'CVE response keys', Object.keys(raw).join(', '))
+    cloudLog('DEBUG', 'CVE library_size raw value', JSON.stringify({ library_size: raw.library_size, type: typeof raw.library_size }))
+
     // Validate and sanitize each vulnerability row from the API
     const validSeverities = new Set(['critical', 'high', 'medium', 'low', 'none'])
     const rawItems = Array.isArray(raw.data) ? raw.data : []
