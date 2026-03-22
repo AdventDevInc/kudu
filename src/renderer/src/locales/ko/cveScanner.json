@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "설치된 소프트웨어에서 감지된 알려진 취약점을 확인합니다",
+  "loading": "취약점을 불러오는 중...",
+  "refetchButton": "새로 고침",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent 필요",
+    "description": "CVE 스캔을 사용하려면 Cloud Agent가 연결되어 있어야 합니다. 설정 → Cloud로 이동하여 장치를 연결하세요."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent가 연결되지 않음",
+    "description": "현재 Cloud Agent가 연결되어 있지 않습니다. 설정 → Cloud에서 연결 상태를 확인하세요."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "감지된 취약점 없음",
+    "description": "설치된 소프트웨어에서 알려진 CVE가 발견되지 않았습니다. 시스템이 안전한 상태로 보입니다!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "심각",
+    "high": "높음",
+    "medium": "보통",
+    "low": "낮음",
+    "none": "없음"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "전체",
+    "critical": "심각",
+    "high": "높음",
+    "medium": "보통",
+    "low": "낮음"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "전체",
+    "searchPlaceholder": "앱 이름 또는 CVE ID로 검색...",
+    "noResults": "현재 필터와 일치하는 취약점이 없습니다"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "취약점을 불러오지 못했습니다",
+    "description": "서버에서 취약점 데이터를 가져올 수 없습니다. 새로 고침을 시도하거나 Cloud 연결을 확인하세요."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "설치됨: {{version}}",
+    "fixAvailable": "수정 버전: {{version}}",
+    "noFix": "사용 가능한 수정 버전 없음",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "최초 감지: {{date}}",
+    "lastScanned": "마지막 스캔: {{date}}",
+    "updateViaSoftwareUpdater": "소프트웨어 업데이트 도구를 통해 업데이트"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "이전",
+    "next": "다음",
+    "page": "{{current}}페이지"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "취약점 데이터를 불러오지 못했습니다",
+    "fetchFailedNotConnected": "Cloud Agent가 연결되어 있지 않습니다"
   }
 }

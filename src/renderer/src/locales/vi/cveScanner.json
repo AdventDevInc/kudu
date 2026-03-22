@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Xem các lỗ hổng đã biết được phát hiện trong phần mềm đã cài đặt của bạn",
+  "loading": "Đang tải các lỗ hổng...",
+  "refetchButton": "Làm mới",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Yêu cầu Cloud Agent",
+    "description": "Quét CVE yêu cầu Cloud Agent phải được liên kết. Đi tới Cài đặt → Cloud để kết nối thiết bị của bạn."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent chưa kết nối",
+    "description": "Cloud Agent hiện chưa được kết nối. Hãy kiểm tra kết nối của bạn trong Cài đặt → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Không phát hiện lỗ hổng",
+    "description": "Không tìm thấy CVE đã biết nào trong phần mềm đã cài đặt của bạn. Hệ thống của bạn có vẻ an toàn!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Nghiêm trọng",
+    "high": "Cao",
+    "medium": "Trung bình",
+    "low": "Thấp",
+    "none": "Không có"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Tổng cộng",
+    "critical": "Nghiêm trọng",
+    "high": "Cao",
+    "medium": "Trung bình",
+    "low": "Thấp"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Tất cả",
+    "searchPlaceholder": "Tìm theo tên ứng dụng hoặc ID CVE...",
+    "noResults": "Không có lỗ hổng nào khớp với bộ lọc hiện tại của bạn"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Không thể tải lỗ hổng",
+    "description": "Không thể lấy dữ liệu lỗ hổng từ máy chủ. Hãy thử làm mới hoặc kiểm tra kết nối cloud của bạn."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Đã cài đặt: {{version}}",
+    "fixAvailable": "Bản vá: {{version}}",
+    "noFix": "Không có bản vá",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Phát hiện lần đầu: {{date}}",
+    "lastScanned": "Quét lần cuối: {{date}}",
+    "updateViaSoftwareUpdater": "Cập nhật qua Trình cập nhật phần mềm"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Trước",
+    "next": "Tiếp",
+    "page": "Trang {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Không thể tải dữ liệu lỗ hổng",
+    "fetchFailedNotConnected": "Cloud Agent chưa được kết nối"
   }
 }

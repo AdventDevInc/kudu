@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Näytä asennetuista ohjelmistoista havaitut tunnetut haavoittuvuudet",
+  "loading": "Ladataan haavoittuvuuksia...",
+  "refetchButton": "Päivitä",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent vaaditaan",
+    "description": "CVE-skannaus edellyttää, että Cloud Agent on liitetty. Siirry kohtaan Asetukset → Cloud yhdistääksesi laitteesi."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent ei ole yhdistetty",
+    "description": "Cloud Agent ei ole tällä hetkellä yhdistetty. Tarkista yhteys kohdasta Asetukset → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Haavoittuvuuksia ei havaittu",
+    "description": "Asennetuista ohjelmistoistasi ei löytynyt tunnettuja CVE-haavoittuvuuksia. Järjestelmäsi näyttää turvalliselta!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Kriittinen",
+    "high": "Korkea",
+    "medium": "Keskitaso",
+    "low": "Matala",
+    "none": "Ei mitään"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Yhteensä",
+    "critical": "Kriittinen",
+    "high": "Korkea",
+    "medium": "Keskitaso",
+    "low": "Matala"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Kaikki",
+    "searchPlaceholder": "Hae sovelluksen nimellä tai CVE-tunnuksella...",
+    "noResults": "Nykyisillä suodattimilla ei löytynyt haavoittuvuuksia"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Haavoittuvuuksien lataaminen epäonnistui",
+    "description": "Haavoittuvuustietoja ei voitu noutaa palvelimelta. Yritä päivittää tai tarkista pilviyhteytesi."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Asennettu: {{version}}",
+    "fixAvailable": "Korjaus: {{version}}",
+    "noFix": "Korjausta ei ole saatavilla",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Havaittu ensimmäisen kerran: {{date}}",
+    "lastScanned": "Viimeksi skannattu: {{date}}",
+    "updateViaSoftwareUpdater": "Päivitä Software Updaterin kautta"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "page": "Sivu {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Haavoittuvuustietojen lataaminen epäonnistui",
+    "fetchFailedNotConnected": "Cloud Agent ei ole yhdistetty"
   }
 }

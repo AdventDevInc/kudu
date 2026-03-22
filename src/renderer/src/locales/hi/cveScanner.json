@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "अपने इंस्टॉल किए गए सॉफ़्टवेयर में पाई गई ज्ञात कमजोरियाँ देखें",
+  "loading": "कमजोरियाँ लोड की जा रही हैं...",
+  "refetchButton": "रीफ़्रेश करें",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent आवश्यक है",
+    "description": "CVE स्कैनिंग के लिए Cloud Agent का लिंक होना आवश्यक है। अपने डिवाइस को कनेक्ट करने के लिए सेटिंग्स → Cloud पर जाएँ।"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent कनेक्ट नहीं है",
+    "description": "Cloud Agent वर्तमान में कनेक्ट नहीं है। सेटिंग्स → Cloud में अपना कनेक्शन जाँचें।"
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "कोई कमजोरी नहीं मिली",
+    "description": "आपके इंस्टॉल किए गए सॉफ़्टवेयर में कोई ज्ञात CVE नहीं मिला। आपका सिस्टम सुरक्षित प्रतीत होता है!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "गंभीर",
+    "high": "उच्च",
+    "medium": "मध्यम",
+    "low": "निम्न",
+    "none": "कोई नहीं"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "कुल",
+    "critical": "गंभीर",
+    "high": "उच्च",
+    "medium": "मध्यम",
+    "low": "निम्न"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "सभी",
+    "searchPlaceholder": "ऐप नाम या CVE ID से खोजें...",
+    "noResults": "आपके वर्तमान फ़िल्टर से मेल खाने वाली कोई कमजोरी नहीं है"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "कमजोरियाँ लोड नहीं हो सकीं",
+    "description": "सर्वर से कमजोरी डेटा प्राप्त नहीं किया जा सका। रीफ़्रेश करने का प्रयास करें या अपना cloud कनेक्शन जाँचें।"
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "इंस्टॉल किया गया: {{version}}",
+    "fixAvailable": "समाधान: {{version}}",
+    "noFix": "कोई समाधान उपलब्ध नहीं है",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "पहली बार पता चला: {{date}}",
+    "lastScanned": "अंतिम स्कैन: {{date}}",
+    "updateViaSoftwareUpdater": "Software Updater के माध्यम से अपडेट करें"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "पिछला",
+    "next": "अगला",
+    "page": "पृष्ठ {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "कमजोरी डेटा लोड नहीं हो सका",
+    "fetchFailedNotConnected": "Cloud Agent कनेक्ट नहीं है"
   }
 }

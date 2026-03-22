@@ -6,7 +6,7 @@
   "malwareScanner": "惡意軟體掃描器",
   "threatMonitor": "威脅監控",
   "systemHardening": "系統強化",
-  "cveScanner": "CVE Scanner",
+  "cveScanner": "Vulnerabilities",
   "maintainHeading": "維護",
   "cleaner": "清理工具",
   "registry": "登錄",
@@ -18,7 +18,7 @@
   "toolsHeading": "工具",
   "performance": "效能",
   "diskAnalyzer": "磁碟分析器",
-  "duplicateFinder": "重複檔案搜尋器",
+  "duplicateFinder": "重複檔案尋找器",
   "history": "歷程記錄",
   "settings": "設定",
   "gameMode": "遊戲模式"

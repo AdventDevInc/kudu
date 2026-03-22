@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Переглядайте відомі вразливості, виявлені у встановленому програмному забезпеченні",
+  "loading": "Завантаження вразливостей...",
+  "refetchButton": "Оновити",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Потрібен Cloud Agent",
+    "description": "Для сканування CVE потрібно прив’язати Cloud Agent. Перейдіть у Налаштування → Cloud, щоб підключити пристрій."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent не підключено",
+    "description": "Cloud Agent наразі не підключено. Перевірте підключення в Налаштування → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Вразливостей не виявлено",
+    "description": "У встановленому програмному забезпеченні не знайдено відомих CVE. Ваша система виглядає захищеною!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Критичний",
+    "high": "Високий",
+    "medium": "Середній",
+    "low": "Низький",
+    "none": "Немає"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Усього",
+    "critical": "Критичний",
+    "high": "Високий",
+    "medium": "Середній",
+    "low": "Низький"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Усі",
+    "searchPlaceholder": "Пошук за назвою програми або ID CVE...",
+    "noResults": "Жодна вразливість не відповідає поточним фільтрам"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Не вдалося завантажити вразливості",
+    "description": "Не вдалося отримати дані про вразливості із сервера. Спробуйте оновити або перевірте підключення до хмари."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Встановлено: {{version}}",
+    "fixAvailable": "Виправлення: {{version}}",
+    "noFix": "Виправлення недоступне",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Вперше виявлено: {{date}}",
+    "lastScanned": "Востаннє скановано: {{date}}",
+    "updateViaSoftwareUpdater": "Оновити через Засіб оновлення програм"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Попередня",
+    "next": "Наступна",
+    "page": "Сторінка {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Не вдалося завантажити дані про вразливості",
+    "fetchFailedNotConnected": "Cloud Agent не підключено"
   }
 }

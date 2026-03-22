@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "查看在已安装软件中检测到的已知漏洞",
+  "loading": "正在加载漏洞...",
+  "refetchButton": "刷新",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "需要 Cloud Agent",
+    "description": "CVE 扫描需要关联 Cloud Agent。前往“设置”→“云”连接您的设备。"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent 未连接",
+    "description": "Cloud Agent 当前未连接。请在“设置”→“云”中检查您的连接。"
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "未检测到漏洞",
+    "description": "在您已安装的软件中未发现已知 CVE。您的系统看起来很安全！"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "严重",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "none": "无"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "总计",
+    "critical": "严重",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "全部",
+    "searchPlaceholder": "按应用名称或 CVE ID 搜索...",
+    "noResults": "没有与当前筛选条件匹配的漏洞"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "加载漏洞失败",
+    "description": "无法从服务器获取漏洞数据。请尝试刷新，或检查您的云连接。"
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "已安装：{{version}}",
+    "fixAvailable": "修复版本：{{version}}",
+    "noFix": "暂无修复方案",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "首次检测到：{{date}}",
+    "lastScanned": "上次扫描：{{date}}",
+    "updateViaSoftwareUpdater": "通过软件更新程序更新"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "上一页",
+    "next": "下一页",
+    "page": "第 {{current}} 页"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "加载漏洞数据失败",
+    "fetchFailedNotConnected": "Cloud Agent 未连接"
   }
 }

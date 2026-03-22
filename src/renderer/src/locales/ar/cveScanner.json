@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "اعرض الثغرات الأمنية المعروفة المكتشفة في البرامج المثبتة لديك",
+  "loading": "جارٍ تحميل الثغرات الأمنية...",
+  "refetchButton": "تحديث",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "يلزم Cloud Agent",
+    "description": "يتطلب فحص CVE ربط Cloud Agent. انتقل إلى الإعدادات ← السحابة لتوصيل جهازك."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent غير متصل",
+    "description": "Cloud Agent غير متصل حاليًا. تحقق من اتصالك في الإعدادات ← السحابة."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "لم يتم اكتشاف أي ثغرات أمنية",
+    "description": "لم يتم العثور على أي CVEs معروفة في البرامج المثبتة لديك. يبدو أن نظامك آمن!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "حرجة",
+    "high": "عالية",
+    "medium": "متوسطة",
+    "low": "منخفضة",
+    "none": "لا يوجد"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "الإجمالي",
+    "critical": "حرجة",
+    "high": "عالية",
+    "medium": "متوسطة",
+    "low": "منخفضة"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "الكل",
+    "searchPlaceholder": "ابحث باسم التطبيق أو معرّف CVE...",
+    "noResults": "لا توجد ثغرات أمنية تطابق عوامل التصفية الحالية"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "فشل تحميل الثغرات الأمنية",
+    "description": "تعذر استرداد بيانات الثغرات الأمنية من الخادم. حاول التحديث أو تحقق من اتصالك السحابي."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "المثبت: {{version}}",
+    "fixAvailable": "الإصلاح: {{version}}",
+    "noFix": "لا يتوفر إصلاح",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "أول اكتشاف: {{date}}",
+    "lastScanned": "آخر فحص: {{date}}",
+    "updateViaSoftwareUpdater": "حدّث عبر محدّث البرامج"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "السابق",
+    "next": "التالي",
+    "page": "الصفحة {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "فشل تحميل بيانات الثغرات الأمنية",
+    "fetchFailedNotConnected": "Cloud Agent غير متصل"
   }
 }

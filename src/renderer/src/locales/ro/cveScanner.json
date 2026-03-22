@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Vizualizați vulnerabilitățile cunoscute detectate în software-ul instalat",
+  "loading": "Se încarcă vulnerabilitățile...",
+  "refetchButton": "Reîmprospătare",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent necesar",
+    "description": "Scanarea CVE necesită ca Cloud Agent să fie asociat. Accesați Setări → Cloud pentru a vă conecta dispozitivul."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent nu este conectat",
+    "description": "Cloud Agent nu este conectat în prezent. Verificați conexiunea în Setări → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Nu au fost detectate vulnerabilități",
+    "description": "Nu au fost găsite CVE-uri cunoscute în software-ul instalat. Sistemul dvs. pare securizat!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Critică",
+    "high": "Ridicată",
+    "medium": "Medie",
+    "low": "Scăzută",
+    "none": "Niciuna"
   },
   "summary": {
     "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "critical": "Critică",
+    "high": "Ridicată",
+    "medium": "Medie",
+    "low": "Scăzută"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Toate",
+    "searchPlaceholder": "Căutați după numele aplicației sau ID-ul CVE...",
+    "noResults": "Nicio vulnerabilitate nu corespunde filtrelor curente"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Încărcarea vulnerabilităților a eșuat",
+    "description": "Nu s-au putut prelua datele despre vulnerabilități de pe server. Încercați să reîmprospătați sau verificați conexiunea cloud."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Instalat: {{version}}",
+    "fixAvailable": "Remediere: {{version}}",
+    "noFix": "Nicio remediere disponibilă",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Detectată prima dată: {{date}}",
+    "lastScanned": "Ultima scanare: {{date}}",
+    "updateViaSoftwareUpdater": "Actualizați prin Software Updater"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Anterior",
+    "next": "Următor",
+    "page": "Pagina {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Încărcarea datelor despre vulnerabilități a eșuat",
+    "fetchFailedNotConnected": "Cloud Agent nu este conectat"
   }
 }

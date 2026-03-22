@@ -1,5 +1,5 @@
 {
-  "pageTitle": "CVE Scanner",
+  "pageTitle": "Vulnerabilities",
   "pageDescription": "View known vulnerabilities detected in your installed software",
   "loading": "Loading vulnerabilities...",
   "refetchButton": "Refresh",

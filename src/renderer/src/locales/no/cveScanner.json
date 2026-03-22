@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Vis kjente sårbarheter som er oppdaget i den installerte programvaren din",
+  "loading": "Laster inn sårbarheter...",
+  "refetchButton": "Oppdater",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent kreves",
+    "description": "CVE-skanning krever at Cloud Agent er koblet til. Gå til Innstillinger → Cloud for å koble til enheten din."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent er ikke tilkoblet",
+    "description": "Cloud Agent er ikke tilkoblet for øyeblikket. Kontroller tilkoblingen i Innstillinger → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Ingen sårbarheter oppdaget",
+    "description": "Ingen kjente CVE-er ble funnet i den installerte programvaren din. Systemet ditt ser sikkert ut!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Kritisk",
+    "high": "Høy",
+    "medium": "Middels",
+    "low": "Lav",
+    "none": "Ingen"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Totalt",
+    "critical": "Kritisk",
+    "high": "Høy",
+    "medium": "Middels",
+    "low": "Lav"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Alle",
+    "searchPlaceholder": "Søk etter appnavn eller CVE-ID...",
+    "noResults": "Ingen sårbarheter samsvarer med de gjeldende filtrene"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Kunne ikke laste inn sårbarheter",
+    "description": "Kunne ikke hente sårbarhetsdata fra serveren. Prøv å oppdatere eller kontroller cloud-tilkoblingen."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Installert: {{version}}",
+    "fixAvailable": "Løsning: {{version}}",
+    "noFix": "Ingen løsning tilgjengelig",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Først oppdaget: {{date}}",
+    "lastScanned": "Sist skannet: {{date}}",
+    "updateViaSoftwareUpdater": "Oppdater via programvareoppdatering"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Forrige",
+    "next": "Neste",
+    "page": "Side {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Kunne ikke laste inn sårbarhetsdata",
+    "fetchFailedNotConnected": "Cloud Agent er ikke tilkoblet"
   }
 }

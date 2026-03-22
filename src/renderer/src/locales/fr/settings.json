@@ -64,7 +64,7 @@
   "cloudThreatListRules": "{{totalRules}} règles",
   "cloudThreatListBreakdown": "({{domains}} domaines, {{ips}} IP, {{cidrs}} CIDR)",
   "cloudThreatListNotLoaded": "Non chargée",
-  "cloudCveMonitorLabel": "Analyseur CVE",
+  "cloudCveMonitorLabel": "Vulnerabilities",
   "cloudCveMonitorDesc": "Analyser les logiciels installés à la recherche de vulnérabilités de sécurité connues",
   "cloudCveDescLoaded": "{{findings}} résultats ({{critical}} critiques, {{high}} élevées, {{medium}} moyennes, {{low}} faibles)",
   "cloudCveLibrarySize": "{{count}} CVE suivies",

@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Προβολή γνωστών ευπαθειών που εντοπίστηκαν στο εγκατεστημένο λογισμικό σας",
+  "loading": "Φόρτωση ευπαθειών...",
+  "refetchButton": "Ανανέωση",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Απαιτείται Cloud Agent",
+    "description": "Η σάρωση CVE απαιτεί να είναι συνδεδεμένος ο Cloud Agent. Μεταβείτε στις Ρυθμίσεις → Cloud για να συνδέσετε τη συσκευή σας."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Ο Cloud Agent δεν είναι συνδεδεμένος",
+    "description": "Ο Cloud Agent δεν είναι συνδεδεμένος αυτήν τη στιγμή. Ελέγξτε τη σύνδεσή σας στις Ρυθμίσεις → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Δεν εντοπίστηκαν ευπάθειες",
+    "description": "Δεν βρέθηκαν γνωστά CVE στο εγκατεστημένο λογισμικό σας. Το σύστημά σας φαίνεται ασφαλές!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Κρίσιμη",
+    "high": "Υψηλή",
+    "medium": "Μέτρια",
+    "low": "Χαμηλή",
+    "none": "Καμία"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Σύνολο",
+    "critical": "Κρίσιμη",
+    "high": "Υψηλή",
+    "medium": "Μέτρια",
+    "low": "Χαμηλή"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Όλα",
+    "searchPlaceholder": "Αναζήτηση με όνομα εφαρμογής ή αναγνωριστικό CVE...",
+    "noResults": "Καμία ευπάθεια δεν αντιστοιχεί στα τρέχοντα φίλτρα σας"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Αποτυχία φόρτωσης ευπαθειών",
+    "description": "Δεν ήταν δυνατή η ανάκτηση των δεδομένων ευπαθειών από τον διακομιστή. Δοκιμάστε να κάνετε ανανέωση ή ελέγξτε τη σύνδεσή σας στο cloud."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Εγκατεστημένη έκδοση: {{version}}",
+    "fixAvailable": "Διόρθωση: {{version}}",
+    "noFix": "Δεν υπάρχει διαθέσιμη διόρθωση",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Πρώτος εντοπισμός: {{date}}",
+    "lastScanned": "Τελευταία σάρωση: {{date}}",
+    "updateViaSoftwareUpdater": "Ενημέρωση μέσω του Software Updater"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Προηγούμενη",
+    "next": "Επόμενη",
+    "page": "Σελίδα {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Αποτυχία φόρτωσης δεδομένων ευπαθειών",
+    "fetchFailedNotConnected": "Ο Cloud Agent δεν είναι συνδεδεμένος"
   }
 }

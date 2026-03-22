@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Zobrazte známé zranitelnosti zjištěné v nainstalovaném softwaru",
+  "loading": "Načítání zranitelností...",
+  "refetchButton": "Obnovit",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Vyžadován Cloud Agent",
+    "description": "Skenování CVE vyžaduje propojený Cloud Agent. Přejděte do Nastavení → Cloud a připojte své zařízení."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent není připojen",
+    "description": "Cloud Agent momentálně není připojen. Zkontrolujte připojení v Nastavení → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Nebyly zjištěny žádné zranitelnosti",
+    "description": "V nainstalovaném softwaru nebyly nalezeny žádné známé CVE. Váš systém vypadá bezpečně!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Kritická",
+    "high": "Vysoká",
+    "medium": "Střední",
+    "low": "Nízká",
+    "none": "Žádná"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Celkem",
+    "critical": "Kritická",
+    "high": "Vysoká",
+    "medium": "Střední",
+    "low": "Nízká"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Vše",
+    "searchPlaceholder": "Hledat podle názvu aplikace nebo ID CVE...",
+    "noResults": "Žádné zranitelnosti neodpovídají aktuálním filtrům"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Nepodařilo se načíst zranitelnosti",
+    "description": "Nepodařilo se načíst data o zranitelnostech ze serveru. Zkuste je obnovit nebo zkontrolujte cloudové připojení."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Nainstalováno: {{version}}",
+    "fixAvailable": "Oprava: {{version}}",
+    "noFix": "Není k dispozici žádná oprava",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Poprvé zjištěno: {{date}}",
+    "lastScanned": "Naposledy skenováno: {{date}}",
+    "updateViaSoftwareUpdater": "Aktualizovat pomocí Aktualizace softwaru"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Předchozí",
+    "next": "Další",
+    "page": "Stránka {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Nepodařilo se načíst data o zranitelnostech",
+    "fetchFailedNotConnected": "Cloud Agent není připojen"
   }
 }

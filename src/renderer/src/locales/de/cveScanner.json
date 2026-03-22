@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Bekannte Schwachstellen anzeigen, die in Ihrer installierten Software erkannt wurden",
+  "loading": "Schwachstellen werden geladen...",
+  "refetchButton": "Aktualisieren",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent erforderlich",
+    "description": "Für den CVE-Scan muss der Cloud Agent verknüpft sein. Gehen Sie zu Einstellungen → Cloud, um Ihr Gerät zu verbinden."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent nicht verbunden",
+    "description": "Der Cloud Agent ist derzeit nicht verbunden. Überprüfen Sie Ihre Verbindung unter Einstellungen → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Keine Schwachstellen erkannt",
+    "description": "In Ihrer installierten Software wurden keine bekannten CVEs gefunden. Ihr System wirkt sicher!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Kritisch",
+    "high": "Hoch",
+    "medium": "Mittel",
+    "low": "Niedrig",
+    "none": "Keine"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "Gesamt",
+    "critical": "Kritisch",
+    "high": "Hoch",
+    "medium": "Mittel",
+    "low": "Niedrig"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Alle",
+    "searchPlaceholder": "Nach App-Name oder CVE-ID suchen...",
+    "noResults": "Keine Schwachstellen entsprechen Ihren aktuellen Filtern"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Schwachstellen konnten nicht geladen werden",
+    "description": "Die Schwachstellendaten konnten nicht vom Server abgerufen werden. Versuchen Sie es mit einer Aktualisierung oder überprüfen Sie Ihre Cloud-Verbindung."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Installiert: {{version}}",
+    "fixAvailable": "Behebung: {{version}}",
+    "noFix": "Keine Behebung verfügbar",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Zuerst erkannt: {{date}}",
+    "lastScanned": "Zuletzt gescannt: {{date}}",
+    "updateViaSoftwareUpdater": "Über Software-Updater aktualisieren"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Schwachstellendaten konnten nicht geladen werden",
+    "fetchFailedNotConnected": "Cloud Agent ist nicht verbunden"
   }
 }

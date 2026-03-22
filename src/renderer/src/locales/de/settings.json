@@ -64,7 +64,7 @@
   "cloudThreatListRules": "{{totalRules}} Regeln",
   "cloudThreatListBreakdown": "({{domains}} Domains, {{ips}} IPs, {{cidrs}} CIDRs)",
   "cloudThreatListNotLoaded": "Nicht geladen",
-  "cloudCveMonitorLabel": "CVE-Scanner",
+  "cloudCveMonitorLabel": "Vulnerabilities",
   "cloudCveMonitorDesc": "Installierte Software auf bekannte Sicherheitslücken prüfen",
   "cloudCveDescLoaded": "{{findings}} Treffer ({{critical}} kritisch, {{high}} hoch, {{medium}} mittel, {{low}} niedrig)",
   "cloudCveLibrarySize": "{{count}} CVEs erfasst",

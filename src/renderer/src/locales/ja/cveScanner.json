@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "インストール済みソフトウェアで検出された既知の脆弱性を表示します",
+  "loading": "脆弱性を読み込んでいます...",
+  "refetchButton": "更新",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent が必要です",
+    "description": "CVE スキャンを実行するには、Cloud Agent をリンクする必要があります。設定 → クラウド でデバイスを接続してください。"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent が接続されていません",
+    "description": "Cloud Agent は現在接続されていません。設定 → クラウド で接続を確認してください。"
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "脆弱性は検出されませんでした",
+    "description": "インストール済みソフトウェアから既知の CVE は見つかりませんでした。システムは安全な状態です。"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "重大",
+    "high": "高",
+    "medium": "中",
+    "low": "低",
+    "none": "なし"
   },
   "summary": {
-    "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "total": "合計",
+    "critical": "重大",
+    "high": "高",
+    "medium": "中",
+    "low": "低"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "すべて",
+    "searchPlaceholder": "アプリ名または CVE ID で検索...",
+    "noResults": "現在のフィルターに一致する脆弱性はありません"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "脆弱性の読み込みに失敗しました",
+    "description": "サーバーから脆弱性データを取得できませんでした。更新するか、クラウド接続を確認してください。"
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "インストール済み: {{version}}",
+    "fixAvailable": "修正: {{version}}",
+    "noFix": "利用可能な修正はありません",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "初回検出: {{date}}",
+    "lastScanned": "最終スキャン: {{date}}",
+    "updateViaSoftwareUpdater": "Software Updater から更新"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "前へ",
+    "next": "次へ",
+    "page": "{{current}} ページ"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "脆弱性データの読み込みに失敗しました",
+    "fetchFailedNotConnected": "Cloud Agent が接続されていません"
   }
 }

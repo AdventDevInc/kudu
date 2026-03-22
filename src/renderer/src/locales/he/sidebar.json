@@ -6,7 +6,7 @@
   "malwareScanner": "סורק נוזקות",
   "threatMonitor": "ניטור איומים",
   "systemHardening": "הקשחת המערכת",
-  "cveScanner": "CVE Scanner",
+  "cveScanner": "Vulnerabilities",
   "maintainHeading": "תחזוקה",
   "cleaner": "מנקה",
   "registry": "רישום",

@@ -1,59 +1,59 @@
 {
-  "pageTitle": "CVE Scanner",
-  "pageDescription": "View known vulnerabilities detected in your installed software",
-  "loading": "Loading vulnerabilities...",
-  "refetchButton": "Refresh",
+  "pageTitle": "Vulnerabilities",
+  "pageDescription": "Lihat kerentanan yang diketahui yang terdeteksi pada perangkat lunak terpasang Anda",
+  "loading": "Memuat kerentanan...",
+  "refetchButton": "Segarkan",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "title": "Cloud Agent Diperlukan",
+    "description": "Pemindaian CVE memerlukan Cloud Agent yang telah ditautkan. Buka Pengaturan → Cloud untuk menghubungkan perangkat Anda."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Not Connected",
-    "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+    "title": "Cloud Agent Tidak Terhubung",
+    "description": "Cloud Agent saat ini tidak terhubung. Periksa koneksi Anda di Pengaturan → Cloud."
   },
   "emptyState": {
-    "title": "No Vulnerabilities Detected",
-    "description": "No known CVEs were found in your installed software. Your system looks secure!"
+    "title": "Tidak Ada Kerentanan Terdeteksi",
+    "description": "Tidak ditemukan CVE yang diketahui pada perangkat lunak terpasang Anda. Sistem Anda tampak aman!"
   },
   "severity": {
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low",
-    "none": "None"
+    "critical": "Kritis",
+    "high": "Tinggi",
+    "medium": "Sedang",
+    "low": "Rendah",
+    "none": "Tidak ada"
   },
   "summary": {
     "total": "Total",
-    "critical": "Critical",
-    "high": "High",
-    "medium": "Medium",
-    "low": "Low"
+    "critical": "Kritis",
+    "high": "Tinggi",
+    "medium": "Sedang",
+    "low": "Rendah"
   },
   "filter": {
-    "all": "All",
-    "searchPlaceholder": "Search by app name or CVE ID...",
-    "noResults": "No vulnerabilities match your current filters"
+    "all": "Semua",
+    "searchPlaceholder": "Cari berdasarkan nama aplikasi atau ID CVE...",
+    "noResults": "Tidak ada kerentanan yang cocok dengan filter saat ini"
   },
   "error": {
-    "title": "Failed to Load Vulnerabilities",
-    "description": "Could not retrieve vulnerability data from the server. Try refreshing or check your cloud connection."
+    "title": "Gagal Memuat Kerentanan",
+    "description": "Tidak dapat mengambil data kerentanan dari server. Coba segarkan atau periksa koneksi cloud Anda."
   },
   "card": {
-    "installed": "Installed: {{version}}",
-    "fixAvailable": "Fix: {{version}}",
-    "noFix": "No fix available",
+    "installed": "Terpasang: {{version}}",
+    "fixAvailable": "Perbaikan: {{version}}",
+    "noFix": "Tidak ada perbaikan yang tersedia",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "First detected: {{date}}",
-    "lastScanned": "Last scanned: {{date}}",
-    "updateViaSoftwareUpdater": "Update via Software Updater"
+    "firstDetected": "Pertama terdeteksi: {{date}}",
+    "lastScanned": "Terakhir dipindai: {{date}}",
+    "updateViaSoftwareUpdater": "Perbarui melalui Software Updater"
   },
   "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{current}}"
+    "previous": "Sebelumnya",
+    "next": "Berikutnya",
+    "page": "Halaman {{current}}"
   },
   "toast": {
-    "fetchFailed": "Failed to load vulnerability data",
-    "fetchFailedNotConnected": "Cloud Agent is not connected"
+    "fetchFailed": "Gagal memuat data kerentanan",
+    "fetchFailedNotConnected": "Cloud Agent tidak terhubung"
   }
 }
