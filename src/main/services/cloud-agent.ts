@@ -184,25 +184,29 @@ class CloudAgentService {
     const raw = (await this.getApi(path)) as Record<string, unknown>
 
     // Validate and sanitize each vulnerability row from the API
+    // Server sends snake_case fields (cve_id, app_name, installed_version, etc.)
     const validSeverities = new Set(['critical', 'high', 'medium', 'low', 'none'])
     const rawItems = Array.isArray(raw.data) ? raw.data : []
     const vulnerabilities = rawItems
       .filter((item: unknown): item is Record<string, unknown> =>
         item !== null && typeof item === 'object' && !Array.isArray(item) &&
-        typeof (item as Record<string, unknown>).cveId === 'string' &&
-        typeof (item as Record<string, unknown>).appName === 'string'
+        typeof (item as Record<string, unknown>).cve_id === 'string' &&
+        typeof (item as Record<string, unknown>).app_name === 'string'
       )
-      .map((item) => ({
-        id: typeof item.id === 'number' ? item.id : 0,
-        cveId: String(item.cveId),
-        appName: String(item.appName),
-        installedVersion: typeof item.installedVersion === 'string' ? item.installedVersion : '',
-        severity: (typeof item.severity === 'string' && validSeverities.has(item.severity) ? item.severity : 'none') as import('../../shared/types').CveSeverity,
-        cvssScore: typeof item.cvssScore === 'number' ? item.cvssScore : null,
-        fixedIn: typeof item.fixedIn === 'string' ? item.fixedIn : null,
-        firstDetectedAt: typeof item.firstDetectedAt === 'string' ? item.firstDetectedAt : '',
-        lastScannedAt: typeof item.lastScannedAt === 'string' ? item.lastScannedAt : '',
-      }))
+      .map((item) => {
+        const cvss = item.cvss_score != null ? parseFloat(String(item.cvss_score)) : NaN
+        return {
+          id: typeof item.id === 'number' ? item.id : 0,
+          cveId: String(item.cve_id),
+          appName: String(item.app_name),
+          installedVersion: typeof item.installed_version === 'string' ? item.installed_version : '',
+          severity: (typeof item.severity === 'string' && validSeverities.has(item.severity) ? item.severity : 'none') as import('../../shared/types').CveSeverity,
+          cvssScore: !isNaN(cvss) ? cvss : null,
+          fixedIn: typeof item.fixed_in === 'string' ? item.fixed_in : null,
+          firstDetectedAt: typeof item.first_detected_at === 'string' ? item.first_detected_at : '',
+          lastScannedAt: typeof item.last_scanned_at === 'string' ? item.last_scanned_at : '',
+        }
+      })
 
     // Validate summary shape
     const rawSummary = raw.summary as Record<string, unknown> | undefined
