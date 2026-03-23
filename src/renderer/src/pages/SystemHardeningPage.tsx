@@ -42,6 +42,7 @@ export function SystemHardeningPage() {
         description={platform === 'win32'
           ? t('descriptionWindows')
           : t('descriptionOther')}
+        showHintsToggle
       />
 
       {/* Tab bar */}

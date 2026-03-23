@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { PackageMinus, Search, Trash2, Shield, CheckCircle2, Package, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { InfoHint } from '@/components/shared/InfoHint'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -159,6 +160,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
         <PageHeader
           title={t('debloater.pageTitle')}
           description={t('debloater.pageDescription')}
+          showHintsToggle
           action={headerAction}
         />
       )}
@@ -176,6 +178,8 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
           {t('debloater.irreversibleWarning')}
         </p>
       </div>
+
+      <InfoHint i18nKey="debloater.hints.safetyNote" ns="hardening" className="mb-5" />
 
       {error && <ErrorAlert message={error} onDismiss={() => store.getState().setError(null)} className="mb-5" />}
 

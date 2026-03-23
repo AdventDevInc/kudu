@@ -74,6 +74,19 @@
     "browserLabel": "Browser Telemetry",
     "browserDescription": "Stop browsers from reporting usage data to Microsoft, Google, and Mozilla"
   },
+  "privacyHints": {
+    "telemetry": "Telemetry sends usage data, diagnostics, and crash reports to Microsoft. Disabling it improves privacy but you'll stop contributing to bug reports.",
+    "ads": "Windows shows promoted apps on the Start menu and lock screen. These are cosmetic ads — always safe to disable.",
+    "search": "Web search features send your queries to Bing. Disabling keeps searches local to your device.",
+    "sync": "Clipboard and settings sync sends data through Microsoft's cloud. Disable if you don't use multiple Windows devices.",
+    "services": "Background services that periodically upload diagnostics. Disabling may reduce bandwidth and battery usage.",
+    "tasks": "Scheduled tasks that run telemetry collection at regular intervals. Safe to disable.",
+    "kernel": "Low-level kernel parameters that control memory protection and security boundaries. Only available on Linux.",
+    "network": "Hardens the network stack against spoofing and redirect attacks via sysctl. Only available on Linux.",
+    "access": "Controls SSH access, sudo policies, and system restrictions. Changes may affect remote access.",
+    "ai": "AI features like Copilot and Recall analyze your screen, files, and activity. Disabling prevents local and cloud-based AI data collection.",
+    "browser": "Browsers send usage statistics, crash reports, and feature telemetry. Disabling doesn't affect browsing — only background reporting."
+  },
   "debloater": {
     "pageTitle": "Debloater",
     "pageDescription": "Remove pre-installed Windows apps and OEM bloatware",
@@ -113,7 +126,11 @@
     "categoryGaming": "Gaming",
     "categoryMedia": "Media",
     "categoryCommunication": "Communication",
-    "categoryUtility": "Utility"
+    "categoryUtility": "Utility",
+    "hints": {
+      "safetyNote": "These are pre-installed apps that most users don't need. Your personal files and settings are not affected by removal.",
+      "removeAction": "Removal uses PowerShell to uninstall the app package. Most apps can be reinstalled from the Microsoft Store if needed."
+    }
   },
   "serviceManager": {
     "pageTitle": "Services Manager",

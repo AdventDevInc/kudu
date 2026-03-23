@@ -14,6 +14,7 @@ const defaultSettings: KuduSettings = {
   showNotificationOnComplete: true,
   showThreatNotifications: true,
   runAtStartup: false,
+  showHints: true,
   autoUpdate: true,
   autoRestart: true,
   updateCheckIntervalHours: 4,

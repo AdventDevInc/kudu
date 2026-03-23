@@ -58,5 +58,17 @@
   "entryTypeTask": "Task",
   "riskLow": "Low",
   "riskMedium": "Medium",
-  "riskHigh": "High"
+  "riskHigh": "High",
+  "hints": {
+    "registryCleanup": "Removes references to programs that no longer exist — stale uninstall entries, broken file associations, and orphaned paths. These accumulate over time and are safe to clean.",
+    "security": "Checks critical Windows security settings like UAC, Defender, firewall, and RDP. Fixing these hardens your system against common attacks.",
+    "performance": "Identifies services like SysMain (Superfetch) that may slow boot times or waste resources on systems with SSDs.",
+    "network": "LLMNR and WPAD are legacy name-resolution protocols commonly exploited for man-in-the-middle attacks. Disabling them is recommended unless your network specifically requires them.",
+    "services": "Print Spooler and Fax are unnecessary on most PCs and have had critical security vulnerabilities (e.g., PrintNightmare). Safe to disable unless you use a physical printer or fax.",
+    "scheduledTasks": "Cleans up orphaned scheduled tasks, telemetry collectors, and third-party updaters running in the background. Review tasks you don't recognize before removing.",
+    "riskLow": "Low risk — easily reversible and won't affect system stability.",
+    "riskMedium": "Medium risk — may require a reboot. A backup is created before changes.",
+    "riskHigh": "High risk — affects core system behavior. Review carefully before applying.",
+    "fixAction": "\"Fix\" modifies or removes the selected registry entries. A .reg backup is created first so you can undo changes if needed."
+  }
 }

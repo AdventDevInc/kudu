@@ -14,5 +14,7 @@
   "hoursAgo": "{{hours}}h ago",
   "daysAgo": "{{days}}d ago",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "showHints": "Show hints",
+  "hideHints": "Hide hints"
 }

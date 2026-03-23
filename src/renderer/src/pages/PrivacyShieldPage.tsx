@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { InfoHint } from '@/components/shared/InfoHint'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/lib/utils'
 import { usePrivacyStore } from '@/stores/privacy-store'
@@ -375,6 +376,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
         <PageHeader
           title={t('privacy.pageTitle')}
           description={t('privacy.pageDescription')}
+          showHintsToggle
           action={headerAction}
         />
       )}
@@ -651,6 +653,8 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                     </div>
                   </div>
                 </button>
+
+                {isExpanded && <InfoHint i18nKey={`privacyHints.${cat.id}`} ns="hardening" className="px-5" />}
 
                 {/* Expanded settings */}
                 {isExpanded && (

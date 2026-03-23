@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { InfoHint } from '@/components/shared/InfoHint'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -60,6 +61,7 @@ interface CardDef {
   icon: LucideIcon
   titleKey: string
   descriptionKey: string
+  hintKey: string
   color: { bg: string; text: string }
   /** Total number of checks for this card (undefined = dynamic/variable) */
   totalChecks?: number
@@ -71,6 +73,7 @@ const cards: CardDef[] = [
     icon: Trash2,
     titleKey: 'cardRegistryCleanup',
     descriptionKey: 'cardRegistryCleanupDescription',
+    hintKey: 'hints.registryCleanup',
     color: { bg: 'rgba(245,158,11,0.1)', text: '#f59e0b' }
   },
   {
@@ -78,6 +81,7 @@ const cards: CardDef[] = [
     icon: ShieldAlert,
     titleKey: 'cardSecurity',
     descriptionKey: 'cardSecurityDescription',
+    hintKey: 'hints.security',
     color: typeColors.vulnerability,
     totalChecks: 12
   },
@@ -86,6 +90,7 @@ const cards: CardDef[] = [
     icon: Gauge,
     titleKey: 'cardPerformance',
     descriptionKey: 'cardPerformanceDescription',
+    hintKey: 'hints.performance',
     color: typeColors.performance,
     totalChecks: 1
   },
@@ -94,6 +99,7 @@ const cards: CardDef[] = [
     icon: Wifi,
     titleKey: 'cardNetwork',
     descriptionKey: 'cardNetworkDescription',
+    hintKey: 'hints.network',
     color: typeColors.network,
     totalChecks: 2
   },
@@ -102,6 +108,7 @@ const cards: CardDef[] = [
     icon: Server,
     titleKey: 'cardServices',
     descriptionKey: 'cardServicesDescription',
+    hintKey: 'hints.services',
     color: typeColors.service,
     totalChecks: 2
   },
@@ -110,6 +117,7 @@ const cards: CardDef[] = [
     icon: CalendarClock,
     titleKey: 'cardScheduledTasks',
     descriptionKey: 'cardScheduledTasksDescription',
+    hintKey: 'hints.scheduledTasks',
     color: typeColors.task
   }
 ]
@@ -259,6 +267,7 @@ function RegistryPageContent() {
       <PageHeader
         title={t('pageTitle')}
         description={t('pageDescription')}
+        showHintsToggle
         action={
           <div className="flex items-center gap-2.5">
             <button onClick={handleScan} disabled={busy}
@@ -447,6 +456,7 @@ function RegistryPageContent() {
                         </span>
                       )}
                     </p>
+                    <InfoHint i18nKey={card.hintKey} ns="registry" />
                   </div>
 
                   {/* Toggle + Expand (only show if there are issues) */}
@@ -489,6 +499,7 @@ function RegistryPageContent() {
                 {/* Expanded items */}
                 {isExpanded && !isClean && (
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                    {highRiskCount > 0 && <InfoHint i18nKey="hints.riskHigh" ns="registry" variant="warning" className="px-5 pt-2" />}
                     {cardEntries.map((entry, i) => (
                       <div key={entry.id}
                         className="flex items-center gap-4 px-5 py-3 transition-colors"
@@ -517,6 +528,8 @@ function RegistryPageContent() {
           })}
         </div>
       )}
+
+      {selectedCount > 0 && <InfoHint i18nKey="hints.fixAction" ns="registry" variant="warning" className="mt-4" />}
 
       <ConfirmDialog open={showConfirm} onConfirm={handleFix} onCancel={() => setShowConfirm(false)}
         title={t('confirmFixTitle')} description={t('confirmFixDescription', { count: selectedCount })}

@@ -546,6 +546,8 @@ export interface KuduSettings {
   showNotificationOnComplete: boolean
   showThreatNotifications: boolean
   runAtStartup: boolean
+  /** Show contextual education hints on feature pages */
+  showHints: boolean
   autoUpdate: boolean
   /** Automatically restart the app to apply downloaded updates */
   autoRestart: boolean
