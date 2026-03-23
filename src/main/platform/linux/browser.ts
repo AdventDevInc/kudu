@@ -14,6 +14,7 @@ export function createLinuxBrowser(): PlatformBrowser {
         'msedge', 'brave-browser', 'vivaldi-bin', 'opera', 'firefox', 'firefox-esr',
         'thorium', 'thorium-browser',
         'supermium', 'helium', 'cromite',
+        'catsxp', 'librewolf', 'waterfox', 'floorp',
       ]
 
       for (const proc of processes) {

@@ -22,6 +22,10 @@ export function createDarwinBrowser(): PlatformBrowser {
         'Supermium',
         'Helium',
         'Cromite',
+        'CatsXP',
+        'LibreWolf',
+        'Waterfox',
+        'Floorp',
         'Safari',
       ]
 

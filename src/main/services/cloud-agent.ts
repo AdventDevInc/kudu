@@ -1767,7 +1767,7 @@ class CloudAgentService {
             const profileDirs = await readdir(fork.cache, { withFileTypes: true })
             for (const dir of profileDirs) {
               if (dir.isDirectory()) {
-                const cachePath = join(fork.cache, dir.name, 'cache2', 'entries')
+                const cachePath = join(fork.cache, dir.name, 'cache2')
                 if (existsSync(cachePath)) {
                   const r = await scanDirectory(cachePath, browserCategory, `${fork.label} - ${dir.name} Cache`)
                   if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
