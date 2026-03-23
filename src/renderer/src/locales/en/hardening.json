@@ -218,6 +218,12 @@
     "statusPaused": "Paused",
     "statusStartPending": "Start Pending",
     "statusStopPending": "Stop Pending",
-    "statusUnknown": "Unknown"
+    "statusUnknown": "Unknown",
+    "hints": {
+      "safe": "These services are safe to disable on most systems. They handle non-essential functions like Xbox integration, print spooling, or fax support.",
+      "caution": "These services may affect specific functionality. Disabling Bluetooth services will prevent wireless devices from connecting, for example. Only disable if you're sure you don't use the feature.",
+      "unsafe": "System-critical services that Windows depends on. Disabling them can cause instability, crashes, or prevent Windows from booting. These cannot be selected.",
+      "dependencies": "The \"Deps\" column shows how many other services depend on this one. Disabling a service with dependents may cause those services to stop working too."
+    }
   }
 }

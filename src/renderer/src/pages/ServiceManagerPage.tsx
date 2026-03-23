@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { InfoHint } from '@/components/shared/InfoHint'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -249,6 +250,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
         <PageHeader
           title={t('serviceManager.pageTitle')}
           description={t('serviceManager.pageDescription')}
+          showHintsToggle
         />
       )}
 
@@ -323,6 +325,8 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           </div>
         </div>
       )}
+
+      <InfoHint i18nKey="serviceManager.hints.dependencies" ns="hardening" className="mb-5" />
 
       {/* ── Error ────────────────────────────────────────────── */}
       {error && (
@@ -561,6 +565,13 @@ function SafetyGroup({
 
       {!collapsed && (
         <>
+          <InfoHint
+            i18nKey={`serviceManager.hints.${safetyKey}`}
+            ns="hardening"
+            variant={safetyKey === 'unsafe' ? 'warning' : 'info'}
+            className="px-4"
+          />
+
           {/* Column header */}
           <div
             className="grid items-center gap-3 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider"

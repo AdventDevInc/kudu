@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { InfoHint } from '@/components/shared/InfoHint'
 import { useGameModeStore } from '@/stores/game-mode-store'
 import type { GameModeOptimizationId, GameModeCategory } from '@shared/types'
 import type { LucideIcon } from 'lucide-react'
@@ -214,7 +215,7 @@ export function GameModePage() {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
-      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')} showHintsToggle />
 
       <div className="flex-1 space-y-5 px-6 pb-8">
         {/* ── Hero Toggle ─────────────────────────────── */}
@@ -363,6 +364,8 @@ export function GameModePage() {
           </div>
         )}
 
+        <InfoHint i18nKey="hints.overview" ns="gameMode" />
+
         {/* ── Category Cards ──────────────────────────── */}
         {CATEGORIES.map((cat) => {
           const catOpts = OPTIMIZATIONS.filter((o) => o.category === cat.id)
@@ -418,6 +421,7 @@ export function GameModePage() {
                     className="overflow-hidden"
                     style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
                   >
+                    <InfoHint i18nKey={`hints.${cat.id}`} ns="gameMode" variant={cat.id === 'processes' ? 'warning' : 'info'} className="px-5 pt-2" />
                     {catOpts.map((opt) => {
                       const isEnabled = enabledSet.has(opt.id)
                       return (

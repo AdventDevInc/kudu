@@ -52,5 +52,11 @@
   "historyCategoryEnabled": "Enabled",
   "historyCategoryDisabled": "Disabled",
   "historyCategoryRemoved": "Removed",
-  "removeButtonTitle": "Remove {{name}}"
+  "removeButtonTitle": "Remove {{name}}",
+  "hints": {
+    "impact": "Impact is measured from Windows boot trace data. High-impact apps add noticeable delay to startup — disabling them can significantly speed up boot time.",
+    "sources": "Startup items come from different locations: the Windows Registry, the Startup folder, or the Task Scheduler. The source affects how the item is managed and whether admin rights are needed.",
+    "disableVsRemove": "Disabling a startup item is reversible — you can re-enable it anytime. Removing permanently deletes the startup entry.",
+    "bootTrace": "Boot trace data comes from Windows performance diagnostics. \"Potential Savings\" estimates how much boot time you could save by disabling all high-impact apps."
+  }
 }

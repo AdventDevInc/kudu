@@ -4,6 +4,7 @@ import { Zap, Shield, RefreshCw, Clock, Activity, TrendingDown, ChevronDown, Che
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
+import { InfoHint } from '@/components/shared/InfoHint'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -365,6 +366,7 @@ export function StartupPage() {
       <PageHeader
         title={t('pageTitle')}
         description={t('pageDescription')}
+        showHintsToggle
         action={
           <div className="flex items-center gap-2.5">
             <select value={filterBy} onChange={(e) => store.getState().setFilterBy(e.target.value as any)}
@@ -391,6 +393,8 @@ export function StartupPage() {
 
       {/* Boot Trace Impact Analysis */}
       <BootTracePanel trace={bootTrace} loading={traceLoading} />
+
+      <InfoHint i18nKey="hints.impact" ns="startup" className="mb-5" />
 
       {error && <ErrorAlert message={error} onDismiss={() => store.getState().setError(null)} className="mb-5" />}
 

@@ -81,5 +81,13 @@
 
   "statOptimizationsActive": "Optimizations Active",
   "statServicesDisabled": "Services Paused",
-  "statSessionTimer": "Session Timer"
+  "statSessionTimer": "Session Timer",
+  "hints": {
+    "overview": "Game Mode temporarily changes system settings to maximize performance. All changes are saved as a snapshot and automatically restored when you deactivate.",
+    "services": "These Windows services run in the background and consume CPU, disk, or memory. They are temporarily stopped — not deleted — and automatically restart when Game Mode is deactivated.",
+    "processes": "These apps are force-closed to free up RAM and CPU. Unlike services, killed processes are NOT automatically restarted when Game Mode is deactivated — you'll need to reopen them manually.",
+    "memory": "Standby memory is RAM that Windows keeps cached for recently used apps. Clearing it frees memory immediately, but those apps may load slightly slower next time.",
+    "system": "These settings reduce visual overhead and prevent interruptions. All changes are reverted when Game Mode is deactivated.",
+    "network": "Nagle's algorithm batches small network packets together, which adds latency. Disabling it reduces ping in online games but slightly increases network traffic."
+  }
 }
