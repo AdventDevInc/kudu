@@ -11,6 +11,7 @@
   "updatedToast": "Updated \"{{name}}\"",
   "createdToast": "Created \"{{name}}\"",
   "failedEnableStartup": "Failed to enable startup. Schedules may not run after reboot.",
+  "failedEnableStartupAction": "Learn more",
   "deleteConfirmTitle": "Delete schedule",
   "deleteConfirmDescription": "This schedule will be permanently removed. This action cannot be undone.",
   "deleteConfirmLabel": "Delete",

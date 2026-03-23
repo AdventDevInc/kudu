@@ -110,7 +110,13 @@ export function SettingsPage() {
     } catch {
       // Revert the toggle — the OS rejected the change
       save({ runAtStartup: !enabled })
-      toast.error(t('startupSettingFailedToast'))
+      toast.error(t('startupSettingFailedToast'), {
+        description: t('startupSettingFailedDesc'),
+        action: {
+          label: t('startupSettingFailedAction'),
+          onClick: () => window.open('https://usekudu.com/help/startup-failed', '_blank'),
+        },
+      })
     }
   }
 

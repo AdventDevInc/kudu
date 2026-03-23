@@ -144,7 +144,12 @@ export function SchedulesPage() {
       window.kudu?.applyStartup?.(true).catch(() => {
         updateSettings({ runAtStartup: false })
         window.kudu?.settingsSet?.({ runAtStartup: false }).catch(() => {})
-        toast.error(t('failedEnableStartup'))
+        toast.error(t('failedEnableStartup'), {
+          action: {
+            label: t('failedEnableStartupAction'),
+            onClick: () => window.open('https://usekudu.com/help/startup-failed', '_blank'),
+          },
+        })
       })
     }
     if (!settings.minimizeToTray) {

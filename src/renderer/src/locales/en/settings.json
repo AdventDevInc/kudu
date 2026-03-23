@@ -120,5 +120,7 @@
   "retry": "Retry",
   "github": "GitHub",
   "reportBug": "Report Bug",
-  "startupSettingFailedToast": "Failed to update startup setting. Task Scheduler may be restricted by group policy or security software."
+  "startupSettingFailedToast": "Failed to enable startup",
+  "startupSettingFailedDesc": "Task Scheduler may be restricted by group policy or security software.",
+  "startupSettingFailedAction": "Learn more"
 }
