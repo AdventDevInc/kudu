@@ -193,6 +193,14 @@ export const IPC = {
   EMPTY_FOLDERS_DELETE: 'empty-folders:delete',
   EMPTY_FOLDERS_OPEN_LOCATION: 'empty-folders:open-location',
 
+  // File Shredder
+  SHREDDER_SELECT_FILES: 'shredder:select-files',
+  SHREDDER_SELECT_FOLDERS: 'shredder:select-folders',
+  SHREDDER_SHRED: 'shredder:shred',
+  SHREDDER_CANCEL: 'shredder:cancel',
+  SHREDDER_PROGRESS: 'shredder:progress',
+  SHREDDER_OPEN_LOCATION: 'shredder:open-location',
+
   // Game Mode
   GAME_MODE_ACTIVATE: 'game-mode:activate',
   GAME_MODE_DEACTIVATE: 'game-mode:deactivate',

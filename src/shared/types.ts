@@ -915,6 +915,32 @@ export interface EmptyFolderDeleteResult {
   errors: { path: string; reason: string }[]
 }
 
+// ─── File Shredder ───────────────────────────────────────
+
+export interface ShredderEntry {
+  path: string
+  name: string
+  size: number
+  isDirectory: boolean
+}
+
+export interface ShredderProgress {
+  currentPath: string
+  filesShredded: number
+  totalFiles: number
+  bytesShredded: number
+  totalBytes: number
+  progress: number
+}
+
+export interface ShredderResult {
+  shredded: number
+  failed: number
+  bytesShredded: number
+  duration: number
+  errors: { path: string; reason: string }[]
+}
+
 // ─── Duplicate Finder ─────────────────────────────────────
 
 export interface DuplicateScanOptions {

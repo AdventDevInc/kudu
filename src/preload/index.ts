@@ -53,6 +53,9 @@ import type {
   DuplicateScanProgress,
   DuplicateDeleteMode,
   DuplicateDeleteResult,
+  ShredderEntry,
+  ShredderProgress,
+  ShredderResult,
   LargeFileScanOptions,
   LargeFileScanResult,
   LargeFileScanProgress,
@@ -397,6 +400,23 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: EmptyFolderScanProgress) => callback(data)
     ipcRenderer.on(IPC.EMPTY_FOLDERS_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.EMPTY_FOLDERS_PROGRESS, handler) }
+  },
+
+  // File Shredder
+  shredderSelectFiles: (): Promise<ShredderEntry[]> =>
+    ipcRenderer.invoke(IPC.SHREDDER_SELECT_FILES),
+  shredderSelectFolders: (): Promise<ShredderEntry[]> =>
+    ipcRenderer.invoke(IPC.SHREDDER_SELECT_FOLDERS),
+  shredderShred: (paths: string[]): Promise<ShredderResult> =>
+    ipcRenderer.invoke(IPC.SHREDDER_SHRED, paths),
+  shredderCancel: (): Promise<void> =>
+    ipcRenderer.invoke(IPC.SHREDDER_CANCEL),
+  shredderOpenLocation: (filePath: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.SHREDDER_OPEN_LOCATION, filePath),
+  onShredderProgress: (callback: (data: ShredderProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: ShredderProgress) => callback(data)
+    ipcRenderer.on(IPC.SHREDDER_PROGRESS, handler)
+    return () => { ipcRenderer.removeListener(IPC.SHREDDER_PROGRESS, handler) }
   },
 
   // Threat Monitor

@@ -1,0 +1,326 @@
+import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { readdir, stat, lstat, open, rm } from 'fs/promises'
+import { join, isAbsolute, basename, resolve, normalize } from 'path'
+import { randomBytes } from 'crypto'
+import { IPC } from '../../shared/channels'
+import type {
+  ShredderEntry,
+  ShredderProgress,
+  ShredderResult
+} from '../../shared/types'
+import type { WindowGetter } from './index'
+
+let cancelled = false
+
+// ── Safety: paths we must never shred ──
+
+const PROTECTED_WIN32 = [
+  'windows', 'system32', 'syswow64', 'winsxs', 'program files', 'program files (x86)',
+  'programdata', 'recovery', 'boot', '$recycle.bin', 'system volume information',
+  'perflogs', 'msocache', 'config.msi', 'drivers', 'inf', 'logs',
+]
+const PROTECTED_UNIX = [
+  'bin', 'sbin', 'usr', 'etc', 'var', 'lib', 'lib64', 'opt', 'boot', 'dev',
+  'proc', 'sys', 'run', 'tmp', 'snap', 'root', 'lost+found',
+  'system', 'library', 'applications', 'cores', 'private', 'volumes',
+]
+const PROTECTED_GENERIC = [
+  '.git', '.svn', '.hg', 'node_modules', '.npm', '.cache', '.local',
+  '__pycache__', '.venv', '.env', '.ssh', '.gnupg', '.config',
+  'appdata', '.android', '.gradle',
+]
+
+function isProtectedPath(targetPath: string): boolean {
+  const normalized = normalize(resolve(targetPath)).replace(/\\/g, '/')
+  const name = basename(normalized).toLowerCase()
+  const pathLower = normalized.toLowerCase()
+  const segments = pathLower.split('/').filter(Boolean)
+
+  // Never shred filesystem roots (/, C:\)
+  if (segments.length === 0) return true
+  // On Windows C:/ has segments ['c:'] — depth 1 is the drive root
+  if (process.platform === 'win32' && segments.length <= 1) return true
+
+  // Never shred root-level directories (C:\Windows, /usr, etc.)
+  const isRootLevel = process.platform === 'win32' ? segments.length <= 2 : segments.length <= 1
+  if (isRootLevel) return true
+
+  // Check against protected name lists
+  const protectedNames = process.platform === 'win32'
+    ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
+    : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
+  if (protectedNames.includes(name)) return true
+
+  // Never shred user profile root folders
+  const userProfileDirs = ['desktop', 'documents', 'downloads', 'pictures', 'videos', 'music', 'onedrive']
+  if (userProfileDirs.includes(name)) {
+    const home = (process.env.HOME || process.env.USERPROFILE || '').toLowerCase().replace(/\\/g, '/')
+    if (home) {
+      const parent = pathLower.substring(0, pathLower.lastIndexOf('/'))
+      if (parent === home || parent === home + '/') return true
+    }
+  }
+
+  return false
+}
+
+function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send(IPC.SHREDDER_PROGRESS, data)
+  }
+}
+
+/**
+ * Overwrite a single file with random data then zeros (2-pass shred).
+ * Uses lstat to avoid following symlinks.
+ */
+async function shredFile(filePath: string): Promise<void> {
+  const stats = await lstat(filePath)
+  if (stats.isSymbolicLink() || !stats.isFile() || stats.size === 0) return
+
+  const size = stats.size
+  const CHUNK = 1024 * 1024 // 1 MB
+  const fh = await open(filePath, 'r+')
+  try {
+    // Pass 1: random data
+    let offset = 0
+    while (offset < size) {
+      const len = Math.min(CHUNK, size - offset)
+      await fh.write(randomBytes(len), 0, len, offset)
+      offset += len
+    }
+    await fh.datasync()
+
+    // Pass 2: zeros
+    const zeroBuf = Buffer.alloc(Math.min(CHUNK, size))
+    offset = 0
+    while (offset < size) {
+      const len = Math.min(CHUNK, size - offset)
+      await fh.write(zeroBuf, 0, len, offset)
+      offset += len
+    }
+    await fh.datasync()
+  } finally {
+    await fh.close()
+  }
+}
+
+const MAX_DEPTH = 50
+
+/**
+ * Collect all file paths within a directory recursively.
+ * Skips symlinks and respects a depth limit to avoid stack overflow.
+ */
+async function collectFiles(dirPath: string, files: string[], depth: number = 0): Promise<void> {
+  if (depth >= MAX_DEPTH) return
+  try {
+    const entries = await readdir(dirPath, { withFileTypes: true })
+    for (const entry of entries) {
+      if (entry.isSymbolicLink()) continue
+      const fullPath = join(dirPath, entry.name)
+      if (entry.isDirectory()) {
+        await collectFiles(fullPath, files, depth + 1)
+      } else if (entry.isFile()) {
+        files.push(fullPath)
+      }
+    }
+  } catch {
+    // Skip inaccessible directories
+  }
+}
+
+/**
+ * Get the total size of an entry (file size, or recursive directory size).
+ */
+async function getEntrySize(entryPath: string, depth: number = 0): Promise<number> {
+  if (depth >= MAX_DEPTH) return 0
+  try {
+    const stats = await lstat(entryPath)
+    if (stats.isSymbolicLink()) return 0
+    if (stats.isFile()) return stats.size
+    if (stats.isDirectory()) {
+      let total = 0
+      const entries = await readdir(entryPath, { withFileTypes: true })
+      for (const entry of entries) {
+        if (entry.isSymbolicLink()) continue
+        total += await getEntrySize(join(entryPath, entry.name), depth + 1)
+      }
+      return total
+    }
+  } catch { /* skip */ }
+  return 0
+}
+
+export function registerFileShredderIpc(getWindow: WindowGetter): void {
+  // File picker (multiple files)
+  ipcMain.handle(IPC.SHREDDER_SELECT_FILES, async () => {
+    const win = getWindow()
+    if (!win) return []
+    const result = await dialog.showOpenDialog(win, {
+      properties: ['openFile', 'multiSelections']
+    })
+    if (result.canceled || !result.filePaths.length) return []
+
+    const entries: ShredderEntry[] = []
+    for (const filePath of result.filePaths) {
+      try {
+        const s = await stat(filePath)
+        entries.push({
+          path: filePath,
+          name: filePath.split(/[\\/]/).pop() || filePath,
+          size: s.size,
+          isDirectory: false
+        })
+      } catch { /* skip */ }
+    }
+    return entries
+  })
+
+  // Folder picker (multiple folders)
+  ipcMain.handle(IPC.SHREDDER_SELECT_FOLDERS, async () => {
+    const win = getWindow()
+    if (!win) return []
+    const result = await dialog.showOpenDialog(win, {
+      properties: ['openDirectory', 'multiSelections']
+    })
+    if (result.canceled || !result.filePaths.length) return []
+
+    const entries: ShredderEntry[] = []
+    for (const dirPath of result.filePaths) {
+      try {
+        const size = await getEntrySize(dirPath)
+        entries.push({
+          path: dirPath,
+          name: dirPath.split(/[\\/]/).pop() || dirPath,
+          size,
+          isDirectory: true
+        })
+      } catch { /* skip */ }
+    }
+    return entries
+  })
+
+  // Cancel
+  ipcMain.handle(IPC.SHREDDER_CANCEL, () => {
+    cancelled = true
+  })
+
+  // Shred
+  ipcMain.handle(IPC.SHREDDER_SHRED, async (_event, paths: unknown): Promise<ShredderResult> => {
+    cancelled = false
+    const startTime = Date.now()
+    const win = getWindow()
+    const emptyResult: ShredderResult = { shredded: 0, failed: 0, bytesShredded: 0, duration: 0, errors: [] }
+
+    if (!Array.isArray(paths)) return emptyResult
+    const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
+    if (safePaths.length === 0) return emptyResult
+
+    // Reject any protected paths before doing any work
+    const errors: { path: string; reason: string }[] = []
+    const allowedPaths: string[] = []
+    for (const p of safePaths) {
+      if (isProtectedPath(p)) {
+        errors.push({ path: p, reason: 'Protected system path — shredding blocked' })
+      } else {
+        allowedPaths.push(p)
+      }
+    }
+
+    // First, collect all individual files to shred
+    const allFiles: string[] = []
+    const dirPaths: string[] = []
+
+    for (const p of allowedPaths) {
+      try {
+        const s = await lstat(p)
+        if (s.isSymbolicLink()) continue
+        if (s.isDirectory()) {
+          dirPaths.push(p)
+          await collectFiles(p, allFiles)
+        } else if (s.isFile()) {
+          allFiles.push(p)
+        }
+      } catch { /* skip */ }
+    }
+
+    // Calculate total bytes
+    let totalBytes = 0
+    const fileSizes = new Map<string, number>()
+    for (const f of allFiles) {
+      try {
+        const s = await stat(f)
+        fileSizes.set(f, s.size)
+        totalBytes += s.size
+      } catch {
+        fileSizes.set(f, 0)
+      }
+    }
+
+    let shredded = 0
+    let failed = errors.length
+    let bytesShredded = 0
+    let lastReport = Date.now()
+
+    // Shred each file
+    for (const filePath of allFiles) {
+      if (cancelled) break
+
+      const now = Date.now()
+      if (now - lastReport > 300) {
+        lastReport = now
+        sendProgress(win, {
+          currentPath: filePath,
+          filesShredded: shredded,
+          totalFiles: allFiles.length,
+          bytesShredded,
+          totalBytes,
+          progress: totalBytes > 0 ? (bytesShredded / totalBytes) * 100 : 0
+        })
+      }
+
+      try {
+        await shredFile(filePath)
+        await rm(filePath, { force: true })
+        const fileSize = fileSizes.get(filePath) || 0
+        bytesShredded += fileSize
+        shredded++
+      } catch (err: any) {
+        failed++
+        errors.push({ path: filePath, reason: err?.message || 'Unknown error' })
+      }
+    }
+
+    // Remove the directories after their contents have been shredded
+    for (const dirPath of dirPaths) {
+      if (cancelled) break
+      try {
+        await rm(dirPath, { force: true, recursive: true })
+      } catch { /* directory may already be partially cleaned */ }
+    }
+
+    // Final progress
+    sendProgress(win, {
+      currentPath: '',
+      filesShredded: shredded,
+      totalFiles: allFiles.length,
+      bytesShredded,
+      totalBytes,
+      progress: 100
+    })
+
+    return {
+      shredded,
+      failed,
+      bytesShredded,
+      duration: Date.now() - startTime,
+      errors
+    }
+  })
+
+  // Open file location
+  ipcMain.handle(IPC.SHREDDER_OPEN_LOCATION, (_event, filePath: unknown) => {
+    if (typeof filePath !== 'string' || !isAbsolute(filePath)) return
+    shell.showItemInFolder(filePath)
+  })
+}

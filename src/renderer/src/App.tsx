@@ -16,6 +16,7 @@ import { DiskAnalyzerPage } from './pages/DiskAnalyzerPage'
 import { DuplicateFinderPage } from './pages/DuplicateFinderPage'
 import { LargeFileFinderPage } from './pages/LargeFileFinderPage'
 import { EmptyFolderCleanerPage } from './pages/EmptyFolderCleanerPage'
+import { FileShredderPage } from './pages/FileShredderPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NetworkCleanupPage } from './pages/NetworkCleanupPage'
 import { MalwareScannerPage } from './pages/MalwareScannerPage'
@@ -103,6 +104,7 @@ export function App() {
           <Route path="/duplicates" element={<DuplicateFinderPage />} />
           <Route path="/large-files" element={<LargeFileFinderPage />} />
           <Route path="/empty-folders" element={<EmptyFolderCleanerPage />} />
+          <Route path="/file-shredder" element={<FileShredderPage />} />
           <Route path="/network" element={<NetworkCleanupPage />} />
           <Route path="/malware" element={<MalwareScannerPage />} />
           <Route path="/threat-monitor" element={<ThreatMonitorPage />} />

@@ -24,6 +24,7 @@ import {
   CopyCheck,
   FileUp,
   FolderX,
+  ShieldAlert as ShieldAlertIcon,
   Cpu,
   Package,
   Eye,
@@ -111,6 +112,7 @@ const navGroups: NavGroup[] = [
           { icon: CopyCheck, label: 'Duplicate Finder', path: '/duplicates' },
           { icon: FileUp, label: 'Large File Finder', path: '/large-files' },
           { icon: FolderX, label: 'Empty Folder Cleaner', path: '/empty-folders' },
+          { icon: ShieldAlertIcon, label: 'File Shredder', path: '/file-shredder' },
         ]
       },
     ]
