@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { RTL_LANGUAGES } from './lib/languages'
 import { useScheduledScan } from './hooks/useScheduledScan'
@@ -10,7 +10,6 @@ import { CleanerPage } from './pages/CleanerPage'
 import { RegistryPage } from './pages/RegistryPage'
 import { StartupPage } from './pages/StartupPage'
 import { DebloaterPage } from './pages/DebloaterPage'
-import { SystemHardeningPage } from './pages/SystemHardeningPage'
 import { SoftwareUpdaterPage } from './pages/SoftwareUpdaterPage'
 import { DriverManagerPage } from './pages/DriverManagerPage'
 import { DiskAnalyzerPage } from './pages/DiskAnalyzerPage'
@@ -114,14 +113,14 @@ export function App() {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/about" element={<AboutPage />} />
-          {/* Consolidated pages */}
-          <Route path="/hardening" element={<SystemHardeningPage />} />
+          {/* Standalone pages */}
+          <Route path="/privacy" element={<PrivacyShieldPage />} />
+          <Route path="/services" element={<ServiceManagerPage />} />
+          <Route path="/debloater" element={<DebloaterPage />} />
           <Route path="/updates" element={<SoftwareUpdaterPage />} />
           <Route path="/schedules" element={<SchedulesPage />} />
-          {/* Legacy routes — redirect to consolidated pages */}
-          <Route path="/privacy" element={<SystemHardeningPage />} />
-          <Route path="/debloater" element={<SystemHardeningPage />} />
-          <Route path="/services" element={<SystemHardeningPage />} />
+          {/* Legacy redirect */}
+          <Route path="/hardening" element={<Navigate to="/privacy" replace />} />
           <Route path="/updater" element={<SoftwareUpdaterPage />} />
           <Route path="/drivers" element={<DriverManagerPage />} />
         </Routes>

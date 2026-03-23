@@ -25,7 +25,10 @@ import {
   FileUp,
   FolderX,
   Cpu,
-  Package
+  Package,
+  Eye,
+  Server,
+  PackageMinus
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -67,7 +70,13 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: ShieldAlert, labelKey: 'malwareScanner', path: '/malware' },
       { icon: Radar, labelKey: 'threatMonitor', path: '/threat-monitor' },
-      { icon: Shield, labelKey: 'systemHardening', path: '/hardening' },
+      {
+        icon: Shield, labelKey: 'systemHardening', path: '/hardening',
+        children: [
+          { icon: Eye, label: 'Privacy', path: '/privacy' },
+          { icon: Server, label: 'Services', path: '/services' },
+        ]
+      },
       { icon: Bug, labelKey: 'cveScanner', path: '/cve' }
     ]
   },
@@ -84,6 +93,7 @@ const navGroups: NavGroup[] = [
           { icon: Download, label: 'Software Updates', path: '/updates' },
           { icon: Cpu, label: 'Driver Updates', path: '/drivers' },
           { icon: Trash2, label: 'Uninstaller', path: '/uninstaller' },
+          { icon: PackageMinus, label: 'Bloatware Remover', path: '/debloater' },
         ]
       },
       { icon: CalendarClock, labelKey: 'schedules', path: '/schedules' }
@@ -163,6 +173,13 @@ export function Sidebar() {
       if (item.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
       if (item.path === '/cve' && !isCloudLinked) return false
       return true
+    }).map((item) => {
+      if (!item.children) return item
+      const filtered = item.children.filter((child) => {
+        if (child.path === '/debloater' && !features.debloater) return false
+        return true
+      })
+      return { ...item, children: filtered }
     }),
   }))
 
