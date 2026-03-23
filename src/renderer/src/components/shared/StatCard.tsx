@@ -53,6 +53,8 @@ export function StatCard({
 
   return (
     <div
+      role="group"
+      aria-label={label}
       className={cn(
         'glass-card glass-card-hover group relative overflow-hidden rounded-2xl p-5',
         config.glowClass,
@@ -72,7 +74,7 @@ export function StatCard({
         className="mb-4 flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
         style={{ background: config.iconBg }}
       >
-        <Icon className="h-[18px] w-[18px]" style={{ color: config.iconColor }} strokeWidth={1.8} />
+        <Icon className="h-[18px] w-[18px]" style={{ color: config.iconColor }} strokeWidth={1.8} aria-hidden="true" />
       </div>
 
       <div className="flex items-baseline gap-1.5">

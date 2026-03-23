@@ -222,12 +222,13 @@ export function Sidebar() {
       </div>
 
       {/* Nav items */}
-      <nav className="mt-1 min-h-0 flex-1 overflow-y-auto px-3">
+      <nav className="mt-1 min-h-0 flex-1 overflow-y-auto px-3" aria-label={t('mainNavigation', 'Main navigation')}>
         {filteredNavGroups.map((group, gi) => (
-          <div key={gi} className={gi > 0 ? 'mt-5' : ''}>
+          <div key={gi} className={gi > 0 ? 'mt-5' : ''} role={group.headingKey ? 'group' : undefined} aria-labelledby={group.headingKey ? `nav-group-${gi}` : undefined}>
             {group.headingKey && (
               <div className="mb-2 flex items-center gap-2.5 px-3 pt-0.5">
                 <span
+                  id={`nav-group-${gi}`}
                   className="text-[10px] font-semibold uppercase tracking-[0.15em]"
                   style={{ color: '#3e3e48' }}
                 >
@@ -340,6 +341,9 @@ function NavItem({
       <button
         ref={buttonRef}
         onClick={handleClick}
+        aria-current={isActive ? 'page' : undefined}
+        aria-expanded={hasChildren ? !!submenuOpen : undefined}
+        aria-haspopup={hasChildren ? 'true' : undefined}
         className={cn(
           'group relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200',
           isActive
@@ -366,6 +370,7 @@ function NavItem({
             isActive ? 'text-amber-400' : 'text-zinc-600 group-hover:text-zinc-400'
           )}
           strokeWidth={isActive ? 2 : 1.7}
+          aria-hidden="true"
         />
         <span className="flex-1 text-left">{t(item.labelKey)}</span>
         {(badge || (badgeCount != null && badgeCount > 0)) && (
@@ -376,6 +381,7 @@ function NavItem({
               color: '#0a0600',
               boxShadow: '0 0 8px rgba(245,158,11,0.3)'
             }}
+            aria-label={`${badgeCount ?? 1}`}
           >
             {badgeCount ?? 1}
           </span>
@@ -387,22 +393,24 @@ function NavItem({
               submenuOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'
             )}
             strokeWidth={1.7}
+            aria-hidden="true"
           />
         )}
       </button>
 
       {/* Flyout submenu — rendered fixed to escape sidebar overflow */}
-      {hasChildren && submenuOpen && <FlyoutMenu buttonRef={buttonRef} popoverRef={popoverRef} items={item.children!} badgeCounts={badgeCounts} onSelect={(path) => { navigate(path); onCloseSubmenu?.() }} />}
+      {hasChildren && submenuOpen && <FlyoutMenu buttonRef={buttonRef} popoverRef={popoverRef} items={item.children!} badgeCounts={badgeCounts} onSelect={(path) => { navigate(path); onCloseSubmenu?.() }} onClose={() => { onCloseSubmenu?.(); buttonRef.current?.focus() }} />}
     </div>
   )
 }
 
-function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect }: {
+function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClose }: {
   buttonRef: React.RefObject<HTMLButtonElement | null>
   popoverRef: React.RefObject<HTMLDivElement | null>
   items: SubItemDef[]
   badgeCounts?: Record<string, number>
   onSelect: (path: string) => void
+  onClose: () => void
 }) {
   const location = useLocation()
   const [pos, setPos] = useState({ top: 0, left: 0 })
@@ -417,13 +425,50 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect }: {
     setPos({ top, left: rect.right + 6 })
   }, [buttonRef, items.length])
 
+  // Auto-focus first menu item on open
+  useEffect(() => {
+    const firstItem = popoverRef.current?.querySelector<HTMLElement>('[role="menuitem"]')
+    firstItem?.focus()
+  }, [popoverRef])
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const menuItems = popoverRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')
+    if (!menuItems?.length) return
+    const currentIndex = Array.from(menuItems).indexOf(document.activeElement as HTMLElement)
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        menuItems[(currentIndex + 1) % menuItems.length].focus()
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        menuItems[(currentIndex - 1 + menuItems.length) % menuItems.length].focus()
+        break
+      case 'Home':
+        e.preventDefault()
+        menuItems[0].focus()
+        break
+      case 'End':
+        e.preventDefault()
+        menuItems[menuItems.length - 1].focus()
+        break
+      case 'Escape':
+        e.preventDefault()
+        onClose()
+        break
+    }
+  }
+
   return (
     <div
       ref={popoverRef}
       className="fixed z-[200] animate-scale-in"
       style={{ top: pos.top, left: pos.left, transformOrigin: 'left top' }}
+      onKeyDown={handleKeyDown}
     >
       <div
+        role="menu"
         className="glass-card w-56 rounded-xl py-1.5"
         style={{
           background: 'rgba(18, 18, 26, 0.92)',
@@ -435,6 +480,7 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect }: {
           return (
             <button
               key={child.path}
+              role="menuitem"
               onClick={() => onSelect(child.path)}
               className={cn(
                 'flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[12.5px] font-medium transition-all duration-150',
@@ -448,6 +494,7 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect }: {
                 className="h-[14px] w-[14px] shrink-0"
                 style={{ color: isChildActive ? '#f59e0b' : '#52525b' }}
                 strokeWidth={isChildActive ? 2 : 1.7}
+                aria-hidden="true"
               />
               <span className="flex-1">{child.label}</span>
               {(badgeCounts?.[child.path] ?? 0) > 0 && (
@@ -458,6 +505,7 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect }: {
                     color: '#0a0600',
                     boxShadow: '0 0 6px rgba(245,158,11,0.3)'
                   }}
+                  aria-hidden="true"
                 >
                   {badgeCounts![child.path]}
                 </span>

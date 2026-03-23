@@ -25,9 +25,9 @@ export function ScanProgress({
       className={cn('rounded-2xl p-5', className)}
       style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
     >
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between" aria-live="polite">
         <div className="flex items-center gap-2.5">
-          <Loader2 className="h-4 w-4 animate-spin text-amber-400" />
+          <Loader2 className="h-4 w-4 animate-spin text-amber-400" aria-hidden="true" />
           <span className="text-[13px] font-medium text-zinc-200">
             {status === 'scanning' ? t('scanning') : t('cleaning')}
           </span>
@@ -38,7 +38,15 @@ export function ScanProgress({
       </div>
 
       {/* Track */}
-      <div className="mb-3.5 h-[6px] overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div
+        className="mb-3.5 h-[6px] overflow-hidden rounded-full"
+        style={{ background: 'rgba(255,255,255,0.04)' }}
+        role="progressbar"
+        aria-valuenow={Math.round(progress)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${status === 'scanning' ? t('scanning') : t('cleaning')} ${Math.round(progress)}%`}
+      >
         <div
           className="h-full rounded-full transition-all duration-300 ease-out"
           style={{

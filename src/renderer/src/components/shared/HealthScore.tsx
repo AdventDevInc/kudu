@@ -36,7 +36,7 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
   const offset = circumference - (animatedScore / 100) * circumference
 
   return (
-    <div className={cn('relative inline-flex items-center justify-center', className)}>
+    <div className={cn('relative inline-flex items-center justify-center', className)} role="img" aria-label={`${t('health')}: ${Math.round(score)} / 100`}>
       {/* Outer glow */}
       <div
         className="absolute rounded-full opacity-20 blur-3xl"
@@ -47,7 +47,7 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
         }}
       />
 
-      <svg width={config.width} height={config.width} className="-rotate-90">
+      <svg width={config.width} height={config.width} className="-rotate-90" aria-hidden="true">
         <defs>
           <linearGradient id="health-arc-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={colors.start} />
@@ -81,7 +81,7 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
         />
       </svg>
 
-      <div className="absolute flex flex-col items-center">
+      <div className="absolute flex flex-col items-center" aria-hidden="true">
         <span
           className={cn(config.fontSize, 'font-bold tracking-tight text-white')}
           style={{ textShadow: `0 0 20px ${colors.glow}30` }}

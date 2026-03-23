@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -24,13 +25,48 @@ export function ConfirmDialog({
   details
 }: ConfirmDialogProps) {
   const { t } = useTranslation('common')
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const onCancelRef = useRef(onCancel)
+  onCancelRef.current = onCancel
+
+  // Focus trap and keyboard handling
+  useEffect(() => {
+    if (!open) return
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    first?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onCancelRef.current(); return }
+      if (e.key !== 'Tab') return
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last?.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open])
+
   if (!open) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} onClick={onCancel} />
+      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} onClick={onCancel} aria-hidden="true" />
 
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-dialog-title"
+        aria-describedby="confirm-dialog-desc"
         className="glass-card relative w-full max-w-md animate-scale-in rounded-2xl p-6"
         style={{
           background: 'rgba(20, 20, 28, 0.85)',
@@ -49,12 +85,13 @@ export function ConfirmDialog({
                 className="h-5 w-5"
                 style={{ color: variant === 'danger' ? '#ef4444' : '#f59e0b' }}
                 strokeWidth={1.8}
+                aria-hidden="true"
               />
             </div>
           )}
           <div>
-            <h3 className="text-[16px] font-semibold text-white">{title}</h3>
-            <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: '#8e8e96' }}>
+            <h3 id="confirm-dialog-title" className="text-[16px] font-semibold text-white">{title}</h3>
+            <p id="confirm-dialog-desc" className="mt-1.5 text-[13px] leading-relaxed" style={{ color: '#8e8e96' }}>
               {description}
             </p>
             {details && (

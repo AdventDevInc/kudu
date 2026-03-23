@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { RTL_LANGUAGES } from './lib/languages'
 import { useScheduledScan } from './hooks/useScheduledScan'
@@ -93,6 +93,7 @@ export function App() {
   return (
     <PlatformContext value={platformInfo}>
     <HashRouter>
+      <PageTitleUpdater />
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       <AppShell>
         <Routes>
@@ -144,4 +145,44 @@ export function App() {
     </HashRouter>
     </PlatformContext>
   )
+}
+
+// Maps routes to sidebar i18n keys (sidebar namespace)
+const ROUTE_TITLE_KEYS: Record<string, string> = {
+  '/': 'dashboard',
+  '/cleaner': 'cleaner',
+  '/registry': 'registry',
+  '/startup': 'startup',
+  '/disk': 'diskTools',
+  '/duplicates': 'diskTools',
+  '/large-files': 'diskTools',
+  '/empty-folders': 'diskTools',
+  '/file-shredder': 'diskTools',
+  '/network': 'network',
+  '/malware': 'malwareScanner',
+  '/threat-monitor': 'threatMonitor',
+  '/cve': 'cveScanner',
+  '/game-mode': 'gameMode',
+  '/performance': 'performance',
+  '/uninstaller': 'software',
+  '/history': 'settings',
+  '/settings': 'settings',
+  '/about': 'settings',
+  '/privacy': 'systemHardening',
+  '/services': 'systemHardening',
+  '/debloater': 'software',
+  '/updates': 'software',
+  '/schedules': 'schedules',
+  '/drivers': 'software',
+}
+
+function PageTitleUpdater() {
+  const location = useLocation()
+  const { t } = useTranslation('sidebar')
+  useEffect(() => {
+    const key = ROUTE_TITLE_KEYS[location.pathname]
+    const name = key ? t(key) : null
+    document.title = name ? `${name} - Kudu` : 'Kudu'
+  }, [location.pathname, t])
+  return null
 }

@@ -15,6 +15,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
       <div
         className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
         style={{ background: 'rgba(255,255,255,0.03)' }}
+        aria-hidden="true"
       >
         <Icon className="h-7 w-7" style={{ color: '#3a3a42' }} strokeWidth={1.5} />
       </div>

@@ -48,6 +48,7 @@
     "url": "https://github.com/adventdevinc/kudu/issues"
   },
   "devDependencies": {
+    "@axe-core/react": "^4.11.1",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@electron/rebuild": "^4.0.3",
