@@ -772,21 +772,26 @@ export function createLinuxSecurity(): PlatformSecurity {
 
             for (const line of block.split('\n')) {
               if (!/\baccept\b/i.test(line)) continue
-              // Set syntax: "tcp dport { 22, 80, 443 }"
-              for (const m of line.matchAll(/tcp\s+dport\s*\{([^}]+)\}/g)) {
+              // Set syntax: "tcp dport { 22, 80, 443 }" / "udp dport { 53, 123 }"
+              for (const m of line.matchAll(/(?:tcp|udp)\s+dport\s*\{([^}]+)\}/g)) {
                 for (const p of m[1].matchAll(/(\d+)/g)) {
                   allowedPorts.push(parseInt(p[1], 10))
                 }
               }
-              // Single-port syntax: "tcp dport 22"
-              for (const m of line.matchAll(/tcp\s+dport\s+(\d+)/g)) {
+              // Single-port syntax: "tcp dport 22" / "udp dport 51820"
+              for (const m of line.matchAll(/(?:tcp|udp)\s+dport\s+(\d+)/g)) {
                 allowedPorts.push(parseInt(m[1], 10))
               }
             }
           }
         } catch { /* nft not usable — skip */ }
 
-        return { tool: 'nftables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+        // Only return from the nftables branch if it is actually filtering
+        // input.  Otherwise fall through to iptables — some hosts ship nft
+        // by default but enforce ingress rules via iptables-legacy.
+        if (active) {
+          return { tool: 'nftables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+        }
       }
 
       // ── 4. iptables ───────────────────────────────────────
