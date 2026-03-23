@@ -10,7 +10,8 @@
   "deletedToast": "Poistettu \"{{name}}\"",
   "updatedToast": "Päivitetty \"{{name}}\"",
   "createdToast": "Luotu \"{{name}}\"",
-  "failedEnableStartup": "Käynnistyksen yhteydessä suoritusta ei voitu ottaa käyttöön. Aikataulut eivät ehkä käynnisty uudelleenkäynnistyksen jälkeen.",
+  "failedEnableStartup": "Käynnistyksen yhteydessä suoritettavaa toimintoa ei voitu ottaa käyttöön. Aikataulut eivät ehkä käynnisty uudelleenkäynnistyksen jälkeen.",
+  "failedEnableStartupAction": "Lisätietoja",
   "deleteConfirmTitle": "Poista aikataulu",
   "deleteConfirmDescription": "Tämä aikataulu poistetaan pysyvästi. Tätä toimintoa ei voi kumota.",
   "deleteConfirmLabel": "Poista",
@@ -21,19 +22,19 @@
     "deleteAction": "Poista",
     "noTasksSelected": "Tehtäviä ei ole valittu",
     "nextRun": "Seuraava: {{time}}",
-    "lastRun": "Viimeisin: {{time}}",
+    "lastRun": "Viimeksi: {{time}}",
     "neverRun": "Ei koskaan suoritettu"
   },
   "presets": {
     "dialogTitle": "Valitse malli",
-    "weeklyFullCleanLabel": "Viikoittainen täysi puhdistus",
+    "weeklyFullCleanLabel": "Viikoittainen täyspuhdistus",
     "weeklyFullCleanDescription": "Kaikki puhdistusluokat joka maanantai klo 9",
     "dailyLightSweepLabel": "Päivittäinen kevyt puhdistus",
     "dailyLightSweepDescription": "Järjestelmä, selaimet ja roskakori päivittäin klo 8",
     "monthlyDeepMaintenanceLabel": "Kuukausittainen perusteellinen ylläpito",
     "monthlyDeepMaintenanceDescription": "Täysi puhdistus + rekisteri, ohjaimet ja ohjelmistot kuukauden 1. päivänä klo 10",
     "customLabel": "Mukautettu",
-    "customDescription": "Aloita tyhjästä uudella aikataululla"
+    "customDescription": "Aloita tyhjästä tyhjällä aikataululla"
   },
   "dialog": {
     "editTitle": "Muokkaa aikataulua",

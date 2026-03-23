@@ -1,16 +1,17 @@
 {
   "pageTitle": "Planifications",
-  "pageDescription": "Automatisez les analyses, nettoyages et mises à jour selon une planification",
+  "pageDescription": "Automatisez les analyses, nettoyages et mises à jour selon un planning",
   "newScheduleButton": "Nouvelle planification",
   "createScheduleButton": "Créer une planification",
   "emptyStateTitle": "Aucune planification pour le moment",
-  "emptyStateDescription": "Créez une planification pour exécuter automatiquement les analyses, nettoyages et mises à jour.",
+  "emptyStateDescription": "Créez une planification pour exécuter automatiquement des analyses, nettoyages et mises à jour.",
   "maxSchedulesReached": "Nombre maximal de planifications atteint : {{max}}.",
   "duplicatedToast": "\"{{name}}\" dupliqué",
   "deletedToast": "\"{{name}}\" supprimé",
   "updatedToast": "\"{{name}}\" mis à jour",
   "createdToast": "\"{{name}}\" créé",
   "failedEnableStartup": "Impossible d’activer le démarrage automatique. Les planifications risquent de ne pas s’exécuter après le redémarrage.",
+  "failedEnableStartupAction": "En savoir plus",
   "deleteConfirmTitle": "Supprimer la planification",
   "deleteConfirmDescription": "Cette planification sera supprimée définitivement. Cette action est irréversible.",
   "deleteConfirmLabel": "Supprimer",
@@ -33,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "Maintenance approfondie mensuelle",
     "monthlyDeepMaintenanceDescription": "Nettoyage complet + registre, pilotes et logiciels le 1er de chaque mois à 10 h",
     "customLabel": "Personnalisé",
-    "customDescription": "Commencer à partir de zéro avec une planification vide"
+    "customDescription": "Commencer à partir d’une planification vide"
   },
   "dialog": {
     "editTitle": "Modifier la planification",
@@ -52,8 +53,8 @@
     "cleanerGroup": "Nettoyage",
     "maintenanceGroup": "Maintenance",
     "autoApplyLabel": "Application automatique",
-    "autoApplyDescription": "Nettoyer automatiquement les fichiers, corriger les problèmes du registre et installer les mises à jour sans confirmation.",
-    "autoApplyWarning": "Les actions s’exécuteront automatiquement selon la planification. Assurez-vous que votre liste d’exclusions est à jour.",
+    "autoApplyDescription": "Nettoyez automatiquement les fichiers, corrigez les problèmes du registre et installez les mises à jour sans confirmation.",
+    "autoApplyWarning": "Les actions seront exécutées automatiquement selon le planning. Assurez-vous que votre liste d’exclusions est à jour.",
     "cancelButton": "Annuler",
     "saveChangesButton": "Enregistrer les modifications",
     "createScheduleButton": "Créer une planification"
@@ -81,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Tous les jours à {{time}}",
     "everyWeekdayAt": "Chaque {{day}} à {{time}}",
-    "monthlyAt": "Le {{ordinalDay}} de chaque mois à {{time}}"
+    "monthlyAt": "{{ordinalDay}} de chaque mois à {{time}}"
   },
   "nextRun": {
     "todayAt": "Aujourd’hui à {{time}}",

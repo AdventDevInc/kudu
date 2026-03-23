@@ -1,6 +1,6 @@
 {
   "pageTitle": "กำหนดการ",
-  "pageDescription": "ทำให้การสแกน การล้างข้อมูล และการอัปเดตทำงานอัตโนมัติตามกำหนดเวลา",
+  "pageDescription": "ทำให้การสแกน การล้างข้อมูล และการอัปเดตเป็นอัตโนมัติตามกำหนดเวลา",
   "newScheduleButton": "กำหนดการใหม่",
   "createScheduleButton": "สร้างกำหนดการ",
   "emptyStateTitle": "ยังไม่มีกำหนดการ",
@@ -11,27 +11,28 @@
   "updatedToast": "อัปเดต \"{{name}}\" แล้ว",
   "createdToast": "สร้าง \"{{name}}\" แล้ว",
   "failedEnableStartup": "ไม่สามารถเปิดใช้งานการเริ่มต้นระบบได้ กำหนดการอาจไม่ทำงานหลังจากรีบูต",
+  "failedEnableStartupAction": "เรียนรู้เพิ่มเติม",
   "deleteConfirmTitle": "ลบกำหนดการ",
   "deleteConfirmDescription": "กำหนดการนี้จะถูกลบอย่างถาวร การดำเนินการนี้ไม่สามารถย้อนกลับได้",
   "deleteConfirmLabel": "ลบ",
   "card": {
-    "autoApplyBadge": "นำไปใช้โดยอัตโนมัติ",
+    "autoApplyBadge": "ใช้โดยอัตโนมัติ",
     "editAction": "แก้ไข",
     "duplicateAction": "ทำสำเนา",
     "deleteAction": "ลบ",
-    "noTasksSelected": "ยังไม่ได้เลือกงาน",
+    "noTasksSelected": "ไม่ได้เลือกงาน",
     "nextRun": "ถัดไป: {{time}}",
     "lastRun": "ล่าสุด: {{time}}",
     "neverRun": "ยังไม่เคยเรียกใช้"
   },
   "presets": {
     "dialogTitle": "เลือกเทมเพลต",
-    "weeklyFullCleanLabel": "ล้างข้อมูลเต็มรูปแบบรายสัปดาห์",
+    "weeklyFullCleanLabel": "ล้างข้อมูลทั้งหมดรายสัปดาห์",
     "weeklyFullCleanDescription": "ทุกหมวดหมู่ของตัวล้างข้อมูล ทุกวันจันทร์ เวลา 9:00 น.",
     "dailyLightSweepLabel": "ล้างข้อมูลแบบเบารายวัน",
     "dailyLightSweepDescription": "ระบบ เบราว์เซอร์ และถังรีไซเคิล ทุกวัน เวลา 8:00 น.",
     "monthlyDeepMaintenanceLabel": "บำรุงรักษาเชิงลึกรายเดือน",
-    "monthlyDeepMaintenanceDescription": "ล้างข้อมูลเต็มรูปแบบ + Registry ไดรเวอร์ และซอฟต์แวร์ ในวันที่ 1 เวลา 10:00 น.",
+    "monthlyDeepMaintenanceDescription": "ล้างข้อมูลทั้งหมด + registry ไดรเวอร์ และซอฟต์แวร์ ในวันที่ 1 เวลา 10:00 น.",
     "customLabel": "กำหนดเอง",
     "customDescription": "เริ่มต้นใหม่ด้วยกำหนดการว่างเปล่า"
   },
@@ -51,9 +52,9 @@
     "deselectAll": "ยกเลิกการเลือกทั้งหมด",
     "cleanerGroup": "ตัวล้างข้อมูล",
     "maintenanceGroup": "การบำรุงรักษา",
-    "autoApplyLabel": "นำไปใช้โดยอัตโนมัติ",
-    "autoApplyDescription": "ล้างไฟล์ แก้ไขปัญหา Registry และติดตั้งการอัปเดตโดยอัตโนมัติโดยไม่ต้องยืนยัน",
-    "autoApplyWarning": "การดำเนินการจะทำงานโดยอัตโนมัติตามกำหนดเวลา โปรดตรวจสอบให้แน่ใจว่ารายการยกเว้นของคุณเป็นปัจจุบัน",
+    "autoApplyLabel": "ใช้โดยอัตโนมัติ",
+    "autoApplyDescription": "ล้างไฟล์ แก้ไขปัญหา registry และติดตั้งการอัปเดตโดยอัตโนมัติโดยไม่ต้องยืนยัน",
+    "autoApplyWarning": "การดำเนินการจะทำงานโดยอัตโนมัติตามกำหนดเวลา โปรดตรวจสอบให้แน่ใจว่ารายการยกเว้นของคุณเป็นข้อมูลล่าสุด",
     "cancelButton": "ยกเลิก",
     "saveChangesButton": "บันทึกการเปลี่ยนแปลง",
     "createScheduleButton": "สร้างกำหนดการ"
@@ -65,7 +66,7 @@
     "gaming": "เกม",
     "recycleBin": "ถังรีไซเคิล",
     "databases": "ฐานข้อมูล",
-    "registryFixes": "การแก้ไข Registry",
+    "registryFixes": "การแก้ไข registry",
     "driverUpdates": "การอัปเดตไดรเวอร์",
     "softwareUpdates": "การอัปเดตซอฟต์แวร์"
   },
@@ -86,7 +87,7 @@
   "nextRun": {
     "todayAt": "วันนี้ เวลา {{time}}",
     "tomorrowAt": "พรุ่งนี้ เวลา {{time}}",
-    "inDaysAt": "อีก {{count}} วัน เวลา {{time}}",
+    "inDaysAt": "ในอีก {{count}} วัน เวลา {{time}}",
     "dateAt": "{{date}} เวลา {{time}}"
   },
   "lastRun": {

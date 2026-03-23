@@ -11,6 +11,7 @@
   "updatedToast": "\"{{name}}\" aktualisiert",
   "createdToast": "\"{{name}}\" erstellt",
   "failedEnableStartup": "Autostart konnte nicht aktiviert werden. Zeitpläne werden nach einem Neustart möglicherweise nicht ausgeführt.",
+  "failedEnableStartupAction": "Mehr erfahren",
   "deleteConfirmTitle": "Zeitplan löschen",
   "deleteConfirmDescription": "Dieser Zeitplan wird dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
   "deleteConfirmLabel": "Löschen",
@@ -27,11 +28,11 @@
   "presets": {
     "dialogTitle": "Vorlage auswählen",
     "weeklyFullCleanLabel": "Wöchentliche vollständige Bereinigung",
-    "weeklyFullCleanDescription": "Alle Bereinigungskategorien jeden Montag um 9 Uhr",
+    "weeklyFullCleanDescription": "Alle Bereinigungskategorien jeden Montag um 9:00 Uhr",
     "dailyLightSweepLabel": "Tägliche leichte Bereinigung",
-    "dailyLightSweepDescription": "System, Browser und Papierkorb täglich um 8 Uhr",
+    "dailyLightSweepDescription": "System, Browser und Papierkorb täglich um 8:00 Uhr",
     "monthlyDeepMaintenanceLabel": "Monatliche intensive Wartung",
-    "monthlyDeepMaintenanceDescription": "Vollständige Bereinigung + Registry, Treiber und Software am 1. um 10 Uhr",
+    "monthlyDeepMaintenanceDescription": "Vollständige Bereinigung + Registrierung, Treiber und Software am 1. um 10:00 Uhr",
     "customLabel": "Benutzerdefiniert",
     "customDescription": "Mit einem leeren Zeitplan von Grund auf beginnen"
   },
@@ -52,7 +53,7 @@
     "cleanerGroup": "Bereinigung",
     "maintenanceGroup": "Wartung",
     "autoApplyLabel": "Automatisch anwenden",
-    "autoApplyDescription": "Dateien automatisch bereinigen, Registry-Probleme beheben und Updates ohne Bestätigung installieren.",
+    "autoApplyDescription": "Dateien automatisch bereinigen, Registrierungsprobleme beheben und Updates ohne Bestätigung installieren.",
     "autoApplyWarning": "Aktionen werden automatisch nach Zeitplan ausgeführt. Stellen Sie sicher, dass Ihre Ausschlussliste aktuell ist.",
     "cancelButton": "Abbrechen",
     "saveChangesButton": "Änderungen speichern",
@@ -65,9 +66,9 @@
     "gaming": "Spiele",
     "recycleBin": "Papierkorb",
     "databases": "Datenbanken",
-    "registryFixes": "Registry-Reparaturen",
-    "driverUpdates": "Treiber-Updates",
-    "softwareUpdates": "Software-Updates"
+    "registryFixes": "Registrierungsreparaturen",
+    "driverUpdates": "Treiberupdates",
+    "softwareUpdates": "Softwareupdates"
   },
   "dayNames": {
     "sunday": "Sonntag",
@@ -81,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Jeden Tag um {{time}}",
     "everyWeekdayAt": "Jeden {{day}} um {{time}}",
-    "monthlyAt": "Am {{ordinalDay}} jedes Monats um {{time}}"
+    "monthlyAt": "Am {{ordinalDay}}. jedes Monats um {{time}}"
   },
   "nextRun": {
     "todayAt": "Heute um {{time}}",
@@ -93,7 +94,7 @@
     "justNow": "Gerade eben",
     "minutesAgo": "vor {{count}} Min.",
     "hoursAgo": "vor {{count}} Std.",
-    "daysAgo": "vor {{count}} T."
+    "daysAgo": "vor {{count}} Tagen"
   },
   "copyNameSuffix": "(Kopie)"
 }

@@ -10,7 +10,8 @@
   "deletedToast": "Odstraněno „{{name}}“",
   "updatedToast": "Aktualizováno „{{name}}“",
   "createdToast": "Vytvořeno „{{name}}“",
-  "failedEnableStartup": "Nepodařilo se povolit spouštění po startu. Plány se po restartu nemusí spustit.",
+  "failedEnableStartup": "Nepodařilo se povolit spouštění při startu. Po restartu se plány nemusí spustit.",
+  "failedEnableStartupAction": "Zjistit více",
   "deleteConfirmTitle": "Odstranit plán",
   "deleteConfirmDescription": "Tento plán bude trvale odstraněn. Tuto akci nelze vrátit zpět.",
   "deleteConfirmLabel": "Odstranit",
@@ -31,9 +32,9 @@
     "dailyLightSweepLabel": "Denní lehké čištění",
     "dailyLightSweepDescription": "Systém, prohlížeče a koš každý den v 8:00",
     "monthlyDeepMaintenanceLabel": "Měsíční hloubková údržba",
-    "monthlyDeepMaintenanceDescription": "Úplné čištění + registr, ovladače a software vždy 1. den v měsíci v 10:00",
+    "monthlyDeepMaintenanceDescription": "Úplné čištění + registr, ovladače a software 1. dne v měsíci v 10:00",
     "customLabel": "Vlastní",
-    "customDescription": "Začněte od začátku s prázdným plánem"
+    "customDescription": "Začněte od nuly s prázdným plánem"
   },
   "dialog": {
     "editTitle": "Upravit plán",
@@ -52,7 +53,7 @@
     "cleanerGroup": "Čištění",
     "maintenanceGroup": "Údržba",
     "autoApplyLabel": "Automaticky použít",
-    "autoApplyDescription": "Automaticky vyčistit soubory, opravit problémy registru a nainstalovat aktualizace bez potvrzení.",
+    "autoApplyDescription": "Automaticky vyčistí soubory, opraví problémy registru a nainstaluje aktualizace bez potvrzení.",
     "autoApplyWarning": "Akce se budou automaticky spouštět podle plánu. Ujistěte se, že je váš seznam výjimek aktuální.",
     "cancelButton": "Zrušit",
     "saveChangesButton": "Uložit změny",

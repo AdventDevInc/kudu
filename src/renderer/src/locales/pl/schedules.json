@@ -11,6 +11,7 @@
   "updatedToast": "Zaktualizowano „{{name}}”",
   "createdToast": "Utworzono „{{name}}”",
   "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
+  "failedEnableStartupAction": "Dowiedz się więcej",
   "deleteConfirmTitle": "Usuń harmonogram",
   "deleteConfirmDescription": "Ten harmonogram zostanie trwale usunięty. Tej operacji nie można cofnąć.",
   "deleteConfirmLabel": "Usuń",
@@ -30,10 +31,10 @@
     "weeklyFullCleanDescription": "Wszystkie kategorie czyszczenia w każdy poniedziałek o 9:00",
     "dailyLightSweepLabel": "Codzienne lekkie czyszczenie",
     "dailyLightSweepDescription": "System, przeglądarki i kosz codziennie o 8:00",
-    "monthlyDeepMaintenanceLabel": "Miesięczna gruntowna konserwacja",
+    "monthlyDeepMaintenanceLabel": "Comiesięczna gruntowna konserwacja",
     "monthlyDeepMaintenanceDescription": "Pełne czyszczenie + rejestr, sterowniki i oprogramowanie 1. dnia miesiąca o 10:00",
     "customLabel": "Niestandardowy",
-    "customDescription": "Rozpocznij od pustego harmonogramu"
+    "customDescription": "Rozpocznij od zera z pustym harmonogramem"
   },
   "dialog": {
     "editTitle": "Edytuj harmonogram",
@@ -52,7 +53,7 @@
     "cleanerGroup": "Czyszczenie",
     "maintenanceGroup": "Konserwacja",
     "autoApplyLabel": "Automatyczne zastosowanie",
-    "autoApplyDescription": "Automatycznie czyść pliki, naprawiaj problemy z rejestrem i instaluj aktualizacje bez potwierdzenia.",
+    "autoApplyDescription": "Automatycznie czyść pliki, naprawiaj problemy rejestru i instaluj aktualizacje bez potwierdzenia.",
     "autoApplyWarning": "Działania będą uruchamiane automatycznie zgodnie z harmonogramem. Upewnij się, że lista wykluczeń jest aktualna.",
     "cancelButton": "Anuluj",
     "saveChangesButton": "Zapisz zmiany",

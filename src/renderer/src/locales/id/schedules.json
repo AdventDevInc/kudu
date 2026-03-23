@@ -11,6 +11,7 @@
   "updatedToast": "\"{{name}}\" diperbarui",
   "createdToast": "\"{{name}}\" dibuat",
   "failedEnableStartup": "Gagal mengaktifkan startup. Jadwal mungkin tidak berjalan setelah reboot.",
+  "failedEnableStartupAction": "Pelajari lebih lanjut",
   "deleteConfirmTitle": "Hapus jadwal",
   "deleteConfirmDescription": "Jadwal ini akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.",
   "deleteConfirmLabel": "Hapus",
@@ -29,7 +30,7 @@
     "weeklyFullCleanLabel": "Pembersihan Penuh Mingguan",
     "weeklyFullCleanDescription": "Semua kategori pembersih setiap Senin pukul 09.00",
     "dailyLightSweepLabel": "Pembersihan Ringan Harian",
-    "dailyLightSweepDescription": "Sistem, browser & recycle bin setiap hari pukul 08.00",
+    "dailyLightSweepDescription": "Sistem, browser & tempat sampah setiap hari pukul 08.00",
     "monthlyDeepMaintenanceLabel": "Pemeliharaan Mendalam Bulanan",
     "monthlyDeepMaintenanceDescription": "Pembersihan penuh + registry, driver & perangkat lunak setiap tanggal 1 pukul 10.00",
     "customLabel": "Kustom",
@@ -63,7 +64,7 @@
     "browsers": "Browser",
     "applications": "Aplikasi",
     "gaming": "Game",
-    "recycleBin": "Recycle Bin",
+    "recycleBin": "Tempat Sampah",
     "databases": "Database",
     "registryFixes": "Perbaikan Registry",
     "driverUpdates": "Pembaruan Driver",
@@ -81,19 +82,19 @@
   "frequency": {
     "everyDayAt": "Setiap hari pukul {{time}}",
     "everyWeekdayAt": "Setiap {{day}} pukul {{time}}",
-    "monthlyAt": "Setiap tanggal {{ordinalDay}} pukul {{time}}"
+    "monthlyAt": "{{ordinalDay}} setiap bulan pukul {{time}}"
   },
   "nextRun": {
     "todayAt": "Hari ini pukul {{time}}",
     "tomorrowAt": "Besok pukul {{time}}",
-    "inDaysAt": "{{count}} hari lagi pukul {{time}}",
+    "inDaysAt": "Dalam {{count}} hari pukul {{time}}",
     "dateAt": "{{date}} pukul {{time}}"
   },
   "lastRun": {
     "justNow": "Baru saja",
-    "minutesAgo": "{{count}}m lalu",
-    "hoursAgo": "{{count}}j lalu",
-    "daysAgo": "{{count}}h lalu"
+    "minutesAgo": "{{count}}m yang lalu",
+    "hoursAgo": "{{count}}j yang lalu",
+    "daysAgo": "{{count}}h yang lalu"
   },
   "copyNameSuffix": "(salinan)"
 }

@@ -5,12 +5,13 @@
   "createScheduleButton": "スケジュールを作成",
   "emptyStateTitle": "スケジュールはまだありません",
   "emptyStateDescription": "スケジュールを作成すると、スキャン、クリーンアップ、更新を自動的に実行できます。",
-  "maxSchedulesReached": "スケジュールは最大 {{max}} 件までです。",
+  "maxSchedulesReached": "スケジュールの上限 {{max}} 件に達しました。",
   "duplicatedToast": "「{{name}}」を複製しました",
   "deletedToast": "「{{name}}」を削除しました",
   "updatedToast": "「{{name}}」を更新しました",
   "createdToast": "「{{name}}」を作成しました",
   "failedEnableStartup": "スタートアップの有効化に失敗しました。再起動後にスケジュールが実行されない場合があります。",
+  "failedEnableStartupAction": "詳細を見る",
   "deleteConfirmTitle": "スケジュールを削除",
   "deleteConfirmDescription": "このスケジュールは完全に削除されます。この操作は元に戻せません。",
   "deleteConfirmLabel": "削除",
@@ -33,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "毎月の詳細メンテナンス",
     "monthlyDeepMaintenanceDescription": "毎月1日の午前10時に、フルクリーン + レジストリ、ドライバー、ソフトウェアを実行",
     "customLabel": "カスタム",
-    "customDescription": "空のスケジュールから作成を開始します"
+    "customDescription": "空のスケジュールから作成を開始"
   },
   "dialog": {
     "editTitle": "スケジュールを編集",
@@ -52,7 +53,7 @@
     "cleanerGroup": "クリーナー",
     "maintenanceGroup": "メンテナンス",
     "autoApplyLabel": "自動適用",
-    "autoApplyDescription": "確認なしで、ファイルのクリーンアップ、レジストリの問題の修正、更新プログラムのインストールを自動的に実行します。",
+    "autoApplyDescription": "確認なしで、ファイルのクリーンアップ、レジストリの問題の修復、更新プログラムのインストールを自動的に実行します。",
     "autoApplyWarning": "操作はスケジュールに従って自動的に実行されます。除外リストが最新であることを確認してください。",
     "cancelButton": "キャンセル",
     "saveChangesButton": "変更を保存",
@@ -65,7 +66,7 @@
     "gaming": "ゲーム",
     "recycleBin": "ごみ箱",
     "databases": "データベース",
-    "registryFixes": "レジストリの修正",
+    "registryFixes": "レジストリの修復",
     "driverUpdates": "ドライバーの更新",
     "softwareUpdates": "ソフトウェアの更新"
   },

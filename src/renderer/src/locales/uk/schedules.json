@@ -11,6 +11,7 @@
   "updatedToast": "Оновлено \"{{name}}\"",
   "createdToast": "Створено \"{{name}}\"",
   "failedEnableStartup": "Не вдалося ввімкнути автозапуск. Розклади можуть не запускатися після перезавантаження.",
+  "failedEnableStartupAction": "Докладніше",
   "deleteConfirmTitle": "Видалити розклад",
   "deleteConfirmDescription": "Цей розклад буде остаточно видалено. Цю дію неможливо скасувати.",
   "deleteConfirmLabel": "Видалити",

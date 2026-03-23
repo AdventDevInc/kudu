@@ -11,6 +11,7 @@
   "updatedToast": "\"{{name}}\" güncellendi",
   "createdToast": "\"{{name}}\" oluşturuldu",
   "failedEnableStartup": "Başlangıç etkinleştirilemedi. Zamanlamalar yeniden başlatmadan sonra çalışmayabilir.",
+  "failedEnableStartupAction": "Daha fazla bilgi",
   "deleteConfirmTitle": "Zamanlamayı sil",
   "deleteConfirmDescription": "Bu zamanlama kalıcı olarak kaldırılacaktır. Bu işlem geri alınamaz.",
   "deleteConfirmLabel": "Sil",

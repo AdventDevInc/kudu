@@ -1,17 +1,18 @@
 {
   "pageTitle": "לוחות זמנים",
-  "pageDescription": "הפוך סריקות, ניקויים ועדכונים לאוטומטיים לפי לוח זמנים",
+  "pageDescription": "הפכו סריקות, ניקויים ועדכונים לאוטומטיים לפי לוח זמנים",
   "newScheduleButton": "לוח זמנים חדש",
   "createScheduleButton": "צור לוח זמנים",
   "emptyStateTitle": "עדיין אין לוחות זמנים",
-  "emptyStateDescription": "צור לוח זמנים כדי להפעיל באופן אוטומטי סריקות, ניקויים ועדכונים.",
-  "maxSchedulesReached": "הגעת למספר המרבי של {{max}} לוחות זמנים.",
-  "duplicatedToast": "שוכפל \"{{name}}\"",
+  "emptyStateDescription": "צרו לוח זמנים כדי להפעיל באופן אוטומטי סריקות, ניקויים ועדכונים.",
+  "maxSchedulesReached": "הגעת למספר המרבי של לוחות זמנים: {{max}}.",
+  "duplicatedToast": "הועתק \"{{name}}\"",
   "deletedToast": "נמחק \"{{name}}\"",
   "updatedToast": "עודכן \"{{name}}\"",
   "createdToast": "נוצר \"{{name}}\"",
-  "failedEnableStartup": "לא ניתן היה להפעיל את ההפעלה בעת האתחול. ייתכן שלוחות הזמנים לא יפעלו לאחר הפעלה מחדש.",
-  "deleteConfirmTitle": "מחק לוח זמנים",
+  "failedEnableStartup": "לא ניתן היה להפעיל הפעלה בעת האתחול. ייתכן שלוחות הזמנים לא יופעלו לאחר הפעלה מחדש.",
+  "failedEnableStartupAction": "למידע נוסף",
+  "deleteConfirmTitle": "מחיקת לוח זמנים",
   "deleteConfirmDescription": "לוח זמנים זה יוסר לצמיתות. לא ניתן לבטל פעולה זו.",
   "deleteConfirmLabel": "מחק",
   "card": {
@@ -22,7 +23,7 @@
     "noTasksSelected": "לא נבחרו משימות",
     "nextRun": "הבא: {{time}}",
     "lastRun": "אחרון: {{time}}",
-    "neverRun": "מעולם לא הופעל"
+    "neverRun": "לא הופעל מעולם"
   },
   "presets": {
     "dialogTitle": "בחר תבנית",
@@ -31,12 +32,12 @@
     "dailyLightSweepLabel": "ניקוי קל יומי",
     "dailyLightSweepDescription": "מערכת, דפדפנים וסל המיחזור מדי יום בשעה 8:00",
     "monthlyDeepMaintenanceLabel": "תחזוקה מעמיקה חודשית",
-    "monthlyDeepMaintenanceDescription": "ניקוי מלא + רישום, מנהלי התקנים ותוכנות ב-1 בכל חודש בשעה 10:00",
+    "monthlyDeepMaintenanceDescription": "ניקוי מלא + רישום, מנהלי התקנים ותוכנות ב־1 בכל חודש בשעה 10:00",
     "customLabel": "מותאם אישית",
     "customDescription": "התחל מאפס עם לוח זמנים ריק"
   },
   "dialog": {
-    "editTitle": "ערוך לוח זמנים",
+    "editTitle": "עריכת לוח זמנים",
     "newTitle": "לוח זמנים חדש",
     "nameLabel": "שם",
     "namePlaceholder": "לדוגמה: ניקוי מעמיק שבועי",
@@ -81,7 +82,7 @@
   "frequency": {
     "everyDayAt": "כל יום בשעה {{time}}",
     "everyWeekdayAt": "בכל {{day}} בשעה {{time}}",
-    "monthlyAt": "ב-{{ordinalDay}} בכל חודש בשעה {{time}}"
+    "monthlyAt": "ב־{{ordinalDay}} בכל חודש בשעה {{time}}"
   },
   "nextRun": {
     "todayAt": "היום בשעה {{time}}",

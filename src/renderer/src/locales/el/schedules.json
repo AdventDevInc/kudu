@@ -5,12 +5,13 @@
   "createScheduleButton": "Δημιουργία προγραμματισμού",
   "emptyStateTitle": "Δεν υπάρχουν ακόμη προγραμματισμοί",
   "emptyStateDescription": "Δημιουργήστε έναν προγραμματισμό για να εκτελούνται αυτόματα σαρώσεις, καθαρισμοί και ενημερώσεις.",
-  "maxSchedulesReached": "Έχετε φτάσει το μέγιστο των {{max}} προγραμματισμών.",
+  "maxSchedulesReached": "Έχετε φτάσει το μέγιστο όριο των {{max}} προγραμματισμών.",
   "duplicatedToast": "Έγινε αντιγραφή του \"{{name}}\"",
   "deletedToast": "Το \"{{name}}\" διαγράφηκε",
   "updatedToast": "Το \"{{name}}\" ενημερώθηκε",
   "createdToast": "Το \"{{name}}\" δημιουργήθηκε",
-  "failedEnableStartup": "Αποτυχία ενεργοποίησης της εκκίνησης. Οι προγραμματισμοί ενδέχεται να μην εκτελούνται μετά από επανεκκίνηση.",
+  "failedEnableStartup": "Δεν ήταν δυνατή η ενεργοποίηση της εκκίνησης. Οι προγραμματισμοί ενδέχεται να μην εκτελούνται μετά από επανεκκίνηση.",
+  "failedEnableStartupAction": "Μάθετε περισσότερα",
   "deleteConfirmTitle": "Διαγραφή προγραμματισμού",
   "deleteConfirmDescription": "Αυτός ο προγραμματισμός θα αφαιρεθεί οριστικά. Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
   "deleteConfirmLabel": "Διαγραφή",
@@ -30,7 +31,7 @@
     "weeklyFullCleanDescription": "Όλες οι κατηγορίες καθαρισμού κάθε Δευτέρα στις 9 π.μ.",
     "dailyLightSweepLabel": "Καθημερινός ελαφρύς καθαρισμός",
     "dailyLightSweepDescription": "Σύστημα, προγράμματα περιήγησης και κάδος ανακύκλωσης καθημερινά στις 8 π.μ.",
-    "monthlyDeepMaintenanceLabel": "Μηνιαία εκτεταμένη συντήρηση",
+    "monthlyDeepMaintenanceLabel": "Μηνιαία βαθιά συντήρηση",
     "monthlyDeepMaintenanceDescription": "Πλήρης καθαρισμός + μητρώο, προγράμματα οδήγησης και λογισμικό την 1η κάθε μήνα στις 10 π.μ.",
     "customLabel": "Προσαρμοσμένο",
     "customDescription": "Ξεκινήστε από την αρχή με έναν κενό προγραμματισμό"
@@ -39,7 +40,7 @@
     "editTitle": "Επεξεργασία προγραμματισμού",
     "newTitle": "Νέος προγραμματισμός",
     "nameLabel": "Όνομα",
-    "namePlaceholder": "π.χ. Εβδομαδιαίος εκτεταμένος καθαρισμός",
+    "namePlaceholder": "π.χ. Εβδομαδιαίος βαθύς καθαρισμός",
     "frequencyLabel": "Συχνότητα",
     "frequencyDaily": "Καθημερινά",
     "frequencyWeekly": "Εβδομαδιαία",
@@ -52,7 +53,7 @@
     "cleanerGroup": "Καθαρισμός",
     "maintenanceGroup": "Συντήρηση",
     "autoApplyLabel": "Αυτόματη εφαρμογή",
-    "autoApplyDescription": "Καθαρίζει αυτόματα αρχεία, διορθώνει προβλήματα μητρώου και εγκαθιστά ενημερώσεις χωρίς επιβεβαίωση.",
+    "autoApplyDescription": "Αυτόματος καθαρισμός αρχείων, διόρθωση προβλημάτων μητρώου και εγκατάσταση ενημερώσεων χωρίς επιβεβαίωση.",
     "autoApplyWarning": "Οι ενέργειες θα εκτελούνται αυτόματα σύμφωνα με το πρόγραμμα. Βεβαιωθείτε ότι η λίστα εξαιρέσεών σας είναι ενημερωμένη.",
     "cancelButton": "Ακύρωση",
     "saveChangesButton": "Αποθήκευση αλλαγών",
@@ -81,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Κάθε μέρα στις {{time}}",
     "everyWeekdayAt": "Κάθε {{day}} στις {{time}}",
-    "monthlyAt": "Την {{ordinalDay}} κάθε μήνα στις {{time}}"
+    "monthlyAt": "{{ordinalDay}} κάθε μήνα στις {{time}}"
   },
   "nextRun": {
     "todayAt": "Σήμερα στις {{time}}",
@@ -91,9 +92,9 @@
   },
   "lastRun": {
     "justNow": "Μόλις τώρα",
-    "minutesAgo": "πριν από {{count}}λ",
-    "hoursAgo": "πριν από {{count}}ω",
-    "daysAgo": "πριν από {{count}}η"
+    "minutesAgo": "πριν από {{count}} λ.",
+    "hoursAgo": "πριν από {{count}} ώ.",
+    "daysAgo": "πριν από {{count}} ημ."
   },
   "copyNameSuffix": "(αντίγραφο)"
 }

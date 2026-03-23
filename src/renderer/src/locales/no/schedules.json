@@ -5,14 +5,15 @@
   "createScheduleButton": "Opprett tidsplan",
   "emptyStateTitle": "Ingen tidsplaner ennå",
   "emptyStateDescription": "Opprett en tidsplan for å kjøre skanninger, oppryddinger og oppdateringer automatisk.",
-  "maxSchedulesReached": "Maksimalt antall tidsplaner er nådd: {{max}}.",
+  "maxSchedulesReached": "Maksimalt antall på {{max}} tidsplaner er nådd.",
   "duplicatedToast": "Dupliserte \"{{name}}\"",
   "deletedToast": "Slettet \"{{name}}\"",
   "updatedToast": "Oppdaterte \"{{name}}\"",
   "createdToast": "Opprettet \"{{name}}\"",
   "failedEnableStartup": "Kunne ikke aktivere oppstart. Tidsplaner kjøres kanskje ikke etter omstart.",
+  "failedEnableStartupAction": "Les mer",
   "deleteConfirmTitle": "Slett tidsplan",
-  "deleteConfirmDescription": "Denne tidsplanen blir fjernet permanent. Denne handlingen kan ikke angres.",
+  "deleteConfirmDescription": "Denne tidsplanen blir slettet permanent. Denne handlingen kan ikke angres.",
   "deleteConfirmLabel": "Slett",
   "card": {
     "autoApplyBadge": "Bruk automatisk",
@@ -27,11 +28,11 @@
   "presets": {
     "dialogTitle": "Velg en mal",
     "weeklyFullCleanLabel": "Ukentlig full opprydding",
-    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09.00",
+    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09:00",
     "dailyLightSweepLabel": "Daglig lett opprydding",
-    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08.00",
-    "monthlyDeepMaintenanceLabel": "Månedlig grundig vedlikehold",
-    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. hver måned kl. 10.00",
+    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08:00",
+    "monthlyDeepMaintenanceLabel": "Månedlig dyptgående vedlikehold",
+    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. kl. 10:00",
     "customLabel": "Tilpasset",
     "customDescription": "Start fra bunnen av med en tom tidsplan"
   },
@@ -39,7 +40,7 @@
     "editTitle": "Rediger tidsplan",
     "newTitle": "Ny tidsplan",
     "nameLabel": "Navn",
-    "namePlaceholder": "f.eks. Ukentlig grundig opprydding",
+    "namePlaceholder": "f.eks. Ukentlig dyprengjøring",
     "frequencyLabel": "Frekvens",
     "frequencyDaily": "Daglig",
     "frequencyWeekly": "Ukentlig",
@@ -91,9 +92,9 @@
   },
   "lastRun": {
     "justNow": "Akkurat nå",
-    "minutesAgo": "{{count}} m siden",
-    "hoursAgo": "{{count}} t siden",
-    "daysAgo": "{{count}} d siden"
+    "minutesAgo": "for {{count}}m siden",
+    "hoursAgo": "for {{count}}h siden",
+    "daysAgo": "for {{count}}d siden"
   },
   "copyNameSuffix": "(kopi)"
 }

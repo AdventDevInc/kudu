@@ -5,12 +5,13 @@
   "createScheduleButton": "创建计划任务",
   "emptyStateTitle": "暂无计划任务",
   "emptyStateDescription": "创建计划任务以自动执行扫描、清理和更新。",
-  "maxSchedulesReached": "最多只能创建 {{max}} 个计划任务。",
+  "maxSchedulesReached": "已达到最多 {{max}} 个计划任务的上限。",
   "duplicatedToast": "已复制“{{name}}”",
   "deletedToast": "已删除“{{name}}”",
   "updatedToast": "已更新“{{name}}”",
   "createdToast": "已创建“{{name}}”",
   "failedEnableStartup": "启用开机启动失败。重启后计划任务可能无法运行。",
+  "failedEnableStartupAction": "了解更多",
   "deleteConfirmTitle": "删除计划任务",
   "deleteConfirmDescription": "此计划任务将被永久删除。此操作无法撤销。",
   "deleteConfirmLabel": "删除",
@@ -27,7 +28,7 @@
   "presets": {
     "dialogTitle": "选择模板",
     "weeklyFullCleanLabel": "每周完整清理",
-    "weeklyFullCleanDescription": "每周一上午 9:00 执行所有清理类别",
+    "weeklyFullCleanDescription": "每周一上午 9:00 清理所有清理器类别",
     "dailyLightSweepLabel": "每日轻度清理",
     "dailyLightSweepDescription": "每天上午 8:00 清理系统、浏览器和回收站",
     "monthlyDeepMaintenanceLabel": "每月深度维护",
@@ -80,7 +81,7 @@
   },
   "frequency": {
     "everyDayAt": "每天 {{time}}",
-    "everyWeekdayAt": "每{{day}} {{time}}",
+    "everyWeekdayAt": "每周{{day}} {{time}}",
     "monthlyAt": "每月 {{ordinalDay}} {{time}}"
   },
   "nextRun": {

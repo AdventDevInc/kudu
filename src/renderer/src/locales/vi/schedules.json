@@ -1,6 +1,6 @@
 {
   "pageTitle": "Lịch biểu",
-  "pageDescription": "Tự động hóa quét, dọn dẹp và cập nhật theo lịch",
+  "pageDescription": "Tự động hóa việc quét, dọn dẹp và cập nhật theo lịch",
   "newScheduleButton": "Lịch biểu mới",
   "createScheduleButton": "Tạo lịch biểu",
   "emptyStateTitle": "Chưa có lịch biểu nào",
@@ -11,8 +11,9 @@
   "updatedToast": "Đã cập nhật \"{{name}}\"",
   "createdToast": "Đã tạo \"{{name}}\"",
   "failedEnableStartup": "Không thể bật khởi động cùng hệ thống. Lịch biểu có thể không chạy sau khi khởi động lại.",
+  "failedEnableStartupAction": "Tìm hiểu thêm",
   "deleteConfirmTitle": "Xóa lịch biểu",
-  "deleteConfirmDescription": "Lịch biểu này sẽ bị xóa vĩnh viễn. Không thể hoàn tác hành động này.",
+  "deleteConfirmDescription": "Lịch biểu này sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.",
   "deleteConfirmLabel": "Xóa",
   "card": {
     "autoApplyBadge": "Tự động áp dụng",
@@ -26,10 +27,10 @@
   },
   "presets": {
     "dialogTitle": "Chọn mẫu",
-    "weeklyFullCleanLabel": "Dọn dẹp toàn bộ hằng tuần",
-    "weeklyFullCleanDescription": "Tất cả danh mục dọn dẹp vào mỗi Thứ Hai lúc 9:00 SA",
-    "dailyLightSweepLabel": "Dọn dẹp nhẹ hằng ngày",
-    "dailyLightSweepDescription": "Hệ thống, trình duyệt và Thùng rác hằng ngày lúc 8:00 SA",
+    "weeklyFullCleanLabel": "Dọn dẹp toàn bộ hàng tuần",
+    "weeklyFullCleanDescription": "Tất cả danh mục dọn dẹp vào mỗi thứ Hai lúc 9:00 SA",
+    "dailyLightSweepLabel": "Dọn nhẹ hằng ngày",
+    "dailyLightSweepDescription": "Hệ thống, trình duyệt và thùng rác hằng ngày lúc 8:00 SA",
     "monthlyDeepMaintenanceLabel": "Bảo trì chuyên sâu hằng tháng",
     "monthlyDeepMaintenanceDescription": "Dọn dẹp toàn bộ + registry, driver và phần mềm vào ngày 1 lúc 10:00 SA",
     "customLabel": "Tùy chỉnh",
@@ -70,7 +71,7 @@
     "softwareUpdates": "Cập nhật phần mềm"
   },
   "dayNames": {
-    "sunday": "Chủ Nhật",
+    "sunday": "Chủ nhật",
     "monday": "Thứ Hai",
     "tuesday": "Thứ Ba",
     "wednesday": "Thứ Tư",

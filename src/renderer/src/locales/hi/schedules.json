@@ -1,21 +1,22 @@
 {
   "pageTitle": "शेड्यूल",
-  "pageDescription": "निर्धारित समय पर स्कैन, सफ़ाई और अपडेट स्वचालित करें",
+  "pageDescription": "शेड्यूल के अनुसार स्कैन, सफ़ाई और अपडेट को स्वचालित करें",
   "newScheduleButton": "नया शेड्यूल",
   "createScheduleButton": "शेड्यूल बनाएँ",
   "emptyStateTitle": "अभी तक कोई शेड्यूल नहीं है",
-  "emptyStateDescription": "स्कैन, सफ़ाई और अपडेट अपने-आप चलाने के लिए एक शेड्यूल बनाएँ।",
-  "maxSchedulesReached": "अधिकतम {{max}} शेड्यूल की सीमा पूरी हो गई है।",
+  "emptyStateDescription": "स्कैन, सफ़ाई और अपडेट को स्वचालित रूप से चलाने के लिए एक शेड्यूल बनाएँ।",
+  "maxSchedulesReached": "अधिकतम {{max}} शेड्यूल तक पहुँच गए हैं।",
   "duplicatedToast": "\"{{name}}\" की प्रतिलिपि बनाई गई",
   "deletedToast": "\"{{name}}\" हटाया गया",
   "updatedToast": "\"{{name}}\" अपडेट किया गया",
   "createdToast": "\"{{name}}\" बनाया गया",
-  "failedEnableStartup": "स्टार्टअप सक्षम नहीं किया जा सका। रीबूट के बाद शेड्यूल शायद न चलें।",
+  "failedEnableStartup": "स्टार्टअप सक्षम नहीं किया जा सका। पुनरारंभ के बाद शेड्यूल शायद न चलें।",
+  "failedEnableStartupAction": "और जानें",
   "deleteConfirmTitle": "शेड्यूल हटाएँ",
   "deleteConfirmDescription": "यह शेड्यूल स्थायी रूप से हटा दिया जाएगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता।",
   "deleteConfirmLabel": "हटाएँ",
   "card": {
-    "autoApplyBadge": "स्वतः लागू",
+    "autoApplyBadge": "स्वतः-लागू",
     "editAction": "संपादित करें",
     "duplicateAction": "प्रतिलिपि बनाएँ",
     "deleteAction": "हटाएँ",
@@ -31,7 +32,7 @@
     "dailyLightSweepLabel": "दैनिक हल्की सफ़ाई",
     "dailyLightSweepDescription": "सिस्टम, ब्राउज़र और रीसायकल बिन प्रतिदिन सुबह 8 बजे",
     "monthlyDeepMaintenanceLabel": "मासिक गहन रखरखाव",
-    "monthlyDeepMaintenanceDescription": "हर महीने की 1 तारीख को सुबह 10 बजे पूर्ण सफ़ाई + रजिस्ट्री, ड्राइवर और सॉफ़्टवेयर",
+    "monthlyDeepMaintenanceDescription": "हर महीने की 1 तारीख को सुबह 10 बजे पूर्ण सफ़ाई + registry, driver और software",
     "customLabel": "कस्टम",
     "customDescription": "खाली शेड्यूल से शुरुआत करें"
   },
@@ -48,12 +49,12 @@
     "timeLabel": "समय",
     "tasksLabel": "कार्य",
     "selectAll": "सभी चुनें",
-    "deselectAll": "सभी का चयन हटाएँ",
+    "deselectAll": "सभी अचयनित करें",
     "cleanerGroup": "क्लीनर",
     "maintenanceGroup": "रखरखाव",
-    "autoApplyLabel": "स्वतः लागू",
-    "autoApplyDescription": "पुष्टि के बिना फ़ाइलों को स्वचालित रूप से साफ़ करें, रजिस्ट्री समस्याएँ ठीक करें और अपडेट इंस्टॉल करें।",
-    "autoApplyWarning": "कार्रवाइयाँ शेड्यूल के अनुसार अपने-आप चलेंगी। सुनिश्चित करें कि आपकी बहिष्करण सूची अद्यतित है।",
+    "autoApplyLabel": "स्वतः-लागू",
+    "autoApplyDescription": "पुष्टि के बिना फ़ाइलों को स्वचालित रूप से साफ़ करें, registry समस्याएँ ठीक करें और अपडेट इंस्टॉल करें।",
+    "autoApplyWarning": "कार्रवाइयाँ शेड्यूल के अनुसार स्वचालित रूप से चलेंगी। सुनिश्चित करें कि आपकी बहिष्करण सूची अद्यतन है।",
     "cancelButton": "रद्द करें",
     "saveChangesButton": "परिवर्तन सहेजें",
     "createScheduleButton": "शेड्यूल बनाएँ"
@@ -65,9 +66,9 @@
     "gaming": "गेमिंग",
     "recycleBin": "रीसायकल बिन",
     "databases": "डेटाबेस",
-    "registryFixes": "रजिस्ट्री सुधार",
-    "driverUpdates": "ड्राइवर अपडेट",
-    "softwareUpdates": "सॉफ़्टवेयर अपडेट"
+    "registryFixes": "Registry सुधार",
+    "driverUpdates": "Driver अपडेट",
+    "softwareUpdates": "Software अपडेट"
   },
   "dayNames": {
     "sunday": "रविवार",
@@ -90,10 +91,10 @@
     "dateAt": "{{date}} को {{time}} पर"
   },
   "lastRun": {
-    "justNow": "अभी-अभी",
+    "justNow": "अभी",
     "minutesAgo": "{{count}}m पहले",
     "hoursAgo": "{{count}}h पहले",
     "daysAgo": "{{count}}d पहले"
   },
-  "copyNameSuffix": "(कॉपी)"
+  "copyNameSuffix": "(प्रतिलिपि)"
 }

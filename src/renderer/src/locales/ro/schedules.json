@@ -3,7 +3,7 @@
   "pageDescription": "Automatizați scanările, curățările și actualizările după un program",
   "newScheduleButton": "Programare nouă",
   "createScheduleButton": "Creați programarea",
-  "emptyStateTitle": "Încă nu există programări",
+  "emptyStateTitle": "Nu există încă programări",
   "emptyStateDescription": "Creați o programare pentru a rula automat scanări, curățări și actualizări.",
   "maxSchedulesReached": "A fost atins numărul maxim de {{max}} programări.",
   "duplicatedToast": "S-a duplicat „{{name}}”",
@@ -11,6 +11,7 @@
   "updatedToast": "S-a actualizat „{{name}}”",
   "createdToast": "S-a creat „{{name}}”",
   "failedEnableStartup": "Activarea pornirii automate a eșuat. Este posibil ca programările să nu ruleze după repornire.",
+  "failedEnableStartupAction": "Aflați mai multe",
   "deleteConfirmTitle": "Ștergeți programarea",
   "deleteConfirmDescription": "Această programare va fi eliminată definitiv. Această acțiune nu poate fi anulată.",
   "deleteConfirmLabel": "Ștergeți",
@@ -33,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "Întreținere aprofundată lunară",
     "monthlyDeepMaintenanceDescription": "Curățare completă + registry, drivere și software în ziua de 1 la 10:00",
     "customLabel": "Personalizat",
-    "customDescription": "Începeți de la zero cu o programare goală"
+    "customDescription": "Porniți de la zero cu o programare goală"
   },
   "dialog": {
     "editTitle": "Editați programarea",
@@ -81,7 +82,7 @@
   "frequency": {
     "everyDayAt": "În fiecare zi la {{time}}",
     "everyWeekdayAt": "În fiecare {{day}} la {{time}}",
-    "monthlyAt": "În ziua de {{ordinalDay}} a fiecărei luni la {{time}}"
+    "monthlyAt": "{{ordinalDay}} din fiecare lună la {{time}}"
   },
   "nextRun": {
     "todayAt": "Astăzi la {{time}}",
@@ -91,9 +92,9 @@
   },
   "lastRun": {
     "justNow": "Chiar acum",
-    "minutesAgo": "acum {{count}}m",
-    "hoursAgo": "acum {{count}}h",
-    "daysAgo": "acum {{count}}z"
+    "minutesAgo": "acum {{count}} min",
+    "hoursAgo": "acum {{count}} h",
+    "daysAgo": "acum {{count}} z"
   },
   "copyNameSuffix": "(copie)"
 }

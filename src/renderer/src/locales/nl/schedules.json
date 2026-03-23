@@ -10,7 +10,8 @@
   "deletedToast": "\"{{name}}\" verwijderd",
   "updatedToast": "\"{{name}}\" bijgewerkt",
   "createdToast": "\"{{name}}\" gemaakt",
-  "failedEnableStartup": "Inschakelen bij opstarten is mislukt. Schema's worden mogelijk niet uitgevoerd na een herstart.",
+  "failedEnableStartup": "Opstarten inschakelen is mislukt. Schema's worden mogelijk niet uitgevoerd na opnieuw opstarten.",
+  "failedEnableStartupAction": "Meer informatie",
   "deleteConfirmTitle": "Schema verwijderen",
   "deleteConfirmDescription": "Dit schema wordt permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
   "deleteConfirmLabel": "Verwijderen",
@@ -49,11 +50,11 @@
     "tasksLabel": "Taken",
     "selectAll": "Alles selecteren",
     "deselectAll": "Alles deselecteren",
-    "cleanerGroup": "Opschoner",
+    "cleanerGroup": "Opschonen",
     "maintenanceGroup": "Onderhoud",
     "autoApplyLabel": "Automatisch toepassen",
     "autoApplyDescription": "Bestanden automatisch opschonen, registerproblemen oplossen en updates installeren zonder bevestiging.",
-    "autoApplyWarning": "Acties worden automatisch volgens schema uitgevoerd. Controleer of uw uitsluitingenlijst up-to-date is.",
+    "autoApplyWarning": "Acties worden automatisch volgens schema uitgevoerd. Zorg ervoor dat uw uitsluitingenlijst up-to-date is.",
     "cancelButton": "Annuleren",
     "saveChangesButton": "Wijzigingen opslaan",
     "createScheduleButton": "Schema maken"
@@ -70,18 +71,18 @@
     "softwareUpdates": "Software-updates"
   },
   "dayNames": {
-    "sunday": "Zondag",
-    "monday": "Maandag",
-    "tuesday": "Dinsdag",
-    "wednesday": "Woensdag",
-    "thursday": "Donderdag",
-    "friday": "Vrijdag",
-    "saturday": "Zaterdag"
+    "sunday": "zondag",
+    "monday": "maandag",
+    "tuesday": "dinsdag",
+    "wednesday": "woensdag",
+    "thursday": "donderdag",
+    "friday": "vrijdag",
+    "saturday": "zaterdag"
   },
   "frequency": {
     "everyDayAt": "Elke dag om {{time}}",
     "everyWeekdayAt": "Elke {{day}} om {{time}}",
-    "monthlyAt": "Elke maand op {{ordinalDay}} om {{time}}"
+    "monthlyAt": "{{ordinalDay}} van elke maand om {{time}}"
   },
   "nextRun": {
     "todayAt": "Vandaag om {{time}}",
@@ -91,9 +92,9 @@
   },
   "lastRun": {
     "justNow": "Zojuist",
-    "minutesAgo": "{{count}} m geleden",
-    "hoursAgo": "{{count}} u geleden",
-    "daysAgo": "{{count}} d geleden"
+    "minutesAgo": "{{count}}m geleden",
+    "hoursAgo": "{{count}}u geleden",
+    "daysAgo": "{{count}}d geleden"
   },
   "copyNameSuffix": "(kopie)"
 }
