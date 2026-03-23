@@ -674,42 +674,37 @@ export function createLinuxSecurity(): PlatformSecurity {
         return [...new Set(ports)].sort((a, b) => a - b)
       }
 
-      // ── 1. ufw ────────────────────────────────────────────
+      // ── 1. ufw (front-end) ──────────────────────────────
+      // Only return when ufw is actively enforcing. An inactive ufw can mask
+      // a backend firewall (nftables/iptables from Docker, k8s, cloud-init).
       const ufwPath = await findBinary(['/usr/sbin/ufw', '/usr/bin/ufw'])
       if (ufwPath) {
-        let active = false
-        let rawRules = ''
-        const allowedPorts: number[] = []
-
         try {
           const { stdout } = await execFileAsync(ufwPath, ['status', 'verbose'], { timeout: CMD_TIMEOUT })
-          rawRules = stdout.slice(0, RAW_RULES_MAX)
-          active = /^Status:\s*active/m.test(stdout)
-
-          if (active) {
-            // Lines like "22/tcp  ALLOW IN  Anywhere" or "80  ALLOW  Anywhere"
+          if (/^Status:\s*active/m.test(stdout)) {
+            const rawRules = stdout.slice(0, RAW_RULES_MAX)
+            const allowedPorts: number[] = []
             for (const m of stdout.matchAll(/^\s*(\d+)(?:\/\w+)?\s+ALLOW/gm)) {
               allowedPorts.push(parseInt(m[1], 10))
             }
+            return { tool: 'ufw' as FwTool, active: true, allowedPorts: uniquePorts(allowedPorts), rawRules }
           }
-        } catch { /* ufw status failed — treat as inactive */ }
-
-        return { tool: 'ufw' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+        } catch { /* ufw failed — fall through */ }
       }
 
-      // ── 2. firewalld ──────────────────────────────────────
+      // ── 2. firewalld (front-end) ──────────────────────────
+      // Same fall-through logic: only return when firewalld is running.
       const fwCmdPath = await findBinary(['/usr/bin/firewall-cmd', '/usr/sbin/firewall-cmd'])
       if (fwCmdPath) {
         let active = false
-        let rawRules = ''
-        const allowedPorts: number[] = []
-
         try {
           const { stdout } = await execFileAsync('systemctl', ['is-active', 'firewalld'], { timeout: CMD_TIMEOUT })
           active = stdout.trim() === 'active'
         } catch { /* not active */ }
 
         if (active) {
+          let rawRules = ''
+          const allowedPorts: number[] = []
           try {
             const { stdout } = await execFileAsync(fwCmdPath, ['--list-all'], { timeout: CMD_TIMEOUT })
             rawRules = stdout.slice(0, RAW_RULES_MAX)
@@ -736,14 +731,17 @@ export function createLinuxSecurity(): PlatformSecurity {
               }
             }
           } catch { /* couldn't list rules */ }
-        }
 
-        return { tool: 'firewalld' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+          return { tool: 'firewalld' as FwTool, active: true, allowedPorts: uniquePorts(allowedPorts), rawRules }
+        }
       }
 
       // ── 3. nftables ───────────────────────────────────────
       // Detect from ruleset content, not systemd — rules may be loaded by
       // boot scripts or cloud-init while nftables.service is inactive.
+      // Only consider the firewall active if there is a chain hooked into the
+      // input path (type filter hook input); nat-only or dormant tables don't
+      // count.  Parse allowed ports only from those input chains.
       const nftPath = await findBinary(['/usr/sbin/nft', '/usr/bin/nft'])
       if (nftPath) {
         let active = false
@@ -753,12 +751,26 @@ export function createLinuxSecurity(): PlatformSecurity {
         try {
           const { stdout } = await execFileAsync(nftPath, ['list', 'ruleset'], { timeout: CMD_TIMEOUT })
           rawRules = stdout.slice(0, RAW_RULES_MAX)
-          // If there are any tables defined, nftables is actively filtering
-          active = stdout.includes('table ')
 
-          if (active) {
-            // Only parse ports from accept rules
-            for (const line of stdout.split('\n')) {
+          // Split ruleset into per-chain blocks so we can scope parsing
+          // to input-facing filter chains only.
+          const chainBlocks: string[] = []
+          let current = ''
+          for (const line of stdout.split('\n')) {
+            if (/\bchain\s+\w+\s*\{/.test(line)) {
+              if (current) chainBlocks.push(current)
+              current = ''
+            }
+            current += line + '\n'
+          }
+          if (current) chainBlocks.push(current)
+
+          for (const block of chainBlocks) {
+            if (!/type\s+filter\s+hook\s+input\b/.test(block)) continue
+            // A filter chain hooked into input means nftables is actively filtering
+            active = true
+
+            for (const line of block.split('\n')) {
               if (!/\baccept\b/i.test(line)) continue
               // Set syntax: "tcp dport { 22, 80, 443 }"
               for (const m of line.matchAll(/tcp\s+dport\s*\{([^}]+)\}/g)) {
