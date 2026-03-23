@@ -706,7 +706,14 @@ export function createLinuxSecurity(): PlatformSecurity {
           let rawRules = ''
           const allowedPorts: number[] = []
           try {
-            const { stdout } = await execFileAsync(fwCmdPath, ['--list-all'], { timeout: CMD_TIMEOUT })
+            // Query all zones so interfaces/sources bound to non-default zones
+            // are included.  Falls back to --list-all if --list-all-zones fails.
+            let stdout: string
+            try {
+              ({ stdout } = await execFileAsync(fwCmdPath, ['--list-all-zones'], { timeout: CMD_TIMEOUT }))
+            } catch {
+              ({ stdout } = await execFileAsync(fwCmdPath, ['--list-all'], { timeout: CMD_TIMEOUT }))
+            }
             rawRules = stdout.slice(0, RAW_RULES_MAX)
 
             // Parse "ports:" line — e.g. "ports: 8080/tcp 9090/udp"
@@ -817,9 +824,20 @@ export function createLinuxSecurity(): PlatformSecurity {
           active = hasNonAcceptPolicy || ruleLines.length > 0
 
           if (active) {
-            // Parse ACCEPT rules with "dpt:22" or "dpts:80:443" (port ranges)
+            // Parse ACCEPT rules:
+            //   single port  — "dpt:22"
+            //   port range   — "dpts:80:443"
+            //   multiport    — "multiport dports 80,443,8080"
             for (const line of ruleLines) {
               if (!/\bACCEPT\b/.test(line)) continue
+              // Multiport comma list: "multiport dports 80,443,8080"
+              const mpMatch = line.match(/multiport\s+dports\s+([\d,]+)/)
+              if (mpMatch) {
+                for (const p of mpMatch[1].split(',')) {
+                  const n = parseInt(p, 10)
+                  if (!isNaN(n)) allowedPorts.push(n)
+                }
+              }
               // Single port: dpt:22
               for (const m of line.matchAll(/dpt:(\d+)/g)) {
                 allowedPorts.push(parseInt(m[1], 10))
