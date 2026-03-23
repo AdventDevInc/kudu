@@ -663,5 +663,169 @@ export function createLinuxSecurity(): PlatformSecurity {
 
       return result
     },
+
+    async collectLinuxFirewallStatus(): Promise<HealthReport['securityPosture']['firewallStatus']> {
+      type FwTool = NonNullable<HealthReport['securityPosture']['firewallStatus']>['tool']
+      const CMD_TIMEOUT = 5_000
+      const RAW_RULES_MAX = 3_000
+
+      /** Try `which <cmd>` to check tool availability. */
+      async function hasCommand(cmd: string): Promise<boolean> {
+        try {
+          await execFileAsync('which', [cmd], { timeout: CMD_TIMEOUT })
+          return true
+        } catch { return false }
+      }
+
+      /** Parse unique port numbers from matches. */
+      function uniquePorts(ports: number[]): number[] {
+        return [...new Set(ports)].sort((a, b) => a - b)
+      }
+
+      // ── 1. ufw ────────────────────────────────────────────
+      if (await hasCommand('ufw')) {
+        let active = false
+        let rawRules = ''
+        const allowedPorts: number[] = []
+
+        try {
+          const { stdout } = await execFileAsync('ufw', ['status', 'verbose'], { timeout: CMD_TIMEOUT })
+          rawRules = stdout.slice(0, RAW_RULES_MAX)
+          active = /^Status:\s*active/m.test(stdout)
+
+          if (active) {
+            // Lines like "22/tcp  ALLOW IN  Anywhere" or "80  ALLOW  Anywhere"
+            for (const m of stdout.matchAll(/^\s*(\d+)(?:\/\w+)?\s+ALLOW/gm)) {
+              allowedPorts.push(parseInt(m[1], 10))
+            }
+          }
+        } catch { /* ufw status failed — treat as inactive */ }
+
+        return { tool: 'ufw' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+      }
+
+      // ── 2. firewalld ──────────────────────────────────────
+      if (await hasCommand('firewall-cmd')) {
+        let active = false
+        let rawRules = ''
+        const allowedPorts: number[] = []
+
+        try {
+          const { stdout } = await execFileAsync('systemctl', ['is-active', 'firewalld'], { timeout: CMD_TIMEOUT })
+          active = stdout.trim() === 'active'
+        } catch { /* not active */ }
+
+        if (active) {
+          try {
+            const { stdout } = await execFileAsync('firewall-cmd', ['--list-all'], { timeout: CMD_TIMEOUT })
+            rawRules = stdout.slice(0, RAW_RULES_MAX)
+
+            // Parse "ports:" line — e.g. "ports: 8080/tcp 9090/udp"
+            const portsLine = stdout.match(/^\s*ports:\s*(.+)/m)
+            if (portsLine) {
+              for (const m of portsLine[1].matchAll(/(\d+)\/\w+/g)) {
+                allowedPorts.push(parseInt(m[1], 10))
+              }
+            }
+
+            // Parse "services:" line — map common service names to ports
+            const serviceMap: Record<string, number> = {
+              ssh: 22, http: 80, https: 443, ftp: 21, smtp: 25, dns: 53,
+              'imap': 143, 'imaps': 993, 'pop3': 110, 'pop3s': 995,
+              'ntp': 123, 'mysql': 3306, 'postgresql': 5432, 'redis': 6379,
+            }
+            const servicesLine = stdout.match(/^\s*services:\s*(.+)/m)
+            if (servicesLine) {
+              for (const svc of servicesLine[1].trim().split(/\s+/)) {
+                const port = serviceMap[svc]
+                if (port) allowedPorts.push(port)
+              }
+            }
+          } catch { /* couldn't list rules */ }
+        }
+
+        return { tool: 'firewalld' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+      }
+
+      // ── 3. nftables ───────────────────────────────────────
+      if (await hasCommand('nft')) {
+        let active = false
+        let rawRules = ''
+        const allowedPorts: number[] = []
+
+        try {
+          const { stdout } = await execFileAsync('systemctl', ['is-active', 'nftables'], { timeout: CMD_TIMEOUT })
+          active = stdout.trim() === 'active'
+        } catch { /* not active */ }
+
+        if (active) {
+          try {
+            const { stdout } = await execFileAsync('nft', ['list', 'ruleset'], { timeout: CMD_TIMEOUT })
+            rawRules = stdout.slice(0, RAW_RULES_MAX)
+
+            // Only parse ports from accept rules
+            for (const line of stdout.split('\n')) {
+              if (!/\baccept\b/i.test(line)) continue
+              // Set syntax: "tcp dport { 22, 80, 443 }"
+              for (const m of line.matchAll(/tcp\s+dport\s*\{([^}]+)\}/g)) {
+                for (const p of m[1].matchAll(/(\d+)/g)) {
+                  allowedPorts.push(parseInt(p[1], 10))
+                }
+              }
+              // Single-port syntax: "tcp dport 22"
+              for (const m of line.matchAll(/tcp\s+dport\s+(\d+)/g)) {
+                allowedPorts.push(parseInt(m[1], 10))
+              }
+            }
+          } catch { /* couldn't list ruleset */ }
+        }
+
+        return { tool: 'nftables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+      }
+
+      // ── 4. iptables ───────────────────────────────────────
+      if (await hasCommand('iptables')) {
+        let active = false
+        let rawRules = ''
+        const allowedPorts: number[] = []
+
+        try {
+          const { stdout } = await execFileAsync('iptables', ['-L', 'INPUT', '-n', '--line-numbers'], { timeout: CMD_TIMEOUT })
+          rawRules = stdout.slice(0, RAW_RULES_MAX)
+
+          // Active if there is at least one non-header, non-policy line
+          const ruleLines = stdout.split('\n').filter(l => {
+            const trimmed = l.trim()
+            return trimmed && !trimmed.startsWith('Chain ') && !trimmed.startsWith('num ')
+              && !trimmed.startsWith('target ')
+          })
+          active = ruleLines.length > 0
+
+          if (active) {
+            // Parse ACCEPT rules with "dpt:22" or "dpts:80:443" (port ranges)
+            for (const line of ruleLines) {
+              if (!/\bACCEPT\b/.test(line)) continue
+              // Single port: dpt:22
+              for (const m of line.matchAll(/dpt:(\d+)/g)) {
+                allowedPorts.push(parseInt(m[1], 10))
+              }
+              // Port range: dpts:80:443
+              for (const m of line.matchAll(/dpts:(\d+):(\d+)/g)) {
+                const lo = parseInt(m[1], 10)
+                const hi = parseInt(m[2], 10)
+                for (let p = lo; p <= hi && p - lo < 100; p++) {
+                  allowedPorts.push(p)
+                }
+              }
+            }
+          }
+        } catch { /* iptables failed — treat as not found */ }
+
+        return { tool: 'iptables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+      }
+
+      // ── 5. none ────────────────────────────────────────────
+      return { tool: 'none' as FwTool, active: false, allowedPorts: [], rawRules: '' }
+    },
   }
 }

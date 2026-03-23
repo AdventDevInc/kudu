@@ -142,6 +142,7 @@ export interface PlatformSecurity {
   collectListeningPorts(): Promise<HealthReport['securityPosture']['listeningPorts']>
   collectAuditd(): Promise<HealthReport['securityPosture']['auditd']>
   collectSuidSgidBinaries(): Promise<HealthReport['securityPosture']['suidSgidBinaries']>
+  collectLinuxFirewallStatus(): Promise<HealthReport['securityPosture']['firewallStatus']>
 }
 
 // ─── System Commands ────────────────────────────────────────

@@ -239,5 +239,12 @@ export interface HealthReport {
       sgid: boolean
       owner: string                      // file owner (e.g. "root")
     }> | null
+
+    firewallStatus: {
+      tool: 'ufw' | 'nftables' | 'iptables' | 'firewalld' | 'none'
+      active: boolean
+      allowedPorts: number[]
+      rawRules: string                   // truncated to 3000 chars
+    } | null                             // null on Windows/macOS
   }
 }

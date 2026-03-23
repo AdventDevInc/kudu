@@ -2,7 +2,7 @@ import { app, BrowserWindow, Notification } from 'electron'
 import { IPC } from '../../shared/channels'
 import * as si from 'systeminformation'
 import { hostname } from 'os'
-import { existsSync, readdirSync, statSync, openSync, readSync, closeSync } from 'fs'
+import { existsSync, readFileSync, readdirSync, statSync, openSync, readSync, closeSync } from 'fs'
 import { readdir } from 'fs/promises'
 import { randomUUID } from 'crypto'
 import { join } from 'path'
@@ -112,6 +112,24 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
       (e) => { clearTimeout(timer); reject(e) },
     )
   })
+}
+
+/**
+ * On Linux, systeminformation may return the kernel version (e.g. "6.8.0-55-generic")
+ * in osInfo.release instead of the distro version (e.g. "22.04").  When that happens,
+ * fall back to parsing /etc/os-release directly.
+ */
+function sanitizeOsRelease(release: string | undefined, platform = process.platform): string {
+  if (platform !== 'linux') return release ?? ''
+  // Kernel versions look like "6.8.0-55-generic"; distro versions are simpler ("22.04", "12").
+  if (!release || /^\d+\.\d+\.\d+-.+/.test(release)) {
+    try {
+      const content = readFileSync('/etc/os-release', 'utf8')
+      const match = content.match(/^VERSION_ID="?([^"\n]+)/m)
+      if (match) return match[1]
+    } catch { /* file missing — e.g. minimal container */ }
+  }
+  return release ?? ''
 }
 
 class CloudAgentService {
@@ -1020,6 +1038,7 @@ class CloudAgentService {
           listeningPorts: null,
           auditd: null,
           suidSgidBinaries: null,
+          firewallStatus: null,
         },
       }
 
@@ -1085,7 +1104,7 @@ class CloudAgentService {
 
   private async collectSecurityPosture(): Promise<HealthReport['securityPosture']> {
     const security = getPlatform().security
-    const [av, fw, bl, wu, sl, pp, ssh, f2b, ports, audit, suid] = await Promise.allSettled([
+    const [av, fw, bl, wu, sl, pp, ssh, f2b, ports, audit, suid, lfw] = await Promise.allSettled([
       security.collectAntivirusStatus(),
       security.collectFirewallStatus(),
       security.collectDiskEncryptionStatus(),
@@ -1097,6 +1116,7 @@ class CloudAgentService {
       security.collectListeningPorts(),
       security.collectAuditd(),
       security.collectSuidSgidBinaries(),
+      security.collectLinuxFirewallStatus(),
     ])
 
     return {
@@ -1111,6 +1131,7 @@ class CloudAgentService {
       listeningPorts: ports.status === 'fulfilled' ? ports.value : null,
       auditd: audit.status === 'fulfilled' ? audit.value : null,
       suidSgidBinaries: suid.status === 'fulfilled' ? suid.value : null,
+      firewallStatus: lfw.status === 'fulfilled' ? lfw.value : null,
     }
   }
 
@@ -2170,7 +2191,7 @@ class CloudAgentService {
 
     await this.postCommandResult(requestId, true, {
       cpu: { model: `${cpu.manufacturer} ${cpu.brand}`, cores: cpu.physicalCores, threads: cpu.cores },
-      os: { distro: osInfo.distro, release: osInfo.release, hostname: osInfo.hostname },
+      os: { distro: osInfo.distro, release: sanitizeOsRelease(osInfo.release), hostname: osInfo.hostname },
       memory: { total: mem.total, available: mem.available },
       disks: disks.map((d) => ({ name: d.name, size: d.size, type: d.type })),
     })

@@ -252,5 +252,9 @@ export function createWin32Security(): PlatformSecurity {
     async collectSuidSgidBinaries(): Promise<HealthReport['securityPosture']['suidSgidBinaries']> {
       return null
     },
+
+    async collectLinuxFirewallStatus(): Promise<HealthReport['securityPosture']['firewallStatus']> {
+      return null
+    },
   }
 }
