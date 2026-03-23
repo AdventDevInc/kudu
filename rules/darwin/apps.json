@@ -10,7 +10,7 @@
     { "id": "npm", "name": "npm Cache", "paths": ["${HOME}/.npm/_cacache"], "description": "npm downloaded package tarballs and metadata cache" },
     { "id": "yarn", "name": "Yarn Cache", "paths": ["${CACHES}/Yarn"], "description": "Yarn downloaded package cache (yarn cache clean clears this)" },
     { "id": "pip", "name": "pip Cache", "paths": ["${CACHES}/pip"], "description": "pip downloaded wheel and source distribution cache" },
-    { "id": "homebrew", "name": "Homebrew Cache", "paths": ["${CACHES}/Homebrew"], "description": "Homebrew downloaded bottles and source archives" },
+    { "id": "homebrew", "name": "Homebrew Cache", "paths": ["${CACHES}/Homebrew", "${LIBRARY}/Logs/Homebrew"], "description": "Homebrew downloaded bottles, source archives, and build logs" },
     { "id": "zoom", "name": "Zoom", "paths": ["${APP_SUPPORT}/zoom.us/data/Cache", "${APP_SUPPORT}/zoom.us/data/GPUCache", "${APP_SUPPORT}/zoom.us/data/logs", "${LIBRARY}/Logs/zoom.us"], "description": "Zoom cached data, GPU cache, and log files" },
     { "id": "telegram", "name": "Telegram", "paths": ["${APP_SUPPORT}/Telegram Desktop/tdata/user_data", "${APP_SUPPORT}/Telegram Desktop/tdata/emoji"], "description": "Telegram cached user data and emoji assets" },
     { "id": "obs", "name": "OBS Studio", "paths": ["${APP_SUPPORT}/obs-studio/logs", "${APP_SUPPORT}/obs-studio/profiler_data"], "description": "OBS Studio log files and performance profiler data" },

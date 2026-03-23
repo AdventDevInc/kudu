@@ -8,6 +8,7 @@
     { "id": "teams", "name": "Microsoft Teams", "paths": ["${CONFIG}/Microsoft/Microsoft Teams/Cache"], "description": "Microsoft Teams cached web content" },
     { "id": "spotify", "name": "Spotify", "paths": ["${CACHE}/spotify"], "description": "Spotify cached streaming data" },
     { "id": "npm", "name": "npm Cache", "paths": ["${HOME}/.npm/_cacache"], "description": "npm downloaded package tarballs and metadata cache" },
+    { "id": "homebrew", "name": "Homebrew Cache", "paths": ["${CACHE}/Homebrew"], "description": "Homebrew (Linuxbrew) downloaded bottles and source archives" },
     { "id": "yarn", "name": "Yarn Cache", "paths": ["${CACHE}/yarn"], "description": "Yarn downloaded package cache (yarn cache clean clears this)" },
     { "id": "pip", "name": "pip Cache", "paths": ["${CACHE}/pip"], "description": "pip downloaded wheel and source distribution cache" },
     { "id": "zoom", "name": "Zoom", "paths": ["${HOME}/.zoom/data/Cache", "${HOME}/.zoom/data/GPUCache", "${HOME}/.zoom/data/logs", "${HOME}/.zoom/logs"], "description": "Zoom cached data, GPU cache, and log files" },
