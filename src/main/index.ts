@@ -78,16 +78,13 @@ function getTrayIconPath(): string {
 const TASK_NAME = 'KuduStartup'
 
 async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
-  // Prefer Task Scheduler with RunLevel HighestAvailable so the app starts
-  // elevated at logon — this avoids the Windows restriction that silently
-  // skips Run-key entries whose exe manifest requires admin.
-  // If task creation fails (standard user, group policy, AV restrictions),
-  // fall back to the HKCU\...\Run registry key via Electron's built-in API.
+  // Use Task Scheduler with RunLevel HighestAvailable so the app starts
+  // elevated at logon. The HKCU Run key is NOT a viable fallback because
+  // the exe manifest is requireAdministrator — Windows silently skips
+  // Run-key entries for executables with an admin manifest.
   const exePath = app.getPath('exe')
 
   if (enabled) {
-    let taskCreated = false
-
     // Remove any stale task first, then create a fresh one
     try {
       await execFileAsync('schtasks', [
@@ -141,37 +138,24 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
         '/XML', tmpPath,
         '/F',
       ], { timeout: 10000 })
-
-      // Verify the task was actually registered
-      await execFileAsync('schtasks', [
-        '/Query', '/TN', TASK_NAME
-      ], { timeout: 10000 })
-
-      taskCreated = true
-    } catch {
-      // Task creation failed — will fall back to Run key below
     } finally {
       unlink(tmpPath).catch(() => {})
     }
 
-    if (taskCreated) {
-      // Clear any leftover Run-key entry so it doesn't conflict
-      app.setLoginItemSettings({ openAtLogin: false })
-    } else {
-      // Fallback: use the HKCU Run registry key. This works without admin
-      // but the app won't start elevated — acceptable for standard users.
-      app.setLoginItemSettings({ openAtLogin: true, args: ['--startup'] })
-    }
+    // Verify the task was actually registered
+    await execFileAsync('schtasks', [
+      '/Query', '/TN', TASK_NAME
+    ], { timeout: 10000 })
   } else {
-    // Disable: remove both the scheduled task and Run-key entry
     try {
       await execFileAsync('schtasks', [
         '/Delete', '/TN', TASK_NAME, '/F'
       ], { timeout: 10000 })
     } catch { /* task may not exist */ }
-
-    app.setLoginItemSettings({ openAtLogin: false })
   }
+
+  // Clear any leftover Electron Run-key entry so it doesn't conflict
+  app.setLoginItemSettings({ openAtLogin: false })
 }
 
 function escapeXml(s: string): string {

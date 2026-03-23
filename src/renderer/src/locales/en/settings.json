@@ -120,5 +120,5 @@
   "retry": "Retry",
   "github": "GitHub",
   "reportBug": "Report Bug",
-  "startupSettingFailedToast": "Failed to update startup setting. Make sure Kudu has permission to create scheduled tasks."
+  "startupSettingFailedToast": "Failed to update startup setting. Task Scheduler may be restricted by group policy or security software."
 }
