@@ -341,7 +341,7 @@ function NavItem({
       <button
         ref={buttonRef}
         onClick={handleClick}
-        aria-current={isActive ? 'page' : undefined}
+        aria-current={isActive && !hasChildren ? 'page' : undefined}
         aria-expanded={hasChildren ? !!submenuOpen : undefined}
         aria-haspopup={hasChildren ? 'true' : undefined}
         className={cn(

@@ -147,41 +147,48 @@ export function App() {
   )
 }
 
-// Maps routes to sidebar i18n keys (sidebar namespace)
-const ROUTE_TITLE_KEYS: Record<string, string> = {
-  '/': 'dashboard',
-  '/cleaner': 'cleaner',
-  '/registry': 'registry',
-  '/startup': 'startup',
-  '/disk': 'diskTools',
-  '/duplicates': 'diskTools',
-  '/large-files': 'diskTools',
-  '/empty-folders': 'diskTools',
-  '/file-shredder': 'diskTools',
-  '/network': 'network',
-  '/malware': 'malwareScanner',
-  '/threat-monitor': 'threatMonitor',
-  '/cve': 'cveScanner',
-  '/game-mode': 'gameMode',
-  '/performance': 'performance',
-  '/uninstaller': 'software',
-  '/history': 'settings',
-  '/settings': 'settings',
-  '/about': 'settings',
-  '/privacy': 'systemHardening',
-  '/services': 'systemHardening',
-  '/debloater': 'software',
-  '/updates': 'software',
-  '/schedules': 'schedules',
-  '/drivers': 'software',
+// Maps routes to page titles for the window/tab title.
+// Uses sidebar i18n keys where possible; nested routes use plain strings
+// so each page gets its own distinct title for screen readers / OS window switcher.
+const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
+  '/': { key: 'dashboard' },
+  '/cleaner': { key: 'cleaner' },
+  '/registry': { key: 'registry' },
+  '/startup': { key: 'startup' },
+  '/disk': 'Disk Analyzer',
+  '/duplicates': 'Duplicate Finder',
+  '/large-files': 'Large File Finder',
+  '/empty-folders': 'Empty Folder Cleaner',
+  '/file-shredder': 'File Shredder',
+  '/network': { key: 'network' },
+  '/malware': { key: 'malwareScanner' },
+  '/threat-monitor': { key: 'threatMonitor' },
+  '/cve': { key: 'cveScanner' },
+  '/game-mode': { key: 'gameMode' },
+  '/performance': { key: 'performance' },
+  '/uninstaller': 'Uninstaller',
+  '/history': { key: 'history' },
+  '/settings': { key: 'settings' },
+  '/about': 'About',
+  '/privacy': 'Privacy',
+  '/services': 'Services',
+  '/debloater': 'Bloatware Remover',
+  '/updates': 'Software Updates',
+  '/schedules': { key: 'schedules' },
+  '/drivers': 'Driver Updates',
 }
 
 function PageTitleUpdater() {
   const location = useLocation()
   const { t } = useTranslation('sidebar')
   useEffect(() => {
-    const key = ROUTE_TITLE_KEYS[location.pathname]
-    const name = key ? t(key) : null
+    const entry = ROUTE_TITLES[location.pathname]
+    let name: string | null = null
+    if (typeof entry === 'string') {
+      name = entry
+    } else if (entry) {
+      name = t(entry.key)
+    }
     document.title = name ? `${name} - Kudu` : 'Kudu'
   }, [location.pathname, t])
   return null
