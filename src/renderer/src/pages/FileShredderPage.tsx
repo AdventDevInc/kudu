@@ -59,9 +59,17 @@ export function FileShredderPage() {
       const result = await window.kudu?.shredderShred?.(paths)
       if (result) {
         store.setResult(result)
-        store.setStatus('complete')
-        if (result.shredded > 0) {
-          toast.success(t('shredSuccess', { count: result.shredded, size: formatBytes(result.bytesShredded) }))
+        if (result.cancelled) {
+          // Return to idle so the user can see remaining entries and retry
+          store.setStatus('idle')
+          if (result.shredded > 0) {
+            toast.success(t('shredCancelled', { count: result.shredded, size: formatBytes(result.bytesShredded) }))
+          }
+        } else {
+          store.setStatus('complete')
+          if (result.shredded > 0) {
+            toast.success(t('shredSuccess', { count: result.shredded, size: formatBytes(result.bytesShredded) }))
+          }
         }
         if (result.failed > 0) {
           toast.error(t('shredFailed', { failed: result.failed }))

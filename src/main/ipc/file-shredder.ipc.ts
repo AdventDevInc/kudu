@@ -1,5 +1,5 @@
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
-import { readdir, stat, lstat, open, rm } from 'fs/promises'
+import { readdir, rmdir, stat, lstat, open, rm } from 'fs/promises'
 import { join, isAbsolute, basename, resolve, normalize } from 'path'
 import { randomBytes } from 'crypto'
 import { IPC } from '../../shared/channels'
@@ -109,23 +109,55 @@ const MAX_DEPTH = 50
 
 /**
  * Collect all file paths within a directory recursively.
- * Skips symlinks and respects a depth limit to avoid stack overflow.
+ * Skips symlinks and protected paths, respects a depth limit.
+ * Sets `state.depthExceeded` if any branch is cut short by MAX_DEPTH.
  */
-async function collectFiles(dirPath: string, files: string[], depth: number = 0): Promise<void> {
-  if (depth >= MAX_DEPTH) return
+async function collectFiles(
+  dirPath: string,
+  files: string[],
+  state: { depthExceeded: boolean },
+  depth: number = 0
+): Promise<void> {
+  if (depth >= MAX_DEPTH) {
+    state.depthExceeded = true
+    return
+  }
   try {
     const entries = await readdir(dirPath, { withFileTypes: true })
     for (const entry of entries) {
       if (entry.isSymbolicLink()) continue
       const fullPath = join(dirPath, entry.name)
       if (entry.isDirectory()) {
-        await collectFiles(fullPath, files, depth + 1)
+        if (isProtectedPath(fullPath)) continue
+        await collectFiles(fullPath, files, state, depth + 1)
       } else if (entry.isFile()) {
         files.push(fullPath)
       }
     }
   } catch {
     // Skip inaccessible directories
+  }
+}
+
+/**
+ * Remove empty directories bottom-up.  Uses rmdir() (not rm -rf) so it
+ * only succeeds on truly empty directories — any un-shredded files that
+ * were beyond the depth cutoff are safely preserved.
+ */
+async function removeEmptyDirs(dirPath: string, depth: number = 0): Promise<void> {
+  if (depth >= MAX_DEPTH) return
+  try {
+    const entries = await readdir(dirPath, { withFileTypes: true })
+    for (const entry of entries) {
+      if (entry.isSymbolicLink()) continue
+      if (entry.isDirectory()) {
+        await removeEmptyDirs(join(dirPath, entry.name), depth + 1)
+      }
+    }
+    // Try to remove this directory — only works if now empty
+    await rmdir(dirPath)
+  } catch {
+    // Not empty or inaccessible — leave it alone
   }
 }
 
@@ -210,7 +242,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     cancelled = false
     const startTime = Date.now()
     const win = getWindow()
-    const emptyResult: ShredderResult = { shredded: 0, failed: 0, bytesShredded: 0, duration: 0, errors: [] }
+    const emptyResult: ShredderResult = { shredded: 0, failed: 0, bytesShredded: 0, duration: 0, errors: [], cancelled: false }
 
     if (!Array.isArray(paths)) return emptyResult
     const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
@@ -230,6 +262,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     // First, collect all individual files to shred
     const allFiles: string[] = []
     const dirPaths: string[] = []
+    const collectState = { depthExceeded: false }
 
     for (const p of allowedPaths) {
       try {
@@ -237,7 +270,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
         if (s.isSymbolicLink()) continue
         if (s.isDirectory()) {
           dirPaths.push(p)
-          await collectFiles(p, allFiles)
+          await collectFiles(p, allFiles, collectState)
         } else if (s.isFile()) {
           allFiles.push(p)
         }
@@ -291,22 +324,29 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
       }
     }
 
-    // Remove the directories after their contents have been shredded
-    for (const dirPath of dirPaths) {
-      if (cancelled) break
-      try {
-        await rm(dirPath, { force: true, recursive: true })
-      } catch { /* directory may already be partially cleaned */ }
+    // Remove emptied directories bottom-up.
+    // If the depth limit was hit, some files beyond MAX_DEPTH were never
+    // collected and therefore never shredded — using recursive rm would
+    // silently delete them without the overwrite pass.  rmdir() only
+    // succeeds on empty directories, so un-shredded files are preserved.
+    if (!cancelled) {
+      for (const dirPath of dirPaths) {
+        await removeEmptyDirs(dirPath)
+      }
     }
 
-    // Final progress
+    const wasCancelled = cancelled
+
+    // Final progress — reflect actual state, not a blanket 100 %
     sendProgress(win, {
       currentPath: '',
       filesShredded: shredded,
       totalFiles: allFiles.length,
       bytesShredded,
       totalBytes,
-      progress: 100
+      progress: wasCancelled
+        ? (totalBytes > 0 ? (bytesShredded / totalBytes) * 100 : 0)
+        : 100
     })
 
     return {
@@ -314,7 +354,8 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
       failed,
       bytesShredded,
       duration: Date.now() - startTime,
-      errors
+      errors,
+      cancelled: wasCancelled
     }
   })
 

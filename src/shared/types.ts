@@ -939,6 +939,7 @@ export interface ShredderResult {
   bytesShredded: number
   duration: number
   errors: { path: string; reason: string }[]
+  cancelled: boolean
 }
 
 // ─── Duplicate Finder ─────────────────────────────────────

@@ -21,6 +21,7 @@
   "confirmTitle": "Shred Files?",
   "confirmDesc": "{{count}} items ({{size}}) will be securely overwritten with random data then deleted. This cannot be undone.",
   "shredSuccess": "Shredded {{count}} files, destroyed {{size}} of data",
+  "shredCancelled": "Cancelled — shredded {{count}} files ({{size}}) before stopping",
   "shredFailed": "{{failed}} files could not be shredded",
   "failed": "Failed",
   "emptyTitle": "No Files Selected",
