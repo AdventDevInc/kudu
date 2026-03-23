@@ -1,6 +1,5 @@
 import { execFile } from 'child_process'
-import { access, readFile, writeFile } from 'fs/promises'
-import { constants } from 'fs'
+import { readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -134,11 +133,13 @@ async function sysctlApply(param: string, value: string): Promise<void> {
 }
 
 // ─── App detection helper (for browser settings) ───────────
+// Uses mdfind (Spotlight metadata) to locate apps by bundle identifier,
+// so installs in ~/Applications, other volumes, or renamed bundles are found.
 
-async function isAppInstalled(bundlePath: string): Promise<boolean> {
+async function isBrowserInstalled(bundleId: string): Promise<boolean> {
   try {
-    await access(bundlePath, constants.F_OK)
-    return true
+    const { stdout } = await execFileAsync('/usr/bin/mdfind', [`kMDItemCFBundleIdentifier == "${bundleId}"`], { timeout: 5_000 })
+    return stdout.trim().length > 0
   } catch { return false }
 }
 
@@ -334,22 +335,6 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
     },
   },
   {
-    id: 'macos-spotlight-internet-results',
-    category: 'search',
-    label: 'Spotlight Internet Results',
-    description: 'Disable Spotlight sending search queries to Apple for internet results',
-    requiresAdmin: false,
-    async check() {
-      try {
-        const val = await defaultsRead('com.apple.Safari', 'SuppressSearchSuggestions')
-        return val === '1'
-      } catch { return false }
-    },
-    async apply() {
-      await defaultsWrite('com.apple.Safari', 'SuppressSearchSuggestions', 'bool', 'true')
-    },
-  },
-  {
     id: 'macos-safari-preload-top-hit',
     category: 'search',
     label: 'Safari Preload Top Hit',
@@ -481,8 +466,8 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Browser Telemetry ──────────────────────────────────────
 
-const CHROME_APP = '/Applications/Google Chrome.app'
-const FIREFOX_APP = '/Applications/Firefox.app'
+const CHROME_BUNDLE_ID = 'com.google.Chrome'
+const FIREFOX_BUNDLE_ID = 'org.mozilla.firefox'
 const MANAGED_PREFS = '/Library/Managed Preferences'
 
 const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
@@ -509,7 +494,7 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     description: 'Stop Chrome from sending usage metrics to Google',
     requiresAdmin: true,
     async check() {
-      if (!await isAppInstalled(CHROME_APP)) return true
+      if (!await isBrowserInstalled(CHROME_BUNDLE_ID)) return true
       try {
         const val = await defaultsRead(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled')
         return val === '0'
@@ -527,7 +512,7 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     description: 'Stop Chrome from sending extended URL and download reports to Google',
     requiresAdmin: true,
     async check() {
-      if (!await isAppInstalled(CHROME_APP)) return true
+      if (!await isBrowserInstalled(CHROME_BUNDLE_ID)) return true
       try {
         const val = await defaultsRead(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled')
         return val === '0'
@@ -545,7 +530,7 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     description: 'Disable Firefox telemetry data collection and upload to Mozilla',
     requiresAdmin: true,
     async check() {
-      if (!await isAppInstalled(FIREFOX_APP)) return true
+      if (!await isBrowserInstalled(FIREFOX_BUNDLE_ID)) return true
       try {
         const val = await defaultsRead(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry')
         return val === '1'
