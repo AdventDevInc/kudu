@@ -14,7 +14,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   const allowedTopKeys = new Set([
     'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
-    'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
+    'runAtStartup', 'showHints', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
     'cleaner', 'exclusions', 'schedule', 'schedules', 'cloud', 'gameMode'
   ])
 
@@ -28,7 +28,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   }
 
   // Validate boolean fields have correct types
-  const boolKeys = ['minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications', 'runAtStartup', 'autoUpdate', 'autoRestart'] as const
+  const boolKeys = ['minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications', 'runAtStartup', 'showHints', 'autoUpdate', 'autoRestart'] as const
   for (const bk of boolKeys) {
     if (bk in obj && obj[bk] !== undefined && typeof obj[bk] !== 'boolean') return null
   }
