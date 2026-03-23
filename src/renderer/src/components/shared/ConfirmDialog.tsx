@@ -29,9 +29,15 @@ export function ConfirmDialog({
   const onCancelRef = useRef(onCancel)
   onCancelRef.current = onCancel
 
+  // Track the element that had focus before the dialog opened
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
   // Focus trap and keyboard handling
   useEffect(() => {
     if (!open) return
+
+    previousFocusRef.current = document.activeElement as HTMLElement | null
+
     const dialog = dialogRef.current
     if (!dialog) return
 
@@ -52,7 +58,10 @@ export function ConfirmDialog({
       }
     }
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previousFocusRef.current?.focus()
+    }
   }, [open])
 
   if (!open) return null

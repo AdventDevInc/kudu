@@ -1,9 +1,17 @@
+import { useCallback } from 'react'
 import { Sidebar } from './Sidebar'
 import { AdminBanner } from './AdminBanner'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const handleSkip = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault()
+    const el = document.getElementById('main-content')
+    if (el) { el.focus(); el.scrollIntoView() }
+  }, [])
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#0a0a10' }}>
+      <a href="#" className="skip-nav" onClick={handleSkip}>Skip to main content</a>
       <Sidebar />
       <div className="relative flex flex-1 flex-col overflow-hidden">
         {/* Ambient background glow */}
@@ -23,7 +31,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Window controls float in top right */}
         <WindowControls />
         <AdminBanner />
-        <main id="main-content" className="relative flex-1 overflow-y-auto px-10 pb-10 pt-2">
+        <main id="main-content" tabIndex={-1} className="relative flex-1 overflow-y-auto px-10 pb-10 pt-2 outline-none">
           {children}
         </main>
       </div>
