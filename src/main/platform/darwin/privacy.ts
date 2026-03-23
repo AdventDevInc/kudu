@@ -1,5 +1,6 @@
 import { execFile } from 'child_process'
-import { readFile, writeFile } from 'fs/promises'
+import { access, readFile, writeFile } from 'fs/promises'
+import { constants } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -18,6 +19,11 @@ export function createDarwinPrivacy(): PlatformPrivacy {
     getSettings(): PrivacySettingDef[] {
       return [
         ...DARWIN_PRIVACY_SETTINGS,
+        ...DARWIN_ADS_SETTINGS,
+        ...DARWIN_SEARCH_SETTINGS,
+        ...DARWIN_SYNC_SETTINGS,
+        ...DARWIN_AI_SETTINGS,
+        ...DARWIN_BROWSER_SETTINGS,
         ...DARWIN_KERNEL_SETTINGS,
         ...DARWIN_NETWORK_SETTINGS,
         ...DARWIN_ACCESS_SETTINGS,
@@ -127,6 +133,15 @@ async function sysctlApply(param: string, value: string): Promise<void> {
   await elevatedWriteFile(SYSCTL_CONF, updated)
 }
 
+// ─── App detection helper (for browser settings) ───────────
+
+async function isAppInstalled(bundlePath: string): Promise<boolean> {
+  try {
+    await access(bundlePath, constants.F_OK)
+    return true
+  } catch { return false }
+}
+
 // ─── SSH config helper (macOS) ──────────────────────────────
 
 async function applySshdDirective(directive: string, value: string): Promise<void> {
@@ -175,51 +190,22 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
   },
   {
-    id: 'macos-ad-tracking',
+    id: 'macos-health-data-sharing',
     category: 'telemetry',
-    label: 'Personalized Ads',
-    description: 'Limit ad tracking by Apple',
+    label: 'Health Data Sharing',
+    description: 'Disable sharing health data with Apple for research',
     requiresAdmin: false,
     async check() {
       try {
-        const val = await defaultsRead('com.apple.AdLib', 'allowApplePersonalizedAdvertising')
+        const val = await defaultsRead('com.apple.HealthKit', 'ResearchDataSharingEnabled')
         return val === '0'
-      } catch { return false }
+      } catch {
+        // Key doesn't exist = not sharing = privacy-friendly
+        return true
+      }
     },
     async apply() {
-      await defaultsWrite('com.apple.AdLib', 'allowApplePersonalizedAdvertising', 'bool', 'false')
-    },
-  },
-  {
-    id: 'macos-safari-suggestions',
-    category: 'telemetry',
-    label: 'Safari Suggestions',
-    description: 'Disable Safari search suggestions sent to Apple',
-    requiresAdmin: false,
-    async check() {
-      try {
-        const val = await defaultsRead('com.apple.Safari', 'UniversalSearchEnabled')
-        return val === '0'
-      } catch { return false }
-    },
-    async apply() {
-      await defaultsWrite('com.apple.Safari', 'UniversalSearchEnabled', 'bool', 'false')
-    },
-  },
-  {
-    id: 'macos-spotlight-suggestions',
-    category: 'telemetry',
-    label: 'Spotlight Suggestions',
-    description: 'Disable Spotlight web suggestions',
-    requiresAdmin: false,
-    async check() {
-      try {
-        const val = await defaultsRead('com.apple.lookup.shared', 'LookupSuggestionsDisabled')
-        return val === '1'
-      } catch { return false }
-    },
-    async apply() {
-      await defaultsWrite('com.apple.lookup.shared', 'LookupSuggestionsDisabled', 'bool', 'true')
+      await defaultsWrite('com.apple.HealthKit', 'ResearchDataSharingEnabled', 'bool', 'false')
     },
   },
   {
@@ -242,6 +228,22 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
   },
   {
+    id: 'macos-airdrop-discoverability',
+    category: 'services',
+    label: 'AirDrop Discoverability',
+    description: 'Set AirDrop to "No One" — you will not be able to receive files via AirDrop until re-enabled in System Settings',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.sharingd', 'DiscoverableMode')
+        return val === 'Off'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.sharingd', 'DiscoverableMode', 'string', 'Off')
+    },
+  },
+  {
     id: 'macos-crash-reporter',
     category: 'telemetry',
     label: 'Crash Reporter',
@@ -255,6 +257,303 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await defaultsWrite('com.apple.CrashReporter', 'DialogType', 'string', 'none')
+    },
+  },
+]
+
+// ─── Ads & Suggestions ──────────────────────────────────────
+
+const DARWIN_ADS_SETTINGS: PrivacySettingDef[] = [
+  {
+    id: 'macos-ad-tracking',
+    category: 'ads',
+    label: 'Personalized Ads',
+    description: 'Limit ad tracking by Apple',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.AdLib', 'allowApplePersonalizedAdvertising')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.AdLib', 'allowApplePersonalizedAdvertising', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-siri-suggestions-appstore',
+    category: 'ads',
+    label: 'Siri Suggestions in App Store',
+    description: 'Disable Siri Suggestions in the App Store',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.AppStore', 'SiriSuggestionsEnabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.AppStore', 'SiriSuggestionsEnabled', 'bool', 'false')
+    },
+  },
+]
+
+// ─── Search ─────────────────────────────────────────────────
+
+const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
+  {
+    id: 'macos-safari-suggestions',
+    category: 'search',
+    label: 'Safari Suggestions',
+    description: 'Disable Safari search suggestions sent to Apple',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.Safari', 'UniversalSearchEnabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.Safari', 'UniversalSearchEnabled', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-spotlight-suggestions',
+    category: 'search',
+    label: 'Spotlight Suggestions',
+    description: 'Disable Spotlight web suggestions',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.lookup.shared', 'LookupSuggestionsDisabled')
+        return val === '1'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.lookup.shared', 'LookupSuggestionsDisabled', 'bool', 'true')
+    },
+  },
+  {
+    id: 'macos-spotlight-internet-results',
+    category: 'search',
+    label: 'Spotlight Internet Results',
+    description: 'Disable Spotlight sending search queries to Apple for internet results',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.Safari', 'SuppressSearchSuggestions')
+        return val === '1'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.Safari', 'SuppressSearchSuggestions', 'bool', 'true')
+    },
+  },
+  {
+    id: 'macos-safari-preload-top-hit',
+    category: 'search',
+    label: 'Safari Preload Top Hit',
+    description: 'Disable Safari preloading the top search hit which sends browsing data to sites',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.Safari', 'PreloadTopHit')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.Safari', 'PreloadTopHit', 'bool', 'false')
+    },
+  },
+]
+
+// ─── Sync & Cloud ───────────────────────────────────────────
+
+const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
+  {
+    id: 'macos-handoff',
+    category: 'sync',
+    label: 'Handoff',
+    description: 'Disable Handoff and Universal Clipboard — you will no longer be able to continue activities or copy/paste between Apple devices',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const { stdout } = await execFileAsync('/usr/bin/defaults', ['-currentHost', 'read', 'com.apple.coreservices.useractivityd', 'ActivityReceivingAllowed'], { timeout: 5_000 })
+        return stdout.trim() === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await execFileAsync('/usr/bin/defaults', ['-currentHost', 'write', 'com.apple.coreservices.useractivityd', 'ActivityReceivingAllowed', '-bool', 'false'], { timeout: 5_000 })
+    },
+  },
+  {
+    id: 'macos-icloud-analytics',
+    category: 'sync',
+    label: 'iCloud Analytics',
+    description: 'Disable iCloud analytics sharing with Apple',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.iCloud.Diagnostics', 'iCloudAnalyticsEnabled')
+        return val === '0'
+      } catch {
+        // Key doesn't exist = not sharing = privacy-friendly
+        return true
+      }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.iCloud.Diagnostics', 'iCloudAnalyticsEnabled', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-safari-cloud-tabs',
+    category: 'sync',
+    label: 'Safari iCloud Tabs',
+    description: 'Disable Safari iCloud tab syncing — you will no longer see tabs open on your other Apple devices',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.Safari', 'CloudTabsEnabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.Safari', 'CloudTabsEnabled', 'bool', 'false')
+    },
+  },
+]
+
+// ─── AI Features ────────────────────────────────────────────
+
+const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
+  {
+    id: 'macos-siri-enabled',
+    category: 'ai',
+    label: 'Siri',
+    description: 'Disable Siri entirely — Hey Siri, voice commands, and Siri Shortcuts will stop working',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.assistant.support', 'Assistant Enabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.assistant.support', 'Assistant Enabled', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-siri-dictation',
+    category: 'ai',
+    label: 'Siri Dictation',
+    description: 'Disable dictation — the microphone key on your keyboard will stop working',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.speech.recognition.AppleSpeechRecognition.prefs', 'DictationIMMEnabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.speech.recognition.AppleSpeechRecognition.prefs', 'DictationIMMEnabled', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-apple-intelligence',
+    category: 'ai',
+    label: 'Apple Intelligence',
+    description: 'Disable Apple Intelligence AI features (macOS 15 Sequoia and later)',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.assistant.support', 'Apple Intelligence Enabled')
+        return val === '0'
+      } catch {
+        // Key doesn't exist = feature not available = privacy-friendly
+        return true
+      }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.assistant.support', 'Apple Intelligence Enabled', 'bool', 'false')
+    },
+  },
+]
+
+// ─── Browser Telemetry ──────────────────────────────────────
+
+const CHROME_APP = '/Applications/Google Chrome.app'
+const FIREFOX_APP = '/Applications/Firefox.app'
+const MANAGED_PREFS = '/Library/Managed Preferences'
+
+const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
+  {
+    id: 'macos-safari-dnt',
+    category: 'browser',
+    label: 'Safari Do Not Track',
+    description: 'Enable the Do Not Track header in Safari',
+    requiresAdmin: false,
+    async check() {
+      try {
+        const val = await defaultsRead('com.apple.Safari', 'SendDoNotTrackHTTPHeader')
+        return val === '1'
+      } catch { return false }
+    },
+    async apply() {
+      await defaultsWrite('com.apple.Safari', 'SendDoNotTrackHTTPHeader', 'bool', 'true')
+    },
+  },
+  {
+    id: 'macos-chrome-metrics',
+    category: 'browser',
+    label: 'Chrome Metrics Reporting',
+    description: 'Stop Chrome from sending usage metrics to Google',
+    requiresAdmin: true,
+    async check() {
+      if (!await isAppInstalled(CHROME_APP)) return true
+      try {
+        const val = await defaultsRead(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await elevatedExec('/bin/mkdir', ['-p', MANAGED_PREFS])
+      await elevatedDefaultsWrite(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-chrome-safe-browsing',
+    category: 'browser',
+    label: 'Chrome Safe Browsing Reports',
+    description: 'Stop Chrome from sending extended URL and download reports to Google',
+    requiresAdmin: true,
+    async check() {
+      if (!await isAppInstalled(CHROME_APP)) return true
+      try {
+        const val = await defaultsRead(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled')
+        return val === '0'
+      } catch { return false }
+    },
+    async apply() {
+      await elevatedExec('/bin/mkdir', ['-p', MANAGED_PREFS])
+      await elevatedDefaultsWrite(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled', 'bool', 'false')
+    },
+  },
+  {
+    id: 'macos-firefox-telemetry',
+    category: 'browser',
+    label: 'Firefox Telemetry',
+    description: 'Disable Firefox telemetry data collection and upload to Mozilla',
+    requiresAdmin: true,
+    async check() {
+      if (!await isAppInstalled(FIREFOX_APP)) return true
+      try {
+        const val = await defaultsRead(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry')
+        return val === '1'
+      } catch { return false }
+    },
+    async apply() {
+      await elevatedExec('/bin/mkdir', ['-p', MANAGED_PREFS])
+      await elevatedDefaultsWrite(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry', 'bool', 'true')
     },
   },
 ]
