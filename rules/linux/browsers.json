@@ -19,11 +19,17 @@
     { "key": "thorium", "base": "${CONFIG}/thorium" },
     { "key": "supermium", "base": "${CONFIG}/supermium" },
     { "key": "helium", "base": "${CONFIG}/helium" },
-    { "key": "cromite", "base": "${CONFIG}/cromite" }
+    { "key": "cromite", "base": "${CONFIG}/cromite" },
+    { "key": "catsxp", "base": "${CONFIG}/ArcSoft/CatsXP" }
   ],
   "firefox": {
     "base": "${HOME}/.mozilla/firefox",
     "cache": "${CACHE}/mozilla/firefox"
   },
+  "firefoxForks": [
+    { "key": "librewolf", "base": "${HOME}/.librewolf", "cache": "${CACHE}/librewolf" },
+    { "key": "waterfox", "base": "${HOME}/.waterfox", "cache": "${CACHE}/waterfox" },
+    { "key": "floorp", "base": "${HOME}/.floorp", "cache": "${CACHE}/floorp" }
+  ],
   "safari": null
 }

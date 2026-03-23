@@ -66,10 +66,25 @@
       "properties": {
         "key": {
           "type": "string",
-          "enum": ["chrome", "edge", "brave", "opera", "operaGX", "vivaldi", "arc", "chromium", "thorium", "supermium", "helium", "cromite"],
+          "enum": ["chrome", "edge", "brave", "opera", "operaGX", "vivaldi", "arc", "chromium", "thorium", "supermium", "helium", "cromite", "catsxp"],
           "description": "Browser identifier matching the BrowserPathConfig keys"
         },
         "base": { "$ref": "#/definitions/TemplatePath" }
+      }
+    },
+
+    "FirefoxForkBrowser": {
+      "type": "object",
+      "required": ["key", "base", "cache"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "enum": ["librewolf", "waterfox", "floorp"],
+          "description": "Firefox-fork browser identifier matching the BrowserPathConfig keys"
+        },
+        "base": { "$ref": "#/definitions/TemplatePath" },
+        "cache": { "$ref": "#/definitions/TemplatePath" }
       }
     },
 
@@ -153,6 +168,10 @@
             "base": { "$ref": "#/definitions/TemplatePath" },
             "cache": { "$ref": "#/definitions/TemplatePath" }
           }
+        },
+        "firefoxForks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/FirefoxForkBrowser" }
         },
         "safari": {
           "oneOf": [

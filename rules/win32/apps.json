@@ -60,8 +60,6 @@
     { "id": "electron-builder", "name": "electron-builder Cache", "paths": ["${LOCALAPPDATA}/electron-builder/Cache"], "description": "Electron builder download cache (re-downloaded on demand)" },
     { "id": "curseforge", "name": "CurseForge", "paths": ["${APPDATA}/CurseForge/Cache/Cache_Data", "${APPDATA}/CurseForge/Code Cache", "${APPDATA}/CurseForge/GPUCache", "${APPDATA}/CurseForge/logs"], "description": "CurseForge mod manager Electron app cache, GPU cache, and log files" },
     { "id": "logitech-ghub", "name": "Logitech G HUB", "paths": ["${APPDATA}/G HUB/Cache/Cache_Data", "${APPDATA}/G HUB/Code Cache", "${APPDATA}/G HUB/GPUCache"], "description": "Logitech G HUB Electron app cache and GPU cache" },
-    { "id": "librewolf", "name": "LibreWolf", "paths": ["${LOCALAPPDATA}/LibreWolf/Profiles"], "childSubdir": "cache2", "description": "LibreWolf browser per-profile web content cache" },
-    { "id": "waterfox", "name": "Waterfox", "paths": ["${LOCALAPPDATA}/Waterfox/Profiles"], "childSubdir": "cache2", "description": "Waterfox browser per-profile web content cache" },
     { "id": "zen-browser", "name": "Zen Browser", "paths": ["${LOCALAPPDATA}/Zen/Profiles"], "childSubdir": "cache2", "description": "Zen Browser per-profile web content cache" },
     { "id": "kodi", "name": "Kodi", "paths": ["${APPDATA}/Kodi/cache", "${APPDATA}/Kodi/userdata/Thumbnails"], "description": "Kodi media center cache and thumbnail images (can be several GB; rebuilt on demand)" },
     { "id": "qbittorrent", "name": "qBittorrent", "paths": ["${LOCALAPPDATA}/qBittorrent/logs"], "description": "qBittorrent log files" },

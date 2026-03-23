@@ -187,6 +187,7 @@ async function scanBrowserCli(): Promise<ScanResult[]> {
     { label: 'Supermium', ...browserPaths.supermium, hasProfiles: true },
     { label: 'Helium', ...browserPaths.helium, hasProfiles: true },
     { label: 'Cromite', ...browserPaths.cromite, hasProfiles: true },
+    { label: 'CatsXP', ...browserPaths.catsxp, hasProfiles: true },
   ]
   for (const browser of chromiumBrowsers) {
     if (!existsSync(browser.base)) continue
@@ -225,6 +226,27 @@ async function scanBrowserCli(): Promise<ScanResult[]> {
           const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
           if (existsSync(cachePath)) {
             const result = await scanDirectory(cachePath, category, `Firefox - ${dir.name} Cache`)
+            if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
+          }
+        }
+      }
+    } catch { /* skip */ }
+  }
+  // Firefox forks (LibreWolf, Waterfox, Floorp)
+  const firefoxForks = [
+    { label: 'LibreWolf', ...browserPaths.librewolf },
+    { label: 'Waterfox', ...browserPaths.waterfox },
+    { label: 'Floorp', ...browserPaths.floorp },
+  ]
+  for (const fork of firefoxForks) {
+    if (!fork.cache || !existsSync(fork.cache)) continue
+    try {
+      const profileDirs = await readdir(fork.cache, { withFileTypes: true })
+      for (const dir of profileDirs) {
+        if (dir.isDirectory()) {
+          const cachePath = join(fork.cache, dir.name, 'cache2', 'entries')
+          if (existsSync(cachePath)) {
+            const result = await scanDirectory(cachePath, category, `${fork.label} - ${dir.name} Cache`)
             if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
           }
         }

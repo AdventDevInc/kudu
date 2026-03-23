@@ -43,6 +43,7 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
       { key: 'supermium', label: 'Supermium', ...browserPaths.supermium, hasProfiles: true },
       { key: 'helium', label: 'Helium', ...browserPaths.helium, hasProfiles: true },
       { key: 'cromite', label: 'Cromite', ...browserPaths.cromite, hasProfiles: true },
+      { key: 'catsxp', label: 'CatsXP', ...browserPaths.catsxp, hasProfiles: true },
     ]
 
     // Scan all Chromium-based browsers
@@ -93,6 +94,30 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
             const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
             if (existsSync(cachePath)) {
               const result = await scanDirectory(cachePath, category, `Firefox - ${dir.name} Cache`)
+              if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
+            }
+          }
+        }
+      } catch {
+        // Skip
+      }
+    }
+
+    // Firefox forks (LibreWolf, Waterfox, Floorp)
+    const firefoxForks = [
+      { key: 'librewolf', label: 'LibreWolf', ...browserPaths.librewolf },
+      { key: 'waterfox', label: 'Waterfox', ...browserPaths.waterfox },
+      { key: 'floorp', label: 'Floorp', ...browserPaths.floorp },
+    ]
+    for (const fork of firefoxForks) {
+      if (!fork.cache || !existsSync(fork.cache)) continue
+      try {
+        const profileDirs = await readdir(fork.cache, { withFileTypes: true })
+        for (const dir of profileDirs) {
+          if (dir.isDirectory()) {
+            const cachePath = join(fork.cache, dir.name, 'cache2', 'entries')
+            if (existsSync(cachePath)) {
+              const result = await scanDirectory(cachePath, category, `${fork.label} - ${dir.name} Cache`)
               if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
             }
           }

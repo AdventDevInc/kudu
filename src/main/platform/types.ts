@@ -37,7 +37,11 @@ export interface BrowserPathConfig {
   supermium: BrowserPaths
   helium: BrowserPaths
   cromite: BrowserPaths
+  catsxp: BrowserPaths
   firefox: { base: string; cache: string }
+  librewolf: { base: string; cache: string }
+  waterfox: { base: string; cache: string }
+  floorp: { base: string; cache: string }
   safari: { cache: string } | null
 }
 

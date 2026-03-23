@@ -36,6 +36,7 @@ export interface BrowserRulesJson {
   }
   chromium: Array<{ key: string; base: string }>
   firefox: { base: string; cache: string }
+  firefoxForks?: Array<{ key: string; base: string; cache: string }>
   safari?: { cache: string } | null
 }
 
@@ -213,6 +214,14 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         cache: resolvePath(json.browsers.firefox.cache, vars, platform),
       }
 
+      const firefoxForks: Record<string, { base: string; cache: string }> = {}
+      for (const fork of json.browsers.firefoxForks || []) {
+        firefoxForks[fork.key] = {
+          base: resolvePath(fork.base, vars, platform),
+          cache: resolvePath(fork.cache, vars, platform),
+        }
+      }
+
       const safariResolved = json.browsers.safari
         ? { cache: resolvePath(json.browsers.safari.cache, vars, platform) }
         : null
@@ -230,7 +239,11 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         supermium: config.supermium,
         helium: config.helium,
         cromite: config.cromite,
+        catsxp: config.catsxp,
         firefox: firefoxResolved,
+        librewolf: firefoxForks.librewolf || { base: '', cache: '' },
+        waterfox: firefoxForks.waterfox || { base: '', cache: '' },
+        floorp: firefoxForks.floorp || { base: '', cache: '' },
         safari: safariResolved,
       } as BrowserPathConfig
     },

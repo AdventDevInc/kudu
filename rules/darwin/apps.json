@@ -55,8 +55,6 @@
     { "id": "ledger-live", "name": "Ledger Live", "paths": ["${APP_SUPPORT}/Ledger Live/Cache/Cache_Data"], "description": "Ledger Live Electron app cache" },
     { "id": "node-gyp", "name": "node-gyp Cache", "paths": ["${HOME}/.node-gyp"], "description": "Node.js native addon build header cache (re-downloaded on demand)" },
     { "id": "electron-builder", "name": "electron-builder Cache", "paths": ["${CACHES}/electron-builder"], "description": "Electron builder download cache (re-downloaded on demand)" },
-    { "id": "librewolf", "name": "LibreWolf", "paths": ["${CACHES}/LibreWolf/Profiles"], "childSubdir": "cache2", "description": "LibreWolf browser per-profile web content cache" },
-    { "id": "waterfox", "name": "Waterfox", "paths": ["${CACHES}/Waterfox/Profiles"], "childSubdir": "cache2", "description": "Waterfox browser per-profile web content cache" },
     { "id": "zen-browser", "name": "Zen Browser", "paths": ["${CACHES}/Zen/Profiles"], "childSubdir": "cache2", "description": "Zen Browser per-profile web content cache" },
     { "id": "kodi", "name": "Kodi", "paths": ["${CACHES}/org.xbmc.kodi", "${APP_SUPPORT}/Kodi/userdata/Thumbnails"], "description": "Kodi media center cache and thumbnail images (can be several GB; rebuilt on demand)" },
     { "id": "qbittorrent", "name": "qBittorrent", "paths": ["${APP_SUPPORT}/qBittorrent/logs"], "description": "qBittorrent log files" },

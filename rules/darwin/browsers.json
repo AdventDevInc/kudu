@@ -19,11 +19,17 @@
     { "key": "thorium", "base": "${APP_SUPPORT}/Thorium" },
     { "key": "supermium", "base": "${APP_SUPPORT}/Supermium" },
     { "key": "helium", "base": "${APP_SUPPORT}/net.imput.helium" },
-    { "key": "cromite", "base": "${APP_SUPPORT}/Cromite" }
+    { "key": "cromite", "base": "${APP_SUPPORT}/Cromite" },
+    { "key": "catsxp", "base": "${APP_SUPPORT}/ArcSoft/CatsXP" }
   ],
   "firefox": {
     "base": "${APP_SUPPORT}/Firefox/Profiles",
     "cache": "${CACHES}/Firefox/Profiles"
   },
+  "firefoxForks": [
+    { "key": "librewolf", "base": "${APP_SUPPORT}/LibreWolf/Profiles", "cache": "${CACHES}/LibreWolf/Profiles" },
+    { "key": "waterfox", "base": "${APP_SUPPORT}/Waterfox/Profiles", "cache": "${CACHES}/Waterfox/Profiles" },
+    { "key": "floorp", "base": "${APP_SUPPORT}/Floorp/Profiles", "cache": "${CACHES}/Floorp/Profiles" }
+  ],
   "safari": { "cache": "${CACHES}/com.apple.Safari" }
 }

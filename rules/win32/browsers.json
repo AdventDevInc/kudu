@@ -19,11 +19,17 @@
     { "key": "thorium", "base": "${LOCALAPPDATA}/Thorium/User Data" },
     { "key": "supermium", "base": "${LOCALAPPDATA}/Supermium/User Data" },
     { "key": "helium", "base": "${LOCALAPPDATA}/imput/Helium/User Data" },
-    { "key": "cromite", "base": "${LOCALAPPDATA}/Cromite/User Data" }
+    { "key": "cromite", "base": "${LOCALAPPDATA}/Cromite/User Data" },
+    { "key": "catsxp", "base": "${LOCALAPPDATA}/ArcSoft/CatsXP/User Data" }
   ],
   "firefox": {
     "base": "${APPDATA}/Mozilla/Firefox/Profiles",
     "cache": "${LOCALAPPDATA}/Mozilla/Firefox/Profiles"
   },
+  "firefoxForks": [
+    { "key": "librewolf", "base": "${APPDATA}/LibreWolf/Profiles", "cache": "${LOCALAPPDATA}/LibreWolf/Profiles" },
+    { "key": "waterfox", "base": "${APPDATA}/Waterfox/Profiles", "cache": "${LOCALAPPDATA}/Waterfox/Profiles" },
+    { "key": "floorp", "base": "${APPDATA}/Floorp/Profiles", "cache": "${LOCALAPPDATA}/Floorp/Profiles" }
+  ],
   "safari": null
 }
