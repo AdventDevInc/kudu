@@ -27,7 +27,6 @@
   "cloudDescription": "Tüm sistemlerinizdeki tehditleri izleyin, merkezi temizlik profillerini yönetin, uzaktan taramaları tetikleyin ve gerçek zamanlı sistem durumu telemetrisi alın — hepsi tek bir gösterge panelinden.",
   "cloudSignUpFree": "Ücretsiz kaydol",
   "cloudAlreadyHaveAccount": "Zaten bir hesabınız var mı? Bu cihazı bağlamak için API anahtarınızı aşağıya yapıştırın.",
-  "cloudServerUrlPlaceholder": "Sunucu URL'si (varsayılan için boş bırakın)",
   "cloudApiKeyPlaceholder": "API anahtarınızı yapıştırın",
   "cloudLinking": "Bağlanıyor...",
   "cloudLinkDevice": "Cihazı Bağla",

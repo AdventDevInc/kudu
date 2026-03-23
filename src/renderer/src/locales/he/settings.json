@@ -27,7 +27,6 @@
   "cloudDescription": "נטר איומים בכל המערכות שלך, נהל פרופילי ניקוי מרכזיים, הפעל סריקות מרחוק וקבל טלמטריית תקינות בזמן אמת — הכול מלוח בקרה אחד.",
   "cloudSignUpFree": "הירשם בחינם",
   "cloudAlreadyHaveAccount": "כבר יש לך חשבון? הדבק את מפתח ה-API שלך למטה כדי לקשר את המכשיר הזה.",
-  "cloudServerUrlPlaceholder": "URL של השרת (השאר ריק לברירת המחדל)",
   "cloudApiKeyPlaceholder": "הדבק את מפתח ה-API שלך",
   "cloudLinking": "מקשר...",
   "cloudLinkDevice": "קשר מכשיר",

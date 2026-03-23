@@ -14,7 +14,7 @@ function log(msg: string): void {
  * reports, and responds to remote commands. No GUI, no tray, no window.
  *
  * Usage:
- *   kudu --daemon [--api-key <key>] [--server-url <url>]
+ *   kudu --daemon [--api-key <key>]
  */
 export async function runDaemon(): Promise<void> {
   const args = process.argv
@@ -39,32 +39,6 @@ export async function runDaemon(): Promise<void> {
     const settings = getSettings()
     setSettings({ cloud: { ...settings.cloud, apiKey: key } })
     log('API key saved to config')
-  }
-
-  // ─── Handle --server-url flag ────────────────────────────────
-  const serverUrlIdx = args.indexOf('--server-url')
-  if (serverUrlIdx !== -1) {
-    const url = args[serverUrlIdx + 1]
-    if (!url || url.startsWith('--')) {
-      log('Error: --server-url requires a value')
-      app.exit(1)
-      return
-    }
-    try {
-      const parsed = new URL(url)
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-        log('Error: --server-url must be http or https')
-        app.exit(1)
-        return
-      }
-    } catch {
-      log('Error: --server-url must be a valid URL')
-      app.exit(1)
-      return
-    }
-    const settings = getSettings()
-    setSettings({ cloud: { ...settings.cloud, serverUrl: url } })
-    log(`Server URL saved to config: ${url}`)
   }
 
   // ─── Flush any pending config writes before reading ───────────

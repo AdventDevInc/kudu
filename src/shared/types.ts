@@ -567,7 +567,6 @@ export interface KuduSettings {
   schedules: ScheduleEntry[]
   cloud: {
     apiKey: string
-    serverUrl: string
     telemetryIntervalSec: number
     shareDiskHealth: boolean
     shareProcessList: boolean

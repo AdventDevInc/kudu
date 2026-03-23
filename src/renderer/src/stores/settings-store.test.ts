@@ -33,7 +33,6 @@ describe('settings-store', () => {
         schedules: [],
         cloud: {
           apiKey: '',
-          serverUrl: '',
           telemetryIntervalSec: 60,
           shareDiskHealth: true,
           shareProcessList: true,

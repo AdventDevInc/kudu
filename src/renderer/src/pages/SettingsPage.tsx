@@ -214,14 +214,6 @@ export function SettingsPage() {
               {t('cloudAlreadyHaveAccount')}
             </p>
             <div className="space-y-2.5">
-              <input
-                type="text"
-                value={settings.cloud.serverUrl}
-                onChange={(e) => save({ cloud: { ...settings.cloud, serverUrl: e.target.value } })}
-                placeholder={t('cloudServerUrlPlaceholder')}
-                className="w-full rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
-              />
               <div className="flex items-center gap-2.5">
                 <input
                   type="text"

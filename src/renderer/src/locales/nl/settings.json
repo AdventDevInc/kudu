@@ -27,7 +27,6 @@
   "cloudDescription": "Controleer bedreigingen op al uw systemen, beheer gecentraliseerde opschoningsprofielen, start scans op afstand en ontvang realtime telemetrie over de systeemstatus — allemaal vanuit één dashboard.",
   "cloudSignUpFree": "Gratis registreren",
   "cloudAlreadyHaveAccount": "Heeft u al een account? Plak hieronder uw API-sleutel om dit apparaat te koppelen.",
-  "cloudServerUrlPlaceholder": "Server-URL (leeg laten voor standaard)",
   "cloudApiKeyPlaceholder": "Plak uw API-sleutel",
   "cloudLinking": "Koppelen...",
   "cloudLinkDevice": "Apparaat koppelen",

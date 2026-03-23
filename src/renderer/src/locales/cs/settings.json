@@ -27,7 +27,6 @@
   "cloudDescription": "Sledujte hrozby napříč všemi svými systémy, spravujte centralizované profily čištění, spouštějte vzdálené kontroly a získávejte telemetrii stavu v reálném čase — vše z jednoho panelu.",
   "cloudSignUpFree": "Zaregistrovat se zdarma",
   "cloudAlreadyHaveAccount": "Už máte účet? Vložte níže svůj API klíč a propojte toto zařízení.",
-  "cloudServerUrlPlaceholder": "URL serveru (pro výchozí ponechte prázdné)",
   "cloudApiKeyPlaceholder": "Vložte svůj API klíč",
   "cloudLinking": "Probíhá propojení...",
   "cloudLinkDevice": "Propojit zařízení",

@@ -27,7 +27,6 @@
   "cloudDescription": "Monitoruj zagrożenia na wszystkich swoich systemach, zarządzaj scentralizowanymi profilami czyszczenia, uruchamiaj zdalne skanowania i otrzymuj dane telemetryczne o stanie w czasie rzeczywistym — wszystko z jednego panelu.",
   "cloudSignUpFree": "Zarejestruj się bezpłatnie",
   "cloudAlreadyHaveAccount": "Masz już konto? Wklej poniżej swój klucz API, aby połączyć to urządzenie.",
-  "cloudServerUrlPlaceholder": "URL serwera (pozostaw puste, aby użyć domyślnego)",
   "cloudApiKeyPlaceholder": "Wklej swój klucz API",
   "cloudLinking": "Łączenie...",
   "cloudLinkDevice": "Połącz urządzenie",

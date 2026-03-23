@@ -27,7 +27,6 @@
   "cloudDescription": "從單一儀表板即可監控所有系統上的威脅、管理集中式清理設定檔、觸發遠端掃描，並取得即時健康狀態遙測資料。",
   "cloudSignUpFree": "免費註冊",
   "cloudAlreadyHaveAccount": "已經有帳戶了嗎？請在下方貼上您的 API 金鑰以連結此裝置。",
-  "cloudServerUrlPlaceholder": "伺服器 URL（留空則使用預設值）",
   "cloudApiKeyPlaceholder": "貼上您的 API 金鑰",
   "cloudLinking": "連結中...",
   "cloudLinkDevice": "連結裝置",

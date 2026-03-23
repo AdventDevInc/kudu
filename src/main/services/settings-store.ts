@@ -58,7 +58,6 @@ const defaults: StoreData = {
     schedules: [],
     cloud: {
       apiKey: '',
-      serverUrl: '',
       telemetryIntervalSec: 60,
       shareDiskHealth: true,
       shareProcessList: true,

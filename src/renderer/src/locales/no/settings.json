@@ -27,7 +27,6 @@
   "cloudDescription": "Overvåk trusler på tvers av alle systemene dine, administrer sentraliserte rengjøringsprofiler, utløse eksterne skanninger og få helsetelemetri i sanntid — alt fra ett kontrollpanel.",
   "cloudSignUpFree": "Registrer deg gratis",
   "cloudAlreadyHaveAccount": "Har du allerede en konto? Lim inn API-nøkkelen din nedenfor for å koble denne enheten.",
-  "cloudServerUrlPlaceholder": "Server-URL (la stå tom for standard)",
   "cloudApiKeyPlaceholder": "Lim inn API-nøkkelen din",
   "cloudLinking": "Kobler til...",
   "cloudLinkDevice": "Koble til enhet",

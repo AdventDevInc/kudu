@@ -27,7 +27,6 @@
   "cloudDescription": "Theo dõi mối đe dọa trên tất cả hệ thống của bạn, quản lý hồ sơ dọn dẹp tập trung, kích hoạt quét từ xa và nhận telemetry tình trạng theo thời gian thực — tất cả từ một bảng điều khiển.",
   "cloudSignUpFree": "Đăng ký miễn phí",
   "cloudAlreadyHaveAccount": "Đã có tài khoản? Dán API key của bạn bên dưới để liên kết thiết bị này.",
-  "cloudServerUrlPlaceholder": "URL máy chủ (để trống để dùng mặc định)",
   "cloudApiKeyPlaceholder": "Dán API key của bạn",
   "cloudLinking": "Đang liên kết...",
   "cloudLinkDevice": "Liên kết thiết bị",

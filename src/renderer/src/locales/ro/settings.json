@@ -27,7 +27,6 @@
   "cloudDescription": "Monitorizați amenințările pe toate sistemele dvs., gestionați profile de curățare centralizate, declanșați scanări la distanță și primiți telemetrie de stare în timp real — toate dintr-un singur panou de control.",
   "cloudSignUpFree": "Înregistrați-vă gratuit",
   "cloudAlreadyHaveAccount": "Aveți deja un cont? Lipiți cheia dvs. API mai jos pentru a conecta acest dispozitiv.",
-  "cloudServerUrlPlaceholder": "URL server (lăsați necompletat pentru implicit)",
   "cloudApiKeyPlaceholder": "Lipiți cheia dvs. API",
   "cloudLinking": "Se conectează...",
   "cloudLinkDevice": "Conectați dispozitivul",

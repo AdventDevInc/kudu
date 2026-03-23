@@ -27,7 +27,6 @@
   "cloudDescription": "راقب التهديدات عبر جميع أنظمتك، وأدر ملفات تعريف التنظيف المركزية، وشغّل الفحوصات عن بُعد، واحصل على بيانات القياس الصحي في الوقت الفعلي — كل ذلك من لوحة تحكم واحدة.",
   "cloudSignUpFree": "سجّل مجانًا",
   "cloudAlreadyHaveAccount": "هل لديك حساب بالفعل؟ الصق مفتاح API أدناه لربط هذا الجهاز.",
-  "cloudServerUrlPlaceholder": "URL الخادم (اتركه فارغًا لاستخدام الافتراضي)",
   "cloudApiKeyPlaceholder": "الصق مفتاح API",
   "cloudLinking": "جارٍ الربط...",
   "cloudLinkDevice": "ربط الجهاز",

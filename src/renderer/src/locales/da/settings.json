@@ -27,7 +27,6 @@
   "cloudDescription": "Overvåg trusler på tværs af alle dine systemer, administrer centrale rengøringsprofiler, udløs fjernscanninger, og få sundhedstelemetri i realtid — alt fra ét dashboard.",
   "cloudSignUpFree": "Tilmeld dig gratis",
   "cloudAlreadyHaveAccount": "Har du allerede en konto? Indsæt din API-nøgle nedenfor for at knytte denne enhed.",
-  "cloudServerUrlPlaceholder": "Server-URL (lad stå tom for standard)",
   "cloudApiKeyPlaceholder": "Indsæt din API-nøgle",
   "cloudLinking": "Knytter...",
   "cloudLinkDevice": "Knyt enhed",

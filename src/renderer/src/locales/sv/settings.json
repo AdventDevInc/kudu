@@ -27,7 +27,6 @@
   "cloudDescription": "Övervaka hot på alla dina system, hantera centrala städningsprofiler, starta fjärrskanningar och få hälsotelemetri i realtid — allt från en och samma instrumentpanel.",
   "cloudSignUpFree": "Registrera dig gratis",
   "cloudAlreadyHaveAccount": "Har du redan ett konto? Klistra in din API-nyckel nedan för att länka den här enheten.",
-  "cloudServerUrlPlaceholder": "Server-URL (lämna tomt för standard)",
   "cloudApiKeyPlaceholder": "Klistra in din API-nyckel",
   "cloudLinking": "Länkar...",
   "cloudLinkDevice": "Länka enhet",

@@ -3,7 +3,6 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/adventdevinc/kudu/main/scripts/install.sh | bash
 #   curl -fsSL ... | bash -s -- --api-key YOUR_KEY
-#   curl -fsSL ... | bash -s -- --api-key YOUR_KEY --server-url https://custom.server
 #   curl -fsSL ... | bash -s -- --no-daemon   (install only, don't enable daemon)
 #   curl -fsSL ... | bash -s -- --no-boot     (install only, don't enable boot service)
 
@@ -15,7 +14,6 @@ BIN_LINK="/usr/local/bin/kudu"
 SERVICE_NAME="kudu-daemon"
 
 API_KEY=""
-SERVER_URL=""
 NO_DAEMON=false
 NO_BOOT=false
 INSTALL_USER="${SUDO_USER:-$USER}"
@@ -25,7 +23,6 @@ INSTALL_HOME=$(eval echo "~${INSTALL_USER}")
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --api-key)    API_KEY="$2";    shift 2 ;;
-    --server-url) SERVER_URL="$2"; shift 2 ;;
     --no-daemon)  NO_DAEMON=true;  shift ;;
     --no-boot)    NO_BOOT=true;    shift ;;
     *) echo "Unknown option: $1"; exit 1 ;;
@@ -159,13 +156,6 @@ if [[ -n "$API_KEY" ]]; then
   APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGE_PATH" --no-sandbox --ozone-platform=headless \
     --cli config set cloud.apiKey "$API_KEY"
   ok "API key saved."
-fi
-
-if [[ -n "$SERVER_URL" ]]; then
-  log "Saving server URL..."
-  APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGE_PATH" --no-sandbox --ozone-platform=headless \
-    --cli config set cloud.serverUrl "$SERVER_URL"
-  ok "Server URL saved."
 fi
 
 # ── Systemd service for boot ─────────────────────────────────────

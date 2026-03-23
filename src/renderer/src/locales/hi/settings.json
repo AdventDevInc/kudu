@@ -27,7 +27,6 @@
   "cloudDescription": "अपने सभी सिस्टमों में खतरों की निगरानी करें, केंद्रीकृत सफ़ाई प्रोफ़ाइल प्रबंधित करें, दूरस्थ स्कैन शुरू करें, और रीयल-टाइम स्वास्थ्य telemetry प्राप्त करें — सब कुछ एक ही dashboard से।",
   "cloudSignUpFree": "निःशुल्क साइन अप करें",
   "cloudAlreadyHaveAccount": "क्या आपके पास पहले से खाता है? इस डिवाइस को लिंक करने के लिए नीचे अपनी API key पेस्ट करें।",
-  "cloudServerUrlPlaceholder": "Server URL (डिफ़ॉल्ट के लिए खाली छोड़ें)",
   "cloudApiKeyPlaceholder": "अपनी API key पेस्ट करें",
   "cloudLinking": "लिंक किया जा रहा है...",
   "cloudLinkDevice": "डिवाइस लिंक करें",

@@ -27,7 +27,6 @@
   "cloudDescription": "Monitor threats across all your systems, manage centralized cleaning profiles, trigger remote scans, and get real-time health telemetry — all from one dashboard.",
   "cloudSignUpFree": "Sign up free",
   "cloudAlreadyHaveAccount": "Already have an account? Paste your API key below to link this device.",
-  "cloudServerUrlPlaceholder": "Server URL (leave blank for default)",
   "cloudApiKeyPlaceholder": "Paste your API key",
   "cloudLinking": "Linking...",
   "cloudLinkDevice": "Link Device",

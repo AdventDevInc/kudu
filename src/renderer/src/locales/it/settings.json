@@ -27,7 +27,6 @@
   "cloudDescription": "Monitora le minacce su tutti i tuoi sistemi, gestisci profili di pulizia centralizzati, avvia scansioni remote e ottieni telemetria sullo stato in tempo reale — tutto da un'unica dashboard.",
   "cloudSignUpFree": "Registrati gratis",
   "cloudAlreadyHaveAccount": "Hai già un account? Incolla qui sotto la tua chiave API per collegare questo dispositivo.",
-  "cloudServerUrlPlaceholder": "URL del server (lascia vuoto per quello predefinito)",
   "cloudApiKeyPlaceholder": "Incolla la tua chiave API",
   "cloudLinking": "Collegamento in corso...",
   "cloudLinkDevice": "Collega dispositivo",

@@ -255,7 +255,7 @@ class CloudAgentService {
 
       const settings = getSettings()
       const machineId = getMachineId()
-      this.serverUrl = settings.cloud.serverUrl || DEFAULT_SERVER_URL
+      this.serverUrl = DEFAULT_SERVER_URL
 
       this.apiKey = apiKey
       this.deviceId = machineId
@@ -321,7 +321,7 @@ class CloudAgentService {
     const settings = getSettings()
     this.apiKey = settings.cloud.apiKey
     this.deviceId = getMachineId()
-    this.serverUrl = settings.cloud.serverUrl || DEFAULT_SERVER_URL
+    this.serverUrl = DEFAULT_SERVER_URL
 
     if (!this.apiKey) {
       this.status = 'dormant'

@@ -27,7 +27,6 @@
   "cloudDescription": "Valvo uhkia kaikissa järjestelmissäsi, hallitse keskitettyjä puhdistusprofiileja, käynnistä etäskannauksia ja saat reaaliaikaista kuntotelemetriaa — kaikki yhdestä hallintapaneelista.",
   "cloudSignUpFree": "Rekisteröidy maksutta",
   "cloudAlreadyHaveAccount": "Onko sinulla jo tili? Liitä tämä laite liittämällä API-avaimesi alle.",
-  "cloudServerUrlPlaceholder": "Palvelimen URL-osoite (jätä tyhjäksi oletusarvoa varten)",
   "cloudApiKeyPlaceholder": "Liitä API-avaimesi",
   "cloudLinking": "Liitetään...",
   "cloudLinkDevice": "Liitä laite",

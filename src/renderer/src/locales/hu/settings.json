@@ -27,7 +27,6 @@
   "cloudDescription": "Figyelje a fenyegetéseket az összes rendszerén, kezeljen központi tisztítási profilokat, indítson távoli vizsgálatokat, és kapjon valós idejű állapot-telemetriát — mindezt egyetlen irányítópultról.",
   "cloudSignUpFree": "Ingyenes regisztráció",
   "cloudAlreadyHaveAccount": "Van már fiókja? Illessze be alább az API-kulcsát az eszköz összekapcsolásához.",
-  "cloudServerUrlPlaceholder": "Kiszolgáló URL-je (az alapértelmezéshez hagyja üresen)",
   "cloudApiKeyPlaceholder": "Illessze be az API-kulcsát",
   "cloudLinking": "Összekapcsolás...",
   "cloudLinkDevice": "Eszköz összekapcsolása",

@@ -27,7 +27,6 @@
   "cloudDescription": "Pantau ancaman di semua sistem Anda, kelola profil pembersihan terpusat, picu pemindaian jarak jauh, dan dapatkan telemetri kesehatan real-time — semuanya dari satu dashboard.",
   "cloudSignUpFree": "Daftar gratis",
   "cloudAlreadyHaveAccount": "Sudah punya akun? Tempelkan API key Anda di bawah untuk menautkan perangkat ini.",
-  "cloudServerUrlPlaceholder": "URL server (kosongkan untuk default)",
   "cloudApiKeyPlaceholder": "Tempelkan API key Anda",
   "cloudLinking": "Menautkan...",
   "cloudLinkDevice": "Tautkan Perangkat",

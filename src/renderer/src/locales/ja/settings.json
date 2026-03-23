@@ -27,7 +27,6 @@
   "cloudDescription": "すべてのシステムの脅威を監視し、一元化されたクリーニングプロファイルを管理し、リモートスキャンを実行し、リアルタイムの正常性テレメトリを取得できます。すべてを 1 つのダッシュボードから操作できます。",
   "cloudSignUpFree": "無料で登録",
   "cloudAlreadyHaveAccount": "すでにアカウントをお持ちですか？このデバイスをリンクするには、以下に API キーを貼り付けてください。",
-  "cloudServerUrlPlaceholder": "サーバー URL（既定を使用する場合は空欄）",
   "cloudApiKeyPlaceholder": "API キーを貼り付け",
   "cloudLinking": "リンク中...",
   "cloudLinkDevice": "デバイスをリンク",

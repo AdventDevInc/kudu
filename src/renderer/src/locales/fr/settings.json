@@ -27,7 +27,6 @@
   "cloudDescription": "Surveillez les menaces sur tous vos systèmes, gérez des profils de nettoyage centralisés, lancez des analyses à distance et obtenez une télémétrie d’état en temps réel — le tout depuis un seul tableau de bord.",
   "cloudSignUpFree": "S’inscrire gratuitement",
   "cloudAlreadyHaveAccount": "Vous avez déjà un compte ? Collez votre clé API ci-dessous pour lier cet appareil.",
-  "cloudServerUrlPlaceholder": "URL du serveur (laisser vide pour la valeur par défaut)",
   "cloudApiKeyPlaceholder": "Collez votre clé API",
   "cloudLinking": "Liaison en cours...",
   "cloudLinkDevice": "Lier l’appareil",

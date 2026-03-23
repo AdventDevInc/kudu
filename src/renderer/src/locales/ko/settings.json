@@ -27,7 +27,6 @@
   "cloudDescription": "하나의 대시보드에서 모든 시스템의 위협을 모니터링하고, 중앙 집중식 정리 프로필을 관리하고, 원격 검사를 실행하고, 실시간 상태 텔레메트리를 확인할 수 있습니다.",
   "cloudSignUpFree": "무료 가입",
   "cloudAlreadyHaveAccount": "이미 계정이 있으신가요? 아래에 API 키를 붙여 넣어 이 장치를 연결하세요.",
-  "cloudServerUrlPlaceholder": "서버 URL(기본값을 사용하려면 비워 두세요)",
   "cloudApiKeyPlaceholder": "API 키를 붙여 넣으세요",
   "cloudLinking": "연결 중...",
   "cloudLinkDevice": "장치 연결",

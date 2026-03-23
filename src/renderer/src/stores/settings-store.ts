@@ -33,7 +33,6 @@ const defaultSettings: KuduSettings = {
   schedules: [],
   cloud: {
     apiKey: '',
-    serverUrl: '',
     telemetryIntervalSec: 60,
     shareDiskHealth: true,
     shareProcessList: true,

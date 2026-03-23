@@ -40,7 +40,6 @@ function makeSettings(
     schedules: [],
     cloud: {
       apiKey: '',
-      serverUrl: '',
       telemetryIntervalSec: 60,
       shareDiskHealth: true,
       shareProcessList: true,

@@ -27,7 +27,6 @@
   "cloudDescription": "Überwachen Sie Bedrohungen auf all Ihren Systemen, verwalten Sie zentrale Bereinigungsprofile, starten Sie Remote-Scans und erhalten Sie Gesundheits-Telemetrie in Echtzeit — alles über ein einziges Dashboard.",
   "cloudSignUpFree": "Kostenlos registrieren",
   "cloudAlreadyHaveAccount": "Sie haben bereits ein Konto? Fügen Sie unten Ihren API-Schlüssel ein, um dieses Gerät zu verknüpfen.",
-  "cloudServerUrlPlaceholder": "Server-URL (für Standard leer lassen)",
   "cloudApiKeyPlaceholder": "API-Schlüssel einfügen",
   "cloudLinking": "Wird verknüpft...",
   "cloudLinkDevice": "Gerät verknüpfen",

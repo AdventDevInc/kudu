@@ -27,7 +27,6 @@
   "cloudDescription": "Supervise amenazas en todos sus sistemas, administre perfiles de limpieza centralizados, inicie análisis remotos y obtenga telemetría de estado en tiempo real, todo desde un solo panel.",
   "cloudSignUpFree": "Registrarse gratis",
   "cloudAlreadyHaveAccount": "¿Ya tiene una cuenta? Pegue su clave API a continuación para vincular este dispositivo.",
-  "cloudServerUrlPlaceholder": "URL del servidor (déjelo en blanco para usar el valor predeterminado)",
   "cloudApiKeyPlaceholder": "Pegue su clave API",
   "cloudLinking": "Vinculando...",
   "cloudLinkDevice": "Vincular dispositivo",

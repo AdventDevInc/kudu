@@ -454,12 +454,11 @@ Kudu CLI — Full-featured command line interface
 
 Usage:
   kudu --cli <command> [subcommand] [options]
-  kudu --daemon [--api-key <key>] [--server-url <url>]
+  kudu --daemon [--api-key <key>]
 
 Daemon Mode (headless cloud agent):
   --daemon                     Start as headless cloud agent daemon
   --daemon --api-key <key>     Set API key and start daemon
-  --daemon --server-url <url>  Set custom server URL and start daemon
 
 File Cleaners (legacy flags also supported):
   scan [--system] [--browser] [--app] [--gaming] [--recycle-bin] [--all]
@@ -1221,7 +1220,6 @@ async function handleConfig(args: string[], ctx: CliContext): Promise<number | v
       cliLog(ctx, '  kudu --cli config get                        Show all settings')
       cliLog(ctx, '  kudu --cli config get cloud.apiKey            Show API key')
       cliLog(ctx, '  kudu --cli config set cloud.apiKey my-key     Set API key')
-      cliLog(ctx, '  kudu --cli config set cloud.serverUrl http://localhost:8000')
     }
     return ExitCode.INVALID_ARGS
   }

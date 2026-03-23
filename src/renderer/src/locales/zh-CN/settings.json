@@ -27,7 +27,6 @@
   "cloudDescription": "在一个仪表板中监控所有系统上的威胁、管理集中式清理配置、触发远程扫描，并获取实时健康遥测数据。",
   "cloudSignUpFree": "免费注册",
   "cloudAlreadyHaveAccount": "已有账户？请在下方粘贴您的 API 密钥以关联此设备。",
-  "cloudServerUrlPlaceholder": "服务器 URL（留空则使用默认值）",
   "cloudApiKeyPlaceholder": "粘贴您的 API 密钥",
   "cloudLinking": "正在关联...",
   "cloudLinkDevice": "关联设备",
