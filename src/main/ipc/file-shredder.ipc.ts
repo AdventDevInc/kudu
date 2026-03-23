@@ -72,7 +72,8 @@ function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
 
 /**
  * Overwrite a single file with random data then zeros (2-pass shred).
- * Uses lstat to avoid following symlinks.
+ * Uses lstat to avoid following symlinks.  Checks the module-level
+ * `cancelled` flag between chunks so large files can be interrupted.
  */
 async function shredFile(filePath: string): Promise<void> {
   const stats = await lstat(filePath)
@@ -85,6 +86,7 @@ async function shredFile(filePath: string): Promise<void> {
     // Pass 1: random data
     let offset = 0
     while (offset < size) {
+      if (cancelled) return
       const len = Math.min(CHUNK, size - offset)
       await fh.write(randomBytes(len), 0, len, offset)
       offset += len
@@ -95,6 +97,7 @@ async function shredFile(filePath: string): Promise<void> {
     const zeroBuf = Buffer.alloc(Math.min(CHUNK, size))
     offset = 0
     while (offset < size) {
+      if (cancelled) return
       const len = Math.min(CHUNK, size - offset)
       await fh.write(zeroBuf, 0, len, offset)
       offset += len
@@ -151,7 +154,9 @@ async function removeEmptyDirs(dirPath: string, depth: number = 0): Promise<void
     for (const entry of entries) {
       if (entry.isSymbolicLink()) continue
       if (entry.isDirectory()) {
-        await removeEmptyDirs(join(dirPath, entry.name), depth + 1)
+        const childPath = join(dirPath, entry.name)
+        if (isProtectedPath(childPath)) continue
+        await removeEmptyDirs(childPath, depth + 1)
       }
     }
     // Try to remove this directory — only works if now empty
@@ -277,10 +282,16 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
       } catch { /* skip */ }
     }
 
+    // Deduplicate — overlapping selections (parent + child folder, or
+    // a folder and an explicit file inside it) would otherwise shred
+    // the same file twice, inflating progress and reporting a bogus
+    // ENOENT failure on the second attempt.
+    const uniqueFiles = [...new Set(allFiles)]
+
     // Calculate total bytes
     let totalBytes = 0
     const fileSizes = new Map<string, number>()
-    for (const f of allFiles) {
+    for (const f of uniqueFiles) {
       try {
         const s = await stat(f)
         fileSizes.set(f, s.size)
@@ -296,7 +307,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     let lastReport = Date.now()
 
     // Shred each file
-    for (const filePath of allFiles) {
+    for (const filePath of uniqueFiles) {
       if (cancelled) break
 
       const now = Date.now()
@@ -305,7 +316,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
         sendProgress(win, {
           currentPath: filePath,
           filesShredded: shredded,
-          totalFiles: allFiles.length,
+          totalFiles: uniqueFiles.length,
           bytesShredded,
           totalBytes,
           progress: totalBytes > 0 ? (bytesShredded / totalBytes) * 100 : 0
@@ -341,7 +352,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     sendProgress(win, {
       currentPath: '',
       filesShredded: shredded,
-      totalFiles: allFiles.length,
+      totalFiles: uniqueFiles.length,
       bytesShredded,
       totalBytes,
       progress: wasCancelled
