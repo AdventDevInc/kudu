@@ -669,27 +669,20 @@ export function createLinuxSecurity(): PlatformSecurity {
       const CMD_TIMEOUT = 5_000
       const RAW_RULES_MAX = 3_000
 
-      /** Try `which <cmd>` to check tool availability. */
-      async function hasCommand(cmd: string): Promise<boolean> {
-        try {
-          await execFileAsync('which', [cmd], { timeout: CMD_TIMEOUT })
-          return true
-        } catch { return false }
-      }
-
       /** Parse unique port numbers from matches. */
       function uniquePorts(ports: number[]): number[] {
         return [...new Set(ports)].sort((a, b) => a - b)
       }
 
       // ── 1. ufw ────────────────────────────────────────────
-      if (await hasCommand('ufw')) {
+      const ufwPath = await findBinary(['/usr/sbin/ufw', '/usr/bin/ufw'])
+      if (ufwPath) {
         let active = false
         let rawRules = ''
         const allowedPorts: number[] = []
 
         try {
-          const { stdout } = await execFileAsync('ufw', ['status', 'verbose'], { timeout: CMD_TIMEOUT })
+          const { stdout } = await execFileAsync(ufwPath, ['status', 'verbose'], { timeout: CMD_TIMEOUT })
           rawRules = stdout.slice(0, RAW_RULES_MAX)
           active = /^Status:\s*active/m.test(stdout)
 
@@ -705,7 +698,8 @@ export function createLinuxSecurity(): PlatformSecurity {
       }
 
       // ── 2. firewalld ──────────────────────────────────────
-      if (await hasCommand('firewall-cmd')) {
+      const fwCmdPath = await findBinary(['/usr/bin/firewall-cmd', '/usr/sbin/firewall-cmd'])
+      if (fwCmdPath) {
         let active = false
         let rawRules = ''
         const allowedPorts: number[] = []
@@ -717,7 +711,7 @@ export function createLinuxSecurity(): PlatformSecurity {
 
         if (active) {
           try {
-            const { stdout } = await execFileAsync('firewall-cmd', ['--list-all'], { timeout: CMD_TIMEOUT })
+            const { stdout } = await execFileAsync(fwCmdPath, ['--list-all'], { timeout: CMD_TIMEOUT })
             rawRules = stdout.slice(0, RAW_RULES_MAX)
 
             // Parse "ports:" line — e.g. "ports: 8080/tcp 9090/udp"
@@ -748,21 +742,21 @@ export function createLinuxSecurity(): PlatformSecurity {
       }
 
       // ── 3. nftables ───────────────────────────────────────
-      if (await hasCommand('nft')) {
+      // Detect from ruleset content, not systemd — rules may be loaded by
+      // boot scripts or cloud-init while nftables.service is inactive.
+      const nftPath = await findBinary(['/usr/sbin/nft', '/usr/bin/nft'])
+      if (nftPath) {
         let active = false
         let rawRules = ''
         const allowedPorts: number[] = []
 
         try {
-          const { stdout } = await execFileAsync('systemctl', ['is-active', 'nftables'], { timeout: CMD_TIMEOUT })
-          active = stdout.trim() === 'active'
-        } catch { /* not active */ }
+          const { stdout } = await execFileAsync(nftPath, ['list', 'ruleset'], { timeout: CMD_TIMEOUT })
+          rawRules = stdout.slice(0, RAW_RULES_MAX)
+          // If there are any tables defined, nftables is actively filtering
+          active = stdout.includes('table ')
 
-        if (active) {
-          try {
-            const { stdout } = await execFileAsync('nft', ['list', 'ruleset'], { timeout: CMD_TIMEOUT })
-            rawRules = stdout.slice(0, RAW_RULES_MAX)
-
+          if (active) {
             // Only parse ports from accept rules
             for (const line of stdout.split('\n')) {
               if (!/\baccept\b/i.test(line)) continue
@@ -777,29 +771,33 @@ export function createLinuxSecurity(): PlatformSecurity {
                 allowedPorts.push(parseInt(m[1], 10))
               }
             }
-          } catch { /* couldn't list ruleset */ }
-        }
+          }
+        } catch { /* nft not usable — skip */ }
 
         return { tool: 'nftables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
       }
 
       // ── 4. iptables ───────────────────────────────────────
-      if (await hasCommand('iptables')) {
+      const iptablesPath = await findBinary(['/usr/sbin/iptables', '/sbin/iptables'])
+      if (iptablesPath) {
         let active = false
         let rawRules = ''
         const allowedPorts: number[] = []
 
         try {
-          const { stdout } = await execFileAsync('iptables', ['-L', 'INPUT', '-n', '--line-numbers'], { timeout: CMD_TIMEOUT })
+          const { stdout } = await execFileAsync(iptablesPath, ['-L', 'INPUT', '-n', '--line-numbers'], { timeout: CMD_TIMEOUT })
           rawRules = stdout.slice(0, RAW_RULES_MAX)
 
-          // Active if there is at least one non-header, non-policy line
+          // A non-ACCEPT default policy means the firewall is filtering even without explicit rules
+          const policyMatch = stdout.match(/^Chain INPUT \(policy (\w+)\)/m)
+          const hasNonAcceptPolicy = policyMatch != null && policyMatch[1] !== 'ACCEPT'
+
           const ruleLines = stdout.split('\n').filter(l => {
             const trimmed = l.trim()
             return trimmed && !trimmed.startsWith('Chain ') && !trimmed.startsWith('num ')
               && !trimmed.startsWith('target ')
           })
-          active = ruleLines.length > 0
+          active = hasNonAcceptPolicy || ruleLines.length > 0
 
           if (active) {
             // Parse ACCEPT rules with "dpt:22" or "dpts:80:443" (port ranges)
