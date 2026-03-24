@@ -9,7 +9,7 @@ import type { PlatformStartup } from '../types'
 import type { StartupItem, StartupBootTrace } from '../../../shared/types'
 
 const execFileAsync = promisify(execFile)
-const HOME = homedir()
+const HOME = resolve(homedir())
 
 export function createDarwinStartup(): PlatformStartup {
   return {
@@ -45,7 +45,7 @@ export function createDarwinStartup(): PlatformStartup {
       }
 
       // Global Launch Agents
-      const globalAgentsDir = '/Library/LaunchAgents'
+      const globalAgentsDir = resolve('/Library/LaunchAgents')
       if (existsSync(globalAgentsDir)) {
         try {
           const files = await readdir(globalAgentsDir)
@@ -109,7 +109,7 @@ export function createDarwinStartup(): PlatformStartup {
           // Validate location is within a known LaunchAgents directory
           const allowedDirs = [
             join(HOME, 'Library', 'LaunchAgents'),
-            '/Library/LaunchAgents',
+            resolve('/Library/LaunchAgents'),
           ]
           const resolved = resolve(normalize(location))
           if (!allowedDirs.some(dir => resolved.startsWith(dir + sep))) {
@@ -151,7 +151,7 @@ export function createDarwinStartup(): PlatformStartup {
         if (source === 'launch-agent-user' || source === 'launch-agent-global') {
           const allowedDirs = [
             join(HOME, 'Library', 'LaunchAgents'),
-            '/Library/LaunchAgents',
+            resolve('/Library/LaunchAgents'),
           ]
           const resolved = resolve(normalize(location))
           if (!allowedDirs.some(dir => resolved.startsWith(dir + sep))) {

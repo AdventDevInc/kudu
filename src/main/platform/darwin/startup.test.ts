@@ -29,9 +29,9 @@ vi.mock('crypto', () => ({
 
 const { createDarwinStartup } = await import('./startup')
 
-// Build paths the same way the source does: join(homedir(), 'Library', 'LaunchAgents')
-const USER_AGENTS_DIR = join('/Users/TestUser', 'Library', 'LaunchAgents')
-const GLOBAL_AGENTS_DIR = '/Library/LaunchAgents'
+// Build paths the same way the source does: join(resolve(homedir()), 'Library', 'LaunchAgents')
+const USER_AGENTS_DIR = join(resolve('/Users/TestUser'), 'Library', 'LaunchAgents')
+const GLOBAL_AGENTS_DIR = resolve('/Library/LaunchAgents')
 
 describe('darwin startup', () => {
   const startup = createDarwinStartup()
