@@ -110,6 +110,7 @@ export const IPC = {
   // Privacy Shield
   PRIVACY_SCAN: 'privacy:scan',
   PRIVACY_APPLY: 'privacy:apply',
+  PRIVACY_REVERT: 'privacy:revert',
   PRIVACY_PROGRESS: 'privacy:progress',
 
   // Driver Manager

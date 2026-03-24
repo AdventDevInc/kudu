@@ -230,6 +230,8 @@ const api = {
   privacyScan: (): Promise<PrivacyShieldState> => ipcRenderer.invoke(IPC.PRIVACY_SCAN),
   privacyApply: (ids: string[]): Promise<PrivacyApplyResult> =>
     ipcRenderer.invoke(IPC.PRIVACY_APPLY, ids),
+  privacyRevert: (ids: string[]): Promise<PrivacyApplyResult> =>
+    ipcRenderer.invoke(IPC.PRIVACY_REVERT, ids),
   onPrivacyProgress: (callback: (data: PrivacyScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: PrivacyScanProgress) => callback(data)
     ipcRenderer.on(IPC.PRIVACY_PROGRESS, handler)

@@ -314,23 +314,26 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
     const store = usePrivacyStore.getState()
     if (!store.state) return
     const setting = store.state.settings.find(s => s.id === settingId)
-    if (!setting || setting.enabled) return // can only enable protection, not disable it from here
+    if (!setting) return
 
+    const isEnabling = !setting.enabled
     store.setStatus('applying')
     try {
-      const result = await window.kudu.privacyApply([settingId])
+      const result = isEnabling
+        ? await window.kudu.privacyApply([settingId])
+        : await window.kudu.privacyRevert([settingId])
       const updated = await window.kudu.privacyScan()
       usePrivacyStore.getState().setState(updated)
       usePrivacyStore.getState().setStatus('done')
 
       if (result.failed > 0) {
         const reason = result.errors[0]?.reason || t('privacy.unknownError')
-        toast.error(t('privacy.settingApplyFailed', { label: setting.label }), { description: reason })
+        toast.error(t(isEnabling ? 'privacy.settingApplyFailed' : 'privacy.settingRevertFailed', { label: setting.label }), { description: reason })
       } else {
-        toast.success(t('privacy.settingEnabled', { label: setting.label }))
+        toast.success(t(isEnabling ? 'privacy.settingEnabled' : 'privacy.settingDisabled', { label: setting.label }))
       }
     } catch {
-      toast.error(t('privacy.settingApplyFailedGeneric'))
+      toast.error(t(isEnabling ? 'privacy.settingApplyFailedGeneric' : 'privacy.settingRevertFailedGeneric'))
       usePrivacyStore.getState().setStatus('done')
     }
   }, [t])
@@ -660,7 +663,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                         ? state?.settings.find(s => s.id === setting.dependsOn)
                         : undefined
                       const depMissing = depSetting !== undefined && !depSetting.enabled
-                      const toggleDisabled = busy || setting.enabled || depMissing
+                      const toggleDisabled = busy || depMissing || (setting.enabled && !setting.reversible)
 
                       return (
                       <div key={setting.id}
@@ -688,7 +691,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
 
                         {/* Toggle switch */}
                         <button
-                          onClick={() => !setting.enabled && !depMissing && handleToggleSingle(setting.id)}
+                          onClick={() => handleToggleSingle(setting.id)}
                           disabled={toggleDisabled}
                           className="relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60"
                           style={{ background: setting.enabled ? '#22c55e' : 'rgba(255,255,255,0.08)' }}

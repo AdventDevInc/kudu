@@ -292,6 +292,7 @@ export interface PrivacySetting {
   label: string
   description: string
   enabled: boolean          // true = privacy-friendly (tracking disabled)
+  reversible: boolean       // true = can be reverted to Windows default
   requiresAdmin: boolean
   dependsOn?: string        // ID of a setting that must be enabled first
 }
