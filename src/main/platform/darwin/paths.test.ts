@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import { join } from 'path'
 
 vi.mock('os', () => ({ homedir: () => '/Users/TestUser', tmpdir: () => '/tmp' }))
 
@@ -79,8 +80,9 @@ describe('darwin paths', () => {
     })
 
     it('paths are rooted under ~/Library', () => {
+      const expectedPrefix = join('/Users/TestUser', 'Library')
       for (const dir of dirs) {
-        expect(dir.path).toContain('/Users/TestUser/Library')
+        expect(dir.path).toContain(expectedPrefix)
       }
     })
   })

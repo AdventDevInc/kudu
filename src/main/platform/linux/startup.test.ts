@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { join, resolve } from 'path'
 
 const mockExecFile = vi.fn()
 const mockReaddir = vi.fn()
@@ -24,6 +25,10 @@ vi.mock('os', () => ({ homedir: () => '/home/testuser' }))
 vi.mock('crypto', () => ({ randomUUID: () => 'test-uuid-1234' }))
 
 const { createLinuxStartup } = await import('./startup')
+
+// Build paths the same way the source does
+const HOME = join('/home', 'testuser')
+const AUTOSTART = resolve(join(HOME, '.config', 'autostart'))
 
 describe('linux startup', () => {
   const startup = createLinuxStartup()
@@ -171,9 +176,10 @@ describe('linux startup', () => {
     it('renames .disabled to enable an autostart-desktop item', async () => {
       mockRename.mockResolvedValueOnce(undefined)
 
+      const location = join(AUTOSTART, 'app.desktop.disabled')
       const result = await startup.toggleItem(
         'app.desktop.disabled',
-        '/home/testuser/.config/autostart/app.desktop.disabled',
+        location,
         '/usr/bin/app',
         'autostart-desktop',
         true,
@@ -181,17 +187,18 @@ describe('linux startup', () => {
 
       expect(result).toBe(true)
       expect(mockRename).toHaveBeenCalledWith(
-        '/home/testuser/.config/autostart/app.desktop.disabled',
-        '/home/testuser/.config/autostart/app.desktop',
+        location,
+        join(AUTOSTART, 'app.desktop'),
       )
     })
 
     it('appends .disabled to disable an autostart-desktop item', async () => {
       mockRename.mockResolvedValueOnce(undefined)
 
+      const location = join(AUTOSTART, 'app.desktop')
       const result = await startup.toggleItem(
         'app.desktop',
-        '/home/testuser/.config/autostart/app.desktop',
+        location,
         '/usr/bin/app',
         'autostart-desktop',
         false,
@@ -199,8 +206,8 @@ describe('linux startup', () => {
 
       expect(result).toBe(true)
       expect(mockRename).toHaveBeenCalledWith(
-        '/home/testuser/.config/autostart/app.desktop',
-        '/home/testuser/.config/autostart/app.desktop.disabled',
+        location,
+        location + '.disabled',
       )
     })
 
@@ -220,7 +227,7 @@ describe('linux startup', () => {
     it('rejects path traversal attempts', async () => {
       const result = await startup.toggleItem(
         'evil',
-        '/home/testuser/.config/autostart/../../etc/passwd',
+        join(AUTOSTART, '..', '..', 'etc', 'passwd'),
         '',
         'autostart-desktop',
         true,
@@ -231,9 +238,10 @@ describe('linux startup', () => {
     })
 
     it('does not rename if already in desired state (enable, no .disabled)', async () => {
+      const location = join(AUTOSTART, 'app.desktop')
       const result = await startup.toggleItem(
         'app.desktop',
-        '/home/testuser/.config/autostart/app.desktop',
+        location,
         '/usr/bin/app',
         'autostart-desktop',
         true,
@@ -294,9 +302,10 @@ describe('linux startup', () => {
     it('returns false when rename fails', async () => {
       mockRename.mockRejectedValueOnce(new Error('EACCES'))
 
+      const location = join(AUTOSTART, 'app.desktop')
       const result = await startup.toggleItem(
         'app.desktop',
-        '/home/testuser/.config/autostart/app.desktop',
+        location,
         '/usr/bin/app',
         'autostart-desktop',
         false,

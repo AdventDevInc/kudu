@@ -1,6 +1,6 @@
 import { readdir, readFile, rename } from 'fs/promises'
 import { existsSync } from 'fs'
-import { join, basename, resolve, normalize } from 'path'
+import { join, basename, resolve, normalize, sep } from 'path'
 import { homedir } from 'os'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
@@ -106,9 +106,9 @@ export function createLinuxStartup(): PlatformStartup {
       try {
         if (source === 'autostart-desktop') {
           // Validate location is within the autostart directory to prevent arbitrary file renames
-          const autostartDir = join(HOME, '.config', 'autostart')
+          const autostartDir = resolve(join(HOME, '.config', 'autostart'))
           const resolved = resolve(normalize(location))
-          if (!resolved.startsWith(autostartDir + '/')) {
+          if (!resolved.startsWith(autostartDir + sep)) {
             return false
           }
           if (enabled && location.endsWith('.disabled')) {

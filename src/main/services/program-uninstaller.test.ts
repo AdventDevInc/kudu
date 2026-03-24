@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { join } from 'path'
 import { EventEmitter } from 'events'
 
 // ─── Mocks (must be before imports) ─────────────────────────
@@ -883,6 +884,10 @@ describe('scanLeftoversForProgram', () => {
   it('skips duplicate of install location in leftover dirs', async () => {
     mockStat.mockResolvedValue({ isDirectory: () => true, mtimeMs: 1000 })
     mockGetDirectorySize.mockResolvedValue(4096)
+    // Mock execFile for hasRunningProcesses (PowerShell call)
+    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
+      cb(null, '', '')
+    })
 
     mockGetPlatform.mockReturnValue({
       paths: {
@@ -896,7 +901,7 @@ describe('scanLeftoversForProgram', () => {
 
     const p = makeProgram({
       displayName: 'TestApp',
-      installLocation: '/opt/programs/TestApp',
+      installLocation: join('/opt/programs', 'TestApp'),
     })
 
     const result = await scanLeftoversForProgram(p)

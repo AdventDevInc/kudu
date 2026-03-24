@@ -48,6 +48,7 @@ vi.mock('../services/ipc-validation', () => ({
   },
 }))
 
+import { join } from 'path'
 import { registerBrowserCleanerIpc } from './browser-cleaner.ipc'
 
 // ── Helpers ──
@@ -116,14 +117,15 @@ describe('BROWSER_SCAN handler', () => {
   })
 
   it('scans Chromium profile cache directories when they exist', async () => {
+    const chromeBase = '/home/user/.config/google-chrome'
     // Only chrome base exists, and has Default profile
     mockExistsSync.mockImplementation((p: string) => {
-      if (p === '/home/user/.config/google-chrome') return true
-      if (p.includes('/home/user/.config/google-chrome/Default/')) return true
+      if (p === chromeBase) return true
+      if (p.startsWith(join(chromeBase, 'Default'))) return true
       return false
     })
     mockReaddir.mockImplementation((p: string) => {
-      if (p === '/home/user/.config/google-chrome') {
+      if (p === chromeBase) {
         return Promise.resolve([
           { isDirectory: () => true, name: 'Profile 1' },
         ])
@@ -154,7 +156,7 @@ describe('BROWSER_SCAN handler', () => {
     mockBrowserPaths.mockReturnValue(paths)
     mockExistsSync.mockImplementation((p: string) => {
       if (p === '/fake/opera') return true
-      if (p === '/fake/opera/Cache') return true
+      if (p === join('/fake/opera', 'Cache')) return true
       return false
     })
     mockScanDirectory.mockResolvedValue({
@@ -179,7 +181,7 @@ describe('BROWSER_SCAN handler', () => {
     mockBrowserPaths.mockReturnValue(makeBrowserPaths())
     mockExistsSync.mockImplementation((p: string) => {
       if (p === '/fake/firefox-cache') return true
-      if (p.includes('cache2/entries')) return true
+      if (p.includes(join('cache2', 'entries'))) return true
       return false
     })
     mockReaddir.mockImplementation((p: string) => {

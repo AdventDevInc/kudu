@@ -1,9 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
+import { join } from 'path'
 
 // Stub os.homedir before importing the module under test
 vi.mock('os', () => ({ homedir: () => '/home/testuser', tmpdir: () => '/tmp' }))
 
 const { createLinuxPaths } = await import('./paths')
+
+const HOME = join('/home', 'testuser')
 
 describe('linux paths', () => {
   const paths = createLinuxPaths()
@@ -31,7 +34,7 @@ describe('linux paths', () => {
     it('all user paths are under the home directory', () => {
       for (const d of dirs) {
         if (d !== '/tmp') {
-          expect(d.startsWith('/home/testuser')).toBe(true)
+          expect(d.startsWith(HOME)).toBe(true)
         }
       }
     })
@@ -73,17 +76,17 @@ describe('linux paths', () => {
 
     it('config points to ~/.config', () => {
       const config = dirs.find((d) => d.id === 'config')
-      expect(config!.path).toBe('/home/testuser/.config')
+      expect(config!.path).toBe(join(HOME, '.config'))
     })
 
     it('cache points to ~/.cache', () => {
       const cache = dirs.find((d) => d.id === 'cache')
-      expect(cache!.path).toBe('/home/testuser/.cache')
+      expect(cache!.path).toBe(join(HOME, '.cache'))
     })
 
     it('data points to ~/.local/share', () => {
       const data = dirs.find((d) => d.id === 'local-share')
-      expect(data!.path).toBe('/home/testuser/.local/share')
+      expect(data!.path).toBe(join(HOME, '.local', 'share'))
     })
   })
 })

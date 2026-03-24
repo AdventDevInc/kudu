@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // ── Mocks ──
 
@@ -66,33 +66,42 @@ describe('registerDebloaterIpc', () => {
 })
 
 describe('DEBLOATER_SCAN handler', () => {
+  const originalPlatform = process.platform
+
   beforeEach(() => {
     vi.clearAllMocks()
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true })
   })
 
   it('returns empty array on non-win32 platforms', async () => {
-    // The handler checks process.platform
     registerDebloaterIpc(() => null)
     const handler = getHandler('debloater:scan')
     const result = await handler()
-    if (process.platform !== 'win32') {
-      expect(result).toEqual([])
-    }
+    expect(result).toEqual([])
   })
 })
 
 describe('DEBLOATER_REMOVE handler', () => {
+  const originalPlatform = process.platform
+
   beforeEach(() => {
     vi.clearAllMocks()
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true })
   })
 
   it('returns zero counts on non-win32 platforms', async () => {
     registerDebloaterIpc(() => null)
     const handler = getHandler('debloater:remove')
     const result = await handler({}, ['Microsoft.BingNews'])
-    if (process.platform !== 'win32') {
-      expect(result).toEqual({ removed: 0, failed: 0 })
-    }
+    expect(result).toEqual({ removed: 0, failed: 0 })
   })
 
   it('returns zero counts for non-array input', async () => {
@@ -117,12 +126,11 @@ describe('DEBLOATER_REMOVE handler', () => {
   })
 
   it('sends progress events to the window during removal', async () => {
-    if (process.platform !== 'win32') return
-    // On Windows, this would invoke PowerShell; test structure only
+    // On non-win32, the handler returns early before invoking PowerShell
     registerDebloaterIpc(() => mockWindow() as any)
     const handler = getHandler('debloater:remove')
-    // We would need PowerShell mock for full test on Windows
-    await handler({}, ['Microsoft.BingNews'])
+    const result = await handler({}, ['Microsoft.BingNews'])
+    expect(result).toEqual({ removed: 0, failed: 0 })
   })
 })
 
