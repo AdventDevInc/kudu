@@ -5,37 +5,24 @@ on:
     paths:
       - 'src/renderer/src/locales/en/**'
 
-  # Allow manual trigger and /translate PR comment
-  issue_comment:
-    types: [created]
+  # Allow manual trigger from Actions tab
   workflow_dispatch:
 
 jobs:
   translate:
-    # Run on: EN locale changes in PR, /translate comment, or manual dispatch
+    # Skip PRs from forks (they won't have access to secrets)
     if: |
-      (github.event_name == 'pull_request') ||
       (github.event_name == 'workflow_dispatch') ||
-      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/translate'))
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
 
     steps:
-      - name: Get PR branch (comment trigger)
-        if: github.event_name == 'issue_comment'
-        id: pr
-        run: |
-          PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }} --jq '{ref: .head.ref, sha: .head.sha}')
-          echo "ref=$(echo "$PR_DATA" | jq -r .ref)" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ steps.pr.outputs.ref || github.head_ref || github.ref }}
+          ref: ${{ github.head_ref || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
