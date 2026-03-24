@@ -14,7 +14,15 @@ export function useBackgroundScans(): void {
     ran.current = true
 
     // Software update check (silent — no toasts)
+    // Load ignored IDs first so setApps() can partition correctly
     const runSoftwareCheck = async () => {
+      try {
+        const settings = await window.kudu.settingsGet()
+        if (settings.ignoredSoftwareUpdates?.length) {
+          useUpdaterStore.getState().loadIgnoredIds(settings.ignoredSoftwareUpdates)
+        }
+      } catch { /* best-effort */ }
+
       const store = useUpdaterStore.getState()
       if (store.hasChecked || store.loading) return
       store.setLoading(true)

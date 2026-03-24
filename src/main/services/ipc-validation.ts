@@ -15,7 +15,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
-    'cleaner', 'exclusions', 'schedule', 'schedules', 'cloud', 'gameMode'
+    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'schedule', 'schedules', 'cloud', 'gameMode'
   ])
 
   for (const key of Object.keys(obj)) {
@@ -47,6 +47,14 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if (obj.exclusions.some((v: string) => v.length > 500 || v.length === 0)) return null
     // Block path traversal sequences and UNC paths in exclusions
     if (obj.exclusions.some((v: string) => v.includes('..') || v.startsWith('\\\\'))) return null
+  }
+
+  // Validate ignoredSoftwareUpdates is an array of package-id strings if present
+  if ('ignoredSoftwareUpdates' in obj && obj.ignoredSoftwareUpdates !== undefined) {
+    if (!Array.isArray(obj.ignoredSoftwareUpdates)) return null
+    if (!obj.ignoredSoftwareUpdates.every((v: unknown) => typeof v === 'string')) return null
+    if (obj.ignoredSoftwareUpdates.length > 500) return null
+    if (obj.ignoredSoftwareUpdates.some((v: string) => v.length > 200 || v.length === 0)) return null
   }
 
   // Validate schedule has expected shape if present

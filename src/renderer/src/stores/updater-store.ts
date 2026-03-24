@@ -113,7 +113,18 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
     set((state) => ({
       apps: state.apps.filter((a) => !ids.includes(a.id)),
     })),
-  loadIgnoredIds: (ids) => set({ ignoredIds: new Set(ids) }),
+  loadIgnoredIds: (ids) => {
+    const newIds = new Set(ids)
+    set((state) => ({
+      ignoredIds: newIds,
+      // Repartition any already-loaded apps so ignored ones move immediately
+      apps: state.apps.filter((a) => !newIds.has(a.id)),
+      ignoredApps: [
+        ...state.ignoredApps,
+        ...state.apps.filter((a) => newIds.has(a.id)),
+      ],
+    }))
+  },
   ignoreApp: (id) =>
     set((state) => {
       const app = state.apps.find((a) => a.id === id)

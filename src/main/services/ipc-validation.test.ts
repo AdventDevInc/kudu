@@ -55,6 +55,23 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ exclusions: ['x'.repeat(501)] })).toBeNull()
   })
 
+  it('accepts valid ignoredSoftwareUpdates array', () => {
+    const input = { ignoredSoftwareUpdates: ['Google.Chrome', 'Mozilla.Firefox'] }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('rejects non-array ignoredSoftwareUpdates', () => {
+    expect(validateSettingsPartial({ ignoredSoftwareUpdates: 'Google.Chrome' })).toBeNull()
+  })
+
+  it('rejects ignoredSoftwareUpdates with non-string entries', () => {
+    expect(validateSettingsPartial({ ignoredSoftwareUpdates: [42] })).toBeNull()
+  })
+
+  it('rejects empty string in ignoredSoftwareUpdates', () => {
+    expect(validateSettingsPartial({ ignoredSoftwareUpdates: [''] })).toBeNull()
+  })
+
   it('accepts valid schedule', () => {
     const input = { schedule: { enabled: true, frequency: 'daily', day: 0, hour: 9 } }
     expect(validateSettingsPartial(input)).toEqual(input)
