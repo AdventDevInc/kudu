@@ -108,7 +108,10 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
 /**
  * Look up cached scan items by ID, delete each one, and return a CleanResult.
  */
-export async function cleanItems(itemIds: unknown): Promise<CleanResult> {
+export async function cleanItems(
+  itemIds: unknown,
+  onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void
+): Promise<CleanResult> {
   // Validate input is a string array
   const validIds = Array.isArray(itemIds)
     ? itemIds.filter((v): v is string => typeof v === 'string')
@@ -118,6 +121,7 @@ export async function cleanItems(itemIds: unknown): Promise<CleanResult> {
   let filesDeleted = 0
   let filesSkipped = 0
   const errors: CleanResult['errors'] = []
+  let lastReport = 0
 
   for (const item of items) {
     const result = await safeDelete(item.path)
@@ -128,6 +132,14 @@ export async function cleanItems(itemIds: unknown): Promise<CleanResult> {
       filesSkipped++
       if (result.reason) {
         errors.push({ path: item.path, reason: result.reason })
+      }
+    }
+    if (onProgress) {
+      const processed = filesDeleted + filesSkipped
+      const now = Date.now()
+      if (now - lastReport > 120 || processed === items.length) {
+        lastReport = now
+        onProgress(processed, items.length, item.path, totalCleaned)
       }
     }
   }

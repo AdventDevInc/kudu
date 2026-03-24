@@ -61,14 +61,16 @@ export function CleanerPage() {
   const [scanningCategory, setScanningCategory] = useState<CleanerType | null>(null)
 
   const scanIndexRef = useRef(0)
+  const cleanIndexRef = useRef(0)
 
   useEffect(() => {
     if (!window.kudu?.onScanProgress) return
     return window.kudu.onScanProgress((data) => {
       // Each cleaner reports 0-100% independently. Scale to overall progress
-      // based on which category we're currently scanning.
+      // based on which category we're currently processing.
       const total = categories.length
-      const base = (scanIndexRef.current / total) * 100
+      const idxRef = data.phase === 'cleaning' ? cleanIndexRef : scanIndexRef
+      const base = (idxRef.current / total) * 100
       const slice = (data.progress / total)
       store.setProgress({ ...data, progress: base + slice })
     })
@@ -163,7 +165,11 @@ export function CleanerPage() {
       const allErrors: { path: string; reason: string }[] = []
       const categoryBreakdown: Record<string, { found: number; cleaned: number; space: number }> = {}
 
-      for (const cat of categories) {
+      store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
+
+      for (let ci = 0; ci < categories.length; ci++) {
+        const cat = categories[ci]
+        cleanIndexRef.current = ci
         const catResults = store.results.filter((r) => r.category === cat.type)
         const catItemsAll = catResults.flatMap((r) => r.items)
         const catItemIds = catItemsAll

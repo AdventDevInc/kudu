@@ -145,8 +145,10 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
     let filesDeleted = 0
     let filesSkipped = 0
     const errors: CleanError[] = []
+    let lastReport = 0
 
-    for (const id of valid) {
+    for (let i = 0; i < valid.length; i++) {
+      const id = valid[i]
       const item = getCachedItem(id)
       if (!item) continue
 
@@ -185,6 +187,20 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
         } else {
           errors.push({ path: item.path, reason: (err as Error).message || 'unknown error' })
         }
+      }
+
+      const now = Date.now()
+      if (now - lastReport > 120 || i === valid.length - 1) {
+        lastReport = now
+        const win = getWindow()
+        if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
+          phase: 'cleaning',
+          category: CleanerType.Database,
+          currentPath: item.path,
+          progress: ((i + 1) / valid.length) * 100,
+          itemsFound: valid.length,
+          sizeFound: totalCleaned,
+        })
       }
     }
 

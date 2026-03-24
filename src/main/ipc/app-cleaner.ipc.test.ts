@@ -241,7 +241,7 @@ describe('APP_CLEAN handler', () => {
     const handler = getHandler('cleaner:app:clean')
     const result = await handler({}, ['uuid-1', 'uuid-2', 'uuid-3'])
 
-    expect(mockCleanItems).toHaveBeenCalledWith(['uuid-1', 'uuid-2', 'uuid-3'])
+    expect(mockCleanItems).toHaveBeenCalledWith(['uuid-1', 'uuid-2', 'uuid-3'], expect.any(Function))
     expect(result).toEqual(expect.objectContaining({
       totalCleaned: 1024,
       filesDeleted: 10,

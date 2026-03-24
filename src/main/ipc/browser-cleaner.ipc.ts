@@ -153,7 +153,17 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
     if (settings.cleaner.closeBrowsersBeforeClean) {
       await getPlatform().browser.closeBrowsers()
     }
-    return cleanItems(valid)
+    return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
+      const win = getWindow()
+      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
+        phase: 'cleaning',
+        category: CleanerType.Browser,
+        currentPath,
+        progress: (processed / total) * 100,
+        itemsFound: total,
+        sizeFound: cleanedSize,
+      })
+    })
   })
 }
 

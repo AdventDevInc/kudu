@@ -105,6 +105,16 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.SYSTEM_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
     const valid = validateStringArray(itemIds)
     if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
-    return cleanItems(valid)
+    return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
+      const win = getWindow()
+      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
+        phase: 'cleaning',
+        category: CleanerType.System,
+        currentPath,
+        progress: (processed / total) * 100,
+        itemsFound: total,
+        sizeFound: cleanedSize,
+      })
+    })
   })
 }

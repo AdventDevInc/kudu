@@ -307,7 +307,7 @@ describe('BROWSER_CLEAN handler', () => {
     const handler = getHandler('cleaner:browser:clean')
     const result = await handler({}, ['id-1', 'id-2'])
 
-    expect(mockCleanItems).toHaveBeenCalledWith(['id-1', 'id-2'])
+    expect(mockCleanItems).toHaveBeenCalledWith(['id-1', 'id-2'], expect.any(Function))
     expect(result).toEqual(expect.objectContaining({ totalCleaned: 500 }))
   })
 
