@@ -162,13 +162,13 @@ export function HistoryPage() {
         action={
           <div className="flex items-center gap-2.5">
             {/* View mode toggle */}
-            <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
               <button
                 onClick={() => setViewMode('overview')}
                 className="px-4 py-2 text-[12px] font-medium transition-colors"
                 style={{
-                  background: viewMode === 'overview' ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)',
-                  color: viewMode === 'overview' ? '#f59e0b' : '#9e9ea6'
+                  background: viewMode === 'overview' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
+                  color: viewMode === 'overview' ? 'var(--accent)' : 'var(--text-muted)'
                 }}
               >
                 {t('viewOverview')}
@@ -177,8 +177,8 @@ export function HistoryPage() {
                 onClick={() => setViewMode('timeline')}
                 className="px-4 py-2 text-[12px] font-medium transition-colors"
                 style={{
-                  background: viewMode === 'timeline' ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)',
-                  color: viewMode === 'timeline' ? '#f59e0b' : '#9e9ea6'
+                  background: viewMode === 'timeline' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
+                  color: viewMode === 'timeline' ? 'var(--accent)' : 'var(--text-muted)'
                 }}
               >
                 {t('viewTimeline')}
@@ -187,8 +187,8 @@ export function HistoryPage() {
                 onClick={() => setViewMode('cloud')}
                 className="px-4 py-2 text-[12px] font-medium transition-colors"
                 style={{
-                  background: viewMode === 'cloud' ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.03)',
-                  color: viewMode === 'cloud' ? '#3b82f6' : '#9e9ea6'
+                  background: viewMode === 'cloud' ? 'rgba(59,130,246,0.1)' : 'var(--bg-subtle)',
+                  color: viewMode === 'cloud' ? '#3b82f6' : 'var(--text-muted)'
                 }}
               >
                 {t('viewCloud')}
@@ -197,7 +197,7 @@ export function HistoryPage() {
             <button
               onClick={() => setShowClearConfirm(true)}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-all hover:text-zinc-300"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
             >
               <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
               {t('clearButton')}
@@ -281,8 +281,8 @@ function OverviewView({
       {/* Charts row 1 — Area chart + Pie chart */}
       <div className="mb-5 grid grid-cols-3 gap-4">
         {/* Space saved over time */}
-        <div className="col-span-2 rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+        <div className="col-span-2 rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {t('overview.spaceRecoveredOverTime')}
           </h3>
           {timelineData.length > 1 ? (
@@ -294,13 +294,13 @@ function OverviewView({
                     <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="date" tick={{ fill: '#8a8a94', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#8a8a94', fontSize: 11 }} axisLine={false} tickLine={false}
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
+                <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false}
                   tickFormatter={(v) => formatBytes(v, 0)} width={60} />
                 <Tooltip
-                  contentStyle={{ background: '#1e1e22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }}
-                  labelStyle={{ color: '#a1a1aa' }}
+                  contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
+                  labelStyle={{ color: 'var(--text-secondary)' }}
                   formatter={(value) => [formatBytes(Number(value)), t('overview.tooltipSpace')]}
                 />
                 <Area type="monotone" dataKey="space" stroke="#f59e0b" strokeWidth={2}
@@ -308,15 +308,15 @@ function OverviewView({
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: '#8a8a94' }}>
+            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
               {t('overview.needTwoScansForChart')}
             </div>
           )}
         </div>
 
         {/* Scan type distribution */}
-        <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+        <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {t('overview.scanTypeDistribution')}
           </h3>
           {typeBreakdown.length > 0 ? (
@@ -335,7 +335,7 @@ function OverviewView({
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ background: '#1e1e22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }}
+                    contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
                     formatter={(value) => [Number(value), t('overview.tooltipScans')]}
                   />
                 </PieChart>
@@ -345,13 +345,13 @@ function OverviewView({
                   <div key={item.name} className="flex items-center gap-2">
                     <div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
                     <span className="flex-1 text-[12px] text-zinc-400">{item.name}</span>
-                    <span className="font-mono text-[11px]" style={{ color: '#9e9ea6' }}>{item.count}</span>
+                    <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{item.count}</span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
-            <div className="flex h-[200px] items-center justify-center text-[13px]" style={{ color: '#8a8a94' }}>
+            <div className="flex h-[200px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
               {t('overview.noData')}
             </div>
           )}
@@ -361,20 +361,20 @@ function OverviewView({
       {/* Charts row 2 — Bar charts */}
       <div className="mb-5 grid grid-cols-2 gap-4">
         {/* Category breakdown */}
-        <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+        <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {t('overview.topCategoriesBySpace')}
           </h3>
           {categoryBreakdown.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={categoryBreakdown} layout="vertical" barSize={14}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-                <XAxis type="number" tick={{ fill: '#8a8a94', fontSize: 11 }} axisLine={false} tickLine={false}
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" horizontal={false} />
+                <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false}
                   tickFormatter={(v) => formatBytes(v, 0)} />
-                <YAxis type="category" dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 11 }} axisLine={false}
+                <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false}
                   tickLine={false} width={90} />
                 <Tooltip
-                  contentStyle={{ background: '#1e1e22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }}
+                  contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
                   formatter={(value) => [formatBytes(Number(value)), t('overview.tooltipSpace')]}
                 />
                 <Bar dataKey="space" radius={[0, 6, 6, 0]}>
@@ -385,26 +385,26 @@ function OverviewView({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: '#8a8a94' }}>
+            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
               {t('overview.noCategoryData')}
             </div>
           )}
         </div>
 
         {/* Weekly trend */}
-        <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+        <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {t('overview.weeklyActivity')}
           </h3>
           {weeklyData.length > 1 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={weeklyData} barSize={20}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="week" tick={{ fill: '#8a8a94', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#8a8a94', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
+                <XAxis dataKey="week" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ background: '#1e1e22', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }}
-                  labelStyle={{ color: '#a1a1aa' }}
+                  contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
+                  labelStyle={{ color: 'var(--text-secondary)' }}
                   formatter={(value, name) => [
                     name === 'count' ? Number(value) : formatBytes(Number(value)),
                     name === 'count' ? t('overview.tooltipScans') : t('overview.tooltipSpace')
@@ -414,7 +414,7 @@ function OverviewView({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: '#8a8a94' }}>
+            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
               {t('overview.needTwoWeeksData')}
             </div>
           )}
@@ -422,8 +422,8 @@ function OverviewView({
       </div>
 
       {/* Recent 5 scans summary */}
-      <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+      <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+        <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
           {t('overview.recentScans')}
         </h3>
         <div className="space-y-2">
@@ -481,29 +481,29 @@ function TimelineView({
             onClick={() => setTypeFilter(f.value)}
             className="rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-colors"
             style={{
-              background: typeFilter === f.value ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)',
-              color: typeFilter === f.value ? '#f59e0b' : '#9e9ea6'
+              background: typeFilter === f.value ? 'var(--accent-muted-bg)' : 'var(--bg-subtle-2)',
+              color: typeFilter === f.value ? 'var(--accent)' : 'var(--text-muted)'
             }}
           >
             {f.label}
           </button>
         ))}
-        <span className="ml-auto text-[12px] font-mono" style={{ color: '#8a8a94' }}>
+        <span className="ml-auto text-[12px] font-mono" style={{ color: 'var(--text-muted)' }}>
           {t('timeline.entriesCount', { count: entries.length })}
         </span>
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="overflow-hidden rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('timeline.columnType')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('timeline.columnDate')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('timeline.columnItems')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('timeline.columnSpace')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('timeline.columnDuration')}</th>
-              <th className="px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('timeline.columnStatus')}</th>
+            <tr style={{ borderBottom: '1px solid var(--border-medium)' }}>
+              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnType')}</th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnDate')}</th>
+              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnItems')}</th>
+              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnSpace')}</th>
+              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnDuration')}</th>
+              <th className="px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnStatus')}</th>
               <th className="w-10 px-4 py-3" />
             </tr>
           </thead>
@@ -515,9 +515,9 @@ function TimelineView({
                 <tr
                   key={entry.id}
                   className="cursor-pointer transition-colors"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+                  style={{ borderBottom: '1px solid var(--bg-subtle)' }}
                   onClick={() => setSelectedEntry(entry.id)}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                 >
                   <td className="px-5 py-3">
@@ -533,19 +533,19 @@ function TimelineView({
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-[12px]" style={{ color: '#8e8e96' }}>
+                  <td className="px-4 py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    <span className="ml-1.5" style={{ color: '#8a8a94' }}>
+                    <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>
                       {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-[12px] text-zinc-300">
                     {entry.totalItemsCleaned.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: entry.totalSpaceSaved > 0 ? '#22c55e' : '#8a8a94' }}>
+                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: entry.totalSpaceSaved > 0 ? '#22c55e' : 'var(--text-muted)' }}>
                     {entry.totalSpaceSaved > 0 ? formatBytes(entry.totalSpaceSaved) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: '#9e9ea6' }}>
+                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {formatDuration(entry.duration, t)}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -559,7 +559,7 @@ function TimelineView({
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Info className="inline h-3.5 w-3.5" style={{ color: '#8a8a94' }} strokeWidth={1.8} />
+                    <Info className="inline h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
                   </td>
                 </tr>
               )
@@ -568,7 +568,7 @@ function TimelineView({
         </table>
 
         {entries.length === 0 && (
-          <div className="py-12 text-center text-[13px]" style={{ color: '#8a8a94' }}>
+          <div className="py-12 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
             {t('timeline.noEntriesMatchFilter')}
           </div>
         )}
@@ -593,7 +593,7 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
       <div
         className="relative w-full max-w-lg animate-scale-in rounded-2xl p-6"
-        style={{ background: '#18181c', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
       >
         {/* Header */}
         <div className="mb-5 flex items-center gap-3">
@@ -602,15 +602,15 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
           </div>
           <div className="flex-1">
             <h3 className="text-[15px] font-semibold text-white">{config.label}</h3>
-            <p className="text-[12px]" style={{ color: '#9e9ea6' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
               {new Date(entry.timestamp).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
               {' ' + t('timeline.dateAt') + ' '}
               {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
               {entry.scheduled && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}>{t('detail.scheduledBadge')}</span>}
             </p>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors" style={{ color: '#9e9ea6' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover-2)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
             <XCircle className="h-4 w-4" strokeWidth={1.8} />
           </button>
@@ -626,7 +626,7 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
 
         {/* Duration & errors */}
         <div className="mb-5 flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-[12px]" style={{ color: '#9e9ea6' }}>
+          <div className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>
             <Clock className="h-3.5 w-3.5" strokeWidth={1.6} />
             {formatDuration(entry.duration, t)}
           </div>
@@ -641,7 +641,7 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
         {/* Category breakdown */}
         {entry.categories.length > 0 && (
           <div>
-            <h4 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+            <h4 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
               {t('detail.categoriesLabel')}
             </h4>
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin' }}>
@@ -651,12 +651,12 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
                 return (
                   <div key={cat.name} className="flex items-center gap-3">
                     <span className="w-24 shrink-0 truncate text-[12px] capitalize text-zinc-400">{cat.name}</span>
-                    <div className="flex-1 h-[6px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="flex-1 h-[6px] rounded-full overflow-hidden" style={{ background: 'var(--bg-subtle-2)' }}>
                       <div className="h-full rounded-full" style={{ width: `${percent}%`, background: PIE_COLORS[i % PIE_COLORS.length], opacity: 0.8 }} />
                     </div>
-                    <span className="w-14 shrink-0 text-right font-mono text-[11px]" style={{ color: '#9e9ea6' }}>{cat.itemsCleaned}</span>
+                    <span className="w-14 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{cat.itemsCleaned}</span>
                     {cat.spaceSaved > 0 && (
-                      <span className="w-18 shrink-0 text-right font-mono text-[11px]" style={{ color: '#8a8a94' }}>{formatBytes(cat.spaceSaved)}</span>
+                      <span className="w-18 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{formatBytes(cat.spaceSaved)}</span>
                     )}
                   </div>
                 )
@@ -673,7 +673,7 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
 
 const cloudCommandColors: Record<string, string> = {
   'scan': '#f59e0b', 'clean': '#22c55e', 'software-update-check': '#06b6d4', 'software-update-run': '#06b6d4',
-  'get-status': '#9e9ea6', 'get-system-info': '#9e9ea6', 'get-health-report': '#3b82f6', 'ping': '#9e9ea6',
+  'get-status': 'var(--text-muted)', 'get-system-info': 'var(--text-muted)', 'get-health-report': '#3b82f6', 'ping': 'var(--text-muted)',
   'shutdown': '#ef4444', 'restart': '#f97316', 'windows-update-check': '#06b6d4', 'windows-update-install': '#06b6d4',
   'run-sfc': '#8b5cf6', 'run-dism': '#8b5cf6', 'get-network-config': '#22c55e', 'get-event-log': '#6366f1',
   'get-installed-apps': '#a855f7', 'driver-update-scan': '#8b5cf6', 'driver-update-install': '#8b5cf6',
@@ -738,29 +738,29 @@ function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: b
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="overflow-hidden rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
         <table className="w-full">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <th className="w-10 px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('cloud.columnStatus')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('cloud.columnCommand')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('cloud.columnSummary')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('cloud.columnDate')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{t('cloud.columnDuration')}</th>
+            <tr style={{ borderBottom: '1px solid var(--border-medium)' }}>
+              <th className="w-10 px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnStatus')}</th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnCommand')}</th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnSummary')}</th>
+              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnDate')}</th>
+              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnDuration')}</th>
               <th className="w-10 px-4 py-3" />
             </tr>
           </thead>
           <tbody>
             {entries.map((entry) => {
               const labelKey = cloudCommandLabelKeys[entry.commandType]
-              const cfg = { label: labelKey ? t(labelKey) : entry.commandType, color: cloudCommandColors[entry.commandType] || '#9e9ea6' }
+              const cfg = { label: labelKey ? t(labelKey) : entry.commandType, color: cloudCommandColors[entry.commandType] || 'var(--text-muted)' }
               return (
                 <tr
                   key={entry.id}
                   className="cursor-pointer transition-colors"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+                  style={{ borderBottom: '1px solid var(--bg-subtle)' }}
                   onClick={() => setSelectedId(entry.id)}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
                 >
                   <td className="px-4 py-3 text-center">
@@ -778,21 +778,21 @@ function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: b
                     </div>
                   </td>
                   <td className="px-4 py-3 max-w-[240px]">
-                    <span className="block truncate text-[12px]" style={{ color: entry.error ? '#ef4444' : '#9e9ea6' }}>
+                    <span className="block truncate text-[12px]" style={{ color: entry.error ? '#ef4444' : 'var(--text-muted)' }}>
                       {entry.summary || entry.error || t('cloud.completed')}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[12px]" style={{ color: '#8e8e96' }}>
+                  <td className="px-4 py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    <span className="ml-1.5" style={{ color: '#8a8a94' }}>
+                    <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>
                       {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: '#9e9ea6' }}>
+                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {formatDuration(entry.duration, t)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Info className="inline h-3.5 w-3.5" style={{ color: '#8a8a94' }} strokeWidth={1.8} />
+                    <Info className="inline h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
                   </td>
                 </tr>
               )
@@ -812,14 +812,14 @@ function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: b
 function CloudDetailPopup({ entry, onClose }: { entry: CloudActionEntry; onClose: () => void }) {
   const { t } = useTranslation('history')
   const labelKey = cloudCommandLabelKeys[entry.commandType]
-  const cfg = { label: labelKey ? t(labelKey) : entry.commandType, color: cloudCommandColors[entry.commandType] || '#9e9ea6' }
+  const cfg = { label: labelKey ? t(labelKey) : entry.commandType, color: cloudCommandColors[entry.commandType] || 'var(--text-muted)' }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
       <div
         className="relative w-full max-w-md animate-scale-in rounded-2xl p-6"
-        style={{ background: '#18181c', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
       >
         {/* Header */}
         <div className="mb-5 flex items-center gap-3">
@@ -834,21 +834,21 @@ function CloudDetailPopup({ entry, onClose }: { entry: CloudActionEntry; onClose
           </div>
           <div className="flex-1">
             <h3 className="text-[15px] font-semibold text-white">{cfg.label}</h3>
-            <p className="text-[12px]" style={{ color: '#9e9ea6' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
               {new Date(entry.timestamp).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
               {' ' + t('timeline.dateAt') + ' '}
               {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </p>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors" style={{ color: '#9e9ea6' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover-2)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
             <XCircle className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </div>
 
         {/* Detail rows */}
-        <div className="space-y-3 rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)' }}>
+        <div className="space-y-3 rounded-xl p-4" style={{ background: 'var(--bg-subtle)' }}>
           <DetailRow label={t('cloud.detailCommand')} value={entry.commandType} color={cfg.color} />
           <DetailRow label={t('cloud.detailStatus')} value={entry.success ? t('cloud.detailStatusSuccess') : t('cloud.detailStatusFailed')} color={entry.success ? '#22c55e' : '#ef4444'} />
           <DetailRow label={t('cloud.detailDuration')} value={formatDuration(entry.duration, t)} />
@@ -864,8 +864,8 @@ function CloudDetailPopup({ entry, onClose }: { entry: CloudActionEntry; onClose
 function DetailRow({ label, value, color, mono }: { label: string; value: string; color?: string; mono?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="shrink-0 text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{label}</span>
-      <span className={`text-right text-[12px] break-all ${mono ? 'font-mono' : ''}`} style={{ color: color || '#a1a1aa' }}>{value}</span>
+      <span className="shrink-0 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
+      <span className={`text-right text-[12px] break-all ${mono ? 'font-mono' : ''}`} style={{ color: color || 'var(--text-secondary)' }}>{value}</span>
     </div>
   )
 }
@@ -874,10 +874,10 @@ function DetailRow({ label, value, color, mono }: { label: string; value: string
 
 function MiniStat({ icon: Icon, label, value, color }: { icon: typeof BarChart3; label: string; value: string; color: string }) {
   return (
-    <div className="rounded-2xl p-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+    <div className="rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
       <div className="mb-2 flex items-center gap-2">
         <Icon className="h-4 w-4" style={{ color }} strokeWidth={1.8} />
-        <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>{label}</span>
+        <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
       </div>
       <span className="text-[20px] font-bold tracking-tight text-zinc-100">{value}</span>
     </div>
@@ -886,8 +886,8 @@ function MiniStat({ icon: Icon, label, value, color }: { icon: typeof BarChart3;
 
 function DetailStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.02)' }}>
-      <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#8a8a94' }}>{label}</p>
+    <div className="rounded-xl p-3" style={{ background: 'var(--bg-subtle)' }}>
+      <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</p>
       <p className="mt-1 text-[16px] font-semibold text-zinc-200">{value}</p>
     </div>
   )
@@ -901,18 +901,18 @@ function RecentScanRow({ entry }: { entry: ScanHistoryEntry }) {
 
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors"
-      style={{ background: 'rgba(255,255,255,0.02)' }}>
+      style={{ background: 'var(--bg-subtle)' }}>
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ background: config.bg }}>
         <Icon className="h-4 w-4" style={{ color: config.color }} strokeWidth={1.8} />
       </div>
       <div className="flex-1 min-w-0">
         <span className="text-[12px] font-medium text-zinc-300">{config.label}</span>
-        <p className="text-[11px]" style={{ color: '#8a8a94' }}>
+        <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
           {entry.totalItemsCleaned.toLocaleString()} {t('detail.itemsSuffix')}
           {entry.totalSpaceSaved > 0 && ` · ${formatBytes(entry.totalSpaceSaved)}`}
         </p>
       </div>
-      <span className="shrink-0 text-[11px]" style={{ color: '#8a8a94' }}>
+      <span className="shrink-0 text-[11px]" style={{ color: 'var(--text-muted)' }}>
         {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
       </span>
     </div>

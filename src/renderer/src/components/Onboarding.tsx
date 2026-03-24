@@ -54,7 +54,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
         className="relative w-full max-w-lg rounded-2xl p-8"
-        style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)' }}
       >
         <AnimatePresence mode="wait">
           {step === 0 && <LanguageStep key="language" onNext={() => setStep(1)} />}
@@ -86,7 +86,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               className="h-1.5 rounded-full transition-all duration-300"
               style={{
                 width: i === step ? 24 : 8,
-                background: i === step ? '#f59e0b' : 'rgba(255,255,255,0.1)'
+                background: i === step ? 'var(--accent)' : 'var(--bg-active)'
               }}
             />
           ))}
@@ -124,9 +124,9 @@ function LanguageStep({ onNext }: { onNext: () => void }) {
       <div className="flex flex-col items-center text-center">
         <div
           className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
-          style={{ background: 'rgba(245,158,11,0.1)' }}
+          style={{ background: 'var(--accent-muted-bg)' }}
         >
-          <Globe className="h-8 w-8" style={{ color: '#f59e0b' }} strokeWidth={1.5} />
+          <Globe className="h-8 w-8" style={{ color: 'var(--accent)' }} strokeWidth={1.5} />
         </div>
         <h2 className="mb-1 text-[18px] font-bold text-zinc-100">{t('chooseLanguageTitle')}</h2>
         <p className="mb-5 text-[13px] text-zinc-500">{t('chooseLanguageDescription')}</p>
@@ -138,13 +138,13 @@ function LanguageStep({ onNext }: { onNext: () => void }) {
               onClick={() => handleSelect(lang.code)}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition-colors"
               style={{
-                background: selected === lang.code ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.02)',
-                border: selected === lang.code ? '1px solid rgba(245,158,11,0.3)' : '1px solid transparent',
-                color: selected === lang.code ? '#f59e0b' : '#a1a1aa'
+                background: selected === lang.code ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
+                border: selected === lang.code ? '1px solid var(--accent-muted-border)' : '1px solid transparent',
+                color: selected === lang.code ? 'var(--accent)' : 'var(--text-secondary)'
               }}
             >
               <span className="font-medium">{lang.nativeName}</span>
-              {selected === lang.code && <Check className="ml-auto h-3.5 w-3.5 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={2.5} />}
+              {selected === lang.code && <Check className="ml-auto h-3.5 w-3.5 shrink-0" style={{ color: 'var(--accent)' }} strokeWidth={2.5} />}
             </button>
           ))}
         </div>
@@ -152,7 +152,7 @@ function LanguageStep({ onNext }: { onNext: () => void }) {
         <button
           onClick={onNext}
           className="flex items-center gap-2 rounded-xl px-8 py-3 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
-          style={{ background: '#f59e0b' }}
+          style={{ background: 'var(--accent)' }}
         >
           {t('continue')} <ChevronRight className="h-4 w-4" />
         </button>
@@ -180,14 +180,14 @@ function WelcomeStep({ onBack, onNext }: { onBack: () => void; onNext: () => voi
           <button
             onClick={onBack}
             className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-colors"
-            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ border: '1px solid var(--border-medium)' }}
           >
             <Globe className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={onNext}
             className="flex items-center gap-2 rounded-xl px-8 py-3 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
-            style={{ background: '#f59e0b' }}
+            style={{ background: 'var(--accent)' }}
           >
             {t('getStarted')} <ChevronRight className="h-4 w-4" />
           </button>
@@ -200,8 +200,8 @@ function WelcomeStep({ onBack, onNext }: { onBack: () => void; onNext: () => voi
 function Feature({ icon: Icon, label }: { icon: typeof Sparkles; label: string }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'rgba(245,158,11,0.1)' }}>
-        <Icon className="h-4.5 w-4.5" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'var(--accent-muted-bg)' }}>
+        <Icon className="h-4.5 w-4.5" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
       </div>
       <span className="text-[11px] font-medium text-zinc-500">{label}</span>
     </div>
@@ -254,14 +254,14 @@ function SettingsStep({
           <button
             onClick={onBack}
             className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-colors"
-            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ border: '1px solid var(--border-medium)' }}
           >
             <ChevronLeft className="h-3.5 w-3.5" /> {t('back')}
           </button>
           <button
             onClick={onNext}
             className="flex items-center gap-2 rounded-xl px-6 py-2.5 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
-            style={{ background: '#f59e0b' }}
+            style={{ background: 'var(--accent)' }}
           >
             {t('continue')} <ChevronRight className="h-4 w-4" />
           </button>
@@ -288,13 +288,13 @@ function SettingRow({
     <div
       className="flex items-center justify-between rounded-xl px-4 py-3.5"
       style={{
-        background: 'rgba(255,255,255,0.02)',
+        background: 'var(--bg-subtle)',
         ...(last ? {} : { marginBottom: 4 })
       }}
     >
       <div className="mr-4">
         <p className="text-[13px] font-medium text-zinc-300">{label}</p>
-        <p className="mt-0.5 text-[12px]" style={{ color: '#8a8a96' }}>{desc}</p>
+        <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>{desc}</p>
       </div>
       <Toggle checked={checked} onChange={onChange} />
     </div>
@@ -306,7 +306,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       onClick={() => onChange(!checked)}
       className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
-      style={{ background: checked ? '#f59e0b' : 'rgba(255,255,255,0.08)' }}
+      style={{ background: checked ? 'var(--accent)' : 'var(--bg-active)' }}
     >
       <div
         className={`absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-[3px]'}`}
@@ -339,7 +339,7 @@ function FinishStep({
           {t('allSetDescription')}
         </p>
         {scheduledClean && (
-          <p className="text-[12px]" style={{ color: '#f59e0b' }}>
+          <p className="text-[12px]" style={{ color: 'var(--accent)' }}>
             {t('firstScanScheduled')}
           </p>
         )}
@@ -348,14 +348,14 @@ function FinishStep({
           <button
             onClick={onBack}
             className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-colors"
-            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ border: '1px solid var(--border-medium)' }}
           >
             <ChevronLeft className="h-3.5 w-3.5" /> {t('back')}
           </button>
           <button
             onClick={onFinish}
             className="flex items-center gap-2 rounded-xl px-8 py-3 text-[14px] font-semibold text-zinc-900 transition-opacity hover:opacity-90"
-            style={{ background: '#f59e0b' }}
+            style={{ background: 'var(--accent)' }}
           >
             {t('startCleaning')} <Rocket className="h-4 w-4" />
           </button>

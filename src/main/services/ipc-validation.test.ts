@@ -116,6 +116,17 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ cleaner: { unknownKey: true } })).toBeNull()
   })
 
+  it('accepts valid theme values', () => {
+    expect(validateSettingsPartial({ theme: 'dark' })).toEqual({ theme: 'dark' })
+    expect(validateSettingsPartial({ theme: 'light' })).toEqual({ theme: 'light' })
+    expect(validateSettingsPartial({ theme: 'system' })).toEqual({ theme: 'system' })
+  })
+
+  it('rejects invalid theme values', () => {
+    expect(validateSettingsPartial({ theme: 'blue' })).toBeNull()
+    expect(validateSettingsPartial({ theme: 123 })).toBeNull()
+  })
+
   it('accepts empty object', () => {
     expect(validateSettingsPartial({})).toEqual({})
   })

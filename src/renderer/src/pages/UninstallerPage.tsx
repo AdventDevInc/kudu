@@ -333,8 +333,8 @@ export function UninstallerPage() {
           disabled={isBusy}
           className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
           style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'var(--bg-hover)',
+            border: '1px solid var(--border-medium)',
           }}
         >
           {loading ? (
@@ -349,14 +349,14 @@ export function UninstallerPage() {
         {hasLoaded && hasPrefetchData && (
           <div
             className="flex rounded-xl overflow-hidden"
-            style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ border: '1px solid var(--border-medium)' }}
           >
             <button
               onClick={() => useUninstallerStore.getState().setFilterMode('all')}
               className="px-4 py-2.5 text-[12px] font-medium transition-colors"
               style={{
-                background: filterMode === 'all' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
-                color: filterMode === 'all' ? '#e4e4e7' : '#9e9ea6',
+                background: filterMode === 'all' ? 'var(--bg-active)' : 'var(--bg-subtle)',
+                color: filterMode === 'all' ? 'var(--text-primary)' : 'var(--text-muted)',
               }}
             >
               {t('filterAll', { count: programs.length })}
@@ -365,9 +365,9 @@ export function UninstallerPage() {
               onClick={() => useUninstallerStore.getState().setFilterMode('unused')}
               className="flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-medium transition-colors"
               style={{
-                background: filterMode === 'unused' ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.02)',
-                color: filterMode === 'unused' ? '#fbbf24' : '#9e9ea6',
-                borderLeft: '1px solid rgba(255,255,255,0.06)',
+                background: filterMode === 'unused' ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle)',
+                color: filterMode === 'unused' ? 'var(--accent-hover)' : 'var(--text-muted)',
+                borderLeft: '1px solid var(--border-medium)',
               }}
             >
               <AlertTriangle className="h-3 w-3" strokeWidth={2} />
@@ -381,8 +381,8 @@ export function UninstallerPage() {
           <div
             className="flex items-center gap-2 rounded-xl px-4 py-2.5"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-medium)',
             }}
           >
             <Search className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
@@ -403,8 +403,8 @@ export function UninstallerPage() {
               onClick={() => setShowSortMenu(!showSortMenu)}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-all"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border-medium)',
               }}
             >
               <ArrowUpDown className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -414,7 +414,7 @@ export function UninstallerPage() {
             {showSortMenu && (
               <div
                 className="absolute top-full left-0 z-50 mt-1 rounded-xl py-1 shadow-xl"
-                style={{ background: '#1e1e22', border: '1px solid rgba(255,255,255,0.08)', minWidth: 140 }}
+                style={{ background: '#1e1e22', border: '1px solid var(--border-strong)', minWidth: 140 }}
               >
                 {Object.entries(SORT_LABEL_KEYS).map(([field, labelKey]) => (
                   <button
@@ -467,7 +467,7 @@ export function UninstallerPage() {
           className="mb-5 flex items-center justify-between rounded-2xl px-5 py-4 cursor-pointer transition-colors hover:border-amber-500/20"
           style={{
             background: 'rgba(245,158,11,0.04)',
-            border: '1px solid rgba(245,158,11,0.08)',
+            border: '1px solid var(--accent-muted-bg)',
           }}
           onClick={() => useUninstallerStore.getState().setFilterMode('unused')}
         >
@@ -479,7 +479,7 @@ export function UninstallerPage() {
                   ? t('unusedBannerTitlePlural', { count: unusedPrograms.length, days: UNUSED_THRESHOLD_DAYS })
                   : t('unusedBannerTitle', { count: unusedPrograms.length, days: UNUSED_THRESHOLD_DAYS })}
               </p>
-              <p className="text-[11px] mt-0.5" style={{ color: '#9e9ea6' }}>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 {unusedTotalSize > 0
                   ? t('unusedBannerDescriptionWithSize', { size: formatBytes(unusedTotalSize) })
                   : t('unusedBannerDescriptionNoSize')}
@@ -488,7 +488,7 @@ export function UninstallerPage() {
           </div>
           <span
             className="rounded-full px-3 py-1 text-[11px] font-medium"
-            style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
+            style={{ background: 'rgba(245,158,11,0.1)', color: 'var(--accent-hover)' }}
           >
             {t('unusedBannerViewButton')}
           </span>
@@ -504,7 +504,7 @@ export function UninstallerPage() {
         }}
       >
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
-        <p className="text-[12px]" style={{ color: '#8e8e96' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
           <span className="font-semibold text-amber-500">{t('safeUninstallLabel')}</span> — {t('safeUninstallDescription')}
         </p>
       </div>
@@ -524,7 +524,7 @@ export function UninstallerPage() {
           className="mb-5 rounded-2xl p-4"
           style={{
             background: 'rgba(245,158,11,0.04)',
-            border: '1px solid rgba(245,158,11,0.08)',
+            border: '1px solid var(--accent-muted-bg)',
           }}
         >
           <div className="flex items-center justify-between mb-2.5">
@@ -540,13 +540,13 @@ export function UninstallerPage() {
                       : t('progressLoading')}
               </span>
             </div>
-            <span className="text-[12px] font-mono" style={{ color: '#9e9ea6' }}>
+            <span className="text-[12px] font-mono" style={{ color: 'var(--text-muted)' }}>
               {progress.progress}%
             </span>
           </div>
           <div
             className="h-1.5 w-full rounded-full overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--bg-hover-2)' }}
           >
             <div
               className="h-full rounded-full transition-all duration-300"
@@ -556,7 +556,7 @@ export function UninstallerPage() {
               }}
             />
           </div>
-          <p className="mt-2 text-[11px] truncate" style={{ color: '#9e9ea6' }}>
+          <p className="mt-2 text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
             {progress.detail}
           </p>
         </div>
@@ -592,7 +592,7 @@ export function UninstallerPage() {
                   </span>
                 )}
                 {uninstallResult.leftoversFound === 0 && (
-                  <span style={{ color: '#9e9ea6' }}> — {t('noLeftoverFilesFound')}</span>
+                  <span style={{ color: 'var(--text-muted)' }}> — {t('noLeftoverFilesFound')}</span>
                 )}
               </p>
             ) : (
@@ -600,7 +600,7 @@ export function UninstallerPage() {
                 {t('failedToUninstall')}{' '}
                 <span className="font-medium">{uninstallResult.programName}</span>
                 {uninstallResult.error && (
-                  <span style={{ color: '#8e8e96' }}> — {uninstallResult.error}</span>
+                  <span style={{ color: 'var(--text-muted)' }}> — {uninstallResult.error}</span>
                 )}
               </p>
             )}
@@ -621,7 +621,7 @@ export function UninstallerPage() {
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: '#1a0a00',
+                color: 'var(--text-on-accent)',
               }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
@@ -705,9 +705,9 @@ export function UninstallerPage() {
                   className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors"
                   style={{
                     background: isSelected
-                      ? 'rgba(245,158,11,0.06)'
-                      : unused ? 'rgba(245,158,11,0.03)' : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${isSelected ? 'rgba(245,158,11,0.15)' : unused ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.04)'}`,
+                      ? 'var(--accent-muted-bg)'
+                      : unused ? 'rgba(245,158,11,0.03)' : 'var(--bg-subtle)',
+                    border: `1px solid ${isSelected ? 'var(--accent-muted-border)' : unused ? 'var(--accent-muted-bg)' : 'var(--border-subtle)'}`,
                   }}
                 >
                   <button
@@ -726,7 +726,7 @@ export function UninstallerPage() {
                     style={{ background: unused ? 'rgba(245,158,11,0.1)' : 'rgba(139,92,246,0.1)' }}
                   >
                     {unused ? (
-                      <AlertTriangle className="h-5 w-5" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+                      <AlertTriangle className="h-5 w-5" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
                     ) : (
                       <Package className="h-5 w-5" style={{ color: '#a78bfa' }} strokeWidth={1.8} />
                     )}
@@ -739,7 +739,7 @@ export function UninstallerPage() {
                       {prog.displayVersion && (
                         <span
                           className="rounded-md px-2 py-0.5 text-[10px] font-medium shrink-0"
-                          style={{ background: 'rgba(255,255,255,0.05)', color: '#9e9ea6' }}
+                          style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}
                         >
                           v{prog.displayVersion}
                         </span>
@@ -747,25 +747,25 @@ export function UninstallerPage() {
                       {unused && (
                         <span
                           className="rounded-md px-2 py-0.5 text-[10px] font-medium shrink-0"
-                          style={{ background: 'rgba(245,158,11,0.1)', color: '#fbbf24' }}
+                          style={{ background: 'rgba(245,158,11,0.1)', color: 'var(--accent-hover)' }}
                         >
                           {t('unusedBadge')}
                         </span>
                       )}
                     </div>
                     <div className="mt-0.5 flex items-center gap-3">
-                      <p className="text-[11px] truncate" style={{ color: '#9e9ea6' }}>
+                      <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
                         {prog.publisher || t('unknownPublisher')}
                         {prog.installDate ? ` — ${formatDate(prog.installDate)}` : ''}
                       </p>
                       {prog.lastUsed > 0 && (
-                        <span className="flex items-center gap-1 text-[10px] shrink-0" style={{ color: unused ? '#f59e0b' : '#8a8a94' }}>
+                        <span className="flex items-center gap-1 text-[10px] shrink-0" style={{ color: unused ? 'var(--accent)' : 'var(--text-muted)' }}>
                           <Clock className="h-3 w-3" strokeWidth={1.8} />
                           {formatLastUsed(prog.lastUsed, t)}
                         </span>
                       )}
                       {prog.lastUsed === 0 && filterMode === 'unused' && (
-                        <span className="flex items-center gap-1 text-[10px] shrink-0" style={{ color: '#f59e0b' }}>
+                        <span className="flex items-center gap-1 text-[10px] shrink-0" style={{ color: 'var(--accent)' }}>
                           <Clock className="h-3 w-3" strokeWidth={1.8} />
                           {t('lastUsedNeverDetected')}
                         </span>

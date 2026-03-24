@@ -113,7 +113,7 @@ export function CveScannerPage() {
       <div className="p-8">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <div className="flex items-center justify-center py-20">
-          <div className="text-[13px]" style={{ color: '#9e9ea6' }}>{t('loading')}</div>
+          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('loading')}</div>
         </div>
       </div>
     )
@@ -159,7 +159,7 @@ export function CveScannerPage() {
         {/* Severity tabs */}
         <div
           className="flex rounded-lg p-0.5"
-          style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
         >
           {(['all', ...shownSeverities] as const).map((sev) => {
             const isActive = severityFilter === sev
@@ -191,7 +191,7 @@ export function CveScannerPage() {
             onBlur={handleSearch}
             placeholder={t('filter.searchPlaceholder')}
             className="w-full rounded-lg py-2 pl-9 pr-3 text-[13px] text-zinc-300 placeholder-zinc-600 outline-none"
-            style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
           />
         </div>
       </div>
@@ -272,9 +272,9 @@ function SummaryCard({ label, count, color }: { label: string; count: number; co
   return (
     <div
       className="rounded-xl px-4 py-3"
-      style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
-      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: '#9e9ea6' }}>
+      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
         {label}
       </div>
       <div className="mt-1 text-[22px] font-bold" style={{ color }}>
@@ -386,7 +386,7 @@ function VulnerabilityCard({
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium text-zinc-300 transition-colors hover:bg-white/5"
-              style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+              style={{ border: '1px solid var(--border-strong)' }}
             >
               <ExternalLink className="h-3 w-3" />
               {t('card.viewDetails')}
@@ -400,7 +400,7 @@ function VulnerabilityCard({
                   onNavigateUpdater()
                 }}
                 className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium text-zinc-300 transition-colors hover:bg-white/5"
-                style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ border: '1px solid var(--border-strong)' }}
               >
                 <RefreshCw className="h-3 w-3" />
                 {t('card.checkForUpdates')}

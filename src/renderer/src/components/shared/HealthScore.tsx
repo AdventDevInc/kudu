@@ -60,7 +60,7 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
           cy={config.width / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.04)"
+          stroke="var(--gauge-track)"
           strokeWidth={config.strokeWidth}
         />
         {/* Arc */}
@@ -89,7 +89,7 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
           {Math.round(animatedScore)}
         </span>
         {size !== 'sm' && (
-          <span className={cn(config.labelSize, 'font-medium uppercase tracking-widest')} style={{ color: '#8a8a96' }}>
+          <span className={cn(config.labelSize, 'font-medium uppercase tracking-widest')} style={{ color: 'var(--text-muted)' }}>
             {t('health')}
           </span>
         )}

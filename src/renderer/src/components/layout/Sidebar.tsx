@@ -217,20 +217,20 @@ export function Sidebar() {
     <div
       className="flex h-full w-[240px] shrink-0 flex-col"
       style={{
-        background: 'linear-gradient(180deg, #0f0f16 0%, #0c0c12 100%)',
-        borderRight: '1px solid rgba(255,255,255,0.06)'
+        background: 'var(--sidebar-bg)',
+        borderRight: '1px solid var(--border-medium)'
       }}
     >
       {/* Logo — doubles as drag region */}
       <div className="drag-region relative flex items-center gap-3 px-5 pb-4 pt-5">
         <div
           className="absolute left-5 top-5 h-8 w-8 rounded-xl opacity-25 blur-xl"
-          style={{ background: '#f59e0b' }}
+          style={{ background: 'var(--accent)' }}
         />
         <img src={logoSrc} alt="Kudu" className="relative h-8 w-8 shrink-0 rounded-xl" />
         <div>
           <div className="text-[13px] font-semibold text-white">{t('appName')}</div>
-          <div className="text-[9px] font-medium tracking-wide" style={{ color: '#54545c' }}>
+          <div className="text-[9px] font-medium tracking-wide" style={{ color: 'var(--text-dim)' }}>
             {t('subtitle')}
           </div>
         </div>
@@ -245,11 +245,11 @@ export function Sidebar() {
                 <span
                   id={`nav-group-${gi}`}
                   className="text-[10px] font-semibold uppercase tracking-[0.15em]"
-                  style={{ color: '#3e3e48' }}
+                  style={{ color: 'var(--text-faint)' }}
                 >
                   {t(group.headingKey)}
                 </span>
-                <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.04)' }} />
+                <div className="h-px flex-1" style={{ background: 'var(--border-subtle)' }} />
               </div>
             )}
             <div className="space-y-1">
@@ -284,7 +284,7 @@ function BottomNav({ submenuProps, openSubmenu, isPathActive, badgeCounts }: {
   const bottomNavItems = useBottomNavItems()
 
   return (
-    <div className="px-3 pb-3 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+    <div className="px-3 pb-3 pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
       {bottomNavItems.map((item) => (
         <NavItem
           key={item.path}
@@ -366,7 +366,7 @@ function NavItem({
             : 'text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300'
         )}
         style={isActive ? {
-          background: 'rgba(245,158,11,0.08)',
+          background: 'var(--accent-muted-bg)',
           boxShadow: '0 0 20px rgba(245,158,11,0.05)'
         } : undefined}
       >
@@ -486,8 +486,8 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
         role="menu"
         className="glass-card w-56 rounded-xl py-1.5"
         style={{
-          background: 'rgba(18, 18, 26, 0.92)',
-          boxShadow: '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)'
+          background: 'var(--flyout-bg)',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 var(--glass-inset)'
         }}
       >
         {items.map((child) => {
@@ -503,11 +503,11 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
                   ? 'text-amber-400'
                   : 'text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200'
               )}
-              style={isChildActive ? { background: 'rgba(245,158,11,0.08)' } : undefined}
+              style={isChildActive ? { background: 'var(--accent-muted-bg)' } : undefined}
             >
               <child.icon
                 className="h-[14px] w-[14px] shrink-0"
-                style={{ color: isChildActive ? '#f59e0b' : '#8a8a96' }}
+                style={{ color: isChildActive ? 'var(--accent)' : 'var(--text-muted)' }}
                 strokeWidth={isChildActive ? 2 : 1.7}
                 aria-hidden="true"
               />

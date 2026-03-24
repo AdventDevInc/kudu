@@ -96,7 +96,7 @@ export function PerformanceMonitorPage() {
             {/* Time range pills */}
             <div
               className="flex rounded-lg p-0.5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
             >
               {timeRangeOptions.map((opt) => (
                 <button
@@ -124,9 +124,9 @@ export function PerformanceMonitorPage() {
               onClick={togglePause}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors"
               style={{
-                background: paused ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.04)',
-                color: paused ? '#22c55e' : '#a1a1aa',
-                border: `1px solid ${paused ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.06)'}`
+                background: paused ? 'rgba(34,197,94,0.1)' : 'var(--bg-subtle-2)',
+                color: paused ? '#22c55e' : 'var(--text-secondary)',
+                border: `1px solid ${paused ? 'rgba(34,197,94,0.2)' : 'var(--border-medium)'}`
               }}
             >
               {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}

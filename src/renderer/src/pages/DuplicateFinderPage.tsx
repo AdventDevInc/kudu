@@ -180,7 +180,7 @@ export function DuplicateFinderPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-[24px] font-bold tracking-tight text-white">{t('pageTitle')}</h1>
-        <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: '#8e8e98' }}>{t('pageDescription')}</p>
+        <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: 'var(--text-muted)' }}>{t('pageDescription')}</p>
       </div>
 
       {/* Directory selector + scan button */}
@@ -189,9 +189,9 @@ export function DuplicateFinderPage() {
           onClick={handleSelectDir}
           disabled={store.status === 'scanning'}
           className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
-          style={{ background: 'rgba(255,255,255,0.05)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
         >
-          <FolderOpen className="h-4 w-4" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+          <FolderOpen className="h-4 w-4" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
           {store.directory ? store.directory : t('selectDirectory')}
         </button>
 
@@ -199,7 +199,7 @@ export function DuplicateFinderPage() {
           <button
             onClick={handleScan}
             className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"
-            style={{ background: '#f59e0b', color: '#1a0a00' }}
+            style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
           >
             <Search className="h-4 w-4" strokeWidth={2} />
             {t('scanButton')}
@@ -233,12 +233,12 @@ export function DuplicateFinderPage() {
       {showSettings && (
         <div
           className="mb-5 rounded-2xl p-5"
-          style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             {/* Min file size */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: '#9e9ea6' }}>
+              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
                 {t('minFileSize')}
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -251,7 +251,7 @@ export function DuplicateFinderPage() {
                       store.minFileSize === p.value ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
                     )}
                     style={{
-                      background: store.minFileSize === p.value ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)'
+                      background: store.minFileSize === p.value ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                     }}
                   >
                     {p.label}
@@ -262,7 +262,7 @@ export function DuplicateFinderPage() {
 
             {/* Max file size */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: '#9e9ea6' }}>
+              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
                 {t('maxFileSize')}
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -273,7 +273,7 @@ export function DuplicateFinderPage() {
                     store.maxFileSize === null ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
                   )}
                   style={{
-                    background: store.maxFileSize === null ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)'
+                    background: store.maxFileSize === null ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                   }}
                 >
                   {t('noLimit')}
@@ -287,7 +287,7 @@ export function DuplicateFinderPage() {
                       store.maxFileSize === v ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
                     )}
                     style={{
-                      background: store.maxFileSize === v ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)'
+                      background: store.maxFileSize === v ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                     }}
                   >
                     {formatBytes(v, 0)}
@@ -298,7 +298,7 @@ export function DuplicateFinderPage() {
 
             {/* Extension filter */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: '#9e9ea6' }}>
+              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
                 {t('extensionFilter')}
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -311,7 +311,7 @@ export function DuplicateFinderPage() {
                       activeExtPreset === preset ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
                     )}
                     style={{
-                      background: activeExtPreset === preset ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)'
+                      background: activeExtPreset === preset ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                     }}
                   >
                     {t(preset === 'all' ? 'allFiles' : preset)}
@@ -322,7 +322,7 @@ export function DuplicateFinderPage() {
 
             {/* Max depth */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: '#9e9ea6' }}>
+              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
                 {t('maxDepth')}
               </label>
               <input
@@ -332,13 +332,13 @@ export function DuplicateFinderPage() {
                 value={store.maxDepth}
                 onChange={(e) => store.setMaxDepth(Math.max(1, Math.min(50, parseInt(e.target.value) || 20)))}
                 className="w-20 rounded-lg px-3 py-1.5 text-[13px] text-white"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
               />
             </div>
 
             {/* Exclude patterns */}
             <div className="col-span-2">
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: '#9e9ea6' }}>
+              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
                 {t('excludePatterns')}
               </label>
               <div className="flex flex-wrap items-center gap-1.5">
@@ -346,7 +346,7 @@ export function DuplicateFinderPage() {
                   <span
                     key={p}
                     className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[12px] font-medium"
-                    style={{ background: 'rgba(255,255,255,0.04)', color: '#a1a1aa' }}
+                    style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
                   >
                     {p}
                     <button onClick={() => handleRemoveExclude(p)} className="text-zinc-600 hover:text-zinc-400">
@@ -362,7 +362,7 @@ export function DuplicateFinderPage() {
                     onKeyDown={(e) => e.key === 'Enter' && handleAddExclude()}
                     placeholder={t('excludePlaceholder')}
                     className="w-48 rounded-lg px-2.5 py-1 text-[12px] text-white placeholder-zinc-600"
-                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
                   />
                   <button onClick={handleAddExclude} className="text-zinc-500 hover:text-zinc-300">
                     <Plus className="h-4 w-4" />
@@ -378,16 +378,16 @@ export function DuplicateFinderPage() {
       {store.status === 'scanning' && store.progress && (
         <div
           className="mb-5 rounded-2xl p-5"
-          style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--bg-hover-2)' }}>
               <div
                 className="h-full rounded-full transition-all duration-300"
-                style={{ background: '#f59e0b', width: `${store.progress.progress}%` }}
+                style={{ background: 'var(--accent)', width: `${store.progress.progress}%` }}
               />
             </div>
-            <span className="text-[12px] font-medium" style={{ color: '#f59e0b' }}>
+            <span className="text-[12px] font-medium" style={{ color: 'var(--accent)' }}>
               {store.progress.progress}%
             </span>
           </div>
@@ -397,7 +397,7 @@ export function DuplicateFinderPage() {
           {store.progress.currentPath && (
             <p
               className="mt-1 truncate text-[12px]"
-              style={{ color: '#9e9ea6' }}
+              style={{ color: 'var(--text-secondary)' }}
               title={store.progress.currentPath}
             >
               {store.progress.currentPath}
@@ -422,7 +422,7 @@ export function DuplicateFinderPage() {
           {store.result.cancelled && (
             <div
               className="mb-4 rounded-xl px-4 py-2.5 text-[13px] font-medium"
-              style={{ background: 'rgba(245,158,11,0.08)', color: '#f59e0b' }}
+              style={{ background: 'var(--accent-muted-bg)', color: 'var(--accent)' }}
             >
               {t('scanCancelled')}
             </div>
@@ -446,13 +446,13 @@ export function DuplicateFinderPage() {
                     else store.selectAllDuplicates()
                   }}
                   className="rounded-xl px-4 py-2 text-[12px] font-medium text-zinc-400 transition-colors hover:text-zinc-200"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}
+                  style={{ background: 'var(--bg-subtle-2)' }}
                 >
                   {selectedCount > 0 ? t('deselectAll') : t('selectAllDuplicates')}
                 </button>
 
                 {/* Delete mode toggle */}
-                <div className="flex overflow-hidden rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="flex overflow-hidden rounded-lg" style={{ background: 'var(--bg-subtle-2)' }}>
                   <button
                     onClick={() => store.setDeleteMode('recycle')}
                     className={cn(
@@ -480,7 +480,7 @@ export function DuplicateFinderPage() {
                 <button
                   onClick={() => store.reset()}
                   className="flex items-center gap-2 rounded-xl px-4 py-2 text-[12px] font-medium text-zinc-400 transition-colors hover:text-zinc-200"
-                  style={{ background: 'rgba(255,255,255,0.04)' }}
+                  style={{ background: 'var(--bg-subtle-2)' }}
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   {t('scanAgain')}
@@ -512,7 +512,7 @@ export function DuplicateFinderPage() {
                     <div
                       key={group.fullHash}
                       className="overflow-hidden rounded-xl"
-                      style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+                      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
                     >
                       {/* Group header */}
                       <button
@@ -528,7 +528,7 @@ export function DuplicateFinderPage() {
                           </span>
                         </div>
                         {groupSelected > 0 && (
-                          <span className="text-[11px] font-medium" style={{ color: '#f59e0b' }}>
+                          <span className="text-[11px] font-medium" style={{ color: 'var(--accent)' }}>
                             {groupSelected} selected
                           </span>
                         )}
@@ -537,7 +537,7 @@ export function DuplicateFinderPage() {
                         </span>
                         <span
                           className="rounded px-1.5 py-0.5 font-mono text-[10px]"
-                          style={{ background: 'rgba(255,255,255,0.04)', color: '#9e9ea6' }}
+                          style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
                         >
                           {group.hash}
                         </span>
@@ -545,14 +545,14 @@ export function DuplicateFinderPage() {
 
                       {/* Expanded file list */}
                       {isExpanded && (
-                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                        <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
                           {sorted.map((file, idx) => {
                             const isKept = idx === 0 && !store.selectedPaths.has(file.path)
                             return (
                               <div
                                 key={file.path}
                                 className="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-white/[0.02]"
-                                style={idx > 0 ? { borderTop: '1px solid rgba(255,255,255,0.02)' } : undefined}
+                                style={idx > 0 ? { borderTop: '1px solid var(--bg-subtle)' } : undefined}
                               >
                                 <input
                                   type="checkbox"
@@ -562,7 +562,7 @@ export function DuplicateFinderPage() {
                                 />
                                 <span
                                   className="min-w-0 flex-1 truncate text-[12px]"
-                                  style={{ color: '#a1a1aa' }}
+                                  style={{ color: 'var(--text-secondary)' }}
                                   title={file.path}
                                 >
                                   {file.path}
@@ -576,7 +576,7 @@ export function DuplicateFinderPage() {
                                     {t('original')}
                                   </span>
                                 )}
-                                <span className="shrink-0 text-[11px]" style={{ color: '#9e9ea6' }}>
+                                <span className="shrink-0 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
                                   {new Date(file.lastModified).toLocaleDateString()}
                                 </span>
                                 <button
@@ -614,7 +614,7 @@ export function DuplicateFinderPage() {
       {store.status === 'deleting' && (
         <div
           className="mb-5 flex items-center gap-3 rounded-2xl p-5"
-          style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
           <span className="text-[13px] font-medium text-white">{t('deleting')}</span>
@@ -645,12 +645,12 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
   return (
     <div
       className="rounded-xl px-4 py-3"
-      style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
     >
-      <div className="text-[11px] font-medium" style={{ color: '#9e9ea6' }}>{label}</div>
+      <div className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</div>
       <div
         className="mt-1 text-[18px] font-bold"
-        style={{ color: accent ? '#f59e0b' : '#fafafa' }}
+        style={{ color: accent ? 'var(--accent)' : 'var(--text-primary)' }}
       >
         {value}
       </div>
@@ -661,7 +661,7 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
 function StatMini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-[11px]" style={{ color: '#9e9ea6' }}>{label}: </span>
+      <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{label}: </span>
       <span className="text-[12px] font-medium text-white">{value}</span>
     </div>
   )
@@ -670,9 +670,9 @@ function StatMini({ label, value }: { label: string; value: string }) {
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
-      <FolderOpen className="mb-4 h-12 w-12" style={{ color: '#3f3f46' }} strokeWidth={1.2} />
+      <FolderOpen className="mb-4 h-12 w-12" style={{ color: 'var(--text-faint)' }} strokeWidth={1.2} />
       <h3 className="text-[15px] font-semibold text-white">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: '#9e9ea6' }}>{description}</p>
+      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-secondary)' }}>{description}</p>
     </div>
   )
 }

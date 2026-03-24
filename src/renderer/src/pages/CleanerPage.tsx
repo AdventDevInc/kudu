@@ -248,7 +248,7 @@ export function CleanerPage() {
               onClick={handleScan}
               disabled={isScanning || isCleaning}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
               {t('scanButton')}
@@ -259,7 +259,7 @@ export function CleanerPage() {
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: '#1a0a00',
+                color: 'var(--text-on-accent)',
                 boxShadow: hasResults ? '0 4px 20px rgba(245,158,11,0.2)' : 'none'
               }}
             >
@@ -282,12 +282,12 @@ export function CleanerPage() {
                 onClick={() => setActiveCategory(cat.type)}
                 className="relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all"
                 style={{
-                  background: isActive ? 'rgba(245,158,11,0.06)' : 'transparent',
-                  color: isActive ? '#fbbf24' : '#71717a'
+                  background: isActive ? 'var(--accent-muted-bg)' : 'transparent',
+                  color: isActive ? 'var(--accent-hover)' : 'var(--text-muted)'
                 }}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: '#f59e0b' }} />
+                  <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: 'var(--accent)' }} />
                 )}
                 {scanningCategory === cat.type ? (
                   <Loader2 className="h-[17px] w-[17px] shrink-0 animate-spin text-amber-400" strokeWidth={1.8} />
@@ -296,12 +296,12 @@ export function CleanerPage() {
                 )}
                 <div className="flex-1 min-w-0">
                   <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
-                  <p className="text-[11px]" style={{ color: '#8a8a94' }}>{t(cat.descriptionKey)}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t(cat.descriptionKey)}</p>
                 </div>
                 {count > 0 && (
                   <span
                     className="rounded-md px-1.5 py-0.5 font-mono text-[11px]"
-                    style={{ background: 'rgba(255,255,255,0.06)', color: '#8e8e96' }}
+                    style={{ background: 'var(--bg-hover-2)', color: 'var(--text-muted)' }}
                   >
                     {count}
                   </span>
@@ -311,14 +311,14 @@ export function CleanerPage() {
           })}
 
           {hasResults && (
-            <div className="mt-5 rounded-2xl p-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <p className="text-[11px] font-medium" style={{ color: '#8a8a96' }}>{t('totalRecoverable')}</p>
+            <div className="mt-5 rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('totalRecoverable')}</p>
               <p className="text-[20px] font-bold tracking-tight text-amber-400">{formatBytes(store.getTotalSize())}</p>
-              <p className="text-[11px]" style={{ color: '#8a8a96' }}>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
                 {t('itemsCount', { count: formatNumber(store.results.reduce((s, r) => s + r.itemCount, 0)) })}
               </p>
-              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                <p className="text-[11px] font-medium" style={{ color: '#8a8a96' }}>{t('selectedLabel')}</p>
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('selectedLabel')}</p>
                 <p className="text-[15px] font-semibold text-zinc-200">{formatBytes(store.getSelectedSize())}</p>
               </div>
             </div>
@@ -341,10 +341,10 @@ export function CleanerPage() {
           {failedCategories.length > 0 && store.status === ScanStatus.Complete && (
             <div
               className="mb-5 flex items-center gap-3 rounded-2xl px-4 py-3"
-              style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)' }}
+              style={{ background: 'var(--accent-muted-bg)', border: '1px solid rgba(245,158,11,0.12)' }}
             >
               <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
-              <p className="text-[12px]" style={{ color: '#8e8e96' }}>
+              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                 {t('scannersFailed')} <span className="text-amber-400 font-medium">{failedCategories.join(', ')}</span>
               </p>
             </div>
@@ -353,15 +353,15 @@ export function CleanerPage() {
           {elevationSkipped.length > 0 && store.status === ScanStatus.Complete && !store.cleanResult && (
             <div
               className="mb-5 flex items-center gap-3 rounded-2xl px-4 py-3"
-              style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
+              style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
             >
               <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] text-zinc-300">
                   <span className="font-medium">{t('categoriesSkipped', { count: elevationSkipped.length })}</span>
-                  <span style={{ color: '#8e8e96' }}> {t('categoriesSkippedSuffix')}</span>
+                  <span style={{ color: 'var(--text-muted)' }}> {t('categoriesSkippedSuffix')}</span>
                 </p>
-                <p className="text-[11px] mt-0.5 truncate" style={{ color: '#8a8a96' }}>
+                <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
                   {elevationSkipped.slice(0, 4).join(', ')}{elevationSkipped.length > 4 ? ` ${t('categoriesSkippedMore', { count: elevationSkipped.length - 4 })}` : ''}
                 </p>
               </div>
@@ -384,10 +384,10 @@ export function CleanerPage() {
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
                 <div>
                   <p className="text-[13px] font-medium text-zinc-200">{t('cleaningComplete')}</p>
-                  <p className="text-[12px]" style={{ color: '#9e9ea6' }}>
+                  <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>
                     {t('cleanedSummary', { size: formatBytes(store.cleanResult.totalCleaned), count: formatNumber(store.cleanResult.filesDeleted) })}
                     {store.cleanResult.filesSkipped > 0 && (
-                      <span style={{ color: '#a1a1aa' }}> · {t('skippedSummary', { count: formatNumber(store.cleanResult.filesSkipped) })}</span>
+                      <span style={{ color: 'var(--text-secondary)' }}> · {t('skippedSummary', { count: formatNumber(store.cleanResult.filesSkipped) })}</span>
                     )}
                   </p>
                 </div>
@@ -395,10 +395,10 @@ export function CleanerPage() {
               {store.cleanResult.needsElevation && (
                 <div
                   className="mt-3 ml-8 flex items-center gap-3 rounded-xl px-3 py-2.5"
-                  style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}
+                  style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
                 >
                   <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
-                  <p className="flex-1 text-[12px]" style={{ color: '#8e8e96' }}>
+                  <p className="flex-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {t('permissionError')}
                   </p>
                   <button
@@ -412,17 +412,17 @@ export function CleanerPage() {
               )}
               {store.cleanResult.errors.length > 0 && (
                 <details className="mt-2 ml-8">
-                  <summary className="text-[11px] cursor-pointer" style={{ color: '#9e9ea6' }}>
+                  <summary className="text-[11px] cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
                     {t('itemsCouldntBeDeleted', { count: store.cleanResult.errors.length })}
                   </summary>
                   <div className="mt-1 max-h-32 overflow-y-auto space-y-0.5">
                     {store.cleanResult.errors.slice(0, 20).map((err, i) => (
-                      <p key={i} className="text-[11px] font-mono truncate" style={{ color: '#8a8a96' }}>
+                      <p key={i} className="text-[11px] font-mono truncate" style={{ color: 'var(--text-muted)' }}>
                         {err.path.split(/[/\\]/).slice(-3).join('/')} — {err.reason === 'permission-denied' ? t('permissionDenied') : err.reason}
                       </p>
                     ))}
                     {store.cleanResult.errors.length > 20 && (
-                      <p className="text-[11px]" style={{ color: '#8a8a96' }}>
+                      <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
                         {t('andMore', { count: store.cleanResult.errors.length - 20 })}
                       </p>
                     )}
@@ -442,7 +442,7 @@ export function CleanerPage() {
                   onClick={handleScan}
                   disabled={isCleaning}
                   className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
+                  style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
                 >
                   <Search className="h-4 w-4" strokeWidth={1.8} />
                   {t('startScan')}
@@ -454,7 +454,7 @@ export function CleanerPage() {
           {hasResults && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
-                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                   {t('categoryItemsHeading', { category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '') })}
                 </span>
                 <button
@@ -466,7 +466,7 @@ export function CleanerPage() {
               </div>
 
               {categoryResults(activeCategory).length === 0 && (
-                <div className="py-12 text-center text-[13px]" style={{ color: '#8a8a94' }}>
+                <div className="py-12 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
                   {t('noItemsInCategory')}
                 </div>
               )}
@@ -490,11 +490,11 @@ export function CleanerPage() {
                   <div key={section.label || '_ungrouped'}>
                     {section.label && (
                       <div className="mt-4 mb-2 flex items-center gap-2 px-1">
-                        <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: '#9e9ea6' }}>
+                        <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                           {section.label}
                         </span>
-                        <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
-                        <span className="text-[11px] font-mono" style={{ color: '#8a8a94' }}>
+                        <div className="flex-1 h-px" style={{ background: 'var(--bg-hover-2)' }} />
+                        <span className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
                           {formatBytes(section.items.reduce((s, r) => s + r.totalSize, 0))}
                         </span>
                       </div>
@@ -509,27 +509,27 @@ export function CleanerPage() {
 
                         return (
                           <div key={result.subcategory} className="rounded-xl overflow-hidden"
-                            style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
                             {/* Group header */}
                             <div className="flex items-center gap-3 px-4 py-3.5 cursor-pointer"
                               onClick={() => toggleGroup(groupKey)}
-                              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
                               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
                               {/* Checkbox */}
                               <div onClick={(e) => { e.stopPropagation(); toggleSubcategorySelection(result) }}
                                 className="flex items-center">
                                 <div className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] cursor-pointer"
                                   style={{
-                                    background: allSelected || someSelected ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                                    border: allSelected || someSelected ? 'none' : '1.5px solid rgba(255,255,255,0.12)'
+                                    background: allSelected || someSelected ? 'var(--accent)' : 'var(--bg-hover-2)',
+                                    border: allSelected || someSelected ? 'none' : '1.5px solid var(--border-stronger)'
                                   }}>
                                   {allSelected && (
                                     <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none">
-                                      <path d="M2.5 6l2.5 2.5 4.5-5" stroke="#1a0a00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                      <path d="M2.5 6l2.5 2.5 4.5-5" stroke="var(--text-on-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                   )}
                                   {someSelected && (
-                                    <div className="h-[2px] w-2 rounded-full" style={{ background: '#1a0a00' }} />
+                                    <div className="h-[2px] w-2 rounded-full" style={{ background: 'var(--text-on-accent)' }} />
                                   )}
                                 </div>
                               </div>
@@ -537,12 +537,12 @@ export function CleanerPage() {
                               {/* Expand arrow */}
                               <ChevronRight
                                 className={cn('h-3.5 w-3.5 shrink-0 transition-transform', isExpanded && 'rotate-90')}
-                                style={{ color: '#8a8a94' }}
+                                style={{ color: 'var(--text-muted)' }}
                                 strokeWidth={2}
                               />
 
                               {/* Folder icon */}
-                              <Folder className="h-4 w-4 shrink-0" style={{ color: allSelected ? '#f59e0b' : '#8a8a94' }} strokeWidth={1.8} />
+                              <Folder className="h-4 w-4 shrink-0" style={{ color: allSelected ? 'var(--accent)' : 'var(--text-muted)' }} strokeWidth={1.8} />
 
                               {/* Label */}
                               <div className="flex-1 min-w-0">
@@ -551,17 +551,17 @@ export function CleanerPage() {
 
                               {/* Stats */}
                               <span className="rounded-md px-2 py-0.5 font-mono text-[11px] shrink-0"
-                                style={{ background: 'rgba(255,255,255,0.04)', color: '#9e9ea6' }}>
+                                style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}>
                                 {t(result.itemCount === 1 ? 'itemCount' : 'itemCountPlural', { count: formatNumber(result.itemCount) })}
                               </span>
-                              <span className="font-mono text-[12px] font-medium shrink-0" style={{ color: '#8e8e96' }}>
+                              <span className="font-mono text-[12px] font-medium shrink-0" style={{ color: 'var(--text-muted)' }}>
                                 {formatBytes(result.totalSize)}
                               </span>
                             </div>
 
                             {/* Expanded item list */}
                             {isExpanded && (
-                              <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                              <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
                                 {result.items.slice(0, 50).map((item) => {
                                   const checked = store.selectedItems.has(item.id)
                                   const pathLabel = item.path.split(/[/\\]/).slice(-2).join('/') || item.path
@@ -569,32 +569,32 @@ export function CleanerPage() {
                                     <label key={item.id}
                                       className="flex items-center gap-3 px-4 py-2 pl-14 cursor-pointer transition-colors"
                                       style={{ background: checked ? 'rgba(245,158,11,0.03)' : 'transparent' }}
-                                      onMouseEnter={(e) => { e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.05)' : 'rgba(255,255,255,0.015)' }}
+                                      onMouseEnter={(e) => { e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.05)' : 'var(--bg-subtle)' }}
                                       onMouseLeave={(e) => { e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.03)' : 'transparent' }}>
                                       <input type="checkbox" checked={checked} onChange={() => store.toggleItem(item.id)}
                                         className="sr-only peer" />
                                       <div className="flex h-[16px] w-[16px] items-center justify-center rounded-[4px] shrink-0"
                                         style={{
-                                          background: checked ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                                          border: checked ? 'none' : '1.5px solid rgba(255,255,255,0.1)'
+                                          background: checked ? 'var(--accent)' : 'var(--bg-hover-2)',
+                                          border: checked ? 'none' : '1.5px solid var(--border-stronger)'
                                         }}>
                                         {checked && (
                                           <svg className="h-2.5 w-2.5" viewBox="0 0 12 12" fill="none">
-                                            <path d="M2.5 6l2.5 2.5 4.5-5" stroke="#1a0a00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            <path d="M2.5 6l2.5 2.5 4.5-5" stroke="var(--text-on-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                           </svg>
                                         )}
                                       </div>
-                                      <span className="flex-1 min-w-0 truncate text-[12px] font-mono" style={{ color: '#9e9ea6' }}>
+                                      <span className="flex-1 min-w-0 truncate text-[12px] font-mono" style={{ color: 'var(--text-secondary)' }}>
                                         {pathLabel}
                                       </span>
-                                      <span className="font-mono text-[11px] shrink-0" style={{ color: '#8a8a94' }}>
+                                      <span className="font-mono text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
                                         {formatBytes(item.size)}
                                       </span>
                                     </label>
                                   )
                                 })}
                                 {result.items.length > 50 && (
-                                  <div className="px-4 py-2.5 pl-14 text-[11px]" style={{ color: '#8a8a94' }}>
+                                  <div className="px-4 py-2.5 pl-14 text-[11px]" style={{ color: 'var(--text-muted)' }}>
                                     {t('moreItems', { count: formatNumber(result.items.length - 50) })}
                                   </div>
                                 )}

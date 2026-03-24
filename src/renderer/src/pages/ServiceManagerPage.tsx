@@ -31,11 +31,11 @@ const SAFETY_COLORS = {
 
 const STATUS_COLORS: Record<string, string> = {
   Running: '#22c55e',
-  Stopped: '#9e9ea6',
+  Stopped: 'var(--text-muted)',
   StartPending: '#f59e0b',
   StopPending: '#f59e0b',
   Paused: '#f59e0b',
-  Unknown: '#9e9ea6'
+  Unknown: 'var(--text-muted)'
 }
 
 const START_TYPE_KEY_MAP: Record<string, string> = {
@@ -259,7 +259,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           disabled={isBusy}
           className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-all"
           style={{
-            background: isBusy ? '#27272a' : '#f59e0b',
+            background: isBusy ? '#27272a' : 'var(--accent)',
             opacity: isBusy ? 0.5 : 1
           }}
         >
@@ -312,10 +312,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       {hasScanned && !applyResult && (
         <div
           className="mb-5 flex items-start gap-3 rounded-xl px-4 py-3"
-          style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)' }}
+          style={{ background: 'var(--accent-muted-bg)', border: '1px solid rgba(245,158,11,0.12)' }}
         >
           <Shield className="mt-0.5 h-4 w-4 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={2} />
-          <div className="text-[12.5px] leading-relaxed" style={{ color: '#a1a1aa' }}>
+          <div className="text-[12.5px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             <span className="font-medium" style={{ color: '#22c55e' }}>{t('serviceManager.infoBannerGreen')}</span> {t('serviceManager.infoBannerSafeToDisable')}{' '}
             <span className="font-medium" style={{ color: '#f59e0b' }}>{t('serviceManager.infoBannerAmber')}</span> {t('serviceManager.infoBannerMayAffect')}{' '}
             <span className="font-medium" style={{ color: '#ef4444' }}>{t('serviceManager.infoBannerRed')}</span> {t('serviceManager.infoBannerSystemCritical')}
@@ -337,14 +337,14 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       {scanning && scanProgress && (
         <div
           className="mb-5 rounded-xl p-4"
-          style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)' }}
         >
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[12.5px] font-medium" style={{ color: '#a1a1aa' }}>
+            <span className="text-[12.5px] font-medium" style={{ color: 'var(--text-secondary)' }}>
               {scanProgress.phase === 'enumerating' ? t('serviceManager.scanProgressEnumerating') : t('serviceManager.scanProgressClassifying')}
             </span>
             {scanProgress.total > 0 && (
-              <span className="text-[12px]" style={{ color: '#9e9ea6' }}>
+              <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                 {scanProgress.current} / {scanProgress.total}
               </span>
             )}
@@ -354,13 +354,13 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               <div
                 className="h-full rounded-full transition-all duration-300"
                 style={{
-                  background: '#f59e0b',
+                  background: 'var(--accent)',
                   width: `${Math.round((scanProgress.current / scanProgress.total) * 100)}%`
                 }}
               />
             </div>
           )}
-          <div className="mt-1.5 truncate text-[11.5px]" style={{ color: '#8a8a96' }}>
+          <div className="mt-1.5 truncate text-[11.5px]" style={{ color: 'var(--text-muted)' }}>
             {scanProgress.currentService}
           </div>
         </div>
@@ -389,7 +389,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           {applyResult.errors.length > 0 && (
             <div className="mt-2 space-y-1">
               {applyResult.errors.map((e, i) => (
-                <div key={i} className="text-[11.5px]" style={{ color: '#a1a1aa' }}>
+                <div key={i} className="text-[11.5px]" style={{ color: 'var(--text-secondary)' }}>
                   {e.displayName || e.name}: {e.reason}
                 </div>
               ))}
@@ -408,7 +408,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             <button
               onClick={handleScan}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
+              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
             >
               <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
               {t('serviceManager.scanServicesButton')}
@@ -423,7 +423,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           <div className="mb-5 grid grid-cols-4 gap-3">
             <StatCard label={t('serviceManager.statTotal')} value={services.length} color="#a1a1aa" />
             <StatCard label={t('serviceManager.statRunning')} value={runningCount} color="#22c55e" />
-            <StatCard label={t('serviceManager.statDisabled')} value={disabledCount} color="#9e9ea6" />
+            <StatCard label={t('serviceManager.statDisabled')} value={disabledCount} color="var(--text-muted)" />
             <StatCard label={t('serviceManager.statSafeToDisable')} value={totalSafeToDisable} color="#f59e0b" />
           </div>
 
@@ -431,9 +431,9 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           <div className="mb-4 flex items-center gap-3">
             <div
               className="flex flex-1 items-center gap-2 rounded-lg px-3 py-2"
-              style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)' }}
             >
-              <Search className="h-4 w-4 shrink-0" style={{ color: '#8a8a96' }} strokeWidth={1.8} />
+              <Search className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
               <input
                 type="text"
                 placeholder={t('serviceManager.searchPlaceholder')}
@@ -481,7 +481,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
           {filteredServices.length === 0 ? (
             <div
               className="rounded-xl py-12 text-center text-[13px]"
-              style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.06)', color: '#8a8a96' }}
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', color: 'var(--text-muted)' }}
             >
               {t('serviceManager.noServicesMatch')}
             </div>
@@ -493,7 +493,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             </div>
           )}
 
-          <div className="mt-2 text-right text-[11.5px]" style={{ color: '#8a8a96' }}>
+          <div className="mt-2 text-right text-[11.5px]" style={{ color: 'var(--text-muted)' }}>
             {t('serviceManager.showingCount', { filtered: filteredServices.length, total: services.length })}
           </div>
         </>
@@ -533,7 +533,7 @@ function SafetyGroup({
   return (
     <div
       className="overflow-hidden rounded-xl"
-      style={{ background: '#18181b', border: `1px solid ${colors.border}` }}
+      style={{ background: 'var(--card-bg)', border: `1px solid ${colors.border}` }}
     >
       {/* Group header */}
       <button
@@ -550,7 +550,7 @@ function SafetyGroup({
         <span className="text-[13px] font-semibold" style={{ color: colors.dot }}>
           {label}
         </span>
-        <span className="text-[12px]" style={{ color: '#9e9ea6' }}>
+        <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
           {t(services.length !== 1 ? 'serviceManager.servicesCountPlural' : 'serviceManager.servicesCount', { count: services.length })}
           {alreadyDisabled > 0 && ` · ${t('serviceManager.alreadyDisabled', { count: alreadyDisabled })}`}
           {selectedInGroup > 0 && (
@@ -566,9 +566,9 @@ function SafetyGroup({
             className="grid items-center gap-3 px-4 py-2 text-[11px] font-semibold uppercase tracking-wider"
             style={{
               gridTemplateColumns: '32px 1fr 120px 100px 60px',
-              color: '#8a8a96',
+              color: 'var(--text-muted)',
               borderTop: `1px solid ${colors.border}`,
-              borderBottom: '1px solid rgba(255,255,255,0.04)'
+              borderBottom: '1px solid var(--border-subtle)'
             }}
           >
             <span />
@@ -602,7 +602,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
       style={{
         gridTemplateColumns: '32px 1fr 120px 100px 60px',
         background: svc.selected ? colors.bg : 'transparent',
-        borderBottom: '1px solid rgba(255,255,255,0.03)',
+        borderBottom: '1px solid var(--border-subtle)',
         cursor: isUnsafe ? 'default' : 'pointer'
       }}
     >
@@ -611,7 +611,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
         <div
           className="flex h-[18px] w-[18px] items-center justify-center rounded"
           style={{
-            border: `1.5px solid ${svc.selected ? colors.dot : isUnsafe ? '#3f3f46' : '#8a8a96'}`,
+            border: `1.5px solid ${svc.selected ? colors.dot : isUnsafe ? 'var(--text-faint)' : 'var(--text-muted)'}`,
             background: svc.selected ? colors.dot : 'transparent',
             opacity: isUnsafe ? 0.4 : 1
           }}
@@ -633,7 +633,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
             </span>
           )}
         </div>
-        <div className="truncate text-[11.5px]" style={{ color: '#9e9ea6' }}>
+        <div className="truncate text-[11.5px]" style={{ color: 'var(--text-muted)' }}>
           {svc.description || svc.name}
         </div>
       </div>
@@ -665,9 +665,9 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
       <div className="flex items-center gap-1.5">
         <div
           className="h-1.5 w-1.5 rounded-full"
-          style={{ background: STATUS_COLORS[svc.status] || '#9e9ea6' }}
+          style={{ background: STATUS_COLORS[svc.status] || 'var(--text-muted)' }}
         />
-        <span className="text-[12px]" style={{ color: STATUS_COLORS[svc.status] || '#9e9ea6' }}>
+        <span className="text-[12px]" style={{ color: STATUS_COLORS[svc.status] || 'var(--text-muted)' }}>
           {t(STATUS_KEY_MAP[svc.status] || 'serviceManager.statusUnknown')}
         </span>
       </div>
@@ -677,7 +677,7 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
         {svc.dependents.length > 0 && (
           <span
             className="flex items-center gap-0.5 text-[11px]"
-            style={{ color: '#9e9ea6' }}
+            style={{ color: 'var(--text-muted)' }}
             title={t('serviceManager.dependentsTitle', { count: svc.dependents.length })}
           >
             <Link2 className="h-3 w-3" strokeWidth={1.8} />
@@ -693,9 +693,9 @@ function StatCard({ label, value, color }: { label: string; value: number; color
   return (
     <div
       className="rounded-xl px-4 py-3"
-      style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)' }}
     >
-      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
         {label}
       </div>
       <div className="mt-1 text-[22px] font-bold" style={{ color }}>
@@ -720,7 +720,7 @@ function FilterDropdown({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="appearance-none rounded-lg py-2 pl-3 pr-8 text-[12.5px] font-medium text-white outline-none"
-        style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)' }}
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -730,7 +730,7 @@ function FilterDropdown({
       </select>
       <ChevronDown
         className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2"
-        style={{ color: '#8a8a96' }}
+        style={{ color: 'var(--text-muted)' }}
         strokeWidth={2}
       />
     </div>

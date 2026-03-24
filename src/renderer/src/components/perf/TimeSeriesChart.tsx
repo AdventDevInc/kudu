@@ -49,7 +49,7 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
   return (
     <div
       className="rounded-2xl p-5"
-      style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
       <div className="mb-3 text-[12px] font-semibold text-zinc-400">{label}</div>
       <ResponsiveContainer width="100%" height={140}>
@@ -74,10 +74,10 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
           <Tooltip
             contentStyle={{
               background: '#1e1e24',
-              border: '1px solid rgba(255,255,255,0.08)',
+              border: '1px solid var(--border-strong)',
               borderRadius: '10px',
               fontSize: '12px',
-              color: '#d4d4d8'
+              color: 'var(--text-primary)'
             }}
             labelFormatter={() => ''}
             formatter={(val) =>

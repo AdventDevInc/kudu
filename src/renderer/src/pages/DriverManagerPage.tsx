@@ -257,7 +257,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           onClick={handleScan}
           disabled={isBusy}
           className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
         >
           <Search className={`h-4 w-4 ${isScanning ? 'animate-pulse' : ''}`} strokeWidth={1.8} />
           {isScanning ? t('driverManager.scanningButton') : t('driverManager.scanDriversButton')}
@@ -286,10 +286,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       {/* Info banner */}
       <div
         className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4"
-        style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.08)' }}
+        style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-bg)' }}
       >
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
-        <p className="text-[12px]" style={{ color: '#8e8e96' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
           <span className="font-semibold text-amber-500">{t('driverManager.safeOperationBold')}</span> — {t('driverManager.safeOperationText')}
         </p>
       </div>
@@ -329,11 +329,11 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 {updateProgress.total > 0 && ` (${updateProgress.current}/${updateProgress.total})`}
               </span>
             </div>
-            <span className="text-[12px] font-mono" style={{ color: '#9e9ea6' }}>
+            <span className="text-[12px] font-mono" style={{ color: 'var(--text-secondary)' }}>
               {updateProgress.percent}%
             </span>
           </div>
-          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--bg-hover-2)' }}>
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
@@ -342,7 +342,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               }}
             />
           </div>
-          <p className="mt-2 text-[11px] truncate" style={{ color: '#9e9ea6' }}>
+          <p className="mt-2 text-[11px] truncate" style={{ color: 'var(--text-secondary)' }}>
             {updateProgress.currentDevice}
           </p>
         </div>
@@ -390,7 +390,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               onClick={handleScan}
               disabled={isBusy}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
+              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
               {t('driverManager.scanDriversButton')}
@@ -407,7 +407,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         >
           <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" strokeWidth={1.5} />
           <p className="text-[15px] font-medium text-zinc-200">{t('driverManager.allUpToDateTitle')}</p>
-          <p className="mt-1 text-[12px]" style={{ color: '#9e9ea6' }}>{t('driverManager.allUpToDateDescription')}</p>
+          <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('driverManager.allUpToDateDescription')}</p>
         </div>
       )}
 
@@ -425,7 +425,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               <button
                 onClick={() => allUpdatesSelected ? useDriverStore.getState().deselectAllUpdates() : useDriverStore.getState().selectAllUpdates()}
                 className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
-                style={{ background: 'rgba(255,255,255,0.04)', color: '#9e9ea6' }}
+                style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
               >
                 {allUpdatesSelected ? t('driverManager.deselectAll') : t('driverManager.selectAll')}
               </button>
@@ -439,8 +439,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 onClick={() => useDriverStore.getState().toggleUpdate(upd.id)}
                 className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors cursor-pointer"
                 style={{
-                  background: upd.selected ? 'rgba(59,130,246,0.04)' : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${upd.selected ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)'}`
+                  background: upd.selected ? 'rgba(59,130,246,0.04)' : 'var(--bg-subtle)',
+                  border: `1px solid ${upd.selected ? 'rgba(59,130,246,0.1)' : 'var(--border-subtle)'}`
                 }}
               >
                 <div className="w-6">
@@ -459,7 +459,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                       {upd.className}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[11px]" style={{ color: '#9e9ea6' }}>
+                  <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
                     {upd.provider} — {upd.currentVersion ? `v${upd.currentVersion}` : t('driverManager.versionUnknown')} → v{upd.availableVersion}
                   </p>
                 </div>
@@ -468,7 +468,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                     <span className="text-[12px] font-medium text-zinc-400">{upd.downloadSize}</span>
                   )}
                   {upd.availableDate && (
-                    <div className="mt-0.5 text-[10px] font-mono" style={{ color: '#8a8a94' }}>
+                    <div className="mt-0.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
                       {upd.availableDate}
                     </div>
                   )}
@@ -498,7 +498,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               <button
                 onClick={() => allStaleSelected ? useDriverStore.getState().deselectAllStale() : useDriverStore.getState().selectAllStale()}
                 className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
-                style={{ background: 'rgba(255,255,255,0.04)', color: '#9e9ea6' }}
+                style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
               >
                 {allStaleSelected ? t('driverManager.deselectAll') : t('driverManager.selectAll')}
               </button>
@@ -512,8 +512,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 onClick={() => useDriverStore.getState().togglePackage(pkg.id)}
                 className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors cursor-pointer"
                 style={{
-                  background: pkg.selected ? 'rgba(245,158,11,0.04)' : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${pkg.selected ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)'}`
+                  background: pkg.selected ? 'rgba(245,158,11,0.04)' : 'var(--bg-subtle)',
+                  border: `1px solid ${pkg.selected ? 'rgba(245,158,11,0.1)' : 'var(--border-subtle)'}`
                 }}
               >
                 <div className="w-6">
@@ -532,13 +532,13 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                       {pkg.className}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[11px]" style={{ color: '#9e9ea6' }}>
+                  <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
                     {pkg.provider} — v{pkg.version}{pkg.date ? ` — ${pkg.date}` : ''}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
                   <span className="text-[12px] font-medium text-zinc-400">{formatBytes(pkg.size)}</span>
-                  <div className="mt-0.5 text-[10px] font-mono" style={{ color: '#8a8a94' }}>{pkg.publishedName}</div>
+                  <div className="mt-0.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{pkg.publishedName}</div>
                 </div>
               </div>
             ))}

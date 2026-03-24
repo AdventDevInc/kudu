@@ -51,7 +51,7 @@ export const AlertBanner = memo(function AlertBanner({ snapshot, history }: Aler
               onClick={() => setDismissed((d) => [...d, alert.id])}
               className="shrink-0 rounded-lg p-1 transition-colors hover:bg-white/5"
             >
-              <X className="h-3.5 w-3.5" style={{ color: '#9e9ea6' }} />
+              <X className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
             </button>
           </motion.div>
         ))}

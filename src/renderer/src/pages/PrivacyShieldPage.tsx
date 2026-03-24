@@ -149,7 +149,7 @@ function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none"
-          stroke="rgba(255,255,255,0.06)" strokeWidth={4} />
+          stroke="var(--gauge-track)" strokeWidth={4} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none"
           stroke={color} strokeWidth={4}
           strokeDasharray={circumference} strokeDashoffset={offset}
@@ -157,7 +157,7 @@ function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
       </svg>
       <div className="absolute flex flex-col items-center">
         <span className="text-[20px] font-bold" style={{ color }}>{score}</span>
-        <span className="text-[9px] font-medium" style={{ color: '#8a8a96' }}>/ 100</span>
+        <span className="text-[9px] font-medium" style={{ color: 'var(--text-muted)' }}>/ 100</span>
       </div>
     </div>
   )
@@ -349,7 +349,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
         onClick={handleScan}
         disabled={busy}
         className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
-        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
       >
         <Eye className="h-4 w-4" strokeWidth={1.8} />
         {t('privacy.scanButton')}
@@ -391,18 +391,18 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       {state && !isScanning && (
         <div className="mb-5 grid grid-cols-3 gap-3">
           {/* Privacy score */}
-          <div className="rounded-2xl p-5 flex items-center gap-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="rounded-2xl p-5 flex items-center gap-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
             <ScoreRing score={state.score} />
             <div>
               <p className="text-[14px] font-semibold text-zinc-200">{t('privacy.privacyScore')}</p>
-              <p className="text-[12px] mt-0.5" style={{ color: '#9e9ea6' }}>
+              <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 {state.score >= 80 ? t('privacy.scoreWellProtected') : state.score >= 50 ? t('privacy.scoreNeedsImprovement') : t('privacy.scoreAtRisk')}
               </p>
             </div>
           </div>
 
           {/* Protection status */}
-          <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
             <div className="flex items-center gap-2 mb-2">
               {unprotectedCount === 0 ? (
                 <ShieldCheck className="h-5 w-5 text-green-500" strokeWidth={1.8} />
@@ -414,7 +414,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
               </span>
             </div>
             <div className="flex items-center gap-3 mt-3">
-              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover-2)' }}>
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
@@ -423,15 +423,15 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                   }}
                 />
               </div>
-              <span className="text-[12px] font-mono" style={{ color: '#9e9ea6' }}>
+              <span className="text-[12px] font-mono" style={{ color: 'var(--text-muted)' }}>
                 {state.protected}/{state.total}
               </span>
             </div>
           </div>
 
           {/* Category breakdown */}
-          <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <p className="text-[11px] font-medium mb-2" style={{ color: '#8a8a96' }}>{t('privacy.categoriesLabel')}</p>
+          <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+            <p className="text-[11px] font-medium mb-2" style={{ color: 'var(--text-muted)' }}>{t('privacy.categoriesLabel')}</p>
             <div className="space-y-1.5">
               {categories.map(cat => {
                 const catSettings = state.settings.filter(s => s.category === cat.id)
@@ -444,7 +444,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                       <div className="h-1.5 w-1.5 rounded-full" style={{ background: allGood ? '#22c55e' : cat.color }} />
                       <span className="text-[11px] text-zinc-400">{t(cat.labelKey).split(' ')[0]}</span>
                     </div>
-                    <span className="text-[11px] font-mono" style={{ color: allGood ? '#22c55e' : '#9e9ea6' }}>
+                    <span className="text-[11px] font-mono" style={{ color: allGood ? '#22c55e' : 'var(--text-muted)' }}>
                       {protectedInCat}/{catSettings.length}
                     </span>
                   </div>
@@ -457,7 +457,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
 
       {/* Scanning progress */}
       {isScanning && (
-        <div className="mb-5 rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="mb-5 rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-400 border-t-transparent" />
             <span className="text-[13px] font-medium text-zinc-200">
@@ -471,7 +471,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           </div>
 
           {/* Progress bar */}
-          <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: 'var(--bg-hover-2)' }}>
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
@@ -496,8 +496,8 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                     key={cat.id}
                     className="flex items-center gap-1 rounded-md px-2 py-1"
                     style={{
-                      background: isCurrent ? 'rgba(34,197,94,0.1)' : isDone ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${isCurrent ? 'rgba(34,197,94,0.2)' : isDone ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.04)'}`
+                      background: isCurrent ? 'rgba(34,197,94,0.1)' : isDone ? 'rgba(34,197,94,0.06)' : 'var(--bg-subtle)',
+                      border: `1px solid ${isCurrent ? 'rgba(34,197,94,0.2)' : isDone ? 'rgba(34,197,94,0.1)' : 'var(--border-subtle)'}`
                     }}
                   >
                     {isDone ? (
@@ -505,11 +505,11 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                     ) : isCurrent ? (
                       <div className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-green-400 border-t-transparent" />
                     ) : (
-                      <div className="h-3 w-3 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                      <div className="h-3 w-3 rounded-full" style={{ background: 'var(--bg-active)' }} />
                     )}
                     <span
                       className="text-[10px] font-medium"
-                      style={{ color: isCurrent ? '#4ade80' : isDone ? '#4ade80' : '#8a8a96' }}
+                      style={{ color: isCurrent ? '#4ade80' : isDone ? '#4ade80' : 'var(--text-muted)' }}
                     >
                       {catLabel}
                     </span>
@@ -523,7 +523,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
 
       {/* Applying state */}
       {isApplying && (
-        <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
           <Loader2 className="h-4 w-4 animate-spin text-green-400" />
           <span className="text-[13px] text-zinc-400">{t('privacy.applyingProtections')}</span>
         </div>
@@ -545,7 +545,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                 {t(applyResult.succeeded !== 1 ? 'privacy.settingsAppliedPlural' : 'privacy.settingsApplied', { count: applyResult.succeeded })}
               </p>
               {applyResult.failed > 0 && (
-                <p className="text-[12px] mt-0.5" style={{ color: '#f59e0b' }}>
+                <p className="text-[12px] mt-0.5" style={{ color: 'var(--accent)' }}>
                   {t('privacy.settingsFailedRequireAdmin', { count: applyResult.failed })}
                 </p>
               )}
@@ -554,7 +554,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
           {applyResult.errors.length > 0 && (
             <div className="mt-3 ml-8 space-y-1">
               {applyResult.errors.map((err) => (
-                <p key={err.id} className="text-[11px] font-mono" style={{ color: '#9e9ea6' }}>
+                <p key={err.id} className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
                   {err.label}: {err.reason}
                 </p>
               ))}
@@ -596,7 +596,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                 <button
                   onClick={() => usePrivacyStore.getState().toggleCategory(cat.id)}
                   className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors"
-                  style={{ background: allProtected ? 'rgba(34,197,94,0.03)' : 'rgba(255,255,255,0.02)' }}
+                  style={{ background: allProtected ? 'rgba(34,197,94,0.03)' : 'var(--bg-subtle)' }}
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                     style={{ background: allProtected ? 'rgba(34,197,94,0.1)' : cat.bg }}>
@@ -618,7 +618,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[12px]" style={{ color: '#5e5e66' }}>{t(cat.descriptionKey)}</p>
+                    <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-dim)' }}>{t(cat.descriptionKey)}</p>
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
@@ -646,7 +646,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                         'h-5 w-5 transition-transform',
                         isExpanded ? 'rotate-180' : 'rotate-0'
                       )}
-                      style={{ color: '#9e9ea6' }}
+                      style={{ color: 'var(--text-muted)' }}
                     >
                       <svg viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
@@ -657,7 +657,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
 
                 {/* Expanded settings */}
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
                     {catSettings.map((setting, i) => {
                       const depSetting = setting.dependsOn
                         ? state?.settings.find(s => s.id === setting.dependsOn)
@@ -669,21 +669,21 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                       <div key={setting.id}
                         className="flex items-center gap-4 px-5 py-3.5"
                         style={{
-                          borderBottom: i < catSettings.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none'
+                          borderBottom: i < catSettings.length - 1 ? '1px solid var(--bg-subtle)' : 'none'
                         }}>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="text-[13px] font-medium text-zinc-300">{setting.label}</span>
                             {setting.requiresAdmin && (
                               <span className="rounded px-1 py-0.5 text-[9px] font-semibold uppercase"
-                                style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>
+                                style={{ background: 'var(--accent-muted-bg)', color: 'var(--accent)' }}>
                                 {t('privacy.adminBadge')}
                               </span>
                             )}
                           </div>
-                          <p className="mt-0.5 text-[11px]" style={{ color: '#5e5e66' }}>{setting.description}</p>
+                          <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-dim)' }}>{setting.description}</p>
                           {depMissing && depSetting && (
-                            <p className="mt-0.5 text-[10px]" style={{ color: '#f59e0b' }}>
+                            <p className="mt-0.5 text-[10px]" style={{ color: 'var(--accent)' }}>
                               {t('privacy.requiresSettingEnabled', { label: depSetting.label })}
                             </p>
                           )}
@@ -694,12 +694,12 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
                           onClick={() => handleToggleSingle(setting.id)}
                           disabled={toggleDisabled}
                           className="relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60"
-                          style={{ background: setting.enabled ? '#22c55e' : 'rgba(255,255,255,0.08)' }}
+                          style={{ background: setting.enabled ? '#22c55e' : 'var(--bg-active)' }}
                         >
                           <div className="absolute top-0.5 h-5 w-5 rounded-full transition-all"
                             style={{
                               left: setting.enabled ? '22px' : '2px',
-                              background: setting.enabled ? '#fff' : '#9e9ea6'
+                              background: setting.enabled ? '#fff' : 'var(--text-muted)'
                             }} />
                         </button>
                       </div>
@@ -716,9 +716,9 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       {/* Admin warning */}
       {state && unprotectedCount > 0 && (
         <div className="mt-4 flex items-start gap-3 rounded-2xl px-5 py-3"
-          style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.08)' }}>
+          style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid var(--accent-muted-bg)' }}>
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500 mt-0.5" strokeWidth={1.8} />
-          <p className="text-[11px]" style={{ color: '#8e8e96' }}>
+          <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
             {t('privacy.adminWarning')}
           </p>
         </div>

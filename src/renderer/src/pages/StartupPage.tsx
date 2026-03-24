@@ -16,7 +16,7 @@ const impactStyles: Record<StartupItem['impact'], { bg: string; text: string }> 
   high: { bg: 'rgba(239,68,68,0.08)', text: '#ef4444' },
   medium: { bg: 'rgba(245,158,11,0.08)', text: '#f59e0b' },
   low: { bg: 'rgba(34,197,94,0.08)', text: '#22c55e' },
-  none: { bg: 'rgba(255,255,255,0.04)', text: '#8a8a96' }
+  none: { bg: 'var(--bg-subtle-2)', text: 'var(--text-muted)' }
 }
 
 const impactBarColors: Record<string, string> = {
@@ -50,7 +50,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
 
   if (loading) {
     return (
-      <div className="mb-5 rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="mb-5 rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 border-t-amber-500" />
           <span className="text-[13px] text-zinc-500">{t('bootTraceAnalyzing')}</span>
@@ -61,7 +61,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
 
   if (!trace || !trace.available) {
     return (
-      <div className="mb-5 rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="mb-5 rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
         <div className="flex items-center gap-3 text-zinc-500">
           <BarChart3 className="h-4.5 w-4.5" strokeWidth={1.8} />
           <span className="text-[13px]">
@@ -86,14 +86,14 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
   const pieData = [
     { name: t('pieCoreBoot'), value: Math.max(0, trace.mainPathMs - trace.startupAppsMs), fill: '#3b82f6' },
     { name: t('pieStartupApps'), value: trace.startupAppsMs, fill: '#f59e0b' },
-    { name: t('pieOther'), value: Math.max(0, trace.totalBootMs - trace.mainPathMs), fill: '#27272a' }
+    { name: t('pieOther'), value: Math.max(0, trace.totalBootMs - trace.mainPathMs), fill: 'var(--bg-overlay)' }
   ].filter((d) => d.value > 0)
 
   const highCount = trace.entries.filter((e) => e.impact === 'high').length
   const potentialSavings = trace.entries.filter((e) => e.impact === 'high').reduce((s, e) => s + e.delayMs, 0)
 
   return (
-    <div className="mb-5 rounded-2xl overflow-hidden" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+    <div className="mb-5 rounded-2xl overflow-hidden" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
       {/* Header */}
       <button
         onClick={() => setExpanded(!expanded)}
@@ -101,11 +101,11 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
       >
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: 'rgba(245,158,11,0.1)' }}>
-            <Activity className="h-4.5 w-4.5" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+            <Activity className="h-4.5 w-4.5" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
           </div>
           <div>
             <h3 className="text-[14px] font-medium text-zinc-200">{t('bootTraceTitle')}</h3>
-            <p className="text-[12px]" style={{ color: '#8a8a96' }}>
+            <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
               {trace.lastBootDate
                 ? t('bootTraceLastBoot', { date: new Date(trace.lastBootDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) })
                 : t('bootTraceBasedOnLastBoot')}
@@ -135,14 +135,14 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             {/* Bar chart — per-app delay */}
-            <div className="lg:col-span-2 rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <div className="lg:col-span-2 rounded-xl p-4" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)' }}>
               <h4 className="mb-3 text-[12px] font-medium text-zinc-400">{t('chartBootTimeImpact')}</h4>
               {barData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={Math.max(200, barData.length * 32 + 20)}>
                   <BarChart data={barData} layout="vertical" margin={{ left: 0, right: 16, top: 0, bottom: 0 }}>
                     <XAxis
                       type="number"
-                      tick={{ fill: '#8a8a96', fontSize: 11 }}
+                      tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
                       tickFormatter={(v: number) => formatMs(v)}
                       axisLine={false}
                       tickLine={false}
@@ -150,23 +150,23 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
                     <YAxis
                       type="category"
                       dataKey="name"
-                      tick={{ fill: '#a1a1aa', fontSize: 11 }}
+                      tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
                       width={130}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip
-                      cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                      cursor={{ fill: 'var(--bg-subtle)' }}
                       contentStyle={{
-                        background: '#1c1c21',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'var(--card-bg)',
+                        border: '1px solid var(--border-strong)',
                         borderRadius: 12,
                         fontSize: 12,
-                        color: '#e4e4e7',
+                        color: 'var(--text-primary)',
                         boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
                       }}
-                      labelStyle={{ color: '#e4e4e7' }}
-                      itemStyle={{ color: '#a1a1aa' }}
+                      labelStyle={{ color: 'var(--text-primary)' }}
+                      itemStyle={{ color: 'var(--text-secondary)' }}
                       formatter={(value: unknown) => [formatMs(value as number), t('chartTooltipDelay')]}
                       labelFormatter={(label: unknown, payload: readonly { payload?: { fullName?: string } }[]) =>
                         payload?.[0]?.payload?.fullName || String(label)
@@ -174,7 +174,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
                     />
                     <Bar dataKey="delay" radius={[0, 6, 6, 0]} maxBarSize={22}>
                       {barData.map((entry, i) => (
-                        <Cell key={i} fill={impactBarColors[entry.impact] || '#8a8a96'} fillOpacity={0.85} />
+                        <Cell key={i} fill={impactBarColors[entry.impact] || 'var(--text-muted)'} fillOpacity={0.85} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -187,7 +187,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
             </div>
 
             {/* Pie chart — boot time breakdown */}
-            <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+            <div className="rounded-xl p-4" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)' }}>
               <h4 className="mb-3 text-[12px] font-medium text-zinc-400">{t('chartBootTimeBreakdown')}</h4>
               <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
@@ -207,15 +207,15 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      background: '#1c1c21',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'var(--card-bg)',
+                      border: '1px solid var(--border-strong)',
                       borderRadius: 12,
                       fontSize: 12,
-                      color: '#e4e4e7',
+                      color: 'var(--text-primary)',
                       boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
                     }}
-                    labelStyle={{ color: '#e4e4e7' }}
-                    itemStyle={{ color: '#a1a1aa' }}
+                    labelStyle={{ color: 'var(--text-primary)' }}
+                    itemStyle={{ color: 'var(--text-secondary)' }}
                     formatter={(value: unknown) => [formatMs(value as number), '']}
                   />
                 </PieChart>
@@ -241,7 +241,7 @@ function BootTracePanel({ trace, loading }: { trace: StartupBootTrace | null; lo
 
 function StatMini({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: string; color: string }) {
   return (
-    <div className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
+    <div className="rounded-xl p-3.5" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)' }}>
       <div className="flex items-center gap-2 mb-1.5">
         <Icon className="h-3.5 w-3.5" style={{ color }} strokeWidth={1.8} />
         <span className="text-[11px] text-zinc-500">{label}</span>
@@ -369,20 +369,20 @@ export function StartupPage() {
           <div className="flex items-center gap-2.5">
             <select value={filterBy} onChange={(e) => store.getState().setFilterBy(e.target.value as any)}
               className="rounded-xl px-4 py-2.5 text-[13px] text-zinc-400 outline-none"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}>
               <option value="all">{t('filterAll')}</option>
               <option value="active">{t('filterActive')}</option>
               <option value="disabled">{t('filterDisabled')}</option>
             </select>
             <select value={sortBy} onChange={(e) => store.getState().setSortBy(e.target.value as any)}
               className="rounded-xl px-4 py-2.5 text-[13px] text-zinc-400 outline-none"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}>
               <option value="impact">{t('sortByImpact')}</option>
               <option value="name">{t('sortByName')}</option>
             </select>
             <button onClick={() => { loadItems(); loadBootTrace() }} disabled={loading}
               className="flex items-center justify-center rounded-xl p-2.5 text-zinc-500 transition-colors"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}>
               <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} strokeWidth={1.8} />
             </button>
           </div>
@@ -402,25 +402,25 @@ export function StartupPage() {
         {sorted.map((item) => (
           <div key={item.id}
             className={cn('flex items-center gap-5 rounded-2xl p-5 transition-all', !item.enabled && 'opacity-50')}
-            style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
             {/* Icon */}
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.04)' }}>
-              <span className="text-[14px] font-bold" style={{ color: '#8a8a94' }}>{item.displayName.charAt(0)}</span>
+              style={{ background: 'var(--bg-subtle-2)' }}>
+              <span className="text-[14px] font-bold" style={{ color: 'var(--text-muted)' }}>{item.displayName.charAt(0)}</span>
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-[14px] font-medium text-zinc-200">{item.displayName}</span>
-                {item.impact === 'none' && <Shield className="h-3.5 w-3.5" style={{ color: '#3a3a42' }} strokeWidth={1.8} />}
+                {item.impact === 'none' && <Shield className="h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} strokeWidth={1.8} />}
               </div>
-              <div className="mt-0.5 flex items-center gap-2 text-[12px]" style={{ color: '#8a8a96' }}>
+              <div className="mt-0.5 flex items-center gap-2 text-[12px]" style={{ color: 'var(--text-muted)' }}>
                 <span>{item.publisher}</span>
-                <span style={{ color: '#2a2a30' }}>·</span>
+                <span style={{ color: 'var(--text-faint)' }}>·</span>
                 <span>{t(sourceKeys[item.source])}</span>
               </div>
-              <div className="mt-1 truncate font-mono text-[11px]" style={{ color: '#3a3a42' }} title={item.command}>
+              <div className="mt-1 truncate font-mono text-[11px]" style={{ color: 'var(--text-faint)' }} title={item.command}>
                 {item.command}
               </div>
             </div>
@@ -435,7 +435,7 @@ export function StartupPage() {
             <div className="flex items-center gap-2">
               <button onClick={() => handleToggle(item, !item.enabled)}
                 className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
-                style={{ background: item.enabled ? '#f59e0b' : 'rgba(255,255,255,0.08)' }}>
+                style={{ background: item.enabled ? 'var(--accent)' : 'var(--bg-active)' }}>
                 <div className={cn(
                   'absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
                   item.enabled ? 'translate-x-[22px]' : 'translate-x-[3px]'
@@ -444,7 +444,7 @@ export function StartupPage() {
               <button
                 onClick={() => store.getState().setDeleteTarget(item)}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-600 transition-colors hover:text-red-400"
-                style={{ background: 'rgba(255,255,255,0.02)' }}
+                style={{ background: 'var(--bg-subtle)' }}
                 title={t('removeButtonTitle', { name: item.displayName })}
               >
                 <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />

@@ -12,7 +12,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   const obj = input as Record<string, unknown>
 
   const allowedTopKeys = new Set([
-    'language',
+    'theme', 'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
     'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'schedule', 'schedules', 'cloud', 'gameMode'
@@ -20,6 +20,11 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
 
   for (const key of Object.keys(obj)) {
     if (!allowedTopKeys.has(key)) return null
+  }
+
+  // Validate theme is one of the allowed values
+  if ('theme' in obj && obj.theme !== undefined) {
+    if (!['dark', 'light', 'system'].includes(obj.theme as string)) return null
   }
 
   // Validate language is a safe locale code string (e.g. 'en', 'zh-CN')

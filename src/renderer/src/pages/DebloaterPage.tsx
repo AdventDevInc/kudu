@@ -141,7 +141,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
     <div className="flex items-center gap-2.5">
       <button onClick={handleScan} disabled={scanning || removing}
         className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
-        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}>
         <Search className="h-4 w-4" strokeWidth={1.8} /> {t('debloater.scanButton')}
       </button>
       <button onClick={() => setShowConfirm(true)} disabled={selectedCount === 0 || scanning || removing}
@@ -172,7 +172,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4"
         style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.08)' }}>
         <Shield className="h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} />
-        <p className="text-[12px]" style={{ color: '#8e8e96' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
           {t('debloater.irreversibleWarning')}
         </p>
       </div>
@@ -191,19 +191,19 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
                 {t('debloater.removingProgress', { current: removeProgress.current, total: removeProgress.total })}
               </span>
             </div>
-            <span className="text-[12px] font-mono" style={{ color: '#9e9ea6' }}>
+            <span className="text-[12px] font-mono" style={{ color: 'var(--text-secondary)' }}>
               {Math.round((removeProgress.current / removeProgress.total) * 100)}%
             </span>
           </div>
           {/* Progress bar */}
-          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--bg-hover-2)' }}>
             <div className="h-full rounded-full transition-all duration-300"
               style={{
                 width: `${(removeProgress.current / removeProgress.total) * 100}%`,
                 background: 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)'
               }} />
           </div>
-          <p className="mt-2 text-[11px] truncate" style={{ color: '#9e9ea6' }}>
+          <p className="mt-2 text-[11px] truncate" style={{ color: 'var(--text-secondary)' }}>
             {apps.find((a) => a.packageName === removeProgress.currentApp)?.name || removeProgress.currentApp}
           </p>
         </div>
@@ -230,8 +230,8 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
               <button key={f.value} onClick={() => store.getState().setFilter(f.value)}
                 className="rounded-full px-3.5 py-1.5 text-[12px] font-medium transition-colors"
                 style={{
-                  background: filter === f.value ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)',
-                  color: filter === f.value ? '#f59e0b' : '#9e9ea6'
+                  background: filter === f.value ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)',
+                  color: filter === f.value ? 'var(--accent)' : 'var(--text-muted)'
                 }}>
                 {t(f.labelKey)} ({count})
               </button>
@@ -242,12 +242,12 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
           <div className="ml-auto flex items-center gap-2">
             <button onClick={() => store.getState().selectAll()}
               className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
-              style={{ background: 'rgba(255,255,255,0.04)', color: '#9e9ea6' }}>
+              style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}>
               {t('debloater.selectAll')}
             </button>
             <button onClick={() => store.getState().deselectAll()}
               className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
-              style={{ background: 'rgba(255,255,255,0.04)', color: '#9e9ea6' }}>
+              style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}>
               {t('debloater.deselectAll')}
             </button>
           </div>
@@ -263,7 +263,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
         <div className="grid grid-cols-1 gap-2.5">
           {/* Header with master checkbox */}
           <div className="flex items-center gap-4 px-5 py-2.5 text-[11px] font-medium uppercase tracking-wider"
-            style={{ color: '#8a8a94' }}>
+            style={{ color: 'var(--text-muted)' }}>
             <div className="w-6">
               <input type="checkbox"
                 checked={filtered.every((a) => a.selected)}
@@ -280,8 +280,8 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
             <div key={app.id}
               className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors"
               style={{
-                background: app.selected ? 'rgba(239,68,68,0.04)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${app.selected ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)'}`
+                background: app.selected ? 'rgba(239,68,68,0.04)' : 'var(--bg-subtle)',
+                border: `1px solid ${app.selected ? 'rgba(239,68,68,0.1)' : 'var(--border-subtle)'}`
               }}>
               {/* Checkbox */}
               <div className="w-6" onClick={() => store.getState().toggleApp(app.id)}>
@@ -303,13 +303,13 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
                     {t(categoryColors[app.category].labelKey)}
                   </span>
                 </div>
-                <p className="mt-0.5 text-[11px]" style={{ color: '#9e9ea6' }}>{app.description}</p>
+                <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>{app.description}</p>
               </div>
 
               {/* Publisher */}
               <div className="shrink-0 text-right">
                 <span className="text-[11px] text-zinc-500">{app.publisher}</span>
-                <div className="mt-0.5 text-[11px] font-mono" style={{ color: '#8a8a94' }}>{app.size}</div>
+                <div className="mt-0.5 text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>{app.size}</div>
               </div>
             </div>
           ))}

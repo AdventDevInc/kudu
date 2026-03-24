@@ -139,7 +139,7 @@ export function NetworkCleanupPage() {
               onClick={handleScan}
               disabled={isScanning || isCleaning}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
               {t('scanButton')}
@@ -150,7 +150,7 @@ export function NetworkCleanupPage() {
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: '#1a0a00',
+                color: 'var(--text-on-accent)',
                 boxShadow: hasItems ? '0 4px 20px rgba(245,158,11,0.2)' : 'none'
               }}
             >
@@ -173,22 +173,22 @@ export function NetworkCleanupPage() {
                 onClick={() => useNetworkStore.getState().setActiveCategory(cat.type)}
                 className="relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all"
                 style={{
-                  background: isActive ? 'rgba(245,158,11,0.06)' : 'transparent',
-                  color: isActive ? '#fbbf24' : '#71717a'
+                  background: isActive ? 'var(--accent-muted-bg)' : 'transparent',
+                  color: isActive ? 'var(--accent-hover)' : 'var(--text-muted)'
                 }}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: '#f59e0b' }} />
+                  <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: 'var(--accent)' }} />
                 )}
                 <cat.icon className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
                 <div className="flex-1 min-w-0">
                   <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
-                  <p className="text-[11px]" style={{ color: '#8a8a94' }}>{t(cat.descriptionKey)}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t(cat.descriptionKey)}</p>
                 </div>
                 {count > 0 && (
                   <span
                     className="rounded-md px-1.5 py-0.5 font-mono text-[11px]"
-                    style={{ background: 'rgba(255,255,255,0.06)', color: '#8e8e96' }}
+                    style={{ background: 'var(--bg-hover-2)', color: 'var(--text-muted)' }}
                   >
                     {count}
                   </span>
@@ -198,12 +198,12 @@ export function NetworkCleanupPage() {
           })}
 
           {hasItems && (
-            <div className="mt-5 rounded-2xl p-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <p className="text-[11px] font-medium" style={{ color: '#8a8a96' }}>{t('totalFound')}</p>
+            <div className="mt-5 rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('totalFound')}</p>
               <p className="text-[20px] font-bold tracking-tight text-amber-400">{items.length}</p>
-              <p className="text-[11px]" style={{ color: '#8a8a96' }}>{t('networkItems')}</p>
-              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-                <p className="text-[11px] font-medium" style={{ color: '#8a8a96' }}>{t('selected')}</p>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t('networkItems')}</p>
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('selected')}</p>
                 <p className="text-[15px] font-semibold text-zinc-200">{t('selectedItems', { count: selectedIds.size })}</p>
               </div>
             </div>
@@ -213,14 +213,14 @@ export function NetworkCleanupPage() {
         {/* Items panel */}
         <div className="flex-1 min-w-0">
           {isScanning && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
               <span className="text-[13px] text-zinc-400">{t('scanningStatus')}</span>
             </div>
           )}
 
           {isCleaning && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
               <span className="text-[13px] text-zinc-400">{t('cleaningStatus')}</span>
             </div>
@@ -235,7 +235,7 @@ export function NetworkCleanupPage() {
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
                 <div>
                   <p className="text-[13px] font-medium text-zinc-200">{t('cleanupComplete')}</p>
-                  <p className="text-[12px]" style={{ color: '#9e9ea6' }}>
+                  <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {t('cleanedCount', { count: cleanResult.cleaned })}
                     {cleanResult.failed > 0 && <span> · {t('failedCount', { count: cleanResult.failed })}</span>}
                   </p>
@@ -244,7 +244,7 @@ export function NetworkCleanupPage() {
               {cleanResult.details.length > 0 && (
                 <div className="mt-3 ml-8 space-y-0.5">
                   {cleanResult.details.map((detail, i) => (
-                    <p key={i} className="text-[11px] font-mono" style={{ color: '#9e9ea6' }}>{detail}</p>
+                    <p key={i} className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>{detail}</p>
                   ))}
                 </div>
               )}
@@ -261,7 +261,7 @@ export function NetworkCleanupPage() {
                   onClick={handleScan}
                   disabled={isCleaning}
                   className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
+                  style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
                 >
                   <Search className="h-4 w-4" strokeWidth={1.8} />
                   {t('startScanButton')}
@@ -273,7 +273,7 @@ export function NetworkCleanupPage() {
           {hasItems && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
-                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                   {t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '')}
                 </span>
                 {categoryItems.length > 0 && (
@@ -287,7 +287,7 @@ export function NetworkCleanupPage() {
               </div>
 
               {categoryItems.length === 0 && (
-                <div className="py-12 text-center text-[13px]" style={{ color: '#8a8a94' }}>
+                <div className="py-12 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
                   {t('noItemsInCategory')}
                 </div>
               )}
@@ -304,14 +304,14 @@ export function NetworkCleanupPage() {
                         checked && 'ring-1 ring-amber-500/20'
                       )}
                       style={{
-                        background: checked ? 'rgba(245,158,11,0.04)' : '#16161a',
-                        border: '1px solid rgba(255,255,255,0.05)'
+                        background: checked ? 'rgba(245,158,11,0.04)' : 'var(--card-bg)',
+                        border: '1px solid var(--border-default)'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.06)' : 'rgba(255,255,255,0.03)'
+                        e.currentTarget.style.background = checked ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)'
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.04)' : '#16161a'
+                        e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.04)' : 'var(--card-bg)'
                       }}
                     >
                       <input
@@ -323,24 +323,24 @@ export function NetworkCleanupPage() {
                       <div
                         className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] shrink-0"
                         style={{
-                          background: checked ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                          border: checked ? 'none' : '1.5px solid rgba(255,255,255,0.12)'
+                          background: checked ? 'var(--accent)' : 'var(--bg-hover-2)',
+                          border: checked ? 'none' : '1.5px solid var(--border-stronger)'
                         }}
                       >
                         {checked && (
                           <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none">
-                            <path d="M2.5 6l2.5 2.5 4.5-5" stroke="#1a0a00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M2.5 6l2.5 2.5 4.5-5" stroke="var(--text-on-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         )}
                       </div>
                       <CatIcon
                         className="h-4 w-4 shrink-0"
-                        style={{ color: checked ? '#f59e0b' : '#8a8a94' }}
+                        style={{ color: checked ? 'var(--accent)' : 'var(--text-muted)' }}
                         strokeWidth={1.8}
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-medium text-zinc-300">{item.label}</p>
-                        <p className="text-[11px] truncate" style={{ color: '#8a8a94' }}>{item.detail}</p>
+                        <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{item.detail}</p>
                       </div>
                     </label>
                   )

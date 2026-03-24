@@ -289,7 +289,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
           style={{
             background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            color: '#1a0a00',
+            color: 'var(--text-on-accent)',
           }}
         >
           {loading ? (
@@ -305,8 +305,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           <div
             className="flex items-center gap-2 rounded-xl px-4 py-2.5"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-medium)',
             }}
           >
             <Search className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
@@ -327,8 +327,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               onClick={() => setShowFilterMenu(!showFilterMenu)}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-all"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border-medium)',
               }}
             >
               <Filter className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -340,7 +340,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 className="absolute top-full left-0 z-50 mt-1 rounded-xl py-1 shadow-xl"
                 style={{
                   background: '#1e1e22',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid var(--border-strong)',
                   minWidth: 120,
                 }}
               >
@@ -371,8 +371,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               onClick={() => setShowSortMenu(!showSortMenu)}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-all"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border-medium)',
               }}
             >
               <ArrowUpDown className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -384,7 +384,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 className="absolute top-full left-0 z-50 mt-1 rounded-xl py-1 shadow-xl"
                 style={{
                   background: '#1e1e22',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid var(--border-strong)',
                   minWidth: 140,
                 }}
               >
@@ -484,7 +484,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           className="mb-5 rounded-2xl p-4"
           style={{
             background: 'rgba(245,158,11,0.04)',
-            border: '1px solid rgba(245,158,11,0.08)',
+            border: '1px solid var(--accent-muted-bg)',
           }}
         >
           <div className="flex items-center justify-between mb-2.5">
@@ -494,13 +494,13 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 {t('softwareUpdater.updatingProgress', { app: progress.currentApp, current: progress.current, total: progress.total })}
               </span>
             </div>
-            <span className="text-[12px] font-mono" style={{ color: '#9e9ea6' }}>
+            <span className="text-[12px] font-mono" style={{ color: 'var(--text-muted)' }}>
               {progress.percent}%
             </span>
           </div>
           <div
             className="h-1.5 w-full rounded-full overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--bg-hover-2)' }}
           >
             <div
               className="h-full rounded-full transition-all duration-300"
@@ -553,13 +553,13 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                   const isInstallerChange = e.reason.toLowerCase().includes('installer type changed')
                   return (
                     <div key={e.appId} className="mt-1.5">
-                      <span style={{ color: '#9e9ea6' }} className="text-[12px]">
+                      <span style={{ color: 'var(--text-muted)' }} className="text-[12px]">
                         {e.name}: {e.reason}
                       </span>
                       {isInstallerChange && packageManagerName && (
                         <div
                           className="mt-1.5 rounded-lg px-3 py-2 font-mono text-[11px] text-zinc-300 select-all cursor-text"
-                          style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}
+                          style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-medium)' }}
                         >
                           {packageManagerName} uninstall {e.appId}<br />
                           {packageManagerName} install {e.appId}
@@ -588,19 +588,19 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             <div
               className="flex h-4 w-4 items-center justify-center rounded"
               style={{
-                background: allSelected ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-                border: allSelected ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                background: allSelected ? 'var(--accent)' : 'var(--bg-hover-2)',
+                border: allSelected ? 'none' : '1px solid var(--border-stronger)',
               }}
             >
               {allSelected && (
-                <CheckCircle2 className="h-3 w-3" style={{ color: '#1a0a00' }} strokeWidth={3} />
+                <CheckCircle2 className="h-3 w-3" style={{ color: 'var(--text-on-accent)' }} strokeWidth={3} />
               )}
             </div>
             {allSelected ? t('softwareUpdater.deselectAll') : t('softwareUpdater.selectAll')}
           </button>
 
           {selectedCount > 0 && (
-            <span className="text-[12px]" style={{ color: '#9e9ea6' }}>
+            <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
               {t('softwareUpdater.selectedCount', { count: selectedCount })}
             </span>
           )}
@@ -615,10 +615,10 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               background:
                 selectedCount > 0
                   ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-                  : 'rgba(255,255,255,0.05)',
-              color: selectedCount > 0 ? '#052e16' : '#71717a',
+                  : 'var(--bg-hover)',
+              color: selectedCount > 0 ? '#052e16' : 'var(--text-muted)',
               border:
-                selectedCount > 0 ? 'none' : '1px solid rgba(255,255,255,0.06)',
+                selectedCount > 0 ? 'none' : '1px solid var(--border-medium)',
             }}
           >
             <Download className="h-4 w-4" strokeWidth={2} />
@@ -640,7 +640,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: '#1a0a00',
+                color: 'var(--text-on-accent)',
               }}
             >
               <RefreshCw className="h-4 w-4" strokeWidth={2} />
@@ -655,7 +655,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         <div className="flex flex-col items-center justify-center py-16">
           <Loader2 className="h-10 w-10 animate-spin text-amber-400 mb-4" strokeWidth={1.5} />
           <p className="text-[13px] text-zinc-400">{t('softwareUpdater.checkingForUpdates')}</p>
-          <p className="text-[11px] mt-1" style={{ color: '#8a8a96' }}>
+          <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
             {t('softwareUpdater.checkingSubtext')}
           </p>
         </div>
@@ -776,8 +776,8 @@ function AppRow({
     <div
       className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors"
       style={{
-        background: app.selected ? 'rgba(245,158,11,0.03)' : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${app.selected ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)'}`,
+        background: app.selected ? 'rgba(245,158,11,0.03)' : 'var(--bg-subtle)',
+        border: `1px solid ${app.selected ? 'rgba(245,158,11,0.1)' : 'var(--border-subtle)'}`,
       }}
     >
       {/* Checkbox */}
@@ -789,14 +789,14 @@ function AppRow({
         <div
           className="flex h-4.5 w-4.5 items-center justify-center rounded"
           style={{
-            background: app.selected ? '#f59e0b' : 'rgba(255,255,255,0.06)',
-            border: app.selected ? 'none' : '1px solid rgba(255,255,255,0.1)',
+            background: app.selected ? 'var(--accent)' : 'var(--bg-hover-2)',
+            border: app.selected ? 'none' : '1px solid var(--border-stronger)',
             width: 18,
             height: 18,
           }}
         >
           {app.selected && (
-            <CheckCircle2 className="h-3 w-3" style={{ color: '#1a0a00' }} strokeWidth={3} />
+            <CheckCircle2 className="h-3 w-3" style={{ color: 'var(--text-on-accent)' }} strokeWidth={3} />
           )}
         </div>
       </button>
@@ -824,7 +824,7 @@ function AppRow({
             {severity.label}
           </span>
         </div>
-        <p className="mt-0.5 text-[11px] truncate" style={{ color: '#9e9ea6' }}>
+        <p className="mt-0.5 text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
           {app.id}
         </p>
       </div>
@@ -841,7 +841,7 @@ function AppRow({
       {/* Source badge */}
       <span
         className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-medium"
-        style={{ background: 'rgba(255,255,255,0.05)', color: '#9e9ea6' }}
+        style={{ background: 'var(--bg-hover)', color: 'var(--text-muted)' }}
       >
         {app.source}
       </span>
@@ -852,7 +852,7 @@ function AppRow({
         disabled={updating}
         title={t('softwareUpdater.ignoreButton')}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium text-zinc-500 transition-all hover:bg-white/5 hover:text-zinc-300 disabled:opacity-30 shrink-0"
-        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ border: '1px solid var(--border-medium)' }}
       >
         <EyeOff className="h-3.5 w-3.5" strokeWidth={1.8} />
       </button>
@@ -878,8 +878,8 @@ function IgnoredRow({ app, onUnignore }: { app: UpdatableApp; onUnignore: () => 
     <div
       className="flex items-center gap-4 rounded-xl px-5 py-3"
       style={{
-        background: 'rgba(255,255,255,0.015)',
-        border: '1px solid rgba(255,255,255,0.03)',
+        background: 'var(--bg-subtle)',
+        border: '1px solid var(--border-subtle)',
         opacity: 0.7,
       }}
     >
@@ -891,7 +891,7 @@ function IgnoredRow({ app, onUnignore }: { app: UpdatableApp; onUnignore: () => 
       </div>
       <div className="flex-1 min-w-0">
         <span className="text-[12px] font-medium text-zinc-400 truncate block">{app.name}</span>
-        <span className="text-[10px] truncate block" style={{ color: '#8a8a96' }}>
+        <span className="text-[10px] truncate block" style={{ color: 'var(--text-muted)' }}>
           {app.id}
         </span>
       </div>
@@ -905,7 +905,7 @@ function IgnoredRow({ app, onUnignore }: { app: UpdatableApp; onUnignore: () => 
       <button
         onClick={onUnignore}
         className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-zinc-200 shrink-0"
-        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ border: '1px solid var(--border-medium)' }}
       >
         <Eye className="h-3.5 w-3.5" strokeWidth={1.8} />
         {t('softwareUpdater.unignoreButton')}
@@ -920,8 +920,8 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
     <div
       className="flex items-center gap-4 rounded-xl px-5 py-3"
       style={{
-        background: 'rgba(255,255,255,0.015)',
-        border: '1px solid rgba(255,255,255,0.03)',
+        background: 'var(--bg-subtle)',
+        border: '1px solid var(--border-subtle)',
       }}
     >
       <div
@@ -932,7 +932,7 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
       </div>
       <div className="flex-1 min-w-0">
         <span className="text-[12px] font-medium text-zinc-400 truncate block">{app.name}</span>
-        <span className="text-[10px] truncate block" style={{ color: '#8a8a96' }}>
+        <span className="text-[10px] truncate block" style={{ color: 'var(--text-muted)' }}>
           {app.id}
         </span>
       </div>

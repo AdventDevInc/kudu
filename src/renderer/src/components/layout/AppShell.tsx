@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#0a0a10' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--page-bg)' }}>
       <a href="#" className="skip-nav" onClick={handleSkip}>Skip to main content</a>
       <Sidebar />
       <div className="relative flex flex-1 flex-col overflow-hidden">
@@ -18,11 +18,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
             className="absolute -top-[100px] left-[80px] h-[500px] w-[500px] rounded-full blur-[180px]"
-            style={{ background: 'rgba(245,158,11,0.025)' }}
+            style={{ background: 'var(--glow-amber)' }}
           />
           <div
             className="absolute bottom-[0] right-[40px] h-[400px] w-[400px] rounded-full blur-[160px]"
-            style={{ background: 'rgba(59,130,246,0.02)' }}
+            style={{ background: 'var(--glow-blue)' }}
           />
         </div>
 

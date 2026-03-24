@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Github, Bug, ExternalLink, Plus, X, FolderOpen, RefreshCw, Download, CheckCircle, AlertCircle, Loader, Unlink, Link } from 'lucide-react'
+import { Github, Bug, ExternalLink, Plus, X, FolderOpen, RefreshCw, Download, CheckCircle, AlertCircle, Loader, Unlink, Link, Sun, Moon, Monitor } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
@@ -143,13 +143,16 @@ export function SettingsPage() {
   }
 
   const selectStyle = "rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none"
-  const selectBorder = { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }
+  const selectBorder = { background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }
 
   return (
     <div className="animate-fade-in max-w-2xl">
       <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
       <Section title={t('sectionGeneral')}>
+        <Row label={t('themeLabel', 'Theme')} desc={t('themeDesc', 'Choose between dark and light appearance')}>
+          <ThemeSelector value={settings.theme} onChange={(v) => save({ theme: v })} />
+        </Row>
         <Row label={t('languageLabel')} desc={t('languageDesc')}>
           <select
             value={settings.language}
@@ -200,17 +203,17 @@ export function SettingsPage() {
       <Section title={t('sectionCloudDashboard')}>
         {!isLinked ? (
           <div className="space-y-4 py-1">
-            <div className="rounded-xl p-4" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)' }}>
+            <div className="rounded-xl p-4" style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}>
               <p className="text-[13px] font-medium text-zinc-200">
                 {t('cloudFreeForDevices')}
               </p>
-              <p className="mt-1.5 text-[12px] leading-relaxed" style={{ color: '#8e8e96' }}>
+              <p className="mt-1.5 text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                 {t('cloudDescription')}
               </p>
               <button
                 onClick={() => window.open('https://cloud.usekudu.com', '_blank')}
                 className="mt-3 flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium transition-colors"
-                style={{ background: '#f59e0b', color: '#09090b' }}
+                style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
               >
                 <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
                 {t('cloudSignUpFree')}
@@ -228,20 +231,20 @@ export function SettingsPage() {
                   onKeyDown={(e) => e.key === 'Enter' && handleCloudLink()}
                   placeholder={t('cloudApiKeyPlaceholder')}
                   className="flex-1 rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
                 />
                 <button
                   onClick={handleCloudLink}
                   disabled={cloudLinking || cloudApiKey.length < 10}
                   className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-200 transition-colors disabled:opacity-40"
-                  style={{ background: '#f59e0b', color: '#09090b' }}
+                  style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
                 >
                   <Link className="h-3.5 w-3.5" strokeWidth={1.8} />
                   {cloudLinking ? t('cloudLinking') : t('cloudLinkDevice')}
                 </button>
               </div>
             </div>
-            <p className="text-[11px]" style={{ color: '#8a8a94' }}>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
               {t('cloudTelemetryDisclaimer', { registryExtra: features.registry ? t('cloudTelemetryRegistryExtra') : '' })}
             </p>
           </div>
@@ -267,7 +270,7 @@ export function SettingsPage() {
                     onClick={handleCloudReconnect}
                     disabled={cloudReconnecting}
                     className="ml-1 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: 'var(--bg-hover-2)', border: '1px solid var(--border-strong)' }}
                   >
                     <RefreshCw className={cn('h-3 w-3', cloudReconnecting && 'animate-spin')} strokeWidth={2} />
                     {cloudReconnecting ? t('cloudConnecting') : t('cloudReconnect')}
@@ -315,21 +318,21 @@ export function SettingsPage() {
             </Row>
             <Row label={t('cloudThreatListLabel')} desc={cloudStatus?.threatBlacklist ? t('cloudThreatListDescLoaded', { version: cloudStatus.threatBlacklist.version, updatedDate: new Date(cloudStatus.threatBlacklist.updatedAt).toLocaleDateString() }) : t('cloudThreatListDescWaiting')}>
               {cloudStatus?.threatBlacklist ? (
-                <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <span className="text-[11px] tabular-nums" style={{ color: 'var(--text-ghost-2)' }}>
                   {t('cloudThreatListRules', { totalRules: (cloudStatus.threatBlacklist.domains + cloudStatus.threatBlacklist.ips + cloudStatus.threatBlacklist.cidrs).toLocaleString() })}
-                  <span style={{ color: 'rgba(255,255,255,0.3)' }}> {t('cloudThreatListBreakdown', { domains: cloudStatus.threatBlacklist.domains.toLocaleString(), ips: cloudStatus.threatBlacklist.ips.toLocaleString(), cidrs: cloudStatus.threatBlacklist.cidrs.toLocaleString() })}</span>
+                  <span style={{ color: 'var(--text-ghost)' }}> {t('cloudThreatListBreakdown', { domains: cloudStatus.threatBlacklist.domains.toLocaleString(), ips: cloudStatus.threatBlacklist.ips.toLocaleString(), cidrs: cloudStatus.threatBlacklist.cidrs.toLocaleString() })}</span>
                 </span>
               ) : (
-                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{t('cloudThreatListNotLoaded')}</span>
+                <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{t('cloudThreatListNotLoaded')}</span>
               )}
             </Row>
             <Row label={t('cloudCveMonitorLabel')} desc={cveSummary && cveSummary.total > 0 ? t('cloudCveDescLoaded', { findings: cveSummary.total, critical: cveSummary.critical, high: cveSummary.high, medium: cveSummary.medium, low: cveSummary.low }) : t('cloudCveMonitorDesc')}>
               {cveSummary && cveSummary.librarySize > 0 ? (
-                <span className="text-[11px] tabular-nums" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <span className="text-[11px] tabular-nums" style={{ color: 'var(--text-ghost-2)' }}>
                   {t('cloudCveLibrarySize', { count: cveSummary.librarySize.toLocaleString() })}
                 </span>
               ) : (
-                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>{cveSummary ? t('cloudCveNoFindings') : t('cloudCveNotScanned')}</span>
+                <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{cveSummary ? t('cloudCveNoFindings') : t('cloudCveNotScanned')}</span>
               )}
             </Row>
             <Row label={t('cloudRemotePowerLabel')} desc={t('cloudRemotePowerDesc')}>
@@ -356,7 +359,7 @@ export function SettingsPage() {
                 <option value={900}>{t('cloudTelemetryInterval15m')}</option>
               </select>
             </Row>
-            <div className="pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <div className="pt-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
               <button
                 onClick={handleCloudUnlink}
                 disabled={cloudUnlinking}
@@ -398,18 +401,18 @@ export function SettingsPage() {
       <Section title={t('sectionExclusions')}>
         <div className="space-y-2 pb-3">
           {settings.exclusions.length === 0 && (
-            <p className="text-[13px]" style={{ color: '#8a8a94' }}>{t('noExclusionsConfigured')}</p>
+            <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('noExclusionsConfigured')}</p>
           )}
           {settings.exclusions.map((exc, i) => (
             <div key={i} className="flex items-center justify-between rounded-xl px-4 py-2.5"
-              style={{ background: 'rgba(255,255,255,0.03)' }}>
+              style={{ background: 'var(--bg-subtle)' }}>
               <div className="flex items-center gap-2.5">
-                <FolderOpen className="h-3.5 w-3.5" style={{ color: '#8a8a94' }} strokeWidth={1.8} />
+                <FolderOpen className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
                 <span className="font-mono text-[12px] text-zinc-400">{exc}</span>
               </div>
               <button onClick={() => save({ exclusions: settings.exclusions.filter((_, j) => j !== i) })}
-                className="rounded-lg p-1.5 transition-colors" style={{ color: '#8a8a94' }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                className="rounded-lg p-1.5 transition-colors" style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)' }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -420,10 +423,10 @@ export function SettingsPage() {
               onKeyDown={(e) => e.key === 'Enter' && addExclusion()}
               placeholder={platform === 'win32' ? t('exclusionPlaceholderWindows') : t('exclusionPlaceholderOther')}
               className="flex-1 rounded-xl px-4 py-2.5 text-[13px] text-zinc-300 outline-none placeholder:text-zinc-700"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }} />
+              style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }} />
             <button onClick={addExclusion}
               className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-colors"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}>
               <Plus className="h-3.5 w-3.5" /> {t('addButton')}
             </button>
           </div>
@@ -437,8 +440,8 @@ export function SettingsPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-7">
-      <h3 className="mb-3 text-[11px] font-medium uppercase tracking-widest" style={{ color: '#8a8a94' }}>{title}</h3>
-      <div className="rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>{children}</div>
+      <h3 className="mb-3 text-[11px] font-medium uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{title}</h3>
+      <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>{children}</div>
     </div>
   )
 }
@@ -446,10 +449,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Row({ label, desc, children, last }: { label: string; desc?: string; children: React.ReactNode; last?: boolean }) {
   return (
     <div className={cn('flex items-center justify-between py-3.5', !last && 'border-b')}
-      style={!last ? { borderColor: 'rgba(255,255,255,0.04)' } : undefined}>
+      style={!last ? { borderColor: 'var(--border-subtle)' } : undefined}>
       <div>
         <p className="text-[13px] font-medium text-zinc-300">{label}</p>
-        {desc && <p className="mt-0.5 text-[12px]" style={{ color: '#8a8a96' }}>{desc}</p>}
+        {desc && <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>{desc}</p>}
       </div>
       {children}
     </div>
@@ -460,7 +463,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   return (
     <button onClick={() => onChange(!checked)}
       className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
-      style={{ background: checked ? '#f59e0b' : 'rgba(255,255,255,0.08)' }}>
+      style={{ background: checked ? 'var(--accent)' : 'var(--bg-active)' }}>
       <div className={cn(
         'absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
         checked ? 'translate-x-[22px]' : 'translate-x-[3px]'
@@ -469,12 +472,41 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   )
 }
 
+function ThemeSelector({ value, onChange }: { value: 'dark' | 'light' | 'system'; onChange: (v: 'dark' | 'light' | 'system') => void }) {
+  const options: { id: 'dark' | 'light' | 'system'; icon: typeof Sun; label: string }[] = [
+    { id: 'dark', icon: Moon, label: 'Dark' },
+    { id: 'light', icon: Sun, label: 'Light' },
+    { id: 'system', icon: Monitor, label: 'System' },
+  ]
+  return (
+    <div className="flex gap-1 rounded-lg p-0.5" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}>
+      {options.map((opt) => {
+        const active = value === opt.id
+        return (
+          <button
+            key={opt.id}
+            onClick={() => onChange(opt.id)}
+            className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-all"
+            style={{
+              background: active ? 'var(--accent)' : 'transparent',
+              color: active ? 'var(--text-on-accent)' : 'var(--text-muted)',
+            }}
+          >
+            <opt.icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+            {opt.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function LinkButton({ icon: Icon, label, href }: { icon: typeof Github; label: string; href: string }) {
   return (
     <button
       onClick={() => window.open(href, '_blank')}
       className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-500 transition-colors"
-      style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+      style={{ border: '1px solid var(--border-medium)' }}>
       <Icon className="h-3.5 w-3.5" strokeWidth={1.8} /> {label} <ExternalLink className="h-3 w-3 opacity-50" />
     </button>
   )

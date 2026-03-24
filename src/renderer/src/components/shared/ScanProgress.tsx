@@ -23,7 +23,7 @@ export function ScanProgress({
   return (
     <div
       className={cn('rounded-2xl p-5', className)}
-      style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
       <div className="mb-3 flex items-center justify-between" aria-live="polite">
         <div className="flex items-center gap-2.5">
@@ -32,7 +32,7 @@ export function ScanProgress({
             {status === 'scanning' ? t('scanning') : t('cleaning')}
           </span>
         </div>
-        <span className="font-mono text-[12px]" style={{ color: '#9e9ea6' }}>
+        <span className="font-mono text-[12px]" style={{ color: 'var(--text-muted)' }}>
           {Math.round(progress)}%
         </span>
       </div>
@@ -40,7 +40,7 @@ export function ScanProgress({
       {/* Track */}
       <div
         className="mb-3.5 h-[6px] overflow-hidden rounded-full"
-        style={{ background: 'rgba(255,255,255,0.04)' }}
+        style={{ background: 'var(--bg-subtle-2)' }}
         role="progressbar"
         aria-valuenow={Math.round(progress)}
         aria-valuemin={0}
@@ -57,16 +57,16 @@ export function ScanProgress({
       </div>
 
       {currentPath && (
-        <p className="mb-2 truncate font-mono text-[11px]" style={{ color: '#8a8a94' }}>
+        <p className="mb-2 truncate font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
           {currentPath}
         </p>
       )}
 
-      <div className="flex items-center gap-4 text-[12px]" style={{ color: '#9e9ea6' }}>
+      <div className="flex items-center gap-4 text-[12px]" style={{ color: 'var(--text-muted)' }}>
         <span>
           {t('foundLabel')} <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span> {t('itemsUnit')}
         </span>
-        <span style={{ color: '#2a2a30' }}>|</span>
+        <span style={{ color: 'var(--text-faint)' }}>|</span>
         <span>
           {t('sizeLabel')} <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
         </span>

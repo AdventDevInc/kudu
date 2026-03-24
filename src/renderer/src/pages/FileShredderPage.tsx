@@ -89,7 +89,7 @@ export function FileShredderPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-[24px] font-bold tracking-tight text-white">{t('pageTitle')}</h1>
-        <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: '#8e8e98' }}>{t('pageDescription')}</p>
+        <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: 'var(--text-muted)' }}>{t('pageDescription')}</p>
       </div>
 
       {/* Action buttons */}
@@ -99,9 +99,9 @@ export function FileShredderPage() {
             onClick={handleAddFiles}
             disabled={store.status === 'shredding'}
             className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
-            style={{ background: 'rgba(255,255,255,0.05)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
           >
-            <FilePlus2 className="h-4 w-4" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+            <FilePlus2 className="h-4 w-4" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
             {t('addFiles')}
           </button>
 
@@ -109,9 +109,9 @@ export function FileShredderPage() {
             onClick={handleAddFolders}
             disabled={store.status === 'shredding'}
             className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
-            style={{ background: 'rgba(255,255,255,0.05)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
           >
-            <FolderPlus className="h-4 w-4" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+            <FolderPlus className="h-4 w-4" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
             {t('addFolders')}
           </button>
 
@@ -158,22 +158,22 @@ export function FileShredderPage() {
       {store.status === 'shredding' && store.progress && (
         <div
           className="mb-5 rounded-2xl p-5"
-          style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--bg-hover-2)' }}>
               <div
                 className="h-full rounded-full transition-all duration-300"
                 style={{ background: '#ef4444', width: `${Math.min(100, store.progress.progress)}%` }}
               />
             </div>
-            <span className="text-[12px] font-medium" style={{ color: '#a1a1aa' }}>
+            <span className="text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
               {Math.round(store.progress.progress)}%
             </span>
           </div>
           <p className="text-[13px] font-medium text-white">{t('shredding')}</p>
           {store.progress.currentPath && (
-            <p className="mt-1 truncate text-[12px]" style={{ color: '#9e9ea6' }} title={store.progress.currentPath}>
+            <p className="mt-1 truncate text-[12px]" style={{ color: 'var(--text-muted)' }} title={store.progress.currentPath}>
               {store.progress.currentPath}
             </p>
           )}
@@ -198,7 +198,7 @@ export function FileShredderPage() {
             <button
               onClick={() => store.reset()}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"
-              style={{ background: '#f59e0b', color: '#1a0a00' }}
+              style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
             >
               <RotateCcw className="h-4 w-4" strokeWidth={2} />
               {t('shredAnother')}
@@ -211,39 +211,39 @@ export function FileShredderPage() {
       {store.status === 'idle' && store.entries.length > 0 && (
         <>
           <div className="mb-3 flex items-center gap-3">
-            <span className="text-[12px] font-medium" style={{ color: '#9e9ea6' }}>
+            <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
               {t('itemCount', { count: store.entries.length })}
             </span>
-            <span className="text-[12px] font-medium" style={{ color: '#f59e0b' }}>
+            <span className="text-[12px] font-medium" style={{ color: 'var(--accent)' }}>
               {formatBytes(totalSize)}
             </span>
           </div>
           <div
             className="min-h-0 flex-1 overflow-y-auto rounded-xl"
-            style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
           >
             {store.entries.map((entry, idx) => (
               <div
                 key={entry.path}
                 className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-white/[0.02]"
-                style={idx > 0 ? { borderTop: '1px solid rgba(255,255,255,0.03)' } : undefined}
+                style={idx > 0 ? { borderTop: '1px solid var(--bg-subtle)' } : undefined}
               >
                 {entry.isDirectory ? (
-                  <Folder className="h-4 w-4 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={1.5} />
+                  <Folder className="h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} strokeWidth={1.5} />
                 ) : (
-                  <File className="h-4 w-4 shrink-0" style={{ color: '#8a8a96' }} strokeWidth={1.5} />
+                  <File className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
                 )}
                 <span
                   className="min-w-0 flex-1 truncate text-[12.5px]"
-                  style={{ color: '#a1a1aa' }}
+                  style={{ color: 'var(--text-secondary)' }}
                   title={entry.path}
                 >
                   {entry.path}
                 </span>
-                <span className="shrink-0 text-[11px] font-medium" style={{ color: '#9e9ea6' }}>
+                <span className="shrink-0 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
                   {entry.isDirectory ? t('folder') : t('file')}
                 </span>
-                <span className="shrink-0 text-[12px] font-semibold" style={{ color: '#f59e0b' }}>
+                <span className="shrink-0 text-[12px] font-semibold" style={{ color: 'var(--accent)' }}>
                   {formatBytes(entry.size)}
                 </span>
                 <button
@@ -289,10 +289,10 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
   return (
     <div
       className="rounded-xl px-4 py-3"
-      style={{ background: '#1c1c21', border: '1px solid rgba(255,255,255,0.04)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
     >
-      <div className="text-[11px] font-medium" style={{ color: '#9e9ea6' }}>{label}</div>
-      <div className="mt-1 text-[18px] font-bold" style={{ color: accent ? '#ef4444' : '#fafafa' }}>{value}</div>
+      <div className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{label}</div>
+      <div className="mt-1 text-[18px] font-bold" style={{ color: accent ? '#ef4444' : 'var(--text-primary)' }}>{value}</div>
     </div>
   )
 }
@@ -300,7 +300,7 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
 function StatMini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-[11px]" style={{ color: '#9e9ea6' }}>{label}: </span>
+      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{label}: </span>
       <span className="text-[12px] font-medium text-white">{value}</span>
     </div>
   )
@@ -309,9 +309,9 @@ function StatMini({ label, value }: { label: string; value: string }) {
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
-      <ShieldAlert className="mb-4 h-12 w-12" style={{ color: '#3f3f46' }} strokeWidth={1.2} />
+      <ShieldAlert className="mb-4 h-12 w-12" style={{ color: 'var(--text-faint)' }} strokeWidth={1.2} />
       <h3 className="text-[15px] font-semibold text-white">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: '#9e9ea6' }}>{description}</p>
+      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-muted)' }}>{description}</p>
     </div>
   )
 }

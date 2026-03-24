@@ -53,7 +53,7 @@ export function ThreatMonitorPage() {
           description={t('pageDescription')}
         />
         <div className="flex items-center justify-center py-20">
-          <div className="text-[13px]" style={{ color: '#9e9ea6' }}>{t('loading')}</div>
+          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('loading')}</div>
         </div>
       </div>
     )
@@ -89,21 +89,21 @@ export function ThreatMonitorPage() {
       {/* Status bar */}
       <div
         className="mb-6 flex flex-wrap items-center gap-5 rounded-xl px-5 py-3.5 text-[12px]"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
       >
         {blacklistVersion && (
-          <span style={{ color: '#9e9ea6' }}>
+          <span style={{ color: 'var(--text-muted)' }}>
             {t('statusBar.blacklistVersion')} <span className="font-medium text-zinc-400">v{blacklistVersion}</span>
           </span>
         )}
         {lastConnectionScanAt && (
-          <span className="flex items-center gap-1.5" style={{ color: '#9e9ea6' }}>
+          <span className="flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
             <Clock className="h-3 w-3" />
             {t('statusBar.connectionsScanned', { time: formatTime(lastConnectionScanAt) })}
           </span>
         )}
         {lastDnsScanAt && (
-          <span className="flex items-center gap-1.5" style={{ color: '#9e9ea6' }}>
+          <span className="flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
             <Clock className="h-3 w-3" />
             {t('statusBar.dnsScanned', { time: formatTime(lastDnsScanAt) })}
           </span>

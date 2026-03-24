@@ -13,7 +13,7 @@ export function PageHeader({ title, description, action, className }: PageHeader
       <div>
         <h1 className="text-[24px] font-bold tracking-tight text-white">{title}</h1>
         {description && (
-          <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: '#8e8e98' }}>
+          <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: 'var(--text-muted)' }}>
             {description}
           </p>
         )}

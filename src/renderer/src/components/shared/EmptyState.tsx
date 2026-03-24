@@ -14,13 +14,13 @@ export function EmptyState({ icon: Icon, title, description, action, className }
     <div className={cn('flex flex-col items-center justify-center py-20', className)}>
       <div
         className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl"
-        style={{ background: 'rgba(255,255,255,0.03)' }}
+        style={{ background: 'var(--bg-subtle)' }}
         aria-hidden="true"
       >
-        <Icon className="h-7 w-7" style={{ color: '#3a3a42' }} strokeWidth={1.5} />
+        <Icon className="h-7 w-7" style={{ color: 'var(--text-faint)' }} strokeWidth={1.5} />
       </div>
-      <h3 className="text-[15px] font-medium" style={{ color: '#9e9ea6' }}>{title}</h3>
-      <p className="mt-1.5 max-w-sm text-center text-[13px]" style={{ color: '#8a8a94' }}>
+      <h3 className="text-[15px] font-medium" style={{ color: 'var(--text-muted)' }}>{title}</h3>
+      <p className="mt-1.5 max-w-sm text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
         {description}
       </p>
       {action && <div className="mt-5">{action}</div>}

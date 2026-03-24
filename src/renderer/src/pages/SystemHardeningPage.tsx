@@ -47,7 +47,7 @@ export function SystemHardeningPage() {
       {/* Tab bar */}
       <div
         className="mb-6 flex rounded-xl p-1"
-        style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
       >
         {visibleTabs.map((tab) => {
           const isActive = activeTab === tab.id
@@ -60,11 +60,11 @@ export function SystemHardeningPage() {
                 'flex flex-1 items-center justify-center gap-2.5 rounded-lg px-4 py-3 text-[13px] font-medium transition-all',
                 isActive ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
               )}
-              style={isActive ? { background: 'rgba(245,158,11,0.08)' } : undefined}
+              style={isActive ? { background: 'var(--accent-muted-bg)' } : undefined}
             >
               <TabIcon className="h-4 w-4 shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{t(tab.labelKey)}</span>
-              <span className="hidden text-[11px] sm:inline" style={{ color: isActive ? '#b08c2a' : '#8a8a94' }}>
+              <span className="hidden text-[11px] sm:inline" style={{ color: isActive ? 'var(--text-dim)' : 'var(--text-muted)' }}>
                 {t(tab.descriptionKey)}
               </span>
             </button>

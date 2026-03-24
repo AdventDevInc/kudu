@@ -82,21 +82,21 @@ export function ProcessTable() {
   return (
     <div
       className="rounded-2xl p-5"
-      style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-baseline gap-2">
           <span className="text-[13px] font-semibold text-white">{t('processes')}</span>
-          <span className="text-[11px]" style={{ color: '#9e9ea6' }}>
+          <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
             {processCount} {t('totalSuffix')}
           </span>
         </div>
         <div
           className="flex items-center gap-2 rounded-lg px-3 py-1.5"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
         >
-          <Search className="h-3.5 w-3.5" style={{ color: '#8a8a96' }} />
+          <Search className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             value={filter}
@@ -107,7 +107,7 @@ export function ProcessTable() {
           />
           {filter && (
             <button onClick={() => setFilter('')}>
-              <X className="h-3 w-3" style={{ color: '#9e9ea6' }} />
+              <X className="h-3 w-3" style={{ color: 'var(--text-muted)' }} />
             </button>
           )}
         </div>
@@ -135,7 +135,7 @@ export function ProcessTable() {
               {p.isStartupItem && (
                 <span
                   className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase"
-                  style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}
+                  style={{ background: 'var(--accent-muted-bg)', color: 'var(--accent)' }}
                   title={t('startupItemTooltip', { name: p.startupItemName })}
                 >
                   <Zap className="mr-0.5 inline h-2.5 w-2.5" />
@@ -145,13 +145,13 @@ export function ProcessTable() {
             </div>
 
             {/* PID */}
-            <span className="text-[11px] font-mono" style={{ width: '12%', color: '#9e9ea6' }}>
+            <span className="text-[11px] font-mono" style={{ width: '12%', color: 'var(--text-muted)' }}>
               {p.pid}
             </span>
 
             {/* CPU */}
             <div style={{ width: '20%' }} className="flex items-center gap-2">
-              <div className="h-1.5 flex-1 rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <div className="h-1.5 flex-1 rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
                 <div
                   className="h-full rounded-full transition-all"
                   style={{

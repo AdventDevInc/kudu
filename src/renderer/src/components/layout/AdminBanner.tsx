@@ -20,8 +20,8 @@ export function AdminBanner() {
       role="status"
       className="mx-4 mb-2 flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm"
       style={{
-        background: 'rgba(245, 158, 11, 0.08)',
-        border: '1px solid rgba(245, 158, 11, 0.25)'
+        background: 'var(--accent-muted-bg)',
+        border: '1px solid var(--accent-muted-border)'
       }}
     >
       <ShieldAlert size={18} className="shrink-0 text-amber-500" aria-hidden="true" />

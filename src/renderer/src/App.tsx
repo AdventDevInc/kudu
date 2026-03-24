@@ -37,6 +37,7 @@ import { useAppUpdateStore } from './stores/app-update-store'
 import { useBackgroundScans } from './hooks/useBackgroundScans'
 import { usePlatformLoader, PlatformContext } from './hooks/usePlatform'
 import { initGameModeStore } from './stores/game-mode-store'
+import { useSettingsStore } from './stores/settings-store'
 
 export function App() {
   const { i18n } = useTranslation()
@@ -45,6 +46,25 @@ export function App() {
   const recomputeStats = useStatsStore((s) => s.recompute)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [onboardingChecked, setOnboardingChecked] = useState(false)
+  const theme = useSettingsStore((s) => s.settings.theme)
+
+  // Apply theme class to <html> element
+  useEffect(() => {
+    const root = document.documentElement
+    const apply = (mode: 'dark' | 'light') => {
+      root.classList.remove('dark', 'light')
+      root.classList.add(mode)
+    }
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      apply(mq.matches ? 'dark' : 'light')
+      const handler = (e: MediaQueryListEvent) => apply(e.matches ? 'dark' : 'light')
+      mq.addEventListener('change', handler)
+      return () => mq.removeEventListener('change', handler)
+    } else {
+      apply(theme ?? 'dark')
+    }
+  }, [theme])
 
   // Sync RTL direction based on current language
   useEffect(() => {
@@ -135,15 +155,15 @@ export function App() {
       </AppShell>
       <Toaster
         position="bottom-right"
-        theme="dark"
+        theme={theme === 'system' ? 'system' : theme}
         toastOptions={{
           style: {
-            background: 'rgba(20, 20, 28, 0.85)',
+            background: 'var(--toast-bg)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#fafafa',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)'
+            border: '1px solid var(--border-strong)',
+            color: 'var(--toast-text)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 var(--glass-inset)'
           }
         }}
       />

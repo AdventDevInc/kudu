@@ -78,8 +78,8 @@ export function ConfirmDialog({
         aria-describedby="confirm-dialog-desc"
         className="glass-card relative w-full max-w-md animate-scale-in rounded-2xl p-6"
         style={{
-          background: 'rgba(20, 20, 28, 0.85)',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)'
+          background: 'var(--card-bg)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5), inset 0 1px 0 var(--glass-inset)'
         }}
       >
         <div className="mb-5 flex items-start gap-4">
@@ -100,13 +100,13 @@ export function ConfirmDialog({
           )}
           <div>
             <h3 id="confirm-dialog-title" className="text-[16px] font-semibold text-white">{title}</h3>
-            <p id="confirm-dialog-desc" className="mt-1.5 text-[13px] leading-relaxed" style={{ color: '#8e8e96' }}>
+            <p id="confirm-dialog-desc" className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               {description}
             </p>
             {details && (
               <p
                 className="mt-3 rounded-xl p-3 font-mono text-[11px] break-all overflow-hidden"
-                style={{ background: 'rgba(255,255,255,0.03)', color: '#9e9ea6', maxHeight: '4.5rem' }}
+                style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)', maxHeight: '4.5rem' }}
               >
                 {details}
               </p>
@@ -118,8 +118,8 @@ export function ConfirmDialog({
           <button
             onClick={onCancel}
             className="rounded-xl px-5 py-2.5 text-[13px] font-medium transition-colors"
-            style={{ color: '#8e8e96' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle-2)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
           >
             {t('cancel')}
@@ -129,7 +129,7 @@ export function ConfirmDialog({
             className="rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all duration-200"
             style={{
               background: variant === 'danger' ? 'rgba(239,68,68,0.12)' : variant === 'warning' ? 'rgba(245,158,11,0.12)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-              color: variant === 'danger' ? '#ef4444' : variant === 'warning' ? '#f59e0b' : '#1a0a00',
+              color: variant === 'danger' ? '#ef4444' : variant === 'warning' ? '#f59e0b' : 'var(--text-on-accent)',
               boxShadow: variant === 'default' ? '0 0 16px rgba(245,158,11,0.2)' : undefined
             }}
           >

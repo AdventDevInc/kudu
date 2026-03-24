@@ -31,18 +31,18 @@ export function SystemInfoHeader({ info, uptime }: SystemInfoHeaderProps) {
   return (
     <div
       className="mb-6 flex flex-wrap gap-4 rounded-2xl p-4"
-      style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
       {items.map((item) => (
         <div key={item.label} className="flex items-center gap-3 px-2">
-          <item.icon className="h-4 w-4 shrink-0" style={{ color: '#8a8a96' }} strokeWidth={1.8} />
+          <item.icon className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
           <div className="flex items-baseline gap-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a94' }}>
+            <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
               {item.label}
             </span>
             <span className="text-[12px] font-medium text-zinc-300">{item.value}</span>
             {item.sub && (
-              <span className="text-[11px]" style={{ color: '#9e9ea6' }}>{item.sub}</span>
+              <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{item.sub}</span>
             )}
           </div>
         </div>

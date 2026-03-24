@@ -107,7 +107,7 @@ function OrbitRing({ radius, duration, delay, active }: { radius: number; durati
         left: '50%',
         marginTop: -radius,
         marginLeft: -radius,
-        border: `1px solid ${active ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.03)'}`,
+        border: `1px solid ${active ? 'rgba(6,182,212,0.15)' : 'var(--grid-line)'}`,
       }}
       animate={active ? {
         scale: [1, 1.05, 1],
@@ -156,13 +156,13 @@ function HexGrid({ active }: { active: boolean }) {
             <path
               d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
               fill="none"
-              stroke={active ? 'rgba(6,182,212,0.08)' : 'rgba(255,255,255,0.03)'}
+              stroke={active ? 'rgba(6,182,212,0.08)' : 'var(--grid-line)'}
               strokeWidth="0.5"
             />
             <path
               d="M28 0L56 16L56 50L28 66L0 50L0 16Z"
               fill="none"
-              stroke={active ? 'rgba(6,182,212,0.08)' : 'rgba(255,255,255,0.03)'}
+              stroke={active ? 'rgba(6,182,212,0.08)' : 'var(--grid-line)'}
               strokeWidth="0.5"
             />
           </pattern>
@@ -309,8 +309,8 @@ export function GameModePage() {
           style={{
             background: active
               ? 'linear-gradient(180deg, rgba(6,182,212,0.05) 0%, rgba(139,92,246,0.03) 50%, rgba(6,182,212,0.02) 100%)'
-              : 'rgba(255,255,255,0.02)',
-            border: active ? 'none' : '1px solid rgba(255,255,255,0.06)',
+              : 'var(--bg-subtle)',
+            border: active ? 'none' : '1px solid var(--border-medium)',
           }}
         >
           {/* Animated gradient border when active */}
@@ -358,8 +358,8 @@ export function GameModePage() {
                 style={{
                   background: active
                     ? `linear-gradient(135deg, ${CYAN}, ${PURPLE})`
-                    : 'rgba(255,255,255,0.04)',
-                  border: `2px solid ${active ? 'transparent' : 'rgba(255,255,255,0.08)'}`,
+                    : 'var(--bg-subtle-2)',
+                  border: `2px solid ${active ? 'transparent' : 'var(--border-strong)'}`,
                   boxShadow: active
                     ? `0 0 30px 4px rgba(6,182,212,0.3), 0 0 80px 8px rgba(139,92,246,0.15), inset 0 0 20px rgba(255,255,255,0.1)`
                     : '0 0 0 0 transparent',
@@ -373,7 +373,7 @@ export function GameModePage() {
                 ) : (
                   <Gamepad2
                     className="h-9 w-9"
-                    style={{ color: active ? '#fff' : '#4a4a52' }}
+                    style={{ color: active ? '#fff' : 'var(--text-dim)' }}
                     strokeWidth={1.8}
                   />
                 )}
@@ -384,7 +384,7 @@ export function GameModePage() {
             <div className="text-center">
               <motion.div
                 className="text-xs font-bold tracking-[0.25em]"
-                style={{ color: active ? CYAN : '#4a4a52' }}
+                style={{ color: active ? CYAN : 'var(--text-dim)' }}
                 animate={active ? { textShadow: [`0 0 8px rgba(6,182,212,0.4)`, `0 0 16px rgba(6,182,212,0.6)`, `0 0 8px rgba(6,182,212,0.4)`] } : { textShadow: '0 0 0 transparent' }}
                 transition={active ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
               >
@@ -445,8 +445,8 @@ export function GameModePage() {
                   key={stat.label}
                   className="flex items-center gap-3 rounded-xl px-4 py-3"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: `1px solid rgba(255,255,255,0.05)`,
+                    background: 'var(--bg-subtle)',
+                    border: `1px solid var(--border-default)`,
                   }}
                 >
                   <stat.icon className="h-4 w-4 shrink-0" style={{ color: stat.color }} strokeWidth={2} />
@@ -470,7 +470,7 @@ export function GameModePage() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.02)', border: `1px solid ${CYAN_BORDER}` }}
+              style={{ background: 'var(--bg-subtle)', border: `1px solid ${CYAN_BORDER}` }}
             >
               <div className="px-5 py-4">
                 <div className="mb-3 flex items-center gap-3">
@@ -482,7 +482,7 @@ export function GameModePage() {
                     {progress.phase === 'activating' ? t('activatingProgress') : t('deactivatingProgress')}
                   </span>
                 </div>
-                <div className="relative h-2 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="relative h-2 overflow-hidden rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
                   <motion.div
                     className="h-full rounded-full"
                     style={{
@@ -511,16 +511,16 @@ export function GameModePage() {
               exit={{ opacity: 0, y: -8 }}
               className="flex items-center gap-3 rounded-xl px-5 py-3.5"
               style={{
-                background: lastResult.failed > 0 ? 'rgba(245,158,11,0.08)' : 'rgba(34,197,94,0.08)',
-                border: `1px solid ${lastResult.failed > 0 ? 'rgba(245,158,11,0.15)' : 'rgba(34,197,94,0.15)'}`,
+                background: lastResult.failed > 0 ? 'var(--accent-muted-bg)' : 'rgba(34,197,94,0.08)',
+                border: `1px solid ${lastResult.failed > 0 ? 'var(--accent-muted-border)' : 'rgba(34,197,94,0.15)'}`,
               }}
             >
               {lastResult.failed > 0 ? (
-                <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: '#f59e0b' }} />
+                <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} />
               ) : (
                 <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: '#22c55e' }} />
               )}
-              <span className="text-[13px]" style={{ color: lastResult.failed > 0 ? '#fbbf24' : '#86efac' }}>
+              <span className="text-[13px]" style={{ color: lastResult.failed > 0 ? 'var(--accent-hover)' : '#86efac' }}>
                 {lastResult.type === 'activate'
                   ? t('resultActivated', { count: lastResult.succeeded })
                   : t('resultDeactivated', { count: lastResult.succeeded })}
@@ -558,8 +558,8 @@ export function GameModePage() {
               transition={{ delay: catIndex * 0.05, duration: 0.3 }}
               className="group overflow-hidden rounded-xl transition-all duration-300"
               style={{
-                border: `1px solid ${isExpanded ? `${cat.color}22` : 'rgba(255,255,255,0.05)'}`,
-                background: isExpanded ? `linear-gradient(135deg, ${cat.glow}, transparent)` : 'rgba(255,255,255,0.015)',
+                border: `1px solid ${isExpanded ? `${cat.color}22` : 'var(--border-default)'}`,
+                background: isExpanded ? `linear-gradient(135deg, ${cat.glow}, transparent)` : 'var(--bg-subtle)',
               }}
             >
               {/* Category header */}
@@ -605,7 +605,7 @@ export function GameModePage() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden"
-                    style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
+                    style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     {catOpts.map((opt) => {
                       const isEnabled = enabledSet.has(opt.id)
@@ -613,7 +613,7 @@ export function GameModePage() {
                         <div
                           key={opt.id}
                           className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-white/[0.01]"
-                          style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+                          style={{ borderBottom: '1px solid var(--bg-subtle)' }}
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
@@ -621,7 +621,7 @@ export function GameModePage() {
                               {opt.requiresAdmin && (
                                 <span
                                   className="rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wide"
-                                  style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}
+                                  style={{ background: 'var(--accent-muted-bg)', color: 'var(--accent)' }}
                                 >
                                   {t('adminBadge')}
                                 </span>
@@ -635,13 +635,13 @@ export function GameModePage() {
                             onClick={() => !active && store.getState().toggleOptimization(opt.id)}
                             disabled={active}
                             className="relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-40"
-                            style={{ background: isEnabled ? cat.color : 'rgba(255,255,255,0.08)' }}
+                            style={{ background: isEnabled ? cat.color : 'var(--bg-active)' }}
                           >
                             <motion.div
                               className="absolute top-0.5 h-5 w-5 rounded-full"
                               animate={{
                                 left: isEnabled ? 22 : 2,
-                                background: isEnabled ? '#fff' : '#9e9ea6',
+                                background: isEnabled ? '#fff' : 'var(--text-muted)',
                               }}
                               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             />
@@ -652,7 +652,7 @@ export function GameModePage() {
 
                     {/* Custom process list (only in processes category) */}
                     {cat.id === 'processes' && (
-                      <div className="px-5 py-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                      <div className="px-5 py-3.5" style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -679,7 +679,7 @@ export function GameModePage() {
                               <span
                                 key={name}
                                 className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
-                                style={{ background: 'rgba(255,255,255,0.04)', color: '#a1a1aa' }}
+                                style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
                               >
                                 {name}
                                 {!active && (

@@ -446,14 +446,14 @@ export function DashboardPage() {
                     key={tool.key}
                     className="relative flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
                     style={{
-                      background: tool.usedRecently ? tool.color + '18' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${tool.usedRecently ? tool.color + '30' : 'rgba(255,255,255,0.04)'}`
+                      background: tool.usedRecently ? tool.color + '18' : 'var(--bg-subtle)',
+                      border: `1px solid ${tool.usedRecently ? tool.color + '30' : 'var(--border-subtle)'}`
                     }}
                     title={`${tool.label}: ${tool.usedRecently ? t('toolTipUsedRecently') : tool.usedEver ? t('toolTipNotUsedRecently') : t('toolTipNeverUsed')}`}
                   >
                     <Icon
                       className="h-3.5 w-3.5"
-                      style={{ color: tool.usedRecently ? tool.color : '#3a3a42' }}
+                      style={{ color: tool.usedRecently ? tool.color : 'var(--text-faint)' }}
                       strokeWidth={1.8}
                     />
                     {tool.usedRecently && (
@@ -490,19 +490,19 @@ export function DashboardPage() {
                 style={{
                   background: gameModeActive
                     ? 'linear-gradient(135deg, #06b6d4, #8b5cf6)'
-                    : 'rgba(255,255,255,0.05)',
-                  border: `2px solid ${gameModeActive ? '#06b6d4' : 'rgba(255,255,255,0.08)'}`,
+                    : 'var(--bg-hover)',
+                  border: `2px solid ${gameModeActive ? '#06b6d4' : 'var(--border-strong)'}`,
                 }}
               >
                 <Gamepad2
                   className="h-6 w-6"
-                  style={{ color: gameModeActive ? '#fff' : '#8a8a96' }}
+                  style={{ color: gameModeActive ? '#fff' : 'var(--text-muted)' }}
                   strokeWidth={2}
                 />
               </div>
               <span
                 className="mt-3 text-xs font-bold tracking-[0.2em]"
-                style={{ color: gameModeActive ? '#06b6d4' : '#8a8a96' }}
+                style={{ color: gameModeActive ? '#06b6d4' : 'var(--text-muted)' }}
               >
                 {gameModeActive ? t('gameModeActive') : t('gameModeReady')}
               </span>
@@ -522,18 +522,18 @@ export function DashboardPage() {
             <div
               className="glass-card flex flex-col justify-center rounded-2xl px-5 py-4"
             >
-              <h3 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+              <h3 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                 {t('statusHeading')}
               </h3>
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('statusLastScan')}</span>
+                  <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('statusLastScan')}</span>
                   <span className="text-[12px] font-medium text-zinc-300">
                     {stats.lastScanDate ? formatDate(stats.lastScanDate) : t('statusLastScanNever')}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('statusTotalScans')}</span>
+                  <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('statusTotalScans')}</span>
                   <span className="text-[12px] font-medium text-zinc-300">{formatNumber(stats.totalScans)}</span>
                 </div>
               </div>
@@ -565,11 +565,11 @@ export function DashboardPage() {
                 boxShadow: '0 0 20px rgba(245,158,11,0.2)'
               }}
             >
-              <Sparkles className="h-5 w-5" style={{ color: '#1a0a00' }} strokeWidth={2.2} />
+              <Sparkles className="h-5 w-5" style={{ color: 'var(--text-on-accent)' }} strokeWidth={2.2} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[14px] font-semibold text-zinc-200">{t('quickCleanTitle')}</p>
-              <p className="text-[12px]" style={{ color: '#8a8a96' }}>
+              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                 {features.registry ? t('quickCleanDescriptionWithRegistry') : t('quickCleanDescriptionWithoutRegistry')}
               </p>
             </div>
@@ -594,7 +594,7 @@ export function DashboardPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[14px] font-semibold text-zinc-200">{t('fullCleanTitle')}</p>
-              <p className="text-[12px]" style={{ color: '#8a8a96' }}>
+              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                 {features.registry ? t('fullCleanDescriptionWithRegistry') : t('fullCleanDescriptionWithoutRegistry')}
               </p>
             </div>
@@ -611,16 +611,16 @@ export function DashboardPage() {
               <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-400" strokeWidth={2} />
               <span className="flex-1 text-[13px] text-zinc-400">{phaseLabel || t('progressWorking')}</span>
               {stepProgress.total > 0 && (
-                <span className="text-[11px] font-mono" style={{ color: '#8a8a96' }}>
+                <span className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
                   {stepProgress.current}/{stepProgress.total}
                 </span>
               )}
             </div>
             {stepProgress.total > 0 && (
-              <div className="mt-2.5 h-[3px] overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <div className="mt-2.5 h-[3px] overflow-hidden rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
                 <div
                   className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${(stepProgress.current / stepProgress.total) * 100}%`, background: '#f59e0b' }}
+                  style={{ width: `${(stepProgress.current / stepProgress.total) * 100}%`, background: 'var(--accent)' }}
                 />
               </div>
             )}
@@ -637,16 +637,16 @@ export function DashboardPage() {
               <div>
                 <p className="text-[13px] font-medium text-zinc-200">{t('resultCleanupComplete')}</p>
                 <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1">
-                  {result.spaceRecovered > 0 && <p className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}</p>}
-                  {result.filesCleaned > 0 && <p className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</p>}
-                  {result.registryFixed > 0 && <p className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('resultRegistryFixed', { count: result.registryFixed })}</p>}
-                  {result.driversRemoved > 0 && <p className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('resultDriversRemoved', { count: result.driversRemoved })}</p>}
+                  {result.spaceRecovered > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}</p>}
+                  {result.filesCleaned > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</p>}
+                  {result.registryFixed > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultRegistryFixed', { count: result.registryFixed })}</p>}
+                  {result.driversRemoved > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultDriversRemoved', { count: result.driversRemoved })}</p>}
                   {result.threatsFound > 0 && (
                     <p className="text-[12px]" style={{ color: result.threatsQuarantined > 0 ? '#22c55e' : '#ef4444' }}>
                       {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })}
                     </p>
                   )}
-                  {result.threatsFound === 0 && result.privacyScore > 0 && <p className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('resultNoThreatsFound')}</p>}
+                  {result.threatsFound === 0 && result.privacyScore > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultNoThreatsFound')}</p>}
                   {result.privacyIssues > 0 && (
                     <button onClick={() => navigate('/hardening')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
                       {t(result.privacyIssues !== 1 ? 'resultPrivacyImprovementsPlural' : 'resultPrivacyImprovements', { count: result.privacyIssues })} &rarr;
@@ -663,7 +663,7 @@ export function DashboardPage() {
                     </button>
                   )}
                   {result.spaceRecovered === 0 && result.filesCleaned === 0 && result.registryFixed === 0 && result.driversRemoved === 0 && result.threatsFound === 0 && result.privacyIssues === 0 && result.startupHighImpact === 0 && result.updatesAvailable === 0 && (
-                    <p className="text-[12px]" style={{ color: '#9e9ea6' }}>{t('resultSystemAlreadyClean')}</p>
+                    <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultSystemAlreadyClean')}</p>
                   )}
                 </div>
               </div>
@@ -675,12 +675,12 @@ export function DashboardPage() {
         <div
           className="glass-card rounded-2xl p-5"
         >
-          <h3 className="mb-5 text-[12px] font-medium uppercase tracking-wider" style={{ color: '#8a8a96' }}>
+          <h3 className="mb-5 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {t('storageOverviewHeading')}
           </h3>
           <div className="space-y-5">
             {drives.length === 0 && (
-              <p className="py-4 text-center text-[13px]" style={{ color: '#8a8a94' }}>
+              <p className="py-4 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
                 {t('storageOverviewEmpty')}
               </p>
             )}
@@ -743,7 +743,7 @@ function MiniGauge({ icon: Icon, label, percent, detail }: {
               <stop offset="100%" stopColor={color} stopOpacity="0.5" />
             </linearGradient>
           </defs>
-          <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={STROKE} />
+          <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke="var(--gauge-track)" strokeWidth={STROKE} />
           <circle
             cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" stroke={`url(#${gradientId})`} strokeWidth={STROKE}
             strokeLinecap="round" strokeDasharray={C} strokeDashoffset={offset}
@@ -754,7 +754,7 @@ function MiniGauge({ icon: Icon, label, percent, detail }: {
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[13px] font-semibold text-zinc-200">{label}</p>
-        <p className="truncate text-[11px]" style={{ color: '#9e9ea6' }}>{detail}</p>
+        <p className="truncate text-[11px]" style={{ color: 'var(--text-secondary)' }}>{detail}</p>
       </div>
     </div>
   )
@@ -770,16 +770,16 @@ function DriveBar({ drive, platform }: { drive: DriveInfo; platform: string }) {
     <div>
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <HardDrive className="h-4 w-4" style={{ color: '#8a8a96' }} strokeWidth={1.6} />
+          <HardDrive className="h-4 w-4" style={{ color: 'var(--text-muted)' }} strokeWidth={1.6} />
           <span className="text-[13px] font-medium text-zinc-300">
             {platform === 'win32' ? `${drive.letter}: ${drive.label}` : `${drive.letter} ${drive.label}`}
           </span>
         </div>
-        <span className="font-mono text-[11px]" style={{ color: '#9e9ea6' }}>
+        <span className="font-mono text-[11px]" style={{ color: 'var(--text-secondary)' }}>
           {formatBytes(drive.usedSpace)} / {formatBytes(drive.totalSize)}
         </span>
       </div>
-      <div className="h-[5px] overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div className="h-[5px] overflow-hidden rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{

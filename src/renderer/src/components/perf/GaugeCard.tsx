@@ -48,7 +48,7 @@ export const GaugeCard = memo(function GaugeCard({ label, percent, detail, class
             cy={SIZE / 2}
             r={RADIUS}
             fill="none"
-            stroke="rgba(255,255,255,0.04)"
+            stroke="var(--gauge-track)"
             strokeWidth={STROKE}
           />
           <circle
@@ -69,12 +69,12 @@ export const GaugeCard = memo(function GaugeCard({ label, percent, detail, class
           <span className="text-[26px] font-bold tracking-tight text-white">
             {Math.round(clamped)}
           </span>
-          <span className="text-[10px] font-medium" style={{ color: '#8a8a96' }}>%</span>
+          <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>%</span>
         </div>
       </div>
 
       <span className="mt-3 text-[13px] font-semibold text-white">{label}</span>
-      <span className="mt-0.5 text-[11px] font-medium" style={{ color: '#9e9ea6' }}>
+      <span className="mt-0.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
         {detail}
       </span>
     </div>

@@ -39,7 +39,7 @@ const riskKeyMap: Record<RegistryEntry['risk'], string> = {
 }
 
 const typeColors: Record<CardType, { bg: string; text: string }> = {
-  obsolete: { bg: 'rgba(255,255,255,0.05)', text: '#8e8e96' },
+  obsolete: { bg: 'var(--bg-hover)', text: 'var(--text-muted)' },
   invalid: { bg: 'rgba(245,158,11,0.1)', text: '#f59e0b' },
   orphaned: { bg: 'rgba(59,130,246,0.1)', text: '#3b82f6' },
   broken: { bg: 'rgba(239,68,68,0.1)', text: '#ef4444' },
@@ -124,7 +124,7 @@ function HealthRing({ percent, color, size = 36 }: { percent: number; color: str
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none"
-          stroke="rgba(255,255,255,0.06)" strokeWidth={3} />
+          stroke="var(--gauge-track)" strokeWidth={3} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none"
           stroke={isComplete ? '#22c55e' : color} strokeWidth={3}
           strokeDasharray={circumference} strokeDashoffset={offset}
@@ -263,12 +263,12 @@ function RegistryPageContent() {
           <div className="flex items-center gap-2.5">
             <button onClick={handleScan} disabled={busy}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}>
               <Search className="h-4 w-4" strokeWidth={1.8} /> {t('scanButton')}
             </button>
             <button onClick={() => setShowConfirm(true)} disabled={selectedCount === 0 || busy}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}>
+              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}>
               <Wrench className="h-4 w-4" strokeWidth={2} /> {t('fixButton', { count: selectedCount })}
             </button>
           </div>
@@ -277,9 +277,9 @@ function RegistryPageContent() {
 
       {/* Warning */}
       <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4"
-        style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.08)' }}>
+        style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-bg)' }}>
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
-        <p className="text-[12px]" style={{ color: '#8e8e96' }}>
+        <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
           <span className="font-semibold text-amber-500">{t('advancedFeatureLabel')}</span> — {t('advancedFeatureDescription')}
         </p>
       </div>
@@ -289,24 +289,24 @@ function RegistryPageContent() {
 
       {/* Fix progress */}
       {fixing && fixProgress && (
-        <div className="mb-5 rounded-2xl p-5" style={{ background: '#16161a', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="mb-5 rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-amber-400" />
               <span className="text-[13px] font-medium text-zinc-200">{t('fixingEntries')}</span>
             </div>
-            <span className="font-mono text-[12px]" style={{ color: '#9e9ea6' }}>
+            <span className="font-mono text-[12px]" style={{ color: 'var(--text-secondary)' }}>
               {fixProgress.current} / {fixProgress.total}
             </span>
           </div>
-          <div className="mb-3 h-[6px] overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <div className="mb-3 h-[6px] overflow-hidden rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
             <div className="h-full rounded-full transition-all duration-200 ease-out"
               style={{
                 width: `${fixProgress.total > 0 ? (fixProgress.current / fixProgress.total) * 100 : 0}%`,
                 background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)'
               }} />
           </div>
-          <p className="truncate font-mono text-[11px]" style={{ color: '#8a8a94' }}>
+          <p className="truncate font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
             {fixProgress.currentEntry}
           </p>
         </div>
@@ -329,10 +329,10 @@ function RegistryPageContent() {
             </p>
           </div>
           {showFailures && fixResult.failures.length > 0 && (
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
               {fixResult.failures.map((f, i) => (
                 <div key={i} className="flex items-start gap-3 px-5 py-3"
-                  style={{ borderBottom: i < fixResult.failures.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none' }}>
+                  style={{ borderBottom: i < fixResult.failures.length - 1 ? '1px solid var(--bg-subtle)' : 'none' }}>
                   <div className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
                   <div className="min-w-0">
                     <p className="text-[12px] text-zinc-300">{f.issue}</p>
@@ -355,7 +355,7 @@ function RegistryPageContent() {
               onClick={handleScan}
               disabled={fixing}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#1a0a00' }}
+              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
               {t('startScan')}
@@ -388,13 +388,13 @@ function RegistryPageContent() {
             return (
               <div key={cardIndex} className="overflow-hidden rounded-2xl"
                 style={{
-                  border: `1px solid ${isClean ? 'rgba(34,197,94,0.15)' : allSelected ? color.text + '20' : 'rgba(255,255,255,0.05)'}`,
+                  border: `1px solid ${isClean ? 'rgba(34,197,94,0.15)' : allSelected ? color.text + '20' : 'var(--border-default)'}`,
                   opacity: fixing ? 0.5 : 1,
                   pointerEvents: fixing ? 'none' : 'auto'
                 }}>
                 {/* Card header */}
                 <div className="flex items-center gap-4 px-5 py-4"
-                  style={{ background: isClean ? 'rgba(34,197,94,0.03)' : allSelected ? color.bg : 'rgba(255,255,255,0.02)' }}>
+                  style={{ background: isClean ? 'rgba(34,197,94,0.03)' : allSelected ? color.bg : 'var(--bg-subtle)' }}>
                   {/* Health ring or icon */}
                   {hasPercentage || isClean ? (
                     <HealthRing
@@ -421,7 +421,7 @@ function RegistryPageContent() {
                       ) : (
                         <>
                           <span className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                            style={{ background: 'rgba(255,255,255,0.05)', color: '#9e9ea6' }}>
+                            style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
                             {issueCount !== 1 ? t('issueCountPlural', { count: issueCount }) : t('issueCount', { count: issueCount })}
                           </span>
                           {highRiskCount > 0 && (
@@ -439,7 +439,7 @@ function RegistryPageContent() {
                         </>
                       )}
                     </div>
-                    <p className="mt-0.5 text-[12px]" style={{ color: '#5e5e66' }}>
+                    <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-dim)' }}>
                       {t(card.descriptionKey)}
                       {hasPercentage && !isClean && (
                         <span style={{ color: healthPercent! >= 80 ? '#22c55e' : healthPercent! >= 50 ? '#f59e0b' : '#ef4444' }}>
@@ -455,21 +455,21 @@ function RegistryPageContent() {
                       <button
                         onClick={() => useRegistryStore.getState().toggleCardAll(card.types)}
                         className="relative h-6 w-11 rounded-full transition-colors"
-                        style={{ background: allSelected ? color.text : 'rgba(255,255,255,0.08)' }}>
+                        style={{ background: allSelected ? color.text : 'var(--bg-active)' }}>
                         <div className="absolute top-0.5 h-5 w-5 rounded-full transition-all"
                           style={{
                             left: allSelected ? '22px' : '2px',
-                            background: allSelected ? '#fff' : '#9e9ea6'
+                            background: allSelected ? '#fff' : 'var(--text-secondary)'
                           }} />
                       </button>
 
                       <button onClick={() => useRegistryStore.getState().toggleCardExpand(cardIndex)}
                         className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
-                        style={{ background: 'rgba(255,255,255,0.04)' }}>
+                        style={{ background: 'var(--bg-subtle-2)' }}>
                         <ChevronDown
                           className="h-4 w-4 transition-transform"
                           style={{
-                            color: '#9e9ea6',
+                            color: 'var(--text-secondary)',
                             transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
                           }}
                           strokeWidth={2} />
@@ -488,20 +488,20 @@ function RegistryPageContent() {
 
                 {/* Expanded items */}
                 {isExpanded && !isClean && (
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                  <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
                     {cardEntries.map((entry, i) => (
                       <div key={entry.id}
                         className="flex items-center gap-4 px-5 py-3 transition-colors"
                         style={{
                           background: entry.selected ? color.bg.replace('0.1', '0.03') : 'transparent',
-                          borderBottom: i < cardEntries.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none'
+                          borderBottom: i < cardEntries.length - 1 ? '1px solid var(--bg-subtle)' : 'none'
                         }}>
                         <div className="w-6 cursor-pointer" onClick={() => useRegistryStore.getState().toggleEntry(entry.id)}>
                           <input type="checkbox" checked={entry.selected} readOnly className="pointer-events-none accent-amber-500" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[12px] text-zinc-300">{entry.issue}</p>
-                          <p className="mt-0.5 font-mono text-[10px]" style={{ color: '#8a8a94' }}>{entry.keyPath}</p>
+                          <p className="mt-0.5 font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{entry.keyPath}</p>
                         </div>
                         <span className="shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium"
                           style={{ background: typeColors[entry.type].bg, color: typeColors[entry.type].text }}>
