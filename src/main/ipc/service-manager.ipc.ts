@@ -213,7 +213,13 @@ export async function applyServiceChanges(
       // Build a single PowerShell script for all changes
       const lines = validChanges.map((c) => {
         const safeName = c.name.replace(/'/g, "''")
-        const safeType = c.targetStartType === 'Manual' ? 'Manual' : 'Disabled'
+        const ALLOWED_TYPES: Record<string, string> = {
+          Manual: 'Manual',
+          Disabled: 'Disabled',
+          Automatic: 'Automatic',
+          AutomaticDelayed: 'AutomaticDelayedStart',
+        }
+        const safeType = ALLOWED_TYPES[c.targetStartType] ?? 'Disabled'
         return `
 try {
   $svc = Get-Service -Name '${safeName}' -ErrorAction Stop

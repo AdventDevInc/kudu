@@ -2746,6 +2746,14 @@ class CloudAgentService {
       return
     }
 
+    // DNS rebinding protection: verify the domain doesn't resolve to a private IP
+    try {
+      await assertPublicResolution(url)
+    } catch (err) {
+      await this.postCommandResult(requestId, false, undefined, err instanceof Error ? err.message : 'DNS rebinding check failed')
+      return
+    }
+
     cloudLog('INFO', `Updating threat blacklist from ${url}`)
     const result = await downloadAndUpdateBlacklist(url)
 

@@ -129,7 +129,7 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
 
     const tmpPath = join(app.getPath('temp'), `${TASK_NAME}.xml`)
     const { writeFile, unlink } = await import('fs/promises')
-    await writeFile(tmpPath, xml, 'utf-16le')
+    await writeFile(tmpPath, '\uFEFF' + xml, 'utf-16le')
 
     try {
       await execFileAsync('schtasks', [

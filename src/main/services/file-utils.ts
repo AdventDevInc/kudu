@@ -18,9 +18,12 @@ export interface DeleteResult {
  */
 export function isExcluded(filePath: string, exclusions: string[]): boolean {
   if (exclusions.length === 0) return false
-  const normalized = filePath.toLowerCase().replace(/\//g, '\\')
+  // Only normalize to backslash on Windows; on Linux/macOS forward slash is the separator
+  const toSep = process.platform === 'win32' ? /\//g : /\\/g
+  const sep = process.platform === 'win32' ? '\\' : '/'
+  const normalized = filePath.toLowerCase().replace(toSep, sep)
   for (const exc of exclusions) {
-    const pattern = exc.toLowerCase().replace(/\//g, '\\')
+    const pattern = exc.toLowerCase().replace(toSep, sep)
     if (pattern.startsWith('*.')) {
       // Extension glob: *.log, *.tmp etc.
       if (normalized.endsWith(pattern.substring(1))) return true
