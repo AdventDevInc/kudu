@@ -1,0 +1,65 @@
+name: Auto-translate
+
+on:
+  pull_request:
+    paths:
+      - 'src/renderer/src/locales/en/**'
+
+  # Allow manual trigger and /translate PR comment
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+jobs:
+  translate:
+    # Run on: EN locale changes in PR, /translate comment, or manual dispatch
+    if: |
+      (github.event_name == 'pull_request') ||
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/translate'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Get PR branch (comment trigger)
+        if: github.event_name == 'issue_comment'
+        id: pr
+        run: |
+          PR_DATA=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.issue.number }} --jq '{ref: .head.ref, sha: .head.sha}')
+          echo "ref=$(echo "$PR_DATA" | jq -r .ref)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.pr.outputs.ref || github.head_ref || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run translations
+        run: node scripts/translate.js
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Commit & push translations
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/renderer/src/locales/
+          if git diff --staged --quiet; then
+            echo "No translation changes to commit"
+          else
+            git commit -m "chore: auto-update translations"
+            git push
+          fi
