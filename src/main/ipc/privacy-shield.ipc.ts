@@ -1,5 +1,7 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, app } from 'electron'
 import { execFile } from 'child_process'
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
+import { join } from 'path'
 import { promisify } from 'util'
 import { IPC } from '../../shared/channels'
 import type {
@@ -86,10 +88,37 @@ async function enableTask(taskPath: string): Promise<void> {
   await execFileAsync('schtasks', ['/change', '/tn', taskPath, '/enable'], { timeout: 5000, windowsHide: true })
 }
 
+// ─── Persistent service start-type cache ──────────────────────
 // Stores the original Start type for each service before we disable it,
 // so we can restore it properly on revert (e.g. Automatic=2 vs Manual=3).
-// Lost on app restart — falls back to Manual (3) which is the safest default.
-const originalServiceStartType = new Map<string, number>()
+// Persisted to disk so the cache survives app restarts.
+
+function getServiceCachePath(): string {
+  const dir = app.isPackaged
+    ? app.getPath('userData')
+    : join(app.getPath('userData'), 'Kudu-Dev')
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+  return join(dir, 'service-start-types.json')
+}
+
+function loadServiceStartTypes(): Map<string, number> {
+  try {
+    const raw = readFileSync(getServiceCachePath(), 'utf-8')
+    const obj = JSON.parse(raw)
+    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+      return new Map(Object.entries(obj).filter(([, v]) => typeof v === 'number') as [string, number][])
+    }
+  } catch { /* file missing or corrupt — start fresh */ }
+  return new Map()
+}
+
+function saveServiceStartTypes(cache: Map<string, number>): void {
+  try {
+    writeFileSync(getServiceCachePath(), JSON.stringify(Object.fromEntries(cache), null, 2))
+  } catch { /* best-effort — non-fatal */ }
+}
+
+const originalServiceStartType = loadServiceStartTypes()
 
 async function disableService(serviceName: string): Promise<void> {
   // Capture the original Start type before overwriting
@@ -99,6 +128,7 @@ async function disableService(serviceName: string): Promise<void> {
     )
     if (startVal !== null && startVal !== 4) {
       originalServiceStartType.set(serviceName, startVal)
+      saveServiceStartTypes(originalServiceStartType)
     }
   }
   await execFileAsync('reg', [
@@ -110,6 +140,7 @@ async function disableService(serviceName: string): Promise<void> {
 async function enableService(serviceName: string): Promise<void> {
   const original = originalServiceStartType.get(serviceName) ?? 3 // default to Manual
   originalServiceStartType.delete(serviceName)
+  saveServiceStartTypes(originalServiceStartType)
   await execFileAsync('reg', [
     'add', `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
     '/v', 'Start', '/t', 'REG_DWORD', '/d', String(original), '/f'
@@ -119,8 +150,15 @@ async function enableService(serviceName: string): Promise<void> {
 async function regDeleteValue(key: string, value: string): Promise<void> {
   try {
     await execFileAsync('reg', ['delete', key, '/v', value, '/f'], { timeout: 5000, windowsHide: true })
-  } catch {
-    // Value already deleted or never existed — that's the desired state
+  } catch (err: unknown) {
+    // "not found" is the desired end state — swallow it.
+    // Everything else (access denied, invalid key, etc.) must surface so
+    // revertPrivacySettings can report the failure accurately.
+    const msg = err instanceof Error ? err.message : ''
+    const stderr = (err as { stderr?: string })?.stderr ?? ''
+    const combined = msg + stderr
+    if (combined.toLowerCase().includes('unable to find')) return
+    throw err
   }
 }
 
