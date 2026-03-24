@@ -139,12 +139,14 @@ async function disableService(serviceName: string): Promise<void> {
 
 async function enableService(serviceName: string): Promise<void> {
   const original = originalServiceStartType.get(serviceName) ?? 3 // default to Manual
-  originalServiceStartType.delete(serviceName)
-  saveServiceStartTypes(originalServiceStartType)
+  // Write the registry value first — only clear the cache after success so a
+  // failed revert (e.g. access denied) doesn't lose the original start type.
   await execFileAsync('reg', [
     'add', `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
     '/v', 'Start', '/t', 'REG_DWORD', '/d', String(original), '/f'
   ], { timeout: 5000, windowsHide: true })
+  originalServiceStartType.delete(serviceName)
+  saveServiceStartTypes(originalServiceStartType)
 }
 
 async function regDeleteValue(key: string, value: string): Promise<void> {
