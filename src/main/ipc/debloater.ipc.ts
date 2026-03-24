@@ -6,11 +6,12 @@ import type { BloatwareApp } from '../../shared/types'
 import { randomUUID } from 'crypto'
 import type { WindowGetter } from './index'
 import { validateStringArray } from '../services/ipc-validation'
+import { psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
 function psArgs(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-Command', script]
+  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
 }
 
 // Known bloatware packages with metadata

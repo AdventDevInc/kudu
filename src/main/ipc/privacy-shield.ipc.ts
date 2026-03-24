@@ -12,6 +12,7 @@ import type {
 import type { WindowGetter } from './index'
 import { getPlatform } from '../platform'
 import { validateStringArray } from '../services/ipc-validation'
+import { execNativeUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -44,7 +45,7 @@ interface SettingDef {
 
 async function regQueryDword(key: string, value: string): Promise<number | null> {
   try {
-    const { stdout } = await execFileAsync('reg', ['query', key, '/v', value], { timeout: 5000, windowsHide: true })
+    const { stdout } = await execNativeUtf8('reg',['query', key, '/v', value], { timeout: 5000, windowsHide: true })
     const match = stdout.match(new RegExp(`${value}\\s+REG_DWORD\\s+0x([0-9a-fA-F]+)`, 'i'))
     return match ? parseInt(match[1], 16) : null
   } catch {
@@ -53,12 +54,12 @@ async function regQueryDword(key: string, value: string): Promise<number | null>
 }
 
 async function regSetDword(key: string, value: string, data: number): Promise<void> {
-  await execFileAsync('reg', ['add', key, '/v', value, '/t', 'REG_DWORD', '/d', String(data), '/f'], { timeout: 5000, windowsHide: true })
+  await execNativeUtf8('reg',['add', key, '/v', value, '/t', 'REG_DWORD', '/d', String(data), '/f'], { timeout: 5000, windowsHide: true })
 }
 
 async function isTaskActive(taskPath: string): Promise<boolean> {
   try {
-    const { stdout } = await execFileAsync('schtasks', ['/query', '/tn', taskPath, '/fo', 'CSV', '/nh'], { timeout: 8000, windowsHide: true })
+    const { stdout } = await execNativeUtf8('schtasks',['/query', '/tn', taskPath, '/fo', 'CSV', '/nh'], { timeout: 8000, windowsHide: true })
     // "Disabled" in the status column means it's not active
     return !stdout.toLowerCase().includes('disabled')
   } catch {
@@ -68,7 +69,7 @@ async function isTaskActive(taskPath: string): Promise<boolean> {
 
 async function taskExists(taskPath: string): Promise<boolean> {
   try {
-    await execFileAsync('schtasks', ['/query', '/tn', taskPath, '/fo', 'CSV', '/nh'], { timeout: 8000, windowsHide: true })
+    await execNativeUtf8('schtasks',['/query', '/tn', taskPath, '/fo', 'CSV', '/nh'], { timeout: 8000, windowsHide: true })
     return true
   } catch {
     return false
@@ -81,11 +82,11 @@ async function serviceExists(serviceName: string): Promise<boolean> {
 }
 
 async function disableTask(taskPath: string): Promise<void> {
-  await execFileAsync('schtasks', ['/change', '/tn', taskPath, '/disable'], { timeout: 5000, windowsHide: true })
+  await execNativeUtf8('schtasks',['/change', '/tn', taskPath, '/disable'], { timeout: 5000, windowsHide: true })
 }
 
 async function enableTask(taskPath: string): Promise<void> {
-  await execFileAsync('schtasks', ['/change', '/tn', taskPath, '/enable'], { timeout: 5000, windowsHide: true })
+  await execNativeUtf8('schtasks',['/change', '/tn', taskPath, '/enable'], { timeout: 5000, windowsHide: true })
 }
 
 // ─── Persistent service start-type cache ──────────────────────
@@ -131,7 +132,7 @@ async function disableService(serviceName: string): Promise<void> {
       saveServiceStartTypes(originalServiceStartType)
     }
   }
-  await execFileAsync('reg', [
+  await execNativeUtf8('reg',[
     'add', `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
     '/v', 'Start', '/t', 'REG_DWORD', '/d', '4', '/f'
   ], { timeout: 5000, windowsHide: true })
@@ -141,7 +142,7 @@ async function enableService(serviceName: string): Promise<void> {
   const original = originalServiceStartType.get(serviceName) ?? 3 // default to Manual
   // Write the registry value first — only clear the cache after success so a
   // failed revert (e.g. access denied) doesn't lose the original start type.
-  await execFileAsync('reg', [
+  await execNativeUtf8('reg',[
     'add', `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
     '/v', 'Start', '/t', 'REG_DWORD', '/d', String(original), '/f'
   ], { timeout: 5000, windowsHide: true })
@@ -151,7 +152,7 @@ async function enableService(serviceName: string): Promise<void> {
 
 async function regDeleteValue(key: string, value: string): Promise<void> {
   try {
-    await execFileAsync('reg', ['delete', key, '/v', value, '/f'], { timeout: 5000, windowsHide: true })
+    await execNativeUtf8('reg',['delete', key, '/v', value, '/f'], { timeout: 5000, windowsHide: true })
   } catch (err: unknown) {
     // "not found" is the desired end state — swallow it.
     // Everything else (access denied, invalid key, etc.) must surface so
@@ -166,7 +167,7 @@ async function regDeleteValue(key: string, value: string): Promise<void> {
 
 async function isBrowserInstalled(registryKey: string): Promise<boolean> {
   try {
-    await execFileAsync('reg', ['query', registryKey, '/ve'], { timeout: 5000, windowsHide: true })
+    await execNativeUtf8('reg',['query', registryKey, '/ve'], { timeout: 5000, windowsHide: true })
     return true
   } catch {
     return false

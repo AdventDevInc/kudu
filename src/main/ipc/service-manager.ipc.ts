@@ -13,11 +13,12 @@ import type {
 } from '../../shared/types'
 import { lookupServiceSafety } from '../../shared/service-safety-kb'
 import { getPlatform } from '../platform'
+import { psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
 function psArgs(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-Command', script]
+  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
 }
 const PS_OPTS = { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
 

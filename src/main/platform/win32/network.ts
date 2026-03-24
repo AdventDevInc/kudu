@@ -1,6 +1,7 @@
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import type { PlatformNetwork, ActiveConnection, DnsCacheEntry, WifiProfile } from '../types'
+import { psUtf8, execNativeUtf8 } from '../../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -114,7 +115,7 @@ export function createWin32Network(): PlatformNetwork {
       try {
         const { stdout } = await execFileAsync('powershell.exe', [
           '-NoProfile', '-NonInteractive', '-Command',
-          'Get-DnsClientCache | Select-Object Entry,Data | ConvertTo-Json -Compress',
+          psUtf8('Get-DnsClientCache | Select-Object Entry,Data | ConvertTo-Json -Compress'),
         ], { timeout: 15_000, windowsHide: true })
 
         const trimmed = stdout.trim()
@@ -144,16 +145,18 @@ export function createWin32Network(): PlatformNetwork {
 
     async getWifiProfiles(): Promise<WifiProfile[]> {
       try {
-        const { stdout } = await execFileAsync('netsh', ['wlan', 'show', 'profiles'], { timeout: 10000, windowsHide: true })
+        const { stdout } = await execNativeUtf8('netsh', ['wlan', 'show', 'profiles'], { timeout: 10000 })
         const profiles: WifiProfile[] = []
         for (const line of stdout.split('\n')) {
           const match = line.match(/All User Profile\s*:\s*(.+)/i) || line.match(/User Profile\s*:\s*(.+)/i)
           if (match) {
             const name = match[1].trim()
-            if (/["\x00-\x1f]/.test(name)) continue
+            // Block quotes, control chars, and shell metacharacters (& | ^ ! % ( ))
+            // that could cause injection via cmd.exe's shell interpretation.
+            if (/["\x00-\x1f&|^!%()><]/.test(name)) continue
             let security = 'Unknown'
             try {
-              const { stdout: detail } = await execFileAsync('netsh', ['wlan', 'show', 'profile', `name="${name}"`], { timeout: 5000, windowsHide: true })
+              const { stdout: detail } = await execNativeUtf8('netsh', ['wlan', 'show', 'profile', `name=${name}`], { timeout: 5000 })
               const authMatch = detail.match(/Authentication\s*:\s*(.+)/i)
               if (authMatch) security = authMatch[1].trim()
             } catch { /* skip */ }
@@ -168,8 +171,8 @@ export function createWin32Network(): PlatformNetwork {
 
     async deleteWifiProfile(name: string): Promise<boolean> {
       try {
-        if (/["\x00-\x1f]/.test(name)) return false
-        await execFileAsync('netsh', ['wlan', 'delete', 'profile', `name="${name}"`], { timeout: 10000, windowsHide: true })
+        if (/["\x00-\x1f&|^!%()><]/.test(name)) return false
+        await execNativeUtf8('netsh', ['wlan', 'delete', 'profile', `name=${name}`], { timeout: 10000 })
         return true
       } catch {
         return false
@@ -178,7 +181,7 @@ export function createWin32Network(): PlatformNetwork {
 
     async clearArpCache(): Promise<boolean> {
       try {
-        await execFileAsync('netsh', ['interface', 'ip', 'delete', 'arpcache'], { timeout: 10000, windowsHide: true })
+        await execNativeUtf8('netsh', ['interface', 'ip', 'delete', 'arpcache'], { timeout: 10000 })
         return true
       } catch {
         return false

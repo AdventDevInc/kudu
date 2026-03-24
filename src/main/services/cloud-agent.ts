@@ -13,6 +13,7 @@ import Pusher from 'pusher-js'
 import { getSettings, setSettings, getMachineId } from './settings-store'
 import { scanDirectory, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems } from './file-utils'
 import { cacheItems } from './scan-cache'
+import { psUtf8 } from './exec-utf8'
 import { getPlatform } from '../platform'
 import { CleanerType } from '../../shared/enums'
 import { checkForUpdates, runUpdates, isValidAppId } from './software-updater'
@@ -1891,7 +1892,7 @@ class CloudAgentService {
         try {
           const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
           const { stdout } = await execFileAsync('powershell.exe', [
-            '-NoProfile', '-Command', rbScript
+            '-NoProfile', '-Command', psUtf8(rbScript)
           ], { windowsHide: true })
           const [countStr, sizeStr] = stdout.trim().split('|')
           const count = parseInt(countStr) || 0

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { execFile, spawn } from 'child_process'
 import { IPC } from '../../shared/channels'
+import { psUtf8 } from '../services/exec-utf8'
 import { registerSystemCleanerIpc } from './system-cleaner.ipc'
 import { registerBrowserCleanerIpc } from './browser-cleaner.ipc'
 import { registerAppCleanerIpc } from './app-cleaner.ipc'
@@ -119,7 +120,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // with an error and we don't quit.
       const psScript = `Start-Process -FilePath '${exePath.replace(/'/g, "''")}' -Verb RunAs`
       execFile('powershell.exe', [
-        '-NoProfile', '-Command', psScript,
+        '-NoProfile', '-Command', psUtf8(psScript),
       ], { windowsHide: true }, (err) => {
         if (!err) app.exit(0)
       })

@@ -7,6 +7,7 @@ import { IPC } from '../../shared/channels'
 import { isAdmin } from '../services/elevation'
 import { getPlatform } from '../platform'
 import type { WindowGetter } from './index'
+import { psUtf8 } from '../services/exec-utf8'
 import type {
   GameModeConfig,
   GameModeSnapshot,
@@ -187,7 +188,7 @@ const PROTECTED_PROCESSES = new Set([
 
 async function ps(script: string, timeout = 15000): Promise<string> {
   const { stdout } = await execFileAsync('powershell.exe', [
-    '-NoProfile', '-NonInteractive', '-Command', script,
+    '-NoProfile', '-NonInteractive', '-Command', psUtf8(script),
   ], { timeout, windowsHide: true })
   return stdout.trim()
 }

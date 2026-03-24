@@ -12,6 +12,7 @@ import type {
   DiskSmartInfo,
   StartupItem
 } from '../../shared/types'
+import { psUtf8 } from './exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -185,7 +186,7 @@ export class PerfMonitorService {
     try {
       const script = 'Get-PhysicalDisk | ForEach-Object { $disk = $_; $rel = $_ | Get-StorageReliabilityCounter; [PSCustomObject]@{ DeviceId = $disk.DeviceId; Temperature = $rel.Temperature; PowerOnHours = $rel.PowerOnHours; ReadErrorsTotal = $rel.ReadErrorsTotal; WriteErrorsTotal = $rel.WriteErrorsTotal; Wear = $rel.Wear } } | ConvertTo-Json -Compress'
 
-      const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-Command', script], {
+      const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-Command', psUtf8(script)], {
         timeout: 10000, windowsHide: true
       })
 

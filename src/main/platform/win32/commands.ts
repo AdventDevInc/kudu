@@ -2,6 +2,7 @@ import * as si from 'systeminformation'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import type { PlatformCommands, EventLogEntry, InstalledApp, OsUpdateInfo, OsUpdateInstallResult, SfcResult, DismResult, DnsEntry } from '../types'
+import { psUtf8 } from '../../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -19,7 +20,7 @@ export function createWin32Commands(): PlatformCommands {
       try {
         const { stdout } = await execFileAsync('powershell.exe', [
           '-NoProfile', '-NonInteractive', '-Command',
-          'Get-DnsClientServerAddress -AddressFamily IPv4 | Select-Object InterfaceAlias,ServerAddresses | ConvertTo-Json -Compress',
+          psUtf8('Get-DnsClientServerAddress -AddressFamily IPv4 | Select-Object InterfaceAlias,ServerAddresses | ConvertTo-Json -Compress'),
         ], { timeout: 15_000, windowsHide: true })
 
         const raw = JSON.parse(stdout.trim())
@@ -41,12 +42,14 @@ export function createWin32Commands(): PlatformCommands {
 
       const { stdout } = await execFileAsync('powershell.exe', [
         '-NoProfile', '-NonInteractive', '-Command',
-        `Get-WinEvent -LogName '${safeName}' -MaxEvents ${safeMax} | ` +
-        `Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ` +
-        `ForEach-Object { [PSCustomObject]@{ ` +
-        `time=$_.TimeCreated.ToString('o'); id=$_.Id; level=$_.LevelDisplayName; ` +
-        `provider=$_.ProviderName; message=($_.Message -replace '\\r?\\n',' ').Substring(0, [Math]::Min(200, $_.Message.Length)) } } | ` +
-        `ConvertTo-Json -Compress`,
+        psUtf8(
+          `Get-WinEvent -LogName '${safeName}' -MaxEvents ${safeMax} | ` +
+          `Select-Object TimeCreated,Id,LevelDisplayName,ProviderName,Message | ` +
+          `ForEach-Object { [PSCustomObject]@{ ` +
+          `time=$_.TimeCreated.ToString('o'); id=$_.Id; level=$_.LevelDisplayName; ` +
+          `provider=$_.ProviderName; message=($_.Message -replace '\\r?\\n',' ').Substring(0, [Math]::Min(200, $_.Message.Length)) } } | ` +
+          `ConvertTo-Json -Compress`
+        ),
       ], { timeout: 30_000, windowsHide: true })
 
       const raw = JSON.parse(stdout.trim())
@@ -65,14 +68,16 @@ export function createWin32Commands(): PlatformCommands {
     async getInstalledApps(): Promise<InstalledApp[]> {
       const { stdout } = await execFileAsync('powershell.exe', [
         '-NoProfile', '-NonInteractive', '-Command',
-        `$apps = @(); ` +
-        `$paths = @('HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*', ` +
-        `'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'); ` +
-        `foreach ($p in $paths) { ` +
-        `  $apps += Get-ItemProperty $p -ErrorAction SilentlyContinue | ` +
-        `  Where-Object { $_.DisplayName -and $_.DisplayName.Trim() -ne '' } | ` +
-        `  Select-Object DisplayName,DisplayVersion,Publisher,InstallDate,EstimatedSize } ` +
-        `$apps | Sort-Object DisplayName -Unique | ConvertTo-Json -Compress`,
+        psUtf8(
+          `$apps = @(); ` +
+          `$paths = @('HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*', ` +
+          `'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'); ` +
+          `foreach ($p in $paths) { ` +
+          `  $apps += Get-ItemProperty $p -ErrorAction SilentlyContinue | ` +
+          `  Where-Object { $_.DisplayName -and $_.DisplayName.Trim() -ne '' } | ` +
+          `  Select-Object DisplayName,DisplayVersion,Publisher,InstallDate,EstimatedSize } ` +
+          `$apps | Sort-Object DisplayName -Unique | ConvertTo-Json -Compress`
+        ),
       ], { timeout: 30_000, windowsHide: true })
 
       const trimmed = stdout.trim()
@@ -94,13 +99,15 @@ export function createWin32Commands(): PlatformCommands {
       try {
         const { stdout } = await execFileAsync('powershell.exe', [
           '-NoProfile', '-NonInteractive', '-Command',
-          `$session = New-Object -ComObject Microsoft.Update.Session; ` +
-          `$searcher = $session.CreateUpdateSearcher(); ` +
-          `$result = $searcher.Search('IsInstalled=0'); ` +
-          `$result.Updates | ForEach-Object { ` +
-          `  [PSCustomObject]@{ Title=$_.Title; KBArticleIDs=($_.KBArticleIDs -join ','); ` +
-          `  Severity=$_.MsrcSeverity; Size=$_.MaxDownloadSize; IsDownloaded=$_.IsDownloaded } ` +
-          `} | ConvertTo-Json -Compress`,
+          psUtf8(
+            `$session = New-Object -ComObject Microsoft.Update.Session; ` +
+            `$searcher = $session.CreateUpdateSearcher(); ` +
+            `$result = $searcher.Search('IsInstalled=0'); ` +
+            `$result.Updates | ForEach-Object { ` +
+            `  [PSCustomObject]@{ Title=$_.Title; KBArticleIDs=($_.KBArticleIDs -join ','); ` +
+            `  Severity=$_.MsrcSeverity; Size=$_.MaxDownloadSize; IsDownloaded=$_.IsDownloaded } ` +
+            `} | ConvertTo-Json -Compress`
+          ),
         ], { timeout: 120_000, windowsHide: true })
 
         const trimmed = stdout.trim()
@@ -125,19 +132,21 @@ export function createWin32Commands(): PlatformCommands {
       try {
         const { stdout } = await execFileAsync('powershell.exe', [
           '-NoProfile', '-NonInteractive', '-Command',
-          `$session = New-Object -ComObject Microsoft.Update.Session; ` +
-          `$searcher = $session.CreateUpdateSearcher(); ` +
-          `$result = $searcher.Search('IsInstalled=0'); ` +
-          `if ($result.Updates.Count -eq 0) { Write-Output '{"installed":0,"needsReboot":false}'; exit } ` +
-          `$downloader = $session.CreateUpdateDownloader(); ` +
-          `$downloader.Updates = $result.Updates; ` +
-          `$downloader.Download() | Out-Null; ` +
-          `$installer = $session.CreateUpdateInstaller(); ` +
-          `$installer.Updates = $result.Updates; ` +
-          `$installResult = $installer.Install(); ` +
-          `[PSCustomObject]@{ installed=$result.Updates.Count; ` +
-          `resultCode=$installResult.ResultCode; ` +
-          `needsReboot=$installResult.RebootRequired } | ConvertTo-Json -Compress`,
+          psUtf8(
+            `$session = New-Object -ComObject Microsoft.Update.Session; ` +
+            `$searcher = $session.CreateUpdateSearcher(); ` +
+            `$result = $searcher.Search('IsInstalled=0'); ` +
+            `if ($result.Updates.Count -eq 0) { Write-Output '{"installed":0,"needsReboot":false}'; exit } ` +
+            `$downloader = $session.CreateUpdateDownloader(); ` +
+            `$downloader.Updates = $result.Updates; ` +
+            `$downloader.Download() | Out-Null; ` +
+            `$installer = $session.CreateUpdateInstaller(); ` +
+            `$installer.Updates = $result.Updates; ` +
+            `$installResult = $installer.Install(); ` +
+            `[PSCustomObject]@{ installed=$result.Updates.Count; ` +
+            `resultCode=$installResult.ResultCode; ` +
+            `needsReboot=$installResult.RebootRequired } | ConvertTo-Json -Compress`
+          ),
         ], { timeout: 300_000, windowsHide: true })
 
         const data = JSON.parse(stdout.trim())
@@ -155,10 +164,12 @@ export function createWin32Commands(): PlatformCommands {
       try {
         const { stdout } = await execFileAsync('powershell.exe', [
           '-NoProfile', '-NonInteractive', '-Command',
-          `$p = Start-Process -FilePath 'sfc.exe' -ArgumentList '/scannow' -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput "$env:TEMP\\sfc_out.txt"; ` +
-          `$output = Get-Content "$env:TEMP\\sfc_out.txt" -Raw -ErrorAction SilentlyContinue; ` +
-          `Remove-Item "$env:TEMP\\sfc_out.txt" -ErrorAction SilentlyContinue; ` +
-          `[PSCustomObject]@{ exitCode=$p.ExitCode; output=$output } | ConvertTo-Json -Compress`,
+          psUtf8(
+            `$p = Start-Process -FilePath 'sfc.exe' -ArgumentList '/scannow' -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput "$env:TEMP\\sfc_out.txt"; ` +
+            `$output = Get-Content "$env:TEMP\\sfc_out.txt" -Raw -Encoding UTF8 -ErrorAction SilentlyContinue; ` +
+            `Remove-Item "$env:TEMP\\sfc_out.txt" -ErrorAction SilentlyContinue; ` +
+            `[PSCustomObject]@{ exitCode=$p.ExitCode; output=$output } | ConvertTo-Json -Compress`
+          ),
         ], { timeout: 300_000, windowsHide: true })
 
         const data = JSON.parse(stdout.trim())
@@ -179,10 +190,12 @@ export function createWin32Commands(): PlatformCommands {
       try {
         const { stdout } = await execFileAsync('powershell.exe', [
           '-NoProfile', '-NonInteractive', '-Command',
-          `$p = Start-Process -FilePath 'dism.exe' -ArgumentList '/Online','/Cleanup-Image','/RestoreHealth' -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput "$env:TEMP\\dism_out.txt"; ` +
-          `$output = Get-Content "$env:TEMP\\dism_out.txt" -Raw -ErrorAction SilentlyContinue; ` +
-          `Remove-Item "$env:TEMP\\dism_out.txt" -ErrorAction SilentlyContinue; ` +
-          `[PSCustomObject]@{ exitCode=$p.ExitCode; output=$output } | ConvertTo-Json -Compress`,
+          psUtf8(
+            `$p = Start-Process -FilePath 'dism.exe' -ArgumentList '/Online','/Cleanup-Image','/RestoreHealth' -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput "$env:TEMP\\dism_out.txt"; ` +
+            `$output = Get-Content "$env:TEMP\\dism_out.txt" -Raw -Encoding UTF8 -ErrorAction SilentlyContinue; ` +
+            `Remove-Item "$env:TEMP\\dism_out.txt" -ErrorAction SilentlyContinue; ` +
+            `[PSCustomObject]@{ exitCode=$p.ExitCode; output=$output } | ConvertTo-Json -Compress`
+          ),
         ], { timeout: 300_000, windowsHide: true })
 
         const data = JSON.parse(stdout.trim())

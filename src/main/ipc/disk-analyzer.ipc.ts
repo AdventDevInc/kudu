@@ -2,12 +2,14 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { readdir, stat } from 'fs/promises'
 import { execFile, spawn } from 'child_process'
 import { promisify } from 'util'
+import { StringDecoder } from 'string_decoder'
 import { join, basename, sep } from 'path'
 import { IPC } from '../../shared/channels'
 import { extname } from 'path'
 import { isAdmin } from '../services/elevation'
 import type { DiskNode, DriveInfo, FileTypeInfo, DiskRepairResult, DiskRepairProgress } from '../../shared/types'
 import type { WindowGetter } from './index'
+import { psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -139,7 +141,7 @@ export async function getDrives(): Promise<DriveInfo[]> {
     try {
       const driveScript = `$fixed = (Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }).DeviceID -replace ':',''; Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null -and $fixed -contains $_.Name } | ForEach-Object { "$($_.Name)|$($_.Description)|$($_.Used)|$($_.Free)" }`
       const { stdout } = await execFileAsync('powershell.exe', [
-        '-NoProfile', '-Command', driveScript
+        '-NoProfile', '-Command', psUtf8(driveScript)
       ], { timeout: 10000, windowsHide: true })
 
       const drives: DriveInfo[] = []
@@ -252,12 +254,14 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
       args.push(`/offbootdir=${safeDrive}:\\`, `/offwindir=${safeDrive}:\\Windows`)
     }
 
-    const child = spawn('sfc', args, { windowsHide: true })
+    const child = spawn('cmd', ['/c', 'chcp 65001 >nul & sfc', ...args], { windowsHide: true })
     let stdout = ''
     let lastPercent = 0
+    const decoder = new StringDecoder('utf-8')
+    const stderrDecoder = new StringDecoder('utf-8')
 
     child.stdout?.on('data', (chunk: Buffer) => {
-      const text = chunk.toString('utf-8')
+      const text = decoder.write(chunk)
       stdout += text
       // Parse progress from SFC output like "Verification 42% complete."
       const match = text.match(/(\d+)\s*%/i)
@@ -271,7 +275,7 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
     })
 
     child.stderr?.on('data', (chunk: Buffer) => {
-      stdout += chunk.toString('utf-8')
+      stdout += stderrDecoder.write(chunk)
     })
 
     child.on('error', (err) => {
@@ -315,12 +319,14 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
   }
 
   return new Promise((resolve) => {
-    const child = spawn('DISM', ['/Online', '/Cleanup-Image', '/RestoreHealth'], { windowsHide: true })
+    const child = spawn('cmd', ['/c', 'chcp 65001 >nul & DISM', '/Online', '/Cleanup-Image', '/RestoreHealth'], { windowsHide: true })
     let stdout = ''
     let lastPercent = 0
+    const dismDecoder = new StringDecoder('utf-8')
+    const dismStderrDecoder = new StringDecoder('utf-8')
 
     child.stdout?.on('data', (chunk: Buffer) => {
-      const text = chunk.toString('utf-8')
+      const text = dismDecoder.write(chunk)
       stdout += text
       const match = text.match(/(\d+(?:\.\d+)?)\s*%/i)
       if (match) {
@@ -333,7 +339,7 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
     })
 
     child.stderr?.on('data', (chunk: Buffer) => {
-      stdout += chunk.toString('utf-8')
+      stdout += dismStderrDecoder.write(chunk)
     })
 
     child.on('error', (err) => {

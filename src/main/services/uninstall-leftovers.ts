@@ -8,6 +8,7 @@ import type { WindowGetter } from '../ipc/index'
 import { CleanerType } from '../../shared/enums'
 import { getPlatform } from '../platform'
 import { SAFE_FOLDER_NAMES, SAFE_PREFIXES } from '../constants/uninstall-safelist'
+import { psUtf8, execNativeUtf8 } from './exec-utf8'
 import { getDirectorySize } from './file-utils'
 import type { ScanItem, ScanResult } from '../../shared/types'
 
@@ -34,7 +35,7 @@ async function getInstalledPrograms(): Promise<InstalledProgram[]> {
 
   for (const key of keys) {
     try {
-      const { stdout } = await execFileAsync('reg', ['query', key, '/s'], {
+      const { stdout } = await execNativeUtf8('reg',['query', key, '/s'], {
         timeout: 20000,
         maxBuffer: 10 * 1024 * 1024,
       })
@@ -187,7 +188,7 @@ async function hasRunningProcesses(folderPaths: string[]): Promise<Set<string>> 
     // Get all running process paths in one call
     const procScript = 'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
     const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NoLogo', '-Command', procScript,
+      '-NoProfile', '-NoLogo', '-Command', psUtf8(procScript),
     ], { timeout: 10000, windowsHide: true })
 
     const processPaths = stdout

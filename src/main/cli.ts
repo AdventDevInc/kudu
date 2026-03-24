@@ -8,6 +8,7 @@ import { CleanerType } from '../shared/enums'
 import type { ScanResult, CleanResult } from '../shared/types'
 import { getPlatform } from './platform'
 import { randomUUID } from 'crypto'
+import { psUtf8 } from './services/exec-utf8'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -308,7 +309,7 @@ async function scanRecycleBin(): Promise<ScanResult[]> {
   try {
     const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
     const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', rbScript
+      '-NoProfile', '-Command', psUtf8(rbScript)
     ], { windowsHide: true })
     const [countStr, sizeStr] = stdout.trim().split('|')
     const count = parseInt(countStr) || 0
@@ -406,7 +407,7 @@ async function cleanRecycleBin(sizeBytes: number = 0): Promise<CleanResult> {
   try {
     const cleanScript = `$shell = New-Object -ComObject Shell.Application; $shell.NameSpace(0x0a).Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }; Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue`
     await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', cleanScript
+      '-NoProfile', '-Command', psUtf8(cleanScript)
     ], { windowsHide: true })
     return { totalCleaned: sizeBytes, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
   } catch (err: any) {

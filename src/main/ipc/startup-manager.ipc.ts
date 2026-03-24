@@ -7,11 +7,12 @@ import { createHash } from 'crypto'
 import { IPC } from '../../shared/channels'
 import type { StartupItem, StartupBootTrace, StartupBootEntry } from '../../shared/types'
 import { getPlatform } from '../platform'
+import { psUtf8, execNativeUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
 function psArgs(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-Command', script]
+  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
 }
 
 interface DisabledEntry {
@@ -76,8 +77,9 @@ function deriveDisplayName(registryName: string, command: string): string {
     return prefix
   }
 
-  // If the registry name already looks readable, use it
-  if (registryName.includes(' ') || (registryName.length <= 30 && /^[A-Za-z0-9 ._-]+$/.test(registryName))) {
+  // If the registry name already looks readable, use it.
+  // Allow Unicode letters (\p{L}) so accented names like "Système" or "Données" are kept.
+  if (registryName.includes(' ') || (registryName.length <= 30 && /^[\p{L}\p{N} ._-]+$/u.test(registryName))) {
     return registryName
   }
 
@@ -183,7 +185,7 @@ async function mergeStartupApproved(items: StartupItem[]): Promise<void> {
 
   for (const { key, source } of approvedKeys) {
     try {
-      const { stdout } = await execFileAsync('reg', ['query', key], { timeout: 10000 })
+      const { stdout } = await execNativeUtf8('reg',['query', key], { timeout: 10000 })
       const lines = stdout.split('\n')
       for (const line of lines) {
         const match = line.match(/^\s+(.+?)\s{4,}REG_BINARY\s{4,}(\S+)/i)
@@ -264,9 +266,9 @@ async function getScheduledLogonTasks(): Promise<StartupItem[]> {
   return items
 }
 
-/** Validate that a task name contains only safe characters (letters, digits, spaces, dashes, dots, underscores) */
+/** Validate that a task name contains only safe characters (letters incl. accented, digits, spaces, dashes, dots, underscores) */
 function isSafeTaskName(name: string): boolean {
-  return typeof name === 'string' && name.length > 0 && name.length <= 260 && /^[A-Za-z0-9 \-._()]+$/.test(name)
+  return typeof name === 'string' && name.length > 0 && name.length <= 260 && /^[\p{L}\p{N} \-._()]+$/u.test(name)
 }
 
 // Whitelist of allowed registry locations for startup items
@@ -288,7 +290,7 @@ export async function listStartupItems(): Promise<StartupItem[]> {
 
     // Read HKCU Run
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execNativeUtf8('reg',[
         'query',
         'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'
       ], { timeout: 10000 })
@@ -299,7 +301,7 @@ export async function listStartupItems(): Promise<StartupItem[]> {
 
     // Read HKLM Run
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execNativeUtf8('reg',[
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'
       ], { timeout: 10000 })
@@ -310,7 +312,7 @@ export async function listStartupItems(): Promise<StartupItem[]> {
 
     // Read HKLM Wow6432Node Run (32-bit apps on 64-bit Windows)
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execNativeUtf8('reg',[
         'query',
         'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run'
       ], { timeout: 10000 })
@@ -396,7 +398,7 @@ export async function toggleStartupItem(
         // is re-created by the app, Windows will skip it while the marker is 03.
         // The value is a 12-byte REG_BINARY: status byte + 8-byte timestamp + padding.
         try {
-          await execFileAsync('reg', [
+          await execNativeUtf8('reg',[
             'add', approvedKey, '/v', name, '/t', 'REG_BINARY',
             '/d', '030000000000000000000000', '/f'
           ], { timeout: 10000 })
@@ -405,7 +407,7 @@ export async function toggleStartupItem(
         }
 
         try {
-          await execFileAsync('reg', [
+          await execNativeUtf8('reg',[
             'delete', location, '/v', name, '/f'
           ], { timeout: 10000 })
         } catch {
@@ -429,7 +431,7 @@ export async function toggleStartupItem(
         const safeCommand = stored.command
 
         try {
-          await execFileAsync('reg', [
+          await execNativeUtf8('reg',[
             'add', location, '/v', name, '/t', 'REG_SZ', '/d', safeCommand, '/f'
           ], { timeout: 10000 })
         } catch {
@@ -438,7 +440,7 @@ export async function toggleStartupItem(
 
         // Write an "enabled" marker (first byte 02) to StartupApproved
         try {
-          await execFileAsync('reg', [
+          await execNativeUtf8('reg',[
             'add', approvedKey, '/v', name, '/t', 'REG_BINARY',
             '/d', '020000000000000000000000', '/f'
           ], { timeout: 10000 })
@@ -491,7 +493,7 @@ export async function deleteStartupItem(
           if (!ALLOWED_STARTUP_LOCATIONS.has(location)) return false
           // Delete from Run key and StartupApproved
           try {
-            await execFileAsync('reg', ['delete', location, '/v', name, '/f'], { timeout: 10000 })
+            await execNativeUtf8('reg',['delete', location, '/v', name, '/f'], { timeout: 10000 })
             deletedSource = true
           } catch {
             // Entry may already be deleted (e.g. disabled via toggle) — that's fine
@@ -502,7 +504,7 @@ export async function deleteStartupItem(
             ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
             : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
           try {
-            await execFileAsync('reg', ['delete', approvedKey, '/v', name, '/f'], { timeout: 5000 })
+            await execNativeUtf8('reg',['delete', approvedKey, '/v', name, '/f'], { timeout: 5000 })
           } catch { /* may not exist */ }
         }
       } catch {

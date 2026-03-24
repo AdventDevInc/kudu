@@ -1,5 +1,6 @@
 import { execFile } from 'child_process'
 import { isAdmin } from './elevation'
+import { psUtf8 } from './exec-utf8'
 
 export interface RestorePointResult {
   success: boolean
@@ -23,7 +24,7 @@ export function createRestorePoint(description: string): Promise<RestorePointRes
 
     execFile(
       'powershell.exe',
-      ['-NoProfile', '-NonInteractive', '-Command', script],
+      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
       { timeout: 60_000 },
       (err, _stdout, stderr) => {
         if (err) {

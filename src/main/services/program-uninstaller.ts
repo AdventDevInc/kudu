@@ -7,6 +7,7 @@ import { getPlatform } from '../platform'
 import { SAFE_FOLDER_NAMES, SAFE_PREFIXES } from '../constants/uninstall-safelist'
 import { getDirectorySize } from './file-utils'
 import type { InstalledProgram, ScanItem } from '../../shared/types'
+import { psUtf8, execNativeUtf8 } from './exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -149,7 +150,7 @@ export async function getInstalledProgramsFull(): Promise<InstalledProgram[]> {
 
   for (const key of REGISTRY_KEYS) {
     try {
-      const { stdout } = await execFileAsync('reg', ['query', key, '/s'], {
+      const { stdout } = await execNativeUtf8('reg',['query', key, '/s'], {
         timeout: 20000,
         maxBuffer: 10 * 1024 * 1024,
       })
@@ -320,7 +321,7 @@ export function runUninstaller(program: InstalledProgram): Promise<number | null
  */
 export async function verifyUninstall(registryKey: string): Promise<boolean> {
   try {
-    await execFileAsync('reg', ['query', registryKey], { timeout: 5000 })
+    await execNativeUtf8('reg',['query', registryKey], { timeout: 5000 })
     return false // key still exists = not fully uninstalled
   } catch {
     return true // key gone = uninstalled successfully
@@ -390,7 +391,7 @@ async function hasRunningProcesses(folderPaths: string[]): Promise<Set<string>> 
   try {
     const procScript = 'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
     const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NoLogo', '-Command', procScript,
+      '-NoProfile', '-NoLogo', '-Command', psUtf8(procScript),
     ], { timeout: 10000, windowsHide: true })
 
     const processPaths = stdout.split(/\r?\n/).map((p) => p.trim().toLowerCase()).filter(Boolean)

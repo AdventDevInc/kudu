@@ -6,6 +6,7 @@ import { IPC } from '../../shared/channels'
 import type { NetworkItem, NetworkCleanResult } from '../../shared/types'
 import { getPlatform } from '../platform'
 import { validateStringArray } from '../services/ipc-validation'
+import { psUtf8, execNativeUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -18,7 +19,7 @@ async function getDnsCacheCount(): Promise<number> {
     try {
       const { stdout } = await execFileAsync('powershell', [
         '-NoProfile', '-Command',
-        '(Get-DnsClientCache | Measure-Object).Count'
+        psUtf8('(Get-DnsClientCache | Measure-Object).Count')
       ], { timeout: 10000, windowsHide: true })
       return parseInt(stdout.trim(), 10) || 0
     } catch {
@@ -44,7 +45,7 @@ async function getNetworkHistory(): Promise<{ name: string; guid: string }[]> {
   // Network history is Windows-only (registry-based)
   if (process.platform !== 'win32') return []
   try {
-    const { stdout } = await execFileAsync('reg', [
+    const { stdout } = await execNativeUtf8('reg',[
       'query',
       'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles',
       '/s'
@@ -177,7 +178,7 @@ export async function cleanNetworkItems(items: NetworkItem[]): Promise<NetworkCl
           if (process.platform !== 'win32') break
           const guidMatch = item.detail.match(/(\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\})/)
           if (guidMatch) {
-            await execFileAsync('reg', [
+            await execNativeUtf8('reg',[
               'delete',
               `HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\${guidMatch[1]}`,
               '/f'

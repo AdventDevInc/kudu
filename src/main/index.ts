@@ -4,6 +4,7 @@ import { promisify } from 'util'
 import { join } from 'path'
 
 const execFileAsync = promisify(execFile)
+import { execNativeUtf8 } from './services/exec-utf8'
 import { IPC } from '../shared/channels'
 import { t } from './i18n'
 import { registerCleanerIpc } from './ipc'
@@ -87,7 +88,7 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
   if (enabled) {
     // Remove any stale task first, then create a fresh one
     try {
-      await execFileAsync('schtasks', [
+      await execNativeUtf8('schtasks',[
         '/Delete', '/TN', TASK_NAME, '/F'
       ], { timeout: 10000 })
     } catch { /* task may not exist yet */ }
@@ -132,7 +133,7 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
     await writeFile(tmpPath, '\uFEFF' + xml, 'utf-16le')
 
     try {
-      await execFileAsync('schtasks', [
+      await execNativeUtf8('schtasks',[
         '/Create',
         '/TN', TASK_NAME,
         '/XML', tmpPath,
@@ -143,12 +144,12 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
     }
 
     // Verify the task was actually registered
-    await execFileAsync('schtasks', [
+    await execNativeUtf8('schtasks',[
       '/Query', '/TN', TASK_NAME
     ], { timeout: 10000 })
   } else {
     try {
-      await execFileAsync('schtasks', [
+      await execNativeUtf8('schtasks',[
         '/Delete', '/TN', TASK_NAME, '/F'
       ], { timeout: 10000 })
     } catch { /* task may not exist */ }

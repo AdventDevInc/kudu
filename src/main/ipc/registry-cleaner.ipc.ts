@@ -9,8 +9,14 @@ import type { RegistryEntry } from '../../shared/types'
 import { randomUUID } from 'crypto'
 import type { WindowGetter } from './index'
 import { validateStringArray } from '../services/ipc-validation'
+import { execNativeUtf8, psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
+
+/** Run reg.exe with UTF-8 code page so accented characters decode correctly */
+async function execReg(args: string[], opts?: { timeout?: number }): Promise<{ stdout: string; stderr: string }> {
+  return execNativeUtf8('reg', args, opts)
+}
 
 /** Parse a CSV line handling escaped quotes ("") inside quoted fields */
 function parseCSVLine(line: string): string[] {
@@ -53,7 +59,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 /** Validate that a task path contains only safe characters */
-const SAFE_TASK_PATH_RE = /^[\\A-Za-z0-9\s\-._()]+$/
+const SAFE_TASK_PATH_RE = /^[\\\p{L}\p{N}\s\-._()]+$/u
 
 /** Split a full task path like "\\Folder\\Sub\\TaskName" into { path, name } for PowerShell */
 function splitTaskPath(fullPath: string): { path: string; name: string } | null {
@@ -150,12 +156,12 @@ function extractExePath(raw: string): string | null {
 async function clsidExists(clsid: string): Promise<boolean> {
   // Try native view first
   try {
-    await execFileAsync('reg', ['query', `HKCR\\CLSID\\${clsid}`], { timeout: 5000 })
+    await execReg(['query', `HKCR\\CLSID\\${clsid}`], { timeout: 5000 })
     return true
   } catch { /* not in native view */ }
   // Try 32-bit (WOW64) view
   try {
-    await execFileAsync('reg', [
+    await execReg([
       'query', `HKCR\\WOW6432Node\\CLSID\\${clsid}`
     ], { timeout: 5000 })
     return true
@@ -185,7 +191,7 @@ async function findMissingClsidDll(clsid: string): Promise<string | 'no-inproc' 
   for (const prefix of prefixes) {
     // Check InprocServer32
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', `${prefix}\\InprocServer32`
       ], { timeout: 5000 })
       foundAnyServer = true
@@ -202,7 +208,7 @@ async function findMissingClsidDll(clsid: string): Promise<string | 'no-inproc' 
     } catch { /* No InprocServer32 in this view */ }
     // Check LocalServer32 as fallback
     try {
-      await execFileAsync('reg', [
+      await execReg([
         'query', `${prefix}\\LocalServer32`
       ], { timeout: 5000 })
       return null // Uses out-of-process server — healthy
@@ -220,7 +226,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for broken App Paths
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths',
         '/s'
@@ -252,7 +258,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for broken SharedDLLs references
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SharedDLLs',
         '/s'
@@ -290,7 +296,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     ]
     for (const runKey of runKeys) {
       try {
-        const { stdout } = await execFileAsync('reg', ['query', runKey], { timeout: 10000 })
+        const { stdout } = await execReg(['query', runKey], { timeout: 10000 })
         const lines = stdout.split(/\r?\n/)
         for (const line of lines) {
           const match = line.match(/^\s+(\S+)\s+REG_SZ\s+(.+)/i)
@@ -321,7 +327,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for broken file associations
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts',
         '/s'
@@ -334,7 +340,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         if (keyMatch && appMatch) {
           const appName = appMatch[1].trim()
           try {
-            await execFileAsync('reg', [
+            await execReg([
               'query',
               `HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${appName}`
             ], { timeout: 5000 })
@@ -360,7 +366,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for broken font references
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts',
         '/s'
@@ -397,7 +403,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for stale MUI Cache entries
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKCU\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache',
         '/s'
@@ -431,7 +437,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for Windows Firewall rules pointing to missing programs
     try {
       const fwRulesKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', fwRulesKey, '/s'
       ], { timeout: 15000 })
 
@@ -471,7 +477,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     ]
     for (const shellKey of shellExtKeys) {
       try {
-        const { stdout } = await execFileAsync('reg', ['query', shellKey, '/s'], { timeout: 10000 })
+        const { stdout } = await execReg(['query', shellKey, '/s'], { timeout: 10000 })
         const blocks = stdout.split(/\r?\n\r?\n/)
         for (const block of blocks) {
           const clsidMatch = block.match(/\(Default\)\s+REG_SZ\s+(\{[0-9A-Fa-f-]+\})/i)
@@ -516,7 +522,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for stale Windows Installer product references
     try {
       const installerKey = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\Folders'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', installerKey, '/s'
       ], { timeout: 15000 })
 
@@ -545,7 +551,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for dead CLSID InprocServer32 entries
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', 'HKCR\\CLSID', '/s', '/f', 'InprocServer32', '/k'
       ], { timeout: 20000 })
 
@@ -579,7 +585,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for stale TypeLib entries
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', 'HKCR\\TypeLib', '/s', '/f', 'win32', '/k'
       ], { timeout: 15000 })
 
@@ -614,7 +620,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for orphaned App Compatibility shim entries (HKLM)
     try {
       const appCompatKeyLM = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', appCompatKeyLM, '/s'
       ], { timeout: 10000 })
 
@@ -644,7 +650,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan HKCU App Compat layers too
     try {
       const appCompatKeyCU = 'HKCU\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', appCompatKeyCU, '/s'
       ], { timeout: 10000 })
 
@@ -676,7 +682,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for orphaned services pointing to missing executables
     try {
       const servicesKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', servicesKey, '/s', '/f', 'ImagePath', '/v'
       ], { timeout: 20000 })
 
@@ -739,7 +745,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     ]
     for (const uninstallKey of uninstallKeys) {
       try {
-        const { stdout } = await execFileAsync('reg', [
+        const { stdout } = await execReg([
           'query', uninstallKey, '/s'
         ], { timeout: 15000 })
 
@@ -840,7 +846,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for orphaned MIME content type handlers
     try {
       const mimeKey = 'HKCR\\MIME\\Database\\Content Type'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', mimeKey, '/s'
       ], { timeout: 15000 })
 
@@ -872,7 +878,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for orphaned AutoPlay handler paths
     try {
       const autoPlayKey = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\Handlers'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', autoPlayKey, '/s'
       ], { timeout: 15000 })
 
@@ -885,7 +891,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
           const progId = progIdMatch[1].trim()
           if (progId) {
             try {
-              await execFileAsync('reg', ['query', `HKCR\\${progId}`], { timeout: 5000 })
+              await execReg(['query', `HKCR\\${progId}`], { timeout: 5000 })
             } catch {
               const handlerName = keyMatch[1].split('\\').pop() || 'Unknown'
               entries.push({
@@ -929,7 +935,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     }
     for (const client of clientCategories) {
       try {
-        const { stdout } = await execFileAsync('reg', [
+        const { stdout } = await execReg([
           'query', client.key
         ], { timeout: 10000 })
 
@@ -945,7 +951,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
               clientName.toLowerCase() === 'outlook') continue
           // Check if the client has a shell/open/command with a valid exe
           try {
-            const { stdout: cmdOut } = await execFileAsync('reg', [
+            const { stdout: cmdOut } = await execReg([
               'query', `${subKey}\\shell\\open\\command`
             ], { timeout: 5000 })
             const rawValMatch = cmdOut.match(/\(Default\)\s+REG_SZ\s+(.+)/i)
@@ -978,7 +984,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     ]
     for (const bhoKey of bhoKeys) {
       try {
-        const { stdout } = await execFileAsync('reg', [
+        const { stdout } = await execReg([
           'query', bhoKey
         ], { timeout: 10000 })
 
@@ -1025,7 +1031,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for orphaned Event Log application sources
     try {
       const eventLogKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', eventLogKey
       ], { timeout: 10000 })
 
@@ -1045,7 +1051,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
             sourceName.toLowerCase() === 'eventlog' ||
             sourceName.toLowerCase() === 'vssetup') continue
         try {
-          const { stdout: srcOut } = await execFileAsync('reg', [
+          const { stdout: srcOut } = await execReg([
             'query', sourceKey, '/v', 'EventMessageFile'
           ], { timeout: 5000 })
           const pathMatch = srcOut.match(/EventMessageFile\s+REG_(?:EXPAND_)?SZ\s+(.+)/i)
@@ -1066,7 +1072,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
               // still resolve event descriptions without its own message files
               let hasPrimaryModule = false
               try {
-                const { stdout: pmOut } = await execFileAsync('reg', [
+                const { stdout: pmOut } = await execReg([
                   'query', sourceKey, '/v', 'PrimaryModule'
                 ], { timeout: 3000 })
                 if (pmOut.includes('PrimaryModule')) hasPrimaryModule = true
@@ -1095,7 +1101,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for orphaned COM Interface proxy stubs
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', 'HKCR\\Interface', '/s', '/f', 'ProxyStubClsid32'
       ], { timeout: 20000 })
 
@@ -1152,7 +1158,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Scan for orphaned UserChoice file associations (default app for removed programs)
     try {
       const fileExtsKey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', fileExtsKey, '/s', '/f', 'UserChoice'
       ], { timeout: 15000 })
 
@@ -1169,7 +1175,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
               progId.startsWith('Acrobat') || progId.startsWith('WMP')) continue
           // Check if the ProgID still exists in HKCR
           try {
-            await execFileAsync('reg', ['query', `HKCR\\${progId}`], { timeout: 3000 })
+            await execReg(['query', `HKCR\\${progId}`], { timeout: 3000 })
           } catch {
             const extMatch = keyMatch[1].match(/FileExts\\([^\\]+)\\UserChoice/)
             const ext = extMatch ? extMatch[1] : 'unknown'
@@ -1195,7 +1201,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if UAC is disabled
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System',
         '/v', 'EnableLUA'
@@ -1219,7 +1225,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if Windows Defender real-time protection is disabled
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection',
         '/v', 'DisableRealtimeMonitoring'
@@ -1243,7 +1249,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if Windows Defender is fully disabled
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender',
         '/v', 'DisableAntiSpyware'
@@ -1267,7 +1273,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if AutoRun is enabled
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer',
         '/v', 'NoDriveTypeAutoRun'
@@ -1300,7 +1306,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if SMBv1 is enabled
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters',
         '/v', 'SMB1'
@@ -1324,7 +1330,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if Remote Desktop is enabled without NLA
     try {
-      const { stdout: rdpEnabled } = await execFileAsync('reg', [
+      const { stdout: rdpEnabled } = await execReg([
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server',
         '/v', 'fDenyTSConnections'
@@ -1333,7 +1339,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       if (rdpMatch && rdpMatch[1] === '0') {
         try {
           const rdpNlaKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp'
-          const { stdout: nlaOut } = await execFileAsync('reg', [
+          const { stdout: nlaOut } = await execReg([
             'query', rdpNlaKey, '/v', 'UserAuthentication'
           ], { timeout: 5000 })
           const nlaMatch = nlaOut.match(/UserAuthentication\s+REG_DWORD\s+0x(\d+)/i)
@@ -1359,7 +1365,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if PowerShell execution policy is unrestricted
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\PowerShell\\1\\ShellIds\\Microsoft.PowerShell',
         '/v', 'ExecutionPolicy'
@@ -1393,7 +1399,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     for (const profile of fwProfiles) {
       try {
         const fwKey = `HKLM\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\${profile.key}`
-        const { stdout } = await execFileAsync('reg', [
+        const { stdout } = await execReg([
           'query', fwKey, '/v', 'EnableFirewall'
         ], { timeout: 5000 })
         const match = stdout.match(/EnableFirewall\s+REG_DWORD\s+0x(\d+)/i)
@@ -1416,7 +1422,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if Remote Registry service is enabled
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteRegistry',
         '/v', 'Start'
@@ -1442,7 +1448,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check if SysMain (Superfetch) is enabled — only recommend disabling on SSDs
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Services\\SysMain',
         '/v', 'Start'
@@ -1454,7 +1460,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         try {
           const diskScript = `$disk = Get-PhysicalDisk | Where-Object { $_.DeviceID -eq (Get-Partition -DriveLetter C | Get-Disk).Number }; $disk.MediaType`
           const { stdout: driveInfo } = await execFileAsync('powershell', [
-            '-NoProfile', '-Command', diskScript
+            '-NoProfile', '-Command', psUtf8(diskScript)
           ], { timeout: 10000, windowsHide: true })
           isSSD = driveInfo.trim().toUpperCase() === 'SSD'
         } catch { /* Assume HDD if detection fails — safer to leave SysMain enabled */ }
@@ -1492,7 +1498,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Check if LLMNR is enabled
     try {
       const llmnrKey = 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', llmnrKey, '/v', 'EnableMulticast'
       ], { timeout: 5000 })
       const match = stdout.match(/EnableMulticast\s+REG_DWORD\s+0x(\d+)/i)
@@ -1524,7 +1530,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     // Check if WPAD is not disabled
     try {
       const wpadKey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Wpad'
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', wpadKey, '/v', 'WpadOverride'
       ], { timeout: 5000 })
       const match = stdout.match(/WpadOverride\s+REG_DWORD\s+0x(\d+)/i)
@@ -1558,7 +1564,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Check Fax service
     try {
-      const { stdout } = await execFileAsync('reg', [
+      const { stdout } = await execReg([
         'query', 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\Fax', '/v', 'Start'
       ], { timeout: 5000 })
       const match = stdout.match(/Start\s+REG_DWORD\s+0x(\d+)/i)
@@ -1581,7 +1587,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
     // Scan for orphaned scheduled tasks
     try {
-      const { stdout } = await execFileAsync('schtasks', [
+      const { stdout } = await execNativeUtf8('schtasks', [
         '/query', '/fo', 'CSV', '/nh', '/v'
       ], { timeout: 20000 })
 
@@ -1628,7 +1634,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       { pattern: 'CCleaner', exe: 'CCleaner' }
     ]
     try {
-      const { stdout } = await execFileAsync('schtasks', ['/query', '/fo', 'CSV', '/v', '/nh'], { timeout: 15000 })
+      const { stdout } = await execNativeUtf8('schtasks', ['/query', '/fo', 'CSV', '/v', '/nh'], { timeout: 15000 })
       for (const task of thirdPartyTasks) {
         const matchingLines = stdout.split(/\r?\n/).filter(l => l.includes(task.pattern))
         for (const line of matchingLines) {
@@ -1672,19 +1678,19 @@ export async function fixRegistryEntries(
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
       const backupPath = join(backupDir, `registry-backup-${timestamp}.reg`)
       // Back up all hives that fix operations may modify
-      await execFileAsync('reg', ['export', 'HKLM\\SOFTWARE', backupPath, '/y'], { timeout: 30000 })
+      await execReg(['export', 'HKLM\\SOFTWARE', backupPath, '/y'], { timeout: 30000 })
       const hkcuBackupPath = join(backupDir, `registry-backup-HKCU-${timestamp}.reg`)
-      await execFileAsync('reg', ['export', 'HKCU\\SOFTWARE', hkcuBackupPath, '/y'], { timeout: 30000 }).catch(() => {})
+      await execReg(['export', 'HKCU\\SOFTWARE', hkcuBackupPath, '/y'], { timeout: 30000 }).catch(() => {})
       // Back up HKLM\SYSTEM (services, event log sources) and HKCR (COM, interfaces, shell extensions)
       const systemBackupPath = join(backupDir, `registry-backup-SYSTEM-${timestamp}.reg`)
-      await execFileAsync('reg', ['export', 'HKLM\\SYSTEM\\CurrentControlSet\\Services', systemBackupPath, '/y'], { timeout: 60000 }).catch(() => {})
+      await execReg(['export', 'HKLM\\SYSTEM\\CurrentControlSet\\Services', systemBackupPath, '/y'], { timeout: 60000 }).catch(() => {})
       // Back up HKCR branches that fix operations may delete from
       const hkcrClsidPath = join(backupDir, `registry-backup-HKCR-CLSID-${timestamp}.reg`)
-      await execFileAsync('reg', ['export', 'HKCR\\CLSID', hkcrClsidPath, '/y'], { timeout: 60000 }).catch(() => {})
+      await execReg(['export', 'HKCR\\CLSID', hkcrClsidPath, '/y'], { timeout: 60000 }).catch(() => {})
       const hkcrIfacePath = join(backupDir, `registry-backup-HKCR-Interface-${timestamp}.reg`)
-      await execFileAsync('reg', ['export', 'HKCR\\Interface', hkcrIfacePath, '/y'], { timeout: 60000 }).catch(() => {})
+      await execReg(['export', 'HKCR\\Interface', hkcrIfacePath, '/y'], { timeout: 60000 }).catch(() => {})
       const hkcrMimePath = join(backupDir, `registry-backup-HKCR-MIME-${timestamp}.reg`)
-      await execFileAsync('reg', ['export', 'HKCR\\MIME', hkcrMimePath, '/y'], { timeout: 30000 }).catch(() => {})
+      await execReg(['export', 'HKCR\\MIME', hkcrMimePath, '/y'], { timeout: 30000 }).catch(() => {})
       // Shell extension handlers are under HKCR\*\shellex, HKCR\Directory\shellex, HKCR\Folder\shellex
       const shellRoots = [
         { key: '*', file: 'AllFileTypes' },
@@ -1693,7 +1699,7 @@ export async function fixRegistryEntries(
       ]
       for (const { key, file } of shellRoots) {
         const shellPath = join(backupDir, `registry-backup-HKCR-${file}-shellex-${timestamp}.reg`)
-        await execFileAsync('reg', ['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000 }).catch(() => {})
+        await execReg(['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000 }).catch(() => {})
       }
     } catch {
       // Backup failed, but continue
@@ -1720,16 +1726,16 @@ export async function fixRegistryEntries(
       try {
         switch (fix.op) {
           case 'delete-value':
-            await execFileAsync('reg', ['delete', key, '/v', value, '/f'], { timeout: 10000 })
+            await execReg(['delete', key, '/v', value, '/f'], { timeout: 10000 })
             break
 
           case 'delete-key':
-            await execFileAsync('reg', ['delete', key, '/f'], { timeout: 10000 })
+            await execReg(['delete', key, '/f'], { timeout: 10000 })
             break
 
           case 'set-value':
             if (fix.regType && fix.data !== undefined) {
-              await execFileAsync('reg', [
+              await execReg([
                 'add', key, '/v', value, '/t', fix.regType, '/d', fix.data, '/f'
               ], { timeout: 10000 })
             }
@@ -1742,7 +1748,7 @@ export async function fixRegistryEntries(
             const safeDisableName = disableParts.name.replace(/'/g, "''")
             const disableScript = `Disable-ScheduledTask -TaskPath '${safeDisablePath}' -TaskName '${safeDisableName}' -ErrorAction Stop`
             await execFileAsync('powershell', [
-              '-NoProfile', '-NonInteractive', '-Command', disableScript
+              '-NoProfile', '-NonInteractive', '-Command', psUtf8(disableScript)
             ], { timeout: 10000, windowsHide: true })
             break
           }
@@ -1754,7 +1760,7 @@ export async function fixRegistryEntries(
             const safeDeleteName = deleteParts.name.replace(/'/g, "''")
             const deleteScript = `Unregister-ScheduledTask -TaskPath '${safeDeletePath}' -TaskName '${safeDeleteName}' -Confirm:$false -ErrorAction Stop`
             await execFileAsync('powershell', [
-              '-NoProfile', '-NonInteractive', '-Command', deleteScript
+              '-NoProfile', '-NonInteractive', '-Command', psUtf8(deleteScript)
             ], { timeout: 10000, windowsHide: true })
             break
           }

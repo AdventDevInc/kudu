@@ -13,6 +13,7 @@ import { cleanItems } from '../services/file-utils'
 import { validateStringArray } from '../services/ipc-validation'
 import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
+import { psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -40,7 +41,7 @@ Get-ChildItem -Path '${dir.replace(/'/g, "''")}' -Filter '*.lnk' -Recurse -Error
   } catch { "$($_.FullName)|" }
 }`
     const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', psScript,
+      '-NoProfile', '-Command', psUtf8(psScript),
     ], { timeout: 30000, windowsHide: true })
 
     const results: ShortcutInfo[] = []

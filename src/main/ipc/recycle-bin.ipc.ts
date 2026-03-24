@@ -9,11 +9,12 @@ import { randomUUID } from 'crypto'
 import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
 import { cacheItems } from '../services/scan-cache'
+import { psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
 function psArgs(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-Command', script]
+  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
 }
 
 // Windows: track last scanned size (virtual items have no real path)

@@ -9,6 +9,7 @@ import type {
   UpdateSeverity,
 } from '../../shared/types'
 import { isAdmin } from './elevation'
+import { psUtf8 } from './exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -353,7 +354,7 @@ async function attemptElevatedUpgrade(appId: string): Promise<{ success: boolean
       [
         '-NoProfile',
         '-Command',
-        `$p = Start-Process winget -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`,
+        psUtf8(`$p = Start-Process winget -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`),
       ],
       { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
     )

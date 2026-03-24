@@ -7,6 +7,7 @@ import { join } from 'path'
 import { readdirSync, statSync } from 'fs'
 import { IPC } from '../../shared/channels'
 import { validateStringArray } from '../services/ipc-validation'
+import { execNativeUtf8, psUtf8 } from '../services/exec-utf8'
 import type {
   DriverPackage,
   DriverScanResult,
@@ -21,7 +22,7 @@ import type {
 const execFileAsync = promisify(execFile)
 
 function psArgs(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-Command', script]
+  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
 }
 
 const DRIVER_STORE = join(
@@ -208,7 +209,7 @@ async function getActiveDriverNames(): Promise<Set<string>> {
   } catch {
     // Fallback: if WMI fails, try pnputil /enum-devices
     try {
-      const { stdout } = await execFileAsync('pnputil', ['/enum-devices', '/connected'], {
+      const { stdout } = await execNativeUtf8('pnputil', ['/enum-devices', '/connected'], {
         timeout: 30000
       })
       const matches = stdout.matchAll(/Driver Name:\s*(oem\d+\.inf)/gi)
@@ -238,10 +239,10 @@ export async function scanDrivers(
     try {
       let stdout = ''
       try {
-        const res = await execFileAsync('pnputil', ['-e'], { timeout: 30000 })
+        const res = await execNativeUtf8('pnputil', ['-e'], { timeout: 30000 })
         stdout = res.stdout
       } catch {
-        const res = await execFileAsync('pnputil', ['/enum-drivers'], { timeout: 30000 })
+        const res = await execNativeUtf8('pnputil', ['/enum-drivers'], { timeout: 30000 })
         stdout = res.stdout
       }
       rawDrivers = parseEnumDrivers(stdout)
@@ -362,7 +363,7 @@ export async function cleanDrivers(publishedNames: string[]): Promise<DriverClea
             preSize = dirSize(join(DRIVER_STORE, folders[0]))
           }
 
-          await execFileAsync('pnputil', ['/delete-driver', name], {
+          await execNativeUtf8('pnputil', ['/delete-driver', name], {
             timeout: 15000
           })
           removed++
