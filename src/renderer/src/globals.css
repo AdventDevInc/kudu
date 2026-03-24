@@ -355,6 +355,7 @@ summary, .clickable { cursor: pointer; }
 }
 
 /* ── light mode overrides for Tailwind zinc utilities ── */
+.light .text-zinc-100 { color: #27272a; }
 .light .text-zinc-200 { color: #3f3f46; }
 .light .text-zinc-300 { color: #52525b; }
 .light .text-zinc-400 { color: #71717a; }
@@ -363,7 +364,8 @@ summary, .clickable { cursor: pointer; }
 .light .text-zinc-700 { color: #a1a1aa; }
 .light .text-white { color: #18181b; }
 .light .text-amber-400 { color: #b45309; }
-.light .bg-white\/5:hover { background: rgba(0,0,0,0.04); }
+.light .bg-white\/5 { background: rgba(0,0,0,0.04); }
+.light .bg-white\/10 { background: rgba(0,0,0,0.07); }
 .light .hover\:bg-white\/5:hover { background: rgba(0,0,0,0.04); }
 .light .hover\:bg-white\/\[0\.03\]:hover { background: rgba(0,0,0,0.03); }
 .light .hover\:bg-white\/\[0\.04\]:hover { background: rgba(0,0,0,0.04); }
