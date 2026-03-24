@@ -5,6 +5,7 @@ import i18next from 'i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, Rocket, Check, ChevronRight, ChevronLeft, Globe } from 'lucide-react'
 import { LANGUAGES } from '@/lib/languages'
+import { usePlatform } from '@/hooks/usePlatform'
 import logoSrc from '@/assets/logo.png'
 
 interface OnboardingProps {
@@ -163,13 +164,15 @@ function LanguageStep({ onNext }: { onNext: () => void }) {
 
 function WelcomeStep({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const { t } = useTranslation('onboarding')
+  const { platform } = usePlatform()
+  const isWin = platform === 'win32'
   return (
     <StepWrapper>
       <div className="flex flex-col items-center text-center">
         <img src={logoSrc} alt="Kudu" className="mb-5 h-20 w-20 rounded-2xl" />
         <h2 className="mb-2 text-[22px] font-bold text-zinc-100">{t('welcomeTitle')}</h2>
         <p className="mb-2 text-[13px] leading-relaxed text-zinc-400">
-          {t('welcomeDescription')}
+          {isWin ? t('welcomeDescriptionWindows') : t('welcomeDescriptionOther')}
         </p>
         <div className="mb-6 mt-4 flex gap-4">
           <Feature icon={Sparkles} label={t('featureSmartCleaning')} />
@@ -220,6 +223,8 @@ function SettingsStep({
   onNext: () => void
 }) {
   const { t } = useTranslation('onboarding')
+  const { platform } = usePlatform()
+  const isWin = platform === 'win32'
   return (
     <StepWrapper>
       <div>
@@ -231,7 +236,7 @@ function SettingsStep({
         <div className="space-y-1">
           <SettingRow
             label={t('runAtStartupLabel')}
-            desc={t('runAtStartupDescription')}
+            desc={isWin ? t('runAtStartupDescriptionWindows') : t('runAtStartupDescriptionOther')}
             checked={settings.runAtStartup}
             onChange={(v) => onChange({ ...settings, runAtStartup: v })}
           />
