@@ -17,29 +17,39 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
+      - name: Check for API key
+        if: env.OPENAI_API_KEY == ''
+        run: |
+          echo "::warning::OPENAI_API_KEY secret is not set — skipping translations"
+
       - name: Checkout
+        if: env.OPENAI_API_KEY != ''
         uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
+        if: env.OPENAI_API_KEY != ''
         uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
+        if: env.OPENAI_API_KEY != ''
         run: npm ci
 
       - name: Run translations
+        if: env.OPENAI_API_KEY != ''
         run: node scripts/translate.js
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Commit & push translations
+        if: env.OPENAI_API_KEY != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
