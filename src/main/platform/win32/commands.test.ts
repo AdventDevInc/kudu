@@ -348,17 +348,14 @@ describe('win32 commands', () => {
       expect(result.status).toBe('corrupt')
     })
 
-    it('returns corrupt when output contains "No component store corruption detected"', async () => {
-      // NOTE: The source checks for "component store corruption" before
-      // "No component store corruption detected", so this string matches
-      // the corrupt branch first.
+    it('returns clean when no component store corruption detected', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ exitCode: 0, output: 'No component store corruption detected' }),
         stderr: '',
       })
 
       const result = await cmds.runSystemImageRepair()
-      expect(result.status).toBe('corrupt')
+      expect(result.status).toBe('clean')
     })
 
     it('returns success for exit code 0 with unrecognized output', async () => {

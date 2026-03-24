@@ -189,8 +189,8 @@ export function createWin32Commands(): PlatformCommands {
         const output = (data.output ?? '') as string
         let status = 'unknown'
         if (output.includes('The restore operation completed successfully')) status = 'success'
-        else if (output.includes('component store corruption')) status = 'corrupt'
         else if (output.includes('No component store corruption detected')) status = 'clean'
+        else if (output.includes('component store corruption')) status = 'corrupt'
         else if (data.exitCode === 0) status = 'success'
 
         return { exitCode: data.exitCode ?? -1, status }
