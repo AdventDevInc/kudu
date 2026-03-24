@@ -277,6 +277,14 @@ export interface MalwareActionResult {
   errors: { path: string; reason: string }[]
 }
 
+export interface QuarantinedItem {
+  quarantinedPath: string
+  originalPath: string
+  originalFileName: string
+  quarantinedAt: number
+  size: number
+}
+
 // ─── Privacy Shield ──────────────────────────────────────────
 export interface PrivacySetting {
   id: string

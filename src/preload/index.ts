@@ -244,6 +244,8 @@ const api = {
     ipcRenderer.invoke(IPC.MALWARE_DELETE, paths),
   malwareRestore: (quarantinedPath: string, originalPath: string): Promise<boolean> =>
     ipcRenderer.invoke(IPC.MALWARE_RESTORE, quarantinedPath, originalPath),
+  malwareQuarantineList: (): Promise<import('../shared/types').QuarantinedItem[]> =>
+    ipcRenderer.invoke(IPC.MALWARE_QUARANTINE_LIST),
   onMalwareProgress: (callback: (data: MalwareScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: MalwareScanProgress) => callback(data)
     ipcRenderer.on(IPC.MALWARE_PROGRESS, handler)
