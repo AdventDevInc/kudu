@@ -1,6 +1,6 @@
 import { readdir, readFile, unlink } from 'fs/promises'
 import { existsSync } from 'fs'
-import { join, basename, resolve, normalize } from 'path'
+import { join, basename, resolve, normalize, sep } from 'path'
 import { homedir } from 'os'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
@@ -112,7 +112,7 @@ export function createDarwinStartup(): PlatformStartup {
             '/Library/LaunchAgents',
           ]
           const resolved = resolve(normalize(location))
-          if (!allowedDirs.some(dir => resolved.startsWith(dir + '/'))) {
+          if (!allowedDirs.some(dir => resolved.startsWith(dir + sep))) {
             return false
           }
           if (enabled) {
@@ -154,7 +154,7 @@ export function createDarwinStartup(): PlatformStartup {
             '/Library/LaunchAgents',
           ]
           const resolved = resolve(normalize(location))
-          if (!allowedDirs.some(dir => resolved.startsWith(dir + '/'))) {
+          if (!allowedDirs.some(dir => resolved.startsWith(dir + sep))) {
             return false
           }
           // Unload first, then delete the plist file
