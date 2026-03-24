@@ -30,18 +30,19 @@ export function psUtf8(command: string): string {
 /**
  * Escape a single argument for safe inclusion in a cmd.exe command string.
  *
- * cmd.exe metacharacters (&, |, <, >, ^, !, %, (, )) are interpreted
- * when arguments are concatenated into a single string.  Wrapping an
- * argument in double-quotes neutralises all of them except `%` and `!`
- * (which are handled by /V:OFF — the default — and by not using
- * delayed expansion).  Embedded double-quotes are escaped as `""`.
+ * cmd.exe metacharacters (&, |, <, >, ^, !, (, )) are interpreted when
+ * arguments are concatenated into a single string.  Wrapping an argument
+ * in double-quotes neutralises all of them except `%` (which cannot be
+ * escaped in cmd.exe's command-line mode — see execNativeUtf8 for the
+ * fallback).  `!` is safe because we do not enable delayed expansion
+ * (/V:OFF is the default).  Embedded double-quotes are escaped as `""`.
  *
  * We quote any argument that contains whitespace, metacharacters, or
  * double-quotes.  Arguments that are already safe are returned as-is.
  */
 function cmdEscapeArg(arg: string): string {
   if (arg.length === 0) return '""'
-  if (!/[\s"&|<>^!%()]/.test(arg)) return arg
+  if (!/[\s"&|<>^!()]/.test(arg)) return arg
   return `"${arg.replace(/"/g, '""')}"`
 }
 
@@ -55,6 +56,14 @@ function cmdEscapeArg(arg: string): string {
  * Each argument is escaped for cmd.exe metacharacters to prevent
  * injection from dynamic values (registry names, task paths, etc.).
  *
+ * **%VAR% expansion caveat**: cmd.exe expands `%ENVVAR%` patterns even
+ * inside double-quotes, and there is no reliable escape in command-line
+ * mode.  If any argument contains `%`, we fall back to a direct
+ * `execFile` call (no shell) which bypasses cmd.exe entirely.  This
+ * skips the `chcp 65001` code-page switch, but `%` in arguments occurs
+ * almost exclusively in write operations (e.g. `reg add /d`) whose
+ * output is plain ASCII, so the trade-off is safe.
+ *
  * @param tool  The executable name (e.g. 'reg', 'pnputil')
  * @param args  Arguments that would normally be passed to execFileAsync
  * @param opts  Standard ExecFileOptions (timeout, windowsHide, etc.)
@@ -64,6 +73,20 @@ export async function execNativeUtf8(
   args: string[],
   opts?: Pick<ExecFileOptions, 'timeout' | 'windowsHide' | 'maxBuffer'>
 ): Promise<{ stdout: string; stderr: string }> {
+  const baseOpts = {
+    encoding: 'utf-8' as const,
+    windowsHide: opts?.windowsHide ?? true,
+    timeout: opts?.timeout ?? 15_000,
+    ...(opts?.maxBuffer != null && { maxBuffer: opts.maxBuffer }),
+  }
+
+  // If any argument contains %, call the tool directly to avoid cmd.exe's
+  // %VAR% expansion which would corrupt literal percent sequences like
+  // %APPDATA%\App\app.exe stored in registry values.
+  if (args.some(a => a.includes('%'))) {
+    return execFileAsync(tool, args, baseOpts)
+  }
+
   // Build the full command: chcp to switch to UTF-8, then tool + escaped args.
   const escaped = args.map(cmdEscapeArg)
   const cmdLine = `chcp 65001 >nul && ${tool} ${escaped.join(' ')}`
@@ -72,10 +95,7 @@ export async function execNativeUtf8(
   // a single argument.  windowsVerbatimArguments prevents Node.js from
   // adding its own quoting layer on top of ours.
   return execFileAsync('cmd.exe', ['/d', '/s', '/c', cmdLine], {
-    encoding: 'utf-8',
-    windowsHide: opts?.windowsHide ?? true,
+    ...baseOpts,
     windowsVerbatimArguments: true,
-    timeout: opts?.timeout ?? 15_000,
-    ...(opts?.maxBuffer != null && { maxBuffer: opts.maxBuffer }),
   })
 }

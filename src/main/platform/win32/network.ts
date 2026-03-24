@@ -151,9 +151,9 @@ export function createWin32Network(): PlatformNetwork {
           const match = line.match(/All User Profile\s*:\s*(.+)/i) || line.match(/User Profile\s*:\s*(.+)/i)
           if (match) {
             const name = match[1].trim()
-            // Block quotes, control chars, and shell metacharacters (& | ^ ! % ( ))
-            // that could cause injection via cmd.exe's shell interpretation.
-            if (/["\x00-\x1f&|^!%()><]/.test(name)) continue
+            // Block quotes and control chars — shell metacharacters are handled
+            // by cmdEscapeArg inside execNativeUtf8.
+            if (/["\x00-\x1f]/.test(name)) continue
             let security = 'Unknown'
             try {
               const { stdout: detail } = await execNativeUtf8('netsh', ['wlan', 'show', 'profile', `name=${name}`], { timeout: 5000 })
@@ -171,7 +171,7 @@ export function createWin32Network(): PlatformNetwork {
 
     async deleteWifiProfile(name: string): Promise<boolean> {
       try {
-        if (/["\x00-\x1f&|^!%()><]/.test(name)) return false
+        if (/["\x00-\x1f]/.test(name)) return false
         await execNativeUtf8('netsh', ['wlan', 'delete', 'profile', `name=${name}`], { timeout: 10000 })
         return true
       } catch {
