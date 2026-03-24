@@ -189,13 +189,16 @@ async function getEntrySize(entryPath: string, depth: number = 0): Promise<numbe
 }
 
 export function registerFileShredderIpc(getWindow: WindowGetter): void {
-  // File picker (multiple files)
+  // File/folder pickers — on macOS, avoid passing parent window so the dialog
+  // opens as a standalone panel instead of a sheet (sidebar items like Desktop
+  // are unresponsive in sheet mode).
   ipcMain.handle(IPC.SHREDDER_SELECT_FILES, async () => {
     const win = getWindow()
     if (!win) return []
-    const result = await dialog.showOpenDialog(win, {
-      properties: ['openFile', 'multiSelections']
-    })
+    const fileOpts: Electron.OpenDialogOptions = { properties: ['openFile', 'multiSelections'] }
+    const result = process.platform === 'darwin'
+      ? await dialog.showOpenDialog(fileOpts)
+      : await dialog.showOpenDialog(win, fileOpts)
     if (result.canceled || !result.filePaths.length) return []
 
     const entries: ShredderEntry[] = []
@@ -213,13 +216,13 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     return entries
   })
 
-  // Folder picker (multiple folders)
   ipcMain.handle(IPC.SHREDDER_SELECT_FOLDERS, async () => {
     const win = getWindow()
     if (!win) return []
-    const result = await dialog.showOpenDialog(win, {
-      properties: ['openDirectory', 'multiSelections']
-    })
+    const folderOpts: Electron.OpenDialogOptions = { properties: ['openDirectory', 'multiSelections'] }
+    const result = process.platform === 'darwin'
+      ? await dialog.showOpenDialog(folderOpts)
+      : await dialog.showOpenDialog(win, folderOpts)
     if (result.canceled || !result.filePaths.length) return []
 
     const entries: ShredderEntry[] = []

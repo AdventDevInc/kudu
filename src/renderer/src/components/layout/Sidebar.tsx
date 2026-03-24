@@ -194,6 +194,7 @@ export function Sidebar() {
       if (!item.children) return item
       const filtered = item.children.filter((child) => {
         if (child.path === '/debloater' && !features.debloater) return false
+        if (child.path === '/drivers' && !features.drivers) return false
         return true
       })
       return { ...item, children: filtered }

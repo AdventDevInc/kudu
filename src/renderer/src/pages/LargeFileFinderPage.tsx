@@ -269,7 +269,7 @@ export function LargeFileFinderPage() {
       )}
 
       {/* Scanning progress */}
-      {store.status === 'scanning' && store.progress && (
+      {store.status === 'scanning' && (
         <div
           className="mb-5 rounded-2xl p-5"
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
@@ -283,15 +283,17 @@ export function LargeFileFinderPage() {
             </div>
           </div>
           <p className="text-[13px] font-medium text-white">{t('scanning')}</p>
-          {store.progress.currentPath && (
+          {store.progress?.currentPath && (
             <p className="mt-1 truncate text-[12px]" style={{ color: 'var(--text-muted)' }} title={store.progress.currentPath}>
               {store.progress.currentPath}
             </p>
           )}
-          <div className="mt-3 flex gap-6">
-            <StatMini label={t('filesScanned')} value={store.progress.filesScanned.toLocaleString()} />
-            <StatMini label={t('largeFilesFound')} value={store.progress.largeFilesFound.toLocaleString()} />
-          </div>
+          {store.progress && (
+            <div className="mt-3 flex gap-6">
+              <StatMini label={t('filesScanned')} value={store.progress.filesScanned.toLocaleString()} />
+              <StatMini label={t('largeFilesFound')} value={store.progress.largeFilesFound.toLocaleString()} />
+            </div>
+          )}
         </div>
       )}
 

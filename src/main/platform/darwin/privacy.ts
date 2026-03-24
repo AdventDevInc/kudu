@@ -51,6 +51,24 @@ async function elevatedExec(cmd: string, args: string[]): Promise<string> {
   return stdout
 }
 
+/**
+ * Run multiple commands in a single elevation prompt. Each command is joined
+ * with `&&` so the batch stops on the first failure. This avoids showing
+ * multiple macOS password dialogs when an apply needs more than one step.
+ */
+async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): Promise<void> {
+  if (isRoot()) {
+    for (const { cmd, args } of commands) {
+      await execFileAsync(cmd, args, { timeout: 10_000 })
+    }
+    return
+  }
+  const parts = commands.map(({ cmd, args }) => [cmd, ...args].map(shellEscape).join(' '))
+  const combined = parts.join(' && ')
+  const script = `do shell script ${JSON.stringify(combined)} with administrator privileges`
+  await execFileAsync('/usr/bin/osascript', ['-e', script], { timeout: 30_000 })
+}
+
 async function elevatedWriteFile(filePath: string, content: string): Promise<void> {
   if (isRoot()) {
     await writeFile(filePath, content, 'utf8')
@@ -103,6 +121,14 @@ async function socketfilterfwGet(flag: string): Promise<string> {
 
 async function socketfilterfwSet(flag: string, value: string): Promise<void> {
   await elevatedExec(SOCKETFILTERFW, [flag, value])
+}
+
+// --setglobalstate starts/stops the ALF daemon itself so changes take effect
+// immediately. Other socketfilterfw flags (--setstealthmode, --setallowsigned)
+// only update the on-disk config — on macOS Sonoma+ the running daemon won't
+// pick up the change until it is restarted.
+async function restartAlf(): Promise<void> {
+  await elevatedExec('/bin/launchctl', ['kickstart', '-k', 'system/com.apple.alf']).catch(() => {})
 }
 
 // ─── Sysctl helpers (macOS) ─────────────────────────────────
@@ -207,25 +233,6 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await defaultsWrite('com.apple.HealthKit', 'ResearchDataSharingEnabled', 'bool', 'false')
-    },
-  },
-  {
-    id: 'macos-recent-files',
-    category: 'services',
-    label: 'Recent Files in Finder',
-    description: 'Disable tracking of recently accessed files',
-    requiresAdmin: false,
-    async check() {
-      try {
-        const val = await defaultsRead('com.apple.finder', 'FXRecentFolders')
-        return val === '0' || val === '()'
-      } catch {
-        // Key doesn't exist = we deleted it = setting is applied
-        return true
-      }
-    },
-    async apply() {
-      await execFileAsync('/usr/bin/defaults', ['delete', 'com.apple.finder', 'FXRecentFolders'], { timeout: 5_000 }).catch(() => {})
     },
   },
   {
@@ -501,8 +508,10 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
       } catch { return false }
     },
     async apply() {
-      await elevatedExec('/bin/mkdir', ['-p', MANAGED_PREFS])
-      await elevatedDefaultsWrite(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled', 'bool', 'false')
+      await elevatedBatch([
+        { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
+        { cmd: '/usr/bin/defaults', args: ['write', `${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled', '-bool', 'false'] },
+      ])
     },
   },
   {
@@ -519,8 +528,10 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
       } catch { return false }
     },
     async apply() {
-      await elevatedExec('/bin/mkdir', ['-p', MANAGED_PREFS])
-      await elevatedDefaultsWrite(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled', 'bool', 'false')
+      await elevatedBatch([
+        { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
+        { cmd: '/usr/bin/defaults', args: ['write', `${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled', '-bool', 'false'] },
+      ])
     },
   },
   {
@@ -537,8 +548,10 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
       } catch { return false }
     },
     async apply() {
-      await elevatedExec('/bin/mkdir', ['-p', MANAGED_PREFS])
-      await elevatedDefaultsWrite(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry', 'bool', 'true')
+      await elevatedBatch([
+        { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
+        { cmd: '/usr/bin/defaults', args: ['write', `${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry', '-bool', 'true'] },
+      ])
     },
   },
 ]
@@ -667,6 +680,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await socketfilterfwSet('--setstealthmode', 'on')
+      await restartAlf()
     },
   },
   {
@@ -702,6 +716,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
       // Must disable both built-in and downloaded signed app auto-allow
       await socketfilterfwSet('--setallowsignedapp', 'off')
       await socketfilterfwSet('--setallowsigned', 'off')
+      await restartAlf()
     },
   },
 ]
@@ -765,14 +780,11 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       try {
-        const { stdout } = await execFileAsync('/bin/launchctl', ['limit', 'core'], { timeout: 5_000 })
-        // Output format: "\tcore\t\t<soft>\t\t<hard>"
-        const parts = stdout.trim().split(/\s+/)
-        return parts.length >= 3 && parts[1] === '0' && parts[2] === '0'
+        return (await sysctlGet('kern.coredump')) === '0'
       } catch { return false }
     },
     async apply() {
-      await elevatedExec('/bin/launchctl', ['limit', 'core', '0', '0'])
+      await sysctlApply('kern.coredump', '0')
     },
   },
 ]

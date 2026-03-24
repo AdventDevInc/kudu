@@ -99,18 +99,49 @@ export function createDarwinCommands(): PlatformCommands {
         ], { timeout: 60_000 })
 
         const data = JSON.parse(stdout)
-        const apps: Array<{ _name: string; version: string; obtained_from: string; lastModified: string }> =
+        const apps: Array<{ _name: string; version: string; obtained_from: string; lastModified: string; path?: string }> =
           data?.SPApplicationsDataType ?? []
 
-        return apps
-          .filter((a) => a.obtained_from !== 'apple')
-          .map((a) => ({
-            name: a._name ?? '',
-            version: a.version ?? '',
-            publisher: a.obtained_from ?? '',
-            installDate: a.lastModified ?? '',
-            sizeKb: 0,
-          }))
+        const filtered = apps.filter((a) => a.obtained_from !== 'apple')
+
+        // Calculate sizes from .app bundle paths using du -sk
+        const sizeMap = new Map<string, number>()
+        const paths = filtered.map((a) => a.path).filter((p): p is string => !!p)
+
+        if (paths.length > 0) {
+          const BATCH = 50
+          for (let i = 0; i < paths.length; i += BATCH) {
+            const batch = paths.slice(i, i + BATCH)
+            try {
+              const { stdout: duOut } = await execFileAsync('/usr/bin/du', ['-sk', ...batch], { timeout: 30_000 })
+              for (const line of duOut.split('\n')) {
+                const tab = line.indexOf('\t')
+                if (tab !== -1) {
+                  sizeMap.set(line.substring(tab + 1), parseInt(line.substring(0, tab), 10) || 0)
+                }
+              }
+            } catch (err: unknown) {
+              // du may exit non-zero on permission errors but still output valid sizes
+              const duOut = (err as { stdout?: string })?.stdout
+              if (duOut) {
+                for (const line of duOut.split('\n')) {
+                  const tab = line.indexOf('\t')
+                  if (tab !== -1) {
+                    sizeMap.set(line.substring(tab + 1), parseInt(line.substring(0, tab), 10) || 0)
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        return filtered.map((a) => ({
+          name: a._name ?? '',
+          version: a.version ?? '',
+          publisher: a.obtained_from ?? '',
+          installDate: a.lastModified ?? '',
+          sizeKb: a.path ? (sizeMap.get(a.path) ?? 0) : 0,
+        }))
       } catch {
         return []
       }

@@ -27,6 +27,13 @@ export function ThreatMonitorPage() {
     if (!loaded) load()
   }, [loaded, load])
 
+  // Poll for fresh snapshot while the page is visible so the "last scanned"
+  // timestamps stay current even when no new threats are detected.
+  useEffect(() => {
+    const id = setInterval(load, 30_000)
+    return () => clearInterval(id)
+  }, [load])
+
   // Cloud not configured
   if (!isLinked) {
     return (

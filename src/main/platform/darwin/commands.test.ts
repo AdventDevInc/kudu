@@ -144,23 +144,82 @@ describe('darwin commands', () => {
   })
 
   describe('getInstalledApps', () => {
-    it('parses system_profiler output and filters out Apple apps', async () => {
-      execFileMock.mockResolvedValue({
-        stdout: JSON.stringify({
-          SPApplicationsDataType: [
-            { _name: 'Safari', version: '17.0', obtained_from: 'apple', lastModified: '2025-01-01' },
-            { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01' },
-          ],
-        }),
+    it('parses system_profiler output, filters Apple apps, and computes sizes via du', async () => {
+      execFileMock.mockImplementation((cmd: string, args: string[]) => {
+        if (cmd === '/usr/sbin/system_profiler') {
+          return Promise.resolve({
+            stdout: JSON.stringify({
+              SPApplicationsDataType: [
+                { _name: 'Safari', version: '17.0', obtained_from: 'apple', lastModified: '2025-01-01', path: '/Applications/Safari.app' },
+                { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01', path: '/Applications/Slack.app' },
+                { _name: 'Firefox', version: '120.0', obtained_from: 'identified_developer', lastModified: '2025-03-01', path: '/Applications/Firefox.app' },
+              ],
+            }),
+          })
+        }
+        if (cmd === '/usr/bin/du') {
+          return Promise.resolve({
+            stdout: '524288\t/Applications/Slack.app\n102400\t/Applications/Firefox.app\n',
+          })
+        }
+        return Promise.resolve({ stdout: '', stderr: '' })
+      })
+
+      const apps = await commands.getInstalledApps()
+      expect(apps).toHaveLength(2)
+      expect(apps[0].name).toBe('Slack')
+      expect(apps[0].sizeKb).toBe(524288)
+      expect(apps[1].name).toBe('Firefox')
+      expect(apps[1].sizeKb).toBe(102400)
+    })
+
+    it('handles du failure gracefully and returns 0 for sizes', async () => {
+      execFileMock.mockImplementation((cmd: string) => {
+        if (cmd === '/usr/sbin/system_profiler') {
+          return Promise.resolve({
+            stdout: JSON.stringify({
+              SPApplicationsDataType: [
+                { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01', path: '/Applications/Slack.app' },
+              ],
+            }),
+          })
+        }
+        if (cmd === '/usr/bin/du') {
+          return Promise.reject(new Error('permission denied'))
+        }
+        return Promise.resolve({ stdout: '', stderr: '' })
       })
 
       const apps = await commands.getInstalledApps()
       expect(apps).toHaveLength(1)
-      expect(apps[0].name).toBe('Slack')
-      expect(apps[0].version).toBe('4.0')
+      expect(apps[0].sizeKb).toBe(0)
     })
 
-    it('returns empty array on failure', async () => {
+    it('parses partial du output from error object', async () => {
+      execFileMock.mockImplementation((cmd: string) => {
+        if (cmd === '/usr/sbin/system_profiler') {
+          return Promise.resolve({
+            stdout: JSON.stringify({
+              SPApplicationsDataType: [
+                { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01', path: '/Applications/Slack.app' },
+              ],
+            }),
+          })
+        }
+        if (cmd === '/usr/bin/du') {
+          const err: any = new Error('partial failure')
+          err.stdout = '524288\t/Applications/Slack.app\n'
+          return Promise.reject(err)
+        }
+        return Promise.resolve({ stdout: '', stderr: '' })
+      })
+
+      const apps = await commands.getInstalledApps()
+      expect(apps).toHaveLength(1)
+      expect(apps[0].sizeKb).toBe(524288)
+    })
+
+    it('returns empty array on system_profiler failure', async () => {
       execFileMock.mockRejectedValue(new Error('fail'))
       const apps = await commands.getInstalledApps()
       expect(apps).toEqual([])
