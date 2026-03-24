@@ -97,7 +97,8 @@ export async function execNativeUtf8(
 
   const cmdLine = `chcp 65001 >nul && ${tool} ${refs.join(' ')}`
 
-  return execFileAsync('cmd.exe', ['/d', '/s', '/c', cmdLine], {
+  // /v:off disables delayed expansion so ! in env var values is not re-expanded
+  return execFileAsync('cmd.exe', ['/d', '/v:off', '/s', '/c', cmdLine], {
     ...baseOpts,
     env,
     windowsVerbatimArguments: true,
