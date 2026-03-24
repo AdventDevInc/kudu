@@ -2,7 +2,7 @@
   "chooseLanguageTitle": "Choisissez votre langue",
   "chooseLanguageDescription": "Vous pourrez modifier ce choix plus tard dans les Paramètres.",
   "welcomeTitle": "Bienvenue dans Kudu",
-  "welcomeDescriptionWindows": "Votre nettoyeur système Windows tout-en-un. Kudu supprime les fichiers inutiles, corrige les problèmes du registre, gère les programmes de démarrage et maintient votre PC rapide.",
+  "welcomeDescriptionWindows": "Votre nettoyeur système tout-en-un pour Windows. Kudu supprime les fichiers inutiles, corrige les problèmes du registre, gère les programmes de démarrage et maintient votre PC rapide.",
   "welcomeDescriptionOther": "Votre nettoyeur système tout-en-un. Kudu supprime les fichiers inutiles, gère les programmes de démarrage et maintient votre ordinateur rapide.",
   "featureSmartCleaning": "Nettoyage intelligent",
   "featureFasterBoot": "Démarrage plus rapide",
@@ -20,7 +20,7 @@
   "back": "Retour",
   "continue": "Continuer",
   "allSetTitle": "Tout est prêt !",
-  "allSetDescription": "Kudu maintiendra le bon fonctionnement de votre PC en arrière-plan.",
+  "allSetDescription": "Kudu maintiendra votre PC en bon état de fonctionnement en arrière-plan.",
   "firstScanScheduled": "Votre première analyse automatique est programmée pour lundi à 9:00.",
   "startCleaning": "Commencer le nettoyage"
 }

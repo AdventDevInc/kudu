@@ -11,16 +11,16 @@
   "recommendedSetupTitle": "Önerilen Kurulum",
   "recommendedSetupDescription": "En iyi deneyim için bu ayarları öneriyoruz. Bunları daha sonra Ayarlar'dan değiştirebilirsiniz.",
   "runAtStartupLabel": "Başlangıçta çalıştır",
-  "runAtStartupDescriptionWindows": "Bilgisayarınızın otomatik olarak temiz kalması için Windows başladığında Kudu'yu başlatın",
-  "runAtStartupDescriptionOther": "Bilgisayarınızın otomatik olarak temiz kalması için başlangıçta Kudu'yu başlatın",
+  "runAtStartupDescriptionWindows": "Bilgisayarınızın otomatik olarak temiz kalması için Kudu'yu Windows başladığında başlatın",
+  "runAtStartupDescriptionOther": "Bilgisayarınızın otomatik olarak temiz kalması için Kudu'yu başlangıçta başlatın",
   "minimizeToTrayLabel": "Sistem tepsisine küçült",
   "minimizeToTrayDescription": "Kudu'nun arka planda sessizce çalışmasını sağlayın",
   "weeklyAutoCleanLabel": "Haftalık otomatik temizlik",
-  "weeklyAutoCleanDescription": "Her Pazartesi saat 09:00'da gereksiz dosyaları tara ve temizle",
+  "weeklyAutoCleanDescription": "Her Pazartesi saat 09:00'da gereksiz dosyaları tarayın ve temizleyin",
   "back": "Geri",
   "continue": "Devam",
   "allSetTitle": "Her Şey Hazır!",
   "allSetDescription": "Kudu, bilgisayarınızın arka planda sorunsuz çalışmasını sağlayacak.",
   "firstScanScheduled": "İlk otomatik taramanız Pazartesi saat 09:00 için planlandı.",
-  "startCleaning": "Temizlemeyi Başlat"
+  "startCleaning": "Temizliği Başlat"
 }
