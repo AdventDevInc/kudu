@@ -7,6 +7,8 @@ type SeverityFilter = 'all' | 'major' | 'minor' | 'patch'
 interface SoftwareUpdaterState {
   apps: UpdatableApp[]
   upToDate: UpToDateApp[]
+  ignoredApps: UpdatableApp[]
+  ignoredIds: Set<string>
   loading: boolean
   updating: boolean
   progress: UpdateProgress | null
@@ -38,14 +40,26 @@ interface SoftwareUpdaterState {
   selectAll: () => void
   deselectAll: () => void
   removeApps: (ids: string[]) => void
+  /** Load the persisted ignore list from settings (call once at init) */
+  loadIgnoredIds: (ids: string[]) => void
+  /** Move an app from the updates list to the ignored list and persist */
+  ignoreApp: (id: string) => void
+  /** Move an app from the ignored list back to the updates list and persist */
+  unignoreApp: (id: string) => void
   reset: () => void
 }
 
 const severityOrder = { major: 0, minor: 1, patch: 2, unknown: 3 }
 
-export const useUpdaterStore = create<SoftwareUpdaterState>((set) => ({
+function persistIgnoredIds(ids: Set<string>): void {
+  window.kudu?.settingsSet?.({ ignoredSoftwareUpdates: [...ids] }).catch(() => {})
+}
+
+export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
   apps: [],
   upToDate: [],
+  ignoredApps: [],
+  ignoredIds: new Set<string>(),
   loading: false,
   updating: false,
   progress: null,
@@ -59,7 +73,13 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set) => ({
   sortDirection: 'asc',
   severityFilter: 'all',
 
-  setApps: (apps) => set({ apps }),
+  setApps: (allApps) => {
+    const { ignoredIds } = get()
+    set({
+      apps: allApps.filter((a) => !ignoredIds.has(a.id)),
+      ignoredApps: allApps.filter((a) => ignoredIds.has(a.id)),
+    })
+  },
   setUpToDate: (upToDate) => set({ upToDate }),
   setLoading: (loading) => set({ loading }),
   setUpdating: (updating) => set({ updating }),
@@ -93,10 +113,36 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set) => ({
     set((state) => ({
       apps: state.apps.filter((a) => !ids.includes(a.id)),
     })),
+  loadIgnoredIds: (ids) => set({ ignoredIds: new Set(ids) }),
+  ignoreApp: (id) =>
+    set((state) => {
+      const app = state.apps.find((a) => a.id === id)
+      const newIds = new Set(state.ignoredIds)
+      newIds.add(id)
+      persistIgnoredIds(newIds)
+      return {
+        ignoredIds: newIds,
+        apps: state.apps.filter((a) => a.id !== id),
+        ignoredApps: app ? [...state.ignoredApps, app] : state.ignoredApps,
+      }
+    }),
+  unignoreApp: (id) =>
+    set((state) => {
+      const app = state.ignoredApps.find((a) => a.id === id)
+      const newIds = new Set(state.ignoredIds)
+      newIds.delete(id)
+      persistIgnoredIds(newIds)
+      return {
+        ignoredIds: newIds,
+        ignoredApps: state.ignoredApps.filter((a) => a.id !== id),
+        apps: app ? [...state.apps, app] : state.apps,
+      }
+    }),
   reset: () =>
     set({
       apps: [],
       upToDate: [],
+      ignoredApps: [],
       loading: false,
       updating: false,
       progress: null,

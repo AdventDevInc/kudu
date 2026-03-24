@@ -558,6 +558,7 @@ export interface KuduSettings {
     createRestorePoint: boolean
   }
   exclusions: string[]
+  ignoredSoftwareUpdates: string[]
   schedule: {
     enabled: boolean
     frequency: 'daily' | 'weekly' | 'monthly'

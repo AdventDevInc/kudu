@@ -65,6 +65,15 @@ function emptyResult(
   }
 }
 
+/**
+ * Strip a trailing version-like suffix from a display name.
+ * Winget display names often include the installed version
+ * (e.g. "HandBrake 1.11.0") because that is how the app registers in ARP.
+ */
+export function stripTrailingVersion(name: string): string {
+  return name.replace(/\s+v?\d+[\d.]*\s*$/, '').trim()
+}
+
 // ─── Winget (Windows) ───────────────────────────────────────
 
 export function parseWingetUpgradeOutput(stdout: string): UpdatableApp[] {
@@ -104,14 +113,20 @@ export function parseWingetUpgradeOutput(stdout: string): UpdatableApp[] {
     let version = line.substring(versionStart, availableStart).trim()
     let available = line.substring(availableStart, sourceStart).trim()
     if (version.startsWith('> ')) version = version.slice(2)
+    if (version.startsWith('< ')) version = version.slice(2)
     if (available.startsWith('> ')) available = available.slice(2)
+    if (available.startsWith('< ')) available = available.slice(2)
     const source = line.substring(sourceStart).trim()
 
     if (!id || !version || !available) continue
+    // When winget reports "< X" for the installed version and X matches the
+    // available version, it cannot determine the real version — the app is
+    // likely already up to date, so skip it.
+    if (version === available) continue
 
     apps.push({
       id,
-      name: name || id,
+      name: stripTrailingVersion(name) || id,
       currentVersion: version,
       availableVersion: available,
       source: source || 'winget',
@@ -161,15 +176,16 @@ export function parseWingetListOutput(stdout: string): UpToDateApp[] {
     let version = versionEnd > 0
       ? line.substring(versionStart, versionEnd).trim()
       : line.substring(versionStart).trim()
-    // winget list sometimes prefixes versions with "> " — strip it
+    // winget list sometimes prefixes versions with "> " or "< " — strip them
     if (version.startsWith('> ')) version = version.slice(2)
+    if (version.startsWith('< ')) version = version.slice(2)
     const source = sourceStart > 0 ? line.substring(sourceStart).trim() : ''
 
     if (!id || !version || version === 'Unknown') continue
     // Skip ARP entries (not real winget packages)
     if (id.startsWith('ARP\\')) continue
 
-    apps.push({ id, name: name || id, version, source: source || 'winget' })
+    apps.push({ id, name: stripTrailingVersion(name) || id, version, source: source || 'winget' })
   }
   return apps
 }

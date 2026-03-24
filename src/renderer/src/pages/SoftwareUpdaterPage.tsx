@@ -15,6 +15,8 @@ import {
   Sparkles,
   XCircle,
   Filter,
+  EyeOff,
+  Eye,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -83,9 +85,12 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
 
   const upToDate = useUpdaterStore((s) => s.upToDate)
 
+  const ignoredApps = useUpdaterStore((s) => s.ignoredApps)
+
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [showFilterMenu, setShowFilterMenu] = useState(false)
   const [showUpToDate, setShowUpToDate] = useState(false)
+  const [showIgnored, setShowIgnored] = useState(false)
   const sortMenuRef = useRef<HTMLDivElement>(null)
   const filterMenuRef = useRef<HTMLDivElement>(null)
 
@@ -99,9 +104,16 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
     }
   }, [])
 
-  // Auto-scan on first visit
+  // Load persisted ignore list from settings, then auto-scan on first visit
   useEffect(() => {
-    if (!hasChecked && !loading) handleCheck()
+    window.kudu.settingsGet().then((settings) => {
+      if (settings.ignoredSoftwareUpdates?.length) {
+        useUpdaterStore.getState().loadIgnoredIds(settings.ignoredSoftwareUpdates)
+      }
+    }).catch(() => {}).finally(() => {
+      const s = useUpdaterStore.getState()
+      if (!s.hasChecked && !s.loading) handleCheck()
+    })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close menus on outside click
@@ -137,10 +149,12 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       s.setPackageManagerName(result.packageManagerName)
       s.setHasChecked(true)
 
-      if (result.packageManagerAvailable && result.totalCount === 0) {
+      // Use the visible (non-ignored) count for the toast
+      const visibleCount = useUpdaterStore.getState().apps.length
+      if (result.packageManagerAvailable && visibleCount === 0 && useUpdaterStore.getState().ignoredApps.length === 0) {
         toast.success(t('softwareUpdater.toastAllUpToDate'))
-      } else if (result.totalCount > 0) {
-        toast.info(result.totalCount !== 1 ? t('softwareUpdater.toastUpdatesFoundPlural', { count: result.totalCount }) : t('softwareUpdater.toastUpdatesFound', { count: result.totalCount }))
+      } else if (visibleCount > 0) {
+        toast.info(visibleCount !== 1 ? t('softwareUpdater.toastUpdatesFoundPlural', { count: visibleCount }) : t('softwareUpdater.toastUpdatesFound', { count: visibleCount }))
       }
     } catch (err) {
       console.error('Update check failed:', err)
@@ -648,7 +662,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* All up to date */}
-      {hasChecked && !loading && apps.length === 0 && packageManagerAvailable && (
+      {hasChecked && !loading && apps.length === 0 && ignoredApps.length === 0 && packageManagerAvailable && (
         <EmptyState
           icon={Sparkles}
           title={t('softwareUpdater.allUpToDateTitle')}
@@ -675,9 +689,40 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 updating={updating}
                 onToggle={() => useUpdaterStore.getState().toggleAppSelected(app.id)}
                 onUpdate={() => handleUpdate([app.id])}
+                onIgnore={() => useUpdaterStore.getState().ignoreApp(app.id)}
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Ignored apps */}
+      {hasChecked && !loading && ignoredApps.length > 0 && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowIgnored(!showIgnored)}
+            className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
+          >
+            {showIgnored ? (
+              <ChevronDown className="h-4 w-4" strokeWidth={2} />
+            ) : (
+              <ChevronRight className="h-4 w-4" strokeWidth={2} />
+            )}
+            <EyeOff className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
+            {t('softwareUpdater.ignoredSection', { count: ignoredApps.length })}
+          </button>
+
+          {showIgnored && (
+            <div className="grid grid-cols-1 gap-1.5">
+              {ignoredApps.map((app) => (
+                <IgnoredRow
+                  key={app.id}
+                  app={app}
+                  onUnignore={() => useUpdaterStore.getState().unignoreApp(app.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -715,11 +760,13 @@ function AppRow({
   updating,
   onToggle,
   onUpdate,
+  onIgnore,
 }: {
   app: UpdatableApp
   updating: boolean
   onToggle: () => void
   onUpdate: () => void
+  onIgnore: () => void
 }) {
   const { t } = useTranslation('updates')
   const base = SEVERITY_STYLES_BASE[app.severity]
@@ -799,6 +846,17 @@ function AppRow({
         {app.source}
       </span>
 
+      {/* Ignore button */}
+      <button
+        onClick={onIgnore}
+        disabled={updating}
+        title={t('softwareUpdater.ignoreButton')}
+        className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium text-zinc-500 transition-all hover:bg-white/5 hover:text-zinc-300 disabled:opacity-30 shrink-0"
+        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <EyeOff className="h-3.5 w-3.5" strokeWidth={1.8} />
+      </button>
+
       {/* Update button */}
       <button
         onClick={onUpdate}
@@ -808,6 +866,49 @@ function AppRow({
       >
         <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
         {t('softwareUpdater.updateButton')}
+      </button>
+    </div>
+  )
+}
+
+function IgnoredRow({ app, onUnignore }: { app: UpdatableApp; onUnignore: () => void }) {
+  const { t } = useTranslation('updates')
+  const base = SEVERITY_STYLES_BASE[app.severity]
+  return (
+    <div
+      className="flex items-center gap-4 rounded-xl px-5 py-3"
+      style={{
+        background: 'rgba(255,255,255,0.015)',
+        border: '1px solid rgba(255,255,255,0.03)',
+        opacity: 0.7,
+      }}
+    >
+      <div
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+        style={{ background: 'rgba(113,113,122,0.08)' }}
+      >
+        <EyeOff className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="text-[12px] font-medium text-zinc-400 truncate block">{app.name}</span>
+        <span className="text-[10px] truncate block" style={{ color: '#52525e' }}>
+          {app.id}
+        </span>
+      </div>
+      <div className="shrink-0 flex items-center gap-2">
+        <span className="text-[11px] font-mono text-zinc-600">{app.currentVersion}</span>
+        <ArrowRight className="h-3 w-3 text-zinc-700" strokeWidth={2} />
+        <span className="text-[11px] font-mono" style={{ color: base.text }}>
+          {app.availableVersion}
+        </span>
+      </div>
+      <button
+        onClick={onUnignore}
+        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-zinc-200 shrink-0"
+        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <Eye className="h-3.5 w-3.5" strokeWidth={1.8} />
+        {t('softwareUpdater.unignoreButton')}
       </button>
     </div>
   )

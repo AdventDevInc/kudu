@@ -5,6 +5,7 @@ vi.mock('./elevation', () => ({ isAdmin: () => false }))
 import {
   cleanOutput,
   computeSeverity,
+  stripTrailingVersion,
   parseWingetUpgradeOutput,
   parseWingetListOutput,
   parseBrewOutdatedJson,
@@ -74,6 +75,30 @@ describe('computeSeverity', () => {
   })
 })
 
+// ─── stripTrailingVersion ───────────────────────────────────
+
+describe('stripTrailingVersion', () => {
+  it('strips trailing version from name', () => {
+    expect(stripTrailingVersion('HandBrake 1.11.0')).toBe('HandBrake')
+  })
+
+  it('strips trailing version with v prefix', () => {
+    expect(stripTrailingVersion('SomeApp v2.3.1')).toBe('SomeApp')
+  })
+
+  it('leaves names without trailing version unchanged', () => {
+    expect(stripTrailingVersion('Google Chrome')).toBe('Google Chrome')
+  })
+
+  it('does not strip version-like numbers in the middle', () => {
+    expect(stripTrailingVersion('Driver Booster 13')).toBe('Driver Booster')
+  })
+
+  it('leaves version-only string unchanged (no name to preserve)', () => {
+    expect(stripTrailingVersion('1.2.3')).toBe('1.2.3')
+  })
+})
+
 // ─── parseWingetUpgradeOutput ───────────────────────────────
 
 describe('parseWingetUpgradeOutput', () => {
@@ -114,6 +139,44 @@ describe('parseWingetUpgradeOutput', () => {
     expect(apps).toHaveLength(1)
     expect(apps[0].currentVersion).toBe('1.0.0')
     expect(apps[0].availableVersion).toBe('2.0.0')
+  })
+
+  it('handles < prefix in versions', () => {
+    const output = [
+      'Name    Id           Version        Available      Source',
+      '------------------------------------------------------------',
+      'App     Some.App     < 2.0.0        3.0.0          winget',
+    ].join('\n')
+
+    const apps = parseWingetUpgradeOutput(output)
+    expect(apps).toHaveLength(1)
+    expect(apps[0].currentVersion).toBe('2.0.0')
+    expect(apps[0].availableVersion).toBe('3.0.0')
+  })
+
+  it('skips entries where < version equals available (already up to date)', () => {
+    const output = [
+      'Name              Id                          Version          Available        Source',
+      '-----------------------------------------------------------------------------------------',
+      'Driver Booster 13 IObit.DriverBooster         < 13.2.0.184     13.2.0.184       winget',
+    ].join('\n')
+
+    const apps = parseWingetUpgradeOutput(output)
+    expect(apps).toHaveLength(0)
+  })
+
+  it('strips trailing version from display names', () => {
+    const output = [
+      'Name                Id                     Version     Available   Source',
+      '--------------------------------------------------------------------------',
+      'HandBrake 1.11.0    fr.handbrake.ghb       1.11.0      1.11.1      winget',
+    ].join('\n')
+
+    const apps = parseWingetUpgradeOutput(output)
+    expect(apps).toHaveLength(1)
+    expect(apps[0].name).toBe('HandBrake')
+    expect(apps[0].currentVersion).toBe('1.11.0')
+    expect(apps[0].availableVersion).toBe('1.11.1')
   })
 })
 

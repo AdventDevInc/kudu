@@ -24,6 +24,7 @@ const defaultSettings: KuduSettings = {
     createRestorePoint: false
   },
   exclusions: [],
+  ignoredSoftwareUpdates: [],
   schedule: {
     enabled: false,
     frequency: 'weekly',
