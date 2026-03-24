@@ -71,7 +71,21 @@ async function enableTask(taskPath: string): Promise<void> {
   await execFileAsync('schtasks', ['/change', '/tn', taskPath, '/enable'], { timeout: 5000, windowsHide: true })
 }
 
+// Stores the original Start type for each service before we disable it,
+// so we can restore it properly on revert (e.g. Automatic=2 vs Manual=3).
+// Lost on app restart — falls back to Manual (3) which is the safest default.
+const originalServiceStartType = new Map<string, number>()
+
 async function disableService(serviceName: string): Promise<void> {
+  // Capture the original Start type before overwriting
+  if (!originalServiceStartType.has(serviceName)) {
+    const startVal = await regQueryDword(
+      `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`, 'Start'
+    )
+    if (startVal !== null && startVal !== 4) {
+      originalServiceStartType.set(serviceName, startVal)
+    }
+  }
   await execFileAsync('reg', [
     'add', `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
     '/v', 'Start', '/t', 'REG_DWORD', '/d', '4', '/f'
@@ -79,14 +93,20 @@ async function disableService(serviceName: string): Promise<void> {
 }
 
 async function enableService(serviceName: string): Promise<void> {
+  const original = originalServiceStartType.get(serviceName) ?? 3 // default to Manual
+  originalServiceStartType.delete(serviceName)
   await execFileAsync('reg', [
     'add', `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
-    '/v', 'Start', '/t', 'REG_DWORD', '/d', '3', '/f'
+    '/v', 'Start', '/t', 'REG_DWORD', '/d', String(original), '/f'
   ], { timeout: 5000, windowsHide: true })
 }
 
 async function regDeleteValue(key: string, value: string): Promise<void> {
-  await execFileAsync('reg', ['delete', key, '/v', value, '/f'], { timeout: 5000, windowsHide: true })
+  try {
+    await execFileAsync('reg', ['delete', key, '/v', value, '/f'], { timeout: 5000, windowsHide: true })
+  } catch {
+    // Value already deleted or never existed — that's the desired state
+  }
 }
 
 async function isBrowserInstalled(registryKey: string): Promise<boolean> {
