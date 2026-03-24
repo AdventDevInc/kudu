@@ -150,42 +150,43 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
     for (let i = 0; i < valid.length; i++) {
       const id = valid[i]
       const item = getCachedItem(id)
-      if (!item) continue
 
-      // Yield between each VACUUM so the main thread stays responsive
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      if (item) {
+        // Yield between each VACUUM so the main thread stays responsive
+        await new Promise((resolve) => setTimeout(resolve, 0))
 
-      try {
-        const sizeBefore = fs.statSync(item.path).size
-        let walSizeBefore = 0
-        try { walSizeBefore = fs.statSync(item.path + '-wal').size } catch { /* no WAL */ }
-
-        const db = new Database(item.path, { fileMustExist: true })
         try {
-          const journalMode = (db.pragma('journal_mode', { simple: true }) as string).toLowerCase()
-          db.exec('VACUUM')
-          if (journalMode === 'wal') {
-            db.pragma('journal_mode = WAL')
-          }
-        } finally {
-          db.close()
-        }
+          const sizeBefore = fs.statSync(item.path).size
+          let walSizeBefore = 0
+          try { walSizeBefore = fs.statSync(item.path + '-wal').size } catch { /* no WAL */ }
 
-        const sizeAfter = fs.statSync(item.path).size
-        let walSizeAfter = 0
-        try { walSizeAfter = fs.statSync(item.path + '-wal').size } catch { /* no WAL */ }
-        const reclaimed = (sizeBefore + walSizeBefore) - (sizeAfter + walSizeAfter)
-        if (reclaimed > 0) totalCleaned += reclaimed
-        filesDeleted++
-      } catch (err: unknown) {
-        filesSkipped++
-        const code = (err as { code?: string }).code
-        if (code === 'SQLITE_BUSY' || code === 'SQLITE_LOCKED' || code === 'EBUSY') {
-          errors.push({ path: item.path, reason: 'in-use' })
-        } else if (code === 'EPERM' || code === 'EACCES') {
-          errors.push({ path: item.path, reason: 'permission-denied' })
-        } else {
-          errors.push({ path: item.path, reason: (err as Error).message || 'unknown error' })
+          const db = new Database(item.path, { fileMustExist: true })
+          try {
+            const journalMode = (db.pragma('journal_mode', { simple: true }) as string).toLowerCase()
+            db.exec('VACUUM')
+            if (journalMode === 'wal') {
+              db.pragma('journal_mode = WAL')
+            }
+          } finally {
+            db.close()
+          }
+
+          const sizeAfter = fs.statSync(item.path).size
+          let walSizeAfter = 0
+          try { walSizeAfter = fs.statSync(item.path + '-wal').size } catch { /* no WAL */ }
+          const reclaimed = (sizeBefore + walSizeBefore) - (sizeAfter + walSizeAfter)
+          if (reclaimed > 0) totalCleaned += reclaimed
+          filesDeleted++
+        } catch (err: unknown) {
+          filesSkipped++
+          const code = (err as { code?: string }).code
+          if (code === 'SQLITE_BUSY' || code === 'SQLITE_LOCKED' || code === 'EBUSY') {
+            errors.push({ path: item.path, reason: 'in-use' })
+          } else if (code === 'EPERM' || code === 'EACCES') {
+            errors.push({ path: item.path, reason: 'permission-denied' })
+          } else {
+            errors.push({ path: item.path, reason: (err as Error).message || 'unknown error' })
+          }
         }
       }
 
@@ -196,7 +197,7 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
         if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
           phase: 'cleaning',
           category: CleanerType.Database,
-          currentPath: item.path,
+          currentPath: item?.path ?? '',
           progress: ((i + 1) / valid.length) * 100,
           itemsFound: valid.length,
           sizeFound: totalCleaned,

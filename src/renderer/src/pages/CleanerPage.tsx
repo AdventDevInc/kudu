@@ -62,17 +62,24 @@ export function CleanerPage() {
 
   const scanIndexRef = useRef(0)
   const cleanIndexRef = useRef(0)
+  const cleanTotalRef = useRef(1)
 
   useEffect(() => {
     if (!window.kudu?.onScanProgress) return
     return window.kudu.onScanProgress((data) => {
       // Each cleaner reports 0-100% independently. Scale to overall progress
       // based on which category we're currently processing.
-      const total = categories.length
-      const idxRef = data.phase === 'cleaning' ? cleanIndexRef : scanIndexRef
-      const base = (idxRef.current / total) * 100
-      const slice = (data.progress / total)
-      store.setProgress({ ...data, progress: base + slice })
+      if (data.phase === 'cleaning') {
+        const total = cleanTotalRef.current
+        const base = (cleanIndexRef.current / total) * 100
+        const slice = (data.progress / total)
+        store.setProgress({ ...data, progress: base + slice })
+      } else {
+        const total = categories.length
+        const base = (scanIndexRef.current / total) * 100
+        const slice = (data.progress / total)
+        store.setProgress({ ...data, progress: base + slice })
+      }
     })
   }, [])
 
@@ -165,17 +172,26 @@ export function CleanerPage() {
       const allErrors: { path: string; reason: string }[] = []
       const categoryBreakdown: Record<string, { found: number; cleaned: number; space: number }> = {}
 
+      // Compute how many categories actually have items to clean so progress
+      // scales to 100% even when only a subset of categories is active.
+      const activeCount = categories.filter((cat) => {
+        const catItems = store.results.filter((r) => r.category === cat.type).flatMap((r) => r.items)
+        return catItems.some((item) => selectedIds.includes(item.id))
+      }).length
+      cleanTotalRef.current = Math.max(activeCount, 1)
+      let activeIndex = 0
+
       store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
 
       for (let ci = 0; ci < categories.length; ci++) {
         const cat = categories[ci]
-        cleanIndexRef.current = ci
         const catResults = store.results.filter((r) => r.category === cat.type)
         const catItemsAll = catResults.flatMap((r) => r.items)
         const catItemIds = catItemsAll
           .filter((item) => selectedIds.includes(item.id))
           .map((item) => item.id)
         if (catItemIds.length > 0) {
+          cleanIndexRef.current = activeIndex
           try {
             const cleanFn = cleanFns[cat.type]
             if (!cleanFn) continue
@@ -193,6 +209,7 @@ export function CleanerPage() {
               }
             }
           } catch { /* continue */ }
+          activeIndex++
         } else if (catItemsAll.length > 0) {
           categoryBreakdown[t(cat.labelKey)] = { found: catItemsAll.length, cleaned: 0, space: 0 }
         }
