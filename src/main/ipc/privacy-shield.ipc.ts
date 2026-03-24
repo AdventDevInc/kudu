@@ -35,6 +35,7 @@ interface SettingDef {
   check: () => Promise<boolean>       // returns true if already privacy-friendly
   apply: () => Promise<void>          // applies the privacy-friendly state
   revert?: () => Promise<void>        // reverts to Windows default (unprotected)
+  applicable?: () => Promise<boolean> // returns false if the underlying resource doesn't exist (e.g. browser not installed, task missing)
 }
 
 // ── Helpers ────────────────────────────────────────────────
@@ -61,6 +62,20 @@ async function isTaskActive(taskPath: string): Promise<boolean> {
   } catch {
     return false // task doesn't exist
   }
+}
+
+async function taskExists(taskPath: string): Promise<boolean> {
+  try {
+    await execFileAsync('schtasks', ['/query', '/tn', taskPath, '/fo', 'CSV', '/nh'], { timeout: 8000, windowsHide: true })
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function serviceExists(serviceName: string): Promise<boolean> {
+  const val = await regQueryDword(`HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`, 'Start')
+  return val !== null
 }
 
 async function disableTask(taskPath: string): Promise<void> {
@@ -505,7 +520,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isServiceEnabled('AiHost')),
     apply: () => disableService('AiHost'),
-    revert: () => enableService('AiHost')
+    revert: () => enableService('AiHost'),
+    applicable: () => serviceExists('AiHost')
   },
   {
     id: 'edge-ai-features',
@@ -556,7 +572,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isServiceEnabled('DiagTrack')),
     apply: () => disableService('DiagTrack'),
-    revert: () => enableService('DiagTrack')
+    revert: () => enableService('DiagTrack'),
+    applicable: () => serviceExists('DiagTrack')
   },
   {
     id: 'service-dmwappush',
@@ -566,7 +583,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isServiceEnabled('dmwappushservice')),
     apply: () => disableService('dmwappushservice'),
-    revert: () => enableService('dmwappushservice')
+    revert: () => enableService('dmwappushservice'),
+    applicable: () => serviceExists('dmwappushservice')
   },
   {
     id: 'service-delivery-optimization',
@@ -589,7 +607,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isServiceEnabled('MapsBroker')),
     apply: () => disableService('MapsBroker'),
-    revert: () => enableService('MapsBroker')
+    revert: () => enableService('MapsBroker'),
+    applicable: () => serviceExists('MapsBroker')
   },
 
   // ─── TELEMETRY TASKS ───
@@ -601,7 +620,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser')),
     apply: () => disableTask('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser')
+    revert: () => enableTask('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser')
   },
   {
     id: 'task-program-data-updater',
@@ -611,7 +631,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater')),
     apply: () => disableTask('\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater')
+    revert: () => enableTask('\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater')
   },
   {
     id: 'task-autochk-proxy',
@@ -621,7 +642,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Autochk\\Proxy')),
     apply: () => disableTask('\\Microsoft\\Windows\\Autochk\\Proxy'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Autochk\\Proxy')
+    revert: () => enableTask('\\Microsoft\\Windows\\Autochk\\Proxy'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Autochk\\Proxy')
   },
   {
     id: 'task-ceip-consolidator',
@@ -631,7 +653,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator')),
     apply: () => disableTask('\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator')
+    revert: () => enableTask('\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator')
   },
   {
     id: 'task-usb-ceip',
@@ -641,7 +664,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip')),
     apply: () => disableTask('\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip')
+    revert: () => enableTask('\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip')
   },
   {
     id: 'task-disk-diagnostic',
@@ -651,7 +675,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector')),
     apply: () => disableTask('\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector'),
-    revert: () => enableTask('\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector')
+    revert: () => enableTask('\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector')
   },
   {
     id: 'task-feedback-dm',
@@ -661,7 +686,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient')),
     apply: () => disableTask('\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient')
+    revert: () => enableTask('\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient')
   },
   {
     id: 'task-maps-update',
@@ -671,7 +697,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Maps\\MapsUpdateTask')),
     apply: () => disableTask('\\Microsoft\\Windows\\Maps\\MapsUpdateTask'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Maps\\MapsUpdateTask')
+    revert: () => enableTask('\\Microsoft\\Windows\\Maps\\MapsUpdateTask'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Maps\\MapsUpdateTask')
   },
   {
     id: 'task-maps-toast',
@@ -681,7 +708,8 @@ const SETTINGS: SettingDef[] = [
     requiresAdmin: true,
     check: async () => !(await isTaskActive('\\Microsoft\\Windows\\Maps\\MapsToastTask')),
     apply: () => disableTask('\\Microsoft\\Windows\\Maps\\MapsToastTask'),
-    revert: () => enableTask('\\Microsoft\\Windows\\Maps\\MapsToastTask')
+    revert: () => enableTask('\\Microsoft\\Windows\\Maps\\MapsToastTask'),
+    applicable: () => taskExists('\\Microsoft\\Windows\\Maps\\MapsToastTask')
   },
 
   // ─── BROWSER TELEMETRY ───
@@ -805,7 +833,8 @@ const SETTINGS: SettingDef[] = [
       return val === 0
     },
     apply: () => regSetDword('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'MetricsReportingEnabled', 0),
-    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'MetricsReportingEnabled')
+    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'MetricsReportingEnabled'),
+    applicable: () => isBrowserInstalled('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe')
   },
   {
     id: 'chrome-feedback',
@@ -819,7 +848,8 @@ const SETTINGS: SettingDef[] = [
       return val === 0
     },
     apply: () => regSetDword('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'UserFeedbackAllowed', 0),
-    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'UserFeedbackAllowed')
+    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'UserFeedbackAllowed'),
+    applicable: () => isBrowserInstalled('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe')
   },
   {
     id: 'chrome-extended-reporting',
@@ -833,7 +863,8 @@ const SETTINGS: SettingDef[] = [
       return val === 0
     },
     apply: () => regSetDword('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'SafeBrowsingExtendedReportingEnabled', 0),
-    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'SafeBrowsingExtendedReportingEnabled')
+    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Google\\Chrome', 'SafeBrowsingExtendedReportingEnabled'),
+    applicable: () => isBrowserInstalled('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe')
   },
 
   // Firefox
@@ -849,7 +880,8 @@ const SETTINGS: SettingDef[] = [
       return val === 1
     },
     apply: () => regSetDword('HKLM\\SOFTWARE\\Policies\\Mozilla\\Firefox', 'DisableTelemetry', 1),
-    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Mozilla\\Firefox', 'DisableTelemetry')
+    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Mozilla\\Firefox', 'DisableTelemetry'),
+    applicable: () => isBrowserInstalled('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe')
   },
   {
     id: 'firefox-default-agent',
@@ -863,7 +895,8 @@ const SETTINGS: SettingDef[] = [
       return val === 1
     },
     apply: () => regSetDword('HKLM\\SOFTWARE\\Policies\\Mozilla\\Firefox', 'DisableDefaultBrowserAgent', 1),
-    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Mozilla\\Firefox', 'DisableDefaultBrowserAgent')
+    revert: () => regDeleteValue('HKLM\\SOFTWARE\\Policies\\Mozilla\\Firefox', 'DisableDefaultBrowserAgent'),
+    applicable: () => isBrowserInstalled('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\firefox.exe')
   }
 ]
 
@@ -900,13 +933,23 @@ export async function scanPrivacy(
         false
       )
 
+      // A setting is only reversible if it has a revert function AND the underlying
+      // resource actually exists (e.g. browser installed, task present, service present).
+      // Settings that report enabled=true because the resource is absent are vacuously
+      // true and should not offer a revert toggle.
+      const hasRevert = typeof def.revert === 'function'
+      const isApplicable = def.applicable
+        ? await withTimeout(def.applicable().catch(() => true), 10000, true)
+        : true
+      const reversible = hasRevert && isApplicable
+
       settings.push({
         id: def.id,
         category: def.category,
         label: def.label,
         description: def.description,
         enabled,
-        reversible: typeof def.revert === 'function',
+        reversible,
         requiresAdmin: def.requiresAdmin,
         ...(def.dependsOn ? { dependsOn: def.dependsOn } : {})
       })

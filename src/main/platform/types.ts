@@ -249,6 +249,7 @@ export interface PrivacySettingDef {
   check: () => Promise<boolean>
   apply: () => Promise<void>
   revert?: () => Promise<void>
+  applicable?: () => Promise<boolean>
 }
 
 export interface PlatformPrivacy {
