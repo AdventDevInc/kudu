@@ -370,11 +370,13 @@ app.whenReady().then(() => {
     app.dock.show()
   }
 
-  // Build a minimal application menu so clipboard shortcuts (Ctrl+C/V/X,
-  // Cmd+C/V/X) work in the frameless window.  On macOS Cmd+V relies on
-  // an Edit menu with the paste role — without an explicit menu the
-  // shortcuts break when the app is relaunched as root.
+  // Ensure an Edit menu exists so clipboard shortcuts (Cmd+C/V/X on macOS,
+  // Ctrl+C/V/X elsewhere) work in the frameless window.  On macOS Cmd+V
+  // relies on an Edit menu with the paste role — without an explicit menu
+  // the shortcuts break when the app is relaunched as root.
+  // We preserve the default appMenu role so Cmd+Q, Cmd+H, About, etc. stay.
   const appMenu = Menu.buildFromTemplate([
+    { role: 'appMenu' },
     {
       label: 'Edit',
       submenu: [
