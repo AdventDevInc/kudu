@@ -27,42 +27,34 @@ export function psUtf8(command: string): string {
   return PS_UTF8_PREAMBLE + command
 }
 
-/**
- * Escape a single argument for safe inclusion in a cmd.exe command string.
- *
- * cmd.exe metacharacters (&, |, <, >, ^, !, (, )) are interpreted when
- * arguments are concatenated into a single string.  Wrapping an argument
- * in double-quotes neutralises all of them except `%` (which cannot be
- * escaped in cmd.exe's command-line mode — see execNativeUtf8 for the
- * fallback).  `!` is safe because we do not enable delayed expansion
- * (/V:OFF is the default).  Embedded double-quotes are escaped as `""`.
- *
- * We quote any argument that contains whitespace, metacharacters, or
- * double-quotes.  Arguments that are already safe are returned as-is.
- */
-function cmdEscapeArg(arg: string): string {
-  if (arg.length === 0) return '""'
-  if (!/[\s"&|<>^!()]/.test(arg)) return arg
-  return `"${arg.replace(/"/g, '""')}"`
-}
+/** Tools that may be invoked through cmd.exe via execNativeUtf8 */
+const ALLOWED_TOOLS = new Set([
+  'reg', 'reg.exe',
+  'netsh', 'netsh.exe',
+  'pnputil', 'pnputil.exe',
+  'schtasks', 'schtasks.exe',
+  'ipconfig', 'ipconfig.exe',
+])
 
 /**
  * Execute a native Windows CLI tool (reg.exe, pnputil, etc.) with the
  * console code page set to 65001 (UTF-8) so that non-ASCII characters
  * in the output are correctly decoded by Node.js.
  *
- * Builds the full command string manually and uses
- * `windowsVerbatimArguments: true` so that Node.js does not re-quote.
- * Each argument is escaped for cmd.exe metacharacters to prevent
- * injection from dynamic values (registry names, task paths, etc.).
+ * Arguments are passed via temporary environment variables (`__KA0`,
+ * `__KA1`, …) so that no user-controlled data is concatenated into the
+ * command string.  The command line contains only hardcoded `%__KAn%`
+ * references which cmd.exe expands from the child-process environment
+ * at runtime.  This prevents command-injection via dynamic values such
+ * as registry paths, task names, or Wi-Fi profile names.
  *
  * **%VAR% expansion caveat**: cmd.exe expands `%ENVVAR%` patterns even
  * inside double-quotes, and there is no reliable escape in command-line
- * mode.  If any argument contains `%`, we fall back to a direct
- * `execFile` call (no shell) which bypasses cmd.exe entirely.  This
- * skips the `chcp 65001` code-page switch, but `%` in arguments occurs
- * almost exclusively in write operations (e.g. `reg add /d`) whose
- * output is plain ASCII, so the trade-off is safe.
+ * mode.  If any argument contains a literal `%`, we fall back to a
+ * direct `execFile` call (no shell) which bypasses cmd.exe entirely.
+ * This skips the `chcp 65001` code-page switch, but `%` in arguments
+ * occurs almost exclusively in write operations (e.g. `reg add /d`)
+ * whose output is plain ASCII, so the trade-off is safe.
  *
  * @param tool  The executable name (e.g. 'reg', 'pnputil')
  * @param args  Arguments that would normally be passed to execFileAsync
@@ -73,6 +65,10 @@ export async function execNativeUtf8(
   args: string[],
   opts?: Pick<ExecFileOptions, 'timeout' | 'windowsHide' | 'maxBuffer'>
 ): Promise<{ stdout: string; stderr: string }> {
+  if (!ALLOWED_TOOLS.has(tool.toLowerCase())) {
+    throw new Error(`execNativeUtf8: disallowed tool "${tool}"`)
+  }
+
   const baseOpts = {
     encoding: 'utf-8' as const,
     windowsHide: opts?.windowsHide ?? true,
@@ -87,15 +83,23 @@ export async function execNativeUtf8(
     return execFileAsync(tool, args, baseOpts)
   }
 
-  // Build the full command: chcp to switch to UTF-8, then tool + escaped args.
-  const escaped = args.map(cmdEscapeArg)
-  const cmdLine = `chcp 65001 >nul && ${tool} ${escaped.join(' ')}`
+  // Pass arguments via environment variables so no user-controlled data
+  // appears in the command string.  cmd.exe expands the hardcoded
+  // %__KAn% references from the child-process environment at runtime.
+  // Embedded double-quotes are escaped as "" to keep cmd.exe quoting intact.
+  const env: Record<string, string> = { ...process.env }
+  const refs: string[] = []
+  for (let i = 0; i < args.length; i++) {
+    const key = `__KA${i}`
+    env[key] = args[i].replace(/"/g, '""')
+    refs.push(`"%${key}%"`)
+  }
 
-  // Execute via cmd.exe directly, passing the complete command string as
-  // a single argument.  windowsVerbatimArguments prevents Node.js from
-  // adding its own quoting layer on top of ours.
+  const cmdLine = `chcp 65001 >nul && ${tool} ${refs.join(' ')}`
+
   return execFileAsync('cmd.exe', ['/d', '/s', '/c', cmdLine], {
     ...baseOpts,
+    env,
     windowsVerbatimArguments: true,
   })
 }

@@ -17,6 +17,11 @@ vi.mock('child_process', () => ({
   execFile: execFileMockFn
 }))
 
+vi.mock('../services/exec-utf8', () => ({
+  execNativeUtf8: (tool: string, args: string[], opts?: any) => execFileAsyncMock(tool, args, opts),
+  psUtf8: (cmd: string) => cmd,
+}))
+
 vi.mock('fs', () => ({
   readFileSync: vi.fn(() => '{}'),
   writeFileSync: vi.fn(),

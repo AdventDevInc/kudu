@@ -30,6 +30,23 @@ vi.mock('child_process', () => {
   }
 })
 
+vi.mock('./exec-utf8', () => ({
+  execNativeUtf8: (tool: string, args: string[], opts?: any) => {
+    return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+      mockExecFile(tool, args, opts, (err: Error | null, stdout: string, stderr: string) => {
+        if (err) {
+          (err as any).stdout = stdout
+          ;(err as any).stderr = stderr
+          reject(err)
+        } else {
+          resolve({ stdout, stderr })
+        }
+      })
+    })
+  },
+  psUtf8: (cmd: string) => cmd,
+}))
+
 const mockReaddir = vi.fn()
 const mockStat = vi.fn()
 vi.mock('fs/promises', () => ({

@@ -30,6 +30,18 @@ vi.mock('child_process', () => ({
   execFile: createExecFileMock(),
 }))
 
+vi.mock('../services/exec-utf8', () => ({
+  execNativeUtf8: (tool: string, args: string[], opts?: any) => {
+    return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
+      mockExecFile(tool, args, opts, (err: Error | null, stdout: string, stderr: string) => {
+        if (err) reject(err)
+        else resolve({ stdout, stderr })
+      })
+    })
+  },
+  psUtf8: (cmd: string) => cmd,
+}))
+
 // ── Mock fs ─────────────────────────────────────────────────────────
 const mockExistsSync = vi.fn()
 const mockReadFileSync = vi.fn()
