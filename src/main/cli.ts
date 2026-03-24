@@ -307,9 +307,8 @@ async function scanRecycleBin(): Promise<ScanResult[]> {
   const execFileAsync = promisify(execFile)
   try {
     const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-    const encoded = Buffer.from(rbScript, 'utf16le').toString('base64')
     const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-EncodedCommand', encoded
+      '-NoProfile', '-Command', rbScript
     ], { windowsHide: true })
     const [countStr, sizeStr] = stdout.trim().split('|')
     const count = parseInt(countStr) || 0
@@ -406,9 +405,8 @@ async function cleanRecycleBin(sizeBytes: number = 0): Promise<CleanResult> {
   const execFileAsync = promisify(execFile)
   try {
     const cleanScript = `$shell = New-Object -ComObject Shell.Application; $shell.NameSpace(0x0a).Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }; Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue`
-    const cleanEncoded = Buffer.from(cleanScript, 'utf16le').toString('base64')
     await execFileAsync('powershell.exe', [
-      '-NoProfile', '-EncodedCommand', cleanEncoded
+      '-NoProfile', '-Command', cleanScript
     ], { windowsHide: true })
     return { totalCleaned: sizeBytes, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
   } catch (err: any) {

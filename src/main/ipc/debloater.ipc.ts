@@ -9,8 +9,8 @@ import { validateStringArray } from '../services/ipc-validation'
 
 const execFileAsync = promisify(execFile)
 
-function psEncoded(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+function psArgs(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-Command', script]
 }
 
 // Known bloatware packages with metadata
@@ -152,7 +152,7 @@ export async function scanBloatware(): Promise<BloatwareApp[]> {
         }
         [PSCustomObject]@{ Name = $_.Name; PackageFullName = $_.PackageFullName; InstallLocation = $_.InstallLocation; Size = $size }
       } | ConvertTo-Json -Compress`
-    const { stdout } = await execFileAsync('powershell', psEncoded(appxScript), { timeout: 60000, windowsHide: true })
+    const { stdout } = await execFileAsync('powershell', psArgs(appxScript), { timeout: 60000, windowsHide: true })
 
     let installedPackages: { Name: string; PackageFullName: string; InstallLocation: string; Size: number }[] = []
     try {
@@ -214,14 +214,14 @@ export async function removeBloatware(
     const safeName = pkgName.replace(/'/g, "''")
     onProgress?.(i + 1, validNames.length, pkgName, 'removing')
     try {
-      await execFileAsync('powershell', psEncoded(
+      await execFileAsync('powershell', psArgs(
         `Get-AppxPackage '${safeName}' | Remove-AppxPackage -ErrorAction Stop`
       ), { timeout: 30000, windowsHide: true })
       removed++
       onProgress?.(i + 1, validNames.length, pkgName, 'done')
 
       try {
-        await execFileAsync('powershell', psEncoded(
+        await execFileAsync('powershell', psArgs(
           `Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq '${safeName}' } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue`
         ), { timeout: 15000, windowsHide: true })
       } catch {

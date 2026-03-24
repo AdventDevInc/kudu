@@ -1453,9 +1453,8 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         let isSSD = false
         try {
           const diskScript = `$disk = Get-PhysicalDisk | Where-Object { $_.DeviceID -eq (Get-Partition -DriveLetter C | Get-Disk).Number }; $disk.MediaType`
-          const diskEncoded = Buffer.from(diskScript, 'utf16le').toString('base64')
           const { stdout: driveInfo } = await execFileAsync('powershell', [
-            '-NoProfile', '-EncodedCommand', diskEncoded
+            '-NoProfile', '-Command', diskScript
           ], { timeout: 10000, windowsHide: true })
           isSSD = driveInfo.trim().toUpperCase() === 'SSD'
         } catch { /* Assume HDD if detection fails — safer to leave SysMain enabled */ }
@@ -1742,9 +1741,8 @@ export async function fixRegistryEntries(
             const safeDisablePath = disableParts.path.replace(/'/g, "''")
             const safeDisableName = disableParts.name.replace(/'/g, "''")
             const disableScript = `Disable-ScheduledTask -TaskPath '${safeDisablePath}' -TaskName '${safeDisableName}' -ErrorAction Stop`
-            const disableEncoded = Buffer.from(disableScript, 'utf16le').toString('base64')
             await execFileAsync('powershell', [
-              '-NoProfile', '-NonInteractive', '-EncodedCommand', disableEncoded
+              '-NoProfile', '-NonInteractive', '-Command', disableScript
             ], { timeout: 10000, windowsHide: true })
             break
           }
@@ -1755,9 +1753,8 @@ export async function fixRegistryEntries(
             const safeDeletePath = deleteParts.path.replace(/'/g, "''")
             const safeDeleteName = deleteParts.name.replace(/'/g, "''")
             const deleteScript = `Unregister-ScheduledTask -TaskPath '${safeDeletePath}' -TaskName '${safeDeleteName}' -Confirm:$false -ErrorAction Stop`
-            const deleteEncoded = Buffer.from(deleteScript, 'utf16le').toString('base64')
             await execFileAsync('powershell', [
-              '-NoProfile', '-NonInteractive', '-EncodedCommand', deleteEncoded
+              '-NoProfile', '-NonInteractive', '-Command', deleteScript
             ], { timeout: 10000, windowsHide: true })
             break
           }

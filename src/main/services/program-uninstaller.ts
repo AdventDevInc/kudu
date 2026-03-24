@@ -389,9 +389,8 @@ async function hasRunningProcesses(folderPaths: string[]): Promise<Set<string>> 
 
   try {
     const procScript = 'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
-    const procEncoded = Buffer.from(procScript, 'utf16le').toString('base64')
     const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NoLogo', '-EncodedCommand', procEncoded,
+      '-NoProfile', '-NoLogo', '-Command', procScript,
     ], { timeout: 10000, windowsHide: true })
 
     const processPaths = stdout.split(/\r?\n/).map((p) => p.trim().toLowerCase()).filter(Boolean)

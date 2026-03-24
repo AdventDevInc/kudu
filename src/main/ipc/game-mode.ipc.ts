@@ -186,9 +186,8 @@ const PROTECTED_PROCESSES = new Set([
 // ── Helper: run PowerShell ───────────────────────────────────
 
 async function ps(script: string, timeout = 15000): Promise<string> {
-  const encoded = Buffer.from(script, 'utf16le').toString('base64')
   const { stdout } = await execFileAsync('powershell.exe', [
-    '-NoProfile', '-NonInteractive', '-EncodedCommand', encoded,
+    '-NoProfile', '-NonInteractive', '-Command', script,
   ], { timeout, windowsHide: true })
   return stdout.trim()
 }

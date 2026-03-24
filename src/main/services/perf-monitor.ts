@@ -184,9 +184,8 @@ export class PerfMonitorService {
 
     try {
       const script = 'Get-PhysicalDisk | ForEach-Object { $disk = $_; $rel = $_ | Get-StorageReliabilityCounter; [PSCustomObject]@{ DeviceId = $disk.DeviceId; Temperature = $rel.Temperature; PowerOnHours = $rel.PowerOnHours; ReadErrorsTotal = $rel.ReadErrorsTotal; WriteErrorsTotal = $rel.WriteErrorsTotal; Wear = $rel.Wear } } | ConvertTo-Json -Compress'
-      const encoded = Buffer.from(script, 'utf16le').toString('base64')
 
-      const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-EncodedCommand', encoded], {
+      const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-Command', script], {
         timeout: 10000, windowsHide: true
       })
 

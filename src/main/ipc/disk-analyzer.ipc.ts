@@ -138,9 +138,8 @@ export async function getDrives(): Promise<DriveInfo[]> {
   if (process.platform === 'win32') {
     try {
       const driveScript = `$fixed = (Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }).DeviceID -replace ':',''; Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null -and $fixed -contains $_.Name } | ForEach-Object { "$($_.Name)|$($_.Description)|$($_.Used)|$($_.Free)" }`
-      const driveEncoded = Buffer.from(driveScript, 'utf16le').toString('base64')
       const { stdout } = await execFileAsync('powershell.exe', [
-        '-NoProfile', '-EncodedCommand', driveEncoded
+        '-NoProfile', '-Command', driveScript
       ], { timeout: 10000, windowsHide: true })
 
       const drives: DriveInfo[] = []

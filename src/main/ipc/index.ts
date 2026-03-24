@@ -118,9 +118,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // declines UAC, then returns.  If the user declines, PowerShell exits
       // with an error and we don't quit.
       const psScript = `Start-Process -FilePath '${exePath.replace(/'/g, "''")}' -Verb RunAs`
-      const encoded = Buffer.from(psScript, 'utf16le').toString('base64')
       execFile('powershell.exe', [
-        '-NoProfile', '-EncodedCommand', encoded,
+        '-NoProfile', '-Command', psScript,
       ], { windowsHide: true }, (err) => {
         if (!err) app.exit(0)
       })

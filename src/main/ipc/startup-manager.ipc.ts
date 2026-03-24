@@ -10,8 +10,8 @@ import { getPlatform } from '../platform'
 
 const execFileAsync = promisify(execFile)
 
-function psEncoded(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+function psArgs(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-Command', script]
 }
 
 interface DisabledEntry {
@@ -237,7 +237,7 @@ async function getScheduledLogonTasks(): Promise<StartupItem[]> {
       }
     `
 
-    const { stdout } = await execFileAsync('powershell', psEncoded(script), { timeout: 15000, windowsHide: true })
+    const { stdout } = await execFileAsync('powershell', psArgs(script), { timeout: 15000, windowsHide: true })
 
     const lines = stdout.trim().split('\n').map((l: string) => l.trim()).filter(Boolean)
     for (const line of lines) {
@@ -372,7 +372,7 @@ export async function toggleStartupItem(
         // Enable/disable scheduled tasks via PowerShell
         try {
           const action = enabled ? 'Enable-ScheduledTask' : 'Disable-ScheduledTask'
-          await execFileAsync('powershell', psEncoded(
+          await execFileAsync('powershell', psArgs(
             `${action} -TaskName '${name.replace(/'/g, "''")}' -ErrorAction Stop`
           ), { timeout: 10000, windowsHide: true })
         } catch {
@@ -467,7 +467,7 @@ export async function deleteStartupItem(
       try {
         if (source === 'task-scheduler') {
           if (!isSafeTaskName(name)) return false
-          await execFileAsync('powershell', psEncoded(
+          await execFileAsync('powershell', psArgs(
             `Unregister-ScheduledTask -TaskName '${name.replace(/'/g, "''")}' -Confirm:$false -ErrorAction Stop`
           ), { timeout: 10000, windowsHide: true })
           deletedSource = true
@@ -632,7 +632,7 @@ export async function getBootTrace(): Promise<StartupBootTrace> {
       } catch {}
     `
 
-    const { stdout } = await execFileAsync('powershell', psEncoded(bootScript), { timeout: 15000, windowsHide: true })
+    const { stdout } = await execFileAsync('powershell', psArgs(bootScript), { timeout: 15000, windowsHide: true })
 
     const lines = stdout.trim().split('\n').map((l: string) => l.trim()).filter(Boolean)
 

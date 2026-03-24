@@ -1890,9 +1890,8 @@ class CloudAgentService {
         // Windows: COM-based recycle bin query
         try {
           const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-          const rbEncoded = Buffer.from(rbScript, 'utf16le').toString('base64')
           const { stdout } = await execFileAsync('powershell.exe', [
-            '-NoProfile', '-EncodedCommand', rbEncoded
+            '-NoProfile', '-Command', rbScript
           ], { windowsHide: true })
           const [countStr, sizeStr] = stdout.trim().split('|')
           const count = parseInt(countStr) || 0

@@ -39,9 +39,8 @@ Get-ChildItem -Path '${dir.replace(/'/g, "''")}' -Filter '*.lnk' -Recurse -Error
     "$($_.FullName)|$($sc.TargetPath)"
   } catch { "$($_.FullName)|" }
 }`
-    const encoded = Buffer.from(psScript, 'utf16le').toString('base64')
     const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-EncodedCommand', encoded,
+      '-NoProfile', '-Command', psScript,
     ], { timeout: 30000, windowsHide: true })
 
     const results: ShortcutInfo[] = []

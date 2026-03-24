@@ -16,8 +16,8 @@ import { getPlatform } from '../platform'
 
 const execFileAsync = promisify(execFile)
 
-function psEncoded(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]
+function psArgs(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-Command', script]
 }
 const PS_OPTS = { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
 
@@ -81,7 +81,7 @@ export async function scanServices(
       }
     `
 
-    const { stdout } = await execFileAsync('powershell', psEncoded(script), PS_OPTS)
+    const { stdout } = await execFileAsync('powershell', psArgs(script), PS_OPTS)
 
     const lines = stdout.split('\n').filter((l) => l.startsWith('SVC|'))
     const serviceNames: string[] = []
@@ -127,7 +127,7 @@ export async function scanServices(
 
     let depMap: Record<string, { dependsOn: string[]; dependents: string[] }> = {}
     try {
-      const { stdout: depOut } = await execFileAsync('powershell', psEncoded(depScript), PS_OPTS)
+      const { stdout: depOut } = await execFileAsync('powershell', psArgs(depScript), PS_OPTS)
       for (const line of depOut.split('\n').filter((l) => l.startsWith('DEP|'))) {
         const parts = line.trim().split('|')
         if (parts.length >= 4) {
@@ -235,7 +235,7 @@ try {
       const errors: { name: string; displayName: string; reason: string }[] = []
 
       try {
-        const { stdout } = await execFileAsync('powershell', psEncoded(script), {
+        const { stdout } = await execFileAsync('powershell', psArgs(script), {
           ...PS_OPTS,
           timeout: validChanges.length * 10_000 + 30_000 // generous timeout
         })
