@@ -328,6 +328,8 @@ const api = {
   uninstallerList: (): Promise<UninstallerListResult> => ipcRenderer.invoke(IPC.UNINSTALLER_LIST),
   uninstallerUninstall: (programId: string): Promise<UninstallResult> =>
     ipcRenderer.invoke(IPC.UNINSTALLER_UNINSTALL, programId),
+  uninstallerForceRemove: (programId: string): Promise<UninstallResult> =>
+    ipcRenderer.invoke(IPC.UNINSTALLER_FORCE_REMOVE, programId),
   onUninstallerProgress: (callback: (data: UninstallProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: UninstallProgress) => callback(data)
     ipcRenderer.on(IPC.UNINSTALLER_PROGRESS, handler)

@@ -74,5 +74,11 @@
   "safetyTooltipLocked": "Link to Kudu Cloud for safety ratings",
   "safetyScore": "Safety: {{score}}/10",
   "safetyAnalyzed": "Analyzed {{date}}",
-  "sortBySafety": "Sort by Safety"
+  "sortBySafety": "Sort by Safety",
+  "forceRemoveButton": "Force Remove",
+  "confirmForceRemoveTitle": "Force remove {{programName}}?",
+  "confirmForceRemoveDescription": "This will delete the program's registry entry and clean leftover files. This cannot be undone.",
+  "confirmForceRemoveLabel": "Force Remove",
+  "progressForceRemoving": "Force removing {{programName}}...",
+  "forceRemoveSuccess": "Force removed"
 }

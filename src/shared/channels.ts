@@ -126,6 +126,7 @@ export const IPC = {
   // Program Uninstaller
   UNINSTALLER_LIST: 'uninstaller:list',
   UNINSTALLER_UNINSTALL: 'uninstaller:uninstall',
+  UNINSTALLER_FORCE_REMOVE: 'uninstaller:force-remove',
   UNINSTALLER_PROGRESS: 'uninstaller:progress',
   PROGRAM_SAFETY_FETCH: 'program:safety:fetch',
   PROGRAM_SAFETY_UPDATED: 'program:safety:updated',

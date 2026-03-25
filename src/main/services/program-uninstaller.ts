@@ -328,6 +328,18 @@ export async function verifyUninstall(registryKey: string): Promise<boolean> {
   }
 }
 
+/**
+ * Force-delete a program's registry key (/f = no confirmation prompt).
+ */
+export async function deleteRegistryKey(registryKey: string): Promise<boolean> {
+  try {
+    await execNativeUtf8('reg', ['delete', registryKey, '/f'], { timeout: 10000 })
+    return true
+  } catch {
+    return false
+  }
+}
+
 // ─── Targeted leftover scanning ─────────────────────────────
 
 export function isSafeFolder(folderName: string): boolean {

@@ -516,7 +516,7 @@ export interface UninstallerListResult {
 }
 
 export interface UninstallProgress {
-  phase: 'listing' | 'uninstalling' | 'scanning-leftovers' | 'cleaning-leftovers'
+  phase: 'listing' | 'uninstalling' | 'scanning-leftovers' | 'cleaning-leftovers' | 'force-removing'
   currentProgram: string
   progress: number
   detail: string

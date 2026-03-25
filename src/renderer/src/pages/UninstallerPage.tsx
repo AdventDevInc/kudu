@@ -122,10 +122,12 @@ export function UninstallerPage() {
   const isCloudLinked = !!useSettingsStore((s) => s.settings.cloud.apiKey)
 
   const [confirmProgram, setConfirmProgram] = useState<InstalledProgram | null>(null)
+  const [confirmForceRemove, setConfirmForceRemove] = useState<InstalledProgram | null>(null)
   const [confirmBatch, setConfirmBatch] = useState(false)
   const [showSortMenu, setShowSortMenu] = useState(false)
   const sortMenuRef = useRef<HTMLDivElement>(null)
   const uninstallStartRef = useRef<number>(0)
+  const lastFailedProgramRef = useRef<InstalledProgram | null>(null)
   const historyStore = useHistoryStore()
   const recomputeStats = useStatsStore((s) => s.recompute)
 
@@ -196,6 +198,7 @@ export function UninstallerPage() {
     store.setError(null)
     store.setProgress(null)
     uninstallStartRef.current = Date.now()
+    lastFailedProgramRef.current = program
 
     try {
       const result = await window.kudu.uninstallerUninstall(program.id)
@@ -204,6 +207,7 @@ export function UninstallerPage() {
       s.setProgress(null)
 
       if (result.success) {
+        lastFailedProgramRef.current = null
         // Remove from list
         s.removeProgram(program.id)
 
@@ -326,6 +330,61 @@ export function UninstallerPage() {
 
     if (successCount > 0) recomputeStats()
   }, [historyStore, recomputeStats])
+
+  // ─── Force remove a program ─────────────────────────────
+  const handleForceRemove = useCallback(async () => {
+    if (!confirmForceRemove) return
+    const program = confirmForceRemove
+    setConfirmForceRemove(null)
+
+    const store = useUninstallerStore.getState()
+    store.setUninstalling(true)
+    store.setUninstallResult(null)
+    store.setError(null)
+    store.setProgress(null)
+    uninstallStartRef.current = Date.now()
+
+    try {
+      const result = await window.kudu.uninstallerForceRemove(program.id)
+      const s = useUninstallerStore.getState()
+      s.setUninstallResult(result)
+      s.setProgress(null)
+
+      if (result.success) {
+        lastFailedProgramRef.current = null
+        s.removeProgram(program.id)
+
+        if (result.leftoversCleaned > 0) {
+          await historyStore.addEntry({
+            id: Date.now().toString(),
+            type: 'cleaner',
+            timestamp: new Date().toISOString(),
+            duration: Date.now() - uninstallStartRef.current,
+            totalItemsFound: result.leftoversFound,
+            totalItemsCleaned: result.leftoversCleaned,
+            totalItemsSkipped: result.leftoversFound - result.leftoversCleaned,
+            totalSpaceSaved: result.leftoversSize,
+            categories: [
+              {
+                name: `Force Remove: ${result.programName}`,
+                itemsFound: result.leftoversFound,
+                itemsCleaned: result.leftoversCleaned,
+                spaceSaved: result.leftoversSize,
+              },
+            ],
+            errorCount: 0,
+          })
+          recomputeStats()
+        }
+      }
+    } catch (err) {
+      console.error('Force remove failed:', err)
+      toast.error(t('uninstallFailedToast'))
+      useUninstallerStore.getState().setError(t('uninstallFailedError'))
+    } finally {
+      useUninstallerStore.getState().setUninstalling(false)
+    }
+  }, [confirmForceRemove, historyStore, recomputeStats])
 
   // ─── Filtered & sorted list ───────────────────────────────
   const filteredPrograms = useMemo(() => {
@@ -590,11 +649,13 @@ export function UninstallerPage() {
               <span className="text-[13px] font-medium text-zinc-200">
                 {progress.phase === 'uninstalling'
                   ? t('progressUninstalling', { programName: progress.currentProgram })
-                  : progress.phase === 'scanning-leftovers'
-                    ? t('progressScanningLeftovers')
-                    : progress.phase === 'cleaning-leftovers'
-                      ? t('progressCleaningLeftovers')
-                      : t('progressLoading')}
+                  : progress.phase === 'force-removing'
+                    ? t('progressForceRemoving', { programName: progress.currentProgram })
+                    : progress.phase === 'scanning-leftovers'
+                      ? t('progressScanningLeftovers')
+                      : progress.phase === 'cleaning-leftovers'
+                        ? t('progressCleaningLeftovers')
+                        : t('progressLoading')}
               </span>
             </div>
             <span className="text-[12px] font-mono" style={{ color: 'var(--text-muted)' }}>
@@ -662,6 +723,17 @@ export function UninstallerPage() {
               </p>
             )}
           </div>
+          {!uninstallResult.success && lastFailedProgramRef.current && lastFailedProgramRef.current.registryKey && (
+            <button
+              onClick={() => setConfirmForceRemove(lastFailedProgramRef.current)}
+              disabled={uninstalling}
+              className="ml-auto shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium text-amber-400 transition-all hover:bg-amber-500/10 disabled:opacity-30"
+              style={{ border: '1px solid rgba(245,158,11,0.15)' }}
+            >
+              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+              {t('forceRemoveButton')}
+            </button>
+          )}
         </div>
       )}
 
@@ -955,6 +1027,17 @@ export function UninstallerPage() {
           .join(', ')}
         confirmLabel={t('confirmBatchLabel', { count: selectedIds.size })}
         variant="danger"
+      />
+
+      {/* Confirm dialog — force remove */}
+      <ConfirmDialog
+        open={!!confirmForceRemove}
+        onConfirm={handleForceRemove}
+        onCancel={() => setConfirmForceRemove(null)}
+        title={t('confirmForceRemoveTitle', { programName: confirmForceRemove?.displayName ?? '' })}
+        description={t('confirmForceRemoveDescription')}
+        confirmLabel={t('confirmForceRemoveLabel')}
+        variant="warning"
       />
     </div>
   )
