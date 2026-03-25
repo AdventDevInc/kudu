@@ -9,19 +9,23 @@ export function setDaemonMode(enabled: boolean): void {
   _daemonMode = enabled
 }
 
-const LOG_DIR = join(app.getPath('userData'), 'logs')
-const LOG_FILE = join(LOG_DIR, 'kudu.log')
-const LOG_FILE_OLD = join(LOG_DIR, 'kudu.old.log')
-const CLOUD_LOG_FILE = join(LOG_DIR, 'cloud-agent.log')
-const CLOUD_LOG_FILE_OLD = join(LOG_DIR, 'cloud-agent.old.log')
 const MAX_LOG_SIZE = 5 * 1024 * 1024 // 5 MB
 const ROTATION_CHECK_INTERVAL_MS = 60_000 // only stat the file every 60s
 
-try {
-  mkdirSync(LOG_DIR, { recursive: true })
-} catch {
-  // Ignore
+// Lazy getters — LOG_DIR must not be resolved at import time because
+// app.setPath('userData', ...) may run later (e.g. elevated relaunch).
+let _logDir: string | null = null
+function logDir(): string {
+  if (!_logDir) {
+    _logDir = join(app.getPath('userData'), 'logs')
+    try { mkdirSync(_logDir, { recursive: true }) } catch { /* ignore */ }
+  }
+  return _logDir
 }
+function logFile(): string { return join(logDir(), 'kudu.log') }
+function logFileOld(): string { return join(logDir(), 'kudu.old.log') }
+function cloudLogFile(): string { return join(logDir(), 'cloud-agent.log') }
+function cloudLogFileOld(): string { return join(logDir(), 'cloud-agent.old.log') }
 
 const lastRotationCheck = new Map<string, number>()
 
@@ -49,8 +53,8 @@ function timestamp(): string {
 export function logInfo(message: string): void {
   const line = `[${timestamp()}] INFO: ${message}\n`
   try {
-    rotateIfNeeded(LOG_FILE, LOG_FILE_OLD)
-    appendFileSync(LOG_FILE, line)
+    rotateIfNeeded(logFile(), logFileOld())
+    appendFileSync(logFile(), line)
   } catch {
     // Ignore
   }
@@ -60,8 +64,8 @@ export function logError(message: string, error?: unknown): void {
   const errStr = error instanceof Error ? error.message : String(error ?? '')
   const line = `[${timestamp()}] ERROR: ${message} ${errStr}\n`
   try {
-    rotateIfNeeded(LOG_FILE, LOG_FILE_OLD)
-    appendFileSync(LOG_FILE, line)
+    rotateIfNeeded(logFile(), logFileOld())
+    appendFileSync(logFile(), line)
   } catch {
     // Ignore
   }
@@ -71,8 +75,8 @@ export function logDebug(message: string, data?: unknown): void {
   const extra = data !== undefined ? ` ${JSON.stringify(data)}` : ''
   const line = `[${timestamp()}] DEBUG: ${message}${extra}\n`
   try {
-    rotateIfNeeded(LOG_FILE, LOG_FILE_OLD)
-    appendFileSync(LOG_FILE, line)
+    rotateIfNeeded(logFile(), logFileOld())
+    appendFileSync(logFile(), line)
   } catch {
     // Ignore
   }
@@ -82,8 +86,8 @@ export function cloudLog(level: 'INFO' | 'ERROR' | 'DEBUG', message: string, dat
   const extra = data !== undefined ? ` ${JSON.stringify(data)}` : ''
   const line = `[${timestamp()}] ${level}: ${message}${extra}\n`
   try {
-    rotateIfNeeded(CLOUD_LOG_FILE, CLOUD_LOG_FILE_OLD)
-    appendFileSync(CLOUD_LOG_FILE, line)
+    rotateIfNeeded(cloudLogFile(), cloudLogFileOld())
+    appendFileSync(cloudLogFile(), line)
   } catch {
     // Ignore
   }

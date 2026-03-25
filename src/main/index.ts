@@ -29,10 +29,26 @@ if (process.argv.includes('--daemon') || process.argv.includes('--cli')) {
   app.commandLine.appendSwitch('ozone-platform', 'headless')
 }
 
-// ─── Linux root detection ────────────────────────────────────
-// Chromium refuses to run as root without --no-sandbox.  This is hit when
-// the user relaunches via pkexec or runs with sudo for privileged ops.
-if (process.platform === 'linux' && typeof process.getuid === 'function' && process.getuid() === 0) {
+// ─── Data directory override ────────────────────────────────
+// When relaunched as root (macOS/Linux), the elevated process receives
+// --kudu-data-dir=<path> so it reads/writes the original user's config
+// instead of /var/root/... or /root/...
+const dataDirFlag = process.argv.find(a => a.startsWith('--kudu-data-dir='))
+if (dataDirFlag) {
+  const dir = dataDirFlag.slice('--kudu-data-dir='.length)
+  if (dir && require('path').isAbsolute(dir)) {
+    app.setPath('userData', dir)
+  }
+}
+
+// ─── Root detection (macOS + Linux) ─────────────────────────
+// Chromium refuses to run as root without --no-sandbox.  Also required
+// on macOS for clipboard access (paste) in the elevated process.
+if (
+  (process.platform === 'linux' || process.platform === 'darwin') &&
+  typeof process.getuid === 'function' &&
+  process.getuid() === 0
+) {
   app.commandLine.appendSwitch('no-sandbox')
 }
 

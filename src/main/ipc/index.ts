@@ -116,6 +116,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.ELEVATION_CHECK, () => isAdmin())
   ipcMain.handle(IPC.ELEVATION_RELAUNCH, () => {
     const exePath = app.getPath('exe')
+    const userDataDir = app.getPath('userData')
 
     if (process.platform === 'win32') {
       // Use execFile so we wait for PowerShell to finish (including the UAC
@@ -129,7 +130,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
         if (!err) app.exit(0)
       })
     } else if (process.platform === 'linux') {
-      const child = spawn('pkexec', [exePath, '--no-sandbox'], {
+      const child = spawn('pkexec', [exePath, '--no-sandbox', `--kudu-data-dir=${userDataDir}`], {
         detached: true,
         stdio: 'ignore',
       })
@@ -143,8 +144,10 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // spawn-and-immediately-exit approach caused a race: the current app
       // would exit before the elevated process started, and macOS could
       // re-open the old registered copy via LaunchServices.
+      // Pass --kudu-data-dir so the elevated process uses the same config.
       const escaped = exePath.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      const script = `do shell script quoted form of "${escaped}" & " > /dev/null 2>&1 &" with administrator privileges`
+      const escapedDataDir = userDataDir.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+      const script = `do shell script quoted form of "${escaped}" & " --kudu-data-dir=" & quoted form of "${escapedDataDir}" & " > /dev/null 2>&1 &" with administrator privileges`
       execFile('osascript', ['-e', script], (err) => {
         if (!err) app.exit(0)
       })
