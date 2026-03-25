@@ -20,7 +20,7 @@
   "unusedBannerDescriptionNoSize": "点击查看未使用的程序。",
   "unusedBannerViewButton": "查看",
   "safeUninstallLabel": "安全卸载",
-  "safeUninstallDescription": "运行每个程序的原生卸载程序，然后自动扫描并清理残留的文件和文件夹。",
+  "safeUninstallDescription": "运行每个程序的原生卸载程序，然后自动扫描并清理残留文件和文件夹。",
   "failedToLoadToast": "加载已安装程序失败",
   "failedToLoadError": "加载已安装程序失败。",
   "uninstallFailedToast": "卸载意外失败",
@@ -74,5 +74,11 @@
   "safetyTooltipLocked": "关联到 Kudu Cloud 以查看安全评级",
   "safetyScore": "安全性：{{score}}/10",
   "safetyAnalyzed": "分析于 {{date}}",
-  "sortBySafety": "按安全性排序"
+  "sortBySafety": "按安全性排序",
+  "forceRemoveButton": "强制移除",
+  "confirmForceRemoveTitle": "要强制移除 {{programName}} 吗？",
+  "confirmForceRemoveDescription": "这将删除该程序的注册表项并清理残留文件。此操作无法撤销。",
+  "confirmForceRemoveLabel": "强制移除",
+  "progressForceRemoving": "正在强制移除 {{programName}}...",
+  "forceRemoveSuccess": "已强制移除"
 }

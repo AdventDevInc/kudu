@@ -30,8 +30,8 @@
   "progressCleaningLeftovers": "กำลังล้างไฟล์ที่เหลือ...",
   "progressLoading": "กำลังโหลด...",
   "successfullyUninstalled": "ถอนการติดตั้งสำเร็จ",
-  "leftoversCleaned": "ล้างรายการที่เหลือ {{count}} รายการแล้ว (กู้คืนพื้นที่ {{size}})",
-  "leftoversCleanedPlural": "ล้างรายการที่เหลือ {{count}} รายการแล้ว (กู้คืนพื้นที่ {{size}})",
+  "leftoversCleaned": "ล้างรายการที่เหลือ {{count}} รายการแล้ว (กู้คืน {{size}})",
+  "leftoversCleanedPlural": "ล้างรายการที่เหลือ {{count}} รายการแล้ว (กู้คืน {{size}})",
   "noLeftoverFilesFound": "ไม่พบไฟล์ที่เหลือ",
   "failedToUninstall": "ถอนการติดตั้งไม่สำเร็จ",
   "emptyStateTitle": "ยังไม่ได้โหลดโปรแกรม",
@@ -47,7 +47,7 @@
   "deselectAll": "ยกเลิกการเลือกทั้งหมด",
   "uninstallButton": "ถอนการติดตั้ง",
   "unusedBadge": "ไม่ได้ใช้งาน",
-  "unknownPublisher": "ไม่ทราบผู้เผยแพร่",
+  "unknownPublisher": "ผู้เผยแพร่ไม่ทราบชื่อ",
   "lastUsedNeverDetected": "ไม่เคยตรวจพบ",
   "lastUsedToday": "วันนี้",
   "lastUsedYesterday": "เมื่อวาน",
@@ -74,5 +74,11 @@
   "safetyTooltipLocked": "เชื่อมโยงกับ Kudu Cloud เพื่อดูคะแนนความปลอดภัย",
   "safetyScore": "ความปลอดภัย: {{score}}/10",
   "safetyAnalyzed": "วิเคราะห์เมื่อ {{date}}",
-  "sortBySafety": "เรียงตามความปลอดภัย"
+  "sortBySafety": "เรียงตามความปลอดภัย",
+  "forceRemoveButton": "บังคับเอาออก",
+  "confirmForceRemoveTitle": "บังคับเอา {{programName}} ออก?",
+  "confirmForceRemoveDescription": "การดำเนินการนี้จะลบรายการ registry ของโปรแกรมและล้างไฟล์ที่เหลือ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+  "confirmForceRemoveLabel": "บังคับเอาออก",
+  "progressForceRemoving": "กำลังบังคับเอา {{programName}} ออก...",
+  "forceRemoveSuccess": "บังคับเอาออกแล้ว"
 }
