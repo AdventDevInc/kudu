@@ -272,6 +272,16 @@ class CloudAgentService {
     await this.deleteApi(path)
   }
 
+  async acknowledgeBreaches(breachIds: string[]): Promise<import('../../shared/types').BreachAcknowledgeResult> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    const path = `/devices/${encodeURIComponent(this.deviceId)}/breach-monitor/acknowledge`
+    const raw = (await this.patchApi(path, { breach_ids: breachIds })) as Record<string, unknown>
+    return {
+      status: typeof raw.status === 'string' ? raw.status : 'ok',
+      acknowledged: typeof raw.acknowledged === 'number' ? raw.acknowledged : 0,
+    }
+  }
+
   private parseBreachMonitorResponse(raw: Record<string, unknown>): import('../../shared/types').BreachMonitorResult {
     const rawEmails = Array.isArray(raw.emails) ? raw.emails : []
     const emails = rawEmails
@@ -297,6 +307,7 @@ class CloudAgentService {
             pwnCount: typeof b.pwn_count === 'number' ? b.pwn_count : 0,
             isVerified: typeof b.is_verified === 'boolean' ? b.is_verified : false,
             isSensitive: typeof b.is_sensitive === 'boolean' ? b.is_sensitive : false,
+            acknowledgedAt: typeof b.acknowledged_at === 'string' ? b.acknowledged_at : null,
           }))
 
         return {
@@ -803,6 +814,42 @@ class CloudAgentService {
     }
 
     cloudLog('DEBUG', `DELETE ${url} → ${res.status}`)
+    const contentType = res.headers.get('content-type')
+    if (contentType?.includes('application/json')) {
+      return res.json()
+    }
+    return null
+  }
+
+  private async patchApi(path: string, body: unknown): Promise<unknown> {
+    if (!this.connectConfig) throw new Error('Not connected — no server config')
+    const url = `${this.connectConfig.api}${path}`
+    cloudLog('DEBUG', `PATCH ${url}`)
+    await assertPublicResolution(url)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30_000)
+    let res: Response
+    try {
+      res = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      })
+    } finally {
+      clearTimeout(timeout)
+    }
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      cloudLog('ERROR', `PATCH ${url} → ${res.status}`, text.slice(0, 300))
+      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+    }
+
+    cloudLog('DEBUG', `PATCH ${url} → ${res.status}`)
     const contentType = res.headers.get('content-type')
     if (contentType?.includes('application/json')) {
       return res.json()

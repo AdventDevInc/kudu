@@ -5,6 +5,7 @@
 
   "summary": {
     "totalBreaches": "Total Breaches",
+    "unacknowledged": "New",
     "emailsMonitored": "Emails Monitored"
   },
 
@@ -18,10 +19,10 @@
     "fetchFailed": "Failed to load breach data",
     "addFailed": "Failed to add email",
     "removeFailed": "Failed to remove email",
-    "emailAdded": "Email added to breach monitor",
-    "emailRemoved": "Email removed from breach monitor",
     "invalidEmail": "Please enter a valid email address",
-    "limitReached": "Email limit reached for your plan"
+    "limitReached": "Email limit reached for your plan",
+    "acknowledged": "Breaches marked as reviewed",
+    "acknowledgeFailed": "Failed to acknowledge breaches"
   },
 
   "emptyState": {
@@ -31,7 +32,9 @@
     "allClearDesc": "None of your monitored emails have been found in any known data breaches.",
     "upgradeRequired": "Upgrade required",
     "upgradeRequiredDesc": "Breach monitoring is available on the Basic plan and above. Upgrade your plan to start monitoring.",
-    "goToCloud": "View Plans"
+    "goToCloud": "View Plans",
+    "noBreachesForEmail": "No breaches found for this email",
+    "selectEmail": "Select an email from the list to view breach details"
   },
 
   "error": {
@@ -39,24 +42,36 @@
     "description": "Check your cloud connection and try again."
   },
 
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} breach",
-    "breaches_plural": "{{count}} breaches",
-    "noBreaches": "No breaches found",
-    "lastChecked": "Last checked {{date}}",
-    "notCheckedYet": "Not checked yet",
-    "fresh": "New results",
-    "paused": "Monitoring paused",
-    "remove": "Remove"
+    "breaches_other": "{{count}} breaches",
+    "newBreaches": "{{count}} new",
+    "noBreaches": "No breaches",
+    "checking": "Checking...",
+    "paused": "Paused",
+    "remove": "Remove email",
+    "lastChecked": "Checked {{date}}"
   },
 
-  "breachCard": {
-    "sensitiveBreach": "Sensitive Breach",
-    "breachDate": "Breached {{date}}",
-    "compromisedData": "Compromised data",
-    "affectedAccounts": "{{count}} accounts affected",
+  "table": {
+    "breach": "Breach",
+    "date": "Date",
+    "accounts": "Accounts",
+    "data": "Compromised Data",
+    "status": "Status",
+    "actions": "",
+    "new": "New",
+    "reviewed": "Reviewed",
+    "sensitive": "Sensitive Breach",
     "verified": "Verified",
     "unverified": "Unverified"
+  },
+
+  "actions": {
+    "acknowledge": "Mark as reviewed",
+    "acknowledgeTooltip": "Mark this breach as seen so it no longer appears as new or triggers notifications",
+    "acknowledgeAll": "Mark all as reviewed",
+    "acknowledgeAllTooltip": "Mark all unreviewed breaches as seen"
   },
 
   "refetchButton": "Refresh"

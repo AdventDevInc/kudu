@@ -873,6 +873,7 @@ export interface BreachEntry {
   pwnCount: number
   isVerified: boolean
   isSensitive: boolean
+  acknowledgedAt: string | null
 }
 
 export interface MonitoredEmail {
@@ -887,6 +888,11 @@ export interface BreachMonitorResult {
   emails: MonitoredEmail[]
   limit: number
   usage: number
+}
+
+export interface BreachAcknowledgeResult {
+  status: string
+  acknowledged: number
 }
 
 // ─── Large File Finder ────────────────────────────────────

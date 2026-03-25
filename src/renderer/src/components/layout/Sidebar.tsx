@@ -149,7 +149,7 @@ function useBadgeCounts(): Record<string, number> {
   const gameModeActive = useGameModeStore((s) => s.active)
   const cveTotal = useCveStore((s) => s.total)
   const breachEmails = useBreachStore((s) => s.emails)
-  const breachTotal = breachEmails.reduce((sum, e) => sum + e.breaches.length, 0)
+  const breachTotal = breachEmails.reduce((sum, e) => sum + e.breaches.filter((b) => !b.acknowledgedAt).length, 0)
 
   const updatesCount = updaterApps.length + driverUpdates.length
 

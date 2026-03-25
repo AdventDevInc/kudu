@@ -5,14 +5,15 @@ import {
   ShieldCheck,
   ShieldAlert,
   RefreshCw,
-  ChevronDown,
   AlertTriangle,
   Mail,
   Plus,
   X,
   Lock,
-  CheckCircle,
-  XCircle,
+  Check,
+  CheckCheck,
+  ArrowUpDown,
+  Inbox,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -39,6 +40,9 @@ function formatDate(iso: string): string {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
+type SortField = 'date' | 'accounts' | 'status'
+type SortDir = 'asc' | 'desc'
+
 export function BreachMonitorPage() {
   const { t } = useTranslation('breachMonitor')
   const navigate = useNavigate()
@@ -50,14 +54,17 @@ export function BreachMonitorPage() {
   const usage = useBreachStore((s) => s.usage)
   const status = useBreachStore((s) => s.status)
   const error = useBreachStore((s) => s.error)
-  const expandedEmail = useBreachStore((s) => s.expandedEmail)
+  const selectedEmail = useBreachStore((s) => s.selectedEmail)
   const addingEmail = useBreachStore((s) => s.addingEmail)
   const fetchBreaches = useBreachStore((s) => s.fetch)
   const addEmail = useBreachStore((s) => s.addEmail)
   const removeEmail = useBreachStore((s) => s.removeEmail)
-  const setExpandedEmail = useBreachStore((s) => s.setExpandedEmail)
+  const acknowledgeBreaches = useBreachStore((s) => s.acknowledgeBreaches)
+  const setSelectedEmail = useBreachStore((s) => s.setSelectedEmail)
 
   const [emailInput, setEmailInput] = useState('')
+  const [sortField, setSortField] = useState<SortField>('date')
+  const [sortDir, setSortDir] = useState<SortDir>('desc')
 
   // Auto-fetch on mount
   useEffect(() => {
@@ -72,51 +79,51 @@ export function BreachMonitorPage() {
     }
   }, [isLinked, status, error, fetchBreaches])
 
-  // Toast on error — skip "not connected" (silent retry), 403 (inline upgrade prompt),
-  // and errors when there are no emails (nothing to fail on — just show empty state)
+  // Auto-select first email when emails load and none is selected
+  useEffect(() => {
+    if (emails.length > 0 && !selectedEmail) {
+      setSelectedEmail(emails[0].email)
+    }
+  }, [emails, selectedEmail, setSelectedEmail])
+
+  // Toast on error
   useEffect(() => {
     if (error && !error.includes('not connected') && !error.includes('403') && emails.length > 0) {
       toast.error(t('toast.fetchFailed'))
     }
   }, [error, emails.length, t])
 
-  const handleRefresh = useCallback(() => {
-    fetchBreaches()
-  }, [fetchBreaches])
+  const handleRefresh = useCallback(() => { fetchBreaches() }, [fetchBreaches])
 
   const handleAddEmail = useCallback(async () => {
     const value = emailInput.trim().toLowerCase()
     if (!value) return
-    if (!EMAIL_RE.test(value)) {
-      toast.error(t('toast.invalidEmail'))
-      return
-    }
-    if (usage >= limit && limit > 0) {
-      toast.error(t('toast.limitReached'))
-      return
-    }
+    if (!EMAIL_RE.test(value)) { toast.error(t('toast.invalidEmail')); return }
+    if (usage >= limit && limit > 0) { toast.error(t('toast.limitReached')); return }
     try {
       await addEmail(value)
       setEmailInput('')
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
-      if (msg.includes('422')) {
-        toast.error(t('toast.limitReached'))
-      } else if (msg.includes('403')) {
-        toast.error(t('toast.limitReached'))
-      } else {
-        toast.error(t('toast.addFailed'))
-      }
+      toast.error(msg.includes('422') || msg.includes('403') ? t('toast.limitReached') : t('toast.addFailed'))
     }
   }, [emailInput, usage, limit, addEmail, t])
 
   const handleRemoveEmail = useCallback(async (email: string) => {
-    try {
-      await removeEmail(email)
-    } catch {
-      toast.error(t('toast.removeFailed'))
-    }
+    try { await removeEmail(email) } catch { toast.error(t('toast.removeFailed')) }
   }, [removeEmail, t])
+
+  const handleAcknowledge = useCallback(async (breachIds: string[]) => {
+    try {
+      await acknowledgeBreaches(breachIds)
+      toast.success(t('toast.acknowledged'))
+    } catch { toast.error(t('toast.acknowledgeFailed')) }
+  }, [acknowledgeBreaches, t])
+
+  const toggleSort = useCallback((field: SortField) => {
+    if (sortField === field) setSortDir((d) => d === 'asc' ? 'desc' : 'asc')
+    else { setSortField(field); setSortDir('desc') }
+  }, [sortField])
 
   // Redirect if not linked
   useEffect(() => {
@@ -138,10 +145,30 @@ export function BreachMonitorPage() {
 
   const is403 = error?.includes('403')
   const isLoading = status === 'loading'
-  const totalBreaches = emails.reduce((sum, e) => sum + e.breaches.length, 0)
+  const allBreaches = emails.flatMap((e) => e.breaches)
+  const totalBreaches = allBreaches.length
+  const unacknowledgedCount = allBreaches.filter((b) => !b.acknowledgedAt).length
+  const currentEmail = emails.find((e) => e.email === selectedEmail)
+
+  // Sort breaches for the selected email
+  const sortedBreaches = currentEmail
+    ? [...currentEmail.breaches].sort((a, b) => {
+        const dir = sortDir === 'asc' ? 1 : -1
+        if (sortField === 'date') return dir * (new Date(a.breachDate).getTime() - new Date(b.breachDate).getTime())
+        if (sortField === 'accounts') return dir * (a.pwnCount - b.pwnCount)
+        // status: unacknowledged first
+        const aAck = a.acknowledgedAt ? 1 : 0
+        const bAck = b.acknowledgedAt ? 1 : 0
+        return dir * (aAck - bAck)
+      })
+    : []
+
+  const unacknowledgedForEmail = currentEmail
+    ? currentEmail.breaches.filter((b) => !b.acknowledgedAt).map((b) => b.name)
+    : []
 
   return (
-    <div className="p-8 animate-fade-in max-w-4xl">
+    <div className="p-8 animate-fade-in max-w-5xl">
       <PageHeader
         title={t('pageTitle')}
         description={t('pageDescription')}
@@ -151,9 +178,7 @@ export function BreachMonitorPage() {
             disabled={isLoading}
             className={cn(
               'flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-colors',
-              isLoading
-                ? 'cursor-not-allowed opacity-50'
-                : 'bg-white/5 text-zinc-300 hover:bg-white/10'
+              isLoading ? 'cursor-not-allowed opacity-50' : 'bg-white/5 text-zinc-300 hover:bg-white/10'
             )}
           >
             <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
@@ -180,10 +205,9 @@ export function BreachMonitorPage() {
         />
       )}
 
-      {/* Main content (no 403 error) */}
       {!is403 && (
         <>
-          {/* Generic error banner — only show if the user has emails (otherwise there's nothing to "fail") */}
+          {/* Error banner */}
           {error && !error.includes('not connected') && emails.length > 0 && (
             <div
               className="mb-6 flex items-center gap-3 rounded-xl px-4 py-3 text-[13px]"
@@ -195,17 +219,10 @@ export function BreachMonitorPage() {
           )}
 
           {/* Summary cards */}
-          <div className="mb-6 grid grid-cols-2 gap-3">
-            <SummaryCard
-              label={t('summary.totalBreaches')}
-              count={totalBreaches}
-              color={totalBreaches > 0 ? '#ef4444' : '#22c55e'}
-            />
-            <SummaryCard
-              label={t('summary.emailsMonitored')}
-              value={`${usage} / ${limit}`}
-              color="#a1a1aa"
-            />
+          <div className="mb-6 grid grid-cols-3 gap-3">
+            <SummaryCard label={t('summary.totalBreaches')} count={totalBreaches} color={totalBreaches > 0 ? '#ef4444' : '#22c55e'} />
+            <SummaryCard label={t('summary.unacknowledged')} count={unacknowledgedCount} color={unacknowledgedCount > 0 ? '#f59e0b' : '#22c55e'} />
+            <SummaryCard label={t('summary.emailsMonitored')} value={`${usage} / ${limit}`} color="#a1a1aa" />
           </div>
 
           {/* Add email input */}
@@ -234,8 +251,7 @@ export function BreachMonitorPage() {
               )}
               style={{
                 background: addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)
-                  ? 'var(--bg-subtle-2)'
-                  : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  ? 'var(--bg-subtle-2)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                 border: '1px solid var(--border-medium)',
               }}
             >
@@ -246,38 +262,149 @@ export function BreachMonitorPage() {
 
           {/* No emails yet */}
           {emails.length === 0 && status === 'done' && (
-            <EmptyState
-              icon={Mail}
-              title={t('emptyState.noEmails')}
-              description={t('emptyState.noEmailsDesc')}
-            />
+            <EmptyState icon={Mail} title={t('emptyState.noEmails')} description={t('emptyState.noEmailsDesc')} />
           )}
 
-          {/* Emails exist but no breaches */}
-          {emails.length > 0 && totalBreaches === 0 && status === 'done' && (
-            <EmptyState
-              icon={ShieldCheck}
-              title={t('emptyState.allClear')}
-              description={t('emptyState.allClearDesc')}
-              className="pb-8 pt-8"
-            />
-          )}
-
-          {/* Email list */}
+          {/* Main layout: email list + breach table */}
           {emails.length > 0 && (
-            <div className="space-y-3">
-              {emails.map((monitored) => (
-                <EmailCard
-                  key={monitored.email}
-                  monitored={monitored}
-                  expanded={expandedEmail === monitored.email}
-                  onToggle={() =>
-                    setExpandedEmail(expandedEmail === monitored.email ? null : monitored.email)
-                  }
-                  onRemove={() => handleRemoveEmail(monitored.email)}
-                  t={t}
-                />
-              ))}
+            <div className="flex gap-4" style={{ minHeight: 300 }}>
+              {/* Email sidebar list */}
+              <div
+                className="w-64 shrink-0 rounded-xl overflow-hidden"
+                style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+              >
+                {emails.map((em) => {
+                  const breachCount = em.breaches.length
+                  const unack = em.breaches.filter((b) => !b.acknowledgedAt).length
+                  const isSelected = selectedEmail === em.email
+                  return (
+                    <button
+                      key={em.email}
+                      onClick={() => setSelectedEmail(em.email)}
+                      className={cn(
+                        'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors border-b',
+                        isSelected ? 'text-white' : 'text-zinc-400 hover:bg-white/[0.03]'
+                      )}
+                      style={{
+                        borderColor: 'var(--border-subtle)',
+                        background: isSelected ? 'var(--accent-muted-bg)' : undefined,
+                      }}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13px] font-medium">{em.email}</div>
+                        <div className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                          {em.lastCheckedAt
+                            ? t('emailList.lastChecked', { date: formatDate(em.lastCheckedAt) })
+                            : em.monitoringPaused
+                              ? t('emailList.paused')
+                              : t('emailList.checking')
+                          }
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {breachCount > 0 ? (
+                          <>
+                            <span
+                              className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+                              style={{
+                                background: unack > 0 ? 'rgba(245,158,11,0.15)' : 'rgba(113,113,122,0.15)',
+                                color: unack > 0 ? '#fbbf24' : '#71717a',
+                              }}
+                            >
+                              {unack > 0 && <ShieldAlert className="h-2.5 w-2.5" />}
+                              {breachCount}
+                            </span>
+                          </>
+                        ) : (
+                          <ShieldCheck className="h-3.5 w-3.5" style={{ color: '#22c55e' }} />
+                        )}
+                      </div>
+                    </button>
+                  )
+                })}
+                {/* Remove button at bottom of selected email */}
+                {currentEmail && (
+                  <button
+                    onClick={() => handleRemoveEmail(currentEmail.email)}
+                    className="flex w-full items-center justify-center gap-1.5 px-4 py-2.5 text-[11px] font-medium transition-colors"
+                    style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)' }}
+                  >
+                    <X className="h-3 w-3" />
+                    {t('emailList.remove')}
+                  </button>
+                )}
+              </div>
+
+              {/* Breach table */}
+              <div className="flex-1 min-w-0">
+                {!currentEmail && (
+                  <EmptyState icon={Inbox} title={t('emptyState.selectEmail')} description="" className="py-16" />
+                )}
+
+                {currentEmail && currentEmail.breaches.length === 0 && (
+                  <EmptyState
+                    icon={ShieldCheck}
+                    title={currentEmail.lastCheckedAt ? t('emptyState.noBreachesForEmail') : t('emailList.checking')}
+                    description=""
+                    className="py-16"
+                  />
+                )}
+
+                {currentEmail && currentEmail.breaches.length > 0 && (
+                  <>
+                    {/* Acknowledge all button */}
+                    {unacknowledgedForEmail.length > 0 && (
+                      <div className="mb-3 flex justify-end">
+                        <button
+                          onClick={() => handleAcknowledge(unacknowledgedForEmail)}
+                          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-zinc-200"
+                          title={t('actions.acknowledgeAllTooltip')}
+                        >
+                          <CheckCheck className="h-3.5 w-3.5" />
+                          {t('actions.acknowledgeAll')} ({unacknowledgedForEmail.length})
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Table */}
+                    <div
+                      className="rounded-xl overflow-hidden"
+                      style={{ border: '1px solid var(--border-default)' }}
+                    >
+                      <table className="w-full">
+                        <thead>
+                          <tr style={{ background: 'var(--bg-subtle)' }}>
+                            <Th>{t('table.breach')}</Th>
+                            <ThSortable field="date" current={sortField} dir={sortDir} onSort={toggleSort}>
+                              {t('table.date')}
+                            </ThSortable>
+                            <ThSortable field="accounts" current={sortField} dir={sortDir} onSort={toggleSort}>
+                              {t('table.accounts')}
+                            </ThSortable>
+                            <Th>{t('table.data')}</Th>
+                            <ThSortable field="status" current={sortField} dir={sortDir} onSort={toggleSort}>
+                              {t('table.status')}
+                            </ThSortable>
+                            <Th className="w-10" />
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedBreaches.map((breach) => (
+                            <BreachRow
+                              key={breach.name}
+                              breach={breach}
+                              onAcknowledge={() => handleAcknowledge([breach.name])}
+                              t={t}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </>
@@ -286,199 +413,135 @@ export function BreachMonitorPage() {
   )
 }
 
+// ─── Table components ────────────────────────────────────
+
 function SummaryCard({ label, count, value, color }: { label: string; count?: number; value?: string; color: string }) {
   return (
-    <div
-      className="rounded-xl px-4 py-3"
-      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
-    >
-      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
-        {label}
-      </div>
-      <div className="mt-1 text-[22px] font-bold" style={{ color }}>
-        {value ?? count ?? 0}
-      </div>
+    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</div>
+      <div className="mt-1 text-[22px] font-bold" style={{ color }}>{value ?? count ?? 0}</div>
     </div>
   )
 }
 
-function EmailCard({
-  monitored,
-  expanded,
-  onToggle,
-  onRemove,
-  t,
-}: {
-  monitored: MonitoredEmail
-  expanded: boolean
-  onToggle: () => void
-  onRemove: () => void
-  t: (key: string, opts?: Record<string, unknown>) => string
-}) {
-  const breachCount = monitored.breaches.length
-  const hasBreach = breachCount > 0
-
-  const sortedBreaches = [...monitored.breaches].sort(
-    (a, b) => new Date(b.breachDate).getTime() - new Date(a.breachDate).getTime()
-  )
-
+function Th({ children, className }: { children?: React.ReactNode; className?: string }) {
   return (
-    <div
-      className="rounded-xl transition-colors"
-      style={{
-        background: hasBreach ? 'rgba(239,68,68,0.05)' : 'var(--card-bg)',
-        border: `1px solid ${hasBreach ? 'rgba(239,68,68,0.15)' : 'var(--border-default)'}`,
-      }}
-    >
-      {/* Header */}
+    <th className={cn('px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide', className)} style={{ color: 'var(--text-muted)' }}>
+      {children}
+    </th>
+  )
+}
+
+function ThSortable({ children, field, current, dir, onSort }: {
+  children: React.ReactNode
+  field: SortField
+  current: SortField
+  dir: SortDir
+  onSort: (f: SortField) => void
+}) {
+  const active = current === field
+  return (
+    <th className="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
       <button
-        onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
+        onClick={() => onSort(field)}
+        className="flex items-center gap-1 transition-colors hover:text-zinc-300"
       >
-        <ChevronDown
-          className={cn('h-3.5 w-3.5 shrink-0 text-zinc-500 transition-transform', expanded && 'rotate-180')}
+        {children}
+        <ArrowUpDown
+          className={cn('h-3 w-3', active ? 'text-zinc-300' : 'text-zinc-600')}
+          style={active && dir === 'asc' ? { transform: 'scaleY(-1)' } : undefined}
         />
-
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ background: 'var(--bg-subtle)' }}>
-          <Mail className="h-4 w-4" style={{ color: hasBreach ? '#ef4444' : 'var(--text-muted)' }} strokeWidth={1.7} />
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <span className="text-[13px] font-medium text-zinc-200">{monitored.email}</span>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              {monitored.lastCheckedAt
-                ? t('emailCard.lastChecked', { date: formatDate(monitored.lastCheckedAt) })
-                : t('emailCard.notCheckedYet')
-              }
-            </span>
-            {monitored.fresh && (
-              <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>
-                {t('emailCard.fresh')}
-              </span>
-            )}
-            {monitored.monitoringPaused && (
-              <span className="rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(245,158,11,0.12)', color: '#fbbf24' }}>
-                {t('emailCard.paused')}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Breach count badge */}
-        {hasBreach ? (
-          <span
-            className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold"
-            style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}
-          >
-            <ShieldAlert className="h-3 w-3" />
-            {breachCount}
-          </span>
-        ) : (
-          <span
-            className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium"
-            style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}
-          >
-            <ShieldCheck className="h-3 w-3" />
-            {t('emailCard.noBreaches')}
-          </span>
-        )}
-
-        {/* Remove button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onRemove() }}
-          className="rounded-lg p-1.5 transition-colors"
-          style={{ color: 'var(--text-muted)' }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-          title={t('emailCard.remove')}
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
       </button>
-
-      {/* Expanded breach list */}
-      {expanded && sortedBreaches.length > 0 && (
-        <div className="border-t px-4 pb-4 pt-3 space-y-2" style={{ borderColor: hasBreach ? 'rgba(239,68,68,0.15)' : 'var(--border-default)' }}>
-          {sortedBreaches.map((breach) => (
-            <BreachCard key={breach.name} breach={breach} t={t} />
-          ))}
-        </div>
-      )}
-
-      {expanded && sortedBreaches.length === 0 && (
-        <div className="border-t px-4 py-6 text-center" style={{ borderColor: 'var(--border-default)' }}>
-          <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('emailCard.noBreaches')}</p>
-        </div>
-      )}
-    </div>
+    </th>
   )
 }
 
-function BreachCard({
-  breach,
-  t,
-}: {
+function BreachRow({ breach, onAcknowledge, t }: {
   breach: BreachEntry
+  onAcknowledge: () => void
   t: (key: string, opts?: Record<string, unknown>) => string
 }) {
-  return (
-    <div
-      className="rounded-lg px-4 py-3"
-      style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)' }}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-medium text-zinc-200">
-              {breach.isSensitive ? t('breachCard.sensitiveBreach') : breach.title}
-            </span>
-            {breach.isVerified ? (
-              <span className="flex items-center gap-0.5 text-[10px] font-medium" style={{ color: '#60a5fa' }}>
-                <CheckCircle className="h-3 w-3" />
-                {t('breachCard.verified')}
-              </span>
-            ) : (
-              <span className="flex items-center gap-0.5 text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                <XCircle className="h-3 w-3" />
-                {t('breachCard.unverified')}
-              </span>
-            )}
-          </div>
+  const isNew = !breach.acknowledgedAt
+  const isSensitive = breach.isSensitive
 
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-            {!breach.isSensitive && breach.domain && (
-              <span>{breach.domain}</span>
-            )}
-            {breach.breachDate && (
-              <span>{t('breachCard.breachDate', { date: formatDate(breach.breachDate) })}</span>
-            )}
-            {breach.pwnCount > 0 && (
-              <span>{t('breachCard.affectedAccounts', { count: formatCount(breach.pwnCount) })}</span>
-            )}
-          </div>
+  return (
+    <tr
+      className="border-t transition-colors hover:bg-white/[0.02]"
+      style={{ borderColor: 'var(--border-subtle)' }}
+    >
+      {/* Breach name */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-medium text-zinc-200">
+            {isSensitive ? t('table.sensitive') : breach.title}
+          </span>
+          {breach.isVerified && (
+            <span className="text-[10px] font-medium" style={{ color: '#60a5fa' }}>{t('table.verified')}</span>
+          )}
         </div>
-      </div>
+        {!isSensitive && breach.domain && (
+          <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{breach.domain}</div>
+        )}
+      </td>
+
+      {/* Date */}
+      <td className="px-4 py-3">
+        <span className="text-[12px] text-zinc-400">{breach.breachDate ? formatDate(breach.breachDate) : '—'}</span>
+      </td>
+
+      {/* Accounts */}
+      <td className="px-4 py-3">
+        <span className="text-[12px] text-zinc-400">{breach.pwnCount > 0 ? formatCount(breach.pwnCount) : '—'}</span>
+      </td>
 
       {/* Data classes */}
-      {breach.dataClasses.length > 0 && !breach.isSensitive && (
-        <div className="mt-2.5">
-          <div className="text-[10px] font-medium uppercase tracking-wide mb-1.5" style={{ color: 'var(--text-muted)' }}>
-            {t('breachCard.compromisedData')}
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {breach.dataClasses.map((dc) => (
-              <span
-                key={dc}
-                className="rounded-md px-2 py-0.5 text-[11px]"
-                style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171', border: '1px solid rgba(239,68,68,0.12)' }}
-              >
+      <td className="px-4 py-3">
+        {!isSensitive && breach.dataClasses.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {breach.dataClasses.slice(0, 3).map((dc) => (
+              <span key={dc} className="rounded px-1.5 py-0.5 text-[10px]"
+                style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171', border: '1px solid rgba(239,68,68,0.12)' }}>
                 {dc}
               </span>
             ))}
+            {breach.dataClasses.length > 3 && (
+              <span className="rounded px-1.5 py-0.5 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                +{breach.dataClasses.length - 3}
+              </span>
+            )}
           </div>
-        </div>
-      )}
-    </div>
+        ) : (
+          <span className="text-[12px] text-zinc-600">—</span>
+        )}
+      </td>
+
+      {/* Status */}
+      <td className="px-4 py-3">
+        {isNew ? (
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+            style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24' }}>
+            {t('table.new')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+            style={{ background: 'rgba(113,113,122,0.12)', color: '#71717a' }}>
+            {t('table.reviewed')}
+          </span>
+        )}
+      </td>
+
+      {/* Action */}
+      <td className="px-4 py-3">
+        {isNew && (
+          <button
+            onClick={onAcknowledge}
+            className="rounded-lg p-1.5 transition-colors text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
+            title={t('actions.acknowledgeTooltip')}
+          >
+            <Check className="h-4 w-4" />
+          </button>
+        )}
+      </td>
+    </tr>
   )
 }

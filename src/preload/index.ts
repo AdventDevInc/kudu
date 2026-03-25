@@ -73,6 +73,7 @@ import type {
   CvePageResult,
   StartupSafetyResult,
   BreachMonitorResult,
+  BreachAcknowledgeResult,
 } from '../shared/types'
 
 const api = {
@@ -463,6 +464,8 @@ const api = {
     ipcRenderer.invoke(IPC.BREACH_MONITOR_ADD, emails),
   breachMonitorRemove: (email: string): Promise<void> =>
     ipcRenderer.invoke(IPC.BREACH_MONITOR_REMOVE, email),
+  breachMonitorAcknowledge: (breachIds: string[]): Promise<BreachAcknowledgeResult> =>
+    ipcRenderer.invoke(IPC.BREACH_MONITOR_ACKNOWLEDGE, breachIds),
 
   // Progress events
   onScanProgress: (callback: (data: ProgressData) => void) => {

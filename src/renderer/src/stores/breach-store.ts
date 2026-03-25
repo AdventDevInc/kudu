@@ -8,13 +8,14 @@ interface BreachState {
   usage: number
   status: 'idle' | 'loading' | 'done'
   error: string | null
-  expandedEmail: string | null
+  selectedEmail: string | null
   addingEmail: boolean
 
   fetch: () => Promise<void>
   addEmail: (email: string) => Promise<void>
   removeEmail: (email: string) => Promise<void>
-  setExpandedEmail: (email: string | null) => void
+  acknowledgeBreaches: (breachIds: string[]) => Promise<void>
+  setSelectedEmail: (email: string | null) => void
   reset: () => void
 }
 
@@ -24,7 +25,7 @@ const initial = {
   usage: 0,
   status: 'idle' as const,
   error: null as string | null,
-  expandedEmail: null as string | null,
+  selectedEmail: null as string | null,
   addingEmail: false,
 }
 
@@ -66,21 +67,35 @@ export const useBreachStore = create<BreachState>((set, get) => ({
 
   removeEmail: async (email: string) => {
     const prev = get().emails
-    // Optimistic removal
     set({ emails: prev.filter((e) => e.email !== email) })
     try {
       await window.kudu.breachMonitorRemove(email)
-      // Re-fetch to get updated usage/limit
       const result = await window.kudu.breachMonitorFetch()
       set({ emails: result.emails, limit: result.limit, usage: result.usage })
+      // If we just removed the selected email, clear selection
+      if (get().selectedEmail === email) set({ selectedEmail: null })
     } catch (err) {
-      // Revert on failure
       set({ emails: prev })
       throw err
     }
   },
 
-  setExpandedEmail: (email) => set({ expandedEmail: email }),
+  acknowledgeBreaches: async (breachIds: string[]) => {
+    await window.kudu.breachMonitorAcknowledge(breachIds)
+    // Optimistically mark as acknowledged locally
+    const now = new Date().toISOString()
+    const idSet = new Set(breachIds)
+    set({
+      emails: get().emails.map((em) => ({
+        ...em,
+        breaches: em.breaches.map((b) =>
+          idSet.has(b.name) && !b.acknowledgedAt ? { ...b, acknowledgedAt: now } : b
+        ),
+      })),
+    })
+  },
+
+  setSelectedEmail: (email) => set({ selectedEmail: email }),
   reset: () => set(initial),
 }))
 

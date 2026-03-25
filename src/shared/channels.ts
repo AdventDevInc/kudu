@@ -180,6 +180,7 @@ export const IPC = {
   BREACH_MONITOR_FETCH: 'breach-monitor:fetch',
   BREACH_MONITOR_ADD: 'breach-monitor:add',
   BREACH_MONITOR_REMOVE: 'breach-monitor:remove',
+  BREACH_MONITOR_ACKNOWLEDGE: 'breach-monitor:acknowledge',
 
   // Cloud Action History
   CLOUD_HISTORY_GET: 'cloud:history:get',

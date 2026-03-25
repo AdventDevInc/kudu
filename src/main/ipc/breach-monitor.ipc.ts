@@ -29,4 +29,18 @@ export function registerBreachMonitorIpc(): void {
     }
     await cloudAgent.removeBreachMonitorEmail(email.toLowerCase().trim())
   })
+
+  ipcMain.handle(IPC.BREACH_MONITOR_ACKNOWLEDGE, async (_event, breachIds?: unknown) => {
+    if (!Array.isArray(breachIds) || breachIds.length === 0 || breachIds.length > 100) {
+      throw new Error('Expected an array of 1-100 breach IDs')
+    }
+    const validated: string[] = []
+    for (const id of breachIds) {
+      if (typeof id !== 'string' || id.length === 0 || id.length > 200) {
+        throw new Error(`Invalid breach ID: ${String(id).slice(0, 50)}`)
+      }
+      validated.push(id)
+    }
+    return cloudAgent.acknowledgeBreaches(validated)
+  })
 }
