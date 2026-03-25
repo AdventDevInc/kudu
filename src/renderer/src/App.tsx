@@ -30,6 +30,8 @@ import { SchedulesPage } from './pages/SchedulesPage'
 import { GameModePage } from './pages/GameModePage'
 import { CveScannerPage } from './pages/CveScannerPage'
 import { AboutPage } from './pages/AboutPage'
+import { CloudPage } from './pages/CloudPage'
+import { BreachMonitorPage } from './pages/BreachMonitorPage'
 import { Onboarding } from './components/Onboarding'
 import { useStatsStore } from './stores/stats-store'
 import { useHistoryStore } from './stores/history-store'
@@ -150,6 +152,8 @@ export function App() {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/cloud" element={<CloudPage />} />
+          <Route path="/breach-monitor" element={<BreachMonitorPage />} />
           {/* Standalone pages */}
           <Route path="/privacy" element={<PrivacyShieldPage />} />
           <Route path="/services" element={<ServiceManagerPage />} />
@@ -210,6 +214,8 @@ const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
   '/updates': 'Software Updates',
   '/schedules': { key: 'schedules' },
   '/drivers': 'Driver Updates',
+  '/cloud': 'Kudu Cloud',
+  '/breach-monitor': 'Breach Monitor',
 }
 
 function PageTitleUpdater() {

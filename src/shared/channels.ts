@@ -176,6 +176,11 @@ export const IPC = {
   CVE_FETCH: 'cve:fetch',
   CVE_UPDATED: 'cve:updated',
 
+  // Breach Monitor
+  BREACH_MONITOR_FETCH: 'breach-monitor:fetch',
+  BREACH_MONITOR_ADD: 'breach-monitor:add',
+  BREACH_MONITOR_REMOVE: 'breach-monitor:remove',
+
   // Cloud Action History
   CLOUD_HISTORY_GET: 'cloud:history:get',
   CLOUD_HISTORY_CLEAR: 'cloud:history:clear',

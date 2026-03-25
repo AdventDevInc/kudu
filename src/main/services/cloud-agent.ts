@@ -250,6 +250,71 @@ class CloudAgentService {
     }
   }
 
+  // ─── Breach Monitor ──────────────────────────────────────
+
+  async getBreachMonitor(): Promise<import('../../shared/types').BreachMonitorResult> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    const path = `/devices/${encodeURIComponent(this.deviceId)}/breach-monitor`
+    const raw = (await this.getApi(path)) as Record<string, unknown>
+    return this.parseBreachMonitorResponse(raw)
+  }
+
+  async addBreachMonitorEmails(emails: string[]): Promise<import('../../shared/types').BreachMonitorResult> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    const path = `/devices/${encodeURIComponent(this.deviceId)}/breach-monitor`
+    const raw = (await this.postApi(path, { emails })) as Record<string, unknown>
+    return this.parseBreachMonitorResponse(raw)
+  }
+
+  async removeBreachMonitorEmail(email: string): Promise<void> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    const path = `/devices/${encodeURIComponent(this.deviceId)}/breach-monitor/${encodeURIComponent(email)}`
+    await this.deleteApi(path)
+  }
+
+  private parseBreachMonitorResponse(raw: Record<string, unknown>): import('../../shared/types').BreachMonitorResult {
+    const rawEmails = Array.isArray(raw.emails) ? raw.emails : []
+    const emails = rawEmails
+      .filter((item: unknown): item is Record<string, unknown> =>
+        item !== null && typeof item === 'object' && !Array.isArray(item) &&
+        typeof (item as Record<string, unknown>).email === 'string'
+      )
+      .map((item) => {
+        const rawBreaches = Array.isArray(item.breaches) ? item.breaches : []
+        const breaches = rawBreaches
+          .filter((b: unknown): b is Record<string, unknown> =>
+            b !== null && typeof b === 'object' && !Array.isArray(b) &&
+            typeof (b as Record<string, unknown>).name === 'string'
+          )
+          .map((b) => ({
+            name: String(b.name),
+            title: typeof b.title === 'string' ? b.title : String(b.name),
+            domain: typeof b.domain === 'string' ? b.domain : '',
+            breachDate: typeof b.breach_date === 'string' ? b.breach_date : '',
+            dataClasses: Array.isArray(b.data_classes)
+              ? b.data_classes.filter((d: unknown): d is string => typeof d === 'string')
+              : [],
+            pwnCount: typeof b.pwn_count === 'number' ? b.pwn_count : 0,
+            isVerified: typeof b.is_verified === 'boolean' ? b.is_verified : false,
+            isSensitive: typeof b.is_sensitive === 'boolean' ? b.is_sensitive : false,
+          }))
+
+        return {
+          email: String(item.email),
+          lastCheckedAt: typeof item.last_checked_at === 'string' ? item.last_checked_at : null,
+          fresh: typeof item.fresh === 'boolean' ? item.fresh : false,
+          monitoringPaused: typeof item.monitoring_paused === 'boolean' ? item.monitoring_paused : false,
+          breaches,
+        }
+      })
+
+    return {
+      emails,
+      limit: typeof raw.limit === 'number' ? raw.limit : 0,
+      usage: typeof raw.usage === 'number' ? raw.usage : emails.length,
+    }
+  }
+
   async getStartupSafetyRatings(): Promise<StartupSafetyResult> {
     if (this.status !== 'connected') throw new Error('Cloud agent not connected')
     this.startupItems = null
@@ -706,6 +771,41 @@ class CloudAgentService {
       const body = await res.json()
       cloudLog('DEBUG', `GET ${url} response body`, JSON.stringify(body).slice(0, 500))
       return body
+    }
+    return null
+  }
+
+  private async deleteApi(path: string): Promise<unknown> {
+    if (!this.connectConfig) throw new Error('Not connected — no server config')
+    const url = `${this.connectConfig.api}${path}`
+    cloudLog('DEBUG', `DELETE ${url}`)
+    await assertPublicResolution(url)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30_000)
+    let res: Response
+    try {
+      res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        signal: controller.signal,
+      })
+    } finally {
+      clearTimeout(timeout)
+    }
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      cloudLog('ERROR', `DELETE ${url} → ${res.status}`, text.slice(0, 300))
+      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+    }
+
+    cloudLog('DEBUG', `DELETE ${url} → ${res.status}`)
+    const contentType = res.headers.get('content-type')
+    if (contentType?.includes('application/json')) {
+      return res.json()
     }
     return null
   }

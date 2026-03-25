@@ -29,7 +29,9 @@ import {
   Package,
   Eye,
   Server,
-  PackageMinus
+  PackageMinus,
+  Cloud,
+  Mail,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -40,6 +42,7 @@ import { useUpdaterStore } from '@/stores/updater-store'
 import { useDriverStore } from '@/stores/driver-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
 import { useCveStore } from '@/stores/cve-store'
+import { useBreachStore } from '@/stores/breach-store'
 import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
 
@@ -78,7 +81,8 @@ const navGroups: NavGroup[] = [
           { icon: Server, label: 'Services', path: '/services' },
         ]
       },
-      { icon: Bug, labelKey: 'cveScanner', path: '/cve' }
+      { icon: Bug, labelKey: 'cveScanner', path: '/cve' },
+      { icon: Mail, labelKey: 'breachMonitor', path: '/breach-monitor' }
     ]
   },
   {
@@ -128,6 +132,7 @@ function useBottomNavItems(): NavItemDef[] {
       icon: Settings, labelKey: 'settings', path: '/settings',
       children: [
         { icon: Settings, label: 'Preferences', path: '/settings' },
+        { icon: Cloud, label: 'Cloud', path: '/cloud' },
         { icon: History, label: 'History', path: '/history' },
         { icon: Info, label: 'About & Updates', path: '/about', badge: showUpdateBadge },
       ]
@@ -143,6 +148,8 @@ function useBadgeCounts(): Record<string, number> {
   const threatCount = (threatSnapshot?.flaggedConnections.length ?? 0) + (threatSnapshot?.flaggedDns.length ?? 0)
   const gameModeActive = useGameModeStore((s) => s.active)
   const cveTotal = useCveStore((s) => s.total)
+  const breachEmails = useBreachStore((s) => s.emails)
+  const breachTotal = breachEmails.reduce((sum, e) => sum + e.breaches.length, 0)
 
   const updatesCount = updaterApps.length + driverUpdates.length
 
@@ -153,6 +160,7 @@ function useBadgeCounts(): Record<string, number> {
     '/threat-monitor': threatCount,
     '/game-mode': gameModeActive ? 1 : 0,
     '/cve': cveTotal,
+    '/breach-monitor': breachTotal,
   }
 }
 
@@ -189,6 +197,7 @@ export function Sidebar() {
       if (item.path === '/game-mode' && !features.gameMode) return false
       if (item.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
       if (item.path === '/cve' && !cloudConnected) return false
+      if (item.path === '/breach-monitor' && !cloudConnected) return false
       return true
     }).map((item) => {
       if (!item.children) return item

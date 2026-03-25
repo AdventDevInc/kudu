@@ -29,6 +29,7 @@ import { registerEmptyFolderCleanerIpc } from './empty-folder-cleaner.ipc'
 import { registerFileShredderIpc } from './file-shredder.ipc'
 import { registerGameModeIpc } from './game-mode.ipc'
 import { registerCveScannerIpc } from './cve-scanner.ipc'
+import { registerBreachMonitorIpc } from './breach-monitor.ipc'
 import { registerStartupSafetyIpc } from './startup-safety.ipc'
 import { registerProgramSafetyIpc } from './program-safety.ipc'
 import { getSettings, setSettings, flushSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
@@ -67,6 +68,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerSoftwareUpdaterIpc(getWindow)
   registerCloudAgentIpc()
   registerCveScannerIpc()
+  registerBreachMonitorIpc()
   registerStartupSafetyIpc()
   registerProgramSafetyIpc()
   registerFileShredderIpc(getWindow)

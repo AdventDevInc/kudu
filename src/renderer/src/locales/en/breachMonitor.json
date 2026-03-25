@@ -1,0 +1,63 @@
+{
+  "pageTitle": "Breach Monitor",
+  "pageDescription": "Check if your email addresses have been exposed in known data breaches",
+  "loading": "Loading breach data...",
+
+  "summary": {
+    "totalBreaches": "Total Breaches",
+    "emailsMonitored": "Emails Monitored"
+  },
+
+  "addEmail": {
+    "placeholder": "Enter an email address",
+    "button": "Add Email",
+    "adding": "Adding..."
+  },
+
+  "toast": {
+    "fetchFailed": "Failed to load breach data",
+    "addFailed": "Failed to add email",
+    "removeFailed": "Failed to remove email",
+    "emailAdded": "Email added to breach monitor",
+    "emailRemoved": "Email removed from breach monitor",
+    "invalidEmail": "Please enter a valid email address",
+    "limitReached": "Email limit reached for your plan"
+  },
+
+  "emptyState": {
+    "noEmails": "No emails monitored",
+    "noEmailsDesc": "Add an email address to check for past data breaches and continuously monitor for new leaks.",
+    "allClear": "All clear",
+    "allClearDesc": "None of your monitored emails have been found in any known data breaches.",
+    "upgradeRequired": "Upgrade required",
+    "upgradeRequiredDesc": "Breach monitoring is available on the Basic plan and above. Upgrade your plan to start monitoring.",
+    "goToCloud": "View Plans"
+  },
+
+  "error": {
+    "title": "Failed to load breach data",
+    "description": "Check your cloud connection and try again."
+  },
+
+  "emailCard": {
+    "breaches": "{{count}} breach",
+    "breaches_plural": "{{count}} breaches",
+    "noBreaches": "No breaches found",
+    "lastChecked": "Last checked {{date}}",
+    "notCheckedYet": "Not checked yet",
+    "fresh": "New results",
+    "paused": "Monitoring paused",
+    "remove": "Remove"
+  },
+
+  "breachCard": {
+    "sensitiveBreach": "Sensitive Breach",
+    "breachDate": "Breached {{date}}",
+    "compromisedData": "Compromised data",
+    "affectedAccounts": "{{count}} accounts affected",
+    "verified": "Verified",
+    "unverified": "Unverified"
+  },
+
+  "refetchButton": "Refresh"
+}

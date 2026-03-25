@@ -862,6 +862,33 @@ export interface CvePageResult {
   librarySize: number
 }
 
+// ─── Breach Monitor ──────────────────────────────────────
+
+export interface BreachEntry {
+  name: string
+  title: string
+  domain: string
+  breachDate: string
+  dataClasses: string[]
+  pwnCount: number
+  isVerified: boolean
+  isSensitive: boolean
+}
+
+export interface MonitoredEmail {
+  email: string
+  lastCheckedAt: string | null
+  fresh: boolean
+  monitoringPaused: boolean
+  breaches: BreachEntry[]
+}
+
+export interface BreachMonitorResult {
+  emails: MonitoredEmail[]
+  limit: number
+  usage: number
+}
+
 // ─── Large File Finder ────────────────────────────────────
 
 export interface LargeFileScanOptions {
