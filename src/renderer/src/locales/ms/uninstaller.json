@@ -13,7 +13,7 @@
   "searchPlaceholder": "Cari program...",
   "filterAll": "Semua ({{count}})",
   "filterUnused": "Tidak digunakan ({{count}})",
-  "uninstallSelected": "Nyahpasang Yang Dipilih ({{count}})",
+  "uninstallSelected": "Nyahpasang yang Dipilih ({{count}})",
   "unusedBannerTitle": "{{count}} program tidak digunakan dalam {{days}}+ hari",
   "unusedBannerTitlePlural": "{{count}} program tidak digunakan dalam {{days}}+ hari",
   "unusedBannerDescriptionWithSize": "Menggunakan ~{{size}} ruang cakera. Klik untuk melihat.",
@@ -63,5 +63,16 @@
   "confirmBatchLabel": "Nyahpasang {{count}}",
   "batchResultProgramsSingular": "{{count}} program",
   "batchResultProgramsPlural": "{{count}} program",
-  "batchResultFailedSucceeded": "{{failed}} gagal, {{succeeded}} berjaya"
+  "batchResultFailedSucceeded": "{{failed}} gagal, {{succeeded}} berjaya",
+  "safetyLinkCloud": "Pautkan ke Kudu Cloud untuk melihat penilaian keselamatan AI bagi program anda",
+  "safetyPending": "Menganalisis keselamatan...",
+  "safetyTooltipSafe": "Selamat — klik untuk butiran",
+  "safetyTooltipCaution": "Gunakan dengan berhati-hati — klik untuk butiran",
+  "safetyTooltipWarning": "Mencurigakan — klik untuk butiran",
+  "safetyTooltipDanger": "Berpotensi tidak selamat — klik untuk butiran",
+  "safetyTooltipPending": "Analisis keselamatan sedang dijalankan",
+  "safetyTooltipLocked": "Pautkan ke Kudu Cloud untuk penilaian keselamatan",
+  "safetyScore": "Keselamatan: {{score}}/10",
+  "safetyAnalyzed": "Dianalisis {{date}}",
+  "sortBySafety": "Isih mengikut Keselamatan"
 }

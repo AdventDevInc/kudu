@@ -30,8 +30,8 @@
   "statStartupAppsDelay": "Forsinkelse fra oppstartsapper",
   "statAppsMeasured": "Målte apper",
   "statPotentialSavings": "Potensiell besparelse",
-  "chartBootTimeImpact": "Påvirkning på oppstartstid per program",
-  "chartNoPerAppData": "Ingen oppstartsdata per app tilgjengelig",
+  "chartBootTimeImpact": "Oppstartstidspåvirkning per program",
+  "chartNoPerAppData": "Ingen oppstartsdata tilgjengelig per app",
   "chartBootTimeBreakdown": "Fordeling av oppstartstid",
   "chartTooltipDelay": "Forsinkelse",
   "pieCoreBoot": "Kjerneoppstart",
@@ -52,5 +52,16 @@
   "historyCategoryEnabled": "Aktivert",
   "historyCategoryDisabled": "Deaktivert",
   "historyCategoryRemoved": "Fjernet",
-  "removeButtonTitle": "Fjern {{name}}"
+  "removeButtonTitle": "Fjern {{name}}",
+  "safetyLinkCloud": "Koble til Kudu Cloud for å se AI-sikkerhetsvurderinger for oppstartsprogrammene dine",
+  "safetyPending": "Analyserer sikkerhet...",
+  "safetyTooltipSafe": "Trygg — klikk for detaljer",
+  "safetyTooltipCaution": "Vær forsiktig — klikk for detaljer",
+  "safetyTooltipWarning": "Mistenkelig — klikk for detaljer",
+  "safetyTooltipDanger": "Potensielt utrygg — klikk for detaljer",
+  "safetyTooltipPending": "Sikkerhetsanalyse pågår",
+  "safetyTooltipLocked": "Koble til Kudu Cloud for sikkerhetsvurderinger",
+  "safetyScore": "Sikkerhet: {{score}}/10",
+  "safetyAnalyzed": "Analysert {{date}}",
+  "sortBySafety": "Sorter etter sikkerhet"
 }

@@ -15,7 +15,7 @@
   "sourceLaunchAgentGlobal": "Agente de inicio global",
   "sourceLoginItem": "Elemento de inicio de sesión",
   "sourceSystemdUser": "Servicio de usuario de Systemd",
-  "sourceAutostartDesktop": "Inicio automático de XDG",
+  "sourceAutostartDesktop": "Inicio automático XDG",
   "sourceCron": "Tarea Cron",
   "bootTraceAnalyzing": "Analizando los datos de seguimiento del arranque...",
   "bootTraceNeedsAdmin": "Los datos de seguimiento del arranque requieren privilegios de administrador; reinicie la aplicación como administrador para ver el análisis del impacto de inicio.",
@@ -52,5 +52,16 @@
   "historyCategoryEnabled": "Habilitado",
   "historyCategoryDisabled": "Deshabilitado",
   "historyCategoryRemoved": "Quitado",
-  "removeButtonTitle": "Quitar {{name}}"
+  "removeButtonTitle": "Quitar {{name}}",
+  "safetyLinkCloud": "Vincule con Kudu Cloud para ver las calificaciones de seguridad con IA de sus programas de inicio",
+  "safetyPending": "Analizando la seguridad...",
+  "safetyTooltipSafe": "Seguro; haga clic para ver los detalles",
+  "safetyTooltipCaution": "Use precaución; haga clic para ver los detalles",
+  "safetyTooltipWarning": "Sospechoso; haga clic para ver los detalles",
+  "safetyTooltipDanger": "Potencialmente inseguro; haga clic para ver los detalles",
+  "safetyTooltipPending": "Análisis de seguridad en curso",
+  "safetyTooltipLocked": "Vincule con Kudu Cloud para ver las calificaciones de seguridad",
+  "safetyScore": "Seguridad: {{score}}/10",
+  "safetyAnalyzed": "Analizado el {{date}}",
+  "sortBySafety": "Ordenar por seguridad"
 }

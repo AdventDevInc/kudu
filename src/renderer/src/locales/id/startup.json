@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Pengelola Startup",
+  "pageTitle": "Manajer Startup",
   "pageDescription": "Kelola program yang berjalan saat startup",
   "filterAll": "Semua Item",
   "filterActive": "Hanya Aktif",
@@ -52,5 +52,16 @@
   "historyCategoryEnabled": "Diaktifkan",
   "historyCategoryDisabled": "Dinonaktifkan",
   "historyCategoryRemoved": "Dihapus",
-  "removeButtonTitle": "Hapus {{name}}"
+  "removeButtonTitle": "Hapus {{name}}",
+  "safetyLinkCloud": "Tautkan ke Kudu Cloud untuk melihat penilaian keamanan AI untuk program startup Anda",
+  "safetyPending": "Menganalisis keamanan...",
+  "safetyTooltipSafe": "Aman — klik untuk detail",
+  "safetyTooltipCaution": "Gunakan dengan hati-hati — klik untuk detail",
+  "safetyTooltipWarning": "Mencurigakan — klik untuk detail",
+  "safetyTooltipDanger": "Berpotensi tidak aman — klik untuk detail",
+  "safetyTooltipPending": "Analisis keamanan sedang berlangsung",
+  "safetyTooltipLocked": "Tautkan ke Kudu Cloud untuk penilaian keamanan",
+  "safetyScore": "Keamanan: {{score}}/10",
+  "safetyAnalyzed": "Dianalisis {{date}}",
+  "sortBySafety": "Urutkan berdasarkan Keamanan"
 }

@@ -1,7 +1,7 @@
 {
-  "pageTitle": "Wzmacnianie systemu",
+  "pageTitle": "Wzmacnianie zabezpieczeń systemu",
   "descriptionWindows": "Ogranicz Windows — usuń telemetrię, zbędne oprogramowanie i niepotrzebne usługi",
-  "descriptionOther": "Wzmocnij swój system — zarządzaj ustawieniami prywatności i niepotrzebnymi usługami",
+  "descriptionOther": "Wzmocnij zabezpieczenia systemu — zarządzaj ustawieniami prywatności i niepotrzebnymi usługami",
   "tabs": {
     "privacy": "Prywatność",
     "bloatware": "Zbędne oprogramowanie",
@@ -11,8 +11,8 @@
     "servicesDescription": "Niepotrzebne usługi"
   },
   "privacy": {
-    "pageTitle": "Tarcza prywatności",
-    "pageDescription": "Kontroluj telemetrię, reklamy, śledzenie i zbieranie danych w całym systemie",
+    "pageTitle": "Osłona prywatności",
+    "pageDescription": "Kontroluj telemetrię, reklamy, śledzenie i gromadzenie danych w całym systemie",
     "scanButton": "Skanuj",
     "protectAllButton": "Chroń wszystko ({{count}})",
     "privacyScore": "Ocena prywatności",
@@ -28,13 +28,13 @@
     "settingsApplied": "Zastosowano {{count}} ustawienie",
     "settingsAppliedPlural": "Zastosowano {{count}} ustawienia",
     "settingsFailedRequireAdmin": "{{count}} nie powiodło się — mogą być wymagane uprawnienia administratora",
-    "emptyStateTitle": "Tarcza prywatności",
+    "emptyStateTitle": "Osłona prywatności",
     "emptyStateDescription": "Kliknij „Skanuj”, aby sprawdzić ustawienia prywatności i zabezpieczeń oraz zastosować zalecane wzmocnienia.",
     "allProtectedBadge": "Wszystko chronione",
     "unprotectedBadge": "{{count}} niechronionych",
     "protectAllCategoryButton": "Chroń wszystko",
-    "adminBadge": "Admin",
-    "adminWarning": "Niektóre ustawienia wymagają uprawnień administratora do modyfikacji. Uruchom Kudu jako administrator, aby uzyskać pełną ochronę.",
+    "adminBadge": "Administrator",
+    "adminWarning": "Niektóre ustawienia wymagają uprawnień administratora do modyfikacji. Uruchom Kudu jako administrator, aby zapewnić pełną ochronę.",
     "scanFailed": "Skanowanie prywatności nie powiodło się",
     "applyFailed": "Nie udało się zastosować ustawień prywatności",
     "applyFailedDescription": "Spróbuj uruchomić jako administrator",
@@ -51,11 +51,12 @@
     "ipcCallFailed": "Wywołanie IPC nie powiodło się — spróbuj uruchomić jako administrator",
     "allSettingsLabel": "Wszystkie ustawienia",
     "unknownError": "Nieznany błąd",
-    "requiresSettingEnabled": "Najpierw włącz „{{label}}”"
+    "requiresSettingEnabled": "Najpierw włącz „{{label}}”",
+    "adminRequired": "Spróbuj uruchomić jako administrator"
   },
   "privacyCategories": {
-    "telemetryLabel": "Telemetria i zbieranie danych",
-    "telemetryDescription": "Kontroluj zbieranie danych diagnostycznych i danych o użytkowaniu",
+    "telemetryLabel": "Telemetria i gromadzenie danych",
+    "telemetryDescription": "Kontroluj gromadzenie danych diagnostycznych i danych o użytkowaniu",
     "adsLabel": "Reklamy i sugestie",
     "adsDescription": "Blokuj promowane aplikacje, sugestie reklamowe i wyróżnione obrazy ekranu blokady",
     "searchLabel": "Wyszukiwanie i Cortana",
@@ -74,7 +75,7 @@
     "accessDescription": "Zasady kontroli dostępu, wzmacnianie SSH i ograniczenia systemowe",
     "aiLabel": "Funkcje AI",
     "aiDescription": "Wyłącz Copilot, Recall i inne funkcje AI analizujące Twoje dane",
-    "browserLabel": "Telemetria przeglądarki",
+    "browserLabel": "Telemetria przeglądarek",
     "browserDescription": "Powstrzymaj przeglądarki przed zgłaszaniem danych o użytkowaniu do Microsoft, Google i Mozilla"
   },
   "debloater": {
@@ -132,7 +133,7 @@
     "infoBannerMayAffect": "= może wpływać na działanie,",
     "infoBannerRed": "Czerwony",
     "infoBannerSystemCritical": "= krytyczne dla systemu.",
-    "infoBannerUseRecommended": "Użyj „Zastosuj zalecane”, aby bezpiecznie zastosować gotowy profil jednym kliknięciem.",
+    "infoBannerUseRecommended": "Użyj „Zastosuj zalecane”, aby bezpiecznie zastosować gotowe ustawienia jednym kliknięciem.",
     "scanProgressEnumerating": "Wyliczanie usług...",
     "scanProgressClassifying": "Klasyfikowanie usług...",
     "servicesDisabled": "Wyłączono {{count}} usługę",
@@ -179,8 +180,8 @@
     "applyFailedError": "Nie udało się zastosować zmian",
     "serviceDisabledToast": "Wyłączono {{count}} usługę",
     "serviceDisabledToastPlural": "Wyłączono {{count}} usługi",
-    "serviceFailedToast": "Nie udało się wyłączyć {{count}} usługi",
-    "serviceFailedToastPlural": "Nie udało się wyłączyć {{count}} usług",
+    "serviceFailedToast": "{{count}} usługa zakończona niepowodzeniem",
+    "serviceFailedToastPlural": "{{count}} usług zakończonych niepowodzeniem",
     "categoryTelemetry": "Telemetria",
     "categoryXbox": "Xbox",
     "categoryPrint": "Drukowanie",

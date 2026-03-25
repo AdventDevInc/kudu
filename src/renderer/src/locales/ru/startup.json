@@ -43,7 +43,7 @@
   "toastFailedToDisable": "Не удалось отключить {{name}}",
   "toastFailedToRemove": "Не удалось удалить {{name}}",
   "toastAdminRequired": "Для этого могут потребоваться права администратора",
-  "errorFailedToLoad": "Не удалось загрузить элементы автозагрузки. Убедитесь, что приложение работает правильно.",
+  "errorFailedToLoad": "Не удалось загрузить элементы автозагрузки. Убедитесь, что приложение работает корректно.",
   "errorFailedToToggle": "Не удалось {{action}} {{name}}. Для этого могут потребоваться права администратора.",
   "errorFailedToRemove": "Не удалось удалить {{name}}. Для этого могут потребоваться права администратора.",
   "confirmRemoveTitle": "Удалить {{name}}?",
@@ -52,5 +52,16 @@
   "historyCategoryEnabled": "Включено",
   "historyCategoryDisabled": "Отключено",
   "historyCategoryRemoved": "Удалено",
-  "removeButtonTitle": "Удалить {{name}}"
+  "removeButtonTitle": "Удалить {{name}}",
+  "safetyLinkCloud": "Подключите Kudu Cloud, чтобы видеть AI-оценки безопасности ваших программ автозагрузки",
+  "safetyPending": "Анализ безопасности...",
+  "safetyTooltipSafe": "Безопасно — нажмите для подробностей",
+  "safetyTooltipCaution": "Требуется осторожность — нажмите для подробностей",
+  "safetyTooltipWarning": "Подозрительно — нажмите для подробностей",
+  "safetyTooltipDanger": "Потенциально небезопасно — нажмите для подробностей",
+  "safetyTooltipPending": "Выполняется анализ безопасности",
+  "safetyTooltipLocked": "Подключите Kudu Cloud для получения оценок безопасности",
+  "safetyScore": "Безопасность: {{score}}/10",
+  "safetyAnalyzed": "Проанализировано: {{date}}",
+  "sortBySafety": "Сортировать по безопасности"
 }

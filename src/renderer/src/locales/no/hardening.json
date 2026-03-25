@@ -1,6 +1,6 @@
 {
   "pageTitle": "Systemherding",
-  "descriptionWindows": "Stram inn Windows — fjern telemetri, bloatware og unødvendige tjenester",
+  "descriptionWindows": "Stripp ned Windows — fjern telemetri, bloatware og unødvendige tjenester",
   "descriptionOther": "Herd systemet ditt — administrer personverninnstillinger og unødvendige tjenester",
   "tabs": {
     "privacy": "Personvern",
@@ -51,7 +51,8 @@
     "ipcCallFailed": "IPC-kall mislyktes — prøv å kjøre som administrator",
     "allSettingsLabel": "Alle innstillinger",
     "unknownError": "Ukjent feil",
-    "requiresSettingEnabled": "Aktiver \"{{label}}\" først"
+    "requiresSettingEnabled": "Aktiver \"{{label}}\" først",
+    "adminRequired": "Prøv å kjøre som administrator"
   },
   "privacyCategories": {
     "telemetryLabel": "Telemetri og datainnsamling",
@@ -75,7 +76,7 @@
     "aiLabel": "AI-funksjoner",
     "aiDescription": "Deaktiver Copilot, Recall og andre AI-funksjoner som analyserer dataene dine",
     "browserLabel": "Nettlesertelemetri",
-    "browserDescription": "Hindre nettlesere i å rapportere bruksdata til Microsoft, Google og Mozilla"
+    "browserDescription": "Stopp nettlesere fra å rapportere bruksdata til Microsoft, Google og Mozilla"
   },
   "debloater": {
     "pageTitle": "Debloater",
@@ -119,7 +120,7 @@
     "categoryUtility": "Verktøy"
   },
   "serviceManager": {
-    "pageTitle": "Tjenesteadministrasjon",
+    "pageTitle": "Tjenestebehandling",
     "pageDescription": "Vis, administrer og deaktiver unødvendige Windows-tjenester for å forbedre ytelsen",
     "scanningButton": "Skanner...",
     "scanServicesButton": "Skann tjenester",
@@ -143,20 +144,20 @@
     "statTotal": "Totalt",
     "statRunning": "Kjører",
     "statDisabled": "Deaktivert",
-    "statSafeToDisable": "Trygg å deaktivere",
+    "statSafeToDisable": "Trygt å deaktivere",
     "searchPlaceholder": "Søk etter tjenester...",
     "filterAllSafety": "All sikkerhet",
     "filterSafe": "Trygg",
     "filterCaution": "Forsiktig",
     "filterUnsafe": "Utrygg",
     "filterAllCategories": "Alle kategorier",
-    "filterAllStatus": "Alle statuser",
+    "filterAllStatus": "All status",
     "filterRunning": "Kjører",
     "filterStopped": "Stoppet",
     "filterDisabled": "Deaktivert",
     "noServicesMatch": "Ingen tjenester samsvarer med filtrene dine",
     "showingCount": "Viser {{filtered}} av {{total}} tjenester",
-    "safeToDisableGroup": "Trygg å deaktivere",
+    "safeToDisableGroup": "Trygt å deaktivere",
     "useCautionGroup": "Vær forsiktig",
     "systemCriticalGroup": "Systemkritisk",
     "servicesCount": "{{count}} tjeneste",
@@ -173,7 +174,7 @@
     "confirmTitle": "Deaktiver valgte tjenester",
     "confirmDescription": "Dette vil deaktivere {{count}} tjeneste(r) og stoppe alle som kjører nå. Dette krever administratorrettigheter.",
     "confirmLabel": "Deaktiver tjenester",
-    "scanFailedToast": "Tjenesteskanning mislyktes",
+    "scanFailedToast": "Skanning av tjenester mislyktes",
     "scanFailedError": "Kunne ikke skanne tjenester",
     "applyFailedToast": "Kunne ikke bruke tjenesteendringer",
     "applyFailedError": "Kunne ikke bruke endringer",
