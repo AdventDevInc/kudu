@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import type { InstalledProgram, UninstallProgress, UninstallResult } from '../../../shared/types'
+import type { InstalledProgram, UninstallProgress, UninstallResult, StartupSafetyRating } from '../../../shared/types'
 
-type SortField = 'displayName' | 'estimatedSize' | 'installDate' | 'publisher'
+type SortField = 'displayName' | 'estimatedSize' | 'installDate' | 'publisher' | 'safety'
 type FilterMode = 'all' | 'unused'
 
 interface UninstallerState {
@@ -18,6 +18,11 @@ interface UninstallerState {
   filterMode: FilterMode
   selectedIds: Set<string>
 
+  // Safety ratings (cloud-enriched)
+  safetyRatings: Record<string, StartupSafetyRating>
+  safetyLoading: boolean
+  expandedItemId: string | null
+
   setPrograms: (programs: InstalledProgram[]) => void
   setLoading: (loading: boolean) => void
   setUninstalling: (uninstalling: boolean) => void
@@ -33,6 +38,10 @@ interface UninstallerState {
   toggleSelected: (id: string) => void
   selectAll: (ids: string[]) => void
   clearSelected: () => void
+  setSafetyRatings: (ratings: StartupSafetyRating[]) => void
+  setSafetyLoading: (loading: boolean) => void
+  setExpandedItemId: (id: string | null) => void
+  fetchSafetyRatings: () => Promise<void>
   reset: () => void
 }
 
@@ -52,6 +61,9 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
   sortDirection: 'asc',
   filterMode: 'all',
   selectedIds: new Set<string>(),
+  safetyRatings: {},
+  safetyLoading: false,
+  expandedItemId: null,
 
   setPrograms: (programs) => set({ programs, selectedIds: new Set<string>() }),
   setLoading: (loading) => set({ loading }),
@@ -79,6 +91,24 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
     }),
   selectAll: (ids) => set({ selectedIds: new Set(ids) }),
   clearSelected: () => set({ selectedIds: new Set<string>() }),
+  setSafetyRatings: (ratings) => set({
+    safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
+  }),
+  setSafetyLoading: (safetyLoading) => set({ safetyLoading }),
+  setExpandedItemId: (expandedItemId) => set({ expandedItemId }),
+  fetchSafetyRatings: async () => {
+    set({ safetyLoading: true })
+    try {
+      const result = await window.kudu.programSafetyFetch()
+      const ratings = Array.isArray(result?.ratings) ? result.ratings : []
+      set({
+        safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
+        safetyLoading: false,
+      })
+    } catch {
+      set({ safetyLoading: false })
+    }
+  },
   reset: () =>
     set({
       programs: [],
@@ -93,5 +123,21 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
       sortDirection: 'asc',
       filterMode: 'all',
       selectedIds: new Set<string>(),
+      safetyRatings: {},
+      safetyLoading: false,
+      expandedItemId: null,
     }),
 }))
+
+// Listen for cloud-pushed safety rating updates (HMR-safe via guard flag)
+let _programSafetyListenerRegistered = false
+if (typeof window !== 'undefined' && window.kudu?.onProgramSafetyUpdated && !_programSafetyListenerRegistered) {
+  _programSafetyListenerRegistered = true
+  window.kudu.onProgramSafetyUpdated((result) => {
+    const ratings = Array.isArray(result?.ratings) ? result.ratings : []
+    useUninstallerStore.setState({
+      safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
+      safetyLoading: false,
+    })
+  })
+}

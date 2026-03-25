@@ -152,6 +152,18 @@ export interface StartupBootTrace {
   needsAdmin: boolean
 }
 
+export interface StartupSafetyRating {
+  name: string
+  safetyScore: number
+  description: string
+  analyzedAt: string
+}
+
+export interface StartupSafetyResult {
+  ratings: StartupSafetyRating[]
+  pending: number
+}
+
 export interface DiskNode {
   name: string
   path: string

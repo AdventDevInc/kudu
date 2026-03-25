@@ -52,5 +52,16 @@
   "historyCategoryEnabled": "Enabled",
   "historyCategoryDisabled": "Disabled",
   "historyCategoryRemoved": "Removed",
-  "removeButtonTitle": "Remove {{name}}"
+  "removeButtonTitle": "Remove {{name}}",
+  "safetyLinkCloud": "Link to Kudu Cloud to see AI safety ratings for your startup programs",
+  "safetyPending": "Analyzing safety...",
+  "safetyTooltipSafe": "Safe — click for details",
+  "safetyTooltipCaution": "Use caution — click for details",
+  "safetyTooltipWarning": "Suspicious — click for details",
+  "safetyTooltipDanger": "Potentially unsafe — click for details",
+  "safetyTooltipPending": "Safety analysis in progress",
+  "safetyTooltipLocked": "Link to Kudu Cloud for safety ratings",
+  "safetyScore": "Safety: {{score}}/10",
+  "safetyAnalyzed": "Analyzed {{date}}",
+  "sortBySafety": "Sort by Safety"
 }

@@ -71,6 +71,7 @@ import type {
   GameModeStatus,
   GameModeProgress,
   CvePageResult,
+  StartupSafetyResult,
 } from '../shared/types'
 
 const api = {
@@ -143,6 +144,12 @@ const api = {
   startupDelete: (name: string, location: string, source: string): Promise<boolean> =>
     ipcRenderer.invoke(IPC.STARTUP_DELETE, name, location, source),
   startupBootTrace: (): Promise<StartupBootTrace> => ipcRenderer.invoke(IPC.STARTUP_BOOT_TRACE),
+  startupSafetyFetch: (): Promise<StartupSafetyResult> => ipcRenderer.invoke(IPC.STARTUP_SAFETY_FETCH),
+  onStartupSafetyUpdated: (callback: (data: StartupSafetyResult) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: StartupSafetyResult) => callback(data)
+    ipcRenderer.on(IPC.STARTUP_SAFETY_UPDATED, handler)
+    return () => { ipcRenderer.removeListener(IPC.STARTUP_SAFETY_UPDATED, handler) }
+  },
 
   // Network cleanup
   networkScan: (): Promise<NetworkItem[]> => ipcRenderer.invoke(IPC.NETWORK_SCAN),
@@ -325,6 +332,12 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: UninstallProgress) => callback(data)
     ipcRenderer.on(IPC.UNINSTALLER_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.UNINSTALLER_PROGRESS, handler) }
+  },
+  programSafetyFetch: (): Promise<StartupSafetyResult> => ipcRenderer.invoke(IPC.PROGRAM_SAFETY_FETCH),
+  onProgramSafetyUpdated: (callback: (data: StartupSafetyResult) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: StartupSafetyResult) => callback(data)
+    ipcRenderer.on(IPC.PROGRAM_SAFETY_UPDATED, handler)
+    return () => { ipcRenderer.removeListener(IPC.PROGRAM_SAFETY_UPDATED, handler) }
   },
 
   // Software Updater

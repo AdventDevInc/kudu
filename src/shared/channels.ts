@@ -40,6 +40,8 @@ export const IPC = {
   STARTUP_TOGGLE: 'startup:toggle',
   STARTUP_DELETE: 'startup:delete',
   STARTUP_BOOT_TRACE: 'startup:boot-trace',
+  STARTUP_SAFETY_FETCH: 'startup:safety:fetch',
+  STARTUP_SAFETY_UPDATED: 'startup:safety:updated',
 
   // Debloater
   DEBLOATER_SCAN: 'debloater:scan',
@@ -125,6 +127,8 @@ export const IPC = {
   UNINSTALLER_LIST: 'uninstaller:list',
   UNINSTALLER_UNINSTALL: 'uninstaller:uninstall',
   UNINSTALLER_PROGRESS: 'uninstaller:progress',
+  PROGRAM_SAFETY_FETCH: 'program:safety:fetch',
+  PROGRAM_SAFETY_UPDATED: 'program:safety:updated',
 
   // Onboarding
   ONBOARDING_GET: 'onboarding:get',

@@ -29,6 +29,7 @@ import { scanBloatware, removeBloatware } from '../ipc/debloater.ipc'
 import { applyServiceChanges } from '../ipc/service-manager.ipc'
 import { quarantineMalware, deleteMalware } from '../ipc/malware-scanner.ipc'
 import { scanForLeftovers } from './uninstall-leftovers'
+import { getInstalledProgramsFull } from './program-uninstaller'
 import { PerfMonitorService } from './perf-monitor'
 import { cloudLog } from './logger'
 import type {
@@ -40,14 +41,14 @@ import type {
   HealthReport,
   AllowedScanType,
 } from './cloud-agent-types'
-import type { ScanResult, CloudActionEntry } from '../../shared/types'
+import type { ScanResult, CloudActionEntry, StartupSafetyResult } from '../../shared/types'
 import { addCloudHistoryEntry } from './cloud-history-store'
 import { downloadAndUpdateBlacklist, loadBlacklist } from './threat-blacklist-store'
 import { threatMonitor } from './threat-monitor'
 import { isLikelyFalsePositive, deduplicateCves } from './cve-filter'
 
 const execFileAsync = promisify(execFile)
-const DEFAULT_SERVER_URL = app.isPackaged ? 'https://cloud.usekudu.com' : 'http://localhost:8000'
+const DEFAULT_SERVER_URL = app.isPackaged ? 'https://cloud.usekudu.com' : 'https://cloud.usekudu.com'
 
 const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
 const LONG_COMMAND_TIMEOUT_MS = 30 * 60 * 1000 // for bulk update / install commands
@@ -247,6 +248,16 @@ class CloudAgentService {
       nextPageUrl: typeof raw.next_page_url === 'string' ? raw.next_page_url : null,
       librarySize: typeof raw.library_size === 'number' ? raw.library_size : 0,
     }
+  }
+
+  async getStartupSafetyRatings(): Promise<StartupSafetyResult> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    return this.submitStartupPrograms()
+  }
+
+  async getInstalledProgramSafetyRatings(): Promise<StartupSafetyResult> {
+    if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    return this.submitInstalledPrograms()
   }
 
   async link(apiKey: string): Promise<{ success: boolean; error?: string }> {
@@ -510,6 +521,8 @@ class CloudAgentService {
       this.startTelemetry()
       this.startHealthReports()
       this.startThreatMonitor()
+      this.syncStartupSafety().catch(() => {})
+      this.syncInstalledProgramSafety().catch(() => {})
     })
 
     this.channel.bind('pusher:subscription_error', (err: unknown) => {
@@ -1012,6 +1025,8 @@ class CloudAgentService {
     this.healthReportTimer = setInterval(() => {
       if (this.status === 'connected') {
         this.collectAndSendHealthReport()
+        this.syncStartupSafety().catch(() => {})
+        this.syncInstalledProgramSafety().catch(() => {})
       }
     }, HEALTH_REPORT_INTERVAL_MS)
   }
@@ -2461,6 +2476,142 @@ class CloudAgentService {
       ? await toggleStartupItemWin32(name, location, command, source as any, enabled)
       : await getPlatform().startup.toggleItem(name, location, command, source as any, enabled)
     await this.postCommandResult(requestId, success, { name, enabled }, success ? undefined : 'Failed to toggle startup item')
+    if (success) this.syncStartupSafety().catch(() => {})
+  }
+
+  // ─── Startup Safety Enrichment ──────────────────────────
+
+  private startupItems: import('../../shared/types').StartupItem[] | null = null
+
+  private async submitStartupPrograms(): Promise<StartupSafetyResult> {
+    if (!this.startupItems) {
+      this.startupItems = process.platform === 'win32'
+        ? await listStartupItemsWin32()
+        : await getPlatform().startup.listItems()
+    }
+    const raw = (await this.postApi(`/devices/${encodeURIComponent(this.deviceId)}/startup-programs`, {
+      items: this.startupItems.map((i) => ({
+        name: i.name,
+        displayName: i.displayName,
+        command: i.command,
+        location: i.location,
+        source: i.source,
+        enabled: i.enabled,
+        publisher: i.publisher,
+        impact: i.impact,
+      })),
+    })) as Record<string, unknown> | null
+    const rawItems = Array.isArray(raw?.ratings) ? raw!.ratings : []
+    const ratings = rawItems
+      .filter((item: unknown): item is Record<string, unknown> =>
+        item !== null && typeof item === 'object' &&
+        typeof (item as Record<string, unknown>).name === 'string' &&
+        typeof (item as Record<string, unknown>).safety_score === 'number'
+      )
+      .map((item) => ({
+        name: String(item.name),
+        safetyScore: Math.max(1, Math.min(10, Math.round(Number(item.safety_score)))),
+        description: typeof item.description === 'string' ? item.description.slice(0, 500) : '',
+        analyzedAt: typeof item.analyzed_at === 'string' ? item.analyzed_at : '',
+      }))
+    const pending = typeof raw?.pending === 'number' ? raw.pending : 0
+    return { ratings, pending }
+  }
+
+  private async syncStartupSafety(): Promise<void> {
+    try {
+      // Clear cached items so we re-list from OS
+      this.startupItems = null
+      let result = await this.submitStartupPrograms()
+      this.pushSafetyToRenderer(result)
+
+      // Poll while analyses are still pending (max 10 retries, 5s apart)
+      let retries = 0
+      while (result.pending > 0 && retries < 10) {
+        retries++
+        await new Promise((r) => setTimeout(r, 5000))
+        if (this.status !== 'connected') break
+        result = await this.submitStartupPrograms()
+        this.pushSafetyToRenderer(result)
+      }
+    } catch (err) {
+      cloudLog('ERROR', `Startup safety sync failed: ${err}`)
+    }
+  }
+
+  private pushSafetyToRenderer(result: StartupSafetyResult): void {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send(IPC.STARTUP_SAFETY_UPDATED, result)
+    }
+  }
+
+  // ─── Installed Program Safety Enrichment ──────────────────
+
+  private cachedInstalledPrograms: import('../../shared/types').InstalledProgram[] | null = null
+
+  private async submitInstalledPrograms(): Promise<StartupSafetyResult> {
+    if (!this.cachedInstalledPrograms) {
+      this.cachedInstalledPrograms = await getInstalledProgramsFull()
+    }
+    const raw = (await this.postApi(`/devices/${encodeURIComponent(this.deviceId)}/installed-programs`, {
+      items: this.cachedInstalledPrograms.map((p) => ({
+        name: p.displayName,
+        displayName: p.displayName,
+        publisher: p.publisher,
+        version: p.displayVersion,
+        installDate: p.installDate,
+        estimatedSize: p.estimatedSize,
+        installLocation: p.installLocation,
+        isSystemComponent: p.isSystemComponent,
+      })),
+    })) as Record<string, unknown> | null
+    cloudLog('DEBUG', `installed-programs response: pending=${raw?.pending}, ratings=${Array.isArray(raw?.ratings) ? raw!.ratings.length : 'none'}, keys=${raw ? Object.keys(raw).join(',') : 'null'}`)
+    const rawItems = Array.isArray(raw?.ratings) ? raw!.ratings : []
+    if (rawItems.length > 0) {
+      cloudLog('DEBUG', `installed-programs first rating sample: ${JSON.stringify(rawItems[0]).slice(0, 200)}`)
+    }
+    const ratings = rawItems
+      .filter((item: unknown): item is Record<string, unknown> =>
+        item !== null && typeof item === 'object' &&
+        typeof (item as Record<string, unknown>).name === 'string' &&
+        typeof (item as Record<string, unknown>).safety_score === 'number'
+      )
+      .map((item) => ({
+        name: String(item.name),
+        safetyScore: Math.max(1, Math.min(10, Math.round(Number(item.safety_score)))),
+        description: typeof item.description === 'string' ? item.description.slice(0, 500) : '',
+        analyzedAt: typeof item.analyzed_at === 'string' ? item.analyzed_at : '',
+      }))
+    const pending = typeof raw?.pending === 'number' ? raw.pending : 0
+    cloudLog('DEBUG', `installed-programs parsed: ${ratings.length} ratings, ${pending} pending`)
+    return { ratings, pending }
+  }
+
+  private async syncInstalledProgramSafety(): Promise<void> {
+    try {
+      this.cachedInstalledPrograms = null
+      let result = await this.submitInstalledPrograms()
+      this.pushProgramSafetyToRenderer(result)
+
+      let retries = 0
+      while (result.pending > 0 && retries < 10) {
+        retries++
+        await new Promise((r) => setTimeout(r, 5000))
+        if (this.status !== 'connected') break
+        result = await this.submitInstalledPrograms()
+        this.pushProgramSafetyToRenderer(result)
+      }
+    } catch (err) {
+      cloudLog('ERROR', `Installed program safety sync failed: ${err}`)
+    }
+  }
+
+  private pushProgramSafetyToRenderer(result: StartupSafetyResult): void {
+    const win = BrowserWindow.getAllWindows()[0]
+    if (win && !win.isDestroyed()) {
+      win.webContents.send(IPC.PROGRAM_SAFETY_UPDATED, result)
+    }
   }
 
   private perfMonitor: PerfMonitorService | null = null
