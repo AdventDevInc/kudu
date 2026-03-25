@@ -15,8 +15,16 @@ import { cloudAgent } from './services/cloud-agent'
 import { runCli } from './cli'
 import { runDaemon } from './daemon'
 
+// ─── Disable hardware acceleration ──────────────────────────
+// Must be called before app.whenReady().  On machines with incompatible
+// GPU drivers, broken ANGLE, or certain VM setups, Chromium's GPU
+// compositor silently fails — resulting in a black window that the user
+// can resize but never see content in.  For a system-cleaner utility the
+// visual trade-off (software compositing) is negligible.
+app.disableHardwareAcceleration()
+
 // ─── Headless mode flags ─────────────────────────────────────
-// When running without a GUI (daemon or CLI), disable GPU and sandbox
+// When running without a GUI (daemon or CLI), disable sandbox
 // so Electron works on headless Linux servers without X11/Wayland.
 // IMPORTANT: Clear DISPLAY before Chromium initializes — otherwise the
 // native layer picks the X11 ozone backend before app.commandLine
@@ -24,7 +32,6 @@ import { runDaemon } from './daemon'
 if (process.argv.includes('--daemon') || process.argv.includes('--cli')) {
   delete process.env.DISPLAY
   delete process.env.WAYLAND_DISPLAY
-  app.disableHardwareAcceleration()
   app.commandLine.appendSwitch('no-sandbox')
   app.commandLine.appendSwitch('ozone-platform', 'headless')
 }

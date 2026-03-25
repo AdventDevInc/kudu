@@ -16,15 +16,17 @@ class ErrorBoundary extends React.Component<
 
   render() {
     if (this.state.error) {
+      // Use hardcoded colors — CSS variables may not be loaded when the
+      // error boundary triggers, which would make the text invisible.
       return (
-        <div style={{ padding: 32, color: 'var(--text-primary)', fontFamily: 'system-ui', background: 'var(--page-bg)', minHeight: '100vh' }}>
+        <div style={{ padding: 32, color: '#fafafa', fontFamily: 'system-ui', background: '#09090b', minHeight: '100vh' }}>
           <h1 style={{ fontSize: 20, marginBottom: 8 }}>Something went wrong</h1>
-          <pre style={{ color: 'var(--text-secondary)', fontSize: 13, whiteSpace: 'pre-wrap' }}>
+          <pre style={{ color: '#a1a1aa', fontSize: 13, whiteSpace: 'pre-wrap' }}>
             {this.state.error.message}
           </pre>
           <button
             onClick={() => window.location.reload()}
-            style={{ marginTop: 16, padding: '8px 16px', background: 'var(--bg-active)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)', borderRadius: 6, cursor: 'pointer' }}
+            style={{ marginTop: 16, padding: '8px 16px', background: '#27272a', color: '#fafafa', border: '1px solid #3f3f46', borderRadius: 6, cursor: 'pointer' }}
           >
             Reload
           </button>
