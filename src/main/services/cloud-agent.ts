@@ -252,11 +252,13 @@ class CloudAgentService {
 
   async getStartupSafetyRatings(): Promise<StartupSafetyResult> {
     if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    this.startupItems = null
     return this.submitStartupPrograms()
   }
 
   async getInstalledProgramSafetyRatings(): Promise<StartupSafetyResult> {
     if (this.status !== 'connected') throw new Error('Cloud agent not connected')
+    this.cachedInstalledPrograms = null
     return this.submitInstalledPrograms()
   }
 
