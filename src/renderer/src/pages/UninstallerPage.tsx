@@ -256,6 +256,7 @@ export function UninstallerPage() {
     store.setError(null)
     store.setProgress(null)
     uninstallStartRef.current = Date.now()
+    lastFailedProgramRef.current = null
 
     let successCount = 0
     let failCount = 0
