@@ -1,9 +1,10 @@
 {
-  "pageTitle": "Pemantau Kebocoran Data",
+  "pageTitle": "Pemantau Kebocoran",
   "pageDescription": "Semak sama ada alamat e-mel anda telah terdedah dalam kebocoran data yang diketahui",
   "loading": "Memuatkan data kebocoran...",
   "summary": {
     "totalBreaches": "Jumlah Kebocoran",
+    "unacknowledged": "Baharu",
     "emailsMonitored": "E-mel Dipantau"
   },
   "addEmail": {
@@ -14,11 +15,11 @@
   "toast": {
     "fetchFailed": "Gagal memuatkan data kebocoran",
     "addFailed": "Gagal menambah e-mel",
-    "removeFailed": "Gagal mengalih keluar e-mel",
-    "emailAdded": "E-mel ditambahkan ke pemantau kebocoran",
-    "emailRemoved": "E-mel dialih keluar daripada pemantau kebocoran",
+    "removeFailed": "Gagal membuang e-mel",
     "invalidEmail": "Sila masukkan alamat e-mel yang sah",
-    "limitReached": "Had e-mel untuk pelan anda telah dicapai"
+    "limitReached": "Had e-mel telah dicapai untuk pelan anda",
+    "acknowledged": "Kebocoran ditandakan sebagai telah disemak",
+    "acknowledgeFailed": "Gagal mengesahkan kebocoran"
   },
   "emptyState": {
     "noEmails": "Tiada e-mel dipantau",
@@ -27,29 +28,42 @@
     "allClearDesc": "Tiada e-mel yang anda pantau ditemui dalam mana-mana kebocoran data yang diketahui.",
     "upgradeRequired": "Naik taraf diperlukan",
     "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada pelan Basic dan ke atas. Naik taraf pelan anda untuk mula memantau.",
-    "goToCloud": "Lihat Pelan"
+    "goToCloud": "Lihat Pelan",
+    "noBreachesForEmail": "Tiada kebocoran ditemui untuk e-mel ini",
+    "selectEmail": "Pilih e-mel daripada senarai untuk melihat butiran kebocoran"
   },
   "error": {
     "title": "Gagal memuatkan data kebocoran",
     "description": "Semak sambungan cloud anda dan cuba lagi."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} kebocoran",
-    "breaches_plural": "{{count}} kebocoran",
-    "noBreaches": "Tiada kebocoran ditemui",
-    "lastChecked": "Terakhir disemak {{date}}",
-    "notCheckedYet": "Belum disemak",
-    "fresh": "Keputusan baharu",
-    "paused": "Pemantauan dijeda",
-    "remove": "Alih Keluar"
+    "breaches_other": "{{count}} kebocoran",
+    "newBreaches": "{{count}} baharu",
+    "noBreaches": "Tiada kebocoran",
+    "checking": "Menyemak...",
+    "paused": "Dijeda",
+    "remove": "Buang e-mel",
+    "lastChecked": "Disemak {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Kebocoran Sensitif",
-    "breachDate": "Dibocorkan pada {{date}}",
-    "compromisedData": "Data terjejas",
-    "affectedAccounts": "{{count}} akaun terjejas",
+  "table": {
+    "breach": "Kebocoran",
+    "date": "Tarikh",
+    "accounts": "Akaun",
+    "data": "Data Terjejas",
+    "status": "Status",
+    "actions": "",
+    "new": "Baharu",
+    "reviewed": "Disemak",
+    "sensitive": "Kebocoran Sensitif",
     "verified": "Disahkan",
-    "unverified": "Tidak disahkan"
+    "unverified": "Tidak Disahkan"
   },
-  "refetchButton": "Muat Semula"
+  "actions": {
+    "acknowledge": "Tandakan sebagai telah disemak",
+    "acknowledgeTooltip": "Tandakan kebocoran ini sebagai telah dilihat supaya ia tidak lagi dipaparkan sebagai baharu atau mencetuskan pemberitahuan",
+    "acknowledgeAll": "Tandakan semua sebagai telah disemak",
+    "acknowledgeAllTooltip": "Tandakan semua kebocoran yang belum disemak sebagai telah dilihat"
+  },
+  "refetchButton": "Segar semula"
 }

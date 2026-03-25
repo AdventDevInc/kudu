@@ -1,55 +1,69 @@
 {
-  "pageTitle": "ניטור פריצות נתונים",
-  "pageDescription": "בדקו אם כתובות הדוא\"ל שלכם נחשפו בפריצות נתונים ידועות",
+  "pageTitle": "ניטור פריצות",
+  "pageDescription": "בדקו אם כתובות האימייל שלכם נחשפו בפריצות נתונים מוכרות",
   "loading": "טוען נתוני פריצות...",
   "summary": {
-    "totalBreaches": "סך כל פריצות הנתונים",
-    "emailsMonitored": "כתובות דוא\"ל במעקב"
+    "totalBreaches": "סך כל הפריצות",
+    "unacknowledged": "חדש",
+    "emailsMonitored": "כתובות אימייל במעקב"
   },
   "addEmail": {
-    "placeholder": "הזינו כתובת דוא\"ל",
-    "button": "הוסף דוא\"ל",
+    "placeholder": "הזן כתובת אימייל",
+    "button": "הוסף אימייל",
     "adding": "מוסיף..."
   },
   "toast": {
     "fetchFailed": "טעינת נתוני הפריצות נכשלה",
-    "addFailed": "הוספת כתובת הדוא\"ל נכשלה",
-    "removeFailed": "הסרת כתובת הדוא\"ל נכשלה",
-    "emailAdded": "כתובת הדוא\"ל נוספה לניטור פריצות",
-    "emailRemoved": "כתובת הדוא\"ל הוסרה מניטור פריצות",
-    "invalidEmail": "אנא הזינו כתובת דוא\"ל תקינה",
-    "limitReached": "הגעתם למגבלת כתובות הדוא\"ל בתוכנית שלכם"
+    "addFailed": "הוספת האימייל נכשלה",
+    "removeFailed": "הסרת האימייל נכשלה",
+    "invalidEmail": "נא להזין כתובת אימייל תקינה",
+    "limitReached": "הגעת למגבלת כתובות האימייל בתוכנית שלך",
+    "acknowledged": "הפריצות סומנו כנסקרו",
+    "acknowledgeFailed": "אישור הפריצות נכשל"
   },
   "emptyState": {
-    "noEmails": "אין כתובות דוא\"ל במעקב",
-    "noEmailsDesc": "הוסיפו כתובת דוא\"ל כדי לבדוק פריצות נתונים קודמות ולקבל ניטור רציף לדליפות חדשות.",
+    "noEmails": "אין כתובות אימייל במעקב",
+    "noEmailsDesc": "הוסף כתובת אימייל כדי לבדוק פריצות נתונים קודמות ולעקוב באופן רציף אחר דליפות חדשות.",
     "allClear": "הכול תקין",
-    "allClearDesc": "אף אחת מכתובות הדוא\"ל שבמעקב לא נמצאה באף פריצת נתונים ידועה.",
+    "allClearDesc": "אף אחת מכתובות האימייל שבמעקב לא נמצאה באף פריצת נתונים מוכרת.",
     "upgradeRequired": "נדרש שדרוג",
-    "upgradeRequiredDesc": "ניטור פריצות זמין בתוכנית Basic ומעלה. שדרגו את התוכנית שלכם כדי להתחיל בניטור.",
-    "goToCloud": "הצג תוכניות"
+    "upgradeRequiredDesc": "ניטור פריצות זמין בתוכנית Basic ומעלה. שדרג את התוכנית שלך כדי להתחיל במעקב.",
+    "goToCloud": "הצג תוכניות",
+    "noBreachesForEmail": "לא נמצאו פריצות עבור כתובת אימייל זו",
+    "selectEmail": "בחר כתובת אימייל מהרשימה כדי להציג את פרטי הפריצה"
   },
   "error": {
     "title": "טעינת נתוני הפריצות נכשלה",
-    "description": "בדקו את החיבור לענן ונסו שוב."
+    "description": "בדוק את החיבור לענן ונסה שוב."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} פריצה",
-    "breaches_plural": "{{count}} פריצות",
-    "noBreaches": "לא נמצאו פריצות",
-    "lastChecked": "נבדק לאחרונה ב-{{date}}",
-    "notCheckedYet": "טרם נבדק",
-    "fresh": "תוצאות חדשות",
-    "paused": "הניטור מושהה",
-    "remove": "הסר"
+    "breaches_other": "{{count}} פריצות",
+    "newBreaches": "{{count}} חדש",
+    "noBreaches": "אין פריצות",
+    "checking": "בודק...",
+    "paused": "מושהה",
+    "remove": "הסר אימייל",
+    "lastChecked": "נבדק {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "פריצת נתונים רגישה",
-    "breachDate": "נפרץ ב-{{date}}",
-    "compromisedData": "נתונים שנחשפו",
-    "affectedAccounts": "{{count}} חשבונות הושפעו",
+  "table": {
+    "breach": "פריצה",
+    "date": "תאריך",
+    "accounts": "חשבונות",
+    "data": "נתונים שנפגעו",
+    "status": "סטטוס",
+    "actions": "",
+    "new": "חדש",
+    "reviewed": "נסקר",
+    "sensitive": "פריצה רגישה",
     "verified": "מאומת",
     "unverified": "לא מאומת"
+  },
+  "actions": {
+    "acknowledge": "סמן כנסקר",
+    "acknowledgeTooltip": "סמן פריצה זו כנצפתה כדי שלא תופיע עוד כחדשה או תפעיל התראות",
+    "acknowledgeAll": "סמן הכול כנסקר",
+    "acknowledgeAllTooltip": "סמן את כל הפריצות שלא נסקרו כנצפו"
   },
   "refetchButton": "רענן"
 }

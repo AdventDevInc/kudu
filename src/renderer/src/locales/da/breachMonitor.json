@@ -4,52 +4,66 @@
   "loading": "Indlæser data om databrud...",
   "summary": {
     "totalBreaches": "Samlet antal databrud",
-    "emailsMonitored": "Overvågede e-mailadresser"
+    "unacknowledged": "Nye",
+    "emailsMonitored": "Overvågede e-mails"
   },
   "addEmail": {
     "placeholder": "Indtast en e-mailadresse",
-    "button": "Tilføj e-mailadresse",
+    "button": "Tilføj e-mail",
     "adding": "Tilføjer..."
   },
   "toast": {
     "fetchFailed": "Kunne ikke indlæse data om databrud",
-    "addFailed": "Kunne ikke tilføje e-mailadresse",
-    "removeFailed": "Kunne ikke fjerne e-mailadresse",
-    "emailAdded": "E-mailadresse føjet til brudsovervågning",
-    "emailRemoved": "E-mailadresse fjernet fra brudsovervågning",
+    "addFailed": "Kunne ikke tilføje e-mail",
+    "removeFailed": "Kunne ikke fjerne e-mail",
     "invalidEmail": "Indtast en gyldig e-mailadresse",
-    "limitReached": "Grænsen for e-mailadresser er nået for dit abonnement"
+    "limitReached": "Grænsen for e-mails er nået for dit abonnement",
+    "acknowledged": "Databrud markeret som gennemgået",
+    "acknowledgeFailed": "Kunne ikke markere databrud som gennemgået"
   },
   "emptyState": {
-    "noEmails": "Ingen e-mailadresser overvåges",
-    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye læk.",
-    "allClear": "Ingen fund",
-    "allClearDesc": "Ingen af dine overvågede e-mailadresser er fundet i kendte databrud.",
+    "noEmails": "Ingen overvågede e-mails",
+    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye lækager.",
+    "allClear": "Alt ser godt ud",
+    "allClearDesc": "Ingen af dine overvågede e-mails er fundet i kendte databrud.",
     "upgradeRequired": "Opgradering påkrævet",
-    "upgradeRequiredDesc": "Brudsovervågning er tilgængelig med Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
-    "goToCloud": "Se abonnementer"
+    "upgradeRequiredDesc": "Overvågning af databrud er tilgængelig på Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
+    "goToCloud": "Se abonnementer",
+    "noBreachesForEmail": "Ingen databrud fundet for denne e-mail",
+    "selectEmail": "Vælg en e-mail på listen for at se detaljer om databrud"
   },
   "error": {
     "title": "Kunne ikke indlæse data om databrud",
     "description": "Kontrollér din cloudforbindelse, og prøv igen."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} databrud",
-    "breaches_plural": "{{count}} databrud",
-    "noBreaches": "Ingen databrud fundet",
-    "lastChecked": "Senest kontrolleret {{date}}",
-    "notCheckedYet": "Ikke kontrolleret endnu",
-    "fresh": "Nye resultater",
-    "paused": "Overvågning sat på pause",
-    "remove": "Fjern"
+    "breaches_other": "{{count}} databrud",
+    "newBreaches": "{{count}} nye",
+    "noBreaches": "Ingen databrud",
+    "checking": "Kontrollerer...",
+    "paused": "Sat på pause",
+    "remove": "Fjern e-mail",
+    "lastChecked": "Kontrolleret {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Følsomt databrud",
-    "breachDate": "Brudt {{date}}",
-    "compromisedData": "Kompromitterede data",
-    "affectedAccounts": "{{count}} konti berørt",
+  "table": {
+    "breach": "Databrud",
+    "date": "Dato",
+    "accounts": "Konti",
+    "data": "Kompromitterede data",
+    "status": "Status",
+    "actions": "",
+    "new": "Ny",
+    "reviewed": "Gennemgået",
+    "sensitive": "Følsomt databrud",
     "verified": "Bekræftet",
     "unverified": "Ikke bekræftet"
+  },
+  "actions": {
+    "acknowledge": "Markér som gennemgået",
+    "acknowledgeTooltip": "Markér dette databrud som set, så det ikke længere vises som nyt eller udløser meddelelser",
+    "acknowledgeAll": "Markér alle som gennemgået",
+    "acknowledgeAllTooltip": "Markér alle ikke-gennemgåede databrud som set"
   },
   "refetchButton": "Opdater"
 }

@@ -1,9 +1,10 @@
 {
   "pageTitle": "外洩監控",
-  "pageDescription": "檢查您的電子郵件地址是否曾在已知資料外洩事件中曝光",
+  "pageDescription": "檢查您的電子郵件地址是否曾在已知的資料外洩事件中曝光",
   "loading": "正在載入外洩資料...",
   "summary": {
     "totalBreaches": "外洩總數",
+    "unacknowledged": "新增",
     "emailsMonitored": "監控中的電子郵件"
   },
   "addEmail": {
@@ -12,44 +13,57 @@
     "adding": "正在新增..."
   },
   "toast": {
-    "fetchFailed": "無法載入外洩資料",
-    "addFailed": "無法新增電子郵件",
-    "removeFailed": "無法移除電子郵件",
-    "emailAdded": "電子郵件已新增至外洩監控",
-    "emailRemoved": "電子郵件已從外洩監控移除",
+    "fetchFailed": "載入外洩資料失敗",
+    "addFailed": "新增電子郵件失敗",
+    "removeFailed": "移除電子郵件失敗",
     "invalidEmail": "請輸入有效的電子郵件地址",
-    "limitReached": "您目前方案的電子郵件數量已達上限"
+    "limitReached": "您的方案已達電子郵件數量上限",
+    "acknowledged": "外洩事件已標示為已檢閱",
+    "acknowledgeFailed": "標示外洩事件失敗"
   },
   "emptyState": {
     "noEmails": "沒有監控中的電子郵件",
-    "noEmailsDesc": "新增電子郵件地址，以檢查過去的資料外洩事件，並持續監控新的外洩。",
+    "noEmailsDesc": "新增電子郵件地址，以檢查過去的資料外洩事件並持續監控新的外洩。",
     "allClear": "一切正常",
-    "allClearDesc": "您監控中的電子郵件皆未在任何已知資料外洩事件中被發現。",
+    "allClearDesc": "您監控中的電子郵件皆未在任何已知的資料外洩事件中被發現。",
     "upgradeRequired": "需要升級",
-    "upgradeRequiredDesc": "外洩監控功能適用於 Basic 方案及以上。升級您的方案即可開始監控。",
-    "goToCloud": "查看方案"
+    "upgradeRequiredDesc": "外洩監控功能適用於 Basic 方案及以上。請升級您的方案以開始監控。",
+    "goToCloud": "查看方案",
+    "noBreachesForEmail": "此電子郵件未發現外洩事件",
+    "selectEmail": "請從清單中選取電子郵件以查看外洩詳細資料"
   },
   "error": {
-    "title": "無法載入外洩資料",
+    "title": "載入外洩資料失敗",
     "description": "請檢查您的雲端連線後再試一次。"
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} 次外洩",
-    "breaches_plural": "{{count}} 次外洩",
-    "noBreaches": "未發現外洩",
-    "lastChecked": "上次檢查於 {{date}}",
-    "notCheckedYet": "尚未檢查",
-    "fresh": "新結果",
-    "paused": "監控已暫停",
-    "remove": "移除"
+    "breaches_other": "{{count}} 次外洩",
+    "newBreaches": "{{count}} 筆新增",
+    "noBreaches": "沒有外洩",
+    "checking": "正在檢查...",
+    "paused": "已暫停",
+    "remove": "移除電子郵件",
+    "lastChecked": "已於 {{date}} 檢查"
   },
-  "breachCard": {
-    "sensitiveBreach": "敏感外洩",
-    "breachDate": "外洩於 {{date}}",
-    "compromisedData": "遭洩露的資料",
-    "affectedAccounts": "受影響帳戶數：{{count}}",
+  "table": {
+    "breach": "外洩事件",
+    "date": "日期",
+    "accounts": "帳戶數",
+    "data": "外洩資料",
+    "status": "狀態",
+    "actions": "",
+    "new": "新增",
+    "reviewed": "已檢閱",
+    "sensitive": "敏感外洩事件",
     "verified": "已驗證",
     "unverified": "未驗證"
+  },
+  "actions": {
+    "acknowledge": "標示為已檢閱",
+    "acknowledgeTooltip": "將此外洩事件標示為已查看，使其不再顯示為新增或觸發通知",
+    "acknowledgeAll": "全部標示為已檢閱",
+    "acknowledgeAllTooltip": "將所有未檢閱的外洩事件標示為已查看"
   },
   "refetchButton": "重新整理"
 }

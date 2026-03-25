@@ -1,55 +1,69 @@
 {
   "pageTitle": "Monitor de filtraciones",
-  "pageDescription": "Compruebe si sus direcciones de correo electrónico han estado expuestas en filtraciones de datos conocidas",
+  "pageDescription": "Compruebe si sus direcciones de correo electrónico han quedado expuestas en filtraciones de datos conocidas",
   "loading": "Cargando datos de filtraciones...",
   "summary": {
     "totalBreaches": "Filtraciones totales",
-    "emailsMonitored": "Correos electrónicos supervisados"
+    "unacknowledged": "Nuevas",
+    "emailsMonitored": "Correos supervisados"
   },
   "addEmail": {
     "placeholder": "Introduzca una dirección de correo electrónico",
-    "button": "Añadir correo electrónico",
+    "button": "Añadir correo",
     "adding": "Añadiendo..."
   },
   "toast": {
     "fetchFailed": "No se pudieron cargar los datos de filtraciones",
-    "addFailed": "No se pudo añadir el correo electrónico",
-    "removeFailed": "No se pudo eliminar el correo electrónico",
-    "emailAdded": "Correo electrónico añadido al monitor de filtraciones",
-    "emailRemoved": "Correo electrónico eliminado del monitor de filtraciones",
+    "addFailed": "No se pudo añadir el correo",
+    "removeFailed": "No se pudo eliminar el correo",
     "invalidEmail": "Introduzca una dirección de correo electrónico válida",
-    "limitReached": "Se ha alcanzado el límite de correos electrónicos de su plan"
+    "limitReached": "Se alcanzó el límite de correos de su plan",
+    "acknowledged": "Las filtraciones se marcaron como revisadas",
+    "acknowledgeFailed": "No se pudieron marcar las filtraciones como revisadas"
   },
   "emptyState": {
-    "noEmails": "No hay correos electrónicos supervisados",
+    "noEmails": "No hay correos supervisados",
     "noEmailsDesc": "Añada una dirección de correo electrónico para comprobar filtraciones de datos anteriores y supervisar continuamente nuevas filtraciones.",
-    "allClear": "Sin incidencias",
-    "allClearDesc": "No se ha encontrado ninguno de sus correos electrónicos supervisados en filtraciones de datos conocidas.",
+    "allClear": "Todo en orden",
+    "allClearDesc": "Ninguno de sus correos supervisados se ha encontrado en filtraciones de datos conocidas.",
     "upgradeRequired": "Se requiere una actualización",
-    "upgradeRequiredDesc": "La supervisión de filtraciones está disponible en el plan Basic y superiores. Actualice su plan para comenzar la supervisión.",
-    "goToCloud": "Ver planes"
+    "upgradeRequiredDesc": "La supervisión de filtraciones está disponible en el plan Basic y superiores. Actualice su plan para comenzar a supervisar.",
+    "goToCloud": "Ver planes",
+    "noBreachesForEmail": "No se encontraron filtraciones para este correo",
+    "selectEmail": "Seleccione un correo de la lista para ver los detalles de la filtración"
   },
   "error": {
     "title": "No se pudieron cargar los datos de filtraciones",
-    "description": "Compruebe su conexión a la nube y vuelva a intentarlo."
+    "description": "Compruebe su conexión a la nube e inténtelo de nuevo."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} filtración",
-    "breaches_plural": "{{count}} filtraciones",
-    "noBreaches": "No se encontraron filtraciones",
-    "lastChecked": "Última comprobación: {{date}}",
-    "notCheckedYet": "Aún no se ha comprobado",
-    "fresh": "Nuevos resultados",
-    "paused": "Supervisión en pausa",
-    "remove": "Eliminar"
+    "breaches_other": "{{count}} filtraciones",
+    "newBreaches": "{{count}} nueva",
+    "noBreaches": "Sin filtraciones",
+    "checking": "Comprobando...",
+    "paused": "En pausa",
+    "remove": "Eliminar correo",
+    "lastChecked": "Comprobado {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Filtración sensible",
-    "breachDate": "Filtración el {{date}}",
-    "compromisedData": "Datos comprometidos",
-    "affectedAccounts": "{{count}} cuentas afectadas",
+  "table": {
+    "breach": "Filtración",
+    "date": "Fecha",
+    "accounts": "Cuentas",
+    "data": "Datos comprometidos",
+    "status": "Estado",
+    "actions": "",
+    "new": "Nueva",
+    "reviewed": "Revisada",
+    "sensitive": "Filtración sensible",
     "verified": "Verificada",
-    "unverified": "Sin verificar"
+    "unverified": "No verificada"
+  },
+  "actions": {
+    "acknowledge": "Marcar como revisada",
+    "acknowledgeTooltip": "Marque esta filtración como vista para que deje de aparecer como nueva o de activar notificaciones",
+    "acknowledgeAll": "Marcar todas como revisadas",
+    "acknowledgeAllTooltip": "Marque todas las filtraciones no revisadas como vistas"
   },
   "refetchButton": "Actualizar"
 }

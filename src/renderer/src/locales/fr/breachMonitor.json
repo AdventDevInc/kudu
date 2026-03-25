@@ -1,9 +1,10 @@
 {
   "pageTitle": "Surveillance des violations de données",
   "pageDescription": "Vérifiez si vos adresses e-mail ont été exposées dans des violations de données connues",
-  "loading": "Chargement des données de violation...",
+  "loading": "Chargement des données sur les violations...",
   "summary": {
     "totalBreaches": "Total des violations",
+    "unacknowledged": "Nouvelles",
     "emailsMonitored": "Adresses e-mail surveillées"
   },
   "addEmail": {
@@ -12,44 +13,57 @@
     "adding": "Ajout..."
   },
   "toast": {
-    "fetchFailed": "Échec du chargement des données de violation",
+    "fetchFailed": "Échec du chargement des données sur les violations",
     "addFailed": "Échec de l'ajout de l'adresse e-mail",
     "removeFailed": "Échec de la suppression de l'adresse e-mail",
-    "emailAdded": "Adresse e-mail ajoutée à la surveillance des violations",
-    "emailRemoved": "Adresse e-mail supprimée de la surveillance des violations",
     "invalidEmail": "Veuillez saisir une adresse e-mail valide",
-    "limitReached": "Limite d'adresses e-mail atteinte pour votre forfait"
+    "limitReached": "Limite d'adresses e-mail atteinte pour votre forfait",
+    "acknowledged": "Violations marquées comme examinées",
+    "acknowledgeFailed": "Échec du marquage des violations"
   },
   "emptyState": {
     "noEmails": "Aucune adresse e-mail surveillée",
-    "noEmailsDesc": "Ajoutez une adresse e-mail pour vérifier les violations de données passées et surveiller en continu les nouvelles fuites.",
-    "allClear": "Aucun problème détecté",
+    "noEmailsDesc": "Ajoutez une adresse e-mail pour rechercher d'anciennes violations de données et surveiller en continu les nouvelles fuites.",
+    "allClear": "Aucune alerte",
     "allClearDesc": "Aucune de vos adresses e-mail surveillées n'a été trouvée dans des violations de données connues.",
     "upgradeRequired": "Mise à niveau requise",
-    "upgradeRequiredDesc": "La surveillance des violations est disponible avec le forfait Basic et supérieur. Mettez votre forfait à niveau pour commencer la surveillance.",
-    "goToCloud": "Voir les forfaits"
+    "upgradeRequiredDesc": "La surveillance des violations de données est disponible avec le forfait Basic et supérieur. Mettez votre forfait à niveau pour commencer la surveillance.",
+    "goToCloud": "Voir les forfaits",
+    "noBreachesForEmail": "Aucune violation trouvée pour cette adresse e-mail",
+    "selectEmail": "Sélectionnez une adresse e-mail dans la liste pour afficher les détails de la violation"
   },
   "error": {
-    "title": "Échec du chargement des données de violation",
+    "title": "Échec du chargement des données sur les violations",
     "description": "Vérifiez votre connexion au cloud et réessayez."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} violation",
-    "breaches_plural": "{{count}} violations",
-    "noBreaches": "Aucune violation détectée",
-    "lastChecked": "Dernière vérification {{date}}",
-    "notCheckedYet": "Pas encore vérifié",
-    "fresh": "Nouveaux résultats",
-    "paused": "Surveillance en pause",
-    "remove": "Supprimer"
+    "breaches_other": "{{count}} violations",
+    "newBreaches": "{{count}} nouvelle",
+    "noBreaches": "Aucune violation",
+    "checking": "Vérification...",
+    "paused": "En pause",
+    "remove": "Supprimer l'adresse e-mail",
+    "lastChecked": "Vérifié le {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Violation sensible",
-    "breachDate": "Violation le {{date}}",
-    "compromisedData": "Données compromises",
-    "affectedAccounts": "{{count}} comptes affectés",
+  "table": {
+    "breach": "Violation",
+    "date": "Date",
+    "accounts": "Comptes",
+    "data": "Données compromises",
+    "status": "Statut",
+    "actions": "",
+    "new": "Nouveau",
+    "reviewed": "Examinée",
+    "sensitive": "Violation sensible",
     "verified": "Vérifiée",
     "unverified": "Non vérifiée"
+  },
+  "actions": {
+    "acknowledge": "Marquer comme examinée",
+    "acknowledgeTooltip": "Marquez cette violation comme vue afin qu'elle n'apparaisse plus comme nouvelle et ne déclenche plus de notifications",
+    "acknowledgeAll": "Tout marquer comme examiné",
+    "acknowledgeAllTooltip": "Marquer toutes les violations non examinées comme vues"
   },
   "refetchButton": "Actualiser"
 }

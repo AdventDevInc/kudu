@@ -1,9 +1,10 @@
 {
-  "pageTitle": "Monitorizare breșe",
+  "pageTitle": "Monitor de breșe",
   "pageDescription": "Verificați dacă adresele dvs. de e-mail au fost expuse în breșe de date cunoscute",
   "loading": "Se încarcă datele despre breșe...",
   "summary": {
     "totalBreaches": "Total breșe",
+    "unacknowledged": "Noi",
     "emailsMonitored": "E-mailuri monitorizate"
   },
   "addEmail": {
@@ -12,44 +13,57 @@
     "adding": "Se adaugă..."
   },
   "toast": {
-    "fetchFailed": "Nu s-au putut încărca datele despre breșe",
-    "addFailed": "Nu s-a putut adăuga adresa de e-mail",
-    "removeFailed": "Nu s-a putut elimina adresa de e-mail",
-    "emailAdded": "Adresa de e-mail a fost adăugată la monitorizarea breșelor",
-    "emailRemoved": "Adresa de e-mail a fost eliminată din monitorizarea breșelor",
+    "fetchFailed": "Încărcarea datelor despre breșe a eșuat",
+    "addFailed": "Adăugarea adresei de e-mail a eșuat",
+    "removeFailed": "Eliminarea adresei de e-mail a eșuat",
     "invalidEmail": "Introduceți o adresă de e-mail validă",
-    "limitReached": "Ați atins limita de adrese de e-mail pentru planul dvs."
+    "limitReached": "Limita de adrese de e-mail pentru planul dvs. a fost atinsă",
+    "acknowledged": "Breșele au fost marcate ca revizuite",
+    "acknowledgeFailed": "Marcarea breșelor a eșuat"
   },
   "emptyState": {
-    "noEmails": "Niciun e-mail monitorizat",
-    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu scurgerile noi.",
-    "allClear": "Nicio problemă",
-    "allClearDesc": "Niciuna dintre adresele dvs. de e-mail monitorizate nu a fost găsită în vreo breșă de date cunoscută.",
-    "upgradeRequired": "Este necesară actualizarea",
+    "noEmails": "Nu există e-mailuri monitorizate",
+    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu apariția unor noi scurgeri.",
+    "allClear": "Totul este în regulă",
+    "allClearDesc": "Niciunul dintre e-mailurile monitorizate nu a fost găsit în vreo breșă de date cunoscută.",
+    "upgradeRequired": "Este necesară actualizarea planului",
     "upgradeRequiredDesc": "Monitorizarea breșelor este disponibilă în planul Basic și în planurile superioare. Actualizați-vă planul pentru a începe monitorizarea.",
-    "goToCloud": "Vedeți planurile"
+    "goToCloud": "Vedeți planurile",
+    "noBreachesForEmail": "Nu au fost găsite breșe pentru acest e-mail",
+    "selectEmail": "Selectați un e-mail din listă pentru a vedea detaliile breșei"
   },
   "error": {
-    "title": "Nu s-au putut încărca datele despre breșe",
+    "title": "Încărcarea datelor despre breșe a eșuat",
     "description": "Verificați conexiunea la cloud și încercați din nou."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} breșă",
-    "breaches_plural": "{{count}} breșe",
-    "noBreaches": "Nu au fost găsite breșe",
-    "lastChecked": "Ultima verificare {{date}}",
-    "notCheckedYet": "Încă neverificat",
-    "fresh": "Rezultate noi",
-    "paused": "Monitorizare întreruptă",
-    "remove": "Eliminați"
+    "breaches_other": "{{count}} breșe",
+    "newBreaches": "{{count}} noi",
+    "noBreaches": "Nicio breșă",
+    "checking": "Se verifică...",
+    "paused": "În pauză",
+    "remove": "Eliminați e-mailul",
+    "lastChecked": "Verificat {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Breșă sensibilă",
-    "breachDate": "Compromis la {{date}}",
-    "compromisedData": "Date compromise",
-    "affectedAccounts": "{{count}} conturi afectate",
+  "table": {
+    "breach": "Breșă",
+    "date": "Dată",
+    "accounts": "Conturi",
+    "data": "Date compromise",
+    "status": "Stare",
+    "actions": "",
+    "new": "Nou",
+    "reviewed": "Revizuită",
+    "sensitive": "Breșă sensibilă",
     "verified": "Verificată",
     "unverified": "Neverificată"
+  },
+  "actions": {
+    "acknowledge": "Marcați ca revizuită",
+    "acknowledgeTooltip": "Marcați această breșă ca văzută, astfel încât să nu mai apară ca nouă și să nu mai declanșeze notificări",
+    "acknowledgeAll": "Marcați toate ca revizuite",
+    "acknowledgeAllTooltip": "Marcați toate breșele nerevizuite ca văzute"
   },
   "refetchButton": "Reîmprospătați"
 }

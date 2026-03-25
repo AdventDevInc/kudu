@@ -3,22 +3,23 @@
   "pageDescription": "Ελέγξτε αν οι διευθύνσεις email σας έχουν εκτεθεί σε γνωστές παραβιάσεις δεδομένων",
   "loading": "Φόρτωση δεδομένων παραβιάσεων...",
   "summary": {
-    "totalBreaches": "Σύνολο παραβιάσεων",
-    "emailsMonitored": "Παρακολουθούμενα email"
+    "totalBreaches": "Σύνολο Παραβιάσεων",
+    "unacknowledged": "Νέες",
+    "emailsMonitored": "Παρακολουθούμενα Email"
   },
   "addEmail": {
     "placeholder": "Εισαγάγετε μια διεύθυνση email",
-    "button": "Προσθήκη email",
+    "button": "Προσθήκη Email",
     "adding": "Προσθήκη..."
   },
   "toast": {
     "fetchFailed": "Αποτυχία φόρτωσης δεδομένων παραβιάσεων",
     "addFailed": "Αποτυχία προσθήκης email",
     "removeFailed": "Αποτυχία αφαίρεσης email",
-    "emailAdded": "Το email προστέθηκε στην παρακολούθηση παραβιάσεων",
-    "emailRemoved": "Το email αφαιρέθηκε από την παρακολούθηση παραβιάσεων",
-    "invalidEmail": "Εισαγάγετε μια έγκυρη διεύθυνση email",
-    "limitReached": "Έχετε φτάσει το όριο email του προγράμματός σας"
+    "invalidEmail": "Παρακαλώ εισαγάγετε μια έγκυρη διεύθυνση email",
+    "limitReached": "Φτάσατε το όριο email του προγράμματός σας",
+    "acknowledged": "Οι παραβιάσεις επισημάνθηκαν ως ελεγμένες",
+    "acknowledgeFailed": "Αποτυχία αναγνώρισης παραβιάσεων"
   },
   "emptyState": {
     "noEmails": "Δεν παρακολουθούνται email",
@@ -27,29 +28,42 @@
     "allClearDesc": "Κανένα από τα παρακολουθούμενα email σας δεν βρέθηκε σε γνωστές παραβιάσεις δεδομένων.",
     "upgradeRequired": "Απαιτείται αναβάθμιση",
     "upgradeRequiredDesc": "Η παρακολούθηση παραβιάσεων είναι διαθέσιμη στο πρόγραμμα Basic και άνω. Αναβαθμίστε το πρόγραμμά σας για να ξεκινήσετε την παρακολούθηση.",
-    "goToCloud": "Προβολή προγραμμάτων"
+    "goToCloud": "Προβολή Προγραμμάτων",
+    "noBreachesForEmail": "Δεν βρέθηκαν παραβιάσεις για αυτό το email",
+    "selectEmail": "Επιλέξτε ένα email από τη λίστα για να δείτε λεπτομέρειες παραβίασης"
   },
   "error": {
     "title": "Αποτυχία φόρτωσης δεδομένων παραβιάσεων",
-    "description": "Ελέγξτε τη σύνδεσή σας με το cloud και δοκιμάστε ξανά."
+    "description": "Ελέγξτε τη σύνδεσή σας στο cloud και δοκιμάστε ξανά."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} παραβίαση",
-    "breaches_plural": "{{count}} παραβιάσεις",
-    "noBreaches": "Δεν βρέθηκαν παραβιάσεις",
-    "lastChecked": "Τελευταίος έλεγχος {{date}}",
-    "notCheckedYet": "Δεν έχει ελεγχθεί ακόμη",
-    "fresh": "Νέα αποτελέσματα",
-    "paused": "Η παρακολούθηση έχει τεθεί σε παύση",
-    "remove": "Αφαίρεση"
+    "breaches_other": "{{count}} παραβιάσεις",
+    "newBreaches": "{{count}} νέες",
+    "noBreaches": "Καμία παραβίαση",
+    "checking": "Έλεγχος...",
+    "paused": "Σε παύση",
+    "remove": "Αφαίρεση email",
+    "lastChecked": "Έλεγχος {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Ευαίσθητη παραβίαση",
-    "breachDate": "Παραβιάστηκε στις {{date}}",
-    "compromisedData": "Δεδομένα που εκτέθηκαν",
-    "affectedAccounts": "{{count}} λογαριασμοί επηρεάστηκαν",
+  "table": {
+    "breach": "Παραβίαση",
+    "date": "Ημερομηνία",
+    "accounts": "Λογαριασμοί",
+    "data": "Δεδομένα που εκτέθηκαν",
+    "status": "Κατάσταση",
+    "actions": "",
+    "new": "Νέα",
+    "reviewed": "Ελεγμένη",
+    "sensitive": "Ευαίσθητη Παραβίαση",
     "verified": "Επαληθευμένη",
     "unverified": "Μη επαληθευμένη"
+  },
+  "actions": {
+    "acknowledge": "Επισήμανση ως ελεγμένης",
+    "acknowledgeTooltip": "Επισημάνετε αυτή την παραβίαση ως προβεβλημένη ώστε να μην εμφανίζεται πλέον ως νέα και να μην ενεργοποιεί ειδοποιήσεις",
+    "acknowledgeAll": "Επισήμανση όλων ως ελεγμένων",
+    "acknowledgeAllTooltip": "Επισημάνετε όλες τις μη ελεγμένες παραβιάσεις ως προβεβλημένες"
   },
   "refetchButton": "Ανανέωση"
 }

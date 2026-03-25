@@ -1,9 +1,10 @@
 {
-  "pageTitle": "Breach Monitor",
-  "pageDescription": "Controleer of uw e-mailadressen zijn blootgesteld in bekende datalekken",
+  "pageTitle": "Inbreukmonitor",
+  "pageDescription": "Controleer of uw e-mailadressen zijn blootgesteld bij bekende datalekken",
   "loading": "Gegevens over datalekken laden...",
   "summary": {
     "totalBreaches": "Totaal aantal datalekken",
+    "unacknowledged": "Nieuw",
     "emailsMonitored": "Gemonitorde e-mailadressen"
   },
   "addEmail": {
@@ -15,10 +16,10 @@
     "fetchFailed": "Kan gegevens over datalekken niet laden",
     "addFailed": "Kan e-mailadres niet toevoegen",
     "removeFailed": "Kan e-mailadres niet verwijderen",
-    "emailAdded": "E-mailadres toegevoegd aan Breach Monitor",
-    "emailRemoved": "E-mailadres verwijderd uit Breach Monitor",
     "invalidEmail": "Voer een geldig e-mailadres in",
-    "limitReached": "De limiet voor e-mailadressen van uw abonnement is bereikt"
+    "limitReached": "De limiet voor e-mailadressen van uw abonnement is bereikt",
+    "acknowledged": "Datalekken gemarkeerd als beoordeeld",
+    "acknowledgeFailed": "Kan datalekken niet markeren als beoordeeld"
   },
   "emptyState": {
     "noEmails": "Geen e-mailadressen gemonitord",
@@ -27,29 +28,42 @@
     "allClearDesc": "Geen van uw gemonitorde e-mailadressen is aangetroffen in bekende datalekken.",
     "upgradeRequired": "Upgrade vereist",
     "upgradeRequiredDesc": "Monitoring van datalekken is beschikbaar vanaf het Basic-abonnement. Upgrade uw abonnement om te beginnen met monitoren.",
-    "goToCloud": "Abonnementen bekijken"
+    "goToCloud": "Abonnementen bekijken",
+    "noBreachesForEmail": "Geen datalekken gevonden voor dit e-mailadres",
+    "selectEmail": "Selecteer een e-mailadres uit de lijst om details van het datalek te bekijken"
   },
   "error": {
     "title": "Kan gegevens over datalekken niet laden",
     "description": "Controleer uw cloudverbinding en probeer het opnieuw."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} datalek",
-    "breaches_plural": "{{count}} datalekken",
-    "noBreaches": "Geen datalekken gevonden",
-    "lastChecked": "Laatst gecontroleerd op {{date}}",
-    "notCheckedYet": "Nog niet gecontroleerd",
-    "fresh": "Nieuwe resultaten",
-    "paused": "Monitoring gepauzeerd",
-    "remove": "Verwijderen"
+    "breaches_other": "{{count}} datalekken",
+    "newBreaches": "{{count}} nieuw",
+    "noBreaches": "Geen datalekken",
+    "checking": "Controleren...",
+    "paused": "Gepauzeerd",
+    "remove": "E-mailadres verwijderen",
+    "lastChecked": "Gecontroleerd op {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Gevoelig datalek",
-    "breachDate": "Gelekt op {{date}}",
-    "compromisedData": "Gecompromitteerde gegevens",
-    "affectedAccounts": "{{count}} accounts getroffen",
+  "table": {
+    "breach": "Datalek",
+    "date": "Datum",
+    "accounts": "Accounts",
+    "data": "Gecompromitteerde gegevens",
+    "status": "Status",
+    "actions": "",
+    "new": "Nieuw",
+    "reviewed": "Beoordeeld",
+    "sensitive": "Gevoelig datalek",
     "verified": "Geverifieerd",
     "unverified": "Niet geverifieerd"
+  },
+  "actions": {
+    "acknowledge": "Markeren als beoordeeld",
+    "acknowledgeTooltip": "Markeer dit datalek als gezien, zodat het niet langer als nieuw wordt weergegeven of meldingen activeert",
+    "acknowledgeAll": "Alles markeren als beoordeeld",
+    "acknowledgeAllTooltip": "Markeer alle onbeoordeelde datalekken als gezien"
   },
   "refetchButton": "Vernieuwen"
 }

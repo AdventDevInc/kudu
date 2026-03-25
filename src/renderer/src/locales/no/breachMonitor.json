@@ -1,9 +1,10 @@
 {
-  "pageTitle": "Bruddsovervåking",
-  "pageDescription": "Sjekk om e-postadressene dine har blitt eksponert i kjente datainnbrudd",
+  "pageTitle": "Overvåking av datainnbrudd",
+  "pageDescription": "Kontroller om e-postadressene dine har blitt eksponert i kjente datainnbrudd",
   "loading": "Laster inn data om datainnbrudd...",
   "summary": {
     "totalBreaches": "Totalt antall datainnbrudd",
+    "unacknowledged": "Nye",
     "emailsMonitored": "Overvåkede e-postadresser"
   },
   "addEmail": {
@@ -15,41 +16,54 @@
     "fetchFailed": "Kunne ikke laste inn data om datainnbrudd",
     "addFailed": "Kunne ikke legge til e-postadresse",
     "removeFailed": "Kunne ikke fjerne e-postadresse",
-    "emailAdded": "E-postadresse lagt til i bruddsovervåking",
-    "emailRemoved": "E-postadresse fjernet fra bruddsovervåking",
     "invalidEmail": "Skriv inn en gyldig e-postadresse",
-    "limitReached": "Du har nådd grensen for antall e-postadresser i abonnementet ditt"
+    "limitReached": "Grensen for e-postadresser er nådd for abonnementet ditt",
+    "acknowledged": "Datainnbrudd er merket som gjennomgått",
+    "acknowledgeFailed": "Kunne ikke bekrefte datainnbrudd"
   },
   "emptyState": {
     "noEmails": "Ingen e-postadresser overvåkes",
     "noEmailsDesc": "Legg til en e-postadresse for å se etter tidligere datainnbrudd og overvåke kontinuerlig for nye lekkasjer.",
-    "allClear": "Ingen funn",
-    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i kjente datainnbrudd.",
+    "allClear": "Alt ser bra ut",
+    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i noen kjente datainnbrudd.",
     "upgradeRequired": "Oppgradering kreves",
-    "upgradeRequiredDesc": "Bruddsovervåking er tilgjengelig med Basic-abonnementet og høyere. Oppgrader abonnementet ditt for å starte overvåking.",
-    "goToCloud": "Vis abonnementer"
+    "upgradeRequiredDesc": "Overvåking av datainnbrudd er tilgjengelig med Basic-abonnementet og høyere. Oppgrader abonnementet ditt for å starte overvåking.",
+    "goToCloud": "Vis abonnementer",
+    "noBreachesForEmail": "Ingen datainnbrudd funnet for denne e-postadressen",
+    "selectEmail": "Velg en e-postadresse fra listen for å vise detaljer om datainnbrudd"
   },
   "error": {
     "title": "Kunne ikke laste inn data om datainnbrudd",
-    "description": "Kontroller skytjenestetilkoblingen og prøv igjen."
+    "description": "Kontroller skytjenestetilkoblingen din og prøv igjen."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} datainnbrudd",
-    "breaches_plural": "{{count}} datainnbrudd",
-    "noBreaches": "Ingen datainnbrudd funnet",
-    "lastChecked": "Sist sjekket {{date}}",
-    "notCheckedYet": "Ikke sjekket ennå",
-    "fresh": "Nye resultater",
-    "paused": "Overvåking satt på pause",
-    "remove": "Fjern"
+    "breaches_other": "{{count}} datainnbrudd",
+    "newBreaches": "{{count}} nye",
+    "noBreaches": "Ingen datainnbrudd",
+    "checking": "Kontrollerer...",
+    "paused": "Satt på pause",
+    "remove": "Fjern e-postadresse",
+    "lastChecked": "Kontrollert {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Sensitivt datainnbrudd",
-    "breachDate": "Rammet {{date}}",
-    "compromisedData": "Kompromitterte data",
-    "affectedAccounts": "{{count}} kontoer berørt",
-    "verified": "Bekreftet",
-    "unverified": "Ubekreftet"
+  "table": {
+    "breach": "Datainnbrudd",
+    "date": "Dato",
+    "accounts": "Kontoer",
+    "data": "Kompromitterte data",
+    "status": "Status",
+    "actions": "",
+    "new": "Ny",
+    "reviewed": "Gjennomgått",
+    "sensitive": "Sensitivt datainnbrudd",
+    "verified": "Verifisert",
+    "unverified": "Ikke verifisert"
+  },
+  "actions": {
+    "acknowledge": "Merk som gjennomgått",
+    "acknowledgeTooltip": "Merk dette datainnbruddet som sett, slik at det ikke lenger vises som nytt eller utløser varsler",
+    "acknowledgeAll": "Merk alle som gjennomgått",
+    "acknowledgeAllTooltip": "Merk alle ikke gjennomgåtte datainnbrudd som sett"
   },
   "refetchButton": "Oppdater"
 }

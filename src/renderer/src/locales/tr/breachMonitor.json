@@ -4,6 +4,7 @@
   "loading": "İhlal verileri yükleniyor...",
   "summary": {
     "totalBreaches": "Toplam İhlal",
+    "unacknowledged": "Yeni",
     "emailsMonitored": "İzlenen E-postalar"
   },
   "addEmail": {
@@ -15,10 +16,10 @@
     "fetchFailed": "İhlal verileri yüklenemedi",
     "addFailed": "E-posta eklenemedi",
     "removeFailed": "E-posta kaldırılamadı",
-    "emailAdded": "E-posta ihlal izlemeye eklendi",
-    "emailRemoved": "E-posta ihlal izlemeden kaldırıldı",
     "invalidEmail": "Lütfen geçerli bir e-posta adresi girin",
-    "limitReached": "Planınız için e-posta sınırına ulaşıldı"
+    "limitReached": "Planınız için e-posta sınırına ulaşıldı",
+    "acknowledged": "İhlaller incelendi olarak işaretlendi",
+    "acknowledgeFailed": "İhlaller onaylanamadı"
   },
   "emptyState": {
     "noEmails": "İzlenen e-posta yok",
@@ -26,30 +27,43 @@
     "allClear": "Her şey yolunda",
     "allClearDesc": "İzlenen e-postalarınızın hiçbiri bilinen veri ihlallerinde bulunmadı.",
     "upgradeRequired": "Yükseltme gerekli",
-    "upgradeRequiredDesc": "İhlal izleme, Basic plan ve üzeri planlarda kullanılabilir. İzlemeyi başlatmak için planınızı yükseltin.",
-    "goToCloud": "Planları Görüntüle"
+    "upgradeRequiredDesc": "İhlal izleme Basic planında ve üzeri planlarda kullanılabilir. İzlemeye başlamak için planınızı yükseltin.",
+    "goToCloud": "Planları Görüntüle",
+    "noBreachesForEmail": "Bu e-posta için ihlal bulunamadı",
+    "selectEmail": "İhlal ayrıntılarını görüntülemek için listeden bir e-posta seçin"
   },
   "error": {
     "title": "İhlal verileri yüklenemedi",
     "description": "Bulut bağlantınızı kontrol edin ve tekrar deneyin."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} ihlal",
-    "breaches_plural": "{{count}} ihlal",
-    "noBreaches": "İhlal bulunamadı",
-    "lastChecked": "Son kontrol: {{date}}",
-    "notCheckedYet": "Henüz kontrol edilmedi",
-    "fresh": "Yeni sonuçlar",
-    "paused": "İzleme duraklatıldı",
-    "remove": "Kaldır"
+    "breaches_other": "{{count}} ihlal",
+    "newBreaches": "{{count}} yeni",
+    "noBreaches": "İhlal yok",
+    "checking": "Kontrol ediliyor...",
+    "paused": "Duraklatıldı",
+    "remove": "E-postayı kaldır",
+    "lastChecked": "{{date}} tarihinde kontrol edildi"
   },
-  "breachCard": {
-    "sensitiveBreach": "Hassas İhlal",
-    "breachDate": "İhlal tarihi: {{date}}",
-    "compromisedData": "Ele geçirilen veriler",
-    "affectedAccounts": "{{count}} hesap etkilendi",
+  "table": {
+    "breach": "İhlal",
+    "date": "Tarih",
+    "accounts": "Hesaplar",
+    "data": "Ele Geçirilen Veriler",
+    "status": "Durum",
+    "actions": "",
+    "new": "Yeni",
+    "reviewed": "İncelendi",
+    "sensitive": "Hassas İhlal",
     "verified": "Doğrulandı",
     "unverified": "Doğrulanmadı"
+  },
+  "actions": {
+    "acknowledge": "İncelendi olarak işaretle",
+    "acknowledgeTooltip": "Bu ihlali görüldü olarak işaretleyin; böylece artık yeni olarak görünmez veya bildirim tetiklemez",
+    "acknowledgeAll": "Tümünü incelendi olarak işaretle",
+    "acknowledgeAllTooltip": "İncelenmemiş tüm ihlalleri görüldü olarak işaretleyin"
   },
   "refetchButton": "Yenile"
 }

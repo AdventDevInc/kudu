@@ -1,9 +1,10 @@
 {
-  "pageTitle": "Giám sát rò rỉ dữ liệu",
-  "pageDescription": "Kiểm tra xem địa chỉ email của bạn có bị lộ trong các vụ rò rỉ dữ liệu đã biết hay không",
-  "loading": "Đang tải dữ liệu rò rỉ...",
+  "pageTitle": "Giám sát vi phạm dữ liệu",
+  "pageDescription": "Kiểm tra xem địa chỉ email của bạn có bị lộ trong các vụ vi phạm dữ liệu đã biết hay không",
+  "loading": "Đang tải dữ liệu vi phạm...",
   "summary": {
-    "totalBreaches": "Tổng số vụ rò rỉ",
+    "totalBreaches": "Tổng số vụ vi phạm",
+    "unacknowledged": "Mới",
     "emailsMonitored": "Email đang được giám sát"
   },
   "addEmail": {
@@ -12,44 +13,57 @@
     "adding": "Đang thêm..."
   },
   "toast": {
-    "fetchFailed": "Không thể tải dữ liệu rò rỉ",
+    "fetchFailed": "Không thể tải dữ liệu vi phạm",
     "addFailed": "Không thể thêm email",
     "removeFailed": "Không thể xóa email",
-    "emailAdded": "Đã thêm email vào giám sát rò rỉ dữ liệu",
-    "emailRemoved": "Đã xóa email khỏi giám sát rò rỉ dữ liệu",
     "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ",
-    "limitReached": "Đã đạt giới hạn email cho gói của bạn"
+    "limitReached": "Đã đạt giới hạn email cho gói của bạn",
+    "acknowledged": "Các vụ vi phạm đã được đánh dấu là đã xem",
+    "acknowledgeFailed": "Không thể xác nhận các vụ vi phạm"
   },
   "emptyState": {
     "noEmails": "Chưa có email nào được giám sát",
-    "noEmailsDesc": "Thêm một địa chỉ email để kiểm tra các vụ rò rỉ dữ liệu trước đây và liên tục giám sát các vụ lộ lọt mới.",
+    "noEmailsDesc": "Thêm một địa chỉ email để kiểm tra các vụ vi phạm dữ liệu trước đây và liên tục giám sát các rò rỉ mới.",
     "allClear": "Không phát hiện vấn đề",
-    "allClearDesc": "Không có email nào đang được giám sát của bạn được tìm thấy trong bất kỳ vụ rò rỉ dữ liệu đã biết nào.",
-    "upgradeRequired": "Yêu cầu nâng cấp",
-    "upgradeRequiredDesc": "Tính năng giám sát rò rỉ dữ liệu khả dụng với gói Basic trở lên. Hãy nâng cấp gói của bạn để bắt đầu giám sát.",
-    "goToCloud": "Xem các gói"
+    "allClearDesc": "Không có email nào đang được giám sát của bạn được tìm thấy trong bất kỳ vụ vi phạm dữ liệu đã biết nào.",
+    "upgradeRequired": "Cần nâng cấp",
+    "upgradeRequiredDesc": "Tính năng giám sát vi phạm dữ liệu khả dụng trên gói Basic trở lên. Hãy nâng cấp gói của bạn để bắt đầu giám sát.",
+    "goToCloud": "Xem các gói",
+    "noBreachesForEmail": "Không tìm thấy vi phạm nào cho email này",
+    "selectEmail": "Chọn một email từ danh sách để xem chi tiết vi phạm"
   },
   "error": {
-    "title": "Không thể tải dữ liệu rò rỉ",
+    "title": "Không thể tải dữ liệu vi phạm",
     "description": "Kiểm tra kết nối đám mây của bạn và thử lại."
   },
-  "emailCard": {
-    "breaches": "{{count}} vụ rò rỉ",
-    "breaches_plural": "{{count}} vụ rò rỉ",
-    "noBreaches": "Không phát hiện vụ rò rỉ nào",
-    "lastChecked": "Kiểm tra lần cuối vào {{date}}",
-    "notCheckedYet": "Chưa được kiểm tra",
-    "fresh": "Kết quả mới",
-    "paused": "Đã tạm dừng giám sát",
-    "remove": "Xóa"
+  "emailList": {
+    "breaches": "{{count}} vụ vi phạm",
+    "breaches_other": "{{count}} vụ vi phạm",
+    "newBreaches": "{{count}} mới",
+    "noBreaches": "Không có vi phạm",
+    "checking": "Đang kiểm tra...",
+    "paused": "Đã tạm dừng",
+    "remove": "Xóa email",
+    "lastChecked": "Đã kiểm tra {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Vụ rò rỉ nhạy cảm",
-    "breachDate": "Bị rò rỉ vào {{date}}",
-    "compromisedData": "Dữ liệu bị xâm phạm",
-    "affectedAccounts": "{{count}} tài khoản bị ảnh hưởng",
+  "table": {
+    "breach": "Vi phạm",
+    "date": "Ngày",
+    "accounts": "Tài khoản",
+    "data": "Dữ liệu bị xâm phạm",
+    "status": "Trạng thái",
+    "actions": "",
+    "new": "Mới",
+    "reviewed": "Đã xem",
+    "sensitive": "Vi phạm nhạy cảm",
     "verified": "Đã xác minh",
     "unverified": "Chưa xác minh"
+  },
+  "actions": {
+    "acknowledge": "Đánh dấu là đã xem",
+    "acknowledgeTooltip": "Đánh dấu vụ vi phạm này là đã xem để không còn hiển thị là mới hoặc kích hoạt thông báo nữa",
+    "acknowledgeAll": "Đánh dấu tất cả là đã xem",
+    "acknowledgeAllTooltip": "Đánh dấu tất cả các vụ vi phạm chưa xem là đã xem"
   },
   "refetchButton": "Làm mới"
 }

@@ -4,6 +4,7 @@
   "loading": "Memuat data kebocoran...",
   "summary": {
     "totalBreaches": "Total Kebocoran",
+    "unacknowledged": "Baru",
     "emailsMonitored": "Email yang Dipantau"
   },
   "addEmail": {
@@ -15,41 +16,54 @@
     "fetchFailed": "Gagal memuat data kebocoran",
     "addFailed": "Gagal menambahkan email",
     "removeFailed": "Gagal menghapus email",
-    "emailAdded": "Email ditambahkan ke monitor kebocoran",
-    "emailRemoved": "Email dihapus dari monitor kebocoran",
-    "invalidEmail": "Harap masukkan alamat email yang valid",
-    "limitReached": "Batas email untuk paket Anda telah tercapai"
+    "invalidEmail": "Masukkan alamat email yang valid",
+    "limitReached": "Batas email untuk paket Anda telah tercapai",
+    "acknowledged": "Kebocoran ditandai sebagai telah ditinjau",
+    "acknowledgeFailed": "Gagal mengonfirmasi kebocoran"
   },
   "emptyState": {
     "noEmails": "Tidak ada email yang dipantau",
     "noEmailsDesc": "Tambahkan alamat email untuk memeriksa kebocoran data sebelumnya dan terus memantau kebocoran baru.",
     "allClear": "Aman",
     "allClearDesc": "Tidak ada email yang Anda pantau ditemukan dalam kebocoran data yang diketahui.",
-    "upgradeRequired": "Perlu upgrade",
-    "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada paket Basic dan yang lebih tinggi. Upgrade paket Anda untuk mulai memantau.",
-    "goToCloud": "Lihat Paket"
+    "upgradeRequired": "Peningkatan diperlukan",
+    "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada paket Basic dan yang lebih tinggi. Tingkatkan paket Anda untuk mulai memantau.",
+    "goToCloud": "Lihat Paket",
+    "noBreachesForEmail": "Tidak ada kebocoran yang ditemukan untuk email ini",
+    "selectEmail": "Pilih email dari daftar untuk melihat detail kebocoran"
   },
   "error": {
     "title": "Gagal memuat data kebocoran",
-    "description": "Periksa koneksi cloud Anda lalu coba lagi."
+    "description": "Periksa koneksi cloud Anda dan coba lagi."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} kebocoran",
-    "breaches_plural": "{{count}} kebocoran",
-    "noBreaches": "Tidak ada kebocoran yang ditemukan",
-    "lastChecked": "Terakhir diperiksa {{date}}",
-    "notCheckedYet": "Belum diperiksa",
-    "fresh": "Hasil baru",
-    "paused": "Pemantauan dijeda",
-    "remove": "Hapus"
+    "breaches_other": "{{count}} kebocoran",
+    "newBreaches": "{{count}} baru",
+    "noBreaches": "Tidak ada kebocoran",
+    "checking": "Memeriksa...",
+    "paused": "Dijeda",
+    "remove": "Hapus email",
+    "lastChecked": "Diperiksa {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Kebocoran Sensitif",
-    "breachDate": "Bocor pada {{date}}",
-    "compromisedData": "Data yang terdampak",
-    "affectedAccounts": "{{count}} akun terdampak",
+  "table": {
+    "breach": "Kebocoran",
+    "date": "Tanggal",
+    "accounts": "Akun",
+    "data": "Data yang Terdampak",
+    "status": "Status",
+    "actions": "",
+    "new": "Baru",
+    "reviewed": "Ditinjau",
+    "sensitive": "Kebocoran Sensitif",
     "verified": "Terverifikasi",
-    "unverified": "Belum diverifikasi"
+    "unverified": "Belum Terverifikasi"
+  },
+  "actions": {
+    "acknowledge": "Tandai sebagai telah ditinjau",
+    "acknowledgeTooltip": "Tandai kebocoran ini sebagai telah dilihat agar tidak lagi muncul sebagai baru atau memicu notifikasi",
+    "acknowledgeAll": "Tandai semua sebagai telah ditinjau",
+    "acknowledgeAllTooltip": "Tandai semua kebocoran yang belum ditinjau sebagai telah dilihat"
   },
   "refetchButton": "Segarkan"
 }

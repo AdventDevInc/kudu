@@ -1,9 +1,10 @@
 {
   "pageTitle": "Monitor naruszeń",
   "pageDescription": "Sprawdź, czy Twoje adresy e-mail zostały ujawnione w znanych naruszeniach danych",
-  "loading": "Ładowanie danych o naruszeniach...",
+  "loading": "Wczytywanie danych o naruszeniach...",
   "summary": {
     "totalBreaches": "Łączna liczba naruszeń",
+    "unacknowledged": "Nowe",
     "emailsMonitored": "Monitorowane adresy e-mail"
   },
   "addEmail": {
@@ -12,13 +13,13 @@
     "adding": "Dodawanie..."
   },
   "toast": {
-    "fetchFailed": "Nie udało się załadować danych o naruszeniach",
+    "fetchFailed": "Nie udało się wczytać danych o naruszeniach",
     "addFailed": "Nie udało się dodać adresu e-mail",
     "removeFailed": "Nie udało się usunąć adresu e-mail",
-    "emailAdded": "Adres e-mail został dodany do monitora naruszeń",
-    "emailRemoved": "Adres e-mail został usunięty z monitora naruszeń",
     "invalidEmail": "Wprowadź prawidłowy adres e-mail",
-    "limitReached": "Osiągnięto limit adresów e-mail dla Twojego planu"
+    "limitReached": "Osiągnięto limit adresów e-mail dla Twojego planu",
+    "acknowledged": "Naruszenia oznaczono jako przejrzane",
+    "acknowledgeFailed": "Nie udało się oznaczyć naruszeń"
   },
   "emptyState": {
     "noEmails": "Brak monitorowanych adresów e-mail",
@@ -26,30 +27,43 @@
     "allClear": "Brak zagrożeń",
     "allClearDesc": "Żaden z monitorowanych adresów e-mail nie został znaleziony w żadnym znanym naruszeniu danych.",
     "upgradeRequired": "Wymagana aktualizacja planu",
-    "upgradeRequiredDesc": "Monitorowanie naruszeń jest dostępne w planie Basic i wyższych. Zaktualizuj swój plan, aby rozpocząć monitorowanie.",
-    "goToCloud": "Zobacz plany"
+    "upgradeRequiredDesc": "Monitorowanie naruszeń jest dostępne w planie Basic i wyższych. Zmień plan, aby rozpocząć monitorowanie.",
+    "goToCloud": "Zobacz plany",
+    "noBreachesForEmail": "Nie znaleziono naruszeń dla tego adresu e-mail",
+    "selectEmail": "Wybierz adres e-mail z listy, aby wyświetlić szczegóły naruszenia"
   },
   "error": {
-    "title": "Nie udało się załadować danych o naruszeniach",
+    "title": "Nie udało się wczytać danych o naruszeniach",
     "description": "Sprawdź połączenie z chmurą i spróbuj ponownie."
   },
-  "emailCard": {
+  "emailList": {
     "breaches": "{{count}} naruszenie",
-    "breaches_plural": "{{count}} naruszenia",
-    "noBreaches": "Nie znaleziono naruszeń",
-    "lastChecked": "Ostatnio sprawdzono {{date}}",
-    "notCheckedYet": "Jeszcze nie sprawdzono",
-    "fresh": "Nowe wyniki",
-    "paused": "Monitorowanie wstrzymane",
-    "remove": "Usuń"
+    "breaches_other": "{{count}} naruszeń",
+    "newBreaches": "{{count}} nowe",
+    "noBreaches": "Brak naruszeń",
+    "checking": "Sprawdzanie...",
+    "paused": "Wstrzymano",
+    "remove": "Usuń adres e-mail",
+    "lastChecked": "Sprawdzono {{date}}"
   },
-  "breachCard": {
-    "sensitiveBreach": "Wrażliwe naruszenie",
-    "breachDate": "Naruszenie z dnia {{date}}",
-    "compromisedData": "Ujawnione dane",
-    "affectedAccounts": "Dotknięte konta: {{count}}",
+  "table": {
+    "breach": "Naruszenie",
+    "date": "Data",
+    "accounts": "Konta",
+    "data": "Naruszone dane",
+    "status": "Stan",
+    "actions": "",
+    "new": "Nowe",
+    "reviewed": "Przejrzane",
+    "sensitive": "Wrażliwe naruszenie",
     "verified": "Zweryfikowane",
     "unverified": "Niezweryfikowane"
+  },
+  "actions": {
+    "acknowledge": "Oznacz jako przejrzane",
+    "acknowledgeTooltip": "Oznacz to naruszenie jako widziane, aby nie było już wyświetlane jako nowe ani nie wywoływało powiadomień",
+    "acknowledgeAll": "Oznacz wszystkie jako przejrzane",
+    "acknowledgeAllTooltip": "Oznacz wszystkie nieprzejrzane naruszenia jako widziane"
   },
   "refetchButton": "Odśwież"
 }
