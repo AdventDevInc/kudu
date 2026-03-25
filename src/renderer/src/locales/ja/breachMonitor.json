@@ -1,0 +1,55 @@
+{
+  "pageTitle": "漏えい監視",
+  "pageDescription": "メールアドレスが既知のデータ侵害で漏えいしていないか確認します",
+  "loading": "漏えいデータを読み込んでいます...",
+  "summary": {
+    "totalBreaches": "漏えい件数",
+    "emailsMonitored": "監視中のメールアドレス"
+  },
+  "addEmail": {
+    "placeholder": "メールアドレスを入力",
+    "button": "メールアドレスを追加",
+    "adding": "追加しています..."
+  },
+  "toast": {
+    "fetchFailed": "漏えいデータの読み込みに失敗しました",
+    "addFailed": "メールアドレスの追加に失敗しました",
+    "removeFailed": "メールアドレスの削除に失敗しました",
+    "emailAdded": "メールアドレスを漏えい監視に追加しました",
+    "emailRemoved": "メールアドレスを漏えい監視から削除しました",
+    "invalidEmail": "有効なメールアドレスを入力してください",
+    "limitReached": "ご利用のプランで追加できるメールアドレスの上限に達しました"
+  },
+  "emptyState": {
+    "noEmails": "監視中のメールアドレスはありません",
+    "noEmailsDesc": "メールアドレスを追加すると、過去のデータ侵害を確認し、新たな漏えいを継続的に監視できます。",
+    "allClear": "問題は見つかりませんでした",
+    "allClearDesc": "監視中のメールアドレスは、既知のデータ侵害では見つかっていません。",
+    "upgradeRequired": "アップグレードが必要です",
+    "upgradeRequiredDesc": "漏えい監視は Basic プラン以上でご利用いただけます。監視を開始するにはプランをアップグレードしてください。",
+    "goToCloud": "プランを表示"
+  },
+  "error": {
+    "title": "漏えいデータの読み込みに失敗しました",
+    "description": "クラウド接続を確認して、もう一度お試しください。"
+  },
+  "emailCard": {
+    "breaches": "{{count}} 件の漏えい",
+    "breaches_plural": "{{count}} 件の漏えい",
+    "noBreaches": "漏えいは見つかりませんでした",
+    "lastChecked": "最終確認: {{date}}",
+    "notCheckedYet": "まだ確認されていません",
+    "fresh": "新しい結果",
+    "paused": "監視を一時停止中",
+    "remove": "削除"
+  },
+  "breachCard": {
+    "sensitiveBreach": "機密性の高い漏えい",
+    "breachDate": "漏えい日: {{date}}",
+    "compromisedData": "漏えいしたデータ",
+    "affectedAccounts": "{{count}} 件のアカウントに影響",
+    "verified": "確認済み",
+    "unverified": "未確認"
+  },
+  "refetchButton": "更新"
+}

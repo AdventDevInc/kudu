@@ -5,7 +5,7 @@
   "securityHeading": "KESELAMATAN",
   "malwareScanner": "Pengimbas Malware",
   "threatMonitor": "Pemantau Ancaman",
-  "systemHardening": "Pengerasan Sistem",
+  "systemHardening": "Pengukuhan Sistem",
   "cveScanner": "Kerentanan",
   "maintainHeading": "PENYELENGGARAAN",
   "cleaner": "Pembersih",
@@ -19,5 +19,6 @@
   "diskTools": "Alat Cakera",
   "history": "Sejarah",
   "settings": "Tetapan",
+  "breachMonitor": "Pemantau Kebocoran",
   "gameMode": "Mod Permainan"
 }

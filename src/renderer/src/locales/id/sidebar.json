@@ -9,7 +9,7 @@
   "cveScanner": "Kerentanan",
   "maintainHeading": "PEMELIHARAAN",
   "cleaner": "Pembersih",
-  "registry": "Registry",
+  "registry": "Registri",
   "startup": "Startup",
   "network": "Jaringan",
   "software": "Perangkat Lunak",
@@ -19,5 +19,6 @@
   "diskTools": "Alat Disk",
   "history": "Riwayat",
   "settings": "Pengaturan",
+  "breachMonitor": "Pemantau Kebocoran",
   "gameMode": "Mode Game"
 }

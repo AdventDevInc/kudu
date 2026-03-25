@@ -19,5 +19,6 @@
   "diskTools": "Datenträger-Tools",
   "history": "Verlauf",
   "settings": "Einstellungen",
+  "breachMonitor": "Überwachung von Datenlecks",
   "gameMode": "Spielmodus"
 }

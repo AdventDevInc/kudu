@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitor de Violações",
+  "pageDescription": "Verifique se os seus endereços de e-mail foram expostos em violações de dados conhecidas",
+  "loading": "A carregar dados de violações...",
+  "summary": {
+    "totalBreaches": "Total de Violações",
+    "emailsMonitored": "E-mails Monitorizados"
+  },
+  "addEmail": {
+    "placeholder": "Introduza um endereço de e-mail",
+    "button": "Adicionar E-mail",
+    "adding": "A adicionar..."
+  },
+  "toast": {
+    "fetchFailed": "Falha ao carregar os dados de violações",
+    "addFailed": "Falha ao adicionar o e-mail",
+    "removeFailed": "Falha ao remover o e-mail",
+    "emailAdded": "E-mail adicionado ao monitor de violações",
+    "emailRemoved": "E-mail removido do monitor de violações",
+    "invalidEmail": "Introduza um endereço de e-mail válido",
+    "limitReached": "Limite de e-mails atingido para o seu plano"
+  },
+  "emptyState": {
+    "noEmails": "Nenhum e-mail monitorizado",
+    "noEmailsDesc": "Adicione um endereço de e-mail para verificar violações de dados anteriores e monitorizar continuamente novas fugas.",
+    "allClear": "Sem problemas",
+    "allClearDesc": "Nenhum dos seus e-mails monitorizados foi encontrado em violações de dados conhecidas.",
+    "upgradeRequired": "Atualização necessária",
+    "upgradeRequiredDesc": "A monitorização de violações está disponível no plano Basic e superiores. Atualize o seu plano para começar a monitorizar.",
+    "goToCloud": "Ver Planos"
+  },
+  "error": {
+    "title": "Falha ao carregar os dados de violações",
+    "description": "Verifique a sua ligação à cloud e tente novamente."
+  },
+  "emailCard": {
+    "breaches": "{{count}} violação",
+    "breaches_plural": "{{count}} violações",
+    "noBreaches": "Nenhuma violação encontrada",
+    "lastChecked": "Verificado pela última vez em {{date}}",
+    "notCheckedYet": "Ainda não verificado",
+    "fresh": "Novos resultados",
+    "paused": "Monitorização em pausa",
+    "remove": "Remover"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Violação Sensível",
+    "breachDate": "Violado em {{date}}",
+    "compromisedData": "Dados comprometidos",
+    "affectedAccounts": "{{count}} contas afetadas",
+    "verified": "Verificada",
+    "unverified": "Não verificada"
+  },
+  "refetchButton": "Atualizar"
+}

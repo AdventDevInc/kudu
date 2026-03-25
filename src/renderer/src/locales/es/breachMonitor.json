@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitor de filtraciones",
+  "pageDescription": "Compruebe si sus direcciones de correo electrónico han estado expuestas en filtraciones de datos conocidas",
+  "loading": "Cargando datos de filtraciones...",
+  "summary": {
+    "totalBreaches": "Filtraciones totales",
+    "emailsMonitored": "Correos electrónicos supervisados"
+  },
+  "addEmail": {
+    "placeholder": "Introduzca una dirección de correo electrónico",
+    "button": "Añadir correo electrónico",
+    "adding": "Añadiendo..."
+  },
+  "toast": {
+    "fetchFailed": "No se pudieron cargar los datos de filtraciones",
+    "addFailed": "No se pudo añadir el correo electrónico",
+    "removeFailed": "No se pudo eliminar el correo electrónico",
+    "emailAdded": "Correo electrónico añadido al monitor de filtraciones",
+    "emailRemoved": "Correo electrónico eliminado del monitor de filtraciones",
+    "invalidEmail": "Introduzca una dirección de correo electrónico válida",
+    "limitReached": "Se ha alcanzado el límite de correos electrónicos de su plan"
+  },
+  "emptyState": {
+    "noEmails": "No hay correos electrónicos supervisados",
+    "noEmailsDesc": "Añada una dirección de correo electrónico para comprobar filtraciones de datos anteriores y supervisar continuamente nuevas filtraciones.",
+    "allClear": "Sin incidencias",
+    "allClearDesc": "No se ha encontrado ninguno de sus correos electrónicos supervisados en filtraciones de datos conocidas.",
+    "upgradeRequired": "Se requiere una actualización",
+    "upgradeRequiredDesc": "La supervisión de filtraciones está disponible en el plan Basic y superiores. Actualice su plan para comenzar la supervisión.",
+    "goToCloud": "Ver planes"
+  },
+  "error": {
+    "title": "No se pudieron cargar los datos de filtraciones",
+    "description": "Compruebe su conexión a la nube y vuelva a intentarlo."
+  },
+  "emailCard": {
+    "breaches": "{{count}} filtración",
+    "breaches_plural": "{{count}} filtraciones",
+    "noBreaches": "No se encontraron filtraciones",
+    "lastChecked": "Última comprobación: {{date}}",
+    "notCheckedYet": "Aún no se ha comprobado",
+    "fresh": "Nuevos resultados",
+    "paused": "Supervisión en pausa",
+    "remove": "Eliminar"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Filtración sensible",
+    "breachDate": "Filtración el {{date}}",
+    "compromisedData": "Datos comprometidos",
+    "affectedAccounts": "{{count}} cuentas afectadas",
+    "verified": "Verificada",
+    "unverified": "Sin verificar"
+  },
+  "refetchButton": "Actualizar"
+}

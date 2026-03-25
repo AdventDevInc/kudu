@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Breach Monitor",
+  "pageDescription": "Prüfen Sie, ob Ihre E-Mail-Adressen in bekannten Datenschutzverletzungen offengelegt wurden",
+  "loading": "Daten zu Datenschutzverletzungen werden geladen...",
+  "summary": {
+    "totalBreaches": "Datenschutzverletzungen insgesamt",
+    "emailsMonitored": "Überwachte E-Mail-Adressen"
+  },
+  "addEmail": {
+    "placeholder": "E-Mail-Adresse eingeben",
+    "button": "E-Mail-Adresse hinzufügen",
+    "adding": "Wird hinzugefügt..."
+  },
+  "toast": {
+    "fetchFailed": "Daten zu Datenschutzverletzungen konnten nicht geladen werden",
+    "addFailed": "E-Mail-Adresse konnte nicht hinzugefügt werden",
+    "removeFailed": "E-Mail-Adresse konnte nicht entfernt werden",
+    "emailAdded": "E-Mail-Adresse zum Breach Monitor hinzugefügt",
+    "emailRemoved": "E-Mail-Adresse aus dem Breach Monitor entfernt",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "limitReached": "Das E-Mail-Limit Ihres Tarifs wurde erreicht"
+  },
+  "emptyState": {
+    "noEmails": "Keine E-Mail-Adressen überwacht",
+    "noEmailsDesc": "Fügen Sie eine E-Mail-Adresse hinzu, um frühere Datenschutzverletzungen zu prüfen und fortlaufend auf neue Lecks zu überwachen.",
+    "allClear": "Alles in Ordnung",
+    "allClearDesc": "Keine Ihrer überwachten E-Mail-Adressen wurde in bekannten Datenschutzverletzungen gefunden.",
+    "upgradeRequired": "Upgrade erforderlich",
+    "upgradeRequiredDesc": "Die Überwachung von Datenschutzverletzungen ist im Basic-Tarif und höher verfügbar. Führen Sie ein Upgrade Ihres Tarifs durch, um die Überwachung zu starten.",
+    "goToCloud": "Tarife anzeigen"
+  },
+  "error": {
+    "title": "Daten zu Datenschutzverletzungen konnten nicht geladen werden",
+    "description": "Überprüfen Sie Ihre Cloud-Verbindung und versuchen Sie es erneut."
+  },
+  "emailCard": {
+    "breaches": "{{count}} Datenschutzverletzung",
+    "breaches_plural": "{{count}} Datenschutzverletzungen",
+    "noBreaches": "Keine Datenschutzverletzungen gefunden",
+    "lastChecked": "Zuletzt geprüft {{date}}",
+    "notCheckedYet": "Noch nicht geprüft",
+    "fresh": "Neue Ergebnisse",
+    "paused": "Überwachung pausiert",
+    "remove": "Entfernen"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Sensible Datenschutzverletzung",
+    "breachDate": "Verletzt am {{date}}",
+    "compromisedData": "Kompromittierte Daten",
+    "affectedAccounts": "{{count}} betroffene Konten",
+    "verified": "Verifiziert",
+    "unverified": "Nicht verifiziert"
+  },
+  "refetchButton": "Aktualisieren"
+}

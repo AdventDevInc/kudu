@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Breach Monitor",
+  "pageDescription": "जांचें कि क्या आपके ईमेल पते ज्ञात डेटा उल्लंघनों में उजागर हुए हैं",
+  "loading": "उल्लंघन डेटा लोड किया जा रहा है...",
+  "summary": {
+    "totalBreaches": "कुल उल्लंघन",
+    "emailsMonitored": "निगरानी किए गए ईमेल"
+  },
+  "addEmail": {
+    "placeholder": "एक ईमेल पता दर्ज करें",
+    "button": "ईमेल जोड़ें",
+    "adding": "जोड़ा जा रहा है..."
+  },
+  "toast": {
+    "fetchFailed": "उल्लंघन डेटा लोड नहीं किया जा सका",
+    "addFailed": "ईमेल जोड़ा नहीं जा सका",
+    "removeFailed": "ईमेल हटाया नहीं जा सका",
+    "emailAdded": "ईमेल को Breach Monitor में जोड़ दिया गया",
+    "emailRemoved": "ईमेल को Breach Monitor से हटा दिया गया",
+    "invalidEmail": "कृपया एक मान्य ईमेल पता दर्ज करें",
+    "limitReached": "आपकी योजना के लिए ईमेल सीमा पूरी हो गई है"
+  },
+  "emptyState": {
+    "noEmails": "कोई ईमेल निगरानी में नहीं है",
+    "noEmailsDesc": "पिछले डेटा उल्लंघनों की जांच करने और नए लीक की लगातार निगरानी के लिए एक ईमेल पता जोड़ें।",
+    "allClear": "सब ठीक है",
+    "allClearDesc": "आपके निगरानी किए गए किसी भी ईमेल का पता किसी ज्ञात डेटा उल्लंघन में नहीं चला है।",
+    "upgradeRequired": "अपग्रेड आवश्यक है",
+    "upgradeRequiredDesc": "उल्लंघन निगरानी Basic योजना और उससे ऊपर में उपलब्ध है। निगरानी शुरू करने के लिए अपनी योजना अपग्रेड करें।",
+    "goToCloud": "योजनाएँ देखें"
+  },
+  "error": {
+    "title": "उल्लंघन डेटा लोड नहीं किया जा सका",
+    "description": "अपना cloud कनेक्शन जांचें और फिर से प्रयास करें।"
+  },
+  "emailCard": {
+    "breaches": "{{count}} उल्लंघन",
+    "breaches_plural": "{{count}} उल्लंघन",
+    "noBreaches": "कोई उल्लंघन नहीं मिला",
+    "lastChecked": "अंतिम बार जांचा गया {{date}}",
+    "notCheckedYet": "अभी तक जांचा नहीं गया",
+    "fresh": "नए परिणाम",
+    "paused": "निगरानी रोकी गई",
+    "remove": "हटाएँ"
+  },
+  "breachCard": {
+    "sensitiveBreach": "संवेदनशील उल्लंघन",
+    "breachDate": "{{date}} को उल्लंघन हुआ",
+    "compromisedData": "समझौता किया गया डेटा",
+    "affectedAccounts": "{{count}} खाते प्रभावित",
+    "verified": "सत्यापित",
+    "unverified": "असत्यापित"
+  },
+  "refetchButton": "रीफ़्रेश करें"
+}

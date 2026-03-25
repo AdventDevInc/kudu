@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitor naruszeń",
+  "pageDescription": "Sprawdź, czy Twoje adresy e-mail zostały ujawnione w znanych naruszeniach danych",
+  "loading": "Ładowanie danych o naruszeniach...",
+  "summary": {
+    "totalBreaches": "Łączna liczba naruszeń",
+    "emailsMonitored": "Monitorowane adresy e-mail"
+  },
+  "addEmail": {
+    "placeholder": "Wprowadź adres e-mail",
+    "button": "Dodaj adres e-mail",
+    "adding": "Dodawanie..."
+  },
+  "toast": {
+    "fetchFailed": "Nie udało się załadować danych o naruszeniach",
+    "addFailed": "Nie udało się dodać adresu e-mail",
+    "removeFailed": "Nie udało się usunąć adresu e-mail",
+    "emailAdded": "Adres e-mail został dodany do monitora naruszeń",
+    "emailRemoved": "Adres e-mail został usunięty z monitora naruszeń",
+    "invalidEmail": "Wprowadź prawidłowy adres e-mail",
+    "limitReached": "Osiągnięto limit adresów e-mail dla Twojego planu"
+  },
+  "emptyState": {
+    "noEmails": "Brak monitorowanych adresów e-mail",
+    "noEmailsDesc": "Dodaj adres e-mail, aby sprawdzić wcześniejsze naruszenia danych i stale monitorować nowe wycieki.",
+    "allClear": "Brak zagrożeń",
+    "allClearDesc": "Żaden z monitorowanych adresów e-mail nie został znaleziony w żadnym znanym naruszeniu danych.",
+    "upgradeRequired": "Wymagana aktualizacja planu",
+    "upgradeRequiredDesc": "Monitorowanie naruszeń jest dostępne w planie Basic i wyższych. Zaktualizuj swój plan, aby rozpocząć monitorowanie.",
+    "goToCloud": "Zobacz plany"
+  },
+  "error": {
+    "title": "Nie udało się załadować danych o naruszeniach",
+    "description": "Sprawdź połączenie z chmurą i spróbuj ponownie."
+  },
+  "emailCard": {
+    "breaches": "{{count}} naruszenie",
+    "breaches_plural": "{{count}} naruszenia",
+    "noBreaches": "Nie znaleziono naruszeń",
+    "lastChecked": "Ostatnio sprawdzono {{date}}",
+    "notCheckedYet": "Jeszcze nie sprawdzono",
+    "fresh": "Nowe wyniki",
+    "paused": "Monitorowanie wstrzymane",
+    "remove": "Usuń"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Wrażliwe naruszenie",
+    "breachDate": "Naruszenie z dnia {{date}}",
+    "compromisedData": "Ujawnione dane",
+    "affectedAccounts": "Dotknięte konta: {{count}}",
+    "verified": "Zweryfikowane",
+    "unverified": "Niezweryfikowane"
+  },
+  "refetchButton": "Odśwież"
+}

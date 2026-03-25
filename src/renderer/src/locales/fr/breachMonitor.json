@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Surveillance des violations de données",
+  "pageDescription": "Vérifiez si vos adresses e-mail ont été exposées dans des violations de données connues",
+  "loading": "Chargement des données de violation...",
+  "summary": {
+    "totalBreaches": "Total des violations",
+    "emailsMonitored": "Adresses e-mail surveillées"
+  },
+  "addEmail": {
+    "placeholder": "Saisissez une adresse e-mail",
+    "button": "Ajouter une adresse e-mail",
+    "adding": "Ajout..."
+  },
+  "toast": {
+    "fetchFailed": "Échec du chargement des données de violation",
+    "addFailed": "Échec de l'ajout de l'adresse e-mail",
+    "removeFailed": "Échec de la suppression de l'adresse e-mail",
+    "emailAdded": "Adresse e-mail ajoutée à la surveillance des violations",
+    "emailRemoved": "Adresse e-mail supprimée de la surveillance des violations",
+    "invalidEmail": "Veuillez saisir une adresse e-mail valide",
+    "limitReached": "Limite d'adresses e-mail atteinte pour votre forfait"
+  },
+  "emptyState": {
+    "noEmails": "Aucune adresse e-mail surveillée",
+    "noEmailsDesc": "Ajoutez une adresse e-mail pour vérifier les violations de données passées et surveiller en continu les nouvelles fuites.",
+    "allClear": "Aucun problème détecté",
+    "allClearDesc": "Aucune de vos adresses e-mail surveillées n'a été trouvée dans des violations de données connues.",
+    "upgradeRequired": "Mise à niveau requise",
+    "upgradeRequiredDesc": "La surveillance des violations est disponible avec le forfait Basic et supérieur. Mettez votre forfait à niveau pour commencer la surveillance.",
+    "goToCloud": "Voir les forfaits"
+  },
+  "error": {
+    "title": "Échec du chargement des données de violation",
+    "description": "Vérifiez votre connexion au cloud et réessayez."
+  },
+  "emailCard": {
+    "breaches": "{{count}} violation",
+    "breaches_plural": "{{count}} violations",
+    "noBreaches": "Aucune violation détectée",
+    "lastChecked": "Dernière vérification {{date}}",
+    "notCheckedYet": "Pas encore vérifié",
+    "fresh": "Nouveaux résultats",
+    "paused": "Surveillance en pause",
+    "remove": "Supprimer"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Violation sensible",
+    "breachDate": "Violation le {{date}}",
+    "compromisedData": "Données compromises",
+    "affectedAccounts": "{{count}} comptes affectés",
+    "verified": "Vérifiée",
+    "unverified": "Non vérifiée"
+  },
+  "refetchButton": "Actualiser"
+}

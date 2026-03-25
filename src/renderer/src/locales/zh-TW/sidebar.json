@@ -3,7 +3,7 @@
   "subtitle": "系統清理工具",
   "dashboard": "儀表板",
   "securityHeading": "安全性",
-  "malwareScanner": "惡意軟體掃描器",
+  "malwareScanner": "惡意軟體掃描",
   "threatMonitor": "威脅監控",
   "systemHardening": "系統強化",
   "cveScanner": "弱點",
@@ -17,7 +17,8 @@
   "toolsHeading": "工具",
   "performance": "效能",
   "diskTools": "磁碟工具",
-  "history": "記錄",
+  "history": "歷程記錄",
   "settings": "設定",
+  "breachMonitor": "外洩監控",
   "gameMode": "遊戲模式"
 }

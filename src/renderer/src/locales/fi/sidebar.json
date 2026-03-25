@@ -1,7 +1,7 @@
 {
   "appName": "Kudu",
   "subtitle": "JÄRJESTELMÄN PUHDISTUS",
-  "dashboard": "Kojelauta",
+  "dashboard": "Yhteenveto",
   "securityHeading": "TIETOTURVA",
   "malwareScanner": "Haittaohjelmien tarkistus",
   "threatMonitor": "Uhkamonitori",
@@ -19,5 +19,6 @@
   "diskTools": "Levytyökalut",
   "history": "Historia",
   "settings": "Asetukset",
+  "breachMonitor": "Tietomurtovalvonta",
   "gameMode": "Pelitila"
 }

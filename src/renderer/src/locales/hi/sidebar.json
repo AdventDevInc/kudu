@@ -6,7 +6,7 @@
   "malwareScanner": "मैलवेयर स्कैनर",
   "threatMonitor": "खतरा मॉनिटर",
   "systemHardening": "सिस्टम सुदृढ़ीकरण",
-  "cveScanner": "कमज़ोरियाँ",
+  "cveScanner": "भेद्यताएँ",
   "maintainHeading": "रखरखाव",
   "cleaner": "क्लीनर",
   "registry": "रजिस्ट्री",
@@ -19,5 +19,6 @@
   "diskTools": "डिस्क उपकरण",
   "history": "इतिहास",
   "settings": "सेटिंग्स",
+  "breachMonitor": "उल्लंघन मॉनिटर",
   "gameMode": "गेम मोड"
 }

@@ -3,7 +3,7 @@
   "subtitle": "LIMPIADOR DEL SISTEMA",
   "dashboard": "Panel",
   "securityHeading": "SEGURIDAD",
-  "malwareScanner": "Analizador de malware",
+  "malwareScanner": "Escáner de malware",
   "threatMonitor": "Monitor de amenazas",
   "systemHardening": "Refuerzo del sistema",
   "cveScanner": "Vulnerabilidades",
@@ -19,5 +19,6 @@
   "diskTools": "Herramientas de disco",
   "history": "Historial",
   "settings": "Configuración",
+  "breachMonitor": "Monitor de filtraciones",
   "gameMode": "Modo de juego"
 }

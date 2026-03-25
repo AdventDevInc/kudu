@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitor Kebocoran",
+  "pageDescription": "Periksa apakah alamat email Anda telah terekspos dalam kebocoran data yang diketahui",
+  "loading": "Memuat data kebocoran...",
+  "summary": {
+    "totalBreaches": "Total Kebocoran",
+    "emailsMonitored": "Email yang Dipantau"
+  },
+  "addEmail": {
+    "placeholder": "Masukkan alamat email",
+    "button": "Tambahkan Email",
+    "adding": "Menambahkan..."
+  },
+  "toast": {
+    "fetchFailed": "Gagal memuat data kebocoran",
+    "addFailed": "Gagal menambahkan email",
+    "removeFailed": "Gagal menghapus email",
+    "emailAdded": "Email ditambahkan ke monitor kebocoran",
+    "emailRemoved": "Email dihapus dari monitor kebocoran",
+    "invalidEmail": "Harap masukkan alamat email yang valid",
+    "limitReached": "Batas email untuk paket Anda telah tercapai"
+  },
+  "emptyState": {
+    "noEmails": "Tidak ada email yang dipantau",
+    "noEmailsDesc": "Tambahkan alamat email untuk memeriksa kebocoran data sebelumnya dan terus memantau kebocoran baru.",
+    "allClear": "Aman",
+    "allClearDesc": "Tidak ada email yang Anda pantau ditemukan dalam kebocoran data yang diketahui.",
+    "upgradeRequired": "Perlu upgrade",
+    "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada paket Basic dan yang lebih tinggi. Upgrade paket Anda untuk mulai memantau.",
+    "goToCloud": "Lihat Paket"
+  },
+  "error": {
+    "title": "Gagal memuat data kebocoran",
+    "description": "Periksa koneksi cloud Anda lalu coba lagi."
+  },
+  "emailCard": {
+    "breaches": "{{count}} kebocoran",
+    "breaches_plural": "{{count}} kebocoran",
+    "noBreaches": "Tidak ada kebocoran yang ditemukan",
+    "lastChecked": "Terakhir diperiksa {{date}}",
+    "notCheckedYet": "Belum diperiksa",
+    "fresh": "Hasil baru",
+    "paused": "Pemantauan dijeda",
+    "remove": "Hapus"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Kebocoran Sensitif",
+    "breachDate": "Bocor pada {{date}}",
+    "compromisedData": "Data yang terdampak",
+    "affectedAccounts": "{{count}} akun terdampak",
+    "verified": "Terverifikasi",
+    "unverified": "Belum diverifikasi"
+  },
+  "refetchButton": "Segarkan"
+}

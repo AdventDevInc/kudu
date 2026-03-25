@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Pemantau Kebocoran Data",
+  "pageDescription": "Semak sama ada alamat e-mel anda telah terdedah dalam kebocoran data yang diketahui",
+  "loading": "Memuatkan data kebocoran...",
+  "summary": {
+    "totalBreaches": "Jumlah Kebocoran",
+    "emailsMonitored": "E-mel Dipantau"
+  },
+  "addEmail": {
+    "placeholder": "Masukkan alamat e-mel",
+    "button": "Tambah E-mel",
+    "adding": "Menambah..."
+  },
+  "toast": {
+    "fetchFailed": "Gagal memuatkan data kebocoran",
+    "addFailed": "Gagal menambah e-mel",
+    "removeFailed": "Gagal mengalih keluar e-mel",
+    "emailAdded": "E-mel ditambahkan ke pemantau kebocoran",
+    "emailRemoved": "E-mel dialih keluar daripada pemantau kebocoran",
+    "invalidEmail": "Sila masukkan alamat e-mel yang sah",
+    "limitReached": "Had e-mel untuk pelan anda telah dicapai"
+  },
+  "emptyState": {
+    "noEmails": "Tiada e-mel dipantau",
+    "noEmailsDesc": "Tambah alamat e-mel untuk menyemak kebocoran data yang lalu dan memantau kebocoran baharu secara berterusan.",
+    "allClear": "Semuanya selamat",
+    "allClearDesc": "Tiada e-mel yang anda pantau ditemui dalam mana-mana kebocoran data yang diketahui.",
+    "upgradeRequired": "Naik taraf diperlukan",
+    "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada pelan Basic dan ke atas. Naik taraf pelan anda untuk mula memantau.",
+    "goToCloud": "Lihat Pelan"
+  },
+  "error": {
+    "title": "Gagal memuatkan data kebocoran",
+    "description": "Semak sambungan cloud anda dan cuba lagi."
+  },
+  "emailCard": {
+    "breaches": "{{count}} kebocoran",
+    "breaches_plural": "{{count}} kebocoran",
+    "noBreaches": "Tiada kebocoran ditemui",
+    "lastChecked": "Terakhir disemak {{date}}",
+    "notCheckedYet": "Belum disemak",
+    "fresh": "Keputusan baharu",
+    "paused": "Pemantauan dijeda",
+    "remove": "Alih Keluar"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Kebocoran Sensitif",
+    "breachDate": "Dibocorkan pada {{date}}",
+    "compromisedData": "Data terjejas",
+    "affectedAccounts": "{{count}} akaun terjejas",
+    "verified": "Disahkan",
+    "unverified": "Tidak disahkan"
+  },
+  "refetchButton": "Muat Semula"
+}

@@ -3,7 +3,7 @@
   "subtitle": "ΚΑΘΑΡΙΣΜΟΣ ΣΥΣΤΗΜΑΤΟΣ",
   "dashboard": "Πίνακας ελέγχου",
   "securityHeading": "ΑΣΦΑΛΕΙΑ",
-  "malwareScanner": "Σαρωτής κακόβουλου λογισμικού",
+  "malwareScanner": "Σάρωση κακόβουλου λογισμικού",
   "threatMonitor": "Παρακολούθηση απειλών",
   "systemHardening": "Ενίσχυση συστήματος",
   "cveScanner": "Ευπάθειες",
@@ -19,5 +19,6 @@
   "diskTools": "Εργαλεία δίσκου",
   "history": "Ιστορικό",
   "settings": "Ρυθμίσεις",
+  "breachMonitor": "Παρακολούθηση παραβιάσεων",
   "gameMode": "Λειτουργία παιχνιδιού"
 }

@@ -1,0 +1,55 @@
+{
+  "pageTitle": "İhlal İzleme",
+  "pageDescription": "E-posta adreslerinizin bilinen veri ihlallerinde açığa çıkıp çıkmadığını kontrol edin",
+  "loading": "İhlal verileri yükleniyor...",
+  "summary": {
+    "totalBreaches": "Toplam İhlal",
+    "emailsMonitored": "İzlenen E-postalar"
+  },
+  "addEmail": {
+    "placeholder": "Bir e-posta adresi girin",
+    "button": "E-posta Ekle",
+    "adding": "Ekleniyor..."
+  },
+  "toast": {
+    "fetchFailed": "İhlal verileri yüklenemedi",
+    "addFailed": "E-posta eklenemedi",
+    "removeFailed": "E-posta kaldırılamadı",
+    "emailAdded": "E-posta ihlal izlemeye eklendi",
+    "emailRemoved": "E-posta ihlal izlemeden kaldırıldı",
+    "invalidEmail": "Lütfen geçerli bir e-posta adresi girin",
+    "limitReached": "Planınız için e-posta sınırına ulaşıldı"
+  },
+  "emptyState": {
+    "noEmails": "İzlenen e-posta yok",
+    "noEmailsDesc": "Geçmiş veri ihlallerini kontrol etmek ve yeni sızıntıları sürekli izlemek için bir e-posta adresi ekleyin.",
+    "allClear": "Her şey yolunda",
+    "allClearDesc": "İzlenen e-postalarınızın hiçbiri bilinen veri ihlallerinde bulunmadı.",
+    "upgradeRequired": "Yükseltme gerekli",
+    "upgradeRequiredDesc": "İhlal izleme, Basic plan ve üzeri planlarda kullanılabilir. İzlemeyi başlatmak için planınızı yükseltin.",
+    "goToCloud": "Planları Görüntüle"
+  },
+  "error": {
+    "title": "İhlal verileri yüklenemedi",
+    "description": "Bulut bağlantınızı kontrol edin ve tekrar deneyin."
+  },
+  "emailCard": {
+    "breaches": "{{count}} ihlal",
+    "breaches_plural": "{{count}} ihlal",
+    "noBreaches": "İhlal bulunamadı",
+    "lastChecked": "Son kontrol: {{date}}",
+    "notCheckedYet": "Henüz kontrol edilmedi",
+    "fresh": "Yeni sonuçlar",
+    "paused": "İzleme duraklatıldı",
+    "remove": "Kaldır"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Hassas İhlal",
+    "breachDate": "İhlal tarihi: {{date}}",
+    "compromisedData": "Ele geçirilen veriler",
+    "affectedAccounts": "{{count}} hesap etkilendi",
+    "verified": "Doğrulandı",
+    "unverified": "Doğrulanmadı"
+  },
+  "refetchButton": "Yenile"
+}

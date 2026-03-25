@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Adatszivárgás-figyelő",
+  "pageDescription": "Ellenőrizze, hogy e-mail-címei szerepelnek-e ismert adatszivárgásokban",
+  "loading": "Adatszivárgási adatok betöltése...",
+  "summary": {
+    "totalBreaches": "Összes adatszivárgás",
+    "emailsMonitored": "Figyelt e-mail-címek"
+  },
+  "addEmail": {
+    "placeholder": "Adjon meg egy e-mail-címet",
+    "button": "E-mail hozzáadása",
+    "adding": "Hozzáadás..."
+  },
+  "toast": {
+    "fetchFailed": "Nem sikerült betölteni az adatszivárgási adatokat",
+    "addFailed": "Nem sikerült hozzáadni az e-mail-címet",
+    "removeFailed": "Nem sikerült eltávolítani az e-mail-címet",
+    "emailAdded": "Az e-mail-cím hozzáadva az adatszivárgás-figyelőhöz",
+    "emailRemoved": "Az e-mail-cím eltávolítva az adatszivárgás-figyelőből",
+    "invalidEmail": "Kérjük, adjon meg egy érvényes e-mail-címet",
+    "limitReached": "Elérte a csomagjához tartozó e-mail-korlátot"
+  },
+  "emptyState": {
+    "noEmails": "Nincsenek figyelt e-mail-címek",
+    "noEmailsDesc": "Adjon hozzá egy e-mail-címet a korábbi adatszivárgások ellenőrzéséhez és az új szivárgások folyamatos figyeléséhez.",
+    "allClear": "Minden rendben",
+    "allClearDesc": "Egyik figyelt e-mail-címe sem szerepel ismert adatszivárgásban.",
+    "upgradeRequired": "Frissítés szükséges",
+    "upgradeRequiredDesc": "Az adatszivárgás-figyelés a Basic csomagtól érhető el. Frissítse csomagját a figyelés megkezdéséhez.",
+    "goToCloud": "Csomagok megtekintése"
+  },
+  "error": {
+    "title": "Nem sikerült betölteni az adatszivárgási adatokat",
+    "description": "Ellenőrizze a felhőkapcsolatot, majd próbálja újra."
+  },
+  "emailCard": {
+    "breaches": "{{count}} adatszivárgás",
+    "breaches_plural": "{{count}} adatszivárgás",
+    "noBreaches": "Nem található adatszivárgás",
+    "lastChecked": "Utoljára ellenőrizve: {{date}}",
+    "notCheckedYet": "Még nincs ellenőrizve",
+    "fresh": "Új eredmények",
+    "paused": "A figyelés szünetel",
+    "remove": "Eltávolítás"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Érzékeny adatszivárgás",
+    "breachDate": "Szivárgás dátuma: {{date}}",
+    "compromisedData": "Kiszivárgott adatok",
+    "affectedAccounts": "{{count}} érintett fiók",
+    "verified": "Ellenőrzött",
+    "unverified": "Nem ellenőrzött"
+  },
+  "refetchButton": "Frissítés"
+}

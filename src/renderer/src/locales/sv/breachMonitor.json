@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Intrångsövervakning",
+  "pageDescription": "Kontrollera om dina e-postadresser har exponerats i kända dataintrång",
+  "loading": "Läser in intrångsdata...",
+  "summary": {
+    "totalBreaches": "Totalt antal intrång",
+    "emailsMonitored": "Övervakade e-postadresser"
+  },
+  "addEmail": {
+    "placeholder": "Ange en e-postadress",
+    "button": "Lägg till e-postadress",
+    "adding": "Lägger till..."
+  },
+  "toast": {
+    "fetchFailed": "Det gick inte att läsa in intrångsdata",
+    "addFailed": "Det gick inte att lägga till e-postadressen",
+    "removeFailed": "Det gick inte att ta bort e-postadressen",
+    "emailAdded": "E-postadressen har lagts till i intrångsövervakningen",
+    "emailRemoved": "E-postadressen har tagits bort från intrångsövervakningen",
+    "invalidEmail": "Ange en giltig e-postadress",
+    "limitReached": "Gränsen för antal e-postadresser har nåtts för din plan"
+  },
+  "emptyState": {
+    "noEmails": "Inga e-postadresser övervakas",
+    "noEmailsDesc": "Lägg till en e-postadress för att kontrollera tidigare dataintrång och övervaka kontinuerligt efter nya läckor.",
+    "allClear": "Inga problem",
+    "allClearDesc": "Ingen av dina övervakade e-postadresser har hittats i några kända dataintrång.",
+    "upgradeRequired": "Uppgradering krävs",
+    "upgradeRequiredDesc": "Intrångsövervakning är tillgänglig med Basic-planen och högre. Uppgradera din plan för att börja övervaka.",
+    "goToCloud": "Visa planer"
+  },
+  "error": {
+    "title": "Det gick inte att läsa in intrångsdata",
+    "description": "Kontrollera din molnanslutning och försök igen."
+  },
+  "emailCard": {
+    "breaches": "{{count}} intrång",
+    "breaches_plural": "{{count}} intrång",
+    "noBreaches": "Inga intrång hittades",
+    "lastChecked": "Senast kontrollerad {{date}}",
+    "notCheckedYet": "Inte kontrollerad ännu",
+    "fresh": "Nya resultat",
+    "paused": "Övervakning pausad",
+    "remove": "Ta bort"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Känsligt intrång",
+    "breachDate": "Intrång {{date}}",
+    "compromisedData": "Komprometterade data",
+    "affectedAccounts": "{{count}} konton påverkade",
+    "verified": "Verifierad",
+    "unverified": "Ej verifierad"
+  },
+  "refetchButton": "Uppdatera"
+}

@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Brudsovervågning",
+  "pageDescription": "Kontrollér, om dine e-mailadresser er blevet eksponeret i kendte databrud",
+  "loading": "Indlæser data om databrud...",
+  "summary": {
+    "totalBreaches": "Samlet antal databrud",
+    "emailsMonitored": "Overvågede e-mailadresser"
+  },
+  "addEmail": {
+    "placeholder": "Indtast en e-mailadresse",
+    "button": "Tilføj e-mailadresse",
+    "adding": "Tilføjer..."
+  },
+  "toast": {
+    "fetchFailed": "Kunne ikke indlæse data om databrud",
+    "addFailed": "Kunne ikke tilføje e-mailadresse",
+    "removeFailed": "Kunne ikke fjerne e-mailadresse",
+    "emailAdded": "E-mailadresse føjet til brudsovervågning",
+    "emailRemoved": "E-mailadresse fjernet fra brudsovervågning",
+    "invalidEmail": "Indtast en gyldig e-mailadresse",
+    "limitReached": "Grænsen for e-mailadresser er nået for dit abonnement"
+  },
+  "emptyState": {
+    "noEmails": "Ingen e-mailadresser overvåges",
+    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye læk.",
+    "allClear": "Ingen fund",
+    "allClearDesc": "Ingen af dine overvågede e-mailadresser er fundet i kendte databrud.",
+    "upgradeRequired": "Opgradering påkrævet",
+    "upgradeRequiredDesc": "Brudsovervågning er tilgængelig med Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
+    "goToCloud": "Se abonnementer"
+  },
+  "error": {
+    "title": "Kunne ikke indlæse data om databrud",
+    "description": "Kontrollér din cloudforbindelse, og prøv igen."
+  },
+  "emailCard": {
+    "breaches": "{{count}} databrud",
+    "breaches_plural": "{{count}} databrud",
+    "noBreaches": "Ingen databrud fundet",
+    "lastChecked": "Senest kontrolleret {{date}}",
+    "notCheckedYet": "Ikke kontrolleret endnu",
+    "fresh": "Nye resultater",
+    "paused": "Overvågning sat på pause",
+    "remove": "Fjern"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Følsomt databrud",
+    "breachDate": "Brudt {{date}}",
+    "compromisedData": "Kompromitterede data",
+    "affectedAccounts": "{{count}} konti berørt",
+    "verified": "Bekræftet",
+    "unverified": "Ikke bekræftet"
+  },
+  "refetchButton": "Opdater"
+}

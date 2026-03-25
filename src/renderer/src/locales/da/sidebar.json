@@ -4,7 +4,7 @@
   "dashboard": "Dashboard",
   "securityHeading": "SIKKERHED",
   "malwareScanner": "Malware-scanner",
-  "threatMonitor": "Trusselsmonitor",
+  "threatMonitor": "Trusselsovervågning",
   "systemHardening": "Systemhærdning",
   "cveScanner": "Sårbarheder",
   "maintainHeading": "VEDLIGEHOLD",
@@ -19,5 +19,6 @@
   "diskTools": "Diskværktøjer",
   "history": "Historik",
   "settings": "Indstillinger",
+  "breachMonitor": "Brudovervågning",
   "gameMode": "Spiltilstand"
 }

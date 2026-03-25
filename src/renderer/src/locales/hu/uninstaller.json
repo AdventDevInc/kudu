@@ -1,6 +1,6 @@
 {
-  "pageTitle": "Programok eltávolítása",
-  "pageDescription": "Programok eltávolítása és a hátramaradt fájlok automatikus törlése",
+  "pageTitle": "Programeltávolító",
+  "pageDescription": "Programok eltávolítása és a hátramaradt fájlok automatikus tisztítása",
   "sortByName": "Név",
   "sortBySize": "Méret",
   "sortByDate": "Dátum",
@@ -16,7 +16,7 @@
   "uninstallSelected": "Kijelöltek eltávolítása ({{count}})",
   "unusedBannerTitle": "{{count}} program nem volt használva {{days}}+ napja",
   "unusedBannerTitlePlural": "{{count}} program nem volt használva {{days}}+ napja",
-  "unusedBannerDescriptionWithSize": "Kb. {{size}} lemezterületet foglal. Kattintson a megtekintéshez.",
+  "unusedBannerDescriptionWithSize": "Kb. {{size}} lemezterületet használ. Kattintson a megtekintéshez.",
   "unusedBannerDescriptionNoSize": "Kattintson a nem használt programok megtekintéséhez.",
   "unusedBannerViewButton": "Megtekintés",
   "safeUninstallLabel": "Biztonságos eltávolítás",
@@ -27,7 +27,7 @@
   "uninstallFailedError": "Az eltávolítási művelet váratlanul meghiúsult.",
   "progressUninstalling": "{{programName}} eltávolítása...",
   "progressScanningLeftovers": "Hátramaradt fájlok keresése...",
-  "progressCleaningLeftovers": "Hátramaradt fájlok törlése...",
+  "progressCleaningLeftovers": "Hátramaradt fájlok tisztítása...",
   "progressLoading": "Betöltés...",
   "successfullyUninstalled": "Sikeresen eltávolítva",
   "leftoversCleaned": "{{count}} hátramaradt elem törölve ({{size}} felszabadítva)",
@@ -55,7 +55,7 @@
   "lastUsedMonthsAgo": "{{months}} hója",
   "lastUsedYearsAgo": "{{years}} éve",
   "confirmUninstallTitle": "Eltávolítja ezt: {{programName}}?",
-  "confirmUninstallDescription": "Ez a program saját eltávolítóját futtatja. A befejezés után a Kudu automatikusan megkeresi és törli a hátramaradt fájlokat.",
+  "confirmUninstallDescription": "Ez a program saját eltávolítóját fogja futtatni. A befejezés után a Kudu automatikusan megkeresi és törli a hátramaradt fájlokat.",
   "confirmUninstallLabel": "Eltávolítás",
   "confirmBatchTitle": "{{count}} program eltávolítása?",
   "confirmBatchTitlePlural": "{{count}} program eltávolítása?",
@@ -76,9 +76,9 @@
   "safetyAnalyzed": "Elemezve: {{date}}",
   "sortBySafety": "Rendezés biztonság szerint",
   "forceRemoveButton": "Kényszerített eltávolítás",
-  "confirmForceRemoveTitle": "Kényszerítve eltávolítja ezt: {{programName}}?",
-  "confirmForceRemoveDescription": "Ez törli a program registry-bejegyzését, és eltávolítja a hátramaradt fájlokat. Ez nem vonható vissza.",
+  "confirmForceRemoveTitle": "Kényszerítetten eltávolítja ezt: {{programName}}?",
+  "confirmForceRemoveDescription": "Ez törli a program registry-bejegyzését, és megtisztítja a hátramaradt fájlokat. Ez nem vonható vissza.",
   "confirmForceRemoveLabel": "Kényszerített eltávolítás",
   "progressForceRemoving": "{{programName}} kényszerített eltávolítása...",
-  "forceRemoveSuccess": "Kényszerítve eltávolítva"
+  "forceRemoveSuccess": "Kényszerítetten eltávolítva"
 }

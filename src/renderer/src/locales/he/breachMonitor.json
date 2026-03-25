@@ -1,0 +1,55 @@
+{
+  "pageTitle": "ניטור פריצות נתונים",
+  "pageDescription": "בדקו אם כתובות הדוא\"ל שלכם נחשפו בפריצות נתונים ידועות",
+  "loading": "טוען נתוני פריצות...",
+  "summary": {
+    "totalBreaches": "סך כל פריצות הנתונים",
+    "emailsMonitored": "כתובות דוא\"ל במעקב"
+  },
+  "addEmail": {
+    "placeholder": "הזינו כתובת דוא\"ל",
+    "button": "הוסף דוא\"ל",
+    "adding": "מוסיף..."
+  },
+  "toast": {
+    "fetchFailed": "טעינת נתוני הפריצות נכשלה",
+    "addFailed": "הוספת כתובת הדוא\"ל נכשלה",
+    "removeFailed": "הסרת כתובת הדוא\"ל נכשלה",
+    "emailAdded": "כתובת הדוא\"ל נוספה לניטור פריצות",
+    "emailRemoved": "כתובת הדוא\"ל הוסרה מניטור פריצות",
+    "invalidEmail": "אנא הזינו כתובת דוא\"ל תקינה",
+    "limitReached": "הגעתם למגבלת כתובות הדוא\"ל בתוכנית שלכם"
+  },
+  "emptyState": {
+    "noEmails": "אין כתובות דוא\"ל במעקב",
+    "noEmailsDesc": "הוסיפו כתובת דוא\"ל כדי לבדוק פריצות נתונים קודמות ולקבל ניטור רציף לדליפות חדשות.",
+    "allClear": "הכול תקין",
+    "allClearDesc": "אף אחת מכתובות הדוא\"ל שבמעקב לא נמצאה באף פריצת נתונים ידועה.",
+    "upgradeRequired": "נדרש שדרוג",
+    "upgradeRequiredDesc": "ניטור פריצות זמין בתוכנית Basic ומעלה. שדרגו את התוכנית שלכם כדי להתחיל בניטור.",
+    "goToCloud": "הצג תוכניות"
+  },
+  "error": {
+    "title": "טעינת נתוני הפריצות נכשלה",
+    "description": "בדקו את החיבור לענן ונסו שוב."
+  },
+  "emailCard": {
+    "breaches": "{{count}} פריצה",
+    "breaches_plural": "{{count}} פריצות",
+    "noBreaches": "לא נמצאו פריצות",
+    "lastChecked": "נבדק לאחרונה ב-{{date}}",
+    "notCheckedYet": "טרם נבדק",
+    "fresh": "תוצאות חדשות",
+    "paused": "הניטור מושהה",
+    "remove": "הסר"
+  },
+  "breachCard": {
+    "sensitiveBreach": "פריצת נתונים רגישה",
+    "breachDate": "נפרץ ב-{{date}}",
+    "compromisedData": "נתונים שנחשפו",
+    "affectedAccounts": "{{count}} חשבונות הושפעו",
+    "verified": "מאומת",
+    "unverified": "לא מאומת"
+  },
+  "refetchButton": "רענן"
+}

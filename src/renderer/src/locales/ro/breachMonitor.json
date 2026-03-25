@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitorizare breșe",
+  "pageDescription": "Verificați dacă adresele dvs. de e-mail au fost expuse în breșe de date cunoscute",
+  "loading": "Se încarcă datele despre breșe...",
+  "summary": {
+    "totalBreaches": "Total breșe",
+    "emailsMonitored": "E-mailuri monitorizate"
+  },
+  "addEmail": {
+    "placeholder": "Introduceți o adresă de e-mail",
+    "button": "Adăugați e-mail",
+    "adding": "Se adaugă..."
+  },
+  "toast": {
+    "fetchFailed": "Nu s-au putut încărca datele despre breșe",
+    "addFailed": "Nu s-a putut adăuga adresa de e-mail",
+    "removeFailed": "Nu s-a putut elimina adresa de e-mail",
+    "emailAdded": "Adresa de e-mail a fost adăugată la monitorizarea breșelor",
+    "emailRemoved": "Adresa de e-mail a fost eliminată din monitorizarea breșelor",
+    "invalidEmail": "Introduceți o adresă de e-mail validă",
+    "limitReached": "Ați atins limita de adrese de e-mail pentru planul dvs."
+  },
+  "emptyState": {
+    "noEmails": "Niciun e-mail monitorizat",
+    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu scurgerile noi.",
+    "allClear": "Nicio problemă",
+    "allClearDesc": "Niciuna dintre adresele dvs. de e-mail monitorizate nu a fost găsită în vreo breșă de date cunoscută.",
+    "upgradeRequired": "Este necesară actualizarea",
+    "upgradeRequiredDesc": "Monitorizarea breșelor este disponibilă în planul Basic și în planurile superioare. Actualizați-vă planul pentru a începe monitorizarea.",
+    "goToCloud": "Vedeți planurile"
+  },
+  "error": {
+    "title": "Nu s-au putut încărca datele despre breșe",
+    "description": "Verificați conexiunea la cloud și încercați din nou."
+  },
+  "emailCard": {
+    "breaches": "{{count}} breșă",
+    "breaches_plural": "{{count}} breșe",
+    "noBreaches": "Nu au fost găsite breșe",
+    "lastChecked": "Ultima verificare {{date}}",
+    "notCheckedYet": "Încă neverificat",
+    "fresh": "Rezultate noi",
+    "paused": "Monitorizare întreruptă",
+    "remove": "Eliminați"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Breșă sensibilă",
+    "breachDate": "Compromis la {{date}}",
+    "compromisedData": "Date compromise",
+    "affectedAccounts": "{{count}} conturi afectate",
+    "verified": "Verificată",
+    "unverified": "Neverificată"
+  },
+  "refetchButton": "Reîmprospătați"
+}

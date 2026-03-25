@@ -9,7 +9,7 @@
   "cveScanner": "Sérülékenységek",
   "maintainHeading": "KARBANTARTÁS",
   "cleaner": "Tisztító",
-  "registry": "Beállításjegyzék",
+  "registry": "Rendszerleíró adatbázis",
   "startup": "Automatikus indítás",
   "network": "Hálózat",
   "software": "Szoftverek",
@@ -19,5 +19,6 @@
   "diskTools": "Lemezeszközök",
   "history": "Előzmények",
   "settings": "Beállítások",
+  "breachMonitor": "Adatszivárgás-figyelő",
   "gameMode": "Játék mód"
 }

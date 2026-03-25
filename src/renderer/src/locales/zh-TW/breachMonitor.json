@@ -1,0 +1,55 @@
+{
+  "pageTitle": "外洩監控",
+  "pageDescription": "檢查您的電子郵件地址是否曾在已知資料外洩事件中曝光",
+  "loading": "正在載入外洩資料...",
+  "summary": {
+    "totalBreaches": "外洩總數",
+    "emailsMonitored": "監控中的電子郵件"
+  },
+  "addEmail": {
+    "placeholder": "輸入電子郵件地址",
+    "button": "新增電子郵件",
+    "adding": "正在新增..."
+  },
+  "toast": {
+    "fetchFailed": "無法載入外洩資料",
+    "addFailed": "無法新增電子郵件",
+    "removeFailed": "無法移除電子郵件",
+    "emailAdded": "電子郵件已新增至外洩監控",
+    "emailRemoved": "電子郵件已從外洩監控移除",
+    "invalidEmail": "請輸入有效的電子郵件地址",
+    "limitReached": "您目前方案的電子郵件數量已達上限"
+  },
+  "emptyState": {
+    "noEmails": "沒有監控中的電子郵件",
+    "noEmailsDesc": "新增電子郵件地址，以檢查過去的資料外洩事件，並持續監控新的外洩。",
+    "allClear": "一切正常",
+    "allClearDesc": "您監控中的電子郵件皆未在任何已知資料外洩事件中被發現。",
+    "upgradeRequired": "需要升級",
+    "upgradeRequiredDesc": "外洩監控功能適用於 Basic 方案及以上。升級您的方案即可開始監控。",
+    "goToCloud": "查看方案"
+  },
+  "error": {
+    "title": "無法載入外洩資料",
+    "description": "請檢查您的雲端連線後再試一次。"
+  },
+  "emailCard": {
+    "breaches": "{{count}} 次外洩",
+    "breaches_plural": "{{count}} 次外洩",
+    "noBreaches": "未發現外洩",
+    "lastChecked": "上次檢查於 {{date}}",
+    "notCheckedYet": "尚未檢查",
+    "fresh": "新結果",
+    "paused": "監控已暫停",
+    "remove": "移除"
+  },
+  "breachCard": {
+    "sensitiveBreach": "敏感外洩",
+    "breachDate": "外洩於 {{date}}",
+    "compromisedData": "遭洩露的資料",
+    "affectedAccounts": "受影響帳戶數：{{count}}",
+    "verified": "已驗證",
+    "unverified": "未驗證"
+  },
+  "refetchButton": "重新整理"
+}

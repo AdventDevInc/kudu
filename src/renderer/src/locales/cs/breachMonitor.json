@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitor úniků dat",
+  "pageDescription": "Zkontrolujte, zda vaše e-mailové adresy nebyly vystaveny známým únikům dat",
+  "loading": "Načítání dat o únicích...",
+  "summary": {
+    "totalBreaches": "Celkový počet úniků",
+    "emailsMonitored": "Sledované e-maily"
+  },
+  "addEmail": {
+    "placeholder": "Zadejte e-mailovou adresu",
+    "button": "Přidat e-mail",
+    "adding": "Přidávání..."
+  },
+  "toast": {
+    "fetchFailed": "Nepodařilo se načíst data o únicích",
+    "addFailed": "Nepodařilo se přidat e-mail",
+    "removeFailed": "Nepodařilo se odebrat e-mail",
+    "emailAdded": "E-mail byl přidán do monitoru úniků dat",
+    "emailRemoved": "E-mail byl odebrán z monitoru úniků dat",
+    "invalidEmail": "Zadejte platnou e-mailovou adresu",
+    "limitReached": "Byl dosažen limit e-mailů pro váš tarif"
+  },
+  "emptyState": {
+    "noEmails": "Nejsou sledovány žádné e-maily",
+    "noEmailsDesc": "Přidejte e-mailovou adresu, abyste mohli zkontrolovat dřívější úniky dat a průběžně sledovat nové úniky.",
+    "allClear": "Vše v pořádku",
+    "allClearDesc": "Žádný z vašich sledovaných e-mailů nebyl nalezen v žádném známém úniku dat.",
+    "upgradeRequired": "Je vyžadován vyšší tarif",
+    "upgradeRequiredDesc": "Monitorování úniků dat je k dispozici v tarifu Basic a vyšším. Pro zahájení monitorování přejděte na vyšší tarif.",
+    "goToCloud": "Zobrazit tarify"
+  },
+  "error": {
+    "title": "Nepodařilo se načíst data o únicích",
+    "description": "Zkontrolujte cloudové připojení a zkuste to znovu."
+  },
+  "emailCard": {
+    "breaches": "{{count}} únik",
+    "breaches_plural": "{{count}} úniků",
+    "noBreaches": "Nebyly nalezeny žádné úniky",
+    "lastChecked": "Naposledy zkontrolováno {{date}}",
+    "notCheckedYet": "Dosud nezkontrolováno",
+    "fresh": "Nové výsledky",
+    "paused": "Monitorování pozastaveno",
+    "remove": "Odebrat"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Citlivý únik",
+    "breachDate": "Únik {{date}}",
+    "compromisedData": "Kompromitovaná data",
+    "affectedAccounts": "Dotčeno účtů: {{count}}",
+    "verified": "Ověřeno",
+    "unverified": "Neověřeno"
+  },
+  "refetchButton": "Obnovit"
+}

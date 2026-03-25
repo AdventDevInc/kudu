@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Monitoraggio violazioni",
+  "pageDescription": "Verifica se i tuoi indirizzi email sono stati esposti in violazioni dei dati note",
+  "loading": "Caricamento dei dati sulle violazioni...",
+  "summary": {
+    "totalBreaches": "Violazioni totali",
+    "emailsMonitored": "Email monitorate"
+  },
+  "addEmail": {
+    "placeholder": "Inserisci un indirizzo email",
+    "button": "Aggiungi email",
+    "adding": "Aggiunta in corso..."
+  },
+  "toast": {
+    "fetchFailed": "Impossibile caricare i dati sulle violazioni",
+    "addFailed": "Impossibile aggiungere l'email",
+    "removeFailed": "Impossibile rimuovere l'email",
+    "emailAdded": "Email aggiunta al monitoraggio delle violazioni",
+    "emailRemoved": "Email rimossa dal monitoraggio delle violazioni",
+    "invalidEmail": "Inserisci un indirizzo email valido",
+    "limitReached": "Limite di email raggiunto per il tuo piano"
+  },
+  "emptyState": {
+    "noEmails": "Nessuna email monitorata",
+    "noEmailsDesc": "Aggiungi un indirizzo email per verificare eventuali violazioni dei dati passate e monitorare continuamente nuove fughe di dati.",
+    "allClear": "Nessun problema rilevato",
+    "allClearDesc": "Nessuna delle tue email monitorate è stata trovata in violazioni dei dati note.",
+    "upgradeRequired": "Aggiornamento richiesto",
+    "upgradeRequiredDesc": "Il monitoraggio delle violazioni è disponibile con il piano Basic e superiori. Aggiorna il tuo piano per iniziare il monitoraggio.",
+    "goToCloud": "Visualizza i piani"
+  },
+  "error": {
+    "title": "Impossibile caricare i dati sulle violazioni",
+    "description": "Controlla la connessione cloud e riprova."
+  },
+  "emailCard": {
+    "breaches": "{{count}} violazione",
+    "breaches_plural": "{{count}} violazioni",
+    "noBreaches": "Nessuna violazione trovata",
+    "lastChecked": "Ultimo controllo {{date}}",
+    "notCheckedYet": "Non ancora controllata",
+    "fresh": "Nuovi risultati",
+    "paused": "Monitoraggio in pausa",
+    "remove": "Rimuovi"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Violazione sensibile",
+    "breachDate": "Violazione del {{date}}",
+    "compromisedData": "Dati compromessi",
+    "affectedAccounts": "{{count}} account interessati",
+    "verified": "Verificata",
+    "unverified": "Non verificata"
+  },
+  "refetchButton": "Aggiorna"
+}

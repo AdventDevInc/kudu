@@ -8,7 +8,7 @@
   "systemHardening": "Zabezpečení systému",
   "cveScanner": "Zranitelnosti",
   "maintainHeading": "ÚDRŽBA",
-  "cleaner": "Čištění",
+  "cleaner": "Čistič",
   "registry": "Registr",
   "startup": "Po spuštění",
   "network": "Síť",
@@ -19,5 +19,6 @@
   "diskTools": "Nástroje disku",
   "history": "Historie",
   "settings": "Nastavení",
+  "breachMonitor": "Monitor úniků",
   "gameMode": "Herní režim"
 }

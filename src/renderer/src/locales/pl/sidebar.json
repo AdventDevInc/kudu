@@ -5,7 +5,7 @@
   "securityHeading": "ZABEZPIECZENIA",
   "malwareScanner": "Skaner malware",
   "threatMonitor": "Monitor zagrożeń",
-  "systemHardening": "Wzmacnianie zabezpieczeń",
+  "systemHardening": "Wzmacnianie systemu",
   "cveScanner": "Luki w zabezpieczeniach",
   "maintainHeading": "KONSERWACJA",
   "cleaner": "Oczyszczanie",
@@ -19,5 +19,6 @@
   "diskTools": "Narzędzia dyskowe",
   "history": "Historia",
   "settings": "Ustawienia",
+  "breachMonitor": "Monitor wycieków",
   "gameMode": "Tryb gry"
 }

@@ -3,13 +3,13 @@
   "subtitle": "SYSTEMRENSARE",
   "dashboard": "Översikt",
   "securityHeading": "SÄKERHET",
-  "malwareScanner": "Skadlig kod-skanner",
+  "malwareScanner": "Skanner för skadlig kod",
   "threatMonitor": "Hotövervakning",
   "systemHardening": "Systemhärdning",
   "cveScanner": "Sårbarheter",
   "maintainHeading": "UNDERHÅLL",
-  "cleaner": "Rensning",
-  "registry": "Register",
+  "cleaner": "Rensare",
+  "registry": "Registret",
   "startup": "Autostart",
   "network": "Nätverk",
   "software": "Programvara",
@@ -19,5 +19,6 @@
   "diskTools": "Diskverktyg",
   "history": "Historik",
   "settings": "Inställningar",
+  "breachMonitor": "Intrångsövervakning",
   "gameMode": "Spelläge"
 }

@@ -5,7 +5,7 @@
   "securityHeading": "セキュリティ",
   "malwareScanner": "マルウェア スキャナー",
   "threatMonitor": "脅威モニター",
-  "systemHardening": "システムの強化",
+  "systemHardening": "システム強化",
   "cveScanner": "脆弱性",
   "maintainHeading": "メンテナンス",
   "cleaner": "クリーナー",
@@ -19,5 +19,6 @@
   "diskTools": "ディスク ツール",
   "history": "履歴",
   "settings": "設定",
+  "breachMonitor": "侵害モニター",
   "gameMode": "ゲーム モード"
 }

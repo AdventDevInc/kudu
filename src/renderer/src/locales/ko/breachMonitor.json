@@ -1,0 +1,55 @@
+{
+  "pageTitle": "유출 모니터",
+  "pageDescription": "이메일 주소가 알려진 데이터 유출 사고에 노출되었는지 확인합니다",
+  "loading": "유출 데이터를 불러오는 중...",
+  "summary": {
+    "totalBreaches": "총 유출 사고",
+    "emailsMonitored": "모니터링 중인 이메일"
+  },
+  "addEmail": {
+    "placeholder": "이메일 주소 입력",
+    "button": "이메일 추가",
+    "adding": "추가하는 중..."
+  },
+  "toast": {
+    "fetchFailed": "유출 데이터를 불러오지 못했습니다",
+    "addFailed": "이메일을 추가하지 못했습니다",
+    "removeFailed": "이메일을 제거하지 못했습니다",
+    "emailAdded": "이메일이 유출 모니터에 추가되었습니다",
+    "emailRemoved": "이메일이 유출 모니터에서 제거되었습니다",
+    "invalidEmail": "유효한 이메일 주소를 입력하세요",
+    "limitReached": "현재 요금제의 이메일 한도에 도달했습니다"
+  },
+  "emptyState": {
+    "noEmails": "모니터링 중인 이메일이 없습니다",
+    "noEmailsDesc": "이메일 주소를 추가하여 과거 데이터 유출 사고를 확인하고 새로운 유출을 지속적으로 모니터링하세요.",
+    "allClear": "이상 없음",
+    "allClearDesc": "모니터링 중인 이메일은 알려진 데이터 유출 사고에서 발견되지 않았습니다.",
+    "upgradeRequired": "업그레이드 필요",
+    "upgradeRequiredDesc": "유출 모니터링은 Basic 요금제 이상에서 사용할 수 있습니다. 모니터링을 시작하려면 요금제를 업그레이드하세요.",
+    "goToCloud": "요금제 보기"
+  },
+  "error": {
+    "title": "유출 데이터를 불러오지 못했습니다",
+    "description": "클라우드 연결을 확인한 후 다시 시도하세요."
+  },
+  "emailCard": {
+    "breaches": "유출 사고 {{count}}건",
+    "breaches_plural": "유출 사고 {{count}}건",
+    "noBreaches": "유출 사고가 발견되지 않았습니다",
+    "lastChecked": "마지막 확인: {{date}}",
+    "notCheckedYet": "아직 확인되지 않음",
+    "fresh": "새 결과",
+    "paused": "모니터링 일시 중지됨",
+    "remove": "제거"
+  },
+  "breachCard": {
+    "sensitiveBreach": "민감한 유출 사고",
+    "breachDate": "{{date}} 유출",
+    "compromisedData": "유출된 데이터",
+    "affectedAccounts": "영향을 받은 계정 {{count}}개",
+    "verified": "확인됨",
+    "unverified": "확인되지 않음"
+  },
+  "refetchButton": "새로 고침"
+}

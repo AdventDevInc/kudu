@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Tietomurtovalvonta",
+  "pageDescription": "Tarkista, ovatko sähköpostiosoitteesi paljastuneet tunnetuissa tietomurroissa",
+  "loading": "Ladataan tietomurtotietoja...",
+  "summary": {
+    "totalBreaches": "Tietomurtoja yhteensä",
+    "emailsMonitored": "Valvotut sähköpostiosoitteet"
+  },
+  "addEmail": {
+    "placeholder": "Anna sähköpostiosoite",
+    "button": "Lisää sähköpostiosoite",
+    "adding": "Lisätään..."
+  },
+  "toast": {
+    "fetchFailed": "Tietomurtotietojen lataaminen epäonnistui",
+    "addFailed": "Sähköpostiosoitteen lisääminen epäonnistui",
+    "removeFailed": "Sähköpostiosoitteen poistaminen epäonnistui",
+    "emailAdded": "Sähköpostiosoite lisättiin tietomurtovalvontaan",
+    "emailRemoved": "Sähköpostiosoite poistettiin tietomurtovalvonnasta",
+    "invalidEmail": "Anna kelvollinen sähköpostiosoite",
+    "limitReached": "Sähköpostiosoitteiden enimmäismäärä on saavutettu nykyisellä tilauksellasi"
+  },
+  "emptyState": {
+    "noEmails": "Valvottuja sähköpostiosoitteita ei ole",
+    "noEmailsDesc": "Lisää sähköpostiosoite tarkistaaksesi aiemmat tietomurrot ja valvoaksesi jatkuvasti uusia vuotoja.",
+    "allClear": "Ei havaintoja",
+    "allClearDesc": "Yhtäkään valvotuista sähköpostiosoitteistasi ei ole löydetty tunnetuista tietomurroista.",
+    "upgradeRequired": "Päivitys vaaditaan",
+    "upgradeRequiredDesc": "Tietomurtovalvonta on saatavilla Basic-tilauksessa ja sitä ylemmissä. Päivitä tilauksesi aloittaaksesi valvonnan.",
+    "goToCloud": "Näytä tilaukset"
+  },
+  "error": {
+    "title": "Tietomurtotietojen lataaminen epäonnistui",
+    "description": "Tarkista pilviyhteytesi ja yritä uudelleen."
+  },
+  "emailCard": {
+    "breaches": "{{count}} tietomurto",
+    "breaches_plural": "{{count}} tietomurtoa",
+    "noBreaches": "Tietomurtoja ei löytynyt",
+    "lastChecked": "Tarkistettu viimeksi {{date}}",
+    "notCheckedYet": "Ei vielä tarkistettu",
+    "fresh": "Uudet tulokset",
+    "paused": "Valvonta keskeytetty",
+    "remove": "Poista"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Arkaluonteinen tietomurto",
+    "breachDate": "Murrettu {{date}}",
+    "compromisedData": "Vaarantuneet tiedot",
+    "affectedAccounts": "{{count}} tiliä vaikutuksen piirissä",
+    "verified": "Vahvistettu",
+    "unverified": "Vahvistamaton"
+  },
+  "refetchButton": "Päivitä"
+}

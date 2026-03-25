@@ -9,7 +9,7 @@
   "cveScanner": "Lỗ hổng bảo mật",
   "maintainHeading": "BẢO TRÌ",
   "cleaner": "Dọn dẹp",
-  "registry": "Registry",
+  "registry": "Sổ đăng ký",
   "startup": "Khởi động",
   "network": "Mạng",
   "software": "Phần mềm",
@@ -19,5 +19,6 @@
   "diskTools": "Công cụ đĩa",
   "history": "Lịch sử",
   "settings": "Cài đặt",
+  "breachMonitor": "Giám sát rò rỉ dữ liệu",
   "gameMode": "Chế độ chơi game"
 }

@@ -5,7 +5,7 @@
   "securityHeading": "אבטחה",
   "malwareScanner": "סורק נוזקות",
   "threatMonitor": "ניטור איומים",
-  "systemHardening": "הקשחת המערכת",
+  "systemHardening": "הקשחת מערכת",
   "cveScanner": "פגיעויות",
   "maintainHeading": "תחזוקה",
   "cleaner": "מנקה",
@@ -19,5 +19,6 @@
   "diskTools": "כלי דיסק",
   "history": "היסטוריה",
   "settings": "הגדרות",
+  "breachMonitor": "ניטור דליפות",
   "gameMode": "מצב משחק"
 }

@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Breach Monitor",
+  "pageDescription": "Controleer of uw e-mailadressen zijn blootgesteld in bekende datalekken",
+  "loading": "Gegevens over datalekken laden...",
+  "summary": {
+    "totalBreaches": "Totaal aantal datalekken",
+    "emailsMonitored": "Gemonitorde e-mailadressen"
+  },
+  "addEmail": {
+    "placeholder": "Voer een e-mailadres in",
+    "button": "E-mailadres toevoegen",
+    "adding": "Toevoegen..."
+  },
+  "toast": {
+    "fetchFailed": "Kan gegevens over datalekken niet laden",
+    "addFailed": "Kan e-mailadres niet toevoegen",
+    "removeFailed": "Kan e-mailadres niet verwijderen",
+    "emailAdded": "E-mailadres toegevoegd aan Breach Monitor",
+    "emailRemoved": "E-mailadres verwijderd uit Breach Monitor",
+    "invalidEmail": "Voer een geldig e-mailadres in",
+    "limitReached": "De limiet voor e-mailadressen van uw abonnement is bereikt"
+  },
+  "emptyState": {
+    "noEmails": "Geen e-mailadressen gemonitord",
+    "noEmailsDesc": "Voeg een e-mailadres toe om te controleren op eerdere datalekken en doorlopend te monitoren op nieuwe lekken.",
+    "allClear": "Alles in orde",
+    "allClearDesc": "Geen van uw gemonitorde e-mailadressen is aangetroffen in bekende datalekken.",
+    "upgradeRequired": "Upgrade vereist",
+    "upgradeRequiredDesc": "Monitoring van datalekken is beschikbaar vanaf het Basic-abonnement. Upgrade uw abonnement om te beginnen met monitoren.",
+    "goToCloud": "Abonnementen bekijken"
+  },
+  "error": {
+    "title": "Kan gegevens over datalekken niet laden",
+    "description": "Controleer uw cloudverbinding en probeer het opnieuw."
+  },
+  "emailCard": {
+    "breaches": "{{count}} datalek",
+    "breaches_plural": "{{count}} datalekken",
+    "noBreaches": "Geen datalekken gevonden",
+    "lastChecked": "Laatst gecontroleerd op {{date}}",
+    "notCheckedYet": "Nog niet gecontroleerd",
+    "fresh": "Nieuwe resultaten",
+    "paused": "Monitoring gepauzeerd",
+    "remove": "Verwijderen"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Gevoelig datalek",
+    "breachDate": "Gelekt op {{date}}",
+    "compromisedData": "Gecompromitteerde gegevens",
+    "affectedAccounts": "{{count}} accounts getroffen",
+    "verified": "Geverifieerd",
+    "unverified": "Niet geverifieerd"
+  },
+  "refetchButton": "Vernieuwen"
+}

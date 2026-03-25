@@ -5,7 +5,7 @@
   "securityHeading": "SEGURANÇA",
   "malwareScanner": "Scanner de malware",
   "threatMonitor": "Monitor de ameaças",
-  "systemHardening": "Reforço do sistema",
+  "systemHardening": "Fortalecimento do sistema",
   "cveScanner": "Vulnerabilidades",
   "maintainHeading": "MANUTENÇÃO",
   "cleaner": "Limpador",
@@ -19,5 +19,6 @@
   "diskTools": "Ferramentas de disco",
   "history": "Histórico",
   "settings": "Configurações",
+  "breachMonitor": "Monitor de violações",
   "gameMode": "Modo de jogo"
 }

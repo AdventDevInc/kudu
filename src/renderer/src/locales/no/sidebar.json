@@ -3,7 +3,7 @@
   "subtitle": "SYSTEMRENSER",
   "dashboard": "Oversikt",
   "securityHeading": "SIKKERHET",
-  "malwareScanner": "Skanning etter skadelig programvare",
+  "malwareScanner": "Skanner for skadelig programvare",
   "threatMonitor": "Trusselovervåking",
   "systemHardening": "Systemherding",
   "cveScanner": "Sårbarheter",
@@ -19,5 +19,6 @@
   "diskTools": "Diskverktøy",
   "history": "Historikk",
   "settings": "Innstillinger",
+  "breachMonitor": "Overvåking av datainnbrudd",
   "gameMode": "Spillmodus"
 }

@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Bruddsovervåking",
+  "pageDescription": "Sjekk om e-postadressene dine har blitt eksponert i kjente datainnbrudd",
+  "loading": "Laster inn data om datainnbrudd...",
+  "summary": {
+    "totalBreaches": "Totalt antall datainnbrudd",
+    "emailsMonitored": "Overvåkede e-postadresser"
+  },
+  "addEmail": {
+    "placeholder": "Skriv inn en e-postadresse",
+    "button": "Legg til e-postadresse",
+    "adding": "Legger til..."
+  },
+  "toast": {
+    "fetchFailed": "Kunne ikke laste inn data om datainnbrudd",
+    "addFailed": "Kunne ikke legge til e-postadresse",
+    "removeFailed": "Kunne ikke fjerne e-postadresse",
+    "emailAdded": "E-postadresse lagt til i bruddsovervåking",
+    "emailRemoved": "E-postadresse fjernet fra bruddsovervåking",
+    "invalidEmail": "Skriv inn en gyldig e-postadresse",
+    "limitReached": "Du har nådd grensen for antall e-postadresser i abonnementet ditt"
+  },
+  "emptyState": {
+    "noEmails": "Ingen e-postadresser overvåkes",
+    "noEmailsDesc": "Legg til en e-postadresse for å se etter tidligere datainnbrudd og overvåke kontinuerlig for nye lekkasjer.",
+    "allClear": "Ingen funn",
+    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i kjente datainnbrudd.",
+    "upgradeRequired": "Oppgradering kreves",
+    "upgradeRequiredDesc": "Bruddsovervåking er tilgjengelig med Basic-abonnementet og høyere. Oppgrader abonnementet ditt for å starte overvåking.",
+    "goToCloud": "Vis abonnementer"
+  },
+  "error": {
+    "title": "Kunne ikke laste inn data om datainnbrudd",
+    "description": "Kontroller skytjenestetilkoblingen og prøv igjen."
+  },
+  "emailCard": {
+    "breaches": "{{count}} datainnbrudd",
+    "breaches_plural": "{{count}} datainnbrudd",
+    "noBreaches": "Ingen datainnbrudd funnet",
+    "lastChecked": "Sist sjekket {{date}}",
+    "notCheckedYet": "Ikke sjekket ennå",
+    "fresh": "Nye resultater",
+    "paused": "Overvåking satt på pause",
+    "remove": "Fjern"
+  },
+  "breachCard": {
+    "sensitiveBreach": "Sensitivt datainnbrudd",
+    "breachDate": "Rammet {{date}}",
+    "compromisedData": "Kompromitterte data",
+    "affectedAccounts": "{{count}} kontoer berørt",
+    "verified": "Bekreftet",
+    "unverified": "Ubekreftet"
+  },
+  "refetchButton": "Oppdater"
+}
