@@ -11,6 +11,7 @@ import {
   Check,
   CheckCheck,
   ArrowUpDown,
+  HelpCircle,
   X,
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -382,9 +383,29 @@ export function BreachMonitorPage() {
 // ─── Table helpers ───────────────────────────────────────
 
 function SummaryCard({ label, count, value, color, tooltip }: { label: string; count?: number; value?: string; color: string; tooltip?: string }) {
+  const [showTip, setShowTip] = useState(false)
   return (
-    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }} title={tooltip}>
-      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</div>
+    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+      <div className="flex items-center gap-1.5">
+        <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</div>
+        {tooltip && (
+          <div className="relative" onMouseEnter={() => setShowTip(true)} onMouseLeave={() => setShowTip(false)}>
+            <HelpCircle className="h-3 w-3 cursor-help" style={{ color: 'var(--text-muted)' }} />
+            {showTip && (
+              <div
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded-lg px-3 py-1.5 text-[11px] font-medium pointer-events-none z-50 shadow-lg"
+                style={{ background: 'var(--card-bg)', border: '1px solid var(--border-strong)', color: 'var(--text-primary)' }}
+              >
+                {tooltip}
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 -mt-px h-0 w-0"
+                  style={{ borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid var(--border-strong)' }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <div className="mt-1 text-[22px] font-bold" style={{ color }}>{value ?? count ?? 0}</div>
     </div>
   )
