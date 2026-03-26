@@ -7,7 +7,7 @@
   "threatMonitor": "Монитор угроз",
   "systemHardening": "Укрепление системы",
   "cveScanner": "Уязвимости",
-  "monitoring": "Monitoring",
+  "monitoring": "Мониторинг",
   "maintainHeading": "ОБСЛУЖИВАНИЕ",
   "cleaner": "Очистка",
   "registry": "Реестр",
@@ -18,7 +18,7 @@
   "toolsHeading": "ИНСТРУМЕНТЫ",
   "performance": "Производительность",
   "diskTools": "Дисковые инструменты",
-  "history": "Журнал",
+  "history": "История",
   "settings": "Параметры",
   "breachMonitor": "Монитор утечек",
   "gameMode": "Игровой режим"

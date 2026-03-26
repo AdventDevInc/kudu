@@ -43,6 +43,7 @@
   "itemCount": "{{count}} Element",
   "itemCountPlural": "{{count}} Elemente",
   "moreItems": "... und {{count}} weitere Elemente",
+  "openLocation": "Dateispeicherort öffnen",
   "toastRestorePointCreated": "Wiederherstellungspunkt erstellt",
   "toastRestorePointSkipped": "Wiederherstellungspunkt übersprungen",
   "toastRestorePointSkippedDescription": "Wiederherstellungspunkt konnte nicht erstellt werden",

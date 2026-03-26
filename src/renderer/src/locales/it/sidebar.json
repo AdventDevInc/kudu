@@ -4,12 +4,12 @@
   "dashboard": "Dashboard",
   "securityHeading": "SICUREZZA",
   "malwareScanner": "Scanner malware",
-  "threatMonitor": "Monitor minacce",
+  "threatMonitor": "Monitoraggio minacce",
   "systemHardening": "Protezione avanzata del sistema",
   "cveScanner": "Vulnerabilità",
-  "monitoring": "Monitoring",
+  "monitoring": "Monitoraggio",
   "maintainHeading": "MANUTENZIONE",
-  "cleaner": "Pulitore",
+  "cleaner": "Pulizia",
   "registry": "Registro di sistema",
   "startup": "Avvio",
   "network": "Rete",
@@ -20,6 +20,6 @@
   "diskTools": "Strumenti disco",
   "history": "Cronologia",
   "settings": "Impostazioni",
-  "breachMonitor": "Monitor violazioni",
+  "breachMonitor": "Monitoraggio violazioni",
   "gameMode": "Modalità gioco"
 }
