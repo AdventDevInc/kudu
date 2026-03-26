@@ -25,6 +25,7 @@ import {
   FileUp,
   FolderX,
   ShieldAlert as ShieldAlertIcon,
+  Wrench,
   Cpu,
   Package,
   Eye,
@@ -117,6 +118,7 @@ const navGroups: NavGroup[] = [
           { icon: FileUp, label: 'Large File Finder', path: '/large-files' },
           { icon: FolderX, label: 'Empty Folder Cleaner', path: '/empty-folders' },
           { icon: ShieldAlertIcon, label: 'File Shredder', path: '/file-shredder' },
+          { icon: Wrench, label: 'Disk Repair', path: '/disk-repair' },
         ]
       },
     ]

@@ -61,5 +61,16 @@
   "dismFinishedWithIssuesToast": "DISM finished with issues",
   "dismFailedToast": "DISM failed to run",
   "startingSfc": "Starting System File Checker...",
-  "startingDism": "Starting DISM RestoreHealth..."
+  "startingDism": "Starting DISM RestoreHealth...",
+  "chkdskCardTitle": "CHKDSK /scan",
+  "chkdskCardSubtitle": "Check disk for file system errors",
+  "chkdskCardDescription": "Scans the file system and metadata for errors. This is a non-destructive read-only scan that reports problems without making changes.",
+  "runChkdsk": "Run CHKDSK",
+  "chkdskRunning": "Running...",
+  "repairProgressChkdsk": "CHKDSK Scan",
+  "adminRequiredChkdskDesc": "Relaunch Kudu as administrator to run CHKDSK.",
+  "chkdskCompletedToast": "CHKDSK completed",
+  "chkdskFinishedWithIssuesToast": "CHKDSK finished with issues",
+  "chkdskFailedToast": "CHKDSK failed to run",
+  "startingChkdsk": "Starting CHKDSK scan..."
 }

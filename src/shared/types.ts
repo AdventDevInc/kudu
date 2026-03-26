@@ -786,14 +786,14 @@ export interface UpdateResult {
 
 // ─── Disk Repair ───────────────────────────────────────────
 export interface DiskRepairProgress {
-  tool: 'sfc' | 'dism'
+  tool: 'sfc' | 'dism' | 'chkdsk'
   phase: 'running' | 'done' | 'failed'
   percent: number
   message: string
 }
 
 export interface DiskRepairResult {
-  tool: 'sfc' | 'dism'
+  tool: 'sfc' | 'dism' | 'chkdsk'
   success: boolean
   exitCode: number | null
   summary: string

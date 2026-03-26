@@ -65,9 +65,10 @@ export const IPC = {
   DISK_DRIVES: 'disk:drives',
   DISK_FILE_TYPES: 'disk:file-types',
 
-  // Disk repair (SFC/DISM)
+  // Disk repair (SFC/DISM/CHKDSK)
   DISK_REPAIR_SFC: 'disk:repair:sfc',
   DISK_REPAIR_DISM: 'disk:repair:dism',
+  DISK_REPAIR_CHKDSK: 'disk:repair:chkdsk',
   DISK_REPAIR_PROGRESS: 'disk:repair:progress',
 
   // Network cleanup

@@ -175,6 +175,8 @@ const api = {
     ipcRenderer.invoke(IPC.DISK_REPAIR_SFC, drive),
   diskRepairDism: (): Promise<DiskRepairResult> =>
     ipcRenderer.invoke(IPC.DISK_REPAIR_DISM),
+  diskRepairChkdsk: (drive: string): Promise<DiskRepairResult> =>
+    ipcRenderer.invoke(IPC.DISK_REPAIR_CHKDSK, drive),
   onDiskRepairProgress: (callback: (data: DiskRepairProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: DiskRepairProgress) => callback(data)
     ipcRenderer.on(IPC.DISK_REPAIR_PROGRESS, handler)

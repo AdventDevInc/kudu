@@ -16,6 +16,7 @@ interface DiskState {
   repairProgress: DiskRepairProgress | null
   sfcResult: DiskRepairResult | null
   dismResult: DiskRepairResult | null
+  chkdskResult: DiskRepairResult | null
 
   setDrives: (drives: DriveInfo[]) => void
   setSelectedDrive: (drive: string) => void
@@ -31,6 +32,7 @@ interface DiskState {
   setRepairProgress: (progress: DiskRepairProgress | null) => void
   setSfcResult: (result: DiskRepairResult | null) => void
   setDismResult: (result: DiskRepairResult | null) => void
+  setChkdskResult: (result: DiskRepairResult | null) => void
   reset: () => void
 }
 
@@ -47,6 +49,7 @@ export const useDiskStore = create<DiskState>((set) => ({
   repairProgress: null,
   sfcResult: null,
   dismResult: null,
+  chkdskResult: null,
 
   setDrives: (drives) => set({ drives }),
   setSelectedDrive: (selectedDrive) => set({ selectedDrive }),
@@ -64,6 +67,7 @@ export const useDiskStore = create<DiskState>((set) => ({
   setRepairProgress: (repairProgress) => set({ repairProgress }),
   setSfcResult: (sfcResult) => set({ sfcResult }),
   setDismResult: (dismResult) => set({ dismResult }),
+  setChkdskResult: (chkdskResult) => set({ chkdskResult }),
   reset: () =>
     set({
       data: null,
@@ -76,5 +80,6 @@ export const useDiskStore = create<DiskState>((set) => ({
       repairProgress: null,
       sfcResult: null,
       dismResult: null,
+      chkdskResult: null,
     })
 }))
