@@ -8,14 +8,12 @@ interface BreachState {
   usage: number
   status: 'idle' | 'loading' | 'done'
   error: string | null
-  selectedEmail: string | null
   addingEmail: boolean
 
   fetch: () => Promise<void>
   addEmail: (email: string) => Promise<void>
   removeEmail: (email: string) => Promise<void>
   acknowledgeBreaches: (breachIds: string[]) => Promise<void>
-  setSelectedEmail: (email: string | null) => void
   reset: () => void
 }
 
@@ -25,7 +23,6 @@ const initial = {
   usage: 0,
   status: 'idle' as const,
   error: null as string | null,
-  selectedEmail: null as string | null,
   addingEmail: false,
 }
 
@@ -74,8 +71,6 @@ export const useBreachStore = create<BreachState>((set, get) => ({
       await window.kudu.breachMonitorRemove(email)
       const result = await window.kudu.breachMonitorFetch()
       set({ emails: result.emails, limit: result.limit, usage: result.usage })
-      // If we just removed the selected email, clear selection
-      if (get().selectedEmail === email) set({ selectedEmail: null })
     } catch (err) {
       set({ emails: prev })
       throw err
@@ -97,7 +92,6 @@ export const useBreachStore = create<BreachState>((set, get) => ({
     })
   },
 
-  setSelectedEmail: (email) => set({ selectedEmail: email }),
   reset: () => set(initial),
 }))
 

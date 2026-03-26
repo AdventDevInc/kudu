@@ -54,6 +54,7 @@
   },
 
   "table": {
+    "email": "Email",
     "breach": "Breach",
     "date": "Date",
     "accounts": "Accounts",
@@ -65,6 +66,10 @@
     "sensitive": "Sensitive Breach",
     "verified": "Verified",
     "unverified": "Unverified"
+  },
+
+  "filter": {
+    "allEmails": "All emails"
   },
 
   "actions": {
