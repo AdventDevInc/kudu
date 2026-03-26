@@ -368,6 +368,71 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
   })
 }
 
+/**
+ * Run CHKDSK on a drive and stream progress to the renderer.
+ * CHKDSK outputs progress like "Stage 1: ... (42% complete)"
+ */
+async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRepairResult> {
+  if (process.platform !== 'win32') {
+    return { tool: 'chkdsk', success: false, exitCode: null, summary: 'CHKDSK is only available on Windows', log: '', requiresReboot: false, needsAdmin: false }
+  }
+  if (!isAdmin()) {
+    return { tool: 'chkdsk', success: false, exitCode: null, summary: 'Administrator privileges required to run CHKDSK', log: '', requiresReboot: false, needsAdmin: true }
+  }
+
+  const safeDrive = /^[A-Za-z]$/.test(drive) ? drive.toUpperCase() : 'C'
+
+  return new Promise((resolve) => {
+    const child = spawn('cmd', ['/c', `chcp 65001 >nul & chkdsk ${safeDrive}: /scan`], { windowsHide: true })
+    let stdout = ''
+    let lastPercent = 0
+    const decoder = new StringDecoder('utf-8')
+    const stderrDecoder = new StringDecoder('utf-8')
+
+    child.stdout?.on('data', (chunk: Buffer) => {
+      const text = decoder.write(chunk)
+      stdout += text
+      const match = text.match(/(\d+)\s*percent/i) || text.match(/(\d+)\s*%/i)
+      if (match) {
+        const pct = parseInt(match[1])
+        if (pct > lastPercent) {
+          lastPercent = pct
+          sendRepairProgress(getWindow(), { tool: 'chkdsk', phase: 'running', percent: pct, message: `CHKDSK: ${pct}% complete` })
+        }
+      }
+    })
+
+    child.stderr?.on('data', (chunk: Buffer) => {
+      stdout += stderrDecoder.write(chunk)
+    })
+
+    child.on('error', (err) => {
+      sendRepairProgress(getWindow(), { tool: 'chkdsk', phase: 'failed', percent: 0, message: `CHKDSK failed to start: ${err.message}` })
+      resolve({ tool: 'chkdsk', success: false, exitCode: null, summary: `Failed to start CHKDSK: ${err.message}`, log: stdout, requiresReboot: false, needsAdmin: false })
+    })
+
+    child.on('close', (code) => {
+      const success = code === 0
+      let summary: string
+      if (stdout.includes('Windows has scanned the file system and found no problems')) {
+        summary = 'No file system errors found — disk is healthy.'
+      } else if (stdout.includes('Windows has made corrections to the file system')) {
+        summary = 'File system errors were found and repaired.'
+      } else if (stdout.includes('no further action is required')) {
+        summary = 'CHKDSK completed — no further action required.'
+      } else if (success) {
+        summary = 'CHKDSK completed successfully.'
+      } else {
+        summary = `CHKDSK exited with code ${code}. Check the log for details.`
+      }
+
+      const requiresReboot = /restart your computer|schedule.*check.*restart|cannot run.*volume is in use/i.test(stdout)
+      sendRepairProgress(getWindow(), { tool: 'chkdsk', phase: success ? 'done' : 'failed', percent: 100, message: summary })
+      resolve({ tool: 'chkdsk', success, exitCode: code, summary, log: stdout, requiresReboot, needsAdmin: false })
+    })
+  })
+}
+
 // ── IPC registration ──
 
 export function registerDiskAnalyzerIpc(getWindow: WindowGetter): void {
@@ -400,5 +465,10 @@ export function registerDiskAnalyzerIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(IPC.DISK_REPAIR_DISM, async (): Promise<DiskRepairResult> => {
     return runDism(getWindow)
+  })
+
+  ipcMain.handle(IPC.DISK_REPAIR_CHKDSK, async (_event, drive: unknown): Promise<DiskRepairResult> => {
+    const safeDrive = typeof drive === 'string' && /^[A-Za-z]$/.test(drive) ? drive : 'C'
+    return runChkdsk(safeDrive, getWindow)
   })
 }

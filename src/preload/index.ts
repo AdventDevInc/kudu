@@ -124,6 +124,11 @@ const api = {
   shortcutClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.SHORTCUT_CLEAN, itemIds),
 
+  // Environment cleaner
+  environmentScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.ENVIRONMENT_SCAN),
+  environmentClean: (itemIds: string[]): Promise<CleanResult> =>
+    ipcRenderer.invoke(IPC.ENVIRONMENT_CLEAN, itemIds),
+
   // Registry
   registryScan: (): Promise<RegistryEntry[]> => ipcRenderer.invoke(IPC.REGISTRY_SCAN),
   registryFix: (entryIds: string[]): Promise<{ fixed: number; failed: number; failures: { issue: string; reason: string }[] }> =>
@@ -170,6 +175,8 @@ const api = {
     ipcRenderer.invoke(IPC.DISK_REPAIR_SFC, drive),
   diskRepairDism: (): Promise<DiskRepairResult> =>
     ipcRenderer.invoke(IPC.DISK_REPAIR_DISM),
+  diskRepairChkdsk: (drive: string): Promise<DiskRepairResult> =>
+    ipcRenderer.invoke(IPC.DISK_REPAIR_CHKDSK, drive),
   onDiskRepairProgress: (callback: (data: DiskRepairProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: DiskRepairProgress) => callback(data)
     ipcRenderer.on(IPC.DISK_REPAIR_PROGRESS, handler)
