@@ -412,7 +412,10 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
     })
 
     child.on('close', (code) => {
-      const success = code === 0
+      // CHKDSK exit codes: 0 = no errors, 1 = errors found & fixed,
+      // 2 = cleanup performed, 3 = could not check the disk.
+      // Codes 0–2 are successful completions.
+      const success = code !== null && code <= 2
       let summary: string
       if (stdout.includes('Windows has scanned the file system and found no problems')) {
         summary = 'No file system errors found — disk is healthy.'
@@ -420,7 +423,11 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
         summary = 'File system errors were found and repaired.'
       } else if (stdout.includes('no further action is required')) {
         summary = 'CHKDSK completed — no further action required.'
-      } else if (success) {
+      } else if (code === 1) {
+        summary = 'Errors were found and fixed successfully.'
+      } else if (code === 2) {
+        summary = 'CHKDSK completed disk cleanup.'
+      } else if (code === 0) {
         summary = 'CHKDSK completed successfully.'
       } else {
         summary = `CHKDSK exited with code ${code}. Check the log for details.`
