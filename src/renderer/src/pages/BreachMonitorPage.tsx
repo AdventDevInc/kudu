@@ -68,18 +68,11 @@ export function BreachMonitorPage() {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
 
-  // Auto-fetch on mount
+  // Auto-fetch on mount (retries for "not connected" are handled by the store)
   useEffect(() => {
     if (!isLinked) return
-    if (status === 'idle') {
-      fetchBreaches()
-      return
-    }
-    if (status === 'done' && error?.includes('not connected')) {
-      const timer = setTimeout(() => fetchBreaches(), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [isLinked, status, error, fetchBreaches])
+    if (status === 'idle') fetchBreaches()
+  }, [isLinked, status, fetchBreaches])
 
   // Toast on error
   useEffect(() => {

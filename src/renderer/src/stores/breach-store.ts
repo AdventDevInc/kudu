@@ -10,7 +10,7 @@ interface BreachState {
   error: string | null
   addingEmail: boolean
 
-  fetch: () => Promise<void>
+  fetch: (retries?: number) => Promise<void>
   addEmail: (email: string) => Promise<void>
   removeEmail: (email: string) => Promise<void>
   acknowledgeBreaches: (breachIds: string[]) => Promise<void>
@@ -29,7 +29,7 @@ const initial = {
 export const useBreachStore = create<BreachState>((set, get) => ({
   ...initial,
 
-  fetch: async () => {
+  fetch: async (retries = 3) => {
     set({ status: 'loading', error: null })
     try {
       const result = await window.kudu.breachMonitorFetch()
@@ -41,6 +41,11 @@ export const useBreachStore = create<BreachState>((set, get) => ({
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to fetch breach data'
+      // Cloud agent may still be connecting — retry silently
+      if (msg.includes('not connected') && retries > 0) {
+        setTimeout(() => get().fetch(retries - 1), 3000)
+        return
+      }
       set({ error: msg, status: 'done' })
     }
   },
