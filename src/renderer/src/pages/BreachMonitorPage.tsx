@@ -114,7 +114,11 @@ export function BreachMonitorPage() {
     try {
       await acknowledgeBreaches(breachIds)
       toast.success(t('toast.acknowledged'))
-    } catch { toast.error(t('toast.acknowledgeFailed')) }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      console.error('Acknowledge failed:', msg, 'breachIds:', breachIds)
+      toast.error(msg || t('toast.acknowledgeFailed'))
+    }
   }, [acknowledgeBreaches, t])
 
   const toggleSort = useCallback((field: SortField) => {
