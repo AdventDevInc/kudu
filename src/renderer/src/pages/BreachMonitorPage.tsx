@@ -205,7 +205,7 @@ export function BreachMonitorPage() {
           description={t('emptyState.upgradeRequiredDesc')}
           action={
             <button
-              onClick={() => navigate('/cloud')}
+              onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')}
               className="rounded-lg px-5 py-2.5 text-[13px] font-medium text-black transition-colors"
               style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
             >
