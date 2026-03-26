@@ -49,18 +49,16 @@ export const useBreachStore = create<BreachState>((set, get) => ({
     set({ addingEmail: true })
     try {
       await window.kudu.breachMonitorAdd([email])
-      // POST only returns newly added emails — re-fetch to get the full list
-      const result = await window.kudu.breachMonitorFetch()
-      set({
-        emails: result.emails,
-        limit: result.limit,
-        usage: result.usage,
-        addingEmail: false,
-        error: null,
-      })
     } catch (err) {
       set({ addingEmail: false })
       throw err
+    }
+    // Add succeeded — refresh is best-effort
+    try {
+      const result = await window.kudu.breachMonitorFetch()
+      set({ emails: result.emails, limit: result.limit, usage: result.usage, addingEmail: false, error: null })
+    } catch {
+      set({ addingEmail: false })
     }
   },
 
@@ -69,17 +67,23 @@ export const useBreachStore = create<BreachState>((set, get) => ({
     set({ emails: prev.filter((e) => e.email !== email) })
     try {
       await window.kudu.breachMonitorRemove(email)
-      const result = await window.kudu.breachMonitorFetch()
-      set({ emails: result.emails, limit: result.limit, usage: result.usage })
     } catch (err) {
       set({ emails: prev })
       throw err
     }
+    // Delete succeeded — refresh is best-effort, don't revert on failure
+    try {
+      const result = await window.kudu.breachMonitorFetch()
+      set({ emails: result.emails, limit: result.limit, usage: result.usage })
+    } catch { /* keep optimistic removal */ }
   },
 
   acknowledgeBreaches: async (breachIds: string[]) => {
-    await window.kudu.breachMonitorAcknowledge(breachIds)
-    // Optimistically mark as acknowledged locally
+    // Chunk into batches of 100 to stay within IPC validation limit
+    for (let i = 0; i < breachIds.length; i += 100) {
+      await window.kudu.breachMonitorAcknowledge(breachIds.slice(i, i + 100))
+    }
+    // Mark as acknowledged locally
     const now = new Date().toISOString()
     const idSet = new Set(breachIds)
     set({
