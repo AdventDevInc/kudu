@@ -238,7 +238,7 @@ export function BreachMonitorPage() {
           <div className="mb-6 grid grid-cols-3 gap-3">
             <SummaryCard label={t('summary.totalBreaches')} count={totalBreaches} color={totalBreaches > 0 ? '#ef4444' : '#22c55e'} />
             <SummaryCard label={t('summary.unacknowledged')} count={unacknowledgedCount} color={unacknowledgedCount > 0 ? '#f59e0b' : '#22c55e'} />
-            <SummaryCard label={t('summary.emailsMonitored')} value={`${usage} / ${limit}`} color="#a1a1aa" />
+            <SummaryCard label={t('summary.emailsMonitored')} value={`${usage} / ${limit}`} color="#a1a1aa" tooltip={t('summary.emailsMonitoredTooltip')} />
           </div>
 
           {/* Add email row + email filter */}
@@ -381,9 +381,9 @@ export function BreachMonitorPage() {
 
 // ─── Table helpers ───────────────────────────────────────
 
-function SummaryCard({ label, count, value, color }: { label: string; count?: number; value?: string; color: string }) {
+function SummaryCard({ label, count, value, color, tooltip }: { label: string; count?: number; value?: string; color: string; tooltip?: string }) {
   return (
-    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }} title={tooltip}>
       <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</div>
       <div className="mt-1 text-[22px] font-bold" style={{ color }}>{value ?? count ?? 0}</div>
     </div>

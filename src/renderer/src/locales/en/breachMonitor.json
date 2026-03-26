@@ -6,7 +6,8 @@
   "summary": {
     "totalBreaches": "Total Breaches",
     "unacknowledged": "New",
-    "emailsMonitored": "Emails Monitored"
+    "emailsMonitored": "Emails Monitored",
+    "emailsMonitoredTooltip": "Basic plan: 1 email · Pro plan: 5 emails. Upgrade your plan in Cloud settings to monitor more."
   },
 
   "addEmail": {
