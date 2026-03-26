@@ -13,12 +13,25 @@ import type { WindowGetter } from './index'
 
 const execFileAsync = promisify(execFile)
 
-/** Expand %VAR% references in a Windows path using the current process environment */
-function expandWinVars(value: string): string {
+/**
+ * Expand %VAR% references in a Windows registry value.
+ *
+ * Looks up variables in `registryVars` first (merged user + system registry
+ * environment) then falls back to `process.env`.  This ensures we resolve
+ * references to registry variables that may not yet be loaded into the
+ * current process environment (e.g. after recent env changes or cross-scope
+ * references).
+ */
+function expandWinVars(value: string, registryVars: Map<string, string>): string {
   return value.replace(/%([^%]+)%/gi, (_match, varName: string) => {
-    // Case-insensitive lookup in process.env
+    const lower = varName.toLowerCase()
+    // 1. Check merged registry variables (authoritative source)
+    for (const [key, val] of registryVars) {
+      if (key.toLowerCase() === lower) return val
+    }
+    // 2. Fallback to current process environment
     for (const [key, val] of Object.entries(process.env)) {
-      if (key.toLowerCase() === varName.toLowerCase() && val) return val
+      if (key.toLowerCase() === lower && val) return val
     }
     return _match // leave unexpanded if not found
   })
@@ -30,7 +43,7 @@ function expandWinVars(value: string): string {
 // GEM_PATH, CMAKE_PREFIX_PATH) and URIs (DOCKER_HOST) which would false-positive.
 const DEV_ENV_VARS = [
   'JAVA_HOME', 'JDK_HOME', 'JRE_HOME',
-  'GOROOT', 'GOPATH', 'GOBIN',
+  'GOROOT', 'GOBIN',
   'CARGO_HOME', 'RUSTUP_HOME',
   'NVM_HOME', 'NVM_DIR', 'NVM_SYMLINK',
   'CONDA_PREFIX', 'CONDA_HOME', 'VIRTUAL_ENV', 'PYENV_ROOT',
@@ -97,14 +110,22 @@ async function readWinRegistryEnv(scope: 'user' | 'system'): Promise<Map<string,
 async function scanWindowsPathEntries(): Promise<EnvEntry[]> {
   const orphaned: EnvEntry[] = []
 
+  // Build merged registry vars from both scopes so expandWinVars can resolve
+  // cross-scope references (e.g. a user PATH entry referencing %SystemRoot%)
+  const mergedVars = new Map<string, string>()
+  const systemVars = await readWinRegistryEnv('system')
+  for (const [k, v] of systemVars) mergedVars.set(k, v)
+  const userVars = await readWinRegistryEnv('user')
+  for (const [k, v] of userVars) mergedVars.set(k, v)
+
   for (const scope of ['user', 'system'] as const) {
-    const vars = await readWinRegistryEnv(scope)
+    const vars = scope === 'user' ? userVars : systemVars
     const pathValue = vars.get('Path') || vars.get('PATH') || vars.get('path')
     if (!pathValue) continue
 
     const entries = pathValue.split(';').map(e => e.trim()).filter(Boolean)
     for (const entry of entries) {
-      const expanded = expandWinVars(entry)
+      const expanded = expandWinVars(entry, mergedVars)
       if (!existsSync(expanded)) {
         orphaned.push({ variable: 'PATH', value: entry, scope, fullValue: pathValue })
       }
@@ -117,13 +138,20 @@ async function scanWindowsPathEntries(): Promise<EnvEntry[]> {
 async function scanWindowsEnvVars(): Promise<EnvEntry[]> {
   const orphaned: EnvEntry[] = []
 
+  // Build merged registry vars from both scopes for cross-scope resolution
+  const mergedVars = new Map<string, string>()
+  const systemVars = await readWinRegistryEnv('system')
+  for (const [k, v] of systemVars) mergedVars.set(k, v)
+  const userVars = await readWinRegistryEnv('user')
+  for (const [k, v] of userVars) mergedVars.set(k, v)
+
   for (const scope of ['user', 'system'] as const) {
-    const vars = await readWinRegistryEnv(scope)
+    const vars = scope === 'user' ? userVars : systemVars
     for (const [name, value] of vars) {
       if (name.toUpperCase() === 'PATH') continue
       if (!DEV_ENV_VARS.includes(name.toUpperCase()) && !DEV_ENV_VARS.includes(name)) continue
 
-      const expanded = expandWinVars(value)
+      const expanded = expandWinVars(value, mergedVars)
       if (!existsSync(expanded)) {
         orphaned.push({ variable: name, value, scope })
       }
