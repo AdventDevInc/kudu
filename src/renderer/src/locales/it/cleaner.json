@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Pulizia sistema",
+  "pageTitle": "Pulizia del sistema",
   "pageDescription": "Analizza e pulisci i file inutili dal sistema",
   "scanButton": "Analizza",
   "cleanButton": "Pulisci",
@@ -10,7 +10,7 @@
   "categoryApplications": "Applicazioni",
   "categoryApplicationsDescription": "Cache delle app e strumenti di sviluppo",
   "categoryGaming": "Gaming",
-  "categoryGamingDescription": "Cache dei launcher, ridistribuibili",
+  "categoryGamingDescription": "Cache dei launcher, pacchetti ridistribuibili",
   "categoryRecycleBin": "Cestino",
   "categoryRecycleBinDescription": "File eliminati",
   "categoryShortcuts": "Collegamenti",

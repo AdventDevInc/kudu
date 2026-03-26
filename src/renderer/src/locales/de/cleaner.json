@@ -39,7 +39,7 @@
   "startScan": "Scan starten",
   "categoryItemsHeading": "{{category}}-Elemente",
   "toggleAll": "Alle umschalten",
-  "noItemsInCategory": "In dieser Kategorie wurden keine Elemente gefunden",
+  "noItemsInCategory": "Keine Elemente in dieser Kategorie gefunden",
   "itemCount": "{{count}} Element",
   "itemCountPlural": "{{count}} Elemente",
   "moreItems": "... und {{count}} weitere Elemente",
