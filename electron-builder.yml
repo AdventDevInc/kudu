@@ -64,6 +64,16 @@ linux:
   category: Utility
   artifactName: Kudu-${version}-${arch}.${ext}
 
+deb:
+  depends:
+    - libgtk-3-0
+    - libnss3
+    - libxss1
+    - libasound2 | libasound2t64
+    - libgbm1
+    - libfuse2
+  afterInstall: scripts/deb-postinstall.sh
+
 publish:
   provider: github
   releaseType: release
