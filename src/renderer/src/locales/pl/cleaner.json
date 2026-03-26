@@ -43,6 +43,7 @@
   "itemCount": "{{count}} element",
   "itemCountPlural": "{{count}} elementów",
   "moreItems": "... i jeszcze {{count}} elementów",
+  "openLocation": "Otwórz lokalizację pliku",
   "toastRestorePointCreated": "Utworzono punkt przywracania",
   "toastRestorePointSkipped": "Pominięto punkt przywracania",
   "toastRestorePointSkippedDescription": "Nie udało się utworzyć punktu przywracania",

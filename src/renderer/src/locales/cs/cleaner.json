@@ -43,6 +43,7 @@
   "itemCount": "{{count}} položka",
   "itemCountPlural": "{{count}} položek",
   "moreItems": "... a dalších {{count}} položek",
+  "openLocation": "Otevřít umístění souboru",
   "toastRestorePointCreated": "Bod obnovení byl vytvořen",
   "toastRestorePointSkipped": "Bod obnovení byl přeskočen",
   "toastRestorePointSkippedDescription": "Bod obnovení se nepodařilo vytvořit",
@@ -54,6 +55,6 @@
   "summarySpaceReclaimed": "Uvolněné místo",
   "summaryFilesDeleted": "Odstraněné soubory",
   "summaryDurationLabel": "Doba trvání",
-  "summaryBreakdown": "Rozdělení podle kategorií",
+  "summaryBreakdown": "Rozpis podle kategorií",
   "summarySkipped": "{{count}} položek přeskočeno (používá se nebo je chráněno)"
 }
