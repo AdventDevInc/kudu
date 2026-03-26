@@ -124,6 +124,11 @@ const api = {
   shortcutClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.SHORTCUT_CLEAN, itemIds),
 
+  // Environment cleaner
+  environmentScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.ENVIRONMENT_SCAN),
+  environmentClean: (itemIds: string[]): Promise<CleanResult> =>
+    ipcRenderer.invoke(IPC.ENVIRONMENT_CLEAN, itemIds),
+
   // Registry
   registryScan: (): Promise<RegistryEntry[]> => ipcRenderer.invoke(IPC.REGISTRY_SCAN),
   registryFix: (entryIds: string[]): Promise<{ fixed: number; failed: number; failures: { issue: string; reason: string }[] }> =>

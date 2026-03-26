@@ -8,6 +8,7 @@ import {
   Trash2,
   Link2Off,
   Database,
+  Variable,
   Search,
   Sparkles,
   CheckCircle2,
@@ -45,6 +46,7 @@ const categories: CategoryDef[] = [
   { type: CleanerType.Gaming, labelKey: 'categoryGaming', icon: Gamepad2, descriptionKey: 'categoryGamingDescription' },
   { type: CleanerType.RecycleBin, labelKey: 'categoryRecycleBin', icon: Trash2, descriptionKey: 'categoryRecycleBinDescription' },
   { type: CleanerType.Shortcut, labelKey: 'categoryShortcuts', icon: Link2Off, descriptionKey: 'categoryShortcutsDescription' },
+  { type: CleanerType.Environment, labelKey: 'categoryEnvironment', icon: Variable, descriptionKey: 'categoryEnvironmentDescription' },
   { type: CleanerType.Database, labelKey: 'categoryDatabases', icon: Database, descriptionKey: 'categoryDatabasesDescription' }
 ]
 
@@ -106,6 +108,7 @@ export function CleanerPage() {
         [CleanerType.Gaming]: () => window.kudu.gamingScan(),
         [CleanerType.RecycleBin]: () => window.kudu.recycleBinScan(),
         [CleanerType.Shortcut]: () => window.kudu.shortcutScan(),
+        [CleanerType.Environment]: () => window.kudu.environmentScan(),
         [CleanerType.Database]: () => window.kudu.databaseScan()
       }
       for (let ci = 0; ci < categories.length; ci++) {
@@ -166,6 +169,7 @@ export function CleanerPage() {
         [CleanerType.Gaming]: (ids) => window.kudu.gamingClean(ids),
         [CleanerType.RecycleBin]: () => window.kudu.recycleBinClean(),
         [CleanerType.Shortcut]: (ids) => window.kudu.shortcutClean(ids),
+        [CleanerType.Environment]: (ids) => window.kudu.environmentClean(ids),
         [CleanerType.Database]: (ids) => window.kudu.databaseClean(ids)
       }
       let totalCleaned = 0, totalFiles = 0, totalSkipped = 0, anyNeedsElevation = false

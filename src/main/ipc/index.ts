@@ -22,6 +22,7 @@ import { registerProgramUninstallerIpc } from './program-uninstaller.ipc'
 import { registerServiceManagerIpc } from './service-manager.ipc'
 import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
 import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
+import { registerEnvironmentCleanerIpc } from './environment-cleaner.ipc'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
 import { registerLargeFileFinderIpc } from './large-file-finder.ipc'
@@ -49,6 +50,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerGamingCleanerIpc(getWindow)
   registerRecycleBinIpc()
   registerShortcutCleanerIpc(getWindow)
+  registerEnvironmentCleanerIpc(getWindow)
   registerDatabaseOptimizerIpc(getWindow)
   registerRegistryCleanerIpc(getWindow)
   registerStartupManagerIpc()

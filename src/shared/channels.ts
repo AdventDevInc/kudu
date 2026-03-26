@@ -31,6 +31,10 @@ export const IPC = {
   SHORTCUT_SCAN: 'cleaner:shortcut:scan',
   SHORTCUT_CLEAN: 'cleaner:shortcut:clean',
 
+  // Environment cleaner (orphaned PATH entries & env vars)
+  ENVIRONMENT_SCAN: 'cleaner:environment:scan',
+  ENVIRONMENT_CLEAN: 'cleaner:environment:clean',
+
   // Registry
   REGISTRY_SCAN: 'cleaner:registry:scan',
   REGISTRY_FIX: 'cleaner:registry:fix',

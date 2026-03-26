@@ -60,6 +60,7 @@ const CLEANER_SCAN_FNS: { type: CleanerType; scan: () => Promise<ScanResult[]>; 
   { type: CleanerType.App, scan: () => window.kudu.appScan(), clean: (ids) => window.kudu.appClean(ids) },
   { type: CleanerType.Gaming, scan: () => window.kudu.gamingScan(), clean: (ids) => window.kudu.gamingClean(ids) },
   { type: CleanerType.RecycleBin, scan: () => window.kudu.recycleBinScan(), clean: () => window.kudu.recycleBinClean() },
+  { type: CleanerType.Environment, scan: () => window.kudu.environmentScan(), clean: (ids) => window.kudu.environmentClean(ids) },
   { type: CleanerType.Database, scan: () => window.kudu.databaseScan(), clean: (ids) => window.kudu.databaseClean(ids) },
 ]
 

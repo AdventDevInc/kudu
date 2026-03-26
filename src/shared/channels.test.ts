@@ -45,11 +45,12 @@ describe('CleanerType enum', () => {
     expect(CleanerType.UninstallLeftovers).toBe('uninstallLeftovers')
     expect(CleanerType.Shortcut).toBe('shortcut')
     expect(CleanerType.Database).toBe('database')
+    expect(CleanerType.Environment).toBe('environment')
   })
 
-  it('has exactly 8 members', () => {
+  it('has exactly 9 members', () => {
     const keys = Object.keys(CleanerType).filter((k) => isNaN(Number(k)))
-    expect(keys).toHaveLength(8)
+    expect(keys).toHaveLength(9)
   })
 })
 
