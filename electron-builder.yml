@@ -71,7 +71,7 @@ deb:
     - libxss1
     - libasound2 | libasound2t64
     - libgbm1
-    - libfuse2
+    - libfuse2 | libfuse2t64
   afterInstall: scripts/deb-postinstall.sh
 
 publish:
