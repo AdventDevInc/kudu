@@ -1,5 +1,5 @@
 {
-  "pageTitle": "시스템 정리",
+  "pageTitle": "시스템 클리너",
   "pageDescription": "시스템에서 정크 파일을 검사하고 정리합니다",
   "scanButton": "검사",
   "cleanButton": "정리",
@@ -10,7 +10,7 @@
   "categoryApplications": "애플리케이션",
   "categoryApplicationsDescription": "앱 캐시 및 개발 도구",
   "categoryGaming": "게임",
-  "categoryGamingDescription": "런처 캐시, 재배포 가능 패키지",
+  "categoryGamingDescription": "런처 캐시, 재배포 패키지",
   "categoryRecycleBin": "휴지통",
   "categoryRecycleBinDescription": "삭제된 파일",
   "categoryShortcuts": "바로 가기",
@@ -19,7 +19,7 @@
   "categoryEnvironmentDescription": "고아 PATH 항목 및 환경 변수",
   "categoryDatabases": "데이터베이스",
   "categoryDatabasesDescription": "SQLite 데이터베이스 최적화",
-  "totalRecoverable": "총 복구 가능 용량",
+  "totalRecoverable": "복구 가능한 총 용량",
   "itemsCount": "{{count}}개 항목",
   "selectedLabel": "선택됨",
   "scannersFailed": "일부 검사기가 실패했습니다:",
@@ -48,5 +48,12 @@
   "toastRestorePointSkippedDescription": "복원 지점을 생성할 수 없습니다",
   "confirmCleanTitle": "선택한 파일 정리",
   "confirmCleanDescription": "{{count}}개 항목({{size}})이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
-  "confirmCleanLabel": "지금 정리"
+  "confirmCleanLabel": "지금 정리",
+  "summaryTitle": "정리 완료!",
+  "summaryDuration": "{{duration}} 만에 완료됨",
+  "summarySpaceReclaimed": "확보된 공간",
+  "summaryFilesDeleted": "삭제된 파일",
+  "summaryDurationLabel": "소요 시간",
+  "summaryBreakdown": "범주별 내역",
+  "summarySkipped": "{{count}}개 항목 건너뜀(사용 중이거나 보호됨)"
 }

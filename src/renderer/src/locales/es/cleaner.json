@@ -18,7 +18,7 @@
   "categoryEnvironment": "Entorno",
   "categoryEnvironmentDescription": "Entradas de PATH huérfanas y variables de entorno",
   "categoryDatabases": "Bases de datos",
-  "categoryDatabasesDescription": "Aplicar VACUUM a bases de datos SQLite",
+  "categoryDatabasesDescription": "Optimizar bases de datos SQLite",
   "totalRecoverable": "Total recuperable",
   "itemsCount": "{{count}} elementos",
   "selectedLabel": "Seleccionado",
@@ -48,5 +48,12 @@
   "toastRestorePointSkippedDescription": "No se pudo crear el punto de restauración",
   "confirmCleanTitle": "Limpiar archivos seleccionados",
   "confirmCleanDescription": "Esto eliminará permanentemente {{count}} elementos ({{size}}). Esta acción no se puede deshacer.",
-  "confirmCleanLabel": "Limpiar ahora"
+  "confirmCleanLabel": "Limpiar ahora",
+  "summaryTitle": "¡Limpieza completada!",
+  "summaryDuration": "Completado en {{duration}}",
+  "summarySpaceReclaimed": "Espacio recuperado",
+  "summaryFilesDeleted": "Archivos eliminados",
+  "summaryDurationLabel": "Duración",
+  "summaryBreakdown": "Desglose por categoría",
+  "summarySkipped": "{{count}} elementos omitidos (en uso o protegidos)"
 }

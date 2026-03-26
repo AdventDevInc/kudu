@@ -48,5 +48,12 @@
   "toastRestorePointSkippedDescription": "Wiederherstellungspunkt konnte nicht erstellt werden",
   "confirmCleanTitle": "Ausgewählte Dateien bereinigen",
   "confirmCleanDescription": "Dadurch werden {{count}} Elemente ({{size}}) dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
-  "confirmCleanLabel": "Jetzt bereinigen"
+  "confirmCleanLabel": "Jetzt bereinigen",
+  "summaryTitle": "Bereinigung abgeschlossen!",
+  "summaryDuration": "Abgeschlossen in {{duration}}",
+  "summarySpaceReclaimed": "Freigegebener Speicherplatz",
+  "summaryFilesDeleted": "Gelöschte Dateien",
+  "summaryDurationLabel": "Dauer",
+  "summaryBreakdown": "Aufschlüsselung nach Kategorie",
+  "summarySkipped": "{{count}} Elemente übersprungen (in Verwendung oder geschützt)"
 }

@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Systeemopschoner",
+  "pageTitle": "Systeemreiniger",
   "pageDescription": "Scan en verwijder ongewenste bestanden van uw systeem",
   "scanButton": "Scannen",
   "cleanButton": "Opschonen",
@@ -38,15 +38,22 @@
   "noScanResultsDescription": "Analyseer uw systeem op bestanden die veilig kunnen worden verwijderd.",
   "startScan": "Scan starten",
   "categoryItemsHeading": "{{category}}-items",
-  "toggleAll": "Alles in-/uitschakelen",
+  "toggleAll": "Alles selecteren/deselecteren",
   "noItemsInCategory": "Geen items gevonden in deze categorie",
   "itemCount": "{{count}} item",
   "itemCountPlural": "{{count}} items",
   "moreItems": "... en nog {{count}} items",
   "toastRestorePointCreated": "Herstelpunt gemaakt",
   "toastRestorePointSkipped": "Herstelpunt overgeslagen",
-  "toastRestorePointSkippedDescription": "Kan geen herstelpunt maken",
+  "toastRestorePointSkippedDescription": "Kon geen herstelpunt maken",
   "confirmCleanTitle": "Geselecteerde bestanden opschonen",
   "confirmCleanDescription": "Hiermee worden {{count}} items ({{size}}) permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
-  "confirmCleanLabel": "Nu opschonen"
+  "confirmCleanLabel": "Nu opschonen",
+  "summaryTitle": "Opschonen voltooid!",
+  "summaryDuration": "Voltooid in {{duration}}",
+  "summarySpaceReclaimed": "Vrijgemaakte ruimte",
+  "summaryFilesDeleted": "Verwijderde bestanden",
+  "summaryDurationLabel": "Duur",
+  "summaryBreakdown": "Uitsplitsing per categorie",
+  "summarySkipped": "{{count}} items overgeslagen (in gebruik of beveiligd)"
 }
