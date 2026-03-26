@@ -13,6 +13,7 @@ import {
   Sparkles,
   ChevronRight,
   Folder,
+  FolderOpen,
   AlertTriangle,
   ShieldAlert,
   Loader2
@@ -543,6 +544,17 @@ export function CleanerPage() {
                               <span className="font-mono text-[12px] font-medium shrink-0" style={{ color: 'var(--text-muted)' }}>
                                 {formatBytes(result.totalSize)}
                               </span>
+
+                              {/* Open location */}
+                              {result.items.length > 0 && (
+                                <button
+                                  type="button"
+                                  title={t('openLocation')}
+                                  className="shrink-0 p-1 rounded transition-colors hover:bg-[var(--bg-hover-2)]"
+                                  onClick={(e) => { e.stopPropagation(); window.kudu?.cleanerOpenLocation?.(result.items[0].path) }}>
+                                  <FolderOpen className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
+                                </button>
+                              )}
                             </div>
 
                             {/* Expanded item list */}
@@ -576,6 +588,13 @@ export function CleanerPage() {
                                       <span className="font-mono text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
                                         {formatBytes(item.size)}
                                       </span>
+                                      <button
+                                        type="button"
+                                        title={t('openLocation')}
+                                        className="shrink-0 p-0.5 rounded transition-colors hover:bg-[var(--bg-hover-2)]"
+                                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.kudu?.cleanerOpenLocation?.(item.path) }}>
+                                        <FolderOpen className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
+                                      </button>
                                     </label>
                                   )
                                 })}

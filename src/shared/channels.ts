@@ -35,6 +35,9 @@ export const IPC = {
   ENVIRONMENT_SCAN: 'cleaner:environment:scan',
   ENVIRONMENT_CLEAN: 'cleaner:environment:clean',
 
+  // Cleaner shared
+  CLEANER_OPEN_LOCATION: 'cleaner:open-location',
+
   // Registry
   REGISTRY_SCAN: 'cleaner:registry:scan',
   REGISTRY_FIX: 'cleaner:registry:fix',

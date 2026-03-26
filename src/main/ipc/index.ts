@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { execFile, spawn } from 'child_process'
+import { isAbsolute } from 'path'
 import { IPC } from '../../shared/channels'
 import { psUtf8 } from '../services/exec-utf8'
 import { registerSystemCleanerIpc } from './system-cleaner.ipc'
@@ -75,6 +76,13 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerProgramSafetyIpc()
   registerFileShredderIpc(getWindow)
   registerGameModeIpc(getWindow)
+
+  // Cleaner: open file/folder location in system file manager
+  ipcMain.handle(IPC.CLEANER_OPEN_LOCATION, (_event, filePath: unknown) => {
+    if (typeof filePath !== 'string') return
+    if (!isAbsolute(filePath)) return
+    shell.showItemInFolder(filePath)
+  })
 
   // Platform info
   const isWin = process.platform === 'win32'

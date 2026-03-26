@@ -124,6 +124,10 @@ const api = {
   shortcutClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.SHORTCUT_CLEAN, itemIds),
 
+  // Cleaner: open location
+  cleanerOpenLocation: (filePath: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.CLEANER_OPEN_LOCATION, filePath),
+
   // Environment cleaner
   environmentScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.ENVIRONMENT_SCAN),
   environmentClean: (itemIds: string[]): Promise<CleanResult> =>

@@ -43,6 +43,7 @@
   "itemCount": "{{count}} item",
   "itemCountPlural": "{{count}} items",
   "moreItems": "... and {{count}} more items",
+  "openLocation": "Open file location",
   "toastRestorePointCreated": "Restore point created",
   "toastRestorePointSkipped": "Restore point skipped",
   "toastRestorePointSkippedDescription": "Could not create restore point",
