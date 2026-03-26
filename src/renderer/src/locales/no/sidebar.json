@@ -7,6 +7,7 @@
   "threatMonitor": "Trusselovervåking",
   "systemHardening": "Systemherding",
   "cveScanner": "Sårbarheter",
+  "monitoring": "Monitoring",
   "maintainHeading": "VEDLIKEHOLD",
   "cleaner": "Renser",
   "registry": "Register",

@@ -7,6 +7,7 @@
   "threatMonitor": "Fenyegetésfigyelő",
   "systemHardening": "Rendszermegerősítés",
   "cveScanner": "Sérülékenységek",
+  "monitoring": "Monitoring",
   "maintainHeading": "KARBANTARTÁS",
   "cleaner": "Tisztító",
   "registry": "Rendszerleíró adatbázis",

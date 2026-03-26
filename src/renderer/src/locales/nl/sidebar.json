@@ -7,6 +7,7 @@
   "threatMonitor": "Bedreigingsmonitor",
   "systemHardening": "Systeemverharding",
   "cveScanner": "Kwetsbaarheden",
+  "monitoring": "Monitoring",
   "maintainHeading": "ONDERHOUD",
   "cleaner": "Opschoner",
   "registry": "Register",

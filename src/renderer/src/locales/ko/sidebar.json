@@ -7,6 +7,7 @@
   "threatMonitor": "위협 모니터",
   "systemHardening": "시스템 강화",
   "cveScanner": "취약점",
+  "monitoring": "Monitoring",
   "maintainHeading": "유지 관리",
   "cleaner": "클리너",
   "registry": "레지스트리",

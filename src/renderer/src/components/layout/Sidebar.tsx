@@ -74,7 +74,6 @@ const navGroups: NavGroup[] = [
     headingKey: 'securityHeading',
     items: [
       { icon: ShieldAlert, labelKey: 'malwareScanner', path: '/malware' },
-      { icon: Radar, labelKey: 'threatMonitor', path: '/threat-monitor' },
       {
         icon: Shield, labelKey: 'systemHardening', path: '/hardening',
         children: [
@@ -82,8 +81,14 @@ const navGroups: NavGroup[] = [
           { icon: Server, label: 'Services', path: '/services' },
         ]
       },
-      { icon: Bug, labelKey: 'cveScanner', path: '/cve' },
-      { icon: Mail, labelKey: 'breachMonitor', path: '/breach-monitor' }
+      {
+        icon: Radar, labelKey: 'monitoring', path: '/monitoring',
+        children: [
+          { icon: Radar, label: 'Threat Monitor', path: '/threat-monitor' },
+          { icon: Bug, label: 'Vulnerabilities', path: '/cve' },
+          { icon: Mail, label: 'Breach Monitor', path: '/breach-monitor' },
+        ]
+      },
     ]
   },
   {
@@ -155,6 +160,8 @@ function useBadgeCounts(): Record<string, number> {
 
   const updatesCount = updaterApps.length + driverUpdates.length
 
+  const monitoringCount = threatCount + cveTotal + breachTotal
+
   return {
     '/updates': updaterApps.length,
     '/software': updatesCount,
@@ -163,6 +170,7 @@ function useBadgeCounts(): Record<string, number> {
     '/game-mode': gameModeActive ? 1 : 0,
     '/cve': cveTotal,
     '/breach-monitor': breachTotal,
+    '/monitoring': monitoringCount,
   }
 }
 
@@ -197,18 +205,21 @@ export function Sidebar() {
     items: group.items.filter((item) => {
       if (item.path === '/registry' && !features.registry) return false
       if (item.path === '/game-mode' && !features.gameMode) return false
-      if (item.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
-      if (item.path === '/cve' && !cloudConnected) return false
-      if (item.path === '/breach-monitor' && !cloudConnected) return false
       return true
     }).map((item) => {
       if (!item.children) return item
       const filtered = item.children.filter((child) => {
         if (child.path === '/debloater' && !features.debloater) return false
         if (child.path === '/drivers' && !features.drivers) return false
+        if (child.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
+        if (child.path === '/cve' && !cloudConnected) return false
+        if (child.path === '/breach-monitor' && !cloudConnected) return false
         return true
       })
       return { ...item, children: filtered }
+    }).filter((item) => {
+      if (item.children && item.children.length === 0) return false
+      return true
     }),
   }))
 

@@ -7,6 +7,7 @@
   "threatMonitor": "การตรวจสอบภัยคุกคาม",
   "systemHardening": "การเสริมความปลอดภัยของระบบ",
   "cveScanner": "ช่องโหว่",
+  "monitoring": "Monitoring",
   "maintainHeading": "การบำรุงรักษา",
   "cleaner": "ตัวล้างข้อมูล",
   "registry": "รีจิสทรี",
