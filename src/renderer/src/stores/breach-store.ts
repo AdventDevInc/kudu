@@ -64,11 +64,12 @@ export const useBreachStore = create<BreachState>((set, get) => ({
 
   removeEmail: async (email: string) => {
     const prev = get().emails
-    set({ emails: prev.filter((e) => e.email !== email) })
+    const prevUsage = get().usage
+    set({ emails: prev.filter((e) => e.email !== email), usage: Math.max(0, prevUsage - 1) })
     try {
       await window.kudu.breachMonitorRemove(email)
     } catch (err) {
-      set({ emails: prev })
+      set({ emails: prev, usage: prevUsage })
       throw err
     }
     // Delete succeeded — refresh is best-effort, don't revert on failure
@@ -99,14 +100,26 @@ export const useBreachStore = create<BreachState>((set, get) => ({
   reset: () => set(initial),
 }))
 
-// Reset breach data when cloud API key is removed (device unlinked)
+// Eagerly fetch breach data on startup if cloud-connected,
+// and reset when cloud is unlinked
 let _breachListenerRegistered = false
 if (typeof window !== 'undefined' && window.kudu && !_breachListenerRegistered) {
   _breachListenerRegistered = true
+
+  // Hydrate immediately so the sidebar badge is accurate without visiting the page
+  if (useSettingsStore.getState().settings.cloud.apiKey) {
+    useBreachStore.getState().fetch()
+  }
+
   let prevApiKey = useSettingsStore.getState().settings.cloud.apiKey
   useSettingsStore.subscribe((state) => {
     const key = state.settings.cloud.apiKey
-    if (prevApiKey && !key) useBreachStore.getState().reset()
+    if (prevApiKey && !key) {
+      useBreachStore.getState().reset()
+    } else if (!prevApiKey && key) {
+      // Just linked — fetch breach data
+      useBreachStore.getState().fetch()
+    }
     prevApiKey = key
   })
 }
