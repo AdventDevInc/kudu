@@ -1,11 +1,12 @@
 {
-  "pageTitle": "Surveillance des violations de données",
+  "pageTitle": "Surveillance des violations",
   "pageDescription": "Vérifiez si vos adresses e-mail ont été exposées dans des violations de données connues",
   "loading": "Chargement des données de violation...",
   "summary": {
     "totalBreaches": "Total des violations",
     "unacknowledged": "Nouvelles",
-    "emailsMonitored": "E-mails surveillés"
+    "emailsMonitored": "E-mails surveillés",
+    "emailsMonitoredTooltip": "Forfait Basic : 1 e-mail · Forfait Pro : 5 e-mails. Mettez à niveau votre forfait dans les paramètres Cloud pour en surveiller davantage."
   },
   "addEmail": {
     "placeholder": "Saisissez une adresse e-mail",
@@ -14,20 +15,20 @@
   },
   "toast": {
     "fetchFailed": "Échec du chargement des données de violation",
-    "addFailed": "Échec de l'ajout de l'e-mail",
-    "removeFailed": "Échec de la suppression de l'e-mail",
+    "addFailed": "Échec de l’ajout de l’e-mail",
+    "removeFailed": "Échec de la suppression de l’e-mail",
     "invalidEmail": "Veuillez saisir une adresse e-mail valide",
-    "limitReached": "Limite d'e-mails atteinte pour votre forfait",
+    "limitReached": "Limite d’e-mails atteinte pour votre forfait",
     "acknowledged": "Violations marquées comme examinées",
-    "acknowledgeFailed": "Échec du marquage des violations"
+    "acknowledgeFailed": "Échec du marquage des violations comme examinées"
   },
   "emptyState": {
     "noEmails": "Aucun e-mail surveillé",
-    "noEmailsDesc": "Ajoutez une adresse e-mail pour rechercher d'anciennes violations de données et surveiller en continu les nouvelles fuites.",
+    "noEmailsDesc": "Ajoutez une adresse e-mail pour rechercher d’anciennes violations de données et surveiller en continu les nouvelles fuites.",
     "allClear": "Aucune alerte",
-    "allClearDesc": "Aucun de vos e-mails surveillés n'a été trouvé dans des violations de données connues.",
+    "allClearDesc": "Aucun de vos e-mails surveillés n’a été trouvé dans des violations de données connues.",
     "upgradeRequired": "Mise à niveau requise",
-    "upgradeRequiredDesc": "La surveillance des violations de données est disponible avec le forfait Basic et supérieur. Mettez votre forfait à niveau pour commencer la surveillance.",
+    "upgradeRequiredDesc": "La surveillance des violations est disponible avec le forfait Basic et supérieur. Mettez à niveau votre forfait pour commencer la surveillance.",
     "goToCloud": "Voir les forfaits",
     "noBreachesForEmail": "Aucune violation trouvée pour cet e-mail",
     "selectEmail": "Sélectionnez un e-mail dans la liste pour afficher les détails de la violation"
@@ -43,8 +44,8 @@
     "noBreaches": "Aucune violation",
     "checking": "Vérification...",
     "paused": "En pause",
-    "remove": "Supprimer l'e-mail",
-    "lastChecked": "Vérifié le {{date}}"
+    "remove": "Supprimer l’e-mail",
+    "lastChecked": "Vérifié {{date}}"
   },
   "table": {
     "email": "E-mail",
@@ -54,7 +55,7 @@
     "data": "Données compromises",
     "status": "Statut",
     "actions": "",
-    "new": "Nouvelle",
+    "new": "Nouveau",
     "reviewed": "Examinée",
     "sensitive": "Violation sensible",
     "verified": "Vérifiée",
@@ -65,7 +66,7 @@
   },
   "actions": {
     "acknowledge": "Marquer comme examinée",
-    "acknowledgeTooltip": "Marquez cette violation comme vue afin qu'elle n'apparaisse plus comme nouvelle et ne déclenche plus de notifications",
+    "acknowledgeTooltip": "Marquez cette violation comme vue afin qu’elle n’apparaisse plus comme nouvelle et ne déclenche plus de notifications",
     "acknowledgeAll": "Tout marquer comme examiné",
     "acknowledgeAllTooltip": "Marquer toutes les violations non examinées comme vues"
   },

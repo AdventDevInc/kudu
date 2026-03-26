@@ -5,7 +5,8 @@
   "summary": {
     "totalBreaches": "Celkem úniků dat",
     "unacknowledged": "Nové",
-    "emailsMonitored": "Sledované e-maily"
+    "emailsMonitored": "Sledované e-maily",
+    "emailsMonitoredTooltip": "Tarif Basic: 1 e-mail · Tarif Pro: 5 e-mailů. Chcete-li sledovat více, upgradujte tarif v nastavení Cloudu."
   },
   "addEmail": {
     "placeholder": "Zadejte e-mailovou adresu",
@@ -19,22 +20,22 @@
     "invalidEmail": "Zadejte platnou e-mailovou adresu",
     "limitReached": "Byl dosažen limit e-mailů pro váš tarif",
     "acknowledged": "Úniky dat byly označeny jako zkontrolované",
-    "acknowledgeFailed": "Nepodařilo se potvrdit úniky dat"
+    "acknowledgeFailed": "Nepodařilo se označit úniky dat"
   },
   "emptyState": {
     "noEmails": "Nejsou sledovány žádné e-maily",
-    "noEmailsDesc": "Přidejte e-mailovou adresu, abyste mohli zkontrolovat dřívější úniky dat a průběžně sledovat nové úniky.",
+    "noEmailsDesc": "Přidejte e-mailovou adresu, abyste mohli zkontrolovat minulé úniky dat a průběžně sledovat nové úniky.",
     "allClear": "Vše v pořádku",
     "allClearDesc": "Žádný z vašich sledovaných e-mailů nebyl nalezen v žádném známém úniku dat.",
-    "upgradeRequired": "Vyžaduje se vyšší tarif",
-    "upgradeRequiredDesc": "Sledování úniků dat je k dispozici v tarifu Basic a vyšším. Pro zahájení sledování upgradujte svůj tarif.",
+    "upgradeRequired": "Je vyžadován upgrade",
+    "upgradeRequiredDesc": "Sledování úniků dat je k dispozici v tarifu Basic a vyšším. Upgradujte svůj tarif a začněte sledovat.",
     "goToCloud": "Zobrazit tarify",
     "noBreachesForEmail": "Pro tento e-mail nebyly nalezeny žádné úniky dat",
     "selectEmail": "Vyberte e-mail ze seznamu pro zobrazení podrobností o úniku dat"
   },
   "error": {
     "title": "Nepodařilo se načíst údaje o únicích dat",
-    "description": "Zkontrolujte cloudové připojení a zkuste to znovu."
+    "description": "Zkontrolujte připojení ke cloudu a zkuste to znovu."
   },
   "emailList": {
     "breaches": "{{count}} únik dat",
@@ -67,7 +68,7 @@
     "acknowledge": "Označit jako zkontrolované",
     "acknowledgeTooltip": "Označte tento únik dat jako zobrazený, aby se již nezobrazoval jako nový ani nespouštěl oznámení",
     "acknowledgeAll": "Označit vše jako zkontrolované",
-    "acknowledgeAllTooltip": "Označte všechny nezkontrolované úniky dat jako zobrazené"
+    "acknowledgeAllTooltip": "Označit všechny nezkontrolované úniky dat jako zobrazené"
   },
   "refetchButton": "Obnovit"
 }

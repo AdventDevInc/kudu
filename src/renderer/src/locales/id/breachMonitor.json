@@ -5,7 +5,8 @@
   "summary": {
     "totalBreaches": "Total Kebocoran",
     "unacknowledged": "Baru",
-    "emailsMonitored": "Email yang Dipantau"
+    "emailsMonitored": "Email yang Dipantau",
+    "emailsMonitoredTooltip": "Paket Basic: 1 email · Paket Pro: 5 email. Tingkatkan paket Anda di pengaturan Cloud untuk memantau lebih banyak."
   },
   "addEmail": {
     "placeholder": "Masukkan alamat email",
@@ -16,7 +17,7 @@
     "fetchFailed": "Gagal memuat data kebocoran",
     "addFailed": "Gagal menambahkan email",
     "removeFailed": "Gagal menghapus email",
-    "invalidEmail": "Harap masukkan alamat email yang valid",
+    "invalidEmail": "Masukkan alamat email yang valid",
     "limitReached": "Batas email untuk paket Anda telah tercapai",
     "acknowledged": "Kebocoran ditandai sebagai telah ditinjau",
     "acknowledgeFailed": "Gagal menandai kebocoran"
@@ -26,7 +27,7 @@
     "noEmailsDesc": "Tambahkan alamat email untuk memeriksa kebocoran data sebelumnya dan terus memantau kebocoran baru.",
     "allClear": "Aman",
     "allClearDesc": "Tidak ada email yang Anda pantau ditemukan dalam kebocoran data yang diketahui.",
-    "upgradeRequired": "Peningkatan diperlukan",
+    "upgradeRequired": "Perlu peningkatan",
     "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada paket Basic dan yang lebih tinggi. Tingkatkan paket Anda untuk mulai memantau.",
     "goToCloud": "Lihat Paket",
     "noBreachesForEmail": "Tidak ada kebocoran yang ditemukan untuk email ini",
@@ -34,7 +35,7 @@
   },
   "error": {
     "title": "Gagal memuat data kebocoran",
-    "description": "Periksa koneksi cloud Anda lalu coba lagi."
+    "description": "Periksa koneksi cloud Anda dan coba lagi."
   },
   "emailList": {
     "breaches": "{{count}} kebocoran",
@@ -51,7 +52,7 @@
     "breach": "Kebocoran",
     "date": "Tanggal",
     "accounts": "Akun",
-    "data": "Data yang Terdampak",
+    "data": "Data yang Terekspos",
     "status": "Status",
     "actions": "",
     "new": "Baru",
@@ -64,9 +65,9 @@
     "allEmails": "Semua email"
   },
   "actions": {
-    "acknowledge": "Tandai sebagai telah ditinjau",
+    "acknowledge": "Tandai sebagai ditinjau",
     "acknowledgeTooltip": "Tandai kebocoran ini sebagai sudah dilihat agar tidak lagi muncul sebagai baru atau memicu notifikasi",
-    "acknowledgeAll": "Tandai semua sebagai telah ditinjau",
+    "acknowledgeAll": "Tandai semua sebagai ditinjau",
     "acknowledgeAllTooltip": "Tandai semua kebocoran yang belum ditinjau sebagai sudah dilihat"
   },
   "refetchButton": "Segarkan"

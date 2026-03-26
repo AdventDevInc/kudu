@@ -1,11 +1,12 @@
 {
-  "pageTitle": "Brudovervågning",
+  "pageTitle": "Overvågning af databrud",
   "pageDescription": "Kontrollér, om dine e-mailadresser er blevet eksponeret i kendte databrud",
   "loading": "Indlæser data om databrud...",
   "summary": {
     "totalBreaches": "Samlet antal databrud",
     "unacknowledged": "Nye",
-    "emailsMonitored": "Overvågede e-mails"
+    "emailsMonitored": "Overvågede e-mails",
+    "emailsMonitoredTooltip": "Basic-abonnement: 1 e-mail · Pro-abonnement: 5 e-mails. Opgrader dit abonnement i Cloud-indstillinger for at overvåge flere."
   },
   "addEmail": {
     "placeholder": "Indtast en e-mailadresse",
@@ -18,19 +19,19 @@
     "removeFailed": "Kunne ikke fjerne e-mail",
     "invalidEmail": "Indtast en gyldig e-mailadresse",
     "limitReached": "Grænsen for e-mails i dit abonnement er nået",
-    "acknowledged": "Databrud er markeret som gennemgået",
+    "acknowledged": "Databrud markeret som gennemgået",
     "acknowledgeFailed": "Kunne ikke markere databrud som gennemgået"
   },
   "emptyState": {
     "noEmails": "Ingen overvågede e-mails",
-    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye læk.",
-    "allClear": "Alt ser fint ud",
-    "allClearDesc": "Ingen af dine overvågede e-mails er fundet i nogen kendte databrud.",
+    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge nye lækager.",
+    "allClear": "Alt ser godt ud",
+    "allClearDesc": "Ingen af dine overvågede e-mails er fundet i kendte databrud.",
     "upgradeRequired": "Opgradering påkrævet",
     "upgradeRequiredDesc": "Overvågning af databrud er tilgængelig med Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
     "goToCloud": "Se abonnementer",
     "noBreachesForEmail": "Ingen databrud fundet for denne e-mail",
-    "selectEmail": "Vælg en e-mail fra listen for at se detaljer om databrud"
+    "selectEmail": "Vælg en e-mail på listen for at se detaljer om databrud"
   },
   "error": {
     "title": "Kunne ikke indlæse data om databrud",
@@ -65,7 +66,7 @@
   },
   "actions": {
     "acknowledge": "Markér som gennemgået",
-    "acknowledgeTooltip": "Markér dette databrud som set, så det ikke længere vises som nyt eller udløser notifikationer",
+    "acknowledgeTooltip": "Markér dette databrud som set, så det ikke længere vises som nyt eller udløser meddelelser",
     "acknowledgeAll": "Markér alle som gennemgået",
     "acknowledgeAllTooltip": "Markér alle ikke-gennemgåede databrud som set"
   },

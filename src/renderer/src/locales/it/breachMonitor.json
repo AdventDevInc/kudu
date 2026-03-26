@@ -1,11 +1,12 @@
 {
   "pageTitle": "Monitoraggio violazioni",
-  "pageDescription": "Verifica se i tuoi indirizzi email sono stati esposti in violazioni dei dati note",
-  "loading": "Caricamento dati delle violazioni...",
+  "pageDescription": "Controlla se i tuoi indirizzi email sono stati esposti in violazioni dei dati note",
+  "loading": "Caricamento dei dati sulle violazioni...",
   "summary": {
     "totalBreaches": "Violazioni totali",
     "unacknowledged": "Nuove",
-    "emailsMonitored": "Email monitorate"
+    "emailsMonitored": "Email monitorate",
+    "emailsMonitoredTooltip": "Piano Basic: 1 email · Piano Pro: 5 email. Aggiorna il tuo piano nelle impostazioni Cloud per monitorarne di più."
   },
   "addEmail": {
     "placeholder": "Inserisci un indirizzo email",
@@ -13,19 +14,19 @@
     "adding": "Aggiunta in corso..."
   },
   "toast": {
-    "fetchFailed": "Impossibile caricare i dati delle violazioni",
+    "fetchFailed": "Impossibile caricare i dati sulle violazioni",
     "addFailed": "Impossibile aggiungere l'email",
     "removeFailed": "Impossibile rimuovere l'email",
     "invalidEmail": "Inserisci un indirizzo email valido",
     "limitReached": "Limite di email raggiunto per il tuo piano",
-    "acknowledged": "Violazioni contrassegnate come revisionate",
+    "acknowledged": "Violazioni contrassegnate come esaminate",
     "acknowledgeFailed": "Impossibile confermare le violazioni"
   },
   "emptyState": {
     "noEmails": "Nessuna email monitorata",
     "noEmailsDesc": "Aggiungi un indirizzo email per verificare eventuali violazioni dei dati passate e monitorare continuamente nuove fughe di dati.",
     "allClear": "Nessun problema rilevato",
-    "allClearDesc": "Nessuna delle tue email monitorate è stata trovata in violazioni dei dati note.",
+    "allClearDesc": "Nessuna delle email monitorate è stata trovata in violazioni dei dati note.",
     "upgradeRequired": "Aggiornamento richiesto",
     "upgradeRequiredDesc": "Il monitoraggio delle violazioni è disponibile con il piano Basic e superiori. Aggiorna il tuo piano per iniziare il monitoraggio.",
     "goToCloud": "Visualizza piani",
@@ -33,7 +34,7 @@
     "selectEmail": "Seleziona un'email dall'elenco per visualizzare i dettagli della violazione"
   },
   "error": {
-    "title": "Impossibile caricare i dati delle violazioni",
+    "title": "Impossibile caricare i dati sulle violazioni",
     "description": "Controlla la connessione al cloud e riprova."
   },
   "emailList": {
@@ -41,10 +42,10 @@
     "breaches_other": "{{count}} violazioni",
     "newBreaches": "{{count}} nuove",
     "noBreaches": "Nessuna violazione",
-    "checking": "Verifica in corso...",
+    "checking": "Controllo in corso...",
     "paused": "In pausa",
     "remove": "Rimuovi email",
-    "lastChecked": "Verificata {{date}}"
+    "lastChecked": "Controllata il {{date}}"
   },
   "table": {
     "email": "Email",
@@ -55,7 +56,7 @@
     "status": "Stato",
     "actions": "",
     "new": "Nuova",
-    "reviewed": "Revisionata",
+    "reviewed": "Esaminata",
     "sensitive": "Violazione sensibile",
     "verified": "Verificata",
     "unverified": "Non verificata"
@@ -64,10 +65,10 @@
     "allEmails": "Tutte le email"
   },
   "actions": {
-    "acknowledge": "Contrassegna come revisionata",
-    "acknowledgeTooltip": "Contrassegna questa violazione come già vista in modo che non appaia più come nuova e non attivi notifiche",
-    "acknowledgeAll": "Contrassegna tutte come revisionate",
-    "acknowledgeAllTooltip": "Contrassegna tutte le violazioni non revisionate come già viste"
+    "acknowledge": "Contrassegna come esaminata",
+    "acknowledgeTooltip": "Contrassegna questa violazione come visualizzata in modo che non appaia più come nuova e non attivi notifiche",
+    "acknowledgeAll": "Contrassegna tutte come esaminate",
+    "acknowledgeAllTooltip": "Contrassegna tutte le violazioni non esaminate come visualizzate"
   },
   "refetchButton": "Aggiorna"
 }

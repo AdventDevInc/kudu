@@ -5,7 +5,8 @@
   "summary": {
     "totalBreaches": "Totalt antal intrång",
     "unacknowledged": "Nya",
-    "emailsMonitored": "Övervakade e-postadresser"
+    "emailsMonitored": "Övervakade e-postadresser",
+    "emailsMonitoredTooltip": "Basic-plan: 1 e-postadress · Pro-plan: 5 e-postadresser. Uppgradera din plan i Cloud-inställningarna för att övervaka fler."
   },
   "addEmail": {
     "placeholder": "Ange en e-postadress",
@@ -17,24 +18,24 @@
     "addFailed": "Det gick inte att lägga till e-postadressen",
     "removeFailed": "Det gick inte att ta bort e-postadressen",
     "invalidEmail": "Ange en giltig e-postadress",
-    "limitReached": "Gränsen för antal e-postadresser har nåtts för din plan",
+    "limitReached": "Gränsen för antal e-postadresser i din plan har uppnåtts",
     "acknowledged": "Intrång markerade som granskade",
     "acknowledgeFailed": "Det gick inte att bekräfta intrången"
   },
   "emptyState": {
     "noEmails": "Inga e-postadresser övervakas",
-    "noEmailsDesc": "Lägg till en e-postadress för att kontrollera tidigare dataintrång och övervaka nya läckor kontinuerligt.",
+    "noEmailsDesc": "Lägg till en e-postadress för att kontrollera tidigare dataintrång och övervaka nya läckor löpande.",
     "allClear": "Inga problem",
     "allClearDesc": "Ingen av dina övervakade e-postadresser har hittats i några kända dataintrång.",
     "upgradeRequired": "Uppgradering krävs",
     "upgradeRequiredDesc": "Intrångsövervakning är tillgänglig med Basic-planen och högre. Uppgradera din plan för att börja övervaka.",
     "goToCloud": "Visa planer",
     "noBreachesForEmail": "Inga intrång hittades för den här e-postadressen",
-    "selectEmail": "Välj en e-postadress i listan för att visa information om intrånget"
+    "selectEmail": "Välj en e-postadress i listan för att visa information om intrång"
   },
   "error": {
     "title": "Det gick inte att läsa in intrångsdata",
-    "description": "Kontrollera din molnanslutning och försök igen."
+    "description": "Kontrollera din Cloud-anslutning och försök igen."
   },
   "emailList": {
     "breaches": "{{count}} intrång",
@@ -65,7 +66,7 @@
   },
   "actions": {
     "acknowledge": "Markera som granskad",
-    "acknowledgeTooltip": "Markera det här intrånget som sett så att det inte längre visas som nytt eller utlöser aviseringar",
+    "acknowledgeTooltip": "Markera detta intrång som sett så att det inte längre visas som nytt eller utlöser aviseringar",
     "acknowledgeAll": "Markera alla som granskade",
     "acknowledgeAllTooltip": "Markera alla ogranskade intrång som sedda"
   },

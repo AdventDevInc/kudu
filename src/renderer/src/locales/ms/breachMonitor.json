@@ -5,7 +5,8 @@
   "summary": {
     "totalBreaches": "Jumlah Kebocoran",
     "unacknowledged": "Baharu",
-    "emailsMonitored": "E-mel Dipantau"
+    "emailsMonitored": "E-mel Dipantau",
+    "emailsMonitoredTooltip": "Pelan Basic: 1 e-mel · Pelan Pro: 5 e-mel. Naik taraf pelan anda dalam tetapan Cloud untuk memantau lebih banyak."
   },
   "addEmail": {
     "placeholder": "Masukkan alamat e-mel",
@@ -15,15 +16,15 @@
   "toast": {
     "fetchFailed": "Gagal memuatkan data kebocoran",
     "addFailed": "Gagal menambah e-mel",
-    "removeFailed": "Gagal mengalih keluar e-mel",
+    "removeFailed": "Gagal membuang e-mel",
     "invalidEmail": "Sila masukkan alamat e-mel yang sah",
     "limitReached": "Had e-mel telah dicapai untuk pelan anda",
     "acknowledged": "Kebocoran ditandakan sebagai telah disemak",
-    "acknowledgeFailed": "Gagal mengesahkan kebocoran"
+    "acknowledgeFailed": "Gagal mengakui kebocoran"
   },
   "emptyState": {
     "noEmails": "Tiada e-mel dipantau",
-    "noEmailsDesc": "Tambah alamat e-mel untuk menyemak kebocoran data terdahulu dan memantau kebocoran baharu secara berterusan.",
+    "noEmailsDesc": "Tambah alamat e-mel untuk menyemak kebocoran data yang lalu dan memantau kebocoran baharu secara berterusan.",
     "allClear": "Semua selamat",
     "allClearDesc": "Tiada e-mel yang anda pantau ditemui dalam mana-mana kebocoran data yang diketahui.",
     "upgradeRequired": "Naik taraf diperlukan",
@@ -43,7 +44,7 @@
     "noBreaches": "Tiada kebocoran",
     "checking": "Menyemak...",
     "paused": "Dijeda",
-    "remove": "Alih keluar e-mel",
+    "remove": "Buang e-mel",
     "lastChecked": "Disemak {{date}}"
   },
   "table": {

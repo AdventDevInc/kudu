@@ -1,11 +1,12 @@
 {
   "pageTitle": "外洩監控",
-  "pageDescription": "檢查您的電子郵件地址是否已在已知的資料外洩事件中曝光",
+  "pageDescription": "檢查您的電子郵件地址是否已在已知資料外洩事件中曝光",
   "loading": "正在載入外洩資料...",
   "summary": {
     "totalBreaches": "外洩總數",
     "unacknowledged": "新增",
-    "emailsMonitored": "已監控的電子郵件"
+    "emailsMonitored": "監控中的電子郵件",
+    "emailsMonitoredTooltip": "Basic 方案：1 個電子郵件 · Pro 方案：5 個電子郵件。可在 Cloud 設定中升級方案以監控更多電子郵件。"
   },
   "addEmail": {
     "placeholder": "輸入電子郵件地址",
@@ -17,20 +18,20 @@
     "addFailed": "新增電子郵件失敗",
     "removeFailed": "移除電子郵件失敗",
     "invalidEmail": "請輸入有效的電子郵件地址",
-    "limitReached": "您的方案已達電子郵件數量上限",
-    "acknowledged": "外洩事件已標示為已檢閱",
+    "limitReached": "已達到您方案的電子郵件數量上限",
+    "acknowledged": "已將外洩事件標示為已檢閱",
     "acknowledgeFailed": "標示外洩事件失敗"
   },
   "emptyState": {
-    "noEmails": "尚未監控任何電子郵件",
-    "noEmailsDesc": "新增電子郵件地址，以檢查過去的資料外洩事件並持續監控新的外洩。",
+    "noEmails": "沒有監控中的電子郵件",
+    "noEmailsDesc": "新增電子郵件地址以檢查過往資料外洩事件，並持續監控新的外洩。",
     "allClear": "一切正常",
-    "allClearDesc": "您已監控的電子郵件皆未出現在任何已知的資料外洩事件中。",
+    "allClearDesc": "您監控的電子郵件皆未在任何已知資料外洩事件中被發現。",
     "upgradeRequired": "需要升級",
-    "upgradeRequiredDesc": "外洩監控功能適用於 Basic 方案及以上版本。請升級您的方案以開始監控。",
+    "upgradeRequiredDesc": "外洩監控功能適用於 Basic 方案及以上。請升級您的方案以開始監控。",
     "goToCloud": "查看方案",
     "noBreachesForEmail": "此電子郵件未發現外洩事件",
-    "selectEmail": "請從清單中選取一個電子郵件以查看外洩詳細資料"
+    "selectEmail": "請從清單中選取一個電子郵件以檢視外洩詳細資料"
   },
   "error": {
     "title": "載入外洩資料失敗",
@@ -41,10 +42,10 @@
     "breaches_other": "{{count}} 次外洩",
     "newBreaches": "{{count}} 筆新增",
     "noBreaches": "無外洩事件",
-    "checking": "正在檢查...",
+    "checking": "檢查中...",
     "paused": "已暫停",
     "remove": "移除電子郵件",
-    "lastChecked": "於 {{date}} 檢查"
+    "lastChecked": "已於 {{date}} 檢查"
   },
   "table": {
     "email": "電子郵件",

@@ -1,54 +1,55 @@
 {
   "pageTitle": "Bruddsovervåking",
-  "pageDescription": "Kontroller om e-postadressene dine har blitt eksponert i kjente databrudd",
-  "loading": "Laster inn data om databrudd...",
+  "pageDescription": "Sjekk om e-postadressene dine har blitt eksponert i kjente datainnbrudd",
+  "loading": "Laster inn data om datainnbrudd...",
   "summary": {
-    "totalBreaches": "Totalt antall brudd",
+    "totalBreaches": "Totalt antall datainnbrudd",
     "unacknowledged": "Nye",
-    "emailsMonitored": "Overvåkede e-poster"
+    "emailsMonitored": "Overvåkede e-postadresser",
+    "emailsMonitoredTooltip": "Basic-abonnement: 1 e-postadresse · Pro-abonnement: 5 e-postadresser. Oppgrader abonnementet ditt i Cloud-innstillingene for å overvåke flere."
   },
   "addEmail": {
     "placeholder": "Skriv inn en e-postadresse",
-    "button": "Legg til e-post",
+    "button": "Legg til e-postadresse",
     "adding": "Legger til..."
   },
   "toast": {
-    "fetchFailed": "Kunne ikke laste inn data om databrudd",
-    "addFailed": "Kunne ikke legge til e-post",
-    "removeFailed": "Kunne ikke fjerne e-post",
+    "fetchFailed": "Kunne ikke laste inn data om datainnbrudd",
+    "addFailed": "Kunne ikke legge til e-postadresse",
+    "removeFailed": "Kunne ikke fjerne e-postadresse",
     "invalidEmail": "Skriv inn en gyldig e-postadresse",
-    "limitReached": "Grensen for antall e-poster er nådd for abonnementet ditt",
-    "acknowledged": "Brudd er merket som gjennomgått",
-    "acknowledgeFailed": "Kunne ikke bekrefte brudd"
+    "limitReached": "Grensen for e-postadresser i abonnementet ditt er nådd",
+    "acknowledged": "Datainnbrudd er markert som gjennomgått",
+    "acknowledgeFailed": "Kunne ikke bekrefte datainnbrudd"
   },
   "emptyState": {
-    "noEmails": "Ingen e-poster overvåkes",
-    "noEmailsDesc": "Legg til en e-postadresse for å se etter tidligere databrudd og overvåke kontinuerlig for nye lekkasjer.",
+    "noEmails": "Ingen e-postadresser overvåkes",
+    "noEmailsDesc": "Legg til en e-postadresse for å sjekke tidligere datainnbrudd og overvåke kontinuerlig for nye lekkasjer.",
     "allClear": "Alt er i orden",
-    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i noen kjente databrudd.",
+    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i kjente datainnbrudd.",
     "upgradeRequired": "Oppgradering kreves",
     "upgradeRequiredDesc": "Bruddsovervåking er tilgjengelig med Basic-abonnementet og høyere. Oppgrader abonnementet ditt for å starte overvåking.",
     "goToCloud": "Vis abonnementer",
-    "noBreachesForEmail": "Ingen brudd funnet for denne e-posten",
-    "selectEmail": "Velg en e-post fra listen for å se detaljer om databrudd"
+    "noBreachesForEmail": "Ingen datainnbrudd funnet for denne e-postadressen",
+    "selectEmail": "Velg en e-postadresse fra listen for å vise detaljer om datainnbrudd"
   },
   "error": {
-    "title": "Kunne ikke laste inn data om databrudd",
-    "description": "Kontroller skytjenestetilkoblingen og prøv igjen."
+    "title": "Kunne ikke laste inn data om datainnbrudd",
+    "description": "Kontroller Cloud-tilkoblingen og prøv igjen."
   },
   "emailList": {
-    "breaches": "{{count}} brudd",
-    "breaches_other": "{{count}} brudd",
+    "breaches": "{{count}} datainnbrudd",
+    "breaches_other": "{{count}} datainnbrudd",
     "newBreaches": "{{count}} nye",
-    "noBreaches": "Ingen brudd",
+    "noBreaches": "Ingen datainnbrudd",
     "checking": "Kontrollerer...",
     "paused": "Satt på pause",
-    "remove": "Fjern e-post",
+    "remove": "Fjern e-postadresse",
     "lastChecked": "Kontrollert {{date}}"
   },
   "table": {
-    "email": "E-post",
-    "breach": "Brudd",
+    "email": "E-postadresse",
+    "breach": "Datainnbrudd",
     "date": "Dato",
     "accounts": "Kontoer",
     "data": "Kompromitterte data",
@@ -56,18 +57,18 @@
     "actions": "",
     "new": "Ny",
     "reviewed": "Gjennomgått",
-    "sensitive": "Sensitivt brudd",
-    "verified": "Verifisert",
-    "unverified": "Ikke verifisert"
+    "sensitive": "Sensitivt datainnbrudd",
+    "verified": "Bekreftet",
+    "unverified": "Ubekreftet"
   },
   "filter": {
-    "allEmails": "Alle e-poster"
+    "allEmails": "Alle e-postadresser"
   },
   "actions": {
-    "acknowledge": "Merk som gjennomgått",
-    "acknowledgeTooltip": "Merk dette bruddet som sett, slik at det ikke lenger vises som nytt eller utløser varsler",
-    "acknowledgeAll": "Merk alle som gjennomgått",
-    "acknowledgeAllTooltip": "Merk alle ikke gjennomgåtte brudd som sett"
+    "acknowledge": "Marker som gjennomgått",
+    "acknowledgeTooltip": "Marker dette datainnbruddet som sett, slik at det ikke lenger vises som nytt eller utløser varsler",
+    "acknowledgeAll": "Marker alle som gjennomgått",
+    "acknowledgeAllTooltip": "Marker alle ugjennomgåtte datainnbrudd som sett"
   },
   "refetchButton": "Oppdater"
 }

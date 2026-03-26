@@ -1,11 +1,12 @@
 {
-  "pageTitle": "Verletzungsmonitor",
-  "pageDescription": "Prüfen Sie, ob Ihre E-Mail-Adressen in bekannten Datenpannen offengelegt wurden",
-  "loading": "Datenpannen-Daten werden geladen...",
+  "pageTitle": "Breach-Monitor",
+  "pageDescription": "Prüfen Sie, ob Ihre E-Mail-Adressen in bekannten Datenschutzverletzungen offengelegt wurden",
+  "loading": "Breach-Daten werden geladen...",
   "summary": {
-    "totalBreaches": "Datenpannen insgesamt",
+    "totalBreaches": "Gesamte Breaches",
     "unacknowledged": "Neu",
-    "emailsMonitored": "Überwachte E-Mails"
+    "emailsMonitored": "Überwachte E-Mails",
+    "emailsMonitoredTooltip": "Basic-Tarif: 1 E-Mail · Pro-Tarif: 5 E-Mails. Aktualisieren Sie Ihren Tarif in den Cloud-Einstellungen, um mehr zu überwachen."
   },
   "addEmail": {
     "placeholder": "E-Mail-Adresse eingeben",
@@ -13,42 +14,42 @@
     "adding": "Wird hinzugefügt..."
   },
   "toast": {
-    "fetchFailed": "Datenpannen-Daten konnten nicht geladen werden",
+    "fetchFailed": "Breach-Daten konnten nicht geladen werden",
     "addFailed": "E-Mail konnte nicht hinzugefügt werden",
     "removeFailed": "E-Mail konnte nicht entfernt werden",
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
     "limitReached": "E-Mail-Limit für Ihren Tarif erreicht",
-    "acknowledged": "Datenpannen als überprüft markiert",
-    "acknowledgeFailed": "Datenpannen konnten nicht als überprüft markiert werden"
+    "acknowledged": "Breaches als überprüft markiert",
+    "acknowledgeFailed": "Breaches konnten nicht bestätigt werden"
   },
   "emptyState": {
-    "noEmails": "Keine E-Mails werden überwacht",
-    "noEmailsDesc": "Fügen Sie eine E-Mail-Adresse hinzu, um nach früheren Datenpannen zu suchen und neue Lecks fortlaufend zu überwachen.",
+    "noEmails": "Keine E-Mails überwacht",
+    "noEmailsDesc": "Fügen Sie eine E-Mail-Adresse hinzu, um nach früheren Datenschutzverletzungen zu suchen und fortlaufend auf neue Leaks zu überwachen.",
     "allClear": "Alles in Ordnung",
-    "allClearDesc": "Keine Ihrer überwachten E-Mails wurde in bekannten Datenpannen gefunden.",
+    "allClearDesc": "Keine Ihrer überwachten E-Mail-Adressen wurde in bekannten Datenschutzverletzungen gefunden.",
     "upgradeRequired": "Upgrade erforderlich",
-    "upgradeRequiredDesc": "Die Überwachung von Datenpannen ist im Basic-Tarif und höher verfügbar. Führen Sie ein Upgrade Ihres Tarifs durch, um die Überwachung zu starten.",
+    "upgradeRequiredDesc": "Die Breach-Überwachung ist im Basic-Tarif und höher verfügbar. Aktualisieren Sie Ihren Tarif, um die Überwachung zu starten.",
     "goToCloud": "Tarife anzeigen",
-    "noBreachesForEmail": "Für diese E-Mail wurden keine Datenpannen gefunden",
-    "selectEmail": "Wählen Sie eine E-Mail aus der Liste aus, um Details zur Datenpanne anzuzeigen"
+    "noBreachesForEmail": "Für diese E-Mail wurden keine Breaches gefunden",
+    "selectEmail": "Wählen Sie eine E-Mail aus der Liste aus, um Breach-Details anzuzeigen"
   },
   "error": {
-    "title": "Datenpannen-Daten konnten nicht geladen werden",
+    "title": "Breach-Daten konnten nicht geladen werden",
     "description": "Überprüfen Sie Ihre Cloud-Verbindung und versuchen Sie es erneut."
   },
   "emailList": {
-    "breaches": "{{count}} Datenpanne",
-    "breaches_other": "{{count}} Datenpannen",
+    "breaches": "{{count}} Breach",
+    "breaches_other": "{{count}} Breaches",
     "newBreaches": "{{count}} neu",
-    "noBreaches": "Keine Datenpannen",
+    "noBreaches": "Keine Breaches",
     "checking": "Wird geprüft...",
     "paused": "Pausiert",
     "remove": "E-Mail entfernen",
-    "lastChecked": "Geprüft am {{date}}"
+    "lastChecked": "Geprüft {{date}}"
   },
   "table": {
     "email": "E-Mail",
-    "breach": "Datenpanne",
+    "breach": "Breach",
     "date": "Datum",
     "accounts": "Konten",
     "data": "Kompromittierte Daten",
@@ -56,7 +57,7 @@
     "actions": "",
     "new": "Neu",
     "reviewed": "Überprüft",
-    "sensitive": "Sensible Datenpanne",
+    "sensitive": "Sensitiver Breach",
     "verified": "Verifiziert",
     "unverified": "Nicht verifiziert"
   },
@@ -65,9 +66,9 @@
   },
   "actions": {
     "acknowledge": "Als überprüft markieren",
-    "acknowledgeTooltip": "Markieren Sie diese Datenpanne als gesehen, damit sie nicht mehr als neu angezeigt wird oder Benachrichtigungen auslöst",
+    "acknowledgeTooltip": "Diesen Breach als gesehen markieren, damit er nicht mehr als neu angezeigt wird oder Benachrichtigungen auslöst",
     "acknowledgeAll": "Alle als überprüft markieren",
-    "acknowledgeAllTooltip": "Alle nicht überprüften Datenpannen als gesehen markieren"
+    "acknowledgeAllTooltip": "Alle nicht überprüften Breaches als gesehen markieren"
   },
   "refetchButton": "Aktualisieren"
 }

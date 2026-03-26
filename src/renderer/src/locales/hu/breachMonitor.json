@@ -1,15 +1,16 @@
 {
   "pageTitle": "Adatszivárgás-figyelő",
-  "pageDescription": "Ellenőrizze, hogy e-mail-címei szerepeltek-e ismert adatszivárgásokban",
+  "pageDescription": "Ellenőrizze, hogy az e-mail-címei szerepelnek-e ismert adatszivárgásokban",
   "loading": "Adatszivárgási adatok betöltése...",
   "summary": {
     "totalBreaches": "Összes adatszivárgás",
     "unacknowledged": "Új",
-    "emailsMonitored": "Figyelt e-mail-címek"
+    "emailsMonitored": "Figyelt e-mail-címek",
+    "emailsMonitoredTooltip": "Basic csomag: 1 e-mail-cím · Pro csomag: 5 e-mail-cím. További címek figyeléséhez váltson csomagot a Cloud beállításaiban."
   },
   "addEmail": {
     "placeholder": "Adjon meg egy e-mail-címet",
-    "button": "E-mail hozzáadása",
+    "button": "E-mail-cím hozzáadása",
     "adding": "Hozzáadás..."
   },
   "toast": {
@@ -17,7 +18,7 @@
     "addFailed": "Nem sikerült hozzáadni az e-mail-címet",
     "removeFailed": "Nem sikerült eltávolítani az e-mail-címet",
     "invalidEmail": "Kérjük, adjon meg egy érvényes e-mail-címet",
-    "limitReached": "Elérte a csomagjához tartozó e-mail-korlátot",
+    "limitReached": "Elérte a csomagjához tartozó e-mail-címkorlátot",
     "acknowledged": "Az adatszivárgások megjelölve áttekintettként",
     "acknowledgeFailed": "Nem sikerült megjelölni az adatszivárgásokat"
   },
@@ -26,11 +27,11 @@
     "noEmailsDesc": "Adjon hozzá egy e-mail-címet a korábbi adatszivárgások ellenőrzéséhez és az új szivárgások folyamatos figyeléséhez.",
     "allClear": "Minden rendben",
     "allClearDesc": "Egyik figyelt e-mail-címe sem szerepel ismert adatszivárgásban.",
-    "upgradeRequired": "Frissítés szükséges",
-    "upgradeRequiredDesc": "Az adatszivárgás-figyelés a Basic csomagtól érhető el. Frissítse csomagját a figyelés megkezdéséhez.",
+    "upgradeRequired": "Csomagfrissítés szükséges",
+    "upgradeRequiredDesc": "Az adatszivárgás-figyelés a Basic csomagtól érhető el. A figyelés megkezdéséhez váltson magasabb csomagra.",
     "goToCloud": "Csomagok megtekintése",
     "noBreachesForEmail": "Ehhez az e-mail-címhez nem található adatszivárgás",
-    "selectEmail": "Válasszon egy e-mail-címet a listából az adatszivárgás részleteinek megtekintéséhez"
+    "selectEmail": "Az adatszivárgás részleteinek megtekintéséhez válasszon egy e-mail-címet a listából"
   },
   "error": {
     "title": "Nem sikerült betölteni az adatszivárgási adatokat",
@@ -43,19 +44,19 @@
     "noBreaches": "Nincs adatszivárgás",
     "checking": "Ellenőrzés...",
     "paused": "Szüneteltetve",
-    "remove": "E-mail eltávolítása",
+    "remove": "E-mail-cím eltávolítása",
     "lastChecked": "Ellenőrizve: {{date}}"
   },
   "table": {
-    "email": "E-mail",
+    "email": "E-mail-cím",
     "breach": "Adatszivárgás",
     "date": "Dátum",
     "accounts": "Fiókok",
-    "data": "Érintett adatok",
+    "data": "Kiszivárgott adatok",
     "status": "Állapot",
     "actions": "",
     "new": "Új",
-    "reviewed": "Áttekintve",
+    "reviewed": "Áttekintett",
     "sensitive": "Érzékeny adatszivárgás",
     "verified": "Ellenőrzött",
     "unverified": "Nem ellenőrzött"
@@ -65,9 +66,9 @@
   },
   "actions": {
     "acknowledge": "Megjelölés áttekintettként",
-    "acknowledgeTooltip": "Jelölje meg ezt az adatszivárgást megtekintettként, hogy többé ne jelenjen meg újként, és ne küldjön értesítést",
+    "acknowledgeTooltip": "Jelölje meg ezt az adatszivárgást megtekintettként, hogy többé ne jelenjen meg újként, és ne váltson ki értesítéseket",
     "acknowledgeAll": "Összes megjelölése áttekintettként",
-    "acknowledgeAllTooltip": "Jelölje meg az összes még át nem tekintett adatszivárgást megtekintettként"
+    "acknowledgeAllTooltip": "Az összes még át nem tekintett adatszivárgás megjelölése megtekintettként"
   },
   "refetchButton": "Frissítés"
 }

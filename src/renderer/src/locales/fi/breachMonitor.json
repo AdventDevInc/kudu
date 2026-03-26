@@ -5,7 +5,8 @@
   "summary": {
     "totalBreaches": "Tietomurtoja yhteensä",
     "unacknowledged": "Uudet",
-    "emailsMonitored": "Valvotut sähköpostit"
+    "emailsMonitored": "Valvotut sähköpostit",
+    "emailsMonitoredTooltip": "Basic-paketti: 1 sähköposti · Pro-paketti: 5 sähköpostia. Päivitä pakettisi Cloud-asetuksissa valvoaksesi useampia."
   },
   "addEmail": {
     "placeholder": "Anna sähköpostiosoite",
@@ -17,18 +18,18 @@
     "addFailed": "Sähköpostin lisääminen epäonnistui",
     "removeFailed": "Sähköpostin poistaminen epäonnistui",
     "invalidEmail": "Anna kelvollinen sähköpostiosoite",
-    "limitReached": "Sähköpostien enimmäismäärä on saavutettu tilauksessasi",
+    "limitReached": "Pakettisi sähköpostiraja on saavutettu",
     "acknowledged": "Tietomurrot merkitty tarkistetuiksi",
-    "acknowledgeFailed": "Tietomurtojen merkitseminen epäonnistui"
+    "acknowledgeFailed": "Tietomurtojen kuittaaminen epäonnistui"
   },
   "emptyState": {
     "noEmails": "Valvottuja sähköposteja ei ole",
     "noEmailsDesc": "Lisää sähköpostiosoite tarkistaaksesi aiemmat tietomurrot ja valvoaksesi jatkuvasti uusia vuotoja.",
     "allClear": "Ei havaintoja",
-    "allClearDesc": "Yhtäkään valvotuista sähköpostiosoitteistasi ei löytynyt tunnetuista tietomurroista.",
+    "allClearDesc": "Yhtään valvotuista sähköpostiosoitteistasi ei ole löytynyt tunnetuista tietomurroista.",
     "upgradeRequired": "Päivitys vaaditaan",
-    "upgradeRequiredDesc": "Tietomurtovalvonta on käytettävissä Basic-tilauksessa ja sitä ylemmissä. Päivitä tilauksesi aloittaaksesi valvonnan.",
-    "goToCloud": "Näytä tilaukset",
+    "upgradeRequiredDesc": "Tietomurtovalvonta on käytettävissä Basic-paketissa ja sitä ylemmissä. Päivitä pakettisi aloittaaksesi valvonnan.",
+    "goToCloud": "Näytä paketit",
     "noBreachesForEmail": "Tälle sähköpostille ei löytynyt tietomurtoja",
     "selectEmail": "Valitse sähköposti luettelosta nähdäksesi tietomurron tiedot"
   },
