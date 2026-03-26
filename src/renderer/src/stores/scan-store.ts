@@ -1,6 +1,17 @@
 import { create } from 'zustand'
-import type { ScanResult, CleanResult, ProgressData, ScanItem } from '@shared/types'
+import type { ScanResult, ProgressData, ScanItem, CleanError } from '@shared/types'
 import { ScanStatus, CleanerType } from '@shared/enums'
+
+export interface CleanSummaryData {
+  totalCleaned: number
+  filesDeleted: number
+  filesSkipped: number
+  errors: CleanError[]
+  needsElevation: boolean
+  categories: Array<{ name: string; type: string; found: number; cleaned: number; space: number }>
+  duration: number
+  totalSizeBefore: number
+}
 
 const EXCLUDED_KEY = 'kudu:excluded-subcategories'
 
@@ -24,14 +35,14 @@ interface ScanState {
   selectedItems: Set<string>
   excludedSubcategories: Set<string>
   progress: ProgressData | null
-  cleanResult: CleanResult | null
+  cleanSummary: CleanSummaryData | null
   activeCategory: CleanerType | null
 
   setStatus: (status: ScanStatus) => void
   setResults: (results: ScanResult[]) => void
   addResults: (results: ScanResult[]) => void
   setProgress: (progress: ProgressData | null) => void
-  setCleanResult: (result: CleanResult | null) => void
+  setCleanSummary: (summary: CleanSummaryData | null) => void
   setActiveCategory: (cat: CleanerType | null) => void
   toggleItem: (id: string) => void
   toggleSubcategory: (result: ScanResult) => void
@@ -50,7 +61,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
   selectedItems: new Set<string>(),
   excludedSubcategories: loadExcluded(),
   progress: null,
-  cleanResult: null,
+  cleanSummary: null,
   activeCategory: null,
 
   setStatus: (status) => set({ status }),
@@ -76,7 +87,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
       return { results: [...s.results, ...newResults], selectedItems: selected }
     }),
   setProgress: (progress) => set({ progress }),
-  setCleanResult: (cleanResult) => set({ cleanResult }),
+  setCleanSummary: (cleanSummary) => set({ cleanSummary }),
   setActiveCategory: (activeCategory) => set({ activeCategory }),
   toggleItem: (id) =>
     set((s) => {
@@ -167,6 +178,6 @@ export const useScanStore = create<ScanState>((set, get) => ({
       results: [],
       selectedItems: new Set(),
       progress: null,
-      cleanResult: null
+      cleanSummary: null
     })
 }))

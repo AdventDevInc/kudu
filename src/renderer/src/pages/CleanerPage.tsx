@@ -11,7 +11,6 @@ import {
   Variable,
   Search,
   Sparkles,
-  CheckCircle2,
   ChevronRight,
   Folder,
   AlertTriangle,
@@ -22,6 +21,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { ScanProgress } from '@/components/shared/ScanProgress'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { CleanSummary } from '@/components/cleaner/CleanSummary'
 import { cn, formatBytes, formatNumber } from '@/lib/utils'
 import { useScanStore } from '@/stores/scan-store'
 import { useStatsStore } from '@/stores/stats-store'
@@ -174,7 +174,7 @@ export function CleanerPage() {
       }
       let totalCleaned = 0, totalFiles = 0, totalSkipped = 0, anyNeedsElevation = false
       const allErrors: { path: string; reason: string }[] = []
-      const categoryBreakdown: Record<string, { found: number; cleaned: number; space: number }> = {}
+      const categoryBreakdown: Array<{ name: string; type: string; found: number; cleaned: number; space: number }> = []
 
       // Compute how many categories actually have items to clean so progress
       // scales to 100% even when only a subset of categories is active.
@@ -206,37 +206,49 @@ export function CleanerPage() {
               totalSkipped += result.filesSkipped || 0
               if (result.needsElevation) anyNeedsElevation = true
               if (result.errors?.length) allErrors.push(...result.errors)
-              categoryBreakdown[t(cat.labelKey)] = {
+              categoryBreakdown.push({
+                name: t(cat.labelKey),
+                type: cat.type,
                 found: catItemsAll.length,
                 cleaned: result.filesDeleted || 0,
                 space: result.totalCleaned || 0
-              }
+              })
             }
           } catch { /* continue */ }
           activeIndex++
         } else if (catItemsAll.length > 0) {
-          categoryBreakdown[t(cat.labelKey)] = { found: catItemsAll.length, cleaned: 0, space: 0 }
+          categoryBreakdown.push({ name: t(cat.labelKey), type: cat.type, found: catItemsAll.length, cleaned: 0, space: 0 })
         }
       }
 
       const totalFound = store.results.reduce((s, r) => s + r.itemCount, 0)
+      const duration = Date.now() - cleanStartRef.current
       await historyStore.addEntry({
         id: Date.now().toString(),
         type: 'cleaner',
         timestamp: new Date().toISOString(),
-        duration: Date.now() - cleanStartRef.current,
+        duration,
         totalItemsFound: totalFound,
         totalItemsCleaned: totalFiles,
         totalItemsSkipped: totalSkipped,
         totalSpaceSaved: totalCleaned,
-        categories: Object.entries(categoryBreakdown).map(([name, d]) => ({
-          name, itemsFound: d.found, itemsCleaned: d.cleaned, spaceSaved: d.space
+        categories: categoryBreakdown.map((d) => ({
+          name: d.name, itemsFound: d.found, itemsCleaned: d.cleaned, spaceSaved: d.space
         })),
         errorCount: allErrors.length
       })
       recomputeStats()
 
-      store.setCleanResult({ totalCleaned, filesDeleted: totalFiles, filesSkipped: totalSkipped, errors: allErrors, needsElevation: anyNeedsElevation })
+      store.setCleanSummary({
+        totalCleaned,
+        filesDeleted: totalFiles,
+        filesSkipped: totalSkipped,
+        errors: allErrors,
+        needsElevation: anyNeedsElevation,
+        categories: categoryBreakdown,
+        duration,
+        totalSizeBefore: store.getTotalSize()
+      })
       store.setStatus(ScanStatus.Complete)
     } catch {
       store.setStatus(ScanStatus.Error)
@@ -377,7 +389,7 @@ export function CleanerPage() {
             </div>
           )}
 
-          {elevationSkipped.length > 0 && store.status === ScanStatus.Complete && !store.cleanResult && (
+          {elevationSkipped.length > 0 && store.status === ScanStatus.Complete && !store.cleanSummary && (
             <div
               className="mb-5 flex items-center gap-3 rounded-2xl px-4 py-3"
               style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
@@ -402,61 +414,8 @@ export function CleanerPage() {
             </div>
           )}
 
-          {store.cleanResult && store.status === ScanStatus.Complete && (
-            <div
-              className="mb-5 rounded-2xl p-4"
-              style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
-            >
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
-                <div>
-                  <p className="text-[13px] font-medium text-zinc-200">{t('cleaningComplete')}</p>
-                  <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>
-                    {t('cleanedSummary', { size: formatBytes(store.cleanResult.totalCleaned), count: formatNumber(store.cleanResult.filesDeleted) })}
-                    {store.cleanResult.filesSkipped > 0 && (
-                      <span style={{ color: 'var(--text-secondary)' }}> · {t('skippedSummary', { count: formatNumber(store.cleanResult.filesSkipped) })}</span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              {store.cleanResult.needsElevation && (
-                <div
-                  className="mt-3 ml-8 flex items-center gap-3 rounded-xl px-3 py-2.5"
-                  style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
-                >
-                  <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
-                  <p className="flex-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                    {t('permissionError')}
-                  </p>
-                  <button
-                    onClick={handleRelaunch}
-                    className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
-                    style={{ border: '1px solid rgba(245,158,11,0.2)' }}
-                  >
-                    {t('relaunchAsAdmin')}
-                  </button>
-                </div>
-              )}
-              {store.cleanResult.errors.length > 0 && (
-                <details className="mt-2 ml-8">
-                  <summary className="text-[11px] cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
-                    {t('itemsCouldntBeDeleted', { count: store.cleanResult.errors.length })}
-                  </summary>
-                  <div className="mt-1 max-h-32 overflow-y-auto space-y-0.5">
-                    {store.cleanResult.errors.slice(0, 20).map((err, i) => (
-                      <p key={i} className="text-[11px] font-mono truncate" style={{ color: 'var(--text-muted)' }}>
-                        {err.path.split(/[/\\]/).slice(-3).join('/')} — {err.reason === 'permission-denied' ? t('permissionDenied') : err.reason}
-                      </p>
-                    ))}
-                    {store.cleanResult.errors.length > 20 && (
-                      <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                        {t('andMore', { count: store.cleanResult.errors.length - 20 })}
-                      </p>
-                    )}
-                  </div>
-                </details>
-              )}
-            </div>
+          {store.cleanSummary && store.status === ScanStatus.Complete && (
+            <CleanSummary summary={store.cleanSummary} onRelaunchAsAdmin={handleRelaunch} />
           )}
 
           {!hasResults && !isScanning && (

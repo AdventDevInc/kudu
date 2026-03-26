@@ -48,5 +48,12 @@
   "toastRestorePointSkippedDescription": "Could not create restore point",
   "confirmCleanTitle": "Clean Selected Files",
   "confirmCleanDescription": "This will permanently delete {{count}} items ({{size}}). This action cannot be undone.",
-  "confirmCleanLabel": "Clean Now"
+  "confirmCleanLabel": "Clean Now",
+  "summaryTitle": "Cleaning Complete!",
+  "summaryDuration": "Completed in {{duration}}",
+  "summarySpaceReclaimed": "Space Reclaimed",
+  "summaryFilesDeleted": "Files Deleted",
+  "summaryDurationLabel": "Duration",
+  "summaryBreakdown": "Breakdown by Category",
+  "summarySkipped": "{{count}} items skipped (in use or protected)"
 }
