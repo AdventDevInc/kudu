@@ -8,7 +8,7 @@
     "emailsMonitored": "כתובות אימייל במעקב"
   },
   "addEmail": {
-    "placeholder": "הזן כתובת אימייל",
+    "placeholder": "הזינו כתובת אימייל",
     "button": "הוסף אימייל",
     "adding": "מוסיף..."
   },
@@ -17,29 +17,29 @@
     "addFailed": "הוספת האימייל נכשלה",
     "removeFailed": "הסרת האימייל נכשלה",
     "invalidEmail": "נא להזין כתובת אימייל תקינה",
-    "limitReached": "הגעת למגבלת כתובות האימייל בתוכנית שלך",
+    "limitReached": "הגעתם למגבלת האימיילים בתוכנית שלכם",
     "acknowledged": "הפריצות סומנו כנסקרו",
-    "acknowledgeFailed": "אישור הפריצות נכשל"
+    "acknowledgeFailed": "סימון הפריצות נכשל"
   },
   "emptyState": {
     "noEmails": "אין כתובות אימייל במעקב",
-    "noEmailsDesc": "הוסף כתובת אימייל כדי לבדוק פריצות נתונים קודמות ולעקוב באופן רציף אחר דליפות חדשות.",
+    "noEmailsDesc": "הוסיפו כתובת אימייל כדי לבדוק פריצות נתונים קודמות ולעקוב באופן רציף אחר דליפות חדשות.",
     "allClear": "הכול תקין",
     "allClearDesc": "אף אחת מכתובות האימייל שבמעקב לא נמצאה באף פריצת נתונים מוכרת.",
     "upgradeRequired": "נדרש שדרוג",
-    "upgradeRequiredDesc": "ניטור פריצות זמין בתוכנית Basic ומעלה. שדרג את התוכנית שלך כדי להתחיל במעקב.",
+    "upgradeRequiredDesc": "ניטור פריצות זמין בתוכנית Basic ומעלה. שדרגו את התוכנית שלכם כדי להתחיל במעקב.",
     "goToCloud": "הצג תוכניות",
     "noBreachesForEmail": "לא נמצאו פריצות עבור כתובת אימייל זו",
-    "selectEmail": "בחר כתובת אימייל מהרשימה כדי להציג את פרטי הפריצה"
+    "selectEmail": "בחרו כתובת אימייל מהרשימה כדי להציג את פרטי הפריצה"
   },
   "error": {
     "title": "טעינת נתוני הפריצות נכשלה",
-    "description": "בדוק את החיבור לענן ונסה שוב."
+    "description": "בדקו את החיבור לענן ונסו שוב."
   },
   "emailList": {
     "breaches": "{{count}} פריצה",
     "breaches_other": "{{count}} פריצות",
-    "newBreaches": "{{count}} חדש",
+    "newBreaches": "{{count}} חדשות",
     "noBreaches": "אין פריצות",
     "checking": "בודק...",
     "paused": "מושהה",
@@ -47,6 +47,7 @@
     "lastChecked": "נבדק {{date}}"
   },
   "table": {
+    "email": "אימייל",
     "breach": "פריצה",
     "date": "תאריך",
     "accounts": "חשבונות",
@@ -59,11 +60,14 @@
     "verified": "מאומת",
     "unverified": "לא מאומת"
   },
+  "filter": {
+    "allEmails": "כל כתובות האימייל"
+  },
   "actions": {
     "acknowledge": "סמן כנסקר",
-    "acknowledgeTooltip": "סמן פריצה זו כנצפתה כדי שלא תופיע עוד כחדשה או תפעיל התראות",
+    "acknowledgeTooltip": "סמנו פריצה זו כנצפתה כדי שלא תופיע עוד כחדשה או תפעיל התראות",
     "acknowledgeAll": "סמן הכול כנסקר",
-    "acknowledgeAllTooltip": "סמן את כל הפריצות שלא נסקרו כנצפו"
+    "acknowledgeAllTooltip": "סמנו את כל הפריצות שטרם נסקרו כנצפו"
   },
   "refetchButton": "רענן"
 }

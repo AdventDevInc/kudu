@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Brudsovervågning",
+  "pageTitle": "Brudovervågning",
   "pageDescription": "Kontrollér, om dine e-mailadresser er blevet eksponeret i kendte databrud",
   "loading": "Indlæser data om databrud...",
   "summary": {
@@ -17,20 +17,20 @@
     "addFailed": "Kunne ikke tilføje e-mail",
     "removeFailed": "Kunne ikke fjerne e-mail",
     "invalidEmail": "Indtast en gyldig e-mailadresse",
-    "limitReached": "Grænsen for e-mails er nået for dit abonnement",
-    "acknowledged": "Databrud markeret som gennemgået",
+    "limitReached": "Grænsen for e-mails i dit abonnement er nået",
+    "acknowledged": "Databrud er markeret som gennemgået",
     "acknowledgeFailed": "Kunne ikke markere databrud som gennemgået"
   },
   "emptyState": {
     "noEmails": "Ingen overvågede e-mails",
-    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye lækager.",
-    "allClear": "Alt ser godt ud",
-    "allClearDesc": "Ingen af dine overvågede e-mails er fundet i kendte databrud.",
+    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye læk.",
+    "allClear": "Alt ser fint ud",
+    "allClearDesc": "Ingen af dine overvågede e-mails er fundet i nogen kendte databrud.",
     "upgradeRequired": "Opgradering påkrævet",
-    "upgradeRequiredDesc": "Overvågning af databrud er tilgængelig på Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
+    "upgradeRequiredDesc": "Overvågning af databrud er tilgængelig med Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
     "goToCloud": "Se abonnementer",
     "noBreachesForEmail": "Ingen databrud fundet for denne e-mail",
-    "selectEmail": "Vælg en e-mail på listen for at se detaljer om databrud"
+    "selectEmail": "Vælg en e-mail fra listen for at se detaljer om databrud"
   },
   "error": {
     "title": "Kunne ikke indlæse data om databrud",
@@ -47,6 +47,7 @@
     "lastChecked": "Kontrolleret {{date}}"
   },
   "table": {
+    "email": "E-mail",
     "breach": "Databrud",
     "date": "Dato",
     "accounts": "Konti",
@@ -59,9 +60,12 @@
     "verified": "Bekræftet",
     "unverified": "Ikke bekræftet"
   },
+  "filter": {
+    "allEmails": "Alle e-mails"
+  },
   "actions": {
     "acknowledge": "Markér som gennemgået",
-    "acknowledgeTooltip": "Markér dette databrud som set, så det ikke længere vises som nyt eller udløser meddelelser",
+    "acknowledgeTooltip": "Markér dette databrud som set, så det ikke længere vises som nyt eller udløser notifikationer",
     "acknowledgeAll": "Markér alle som gennemgået",
     "acknowledgeAllTooltip": "Markér alle ikke-gennemgåede databrud som set"
   },

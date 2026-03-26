@@ -9,7 +9,7 @@
   },
   "addEmail": {
     "placeholder": "Introduza um endereço de e-mail",
-    "button": "Adicionar E-mail",
+    "button": "Adicionar e-mail",
     "adding": "A adicionar..."
   },
   "toast": {
@@ -19,7 +19,7 @@
     "invalidEmail": "Introduza um endereço de e-mail válido",
     "limitReached": "Limite de e-mails atingido para o seu plano",
     "acknowledged": "Violações marcadas como revistas",
-    "acknowledgeFailed": "Falha ao marcar as violações como revistas"
+    "acknowledgeFailed": "Falha ao confirmar as violações"
   },
   "emptyState": {
     "noEmails": "Nenhum e-mail monitorizado",
@@ -28,7 +28,7 @@
     "allClearDesc": "Nenhum dos seus e-mails monitorizados foi encontrado em violações de dados conhecidas.",
     "upgradeRequired": "Atualização necessária",
     "upgradeRequiredDesc": "A monitorização de violações está disponível no plano Basic e superiores. Atualize o seu plano para começar a monitorizar.",
-    "goToCloud": "Ver Planos",
+    "goToCloud": "Ver planos",
     "noBreachesForEmail": "Nenhuma violação encontrada para este e-mail",
     "selectEmail": "Selecione um e-mail da lista para ver os detalhes da violação"
   },
@@ -47,6 +47,7 @@
     "lastChecked": "Verificado em {{date}}"
   },
   "table": {
+    "email": "E-mail",
     "breach": "Violação",
     "date": "Data",
     "accounts": "Contas",
@@ -58,6 +59,9 @@
     "sensitive": "Violação Sensível",
     "verified": "Verificada",
     "unverified": "Não verificada"
+  },
+  "filter": {
+    "allEmails": "Todos os e-mails"
   },
   "actions": {
     "acknowledge": "Marcar como revista",

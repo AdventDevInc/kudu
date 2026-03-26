@@ -18,13 +18,13 @@
     "removeFailed": "Impossibile rimuovere l'email",
     "invalidEmail": "Inserisci un indirizzo email valido",
     "limitReached": "Limite di email raggiunto per il tuo piano",
-    "acknowledged": "Violazioni contrassegnate come esaminate",
+    "acknowledged": "Violazioni contrassegnate come revisionate",
     "acknowledgeFailed": "Impossibile confermare le violazioni"
   },
   "emptyState": {
     "noEmails": "Nessuna email monitorata",
     "noEmailsDesc": "Aggiungi un indirizzo email per verificare eventuali violazioni dei dati passate e monitorare continuamente nuove fughe di dati.",
-    "allClear": "Nessun problema",
+    "allClear": "Nessun problema rilevato",
     "allClearDesc": "Nessuna delle tue email monitorate è stata trovata in violazioni dei dati note.",
     "upgradeRequired": "Aggiornamento richiesto",
     "upgradeRequiredDesc": "Il monitoraggio delle violazioni è disponibile con il piano Basic e superiori. Aggiorna il tuo piano per iniziare il monitoraggio.",
@@ -34,7 +34,7 @@
   },
   "error": {
     "title": "Impossibile caricare i dati delle violazioni",
-    "description": "Controlla la connessione cloud e riprova."
+    "description": "Controlla la connessione al cloud e riprova."
   },
   "emailList": {
     "breaches": "{{count}} violazione",
@@ -44,9 +44,10 @@
     "checking": "Verifica in corso...",
     "paused": "In pausa",
     "remove": "Rimuovi email",
-    "lastChecked": "Verificato {{date}}"
+    "lastChecked": "Verificata {{date}}"
   },
   "table": {
+    "email": "Email",
     "breach": "Violazione",
     "date": "Data",
     "accounts": "Account",
@@ -54,16 +55,19 @@
     "status": "Stato",
     "actions": "",
     "new": "Nuova",
-    "reviewed": "Esaminata",
+    "reviewed": "Revisionata",
     "sensitive": "Violazione sensibile",
     "verified": "Verificata",
     "unverified": "Non verificata"
   },
+  "filter": {
+    "allEmails": "Tutte le email"
+  },
   "actions": {
-    "acknowledge": "Contrassegna come esaminata",
-    "acknowledgeTooltip": "Contrassegna questa violazione come visualizzata in modo che non appaia più come nuova e non attivi notifiche",
-    "acknowledgeAll": "Contrassegna tutte come esaminate",
-    "acknowledgeAllTooltip": "Contrassegna tutte le violazioni non esaminate come visualizzate"
+    "acknowledge": "Contrassegna come revisionata",
+    "acknowledgeTooltip": "Contrassegna questa violazione come già vista in modo che non appaia più come nuova e non attivi notifiche",
+    "acknowledgeAll": "Contrassegna tutte come revisionate",
+    "acknowledgeAllTooltip": "Contrassegna tutte le violazioni non revisionate come già viste"
   },
   "refetchButton": "Aggiorna"
 }

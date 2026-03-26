@@ -1,7 +1,7 @@
 {
-  "pageTitle": "Breach Monitor",
+  "pageTitle": "Verletzungsmonitor",
   "pageDescription": "Prüfen Sie, ob Ihre E-Mail-Adressen in bekannten Datenpannen offengelegt wurden",
-  "loading": "Daten zu Datenpannen werden geladen...",
+  "loading": "Datenpannen-Daten werden geladen...",
   "summary": {
     "totalBreaches": "Datenpannen insgesamt",
     "unacknowledged": "Neu",
@@ -13,27 +13,27 @@
     "adding": "Wird hinzugefügt..."
   },
   "toast": {
-    "fetchFailed": "Daten zu Datenpannen konnten nicht geladen werden",
+    "fetchFailed": "Datenpannen-Daten konnten nicht geladen werden",
     "addFailed": "E-Mail konnte nicht hinzugefügt werden",
     "removeFailed": "E-Mail konnte nicht entfernt werden",
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-    "limitReached": "Das E-Mail-Limit Ihres Tarifs wurde erreicht",
+    "limitReached": "E-Mail-Limit für Ihren Tarif erreicht",
     "acknowledged": "Datenpannen als überprüft markiert",
     "acknowledgeFailed": "Datenpannen konnten nicht als überprüft markiert werden"
   },
   "emptyState": {
     "noEmails": "Keine E-Mails werden überwacht",
-    "noEmailsDesc": "Fügen Sie eine E-Mail-Adresse hinzu, um nach früheren Datenpannen zu suchen und neue Leaks fortlaufend zu überwachen.",
+    "noEmailsDesc": "Fügen Sie eine E-Mail-Adresse hinzu, um nach früheren Datenpannen zu suchen und neue Lecks fortlaufend zu überwachen.",
     "allClear": "Alles in Ordnung",
     "allClearDesc": "Keine Ihrer überwachten E-Mails wurde in bekannten Datenpannen gefunden.",
     "upgradeRequired": "Upgrade erforderlich",
-    "upgradeRequiredDesc": "Die Überwachung von Datenpannen ist im Basic-Tarif und in höheren Tarifen verfügbar. Führen Sie ein Upgrade Ihres Tarifs durch, um die Überwachung zu starten.",
+    "upgradeRequiredDesc": "Die Überwachung von Datenpannen ist im Basic-Tarif und höher verfügbar. Führen Sie ein Upgrade Ihres Tarifs durch, um die Überwachung zu starten.",
     "goToCloud": "Tarife anzeigen",
     "noBreachesForEmail": "Für diese E-Mail wurden keine Datenpannen gefunden",
     "selectEmail": "Wählen Sie eine E-Mail aus der Liste aus, um Details zur Datenpanne anzuzeigen"
   },
   "error": {
-    "title": "Daten zu Datenpannen konnten nicht geladen werden",
+    "title": "Datenpannen-Daten konnten nicht geladen werden",
     "description": "Überprüfen Sie Ihre Cloud-Verbindung und versuchen Sie es erneut."
   },
   "emailList": {
@@ -47,6 +47,7 @@
     "lastChecked": "Geprüft am {{date}}"
   },
   "table": {
+    "email": "E-Mail",
     "breach": "Datenpanne",
     "date": "Datum",
     "accounts": "Konten",
@@ -58,6 +59,9 @@
     "sensitive": "Sensible Datenpanne",
     "verified": "Verifiziert",
     "unverified": "Nicht verifiziert"
+  },
+  "filter": {
+    "allEmails": "Alle E-Mails"
   },
   "actions": {
     "acknowledge": "Als überprüft markieren",

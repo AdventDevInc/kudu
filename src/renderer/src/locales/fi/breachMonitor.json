@@ -5,32 +5,32 @@
   "summary": {
     "totalBreaches": "Tietomurtoja yhteensä",
     "unacknowledged": "Uudet",
-    "emailsMonitored": "Valvotut sähköpostiosoitteet"
+    "emailsMonitored": "Valvotut sähköpostit"
   },
   "addEmail": {
     "placeholder": "Anna sähköpostiosoite",
-    "button": "Lisää sähköpostiosoite",
+    "button": "Lisää sähköposti",
     "adding": "Lisätään..."
   },
   "toast": {
     "fetchFailed": "Tietomurtotietojen lataaminen epäonnistui",
-    "addFailed": "Sähköpostiosoitteen lisääminen epäonnistui",
-    "removeFailed": "Sähköpostiosoitteen poistaminen epäonnistui",
+    "addFailed": "Sähköpostin lisääminen epäonnistui",
+    "removeFailed": "Sähköpostin poistaminen epäonnistui",
     "invalidEmail": "Anna kelvollinen sähköpostiosoite",
-    "limitReached": "Sähköpostiosoitteiden enimmäismäärä on saavutettu nykyisellä tilauksellasi",
+    "limitReached": "Sähköpostien enimmäismäärä on saavutettu tilauksessasi",
     "acknowledged": "Tietomurrot merkitty tarkistetuiksi",
     "acknowledgeFailed": "Tietomurtojen merkitseminen epäonnistui"
   },
   "emptyState": {
-    "noEmails": "Valvottuja sähköpostiosoitteita ei ole",
+    "noEmails": "Valvottuja sähköposteja ei ole",
     "noEmailsDesc": "Lisää sähköpostiosoite tarkistaaksesi aiemmat tietomurrot ja valvoaksesi jatkuvasti uusia vuotoja.",
     "allClear": "Ei havaintoja",
-    "allClearDesc": "Yhtään valvotuista sähköpostiosoitteistasi ei ole löytynyt tunnetuista tietomurroista.",
+    "allClearDesc": "Yhtäkään valvotuista sähköpostiosoitteistasi ei löytynyt tunnetuista tietomurroista.",
     "upgradeRequired": "Päivitys vaaditaan",
-    "upgradeRequiredDesc": "Tietomurtovalvonta on saatavilla Basic-tilauksessa ja sitä ylemmissä. Päivitä tilauksesi aloittaaksesi valvonnan.",
+    "upgradeRequiredDesc": "Tietomurtovalvonta on käytettävissä Basic-tilauksessa ja sitä ylemmissä. Päivitä tilauksesi aloittaaksesi valvonnan.",
     "goToCloud": "Näytä tilaukset",
-    "noBreachesForEmail": "Tälle sähköpostiosoitteelle ei löytynyt tietomurtoja",
-    "selectEmail": "Valitse sähköpostiosoite luettelosta nähdäksesi tietomurron tiedot"
+    "noBreachesForEmail": "Tälle sähköpostille ei löytynyt tietomurtoja",
+    "selectEmail": "Valitse sähköposti luettelosta nähdäksesi tietomurron tiedot"
   },
   "error": {
     "title": "Tietomurtotietojen lataaminen epäonnistui",
@@ -43,10 +43,11 @@
     "noBreaches": "Ei tietomurtoja",
     "checking": "Tarkistetaan...",
     "paused": "Keskeytetty",
-    "remove": "Poista sähköpostiosoite",
+    "remove": "Poista sähköposti",
     "lastChecked": "Tarkistettu {{date}}"
   },
   "table": {
+    "email": "Sähköposti",
     "breach": "Tietomurto",
     "date": "Päivämäärä",
     "accounts": "Tilit",
@@ -58,6 +59,9 @@
     "sensitive": "Arkaluonteinen tietomurto",
     "verified": "Vahvistettu",
     "unverified": "Vahvistamaton"
+  },
+  "filter": {
+    "allEmails": "Kaikki sähköpostit"
   },
   "actions": {
     "acknowledge": "Merkitse tarkistetuksi",

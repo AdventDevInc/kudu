@@ -19,7 +19,7 @@
     "invalidEmail": "Ange en giltig e-postadress",
     "limitReached": "Gränsen för antal e-postadresser har nåtts för din plan",
     "acknowledged": "Intrång markerade som granskade",
-    "acknowledgeFailed": "Det gick inte att bekräfta intrång"
+    "acknowledgeFailed": "Det gick inte att bekräfta intrången"
   },
   "emptyState": {
     "noEmails": "Inga e-postadresser övervakas",
@@ -30,7 +30,7 @@
     "upgradeRequiredDesc": "Intrångsövervakning är tillgänglig med Basic-planen och högre. Uppgradera din plan för att börja övervaka.",
     "goToCloud": "Visa planer",
     "noBreachesForEmail": "Inga intrång hittades för den här e-postadressen",
-    "selectEmail": "Välj en e-postadress i listan för att visa information om intrång"
+    "selectEmail": "Välj en e-postadress i listan för att visa information om intrånget"
   },
   "error": {
     "title": "Det gick inte att läsa in intrångsdata",
@@ -47,6 +47,7 @@
     "lastChecked": "Kontrollerad {{date}}"
   },
   "table": {
+    "email": "E-postadress",
     "breach": "Intrång",
     "date": "Datum",
     "accounts": "Konton",
@@ -59,9 +60,12 @@
     "verified": "Verifierad",
     "unverified": "Overifierad"
   },
+  "filter": {
+    "allEmails": "Alla e-postadresser"
+  },
   "actions": {
     "acknowledge": "Markera som granskad",
-    "acknowledgeTooltip": "Markera detta intrång som sett så att det inte längre visas som nytt eller utlöser aviseringar",
+    "acknowledgeTooltip": "Markera det här intrånget som sett så att det inte längre visas som nytt eller utlöser aviseringar",
     "acknowledgeAll": "Markera alla som granskade",
     "acknowledgeAllTooltip": "Markera alla ogranskade intrång som sedda"
   },

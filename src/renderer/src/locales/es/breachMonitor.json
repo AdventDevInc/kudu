@@ -3,7 +3,7 @@
   "pageDescription": "Compruebe si sus direcciones de correo electrónico han quedado expuestas en filtraciones de datos conocidas",
   "loading": "Cargando datos de filtraciones...",
   "summary": {
-    "totalBreaches": "Filtraciones totales",
+    "totalBreaches": "Total de filtraciones",
     "unacknowledged": "Nuevas",
     "emailsMonitored": "Correos supervisados"
   },
@@ -17,7 +17,7 @@
     "addFailed": "No se pudo añadir el correo",
     "removeFailed": "No se pudo eliminar el correo",
     "invalidEmail": "Introduzca una dirección de correo electrónico válida",
-    "limitReached": "Se alcanzó el límite de correos de su plan",
+    "limitReached": "Se ha alcanzado el límite de correos de su plan",
     "acknowledged": "Las filtraciones se marcaron como revisadas",
     "acknowledgeFailed": "No se pudieron marcar las filtraciones como revisadas"
   },
@@ -39,7 +39,7 @@
   "emailList": {
     "breaches": "{{count}} filtración",
     "breaches_other": "{{count}} filtraciones",
-    "newBreaches": "{{count}} nueva",
+    "newBreaches": "{{count}} nuevas",
     "noBreaches": "Sin filtraciones",
     "checking": "Comprobando...",
     "paused": "En pausa",
@@ -47,6 +47,7 @@
     "lastChecked": "Comprobado {{date}}"
   },
   "table": {
+    "email": "Correo",
     "breach": "Filtración",
     "date": "Fecha",
     "accounts": "Cuentas",
@@ -57,7 +58,10 @@
     "reviewed": "Revisada",
     "sensitive": "Filtración sensible",
     "verified": "Verificada",
-    "unverified": "No verificada"
+    "unverified": "Sin verificar"
+  },
+  "filter": {
+    "allEmails": "Todos los correos"
   },
   "actions": {
     "acknowledge": "Marcar como revisada",

@@ -1,67 +1,71 @@
 {
-  "pageTitle": "漏えい監視",
-  "pageDescription": "お使いのメールアドレスが既知のデータ侵害で漏えいしていないか確認します",
-  "loading": "漏えいデータを読み込んでいます...",
+  "pageTitle": "侵害モニター",
+  "pageDescription": "メールアドレスが既知のデータ侵害で漏えいしていないか確認します",
+  "loading": "侵害データを読み込んでいます...",
   "summary": {
     "totalBreaches": "侵害総数",
-    "unacknowledged": "新規",
-    "emailsMonitored": "監視中のメールアドレス"
+    "unacknowledged": "新着",
+    "emailsMonitored": "監視中のメール"
   },
   "addEmail": {
     "placeholder": "メールアドレスを入力",
-    "button": "メールアドレスを追加",
+    "button": "メールを追加",
     "adding": "追加しています..."
   },
   "toast": {
-    "fetchFailed": "漏えいデータの読み込みに失敗しました",
-    "addFailed": "メールアドレスの追加に失敗しました",
-    "removeFailed": "メールアドレスの削除に失敗しました",
+    "fetchFailed": "侵害データの読み込みに失敗しました",
+    "addFailed": "メールの追加に失敗しました",
+    "removeFailed": "メールの削除に失敗しました",
     "invalidEmail": "有効なメールアドレスを入力してください",
-    "limitReached": "ご利用のプランのメールアドレス上限に達しました",
+    "limitReached": "ご利用のプランのメール上限に達しました",
     "acknowledged": "侵害を確認済みにしました",
     "acknowledgeFailed": "侵害の確認済みへの変更に失敗しました"
   },
   "emptyState": {
-    "noEmails": "監視中のメールアドレスはありません",
+    "noEmails": "監視中のメールはありません",
     "noEmailsDesc": "メールアドレスを追加すると、過去のデータ侵害を確認し、新たな漏えいを継続的に監視できます。",
     "allClear": "問題はありません",
     "allClearDesc": "監視中のメールアドレスは、既知のデータ侵害では見つかっていません。",
     "upgradeRequired": "アップグレードが必要です",
-    "upgradeRequiredDesc": "漏えい監視は Basic プラン以上でご利用いただけます。監視を開始するにはプランをアップグレードしてください。",
-    "goToCloud": "プランを見る",
-    "noBreachesForEmail": "このメールアドレスでは侵害は見つかりませんでした",
-    "selectEmail": "一覧からメールアドレスを選択して侵害の詳細を表示します"
+    "upgradeRequiredDesc": "侵害モニタリングは Basic プラン以上で利用できます。監視を開始するにはプランをアップグレードしてください。",
+    "goToCloud": "プランを表示",
+    "noBreachesForEmail": "このメールでは侵害は見つかりませんでした",
+    "selectEmail": "一覧からメールを選択して侵害の詳細を表示します"
   },
   "error": {
-    "title": "漏えいデータの読み込みに失敗しました",
+    "title": "侵害データの読み込みに失敗しました",
     "description": "クラウド接続を確認して、もう一度お試しください。"
   },
   "emailList": {
-    "breaches": "{{count}} 件の侵害",
-    "breaches_other": "{{count}} 件の侵害",
-    "newBreaches": "{{count}} 件の新規",
+    "breaches": "侵害 {{count}} 件",
+    "breaches_other": "侵害 {{count}} 件",
+    "newBreaches": "新着 {{count}} 件",
     "noBreaches": "侵害なし",
     "checking": "確認しています...",
     "paused": "一時停止中",
-    "remove": "メールアドレスを削除",
+    "remove": "メールを削除",
     "lastChecked": "{{date}} に確認"
   },
   "table": {
+    "email": "メール",
     "breach": "侵害",
     "date": "日付",
-    "accounts": "アカウント数",
+    "accounts": "アカウント",
     "data": "漏えいしたデータ",
     "status": "状態",
     "actions": "",
-    "new": "新規",
+    "new": "新着",
     "reviewed": "確認済み",
     "sensitive": "機密性の高い侵害",
     "verified": "確認済み",
     "unverified": "未確認"
   },
+  "filter": {
+    "allEmails": "すべてのメール"
+  },
   "actions": {
     "acknowledge": "確認済みにする",
-    "acknowledgeTooltip": "この侵害を確認済みにして、新規として表示されたり通知が送信されたりしないようにします",
+    "acknowledgeTooltip": "この侵害を確認済みにして、新着として表示されたり通知が送信されたりしないようにします",
     "acknowledgeAll": "すべて確認済みにする",
     "acknowledgeAllTooltip": "未確認の侵害をすべて確認済みにします"
   },

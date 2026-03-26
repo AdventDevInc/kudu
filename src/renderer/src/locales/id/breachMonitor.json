@@ -16,10 +16,10 @@
     "fetchFailed": "Gagal memuat data kebocoran",
     "addFailed": "Gagal menambahkan email",
     "removeFailed": "Gagal menghapus email",
-    "invalidEmail": "Masukkan alamat email yang valid",
+    "invalidEmail": "Harap masukkan alamat email yang valid",
     "limitReached": "Batas email untuk paket Anda telah tercapai",
     "acknowledged": "Kebocoran ditandai sebagai telah ditinjau",
-    "acknowledgeFailed": "Gagal mengonfirmasi kebocoran"
+    "acknowledgeFailed": "Gagal menandai kebocoran"
   },
   "emptyState": {
     "noEmails": "Tidak ada email yang dipantau",
@@ -34,7 +34,7 @@
   },
   "error": {
     "title": "Gagal memuat data kebocoran",
-    "description": "Periksa koneksi cloud Anda dan coba lagi."
+    "description": "Periksa koneksi cloud Anda lalu coba lagi."
   },
   "emailList": {
     "breaches": "{{count}} kebocoran",
@@ -47,6 +47,7 @@
     "lastChecked": "Diperiksa {{date}}"
   },
   "table": {
+    "email": "Email",
     "breach": "Kebocoran",
     "date": "Tanggal",
     "accounts": "Akun",
@@ -57,13 +58,16 @@
     "reviewed": "Ditinjau",
     "sensitive": "Kebocoran Sensitif",
     "verified": "Terverifikasi",
-    "unverified": "Belum Terverifikasi"
+    "unverified": "Belum diverifikasi"
+  },
+  "filter": {
+    "allEmails": "Semua email"
   },
   "actions": {
     "acknowledge": "Tandai sebagai telah ditinjau",
-    "acknowledgeTooltip": "Tandai kebocoran ini sebagai telah dilihat agar tidak lagi muncul sebagai baru atau memicu notifikasi",
+    "acknowledgeTooltip": "Tandai kebocoran ini sebagai sudah dilihat agar tidak lagi muncul sebagai baru atau memicu notifikasi",
     "acknowledgeAll": "Tandai semua sebagai telah ditinjau",
-    "acknowledgeAllTooltip": "Tandai semua kebocoran yang belum ditinjau sebagai telah dilihat"
+    "acknowledgeAllTooltip": "Tandai semua kebocoran yang belum ditinjau sebagai sudah dilihat"
   },
   "refetchButton": "Segarkan"
 }

@@ -15,7 +15,7 @@
   "toast": {
     "fetchFailed": "Gagal memuatkan data kebocoran",
     "addFailed": "Gagal menambah e-mel",
-    "removeFailed": "Gagal membuang e-mel",
+    "removeFailed": "Gagal mengalih keluar e-mel",
     "invalidEmail": "Sila masukkan alamat e-mel yang sah",
     "limitReached": "Had e-mel telah dicapai untuk pelan anda",
     "acknowledged": "Kebocoran ditandakan sebagai telah disemak",
@@ -23,8 +23,8 @@
   },
   "emptyState": {
     "noEmails": "Tiada e-mel dipantau",
-    "noEmailsDesc": "Tambah alamat e-mel untuk menyemak kebocoran data yang lalu dan memantau kebocoran baharu secara berterusan.",
-    "allClear": "Semuanya selamat",
+    "noEmailsDesc": "Tambah alamat e-mel untuk menyemak kebocoran data terdahulu dan memantau kebocoran baharu secara berterusan.",
+    "allClear": "Semua selamat",
     "allClearDesc": "Tiada e-mel yang anda pantau ditemui dalam mana-mana kebocoran data yang diketahui.",
     "upgradeRequired": "Naik taraf diperlukan",
     "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada pelan Basic dan ke atas. Naik taraf pelan anda untuk mula memantau.",
@@ -43,10 +43,11 @@
     "noBreaches": "Tiada kebocoran",
     "checking": "Menyemak...",
     "paused": "Dijeda",
-    "remove": "Buang e-mel",
+    "remove": "Alih keluar e-mel",
     "lastChecked": "Disemak {{date}}"
   },
   "table": {
+    "email": "E-mel",
     "breach": "Kebocoran",
     "date": "Tarikh",
     "accounts": "Akaun",
@@ -59,11 +60,14 @@
     "verified": "Disahkan",
     "unverified": "Tidak Disahkan"
   },
+  "filter": {
+    "allEmails": "Semua e-mel"
+  },
   "actions": {
     "acknowledge": "Tandakan sebagai telah disemak",
     "acknowledgeTooltip": "Tandakan kebocoran ini sebagai telah dilihat supaya ia tidak lagi dipaparkan sebagai baharu atau mencetuskan pemberitahuan",
     "acknowledgeAll": "Tandakan semua sebagai telah disemak",
     "acknowledgeAllTooltip": "Tandakan semua kebocoran yang belum disemak sebagai telah dilihat"
   },
-  "refetchButton": "Segar semula"
+  "refetchButton": "Muat semula"
 }

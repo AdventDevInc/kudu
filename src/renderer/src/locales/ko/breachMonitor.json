@@ -1,7 +1,7 @@
 {
   "pageTitle": "유출 모니터",
   "pageDescription": "이메일 주소가 알려진 데이터 유출 사고에 노출되었는지 확인합니다",
-  "loading": "유출 데이터를 불러오는 중...",
+  "loading": "유출 데이터 불러오는 중...",
   "summary": {
     "totalBreaches": "총 유출 사고",
     "unacknowledged": "신규",
@@ -25,11 +25,11 @@
     "noEmails": "모니터링 중인 이메일이 없습니다",
     "noEmailsDesc": "이메일 주소를 추가하여 과거 데이터 유출 사고를 확인하고 새로운 유출을 지속적으로 모니터링하세요.",
     "allClear": "이상 없음",
-    "allClearDesc": "모니터링 중인 이메일이 알려진 데이터 유출 사고에서 발견되지 않았습니다.",
+    "allClearDesc": "모니터링 중인 이메일은 알려진 데이터 유출 사고에서 발견되지 않았습니다.",
     "upgradeRequired": "업그레이드 필요",
     "upgradeRequiredDesc": "유출 모니터링은 Basic 요금제 이상에서 사용할 수 있습니다. 모니터링을 시작하려면 요금제를 업그레이드하세요.",
     "goToCloud": "요금제 보기",
-    "noBreachesForEmail": "이 이메일에 대한 유출 사고가 없습니다",
+    "noBreachesForEmail": "이 이메일에서는 유출 사고가 발견되지 않았습니다",
     "selectEmail": "목록에서 이메일을 선택하여 유출 세부 정보를 확인하세요"
   },
   "error": {
@@ -37,16 +37,17 @@
     "description": "클라우드 연결을 확인한 후 다시 시도하세요."
   },
   "emailList": {
-    "breaches": "유출 사고 {{count}}건",
-    "breaches_other": "유출 사고 {{count}}건",
+    "breaches": "유출 {{count}}건",
+    "breaches_other": "유출 {{count}}건",
     "newBreaches": "신규 {{count}}건",
-    "noBreaches": "유출 사고 없음",
+    "noBreaches": "유출 없음",
     "checking": "확인하는 중...",
     "paused": "일시 중지됨",
     "remove": "이메일 제거",
     "lastChecked": "{{date}}에 확인함"
   },
   "table": {
+    "email": "이메일",
     "breach": "유출 사고",
     "date": "날짜",
     "accounts": "계정 수",
@@ -58,6 +59,9 @@
     "sensitive": "민감한 유출 사고",
     "verified": "확인됨",
     "unverified": "확인되지 않음"
+  },
+  "filter": {
+    "allEmails": "모든 이메일"
   },
   "actions": {
     "acknowledge": "검토 완료로 표시",

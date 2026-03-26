@@ -27,14 +27,14 @@
     "allClear": "Her şey yolunda",
     "allClearDesc": "İzlenen e-postalarınızın hiçbiri bilinen veri ihlallerinde bulunmadı.",
     "upgradeRequired": "Yükseltme gerekli",
-    "upgradeRequiredDesc": "İhlal izleme Basic planında ve üzeri planlarda kullanılabilir. İzlemeye başlamak için planınızı yükseltin.",
+    "upgradeRequiredDesc": "İhlal izleme, Basic planı ve üzeri sürümlerde kullanılabilir. İzlemeyi başlatmak için planınızı yükseltin.",
     "goToCloud": "Planları Görüntüle",
     "noBreachesForEmail": "Bu e-posta için ihlal bulunamadı",
     "selectEmail": "İhlal ayrıntılarını görüntülemek için listeden bir e-posta seçin"
   },
   "error": {
     "title": "İhlal verileri yüklenemedi",
-    "description": "Bulut bağlantınızı kontrol edin ve tekrar deneyin."
+    "description": "Bulut bağlantınızı kontrol edin ve yeniden deneyin."
   },
   "emailList": {
     "breaches": "{{count}} ihlal",
@@ -47,6 +47,7 @@
     "lastChecked": "{{date}} tarihinde kontrol edildi"
   },
   "table": {
+    "email": "E-posta",
     "breach": "İhlal",
     "date": "Tarih",
     "accounts": "Hesaplar",
@@ -58,6 +59,9 @@
     "sensitive": "Hassas İhlal",
     "verified": "Doğrulandı",
     "unverified": "Doğrulanmadı"
+  },
+  "filter": {
+    "allEmails": "Tüm e-postalar"
   },
   "actions": {
     "acknowledge": "İncelendi olarak işaretle",

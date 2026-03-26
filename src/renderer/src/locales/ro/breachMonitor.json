@@ -16,17 +16,17 @@
     "fetchFailed": "Încărcarea datelor despre breșe a eșuat",
     "addFailed": "Adăugarea adresei de e-mail a eșuat",
     "removeFailed": "Eliminarea adresei de e-mail a eșuat",
-    "invalidEmail": "Introduceți o adresă de e-mail validă",
-    "limitReached": "Limita de adrese de e-mail pentru planul dvs. a fost atinsă",
+    "invalidEmail": "Vă rugăm să introduceți o adresă de e-mail validă",
+    "limitReached": "A fost atinsă limita de adrese de e-mail pentru planul dvs.",
     "acknowledged": "Breșele au fost marcate ca revizuite",
-    "acknowledgeFailed": "Marcarea breșelor a eșuat"
+    "acknowledgeFailed": "Marcarea breșelor ca revizuite a eșuat"
   },
   "emptyState": {
-    "noEmails": "Nu există e-mailuri monitorizate",
-    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu apariția unor noi scurgeri.",
-    "allClear": "Totul este în regulă",
-    "allClearDesc": "Niciunul dintre e-mailurile monitorizate nu a fost găsit în vreo breșă de date cunoscută.",
-    "upgradeRequired": "Este necesară actualizarea planului",
+    "noEmails": "Niciun e-mail monitorizat",
+    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu scurgerile noi.",
+    "allClear": "Nicio problemă",
+    "allClearDesc": "Niciunul dintre e-mailurile dvs. monitorizate nu a fost găsit în vreo breșă de date cunoscută.",
+    "upgradeRequired": "Este necesară actualizarea",
     "upgradeRequiredDesc": "Monitorizarea breșelor este disponibilă în planul Basic și în planurile superioare. Actualizați-vă planul pentru a începe monitorizarea.",
     "goToCloud": "Vedeți planurile",
     "noBreachesForEmail": "Nu au fost găsite breșe pentru acest e-mail",
@@ -44,9 +44,10 @@
     "checking": "Se verifică...",
     "paused": "În pauză",
     "remove": "Eliminați e-mailul",
-    "lastChecked": "Verificat {{date}}"
+    "lastChecked": "Verificat la {{date}}"
   },
   "table": {
+    "email": "E-mail",
     "breach": "Breșă",
     "date": "Dată",
     "accounts": "Conturi",
@@ -54,10 +55,13 @@
     "status": "Stare",
     "actions": "",
     "new": "Nou",
-    "reviewed": "Revizuită",
+    "reviewed": "Revizuit",
     "sensitive": "Breșă sensibilă",
     "verified": "Verificată",
     "unverified": "Neverificată"
+  },
+  "filter": {
+    "allEmails": "Toate e-mailurile"
   },
   "actions": {
     "acknowledge": "Marcați ca revizuită",

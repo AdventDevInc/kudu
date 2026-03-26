@@ -5,11 +5,11 @@
   "summary": {
     "totalBreaches": "Totaal aantal datalekken",
     "unacknowledged": "Nieuw",
-    "emailsMonitored": "Gemonitorde e-mailadressen"
+    "emailsMonitored": "Gemonitorde e-mails"
   },
   "addEmail": {
     "placeholder": "Voer een e-mailadres in",
-    "button": "E-mailadres toevoegen",
+    "button": "E-mail toevoegen",
     "adding": "Toevoegen..."
   },
   "toast": {
@@ -22,12 +22,12 @@
     "acknowledgeFailed": "Kan datalekken niet markeren als beoordeeld"
   },
   "emptyState": {
-    "noEmails": "Geen e-mailadressen gemonitord",
+    "noEmails": "Geen e-mails gemonitord",
     "noEmailsDesc": "Voeg een e-mailadres toe om te controleren op eerdere datalekken en doorlopend te monitoren op nieuwe lekken.",
     "allClear": "Alles in orde",
     "allClearDesc": "Geen van uw gemonitorde e-mailadressen is aangetroffen in bekende datalekken.",
     "upgradeRequired": "Upgrade vereist",
-    "upgradeRequiredDesc": "Monitoring van datalekken is beschikbaar vanaf het Basic-abonnement. Upgrade uw abonnement om te beginnen met monitoren.",
+    "upgradeRequiredDesc": "Monitoring van datalekken is beschikbaar met het Basic-abonnement en hoger. Upgrade uw abonnement om te beginnen met monitoren.",
     "goToCloud": "Abonnementen bekijken",
     "noBreachesForEmail": "Geen datalekken gevonden voor dit e-mailadres",
     "selectEmail": "Selecteer een e-mailadres uit de lijst om details van het datalek te bekijken"
@@ -47,6 +47,7 @@
     "lastChecked": "Gecontroleerd op {{date}}"
   },
   "table": {
+    "email": "E-mail",
     "breach": "Datalek",
     "date": "Datum",
     "accounts": "Accounts",
@@ -59,9 +60,12 @@
     "verified": "Geverifieerd",
     "unverified": "Niet geverifieerd"
   },
+  "filter": {
+    "allEmails": "Alle e-mails"
+  },
   "actions": {
     "acknowledge": "Markeren als beoordeeld",
-    "acknowledgeTooltip": "Markeer dit datalek als gezien, zodat het niet langer als nieuw wordt weergegeven of meldingen activeert",
+    "acknowledgeTooltip": "Markeer dit datalek als gezien zodat het niet langer als nieuw wordt weergegeven of meldingen activeert",
     "acknowledgeAll": "Alles markeren als beoordeeld",
     "acknowledgeAllTooltip": "Markeer alle onbeoordeelde datalekken als gezien"
   },

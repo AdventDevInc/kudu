@@ -5,32 +5,32 @@
   "summary": {
     "totalBreaches": "泄露总数",
     "unacknowledged": "新发现",
-    "emailsMonitored": "已监控邮箱"
+    "emailsMonitored": "监控中的电子邮件"
   },
   "addEmail": {
     "placeholder": "输入电子邮件地址",
-    "button": "添加邮箱",
+    "button": "添加电子邮件",
     "adding": "正在添加..."
   },
   "toast": {
     "fetchFailed": "加载泄露数据失败",
-    "addFailed": "添加邮箱失败",
-    "removeFailed": "移除邮箱失败",
+    "addFailed": "添加电子邮件失败",
+    "removeFailed": "移除电子邮件失败",
     "invalidEmail": "请输入有效的电子邮件地址",
-    "limitReached": "您的套餐已达到邮箱数量上限",
-    "acknowledged": "泄露已标记为已查看",
-    "acknowledgeFailed": "确认泄露失败"
+    "limitReached": "您的套餐已达到电子邮件数量上限",
+    "acknowledged": "泄露事件已标记为已查看",
+    "acknowledgeFailed": "确认泄露事件失败"
   },
   "emptyState": {
-    "noEmails": "未监控任何邮箱",
-    "noEmailsDesc": "添加一个电子邮件地址，以检查过去的数据泄露并持续监控新的泄露。",
+    "noEmails": "未监控任何电子邮件",
+    "noEmailsDesc": "添加一个电子邮件地址，以检查过去的数据泄露事件并持续监控新的泄露。",
     "allClear": "一切正常",
-    "allClearDesc": "您监控的邮箱均未在任何已知数据泄露事件中被发现。",
+    "allClearDesc": "您监控的电子邮件均未在任何已知数据泄露事件中被发现。",
     "upgradeRequired": "需要升级",
-    "upgradeRequiredDesc": "泄露监控功能适用于 Basic 及以上套餐。升级您的套餐即可开始监控。",
+    "upgradeRequiredDesc": "泄露监控功能适用于 Basic 套餐及以上版本。升级您的套餐以开始监控。",
     "goToCloud": "查看套餐",
-    "noBreachesForEmail": "此邮箱未发现泄露",
-    "selectEmail": "从列表中选择一个邮箱以查看泄露详情"
+    "noBreachesForEmail": "未发现此电子邮件存在泄露",
+    "selectEmail": "从列表中选择一个电子邮件以查看泄露详情"
   },
   "error": {
     "title": "加载泄露数据失败",
@@ -43,27 +43,31 @@
     "noBreaches": "无泄露",
     "checking": "正在检查...",
     "paused": "已暂停",
-    "remove": "移除邮箱",
+    "remove": "移除电子邮件",
     "lastChecked": "检查于 {{date}}"
   },
   "table": {
+    "email": "电子邮件",
     "breach": "泄露事件",
     "date": "日期",
-    "accounts": "账户数",
+    "accounts": "账户",
     "data": "泄露数据",
     "status": "状态",
     "actions": "",
     "new": "新发现",
     "reviewed": "已查看",
-    "sensitive": "敏感泄露",
+    "sensitive": "敏感泄露事件",
     "verified": "已验证",
     "unverified": "未验证"
   },
+  "filter": {
+    "allEmails": "所有电子邮件"
+  },
   "actions": {
     "acknowledge": "标记为已查看",
-    "acknowledgeTooltip": "将此泄露标记为已查看，使其不再显示为新发现或触发通知",
+    "acknowledgeTooltip": "将此泄露事件标记为已查看，使其不再显示为新发现或触发通知",
     "acknowledgeAll": "全部标记为已查看",
-    "acknowledgeAllTooltip": "将所有未查看的泄露标记为已查看"
+    "acknowledgeAllTooltip": "将所有未查看的泄露事件标记为已查看"
   },
   "refetchButton": "刷新"
 }

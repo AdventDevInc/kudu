@@ -19,7 +19,7 @@
     "invalidEmail": "Zadejte platnou e-mailovou adresu",
     "limitReached": "Byl dosažen limit e-mailů pro váš tarif",
     "acknowledged": "Úniky dat byly označeny jako zkontrolované",
-    "acknowledgeFailed": "Nepodařilo se označit úniky dat"
+    "acknowledgeFailed": "Nepodařilo se potvrdit úniky dat"
   },
   "emptyState": {
     "noEmails": "Nejsou sledovány žádné e-maily",
@@ -47,6 +47,7 @@
     "lastChecked": "Zkontrolováno {{date}}"
   },
   "table": {
+    "email": "E-mail",
     "breach": "Únik dat",
     "date": "Datum",
     "accounts": "Účty",
@@ -58,6 +59,9 @@
     "sensitive": "Citlivý únik dat",
     "verified": "Ověřeno",
     "unverified": "Neověřeno"
+  },
+  "filter": {
+    "allEmails": "Všechny e-maily"
   },
   "actions": {
     "acknowledge": "Označit jako zkontrolované",

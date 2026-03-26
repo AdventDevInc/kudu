@@ -1,14 +1,14 @@
 {
   "pageTitle": "Monitor naruszeń",
   "pageDescription": "Sprawdź, czy Twoje adresy e-mail zostały ujawnione w znanych naruszeniach danych",
-  "loading": "Wczytywanie danych o naruszeniach...",
+  "loading": "Ładowanie danych o naruszeniach...",
   "summary": {
     "totalBreaches": "Łączna liczba naruszeń",
     "unacknowledged": "Nowe",
     "emailsMonitored": "Monitorowane adresy e-mail"
   },
   "addEmail": {
-    "placeholder": "Wprowadź adres e-mail",
+    "placeholder": "Wpisz adres e-mail",
     "button": "Dodaj adres e-mail",
     "adding": "Dodawanie..."
   },
@@ -47,6 +47,7 @@
     "lastChecked": "Sprawdzono {{date}}"
   },
   "table": {
+    "email": "Adres e-mail",
     "breach": "Naruszenie",
     "date": "Data",
     "accounts": "Konta",
@@ -58,6 +59,9 @@
     "sensitive": "Wrażliwe naruszenie",
     "verified": "Zweryfikowane",
     "unverified": "Niezweryfikowane"
+  },
+  "filter": {
+    "allEmails": "Wszystkie adresy e-mail"
   },
   "actions": {
     "acknowledge": "Oznacz jako przejrzane",
