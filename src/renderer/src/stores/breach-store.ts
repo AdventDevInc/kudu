@@ -51,7 +51,9 @@ export const useBreachStore = create<BreachState>((set, get) => ({
   addEmail: async (email: string) => {
     set({ addingEmail: true })
     try {
-      const result = await window.kudu.breachMonitorAdd([email])
+      await window.kudu.breachMonitorAdd([email])
+      // POST only returns newly added emails — re-fetch to get the full list
+      const result = await window.kudu.breachMonitorFetch()
       set({
         emails: result.emails,
         limit: result.limit,
