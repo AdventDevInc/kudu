@@ -18,6 +18,10 @@ extraResources:
     to: icon.png
     filter:
       - "**/*"
+  - from: resources/icons
+    to: icons
+    filter:
+      - "**/*"
 
 win:
   target:

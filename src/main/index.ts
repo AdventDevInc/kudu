@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron'
 import { execFile } from 'child_process'
+import { readFileSync } from 'fs'
 import { promisify } from 'util'
 import { join } from 'path'
 
@@ -90,13 +91,31 @@ function getIconPath(): string {
     : join(__dirname, `../../resources/icon.${ext}`)
 }
 
-function getTrayIconPath(): string {
-  // macOS menu-bar icons should be small PNGs marked as template images,
-  // not .icns files (which are for application icons).
-  const ext = process.platform === 'win32' ? 'ico' : 'png'
+function getIconsDir(): string {
   return app.isPackaged
+    ? join(process.resourcesPath, 'icons')
+    : join(__dirname, '../../resources/icons')
+}
+
+function createTrayIcon(): Electron.NativeImage {
+  if (process.platform === 'darwin') {
+    // Build a multi-resolution image so the icon is sharp on Retina displays.
+    // Uses pre-rendered 16×16 (@1x) and 32×32 (@2x) PNGs instead of
+    // down-scaling the 1024×1024 app icon at runtime.
+    const dir = getIconsDir()
+    const trayIcon = nativeImage.createEmpty()
+    trayIcon.addRepresentation({ scaleFactor: 1.0, width: 16, height: 16, buffer: readFileSync(join(dir, '16x16.png')) })
+    trayIcon.addRepresentation({ scaleFactor: 2.0, width: 32, height: 32, buffer: readFileSync(join(dir, '32x32.png')) })
+    trayIcon.setTemplateImage(true)
+    return trayIcon
+  }
+
+  // Windows / Linux: load the main icon and resize to standard tray size
+  const ext = process.platform === 'win32' ? 'ico' : 'png'
+  const iconPath = app.isPackaged
     ? join(process.resourcesPath, `icon.${ext}`)
     : join(__dirname, `../../resources/icon.${ext}`)
+  return nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 })
 }
 
 const TASK_NAME = 'KuduStartup'
@@ -204,16 +223,7 @@ async function applyAutoLaunch(enabled: boolean): Promise<void> {
 function createTray(): void {
   if (tray) return
 
-  const icon = nativeImage.createFromPath(getTrayIconPath())
-  // Resize for tray (16x16 on most platforms)
-  const trayIcon = icon.resize({ width: 16, height: 16 })
-  // macOS menu-bar icons must be template images so they adapt to
-  // light/dark mode and actually render in the menu bar.
-  if (process.platform === 'darwin') {
-    trayIcon.setTemplateImage(true)
-  }
-
-  tray = new Tray(trayIcon)
+  tray = new Tray(createTrayIcon())
   tray.setToolTip(t('trayTooltip'))
 
   const contextMenu = Menu.buildFromTemplate([
