@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
-import { execFile, spawn } from 'child_process'
+import { execFile } from 'child_process'
 import { isAbsolute } from 'path'
 import { IPC } from '../../shared/channels'
 import { psUtf8 } from '../services/exec-utf8'
@@ -139,15 +139,32 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       execFile('powershell.exe', [
         '-NoProfile', '-Command', psUtf8(psScript),
       ], { windowsHide: true }, (err) => {
-        if (!err) app.exit(0)
+        if (!err) {
+          app.releaseSingleInstanceLock()
+          app.exit(0)
+        }
       })
     } else if (process.platform === 'linux') {
-      const child = spawn('pkexec', [exePath, '--no-sandbox', `--kudu-data-dir=${userDataDir}`], {
-        detached: true,
-        stdio: 'ignore',
+      // pkexec strips the environment for security.  We forward display
+      // variables (for GUI) and HOME (so Chromium resolves cache/config
+      // paths to the real user dirs instead of /root).
+      // Use execFile so the app stays visible while the polkit dialog is
+      // open — if the user cancels, we keep running.  The elevated process
+      // is backgrounded with & so pkexec returns after auth succeeds
+      // (same pattern as the macOS osascript path).
+      const sq = (s: string) => `'${s.replace(/'/g, "'\\''")}'`
+      const parts: string[] = []
+      for (const key of ['DISPLAY', 'XAUTHORITY', 'WAYLAND_DISPLAY', 'XDG_RUNTIME_DIR', 'HOME']) {
+        if (process.env[key]) parts.push(`${key}=${sq(process.env[key])}`)
+      }
+      parts.push(sq(exePath), '--no-sandbox', `--kudu-data-dir=${sq(userDataDir)}`)
+      execFile('pkexec', ['/bin/sh', '-c', `${parts.join(' ')} > /dev/null 2>&1 &`], (err) => {
+        if (!err) {
+          app.releaseSingleInstanceLock()
+          app.exit(0)
+        }
+        // If err, user declined or pkexec unavailable — don't quit
       })
-      child.on('spawn', () => { child.unref(); app.exit(0) })
-      child.on('error', () => { /* user declined — don't quit */ })
     } else if (process.platform === 'darwin') {
       // Run the binary directly as root for proper privilege elevation.
       // Background the process (&) so `do shell script` returns once the
@@ -156,12 +173,20 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // spawn-and-immediately-exit approach caused a race: the current app
       // would exit before the elevated process started, and macOS could
       // re-open the old registered copy via LaunchServices.
+      // Pass HOME so the elevated process resolves Chromium's internal
+      // cache/profile paths to the real user's directories instead of
+      // /var/root (which likely lacks the expected Library sub-tree).
       // Pass --kudu-data-dir so the elevated process uses the same config.
+      const homeDir = app.getPath('home')
       const escaped = exePath.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
       const escapedDataDir = userDataDir.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      const script = `do shell script quoted form of "${escaped}" & " --kudu-data-dir=" & quoted form of "${escapedDataDir}" & " > /dev/null 2>&1 &" with administrator privileges`
+      const escapedHome = homeDir.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+      const script = `do shell script "HOME=" & quoted form of "${escapedHome}" & " " & quoted form of "${escaped}" & " --no-sandbox --kudu-data-dir=" & quoted form of "${escapedDataDir}" & " > /dev/null 2>&1 &" with administrator privileges`
       execFile('osascript', ['-e', script], (err) => {
-        if (!err) app.exit(0)
+        if (!err) {
+          app.releaseSingleInstanceLock()
+          app.exit(0)
+        }
       })
     }
   })
