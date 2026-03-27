@@ -35,6 +35,7 @@ const categoryIcons: Record<string, LucideIcon> = {
 interface CleanSummaryProps {
   summary: CleanSummaryData
   onRelaunchAsAdmin: () => void
+  platform?: string
 }
 
 function MetricCard({
@@ -132,7 +133,7 @@ function CategoryBar({
   )
 }
 
-export function CleanSummary({ summary, onRelaunchAsAdmin }: CleanSummaryProps) {
+export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSummaryProps) {
   const { t } = useTranslation('cleaner')
   const cleanedCategories = summary.categories.filter((c) => c.cleaned > 0)
   const maxCategorySpace = Math.max(...cleanedCategories.map((c) => c.space), 0)
@@ -260,13 +261,15 @@ export function CleanSummary({ summary, onRelaunchAsAdmin }: CleanSummaryProps) 
             <p className="flex-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>
               {t('permissionError')}
             </p>
-            <button
-              onClick={onRelaunchAsAdmin}
-              className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
-              style={{ border: '1px solid rgba(245,158,11,0.2)' }}
-            >
-              {t('relaunchAsAdmin')}
-            </button>
+            {platform !== 'darwin' && (
+              <button
+                onClick={onRelaunchAsAdmin}
+                className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
+                style={{ border: '1px solid rgba(245,158,11,0.2)' }}
+              >
+                {t('relaunchAsAdmin')}
+              </button>
+            )}
           </div>
         )}
 

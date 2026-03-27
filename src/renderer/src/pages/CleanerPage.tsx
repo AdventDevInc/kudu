@@ -28,6 +28,7 @@ import { useScanStore } from '@/stores/scan-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useHistoryStore } from '@/stores/history-store'
 import { useSettingsStore } from '@/stores/settings-store'
+import { usePlatform } from '@/hooks/usePlatform'
 import { ScanStatus, CleanerType } from '@shared/enums'
 import type { ScanResult } from '@shared/types'
 import type { LucideIcon } from 'lucide-react'
@@ -56,6 +57,7 @@ const categories: CategoryDef[] = [
 
 export function CleanerPage() {
   const { t } = useTranslation('cleaner')
+  const { platform } = usePlatform()
   const store = useScanStore()
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
@@ -408,18 +410,20 @@ export function CleanerPage() {
                   {elevationSkipped.slice(0, 4).join(', ')}{elevationSkipped.length > 4 ? ` ${t('categoriesSkippedMore', { count: elevationSkipped.length - 4 })}` : ''}
                 </p>
               </div>
-              <button
-                onClick={handleRelaunch}
-                className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
-                style={{ border: '1px solid rgba(245,158,11,0.2)' }}
-              >
-                {t('relaunchAsAdmin')}
-              </button>
+              {platform !== 'darwin' && (
+                <button
+                  onClick={handleRelaunch}
+                  className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
+                  style={{ border: '1px solid rgba(245,158,11,0.2)' }}
+                >
+                  {t('relaunchAsAdmin')}
+                </button>
+              )}
             </div>
           )}
 
           {store.cleanSummary && store.status === ScanStatus.Complete && (
-            <CleanSummary summary={store.cleanSummary} onRelaunchAsAdmin={handleRelaunch} />
+            <CleanSummary summary={store.cleanSummary} onRelaunchAsAdmin={handleRelaunch} platform={platform} />
           )}
 
           {!hasResults && !isScanning && (

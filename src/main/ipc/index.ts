@@ -165,30 +165,10 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
         }
         // If err, user declined or pkexec unavailable — don't quit
       })
-    } else if (process.platform === 'darwin') {
-      // Run the binary directly as root for proper privilege elevation.
-      // Background the process (&) so `do shell script` returns once the
-      // binary has been started, then use execFile to wait for osascript to
-      // complete (including the password prompt) before exiting.  The old
-      // spawn-and-immediately-exit approach caused a race: the current app
-      // would exit before the elevated process started, and macOS could
-      // re-open the old registered copy via LaunchServices.
-      // Pass HOME so the elevated process resolves Chromium's internal
-      // cache/profile paths to the real user's directories instead of
-      // /var/root (which likely lacks the expected Library sub-tree).
-      // Pass --kudu-data-dir so the elevated process uses the same config.
-      const homeDir = app.getPath('home')
-      const escaped = exePath.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      const escapedDataDir = userDataDir.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      const escapedHome = homeDir.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-      const script = `do shell script "HOME=" & quoted form of "${escapedHome}" & " " & quoted form of "${escaped}" & " --no-sandbox --kudu-data-dir=" & quoted form of "${escapedDataDir}" & " > /dev/null 2>&1 &" with administrator privileges`
-      execFile('osascript', ['-e', script], (err) => {
-        if (!err) {
-          app.releaseSingleInstanceLock()
-          app.exit(0)
-        }
-      })
     }
+    // macOS: relaunch-as-admin is not supported — the osascript elevation
+    // flow doesn't work reliably.  The renderer hides the relaunch UI on
+    // darwin so this path should never be reached.
   })
 
   // System Restore Point

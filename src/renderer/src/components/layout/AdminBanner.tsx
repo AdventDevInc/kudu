@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ShieldAlert, X } from 'lucide-react'
+import { usePlatform } from '@/hooks/usePlatform'
 
 export function AdminBanner() {
   const { t } = useTranslation('common')
+  const { platform } = usePlatform()
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
@@ -13,6 +15,8 @@ export function AdminBanner() {
     })
   }, [])
 
+  // On macOS the relaunch-as-admin flow doesn't work properly — hide the banner entirely
+  if (platform === 'darwin') return null
   if (!visible || dismissed) return null
 
   return (
