@@ -18,7 +18,12 @@
     { "path": "/Library/Caches/com.apple.iconservices.store", "subcategory": "Icon Services Cache", "needsAdmin": true, "description": "System-wide cached application icon data; rebuilt automatically" },
     { "path": "${LIBRARY}/Caches/com.apple.diagnosticsextensions.statuskit", "subcategory": "Diagnostics Cache", "description": "Cached data from macOS diagnostics and system reports" },
     { "path": "${LIBRARY}/Caches/com.apple.nsurlsessiond", "subcategory": "URL Session Cache", "description": "Cached HTTP/HTTPS response data from system network requests" },
-    { "path": "${LIBRARY}/Caches/com.apple.CacheDelete", "subcategory": "Cache Delete Logs", "description": "Logs from the macOS automatic cache management service" }
+    { "path": "${LIBRARY}/Caches/com.apple.CacheDelete", "subcategory": "Cache Delete Logs", "description": "Logs from the macOS automatic cache management service" },
+    { "path": "${LIBRARY}/Containers", "subcategory": "Sandboxed App Caches", "childSubdir": "Data/Library/Caches", "description": "Caches from sandboxed Mac App Store and notarized applications; rebuilt automatically" },
+    { "path": "${LIBRARY}/Developer/Xcode/iOS Device Logs", "subcategory": "Xcode Device Logs", "description": "Diagnostic log files copied from connected iOS, iPadOS, and watchOS devices" },
+    { "path": "${CACHES}/com.apple.dt.Xcode", "subcategory": "Xcode Download Cache", "description": "Xcode component and documentation download cache; re-downloaded on demand" },
+    { "path": "${CACHES}/org.swift.swiftpm", "subcategory": "Swift Package Manager Cache", "description": "Swift Package Manager resolved package cache; re-downloaded on demand" },
+    { "path": "${CACHES}/com.apple.DeveloperTools", "subcategory": "Developer Tools Cache", "description": "Xcode Instruments and developer tools cache; rebuilt automatically" }
   ],
   "singleFileTargets": []
 }

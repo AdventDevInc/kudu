@@ -60,6 +60,12 @@
     { "id": "qbittorrent", "name": "qBittorrent", "paths": ["${CACHE}/qBittorrent"], "description": "qBittorrent cache files" },
     { "id": "handbrake", "name": "HandBrake", "paths": ["${CONFIG}/ghb/EncodeLogs", "${HOME}/.var/app/fr.handbrake.ghb/config/ghb/EncodeLogs"], "description": "HandBrake video encoder log files from past encoding jobs (native and Flatpak)" },
     { "id": "ccache", "name": "ccache", "paths": ["${CACHE}/ccache"], "description": "Compiler cache for C/C++ (can grow to several GB; builds just take longer on next compile)" },
-    { "id": "java-cache", "name": "Java Runtime Cache", "paths": ["${HOME}/.java/deployment/cache"], "description": "Java Web Start and applet download cache (deprecated technology; safe to remove)" }
+    { "id": "java-cache", "name": "Java Runtime Cache", "paths": ["${HOME}/.java/deployment/cache"], "description": "Java Web Start and applet download cache (deprecated technology; safe to remove)" },
+    { "id": "windsurf", "name": "Windsurf IDE", "paths": ["${CONFIG}/Windsurf/Cache/Cache_Data", "${CONFIG}/Windsurf/CachedData"], "description": "Windsurf IDE cached data and compiled extension cache" },
+    { "id": "hyper", "name": "Hyper Terminal", "paths": ["${CONFIG}/Hyper/Cache/Cache_Data"], "description": "Hyper terminal Electron app cache" },
+    { "id": "linear", "name": "Linear", "paths": ["${CONFIG}/Linear/Cache/Cache_Data"], "description": "Linear project management Electron app cache" },
+    { "id": "todoist", "name": "Todoist", "paths": ["${CONFIG}/Todoist/Cache/Cache_Data"], "description": "Todoist Electron app cache" },
+    { "id": "loom", "name": "Loom", "paths": ["${CONFIG}/Loom/Cache/Cache_Data"], "description": "Loom screen recorder Electron app cache" },
+    { "id": "zed", "name": "Zed Editor", "paths": ["${CACHE}/zed"], "description": "Zed code editor cache; rebuilt automatically" }
   ]
 }

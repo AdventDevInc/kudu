@@ -21,7 +21,10 @@
     { "path": "/var/log/installer", "subcategory": "Installer Logs", "needsAdmin": true, "description": "Log files from system installation and initial setup" },
     { "path": "/var/cache/fontconfig", "subcategory": "System Font Cache", "needsAdmin": true, "description": "System-wide fontconfig cache; rebuilt automatically by fc-cache" },
     { "path": "/var/cache/man", "subcategory": "Man Page Cache", "needsAdmin": true, "description": "Cached formatted manual pages; rebuilt on next access" },
-    { "path": "/var/log/apt", "subcategory": "APT Logs", "needsAdmin": true, "description": "APT package manager history and terminal log files (Debian/Ubuntu)" }
+    { "path": "/var/log/apt", "subcategory": "APT Logs", "needsAdmin": true, "description": "APT package manager history and terminal log files (Debian/Ubuntu)" },
+    { "path": "${CACHE}/tracker3", "subcategory": "GNOME Tracker Cache", "description": "GNOME Tracker file indexer and search database cache; rebuilt automatically" },
+    { "path": "${CACHE}/tracker", "subcategory": "GNOME Tracker Cache (Legacy)", "description": "Legacy GNOME Tracker file indexer cache (pre-Tracker 3); rebuilt automatically" },
+    { "path": "${CACHE}/gstreamer-1.0", "subcategory": "GStreamer Cache", "description": "GStreamer multimedia framework plugin registry cache; rebuilt automatically" }
   ],
   "singleFileTargets": [
     { "path": "${HOME}/.xsession-errors.old", "subcategory": "X Session Errors", "description": "stderr output from the previous X11 session" }

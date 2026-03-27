@@ -64,6 +64,11 @@
     { "id": "kodi", "name": "Kodi", "paths": ["${APPDATA}/Kodi/cache", "${APPDATA}/Kodi/userdata/Thumbnails"], "description": "Kodi media center cache and thumbnail images (can be several GB; rebuilt on demand)" },
     { "id": "qbittorrent", "name": "qBittorrent", "paths": ["${LOCALAPPDATA}/qBittorrent/logs"], "description": "qBittorrent log files" },
     { "id": "handbrake", "name": "HandBrake", "paths": ["${APPDATA}/HandBrake/logs"], "description": "HandBrake video encoder log files from past encoding jobs" },
-    { "id": "java-cache", "name": "Java Runtime Cache", "paths": ["${HOME}/AppData/LocalLow/Sun/Java/Deployment/cache"], "description": "Java Web Start and applet download cache (deprecated technology; safe to remove)" }
+    { "id": "java-cache", "name": "Java Runtime Cache", "paths": ["${HOME}/AppData/LocalLow/Sun/Java/Deployment/cache"], "description": "Java Web Start and applet download cache (deprecated technology; safe to remove)" },
+    { "id": "windsurf", "name": "Windsurf IDE", "paths": ["${APPDATA}/Windsurf/Cache/Cache_Data", "${APPDATA}/Windsurf/CachedData", "${APPDATA}/Windsurf/CachedExtensions", "${APPDATA}/Windsurf/logs"], "description": "Windsurf IDE cached data, extensions, and log files" },
+    { "id": "hyper", "name": "Hyper Terminal", "paths": ["${APPDATA}/Hyper/Cache/Cache_Data", "${APPDATA}/Hyper/Code Cache", "${APPDATA}/Hyper/GPUCache"], "description": "Hyper terminal Electron app cache and GPU cache" },
+    { "id": "linear", "name": "Linear", "paths": ["${APPDATA}/Linear/Cache/Cache_Data", "${APPDATA}/Linear/Code Cache", "${APPDATA}/Linear/GPUCache"], "description": "Linear project management Electron app cache and GPU cache" },
+    { "id": "todoist", "name": "Todoist", "paths": ["${APPDATA}/Todoist/Cache/Cache_Data", "${APPDATA}/Todoist/Code Cache", "${APPDATA}/Todoist/GPUCache"], "description": "Todoist Electron app cache and GPU cache" },
+    { "id": "loom", "name": "Loom", "paths": ["${APPDATA}/Loom/Cache/Cache_Data", "${APPDATA}/Loom/Code Cache", "${APPDATA}/Loom/GPUCache"], "description": "Loom screen recorder Electron app cache and GPU cache" }
   ]
 }

@@ -60,6 +60,14 @@
     { "id": "qbittorrent", "name": "qBittorrent", "paths": ["${APP_SUPPORT}/qBittorrent/logs"], "description": "qBittorrent log files" },
     { "id": "handbrake", "name": "HandBrake", "paths": ["${APP_SUPPORT}/HandBrake/EncodeLogs", "${HOME}/Library/Containers/fr.handbrake.HandBrake/Data/Library/Application Support/HandBrake/EncodeLogs", "${CACHES}/fr.handbrake.HandBrake"], "description": "HandBrake video encoder log files and cache (legacy and sandboxed paths)" },
     { "id": "ccache", "name": "ccache", "paths": ["${CACHES}/ccache"], "description": "Compiler cache for C/C++ (can grow to several GB; builds just take longer on next compile)" },
-    { "id": "java-cache", "name": "Java Runtime Cache", "paths": ["${APP_SUPPORT}/Oracle/Java/Deployment/cache", "${CACHES}/Java"], "description": "Java Web Start and applet download cache (deprecated technology; safe to remove)" }
+    { "id": "java-cache", "name": "Java Runtime Cache", "paths": ["${APP_SUPPORT}/Oracle/Java/Deployment/cache", "${CACHES}/Java"], "description": "Java Web Start and applet download cache (deprecated technology; safe to remove)" },
+    { "id": "docker", "name": "Docker Desktop", "paths": ["${CACHES}/com.docker.docker"], "description": "Docker Desktop cache data; rebuilt automatically" },
+    { "id": "windsurf", "name": "Windsurf IDE", "paths": ["${APP_SUPPORT}/Windsurf/Cache/Cache_Data", "${APP_SUPPORT}/Windsurf/CachedData"], "description": "Windsurf IDE cached data and compiled extension cache" },
+    { "id": "hyper", "name": "Hyper Terminal", "paths": ["${APP_SUPPORT}/Hyper/Cache/Cache_Data"], "description": "Hyper terminal Electron app cache" },
+    { "id": "linear", "name": "Linear", "paths": ["${APP_SUPPORT}/Linear/Cache/Cache_Data"], "description": "Linear project management Electron app cache" },
+    { "id": "todoist", "name": "Todoist", "paths": ["${APP_SUPPORT}/Todoist/Cache/Cache_Data"], "description": "Todoist Electron app cache" },
+    { "id": "loom", "name": "Loom", "paths": ["${APP_SUPPORT}/Loom/Cache/Cache_Data"], "description": "Loom screen recorder Electron app cache" },
+    { "id": "1password", "name": "1Password", "paths": ["${APP_SUPPORT}/1Password/Cache/Cache_Data"], "description": "1Password Electron app cache" },
+    { "id": "zed", "name": "Zed Editor", "paths": ["${CACHES}/dev.zed.Zed", "${LIBRARY}/Logs/Zed"], "description": "Zed code editor cache and log files; rebuilt automatically" }
   ]
 }
