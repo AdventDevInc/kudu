@@ -80,7 +80,7 @@
     "pusher-js": "^8.4.0",
     "react-i18next": "^16.5.8",
     "react-router-dom": "^7.13.1",
-    "recharts": "^3.8.0",
+    "recharts": "^3.8.1",
     "sonner": "^2.0.7",
     "systeminformation": "^5.31.4",
     "tailwind-merge": "^3.5.0",
