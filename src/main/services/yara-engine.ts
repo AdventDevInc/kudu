@@ -98,19 +98,27 @@ export class YaraEngine {
     const testResult = this._module.run('', combined)
     const compileErrors = testResult.compileErrors
 
+    let nonWarningErrors = 0
     for (let i = 0; i < compileErrors.size(); i++) {
       const e = compileErrors.get(i)
       if (!e.warning) {
         errors.push(`Compile error (line ${e.lineNumber}): ${e.message}`)
+        nonWarningErrors++
       }
     }
 
-    // Even with errors, YARA may have partially compiled.
-    // Store the rules — the engine will use what it can.
-    this._compiledRules = combined
-
-    // Count rule definitions (approximate)
+    // Count rule declarations in source text
     const ruleCount = (combined.match(/^\s*rule\s+\w+/gm) || []).length
+
+    // If every rule had a compile error, nothing actually compiled — report 0
+    if (nonWarningErrors > 0 && nonWarningErrors >= ruleCount) {
+      this._compiledRules = ''
+      this._rulesLoaded = 0
+      return { loaded: 0, errors }
+    }
+
+    // Even with partial errors, YARA uses what it can.
+    this._compiledRules = combined
     this._rulesLoaded = ruleCount
 
     return { loaded: ruleCount, errors }

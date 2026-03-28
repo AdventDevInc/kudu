@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync, readdirSync } from 'fs'
+import { readFileSync, writeFileSync, renameSync, unlinkSync, existsSync, mkdirSync, readdirSync } from 'fs'
 import { join, basename } from 'path'
 import { createHash } from 'crypto'
 import { app } from 'electron'
@@ -211,6 +211,16 @@ export async function fetchAndCacheRules(url: string): Promise<{
     // Write rules to disk cache
     const dir = getCachedRulesDir()
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+
+    // Remove stale .yar files not present in the new bundle
+    const newFilenames = new Set(bundle.rules.map(r => r.filename))
+    try {
+      for (const existing of readdirSync(dir)) {
+        if (existing.endsWith('.yar') && !newFilenames.has(existing)) {
+          try { unlinkSync(join(dir, existing)) } catch { /* best effort */ }
+        }
+      }
+    } catch { /* directory read failed — not critical */ }
 
     for (const rule of bundle.rules) {
       const filePath = join(dir, rule.filename)
