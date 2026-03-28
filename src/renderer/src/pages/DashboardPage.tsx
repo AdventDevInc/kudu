@@ -7,7 +7,6 @@ import {
   Search,
   Database,
   Trash2,
-  Zap,
   Shield,
   CheckCircle2,
   Wifi,
@@ -15,7 +14,6 @@ import {
   Cpu,
   Check,
   Download,
-  Server,
   Gamepad2,
   BarChart3,
   MemoryStick
@@ -32,8 +30,6 @@ import { useSettingsStore } from '@/stores/settings-store'
 import { useHistoryStore } from '@/stores/history-store'
 import { useScanStore } from '@/stores/scan-store'
 import { useUpdaterStore } from '@/stores/updater-store'
-import { useServiceStore } from '@/stores/service-store'
-import { useStartupStore } from '@/stores/startup-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
 import type { DriveInfo, ScanResult, CleanResult, PerfQuickStats } from '@shared/types'
 import { CleanerType } from '@shared/enums'
@@ -83,8 +79,6 @@ export function DashboardPage() {
   const historyStore = useHistoryStore()
   const scanStore = useScanStore()
   const updaterHasChecked = useUpdaterStore((s) => s.hasChecked)
-  const serviceHasScanned = useServiceStore((s) => s.hasScanned)
-  const startupItems = useStartupStore((s) => s.items)
   const gameModeActive = useGameModeStore((s) => s.active)
   const gameModeActivatedAt = useGameModeStore((s) => s.activatedAt)
   const cleanStartRef = useRef<number>(0)
@@ -156,9 +150,7 @@ export function DashboardPage() {
     }))
 
     const sessionTools = [
-      { key: 'updater', label: t('toolLabelUpdater'), icon: Download, color: '#06b6d4', active: updaterHasChecked },
-      { key: 'services', label: t('toolLabelServices'), icon: Server, color: '#ec4899', active: serviceHasScanned },
-      { key: 'startup', label: t('toolLabelStartup'), icon: Zap, color: '#22c55e', active: startupItems.length > 0 }
+      { key: 'updater', label: t('toolLabelUpdater'), icon: Download, color: '#06b6d4', active: updaterHasChecked }
     ]
 
     const sessionResults = sessionTools.map((t) => ({
@@ -172,6 +164,13 @@ export function DashboardPage() {
 
     return [...historyResults, ...sessionResults]
   })()
+
+  const toolRoutes: Record<string, string> = {
+    cleaner: '/cleaner',
+    registry: '/registry',
+    drivers: '/drivers',
+    updater: '/updates'
+  }
 
   const healthScore = (() => {
     const totalTools = toolCoverage.length
@@ -442,15 +441,17 @@ export function DashboardPage() {
             <div className="mt-4 flex items-center gap-2">
               {toolCoverage.map((tool) => {
                 const Icon = tool.icon
+                const route = toolRoutes[tool.key]
                 return (
                   <div
                     key={tool.key}
-                    className="relative flex h-7 w-7 items-center justify-center rounded-lg transition-colors"
+                    className="relative flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg transition-colors hover:brightness-110"
                     style={{
                       background: tool.usedRecently ? tool.color + '18' : 'var(--bg-subtle)',
                       border: `1px solid ${tool.usedRecently ? tool.color + '30' : 'var(--border-subtle)'}`
                     }}
                     title={`${tool.label}: ${tool.usedRecently ? t('toolTipUsedRecently') : tool.usedEver ? t('toolTipNotUsedRecently') : t('toolTipNeverUsed')}`}
+                    onClick={() => route && navigate(route)}
                   >
                     <Icon
                       className="h-3.5 w-3.5"
