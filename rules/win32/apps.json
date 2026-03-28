@@ -69,6 +69,9 @@
     { "id": "hyper", "name": "Hyper Terminal", "paths": ["${APPDATA}/Hyper/Cache/Cache_Data", "${APPDATA}/Hyper/Code Cache", "${APPDATA}/Hyper/GPUCache"], "description": "Hyper terminal Electron app cache and GPU cache" },
     { "id": "linear", "name": "Linear", "paths": ["${APPDATA}/Linear/Cache/Cache_Data", "${APPDATA}/Linear/Code Cache", "${APPDATA}/Linear/GPUCache"], "description": "Linear project management Electron app cache and GPU cache" },
     { "id": "todoist", "name": "Todoist", "paths": ["${APPDATA}/Todoist/Cache/Cache_Data", "${APPDATA}/Todoist/Code Cache", "${APPDATA}/Todoist/GPUCache"], "description": "Todoist Electron app cache and GPU cache" },
-    { "id": "loom", "name": "Loom", "paths": ["${APPDATA}/Loom/Cache/Cache_Data", "${APPDATA}/Loom/Code Cache", "${APPDATA}/Loom/GPUCache"], "description": "Loom screen recorder Electron app cache and GPU cache" }
+    { "id": "loom", "name": "Loom", "paths": ["${APPDATA}/Loom/Cache/Cache_Data", "${APPDATA}/Loom/Code Cache", "${APPDATA}/Loom/GPUCache"], "description": "Loom screen recorder Electron app cache and GPU cache" },
+    { "id": "scoop", "name": "Scoop Cache", "paths": ["${HOME}/scoop/cache"], "description": "Scoop package manager downloaded installer cache (re-downloaded on demand)" },
+    { "id": "aws-cli", "name": "AWS CLI Cache", "paths": ["${HOME}/.aws/cli/cache"], "description": "AWS CLI cached API responses and temporary credentials (re-fetched automatically)" },
+    { "id": "gcloud", "name": "Google Cloud CLI Cache", "paths": ["${APPDATA}/gcloud/logs", "${APPDATA}/gcloud/cache"], "description": "Google Cloud CLI log files and cached API data" }
   ]
 }

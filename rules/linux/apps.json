@@ -66,6 +66,8 @@
     { "id": "linear", "name": "Linear", "paths": ["${CONFIG}/Linear/Cache/Cache_Data"], "description": "Linear project management Electron app cache" },
     { "id": "todoist", "name": "Todoist", "paths": ["${CONFIG}/Todoist/Cache/Cache_Data"], "description": "Todoist Electron app cache" },
     { "id": "loom", "name": "Loom", "paths": ["${CONFIG}/Loom/Cache/Cache_Data"], "description": "Loom screen recorder Electron app cache" },
-    { "id": "zed", "name": "Zed Editor", "paths": ["${CACHE}/zed"], "description": "Zed code editor cache; rebuilt automatically" }
+    { "id": "zed", "name": "Zed Editor", "paths": ["${CACHE}/zed"], "description": "Zed code editor cache; rebuilt automatically" },
+    { "id": "aws-cli", "name": "AWS CLI Cache", "paths": ["${HOME}/.aws/cli/cache"], "description": "AWS CLI cached API responses and temporary credentials (re-fetched automatically)" },
+    { "id": "gcloud", "name": "Google Cloud CLI Cache", "paths": ["${CONFIG}/gcloud/logs", "${CONFIG}/gcloud/cache"], "description": "Google Cloud CLI log files and cached API data" }
   ]
 }

@@ -29,7 +29,8 @@
   "firefoxForks": [
     { "key": "librewolf", "base": "${APPDATA}/LibreWolf/Profiles", "cache": "${LOCALAPPDATA}/LibreWolf/Profiles" },
     { "key": "waterfox", "base": "${APPDATA}/Waterfox/Profiles", "cache": "${LOCALAPPDATA}/Waterfox/Profiles" },
-    { "key": "floorp", "base": "${APPDATA}/Floorp/Profiles", "cache": "${LOCALAPPDATA}/Floorp/Profiles" }
+    { "key": "floorp", "base": "${APPDATA}/Floorp/Profiles", "cache": "${LOCALAPPDATA}/Floorp/Profiles" },
+    { "key": "zen", "base": "${APPDATA}/Zen/Profiles", "cache": "${LOCALAPPDATA}/Zen/Profiles" }
   ],
   "safari": null
 }

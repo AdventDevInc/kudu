@@ -80,7 +80,7 @@
       "properties": {
         "key": {
           "type": "string",
-          "enum": ["librewolf", "waterfox", "floorp"],
+          "enum": ["librewolf", "waterfox", "floorp", "zen"],
           "description": "Firefox-fork browser identifier matching the BrowserPathConfig keys"
         },
         "base": { "$ref": "#/definitions/TemplatePath" },

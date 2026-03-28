@@ -29,7 +29,8 @@
   "firefoxForks": [
     { "key": "librewolf", "base": "${HOME}/.librewolf", "cache": "${CACHE}/librewolf" },
     { "key": "waterfox", "base": "${HOME}/.waterfox", "cache": "${CACHE}/waterfox" },
-    { "key": "floorp", "base": "${HOME}/.floorp", "cache": "${CACHE}/floorp" }
+    { "key": "floorp", "base": "${HOME}/.floorp", "cache": "${CACHE}/floorp" },
+    { "key": "zen", "base": "${HOME}/.zen", "cache": "${CACHE}/zen" }
   ],
   "safari": null
 }

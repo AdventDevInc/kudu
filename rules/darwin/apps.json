@@ -68,6 +68,8 @@
     { "id": "todoist", "name": "Todoist", "paths": ["${APP_SUPPORT}/Todoist/Cache/Cache_Data"], "description": "Todoist Electron app cache" },
     { "id": "loom", "name": "Loom", "paths": ["${APP_SUPPORT}/Loom/Cache/Cache_Data"], "description": "Loom screen recorder Electron app cache" },
     { "id": "1password", "name": "1Password", "paths": ["${APP_SUPPORT}/1Password/Cache/Cache_Data"], "description": "1Password Electron app cache" },
-    { "id": "zed", "name": "Zed Editor", "paths": ["${CACHES}/dev.zed.Zed", "${LIBRARY}/Logs/Zed"], "description": "Zed code editor cache and log files; rebuilt automatically" }
+    { "id": "zed", "name": "Zed Editor", "paths": ["${CACHES}/dev.zed.Zed", "${LIBRARY}/Logs/Zed"], "description": "Zed code editor cache and log files; rebuilt automatically" },
+    { "id": "aws-cli", "name": "AWS CLI Cache", "paths": ["${HOME}/.aws/cli/cache"], "description": "AWS CLI cached API responses and temporary credentials (re-fetched automatically)" },
+    { "id": "gcloud", "name": "Google Cloud CLI Cache", "paths": ["${HOME}/.config/gcloud/logs", "${HOME}/.config/gcloud/cache"], "description": "Google Cloud CLI log files and cached API data" }
   ]
 }
