@@ -846,14 +846,18 @@ export function initGameDetector(
         sendAutoEvent({ type: 'game-detected', processName })
       },
       onGameExited: async () => {
-        // Only auto-deactivate if we auto-activated
+        // Only relevant if we auto-activated
         if (!autoActivated) return
 
-        const cfg = getSettings().gameMode
-        if (cfg.autoDeactivate === false) return
-
-        await deactivateGameMode(sendProgress)
+        const wasAutoActivated = autoActivated
         autoActivated = false
+
+        const cfg = getSettings().gameMode
+        if (cfg.autoDeactivate !== false && wasAutoActivated) {
+          await deactivateGameMode(sendProgress)
+        }
+
+        // Always notify renderer so detectedGame clears and status refreshes
         sendAutoEvent({ type: 'game-exited', processName: null })
       },
     },

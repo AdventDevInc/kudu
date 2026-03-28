@@ -116,6 +116,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     }
     // Restart game detector when gameMode settings change
     if ('gameMode' in validated) {
+      await flushSettings()
       refreshGameDetector(getWindow)
     }
     return { success: true }
