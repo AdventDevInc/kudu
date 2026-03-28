@@ -1920,12 +1920,11 @@ class CloudAgentService {
           } catch { /* skip */ }
         }
 
-        // Firefox forks (LibreWolf, Waterfox, Floorp, Zen)
+        // Firefox forks — Zen is excluded here because it's already covered by the app scanner (zen-browser in apps.json)
         const firefoxForks = [
           { label: 'LibreWolf', ...browserPaths.librewolf },
           { label: 'Waterfox', ...browserPaths.waterfox },
           { label: 'Floorp', ...browserPaths.floorp },
-          { label: 'Zen Browser', ...browserPaths.zen },
         ]
         for (const fork of firefoxForks) {
           if (!fork.cache || !existsSync(fork.cache)) continue
