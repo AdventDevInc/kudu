@@ -135,10 +135,13 @@ export function startGameDetector(
   cbs: GameDetectorCallbacks,
   customGameProcesses: string[],
 ): void {
+  // Preserve suppression across restarts so a settings change during a
+  // suppressed session doesn't re-activate the still-running game.
+  const prevSuppressed = suppressedGame
   stopGameDetector()
   callbacks = cbs
   detectedGame = null
-  suppressedGame = null
+  suppressedGame = prevSuppressed
   pollTimer = setInterval(() => poll(customGameProcesses), 10_000)
   poll(customGameProcesses)
 }
