@@ -17,6 +17,7 @@ import {
   Zap,
   Timer,
   Activity,
+  Radar,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -185,9 +186,11 @@ export function GameModePage() {
   const lastResult = useGameModeStore((s) => s.lastResult)
   const config = useGameModeStore((s) => s.config)
   const expandedCategories = useGameModeStore((s) => s.expandedCategories)
+  const detectedGame = useGameModeStore((s) => s.detectedGame)
 
   const [elapsed, setElapsed] = useState(0)
   const [customInput, setCustomInput] = useState('')
+  const [gameInput, setGameInput] = useState('')
   const progressCleanupRef = useRef<(() => void) | null>(null)
 
   // Cleanup progress listener on unmount
@@ -293,6 +296,21 @@ export function GameModePage() {
   const handleRemoveCustomProcess = useCallback((name: string) => {
     store.getState().setCustomProcessKillList(config.customProcessKillList.filter((n) => n !== name))
   }, [config.customProcessKillList])
+
+  const handleAddGameProcess = useCallback(() => {
+    const name = gameInput.trim()
+    if (!name || name.length > 100 || (config.customGameProcesses ?? []).includes(name)) return
+    if (!/^[A-Za-z0-9._\- ]+$/.test(name)) {
+      toast.error('Process name can only contain letters, numbers, dots, hyphens, underscores, and spaces')
+      return
+    }
+    store.getState().setCustomGameProcesses([...(config.customGameProcesses ?? []), name])
+    setGameInput('')
+  }, [gameInput, config.customGameProcesses])
+
+  const handleRemoveGameProcess = useCallback((name: string) => {
+    store.getState().setCustomGameProcesses((config.customGameProcesses ?? []).filter((n) => n !== name))
+  }, [config.customGameProcesses])
 
   const enabledSet = new Set(config.enabledOptimizations)
   const enabledCount = config.enabledOptimizations.length
@@ -541,7 +559,149 @@ export function GameModePage() {
           </div>
         )}
 
-        {/* ── Category Cards ──────────────────────────── */}
+        {/* ── Auto-detected banner ────────────────────── */}
+        <AnimatePresence>
+          {detectedGame && active && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[12px]"
+              style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)', color: '#22c55e' }}
+            >
+              <Radar className="h-3.5 w-3.5 shrink-0" />
+              {t('autoDetectedBanner', { name: detectedGame })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Auto-Detect Settings ───────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.02, duration: 0.3 }}
+          className="overflow-hidden rounded-xl"
+          style={{
+            border: `1px solid ${config.autoDetect ? 'rgba(34,197,94,0.15)' : 'var(--border-default)'}`,
+            background: config.autoDetect ? 'linear-gradient(135deg, rgba(34,197,94,0.06), transparent)' : 'var(--bg-subtle)',
+          }}
+        >
+          {/* Header row with main toggle */}
+          <div className="flex items-center gap-4 px-5 py-4">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+              style={{ background: 'rgba(34,197,94,0.12)' }}
+            >
+              <Radar className="h-[18px] w-[18px]" style={{ color: '#22c55e' }} strokeWidth={1.8} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-semibold text-zinc-200">{t('autoDetectTitle')}</span>
+              </div>
+              <p className="mt-0.5 text-[11px] text-zinc-500">{t('autoDetectDesc')}</p>
+            </div>
+            <button
+              onClick={() => store.getState().setAutoDetect(!config.autoDetect)}
+              className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+              style={{ background: config.autoDetect ? '#22c55e' : 'var(--bg-active)' }}
+            >
+              <motion.div
+                className="absolute top-0.5 h-5 w-5 rounded-full"
+                animate={{
+                  left: config.autoDetect ? 22 : 2,
+                  background: config.autoDetect ? '#fff' : 'var(--text-muted)',
+                }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </button>
+          </div>
+
+          {/* Expanded options when auto-detect is on */}
+          <AnimatePresence>
+            {config.autoDetect && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+                style={{ borderTop: '1px solid var(--border-subtle)' }}
+              >
+                {/* Auto-deactivate toggle */}
+                <div
+                  className="flex items-center gap-4 px-5 py-3.5"
+                  style={{ borderBottom: '1px solid var(--bg-subtle)' }}
+                >
+                  <div className="flex-1">
+                    <span className="text-[13px] font-medium text-zinc-300">{t('autoDeactivateLabel')}</span>
+                    <p className="mt-0.5 text-[11px] text-zinc-500">{t('autoDeactivateDesc')}</p>
+                  </div>
+                  <button
+                    onClick={() => store.getState().setAutoDeactivate(!config.autoDeactivate)}
+                    className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                    style={{ background: config.autoDeactivate ? '#22c55e' : 'var(--bg-active)' }}
+                  >
+                    <motion.div
+                      className="absolute top-0.5 h-5 w-5 rounded-full"
+                      animate={{
+                        left: config.autoDeactivate ? 22 : 2,
+                        background: config.autoDeactivate ? '#fff' : 'var(--text-muted)',
+                      }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  </button>
+                </div>
+
+                {/* Custom game processes */}
+                <div className="px-5 py-3.5">
+                  <div className="mb-2">
+                    <span className="text-[13px] font-medium text-zinc-300">{t('customGameProcessesLabel')}</span>
+                    <p className="mt-0.5 text-[11px] text-zinc-500">{t('customGameProcessesDesc')}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={gameInput}
+                      onChange={(e) => setGameInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddGameProcess()}
+                      placeholder={t('customGamePlaceholder')}
+                      className="flex-1 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-1.5 text-[12px] text-zinc-300 outline-none placeholder:text-zinc-600 focus:border-emerald-500/30"
+                    />
+                    <button
+                      onClick={handleAddGameProcess}
+                      disabled={!gameInput.trim()}
+                      className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors disabled:opacity-40"
+                      style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}
+                    >
+                      <Plus className="h-3 w-3" />
+                      {t('customGameAdd')}
+                    </button>
+                  </div>
+                  {(config.customGameProcesses?.length ?? 0) > 0 ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {(config.customGameProcesses ?? []).map((name) => (
+                        <span
+                          key={name}
+                          className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
+                          style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
+                        >
+                          {name}
+                          <button onClick={() => handleRemoveGameProcess(name)} className="hover:text-red-400">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-[11px] text-zinc-600">{t('customGameEmpty')}</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* ── Category Cards ───────��──────────────────── */}
         {CATEGORIES.map((cat, catIndex) => {
           const catOpts = OPTIMIZATIONS.filter((o) => o.category === cat.id)
           if (catOpts.length === 0) return null

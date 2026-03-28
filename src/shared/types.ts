@@ -631,6 +631,12 @@ export type GameModeCategory = 'services' | 'processes' | 'memory' | 'system' | 
 export interface GameModeConfig {
   enabledOptimizations: GameModeOptimizationId[]
   customProcessKillList: string[]
+  /** Automatically activate Game Mode when a game process is detected */
+  autoDetect: boolean
+  /** Automatically deactivate Game Mode when the detected game exits */
+  autoDeactivate: boolean
+  /** User-specified game executable names to watch for (e.g. "mygame.exe") */
+  customGameProcesses: string[]
 }
 
 export interface GameModeSnapshot {

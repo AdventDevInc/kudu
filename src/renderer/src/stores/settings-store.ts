@@ -53,7 +53,10 @@ const defaultSettings: KuduSettings = {
       'sys-disable-game-bar', 'sys-disable-fse-opt',
       'net-flush-dns'
     ],
-    customProcessKillList: []
+    customProcessKillList: [],
+    autoDetect: false,
+    autoDeactivate: true,
+    customGameProcesses: []
   }
 }
 

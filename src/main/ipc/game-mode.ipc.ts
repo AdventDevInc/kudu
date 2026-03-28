@@ -17,6 +17,14 @@ import type {
   GameModeStatus,
   GameModeOptimizationId,
 } from '../../shared/types'
+import type { GameAutoEvent } from '../services/game-detector'
+import {
+  startGameDetector,
+  stopGameDetector,
+  suppressCurrentGame,
+  isDetectorRunning,
+} from '../services/game-detector'
+import { getSettings } from '../services/settings-store'
 
 const execFileAsync = promisify(execFile)
 
@@ -749,10 +757,36 @@ function validateGameModeConfig(input: unknown): GameModeConfig | null {
     typeof v === 'string' && v.length > 0 && v.length <= 100 && PROCESS_NAME_RE.test(v as string)
   )) return null
 
+  // Auto-detect fields are optional in the activate payload (not used by activate itself)
+  if ('autoDetect' in obj && typeof obj.autoDetect !== 'boolean') return null
+  if ('autoDeactivate' in obj && typeof obj.autoDeactivate !== 'boolean') return null
+  if ('customGameProcesses' in obj) {
+    if (!Array.isArray(obj.customGameProcesses)) return null
+    if (obj.customGameProcesses.length > 50) return null
+    if (!obj.customGameProcesses.every((v: unknown) =>
+      typeof v === 'string' && v.length > 0 && v.length <= 100 && PROCESS_NAME_RE.test(v as string)
+    )) return null
+  }
+
   return obj as unknown as GameModeConfig
 }
 
+// ── Auto-activation tracking ────────────────────────────────────
+
+/** true when Game Mode was activated automatically by the game detector */
+let autoActivated = false
+
 export function registerGameModeIpc(getWindow: WindowGetter): void {
+  const sendProgress = (data: GameModeProgress): void => {
+    const win = getWindow()
+    if (win && !win.isDestroyed()) win.webContents.send(IPC.GAME_MODE_PROGRESS, data)
+  }
+
+  const sendAutoEvent = (event: GameAutoEvent): void => {
+    const win = getWindow()
+    if (win && !win.isDestroyed()) win.webContents.send(IPC.GAME_MODE_AUTO_EVENT, event)
+  }
+
   ipcMain.handle(IPC.GAME_MODE_ACTIVATE, async (_event, rawConfig: unknown) => {
     const config = validateGameModeConfig(rawConfig)
     if (!config) {
@@ -762,20 +796,80 @@ export function registerGameModeIpc(getWindow: WindowGetter): void {
     if (readSnapshot() !== null) {
       return { succeeded: 0, failed: 1, errors: [{ optimizationId: 'config', reason: 'Game Mode is already active' }], snapshot: null }
     }
-    return activateGameMode(config, (data) => {
-      const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.GAME_MODE_PROGRESS, data)
-    })
+    autoActivated = false // manual activation
+    return activateGameMode(config, sendProgress)
   })
 
   ipcMain.handle(IPC.GAME_MODE_DEACTIVATE, async () => {
-    return deactivateGameMode((data) => {
-      const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.GAME_MODE_PROGRESS, data)
-    })
+    // If auto-detect is on and a game is still running, suppress re-activation
+    if (autoActivated || isDetectorRunning()) {
+      suppressCurrentGame()
+    }
+    autoActivated = false
+    return deactivateGameMode(sendProgress)
   })
 
   ipcMain.handle(IPC.GAME_MODE_STATUS, () => {
     return getGameModeStatus()
   })
+
+  // ── Auto-detect lifecycle ────────────────────────────────────
+  initGameDetector(getWindow, sendProgress, sendAutoEvent)
+}
+
+/** Start or restart the game detector based on current settings */
+export function initGameDetector(
+  getWindow: WindowGetter,
+  sendProgress: (data: GameModeProgress) => void,
+  sendAutoEvent: (event: GameAutoEvent) => void,
+): void {
+  // Only supported on Windows
+  if (process.platform !== 'win32') return
+
+  const settings = getSettings()
+  if (!settings.gameMode.autoDetect) {
+    stopGameDetector()
+    return
+  }
+
+  startGameDetector(
+    {
+      onGameDetected: async (processName) => {
+        // Don't activate if already active
+        if (readSnapshot() !== null) return
+
+        const cfg = getSettings().gameMode
+        if (cfg.enabledOptimizations.length === 0) return
+
+        autoActivated = true
+        await activateGameMode(cfg, sendProgress)
+        sendAutoEvent({ type: 'game-detected', processName })
+      },
+      onGameExited: async () => {
+        // Only auto-deactivate if we auto-activated
+        if (!autoActivated) return
+
+        const cfg = getSettings().gameMode
+        if (cfg.autoDeactivate === false) return
+
+        await deactivateGameMode(sendProgress)
+        autoActivated = false
+        sendAutoEvent({ type: 'game-exited', processName: null })
+      },
+    },
+    settings.gameMode.customGameProcesses ?? [],
+  )
+}
+
+/** Called when gameMode settings change — restarts the detector if needed. */
+export function refreshGameDetector(getWindow: WindowGetter): void {
+  const sendProgress = (data: GameModeProgress): void => {
+    const win = getWindow()
+    if (win && !win.isDestroyed()) win.webContents.send(IPC.GAME_MODE_PROGRESS, data)
+  }
+  const sendAutoEvent = (event: GameAutoEvent): void => {
+    const win = getWindow()
+    if (win && !win.isDestroyed()) win.webContents.send(IPC.GAME_MODE_AUTO_EVENT, event)
+  }
+  initGameDetector(getWindow, sendProgress, sendAutoEvent)
 }

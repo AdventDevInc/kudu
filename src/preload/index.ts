@@ -501,6 +501,11 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: GameModeProgress) => callback(data)
     ipcRenderer.on(IPC.GAME_MODE_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.GAME_MODE_PROGRESS, handler) }
+  },
+  onGameModeAutoEvent: (callback: (data: { type: 'game-detected' | 'game-exited'; processName: string | null }) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: { type: 'game-detected' | 'game-exited'; processName: string | null }) => callback(data)
+    ipcRenderer.on(IPC.GAME_MODE_AUTO_EVENT, handler)
+    return () => { ipcRenderer.removeListener(IPC.GAME_MODE_AUTO_EVENT, handler) }
   }
 }
 

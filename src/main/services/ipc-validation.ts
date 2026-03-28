@@ -142,7 +142,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   if ('gameMode' in obj && obj.gameMode !== undefined) {
     const g = obj.gameMode as Record<string, unknown>
     if (typeof g !== 'object' || g === null || Array.isArray(g)) return null
-    const allowedGameModeKeys = new Set(['enabledOptimizations', 'customProcessKillList'])
+    const allowedGameModeKeys = new Set(['enabledOptimizations', 'customProcessKillList', 'autoDetect', 'autoDeactivate', 'customGameProcesses'])
     for (const key of Object.keys(g)) {
       if (!allowedGameModeKeys.has(key)) return null
     }
@@ -163,6 +163,16 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
       if (!Array.isArray(g.customProcessKillList)) return null
       if (g.customProcessKillList.length > 50) return null
       if (!g.customProcessKillList.every((v: unknown) =>
+        typeof v === 'string' && v.length > 0 && v.length <= 100 &&
+        /^[A-Za-z0-9._\- ]+$/.test(v)
+      )) return null
+    }
+    if ('autoDetect' in g && typeof g.autoDetect !== 'boolean') return null
+    if ('autoDeactivate' in g && typeof g.autoDeactivate !== 'boolean') return null
+    if ('customGameProcesses' in g) {
+      if (!Array.isArray(g.customGameProcesses)) return null
+      if (g.customGameProcesses.length > 50) return null
+      if (!g.customGameProcesses.every((v: unknown) =>
         typeof v === 'string' && v.length > 0 && v.length <= 100 &&
         /^[A-Za-z0-9._\- ]+$/.test(v)
       )) return null

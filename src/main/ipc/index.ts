@@ -29,7 +29,7 @@ import { registerCloudAgentIpc } from './cloud-agent.ipc'
 import { registerLargeFileFinderIpc } from './large-file-finder.ipc'
 import { registerEmptyFolderCleanerIpc } from './empty-folder-cleaner.ipc'
 import { registerFileShredderIpc } from './file-shredder.ipc'
-import { registerGameModeIpc } from './game-mode.ipc'
+import { registerGameModeIpc, refreshGameDetector } from './game-mode.ipc'
 import { registerCveScannerIpc } from './cve-scanner.ipc'
 import { registerBreachMonitorIpc } from './breach-monitor.ipc'
 import { registerStartupSafetyIpc } from './startup-safety.ipc'
@@ -113,6 +113,10 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     if (typeof validated.language === 'string') {
       await flushSettings()
       app.emit('kudu:language-changed')
+    }
+    // Restart game detector when gameMode settings change
+    if ('gameMode' in validated) {
+      refreshGameDetector(getWindow)
     }
     return { success: true }
   })

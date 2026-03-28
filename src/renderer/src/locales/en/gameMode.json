@@ -81,5 +81,17 @@
 
   "statOptimizationsActive": "Optimizations Active",
   "statServicesDisabled": "Services Paused",
-  "statSessionTimer": "Session Timer"
+  "statSessionTimer": "Session Timer",
+
+  "autoDetectTitle": "Auto-Detect",
+  "autoDetectLabel": "Auto-detect games",
+  "autoDetectDesc": "Automatically activate Game Mode when a game is launched",
+  "autoDeactivateLabel": "Auto-deactivate on exit",
+  "autoDeactivateDesc": "Restore system settings when the game exits",
+  "customGameProcessesLabel": "Custom game processes",
+  "customGameProcessesDesc": "Add executable names of games not in the built-in list",
+  "customGamePlaceholder": "Game executable (e.g. mygame.exe)",
+  "customGameAdd": "Add",
+  "customGameEmpty": "No custom game processes configured",
+  "autoDetectedBanner": "Auto-activated \u2014 detected {{name}}"
 }
