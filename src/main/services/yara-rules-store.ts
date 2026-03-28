@@ -54,12 +54,17 @@ function getMetadataPath(): string {
   return join(getCachedRulesDir(), 'metadata.json')
 }
 
-// ─── Cached rule files (downloaded from cloud, persisted to disk) ──
+// ─── Bundled rules (fetched at build time, shipped with the installer) ──
 
-/** Get paths to cached YARA rule files. */
-export function getCachedRulePaths(): string[] {
+function getBundledRulesDir(): string {
+  return app.isPackaged
+    ? join(process.resourcesPath, 'yara-rules')
+    : join(__dirname, '../../resources/yara-rules')
+}
+
+/** List .yar files in a directory. */
+function listYarFiles(dir: string): string[] {
   try {
-    const dir = getCachedRulesDir()
     if (!existsSync(dir)) return []
     return readdirSync(dir)
       .filter(f => f.endsWith('.yar'))
@@ -68,6 +73,35 @@ export function getCachedRulePaths(): string[] {
   } catch {
     return []
   }
+}
+
+/** Get paths to bundled YARA rule files (shipped with the app). */
+export function getBundledRulePaths(): string[] {
+  return listYarFiles(getBundledRulesDir())
+}
+
+// ─── Cached rule files (downloaded from cloud, persisted to disk) ──
+
+/** Get paths to cached YARA rule files. */
+export function getCachedRulePaths(): string[] {
+  return listYarFiles(getCachedRulesDir())
+}
+
+/**
+ * Get all YARA rule file paths.
+ * Cached (cloud-downloaded) rules override bundled ones by filename,
+ * so cloud updates supersede the version that shipped with the installer.
+ */
+export function getAllRulePaths(): string[] {
+  const bundled = getBundledRulePaths()
+  const cached = getCachedRulePaths()
+
+  if (cached.length === 0) return bundled
+  if (bundled.length === 0) return cached
+
+  const cachedNames = new Set(cached.map(p => basename(p)))
+  const merged = bundled.filter(p => !cachedNames.has(basename(p)))
+  return [...merged, ...cached]
 }
 
 export function getRulesMetadata(): YaraRulesMetadata | null {

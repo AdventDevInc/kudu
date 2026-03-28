@@ -8,3 +8,4 @@ Thumbs.db
 cloud/
 CLOUD-COMMANDS.md
 manifests/
+resources/yara-rules/
