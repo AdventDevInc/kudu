@@ -554,6 +554,8 @@ export interface ScheduleEntry {
   frequency: 'daily' | 'weekly' | 'monthly'
   day: number
   hour: number
+  /** Minute of the hour (0-59). Defaults to 0 for backward compatibility. */
+  minute?: number
   tasks: ScheduleTaskType[]
   autoApply: boolean
   lastRunAt: string | null

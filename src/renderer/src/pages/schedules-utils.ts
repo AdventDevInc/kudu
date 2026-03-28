@@ -9,7 +9,8 @@ export function getNextRunTime(entry: ScheduleEntry): Date | null {
 
   const now = new Date()
   const next = new Date()
-  next.setHours(entry.hour, 0, 0, 0)
+  const minute = entry.minute ?? 0
+  next.setHours(entry.hour, minute, 0, 0)
 
   switch (entry.frequency) {
     case 'daily':

@@ -203,6 +203,7 @@ function makeEntry(overrides: Partial<ScheduleEntry> = {}): ScheduleEntry {
     frequency: 'daily',
     day: 1,
     hour: 9,
+    minute: 0,
     tasks: ['cleaner:system'],
     autoApply: false,
     lastRunAt: null,

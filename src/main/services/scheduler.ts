@@ -18,7 +18,8 @@ export function getNextRunTime(entry: ScheduleEntry): Date | null {
 
   const now = new Date()
   const next = new Date()
-  next.setHours(entry.hour, 0, 0, 0)
+  const minute = entry.minute ?? 0
+  next.setHours(entry.hour, minute, 0, 0)
 
   switch (entry.frequency) {
     case 'daily':
@@ -58,7 +59,8 @@ function isDueEntry(entry: ScheduleEntry): boolean {
   const lastRun = entry.lastRunAt ? new Date(entry.lastRunAt) : null
 
   const target = new Date()
-  target.setHours(entry.hour, 0, 0, 0)
+  const entryMinute = entry.minute ?? 0
+  target.setHours(entry.hour, entryMinute, 0, 0)
   const withinWindow = Math.abs(now.getTime() - target.getTime()) <= 2 * 60_000
 
   switch (entry.frequency) {
@@ -124,6 +126,7 @@ export function getNextScanTime(settings: KuduSettings): Date | null {
     frequency: settings.schedule.frequency,
     day: settings.schedule.day,
     hour: settings.schedule.hour,
+    minute: 0,
     tasks: [],
     autoApply: false,
     lastRunAt: null,

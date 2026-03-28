@@ -136,10 +136,22 @@ export function createWin32Network(): PlatformNetwork {
 
     async flushDnsCache(): Promise<boolean> {
       try {
-        await execFileAsync('ipconfig', ['/flushdns'], { timeout: 10000, windowsHide: true })
+        // Use PowerShell Clear-DnsClientCache for reliable cache clearing,
+        // then also run ipconfig /flushdns as a belt-and-suspenders approach
+        await execFileAsync('powershell.exe', [
+          '-NoProfile', '-NonInteractive', '-Command',
+          psUtf8('Clear-DnsClientCache'),
+        ], { timeout: 10000, windowsHide: true })
+        await execFileAsync('ipconfig', ['/flushdns'], { timeout: 10000, windowsHide: true }).catch(() => {})
         return true
       } catch {
-        return false
+        // Fallback to ipconfig only
+        try {
+          await execFileAsync('ipconfig', ['/flushdns'], { timeout: 10000, windowsHide: true })
+          return true
+        } catch {
+          return false
+        }
       }
     },
 
@@ -181,10 +193,21 @@ export function createWin32Network(): PlatformNetwork {
 
     async clearArpCache(): Promise<boolean> {
       try {
-        await execNativeUtf8('netsh', ['interface', 'ip', 'delete', 'arpcache'], { timeout: 10000 })
+        // 'netsh interface ip delete arpcache' is deprecated on modern Windows.
+        // Use PowerShell Remove-NetNeighbor which works on Windows 10/11.
+        await execFileAsync('powershell.exe', [
+          '-NoProfile', '-NonInteractive', '-Command',
+          psUtf8('Get-NetNeighbor | Remove-NetNeighbor -Confirm:$false -ErrorAction Stop'),
+        ], { timeout: 15000, windowsHide: true })
         return true
       } catch {
-        return false
+        // Fallback to legacy command for older Windows versions
+        try {
+          await execNativeUtf8('netsh', ['interface', 'ip', 'delete', 'arpcache'], { timeout: 10000 })
+          return true
+        } catch {
+          return false
+        }
       }
     },
   }

@@ -79,6 +79,7 @@ function buildPresets(availableTasks: TaskDef[], t: (key: string) => string): Pr
         frequency: 'weekly',
         day: 1,
         hour: 9,
+        minute: 0,
         tasks: [...CLEANER_TASKS],
         autoApply: true
       }
@@ -91,6 +92,7 @@ function buildPresets(availableTasks: TaskDef[], t: (key: string) => string): Pr
         frequency: 'daily',
         day: 0,
         hour: 8,
+        minute: 0,
         tasks: ['cleaner:system', 'cleaner:browsers', 'cleaner:recycleBin'],
         autoApply: true
       }
@@ -103,6 +105,7 @@ function buildPresets(availableTasks: TaskDef[], t: (key: string) => string): Pr
         frequency: 'monthly',
         day: 1,
         hour: 10,
+        minute: 0,
         tasks: [...allTypes],
         autoApply: true
       }
@@ -116,6 +119,7 @@ function makeBlankEntry(): Partial<ScheduleEntry> {
     frequency: 'weekly',
     day: 1,
     hour: 9,
+    minute: 0,
     tasks: [...CLEANER_TASKS],
     autoApply: false
   }
@@ -510,6 +514,7 @@ function ScheduleDialog({
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>(initial.frequency ?? 'weekly')
   const [day, setDay] = useState(initial.day ?? 1)
   const [hour, setHour] = useState(initial.hour ?? 9)
+  const [minute, setMinute] = useState(initial.minute ?? 0)
   const [tasks, setTasks] = useState<ScheduleTaskType[]>(initial.tasks ?? [...CLEANER_TASKS])
   const [autoApply, setAutoApply] = useState(initial.autoApply ?? false)
 
@@ -534,6 +539,7 @@ function ScheduleDialog({
       frequency,
       day,
       hour,
+      minute,
       tasks,
       autoApply,
       lastRunAt: (initial as ScheduleEntry).lastRunAt ?? null,
@@ -633,16 +639,29 @@ function ScheduleDialog({
 
           <div>
             <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.timeLabel')}</label>
-            <select
-              value={hour}
-              onChange={(e) => setHour(Number(e.target.value))}
-              className={cn(selectStyle, 'w-full')}
-              style={selectBorder}
-            >
-              {Array.from({ length: 24 }, (_, i) => (
-                <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>
-              ))}
-            </select>
+            <div className="flex gap-1.5">
+              <select
+                value={hour}
+                onChange={(e) => setHour(Number(e.target.value))}
+                className={cn(selectStyle, 'w-full')}
+                style={selectBorder}
+              >
+                {Array.from({ length: 24 }, (_, i) => (
+                  <option key={i} value={i}>{String(i).padStart(2, '0')}</option>
+                ))}
+              </select>
+              <span className="flex items-center text-[13px] text-zinc-400">:</span>
+              <select
+                value={minute}
+                onChange={(e) => setMinute(Number(e.target.value))}
+                className={cn(selectStyle, 'w-full')}
+                style={selectBorder}
+              >
+                {Array.from({ length: 60 }, (_, i) => (
+                  <option key={i} value={i}>{String(i).padStart(2, '0')}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -811,7 +830,7 @@ function IconBtn({ icon: Icon, title, onClick, color }: { icon: typeof Pencil; t
 // ─── Utilities ────────────────────────────────────────────
 
 function formatFrequency(entry: ScheduleEntry, t: (key: string, opts?: Record<string, unknown>) => string): string {
-  const time = `${String(entry.hour).padStart(2, '0')}:00`
+  const time = `${String(entry.hour).padStart(2, '0')}:${String(entry.minute ?? 0).padStart(2, '0')}`
   switch (entry.frequency) {
     case 'daily':
       return t('frequency.everyDayAt', { time })
@@ -826,7 +845,7 @@ function formatNextRun(date: Date, t: (key: string, opts?: Record<string, unknow
   const now = new Date()
   const diffMs = date.getTime() - now.getTime()
   const diffD = Math.floor(diffMs / 86_400_000)
-  const time = `${String(date.getHours()).padStart(2, '0')}:00`
+  const time = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
 
   if (diffD === 0 && date.getDate() === now.getDate()) return t('nextRun.todayAt', { time })
   const tomorrow = new Date(now)

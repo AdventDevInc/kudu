@@ -140,6 +140,7 @@ describe('validateSettingsPartial', () => {
         frequency: 'weekly',
         day: 1,
         hour: 9,
+        minute: 0,
         tasks: ['cleaner:system', 'cleaner:browsers'],
         autoApply: false,
         lastRunAt: null,
@@ -153,7 +154,7 @@ describe('validateSettingsPartial', () => {
   it('rejects schedules with invalid task types', () => {
     expect(validateSettingsPartial({
       schedules: [{
-        id: 'x', name: 'X', enabled: true, frequency: 'daily', day: 0, hour: 9,
+        id: 'x', name: 'X', enabled: true, frequency: 'daily', day: 0, hour: 9, minute: 0,
         tasks: ['badtask'], autoApply: false, lastRunAt: null, lastRunStatus: 'never', createdAt: '2025-01-01T00:00:00Z'
       }]
     })).toBeNull()
@@ -165,7 +166,7 @@ describe('validateSettingsPartial', () => {
 
   it('rejects too many schedules', () => {
     const schedules = Array.from({ length: 11 }, (_, i) => ({
-      id: `id-${i}`, name: `S${i}`, enabled: true, frequency: 'daily', day: 0, hour: 9,
+      id: `id-${i}`, name: `S${i}`, enabled: true, frequency: 'daily', day: 0, hour: 9, minute: 0,
       tasks: ['cleaner:system'], autoApply: false, lastRunAt: null, lastRunStatus: 'never', createdAt: '2025-01-01T00:00:00Z'
     }))
     expect(validateSettingsPartial({ schedules })).toBeNull()

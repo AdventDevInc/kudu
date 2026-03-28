@@ -117,6 +117,15 @@ export function NetworkCleanupPage() {
       recomputeStats()
 
       useNetworkStore.getState().setStatus('complete')
+
+      // Re-scan after cleaning to show the actual current state —
+      // without this, items like DNS/ARP appear removed but come back on next manual scan
+      try {
+        const freshItems = await window.kudu.networkScan()
+        const ns = useNetworkStore.getState()
+        ns.setItems(freshItems)
+        ns.setSelectedIds(new Set())
+      } catch { /* re-scan is best-effort */ }
     } catch {
       toast.error(t('cleanupFailedToast'))
       useNetworkStore.getState().setStatus('idle')

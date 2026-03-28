@@ -178,6 +178,7 @@ function readStore(): StoreData {
           frequency: merged.settings.schedule.frequency,
           day: merged.settings.schedule.day,
           hour: merged.settings.schedule.hour,
+          minute: 0,
           tasks: allCleanerTasks,
           autoApply: false,
           lastRunAt: null,

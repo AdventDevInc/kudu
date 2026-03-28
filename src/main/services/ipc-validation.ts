@@ -95,6 +95,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
       if (!validFrequencies.has(e.frequency as string)) return null
       if (typeof e.day !== 'number' || e.day < 0 || e.day > 31) return null
       if (typeof e.hour !== 'number' || e.hour < 0 || e.hour > 23) return null
+      if (e.minute !== undefined && (typeof e.minute !== 'number' || e.minute < 0 || e.minute > 59)) return null
       if (!Array.isArray(e.tasks) || e.tasks.length > 20) return null
       if (!e.tasks.every((t: unknown) => typeof t === 'string' && validTaskTypes.has(t as string))) return null
       if (typeof e.autoApply !== 'boolean') return null
