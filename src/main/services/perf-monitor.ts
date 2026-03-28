@@ -248,11 +248,15 @@ export class PerfMonitorService {
         totalMem = os.totalmem()
         usedMem = totalMem - os.freemem()
         cachedMem = 0
-      } else {
+      } else if (process.platform === 'darwin') {
         totalMem = mem!.total
         // mem.active includes file-backed/reclaimable pages and vastly overstates
         // real pressure on macOS.  (total − available) matches Activity Monitor.
         usedMem = totalMem - mem!.available
+        cachedMem = mem!.cached
+      } else {
+        usedMem = mem!.active
+        totalMem = mem!.total
         cachedMem = mem!.cached
       }
 
