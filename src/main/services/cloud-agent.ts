@@ -44,6 +44,8 @@ import type {
 import type { ScanResult, CloudActionEntry, StartupSafetyResult } from '../../shared/types'
 import { addCloudHistoryEntry } from './cloud-history-store'
 import { downloadAndUpdateBlacklist, loadBlacklist } from './threat-blacklist-store'
+import { fetchAndCacheRules } from './yara-rules-store'
+import { resetYaraEngine } from '../ipc/malware-scanner.ipc'
 import { threatMonitor } from './threat-monitor'
 import { isLikelyFalsePositive, deduplicateCves } from './cve-filter'
 
@@ -1519,7 +1521,7 @@ class CloudAgentService {
     'privacy-scan', 'privacy-apply', 'debloater-scan', 'debloater-remove',
     'service-scan', 'service-apply',
     'malware-quarantine', 'malware-delete', 'registry-scan', 'registry-fix',
-    'update-threat-blacklist', 'get-threat-status',
+    'update-threat-blacklist', 'update-yara-rules', 'get-threat-status',
     'cve-scan',
   ])
 
@@ -1714,6 +1716,9 @@ class CloudAgentService {
         case 'update-threat-blacklist':
           await this.handleUpdateThreatBlacklist(cmd.requestId, cmd.url)
           break
+        case 'update-yara-rules':
+          await this.handleUpdateYaraRules(cmd.requestId, cmd.url)
+          break
         case 'get-threat-status':
           await this.handleGetThreatStatus(cmd.requestId)
           break
@@ -1798,6 +1803,7 @@ class CloudAgentService {
       case 'registry-scan': return 'Registry scan'
       case 'registry-fix': return `Fix ${cmd.entryIds?.length ?? 0} registry entries`
       case 'update-threat-blacklist': return 'Update threat blacklist'
+      case 'update-yara-rules': return 'Update YARA rules'
       case 'get-threat-status': return 'Get threat status'
       case 'cve-scan': return 'CVE vulnerability scan'
       default: return (cmd as CloudCommand).type
@@ -3070,6 +3076,63 @@ class CloudAgentService {
         ips: result.stats!.ips,
         cidrs: result.stats!.cidrs,
       })
+    } else {
+      await this.postCommandResult(requestId, false, undefined, result.error!.slice(0, 200))
+    }
+  }
+
+  // ─── YARA Rules ───────────────────────────────────────
+
+  private async handleUpdateYaraRules(requestId: string, url: string): Promise<void> {
+    if (typeof url !== 'string' || url.length === 0 || url.length > 2000) {
+      await this.postCommandResult(requestId, false, undefined, 'Invalid URL')
+      return
+    }
+
+    // SSRF validation: reuse the same private/loopback checks
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        await this.postCommandResult(requestId, false, undefined, 'Only HTTP(S) URLs allowed')
+        return
+      }
+      if (app.isPackaged) {
+        const host = parsed.hostname.toLowerCase()
+        if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1' || host === '0.0.0.0') {
+          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          return
+        }
+        if (host.startsWith('10.') || host.startsWith('192.168.') || host.startsWith('169.254.')) {
+          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          return
+        }
+        if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
+          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          return
+        }
+      }
+    } catch {
+      await this.postCommandResult(requestId, false, undefined, 'Invalid URL format')
+      return
+    }
+
+    try {
+      await assertPublicResolution(url)
+    } catch (err) {
+      await this.postCommandResult(requestId, false, undefined, err instanceof Error ? err.message : 'DNS rebinding check failed')
+      return
+    }
+
+    cloudLog('INFO', `Updating YARA rules from ${url}`)
+    const result = await fetchAndCacheRules(url)
+
+    if (result.success) {
+      // Reset engine so it re-initializes with new rules on next scan
+      resetYaraEngine()
+      await this.postCommandResult(requestId, true, result.stats ? {
+        rulesCount: result.stats.rulesCount,
+        version: result.stats.version,
+      } : { message: 'Already up to date' })
     } else {
       await this.postCommandResult(requestId, false, undefined, result.error!.slice(0, 200))
     }
