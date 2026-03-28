@@ -244,6 +244,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         librewolf: firefoxForks.librewolf || { base: '', cache: '' },
         waterfox: firefoxForks.waterfox || { base: '', cache: '' },
         floorp: firefoxForks.floorp || { base: '', cache: '' },
+        zen: firefoxForks.zen || { base: '', cache: '' },
         safari: safariResolved,
       } as BrowserPathConfig
     },

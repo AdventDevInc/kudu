@@ -29,7 +29,7 @@ describe('win32 browser', () => {
         'chrome.exe', 'msedge.exe', 'brave.exe', 'vivaldi.exe',
         'opera.exe', 'firefox.exe', 'arc.exe', 'chromium.exe',
         'thorium.exe', 'supermium.exe', 'helium.exe', 'cromite.exe',
-        'CatsXP.exe', 'librewolf.exe', 'waterfox.exe', 'floorp.exe',
+        'CatsXP.exe', 'librewolf.exe', 'waterfox.exe', 'floorp.exe', 'zen.exe',
       ]
 
       expect(execFileMock).toHaveBeenCalledTimes(expectedProcesses.length)
@@ -58,8 +58,8 @@ describe('win32 browser', () => {
 
       await browser.closeBrowsers()
 
-      // All 16 browsers should still be attempted
-      expect(execFileMock).toHaveBeenCalledTimes(16)
+      // All 17 browsers should still be attempted
+      expect(execFileMock).toHaveBeenCalledTimes(17)
     })
   })
 })

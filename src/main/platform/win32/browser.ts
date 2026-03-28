@@ -11,7 +11,7 @@ export function createWin32Browser(): PlatformBrowser {
         'chrome.exe', 'msedge.exe', 'brave.exe', 'vivaldi.exe',
         'opera.exe', 'firefox.exe', 'arc.exe', 'chromium.exe',
         'thorium.exe', 'supermium.exe', 'helium.exe', 'cromite.exe',
-        'CatsXP.exe', 'librewolf.exe', 'waterfox.exe', 'floorp.exe',
+        'CatsXP.exe', 'librewolf.exe', 'waterfox.exe', 'floorp.exe', 'zen.exe',
       ]
       for (const proc of browserProcesses) {
         try {

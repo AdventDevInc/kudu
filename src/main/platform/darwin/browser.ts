@@ -26,6 +26,7 @@ export function createDarwinBrowser(): PlatformBrowser {
         'LibreWolf',
         'Waterfox',
         'Floorp',
+        'Zen Browser',
         'Safari',
       ]
 

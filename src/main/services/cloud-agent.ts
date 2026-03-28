@@ -1920,11 +1920,12 @@ class CloudAgentService {
           } catch { /* skip */ }
         }
 
-        // Firefox forks (LibreWolf, Waterfox, Floorp)
+        // Firefox forks (LibreWolf, Waterfox, Floorp, Zen)
         const firefoxForks = [
           { label: 'LibreWolf', ...browserPaths.librewolf },
           { label: 'Waterfox', ...browserPaths.waterfox },
           { label: 'Floorp', ...browserPaths.floorp },
+          { label: 'Zen Browser', ...browserPaths.zen },
         ]
         for (const fork of firefoxForks) {
           if (!fork.cache || !existsSync(fork.cache)) continue

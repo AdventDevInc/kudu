@@ -42,6 +42,7 @@ export interface BrowserPathConfig {
   librewolf: { base: string; cache: string }
   waterfox: { base: string; cache: string }
   floorp: { base: string; cache: string }
+  zen: { base: string; cache: string }
   safari: { cache: string } | null
 }
 
