@@ -87,18 +87,37 @@ export class YaraEngine {
     const errors: string[] = []
     const total = ruleFilePaths.length + extraSources.length
 
-    // Read all sources
+    // Platform filter: skip rule files for other OSes to reduce compilation cost.
+    // Files are named like elastic_Linux_Trojan_Mirai.yar or elastic_Windows_Generic.yar.
+    // We skip files containing a platform tag that doesn't match the current OS.
+    const platformSkip: string[] = []
+    if (process.platform !== 'win32') platformSkip.push('_windows_', '_win32_')
+    if (process.platform !== 'linux') platformSkip.push('_linux_')
+    if (process.platform !== 'darwin') platformSkip.push('_macos_', '_darwin_')
+
+    function shouldSkipForPlatform(name: string): boolean {
+      const lower = name.toLowerCase()
+      return platformSkip.some(tag => lower.includes(tag))
+    }
+
+    // Read all sources (skipping irrelevant platforms)
     onProgress?.(0, total)
     const sources: { name: string; content: string }[] = []
+    let skippedPlatform = 0
     for (const filePath of ruleFilePaths) {
+      const name = basename(filePath)
+      if (shouldSkipForPlatform(name)) { skippedPlatform++; continue }
       try {
-        sources.push({ name: basename(filePath), content: readFileSync(filePath, 'utf-8') })
+        sources.push({ name, content: readFileSync(filePath, 'utf-8') })
       } catch (err) {
-        errors.push(`${basename(filePath)}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+        errors.push(`${name}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
       }
     }
     for (let i = 0; i < extraSources.length; i++) {
       sources.push({ name: `source-${i}`, content: extraSources[i] })
+    }
+    if (skippedPlatform > 0) {
+      console.log(`[yara] Skipped ${skippedPlatform} rule files for other platforms`)
     }
 
     if (sources.length === 0) {
