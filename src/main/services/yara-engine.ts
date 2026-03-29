@@ -31,7 +31,7 @@ interface LibYaraResult {
 }
 
 interface LibYaraModule {
-  run(data: string, rules: string): LibYaraResult
+  run(data: string | Uint8Array, rules: string): LibYaraResult
 }
 
 // ─── Engine ──────────────────────────────────────────────────
@@ -136,9 +136,10 @@ export class YaraEngine {
     if (!this._module || !this._compiledRules) return []
 
     try {
-      // libyara-wasm expects string input — convert buffer to binary string
-      const dataStr = buffer.toString('binary')
-      const result = this._module.run(dataStr, this._compiledRules)
+      // Pass raw bytes as Uint8Array — embind preserves them correctly.
+      // Using toString('binary') would corrupt high bytes (0x80-0xFF) through
+      // UTF-8 marshaling, breaking hash rules and hex pattern matching.
+      const result = this._module.run(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength), this._compiledRules)
       return this._parseMatches(result)
     } catch (err) {
       console.warn('[yara] Scan error:', err)
