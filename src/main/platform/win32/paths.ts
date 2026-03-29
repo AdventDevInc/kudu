@@ -45,10 +45,15 @@ export function createWin32Paths(): PlatformPaths {
         join(userProfile, 'Downloads'),
         join(userProfile, 'Desktop'),
         join(userProfile, 'Documents'),
+        userProfile,                              // files dropped directly in user home
         join(LOCALAPPDATA, 'Temp'),
         APPDATA,
         LOCALAPPDATA,
         PROGRAMDATA,
+        PROGRAMFILES,
+        PROGRAMFILES_X86,
+        'C:\\Users\\Public',
+        'C:\\Windows\\Temp',
       ]
     },
 

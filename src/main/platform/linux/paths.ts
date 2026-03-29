@@ -41,7 +41,16 @@ export function createLinuxPaths(): PlatformPaths {
         join(HOME, 'Downloads'),
         join(HOME, 'Desktop'),
         join(HOME, 'Documents'),
+        HOME,                                     // files dropped directly in user home
         '/tmp',
+        '/var/tmp',
+        '/dev/shm',
+        join(HOME, '.local', 'bin'),
+        join(HOME, '.config', 'autostart'),
+        CONFIG,
+        LOCAL_SHARE,
+        '/usr/local/bin',
+        '/opt',
       ]
     },
 

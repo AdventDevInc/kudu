@@ -6,7 +6,7 @@ vi.mock('os', () => ({ homedir: () => '/home/testuser', tmpdir: () => '/tmp' }))
 
 const { createLinuxPaths } = await import('./paths')
 
-const HOME = join('/home', 'testuser')
+const HOME = '/home/testuser'
 
 describe('linux paths', () => {
   const paths = createLinuxPaths()
@@ -31,10 +31,13 @@ describe('linux paths', () => {
       expect(dirs).toContain('/tmp')
     })
 
-    it('all user paths are under the home directory', () => {
+    it('all user paths are under the home directory or known system locations', () => {
+      const systemPrefixes = ['/tmp', '/var/tmp', '/dev/shm', '/usr/local/bin', '/opt']
       for (const d of dirs) {
-        if (d !== '/tmp') {
-          expect(d.startsWith(HOME)).toBe(true)
+        const norm = d.replace(/\\/g, '/')
+        const isSystem = systemPrefixes.some(p => norm === p || norm.startsWith(p + '/'))
+        if (!isSystem) {
+          expect(norm.startsWith(HOME), `Expected "${norm}" to start with "${HOME}"`).toBe(true)
         }
       }
     })

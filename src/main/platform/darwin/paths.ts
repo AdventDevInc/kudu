@@ -41,7 +41,10 @@ export function createDarwinPaths(): PlatformPaths {
         join(HOME, 'Downloads'),
         join(HOME, 'Desktop'),
         join(HOME, 'Documents'),
+        HOME,                                     // files dropped directly in user home
         '/tmp',
+        '/private/tmp',
+        '/var/tmp',
         join(LIBRARY, 'LaunchAgents'),
         join(LIBRARY, 'LaunchDaemons'),
         '/Library/LaunchAgents',
@@ -53,6 +56,9 @@ export function createDarwinPaths(): PlatformPaths {
         join(LIBRARY, 'Workflows'),
         '/usr/local/bin',
         '/opt/local/bin',
+        '/Applications',
+        '/Users/Shared',
+        APP_SUPPORT,
       ]
     },
 
