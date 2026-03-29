@@ -231,6 +231,8 @@ export async function fetchAndCacheRules(url: string): Promise<{
     // Verify integrity
     const computedHash = computeBundleHash(bundle.rules)
     if (computedHash !== bundle.sha256) {
+      console.warn(`[yara] SHA-256 mismatch — server: ${bundle.sha256}, computed: ${computedHash}`)
+      console.warn(`[yara] Rule files (sorted): ${[...bundle.rules].sort((a, b) => a.filename.localeCompare(b.filename)).map(r => `${r.filename}(${r.content.length})`).join(', ')}`)
       return { success: false, error: 'Integrity check failed: SHA-256 mismatch' }
     }
 
