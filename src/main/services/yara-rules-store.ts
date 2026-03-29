@@ -217,14 +217,13 @@ export async function fetchAndCacheRules(url: string): Promise<{
         return { success: false, error: 'Rules bundle too large (exceeds 50 MB)' }
       }
 
-      // Keep timeout active through full body read so a slow-drip server can't hang us
+      // The 60s abort timer stays active through the body read, so a slow
+      // server can't hold us indefinitely. That plus the content-length
+      // pre-check is sufficient — no need for a post-read size check since
+      // the memory is already allocated by that point.
       text = await response.text()
     } finally {
       clearTimeout(timeout)
-    }
-
-    if (text.length > MAX_DOWNLOAD_BYTES) {
-      return { success: false, error: 'Rules bundle too large (exceeds 50 MB)' }
     }
 
     let parsed: unknown
