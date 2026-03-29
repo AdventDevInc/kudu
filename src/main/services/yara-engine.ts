@@ -65,23 +65,39 @@ export class YaraEngine {
   /**
    * Compile YARA rules from file paths and/or raw source strings.
    * Rules are compiled once — subsequent scan() calls are fast.
-   * Returns the number of rules loaded and any errors.
+   *
+   * Compilation is chunked with event-loop yields so the main process
+   * stays responsive (each addRuleFile takes ~5-8ms, and with 1400+
+   * files this would otherwise block the UI for 10+ seconds).
+   *
+   * @param onProgress Optional callback fired with (loaded, total) counts
    */
-  loadRules(ruleFilePaths: string[], extraSources: string[] = []): { loaded: number; errors: string[] } {
+  async loadRules(
+    ruleFilePaths: string[],
+    extraSources: string[] = [],
+    onProgress?: (loaded: number, total: number) => void,
+  ): Promise<{ loaded: number; errors: string[] }> {
     if (!this._scanner) {
       return { loaded: 0, errors: ['YARA engine not initialized'] }
     }
 
     const errors: string[] = []
     let loaded = 0
+    const total = ruleFilePaths.length + extraSources.length
+    const CHUNK_SIZE = 20 // yield to event loop every N files
 
-    // Load from file paths
-    for (const filePath of ruleFilePaths) {
+    // Load from file paths in chunks
+    for (let i = 0; i < ruleFilePaths.length; i++) {
       try {
-        this._scanner.addRuleFile(filePath)
+        this._scanner.addRuleFile(ruleFilePaths[i])
         loaded++
       } catch (err) {
-        errors.push(`${basename(filePath)}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+        errors.push(`${basename(ruleFilePaths[i])}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+      }
+      // Yield to the event loop periodically so the UI stays responsive
+      if ((i + 1) % CHUNK_SIZE === 0) {
+        onProgress?.(loaded, total)
+        await new Promise(resolve => setImmediate(resolve))
       }
     }
 
@@ -95,6 +111,7 @@ export class YaraEngine {
       }
     }
 
+    onProgress?.(loaded, total)
     this._rulesLoaded = loaded
     return { loaded, errors }
   }

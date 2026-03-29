@@ -299,13 +299,14 @@ export interface QuarantinedItem {
 
 export interface YaraRulesInfo {
   available: boolean
-  engine: 'yara' | 'regex-fallback'
+  engine: 'yara' | 'regex-fallback' | 'compiling'
   rulesLoaded: number
   version: string | null
   updatedAt: string | null
   source: 'cloud' | 'bundled' | 'none'
   bundledRules: number
   cachedRules: number
+  compileProgress: { loaded: number; total: number } | null
 }
 
 // ─── Privacy Shield ──────────────────────────────────────────
