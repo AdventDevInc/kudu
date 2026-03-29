@@ -194,32 +194,35 @@ export async function fetchAndCacheRules(url: string): Promise<{
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS)
 
-    let response: Response
+    let text: string
     try {
       const meta = getRulesMetadata()
       const headers: Record<string, string> = { 'Accept': 'application/json' }
       if (meta) headers['X-Kudu-Rules-Version'] = meta.version
 
-      response = await fetch(url, { signal: controller.signal, headers })
+      // Disable redirects to prevent SSRF bypass (a public URL could 30x to loopback)
+      const response = await fetch(url, { signal: controller.signal, headers, redirect: 'error' })
+
+      // 304 = already up to date
+      if (response.status === 304) {
+        return { success: true }
+      }
+
+      if (!response.ok) {
+        return { success: false, error: `Download failed: HTTP ${response.status}` }
+      }
+
+      const contentLength = response.headers.get('content-length')
+      if (contentLength && parseInt(contentLength, 10) > MAX_DOWNLOAD_BYTES) {
+        return { success: false, error: 'Rules bundle too large (exceeds 50 MB)' }
+      }
+
+      // Keep timeout active through full body read so a slow-drip server can't hang us
+      text = await response.text()
     } finally {
       clearTimeout(timeout)
     }
 
-    // 304 = already up to date
-    if (response.status === 304) {
-      return { success: true }
-    }
-
-    if (!response.ok) {
-      return { success: false, error: `Download failed: HTTP ${response.status}` }
-    }
-
-    const contentLength = response.headers.get('content-length')
-    if (contentLength && parseInt(contentLength, 10) > MAX_DOWNLOAD_BYTES) {
-      return { success: false, error: 'Rules bundle too large (exceeds 50 MB)' }
-    }
-
-    const text = await response.text()
     if (text.length > MAX_DOWNLOAD_BYTES) {
       return { success: false, error: 'Rules bundle too large (exceeds 50 MB)' }
     }
