@@ -41,6 +41,8 @@ export const IPC = {
   // Registry
   REGISTRY_SCAN: 'cleaner:registry:scan',
   REGISTRY_FIX: 'cleaner:registry:fix',
+  REGISTRY_SCAN_CANCEL: 'cleaner:registry:scan:cancel',
+  REGISTRY_FIX_CANCEL: 'cleaner:registry:fix:cancel',
 
   // Startup
   STARTUP_LIST: 'startup:list',

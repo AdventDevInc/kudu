@@ -14,9 +14,13 @@ import { execNativeUtf8, psUtf8 } from '../services/exec-utf8'
 const execFileAsync = promisify(execFile)
 
 /** Run reg.exe with UTF-8 code page so accented characters decode correctly */
-async function execReg(args: string[], opts?: { timeout?: number }): Promise<{ stdout: string; stderr: string }> {
+async function execReg(args: string[], opts?: { timeout?: number; signal?: AbortSignal }): Promise<{ stdout: string; stderr: string }> {
   return execNativeUtf8('reg', args, opts)
 }
+
+// ── Active AbortControllers for cancellable operations ──
+let scanAbort: AbortController | null = null
+let fixAbort: AbortController | null = null
 
 /** Parse a CSV line handling escaped quotes ("") inside quoted fields */
 function parseCSVLine(line: string): string[] {
@@ -153,17 +157,17 @@ function extractExePath(raw: string): string | null {
  * COM servers register under the 32-bit hive, so a single-view lookup
  * produces false-positive "missing" results for valid 32-bit components.
  */
-async function clsidExists(clsid: string): Promise<boolean> {
+async function clsidExists(clsid: string, signal?: AbortSignal): Promise<boolean> {
   // Try native view first
   try {
-    await execReg(['query', `HKCR\\CLSID\\${clsid}`], { timeout: 5000 })
+    await execReg(['query', `HKCR\\CLSID\\${clsid}`], { timeout: 5000, signal })
     return true
   } catch { /* not in native view */ }
   // Try 32-bit (WOW64) view
   try {
     await execReg([
       'query', `HKCR\\WOW6432Node\\CLSID\\${clsid}`
-    ], { timeout: 5000 })
+    ], { timeout: 5000, signal })
     return true
   } catch { /* not in WOW64 view either */ }
   return false
@@ -178,7 +182,7 @@ async function clsidExists(clsid: string): Promise<boolean> {
  *     in-process handlers — the caller should treat this as actionable)
  *   - null if the DLL exists on disk (healthy)
  */
-async function findMissingClsidDll(clsid: string): Promise<string | 'no-inproc' | null> {
+async function findMissingClsidDll(clsid: string, signal?: AbortSignal): Promise<string | 'no-inproc' | null> {
   // Check both native and WOW6432Node views for InprocServer32/LocalServer32.
   // Only report broken if NO view has a healthy DLL — a stale native entry
   // should not cause deletion when the WOW6432Node entry is healthy.
@@ -193,7 +197,7 @@ async function findMissingClsidDll(clsid: string): Promise<string | 'no-inproc' 
     try {
       const { stdout } = await execReg([
         'query', `${prefix}\\InprocServer32`
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       foundAnyServer = true
       const dllMatch = stdout.match(/\(Default\)\s+REG_SZ\s+(.+)/i)
       if (dllMatch) {
@@ -210,7 +214,7 @@ async function findMissingClsidDll(clsid: string): Promise<string | 'no-inproc' 
     try {
       await execReg([
         'query', `${prefix}\\LocalServer32`
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       return null // Uses out-of-process server — healthy
     } catch { /* No LocalServer32 in this view either */ }
   }
@@ -221,16 +225,22 @@ async function findMissingClsidDll(clsid: string): Promise<string | 'no-inproc' 
 
 // ── Exported core logic ──
 
-export async function scanRegistry(): Promise<RegistryEntry[]> {
+export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[]> {
     const entries: RegistryEntry[] = []
+
+    /** Throw if the operation was cancelled */
+    function checkAborted(): void {
+      if (signal?.aborted) throw new Error('Operation cancelled')
+    }
 
     // Scan for broken App Paths
     try {
+      checkAborted()
       const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths',
         '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
@@ -257,12 +267,13 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     }
 
     // Scan for broken SharedDLLs references
+    checkAborted()
     try {
       const { stdout } = await execReg([
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SharedDLLs',
         '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const lines = stdout.split(/\r?\n/)
       for (const line of lines) {
@@ -287,6 +298,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // Scan for stale Run/RunOnce startup entries
     const runKeys = [
       'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run',
@@ -296,7 +308,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     ]
     for (const runKey of runKeys) {
       try {
-        const { stdout } = await execReg(['query', runKey], { timeout: 10000 })
+        const { stdout } = await execReg(['query', runKey], { timeout: 10000, signal })
         const lines = stdout.split(/\r?\n/)
         for (const line of lines) {
           const match = line.match(/^\s+(\S+)\s+REG_SZ\s+(.+)/i)
@@ -325,13 +337,14 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       }
     }
 
+    checkAborted()
     // Scan for broken file associations
     try {
       const { stdout } = await execReg([
         'query',
         'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts',
         '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
@@ -343,7 +356,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
             await execReg([
               'query',
               `HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${appName}`
-            ], { timeout: 5000 })
+            ], { timeout: 5000, signal })
           } catch {
             if (!appName.includes('\\') && !appName.includes('/')) {
               entries.push({
@@ -370,7 +383,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts',
         '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const winDir = process.env.WINDIR || 'C:\\Windows'
       const fontsDir = join(winDir, 'Fonts')
@@ -407,7 +420,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKCU\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache',
         '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const muiKey = 'HKCU\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache'
       const lines = stdout.split(/\r?\n/)
@@ -439,7 +452,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const fwRulesKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules'
       const { stdout } = await execReg([
         'query', fwRulesKey, '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const lines = stdout.split(/\r?\n/)
       for (const line of lines) {
@@ -469,6 +482,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // Scan for broken context menu (shell) extensions
     const shellExtKeys = [
       'HKCR\\*\\shellex\\ContextMenuHandlers',
@@ -477,14 +491,14 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     ]
     for (const shellKey of shellExtKeys) {
       try {
-        const { stdout } = await execReg(['query', shellKey, '/s'], { timeout: 10000 })
+        const { stdout } = await execReg(['query', shellKey, '/s'], { timeout: 10000, signal })
         const blocks = stdout.split(/\r?\n\r?\n/)
         for (const block of blocks) {
           const clsidMatch = block.match(/\(Default\)\s+REG_SZ\s+(\{[0-9A-Fa-f-]+\})/i)
           if (clsidMatch) {
             const clsid = clsidMatch[1]
             const keyMatch = block.match(/^(HK[^\r\n]+)/m)
-            if (!await clsidExists(clsid)) {
+            if (!await clsidExists(clsid, signal)) {
               entries.push({
                 id: randomUUID(),
                 type: 'orphaned',
@@ -496,7 +510,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
                 fix: { op: 'delete-key' }
               })
             } else {
-              const missingDll = await findMissingClsidDll(clsid)
+              const missingDll = await findMissingClsidDll(clsid, signal)
               if (missingDll) {
                 entries.push({
                   id: randomUUID(),
@@ -524,7 +538,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const installerKey = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\Folders'
       const { stdout } = await execReg([
         'query', installerKey, '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const lines = stdout.split(/\r?\n/)
       for (const line of lines) {
@@ -549,11 +563,12 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // Scan for dead CLSID InprocServer32 entries
     try {
       const { stdout } = await execReg([
         'query', 'HKCR\\CLSID', '/s', '/f', 'InprocServer32', '/k'
-      ], { timeout: 20000 })
+      ], { timeout: 20000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       let comCount = 0
@@ -587,7 +602,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     try {
       const { stdout } = await execReg([
         'query', 'HKCR\\TypeLib', '/s', '/f', 'win32', '/k'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       let tlbCount = 0
@@ -622,7 +637,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const appCompatKeyLM = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'
       const { stdout } = await execReg([
         'query', appCompatKeyLM, '/s'
-      ], { timeout: 10000 })
+      ], { timeout: 10000, signal })
 
       const lines = stdout.split(/\r?\n/)
       for (const line of lines) {
@@ -652,7 +667,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const appCompatKeyCU = 'HKCU\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers'
       const { stdout } = await execReg([
         'query', appCompatKeyCU, '/s'
-      ], { timeout: 10000 })
+      ], { timeout: 10000, signal })
 
       const lines = stdout.split(/\r?\n/)
       for (const line of lines) {
@@ -677,6 +692,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // --- ORPHANED TRACES ---
 
     // Scan for orphaned services pointing to missing executables
@@ -684,7 +700,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const servicesKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services'
       const { stdout } = await execReg([
         'query', servicesKey, '/s', '/f', 'ImagePath', '/v'
-      ], { timeout: 20000 })
+      ], { timeout: 20000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       let svcCount = 0
@@ -747,7 +763,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       try {
         const { stdout } = await execReg([
           'query', uninstallKey, '/s'
-        ], { timeout: 15000 })
+        ], { timeout: 15000, signal })
 
         const blocks = stdout.split(/\r?\n\r?\n/)
         for (const block of blocks) {
@@ -848,7 +864,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const mimeKey = 'HKCR\\MIME\\Database\\Content Type'
       const { stdout } = await execReg([
         'query', mimeKey, '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
@@ -856,7 +872,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         const clsidMatch = block.match(/CLSID\s+REG_SZ\s+(\{[0-9A-Fa-f-]+\})/i)
         if (keyMatch && clsidMatch) {
           const clsid = clsidMatch[1]
-          if (!await clsidExists(clsid)) {
+          if (!await clsidExists(clsid, signal)) {
             const mimeType = keyMatch[1].replace('HKCR\\MIME\\Database\\Content Type\\', '')
             entries.push({
               id: randomUUID(),
@@ -880,7 +896,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const autoPlayKey = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\Handlers'
       const { stdout } = await execReg([
         'query', autoPlayKey, '/s'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
@@ -891,7 +907,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
           const progId = progIdMatch[1].trim()
           if (progId) {
             try {
-              await execReg(['query', `HKCR\\${progId}`], { timeout: 5000 })
+              await execReg(['query', `HKCR\\${progId}`], { timeout: 5000, signal })
             } catch {
               const handlerName = keyMatch[1].split('\\').pop() || 'Unknown'
               entries.push({
@@ -912,6 +928,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // --- ORPHANED REGISTERED CLIENTS ---
 
     // Scan for orphaned registered client applications (browsers, email, media)
@@ -937,7 +954,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       try {
         const { stdout } = await execReg([
           'query', client.key
-        ], { timeout: 10000 })
+        ], { timeout: 10000, signal })
 
         const lines = stdout.split(/\r?\n/)
         for (const line of lines) {
@@ -953,7 +970,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
           try {
             const { stdout: cmdOut } = await execReg([
               'query', `${subKey}\\shell\\open\\command`
-            ], { timeout: 5000 })
+            ], { timeout: 5000, signal })
             const rawValMatch = cmdOut.match(/\(Default\)\s+REG_SZ\s+(.+)/i)
             const exePath = rawValMatch ? extractExePath(rawValMatch[1].trim()) : null
             if (exePath && exePath.includes('\\') && !exePath.startsWith('%') && !existsSync(exePath)) {
@@ -986,7 +1003,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       try {
         const { stdout } = await execReg([
           'query', bhoKey
-        ], { timeout: 10000 })
+        ], { timeout: 10000, signal })
 
         const lines = stdout.split(/\r?\n/)
         for (const line of lines) {
@@ -994,7 +1011,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
           if (!subKeyMatch) continue
           const bhoSubKey = subKeyMatch[1].trim()
           const clsid = subKeyMatch[2]
-          if (!await clsidExists(clsid)) {
+          if (!await clsidExists(clsid, signal)) {
             entries.push({
               id: randomUUID(),
               type: 'orphaned',
@@ -1006,7 +1023,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
               fix: { op: 'delete-key' }
             })
           } else {
-            const missingDll = await findMissingClsidDll(clsid)
+            const missingDll = await findMissingClsidDll(clsid, signal)
             if (missingDll) {
               entries.push({
                 id: randomUUID(),
@@ -1033,7 +1050,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const eventLogKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application'
       const { stdout } = await execReg([
         'query', eventLogKey
-      ], { timeout: 10000 })
+      ], { timeout: 10000, signal })
 
       const lines = stdout.split(/\r?\n/)
       for (const line of lines) {
@@ -1053,7 +1070,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         try {
           const { stdout: srcOut } = await execReg([
             'query', sourceKey, '/v', 'EventMessageFile'
-          ], { timeout: 5000 })
+          ], { timeout: 5000, signal })
           const pathMatch = srcOut.match(/EventMessageFile\s+REG_(?:EXPAND_)?SZ\s+(.+)/i)
           if (pathMatch) {
             const rawValue = pathMatch[1].trim().replace(/"/g, '')
@@ -1074,7 +1091,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
               try {
                 const { stdout: pmOut } = await execReg([
                   'query', sourceKey, '/v', 'PrimaryModule'
-                ], { timeout: 3000 })
+                ], { timeout: 3000, signal })
                 if (pmOut.includes('PrimaryModule')) hasPrimaryModule = true
               } catch { /* no PrimaryModule — safe to flag */ }
               if (!hasPrimaryModule) {
@@ -1099,11 +1116,12 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // Scan for orphaned COM Interface proxy stubs
     try {
       const { stdout } = await execReg([
         'query', 'HKCR\\Interface', '/s', '/f', 'ProxyStubClsid32'
-      ], { timeout: 20000 })
+      ], { timeout: 20000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       let ifaceCount = 0
@@ -1116,7 +1134,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
           // Skip well-known system proxy stubs (OLE/COM standard marshaler)
           if (proxyClsid === '{00000320-0000-0000-C000-000000000046}' ||
               proxyClsid === '{0000033A-0000-0000-C000-000000000046}') continue
-          if (!await clsidExists(proxyClsid)) {
+          if (!await clsidExists(proxyClsid, signal)) {
             const parentIfaceKey = `HKCR\\Interface\\${keyMatch[2]}`
             entries.push({
               id: randomUUID(),
@@ -1131,7 +1149,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
             ifaceCount++
           } else {
             // CLSID exists in at least one view — check if its DLL is present
-            const missingDll = await findMissingClsidDll(proxyClsid)
+            const missingDll = await findMissingClsidDll(proxyClsid, signal)
             if (missingDll) {
               const parentIfaceKey = `HKCR\\Interface\\${keyMatch[2]}`
               entries.push({
@@ -1160,7 +1178,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const fileExtsKey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts'
       const { stdout } = await execReg([
         'query', fileExtsKey, '/s', '/f', 'UserChoice'
-      ], { timeout: 15000 })
+      ], { timeout: 15000, signal })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
@@ -1175,7 +1193,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
               progId.startsWith('Acrobat') || progId.startsWith('WMP')) continue
           // Check if the ProgID still exists in HKCR
           try {
-            await execReg(['query', `HKCR\\${progId}`], { timeout: 3000 })
+            await execReg(['query', `HKCR\\${progId}`], { timeout: 3000, signal })
           } catch {
             const extMatch = keyMatch[1].match(/FileExts\\([^\\]+)\\UserChoice/)
             const ext = extMatch ? extMatch[1] : 'unknown'
@@ -1196,6 +1214,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // --- SECURITY VULNERABILITY SCANS ---
     // Security hardening checks
 
@@ -1205,7 +1224,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System',
         '/v', 'EnableLUA'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/EnableLUA\s+REG_DWORD\s+0x(\d+)/i)
       if (match && match[1] === '0') {
         entries.push({
@@ -1229,7 +1248,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection',
         '/v', 'DisableRealtimeMonitoring'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/DisableRealtimeMonitoring\s+REG_DWORD\s+0x(\d+)/i)
       if (match && match[1] === '1') {
         entries.push({
@@ -1253,7 +1272,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender',
         '/v', 'DisableAntiSpyware'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/DisableAntiSpyware\s+REG_DWORD\s+0x(\d+)/i)
       if (match && match[1] === '1') {
         entries.push({
@@ -1277,7 +1296,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer',
         '/v', 'NoDriveTypeAutoRun'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/NoDriveTypeAutoRun\s+REG_DWORD\s+0x([0-9a-fA-F]+)/i)
       if (!match || parseInt(match[1], 16) < 0xff) {
         entries.push({
@@ -1310,7 +1329,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters',
         '/v', 'SMB1'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/SMB1\s+REG_DWORD\s+0x(\d+)/i)
       if (match && match[1] !== '0') {
         entries.push({
@@ -1334,14 +1353,14 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server',
         '/v', 'fDenyTSConnections'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const rdpMatch = rdpEnabled.match(/fDenyTSConnections\s+REG_DWORD\s+0x(\d+)/i)
       if (rdpMatch && rdpMatch[1] === '0') {
         try {
           const rdpNlaKey = 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp'
           const { stdout: nlaOut } = await execReg([
             'query', rdpNlaKey, '/v', 'UserAuthentication'
-          ], { timeout: 5000 })
+          ], { timeout: 5000, signal })
           const nlaMatch = nlaOut.match(/UserAuthentication\s+REG_DWORD\s+0x(\d+)/i)
           if (!nlaMatch || nlaMatch[1] === '0') {
             entries.push({
@@ -1369,7 +1388,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SOFTWARE\\Microsoft\\PowerShell\\1\\ShellIds\\Microsoft.PowerShell',
         '/v', 'ExecutionPolicy'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/ExecutionPolicy\s+REG_SZ\s+(.+)/i)
       if (match) {
         const policy = match[1].trim().toLowerCase()
@@ -1401,7 +1420,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         const fwKey = `HKLM\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\${profile.key}`
         const { stdout } = await execReg([
           'query', fwKey, '/v', 'EnableFirewall'
-        ], { timeout: 5000 })
+        ], { timeout: 5000, signal })
         const match = stdout.match(/EnableFirewall\s+REG_DWORD\s+0x(\d+)/i)
         if (match && match[1] === '0') {
           entries.push({
@@ -1426,7 +1445,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Services\\RemoteRegistry',
         '/v', 'Start'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/Start\s+REG_DWORD\s+0x(\d+)/i)
       if (match && (match[1] === '2' || match[1] === '3')) {
         entries.push({
@@ -1444,6 +1463,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       // Skip
     }
 
+    checkAborted()
     // --- PERFORMANCE TWEAKS ---
 
     // Check if SysMain (Superfetch) is enabled — only recommend disabling on SSDs
@@ -1452,7 +1472,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
         'query',
         'HKLM\\SYSTEM\\CurrentControlSet\\Services\\SysMain',
         '/v', 'Start'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/Start\s+REG_DWORD\s+0x(\d+)/i)
       if (match && (match[1] === '2' || match[1] === '3')) {
         // Detect if the system drive is an SSD
@@ -1500,7 +1520,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const llmnrKey = 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient'
       const { stdout } = await execReg([
         'query', llmnrKey, '/v', 'EnableMulticast'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/EnableMulticast\s+REG_DWORD\s+0x(\d+)/i)
       if (!match || match[1] !== '0') {
         entries.push({
@@ -1532,7 +1552,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       const wpadKey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Wpad'
       const { stdout } = await execReg([
         'query', wpadKey, '/v', 'WpadOverride'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/WpadOverride\s+REG_DWORD\s+0x(\d+)/i)
       if (!match || match[1] !== '1') {
         entries.push({
@@ -1559,6 +1579,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       })
     }
 
+    checkAborted()
     // --- SERVICES AUDIT ---
     // (DiagTrack, dmwappushservice, MapsBroker moved to Privacy Shield)
 
@@ -1566,7 +1587,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     try {
       const { stdout } = await execReg([
         'query', 'HKLM\\SYSTEM\\CurrentControlSet\\Services\\Fax', '/v', 'Start'
-      ], { timeout: 5000 })
+      ], { timeout: 5000, signal })
       const match = stdout.match(/Start\s+REG_DWORD\s+0x(\d+)/i)
       if (match && (match[1] === '2' || match[1] === '3')) {
         entries.push({
@@ -1582,6 +1603,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       }
     } catch { /* Skip */ }
 
+    checkAborted()
     // --- SCHEDULED TASKS CLEANUP ---
     // (MapsBroker moved to Privacy Shield)
 
@@ -1589,7 +1611,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
     try {
       const { stdout } = await execNativeUtf8('schtasks', [
         '/query', '/fo', 'CSV', '/nh', '/v'
-      ], { timeout: 20000 })
+      ], { timeout: 20000, signal })
 
       const lines = stdout.split(/\r?\n/)
       const seen = new Set<string>()
@@ -1634,7 +1656,7 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
       { pattern: 'CCleaner', exe: 'CCleaner' }
     ]
     try {
-      const { stdout } = await execNativeUtf8('schtasks', ['/query', '/fo', 'CSV', '/v', '/nh'], { timeout: 15000 })
+      const { stdout } = await execNativeUtf8('schtasks', ['/query', '/fo', 'CSV', '/v', '/nh'], { timeout: 15000, signal })
       for (const task of thirdPartyTasks) {
         const matchingLines = stdout.split(/\r?\n/).filter(l => l.includes(task.pattern))
         for (const line of matchingLines) {
@@ -1665,7 +1687,8 @@ export async function scanRegistry(): Promise<RegistryEntry[]> {
 
 export async function fixRegistryEntries(
   entries: RegistryEntry[],
-  onProgress?: (current: number, total: number, label: string) => void
+  onProgress?: (current: number, total: number, label: string) => void,
+  signal?: AbortSignal
 ): Promise<{ fixed: number; failed: number; failures: { issue: string; reason: string }[] }> {
     const total = entries.length
 
@@ -1678,19 +1701,19 @@ export async function fixRegistryEntries(
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
       const backupPath = join(backupDir, `registry-backup-${timestamp}.reg`)
       // Back up all hives that fix operations may modify
-      await execReg(['export', 'HKLM\\SOFTWARE', backupPath, '/y'], { timeout: 30000 })
+      await execReg(['export', 'HKLM\\SOFTWARE', backupPath, '/y'], { timeout: 30000, signal })
       const hkcuBackupPath = join(backupDir, `registry-backup-HKCU-${timestamp}.reg`)
-      await execReg(['export', 'HKCU\\SOFTWARE', hkcuBackupPath, '/y'], { timeout: 30000 }).catch(() => {})
+      await execReg(['export', 'HKCU\\SOFTWARE', hkcuBackupPath, '/y'], { timeout: 30000, signal }).catch(() => {})
       // Back up HKLM\SYSTEM (services, event log sources) and HKCR (COM, interfaces, shell extensions)
       const systemBackupPath = join(backupDir, `registry-backup-SYSTEM-${timestamp}.reg`)
-      await execReg(['export', 'HKLM\\SYSTEM\\CurrentControlSet\\Services', systemBackupPath, '/y'], { timeout: 60000 }).catch(() => {})
+      await execReg(['export', 'HKLM\\SYSTEM\\CurrentControlSet\\Services', systemBackupPath, '/y'], { timeout: 60000, signal }).catch(() => {})
       // Back up HKCR branches that fix operations may delete from
       const hkcrClsidPath = join(backupDir, `registry-backup-HKCR-CLSID-${timestamp}.reg`)
-      await execReg(['export', 'HKCR\\CLSID', hkcrClsidPath, '/y'], { timeout: 60000 }).catch(() => {})
+      await execReg(['export', 'HKCR\\CLSID', hkcrClsidPath, '/y'], { timeout: 60000, signal }).catch(() => {})
       const hkcrIfacePath = join(backupDir, `registry-backup-HKCR-Interface-${timestamp}.reg`)
-      await execReg(['export', 'HKCR\\Interface', hkcrIfacePath, '/y'], { timeout: 60000 }).catch(() => {})
+      await execReg(['export', 'HKCR\\Interface', hkcrIfacePath, '/y'], { timeout: 60000, signal }).catch(() => {})
       const hkcrMimePath = join(backupDir, `registry-backup-HKCR-MIME-${timestamp}.reg`)
-      await execReg(['export', 'HKCR\\MIME', hkcrMimePath, '/y'], { timeout: 30000 }).catch(() => {})
+      await execReg(['export', 'HKCR\\MIME', hkcrMimePath, '/y'], { timeout: 30000, signal }).catch(() => {})
       // Shell extension handlers are under HKCR\*\shellex, HKCR\Directory\shellex, HKCR\Folder\shellex
       const shellRoots = [
         { key: '*', file: 'AllFileTypes' },
@@ -1699,7 +1722,7 @@ export async function fixRegistryEntries(
       ]
       for (const { key, file } of shellRoots) {
         const shellPath = join(backupDir, `registry-backup-HKCR-${file}-shellex-${timestamp}.reg`)
-        await execReg(['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000 }).catch(() => {})
+        await execReg(['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000, signal }).catch(() => {})
       }
     } catch {
       // Backup failed, but continue
@@ -1710,6 +1733,7 @@ export async function fixRegistryEntries(
     const failures: { issue: string; reason: string }[] = []
 
     for (let i = 0; i < entries.length; i++) {
+      if (signal?.aborted) break
       const entry = entries[i]
       if (!entry || !entry.fix) {
         failed++
@@ -1726,18 +1750,18 @@ export async function fixRegistryEntries(
       try {
         switch (fix.op) {
           case 'delete-value':
-            await execReg(['delete', key, '/v', value, '/f'], { timeout: 10000 })
+            await execReg(['delete', key, '/v', value, '/f'], { timeout: 10000, signal })
             break
 
           case 'delete-key':
-            await execReg(['delete', key, '/f'], { timeout: 10000 })
+            await execReg(['delete', key, '/f'], { timeout: 10000, signal })
             break
 
           case 'set-value':
             if (fix.regType && fix.data !== undefined) {
               await execReg([
                 'add', key, '/v', value, '/t', fix.regType, '/d', fix.data, '/f'
-              ], { timeout: 10000 })
+              ], { timeout: 10000, signal })
             }
             break
 
@@ -1784,7 +1808,21 @@ export async function fixRegistryEntries(
 export function registerRegistryCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.REGISTRY_SCAN, async (): Promise<RegistryEntry[]> => {
     if (process.platform !== 'win32') return []
-    const entries = await scanRegistry()
+
+    // Cancel any in-flight scan
+    scanAbort?.abort()
+    scanAbort = new AbortController()
+    const { signal } = scanAbort
+
+    let entries: RegistryEntry[]
+    try {
+      entries = await scanRegistry(signal)
+    } catch (err: any) {
+      if (signal.aborted) return []
+      throw err
+    } finally {
+      if (scanAbort?.signal === signal) scanAbort = null
+    }
 
     // Store entries in a new scan session
     const sessionMap = new Map<string, RegistryEntry>()
@@ -1807,6 +1845,12 @@ export function registerRegistryCleanerIpc(getWindow: WindowGetter): void {
     if (process.platform !== 'win32') return { fixed: 0, failed: 0, failures: [] }
     const valid = validateStringArray(entryIds)
     if (!valid) return { fixed: 0, failed: 0, failures: [] }
+
+    // Cancel any in-flight fix
+    fixAbort?.abort()
+    fixAbort = new AbortController()
+    const { signal } = fixAbort
+
     // Search all sessions for the requested entries (avoids race if a new scan started)
     const entriesToFix: RegistryEntry[] = []
     for (const id of valid) {
@@ -1816,9 +1860,27 @@ export function registerRegistryCleanerIpc(getWindow: WindowGetter): void {
       }
     }
 
-    return fixRegistryEntries(entriesToFix, (current, total, currentEntry) => {
-      const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.REGISTRY_FIX_PROGRESS, { current, total, currentEntry })
-    })
+    try {
+      return await fixRegistryEntries(entriesToFix, (current, total, currentEntry) => {
+        const win = getWindow()
+        if (win && !win.isDestroyed()) win.webContents.send(IPC.REGISTRY_FIX_PROGRESS, { current, total, currentEntry })
+      }, signal)
+    } catch (err: any) {
+      if (signal.aborted) return { fixed: 0, failed: 0, failures: [{ issue: 'Cancelled', reason: 'Operation was cancelled by user' }] }
+      throw err
+    } finally {
+      if (fixAbort?.signal === signal) fixAbort = null
+    }
+  })
+
+  // Cancel handlers
+  ipcMain.handle(IPC.REGISTRY_SCAN_CANCEL, () => {
+    scanAbort?.abort()
+    scanAbort = null
+  })
+
+  ipcMain.handle(IPC.REGISTRY_FIX_CANCEL, () => {
+    fixAbort?.abort()
+    fixAbort = null
   })
 }

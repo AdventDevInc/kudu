@@ -10,7 +10,7 @@
  *  - Native tools: run via cmd /c with chcp 65001 (UTF-8 code page)
  */
 
-import { execFile, type ExecFileOptions } from 'child_process'
+import { execFile, type ExecFileOptions, type ChildProcess } from 'child_process'
 import { promisify } from 'util'
 
 const execFileAsync = promisify(execFile)
@@ -36,6 +36,90 @@ const ALLOWED_TOOLS = new Set([
   'ipconfig', 'ipconfig.exe',
 ])
 
+// ── Active child-process tracking ──
+// Every process spawned by execNativeUtf8 is tracked here so we can
+// kill the entire process tree on abort, timeout, or app exit.
+const activeChildren = new Set<ChildProcess>()
+
+/**
+ * Kill a child process and its entire process tree on Windows.
+ * On non-Windows platforms, falls back to process.kill().
+ */
+function killTree(child: ChildProcess): void {
+  if (!child.pid) return
+  activeChildren.delete(child)
+  try {
+    if (process.platform === 'win32') {
+      // taskkill /T kills the process tree; /F forces termination
+      execFile('taskkill', ['/T', '/F', '/PID', String(child.pid)], { windowsHide: true }, () => {})
+    } else {
+      child.kill('SIGKILL')
+    }
+  } catch {
+    // Process may have already exited
+  }
+}
+
+/**
+ * Kill all tracked child processes and their trees.
+ * Called on app exit to prevent orphaned reg.exe / cmd.exe processes.
+ */
+export function killAllChildren(): void {
+  for (const child of activeChildren) {
+    killTree(child)
+  }
+  activeChildren.clear()
+}
+
+/**
+ * Wrap a spawned child process with timeout and abort-signal handling
+ * that kills the entire process tree (not just the root) on Windows.
+ *
+ * @returns A cleanup function to call after the promise settles.
+ */
+function trackChild(
+  child: ChildProcess | undefined,
+  timeoutMs: number,
+  signal: AbortSignal | undefined,
+  onKill: () => void
+): () => void {
+  // In test environments the mock may not return a real ChildProcess.
+  if (!child || typeof child.on !== 'function') return () => {}
+
+  activeChildren.add(child)
+
+  const timer = setTimeout(() => {
+    killTree(child)
+    onKill()
+  }, timeoutMs)
+
+  const clearTimer = () => clearTimeout(timer)
+  child.on('exit', clearTimer)
+
+  let abortHandler: (() => void) | undefined
+  if (signal) {
+    abortHandler = () => {
+      clearTimeout(timer)
+      killTree(child)
+      onKill()
+    }
+    if (signal.aborted) {
+      abortHandler()
+    } else {
+      signal.addEventListener('abort', abortHandler, { once: true })
+    }
+  }
+
+  // Return cleanup for after the promise settles
+  return () => {
+    clearTimeout(timer)
+    activeChildren.delete(child)
+    if (signal && abortHandler) {
+      signal.removeEventListener('abort', abortHandler)
+    }
+  }
+}
+
 /**
  * Execute a native Windows CLI tool (reg.exe, pnputil, etc.) with the
  * console code page set to 65001 (UTF-8) so that non-ASCII characters
@@ -56,6 +140,10 @@ const ALLOWED_TOOLS = new Set([
  * occurs almost exclusively in write operations (e.g. `reg add /d`)
  * whose output is plain ASCII, so the trade-off is safe.
  *
+ * **Process tree killing**: On timeout or abort, the entire process
+ * tree (cmd.exe + reg.exe) is killed via `taskkill /T /F /PID` to
+ * prevent orphaned child processes.
+ *
  * @param tool  The executable name (e.g. 'reg', 'pnputil')
  * @param args  Arguments that would normally be passed to execFileAsync
  * @param opts  Standard ExecFileOptions (timeout, windowsHide, etc.)
@@ -63,16 +151,23 @@ const ALLOWED_TOOLS = new Set([
 export async function execNativeUtf8(
   tool: string,
   args: string[],
-  opts?: Pick<ExecFileOptions, 'timeout' | 'windowsHide' | 'maxBuffer'>
+  opts?: Pick<ExecFileOptions, 'timeout' | 'windowsHide' | 'maxBuffer'> & { signal?: AbortSignal }
 ): Promise<{ stdout: string; stderr: string }> {
   if (!ALLOWED_TOOLS.has(tool.toLowerCase())) {
     throw new Error(`execNativeUtf8: disallowed tool "${tool}"`)
   }
 
+  // Bail immediately if already aborted
+  if (opts?.signal?.aborted) {
+    throw new Error('Operation cancelled')
+  }
+
+  const timeoutMs = opts?.timeout ?? 15_000
+
   const baseOpts = {
     encoding: 'utf-8' as const,
     windowsHide: opts?.windowsHide ?? true,
-    timeout: opts?.timeout ?? 15_000,
+    timeout: timeoutMs,
     ...(opts?.maxBuffer != null && { maxBuffer: opts.maxBuffer }),
   }
 
@@ -80,14 +175,25 @@ export async function execNativeUtf8(
   // %VAR% expansion which would corrupt literal percent sequences like
   // %APPDATA%\App\app.exe stored in registry values.
   if (args.some(a => a.includes('%'))) {
-    return execFileAsync(tool, args, baseOpts)
+    const promise = execFileAsync(tool, args, baseOpts) as
+      Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
+    let killed = false
+    const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })
+    try {
+      return await promise
+    } catch (err: any) {
+      if (killed || opts?.signal?.aborted) throw new Error('Operation cancelled')
+      throw err
+    } finally {
+      cleanup()
+    }
   }
 
   // Pass arguments via environment variables so no user-controlled data
   // appears in the command string.  cmd.exe expands the hardcoded
   // %__KAn% references from the child-process environment at runtime.
   // Embedded double-quotes are escaped as "" to keep cmd.exe quoting intact.
-  const env: Record<string, string> = { ...process.env }
+  const env = { ...process.env } as Record<string, string>
   const refs: string[] = []
   for (let i = 0; i < args.length; i++) {
     const key = `__KA${i}`
@@ -98,9 +204,29 @@ export async function execNativeUtf8(
   const cmdLine = `chcp 65001 >nul && ${tool} ${refs.join(' ')}`
 
   // /v:off disables delayed expansion so ! in env var values is not re-expanded
-  return execFileAsync('cmd.exe', ['/d', '/v:off', '/s', '/c', cmdLine], {
+  const promise = execFileAsync('cmd.exe', ['/d', '/v:off', '/s', '/c', cmdLine], {
     ...baseOpts,
     env,
     windowsVerbatimArguments: true,
-  })
+  }) as Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
+
+  let killed = false
+  const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })
+  try {
+    return await promise
+  } catch (err: any) {
+    if (killed || opts?.signal?.aborted) throw new Error('Operation cancelled')
+    // Replace %__KAn% placeholders in the error message with actual
+    // argument values so the user sees meaningful commands, not internal
+    // variable references.
+    if (err.message) {
+      err.message = err.message.replace(/"%__KA(\d+)%"/g, (_m: string, idx: string) => {
+        const i = parseInt(idx, 10)
+        return i < args.length ? JSON.stringify(args[i]) : _m
+      })
+    }
+    throw err
+  } finally {
+    cleanup()
+  }
 }

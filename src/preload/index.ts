@@ -137,6 +137,8 @@ const api = {
   registryScan: (): Promise<RegistryEntry[]> => ipcRenderer.invoke(IPC.REGISTRY_SCAN),
   registryFix: (entryIds: string[]): Promise<{ fixed: number; failed: number; failures: { issue: string; reason: string }[] }> =>
     ipcRenderer.invoke(IPC.REGISTRY_FIX, entryIds),
+  registryScanCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_SCAN_CANCEL),
+  registryFixCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_FIX_CANCEL),
 
   // Debloater
   debloaterScan: (): Promise<BloatwareApp[]> => ipcRenderer.invoke(IPC.DEBLOATER_SCAN),

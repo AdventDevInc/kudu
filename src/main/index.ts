@@ -5,7 +5,7 @@ import { promisify } from 'util'
 import { join } from 'path'
 
 const execFileAsync = promisify(execFile)
-import { execNativeUtf8 } from './services/exec-utf8'
+import { execNativeUtf8, killAllChildren } from './services/exec-utf8'
 import { IPC } from '../shared/channels'
 import { t } from './i18n'
 import { registerCleanerIpc } from './ipc'
@@ -514,6 +514,8 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   stopScheduler()
   cloudAgent.stop()
+  // Kill any active child processes (reg.exe, cmd.exe, etc.) to prevent orphans
+  killAllChildren()
 })
 
 } // end initGui

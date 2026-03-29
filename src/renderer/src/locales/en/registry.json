@@ -58,5 +58,6 @@
   "entryTypeTask": "Task",
   "riskLow": "Low",
   "riskMedium": "Medium",
-  "riskHigh": "High"
+  "riskHigh": "High",
+  "cancelButton": "Stop"
 }
