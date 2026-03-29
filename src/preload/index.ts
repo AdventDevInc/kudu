@@ -273,6 +273,10 @@ const api = {
     ipcRenderer.on(IPC.MALWARE_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.MALWARE_PROGRESS, handler) }
   },
+  malwareYaraInfo: (): Promise<import('../shared/types').YaraRulesInfo> =>
+    ipcRenderer.invoke(IPC.MALWARE_YARA_INFO),
+  malwareYaraUpdate: (): Promise<{ success: boolean; error?: string; stats?: { rulesCount: number; version: string } }> =>
+    ipcRenderer.invoke(IPC.MALWARE_YARA_UPDATE),
 
   // Driver Manager
   driverScan: (): Promise<DriverScanResult> => ipcRenderer.invoke(IPC.DRIVER_SCAN),

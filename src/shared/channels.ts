@@ -116,6 +116,8 @@ export const IPC = {
   MALWARE_RESTORE: 'malware:restore',
   MALWARE_PROGRESS: 'malware:progress',
   MALWARE_QUARANTINE_LIST: 'malware:quarantine:list',
+  MALWARE_YARA_INFO: 'malware:yara:info',
+  MALWARE_YARA_UPDATE: 'malware:yara:update',
 
   // Privacy Shield
   PRIVACY_SCAN: 'privacy:scan',

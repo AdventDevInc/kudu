@@ -297,6 +297,17 @@ export interface QuarantinedItem {
   size: number
 }
 
+export interface YaraRulesInfo {
+  available: boolean
+  engine: 'yara' | 'regex-fallback'
+  rulesLoaded: number
+  version: string | null
+  updatedAt: string | null
+  source: 'cloud' | 'bundled' | 'none'
+  bundledRules: number
+  cachedRules: number
+}
+
 // ─── Privacy Shield ──────────────────────────────────────────
 export interface PrivacySetting {
   id: string

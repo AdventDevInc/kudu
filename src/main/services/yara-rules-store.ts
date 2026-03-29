@@ -10,7 +10,7 @@ const MAX_RULE_CONTENT_BYTES = 1 * 1024 * 1024 // 1 MB per rule file
 const MAX_RULE_COUNT = 10_000
 const DOWNLOAD_TIMEOUT_MS = 60_000
 const DEFAULT_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000 // 6 hours
-const RULES_ENDPOINT = '/api/yara-rules'
+export const RULES_ENDPOINT = '/api/yara-rules'
 
 // ─── Types ───────────────────────────────────────────────────
 
