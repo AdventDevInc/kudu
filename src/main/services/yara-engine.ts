@@ -129,22 +129,101 @@ export class YaraEngine {
   }
 
   /**
-   * Scan a buffer against loaded YARA rules.
-   * Returns matched rules with metadata.
+   * Scan a single buffer against loaded YARA rules.
    */
   scanBuffer(buffer: Buffer): YaraMatch[] {
     if (!this._module || !this._compiledRules) return []
 
     try {
-      // Pass raw bytes as Uint8Array — embind preserves them correctly.
-      // Using toString('binary') would corrupt high bytes (0x80-0xFF) through
-      // UTF-8 marshaling, breaking hash rules and hex pattern matching.
       const result = this._module.run(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength), this._compiledRules)
       return this._parseMatches(result)
     } catch (err) {
       console.warn('[yara] Scan error:', err)
       return []
     }
+  }
+
+  /**
+   * Scan multiple buffers in a single run() call for dramatically better
+   * performance. libyara-wasm recompiles rules on every run(), so batching
+   * pays the ~400ms compilation cost once instead of per-file.
+   *
+   * Returns a Map from file index to its matches.
+   */
+  scanBatch(buffers: Buffer[]): Map<number, YaraMatch[]> {
+    const result = new Map<number, YaraMatch[]>()
+    if (!this._module || !this._compiledRules || buffers.length === 0) return result
+
+    try {
+      // Build a combined buffer and track each file's byte range
+      const offsets: number[] = []
+      let totalSize = 0
+      for (const buf of buffers) {
+        offsets.push(totalSize)
+        totalSize += buf.length
+      }
+
+      const combined = new Uint8Array(totalSize)
+      for (let i = 0; i < buffers.length; i++) {
+        combined.set(new Uint8Array(buffers[i].buffer, buffers[i].byteOffset, buffers[i].byteLength), offsets[i])
+      }
+
+      const scanResult = this._module.run(combined, this._compiledRules)
+      const matchedRules = scanResult.matchedRules
+
+      for (let i = 0; i < matchedRules.size(); i++) {
+        const rule = matchedRules.get(i)
+
+        // Parse metadata
+        const metadata: YaraMatch['metadata'] = {}
+        const meta = rule.metadata
+        for (let j = 0; j < meta.size(); j++) {
+          const m = meta.get(j)
+          switch (m.identifier) {
+            case 'detectionName': metadata.detectionName = m.data; break
+            case 'severity': metadata.severity = m.data as YaraMatch['metadata']['severity']; break
+            case 'details': metadata.details = m.data; break
+            case 'filenameOnly': metadata.filenameOnly = m.data; break
+          }
+        }
+
+        // Find which files this rule matched in via string match offsets
+        const resolved = rule.resolvedMatches
+        const fileIndices = new Set<number>()
+        for (let j = 0; j < resolved.size(); j++) {
+          const loc = resolved.get(j).location
+          // Binary search for the file containing this offset
+          let lo = 0, hi = offsets.length - 1
+          while (lo < hi) {
+            const mid = (lo + hi + 1) >> 1
+            if (offsets[mid] <= loc) lo = mid; else hi = mid - 1
+          }
+          fileIndices.add(lo)
+        }
+
+        // If rule matched via condition-only (no strings, e.g. hash rules),
+        // resolvedMatches may be empty — attribute to all files in batch
+        if (resolved.size() === 0) {
+          for (let k = 0; k < buffers.length; k++) fileIndices.add(k)
+        }
+
+        const match: YaraMatch = {
+          ruleName: rule.ruleName,
+          metadata,
+          matchedStrings: [],
+        }
+
+        for (const idx of fileIndices) {
+          const existing = result.get(idx)
+          if (existing) existing.push(match)
+          else result.set(idx, [match])
+        }
+      }
+    } catch (err) {
+      console.warn('[yara] Batch scan error:', err)
+    }
+
+    return result
   }
 
   private _parseMatches(result: LibYaraResult): YaraMatch[] {
