@@ -22,10 +22,6 @@ extraResources:
     to: icons
     filter:
       - "**/*"
-  - from: resources/yara-rules
-    to: yara-rules
-    filter:
-      - "**/*.yar"
 
 win:
   target:

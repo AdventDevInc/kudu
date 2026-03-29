@@ -235,54 +235,6 @@ describe('bundle integrity verification', () => {
   })
 })
 
-// ─── Rule file precedence (bundled vs cached) ───────────────
-
-describe('rule file precedence', () => {
-  // Replicate the merging logic from getAllRulePaths
-  function mergeRulePaths(bundled: string[], cached: string[]): string[] {
-    if (cached.length === 0) return bundled
-    if (bundled.length === 0) return cached
-    const cachedNames = new Set(cached.map(p => {
-      const parts = p.replace(/\\/g, '/').split('/')
-      return parts[parts.length - 1]
-    }))
-    const merged = bundled.filter(p => {
-      const parts = p.replace(/\\/g, '/').split('/')
-      return !cachedNames.has(parts[parts.length - 1])
-    })
-    return [...merged, ...cached]
-  }
-
-  it('returns bundled when no cached rules exist', () => {
-    const bundled = ['/app/resources/miners.yar', '/app/resources/rats.yar']
-    expect(mergeRulePaths(bundled, [])).toEqual(bundled)
-  })
-
-  it('returns cached when no bundled rules exist', () => {
-    const cached = ['/data/miners.yar', '/data/rats.yar']
-    expect(mergeRulePaths([], cached)).toEqual(cached)
-  })
-
-  it('cached rules override bundled with same filename', () => {
-    const bundled = ['/app/resources/miners.yar', '/app/resources/rats.yar']
-    const cached = ['/data/miners.yar']
-    const result = mergeRulePaths(bundled, cached)
-    expect(result).toContain('/app/resources/rats.yar')
-    expect(result).toContain('/data/miners.yar')
-    expect(result).not.toContain('/app/resources/miners.yar')
-    expect(result).toHaveLength(2)
-  })
-
-  it('includes new cached rules not in bundled', () => {
-    const bundled = ['/app/resources/miners.yar']
-    const cached = ['/data/custom.yar']
-    const result = mergeRulePaths(bundled, cached)
-    expect(result).toContain('/app/resources/miners.yar')
-    expect(result).toContain('/data/custom.yar')
-    expect(result).toHaveLength(2)
-  })
-})
-
 // ─── Metadata validation ─────────────────────────────────────
 
 describe('metadata validation', () => {

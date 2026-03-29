@@ -299,12 +299,11 @@ export interface QuarantinedItem {
 
 export interface YaraRulesInfo {
   available: boolean
-  engine: 'yara' | 'regex-fallback' | 'compiling'
+  engine: 'yara' | 'pending' | 'compiling'
   rulesLoaded: number
   version: string | null
   updatedAt: string | null
-  source: 'cloud' | 'bundled' | 'none'
-  bundledRules: number
+  source: 'cloud' | 'none'
   cachedRules: number
   compileProgress: { loaded: number; total: number } | null
 }
