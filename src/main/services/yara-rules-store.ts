@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, renameSync, unlinkSync, existsSync, mkdirSync, readdirSync } from 'fs'
+import { readFileSync, writeFileSync, renameSync, unlinkSync, rmSync, existsSync, mkdirSync, readdirSync } from 'fs'
 import { join, basename } from 'path'
 import { createHash } from 'crypto'
 import { app } from 'electron'
@@ -128,16 +128,6 @@ function validateMetadata(raw: unknown): boolean {
   )
 }
 
-function saveMetadata(meta: YaraRulesMetadata): void {
-  const dir = getCachedRulesDir()
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
-
-  const path = getMetadataPath()
-  const tmpPath = path + '.tmp'
-  writeFileSync(tmpPath, JSON.stringify(meta, null, 2), 'utf-8')
-  renameSync(tmpPath, path)
-}
-
 // ─── Bundle validation ───────────────────────────────────────
 
 export function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
@@ -244,33 +234,29 @@ export async function fetchAndCacheRules(url: string): Promise<{
       return { success: false, error: 'Integrity check failed: SHA-256 mismatch' }
     }
 
-    // Write rules to disk cache
+    // Write rules atomically: stage in a temp directory, then swap into place.
+    // This avoids leaving a partial ruleset if a write fails mid-way.
     const dir = getCachedRulesDir()
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+    const stageDir = dir + '.staging'
 
-    // Remove stale .yar files not present in the new bundle
-    const newFilenames = new Set(bundle.rules.map(r => r.filename))
-    try {
-      for (const existing of readdirSync(dir)) {
-        if (existing.endsWith('.yar') && !newFilenames.has(existing)) {
-          try { unlinkSync(join(dir, existing)) } catch { /* best effort */ }
-        }
-      }
-    } catch { /* directory read failed — not critical */ }
+    // Clean up any leftover staging dir from a previous failed attempt
+    if (existsSync(stageDir)) rmSync(stageDir, { recursive: true, force: true })
+    mkdirSync(stageDir, { recursive: true })
 
+    // Write all rule files + metadata into the staging directory
     for (const rule of bundle.rules) {
-      const filePath = join(dir, rule.filename)
-      const tmpPath = filePath + '.tmp'
-      writeFileSync(tmpPath, rule.content, 'utf-8')
-      renameSync(tmpPath, filePath)
+      writeFileSync(join(stageDir, rule.filename), rule.content, 'utf-8')
     }
-
-    saveMetadata({
+    writeFileSync(join(stageDir, 'metadata.json'), JSON.stringify({
       version: bundle.version,
       updatedAt: bundle.updatedAt,
       rulesCount: bundle.rules.length,
       sha256: bundle.sha256,
-    })
+    }, null, 2), 'utf-8')
+
+    // Swap: remove old cache dir, rename staging into place
+    if (existsSync(dir)) rmSync(dir, { recursive: true, force: true })
+    renameSync(stageDir, dir)
 
     return {
       success: true,

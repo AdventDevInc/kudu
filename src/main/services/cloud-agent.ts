@@ -3089,10 +3089,15 @@ class CloudAgentService {
       return
     }
 
-    // SSRF validation: reuse the same private/loopback checks
+    // SSRF validation: require HTTPS in packaged builds (HTTP is MitM-able and
+    // the SHA-256 hash doesn't help since both payload and hash come from the same response)
     try {
       const parsed = new URL(url)
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      if (app.isPackaged && parsed.protocol !== 'https:') {
+        await this.postCommandResult(requestId, false, undefined, 'Only HTTPS URLs allowed')
+        return
+      }
+      if (!app.isPackaged && parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
         await this.postCommandResult(requestId, false, undefined, 'Only HTTP(S) URLs allowed')
         return
       }
