@@ -9,8 +9,8 @@
  *   KUDU_RULES_URL=https://... node scripts/fetch-yara-rules.js
  *
  * If the API is unreachable, the script exits with code 0 and a warning —
- * the build will succeed without bundled rules (the app still works via
- * the regex fallback and will fetch rules from the cloud at runtime).
+ * the build will succeed without bundled rules (the app fetches rules
+ * from the cloud at runtime).
  */
 
 const { writeFileSync, mkdirSync, existsSync, readdirSync, unlinkSync } = require('fs')

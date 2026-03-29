@@ -86,11 +86,6 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
-      - name: Fetch latest YARA rules
-        run: node scripts/fetch-yara-rules.js
-        env:
-          KUDU_RULES_URL: ${{ secrets.KUDU_RULES_URL || 'https://cloud.usekudu.com/api/yara-rules' }}
-
       - name: Build, package, and upload
         shell: bash
         env:
