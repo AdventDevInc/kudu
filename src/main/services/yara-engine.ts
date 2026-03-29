@@ -201,14 +201,18 @@ export function createYaraEngine(): YaraEngine {
  * Convert a YaraMatch to the metadata fields used by MalwareThreat.
  * Pure function — safe for testing without Electron.
  */
+const VALID_SEVERITIES = new Set(['critical', 'high', 'medium', 'low'] as const)
+
 export function yaraMatchToThreatFields(match: YaraMatch): {
   detectionName: string
   severity: 'critical' | 'high' | 'medium' | 'low'
   details: string
 } {
+  const rawSeverity = match.metadata.severity
+  const severity = rawSeverity && VALID_SEVERITIES.has(rawSeverity) ? rawSeverity : 'high'
   return {
     detectionName: match.metadata.detectionName || match.ruleName.replace(/_/g, '.'),
-    severity: match.metadata.severity || 'high',
+    severity,
     details: match.metadata.details || `YARA rule match: ${match.ruleName}`,
   }
 }

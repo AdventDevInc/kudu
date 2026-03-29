@@ -13,14 +13,18 @@ interface YaraMatch {
   matchedStrings: string[]
 }
 
+const VALID_SEVERITIES = new Set(['critical', 'high', 'medium', 'low'] as const)
+
 function yaraMatchToThreatFields(match: YaraMatch): {
   detectionName: string
   severity: 'critical' | 'high' | 'medium' | 'low'
   details: string
 } {
+  const rawSeverity = match.metadata.severity
+  const severity = rawSeverity && VALID_SEVERITIES.has(rawSeverity) ? rawSeverity : 'high'
   return {
     detectionName: match.metadata.detectionName || match.ruleName.replace(/_/g, '.'),
-    severity: match.metadata.severity || 'high',
+    severity,
     details: match.metadata.details || `YARA rule match: ${match.ruleName}`,
   }
 }
@@ -93,6 +97,15 @@ describe('yaraMatchToThreatFields', () => {
       }
       expect(yaraMatchToThreatFields(match).severity).toBe(sev)
     }
+  })
+
+  it('clamps invalid severity to high', () => {
+    const match: YaraMatch = {
+      ruleName: 'Test',
+      metadata: { severity: 'info' as any },
+      matchedStrings: [],
+    }
+    expect(yaraMatchToThreatFields(match).severity).toBe('high')
   })
 })
 

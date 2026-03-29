@@ -13,7 +13,7 @@
  * the regex fallback and will fetch rules from the cloud at runtime).
  */
 
-const { writeFileSync, mkdirSync, existsSync } = require('fs')
+const { writeFileSync, mkdirSync, existsSync, readdirSync, unlinkSync } = require('fs')
 const { join } = require('path')
 const { createHash } = require('crypto')
 
@@ -73,8 +73,13 @@ async function main() {
     }
   }
 
-  // Write rules
+  // Write rules — clear stale .yar files first so removed rules don't persist
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true })
+  for (const existing of readdirSync(OUT_DIR)) {
+    if (existing.endsWith('.yar')) {
+      try { unlinkSync(join(OUT_DIR, existing)) } catch { /* best effort */ }
+    }
+  }
 
   let count = 0
   for (const rule of body.rules) {
