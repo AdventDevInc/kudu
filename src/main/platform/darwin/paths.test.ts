@@ -9,7 +9,7 @@ describe('darwin paths', () => {
   const paths = createDarwinPaths()
 
   describe('malwareScanDirs', () => {
-    const dirs = paths.malwareScanDirs()
+    const dirs = paths.malwareScanDirs().map(d => d.path)
 
     it('returns a non-empty array', () => {
       expect(dirs.length).toBeGreaterThan(5)

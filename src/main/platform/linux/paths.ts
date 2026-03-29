@@ -36,21 +36,26 @@ export function createLinuxPaths(): PlatformPaths {
   return {
     ...cleanerPaths,
 
-    malwareScanDirs(): string[] {
+    malwareScanDirs() {
       return [
-        join(HOME, 'Downloads'),
-        join(HOME, 'Desktop'),
-        join(HOME, 'Documents'),
-        HOME,                                     // files dropped directly in user home
-        '/tmp',
-        '/var/tmp',
-        '/dev/shm',
-        join(HOME, '.local', 'bin'),
-        join(HOME, '.config', 'autostart'),
-        CONFIG,
-        LOCAL_SHARE,
-        '/usr/local/bin',
-        '/opt',
+        // High-risk: common drop locations
+        { path: join(HOME, 'Downloads'),            maxDepth: 6, maxFiles: 10000 },
+        { path: join(HOME, 'Desktop'),              maxDepth: 4, maxFiles: 5000 },
+        { path: join(HOME, 'Documents'),            maxDepth: 4, maxFiles: 5000 },
+        { path: HOME,                               maxDepth: 1, maxFiles: 500 },
+        { path: '/tmp',                             maxDepth: 3, maxFiles: 5000 },
+        { path: '/var/tmp',                         maxDepth: 3, maxFiles: 3000 },
+        { path: '/dev/shm',                         maxDepth: 2, maxFiles: 2000 },
+
+        // Persistence & config locations
+        { path: join(HOME, '.local', 'bin'),        maxDepth: 2, maxFiles: 1000 },
+        { path: join(HOME, '.config', 'autostart'), maxDepth: 2, maxFiles: 1000 },
+        { path: CONFIG,                             maxDepth: 3, maxFiles: 5000 },
+        { path: LOCAL_SHARE,                        maxDepth: 3, maxFiles: 5000 },
+
+        // System binaries — shallow scan
+        { path: '/usr/local/bin',                   maxDepth: 1, maxFiles: 2000 },
+        { path: '/opt',                             maxDepth: 2, maxFiles: 3000 },
       ]
     },
 

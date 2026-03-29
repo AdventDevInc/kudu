@@ -12,7 +12,7 @@ describe('linux paths', () => {
   const paths = createLinuxPaths()
 
   describe('malwareScanDirs', () => {
-    const dirs = paths.malwareScanDirs()
+    const dirs = paths.malwareScanDirs().map(d => d.path)
 
     it('returns an array of scan directories', () => {
       expect(dirs.length).toBeGreaterThanOrEqual(3)

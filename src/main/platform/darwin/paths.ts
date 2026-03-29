@@ -36,29 +36,34 @@ export function createDarwinPaths(): PlatformPaths {
   return {
     ...cleanerPaths,
 
-    malwareScanDirs(): string[] {
+    malwareScanDirs() {
       return [
-        join(HOME, 'Downloads'),
-        join(HOME, 'Desktop'),
-        join(HOME, 'Documents'),
-        HOME,                                     // files dropped directly in user home
-        '/tmp',
-        '/private/tmp',
-        '/var/tmp',
-        join(LIBRARY, 'LaunchAgents'),
-        join(LIBRARY, 'LaunchDaemons'),
-        '/Library/LaunchAgents',
-        '/Library/LaunchDaemons',
-        '/Library/StartupItems',
-        join(HOME, '.local', 'bin'),
-        join(LIBRARY, 'Application Scripts'),
-        join(LIBRARY, 'Services'),
-        join(LIBRARY, 'Workflows'),
-        '/usr/local/bin',
-        '/opt/local/bin',
-        '/Applications',
-        '/Users/Shared',
-        APP_SUPPORT,
+        // High-risk: common drop locations
+        { path: join(HOME, 'Downloads'),              maxDepth: 6, maxFiles: 10000 },
+        { path: join(HOME, 'Desktop'),                maxDepth: 4, maxFiles: 5000 },
+        { path: join(HOME, 'Documents'),              maxDepth: 4, maxFiles: 5000 },
+        { path: HOME,                                 maxDepth: 1, maxFiles: 500 },
+        { path: '/tmp',                               maxDepth: 3, maxFiles: 5000 },
+        { path: '/private/tmp',                       maxDepth: 3, maxFiles: 5000 },
+        { path: '/var/tmp',                           maxDepth: 3, maxFiles: 3000 },
+        { path: '/Users/Shared',                      maxDepth: 4, maxFiles: 3000 },
+
+        // Persistence locations — deep scan
+        { path: join(LIBRARY, 'LaunchAgents'),        maxDepth: 2, maxFiles: 2000 },
+        { path: join(LIBRARY, 'LaunchDaemons'),       maxDepth: 2, maxFiles: 2000 },
+        { path: '/Library/LaunchAgents',              maxDepth: 2, maxFiles: 2000 },
+        { path: '/Library/LaunchDaemons',             maxDepth: 2, maxFiles: 2000 },
+        { path: '/Library/StartupItems',              maxDepth: 2, maxFiles: 1000 },
+        { path: join(HOME, '.local', 'bin'),          maxDepth: 2, maxFiles: 1000 },
+        { path: join(LIBRARY, 'Application Scripts'), maxDepth: 3, maxFiles: 2000 },
+        { path: join(LIBRARY, 'Services'),            maxDepth: 3, maxFiles: 2000 },
+        { path: join(LIBRARY, 'Workflows'),           maxDepth: 3, maxFiles: 2000 },
+
+        // Medium-risk: installed software
+        { path: '/usr/local/bin',                     maxDepth: 1, maxFiles: 2000 },
+        { path: '/opt/local/bin',                     maxDepth: 1, maxFiles: 2000 },
+        { path: '/Applications',                      maxDepth: 2, maxFiles: 3000 },
+        { path: APP_SUPPORT,                          maxDepth: 3, maxFiles: 5000 },
       ]
     },
 

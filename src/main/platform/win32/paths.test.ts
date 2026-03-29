@@ -186,7 +186,7 @@ describe('win32 paths', () => {
   })
 
   describe('malwareScanDirs', () => {
-    const dirs = paths.malwareScanDirs()
+    const dirs = paths.malwareScanDirs().map(d => d.path)
 
     it('includes user Downloads and Desktop', () => {
       expect(dirs.some((d) => d.includes('Downloads'))).toBe(true)

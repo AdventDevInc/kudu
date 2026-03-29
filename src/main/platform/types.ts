@@ -68,6 +68,12 @@ export interface UninstallLeftoverDir {
   path: string
 }
 
+export interface MalwareScanDir {
+  path: string
+  maxDepth: number
+  maxFiles: number
+}
+
 export interface PlatformPaths {
   /** System cleanup targets (temp files, caches, logs, etc.) */
   systemCleanTargets(): CleanTarget[]
@@ -90,8 +96,8 @@ export interface PlatformPaths {
   /** GPU shader cache paths */
   gpuCachePaths(): AppCacheDef[]
 
-  /** Directories to scan for malware */
-  malwareScanDirs(): string[]
+  /** Directories to scan for malware, with per-path scan limits */
+  malwareScanDirs(): MalwareScanDir[]
 
   /** System directories to exclude from suspicious filename checks */
   malwareSystemDirs(): string[]

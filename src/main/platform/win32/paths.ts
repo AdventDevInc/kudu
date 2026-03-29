@@ -39,21 +39,26 @@ export function createWin32Paths(): PlatformPaths {
   return {
     ...cleanerPaths,
 
-    malwareScanDirs(): string[] {
+    malwareScanDirs() {
       const userProfile = process.env.USERPROFILE || HOME
       return [
-        join(userProfile, 'Downloads'),
-        join(userProfile, 'Desktop'),
-        join(userProfile, 'Documents'),
-        userProfile,                              // files dropped directly in user home
-        join(LOCALAPPDATA, 'Temp'),
-        APPDATA,
-        LOCALAPPDATA,
-        PROGRAMDATA,
-        PROGRAMFILES,
-        PROGRAMFILES_X86,
-        'C:\\Users\\Public',
-        'C:\\Windows\\Temp',
+        // High-risk: common malware drop locations — deep scan, high file limits
+        { path: join(userProfile, 'Downloads'),  maxDepth: 6, maxFiles: 10000 },
+        { path: join(userProfile, 'Desktop'),    maxDepth: 4, maxFiles: 5000 },
+        { path: join(userProfile, 'Documents'),  maxDepth: 4, maxFiles: 5000 },
+        { path: userProfile,                     maxDepth: 1, maxFiles: 500 },
+        { path: join(LOCALAPPDATA, 'Temp'),      maxDepth: 4, maxFiles: 10000 },
+        { path: 'C:\\Windows\\Temp',             maxDepth: 3, maxFiles: 5000 },
+        { path: 'C:\\Users\\Public',             maxDepth: 4, maxFiles: 3000 },
+
+        // Medium-risk: persistence & dropper locations — moderate scan
+        { path: APPDATA,                         maxDepth: 5, maxFiles: 8000 },
+        { path: LOCALAPPDATA,                    maxDepth: 4, maxFiles: 8000 },
+        { path: PROGRAMDATA,                     maxDepth: 3, maxFiles: 5000 },
+
+        // Lower-risk: installed programs — shallow scan for trojaned executables
+        { path: PROGRAMFILES,                    maxDepth: 2, maxFiles: 3000 },
+        { path: PROGRAMFILES_X86,                maxDepth: 2, maxFiles: 3000 },
       ]
     },
 
