@@ -95,8 +95,17 @@ async function main() {
 }
 
 function ensureEmptyDir() {
-  // Create the directory so electron-builder doesn't fail on missing extraResources
-  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true })
+  // Create the directory so electron-builder doesn't fail on missing extraResources,
+  // and clear any stale .yar files so revoked rules aren't accidentally packaged.
+  if (!existsSync(OUT_DIR)) {
+    mkdirSync(OUT_DIR, { recursive: true })
+    return
+  }
+  for (const f of readdirSync(OUT_DIR)) {
+    if (f.endsWith('.yar')) {
+      try { unlinkSync(join(OUT_DIR, f)) } catch { /* best effort */ }
+    }
+  }
 }
 
 main().catch(err => {
