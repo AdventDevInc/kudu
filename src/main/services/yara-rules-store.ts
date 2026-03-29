@@ -164,7 +164,8 @@ export function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
  * Hash is over concatenated content fields, sorted by filename.
  */
 export function computeBundleHash(rules: YaraRuleFile[]): string {
-  const sorted = [...rules].sort((a, b) => a.filename.localeCompare(b.filename))
+  // Use plain < > comparison (not localeCompare) for deterministic cross-platform sorting
+  const sorted = [...rules].sort((a, b) => a.filename < b.filename ? -1 : a.filename > b.filename ? 1 : 0)
   const combined = sorted.map(r => r.content).join('')
   return createHash('sha256').update(combined).digest('hex')
 }
