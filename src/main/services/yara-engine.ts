@@ -84,7 +84,7 @@ export class YaraEngine {
     const errors: string[] = []
     let loaded = 0
     const total = ruleFilePaths.length + extraSources.length
-    const CHUNK_SIZE = 20 // yield to event loop every N files
+    const CHUNK_SIZE = 5 // yield to event loop every N files (~35ms per chunk)
 
     // Load from file paths in chunks
     for (let i = 0; i < ruleFilePaths.length; i++) {
