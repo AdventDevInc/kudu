@@ -150,6 +150,9 @@ export function SettingsPage() {
       </Section>
 
       <Section title={t('sectionCleaningPreferences')}>
+        <Row label={t('protectRecycleBinLabel')} desc={t('protectRecycleBinDesc')}>
+          <Toggle checked={settings.cleaner.protectRecycleBin} onChange={(v) => save({ cleaner: { ...settings.cleaner, protectRecycleBin: v } })} />
+        </Row>
         <Row label={t('secureDeleteLabel')} desc={t('secureDeleteDesc')}>
           <Toggle checked={settings.cleaner.secureDelete} onChange={(v) => save({ cleaner: { ...settings.cleaner, secureDelete: v } })} />
         </Row>

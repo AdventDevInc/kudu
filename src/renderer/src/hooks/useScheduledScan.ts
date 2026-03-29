@@ -84,7 +84,9 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
     }
 
     // ── Cleaner tasks ──
+    const { protectRecycleBin } = useSettingsStore.getState().settings.cleaner
     for (const taskType of cleanerTasks) {
+      if (taskType === 'cleaner:recycleBin' && protectRecycleBin) continue
       const task = CLEANER_TASKS[taskType]
       if (!task) continue
       try {

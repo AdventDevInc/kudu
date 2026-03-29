@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Bulut bağlantınızı ve cihaz ayarlarınızı yönetin",
   "sectionCleaningPreferences": "Temizleme Tercihleri",
+  "protectRecycleBinLabel": "Geri Dönüşüm Kutusu'nu koru",
+  "protectRecycleBinDesc": "Yanlışlıkla silinen dosyaların kurtarılabilmesi için temizleme sırasında Geri Dönüşüm Kutusu'nu atla",
   "secureDeleteLabel": "Güvenli silme (daha yavaş)",
   "secureDeleteDesc": "Hassas veriler için dosyaları silmeden önce üzerine yaz (daha yavaş)",
   "closeBrowsersLabel": "Temizlemeden önce tarayıcıları kapat",

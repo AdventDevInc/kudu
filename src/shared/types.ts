@@ -592,6 +592,7 @@ export interface KuduSettings {
     secureDelete: boolean
     closeBrowsersBeforeClean: boolean
     createRestorePoint: boolean
+    protectRecycleBin: boolean
   }
   exclusions: string[]
   ignoredSoftwareUpdates: string[]

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "נהל את חיבור הענן והגדרות המכשיר שלך",
   "sectionCleaningPreferences": "העדפות ניקוי",
+  "protectRecycleBinLabel": "הגן על סל המיחזור",
+  "protectRecycleBinDesc": "דלג על סל המיחזור בזמן הניקוי כדי שניתן יהיה עדיין לשחזר קבצים שנמחקו בטעות",
   "secureDeleteLabel": "מחיקה מאובטחת (איטית יותר)",
   "secureDeleteDesc": "דרוס קבצים לפני המחיקה עבור נתונים רגישים (איטי יותר)",
   "closeBrowsersLabel": "סגור דפדפנים לפני הניקוי",

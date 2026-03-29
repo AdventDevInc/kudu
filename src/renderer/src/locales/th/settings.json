@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "จัดการการเชื่อมต่อ Cloud และการตั้งค่าอุปกรณ์ของคุณ",
   "sectionCleaningPreferences": "การกำหนดลักษณะการล้างข้อมูล",
+  "protectRecycleBinLabel": "ปกป้องถังรีไซเคิล",
+  "protectRecycleBinDesc": "ข้ามถังรีไซเคิลระหว่างการล้างข้อมูล เพื่อให้ไฟล์ที่ลบโดยไม่ตั้งใจยังสามารถกู้คืนได้",
   "secureDeleteLabel": "ลบอย่างปลอดภัย (ช้ากว่า)",
   "secureDeleteDesc": "เขียนทับไฟล์ก่อนลบสำหรับข้อมูลสำคัญ (ช้ากว่า)",
   "closeBrowsersLabel": "ปิดเบราว์เซอร์ก่อนล้างข้อมูล",

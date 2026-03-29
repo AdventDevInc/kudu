@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "A felhőkapcsolat és az eszközbeállítások kezelése",
   "sectionCleaningPreferences": "Tisztítási beállítások",
+  "protectRecycleBinLabel": "Lomtár védelme",
+  "protectRecycleBinDesc": "A Lomtár kihagyása a tisztítás során, hogy a véletlenül törölt fájlok még helyreállíthatók legyenek",
   "secureDeleteLabel": "Biztonságos törlés (lassabb)",
   "secureDeleteDesc": "Fájlok felülírása törlés előtt bizalmas adatok esetén (lassabb)",
   "closeBrowsersLabel": "Böngészők bezárása tisztítás előtt",

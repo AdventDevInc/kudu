@@ -62,6 +62,10 @@ export function CleanerPage() {
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
   const createRestorePointEnabled = useSettingsStore((s) => s.settings.cleaner.createRestorePoint)
+  const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
+  const visibleCategories = protectRecycleBin
+    ? categories.filter((c) => c.type !== CleanerType.RecycleBin)
+    : categories
   const [activeCategory, setActiveCategory] = useState<CleanerType>(CleanerType.System)
   const [showConfirm, setShowConfirm] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
@@ -83,7 +87,7 @@ export function CleanerPage() {
         const slice = (data.progress / total)
         store.setProgress({ ...data, progress: base + slice })
       } else {
-        const total = categories.length
+        const total = visibleCategories.length
         const base = (scanIndexRef.current / total) * 100
         const slice = (data.progress / total)
         store.setProgress({ ...data, progress: base + slice })
@@ -117,8 +121,8 @@ export function CleanerPage() {
         [CleanerType.Environment]: () => window.kudu.environmentScan(),
         [CleanerType.Database]: () => window.kudu.databaseScan()
       }
-      for (let ci = 0; ci < categories.length; ci++) {
-        const cat = categories[ci]
+      for (let ci = 0; ci < visibleCategories.length; ci++) {
+        const cat = visibleCategories[ci]
         scanIndexRef.current = ci
         setScanningCategory(cat.type)
         try {
@@ -184,7 +188,7 @@ export function CleanerPage() {
 
       // Compute how many categories actually have items to clean so progress
       // scales to 100% even when only a subset of categories is active.
-      const activeCount = categories.filter((cat) => {
+      const activeCount = visibleCategories.filter((cat) => {
         const catItems = store.results.filter((r) => r.category === cat.type).flatMap((r) => r.items)
         return catItems.some((item) => selectedIds.includes(item.id))
       }).length
@@ -193,8 +197,8 @@ export function CleanerPage() {
 
       store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
 
-      for (let ci = 0; ci < categories.length; ci++) {
-        const cat = categories[ci]
+      for (let ci = 0; ci < visibleCategories.length; ci++) {
+        const cat = visibleCategories[ci]
         const catResults = store.results.filter((r) => r.category === cat.type)
         const catItemsAll = catResults.flatMap((r) => r.items)
         const catItemIds = catItemsAll
@@ -318,7 +322,7 @@ export function CleanerPage() {
       <div className="flex gap-5">
         {/* Category sidebar */}
         <div className="w-56 shrink-0 space-y-1.5">
-          {categories.map((cat) => {
+          {visibleCategories.map((cat) => {
             const count = categoryItemCount(cat.type)
             const isActive = activeCategory === cat.type
             return (

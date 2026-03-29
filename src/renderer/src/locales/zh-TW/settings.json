@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "管理您的雲端連線與裝置設定",
   "sectionCleaningPreferences": "清理偏好設定",
+  "protectRecycleBinLabel": "保護資源回收筒",
+  "protectRecycleBinDesc": "清理時略過資源回收筒，以便誤刪的檔案仍可復原",
   "secureDeleteLabel": "安全刪除（較慢）",
   "secureDeleteDesc": "刪除前覆寫檔案以保護敏感資料（較慢）",
   "closeBrowsersLabel": "清理前關閉瀏覽器",

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Hallitse pilviyhteyttäsi ja laiteasetuksia",
   "sectionCleaningPreferences": "Puhdistusasetukset",
+  "protectRecycleBinLabel": "Suojaa Roskakori",
+  "protectRecycleBinDesc": "Ohita Roskakori puhdistuksen aikana, jotta vahingossa poistetut tiedostot voidaan vielä palauttaa",
   "secureDeleteLabel": "Suojattu poisto (hitaampi)",
   "secureDeleteDesc": "Korvaa tiedostot ennen poistamista arkaluonteisten tietojen suojaamiseksi (hitaampi)",
   "closeBrowsersLabel": "Sulje selaimet ennen puhdistusta",

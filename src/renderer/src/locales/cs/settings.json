@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Spravujte cloudové připojení a nastavení zařízení",
   "sectionCleaningPreferences": "Předvolby čištění",
+  "protectRecycleBinLabel": "Chránit Koš",
+  "protectRecycleBinDesc": "Přeskočit Koš během čištění, aby bylo možné obnovit omylem smazané soubory",
   "secureDeleteLabel": "Bezpečné odstranění (pomalejší)",
   "secureDeleteDesc": "Před odstraněním přepsat soubory kvůli citlivým datům (pomalejší)",
   "closeBrowsersLabel": "Před čištěním zavřít prohlížeče",

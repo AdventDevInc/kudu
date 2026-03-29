@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Zarządzaj połączeniem z chmurą i ustawieniami urządzenia",
   "sectionCleaningPreferences": "Preferencje czyszczenia",
+  "protectRecycleBinLabel": "Chroń Kosz",
+  "protectRecycleBinDesc": "Pomiń Kosz podczas czyszczenia, aby przypadkowo usunięte pliki mogły zostać odzyskane",
   "secureDeleteLabel": "Bezpieczne usuwanie (wolniejsze)",
   "secureDeleteDesc": "Nadpisuj pliki przed usunięciem w przypadku danych wrażliwych (wolniejsze)",
   "closeBrowsersLabel": "Zamknij przeglądarki przed czyszczeniem",

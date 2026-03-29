@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "अपना cloud कनेक्शन और डिवाइस सेटिंग्स प्रबंधित करें",
   "sectionCleaningPreferences": "सफाई प्राथमिकताएँ",
+  "protectRecycleBinLabel": "रीसायकल बिन की सुरक्षा करें",
+  "protectRecycleBinDesc": "सफाई के दौरान रीसायकल बिन को छोड़ें ताकि गलती से हटाई गई फ़ाइलें अभी भी पुनर्प्राप्त की जा सकें",
   "secureDeleteLabel": "सुरक्षित हटाना (धीमा)",
   "secureDeleteDesc": "संवेदनशील डेटा के लिए हटाने से पहले फ़ाइलों को अधिलेखित करें (धीमा)",
   "closeBrowsersLabel": "सफाई से पहले ब्राउज़र बंद करें",

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Administrer skytilkoblingen og enhetsinnstillingene dine",
   "sectionCleaningPreferences": "Rengjøringsinnstillinger",
+  "protectRecycleBinLabel": "Beskytt papirkurven",
+  "protectRecycleBinDesc": "Hopp over papirkurven under rengjøring slik at filer som ble slettet ved et uhell, fortsatt kan gjenopprettes",
   "secureDeleteLabel": "Sikker sletting (tregere)",
   "secureDeleteDesc": "Overskriv filer før sletting for sensitive data (tregere)",
   "closeBrowsersLabel": "Lukk nettlesere før rengjøring",

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Керуйте хмарним підключенням і налаштуваннями пристрою",
   "sectionCleaningPreferences": "Параметри очищення",
+  "protectRecycleBinLabel": "Захистити Кошик",
+  "protectRecycleBinDesc": "Пропускати Кошик під час очищення, щоб випадково видалені файли можна було відновити",
   "secureDeleteLabel": "Безпечне видалення (повільніше)",
   "secureDeleteDesc": "Перезаписувати файли перед видаленням для захисту конфіденційних даних (повільніше)",
   "closeBrowsersLabel": "Закривати браузери перед очищенням",

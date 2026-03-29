@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Beheer uw cloudverbinding en apparaatinstellingen",
   "sectionCleaningPreferences": "Opschoningsvoorkeuren",
+  "protectRecycleBinLabel": "Prullenbak beschermen",
+  "protectRecycleBinDesc": "De Prullenbak overslaan tijdens het opschonen, zodat per ongeluk verwijderde bestanden nog kunnen worden hersteld",
   "secureDeleteLabel": "Veilig verwijderen (langzamer)",
   "secureDeleteDesc": "Bestanden overschrijven vóór verwijdering voor gevoelige gegevens (langzamer)",
   "closeBrowsersLabel": "Browsers sluiten vóór opschonen",

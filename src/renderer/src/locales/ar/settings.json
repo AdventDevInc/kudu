@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "إدارة اتصالك السحابي وإعدادات الجهاز",
   "sectionCleaningPreferences": "تفضيلات التنظيف",
+  "protectRecycleBinLabel": "حماية سلة المحذوفات",
+  "protectRecycleBinDesc": "تخطي سلة المحذوفات أثناء التنظيف حتى يمكن استرداد الملفات المحذوفة عن طريق الخطأ",
   "secureDeleteLabel": "الحذف الآمن (أبطأ)",
   "secureDeleteDesc": "الكتابة فوق الملفات قبل حذفها للبيانات الحساسة (أبطأ)",
   "closeBrowsersLabel": "إغلاق المتصفحات قبل التنظيف",

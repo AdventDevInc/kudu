@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "クラウド接続とデバイス設定を管理します",
   "sectionCleaningPreferences": "クリーニング設定",
+  "protectRecycleBinLabel": "ごみ箱を保護",
+  "protectRecycleBinDesc": "クリーニング中にごみ箱をスキップし、誤って削除したファイルを復元できるようにします",
   "secureDeleteLabel": "安全な削除（低速）",
   "secureDeleteDesc": "機密データのため、削除前にファイルを上書きします（低速）",
   "closeBrowsersLabel": "クリーニング前にブラウザーを閉じる",

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Manage your cloud connection and device settings",
   "sectionCleaningPreferences": "Cleaning Preferences",
+  "protectRecycleBinLabel": "Protect Recycle Bin",
+  "protectRecycleBinDesc": "Skip the Recycle Bin during cleaning so accidentally deleted files can still be recovered",
   "secureDeleteLabel": "Secure delete (slower)",
   "secureDeleteDesc": "Overwrite files before deletion for sensitive data (slower)",
   "closeBrowsersLabel": "Close browsers before clean",

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Hantera din molnanslutning och enhetsinställningar",
   "sectionCleaningPreferences": "Rensningsinställningar",
+  "protectRecycleBinLabel": "Skydda papperskorgen",
+  "protectRecycleBinDesc": "Hoppa över papperskorgen vid rensning så att filer som raderats av misstag fortfarande kan återställas",
   "secureDeleteLabel": "Säker radering (långsammare)",
   "secureDeleteDesc": "Skriv över filer före radering för känsliga data (långsammare)",
   "closeBrowsersLabel": "Stäng webbläsare före rensning",

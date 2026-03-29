@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Kelola koneksi cloud dan pengaturan perangkat Anda",
   "sectionCleaningPreferences": "Preferensi Pembersihan",
+  "protectRecycleBinLabel": "Lindungi Keranjang Sampah",
+  "protectRecycleBinDesc": "Lewati Keranjang Sampah saat pembersihan agar file yang tidak sengaja terhapus masih dapat dipulihkan",
   "secureDeleteLabel": "Penghapusan aman (lebih lambat)",
   "secureDeleteDesc": "Timpa file sebelum dihapus untuk data sensitif (lebih lambat)",
   "closeBrowsersLabel": "Tutup browser sebelum membersihkan",

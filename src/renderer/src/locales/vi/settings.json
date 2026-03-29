@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Quản lý kết nối cloud và cài đặt thiết bị của bạn",
   "sectionCleaningPreferences": "Tùy chọn dọn dẹp",
+  "protectRecycleBinLabel": "Bảo vệ Thùng rác",
+  "protectRecycleBinDesc": "Bỏ qua Thùng rác trong quá trình dọn dẹp để các tệp bị xóa nhầm vẫn có thể được khôi phục",
   "secureDeleteLabel": "Xóa an toàn (chậm hơn)",
   "secureDeleteDesc": "Ghi đè tệp trước khi xóa đối với dữ liệu nhạy cảm (chậm hơn)",
   "closeBrowsersLabel": "Đóng trình duyệt trước khi dọn dẹp",

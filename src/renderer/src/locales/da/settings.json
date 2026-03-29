@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Administrer din cloudforbindelse og enhedsindstillinger",
   "sectionCleaningPreferences": "Rengøringsindstillinger",
+  "protectRecycleBinLabel": "Beskyt papirkurven",
+  "protectRecycleBinDesc": "Spring papirkurven over under rengøring, så utilsigtet slettede filer stadig kan gendannes",
   "secureDeleteLabel": "Sikker sletning (langsommere)",
   "secureDeleteDesc": "Overskriv filer før sletning af følsomme data (langsommere)",
   "closeBrowsersLabel": "Luk browsere før rengøring",

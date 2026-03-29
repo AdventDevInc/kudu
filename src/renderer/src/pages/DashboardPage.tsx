@@ -207,12 +207,15 @@ export function DashboardPage() {
 
   // ── One-click clean callbacks (unchanged logic) ────────────
 
+  const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
+
   const runCleaners = useCallback(async (): Promise<{ space: number; files: number }> => {
     const excluded = scanStore.excludedSubcategories
     let totalSpace = 0
     let totalFiles = 0
 
     for (const { type, scan, clean } of CLEANER_SCAN_FNS) {
+      if (type === CleanerType.RecycleBin && protectRecycleBin) continue
       try {
         setPhaseLabel(t('phaseLabelScanningType', { type }))
         const results = await scan()
@@ -230,7 +233,7 @@ export function DashboardPage() {
       }
     }
     return { space: totalSpace, files: totalFiles }
-  }, [scanStore.excludedSubcategories, t])
+  }, [scanStore.excludedSubcategories, protectRecycleBin, t])
 
   const runRegistry = useCallback(async (): Promise<number> => {
     try {

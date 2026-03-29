@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Verwalten Sie Ihre Cloud-Verbindung und Geräteeinstellungen",
   "sectionCleaningPreferences": "Bereinigungseinstellungen",
+  "protectRecycleBinLabel": "Papierkorb schützen",
+  "protectRecycleBinDesc": "Den Papierkorb bei der Bereinigung überspringen, damit versehentlich gelöschte Dateien wiederhergestellt werden können",
   "secureDeleteLabel": "Sicheres Löschen (langsamer)",
   "secureDeleteDesc": "Dateien vor dem Löschen überschreiben, um sensible Daten zu schützen (langsamer)",
   "closeBrowsersLabel": "Browser vor der Bereinigung schließen",

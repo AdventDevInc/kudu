@@ -23,6 +23,7 @@ describe('settings-store', () => {
           secureDelete: false,
           closeBrowsersBeforeClean: false,
           createRestorePoint: false,
+          protectRecycleBin: true,
         },
         exclusions: [],
         schedule: {

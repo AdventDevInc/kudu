@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Gestionați conexiunea la cloud și setările dispozitivului",
   "sectionCleaningPreferences": "Preferințe de curățare",
+  "protectRecycleBinLabel": "Protejează Coșul de reciclare",
+  "protectRecycleBinDesc": "Omite Coșul de reciclare în timpul curățării, astfel încât fișierele șterse accidental să poată fi recuperate",
   "secureDeleteLabel": "Ștergere securizată (mai lentă)",
   "secureDeleteDesc": "Suprascrieți fișierele înainte de ștergere pentru date sensibile (mai lent)",
   "closeBrowsersLabel": "Închide browserele înainte de curățare",

@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "클라우드 연결 및 장치 설정을 관리합니다",
   "sectionCleaningPreferences": "정리 기본 설정",
+  "protectRecycleBinLabel": "휴지통 보호",
+  "protectRecycleBinDesc": "정리 중 휴지통을 건너뛰어 실수로 삭제한 파일을 복구할 수 있도록 합니다",
   "secureDeleteLabel": "보안 삭제(느림)",
   "secureDeleteDesc": "민감한 데이터를 위해 삭제 전에 파일을 덮어씁니다(느림)",
   "closeBrowsersLabel": "정리 전에 브라우저 닫기",

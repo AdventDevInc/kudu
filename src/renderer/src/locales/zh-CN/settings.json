@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "管理您的云连接和设备设置",
   "sectionCleaningPreferences": "清理首选项",
+  "protectRecycleBinLabel": "保护回收站",
+  "protectRecycleBinDesc": "清理时跳过回收站，以便误删的文件仍可恢复",
   "secureDeleteLabel": "安全删除（较慢）",
   "secureDeleteDesc": "删除前覆盖文件以保护敏感数据（较慢）",
   "closeBrowsersLabel": "清理前关闭浏览器",

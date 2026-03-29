@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Administre su conexión a la nube y la configuración del dispositivo",
   "sectionCleaningPreferences": "Preferencias de limpieza",
+  "protectRecycleBinLabel": "Proteger la Papelera de reciclaje",
+  "protectRecycleBinDesc": "Omitir la Papelera de reciclaje durante la limpieza para poder recuperar los archivos eliminados accidentalmente",
   "secureDeleteLabel": "Eliminación segura (más lenta)",
   "secureDeleteDesc": "Sobrescribir los archivos antes de eliminarlos para datos confidenciales (más lento)",
   "closeBrowsersLabel": "Cerrar navegadores antes de limpiar",

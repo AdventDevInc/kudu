@@ -28,6 +28,8 @@
   "cloudLinkedCardTitle": "Kudu Cloud",
   "cloudLinkedCardDesc": "Urus sambungan cloud dan tetapan peranti anda",
   "sectionCleaningPreferences": "Keutamaan Pembersihan",
+  "protectRecycleBinLabel": "Lindungi Tong Kitar Semula",
+  "protectRecycleBinDesc": "Langkau Tong Kitar Semula semasa pembersihan supaya fail yang tidak sengaja dipadam masih boleh dipulihkan",
   "secureDeleteLabel": "Pemadaman selamat (lebih perlahan)",
   "secureDeleteDesc": "Tulis ganti fail sebelum pemadaman untuk data sensitif (lebih perlahan)",
   "closeBrowsersLabel": "Tutup pelayar sebelum pembersihan",
