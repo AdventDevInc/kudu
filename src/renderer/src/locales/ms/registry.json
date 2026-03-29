@@ -13,7 +13,7 @@
   "fixingEntries": "Membaiki entri...",
   "fixProgressCounter": "{{current}} / {{total}}",
   "creatingBackup": "Mencipta sandaran...",
-  "fixedEntries": "Membaiki {{count}} entri",
+  "fixedEntries": "{{count}} entri dibaiki",
   "failedCount": "{{count}} gagal",
   "failedHideDetails": "sembunyikan butiran",
   "failedShowDetails": "tunjukkan butiran",
@@ -27,11 +27,11 @@
   "cardPerformance": "Prestasi",
   "cardPerformanceDescription": "Pengoptimuman SysMain (Superfetch)",
   "cardNetwork": "Rangkaian",
-  "cardNetworkDescription": "Auto-proksi LLMNR dan WPAD — vektor serangan yang lazim",
+  "cardNetworkDescription": "Auto-proksi LLMNR dan WPAD — vektor serangan yang biasa",
   "cardServices": "Perkhidmatan",
   "cardServicesDescription": "Audit perkhidmatan Print Spooler dan Fax",
   "cardScheduledTasks": "Tugas Berjadual",
-  "cardScheduledTasksDescription": "Tugas yatim, pengumpul telemetry dan tugas kemas kini pihak ketiga",
+  "cardScheduledTasksDescription": "Tugas yatim, pengumpul telemetri dan tugas kemas kini pihak ketiga",
   "allClear": "Semua baik",
   "issueCount": "{{count}} isu",
   "issueCountPlural": "{{count}} isu",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Tugas",
   "riskLow": "Rendah",
   "riskMedium": "Sederhana",
-  "riskHigh": "Tinggi"
+  "riskHigh": "Tinggi",
+  "cancelButton": "Henti"
 }

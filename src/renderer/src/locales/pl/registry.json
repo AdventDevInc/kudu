@@ -27,12 +27,12 @@
   "cardPerformance": "Wydajność",
   "cardPerformanceDescription": "Optymalizacja SysMain (Superfetch)",
   "cardNetwork": "Sieć",
-  "cardNetworkDescription": "Automatyczny serwer proxy LLMNR i WPAD — częste wektory ataku",
+  "cardNetworkDescription": "LLMNR i automatyczny serwer proxy WPAD — typowe wektory ataku",
   "cardServices": "Usługi",
   "cardServicesDescription": "Inspekcja usługi Bufor wydruku i usługi Faks",
   "cardScheduledTasks": "Zaplanowane zadania",
   "cardScheduledTasksDescription": "Osierocone zadania, moduły zbierania telemetrii i zadania aktualizacji innych firm",
-  "allClear": "Wszystko w porządku",
+  "allClear": "Brak problemów",
   "issueCount": "{{count}} problem",
   "issueCountPlural": "{{count}} problemy",
   "highRisk": "{{count}} wysokiego ryzyka",
@@ -43,7 +43,7 @@
   "confirmFixLabel": "Napraw zaznaczone",
   "toastScanFailed": "Skanowanie rejestru nie powiodło się",
   "toastScanFailedDescription": "Upewnij się, że aplikacja ma wystarczające uprawnienia",
-  "toastScanFailedError": "Nie udało się przeskanować rejestru. Upewnij się, że aplikacja jest uruchomiona z wystarczającymi uprawnieniami.",
+  "toastScanFailedError": "Nie udało się przeskanować rejestru. Upewnij się, że aplikacja działa z wystarczającymi uprawnieniami.",
   "toastFixFailed": "Naprawa rejestru nie powiodła się",
   "toastFixFailedDescription": "Niektóre wpisy mogą wymagać uprawnień administratora",
   "toastFixFailedError": "Nie udało się naprawić wpisów rejestru. Niektóre wpisy mogą wymagać uprawnień administratora.",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Zadanie",
   "riskLow": "Niskie",
   "riskMedium": "Średnie",
-  "riskHigh": "Wysokie"
+  "riskHigh": "Wysokie",
+  "cancelButton": "Zatrzymaj"
 }

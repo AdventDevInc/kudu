@@ -9,7 +9,7 @@
   "fixButton": "Javítás ({{count}})",
   "advancedFeatureLabel": "Speciális funkció",
   "advancedFeatureDescription": "A módosítások előtt biztonsági mentés készül a rendszerleíró adatbázisról (.reg).",
-  "scanProgressText": "A rendszerleíró adatbázis vizsgálata...",
+  "scanProgressText": "Rendszerleíró adatbázis vizsgálata...",
   "fixingEntries": "Bejegyzések javítása...",
   "fixProgressCounter": "{{current}} / {{total}}",
   "creatingBackup": "Biztonsági mentés készítése...",
@@ -18,7 +18,7 @@
   "failedHideDetails": "részletek elrejtése",
   "failedShowDetails": "részletek megjelenítése",
   "emptyStateTitle": "Nem találhatók problémák a rendszerleíró adatbázisban",
-  "emptyStateDescription": "Keressen hibás rendszerleíró bejegyzéseket és rendszerbiztonsági megerősítési lehetőségeket.",
+  "emptyStateDescription": "Keressen hibás rendszerleíró bejegyzéseket és rendszerbiztonsági fejlesztési lehetőségeket.",
   "startScan": "Vizsgálat indítása",
   "cardRegistryCleanup": "Rendszerleíró adatbázis tisztítása",
   "cardRegistryCleanupDescription": "Hibás alkalmazásútvonalak, árva eltávolítási bejegyzések, érvénytelen fájltársítások és elavult hivatkozások",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Feladat",
   "riskLow": "Alacsony",
   "riskMedium": "Közepes",
-  "riskHigh": "Magas"
+  "riskHigh": "Magas",
+  "cancelButton": "Leállítás"
 }

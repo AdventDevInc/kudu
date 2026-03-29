@@ -1,6 +1,6 @@
 {
   "pageTitle": "Register en systeem",
-  "pageDescription": "Ruim beschadigde vermeldingen op en beveilig uw systeem beter",
+  "pageDescription": "Ruim beschadigde vermeldingen op en beveilig uw systeem",
   "pageHeaderUnavailableTitle": "Registeropschoner",
   "pageHeaderUnavailableDescription": "Scannen en herstellen van het Windows-register",
   "notAvailableTitle": "Niet beschikbaar",
@@ -18,10 +18,10 @@
   "failedHideDetails": "details verbergen",
   "failedShowDetails": "details weergeven",
   "emptyStateTitle": "Geen registerproblemen gevonden",
-  "emptyStateDescription": "Controleer op beschadigde registervermeldingen en mogelijkheden om het systeem beter te beveiligen.",
+  "emptyStateDescription": "Controleer op beschadigde registervermeldingen en mogelijkheden om het systeem te beveiligen.",
   "startScan": "Scan starten",
   "cardRegistryCleanup": "Registeropschoning",
-  "cardRegistryCleanupDescription": "Beschadigde app-paden, verweesde uninstall-vermeldingen, ongeldige bestandskoppelingen en verouderde verwijzingen",
+  "cardRegistryCleanupDescription": "Beschadigde app-paden, verweesde verwijderingsvermeldingen, ongeldige bestandskoppelingen en verouderde verwijzingen",
   "cardSecurity": "Beveiliging",
   "cardSecurityDescription": "UAC, Defender, firewall, RDP, SMBv1 en andere kritieke beveiligingsinstellingen",
   "cardPerformance": "Prestaties",
@@ -31,7 +31,7 @@
   "cardServices": "Services",
   "cardServicesDescription": "Controle van de services Print Spooler en Fax",
   "cardScheduledTasks": "Geplande taken",
-  "cardScheduledTasksDescription": "Verweesde taken, telemetry-verzamelaars en updatetaken van derden",
+  "cardScheduledTasksDescription": "Verweesde taken, telemetrieverzamelaars en updatetaken van derden",
   "allClear": "Alles in orde",
   "issueCount": "{{count}} probleem",
   "issueCountPlural": "{{count}} problemen",
@@ -39,7 +39,7 @@
   "mediumRisk": "{{count}} gemiddeld risico",
   "checksPassed": "{{passed}}/{{total}} controles geslaagd",
   "confirmFixTitle": "Registervermeldingen herstellen",
-  "confirmFixDescription": "Hiermee worden {{count}} registervermeldingen gewijzigd. Eerst wordt een back-up gemaakt.",
+  "confirmFixDescription": "Hiermee worden {{count}} registervermeldingen gewijzigd. Er wordt eerst een back-up gemaakt.",
   "confirmFixLabel": "Geselecteerde herstellen",
   "toastScanFailed": "Scannen van register mislukt",
   "toastScanFailedDescription": "Controleer of de app voldoende machtigingen heeft",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Taak",
   "riskLow": "Laag",
   "riskMedium": "Gemiddeld",
-  "riskHigh": "Hoog"
+  "riskHigh": "Hoog",
+  "cancelButton": "Stoppen"
 }

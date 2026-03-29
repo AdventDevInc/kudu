@@ -25,7 +25,7 @@
   "cardSecurity": "Güvenlik",
   "cardSecurityDescription": "UAC, Defender, güvenlik duvarı, RDP, SMBv1 ve diğer kritik güvenlik ayarları",
   "cardPerformance": "Performans",
-  "cardPerformanceDescription": "SysMain (Superfetch) iyileştirmesi",
+  "cardPerformanceDescription": "SysMain (Superfetch) optimizasyonu",
   "cardNetwork": "Ağ",
   "cardNetworkDescription": "LLMNR ve WPAD otomatik proxy — yaygın saldırı vektörleri",
   "cardServices": "Hizmetler",
@@ -44,7 +44,7 @@
   "toastScanFailed": "Kayıt defteri taraması başarısız oldu",
   "toastScanFailedDescription": "Uygulamanın yeterli izinlere sahip olduğundan emin olun",
   "toastScanFailedError": "Kayıt defteri taranamadı. Uygulamanın yeterli izinlerle çalıştığından emin olun.",
-  "toastFixFailed": "Kayıt defteri düzeltme işlemi başarısız oldu",
+  "toastFixFailed": "Kayıt defteri düzeltme başarısız oldu",
   "toastFixFailedDescription": "Bazı girdiler yönetici ayrıcalıkları gerektirebilir",
   "toastFixFailedError": "Kayıt defteri girdileri düzeltilemedi. Bazı girdiler yönetici ayrıcalıkları gerektirebilir.",
   "entryTypeObsolete": "Eski",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Görev",
   "riskLow": "Düşük",
   "riskMedium": "Orta",
-  "riskHigh": "Yüksek"
+  "riskHigh": "Yüksek",
+  "cancelButton": "Durdur"
 }

@@ -18,9 +18,9 @@
   "failedHideDetails": "ocultar detalles",
   "failedShowDetails": "mostrar detalles",
   "emptyStateTitle": "No se encontraron problemas en el registro",
-  "emptyStateDescription": "Compruebe si hay entradas del registro dañadas y oportunidades para reforzar el sistema.",
+  "emptyStateDescription": "Busque entradas del registro dañadas y oportunidades de refuerzo del sistema.",
   "startScan": "Iniciar análisis",
-  "cardRegistryCleanup": "Limpieza del registro",
+  "cardRegistryCleanup": "Limpieza del Registro",
   "cardRegistryCleanupDescription": "Rutas de aplicaciones dañadas, entradas de desinstalación huérfanas, asociaciones de archivos no válidas y referencias obsoletas",
   "cardSecurity": "Seguridad",
   "cardSecurityDescription": "UAC, Defender, firewall, RDP, SMBv1 y otras configuraciones de seguridad críticas",
@@ -29,7 +29,7 @@
   "cardNetwork": "Red",
   "cardNetworkDescription": "Proxy automático LLMNR y WPAD: vectores de ataque comunes",
   "cardServices": "Servicios",
-  "cardServicesDescription": "Auditoría del servicio Cola de impresión y del servicio Fax",
+  "cardServicesDescription": "Auditoría de los servicios Cola de impresión y Fax",
   "cardScheduledTasks": "Tareas programadas",
   "cardScheduledTasksDescription": "Tareas huérfanas, recopiladores de telemetría y tareas de actualización de terceros",
   "allClear": "Todo correcto",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Tarea",
   "riskLow": "Bajo",
   "riskMedium": "Medio",
-  "riskHigh": "Alto"
+  "riskHigh": "Alto",
+  "cancelButton": "Detener"
 }

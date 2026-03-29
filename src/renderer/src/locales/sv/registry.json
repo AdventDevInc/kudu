@@ -1,10 +1,10 @@
 {
   "pageTitle": "Register och system",
   "pageDescription": "Rensa trasiga poster och förstärk ditt system",
-  "pageHeaderUnavailableTitle": "Registerrensning",
+  "pageHeaderUnavailableTitle": "Registerrensare",
   "pageHeaderUnavailableDescription": "Skanning och reparation av Windows-registret",
   "notAvailableTitle": "Inte tillgängligt",
-  "notAvailableDescription": "Registerrensning är endast tillgängligt på Windows",
+  "notAvailableDescription": "Registerrensning är endast tillgänglig på Windows",
   "scanButton": "Skanna",
   "fixButton": "Åtgärda ({{count}})",
   "advancedFeatureLabel": "Avancerad funktion",
@@ -18,7 +18,7 @@
   "failedHideDetails": "dölj detaljer",
   "failedShowDetails": "visa detaljer",
   "emptyStateTitle": "Inga registerproblem hittades",
-  "emptyStateDescription": "Kontrollera om det finns trasiga registerposter och möjligheter att förstärka systemet.",
+  "emptyStateDescription": "Sök efter trasiga registerposter och möjligheter att förstärka systemet.",
   "startScan": "Starta skanning",
   "cardRegistryCleanup": "Registerrensning",
   "cardRegistryCleanupDescription": "Trasiga appsökvägar, övergivna avinstallationsposter, ogiltiga filassociationer och inaktuella referenser",
@@ -31,7 +31,7 @@
   "cardServices": "Tjänster",
   "cardServicesDescription": "Granskning av tjänsterna Print Spooler och Fax",
   "cardScheduledTasks": "Schemalagda aktiviteter",
-  "cardScheduledTasksDescription": "Övergivna aktiviteter, telemetriinsamlingar och uppdateringsaktiviteter från tredje part",
+  "cardScheduledTasksDescription": "Övergivna aktiviteter, telemetriinsamlare och uppdateringsaktiviteter från tredje part",
   "allClear": "Allt ser bra ut",
   "issueCount": "{{count}} problem",
   "issueCountPlural": "{{count}} problem",
@@ -40,7 +40,7 @@
   "checksPassed": "{{passed}}/{{total}} kontroller godkända",
   "confirmFixTitle": "Åtgärda registerposter",
   "confirmFixDescription": "Detta kommer att ändra {{count}} registerposter. En säkerhetskopia skapas först.",
-  "confirmFixLabel": "Åtgärda valda",
+  "confirmFixLabel": "Åtgärda markerade",
   "toastScanFailed": "Registerskanning misslyckades",
   "toastScanFailedDescription": "Kontrollera att appen har tillräckliga behörigheter",
   "toastScanFailedError": "Det gick inte att skanna registret. Kontrollera att appen körs med tillräckliga behörigheter.",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Aktivitet",
   "riskLow": "Låg",
   "riskMedium": "Medel",
-  "riskHigh": "Hög"
+  "riskHigh": "Hög",
+  "cancelButton": "Stoppa"
 }

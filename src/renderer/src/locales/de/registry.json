@@ -1,10 +1,10 @@
 {
   "pageTitle": "Registrierung & System",
   "pageDescription": "Beschädigte Einträge bereinigen und Ihr System absichern",
-  "pageHeaderUnavailableTitle": "Registrierungsbereinigung",
-  "pageHeaderUnavailableDescription": "Scannen und Reparieren der Windows-Registrierung",
+  "pageHeaderUnavailableTitle": "Registrierungsreiniger",
+  "pageHeaderUnavailableDescription": "Windows-Registrierung scannen und reparieren",
   "notAvailableTitle": "Nicht verfügbar",
-  "notAvailableDescription": "Die Registrierungsbereinigung ist nur unter Windows verfügbar",
+  "notAvailableDescription": "Die Bereinigung der Registrierung ist nur unter Windows verfügbar",
   "scanButton": "Scannen",
   "fixButton": "Beheben ({{count}})",
   "advancedFeatureLabel": "Erweiterte Funktion",
@@ -23,13 +23,13 @@
   "cardRegistryCleanup": "Registrierungsbereinigung",
   "cardRegistryCleanupDescription": "Beschädigte App-Pfade, verwaiste Deinstallationseinträge, ungültige Dateizuordnungen und veraltete Verweise",
   "cardSecurity": "Sicherheit",
-  "cardSecurityDescription": "UAC, Defender, Firewall, RDP, SMBv1 und andere kritische Sicherheitseinstellungen",
+  "cardSecurityDescription": "UAC, Defender, Firewall, RDP, SMBv1 und andere wichtige Sicherheitseinstellungen",
   "cardPerformance": "Leistung",
   "cardPerformanceDescription": "Optimierung von SysMain (Superfetch)",
   "cardNetwork": "Netzwerk",
-  "cardNetworkDescription": "LLMNR und WPAD-Auto-Proxy — häufige Angriffsvektoren",
+  "cardNetworkDescription": "LLMNR und WPAD Auto-Proxy — häufige Angriffsvektoren",
   "cardServices": "Dienste",
-  "cardServicesDescription": "Überprüfung des Druckwarteschlangen- und Faxdiensts",
+  "cardServicesDescription": "Überprüfung von Druckwarteschlange und Fax-Dienst",
   "cardScheduledTasks": "Geplante Aufgaben",
   "cardScheduledTasksDescription": "Verwaiste Aufgaben, Telemetriesammler und Update-Aufgaben von Drittanbietern",
   "allClear": "Alles in Ordnung",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Aufgabe",
   "riskLow": "Niedrig",
   "riskMedium": "Mittel",
-  "riskHigh": "Hoch"
+  "riskHigh": "Hoch",
+  "cancelButton": "Stopp"
 }

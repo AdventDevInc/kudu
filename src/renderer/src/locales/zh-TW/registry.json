@@ -14,7 +14,7 @@
   "fixProgressCounter": "{{current}} / {{total}}",
   "creatingBackup": "正在建立備份...",
   "fixedEntries": "已修復 {{count}} 個項目",
-  "failedCount": "{{count}} 個失敗",
+  "failedCount": "{{count}} 項失敗",
   "failedHideDetails": "隱藏詳細資料",
   "failedShowDetails": "顯示詳細資料",
   "emptyStateTitle": "未發現登錄檔問題",
@@ -58,5 +58,6 @@
   "entryTypeTask": "工作",
   "riskLow": "低",
   "riskMedium": "中",
-  "riskHigh": "高"
+  "riskHigh": "高",
+  "cancelButton": "停止"
 }

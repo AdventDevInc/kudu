@@ -1,6 +1,6 @@
 {
   "pageTitle": "Реестр и система",
-  "pageDescription": "Очистите повреждённые записи и повысьте безопасность системы",
+  "pageDescription": "Очистите повреждённые записи и повысьте защищённость системы",
   "pageHeaderUnavailableTitle": "Очистка реестра",
   "pageHeaderUnavailableDescription": "Сканирование и восстановление реестра Windows",
   "notAvailableTitle": "Недоступно",
@@ -17,7 +17,7 @@
   "failedCount": "Не удалось: {{count}}",
   "failedHideDetails": "скрыть подробности",
   "failedShowDetails": "показать подробности",
-  "emptyStateTitle": "Проблемы в реестре не найдены",
+  "emptyStateTitle": "Проблемы реестра не найдены",
   "emptyStateDescription": "Проверьте наличие повреждённых записей реестра и возможностей для усиления защиты системы.",
   "startScan": "Начать сканирование",
   "cardRegistryCleanup": "Очистка реестра",
@@ -35,8 +35,8 @@
   "allClear": "Всё в порядке",
   "issueCount": "{{count}} проблема",
   "issueCountPlural": "{{count}} проблем",
-  "highRisk": "{{count}} высокого риска",
-  "mediumRisk": "{{count}} среднего риска",
+  "highRisk": "{{count}} с высоким риском",
+  "mediumRisk": "{{count}} со средним риском",
   "checksPassed": "Проверок пройдено: {{passed}}/{{total}}",
   "confirmFixTitle": "Исправление записей реестра",
   "confirmFixDescription": "Будет изменено {{count}} записей реестра. Сначала будет создана резервная копия.",
@@ -44,7 +44,7 @@
   "toastScanFailed": "Не удалось выполнить сканирование реестра",
   "toastScanFailedDescription": "Убедитесь, что у приложения достаточно прав",
   "toastScanFailedError": "Не удалось выполнить сканирование реестра. Убедитесь, что приложение запущено с достаточными правами.",
-  "toastFixFailed": "Не удалось исправить записи реестра",
+  "toastFixFailed": "Не удалось исправить реестр",
   "toastFixFailedDescription": "Для некоторых записей могут потребоваться права администратора",
   "toastFixFailedError": "Не удалось исправить записи реестра. Для некоторых записей могут потребоваться права администратора.",
   "entryTypeObsolete": "Устаревшая",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Задание",
   "riskLow": "Низкий",
   "riskMedium": "Средний",
-  "riskHigh": "Высокий"
+  "riskHigh": "Высокий",
+  "cancelButton": "Остановить"
 }

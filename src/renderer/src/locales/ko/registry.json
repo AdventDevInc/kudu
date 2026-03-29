@@ -8,7 +8,7 @@
   "scanButton": "검사",
   "fixButton": "수정 ({{count}})",
   "advancedFeatureLabel": "고급 기능",
-  "advancedFeatureDescription": "변경하기 전에 레지스트리 백업(.reg)이 생성됩니다.",
+  "advancedFeatureDescription": "수정 작업 전에 레지스트리 백업(.reg)이 생성됩니다.",
   "scanProgressText": "레지스트리 검사 중...",
   "fixingEntries": "항목 수정 중...",
   "fixProgressCounter": "{{current}} / {{total}}",
@@ -16,9 +16,9 @@
   "fixedEntries": "{{count}}개 항목 수정됨",
   "failedCount": "{{count}}개 실패",
   "failedHideDetails": "세부 정보 숨기기",
-  "failedShowDetails": "세부 정보 표시",
-  "emptyStateTitle": "레지스트리 문제가 발견되지 않았습니다",
-  "emptyStateDescription": "손상된 레지스트리 항목과 시스템 보안 강화 기회를 확인하세요.",
+  "failedShowDetails": "세부 정보 보기",
+  "emptyStateTitle": "레지스트리 문제를 찾지 못했습니다",
+  "emptyStateDescription": "손상된 레지스트리 항목과 시스템 보안 강화 항목을 확인하세요.",
   "startScan": "검사 시작",
   "cardRegistryCleanup": "레지스트리 정리",
   "cardRegistryCleanupDescription": "손상된 앱 경로, 고아 제거 항목, 잘못된 파일 연결 및 오래된 참조",
@@ -31,7 +31,7 @@
   "cardServices": "서비스",
   "cardServicesDescription": "Print Spooler 및 Fax 서비스 감사",
   "cardScheduledTasks": "예약된 작업",
-  "cardScheduledTasksDescription": "고아 작업, telemetry 수집기 및 타사 업데이트 작업",
+  "cardScheduledTasksDescription": "고아 작업, 텔레메트리 수집기 및 타사 업데이트 작업",
   "allClear": "문제 없음",
   "issueCount": "{{count}}개 문제",
   "issueCountPlural": "{{count}}개 문제",
@@ -58,5 +58,6 @@
   "entryTypeTask": "작업",
   "riskLow": "낮음",
   "riskMedium": "중간",
-  "riskHigh": "높음"
+  "riskHigh": "높음",
+  "cancelButton": "중지"
 }

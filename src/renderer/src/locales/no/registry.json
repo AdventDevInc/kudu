@@ -41,7 +41,7 @@
   "confirmFixTitle": "Reparer registeroppføringer",
   "confirmFixDescription": "Dette vil endre {{count}} registeroppføringer. Det opprettes først en sikkerhetskopi.",
   "confirmFixLabel": "Reparer valgte",
-  "toastScanFailed": "Registerskanning mislyktes",
+  "toastScanFailed": "Registersøk mislyktes",
   "toastScanFailedDescription": "Kontroller at appen har tilstrekkelige tillatelser",
   "toastScanFailedError": "Kunne ikke skanne registeret. Kontroller at appen kjører med tilstrekkelige tillatelser.",
   "toastFixFailed": "Registerreparasjon mislyktes",
@@ -58,5 +58,6 @@
   "entryTypeTask": "Oppgave",
   "riskLow": "Lav",
   "riskMedium": "Middels",
-  "riskHigh": "Høy"
+  "riskHigh": "Høy",
+  "cancelButton": "Stopp"
 }
