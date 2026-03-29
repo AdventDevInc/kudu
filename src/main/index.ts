@@ -52,11 +52,12 @@ if (dataDirFlag) {
 // ─── Root detection (macOS + Linux) ─────────────────────────
 // Chromium refuses to run as root without --no-sandbox.  Also required
 // on macOS for clipboard access (paste) in the elevated process.
-if (
+const isRoot =
   (process.platform === 'linux' || process.platform === 'darwin') &&
   typeof process.getuid === 'function' &&
   process.getuid() === 0
-) {
+
+if (isRoot) {
   app.commandLine.appendSwitch('no-sandbox')
 }
 
@@ -319,7 +320,11 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true
+      // Chromium's renderer sandbox uses Linux namespaces that fail
+      // when running as root (e.g. after pkexec relaunch).  The
+      // --no-sandbox switch only covers the browser/GPU processes;
+      // this flag must also be false to prevent a blank grey window.
+      sandbox: !isRoot
     }
   })
 
