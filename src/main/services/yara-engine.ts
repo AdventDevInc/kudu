@@ -64,11 +64,13 @@ export class YaraEngine {
 
   /**
    * Compile YARA rules from file paths and/or raw source strings.
-   * Rules are compiled once — subsequent scan() calls are fast.
    *
-   * Compilation is chunked with event-loop yields so the main process
-   * stays responsive (each addRuleFile takes ~5-8ms, and with 1400+
-   * files this would otherwise block the UI for 10+ seconds).
+   * Strategy: concatenate all sources and compile in a single call (~2s).
+   * If that fails (bad rule syntax), fall back to per-file validation to
+   * find and exclude the broken files, then compile the rest.
+   *
+   * This is ~240x faster than calling addRuleFile() per file, because
+   * addRuleFile recompiles the entire accumulated ruleset on every call.
    *
    * @param onProgress Optional callback fired with (loaded, total) counts
    */
@@ -81,39 +83,76 @@ export class YaraEngine {
       return { loaded: 0, errors: ['YARA engine not initialized'] }
     }
 
+    const yarax: YaraXModule = require('@litko/yara-x')
     const errors: string[] = []
-    let loaded = 0
     const total = ruleFilePaths.length + extraSources.length
-    const CHUNK_SIZE = 5 // yield to event loop every N files (~35ms per chunk)
 
-    // Load from file paths in chunks
-    for (let i = 0; i < ruleFilePaths.length; i++) {
+    // Read all sources
+    onProgress?.(0, total)
+    const sources: { name: string; content: string }[] = []
+    for (const filePath of ruleFilePaths) {
       try {
-        this._scanner.addRuleFile(ruleFilePaths[i])
-        loaded++
+        sources.push({ name: basename(filePath), content: readFileSync(filePath, 'utf-8') })
       } catch (err) {
-        errors.push(`${basename(ruleFilePaths[i])}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+        errors.push(`${basename(filePath)}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
       }
-      // Yield to the event loop periodically so the UI stays responsive
-      if ((i + 1) % CHUNK_SIZE === 0) {
-        onProgress?.(loaded, total)
+    }
+    for (let i = 0; i < extraSources.length; i++) {
+      sources.push({ name: `source-${i}`, content: extraSources[i] })
+    }
+
+    if (sources.length === 0) {
+      this._rulesLoaded = 0
+      return { loaded: 0, errors }
+    }
+
+    // Try fast path: compile everything in one call (~2s for 1400 files)
+    const combined = sources.map(s => s.content).join('\n')
+    try {
+      onProgress?.(Math.floor(total * 0.5), total)
+      await new Promise(resolve => setImmediate(resolve))
+      this._scanner = yarax.compile(combined)
+      this._rulesLoaded = sources.length
+      onProgress?.(total, total)
+      return { loaded: sources.length, errors }
+    } catch {
+      // Fast path failed — some rule has bad syntax. Fall back to per-file
+      // validation to find and exclude broken files.
+      console.warn('[yara] Bulk compile failed, falling back to per-file validation...')
+    }
+
+    // Slow path: validate each file individually, exclude broken ones
+    const validSources: string[] = []
+    for (let i = 0; i < sources.length; i++) {
+      try {
+        yarax.compile(sources[i].content)
+        validSources.push(sources[i].content)
+      } catch (err) {
+        errors.push(`${sources[i].name}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+      }
+      if ((i + 1) % 20 === 0) {
+        onProgress?.(i + 1, total)
         await new Promise(resolve => setImmediate(resolve))
       }
     }
 
-    // Load from source strings
-    for (const source of extraSources) {
-      try {
-        this._scanner.addRuleSource(source)
-        loaded++
-      } catch (err) {
-        errors.push(`source: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
-      }
+    if (validSources.length === 0) {
+      this._rulesLoaded = 0
+      return { loaded: 0, errors }
     }
 
-    onProgress?.(loaded, total)
-    this._rulesLoaded = loaded
-    return { loaded, errors }
+    // Compile the valid rules
+    try {
+      onProgress?.(total, total)
+      this._scanner = yarax.compile(validSources.join('\n'))
+    } catch (err) {
+      errors.push(`Final compile: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+      this._rulesLoaded = 0
+      return { loaded: 0, errors }
+    }
+
+    this._rulesLoaded = validSources.length
+    return { loaded: validSources.length, errors }
   }
 
   get rulesLoaded(): number {
