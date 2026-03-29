@@ -3103,7 +3103,8 @@ class CloudAgentService {
       }
       if (app.isPackaged) {
         const host = parsed.hostname.toLowerCase()
-        if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1' || host === '0.0.0.0') {
+        // IPv4 loopback and private ranges
+        if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
           await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
           return
         }
@@ -3112,6 +3113,16 @@ class CloudAgentService {
           return
         }
         if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
+          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          return
+        }
+        // IPv6 loopback, private, and link-local ranges
+        const bare = host.replace(/^\[|\]$/g, '')
+        if (bare === '::1' || bare.startsWith('fc') || bare.startsWith('fd')
+          || bare.startsWith('fe8') || bare.startsWith('fe9') || bare.startsWith('fea') || bare.startsWith('feb')
+          || bare.startsWith('::ffff:127.') || bare.startsWith('::ffff:10.')
+          || bare.startsWith('::ffff:192.168.') || bare.startsWith('::ffff:169.254.')
+          || /^::ffff:172\.(1[6-9]|2\d|3[01])\./.test(bare)) {
           await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
           return
         }

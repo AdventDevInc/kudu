@@ -58,7 +58,7 @@ async function main() {
 
   // Verify integrity if sha256 is present
   if (body.sha256) {
-    const sorted = [...body.rules].sort((a, b) => a.filename.localeCompare(b.filename))
+    const sorted = [...body.rules].sort((a, b) => a.filename < b.filename ? -1 : a.filename > b.filename ? 1 : 0)
     const combined = sorted.map(r => r.content).join('')
     const computed = createHash('sha256').update(combined).digest('hex')
     if (computed !== body.sha256) {
