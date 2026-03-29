@@ -14,114 +14,89 @@ export interface YaraMatch {
   matchedStrings: string[]
 }
 
-/** Embind vector — iterable via .size() and .get(i) */
-interface EmbindVector<T> {
-  size(): number
-  get(i: number): T
+/** Result shape from @litko/yara-x scan() */
+interface YaraXMatch {
+  ruleIdentifier: string
+  namespace: string
+  meta: Record<string, string>
+  tags: string[]
+  matches: { offset: number; length: number; data: string; identifier: string }[]
 }
 
-interface LibYaraResult {
-  matchedRules: EmbindVector<{
-    ruleName: string
-    metadata: EmbindVector<{ identifier: string; data: string }>
-    resolvedMatches: EmbindVector<{ location: number; matchLength: number; data: string }>
-  }>
-  compileErrors: EmbindVector<{ message: string; lineNumber: number; warning: boolean }>
-  consoleLogs: EmbindVector<string>
+/** @litko/yara-x scanner instance — rules compiled once, scan many times */
+interface YaraXScanner {
+  addRuleSource(source: string): void
+  addRuleFile(path: string): void
+  scan(data: Buffer): YaraXMatch[]
+  scanFile(path: string): YaraXMatch[]
+  scanAsync(data: Buffer): Promise<YaraXMatch[]>
+  scanFileAsync(path: string): Promise<YaraXMatch[]>
+  getWarnings(): string[]
 }
 
-interface LibYaraModule {
-  run(data: string | Uint8Array, rules: string): LibYaraResult
+interface YaraXModule {
+  create(): YaraXScanner
 }
 
 // ─── Engine ──────────────────────────────────────────────────
 
 export class YaraEngine {
-  private _module: LibYaraModule | null = null
-  private _compiledRules: string = ''
+  private _scanner: YaraXScanner | null = null
   private _ready = false
   private _rulesLoaded = 0
 
-  /** Load the WASM module. Call once before scanning. */
+  /** Create the scanner instance. Call once before loading rules. */
   async initialize(): Promise<void> {
     try {
-      // libyara-wasm exports a factory that returns a ready promise
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const initYara = require('libyara-wasm')
-      this._module = await initYara()
+      const yarax: YaraXModule = require('@litko/yara-x')
+      this._scanner = yarax.create()
       this._ready = true
     } catch (err) {
-      console.warn('[yara] WASM initialization failed:', err)
+      console.warn('[yara] @litko/yara-x initialization failed:', err)
       this._ready = false
       throw err
     }
   }
 
   isReady(): boolean {
-    return this._ready && this._module !== null
+    return this._ready && this._scanner !== null
   }
 
   /**
-   * Load YARA rules from file paths and/or raw source strings.
-   * Returns the number of rules that compiled successfully and any errors.
+   * Compile YARA rules from file paths and/or raw source strings.
+   * Rules are compiled once — subsequent scan() calls are fast.
+   * Returns the number of rules loaded and any errors.
    */
   loadRules(ruleFilePaths: string[], extraSources: string[] = []): { loaded: number; errors: string[] } {
-    if (!this._module) {
+    if (!this._scanner) {
       return { loaded: 0, errors: ['YARA engine not initialized'] }
     }
 
     const errors: string[] = []
-    const ruleSources: string[] = []
+    let loaded = 0
 
+    // Load from file paths
     for (const filePath of ruleFilePaths) {
       try {
-        const source = readFileSync(filePath, 'utf-8')
-        ruleSources.push(`// File: ${basename(filePath)}\n${source}`)
+        this._scanner.addRuleFile(filePath)
+        loaded++
       } catch (err) {
-        errors.push(`Failed to read ${basename(filePath)}: ${err instanceof Error ? err.message : String(err)}`)
+        errors.push(`${basename(filePath)}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
       }
     }
 
-    // Append cloud / in-memory rule sources
+    // Load from source strings
     for (const source of extraSources) {
-      ruleSources.push(source)
-    }
-
-    if (ruleSources.length === 0) {
-      this._compiledRules = ''
-      this._rulesLoaded = 0
-      return { loaded: 0, errors }
-    }
-
-    // Concatenate all rules and test-compile them to check for errors
-    const combined = ruleSources.join('\n\n')
-    const testResult = this._module.run('', combined)
-    const compileErrors = testResult.compileErrors
-
-    let nonWarningErrors = 0
-    for (let i = 0; i < compileErrors.size(); i++) {
-      const e = compileErrors.get(i)
-      if (!e.warning) {
-        errors.push(`Compile error (line ${e.lineNumber}): ${e.message}`)
-        nonWarningErrors++
+      try {
+        this._scanner.addRuleSource(source)
+        loaded++
+      } catch (err) {
+        errors.push(`source: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
       }
     }
 
-    // Count rule declarations in source text
-    const ruleCount = (combined.match(/^\s*rule\s+\w+/gm) || []).length
-
-    // If every rule had a compile error, nothing actually compiled — report 0
-    if (nonWarningErrors > 0 && nonWarningErrors >= ruleCount) {
-      this._compiledRules = ''
-      this._rulesLoaded = 0
-      return { loaded: 0, errors }
-    }
-
-    // Even with partial errors, YARA uses what it can.
-    this._compiledRules = combined
-    this._rulesLoaded = ruleCount
-
-    return { loaded: ruleCount, errors }
+    this._rulesLoaded = loaded
+    return { loaded, errors }
   }
 
   get rulesLoaded(): number {
@@ -129,60 +104,52 @@ export class YaraEngine {
   }
 
   /**
-   * Scan a single buffer against loaded YARA rules.
+   * Scan a buffer against all compiled rules.
+   * Fast — rules are already compiled, only pattern matching runs.
    */
   scanBuffer(buffer: Buffer): YaraMatch[] {
-    if (!this._module || !this._compiledRules) return []
+    if (!this._scanner) return []
 
     try {
-      const result = this._module.run(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength), this._compiledRules)
-      return this._parseMatches(result)
+      const results = this._scanner.scan(buffer)
+      return results.map(r => this._convertMatch(r))
     } catch (err) {
       console.warn('[yara] Scan error:', err)
       return []
     }
   }
 
-  private _parseMatches(result: LibYaraResult): YaraMatch[] {
-    const matches: YaraMatch[] = []
-    const matchedRules = result.matchedRules
+  /**
+   * Scan a file directly from disk (avoids reading into JS memory).
+   */
+  scanFile(filePath: string): YaraMatch[] {
+    if (!this._scanner) return []
 
-    for (let i = 0; i < matchedRules.size(); i++) {
-      const rule = matchedRules.get(i)
-
-      // Parse metadata into a typed map
-      const metadata: YaraMatch['metadata'] = {}
-      const meta = rule.metadata
-      for (let j = 0; j < meta.size(); j++) {
-        const m = meta.get(j)
-        switch (m.identifier) {
-          case 'detectionName': metadata.detectionName = m.data; break
-          case 'severity': metadata.severity = m.data as YaraMatch['metadata']['severity']; break
-          case 'details': metadata.details = m.data; break
-          case 'filenameOnly': metadata.filenameOnly = m.data; break
-        }
-      }
-
-      // Collect matched strings
-      const matchedStrings: string[] = []
-      const resolved = rule.resolvedMatches
-      for (let j = 0; j < resolved.size(); j++) {
-        matchedStrings.push(resolved.get(j).data)
-      }
-
-      matches.push({
-        ruleName: rule.ruleName,
-        metadata,
-        matchedStrings,
-      })
+    try {
+      const results = this._scanner.scanFile(filePath)
+      return results.map(r => this._convertMatch(r))
+    } catch (err) {
+      console.warn('[yara] File scan error:', err)
+      return []
     }
+  }
 
-    return matches
+  private _convertMatch(r: YaraXMatch): YaraMatch {
+    const metadata: YaraMatch['metadata'] = {}
+    if (r.meta.detectionName) metadata.detectionName = r.meta.detectionName
+    if (r.meta.severity) metadata.severity = r.meta.severity as YaraMatch['metadata']['severity']
+    if (r.meta.details) metadata.details = r.meta.details
+    if (r.meta.filenameOnly) metadata.filenameOnly = r.meta.filenameOnly
+
+    return {
+      ruleName: r.ruleIdentifier,
+      metadata,
+      matchedStrings: r.matches.map(m => m.data),
+    }
   }
 
   dispose(): void {
-    this._module = null
-    this._compiledRules = ''
+    this._scanner = null
     this._ready = false
     this._rulesLoaded = 0
   }

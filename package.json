@@ -71,13 +71,13 @@
     "vitest": "^4.1.0"
   },
   "dependencies": {
+    "@litko/yara-x": "^0.5.0",
     "@tanstack/react-table": "^8.21.3",
     "better-sqlite3": "^12.8.0",
     "clsx": "^2.1.1",
     "electron-updater": "^6.8.3",
     "framer-motion": "^12.38.0",
     "i18next": "^25.9.0",
-    "libyara-wasm": "^1.2.1",
     "lucide-react": "^0.577.0",
     "pusher-js": "^8.4.0",
     "react-i18next": "^16.5.8",

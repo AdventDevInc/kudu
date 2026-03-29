@@ -109,14 +109,13 @@ describe('yaraMatchToThreatFields', () => {
   })
 })
 
-// ─── YARA rule parsing (integration-style, tests the WASM module) ──
+// ─── @litko/yara-x integration tests ────────────────────────────
 
-describe('libyara-wasm integration', () => {
-  it('matches a simple string rule', async () => {
-    const initYara = require('libyara-wasm')
-    const yara = await initYara()
-
-    const rules = `
+describe('@litko/yara-x integration', () => {
+  it('compiles rules and scans a matching buffer', () => {
+    const yarax = require('@litko/yara-x')
+    const scanner = yarax.create()
+    scanner.addRuleSource(`
 rule Test_Simple {
   meta:
     detectionName = "Test.Simple"
@@ -126,63 +125,50 @@ rule Test_Simple {
     $a = "malware_test" nocase
   condition:
     $a
-}`
-    const result = yara.run('this contains MALWARE_TEST data', rules)
-    expect(result.matchedRules.size()).toBe(1)
-    expect(result.matchedRules.get(0).ruleName).toBe('Test_Simple')
-
-    const meta = result.matchedRules.get(0).metadata
-    const metaMap: Record<string, string> = {}
-    for (let i = 0; i < meta.size(); i++) {
-      const m = meta.get(i)
-      metaMap[m.identifier] = m.data
-    }
-    expect(metaMap.detectionName).toBe('Test.Simple')
-    expect(metaMap.severity).toBe('medium')
+}`)
+    const results = scanner.scan(Buffer.from('this contains MALWARE_TEST data'))
+    expect(results.length).toBe(1)
+    expect(results[0].ruleIdentifier).toBe('Test_Simple')
+    expect(results[0].meta.detectionName).toBe('Test.Simple')
+    expect(results[0].meta.severity).toBe('medium')
   })
 
-  it('reports compile errors for invalid rules', async () => {
-    const initYara = require('libyara-wasm')
-    const yara = await initYara()
-
-    const result = yara.run('data', 'rule bad { invalid syntax here }')
-    expect(result.compileErrors.size()).toBeGreaterThan(0)
+  it('throws on invalid rule syntax', () => {
+    const yarax = require('@litko/yara-x')
+    const scanner = yarax.create()
+    expect(() => scanner.addRuleSource('rule bad { invalid syntax }')).toThrow()
   })
 
-  it('returns no matches for clean data', async () => {
-    const initYara = require('libyara-wasm')
-    const yara = await initYara()
-
-    const rules = `
-rule Test_NoMatch {
-  strings:
-    $a = "this_will_not_match_anything"
-  condition:
-    $a
-}`
-    const result = yara.run('clean file content', rules)
-    expect(result.matchedRules.size()).toBe(0)
+  it('returns empty array for clean data', () => {
+    const yarax = require('@litko/yara-x')
+    const scanner = yarax.create()
+    scanner.addRuleSource('rule NoMatch { strings: $a = "wontmatch" condition: $a }')
+    const results = scanner.scan(Buffer.from('clean file content'))
+    expect(results.length).toBe(0)
   })
 
-  it('supports hash module for SHA-256 matching', async () => {
-    const initYara = require('libyara-wasm')
-    const crypto = require('crypto')
-    const yara = await initYara()
+  it('preserves binary bytes correctly', () => {
+    const yarax = require('@litko/yara-x')
+    const scanner = yarax.create()
+    scanner.addRuleSource('rule HexPattern { strings: $h = { 4D 5A 90 00 } condition: $h }')
+    const pe = Buffer.from([0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00])
+    const results = scanner.scan(pe)
+    expect(results.length).toBe(1)
+  })
 
-    const testData = 'EICAR-STANDARD-ANTIVIRUS-TEST-FILE'
-    const hash = crypto.createHash('sha256').update(testData).digest('hex')
+  it('scans multiple times with compiled rules (no recompilation)', () => {
+    const yarax = require('@litko/yara-x')
+    const scanner = yarax.create()
+    scanner.addRuleSource('rule Multi { strings: $a = "target" condition: $a }')
 
-    const rules = `
-import "hash"
-rule Hash_Test {
-  meta:
-    detectionName = "Test.Hash"
-    severity = "low"
-  condition:
-    hash.sha256(0, filesize) == "${hash}"
-}`
-    const result = yara.run(testData, rules)
-    expect(result.matchedRules.size()).toBe(1)
-    expect(result.matchedRules.get(0).ruleName).toBe('Hash_Test')
+    const clean = scanner.scan(Buffer.from('nothing here'))
+    expect(clean.length).toBe(0)
+
+    const match = scanner.scan(Buffer.from('has target inside'))
+    expect(match.length).toBe(1)
+
+    // Scan again — should still work (rules not recompiled)
+    const match2 = scanner.scan(Buffer.from('another target file'))
+    expect(match2.length).toBe(1)
   })
 })
