@@ -27,33 +27,27 @@ async function main() {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
-  let response
+  let body
   try {
-    response = await fetch(RULES_URL, {
+    // Keep timeout active through full body read so a stalling server can't hang CI
+    const response = await fetch(RULES_URL, {
       signal: controller.signal,
       headers: { 'Accept': 'application/json' },
     })
+
+    if (!response.ok) {
+      console.warn(`[fetch-yara-rules] API returned ${response.status} — skipping bundled rules`)
+      ensureEmptyDir()
+      return
+    }
+
+    body = await response.json()
   } catch (err) {
     console.warn(`[fetch-yara-rules] Could not reach API — skipping bundled rules (${err.message})`)
     ensureEmptyDir()
     return
   } finally {
     clearTimeout(timeout)
-  }
-
-  if (!response.ok) {
-    console.warn(`[fetch-yara-rules] API returned ${response.status} — skipping bundled rules`)
-    ensureEmptyDir()
-    return
-  }
-
-  let body
-  try {
-    body = await response.json()
-  } catch {
-    console.warn('[fetch-yara-rules] Invalid JSON response — skipping bundled rules')
-    ensureEmptyDir()
-    return
   }
 
   if (!body.rules || !Array.isArray(body.rules) || body.rules.length === 0) {
