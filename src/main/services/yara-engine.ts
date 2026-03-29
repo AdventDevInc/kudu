@@ -136,10 +136,13 @@ export class YaraEngine {
 
   private _convertMatch(r: YaraXMatch): YaraMatch {
     const metadata: YaraMatch['metadata'] = {}
-    if (r.meta.detectionName) metadata.detectionName = r.meta.detectionName
-    if (r.meta.severity) metadata.severity = r.meta.severity as YaraMatch['metadata']['severity']
-    if (r.meta.details) metadata.details = r.meta.details
-    if (r.meta.filenameOnly) metadata.filenameOnly = r.meta.filenameOnly
+    if (r.meta.detectionName) metadata.detectionName = String(r.meta.detectionName)
+    if (r.meta.severity) {
+      const sev = String(r.meta.severity).toLowerCase()
+      if (VALID_SEVERITIES.has(sev as any)) metadata.severity = sev as YaraMatch['metadata']['severity']
+    }
+    if (r.meta.details) metadata.details = String(r.meta.details)
+    if (r.meta.filenameOnly) metadata.filenameOnly = String(r.meta.filenameOnly)
 
     return {
       ruleName: r.ruleIdentifier,

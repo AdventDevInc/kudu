@@ -237,29 +237,36 @@ export async function fetchAndCacheRules(url: string): Promise<{
       return { success: false, error: 'Integrity check failed: SHA-256 mismatch' }
     }
 
-    // Write rules atomically: stage in a temp directory, then swap into place.
-    // This avoids leaving a partial ruleset if a write fails mid-way.
+    // Write rules atomically: stage in a uniquely-named temp directory,
+    // then swap into place. Unique name prevents races between concurrent updates.
     const dir = getCachedRulesDir()
-    const stageDir = dir + '.staging'
+    const stageDir = `${dir}.staging-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
-    // Clean up any leftover staging dir from a previous failed attempt
-    if (existsSync(stageDir)) rmSync(stageDir, { recursive: true, force: true })
     mkdirSync(stageDir, { recursive: true })
 
-    // Write all rule files + metadata into the staging directory
-    for (const rule of bundle.rules) {
-      writeFileSync(join(stageDir, rule.filename), rule.content, 'utf-8')
-    }
-    writeFileSync(join(stageDir, 'metadata.json'), JSON.stringify({
-      version: bundle.version,
-      updatedAt: bundle.updatedAt,
-      rulesCount: bundle.rules.length,
-      sha256: bundle.sha256,
-    }, null, 2), 'utf-8')
+    try {
+      // Write all rule files + metadata into the staging directory
+      for (const rule of bundle.rules) {
+        writeFileSync(join(stageDir, rule.filename), rule.content, 'utf-8')
+      }
+      writeFileSync(join(stageDir, 'metadata.json'), JSON.stringify({
+        version: bundle.version,
+        updatedAt: bundle.updatedAt,
+        rulesCount: bundle.rules.length,
+        sha256: bundle.sha256,
+      }, null, 2), 'utf-8')
 
-    // Swap: remove old cache dir, rename staging into place
-    if (existsSync(dir)) rmSync(dir, { recursive: true, force: true })
-    renameSync(stageDir, dir)
+      // Swap: remove old cache dir, rename staging into place
+      const oldDir = `${dir}.old-${Date.now()}`
+      if (existsSync(dir)) renameSync(dir, oldDir)
+      renameSync(stageDir, dir)
+      // Clean up old dir in the background
+      if (existsSync(oldDir)) rmSync(oldDir, { recursive: true, force: true })
+    } catch (err) {
+      // Clean up staging dir on failure
+      try { rmSync(stageDir, { recursive: true, force: true }) } catch { /* best effort */ }
+      throw err
+    }
 
     return {
       success: true,
