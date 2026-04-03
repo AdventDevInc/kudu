@@ -22,6 +22,8 @@
   "updateCheckEvery4Hours": "Setiap 4 jam",
   "updateCheckEvery12Hours": "Setiap 12 jam",
   "updateCheckOnceADay": "Sekali sehari",
+  "windowsPackageManagerLabel": "Manajer paket Windows",
+  "windowsPackageManagerDesc": "Pilih manajer paket yang akan digunakan untuk pembaruan perangkat lunak",
   "sectionCloudDashboard": "Cloud",
   "cloudUnlinkedCardTitle": "Hubungkan ke Kudu Cloud",
   "cloudUnlinkedCardDesc": "Buka pemantauan ancaman, skor keamanan AI, pemindaian kerentanan, dan lainnya",
