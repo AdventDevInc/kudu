@@ -309,10 +309,10 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         {platform === 'win32' && (
           <select
             value={windowsPackageManager ?? 'winget'}
-            onChange={(e) => {
+            onChange={async (e) => {
               const value = e.target.value as 'winget' | 'choco'
               useSettingsStore.getState().updateSettings({ windowsPackageManager: value })
-              window.kudu.settingsSet({ windowsPackageManager: value }).catch(() => {})
+              await window.kudu.settingsSet({ windowsPackageManager: value })
               handleCheck()
             }}
             disabled={isBusy}
