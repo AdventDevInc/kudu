@@ -127,6 +127,17 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ theme: 123 })).toBeNull()
   })
 
+  it('accepts valid windowsPackageManager values', () => {
+    expect(validateSettingsPartial({ windowsPackageManager: 'winget' })).toEqual({ windowsPackageManager: 'winget' })
+    expect(validateSettingsPartial({ windowsPackageManager: 'choco' })).toEqual({ windowsPackageManager: 'choco' })
+  })
+
+  it('rejects invalid windowsPackageManager values', () => {
+    expect(validateSettingsPartial({ windowsPackageManager: 'npm' })).toBeNull()
+    expect(validateSettingsPartial({ windowsPackageManager: 123 })).toBeNull()
+    expect(validateSettingsPartial({ windowsPackageManager: '' })).toBeNull()
+  })
+
   it('accepts empty object', () => {
     expect(validateSettingsPartial({})).toEqual({})
   })

@@ -70,6 +70,7 @@ const defaults: StoreData = {
       allowRemoteInstalls: true,
       allowRemoteConfig: true
     },
+    windowsPackageManager: 'winget' as const,
     gameMode: {
       enabledOptimizations: [
         'svc-wsearch', 'svc-sysmain',

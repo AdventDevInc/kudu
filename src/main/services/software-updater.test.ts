@@ -14,6 +14,8 @@ import {
   parseDpkgInstalled,
   parseDnfCheckUpdate,
   parsePacmanQu,
+  parseChocoOutdatedOutput,
+  parseChocoListOutput,
   isValidAppId,
 } from './software-updater'
 
@@ -407,5 +409,91 @@ describe('isValidAppId', () => {
 
   it('rejects very long IDs', () => {
     expect(isValidAppId('a'.repeat(300))).toBe(false)
+  })
+})
+
+// ─── parseChocoOutdatedOutput ──────────────────────────────
+
+describe('parseChocoOutdatedOutput', () => {
+  it('parses standard pipe-delimited output', () => {
+    const stdout = [
+      'googlechrome|125.0.6422.76|126.0.6478.57|false',
+      '7zip|24.06|24.07|false',
+    ].join('\n')
+    const apps = parseChocoOutdatedOutput(stdout)
+    expect(apps).toHaveLength(2)
+    expect(apps[0]).toMatchObject({
+      id: 'googlechrome',
+      name: 'googlechrome',
+      currentVersion: '125.0.6422.76',
+      availableVersion: '126.0.6478.57',
+      source: 'choco',
+      selected: true,
+    })
+    expect(apps[1]).toMatchObject({
+      id: '7zip',
+      currentVersion: '24.06',
+      availableVersion: '24.07',
+    })
+  })
+
+  it('returns empty for empty input', () => {
+    expect(parseChocoOutdatedOutput('')).toEqual([])
+  })
+
+  it('skips pinned packages', () => {
+    const stdout = 'firefox|130.0|131.0|true\ngooglechrome|125.0|126.0|false'
+    const apps = parseChocoOutdatedOutput(stdout)
+    expect(apps).toHaveLength(1)
+    expect(apps[0].id).toBe('googlechrome')
+  })
+
+  it('skips lines where versions match', () => {
+    const stdout = 'notepadplusplus|8.6.9|8.6.9|false'
+    const apps = parseChocoOutdatedOutput(stdout)
+    expect(apps).toHaveLength(0)
+  })
+
+  it('skips lines with fewer than 4 pipe-delimited fields', () => {
+    const stdout = 'some random text\ngooglechrome|125.0|126.0|false'
+    const apps = parseChocoOutdatedOutput(stdout)
+    expect(apps).toHaveLength(1)
+  })
+
+  it('computes severity correctly', () => {
+    const stdout = 'pkg|1.0.0|2.0.0|false'
+    const apps = parseChocoOutdatedOutput(stdout)
+    expect(apps[0].severity).toBe('major')
+  })
+})
+
+// ─── parseChocoListOutput ──────────────────────────────────
+
+describe('parseChocoListOutput', () => {
+  it('parses standard pipe-delimited output', () => {
+    const stdout = [
+      'googlechrome|126.0.6478.57',
+      '7zip|24.07',
+      'firefox|131.0',
+    ].join('\n')
+    const apps = parseChocoListOutput(stdout)
+    expect(apps).toHaveLength(3)
+    expect(apps[0]).toMatchObject({
+      id: 'googlechrome',
+      name: 'googlechrome',
+      version: '126.0.6478.57',
+      source: 'choco',
+    })
+  })
+
+  it('returns empty for empty input', () => {
+    expect(parseChocoListOutput('')).toEqual([])
+  })
+
+  it('skips lines with fewer than 2 pipe-delimited fields', () => {
+    const stdout = 'some random text\ngooglechrome|126.0'
+    const apps = parseChocoListOutput(stdout)
+    expect(apps).toHaveLength(1)
+    expect(apps[0].id).toBe('googlechrome')
   })
 })

@@ -438,6 +438,11 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.wingetNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.wingetRequired')}{' '}
                 <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.wingetStore')}</span> {t('softwareUpdater.packageManagerNotFound.wingetSearchTerm')}
               </>
+            ) : packageManagerName === 'choco' ? (
+              <>
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.chocoNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.chocoRequired')}{' '}
+                <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.chocoSite')}</span>.
+              </>
             ) : packageManagerName === 'apt' ? (
               <>
                 <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.aptNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.aptRequired')}

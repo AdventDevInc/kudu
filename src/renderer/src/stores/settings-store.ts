@@ -45,6 +45,7 @@ const defaultSettings: KuduSettings = {
     allowRemoteInstalls: true,
     allowRemoteConfig: true
   },
+  windowsPackageManager: 'winget',
   gameMode: {
     enabledOptimizations: [
       'svc-wsearch', 'svc-sysmain',

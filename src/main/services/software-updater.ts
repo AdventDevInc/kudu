@@ -10,6 +10,7 @@ import type {
 } from '../../shared/types'
 import { isAdmin } from './elevation'
 import { psUtf8 } from './exec-utf8'
+import { getSettings } from './settings-store'
 
 const execFileAsync = promisify(execFile)
 
@@ -482,6 +483,337 @@ async function runUpdatesWinget(
   }
 
   return { succeeded, failed, errors }
+}
+
+// ─── Chocolatey (Windows) ──────────────────────────────────
+
+/** Chocolatey package ID: alphanumeric, dots, hyphens, underscores */
+const CHOCO_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,200}$/
+
+async function isChocoAvailable(): Promise<boolean> {
+  try {
+    await execFileAsync('choco', ['--version'], {
+      timeout: 10_000,
+      windowsHide: true,
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Parse `choco outdated --limit-output` output.
+ * Format: packageId|currentVersion|availableVersion|pinned
+ */
+export function parseChocoOutdatedOutput(stdout: string): UpdatableApp[] {
+  const apps: UpdatableApp[] = []
+  for (const line of cleanOutput(stdout).split(/\r?\n/)) {
+    if (!line.trim()) continue
+    const parts = line.split('|')
+    if (parts.length < 4) continue
+    const [id, currentVersion, availableVersion, pinned] = parts
+    if (!id || !currentVersion || !availableVersion) continue
+    // Skip pinned packages
+    if (pinned?.trim().toLowerCase() === 'true') continue
+    // Skip if versions match (already up to date)
+    if (currentVersion.trim() === availableVersion.trim()) continue
+    apps.push({
+      id: id.trim(),
+      name: id.trim(),
+      currentVersion: currentVersion.trim(),
+      availableVersion: availableVersion.trim(),
+      source: 'choco',
+      severity: computeSeverity(currentVersion.trim(), availableVersion.trim()),
+      selected: true,
+    })
+  }
+  return apps
+}
+
+/**
+ * Parse `choco list --limit-output` output.
+ * Format: packageId|version
+ */
+export function parseChocoListOutput(stdout: string): UpToDateApp[] {
+  const apps: UpToDateApp[] = []
+  for (const line of cleanOutput(stdout).split(/\r?\n/)) {
+    if (!line.trim()) continue
+    const parts = line.split('|')
+    if (parts.length < 2) continue
+    const [id, version] = parts
+    if (!id || !version) continue
+    apps.push({ id: id.trim(), name: id.trim(), version: version.trim(), source: 'choco' })
+  }
+  return apps
+}
+
+async function checkForUpdatesChoco(): Promise<UpdateCheckResult> {
+  const available = await isChocoAvailable()
+  if (!available) {
+    return emptyResult(false, 'choco')
+  }
+
+  try {
+    let stdout = ''
+    try {
+      const result = await execFileAsync(
+        'choco',
+        ['outdated', '--limit-output'],
+        { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
+      )
+      stdout = result.stdout
+    } catch (err: any) {
+      if (err?.stdout) {
+        stdout = err.stdout
+      } else {
+        return emptyResult(true, 'choco')
+      }
+    }
+
+    const apps = parseChocoOutdatedOutput(stdout)
+
+    // Get the full list of installed packages to show "up to date" ones
+    let upToDate: UpToDateApp[] = []
+    try {
+      let listStdout = ''
+      try {
+        const listResult = await execFileAsync(
+          'choco',
+          ['list', '--limit-output'],
+          { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
+        )
+        listStdout = listResult.stdout
+      } catch (err: any) {
+        if (err?.stdout) listStdout = err.stdout
+      }
+      if (listStdout) {
+        const allApps = parseChocoListOutput(listStdout)
+        const outdatedIds = new Set(apps.map((a) => a.id))
+        upToDate = allApps.filter((a) => !outdatedIds.has(a.id))
+      }
+    } catch {
+      // Non-critical — just skip the up-to-date list
+    }
+
+    return {
+      apps,
+      upToDate,
+      totalCount: apps.length,
+      majorCount: apps.filter((a) => a.severity === 'major').length,
+      minorCount: apps.filter((a) => a.severity === 'minor').length,
+      patchCount: apps.filter((a) => a.severity === 'patch').length,
+      packageManagerAvailable: true,
+      packageManagerName: 'choco',
+    }
+  } catch {
+    return emptyResult(true, 'choco')
+  }
+}
+
+const CHOCO_SUCCESS_PATTERNS = [
+  'was successful',
+  'has been successfully',
+  'upgraded 1/',
+]
+
+const CHOCO_FAILURE_PATTERNS = [
+  'was not successful',
+  'not installed',
+  'cannot find path',
+  'unable to find',
+]
+
+const CHOCO_ELEVATION_HINTS = [
+  'access to the path',
+  'access is denied',
+  'administrator',
+  'run as admin',
+  'elevated permissions',
+]
+
+/** Attempt a single choco upgrade and return {success, output} */
+async function attemptChocoUpgrade(
+  appId: string,
+  extraArgs: string[] = [],
+): Promise<{ success: boolean; output: string }> {
+  if (!CHOCO_ID_PATTERN.test(appId)) {
+    return { success: false, output: 'Invalid package ID format' }
+  }
+  let upgradeStdout = ''
+  try {
+    // Note: no --limit-output here — verbose output is needed for success/failure pattern detection
+    const result = await execFileAsync(
+      'choco',
+      ['upgrade', appId, '-y', ...extraArgs],
+      { timeout: 10 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
+    )
+    upgradeStdout = result.stdout
+  } catch (err: any) {
+    if (err?.stdout) {
+      upgradeStdout = err.stdout
+    } else {
+      return { success: false, output: err?.message || 'Unknown error' }
+    }
+  }
+
+  const output = cleanOutput(upgradeStdout).toLowerCase()
+  const wasSuccessful = CHOCO_SUCCESS_PATTERNS.some((p) => output.includes(p))
+  const hasClearFailure = CHOCO_FAILURE_PATTERNS.some((p) => output.includes(p))
+
+  if (wasSuccessful && !hasClearFailure) {
+    return { success: true, output: upgradeStdout }
+  }
+  return { success: false, output: upgradeStdout }
+}
+
+/** Retry a failed choco upgrade with elevation using PowerShell Start-Process -Verb RunAs */
+async function attemptElevatedChocoUpgrade(appId: string): Promise<{ success: boolean; output: string }> {
+  if (!CHOCO_ID_PATTERN.test(appId)) {
+    return { success: false, output: 'Invalid package ID format' }
+  }
+
+  try {
+    const args = ['upgrade', appId, '-y', '--force'].join(' ')
+    const safeArgs = args.replace(/'/g, "''")
+    await execFileAsync(
+      'powershell.exe',
+      [
+        '-NoProfile',
+        '-Command',
+        psUtf8(`$p = Start-Process choco -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`),
+      ],
+      { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
+    )
+    // Verify by checking if choco still lists this app as outdated
+    const checkResult = await execFileAsync(
+      'choco',
+      ['outdated', '--limit-output'],
+      { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
+    )
+    const stillNeedsUpgrade = checkResult.stdout.split(/\r?\n/).some((line) => line.startsWith(appId + '|'))
+    return {
+      success: !stillNeedsUpgrade,
+      output: stillNeedsUpgrade ? 'Package still needs upgrade after elevated attempt' : 'Elevated upgrade succeeded',
+    }
+  } catch (err: any) {
+    return { success: false, output: err?.message || 'Elevated upgrade failed' }
+  }
+}
+
+/** Run a single app through the choco upgrade pipeline: normal → elevated → force */
+async function upgradeAppChoco(
+  appId: string,
+  alreadyAdmin: boolean,
+): Promise<{ success: boolean; error?: string }> {
+  // First attempt: normal upgrade
+  let result = await attemptChocoUpgrade(appId)
+
+  // If failed and not already admin, check for elevation hints before prompting
+  if (!result.success && !alreadyAdmin) {
+    const lowerOutput = cleanOutput(result.output).toLowerCase()
+    const looksLikeElevationIssue =
+      CHOCO_ELEVATION_HINTS.some((h) => lowerOutput.includes(h)) ||
+      CHOCO_FAILURE_PATTERNS.some((p) => lowerOutput.includes(p))
+
+    if (looksLikeElevationIssue) {
+      result = await attemptElevatedChocoUpgrade(appId)
+    }
+  }
+
+  // If still failed, retry once with --force (handles version mismatch issues)
+  if (!result.success) {
+    const retryResult = await attemptChocoUpgrade(appId, ['--force'])
+    if (retryResult.success) result = retryResult
+  }
+
+  if (result.success) return { success: true }
+
+  const lastLine = cleanOutput(result.output).trim().split('\n').pop() || 'Upgrade failed'
+  return { success: false, error: lastLine.length > 200 ? lastLine.slice(0, 200) + '...' : lastLine }
+}
+
+async function runUpdatesChoco(
+  appIds: string[],
+  onProgress: (progress: UpdateProgress) => void,
+): Promise<UpdateResult> {
+  let succeeded = 0
+  let failed = 0
+  let completed = 0
+  const errors: UpdateResult['errors'] = []
+  const alreadyAdmin = isAdmin()
+  const total = appIds.length
+
+  for (const appId of appIds) {
+    onProgress({
+      phase: 'updating',
+      current: completed + 1,
+      total,
+      currentApp: appId,
+      percent: Math.round((completed / total) * 100),
+      status: 'in-progress',
+    })
+
+    const result = await upgradeAppChoco(appId, alreadyAdmin)
+    completed++
+
+    if (result.success) {
+      succeeded++
+      onProgress({
+        phase: 'updating',
+        current: completed,
+        total,
+        currentApp: appId,
+        percent: Math.round((completed / total) * 100),
+        status: 'done',
+      })
+    } else {
+      failed++
+      errors.push({ appId, name: appId, reason: result.error || 'Upgrade failed' })
+      onProgress({
+        phase: 'updating',
+        current: completed,
+        total,
+        currentApp: appId,
+        percent: Math.round((completed / total) * 100),
+        status: 'failed',
+      })
+    }
+  }
+
+  return { succeeded, failed, errors }
+}
+
+// ─── Windows: dispatcher ───────────────────────────────────
+
+async function checkForUpdatesWindows(): Promise<UpdateCheckResult> {
+  const settings = getSettings()
+  const preferChoco = settings.windowsPackageManager === 'choco'
+
+  // Try preferred manager first, fall back to the other if unavailable
+  const primary = preferChoco ? await checkForUpdatesChoco() : await checkForUpdatesWinget()
+  if (primary.packageManagerAvailable) return primary
+
+  const fallback = preferChoco ? await checkForUpdatesWinget() : await checkForUpdatesChoco()
+  return fallback
+}
+
+async function runUpdatesWindows(
+  appIds: string[],
+  onProgress: (progress: UpdateProgress) => void,
+): Promise<UpdateResult> {
+  const settings = getSettings()
+  const preferChoco = settings.windowsPackageManager === 'choco'
+
+  // Check which manager is available (prefer user's choice, fall back to the other)
+  if (preferChoco) {
+    if (await isChocoAvailable()) return runUpdatesChoco(appIds, onProgress)
+    if (await isWingetAvailable()) return runUpdatesWinget(appIds, onProgress)
+  } else {
+    if (await isWingetAvailable()) return runUpdatesWinget(appIds, onProgress)
+    if (await isChocoAvailable()) return runUpdatesChoco(appIds, onProgress)
+  }
+  return { succeeded: 0, failed: 0, errors: [] }
 }
 
 // ─── Homebrew (macOS) ───────────────────────────────────────
@@ -1114,7 +1446,7 @@ async function runUpdatesLinux(
 
 export async function checkForUpdates(): Promise<UpdateCheckResult> {
   if (process.platform === 'darwin') return checkForUpdatesBrew()
-  if (process.platform === 'win32') return checkForUpdatesWinget()
+  if (process.platform === 'win32') return checkForUpdatesWindows()
   if (process.platform === 'linux') return checkForUpdatesLinux()
   return emptyResult(false, null)
 }
@@ -1124,7 +1456,7 @@ export async function runUpdates(
   onProgress: (progress: UpdateProgress) => void,
 ): Promise<UpdateResult> {
   if (process.platform === 'darwin') return runUpdatesBrew(appIds, onProgress)
-  if (process.platform === 'win32') return runUpdatesWinget(appIds, onProgress)
+  if (process.platform === 'win32') return runUpdatesWindows(appIds, onProgress)
   if (process.platform === 'linux') return runUpdatesLinux(appIds, onProgress)
   return { succeeded: 0, failed: 0, errors: [] }
 }

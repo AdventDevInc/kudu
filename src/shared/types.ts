@@ -613,6 +613,8 @@ export interface KuduSettings {
     allowRemoteInstalls: boolean
     allowRemoteConfig: boolean
   }
+  /** Preferred Windows package manager for Software Updater */
+  windowsPackageManager: 'winget' | 'choco'
   gameMode: GameModeConfig
 }
 
@@ -786,7 +788,7 @@ export interface UpdateCheckResult {
   minorCount: number
   patchCount: number
   packageManagerAvailable: boolean
-  packageManagerName: 'winget' | 'brew' | 'apt' | 'dnf' | 'pacman' | null
+  packageManagerName: 'winget' | 'brew' | 'apt' | 'dnf' | 'pacman' | 'choco' | null
 }
 
 export interface UpdateProgress {

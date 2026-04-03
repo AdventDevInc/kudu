@@ -15,7 +15,8 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'theme', 'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
-    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'schedule', 'schedules', 'cloud', 'gameMode'
+    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'windowsPackageManager',
+    'schedule', 'schedules', 'cloud', 'gameMode'
   ])
 
   for (const key of Object.keys(obj)) {
@@ -41,6 +42,11 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   // Validate updateCheckIntervalHours is a reasonable number
   if ('updateCheckIntervalHours' in obj && obj.updateCheckIntervalHours !== undefined) {
     if (typeof obj.updateCheckIntervalHours !== 'number' || obj.updateCheckIntervalHours < 1 || obj.updateCheckIntervalHours > 168) return null
+  }
+
+  // Validate windowsPackageManager is one of the allowed values
+  if ('windowsPackageManager' in obj && obj.windowsPackageManager !== undefined) {
+    if (!['winget', 'choco'].includes(obj.windowsPackageManager as string)) return null
   }
 
   // Validate exclusions is an array of safe strings if present

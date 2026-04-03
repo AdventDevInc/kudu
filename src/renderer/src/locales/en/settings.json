@@ -22,6 +22,8 @@
   "updateCheckEvery4Hours": "Every 4 hours",
   "updateCheckEvery12Hours": "Every 12 hours",
   "updateCheckOnceADay": "Once a day",
+  "windowsPackageManagerLabel": "Windows package manager",
+  "windowsPackageManagerDesc": "Choose which package manager to use for software updates",
   "sectionCloudDashboard": "Cloud",
   "cloudUnlinkedCardTitle": "Connect to Kudu Cloud",
   "cloudUnlinkedCardDesc": "Unlock threat monitoring, AI safety scores, vulnerability scanning, and more",
