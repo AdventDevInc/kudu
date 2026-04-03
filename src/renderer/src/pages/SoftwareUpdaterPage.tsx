@@ -25,6 +25,8 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
 import { useUpdaterStore, severityOrder } from '@/stores/updater-store'
 import { useHistoryStore } from '@/stores/history-store'
+import { useSettingsStore } from '@/stores/settings-store'
+import { usePlatform } from '@/hooks/usePlatform'
 import type { UpdateProgress, UpdatableApp, UpToDateApp } from '@shared/types'
 
 const SEVERITY_STYLES_BASE = {
@@ -86,6 +88,9 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   const upToDate = useUpdaterStore((s) => s.upToDate)
 
   const ignoredApps = useUpdaterStore((s) => s.ignoredApps)
+
+  const { platform } = usePlatform()
+  const windowsPackageManager = useSettingsStore((s) => s.settings.windowsPackageManager)
 
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [showFilterMenu, setShowFilterMenu] = useState(false)
@@ -299,6 +304,29 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           )}
           {loading ? t('softwareUpdater.checkingButton') : hasChecked ? t('softwareUpdater.recheckButton') : t('softwareUpdater.checkForUpdatesButton')}
         </button>
+
+        {/* Package manager selector (Windows only) */}
+        {platform === 'win32' && (
+          <select
+            value={windowsPackageManager ?? 'winget'}
+            onChange={(e) => {
+              const value = e.target.value as 'winget' | 'choco'
+              useSettingsStore.getState().updateSettings({ windowsPackageManager: value })
+              window.kudu.settingsSet({ windowsPackageManager: value }).catch(() => {})
+              handleCheck()
+            }}
+            disabled={isBusy}
+            aria-label={t('softwareUpdater.packageManagerLabel')}
+            className="rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 outline-none transition-all disabled:opacity-40"
+            style={{
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-medium)',
+            }}
+          >
+            <option value="winget">winget</option>
+            <option value="choco">Chocolatey</option>
+          </select>
+        )}
 
         {/* Search */}
         {hasChecked && apps.length > 0 && (
