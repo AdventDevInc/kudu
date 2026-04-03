@@ -801,11 +801,16 @@ async function checkForUpdatesWindows(): Promise<UpdateCheckResult> {
 async function runUpdatesWindows(
   appIds: string[],
   onProgress: (progress: UpdateProgress) => void,
+  source?: string,
 ): Promise<UpdateResult> {
+  // If the caller tells us which manager produced these IDs, use it directly
+  if (source === 'choco') return runUpdatesChoco(appIds, onProgress)
+  if (source === 'winget') return runUpdatesWinget(appIds, onProgress)
+
+  // Fallback: use the setting preference with availability check
   const settings = getSettings()
   const preferChoco = settings.windowsPackageManager === 'choco'
 
-  // Check which manager is available (prefer user's choice, fall back to the other)
   if (preferChoco) {
     if (await isChocoAvailable()) return runUpdatesChoco(appIds, onProgress)
     if (await isWingetAvailable()) return runUpdatesWinget(appIds, onProgress)
@@ -813,7 +818,13 @@ async function runUpdatesWindows(
     if (await isWingetAvailable()) return runUpdatesWinget(appIds, onProgress)
     if (await isChocoAvailable()) return runUpdatesChoco(appIds, onProgress)
   }
-  return { succeeded: 0, failed: 0, errors: [] }
+
+  // Neither manager available — report per-app failures
+  return {
+    succeeded: 0,
+    failed: appIds.length,
+    errors: appIds.map((id) => ({ appId: id, name: id, reason: 'No package manager available' })),
+  }
 }
 
 // ─── Homebrew (macOS) ───────────────────────────────────────
@@ -1454,9 +1465,10 @@ export async function checkForUpdates(): Promise<UpdateCheckResult> {
 export async function runUpdates(
   appIds: string[],
   onProgress: (progress: UpdateProgress) => void,
+  source?: string,
 ): Promise<UpdateResult> {
   if (process.platform === 'darwin') return runUpdatesBrew(appIds, onProgress)
-  if (process.platform === 'win32') return runUpdatesWindows(appIds, onProgress)
+  if (process.platform === 'win32') return runUpdatesWindows(appIds, onProgress, source)
   if (process.platform === 'linux') return runUpdatesLinux(appIds, onProgress)
   return { succeeded: 0, failed: 0, errors: [] }
 }

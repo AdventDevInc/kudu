@@ -178,7 +178,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       const appsToUpdate = store.apps.filter(a => ids.includes(a.id))
 
       try {
-        const result = await window.kudu.softwareUpdateRun(ids)
+        const result = await window.kudu.softwareUpdateRun(ids, store.packageManagerName ?? undefined)
         const s = useUpdaterStore.getState()
         s.setUpdateResult(result)
         s.setProgress(null)

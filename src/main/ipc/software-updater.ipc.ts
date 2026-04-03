@@ -19,14 +19,15 @@ export function registerSoftwareUpdaterIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(
     IPC.SOFTWARE_UPDATE_RUN,
-    async (_event, appIds: string[]): Promise<UpdateResult> => {
+    async (_event, appIds: string[], source?: string): Promise<UpdateResult> => {
       if (!Array.isArray(appIds) || appIds.length === 0) {
         return { succeeded: 0, failed: 0, errors: [] }
       }
       const safeIds = appIds.filter(
         (id) => typeof id === 'string' && id.length > 0 && id.length < 200,
       )
-      return runUpdates(safeIds, sendProgress)
+      const safeSource = typeof source === 'string' ? source : undefined
+      return runUpdates(safeIds, sendProgress, safeSource)
     },
   )
 }

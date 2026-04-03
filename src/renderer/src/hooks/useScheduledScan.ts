@@ -175,7 +175,7 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
         if (payload.autoApply && found > 0) {
           const ids = result.apps.map((a) => a.id)
           try {
-            const updateResult = await window.kudu.softwareUpdateRun(ids)
+            const updateResult = await window.kudu.softwareUpdateRun(ids, result.packageManagerName ?? undefined)
             totalCleaned += updateResult.succeeded
             categoryResults['Software'] = { found, cleaned: updateResult.succeeded, size: 0 }
           } catch {
