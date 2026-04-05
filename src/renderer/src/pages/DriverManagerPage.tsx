@@ -70,6 +70,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
 
   // ─── Scan for both stale packages and updates ─────────────
   const handleScan = useCallback(async () => {
+    const scanStart = Date.now()
     const store = useDriverStore.getState()
     store.setScanning(true)
     store.setUpdateScanning(true)
@@ -90,9 +91,13 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
 
     const s = useDriverStore.getState()
 
+    let staleCount = 0
+    let staleSize = 0
     if (staleResult.status === 'fulfilled') {
       s.setPackages(staleResult.value.packages)
       s.setTotalStaleSize(staleResult.value.totalStaleSize)
+      staleCount = staleResult.value.packages.length
+      staleSize = staleResult.value.totalStaleSize
       // Auto-select all stale packages
       useDriverStore.getState().selectAllStale()
     } else {
@@ -101,8 +106,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       s.setError(t('driverManager.scanFailedError'))
     }
 
+    let updateCount = 0
     if (updateResult.status === 'fulfilled') {
       s.setUpdates(updateResult.value.updates)
+      updateCount = updateResult.value.updates.length
     } else {
       console.error('Driver update scan failed:', updateResult.reason)
       toast.error(t('driverManager.updateScanFailedToast'), { description: t('driverManager.updateScanFailedDescription') })
@@ -115,6 +122,27 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
     final.setScanProgress(null)
     final.setUpdateProgress(null)
     final.setHasScanned(true)
+
+    // Record scan in history so dashboard reflects completion
+    if (staleResult.status === 'fulfilled' || updateResult.status === 'fulfilled') {
+      const totalFound = staleCount + updateCount
+      await historyStore.addEntry({
+        id: Date.now().toString(),
+        type: 'drivers',
+        timestamp: new Date().toISOString(),
+        duration: Date.now() - scanStart,
+        totalItemsFound: totalFound,
+        totalItemsCleaned: 0,
+        totalItemsSkipped: 0,
+        totalSpaceSaved: 0,
+        categories: [
+          ...(staleCount > 0 ? [{ name: 'Stale Drivers', itemsFound: staleCount, itemsCleaned: 0, spaceSaved: staleSize }] : []),
+          ...(updateCount > 0 ? [{ name: 'Driver Updates', itemsFound: updateCount, itemsCleaned: 0, spaceSaved: 0 }] : [])
+        ],
+        errorCount: 0
+      })
+      recomputeStats()
+    }
   }, [])
 
   // ─── Combined Update & Clean ──────────────────────────────
