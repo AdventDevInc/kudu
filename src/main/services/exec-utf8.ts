@@ -72,6 +72,36 @@ export function killAllChildren(): void {
 }
 
 /**
+ * Run `execFile` with process-tree tracking: on timeout or abort the
+ * entire process tree is killed (via `taskkill /T /F` on Windows).
+ *
+ * Use this instead of raw `execFileAsync` whenever a spawned process may
+ * have children (e.g. `powershell` launching sub-commands).
+ */
+export async function execTracked(
+  file: string,
+  args: string[],
+  opts?: Pick<ExecFileOptions, 'windowsHide'> & { timeout?: number; signal?: AbortSignal }
+): Promise<{ stdout: string; stderr: string }> {
+  if (opts?.signal?.aborted) throw new Error('Operation cancelled')
+  const timeoutMs = opts?.timeout ?? 15_000
+  const promise = execFileAsync(file, args, {
+    encoding: 'utf-8' as const,
+    windowsHide: opts?.windowsHide ?? true,
+  }) as Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
+  let killed = false
+  const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })
+  try {
+    return await promise
+  } catch (err: any) {
+    if (killed || opts?.signal?.aborted) throw new Error('Operation cancelled')
+    throw err
+  } finally {
+    cleanup()
+  }
+}
+
+/**
  * Wrap a spawned child process with timeout and abort-signal handling
  * that kills the entire process tree (not just the root) on Windows.
  *
@@ -164,10 +194,13 @@ export async function execNativeUtf8(
 
   const timeoutMs = opts?.timeout ?? 15_000
 
+  // Do NOT pass `timeout` to execFile — its built-in timeout kills only the
+  // immediate process (cmd.exe) but not children (reg.exe), causing orphans.
+  // trackChild() handles the timeout instead and kills the entire process tree
+  // via taskkill /T /F.
   const baseOpts = {
     encoding: 'utf-8' as const,
     windowsHide: opts?.windowsHide ?? true,
-    timeout: timeoutMs,
     ...(opts?.maxBuffer != null && { maxBuffer: opts.maxBuffer }),
   }
 

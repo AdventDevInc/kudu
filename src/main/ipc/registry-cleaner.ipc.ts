@@ -9,7 +9,7 @@ import type { RegistryEntry } from '../../shared/types'
 import { randomUUID } from 'crypto'
 import type { WindowGetter } from './index'
 import { validateStringArray } from '../services/ipc-validation'
-import { execNativeUtf8, psUtf8 } from '../services/exec-utf8'
+import { execNativeUtf8, execTracked, psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -63,7 +63,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 /** Validate that a task path contains only safe characters */
-const SAFE_TASK_PATH_RE = /^[\\\p{L}\p{N}\s\-._()]+$/u
+const SAFE_TASK_PATH_RE = /^[\\\p{L}\p{N}\s\-._(){},]+$/u
 
 /** Split a full task path like "\\Folder\\Sub\\TaskName" into { path, name } for PowerShell */
 function splitTaskPath(fullPath: string): { path: string; name: string } | null {
@@ -1771,9 +1771,9 @@ export async function fixRegistryEntries(
             const safeDisablePath = disableParts.path.replace(/'/g, "''")
             const safeDisableName = disableParts.name.replace(/'/g, "''")
             const disableScript = `Disable-ScheduledTask -TaskPath '${safeDisablePath}' -TaskName '${safeDisableName}' -ErrorAction Stop`
-            await execFileAsync('powershell', [
+            await execTracked('powershell', [
               '-NoProfile', '-NonInteractive', '-Command', psUtf8(disableScript)
-            ], { timeout: 10000, windowsHide: true })
+            ], { timeout: 10000, signal })
             break
           }
 
@@ -1783,9 +1783,9 @@ export async function fixRegistryEntries(
             const safeDeletePath = deleteParts.path.replace(/'/g, "''")
             const safeDeleteName = deleteParts.name.replace(/'/g, "''")
             const deleteScript = `Unregister-ScheduledTask -TaskPath '${safeDeletePath}' -TaskName '${safeDeleteName}' -Confirm:$false -ErrorAction Stop`
-            await execFileAsync('powershell', [
+            await execTracked('powershell', [
               '-NoProfile', '-NonInteractive', '-Command', psUtf8(deleteScript)
-            ], { timeout: 10000, windowsHide: true })
+            ], { timeout: 10000, signal })
             break
           }
         }
