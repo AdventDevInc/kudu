@@ -59,6 +59,14 @@ const isRoot =
 
 if (isRoot) {
   app.commandLine.appendSwitch('no-sandbox')
+  // On some Linux desktops (e.g. Linux Mint / Cinnamon) the software
+  // compositor still fails to paint when running as root — the window
+  // loads (cursor reacts) but remains grey.  Disabling GPU compositing
+  // forces a fallback path that reliably renders.
+  if (process.platform === 'linux') {
+    app.commandLine.appendSwitch('disable-gpu-compositing')
+    app.commandLine.appendSwitch('in-process-gpu')
+  }
 }
 
 // ─── CLI / Daemon mode ───────────────────────────────────────

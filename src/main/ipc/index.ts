@@ -159,7 +159,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // (same pattern as the macOS osascript path).
       const sq = (s: string) => `'${s.replace(/'/g, "'\\''")}'`
       const parts: string[] = []
-      for (const key of ['DISPLAY', 'XAUTHORITY', 'WAYLAND_DISPLAY', 'XDG_RUNTIME_DIR', 'HOME']) {
+      for (const key of ['DISPLAY', 'XAUTHORITY', 'WAYLAND_DISPLAY', 'XDG_RUNTIME_DIR', 'HOME', 'DBUS_SESSION_BUS_ADDRESS']) {
         if (process.env[key]) parts.push(`${key}=${sq(process.env[key])}`)
       }
       parts.push(sq(exePath), '--no-sandbox', `--kudu-data-dir=${sq(userDataDir)}`)
