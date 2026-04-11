@@ -95,7 +95,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Comment on PR
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           EXIT_CODE: ${{ steps.validate.outputs.exit_code }}
           VALIDATE_OUTPUT: ${{ steps.validate.outputs.output }}
