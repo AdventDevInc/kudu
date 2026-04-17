@@ -226,6 +226,10 @@ async function getActiveDriverNames(): Promise<Set<string>> {
 export async function scanDrivers(
   onProgress?: (data: DriverScanProgress) => void
 ): Promise<DriverScanResult> {
+    if (process.platform !== 'win32') {
+      return { packages: [], totalStaleSize: 0, totalStaleCount: 0, totalCurrentCount: 0 }
+    }
+
     onProgress?.({
       phase: 'enumerating',
       current: 0,
@@ -339,6 +343,10 @@ export async function scanDrivers(
 }
 
 export async function cleanDrivers(publishedNames: string[]): Promise<DriverCleanResult> {
+      if (process.platform !== 'win32') {
+        return { removed: 0, failed: 0, spaceRecovered: 0, errors: [] }
+      }
+
       let removed = 0
       let failed = 0
       let spaceRecovered = 0
@@ -386,6 +394,10 @@ export async function scanDriverUpdates(
   onProgress?: (data: DriverUpdateProgress) => void
 ): Promise<DriverUpdateScanResult> {
     const startTime = Date.now()
+
+    if (process.platform !== 'win32') {
+      return { updates: [], totalAvailable: 0, scanDuration: Date.now() - startTime }
+    }
 
     onProgress?.({
       phase: 'checking',
@@ -536,6 +548,10 @@ export async function installDriverUpdates(
   wuUpdateIds: string[],
   onProgress?: (data: DriverUpdateProgress) => void
 ): Promise<DriverUpdateInstallResult> {
+      if (process.platform !== 'win32') {
+        return { installed: 0, failed: 0, rebootRequired: false, errors: [] }
+      }
+
       let installed = 0
       let failed = 0
       let rebootRequired = false
