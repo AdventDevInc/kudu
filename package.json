@@ -58,7 +58,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "ajv": "^8.18.0",
     "conventional-changelog-cli": "^5.0.0",
-    "electron": "^41.1.0",
+    "electron": "^41.3.0",
     "electron-builder": "^26.8.1",
     "electron-vite": "^5.0.0",
     "patch-package": "^8.0.1",
