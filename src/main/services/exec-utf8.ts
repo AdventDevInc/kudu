@@ -226,11 +226,19 @@ export async function execNativeUtf8(
   // appears in the command string.  cmd.exe expands the hardcoded
   // %__KAn% references from the child-process environment at runtime.
   // Embedded double-quotes are escaped as "" to keep cmd.exe quoting intact.
+  // Trailing backslashes are doubled: after cmd.exe expands the value into
+  // "%__KAn%", a single trailing \ would escape the closing " under
+  // CommandLineToArgvW rules and merge this arg with the next one. Doubling
+  // forces an even backslash count so the parser sees N literal backslashes
+  // followed by a closing-delimiter quote.
   const env = { ...process.env } as Record<string, string>
   const refs: string[] = []
   for (let i = 0; i < args.length; i++) {
     const key = `__KA${i}`
-    env[key] = args[i].replace(/"/g, '""')
+    let value = args[i].replace(/"/g, '""')
+    const trailing = value.match(/\\+$/)
+    if (trailing) value += trailing[0]
+    env[key] = value
     refs.push(`"%${key}%"`)
   }
 
