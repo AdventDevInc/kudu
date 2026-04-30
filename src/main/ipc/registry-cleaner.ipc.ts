@@ -1688,7 +1688,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
 /** Keep only the N most recent backup runs. Each run writes multiple .reg files sharing one ISO timestamp. */
 function pruneOldBackups(backupDir: string, keep: number): void {
   try {
-    const timestampRe = /(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.reg$/
+    const timestampRe = /^registry-backup-.*?(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.reg$/
     const groups = new Map<string, string[]>()
     for (const f of readdirSync(backupDir)) {
       const m = f.match(timestampRe)
