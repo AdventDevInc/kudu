@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { existsSync, statSync } from 'fs'
+import { existsSync, statSync, readdirSync, unlinkSync } from 'fs'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { join } from 'path'
@@ -1685,6 +1685,28 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
     return entries
 }
 
+/** Keep only the N most recent backup runs. Each run writes multiple .reg files sharing one ISO timestamp. */
+function pruneOldBackups(backupDir: string, keep: number): void {
+  try {
+    const timestampRe = /(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.reg$/
+    const groups = new Map<string, string[]>()
+    for (const f of readdirSync(backupDir)) {
+      const m = f.match(timestampRe)
+      if (!m) continue
+      const ts = m[1]!
+      const list = groups.get(ts) ?? []
+      list.push(f)
+      groups.set(ts, list)
+    }
+    const stale = [...groups.keys()].sort().reverse().slice(keep)
+    for (const ts of stale) {
+      for (const f of groups.get(ts)!) {
+        try { unlinkSync(join(backupDir, f)) } catch { /* skip */ }
+      }
+    }
+  } catch { /* skip */ }
+}
+
 export async function fixRegistryEntries(
   entries: RegistryEntry[],
   onProgress?: (current: number, total: number, label: string) => void,
@@ -1724,6 +1746,7 @@ export async function fixRegistryEntries(
         const shellPath = join(backupDir, `registry-backup-HKCR-${file}-shellex-${timestamp}.reg`)
         await execReg(['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000, signal }).catch(() => {})
       }
+      pruneOldBackups(backupDir, 3)
     } catch {
       // Backup failed, but continue
     }
