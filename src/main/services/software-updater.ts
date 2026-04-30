@@ -867,13 +867,34 @@ interface BrewInfoJson {
   casks: BrewInfoCask[]
 }
 
-async function isBrewAvailable(): Promise<boolean> {
-  try {
-    await execFileAsync('brew', ['--version'], { timeout: 10_000 })
-    return true
-  } catch {
-    return false
+/**
+ * Brew install locations to probe, in priority order. macOS GUI apps inherit
+ * PATH from launchd (typically just /usr/bin:/bin:/usr/sbin:/sbin) and never
+ * read the user's shell rc files, so a bare `brew` lookup fails even when
+ * brew is installed and on the user's interactive shell PATH. We probe the
+ * standard install locations first, then fall back to a PATH lookup so
+ * non-standard installs still work when the user launched Kudu from a shell.
+ */
+export const BREW_PATH_CANDIDATES = [
+  '/opt/homebrew/bin/brew', // Apple Silicon default
+  '/usr/local/bin/brew',    // Intel default
+  'brew',                   // PATH lookup fallback
+]
+
+let cachedBrewPath: string | null | undefined
+
+/** Resolve the path to the brew executable, or null if brew is not installed. */
+async function resolveBrewPath(): Promise<string | null> {
+  if (cachedBrewPath !== undefined) return cachedBrewPath
+  for (const candidate of BREW_PATH_CANDIDATES) {
+    try {
+      await execFileAsync(candidate, ['--version'], { timeout: 10_000 })
+      cachedBrewPath = candidate
+      return candidate
+    } catch { /* try next candidate */ }
   }
+  cachedBrewPath = null
+  return null
 }
 
 export function parseBrewOutdatedJson(stdout: string): UpdatableApp[] {
@@ -944,8 +965,8 @@ export function parseBrewInstalledJson(stdout: string): UpToDateApp[] {
 }
 
 async function checkForUpdatesBrew(): Promise<UpdateCheckResult> {
-  const available = await isBrewAvailable()
-  if (!available) {
+  const brewPath = await resolveBrewPath()
+  if (!brewPath) {
     return emptyResult(false, 'brew')
   }
 
@@ -954,7 +975,7 @@ async function checkForUpdatesBrew(): Promise<UpdateCheckResult> {
     let outdatedStdout = ''
     try {
       const result = await execFileAsync(
-        'brew',
+        brewPath,
         ['outdated', '--json=v2'],
         { timeout: 60_000, maxBuffer: 10 * 1024 * 1024 },
       )
@@ -975,7 +996,7 @@ async function checkForUpdatesBrew(): Promise<UpdateCheckResult> {
       let infoStdout = ''
       try {
         const infoResult = await execFileAsync(
-          'brew',
+          brewPath,
           ['info', '--json=v2', '--installed'],
           { timeout: 60_000, maxBuffer: 10 * 1024 * 1024 },
         )
@@ -1015,9 +1036,14 @@ async function attemptBrewUpgrade(
     return { success: false, error: 'Invalid package name format' }
   }
 
+  const brewPath = await resolveBrewPath()
+  if (!brewPath) {
+    return { success: false, error: 'brew not found' }
+  }
+
   try {
     await execFileAsync(
-      'brew',
+      brewPath,
       ['upgrade', name],
       { timeout: 10 * 60 * 1000, maxBuffer: 10 * 1024 * 1024 },
     )

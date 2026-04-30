@@ -17,6 +17,7 @@ import {
   parseChocoOutdatedOutput,
   parseChocoListOutput,
   isValidAppId,
+  BREW_PATH_CANDIDATES,
 } from './software-updater'
 
 // ─── cleanOutput ────────────────────────────────────────────
@@ -280,6 +281,28 @@ describe('parseBrewInstalledJson', () => {
       casks: [],
     })
     expect(parseBrewInstalledJson(json)).toEqual([])
+  })
+})
+
+// ─── BREW_PATH_CANDIDATES ───────────────────────────────────
+
+describe('BREW_PATH_CANDIDATES', () => {
+  // Regression guard for macOS GUI launches: launchd-inherited PATH does not
+  // include either Homebrew install location, so both absolute paths must be
+  // probed before falling back to a PATH lookup.
+  it('probes both Apple Silicon and Intel brew locations', () => {
+    expect(BREW_PATH_CANDIDATES).toContain('/opt/homebrew/bin/brew')
+    expect(BREW_PATH_CANDIDATES).toContain('/usr/local/bin/brew')
+  })
+
+  it('prefers Apple Silicon over Intel', () => {
+    const arm = BREW_PATH_CANDIDATES.indexOf('/opt/homebrew/bin/brew')
+    const intel = BREW_PATH_CANDIDATES.indexOf('/usr/local/bin/brew')
+    expect(arm).toBeLessThan(intel)
+  })
+
+  it('falls back to PATH lookup last', () => {
+    expect(BREW_PATH_CANDIDATES[BREW_PATH_CANDIDATES.length - 1]).toBe('brew')
   })
 })
 
