@@ -81,6 +81,10 @@ import type {
   StartupSafetyResult,
   BreachMonitorResult,
   BreachAcknowledgeResult,
+  ContextMenuApplyProgress,
+  ContextMenuApplyRequest,
+  ContextMenuApplyResult,
+  ContextMenuScanResult,
 } from '../shared/types'
 
 const api = {
@@ -146,6 +150,17 @@ const api = {
     ipcRenderer.invoke(IPC.REGISTRY_FIX, entryIds),
   registryScanCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_SCAN_CANCEL),
   registryFixCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_FIX_CANCEL),
+
+  // Context Menu Cleaner
+  contextMenuScan: (): Promise<ContextMenuScanResult> => ipcRenderer.invoke(IPC.CONTEXT_MENU_SCAN),
+  contextMenuScanCancel: (): Promise<void> => ipcRenderer.invoke(IPC.CONTEXT_MENU_SCAN_CANCEL),
+  contextMenuApply: (requests: ContextMenuApplyRequest[]): Promise<ContextMenuApplyResult> =>
+    ipcRenderer.invoke(IPC.CONTEXT_MENU_APPLY, requests),
+  onContextMenuApplyProgress: (callback: (data: ContextMenuApplyProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: ContextMenuApplyProgress) => callback(data)
+    ipcRenderer.on(IPC.CONTEXT_MENU_APPLY_PROGRESS, handler)
+    return () => { ipcRenderer.removeListener(IPC.CONTEXT_MENU_APPLY_PROGRESS, handler) }
+  },
 
   // Debloater
   debloaterScan: (): Promise<BloatwareApp[]> => ipcRenderer.invoke(IPC.DEBLOATER_SCAN),

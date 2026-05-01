@@ -8,6 +8,7 @@ export interface PlatformInfo {
     bootTrace: boolean
     gameMode: boolean
     firewallAudit: boolean
+    contextMenu: boolean
   }
 }
 
@@ -1188,4 +1189,80 @@ export interface DuplicateDeleteResult {
   failed: number
   spaceRecovered: number
   errors: { path: string; reason: string }[]
+}
+
+// ─── Context Menu Cleaner ──────────────────────────────────────────────
+
+export type ContextMenuEntryKind = 'verb' | 'handler'
+
+export type ContextMenuScope =
+  | 'AllFiles'
+  | 'Directory'
+  | 'DirectoryBackground'
+  | 'Folder'
+  | 'Drive'
+  | 'AllFilesystemObjects'
+  | 'ProgID'
+
+export type ContextMenuHive = 'HKCR' | 'HKCU'
+
+export type ContextMenuSource =
+  | '7-Zip'
+  | 'WinRAR'
+  | 'OneDrive'
+  | 'Notepad++'
+  | 'VSCode'
+  | 'Defender'
+  | 'Git'
+  | 'Dropbox'
+  | 'Google Drive'
+  | 'PowerToys'
+  | 'Microsoft'
+  | 'Windows'
+  | 'Unknown'
+
+export type ContextMenuStatus = 'enabled' | 'disabled'
+
+export type ContextMenuAction = 'disable' | 'enable' | 'delete'
+
+export interface ContextMenuEntry {
+  id: string
+  kind: ContextMenuEntryKind
+  keyPath: string
+  name: string
+  displayName: string
+  scope: ContextMenuScope
+  hive: ContextMenuHive
+  clsid: string | null
+  dllPath: string | null
+  command: string | null
+  source: ContextMenuSource
+  status: ContextMenuStatus
+  protected: boolean
+  requiresAdmin: boolean
+  selected: boolean
+}
+
+export interface ContextMenuScanResult {
+  entries: ContextMenuEntry[]
+  scanDuration: number
+  scanned: number
+}
+
+export interface ContextMenuApplyRequest {
+  entryId: string
+  action: ContextMenuAction
+}
+
+export interface ContextMenuApplyResult {
+  succeeded: number
+  failed: number
+  errors: { entryId: string; displayName: string; reason: string }[]
+  updates: { entryId: string; status: ContextMenuStatus }[]
+}
+
+export interface ContextMenuApplyProgress {
+  current: number
+  total: number
+  currentLabel: string
 }

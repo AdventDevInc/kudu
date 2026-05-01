@@ -35,6 +35,7 @@ import {
   PackageMinus,
   Cloud,
   Mail,
+  MousePointerClick,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -100,6 +101,7 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: Sparkles, labelKey: 'cleaner', path: '/cleaner' },
       { icon: Database, labelKey: 'registry', path: '/registry' },
+      { icon: MousePointerClick, labelKey: 'contextMenu', path: '/context-menu' },
       { icon: Zap, labelKey: 'startup', path: '/startup' },
       { icon: Wifi, labelKey: 'network', path: '/network' },
       {
@@ -206,6 +208,7 @@ export function Sidebar() {
     ...group,
     items: group.items.filter((item) => {
       if (item.path === '/registry' && !features.registry) return false
+      if (item.path === '/context-menu' && !features.contextMenu) return false
       if (item.path === '/game-mode' && !features.gameMode) return false
       return true
     }).map((item) => {

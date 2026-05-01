@@ -1,0 +1,77 @@
+{
+  "pageTitle": "Context Menu Cleaner",
+  "pageDescription": "Manage right-click menu entries left by installers (7-Zip, OneDrive, Notepad++, etc.). Disable, re-enable, or remove them.",
+  "pageHeaderUnavailableTitle": "Context Menu Cleaner",
+  "pageHeaderUnavailableDescription": "This tool is only available on Windows.",
+  "notAvailableTitle": "Windows-only feature",
+  "notAvailableDescription": "Context menu management uses the Windows registry and is not available on macOS or Linux.",
+
+  "scanButton": "Scan",
+  "cancelButton": "Cancel",
+  "rescanButton": "Re-scan",
+  "scanningLabel": "Scanning context menu entries…",
+
+  "emptyStateTitle": "Scan your right-click menu",
+  "emptyStateDescription": "Find context menu entries added by installed apps and choose which ones to keep.",
+  "noResultsTitle": "No entries found",
+  "noResultsDescription": "Try adjusting filters, or click Re-scan.",
+
+  "win11NoticeTitle": "Windows 11 note",
+  "win11NoticeBody": "On Windows 11, classic right-click entries appear under \"Show more options\" (or press Shift+F10).",
+  "win11NoticeDismiss": "Got it",
+
+  "filterSearchPlaceholder": "Search by name, command, or DLL…",
+  "filterScopeAll": "All scopes",
+  "filterSourceAll": "All sources",
+  "filterStatusAll": "All",
+  "filterStatusEnabled": "Enabled",
+  "filterStatusDisabled": "Disabled",
+
+  "scopeAllFiles": "All files",
+  "scopeDirectory": "Folders",
+  "scopeDirectoryBackground": "Folder background",
+  "scopeFolder": "Folder shell",
+  "scopeDrive": "Drives",
+  "scopeAllFilesystemObjects": "All file-system objects",
+  "scopeProgID": "File type",
+
+  "kindVerb": "Verb",
+  "kindHandler": "Handler",
+
+  "statusEnabled": "Enabled",
+  "statusDisabled": "Disabled",
+  "protectedBadge": "Protected",
+  "protectedTooltip": "This entry is part of Windows or a critical app and cannot be modified.",
+  "adminBadge": "Admin",
+  "adminTooltip": "Modifying this entry requires administrator privileges.",
+
+  "actionDisable": "Disable",
+  "actionEnable": "Enable",
+  "actionDelete": "Delete",
+  "selectedCount": "{{count}} selected",
+  "disableSelected": "Disable selected",
+  "enableSelected": "Enable selected",
+  "deleteSelected": "Delete selected",
+
+  "confirmDeleteTitle": "Delete context menu entries?",
+  "confirmDeleteDescription": "This will permanently remove {{count}} entry. The change is undoable only by importing the registry backup or reinstalling the source app.",
+  "confirmDeleteDescriptionPlural": "This will permanently remove {{count}} entries. The change is undoable only by importing the registry backup or reinstalling the source apps.",
+  "confirmDeleteLabel": "Delete",
+  "createRestorePointFirst": "Create a system restore point first",
+
+  "applyingTitle": "Applying changes…",
+  "applyDoneSuccess": "Updated {{count}} entry.",
+  "applyDoneSuccessPlural": "Updated {{count}} entries.",
+  "applyDoneFailureCount": "{{count}} failed",
+  "applyShowFailures": "Show details",
+  "applyHideFailures": "Hide details",
+
+  "toastScanFailed": "Scan failed",
+  "toastScanFailedDescription": "Could not enumerate context menu entries.",
+  "toastApplyFailed": "Action failed",
+  "toastApplyFailedDescription": "Could not apply the requested changes.",
+
+  "groupHeading": "{{source}} — {{count}}",
+  "elevationPrompt": "Some selected entries require administrator privileges. Relaunch as admin?",
+  "elevationRelaunch": "Relaunch as admin"
+}

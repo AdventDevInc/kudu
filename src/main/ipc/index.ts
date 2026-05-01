@@ -9,6 +9,7 @@ import { registerAppCleanerIpc } from './app-cleaner.ipc'
 import { registerGamingCleanerIpc } from './gaming-cleaner.ipc'
 import { registerRecycleBinIpc } from './recycle-bin.ipc'
 import { registerRegistryCleanerIpc } from './registry-cleaner.ipc'
+import { registerContextMenuCleanerIpc } from './context-menu-cleaner.ipc'
 import { registerStartupManagerIpc } from './startup-manager.ipc'
 import { registerDebloaterIpc } from './debloater.ipc'
 import { registerDiskAnalyzerIpc } from './disk-analyzer.ipc'
@@ -56,6 +57,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerEnvironmentCleanerIpc(getWindow)
   registerDatabaseOptimizerIpc(getWindow)
   registerRegistryCleanerIpc(getWindow)
+  registerContextMenuCleanerIpc(getWindow)
   registerStartupManagerIpc()
   registerDebloaterIpc(getWindow)
   registerDiskAnalyzerIpc(getWindow)
@@ -100,6 +102,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       bootTrace: isWin,
       gameMode: isWin,
       firewallAudit: isWin,
+      contextMenu: isWin,
     },
   }))
 

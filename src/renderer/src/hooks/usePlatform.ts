@@ -3,7 +3,7 @@ import type { PlatformInfo } from '../../../shared/types'
 
 const defaultInfo: PlatformInfo = {
   platform: 'win32',
-  features: { registry: true, debloater: true, drivers: true, restorePoint: true, bootTrace: true, gameMode: true, firewallAudit: true },
+  features: { registry: true, debloater: true, drivers: true, restorePoint: true, bootTrace: true, gameMode: true, firewallAudit: true, contextMenu: true },
 }
 
 const PlatformContext = createContext<PlatformInfo>(defaultInfo)

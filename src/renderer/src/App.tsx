@@ -8,6 +8,7 @@ import { AppShell } from './components/layout/AppShell'
 import { DashboardPage } from './pages/DashboardPage'
 import { CleanerPage } from './pages/CleanerPage'
 import { RegistryPage } from './pages/RegistryPage'
+import { ContextMenuCleanerPage } from './pages/ContextMenuCleanerPage'
 import { StartupPage } from './pages/StartupPage'
 import { DebloaterPage } from './pages/DebloaterPage'
 import { SoftwareUpdaterPage } from './pages/SoftwareUpdaterPage'
@@ -139,6 +140,7 @@ export function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/cleaner" element={<CleanerPage />} />
           <Route path="/registry" element={<RegistryPage />} />
+          <Route path="/context-menu" element={<ContextMenuCleanerPage />} />
           <Route path="/startup" element={<StartupPage />} />
           <Route path="/disk" element={<DiskAnalyzerPage />} />
           <Route path="/duplicates" element={<DuplicateFinderPage />} />
