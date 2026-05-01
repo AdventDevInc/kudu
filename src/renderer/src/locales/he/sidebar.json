@@ -11,6 +11,7 @@
   "maintainHeading": "תחזוקה",
   "cleaner": "מנקה",
   "registry": "רישום",
+  "contextMenu": "תפריט הקשר",
   "startup": "אתחול",
   "network": "רשת",
   "software": "תוכנה",
@@ -20,6 +21,6 @@
   "diskTools": "כלי דיסק",
   "history": "היסטוריה",
   "settings": "הגדרות",
-  "breachMonitor": "ניטור פרצות",
+  "breachMonitor": "ניטור דליפות",
   "gameMode": "מצב משחק"
 }
