@@ -55,6 +55,37 @@ function classifyRule(raw: {
   return { issues, risk }
 }
 
+// Replica of RULE_NAME_RE from firewall-audit.ipc.ts — kept in sync to
+// guard against accidental tightening that would break valid rule names.
+const RULE_NAME_RE = /^[^\x00-\x1f\x7f|]{1,512}$/
+
+describe('RULE_NAME_RE', () => {
+  it('accepts GUID-style system names', () => {
+    expect(RULE_NAME_RE.test('{6F4DC32E-BA34-422D-9F87-123456789ABC}')).toBe(true)
+  })
+  it('accepts hyphenated system names', () => {
+    expect(RULE_NAME_RE.test('CoreNet-DHCPV6-In')).toBe(true)
+  })
+  it('accepts user-defined names with spaces and parens', () => {
+    expect(RULE_NAME_RE.test('Microsoft Edge (mDNS-In)')).toBe(true)
+  })
+  it('rejects control characters', () => {
+    expect(RULE_NAME_RE.test('foo\x00bar')).toBe(false)
+    expect(RULE_NAME_RE.test('foo\nbar')).toBe(false)
+    expect(RULE_NAME_RE.test('foo\rbar')).toBe(false)
+  })
+  it('rejects pipe (our scan-output delimiter)', () => {
+    expect(RULE_NAME_RE.test('rule|name')).toBe(false)
+  })
+  it('rejects empty names', () => {
+    expect(RULE_NAME_RE.test('')).toBe(false)
+  })
+  it('rejects names over the length cap', () => {
+    expect(RULE_NAME_RE.test('a'.repeat(513))).toBe(false)
+    expect(RULE_NAME_RE.test('a'.repeat(512))).toBe(true)
+  })
+})
+
 describe('parseProfiles', () => {
   it('returns empty array for empty input', () => {
     expect(parseProfiles('')).toEqual([])

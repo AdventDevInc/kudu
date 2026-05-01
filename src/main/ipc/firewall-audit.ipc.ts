@@ -23,10 +23,13 @@ function psArgs(script: string): string[] {
 }
 const PS_OPTS = { timeout: 120_000, maxBuffer: 50 * 1024 * 1024, windowsHide: true }
 
-// Rule names from Get-NetFirewallRule are typically GUIDs in braces or
-// stable strings.  Restrict to a conservative character set so we never
-// hand untrusted input back to PowerShell.
-const RULE_NAME_RE = /^[A-Za-z0-9_.{}\-]{1,256}$/
+// User-defined firewall rule names can contain spaces, parentheses, and
+// other printable characters (e.g. "Microsoft Edge (mDNS-In)").  We
+// interpolate names into single-quoted PowerShell strings with `'` doubled,
+// so that escape neutralizes injection — the regex just needs to block
+// control characters, embedded null/newlines, and the pipe delimiter we
+// use in scan output.
+const RULE_NAME_RE = /^[^\x00-\x1f\x7f|]{1,512}$/
 
 function parseProfiles(raw: string): FirewallProfile[] {
   // PowerShell renders the Profile flag enum as "Domain, Private" or "Any".
@@ -147,9 +150,16 @@ export async function scanFirewallRules(
     $total = $rules.Count
     Write-Output "TOTAL|$total"
     $i = 0
+    # Append the directory separator so StartsWith matches on a directory boundary.
+    # Without this, "C:\WindowsTemp\evil.exe" would match "C:\Windows" and be wrongly
+    # treated as system-signed, suppressing the unsigned-binary finding.
+    $sep = [IO.Path]::DirectorySeparatorChar
     $sysRoot = [Environment]::GetFolderPath('Windows')
     $pf = [Environment]::GetFolderPath('ProgramFiles')
     $pfx86 = [System.Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
+    if ($sysRoot) { $sysRoot = $sysRoot.TrimEnd($sep) + $sep }
+    if ($pf) { $pf = $pf.TrimEnd($sep) + $sep }
+    if ($pfx86) { $pfx86 = $pfx86.TrimEnd($sep) + $sep }
     foreach ($r in $rules) {
       $i++
       try {
