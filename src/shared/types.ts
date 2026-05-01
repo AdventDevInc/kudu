@@ -7,6 +7,7 @@ export interface PlatformInfo {
     restorePoint: boolean
     bootTrace: boolean
     gameMode: boolean
+    firewallAudit: boolean
   }
 }
 
@@ -766,6 +767,57 @@ export interface ServiceScanProgress {
   total: number
   currentService: string
 }
+
+// ─── Firewall Audit (Windows-only) ──────────────────────────
+export type FirewallProfile = 'Domain' | 'Private' | 'Public' | 'Any'
+export type FirewallSignatureStatus = 'signed' | 'unsigned' | 'unknown' | 'not-applicable'
+export type FirewallIssue = 'stale' | 'unsigned' | 'broad-scope' | 'any-remote'
+export type FirewallRiskLevel = 'high' | 'medium' | 'low'
+
+export interface FirewallRule {
+  // Internal name (used as -Name when disabling/removing). Unique per rule.
+  name: string
+  displayName: string
+  description: string
+  group: string
+  profiles: FirewallProfile[]
+  protocol: string
+  localPort: string
+  remoteAddress: string
+  // Raw program path as Windows stores it (may contain %SystemRoot% etc.)
+  program: string
+  // Expanded/resolved absolute path. Empty if rule has no program filter.
+  programResolved: string
+  programExists: boolean
+  signature: FirewallSignatureStatus
+  enabled: boolean
+  issues: FirewallIssue[]
+  risk: FirewallRiskLevel
+  selected: boolean
+}
+
+export interface FirewallScanResult {
+  rules: FirewallRule[]
+  totalCount: number
+  staleCount: number
+  unsignedCount: number
+  broadScopeCount: number
+}
+
+export interface FirewallApplyResult {
+  succeeded: number
+  failed: number
+  errors: { name: string; displayName: string; reason: string }[]
+}
+
+export interface FirewallScanProgress {
+  phase: 'enumerating' | 'classifying' | 'verifying'
+  current: number
+  total: number
+  currentRule: string
+}
+
+export type FirewallAction = 'disable' | 'delete'
 
 // ─── Software Updater ──────────────────────────────────────
 export type UpdateSeverity = 'major' | 'minor' | 'patch' | 'unknown'

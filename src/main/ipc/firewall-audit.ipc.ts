@@ -1,0 +1,327 @@
+import { ipcMain } from 'electron'
+import { execFile } from 'child_process'
+import { promisify } from 'util'
+import { IPC } from '../../shared/channels'
+import type { WindowGetter } from './index'
+import type {
+  FirewallRule,
+  FirewallScanResult,
+  FirewallApplyResult,
+  FirewallScanProgress,
+  FirewallProfile,
+  FirewallSignatureStatus,
+  FirewallIssue,
+  FirewallRiskLevel,
+  FirewallAction,
+} from '../../shared/types'
+import { psUtf8 } from '../services/exec-utf8'
+
+const execFileAsync = promisify(execFile)
+
+function psArgs(script: string): string[] {
+  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
+}
+const PS_OPTS = { timeout: 120_000, maxBuffer: 50 * 1024 * 1024, windowsHide: true }
+
+// Rule names from Get-NetFirewallRule are typically GUIDs in braces or
+// stable strings.  Restrict to a conservative character set so we never
+// hand untrusted input back to PowerShell.
+const RULE_NAME_RE = /^[A-Za-z0-9_.{}\-]{1,256}$/
+
+function parseProfiles(raw: string): FirewallProfile[] {
+  // PowerShell renders the Profile flag enum as "Domain, Private" or "Any".
+  if (!raw) return []
+  if (raw.toLowerCase().trim() === 'any') return ['Any']
+  const parts = raw.split(',').map((p) => p.trim())
+  const out: FirewallProfile[] = []
+  for (const p of parts) {
+    if (p === 'Domain' || p === 'Private' || p === 'Public') out.push(p)
+  }
+  return out
+}
+
+function parseSignature(raw: string): FirewallSignatureStatus {
+  switch (raw) {
+    case 'signed': return 'signed'
+    case 'unsigned': return 'unsigned'
+    case 'unknown': return 'unknown'
+    default: return 'not-applicable'
+  }
+}
+
+function classifyRule(
+  raw: {
+    program: string
+    programResolved: string
+    programExists: boolean
+    signature: FirewallSignatureStatus
+    profiles: FirewallProfile[]
+    localPort: string
+    remoteAddress: string
+  }
+): { issues: FirewallIssue[]; risk: FirewallRiskLevel } {
+  const issues: FirewallIssue[] = []
+
+  const hasProgram = !!raw.programResolved
+  if (hasProgram && !raw.programExists) issues.push('stale')
+  if (hasProgram && raw.programExists && raw.signature === 'unsigned') issues.push('unsigned')
+
+  const isAnyRemote = !raw.remoteAddress || raw.remoteAddress.toLowerCase() === 'any'
+  const isAnyPort = !raw.localPort || raw.localPort.toLowerCase() === 'any'
+  const hitsPublic = raw.profiles.includes('Public') || raw.profiles.includes('Any')
+
+  if (isAnyRemote && isAnyPort && hitsPublic) issues.push('broad-scope')
+  else if (isAnyRemote) issues.push('any-remote')
+
+  let risk: FirewallRiskLevel = 'low'
+  if (issues.includes('stale') || issues.includes('broad-scope')) risk = 'high'
+  else if (issues.includes('unsigned') || issues.includes('any-remote')) risk = 'medium'
+
+  return { issues, risk }
+}
+
+// Parse a single RULE| line from the PowerShell scanner.  Exported for tests.
+export function parseRuleLine(line: string): FirewallRule | null {
+  // Format: RULE|name|display|description|group|profiles|protocol|localPort|remoteAddress|program|programResolved|exists|signature|enabled
+  if (!line.startsWith('RULE|')) return null
+  const parts = line.split('|')
+  if (parts.length < 14) return null
+
+  const name = parts[1]
+  if (!name) return null
+
+  const profiles = parseProfiles(parts[5])
+  const programResolved = parts[10]
+  const programExists = parts[11].trim().toLowerCase() === 'true'
+  const signature = parseSignature(parts[12].trim().toLowerCase())
+  const enabled = parts[13].trim().toLowerCase() === 'true'
+
+  const localPort = parts[7] || 'Any'
+  const remoteAddress = parts[8] || 'Any'
+
+  const { issues, risk } = classifyRule({
+    program: parts[9],
+    programResolved,
+    programExists,
+    signature,
+    profiles,
+    localPort,
+    remoteAddress,
+  })
+
+  return {
+    name,
+    displayName: parts[2] || name,
+    description: parts[3] || '',
+    group: parts[4] || '',
+    profiles,
+    protocol: parts[6] || 'Any',
+    localPort,
+    remoteAddress,
+    program: parts[9] || '',
+    programResolved,
+    programExists,
+    signature,
+    enabled,
+    issues,
+    risk,
+    selected: false,
+  }
+}
+
+export async function scanFirewallRules(
+  onProgress?: (data: FirewallScanProgress) => void
+): Promise<FirewallScanResult> {
+  if (process.platform !== 'win32') {
+    return { rules: [], totalCount: 0, staleCount: 0, unsignedCount: 0, broadScopeCount: 0 }
+  }
+
+  onProgress?.({ phase: 'enumerating', current: 0, total: 0, currentRule: 'Enumerating firewall rules...' })
+
+  // Pull all enabled inbound Allow rules and stream a single line per rule.
+  // Skip Authenticode checks for system-owned paths (Windows / Program Files)
+  // since they're invariably signed and the cmdlet is the slow part.
+  const script = String.raw`
+    $ErrorActionPreference = 'SilentlyContinue'
+    $rules = @(Get-NetFirewallRule | Where-Object { $_.Enabled -eq 'True' -and $_.Direction -eq 'Inbound' -and $_.Action -eq 'Allow' })
+    $total = $rules.Count
+    Write-Output "TOTAL|$total"
+    $i = 0
+    $sysRoot = [Environment]::GetFolderPath('Windows')
+    $pf = [Environment]::GetFolderPath('ProgramFiles')
+    $pfx86 = [System.Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
+    foreach ($r in $rules) {
+      $i++
+      try {
+        $app = $r | Get-NetFirewallApplicationFilter
+        $port = $r | Get-NetFirewallPortFilter
+        $addr = $r | Get-NetFirewallAddressFilter
+      } catch { continue }
+
+      $programRaw = if ($app -and $app.Program) { [string]$app.Program } else { '' }
+      $localPort  = if ($port -and $port.LocalPort) { (@($port.LocalPort) -join ',') } else { 'Any' }
+      $protocol   = if ($port -and $port.Protocol) { [string]$port.Protocol } else { 'Any' }
+      $remoteAddr = if ($addr -and $addr.RemoteAddress) { (@($addr.RemoteAddress) -join ',') } else { 'Any' }
+
+      $programResolved = ''
+      $exists = $false
+      $signed = ''
+      if ($programRaw -and $programRaw -ne 'Any' -and $programRaw -ne 'System') {
+        try { $programResolved = [System.Environment]::ExpandEnvironmentVariables($programRaw) } catch { $programResolved = $programRaw }
+        if (Test-Path -LiteralPath $programResolved -PathType Leaf) {
+          $exists = $true
+          $isSystemPath = $false
+          if ($sysRoot -and $programResolved.StartsWith($sysRoot, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
+          if (-not $isSystemPath -and $pf -and $programResolved.StartsWith($pf, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
+          if (-not $isSystemPath -and $pfx86 -and $programResolved.StartsWith($pfx86, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
+          if ($isSystemPath) {
+            $signed = 'signed'
+          } else {
+            try {
+              $sig = Get-AuthenticodeSignature -LiteralPath $programResolved
+              if ($sig.Status -eq 'Valid') { $signed = 'signed' }
+              elseif ($sig.Status -eq 'NotSigned') { $signed = 'unsigned' }
+              else { $signed = 'unknown' }
+            } catch { $signed = 'unknown' }
+          }
+        }
+      }
+
+      $name = ([string]$r.Name) -replace '\|', ' '
+      $disp = if ($r.DisplayName) { ([string]$r.DisplayName) -replace '\|', ' ' } else { $name }
+      $descRaw = if ($r.Description) { [string]$r.Description } else { '' }
+      $desc = $descRaw -replace '\|', ' ' -replace '\r?\n', ' '
+      $grp  = if ($r.Group) { ([string]$r.Group) -replace '\|', ' ' } else { '' }
+      $prof = [string]$r.Profile
+
+      Write-Output "RULE|$name|$disp|$desc|$grp|$prof|$protocol|$localPort|$remoteAddr|$programRaw|$programResolved|$exists|$signed|true"
+
+      if (($i % 25) -eq 0) {
+        Write-Output "PROG|$i|$total|$disp"
+      }
+    }
+  `
+
+  const { stdout } = await execFileAsync('powershell', psArgs(script), PS_OPTS)
+
+  const rules: FirewallRule[] = []
+  let total = 0
+  for (const rawLine of stdout.split('\n')) {
+    const line = rawLine.trim()
+    if (!line) continue
+    if (line.startsWith('TOTAL|')) {
+      const n = parseInt(line.split('|')[1], 10)
+      if (!Number.isNaN(n)) total = n
+      continue
+    }
+    if (line.startsWith('PROG|')) {
+      const parts = line.split('|')
+      const cur = parseInt(parts[1], 10)
+      const tot = parseInt(parts[2], 10)
+      const ruleName = parts[3] ?? ''
+      if (!Number.isNaN(cur) && !Number.isNaN(tot)) {
+        onProgress?.({ phase: 'classifying', current: cur, total: tot, currentRule: ruleName })
+      }
+      continue
+    }
+    const parsed = parseRuleLine(line)
+    if (parsed) rules.push(parsed)
+  }
+
+  const staleCount = rules.filter((r) => r.issues.includes('stale')).length
+  const unsignedCount = rules.filter((r) => r.issues.includes('unsigned')).length
+  const broadScopeCount = rules.filter((r) => r.issues.includes('broad-scope')).length
+
+  return {
+    rules,
+    totalCount: total || rules.length,
+    staleCount,
+    unsignedCount,
+    broadScopeCount,
+  }
+}
+
+export async function applyFirewallChanges(
+  changes: { name: string; action: FirewallAction }[]
+): Promise<FirewallApplyResult> {
+  if (!Array.isArray(changes) || changes.length === 0) {
+    return { succeeded: 0, failed: 0, errors: [] }
+  }
+  if (process.platform !== 'win32') {
+    return { succeeded: 0, failed: changes.length, errors: changes.map((c) => ({ name: c.name, displayName: c.name, reason: 'Firewall audit is Windows-only' })) }
+  }
+
+  // Validate every name against a strict allowlist before interpolating.
+  for (const c of changes) {
+    if (typeof c.name !== 'string' || !RULE_NAME_RE.test(c.name)) {
+      return { succeeded: 0, failed: changes.length, errors: [{ name: c.name ?? '', displayName: c.name ?? '', reason: 'Invalid rule name' }] }
+    }
+    if (c.action !== 'disable' && c.action !== 'delete') {
+      return { succeeded: 0, failed: changes.length, errors: [{ name: c.name, displayName: c.name, reason: 'Invalid action' }] }
+    }
+  }
+
+  const lines = changes.map((c) => {
+    const safeName = c.name.replace(/'/g, "''")
+    const cmd = c.action === 'delete' ? 'Remove-NetFirewallRule' : 'Set-NetFirewallRule'
+    const extra = c.action === 'delete' ? '' : ' -Enabled False'
+    return `
+try {
+  $rule = Get-NetFirewallRule -Name '${safeName}' -ErrorAction Stop
+  $dn = $rule.DisplayName
+  ${cmd} -Name '${safeName}'${extra} -ErrorAction Stop
+  Write-Output "OK|${safeName}|$dn"
+} catch {
+  Write-Output "FAIL|${safeName}|${safeName}|$($_.Exception.Message -replace '\\|', ' ' -replace '\\r?\\n', ' ')"
+}`
+  })
+
+  const script = lines.join('\n')
+
+  let succeeded = 0
+  let failed = 0
+  const errors: { name: string; displayName: string; reason: string }[] = []
+
+  try {
+    const { stdout } = await execFileAsync('powershell', psArgs(script), {
+      ...PS_OPTS,
+      timeout: changes.length * 5_000 + 30_000,
+    })
+
+    for (const rawLine of stdout.split('\n')) {
+      const line = rawLine.trim()
+      if (line.startsWith('OK|')) {
+        succeeded++
+      } else if (line.startsWith('FAIL|')) {
+        failed++
+        const parts = line.split('|')
+        errors.push({
+          name: parts[1] || '',
+          displayName: parts[2] || '',
+          reason: parts[3] || 'Unknown error',
+        })
+      }
+    }
+  } catch (err) {
+    failed = changes.length - succeeded
+    errors.push({
+      name: '',
+      displayName: '',
+      reason: err instanceof Error ? err.message : 'PowerShell execution failed',
+    })
+  }
+
+  return { succeeded, failed, errors }
+}
+
+export function registerFirewallAuditIpc(getWindow: WindowGetter): void {
+  ipcMain.handle(IPC.FIREWALL_SCAN, () => scanFirewallRules((data) => {
+    const win = getWindow()
+    if (win && !win.isDestroyed()) win.webContents.send(IPC.FIREWALL_PROGRESS, data)
+  }))
+
+  ipcMain.handle(IPC.FIREWALL_APPLY, async (_event, changes: { name: string; action: FirewallAction }[]) => {
+    if (!Array.isArray(changes)) return { succeeded: 0, failed: 0, errors: [] }
+    return applyFirewallChanges(changes)
+  })
+}

@@ -21,6 +21,7 @@ import { registerDriverManagerIpc } from './driver-manager.ipc'
 import { registerPerfMonitorIpc } from './perf-monitor.ipc'
 import { registerProgramUninstallerIpc } from './program-uninstaller.ipc'
 import { registerServiceManagerIpc } from './service-manager.ipc'
+import { registerFirewallAuditIpc } from './firewall-audit.ipc'
 import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
 import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 import { registerEnvironmentCleanerIpc } from './environment-cleaner.ipc'
@@ -68,6 +69,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerPerfMonitorIpc(getWindow)
   registerProgramUninstallerIpc(getWindow)
   registerServiceManagerIpc(getWindow)
+  registerFirewallAuditIpc(getWindow)
   registerSoftwareUpdaterIpc(getWindow)
   registerCloudAgentIpc()
   registerCveScannerIpc()
@@ -95,6 +97,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       restorePoint: isWin,
       bootTrace: isWin,
       gameMode: isWin,
+      firewallAudit: isWin,
     },
   }))
 

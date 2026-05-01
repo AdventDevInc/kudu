@@ -27,6 +27,7 @@ import { HistoryPage } from './pages/HistoryPage'
 import { PerformanceMonitorPage } from './pages/PerformanceMonitorPage'
 import { UninstallerPage } from './pages/UninstallerPage'
 import { ServiceManagerPage } from './pages/ServiceManagerPage'
+import { FirewallAuditPage } from './pages/FirewallAuditPage'
 import { SchedulesPage } from './pages/SchedulesPage'
 import { GameModePage } from './pages/GameModePage'
 import { CveScannerPage } from './pages/CveScannerPage'
@@ -159,6 +160,7 @@ export function App() {
           {/* Standalone pages */}
           <Route path="/privacy" element={<PrivacyShieldPage />} />
           <Route path="/services" element={<ServiceManagerPage />} />
+          <Route path="/firewall" element={<FirewallAuditPage />} />
           <Route path="/debloater" element={<DebloaterPage />} />
           <Route path="/updates" element={<SoftwareUpdaterPage />} />
           <Route path="/schedules" element={<SchedulesPage />} />
@@ -213,6 +215,7 @@ const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
   '/about': 'About',
   '/privacy': 'Privacy',
   '/services': 'Services',
+  '/firewall': 'Firewall Audit',
   '/debloater': 'Bloatware Remover',
   '/updates': 'Software Updates',
   '/schedules': { key: 'schedules' },

@@ -39,6 +39,10 @@ import type {
   ServiceScanResult,
   ServiceApplyResult,
   ServiceScanProgress,
+  FirewallScanResult,
+  FirewallApplyResult,
+  FirewallScanProgress,
+  FirewallAction,
   UninstallerListResult,
   UninstallProgress,
   UninstallResult,
@@ -346,6 +350,16 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: ServiceScanProgress) => callback(data)
     ipcRenderer.on(IPC.SERVICE_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.SERVICE_PROGRESS, handler) }
+  },
+
+  // Firewall Audit (Windows-only)
+  firewallScan: (): Promise<FirewallScanResult> => ipcRenderer.invoke(IPC.FIREWALL_SCAN),
+  firewallApply: (changes: { name: string; action: FirewallAction }[]): Promise<FirewallApplyResult> =>
+    ipcRenderer.invoke(IPC.FIREWALL_APPLY, changes),
+  onFirewallProgress: (callback: (data: FirewallScanProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: FirewallScanProgress) => callback(data)
+    ipcRenderer.on(IPC.FIREWALL_PROGRESS, handler)
+    return () => { ipcRenderer.removeListener(IPC.FIREWALL_PROGRESS, handler) }
   },
 
   // Program Uninstaller

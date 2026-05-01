@@ -170,6 +170,11 @@ export const IPC = {
   SERVICE_APPLY: 'service:apply',
   SERVICE_PROGRESS: 'service:progress',
 
+  // Firewall Audit (Windows-only)
+  FIREWALL_SCAN: 'firewall:scan',
+  FIREWALL_APPLY: 'firewall:apply',
+  FIREWALL_PROGRESS: 'firewall:progress',
+
   // Software Updater
   SOFTWARE_UPDATE_CHECK: 'software-update:check',
   SOFTWARE_UPDATE_RUN: 'software-update:run',

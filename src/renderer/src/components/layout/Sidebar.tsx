@@ -30,6 +30,7 @@ import {
   Package,
   Eye,
   Server,
+  Flame,
   PackageMinus,
   Cloud,
   Mail,
@@ -80,6 +81,7 @@ const navGroups: NavGroup[] = [
         children: [
           { icon: Eye, label: 'Privacy', path: '/privacy' },
           { icon: Server, label: 'Services', path: '/services' },
+          { icon: Flame, label: 'Firewall Audit', path: '/firewall' },
         ]
       },
       {
@@ -209,6 +211,7 @@ export function Sidebar() {
       const filtered = item.children.filter((child) => {
         if (child.path === '/debloater' && !features.debloater) return false
         if (child.path === '/drivers' && !features.drivers) return false
+        if (child.path === '/firewall' && !features.firewallAudit) return false
         if (child.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
         if (child.path === '/cve' && !cloudConnected) return false
         if (child.path === '/breach-monitor' && !cloudConnected) return false
