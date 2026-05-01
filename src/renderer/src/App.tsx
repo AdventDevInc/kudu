@@ -18,6 +18,7 @@ import { LargeFileFinderPage } from './pages/LargeFileFinderPage'
 import { EmptyFolderCleanerPage } from './pages/EmptyFolderCleanerPage'
 import { FileShredderPage } from './pages/FileShredderPage'
 import { DiskRepairPage } from './pages/DiskRepairPage'
+import { DiskMaintenancePage } from './pages/DiskMaintenancePage'
 import { SettingsPage } from './pages/SettingsPage'
 import { NetworkCleanupPage } from './pages/NetworkCleanupPage'
 import { MalwareScannerPage } from './pages/MalwareScannerPage'
@@ -145,6 +146,7 @@ export function App() {
           <Route path="/empty-folders" element={<EmptyFolderCleanerPage />} />
           <Route path="/file-shredder" element={<FileShredderPage />} />
           <Route path="/disk-repair" element={<DiskRepairPage />} />
+          <Route path="/disk-maintenance" element={<DiskMaintenancePage />} />
           <Route path="/network" element={<NetworkCleanupPage />} />
           <Route path="/malware" element={<MalwareScannerPage />} />
           <Route path="/threat-monitor" element={<ThreatMonitorPage />} />
@@ -203,6 +205,7 @@ const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
   '/empty-folders': 'Empty Folder Cleaner',
   '/file-shredder': 'File Shredder',
   '/disk-repair': 'Disk Repair',
+  '/disk-maintenance': 'Disk Maintenance',
   '/network': { key: 'network' },
   '/malware': { key: 'malwareScanner' },
   '/threat-monitor': { key: 'threatMonitor' },

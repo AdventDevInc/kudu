@@ -7,6 +7,9 @@ import type {
   ProgressData,
   DiskRepairProgress,
   DiskRepairResult,
+  TrimDriveInfo,
+  TrimRunResult,
+  TrimProgress,
   RegistryEntry,
   StartupItem,
   StartupBootTrace,
@@ -191,6 +194,16 @@ const api = {
     const handler = (_event: Electron.IpcRendererEvent, data: DiskRepairProgress) => callback(data)
     ipcRenderer.on(IPC.DISK_REPAIR_PROGRESS, handler)
     return () => { ipcRenderer.removeListener(IPC.DISK_REPAIR_PROGRESS, handler) }
+  },
+
+  // Disk maintenance (SSD TRIM)
+  diskTrimList: (): Promise<TrimDriveInfo[]> => ipcRenderer.invoke(IPC.DISK_TRIM_LIST),
+  diskTrimRun: (driveIds: string[]): Promise<TrimRunResult[]> =>
+    ipcRenderer.invoke(IPC.DISK_TRIM_RUN, driveIds),
+  onDiskTrimProgress: (callback: (data: TrimProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: TrimProgress) => callback(data)
+    ipcRenderer.on(IPC.DISK_TRIM_PROGRESS, handler)
+    return () => { ipcRenderer.removeListener(IPC.DISK_TRIM_PROGRESS, handler) }
   },
 
   // Onboarding

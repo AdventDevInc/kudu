@@ -26,6 +26,7 @@ import {
   FolderX,
   ShieldAlert as ShieldAlertIcon,
   Wrench,
+  Eraser,
   Cpu,
   Package,
   Eye,
@@ -127,6 +128,7 @@ const navGroups: NavGroup[] = [
           { icon: FolderX, label: 'Empty Folder Cleaner', path: '/empty-folders' },
           { icon: ShieldAlertIcon, label: 'File Shredder', path: '/file-shredder' },
           { icon: Wrench, label: 'Disk Repair', path: '/disk-repair' },
+          { icon: Eraser, label: 'Disk Maintenance', path: '/disk-maintenance' },
         ]
       },
     ]

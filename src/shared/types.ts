@@ -883,6 +883,61 @@ export interface DiskRepairResult {
   needsAdmin: boolean
 }
 
+// ─── Disk Maintenance (SSD TRIM) ───────────────────────────
+export type TrimMediaType = 'SSD' | 'NVMe' | 'HDD' | 'Unknown'
+export type TrimSupport = 'supported' | 'disabled' | 'unsupported' | 'macos-managed'
+export type TrimStatus =
+  | 'recently-trimmed'
+  | 'ok'
+  | 'recommended'
+  | 'not-applicable'
+  | 'disabled'
+  | 'unknown'
+
+/**
+ * One row in the Disk Maintenance UI.
+ * `id` is the stable key — Windows: drive letter ('C'); Linux: mountpoint; macOS: BSD name.
+ */
+export interface TrimDriveInfo {
+  id: string
+  letter?: string
+  mountPoint?: string
+  label: string
+  totalSize: number
+  freeSpace: number
+  mediaType: TrimMediaType
+  busType?: string
+  filesystem?: string
+  isRemovable: boolean
+  isEncrypted: boolean
+  trimSupport: TrimSupport
+  status: TrimStatus
+  statusReason: string
+  lastTrimAt: number | null
+  estimatedDiscardBytes?: number
+}
+
+export interface TrimRunResult {
+  driveId: string
+  success: boolean
+  needsAdmin?: boolean
+  throttled?: boolean
+  bytesDiscarded?: number
+  durationMs: number
+  exitCode: number | null
+  summary: string
+  log: string
+  timestamp: number
+}
+
+export interface TrimProgress {
+  driveId: string
+  phase: 'starting' | 'running' | 'done' | 'failed'
+  /** -1 = indeterminate (Windows Optimize-Volume doesn't report clean percentages) */
+  percent: number
+  message: string
+}
+
 // ─── Threat Monitor ────────────────────────────────────────
 
 export interface FlaggedConnection {

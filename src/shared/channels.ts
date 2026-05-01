@@ -76,6 +76,11 @@ export const IPC = {
   DISK_REPAIR_CHKDSK: 'disk:repair:chkdsk',
   DISK_REPAIR_PROGRESS: 'disk:repair:progress',
 
+  // Disk maintenance (SSD TRIM)
+  DISK_TRIM_LIST: 'disk:trim:list',
+  DISK_TRIM_RUN: 'disk:trim:run',
+  DISK_TRIM_PROGRESS: 'disk:trim:progress',
+
   // Network cleanup
   NETWORK_SCAN: 'cleaner:network:scan',
   NETWORK_CLEAN: 'cleaner:network:clean',
