@@ -156,7 +156,12 @@ function ContextMenuCleanerPageContent() {
     selectedRequests.map((e) => ({ entryId: e.id, action }))
 
   const handleApply = useCallback(async (action: ContextMenuAction, requests?: ContextMenuApplyRequest[]) => {
-    const reqs = requests ?? buildRequests(action)
+    // Read selection from the store at call time — closing over `selectedRequests`
+    // (or `buildRequests`) here would freeze the empty initial selection inside the
+    // memoised callback and turn bulk-action clicks into no-ops.
+    const reqs = requests ?? useContextMenuStore.getState().entries
+      .filter((e) => e.selected && !e.protected)
+      .map((e) => ({ entryId: e.id, action }))
     if (reqs.length === 0) return
     const store = useContextMenuStore.getState()
     store.setApplying(true)
@@ -179,8 +184,6 @@ function ContextMenuCleanerPageContent() {
     }
     useContextMenuStore.getState().setApplying(false)
     useContextMenuStore.getState().setApplyProgress(null)
-  // buildRequests reads selectedRequests on call so it doesn't need to be a dep
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t])
 
   const onConfirmDelete = useCallback(() => {
@@ -333,7 +336,6 @@ function ContextMenuCleanerPageContent() {
           {groups.map((group) => {
             const groupKey = `src:${group.source}`
             const isExpanded = expanded.has(groupKey)
-            const visibleIds = group.entries.map((e) => e.id)
             const eligibleIds = group.entries.filter((e) => !e.protected).map((e) => e.id)
             const allSelected = eligibleIds.length > 0
               && eligibleIds.every((id) => entries.find((e) => e.id === id)?.selected)
