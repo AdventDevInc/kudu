@@ -1,5 +1,6 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { ipcMain } from 'electron'
 import { execFile, spawn } from 'child_process'
+import { readFile } from 'fs/promises'
 import { promisify } from 'util'
 import { StringDecoder } from 'string_decoder'
 import { IPC } from '../../shared/channels'
@@ -368,9 +369,36 @@ function findEncryptedAncestor(devices: LsblkDevice[], targetName: string): bool
   return false
 }
 
+/**
+ * Decode the octal escapes that /proc/mounts uses for whitespace-bearing fields:
+ * \040 (space), \011 (tab), \012 (newline), \134 (backslash).
+ */
+function decodeProcMountsField(s: string): string {
+  return s.replace(/\\([0-7]{3})/g, (_, oct) => String.fromCharCode(parseInt(oct, 8)))
+}
+
+/**
+ * Best-effort fallback when `findmnt` is unavailable (busybox/Alpine, minimal containers).
+ * /proc/mounts has the same data minus byte sizes, which we surface as 0.
+ */
+export async function readProcMounts(text?: string): Promise<FindmntEntry[]> {
+  const raw = text ?? await readFile('/proc/mounts', 'utf-8').catch(() => '')
+  const out: FindmntEntry[] = []
+  for (const line of raw.split('\n')) {
+    if (!line.trim()) continue
+    const parts = line.split(/\s+/)
+    if (parts.length < 3) continue
+    const source = decodeProcMountsField(parts[0])
+    const target = decodeProcMountsField(parts[1])
+    const fstype = decodeProcMountsField(parts[2])
+    out.push({ source, target, fstype })
+  }
+  return out
+}
+
 async function listDrivesLinux(): Promise<TrimDriveInfo[]> {
   let lsblkData: { blockdevices?: LsblkDevice[] } = {}
-  let findmntData: { filesystems?: FindmntEntry[] } = {}
+  let mounts: FindmntEntry[] = []
   try {
     const { stdout } = await execFileAsync('lsblk', ['-b', '-J', '-o', 'NAME,ROTA,TRAN,TYPE,SIZE,MODEL,FSTYPE'], { timeout: 8000 })
     lsblkData = JSON.parse(stdout)
@@ -379,14 +407,15 @@ async function listDrivesLinux(): Promise<TrimDriveInfo[]> {
   }
   try {
     const { stdout } = await execFileAsync('findmnt', ['-J', '-b', '-o', 'SOURCE,TARGET,FSTYPE,SIZE,AVAIL,USED'], { timeout: 8000 })
-    findmntData = JSON.parse(stdout)
+    const findmntData: { filesystems?: FindmntEntry[] } = JSON.parse(stdout)
+    mounts = findmntData.filesystems ?? []
   } catch {
-    // findmnt may be missing on busybox/Alpine — fall back to /proc/mounts (best-effort).
-    return []
+    // findmnt may be missing on busybox/Alpine — fall back to /proc/mounts.
+    mounts = await readProcMounts()
+    if (mounts.length === 0) return []
   }
 
   const blockdevs = lsblkData.blockdevices ?? []
-  const mounts = findmntData.filesystems ?? []
   const result: TrimDriveInfo[] = []
   const now = Date.now()
 
@@ -580,6 +609,9 @@ export async function runTrimForDrive(driveId: string, getWindow: WindowGetter, 
   }
   if (drive.mediaType === 'HDD') {
     return failResult(driveId, start, 'TRIM is not applicable to HDDs.')
+  }
+  if (drive.isRemovable) {
+    return failResult(driveId, start, 'TRIM is not run on removable drives.')
   }
   if (drive.trimSupport === 'unsupported' || drive.trimSupport === 'disabled') {
     return failResult(driveId, start, drive.statusReason || 'TRIM is not supported on this drive.')

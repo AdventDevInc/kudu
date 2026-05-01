@@ -44,7 +44,7 @@ vi.mock('../services/exec-utf8', () => ({
   psUtf8: (s: string) => s,
 }))
 
-import { registerDiskTrimIpc, runTrimForDrive } from './disk-trim.ipc'
+import { registerDiskTrimIpc, runTrimForDrive, readProcMounts } from './disk-trim.ipc'
 import type { TrimDriveInfo } from '../../shared/types'
 import { EventEmitter } from 'events'
 
@@ -141,6 +141,20 @@ describe('runTrimForDrive — safety rails', () => {
     const result = await runTrimForDrive('/data', getWindow, drives)
     expect(result.success).toBe(false)
     expect(result.summary).toMatch(/HDD/i)
+    expect(mockSpawn).not.toHaveBeenCalled()
+  })
+
+  it('rejects removable drives with success:false and never spawns', async () => {
+    setPlatform('linux')
+    const drives: TrimDriveInfo[] = [{
+      id: '/media/usb', mountPoint: '/media/usb', label: 'USB', totalSize: 0, freeSpace: 0,
+      mediaType: 'SSD', isRemovable: true, isEncrypted: false,
+      trimSupport: 'supported', status: 'not-applicable',
+      statusReason: 'Removable', lastTrimAt: null,
+    }]
+    const result = await runTrimForDrive('/media/usb', getWindow, drives)
+    expect(result.success).toBe(false)
+    expect(result.summary).toMatch(/removable/i)
     expect(mockSpawn).not.toHaveBeenCalled()
   })
 
@@ -262,6 +276,42 @@ describe('runTrimForDrive — safety rails', () => {
     const result = await runTrimForDrive('/legacy', getWindow, drives)
     expect(result.success).toBe(false)
     expect(mockSpawn).not.toHaveBeenCalled()
+  })
+})
+
+describe('readProcMounts — Linux /proc/mounts fallback', () => {
+  it('parses standard mount lines', async () => {
+    const text = [
+      '/dev/sda1 / ext4 rw,relatime 0 0',
+      '/dev/nvme0n1p2 /home btrfs rw,ssd 0 0',
+      'tmpfs /run tmpfs rw,nosuid 0 0',
+    ].join('\n') + '\n'
+    const result = await readProcMounts(text)
+    expect(result).toHaveLength(3)
+    expect(result[0]).toMatchObject({ source: '/dev/sda1', target: '/', fstype: 'ext4' })
+    expect(result[1]).toMatchObject({ source: '/dev/nvme0n1p2', target: '/home', fstype: 'btrfs' })
+    expect(result[2]).toMatchObject({ source: 'tmpfs', target: '/run', fstype: 'tmpfs' })
+  })
+
+  it('decodes octal-escaped whitespace in mount targets', async () => {
+    // /proc/mounts escapes ' ' as \040 and tab as \011
+    const text = '/dev/sdb1 /media/My\\040Drive ext4 rw 0 0\n'
+    const result = await readProcMounts(text)
+    expect(result[0].target).toBe('/media/My Drive')
+  })
+
+  it('skips blank lines and short rows', async () => {
+    const text = '\n/dev/sda1 / ext4\n\nbroken\n'
+    const result = await readProcMounts(text)
+    expect(result).toHaveLength(1)
+    expect(result[0].source).toBe('/dev/sda1')
+  })
+
+  it('returns [] when neither argument nor file is available', async () => {
+    // No text argument → tries to read /proc/mounts; on non-Linux test hosts that file doesn't exist,
+    // the .catch fallback returns '' and parsing yields [].
+    const result = await readProcMounts('')
+    expect(result).toEqual([])
   })
 })
 
