@@ -326,9 +326,12 @@ function isNetworkFs(fs?: string | null): boolean {
   return false
 }
 
-function deviceBaseName(devPath: string): string {
-  // /dev/nvme0n1p2 -> nvme0n1; /dev/sda1 -> sda; /dev/mapper/foo -> mapper/foo (left as-is)
-  const name = devPath.replace(/^\/dev\//, '')
+export function deviceBaseName(devPath: string): string {
+  // /dev/nvme0n1p2 -> nvme0n1; /dev/sda1 -> sda; /dev/mapper/foo -> mapper/foo (left as-is).
+  // findmnt appends '[/subvol]' for btrfs subvolumes and bind mounts — strip it so
+  // the lookup hits the backing block device and mediaType is detected correctly.
+  const stripped = devPath.replace(/\[[^\]]*\]$/, '')
+  const name = stripped.replace(/^\/dev\//, '')
   if (name.startsWith('mapper/')) return name
   // NVMe: nvme0n1p2 -> nvme0n1
   const nvme = name.match(/^(nvme\d+n\d+)p\d+$/)

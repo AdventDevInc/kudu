@@ -44,7 +44,7 @@ vi.mock('../services/exec-utf8', () => ({
   psUtf8: (s: string) => s,
 }))
 
-import { registerDiskTrimIpc, runTrimForDrive, readProcMounts } from './disk-trim.ipc'
+import { registerDiskTrimIpc, runTrimForDrive, readProcMounts, deviceBaseName } from './disk-trim.ipc'
 import type { TrimDriveInfo } from '../../shared/types'
 import { EventEmitter } from 'events'
 
@@ -276,6 +276,32 @@ describe('runTrimForDrive — safety rails', () => {
     const result = await runTrimForDrive('/legacy', getWindow, drives)
     expect(result.success).toBe(false)
     expect(mockSpawn).not.toHaveBeenCalled()
+  })
+})
+
+describe('deviceBaseName — Linux device-name normalization', () => {
+  it('strips a partition suffix from a SATA device', () => {
+    expect(deviceBaseName('/dev/sda1')).toBe('sda')
+    expect(deviceBaseName('/dev/sdb12')).toBe('sdb')
+  })
+
+  it('strips a partition suffix from an NVMe device', () => {
+    expect(deviceBaseName('/dev/nvme0n1p2')).toBe('nvme0n1')
+    expect(deviceBaseName('/dev/nvme1n2p15')).toBe('nvme1n2')
+  })
+
+  it('strips findmnt subvolume suffixes (btrfs / bind mounts)', () => {
+    // findmnt reports btrfs subvolumes and bind mounts with a [/subvol] suffix.
+    // Without stripping it, the lsblk lookup misses the backing device and
+    // mediaType stays Unknown, bypassing the HDD safety guard.
+    expect(deviceBaseName('/dev/nvme0n1p2[/@]')).toBe('nvme0n1')
+    expect(deviceBaseName('/dev/sda2[/home]')).toBe('sda')
+    expect(deviceBaseName('/dev/sda1[]')).toBe('sda')
+  })
+
+  it('leaves device-mapper paths intact', () => {
+    expect(deviceBaseName('/dev/mapper/cryptroot')).toBe('mapper/cryptroot')
+    expect(deviceBaseName('/dev/mapper/vg0-root[/@]')).toBe('mapper/vg0-root')
   })
 })
 
