@@ -60,6 +60,7 @@ export function FirewallAuditPage() {
   const searchQuery = useFirewallStore((s) => s.searchQuery)
   const riskFilter = useFirewallStore((s) => s.riskFilter)
   const programFilter = useFirewallStore((s) => s.programFilter)
+  const showBuiltin = useFirewallStore((s) => s.showBuiltin)
 
   const [pendingAction, setPendingAction] = useState<FirewallAction | null>(null)
   const isBusy = scanning || applying
@@ -119,8 +120,16 @@ export function FirewallAuditPage() {
       if (result.succeeded > 0) toast.success(`${result.succeeded} rule${result.succeeded === 1 ? '' : 's'} ${verb}`)
       if (result.failed > 0) toast.error(`${result.failed} rule${result.failed === 1 ? '' : 's'} failed`)
 
-      const scanResult = await window.kudu.firewallScan()
-      useFirewallStore.getState().setRules(scanResult.rules)
+      // The scan only enumerates enabled rules, so both delete and disable
+      // mean the rule should disappear from the list. Prune locally instead
+      // of re-scanning — the full re-scan takes 30-90s on a typical system.
+      const failedNames = new Set(result.errors.map((e) => e.name).filter(Boolean))
+      const requestedNames = new Set(selected.map((r) => r.name))
+      useFirewallStore.getState().setRules(
+        useFirewallStore.getState().rules.filter(
+          (r) => !requestedNames.has(r.name) || failedNames.has(r.name)
+        )
+      )
     } catch (err) {
       toast.error('Failed to update firewall rules')
       useFirewallStore
@@ -138,6 +147,11 @@ export function FirewallAuditPage() {
   const filteredRules = useMemo(() => {
     let result = rules
 
+    // Built-in / Microsoft / AppX rules are hidden by default. Stale built-ins
+    // are still surfaced because a leftover rule pointing at a removed Windows
+    // feature is genuinely worth cleaning up — toggle handles only the noise.
+    if (!showBuiltin) result = result.filter((r) => !r.builtin || r.issues.includes('stale'))
+
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       result = result.filter(
@@ -154,7 +168,12 @@ export function FirewallAuditPage() {
     else if (programFilter === 'stale') result = result.filter((r) => r.issues.includes('stale'))
 
     return result
-  }, [rules, searchQuery, riskFilter, programFilter])
+  }, [rules, searchQuery, riskFilter, programFilter, showBuiltin])
+
+  const builtinCount = useMemo(
+    () => rules.filter((r) => r.builtin && !r.issues.includes('stale')).length,
+    [rules]
+  )
 
   const selectedCount = rules.filter((r) => r.selected).length
   const staleCount = rules.filter((r) => r.issues.includes('stale')).length
@@ -369,6 +388,21 @@ export function FirewallAuditPage() {
                 { value: 'stale', label: 'Stale only' },
               ]}
             />
+            {builtinCount > 0 && (
+              <label
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[13px]"
+                style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', color: 'var(--text-secondary)' }}
+                title={`${builtinCount} Microsoft / system / packaged-app rule${builtinCount === 1 ? '' : 's'} hidden by default — these ship with Windows and shouldn't be removed.`}
+              >
+                <input
+                  type="checkbox"
+                  checked={showBuiltin}
+                  onChange={(e) => useFirewallStore.getState().setShowBuiltin(e.target.checked)}
+                  className="h-3.5 w-3.5 cursor-pointer accent-amber-500"
+                />
+                Show built-in ({builtinCount})
+              </label>
+            )}
           </div>
 
           {filteredRules.length === 0 ? (

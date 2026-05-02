@@ -21,6 +21,7 @@ interface FirewallState {
   searchQuery: string
   riskFilter: RiskFilter
   programFilter: ProgramFilter
+  showBuiltin: boolean
 
   setRules: (rules: FirewallRule[]) => void
   setScanning: (scanning: boolean) => void
@@ -33,6 +34,7 @@ interface FirewallState {
   setSearchQuery: (query: string) => void
   setRiskFilter: (filter: RiskFilter) => void
   setProgramFilter: (filter: ProgramFilter) => void
+  setShowBuiltin: (show: boolean) => void
 
   toggleRule: (name: string) => void
   selectRecommended: () => void
@@ -53,6 +55,9 @@ export const useFirewallStore = create<FirewallState>((set) => ({
   searchQuery: '',
   riskFilter: 'all',
   programFilter: 'all',
+  // Hide Microsoft/system/AppX rules by default — they shouldn't be touched
+  // and they bury actionable third-party entries. Toggle to inspect them.
+  showBuiltin: false,
 
   setRules: (rules) => set({ rules }),
   setScanning: (scanning) => set({ scanning }),
@@ -65,6 +70,7 @@ export const useFirewallStore = create<FirewallState>((set) => ({
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setRiskFilter: (riskFilter) => set({ riskFilter }),
   setProgramFilter: (programFilter) => set({ programFilter }),
+  setShowBuiltin: (showBuiltin) => set({ showBuiltin }),
 
   toggleRule: (name) =>
     set((s) => ({
@@ -94,5 +100,6 @@ export const useFirewallStore = create<FirewallState>((set) => ({
       searchQuery: '',
       riskFilter: 'all',
       programFilter: 'all',
+      showBuiltin: false,
     }),
 }))

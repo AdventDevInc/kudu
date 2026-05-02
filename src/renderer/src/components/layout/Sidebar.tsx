@@ -101,7 +101,6 @@ const navGroups: NavGroup[] = [
     items: [
       { icon: Sparkles, labelKey: 'cleaner', path: '/cleaner' },
       { icon: Database, labelKey: 'registry', path: '/registry' },
-      { icon: MousePointerClick, labelKey: 'contextMenu', path: '/context-menu' },
       { icon: Zap, labelKey: 'startup', path: '/startup' },
       { icon: Wifi, labelKey: 'network', path: '/network' },
       {
@@ -111,6 +110,7 @@ const navGroups: NavGroup[] = [
           { icon: Cpu, label: 'Driver Updates', path: '/drivers' },
           { icon: Trash2, label: 'Uninstaller', path: '/uninstaller' },
           { icon: PackageMinus, label: 'Bloatware Remover', path: '/debloater' },
+          { icon: MousePointerClick, labelKey: 'contextMenu', path: '/context-menu' },
         ]
       },
       { icon: CalendarClock, labelKey: 'schedules', path: '/schedules' }
@@ -208,7 +208,6 @@ export function Sidebar() {
     ...group,
     items: group.items.filter((item) => {
       if (item.path === '/registry' && !features.registry) return false
-      if (item.path === '/context-menu' && !features.contextMenu) return false
       if (item.path === '/game-mode' && !features.gameMode) return false
       return true
     }).map((item) => {
@@ -216,6 +215,7 @@ export function Sidebar() {
       const filtered = item.children.filter((child) => {
         if (child.path === '/debloater' && !features.debloater) return false
         if (child.path === '/drivers' && !features.drivers) return false
+        if (child.path === '/context-menu' && !features.contextMenu) return false
         if (child.path === '/firewall' && !features.firewallAudit) return false
         if (child.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
         if (child.path === '/cve' && !cloudConnected) return false

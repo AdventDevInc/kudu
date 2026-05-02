@@ -28,6 +28,25 @@ function parseSignature(raw: string): FirewallSignatureStatus {
   }
 }
 
+const MUI_RESOURCE_RE = /^@[^,]+\.(?:dll|exe|mui),-\d+(?:;.*)?$/i
+const APPX_RESOURCE_RE = /^@\{[^}]+\?ms-resource:\/\/[^}]+\}$/i
+
+function looksLikeResourceRef(s: string): boolean {
+  const t = s.trim()
+  return MUI_RESOURCE_RE.test(t) || APPX_RESOURCE_RE.test(t)
+}
+
+function isBuiltinRule(args: {
+  description: string
+  group: string
+  isManaged: boolean
+  isSystemPath: boolean
+}): boolean {
+  if (args.isSystemPath) return true
+  if (args.isManaged) return true
+  return looksLikeResourceRef(args.description) || looksLikeResourceRef(args.group)
+}
+
 function classifyRule(raw: {
   programResolved: string
   programExists: boolean
@@ -35,10 +54,18 @@ function classifyRule(raw: {
   profiles: FirewallProfile[]
   localPort: string
   remoteAddress: string
+  builtin: boolean
 }): { issues: FirewallIssue[]; risk: FirewallRiskLevel } {
   const issues: FirewallIssue[] = []
   const hasProgram = !!raw.programResolved
   if (hasProgram && !raw.programExists) issues.push('stale')
+
+  if (raw.builtin) {
+    let risk: FirewallRiskLevel = 'low'
+    if (issues.includes('stale')) risk = 'high'
+    return { issues, risk }
+  }
+
   if (hasProgram && raw.programExists && raw.signature === 'unsigned') issues.push('unsigned')
 
   const isAnyRemote = !raw.remoteAddress || raw.remoteAddress.toLowerCase() === 'any'
@@ -113,6 +140,50 @@ describe('parseSignature', () => {
   })
 })
 
+describe('isBuiltinRule', () => {
+  const empty = { description: '', group: '', isManaged: false, isSystemPath: false }
+
+  it('detects MUI resource description (FirewallAPI.dll)', () => {
+    expect(isBuiltinRule({ ...empty, description: '@FirewallAPI.dll,-25000' })).toBe(true)
+  })
+  it('detects MUI resource description with trailing semicolon segment', () => {
+    expect(isBuiltinRule({ ...empty, description: '@%SystemRoot%\\system32\\firewallapi.dll,-25000;remarks' })).toBe(true)
+  })
+  it('detects MUI resource for an exe path (Hyper-V vmms.exe)', () => {
+    expect(isBuiltinRule({ ...empty, description: '@%systemroot%\\system32\\vmms.exe,-210' })).toBe(true)
+  })
+  it('detects AppX resource description (Desktop App Web Viewer)', () => {
+    const description = '@{Microsoft.Win32WebViewHost_10.0.26100.1_neutral_neutral_cw5n1h2txyewy?ms-resource://Windows.Win32WebViewHost/resources/DisplayName}'
+    expect(isBuiltinRule({ ...empty, description })).toBe(true)
+  })
+  it('detects AppX resource description (Windows Feature Experience Pack)', () => {
+    const description = '@{MicrosoftWindows.Client.OOBE_1000.26100.40.0_x64__cw5n1h2txyewy?ms-resource://MicrosoftWindows.Client.OOBE/resources/ProductPkgDisplayName}'
+    expect(isBuiltinRule({ ...empty, description })).toBe(true)
+  })
+  it('treats system-path binaries as built-in even without resource description', () => {
+    expect(isBuiltinRule({ ...empty, description: 'Lets stuff through', isSystemPath: true })).toBe(true)
+  })
+  it('treats managed rules as built-in (Package or Owner SID set — Game Bar / Microsoft Store)', () => {
+    // Both Game Bar and Microsoft Store have description resolved to a
+    // literal display name. PS sets isManaged=true when the rule has either
+    // a non-empty Package SID on the application filter or a non-empty
+    // Owner SID on the rule itself — every Store-installed app does.
+    expect(isBuiltinRule({ ...empty, description: 'Game Bar', isManaged: true })).toBe(true)
+    expect(isBuiltinRule({ ...empty, description: 'Microsoft Store', isManaged: true })).toBe(true)
+  })
+  it('detects resource ref in Group when description is a resolved literal', () => {
+    expect(isBuiltinRule({ ...empty, description: 'Game Bar', group: '@FirewallAPI.dll,-25000' })).toBe(true)
+  })
+  it('does not match user-installed app descriptions', () => {
+    expect(isBuiltinRule({ ...empty, description: 'Steam game server traffic' })).toBe(false)
+    expect(isBuiltinRule(empty)).toBe(false)
+  })
+  it('does not match descriptions that merely start with @ or @{', () => {
+    expect(isBuiltinRule({ ...empty, description: '@some random text' })).toBe(false)
+    expect(isBuiltinRule({ ...empty, description: '@{not a real resource ref}' })).toBe(false)
+  })
+})
+
 describe('classifyRule', () => {
   it('flags stale program as high risk', () => {
     const { issues, risk } = classifyRule({
@@ -122,6 +193,7 @@ describe('classifyRule', () => {
       profiles: ['Domain'],
       localPort: '443',
       remoteAddress: 'LocalSubnet',
+      builtin: false,
     })
     expect(issues).toContain('stale')
     expect(risk).toBe('high')
@@ -135,6 +207,7 @@ describe('classifyRule', () => {
       profiles: ['Private'],
       localPort: '8080',
       remoteAddress: 'LocalSubnet',
+      builtin: false,
     })
     expect(issues).toEqual(['unsigned'])
     expect(risk).toBe('medium')
@@ -148,6 +221,7 @@ describe('classifyRule', () => {
       profiles: ['Public'],
       localPort: 'Any',
       remoteAddress: 'Any',
+      builtin: false,
     })
     expect(issues).toContain('broad-scope')
     expect(risk).toBe('high')
@@ -161,6 +235,7 @@ describe('classifyRule', () => {
       profiles: ['Private'],
       localPort: 'Any',
       remoteAddress: 'Any',
+      builtin: false,
     })
     expect(issues).toEqual(['any-remote'])
     expect(risk).toBe('medium')
@@ -174,6 +249,7 @@ describe('classifyRule', () => {
       profiles: ['Any'],
       localPort: 'Any',
       remoteAddress: 'Any',
+      builtin: false,
     })
     expect(issues).toContain('broad-scope')
     expect(risk).toBe('high')
@@ -187,6 +263,7 @@ describe('classifyRule', () => {
       profiles: ['Domain'],
       localPort: '445',
       remoteAddress: 'LocalSubnet',
+      builtin: true,
     })
     expect(issues).toEqual([])
     expect(risk).toBe('low')
@@ -200,6 +277,7 @@ describe('classifyRule', () => {
       profiles: ['Private'],
       localPort: '443',
       remoteAddress: 'LocalSubnet',
+      builtin: false,
     })
     expect(issues).toContain('stale')
     expect(issues).not.toContain('unsigned')
@@ -213,7 +291,53 @@ describe('classifyRule', () => {
       profiles: ['Domain'],
       localPort: '80',
       remoteAddress: '10.0.0.0/8',
+      builtin: false,
     })
     expect(issues).toEqual([])
+  })
+
+  // Built-in / Microsoft-shipped rules — these are the rules whose default
+  // shape (Public + Any/Any) used to produce broad-scope high-risk findings
+  // even though removing them breaks Wi-Fi Direct, Core Networking, etc.
+  it('does not flag broad-scope on built-in rules', () => {
+    const { issues, risk } = classifyRule({
+      programResolved: 'C:\\Windows\\System32\\spoolsv.exe',
+      programExists: true,
+      signature: 'signed',
+      profiles: ['Public'],
+      localPort: 'Any',
+      remoteAddress: 'Any',
+      builtin: true,
+    })
+    expect(issues).toEqual([])
+    expect(risk).toBe('low')
+  })
+
+  it('does not flag any-remote on built-in port-only rules (e.g. IPv6-In)', () => {
+    const { issues, risk } = classifyRule({
+      programResolved: '',
+      programExists: false,
+      signature: 'not-applicable',
+      profiles: ['Public'],
+      localPort: 'Any',
+      remoteAddress: 'Any',
+      builtin: true,
+    })
+    expect(issues).toEqual([])
+    expect(risk).toBe('low')
+  })
+
+  it('still flags stale on built-in rules (uninstalled feature leftover)', () => {
+    const { issues, risk } = classifyRule({
+      programResolved: 'C:\\Windows\\System32\\removed.exe',
+      programExists: false,
+      signature: 'not-applicable',
+      profiles: ['Public'],
+      localPort: 'Any',
+      remoteAddress: 'Any',
+      builtin: true,
+    })
+    expect(issues).toEqual(['stale'])
+    expect(risk).toBe('high')
   })
 })

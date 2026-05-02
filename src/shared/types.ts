@@ -791,6 +791,11 @@ export interface FirewallRule {
   programResolved: string
   programExists: boolean
   signature: FirewallSignatureStatus
+  // Microsoft-shipped rule: program lives under Windows/Program Files OR the
+  // description is an MUI resource reference (e.g. "@FirewallAPI.dll,-25000").
+  // We suppress broad-scope/any-remote findings on these — they're default
+  // system rules and removing them tends to break Windows features.
+  builtin: boolean
   enabled: boolean
   issues: FirewallIssue[]
   risk: FirewallRiskLevel

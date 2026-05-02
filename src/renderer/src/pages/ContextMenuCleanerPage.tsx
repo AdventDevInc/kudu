@@ -39,6 +39,28 @@ const SOURCE_PILL_COLOR: Record<ContextMenuSource, { bg: string; text: string }>
   'Unknown':      { bg: 'var(--bg-hover)',        text: 'var(--text-muted)' },
 }
 
+// Sources we hide from the list unconditionally — these are first-party Windows
+// pieces that the user almost never wants to disable, and showing them buries
+// the third-party noise the page is actually for.
+const HIDDEN_SOURCES: ReadonlySet<ContextMenuSource> = new Set(['Microsoft', 'Windows', 'Defender'])
+
+const GROUP_PALETTE: ReadonlyArray<{ bg: string; text: string }> = [
+  { bg: 'rgba(59,130,246,0.10)',  text: '#60a5fa' },
+  { bg: 'rgba(168,85,247,0.10)',  text: '#c084fc' },
+  { bg: 'rgba(14,165,233,0.10)',  text: '#38bdf8' },
+  { bg: 'rgba(34,197,94,0.10)',   text: '#4ade80' },
+  { bg: 'rgba(99,102,241,0.10)',  text: '#818cf8' },
+  { bg: 'rgba(244,114,22,0.10)',  text: '#fb923c' },
+  { bg: 'rgba(245,158,11,0.10)',  text: '#fbbf24' },
+  { bg: 'rgba(20,184,166,0.10)',  text: '#2dd4bf' },
+]
+
+function colorForBinary(name: string): { bg: string; text: string } {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0
+  return GROUP_PALETTE[hash % GROUP_PALETTE.length]
+}
+
 const SCOPE_LABEL_KEY: Record<ContextMenuScope, string> = {
   AllFiles:             'scopeAllFiles',
   Directory:            'scopeDirectory',
@@ -128,23 +150,49 @@ function ContextMenuCleanerPageContent() {
     setShowWin11(false)
   }, [])
 
+  // Always strip Microsoft/Windows/Defender + protected entries before any
+  // user-controlled filtering — those are first-party / safelisted and we never
+  // want to surface them in the list (or in the filter dropdowns). Also hide
+  // HKCR entries with no command and no DLL path (e.g. HKCR\*\shell\removeproperties),
+  // which tend to be Windows built-in verbs that resolve via MUIVerb resources —
+  // we can't tell what they do and they're machine-wide, so hide for safety.
+  // Finally, hide entries whose registry key name contains a cmd.exe shell
+  // metacharacter (e.g. WizTree's `Wi&zTree`): writes to those HKCR paths
+  // routinely fail with "key not found" because the key only exists via the
+  // HKCU\Software\Classes mirror, and a click would just produce a confusing
+  // reg.exe error.
+  const baseEntries = useMemo(
+    () => entries.filter((e) => {
+      if (e.protected) return false
+      if (HIDDEN_SOURCES.has(e.source)) return false
+      if (e.hive === 'HKCR' && !e.command && !e.dllPath) return false
+      if (/[&|<>^]/.test(e.name)) return false
+      return true
+    }),
+    [entries]
+  )
+
   // Filtered list
-  const visible = useMemo(() => filterEntries(entries, filters), [entries, filters])
+  const visible = useMemo(() => filterEntries(baseEntries, filters), [baseEntries, filters])
 
-  // Group by source then scope.
-  const groups = useMemo(() => groupBySource(visible), [visible])
+  // Group by binary name (executable / DLL) — most third-party entries land in
+  // the 'Unknown' source bucket, so source-based grouping collapsed everything
+  // into one giant group.
+  const groups = useMemo(() => groupByBinary(visible), [visible])
 
-  // Available filter options derived from entries.
+  // Available filter options derived from the post-hidden list, so the source
+  // dropdown doesn't offer Microsoft/Windows/Defender (which would filter to
+  // an empty list).
   const availableSources = useMemo(() => {
     const set = new Set<ContextMenuSource>()
-    for (const e of entries) set.add(e.source)
+    for (const e of baseEntries) set.add(e.source)
     return Array.from(set).sort()
-  }, [entries])
+  }, [baseEntries])
   const availableScopes = useMemo(() => {
     const set = new Set<ContextMenuScope>()
-    for (const e of entries) set.add(e.scope)
+    for (const e of baseEntries) set.add(e.scope)
     return Array.from(set).sort()
-  }, [entries])
+  }, [baseEntries])
 
   const selectedRequests = useMemo(
     () => entries.filter((e) => e.selected && !e.protected),
@@ -334,12 +382,12 @@ function ContextMenuCleanerPageContent() {
       {scanned && groups.length > 0 && (
         <div className="grid grid-cols-1 gap-3" style={{ paddingBottom: selectedCount > 0 ? 90 : 0 }}>
           {groups.map((group) => {
-            const groupKey = `src:${group.source}`
+            const groupKey = `bin:${group.binary}`
             const isExpanded = expanded.has(groupKey)
             const eligibleIds = group.entries.filter((e) => !e.protected).map((e) => e.id)
             const allSelected = eligibleIds.length > 0
               && eligibleIds.every((id) => entries.find((e) => e.id === id)?.selected)
-            const pill = SOURCE_PILL_COLOR[group.source]
+            const pill = colorForBinary(group.binary)
             return (
               <div key={groupKey} className="overflow-hidden rounded-2xl"
                 style={{ border: '1px solid var(--border-default)', opacity: applying ? 0.5 : 1, pointerEvents: applying ? 'none' : 'auto' }}>
@@ -351,7 +399,7 @@ function ContextMenuCleanerPageContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5">
-                      <span className="text-[14px] font-semibold text-zinc-200">{group.source}</span>
+                      <span className="truncate font-mono text-[13px] font-semibold text-zinc-200">{group.binary}</span>
                       <span className="rounded-full px-2 py-0.5 text-[11px] font-medium"
                         style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}>
                         {group.entries.length}
@@ -478,14 +526,37 @@ function filterEntries(entries: ContextMenuEntry[], filters: { search: string; s
   })
 }
 
-function groupBySource(entries: ContextMenuEntry[]): { source: ContextMenuSource; entries: ContextMenuEntry[] }[] {
-  const map = new Map<ContextMenuSource, ContextMenuEntry[]>()
-  for (const e of entries) {
-    const list = map.get(e.source) ?? []
-    list.push(e)
-    map.set(e.source, list)
+/**
+ * Pull the executable / DLL basename out of a verb's command line or a
+ * handler's resolved DLL path. Falls back to the registry key name when
+ * neither is available (e.g. a handler whose CLSID couldn't be resolved).
+ */
+function binaryNameOf(entry: ContextMenuEntry): string {
+  if (entry.command) {
+    // command may be `"C:\path\bin.exe" "%1"` or bare `C:\path\bin.exe %1`.
+    const m = entry.command.match(/^\s*"([^"]+)"|^\s*(\S+)/)
+    const path = (m?.[1] ?? m?.[2] ?? '').trim()
+    const base = path.split(/[\\/]/).pop()?.trim()
+    if (base) return base
   }
-  return Array.from(map.entries()).map(([source, list]) => ({ source, entries: list }))
+  if (entry.dllPath) {
+    const base = entry.dllPath.split(/[\\/]/).pop()?.trim()
+    if (base) return base
+  }
+  return entry.name || '(unknown)'
+}
+
+function groupByBinary(entries: ContextMenuEntry[]): { binary: string; entries: ContextMenuEntry[] }[] {
+  const map = new Map<string, ContextMenuEntry[]>()
+  for (const e of entries) {
+    const key = binaryNameOf(e)
+    const list = map.get(key) ?? []
+    list.push(e)
+    map.set(key, list)
+  }
+  return Array.from(map.entries())
+    .map(([binary, list]) => ({ binary, entries: list }))
+    .sort((a, b) => a.binary.localeCompare(b.binary))
 }
 
 interface EntryRowProps {

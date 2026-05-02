@@ -52,7 +52,42 @@ function parseSignature(raw: string): FirewallSignatureStatus {
   }
 }
 
-function classifyRule(
+// Built-in Windows rules carry one of two unresolved resource references in
+// their description or group field (Windows tried to resolve via MUI and
+// failed, so we see the raw reference string). Either form is a reliable
+// Microsoft/packaged-app signal even when the rule has no program filter:
+//
+//   1. Classic MUI resource: "@FirewallAPI.dll,-25000",
+//      "@%systemroot%\system32\vmms.exe,-210" — used by Win32 system rules.
+//   2. AppX/UWP package resource: "@{Pkg_Ver_arch__pub?ms-resource://...}" —
+//      used by packaged apps (Desktop App Web Viewer, OOBE, etc.). UWP apps
+//      run inside an AppContainer sandbox so "broad-scope" doesn't apply
+//      the same way as for unrestricted Win32 binaries.
+//
+// We also check the Group field because some rules (e.g. "Game Bar") have
+// the resolved literal description but still carry a resource-reference
+// Group, and we trust the AppX `Package` field on the application filter
+// when set — that means a sandboxed packaged app, regardless of description.
+const MUI_RESOURCE_RE = /^@[^,]+\.(?:dll|exe|mui),-\d+(?:;.*)?$/i
+const APPX_RESOURCE_RE = /^@\{[^}]+\?ms-resource:\/\/[^}]+\}$/i
+
+function looksLikeResourceRef(s: string): boolean {
+  const t = s.trim()
+  return MUI_RESOURCE_RE.test(t) || APPX_RESOURCE_RE.test(t)
+}
+
+export function isBuiltinRule(args: {
+  description: string
+  group: string
+  isManaged: boolean
+  isSystemPath: boolean
+}): boolean {
+  if (args.isSystemPath) return true
+  if (args.isManaged) return true
+  return looksLikeResourceRef(args.description) || looksLikeResourceRef(args.group)
+}
+
+export function classifyRule(
   raw: {
     program: string
     programResolved: string
@@ -61,12 +96,26 @@ function classifyRule(
     profiles: FirewallProfile[]
     localPort: string
     remoteAddress: string
+    builtin: boolean
   }
 ): { issues: FirewallIssue[]; risk: FirewallRiskLevel } {
   const issues: FirewallIssue[] = []
 
   const hasProgram = !!raw.programResolved
+
+  // Stale (program path no longer exists) is a real finding even for built-ins —
+  // a Windows feature was uninstalled but the firewall rule wasn't cleaned up.
   if (hasProgram && !raw.programExists) issues.push('stale')
+
+  if (raw.builtin) {
+    // Microsoft-shipped rules are designed to accept Any remote / Any port on
+    // Public profiles (IPv6 routing, Wi-Fi Direct, CDP, etc.). Flagging these
+    // as high-risk produces guidance that breaks features when followed.
+    let risk: FirewallRiskLevel = 'low'
+    if (issues.includes('stale')) risk = 'high'
+    return { issues, risk }
+  }
+
   if (hasProgram && raw.programExists && raw.signature === 'unsigned') issues.push('unsigned')
 
   const isAnyRemote = !raw.remoteAddress || raw.remoteAddress.toLowerCase() === 'any'
@@ -85,22 +134,27 @@ function classifyRule(
 
 // Parse a single RULE| line from the PowerShell scanner.  Exported for tests.
 export function parseRuleLine(line: string): FirewallRule | null {
-  // Format: RULE|name|display|description|group|profiles|protocol|localPort|remoteAddress|program|programResolved|exists|signature|enabled
+  // Format: RULE|name|display|description|group|profiles|protocol|localPort|remoteAddress|program|programResolved|exists|signature|isSystemPath|isManaged|enabled
   if (!line.startsWith('RULE|')) return null
   const parts = line.split('|')
-  if (parts.length < 14) return null
+  if (parts.length < 16) return null
 
   const name = parts[1]
   if (!name) return null
 
+  const description = parts[3] || ''
+  const group = parts[4] || ''
   const profiles = parseProfiles(parts[5])
   const programResolved = parts[10]
   const programExists = parts[11].trim().toLowerCase() === 'true'
   const signature = parseSignature(parts[12].trim().toLowerCase())
-  const enabled = parts[13].trim().toLowerCase() === 'true'
+  const isSystemPath = parts[13].trim().toLowerCase() === 'true'
+  const isManaged = parts[14].trim().toLowerCase() === 'true'
+  const enabled = parts[15].trim().toLowerCase() === 'true'
 
   const localPort = parts[7] || 'Any'
   const remoteAddress = parts[8] || 'Any'
+  const builtin = isBuiltinRule({ description, group, isManaged, isSystemPath })
 
   const { issues, risk } = classifyRule({
     program: parts[9],
@@ -110,13 +164,14 @@ export function parseRuleLine(line: string): FirewallRule | null {
     profiles,
     localPort,
     remoteAddress,
+    builtin,
   })
 
   return {
     name,
     displayName: parts[2] || name,
-    description: parts[3] || '',
-    group: parts[4] || '',
+    description,
+    group,
     profiles,
     protocol: parts[6] || 'Any',
     localPort,
@@ -125,6 +180,7 @@ export function parseRuleLine(line: string): FirewallRule | null {
     programResolved,
     programExists,
     signature,
+    builtin,
     enabled,
     issues,
     risk,
@@ -169,6 +225,17 @@ export async function scanFirewallRules(
       } catch { continue }
 
       $programRaw = if ($app -and $app.Program) { [string]$app.Program } else { '' }
+      # Package SID for AppX/UWP rules (e.g. "S-1-15-2-..."). When set, the
+      # rule applies to a sandboxed packaged app — Game Bar, Microsoft Store,
+      # and similar Win32WebViewHost / OOBE rules all have this populated even
+      # when the description is the resolved literal display name.
+      $packageRaw = if ($app -and $app.Package) { ([string]$app.Package) -replace '\|', ' ' } else { '' }
+      # Owner SID falls back when Package is missing — every Store-installed
+      # AppX rule has an Owner set, while manually-created rules (Defender
+      # Firewall GUI / netsh) typically don't. We collapse to a single
+      # "managed/packaged" boolean to keep the output line format tight.
+      $ownerRaw = if ($r.Owner) { [string]$r.Owner } else { '' }
+      $isManaged = ($packageRaw -ne '') -or ($ownerRaw -ne '')
       $localPort  = if ($port -and $port.LocalPort) { (@($port.LocalPort) -join ',') } else { 'Any' }
       $protocol   = if ($port -and $port.Protocol) { [string]$port.Protocol } else { 'Any' }
       $remoteAddr = if ($addr -and $addr.RemoteAddress) { (@($addr.RemoteAddress) -join ',') } else { 'Any' }
@@ -176,11 +243,11 @@ export async function scanFirewallRules(
       $programResolved = ''
       $exists = $false
       $signed = ''
+      $isSystemPath = $false
       if ($programRaw -and $programRaw -ne 'Any' -and $programRaw -ne 'System') {
         try { $programResolved = [System.Environment]::ExpandEnvironmentVariables($programRaw) } catch { $programResolved = $programRaw }
         if (Test-Path -LiteralPath $programResolved -PathType Leaf) {
           $exists = $true
-          $isSystemPath = $false
           if ($sysRoot -and $programResolved.StartsWith($sysRoot, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
           if (-not $isSystemPath -and $pf -and $programResolved.StartsWith($pf, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
           if (-not $isSystemPath -and $pfx86 -and $programResolved.StartsWith($pfx86, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
@@ -204,7 +271,7 @@ export async function scanFirewallRules(
       $grp  = if ($r.Group) { ([string]$r.Group) -replace '\|', ' ' } else { '' }
       $prof = [string]$r.Profile
 
-      Write-Output "RULE|$name|$disp|$desc|$grp|$prof|$protocol|$localPort|$remoteAddr|$programRaw|$programResolved|$exists|$signed|true"
+      Write-Output "RULE|$name|$disp|$desc|$grp|$prof|$protocol|$localPort|$remoteAddr|$programRaw|$programResolved|$exists|$signed|$isSystemPath|$isManaged|true"
 
       if (($i % 25) -eq 0) {
         Write-Output "PROG|$i|$total|$disp"
