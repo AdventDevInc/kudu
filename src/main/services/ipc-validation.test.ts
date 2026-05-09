@@ -117,7 +117,9 @@ describe('validateSettingsPartial', () => {
   })
 
   it('accepts a valid backupPath', () => {
-    const input = { backupPath: 'C:\\Users\\dave\\Backups' }
+    // path.isAbsolute is platform-aware, so use a path absolute on the current OS.
+    const backupPath = process.platform === 'win32' ? 'C:\\Users\\dave\\Backups' : '/Users/dave/Backups'
+    const input = { backupPath }
     expect(validateSettingsPartial(input)).toEqual(input)
   })
 
