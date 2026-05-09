@@ -4,6 +4,7 @@
  */
 
 import { app } from 'electron'
+import { isAbsolute } from 'path'
 import type { ScanHistoryEntry } from '../../shared/types'
 
 /** Validate that a partial settings object only contains expected keys and safe values */
@@ -68,11 +69,14 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if (obj.ignoredSoftwareUpdates.some((v: string) => v.length > 200 || v.length === 0)) return null
   }
 
-  // Validate backupPath is a safe absolute-ish string (or empty for default)
+  // Validate backupPath: empty string means "use default", otherwise must be an absolute,
+  // safe path. Reject relative paths so persisted settings match runtime behavior in
+  // getBackupDir() (which only accepts absolute paths).
   if ('backupPath' in obj && obj.backupPath !== undefined) {
     if (typeof obj.backupPath !== 'string') return null
     if (obj.backupPath.length > 1000) return null
     if (obj.backupPath.includes('..')) return null
+    if (obj.backupPath.length > 0 && !isAbsolute(obj.backupPath)) return null
   }
 
   // Validate schedule has expected shape if present

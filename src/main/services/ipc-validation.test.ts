@@ -137,6 +137,11 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ backupPath: 'x'.repeat(1001) })).toBeNull()
   })
 
+  it('rejects a relative backupPath', () => {
+    // Relative paths would be silently ignored at runtime, so reject at the boundary.
+    expect(validateSettingsPartial({ backupPath: 'relative/dir' })).toBeNull()
+  })
+
   it('accepts valid theme values', () => {
     expect(validateSettingsPartial({ theme: 'dark' })).toEqual({ theme: 'dark' })
     expect(validateSettingsPartial({ theme: 'light' })).toEqual({ theme: 'light' })
