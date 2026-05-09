@@ -27,6 +27,7 @@ const defaultSettings: KuduSettings = {
   },
   exclusions: [],
   ignoredSoftwareUpdates: [],
+  backupPath: '',
   schedule: {
     enabled: false,
     frequency: 'weekly',

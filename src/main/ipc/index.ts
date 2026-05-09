@@ -1,5 +1,6 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { execFile } from 'child_process'
+import { mkdirSync } from 'fs'
 import { isAbsolute } from 'path'
 import { IPC } from '../../shared/channels'
 import { psUtf8 } from '../services/exec-utf8'
@@ -38,6 +39,7 @@ import { registerBreachMonitorIpc } from './breach-monitor.ipc'
 import { registerStartupSafetyIpc } from './startup-safety.ipc'
 import { registerProgramSafetyIpc } from './program-safety.ipc'
 import { getSettings, setSettings, flushSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
+import { getBackupDir } from '../services/backup-dir'
 import { isAdmin } from '../services/elevation'
 import { getHistory, addHistoryEntry, clearHistory } from '../services/history-store'
 import { getCloudHistory, clearCloudHistory } from '../services/cloud-history-store'
@@ -128,6 +130,29 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       refreshGameDetector(getWindow)
     }
     return { success: true }
+  })
+
+  // Settings — pick a backup folder via the OS folder picker
+  ipcMain.handle(IPC.SETTINGS_SELECT_BACKUP_DIR, async () => {
+    const win = getWindow()
+    const opts: Electron.OpenDialogOptions = {
+      title: 'Choose Kudu backup folder',
+      properties: ['openDirectory', 'createDirectory'],
+      defaultPath: getBackupDir(),
+    }
+    const result = process.platform === 'darwin' || !win
+      ? await dialog.showOpenDialog(opts)
+      : await dialog.showOpenDialog(win, opts)
+    if (result.canceled || !result.filePaths.length) return null
+    return result.filePaths[0]
+  })
+
+  // Settings — reveal the active backup folder in the OS file manager
+  ipcMain.handle(IPC.SETTINGS_OPEN_BACKUP_DIR, async () => {
+    const dir = getBackupDir()
+    try { mkdirSync(dir, { recursive: true }) } catch { /* skip */ }
+    await shell.openPath(dir)
+    return dir
   })
 
   // Onboarding

@@ -3,7 +3,7 @@ import { existsSync, statSync, readdirSync, unlinkSync } from 'fs'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { join } from 'path'
-import { homedir } from 'os'
+import { getBackupDir } from '../services/backup-dir'
 import { IPC } from '../../shared/channels'
 import type { RegistryEntry } from '../../shared/types'
 import { randomUUID } from 'crypto'
@@ -1716,7 +1716,7 @@ export async function fixRegistryEntries(
 
     // Create backup first
     onProgress?.(0, total, 'Creating registry backup...')
-    const backupDir = join(homedir(), 'Documents', 'Kudu Backups')
+    const backupDir = getBackupDir()
     try {
       const { mkdirSync } = await import('fs')
       mkdirSync(backupDir, { recursive: true })

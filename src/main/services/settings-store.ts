@@ -52,6 +52,7 @@ const defaults: StoreData = {
     },
     exclusions: [],
     ignoredSoftwareUpdates: [],
+    backupPath: '',
     schedule: {
       enabled: false,
       frequency: 'weekly',

@@ -116,6 +116,27 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ cleaner: { unknownKey: true } })).toBeNull()
   })
 
+  it('accepts a valid backupPath', () => {
+    const input = { backupPath: 'C:\\Users\\dave\\Backups' }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('accepts an empty backupPath (means default)', () => {
+    expect(validateSettingsPartial({ backupPath: '' })).toEqual({ backupPath: '' })
+  })
+
+  it('rejects non-string backupPath', () => {
+    expect(validateSettingsPartial({ backupPath: 42 })).toBeNull()
+  })
+
+  it('rejects backupPath with path traversal', () => {
+    expect(validateSettingsPartial({ backupPath: 'C:\\..\\evil' })).toBeNull()
+  })
+
+  it('rejects overly long backupPath', () => {
+    expect(validateSettingsPartial({ backupPath: 'x'.repeat(1001) })).toBeNull()
+  })
+
   it('accepts valid theme values', () => {
     expect(validateSettingsPartial({ theme: 'dark' })).toEqual({ theme: 'dark' })
     expect(validateSettingsPartial({ theme: 'light' })).toEqual({ theme: 'light' })

@@ -98,6 +98,8 @@ export const IPC = {
   // Settings
   SETTINGS_GET: 'settings:get',
   SETTINGS_SET: 'settings:set',
+  SETTINGS_SELECT_BACKUP_DIR: 'settings:select-backup-dir',
+  SETTINGS_OPEN_BACKUP_DIR: 'settings:open-backup-dir',
 
   // System
   ELEVATION_CHECK: 'elevation:check',

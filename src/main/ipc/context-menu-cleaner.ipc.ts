@@ -1,6 +1,6 @@
 import { app, ipcMain } from 'electron'
 import { mkdirSync, readdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'fs'
-import { homedir } from 'os'
+import { getBackupDir } from '../services/backup-dir'
 import { join } from 'path'
 import { createHash } from 'crypto'
 import { IPC } from '../../shared/channels'
@@ -500,7 +500,7 @@ export async function scanContextMenu(
 
 // ── Apply ────────────────────────────────────────────────────────────
 
-const BACKUP_DIR = () => join(homedir(), 'Documents', 'Kudu Backups')
+const BACKUP_DIR = () => getBackupDir()
 
 function pruneOldBackups(backupDir: string, keep: number): void {
   try {

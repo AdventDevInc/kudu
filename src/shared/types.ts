@@ -597,6 +597,8 @@ export interface KuduSettings {
   }
   exclusions: string[]
   ignoredSoftwareUpdates: string[]
+  /** Folder where backups (registry, shell extensions, etc.) are written. Empty = use default. */
+  backupPath: string
   schedule: {
     enabled: boolean
     frequency: 'daily' | 'weekly' | 'monthly'

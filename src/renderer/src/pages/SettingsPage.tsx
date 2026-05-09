@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Plus, X, FolderOpen, Sun, Moon, Monitor, Cloud, ChevronRight } from 'lucide-react'
+import { Plus, X, FolderOpen, Sun, Moon, Monitor, Cloud, ChevronRight, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { cn } from '@/lib/utils'
@@ -161,6 +161,23 @@ export function SettingsPage() {
         </button>
       </Section>
 
+      <Section title={t('sectionBackups', 'Backups')}>
+        <BackupFolderRow
+          path={settings.backupPath}
+          onPick={async () => {
+            const picked = await window.kudu?.settingsSelectBackupDir?.()
+            if (picked) {
+              save({ backupPath: picked })
+              toast.success(t('backupFolderUpdatedToast', 'Backup folder updated'), {
+                description: t('backupFolderUpdatedDesc', 'Existing backups remain in their previous location.'),
+              })
+            }
+          }}
+          onOpen={() => { window.kudu?.settingsOpenBackupDir?.().catch(() => {}) }}
+          onReset={() => save({ backupPath: '' })}
+        />
+      </Section>
+
       <Section title={t('sectionCleaningPreferences')}>
         <Row label={t('protectRecycleBinLabel')} desc={t('protectRecycleBinDesc')}>
           <Toggle checked={settings.cleaner.protectRecycleBin} onChange={(v) => save({ cleaner: { ...settings.cleaner, protectRecycleBin: v } })} />
@@ -259,6 +276,72 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
         checked ? 'translate-x-[22px]' : 'translate-x-[3px]'
       )} />
     </button>
+  )
+}
+
+function BackupFolderRow({
+  path,
+  onPick,
+  onOpen,
+  onReset,
+}: {
+  path: string
+  onPick: () => void
+  onOpen: () => void
+  onReset: () => void
+}) {
+  const { t } = useTranslation('settings')
+  const isCustom = path.length > 0
+  const displayPath = isCustom ? path : t('backupFolderDefaultLabel', 'Default (Documents/Kudu Backups)')
+  return (
+    <div className="space-y-3">
+      <div>
+        <p className="text-[13px] font-medium text-zinc-300">{t('backupFolderLabel', 'Backup folder')}</p>
+        <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+          {t('backupFolderDesc', 'Where Kudu writes registry and shell-extension backups before making changes. Existing backups stay in their previous location when you switch folders.')}
+        </p>
+      </div>
+      <div className="flex items-center gap-2.5">
+        <div
+          className="flex flex-1 items-center gap-2.5 rounded-xl px-4 py-2.5"
+          style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
+        >
+          <FolderOpen className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
+          <span className="truncate font-mono text-[12px] text-zinc-400" title={displayPath}>{displayPath}</span>
+        </div>
+        <button
+          onClick={onOpen}
+          title={t('backupFolderOpenTooltip', 'Open in file manager')}
+          className="rounded-xl p-2.5 text-zinc-400 transition-colors"
+          style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-subtle-2)' }}
+        >
+          <FolderOpen className="h-3.5 w-3.5" strokeWidth={1.8} />
+        </button>
+        {isCustom && (
+          <button
+            onClick={onReset}
+            title={t('backupFolderResetTooltip', 'Reset to default')}
+            className="rounded-xl p-2.5 text-zinc-400 transition-colors"
+            style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-subtle-2)' }}
+          >
+            <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.8} />
+          </button>
+        )}
+        <button
+          onClick={onPick}
+          className="rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-colors"
+          style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--bg-subtle-2)' }}
+        >
+          {t('backupFolderChooseButton', 'Choose…')}
+        </button>
+      </div>
+    </div>
   )
 }
 

@@ -15,7 +15,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'theme', 'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
-    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'windowsPackageManager',
+    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'backupPath', 'windowsPackageManager',
     'schedule', 'schedules', 'cloud', 'gameMode'
   ])
 
@@ -66,6 +66,13 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if (!obj.ignoredSoftwareUpdates.every((v: unknown) => typeof v === 'string')) return null
     if (obj.ignoredSoftwareUpdates.length > 500) return null
     if (obj.ignoredSoftwareUpdates.some((v: string) => v.length > 200 || v.length === 0)) return null
+  }
+
+  // Validate backupPath is a safe absolute-ish string (or empty for default)
+  if ('backupPath' in obj && obj.backupPath !== undefined) {
+    if (typeof obj.backupPath !== 'string') return null
+    if (obj.backupPath.length > 1000) return null
+    if (obj.backupPath.includes('..')) return null
   }
 
   // Validate schedule has expected shape if present

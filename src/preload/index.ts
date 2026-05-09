@@ -229,6 +229,10 @@ const api = {
   settingsGet: (): Promise<KuduSettings> => ipcRenderer.invoke(IPC.SETTINGS_GET),
   settingsSet: (settings: Partial<KuduSettings>): Promise<void> =>
     ipcRenderer.invoke(IPC.SETTINGS_SET, settings),
+  settingsSelectBackupDir: (): Promise<string | null> =>
+    ipcRenderer.invoke(IPC.SETTINGS_SELECT_BACKUP_DIR),
+  settingsOpenBackupDir: (): Promise<string> =>
+    ipcRenderer.invoke(IPC.SETTINGS_OPEN_BACKUP_DIR),
 
   // Elevation
   elevationCheck: (): Promise<boolean> => ipcRenderer.invoke(IPC.ELEVATION_CHECK),
