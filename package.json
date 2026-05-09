@@ -85,6 +85,6 @@
     "sonner": "^2.0.7",
     "systeminformation": "^5.31.4",
     "tailwind-merge": "^3.5.0",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.13"
   }
 }
