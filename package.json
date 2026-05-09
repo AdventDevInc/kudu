@@ -76,7 +76,7 @@
     "clsx": "^2.1.1",
     "electron-updater": "^6.8.3",
     "framer-motion": "^12.38.0",
-    "i18next": "^26.0.4",
+    "i18next": "^26.0.10",
     "lucide-react": "^0.577.0",
     "pusher-js": "^8.4.0",
     "react-i18next": "^17.0.2",
