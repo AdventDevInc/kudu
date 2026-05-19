@@ -451,3 +451,148 @@ describe('SAFE_TASK_PATH_RE security', () => {
     expect(SAFE_TASK_PATH_RE.test('\\Task\0evil')).toBe(false)
   })
 })
+
+// ── collectBackupTargets (replica) ──
+// Decides which registry keys and scheduled tasks need backing up before a fix run.
+
+interface FixActionLite {
+  op: 'delete-value' | 'delete-key' | 'set-value' | 'disable-task' | 'delete-task'
+  key?: string
+}
+interface EntryLite { keyPath: string; valueName?: string; fix?: FixActionLite }
+
+function collectBackupTargets(entries: EntryLite[]): { keys: string[]; tasks: string[] } {
+  const keys = new Set<string>()
+  const tasks = new Set<string>()
+  for (const entry of entries) {
+    if (!entry.fix) continue
+    const key = entry.fix.key || entry.keyPath
+    switch (entry.fix.op) {
+      case 'delete-value':
+      case 'set-value':
+      case 'delete-key':
+        if (key) keys.add(key)
+        break
+      case 'disable-task':
+      case 'delete-task':
+        if (entry.keyPath) tasks.add(entry.keyPath)
+        break
+    }
+  }
+  return { keys: [...keys], tasks: [...tasks] }
+}
+
+describe('collectBackupTargets', () => {
+  it('returns empty sets for empty input', () => {
+    expect(collectBackupTargets([])).toEqual({ keys: [], tasks: [] })
+  })
+
+  it('skips entries without a fix action', () => {
+    expect(collectBackupTargets([{ keyPath: 'HKCR\\foo' }])).toEqual({ keys: [], tasks: [] })
+  })
+
+  it('captures the parent key for delete-value', () => {
+    const { keys, tasks } = collectBackupTargets([
+      { keyPath: 'HKLM\\SOFTWARE\\App', fix: { op: 'delete-value' } },
+    ])
+    expect(keys).toEqual(['HKLM\\SOFTWARE\\App'])
+    expect(tasks).toEqual([])
+  })
+
+  it('captures the key itself for delete-key', () => {
+    const { keys } = collectBackupTargets([
+      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-key' } },
+    ])
+    expect(keys).toEqual(['HKCR\\CLSID\\{abc}'])
+  })
+
+  it('captures the key for set-value', () => {
+    const { keys } = collectBackupTargets([
+      { keyPath: 'HKLM\\SOFTWARE\\App', fix: { op: 'set-value' } },
+    ])
+    expect(keys).toEqual(['HKLM\\SOFTWARE\\App'])
+  })
+
+  it('prefers fix.key over keyPath when both present', () => {
+    const { keys } = collectBackupTargets([
+      { keyPath: 'HKCR\\old', fix: { op: 'delete-key', key: 'HKCR\\CLSID\\{abc}' } },
+    ])
+    expect(keys).toEqual(['HKCR\\CLSID\\{abc}'])
+  })
+
+  it('deduplicates keys touched by multiple entries', () => {
+    const { keys } = collectBackupTargets([
+      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-value' } },
+      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-value' } },
+      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'set-value' } },
+    ])
+    expect(keys).toEqual(['HKCR\\CLSID\\{abc}'])
+  })
+
+  it('routes task ops to tasks, not keys', () => {
+    const { keys, tasks } = collectBackupTargets([
+      { keyPath: '\\Microsoft\\Foo', fix: { op: 'disable-task' } },
+      { keyPath: '\\Microsoft\\Bar', fix: { op: 'delete-task' } },
+    ])
+    expect(keys).toEqual([])
+    expect(tasks).toEqual(['\\Microsoft\\Foo', '\\Microsoft\\Bar'])
+  })
+
+  it('partitions a mixed batch into keys and tasks', () => {
+    const { keys, tasks } = collectBackupTargets([
+      { keyPath: 'HKLM\\SOFTWARE\\A', fix: { op: 'delete-value' } },
+      { keyPath: '\\MyTask', fix: { op: 'disable-task' } },
+      { keyPath: 'HKCR\\CLSID\\{x}', fix: { op: 'delete-key' } },
+    ])
+    expect(keys.sort()).toEqual(['HKCR\\CLSID\\{x}', 'HKLM\\SOFTWARE\\A'])
+    expect(tasks).toEqual(['\\MyTask'])
+  })
+
+  it('drops entries whose resolved key would be empty', () => {
+    // keyPath is empty and no fix.key override — nothing to back up
+    const { keys } = collectBackupTargets([
+      { keyPath: '', fix: { op: 'delete-value' } },
+    ])
+    expect(keys).toEqual([])
+  })
+})
+
+// ── stripRegHeader (replica) ──
+// Removes the BOM + "Windows Registry Editor Version 5.00" preamble so multiple
+// reg-export files can be concatenated into one consolidated backup.
+
+function stripRegHeader(content: string): string {
+  return content.replace(/^﻿?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
+}
+
+describe('stripRegHeader', () => {
+  it('strips the standard CRLF header', () => {
+    const input = 'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_LOCAL_MACHINE\\Foo]\r\n"a"="b"\r\n'
+    expect(stripRegHeader(input)).toBe('[HKEY_LOCAL_MACHINE\\Foo]\r\n"a"="b"\r\n')
+  })
+
+  it('strips a LF-only header (defensive)', () => {
+    const input = 'Windows Registry Editor Version 5.00\n\n[HKEY_LOCAL_MACHINE\\Foo]\n'
+    expect(stripRegHeader(input)).toBe('[HKEY_LOCAL_MACHINE\\Foo]\n')
+  })
+
+  it('strips a BOM-prefixed header (reg.exe writes UTF-16 with BOM)', () => {
+    const input = '﻿Windows Registry Editor Version 5.00\r\n\r\n[HKEY_X\\Y]\r\n'
+    expect(stripRegHeader(input)).toBe('[HKEY_X\\Y]\r\n')
+  })
+
+  it('leaves text without a header untouched', () => {
+    expect(stripRegHeader('[HKEY_X\\Y]\r\n"a"="b"\r\n')).toBe('[HKEY_X\\Y]\r\n"a"="b"\r\n')
+  })
+
+  it('produces a valid concatenated reg file when bodies are joined under a single header', () => {
+    const a = 'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_X\\A]\r\n"v"="1"\r\n\r\n'
+    const b = 'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_X\\B]\r\n"v"="2"\r\n\r\n'
+    const combined = 'Windows Registry Editor Version 5.00\r\n\r\n' + stripRegHeader(a) + stripRegHeader(b)
+    expect(combined).toBe(
+      'Windows Registry Editor Version 5.00\r\n\r\n' +
+      '[HKEY_X\\A]\r\n"v"="1"\r\n\r\n' +
+      '[HKEY_X\\B]\r\n"v"="2"\r\n\r\n'
+    )
+  })
+})

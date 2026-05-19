@@ -176,6 +176,23 @@ export function SettingsPage() {
           onOpen={() => { window.kudu?.settingsOpenBackupDir?.().catch(() => {}) }}
           onReset={() => save({ backupPath: '' })}
         />
+        <div className="mt-4 border-t pt-4" style={{ borderColor: 'var(--border-subtle)' }}>
+          <Row
+            label={t('backupModeLabel', 'Registry backup mode')}
+            desc={t('backupModeDesc', 'Targeted only saves the keys being changed (small). Full hive snapshots entire branches before each run (hundreds of MB).')}
+            last
+          >
+            <select
+              value={settings.backupMode ?? 'targeted'}
+              onChange={(e) => save({ backupMode: e.target.value as 'targeted' | 'full' })}
+              className={selectStyle}
+              style={selectBorder}
+            >
+              <option value="targeted">{t('backupModeTargeted', 'Targeted (recommended)')}</option>
+              <option value="full">{t('backupModeFull', 'Full hive')}</option>
+            </select>
+          </Row>
+        </div>
       </Section>
 
       <Section title={t('sectionCleaningPreferences')}>

@@ -53,6 +53,7 @@ const defaults: StoreData = {
     exclusions: [],
     ignoredSoftwareUpdates: [],
     backupPath: '',
+    backupMode: 'targeted' as const,
     schedule: {
       enabled: false,
       frequency: 'weekly',

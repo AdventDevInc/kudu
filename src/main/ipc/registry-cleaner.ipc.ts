@@ -1,9 +1,11 @@
 import { ipcMain } from 'electron'
-import { existsSync, statSync, readdirSync, unlinkSync } from 'fs'
+import { existsSync, statSync, readdirSync, unlinkSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'fs'
+import { tmpdir } from 'os'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { join } from 'path'
 import { getBackupDir } from '../services/backup-dir'
+import { getSettings } from '../services/settings-store'
 import { IPC } from '../../shared/channels'
 import type { RegistryEntry } from '../../shared/types'
 import { randomUUID } from 'crypto'
@@ -1685,13 +1687,15 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
     return entries
 }
 
-/** Keep only the N most recent backup runs. Each run writes multiple .reg files sharing one ISO timestamp. */
+/** Keep only the N most recent backup runs. Each run writes one or more .reg files (and possibly a task-XML dir) sharing one ISO timestamp. */
 function pruneOldBackups(backupDir: string, keep: number): void {
   try {
-    const timestampRe = /^registry-backup-.*?(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)\.reg$/
+    const tsCapture = /(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z)/
+    const regRe = new RegExp(`^registry-backup-.*?${tsCapture.source}\\.reg$`)
+    const taskDirRe = new RegExp(`^registry-backup-tasks-${tsCapture.source}$`)
     const groups = new Map<string, string[]>()
     for (const f of readdirSync(backupDir)) {
-      const m = f.match(timestampRe)
+      const m = f.match(regRe) || f.match(taskDirRe)
       if (!m) continue
       const ts = m[1]!
       const list = groups.get(ts) ?? []
@@ -1701,10 +1705,132 @@ function pruneOldBackups(backupDir: string, keep: number): void {
     const stale = [...groups.keys()].sort().reverse().slice(keep)
     for (const ts of stale) {
       for (const f of groups.get(ts)!) {
-        try { unlinkSync(join(backupDir, f)) } catch { /* skip */ }
+        const full = join(backupDir, f)
+        try {
+          if (taskDirRe.test(f)) rmSync(full, { recursive: true, force: true })
+          else unlinkSync(full)
+        } catch { /* skip */ }
       }
     }
   } catch { /* skip */ }
+}
+
+/** Full-hive backup: exports the entire branches that fix operations may modify. Large but exhaustive. */
+async function createFullBackup(backupDir: string, timestamp: string, signal?: AbortSignal): Promise<void> {
+  const backupPath = join(backupDir, `registry-backup-${timestamp}.reg`)
+  await execReg(['export', 'HKLM\\SOFTWARE', backupPath, '/y'], { timeout: 30000, signal })
+  const hkcuBackupPath = join(backupDir, `registry-backup-HKCU-${timestamp}.reg`)
+  await execReg(['export', 'HKCU\\SOFTWARE', hkcuBackupPath, '/y'], { timeout: 30000, signal }).catch(() => {})
+  const systemBackupPath = join(backupDir, `registry-backup-SYSTEM-${timestamp}.reg`)
+  await execReg(['export', 'HKLM\\SYSTEM\\CurrentControlSet\\Services', systemBackupPath, '/y'], { timeout: 60000, signal }).catch(() => {})
+  const hkcrClsidPath = join(backupDir, `registry-backup-HKCR-CLSID-${timestamp}.reg`)
+  await execReg(['export', 'HKCR\\CLSID', hkcrClsidPath, '/y'], { timeout: 60000, signal }).catch(() => {})
+  const hkcrIfacePath = join(backupDir, `registry-backup-HKCR-Interface-${timestamp}.reg`)
+  await execReg(['export', 'HKCR\\Interface', hkcrIfacePath, '/y'], { timeout: 60000, signal }).catch(() => {})
+  const hkcrMimePath = join(backupDir, `registry-backup-HKCR-MIME-${timestamp}.reg`)
+  await execReg(['export', 'HKCR\\MIME', hkcrMimePath, '/y'], { timeout: 30000, signal }).catch(() => {})
+  const shellRoots = [
+    { key: '*', file: 'AllFileTypes' },
+    { key: 'Directory', file: 'Directory' },
+    { key: 'Folder', file: 'Folder' }
+  ]
+  for (const { key, file } of shellRoots) {
+    const shellPath = join(backupDir, `registry-backup-HKCR-${file}-shellex-${timestamp}.reg`)
+    await execReg(['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000, signal }).catch(() => {})
+  }
+}
+
+/**
+ * Pick the registry keys and scheduled tasks that need to be backed up for a given
+ * batch of fix entries. Pure — no I/O. Exported for tests.
+ *
+ * - `delete-value` / `set-value`: back up the parent key (captures the value plus its siblings)
+ * - `delete-key`: back up the key itself (reg export includes the subtree)
+ * - `disable-task` / `delete-task`: export the task XML via schtasks
+ */
+export function collectBackupTargets(entries: RegistryEntry[]): { keys: string[]; tasks: string[] } {
+  const keys = new Set<string>()
+  const tasks = new Set<string>()
+  for (const entry of entries) {
+    if (!entry.fix) continue
+    const key = entry.fix.key || entry.keyPath
+    switch (entry.fix.op) {
+      case 'delete-value':
+      case 'set-value':
+      case 'delete-key':
+        if (key) keys.add(key)
+        break
+      case 'disable-task':
+      case 'delete-task':
+        if (entry.keyPath) tasks.add(entry.keyPath)
+        break
+    }
+  }
+  return { keys: [...keys], tasks: [...tasks] }
+}
+
+/** Strip the optional UTF-16 BOM and the `Windows Registry Editor Version 5.00` header from reg-export text. */
+function stripRegHeader(content: string): string {
+  return content.replace(/^﻿?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
+}
+
+/**
+ * Targeted backup: export only the keys touched by these entries into a single
+ * consolidated .reg file, plus task XMLs to a sibling folder. Drastically smaller
+ * than the full-hive backup and one file per run is straightforward to re-import.
+ */
+async function createTargetedBackup(
+  entries: RegistryEntry[],
+  backupDir: string,
+  timestamp: string,
+  signal?: AbortSignal
+): Promise<void> {
+  const { keys, tasks } = collectBackupTargets(entries)
+  if (keys.length === 0 && tasks.length === 0) return
+
+  const tempDir = mkdtempSync(join(tmpdir(), 'kudu-reg-backup-'))
+  try {
+    const bodies: string[] = []
+    let idx = 0
+    for (const key of keys) {
+      if (signal?.aborted) break
+      const tempPath = join(tempDir, `part-${idx++}.reg`)
+      try {
+        await execReg(['export', key, tempPath, '/y'], { timeout: 30000, signal })
+        bodies.push(stripRegHeader(readFileSync(tempPath, 'utf16le')))
+      } catch {
+        // Key may have been removed between scan and fix — skip
+      }
+    }
+
+    if (bodies.length > 0) {
+      const consolidatedPath = join(backupDir, `registry-backup-targeted-${timestamp}.reg`)
+      const finalText = 'Windows Registry Editor Version 5.00\r\n\r\n' + bodies.join('')
+      const bom = Buffer.from([0xFF, 0xFE])
+      const body = Buffer.from(finalText, 'utf16le')
+      writeFileSync(consolidatedPath, Buffer.concat([bom, body]))
+    }
+
+    if (tasks.length > 0) {
+      const taskDir = join(backupDir, `registry-backup-tasks-${timestamp}`)
+      mkdirSync(taskDir, { recursive: true })
+      for (const taskPath of tasks) {
+        if (signal?.aborted) break
+        const parts = splitTaskPath(taskPath)
+        if (!parts) continue
+        const fullName = (parts.path + parts.name).replace(/\\+/g, '\\')
+        const safeName = parts.name.replace(/[\\/:*?"<>|]/g, '_').slice(0, 100) || 'task'
+        try {
+          const { stdout } = await execNativeUtf8('schtasks', ['/query', '/xml', '/tn', fullName], { timeout: 10000, signal })
+          writeFileSync(join(taskDir, `${safeName}.xml`), stdout, 'utf-8')
+        } catch {
+          // Task may already be gone or inaccessible — skip
+        }
+      }
+    }
+  } finally {
+    try { rmSync(tempDir, { recursive: true, force: true }) } catch { /* ignore */ }
+  }
 }
 
 export async function fixRegistryEntries(
@@ -1718,33 +1844,13 @@ export async function fixRegistryEntries(
     onProgress?.(0, total, 'Creating registry backup...')
     const backupDir = getBackupDir()
     try {
-      const { mkdirSync } = await import('fs')
       mkdirSync(backupDir, { recursive: true })
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-      const backupPath = join(backupDir, `registry-backup-${timestamp}.reg`)
-      // Back up all hives that fix operations may modify
-      await execReg(['export', 'HKLM\\SOFTWARE', backupPath, '/y'], { timeout: 30000, signal })
-      const hkcuBackupPath = join(backupDir, `registry-backup-HKCU-${timestamp}.reg`)
-      await execReg(['export', 'HKCU\\SOFTWARE', hkcuBackupPath, '/y'], { timeout: 30000, signal }).catch(() => {})
-      // Back up HKLM\SYSTEM (services, event log sources) and HKCR (COM, interfaces, shell extensions)
-      const systemBackupPath = join(backupDir, `registry-backup-SYSTEM-${timestamp}.reg`)
-      await execReg(['export', 'HKLM\\SYSTEM\\CurrentControlSet\\Services', systemBackupPath, '/y'], { timeout: 60000, signal }).catch(() => {})
-      // Back up HKCR branches that fix operations may delete from
-      const hkcrClsidPath = join(backupDir, `registry-backup-HKCR-CLSID-${timestamp}.reg`)
-      await execReg(['export', 'HKCR\\CLSID', hkcrClsidPath, '/y'], { timeout: 60000, signal }).catch(() => {})
-      const hkcrIfacePath = join(backupDir, `registry-backup-HKCR-Interface-${timestamp}.reg`)
-      await execReg(['export', 'HKCR\\Interface', hkcrIfacePath, '/y'], { timeout: 60000, signal }).catch(() => {})
-      const hkcrMimePath = join(backupDir, `registry-backup-HKCR-MIME-${timestamp}.reg`)
-      await execReg(['export', 'HKCR\\MIME', hkcrMimePath, '/y'], { timeout: 30000, signal }).catch(() => {})
-      // Shell extension handlers are under HKCR\*\shellex, HKCR\Directory\shellex, HKCR\Folder\shellex
-      const shellRoots = [
-        { key: '*', file: 'AllFileTypes' },
-        { key: 'Directory', file: 'Directory' },
-        { key: 'Folder', file: 'Folder' }
-      ]
-      for (const { key, file } of shellRoots) {
-        const shellPath = join(backupDir, `registry-backup-HKCR-${file}-shellex-${timestamp}.reg`)
-        await execReg(['export', `HKCR\\${key}\\shellex`, shellPath, '/y'], { timeout: 30000, signal }).catch(() => {})
+      const mode = getSettings().backupMode ?? 'targeted'
+      if (mode === 'full') {
+        await createFullBackup(backupDir, timestamp, signal)
+      } else {
+        await createTargetedBackup(entries, backupDir, timestamp, signal)
       }
       pruneOldBackups(backupDir, 3)
     } catch {

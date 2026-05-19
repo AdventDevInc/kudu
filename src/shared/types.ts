@@ -599,6 +599,12 @@ export interface KuduSettings {
   ignoredSoftwareUpdates: string[]
   /** Folder where backups (registry, shell extensions, etc.) are written. Empty = use default. */
   backupPath: string
+  /**
+   * How registry fixes are backed up before applying.
+   * `targeted` (default): export only the keys being modified into one consolidated .reg per run.
+   * `full`: export entire hives (HKLM\SOFTWARE, HKCR branches, etc.) — safer but can grow to hundreds of MB.
+   */
+  backupMode: 'targeted' | 'full'
   schedule: {
     enabled: boolean
     frequency: 'daily' | 'weekly' | 'monthly'
