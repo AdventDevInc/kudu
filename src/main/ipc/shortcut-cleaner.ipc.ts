@@ -170,19 +170,17 @@ function getShortcutDirs(): { path: string; subcategory: string }[] {
 /** Windows Start Menu subdirectories that contain built-in OS shortcuts */
 const WIN_SYSTEM_SUBDIRS = /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
 
-/** Taskbar pinned shortcuts directory — shortcuts here were explicitly pinned by the user */
-const WIN_TASKBAR_DIR = /\\User Pinned\\TaskBar\\/i
-
 function isTargetBroken(info: ShortcutInfo): boolean {
   if (process.platform === 'win32') {
     // Never flag shortcuts in built-in Windows Start Menu subdirectories
     if (WIN_SYSTEM_SUBDIRS.test(info.path)) return false
-    // Never flag taskbar shortcuts with unresolvable targets — many system
-    // shortcuts (e.g. File Explorer) use shell extensions that WScript.Shell
-    // cannot resolve, returning an empty TargetPath despite being valid
-    if (WIN_TASKBAR_DIR.test(info.path) && !info.targetPath) return false
+    // A .lnk with a stored filesystem path returns it from WScript.Shell even
+    // when the file is gone, so an empty TargetPath means the shortcut targets
+    // a shell namespace item (File Explorer, This PC, Recycle Bin, etc.) which
+    // we can't verify via the filesystem — leave it alone.
+    if (!info.targetPath) return false
     // Never flag shortcuts pointing to Windows system executables
-    if (info.targetPath && /\\Windows\\/i.test(info.targetPath)) return false
+    if (/\\Windows\\/i.test(info.targetPath)) return false
   }
   // If we couldn't resolve the target at all, consider it broken
   if (!info.targetPath) return true

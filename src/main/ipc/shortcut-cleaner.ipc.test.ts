@@ -14,13 +14,12 @@ interface ShortcutInfo {
 // Simplified replica without existsSync (tests parsing/regex logic only).
 
 const WIN_SYSTEM_SUBDIRS = /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
-const WIN_TASKBAR_DIR = /\\User Pinned\\TaskBar\\/i
 
 function isTargetBrokenLogic(info: ShortcutInfo, platform: string, targetExists: boolean): boolean {
   if (platform === 'win32') {
     if (WIN_SYSTEM_SUBDIRS.test(info.path)) return false
-    if (WIN_TASKBAR_DIR.test(info.path) && !info.targetPath) return false
-    if (info.targetPath && /\\Windows\\/i.test(info.targetPath)) return false
+    if (!info.targetPath) return false
+    if (/\\Windows\\/i.test(info.targetPath)) return false
   }
   if (!info.targetPath) return true
   if (info.targetPath.trim() === '') return true
@@ -53,6 +52,15 @@ describe('isTargetBroken logic', () => {
   it('does not flag shortcuts in Accessibility', () => {
     expect(isTargetBrokenLogic({
       path: 'C:\\Start Menu\\Programs\\Accessibility\\magnify.lnk',
+      targetPath: null
+    }, 'win32', false)).toBe(false)
+  })
+
+  it('does not flag Windows shortcuts with no resolvable target (shell namespace targets)', () => {
+    // Regression: issue #169 — "File Explorer.lnk" uses a shell ID list target,
+    // so WScript.Shell returns an empty TargetPath. It must not be flagged as dead.
+    expect(isTargetBrokenLogic({
+      path: 'C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\File Explorer.lnk',
       targetPath: null
     }, 'win32', false)).toBe(false)
   })
@@ -127,11 +135,14 @@ describe('isTargetBroken logic', () => {
 
   // ── Null and empty targets ──
 
-  it('flags null target as broken (non-system path)', () => {
+  it('on Linux, flags null target as broken', () => {
+    // On Linux, a null target means the .desktop file had no Exec line or was
+    // unreadable, which we treat as broken. On Windows, null instead means a
+    // shell-namespace target that we cannot verify (handled above).
     expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\broken.lnk',
+      path: '/home/user/Desktop/broken.desktop',
       targetPath: null
-    }, 'win32', false)).toBe(true)
+    }, 'linux', false)).toBe(true)
   })
 
   it('flags empty string target as broken', () => {
