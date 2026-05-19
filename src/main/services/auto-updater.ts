@@ -19,9 +19,15 @@ function broadcast(s: UpdateStatus): void {
     return
   }
   for (const win of BrowserWindow.getAllWindows()) {
-    if (!win.isDestroyed()) {
+    if (win.isDestroyed()) continue
+    // isDestroyed() returns false while the render frame is mid-teardown,
+    // so .send() still throws "Render frame was disposed before WebFrameMain
+    // could be accessed". Swallow it — there's no recipient anyway, and the
+    // unhandled stack trace was the loudest signal in issue #148, masking
+    // the actual renderer crash.
+    try {
       win.webContents.send(IPC.UPDATER_STATUS, s)
-    }
+    } catch { /* renderer gone — nothing to deliver to */ }
   }
 }
 

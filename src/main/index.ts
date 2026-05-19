@@ -12,6 +12,7 @@ import { registerCleanerIpc } from './ipc'
 import { getSettings } from './services/settings-store'
 import { startScheduler, stopScheduler, getNextScanTime, notifyScheduledScanComplete, completeScheduleRun } from './services/scheduler'
 import { initAutoUpdater } from './services/auto-updater'
+import { attachRendererDiagnostics } from './services/renderer-diagnostics'
 import { cloudAgent } from './services/cloud-agent'
 import { runCli } from './cli'
 import { runDaemon } from './daemon'
@@ -341,6 +342,8 @@ function createWindow(): void {
   // or macOS wasOpenedAtLogin (since macOS 13+ drops argv from login items).
   const isStartupLaunch = process.argv.includes('--startup')
     || (process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAtLogin)
+
+  attachRendererDiagnostics(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     // If launched at startup with minimize-to-tray, stay hidden
