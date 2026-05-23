@@ -70,7 +70,7 @@
     "vitest": "^4.1.0"
   },
   "dependencies": {
-    "@litko/yara-x": "^0.5.0",
+    "@litko/yara-x": "^0.5.2",
     "@tanstack/react-table": "^8.21.3",
     "better-sqlite3": "^12.9.0",
     "clsx": "^2.1.1",
