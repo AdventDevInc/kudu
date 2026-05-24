@@ -272,20 +272,7 @@ export function CloudPage() {
 
       {/* Plans */}
       <SectionHeading title={t('plansTitle')} subtitle={t('plansSubtitle')} />
-      <div className="grid grid-cols-3 gap-3 mb-10">
-        <PlanCard
-          name={t('planStarterName')}
-          price={t('planStarterPrice')}
-          period={t('planStarterPeriod')}
-          features={[
-            t('planStarterFeature1'),
-            t('planStarterFeature2'),
-            t('planStarterFeature3'),
-            t('planStarterFeature4'),
-            t('planStarterFeature5'),
-          ]}
-          highlight={false}
-        />
+      <div className="grid grid-cols-2 gap-3 mb-10">
         <PlanCard
           name={t('planBasicName')}
           price={t('planBasicPrice')}
@@ -296,6 +283,7 @@ export function CloudPage() {
             t('planBasicFeature3'),
             t('planBasicFeature4'),
             t('planBasicFeature5'),
+            t('planBasicFeature6'),
           ]}
           highlight={false}
           badge={t('planPopularBadge')}
