@@ -58,4 +58,20 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
     const afterRestart = getSettings()
     expect(afterRestart.gameMode.enabledOptimizations).toEqual([])
   })
+
+  it('defaults registryIgnoredTweaks to an empty array', () => {
+    expect(getSettings().registryIgnoredTweaks).toEqual([])
+  })
+
+  it('remembers an ignored registry tweak across a simulated restart (issue #172)', async () => {
+    const sig = 'hklm\\system\\currentcontrolset\\services\\sysmain|start'
+    setSettings({ registryIgnoredTweaks: [sig] })
+    await flushSettings()
+    expect(getSettings().registryIgnoredTweaks).toEqual([sig])
+
+    // Un-ignoring (re-selecting) clears it again.
+    setSettings({ registryIgnoredTweaks: [] })
+    await flushSettings()
+    expect(getSettings().registryIgnoredTweaks).toEqual([])
+  })
 })

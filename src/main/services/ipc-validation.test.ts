@@ -323,6 +323,29 @@ describe('validateSettingsPartial', () => {
       }
     })).not.toBeNull()
   })
+
+  // registryIgnoredTweaks — persisted "ignore this tweak" signatures (issue #172)
+  it('accepts a registryIgnoredTweaks array of signature strings', () => {
+    const input = { registryIgnoredTweaks: ['hklm\\system\\currentcontrolset\\services\\sysmain|start'] }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('accepts an empty registryIgnoredTweaks array', () => {
+    expect(validateSettingsPartial({ registryIgnoredTweaks: [] })).toEqual({ registryIgnoredTweaks: [] })
+  })
+
+  it('rejects registryIgnoredTweaks that is not an array', () => {
+    expect(validateSettingsPartial({ registryIgnoredTweaks: 'sysmain|start' })).toBeNull()
+  })
+
+  it('rejects non-string or empty entries in registryIgnoredTweaks', () => {
+    expect(validateSettingsPartial({ registryIgnoredTweaks: [42] })).toBeNull()
+    expect(validateSettingsPartial({ registryIgnoredTweaks: [''] })).toBeNull()
+  })
+
+  it('rejects an oversized registryIgnoredTweaks list', () => {
+    expect(validateSettingsPartial({ registryIgnoredTweaks: Array(201).fill('a|b') })).toBeNull()
+  })
 })
 
 describe('validateHistoryEntry', () => {

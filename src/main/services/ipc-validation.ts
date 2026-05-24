@@ -17,7 +17,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
     'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'backupPath', 'windowsPackageManager',
-    'schedule', 'schedules', 'cloud', 'gameMode'
+    'schedule', 'schedules', 'cloud', 'gameMode', 'registryIgnoredTweaks'
   ])
 
   for (const key of Object.keys(obj)) {
@@ -153,6 +153,13 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if ('allowRemoteCleanup' in c && typeof c.allowRemoteCleanup !== 'boolean') return null
     if ('allowRemoteInstalls' in c && typeof c.allowRemoteInstalls !== 'boolean') return null
     if ('allowRemoteConfig' in c && typeof c.allowRemoteConfig !== 'boolean') return null
+  }
+
+  // Validate registryIgnoredTweaks is an array of tweak-signature strings if present
+  if ('registryIgnoredTweaks' in obj && obj.registryIgnoredTweaks !== undefined) {
+    if (!Array.isArray(obj.registryIgnoredTweaks)) return null
+    if (obj.registryIgnoredTweaks.length > 200) return null
+    if (!obj.registryIgnoredTweaks.every((v: unknown) => typeof v === 'string' && v.length > 0 && v.length <= 1024)) return null
   }
 
   // Validate gameMode has expected shape if present

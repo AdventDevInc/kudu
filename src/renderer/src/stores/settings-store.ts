@@ -61,7 +61,8 @@ const defaultSettings: KuduSettings = {
     autoDetect: false,
     autoDeactivate: true,
     customGameProcesses: []
-  }
+  },
+  registryIgnoredTweaks: []
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({

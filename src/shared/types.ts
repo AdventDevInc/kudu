@@ -626,6 +626,14 @@ export interface KuduSettings {
   /** Preferred Windows package manager for Software Updater */
   windowsPackageManager: 'winget' | 'choco'
   gameMode: GameModeConfig
+  /**
+   * Registry-cleaner tweaks the user has chosen to ignore. Recurring advisory
+   * recommendations (e.g. "disable SysMain") whose signature is listed here are
+   * never pre-selected on a scan, so they aren't applied by accident on a later
+   * run. Signatures are `keyPath|valueName` lowercased — see `tweakSignature`
+   * in `shared/registry-tweaks.ts` and issue #172.
+   */
+  registryIgnoredTweaks: string[]
 }
 
 // ─── Game Mode ──────────────────────────────────────────────

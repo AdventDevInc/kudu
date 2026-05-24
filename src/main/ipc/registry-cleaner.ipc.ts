@@ -8,6 +8,7 @@ import { getBackupDir } from '../services/backup-dir'
 import { getSettings } from '../services/settings-store'
 import { IPC } from '../../shared/channels'
 import type { RegistryEntry } from '../../shared/types'
+import { applyIgnoredTweaks } from '../../shared/registry-tweaks'
 import { randomUUID } from 'crypto'
 import type { WindowGetter } from './index'
 import { validateStringArray } from '../services/ipc-validation'
@@ -1952,6 +1953,10 @@ export function registerRegistryCleanerIpc(getWindow: WindowGetter): void {
     } finally {
       if (scanAbort?.signal === signal) scanAbort = null
     }
+
+    // Don't pre-select recurring tweaks the user has chosen to ignore (issue #172)
+    // so they can't be applied by accident on a later run.
+    applyIgnoredTweaks(entries, getSettings().registryIgnoredTweaks ?? [])
 
     // Store entries in a new scan session
     const sessionMap = new Map<string, RegistryEntry>()

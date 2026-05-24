@@ -86,7 +86,8 @@ const defaults: StoreData = {
       autoDetect: false,
       autoDeactivate: true,
       customGameProcesses: []
-    }
+    },
+    registryIgnoredTweaks: []
   },
   stats: {
     totalSpaceSaved: 0,
