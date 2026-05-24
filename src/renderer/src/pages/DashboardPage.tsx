@@ -11,6 +11,7 @@ import {
   Shield,
   CheckCircle2,
   Wifi,
+  Cloud,
   Loader2,
   Cpu,
   Check,
@@ -96,6 +97,10 @@ export function DashboardPage() {
   const [showQuickConfirm, setShowQuickConfirm] = useState(false)
   const [showFullConfirm, setShowFullConfirm] = useState(false)
   const [stepProgress, setStepProgress] = useState({ current: 0, total: 0 })
+  // Live cloud connection status — reflects the agent's actual state, not just
+  // whether an API key is saved (a key can be linked but failing, e.g. expired
+  // subscription / 402). Only "connected" counts as connected.
+  const [cloudConnected, setCloudConnected] = useState(false)
 
   // ── Lightweight system metrics (no heavy process polling) ──
   const [perf, setPerf] = useState<PerfQuickStats | null>(null)
@@ -116,6 +121,20 @@ export function DashboardPage() {
     const initial = setTimeout(poll, 1000)
     return () => { cancelled = true; clearInterval(iv); clearTimeout(initial) }
   }, [])
+
+  // ── Cloud connection status ────────────────────────────────
+  useEffect(() => {
+    if (!isCloudLinked) { setCloudConnected(false); return }
+    let cancelled = false
+    const check = () => {
+      window.kudu?.cloudGetStatus?.()
+        .then((s) => { if (!cancelled) setCloudConnected(s?.status === 'connected') })
+        .catch(() => { if (!cancelled) setCloudConnected(false) })
+    }
+    check()
+    const iv = setInterval(check, 5000)
+    return () => { cancelled = true; clearInterval(iv) }
+  }, [isCloudLinked])
 
   // ── Game Mode elapsed timer ────────────────────────────────
   const [gmElapsed, setGmElapsed] = useState(0)
@@ -557,10 +576,16 @@ export function DashboardPage() {
         </div>
 
         {/* ── Stats Row ───────────────────────────────── */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <StatCard icon={HardDrive} label={t('statSpaceRecovered')} value={stats.totalSpaceSaved} displayValue={formatBytes(stats.totalSpaceSaved)} variant="accent" />
           <StatCard icon={FileStack} label={t('statFilesCleaned')} value={stats.totalFilesCleaned} variant="success" />
           <StatCard icon={BarChart3} label={t('statTotalScans')} value={stats.totalScans} />
+          <CloudStatusCard
+            connected={cloudConnected}
+            label={t('statusCloud')}
+            statusText={cloudConnected ? t('statusCloudConnected') : t('statusCloudNotConnected')}
+            onClick={() => navigate('/cloud')}
+          />
         </div>
 
         {/* ── Action Buttons ──────────────────────────── */}
@@ -772,6 +797,59 @@ function MiniGauge({ icon: Icon, label, percent, detail }: {
         <p className="truncate text-[11px]" style={{ color: 'var(--text-secondary)' }}>{detail}</p>
       </div>
     </div>
+  )
+}
+
+// ── Cloud Status Card ────────────────────────────────────────
+
+function CloudStatusCard({ connected, label, statusText, onClick }: {
+  connected: boolean
+  label: string
+  statusText: string
+  onClick: () => void
+}) {
+  const accentLine = connected ? 'rgba(34,197,94,0.4)' : 'var(--border-medium)'
+  const iconBg = connected ? 'rgba(34,197,94,0.10)' : 'var(--bg-hover)'
+  const iconColor = connected ? '#22c55e' : 'var(--text-muted)'
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${label}: ${statusText}`}
+      className={cn(
+        'glass-card glass-card-hover group relative overflow-hidden rounded-2xl p-5 text-left',
+        connected && 'glow-green'
+      )}
+    >
+      {/* Accent line at top */}
+      <div
+        className="absolute inset-x-0 top-0 h-[2px]"
+        style={{ background: `linear-gradient(90deg, transparent, ${accentLine}, transparent)` }}
+      />
+
+      {/* Icon in container */}
+      <div
+        className="mb-4 flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
+        style={{ background: iconBg }}
+      >
+        <Cloud className="h-[18px] w-[18px]" style={{ color: iconColor }} strokeWidth={1.8} aria-hidden="true" />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span
+          className="h-2 w-2 shrink-0 rounded-full"
+          style={{ background: connected ? '#22c55e' : 'var(--text-faint)' }}
+        />
+        <span
+          className="truncate text-[18px] font-bold tracking-tight"
+          style={{ color: connected ? '#fff' : 'var(--text-muted)' }}
+        >
+          {statusText}
+        </span>
+      </div>
+      <p className="mt-1 text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{label}</p>
+    </button>
   )
 }
 
