@@ -57,6 +57,45 @@ import { isLikelyFalsePositive, deduplicateCves } from './cve-filter'
 const execFileAsync = promisify(execFile)
 const DEFAULT_SERVER_URL = 'https://cloud.usekudu.com'
 
+/**
+ * HTTP statuses that indicate a permanent failure where retrying is pointless:
+ * 401 (bad API key), 402 (no active subscription), 403 (forbidden). When the
+ * server returns one of these we surface a hard error instead of looping the
+ * reconnect timer.
+ */
+const TERMINAL_HTTP_STATUSES = new Set([401, 402, 403])
+
+/**
+ * Error thrown by the cloud HTTP helpers. Carries the HTTP status code and any
+ * server-provided message so callers can distinguish terminal failures (bad
+ * key, no subscription) from transient ones (500s, network blips).
+ */
+class CloudHttpError extends Error {
+  readonly status: number
+  readonly serverMessage: string | null
+
+  constructor(status: number, bodyText: string) {
+    const serverMessage = CloudHttpError.extractMessage(bodyText)
+    super(`HTTP ${status}: ${serverMessage ?? bodyText.slice(0, 200)}`)
+    this.name = 'CloudHttpError'
+    this.status = status
+    this.serverMessage = serverMessage
+  }
+
+  get isTerminal(): boolean {
+    return TERMINAL_HTTP_STATUSES.has(this.status)
+  }
+
+  private static extractMessage(bodyText: string): string | null {
+    try {
+      const parsed = JSON.parse(bodyText) as { error?: unknown; message?: unknown }
+      if (typeof parsed?.error === 'string') return parsed.error
+      if (typeof parsed?.message === 'string') return parsed.message
+    } catch { /* body wasn't JSON */ }
+    return null
+  }
+}
+
 const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
 const LONG_COMMAND_TIMEOUT_MS = 30 * 60 * 1000 // for bulk update / install commands
 
@@ -382,9 +421,14 @@ class CloudAgentService {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       cloudLog('ERROR', `Link failed: ${msg}`)
-      this.error = msg.slice(0, 200)
+      // Prefer a clean, user-facing message for terminal failures
+      // (no subscription, bad key) over the raw "HTTP 402: ..." string.
+      const friendly = err instanceof CloudHttpError && err.isTerminal
+        ? this.formatTerminalError(err)
+        : msg
+      this.error = friendly.slice(0, 200)
       this.status = 'error'
-      return { success: false, error: msg }
+      return { success: false, error: friendly }
     }
   }
 
@@ -446,12 +490,36 @@ class CloudAgentService {
       this.reconnectAttempts = 0
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
+      cloudLog('ERROR', `Discovery failed: ${msg}`)
+
+      // Terminal failures (bad API key, no active subscription, forbidden)
+      // won't resolve by retrying — surface a hard error and stop the loop.
+      if (err instanceof CloudHttpError && err.isTerminal) {
+        this.status = 'error'
+        this.error = this.formatTerminalError(err)
+        this.lastErrorReason = null
+        this.clearReconnectTimer()
+        this.reconnectAttempts = 0
+        return
+      }
+
       this.error = `Discovery failed: ${msg.slice(0, 180)}`
       this.lastErrorReason = this.error
       this.status = 'disconnected'
-      cloudLog('ERROR', `Discovery failed: ${msg}`)
       this.scheduleReconnect()
     }
+  }
+
+  /** Builds a user-facing message for a permanent connection failure. */
+  private formatTerminalError(err: CloudHttpError): string {
+    // The server's own message is usually the clearest ("Subscription
+    // required...", etc.) — prefer it verbatim and fall back per-status.
+    if (err.serverMessage) return err.serverMessage
+    if (err.status === 402) {
+      return 'Kudu Cloud subscription required — add an active subscription to connect this device.'
+    }
+    // 401 / 403 — invalid or unauthorized API key
+    return 'Access denied — your API key is invalid or no longer authorized. Re-link this device.'
   }
 
   private scheduleReconnect(): void {
@@ -620,8 +688,9 @@ class CloudAgentService {
       this.error = msg.slice(0, 200)
       cloudLog('ERROR', `Channel auth failed (status ${statusCode}): ${this.error}`)
 
-      // 401/403 = bad API key — don't retry, user needs to re-link
-      if (statusCode === 401 || statusCode === 403) {
+      // Terminal status (bad key, no subscription, forbidden) — don't retry,
+      // the user needs to re-link or fix their subscription.
+      if (typeof statusCode === 'number' && TERMINAL_HTTP_STATUSES.has(statusCode)) {
         this.status = 'error'
         this.pusher?.disconnect()
         return
@@ -708,8 +777,9 @@ class CloudAgentService {
       clearTimeout(timeout)
     }
     if (!res.ok) {
-      cloudLog('ERROR', `Discovery failed: HTTP ${res.status}`)
-      throw new Error(`Discovery returned HTTP ${res.status}`)
+      const text = await res.text().catch(() => '')
+      cloudLog('ERROR', `Discovery failed: HTTP ${res.status}`, text.slice(0, 300))
+      throw new CloudHttpError(res.status, text)
     }
     const data = await res.json() as ConnectConfig
     if (!data?.ws?.host || !data?.ws?.key || !data?.api || !data?.broadcasting) {
@@ -745,7 +815,7 @@ class CloudAgentService {
     if (!res.ok) {
       const text = await res.text().catch(() => '')
       cloudLog('ERROR', `POST ${url} → ${res.status}`, text.slice(0, 300))
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+      throw new CloudHttpError(res.status, text)
     }
 
     cloudLog('DEBUG', `POST ${url} → ${res.status}`)
@@ -780,7 +850,7 @@ class CloudAgentService {
     if (!res.ok) {
       const text = await res.text().catch(() => '')
       cloudLog('ERROR', `GET ${url} → ${res.status}`, text.slice(0, 300))
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+      throw new CloudHttpError(res.status, text)
     }
 
     cloudLog('DEBUG', `GET ${url} → ${res.status}`)
@@ -817,7 +887,7 @@ class CloudAgentService {
     if (!res.ok) {
       const text = await res.text().catch(() => '')
       cloudLog('ERROR', `DELETE ${url} → ${res.status}`, text.slice(0, 300))
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+      throw new CloudHttpError(res.status, text)
     }
 
     cloudLog('DEBUG', `DELETE ${url} → ${res.status}`)
@@ -853,7 +923,7 @@ class CloudAgentService {
     if (!res.ok) {
       const text = await res.text().catch(() => '')
       cloudLog('ERROR', `PATCH ${url} → ${res.status}`, text.slice(0, 300))
-      throw new Error(`HTTP ${res.status}: ${text.slice(0, 200)}`)
+      throw new CloudHttpError(res.status, text)
     }
 
     cloudLog('DEBUG', `PATCH ${url} → ${res.status}`)
