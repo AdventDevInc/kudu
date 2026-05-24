@@ -18,7 +18,7 @@ vi.mock('electron', () => ({
   },
 }))
 
-import { setSettings, getSettings, flushSettings } from './settings-store'
+import { setSettings, getSettings, flushSettings, updateRegistryIgnoredTweaks } from './settings-store'
 
 describe('settings persistence — game mode toggle round-trip (issue #172)', () => {
   afterAll(() => {
@@ -65,13 +65,29 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
 
   it('remembers an ignored registry tweak across a simulated restart (issue #172)', async () => {
     const sig = 'hklm\\system\\currentcontrolset\\services\\sysmain|start'
-    setSettings({ registryIgnoredTweaks: [sig] })
+    updateRegistryIgnoredTweaks([sig], true)
     await flushSettings()
     expect(getSettings().registryIgnoredTweaks).toEqual([sig])
 
     // Un-ignoring (re-selecting) clears it again.
-    setSettings({ registryIgnoredTweaks: [] })
+    updateRegistryIgnoredTweaks([sig], false)
     await flushSettings()
     expect(getSettings().registryIgnoredTweaks).toEqual([])
+  })
+
+  it('merges ignore deltas atomically without dropping earlier signatures', async () => {
+    const a = 'hklm\\a|start'
+    const b = 'hklm\\b|start'
+    // Two independent toggles (e.g. fired back-to-back) must both survive —
+    // the second must not overwrite the first with a stale base (issue #172).
+    updateRegistryIgnoredTweaks([a], true)
+    updateRegistryIgnoredTweaks([b], true)
+    await flushSettings()
+    expect(getSettings().registryIgnoredTweaks.sort()).toEqual([a, b])
+
+    // Removing one leaves the other intact.
+    updateRegistryIgnoredTweaks([a], false)
+    await flushSettings()
+    expect(getSettings().registryIgnoredTweaks).toEqual([b])
   })
 })

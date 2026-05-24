@@ -150,6 +150,8 @@ const api = {
     ipcRenderer.invoke(IPC.REGISTRY_FIX, entryIds),
   registryScanCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_SCAN_CANCEL),
   registryFixCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_FIX_CANCEL),
+  registrySetTweakIgnored: (signatures: string[], ignored: boolean): Promise<void> =>
+    ipcRenderer.invoke(IPC.REGISTRY_SET_TWEAK_IGNORED, signatures, ignored),
 
   // Context Menu Cleaner
   contextMenuScan: (): Promise<ContextMenuScanResult> => ipcRenderer.invoke(IPC.CONTEXT_MENU_SCAN),

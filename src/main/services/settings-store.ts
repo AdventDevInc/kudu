@@ -260,6 +260,34 @@ export function updateScheduleEntry(scheduleId: string, patch: Partial<import('.
   })
 }
 
+/**
+ * Atomically add or remove registry-tweak ignore signatures within the write
+ * lock. Reads the latest list inside the lock so a toggle can never compute
+ * from a stale in-memory base and drop previously-ignored signatures (issue
+ * #172). `ignored = true` adds the signatures, `false` removes them.
+ */
+export function updateRegistryIgnoredTweaks(signatures: string[], ignored: boolean): void {
+  const prev = writeLock
+  let unlock: () => void
+  writeLock = new Promise<void>((r) => { unlock = r })
+  prev.then(() => {
+    try {
+      const data = readStore()
+      const set = new Set(data.settings.registryIgnoredTweaks ?? [])
+      for (const sig of signatures) {
+        if (!sig) continue
+        if (ignored) set.add(sig)
+        else set.delete(sig)
+      }
+      // Bound the list to match validation (oldest entries dropped first).
+      data.settings.registryIgnoredTweaks = [...set].slice(-200)
+      writeStore(data)
+    } finally {
+      unlock!()
+    }
+  })
+}
+
 /** Wait for any pending setSettings() writes to complete */
 export function flushSettings(): Promise<void> {
   return writeLock

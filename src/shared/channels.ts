@@ -43,6 +43,7 @@ export const IPC = {
   REGISTRY_FIX: 'cleaner:registry:fix',
   REGISTRY_SCAN_CANCEL: 'cleaner:registry:scan:cancel',
   REGISTRY_FIX_CANCEL: 'cleaner:registry:fix:cancel',
+  REGISTRY_SET_TWEAK_IGNORED: 'cleaner:registry:tweak:set-ignored',
 
   // Context Menu Cleaner (Windows shell extensions / right-click verbs)
   CONTEXT_MENU_SCAN: 'cleaner:context-menu:scan',
