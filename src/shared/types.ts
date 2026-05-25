@@ -297,6 +297,21 @@ export interface QuarantinedItem {
   originalFileName: string
   quarantinedAt: number
   size: number
+  /** Why the file was flagged — captured at quarantine time (optional for legacy entries). */
+  detectionName?: string
+  severity?: 'critical' | 'high' | 'medium' | 'low'
+  source?: 'defender' | 'heuristic' | 'signature'
+  details?: string
+}
+
+/** Detection metadata passed alongside a path when quarantining, so the
+ *  quarantine list can show why each file was flagged. */
+export interface QuarantineMeta {
+  path: string
+  detectionName?: string
+  severity?: 'critical' | 'high' | 'medium' | 'low'
+  source?: 'defender' | 'heuristic' | 'signature'
+  details?: string
 }
 
 export interface YaraRulesInfo {

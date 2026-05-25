@@ -300,8 +300,8 @@ const api = {
 
   // Malware scanner
   malwareScan: (): Promise<MalwareScanResult> => ipcRenderer.invoke(IPC.MALWARE_SCAN),
-  malwareQuarantine: (paths: string[]): Promise<MalwareActionResult> =>
-    ipcRenderer.invoke(IPC.MALWARE_QUARANTINE, paths),
+  malwareQuarantine: (paths: string[], meta?: import('../shared/types').QuarantineMeta[]): Promise<MalwareActionResult> =>
+    ipcRenderer.invoke(IPC.MALWARE_QUARANTINE, paths, meta),
   malwareDelete: (paths: string[]): Promise<MalwareActionResult> =>
     ipcRenderer.invoke(IPC.MALWARE_DELETE, paths),
   malwareRestore: (quarantinedPath: string, originalPath: string): Promise<boolean> =>

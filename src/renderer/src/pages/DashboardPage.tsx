@@ -277,7 +277,14 @@ export function DashboardPage() {
       if (result.threats.length === 0) return { found: 0, quarantined: 0 }
       setPhaseLabel(t('phaseLabelQuarantiningThreats'))
       const paths = result.threats.map((t) => t.path)
-      const actionResult = await window.kudu.malwareQuarantine(paths)
+      const meta = result.threats.map((t) => ({
+        path: t.path,
+        detectionName: t.detectionName,
+        severity: t.severity,
+        source: t.source,
+        details: t.details
+      }))
+      const actionResult = await window.kudu.malwareQuarantine(paths, meta)
       return { found: result.threats.length, quarantined: actionResult.succeeded }
     } catch {
       toast.error(t('toastMalwareScanFailed'))
@@ -682,9 +689,15 @@ export function DashboardPage() {
                   {result.registryFixed > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultRegistryFixed', { count: result.registryFixed })}</p>}
                   {result.driversRemoved > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultDriversRemoved', { count: result.driversRemoved })}</p>}
                   {result.threatsFound > 0 && (
-                    <p className="text-[12px]" style={{ color: result.threatsQuarantined > 0 ? '#22c55e' : '#ef4444' }}>
-                      {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })}
-                    </p>
+                    result.threatsQuarantined > 0 ? (
+                      <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })} className="text-[12px] hover:underline" style={{ color: '#22c55e' }}>
+                        {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })} &rarr;
+                      </button>
+                    ) : (
+                      <p className="text-[12px]" style={{ color: '#ef4444' }}>
+                        {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })}
+                      </p>
+                    )
                   )}
                   {result.threatsFound === 0 && result.privacyScore > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultNoThreatsFound')}</p>}
                   {result.privacyIssues > 0 && (
