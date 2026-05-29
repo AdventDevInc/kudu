@@ -18,7 +18,8 @@ vi.mock('electron', () => ({
   },
 }))
 
-import { setSettings, getSettings, flushSettings, updateRegistryIgnoredTweaks } from './settings-store'
+import { setSettings, getSettings, flushSettings, updateRegistryIgnoredTweaks, getMalwareAllowlist, addMalwareAllowlistEntry, removeMalwareAllowlistEntry } from './settings-store'
+import type { MalwareAllowlistEntry } from '../../shared/types'
 
 describe('settings persistence — game mode toggle round-trip (issue #172)', () => {
   afterAll(() => {
@@ -89,5 +90,59 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
     updateRegistryIgnoredTweaks([a], false)
     await flushSettings()
     expect(getSettings().registryIgnoredTweaks).toEqual([b])
+  })
+})
+
+describe('malware allowlist (false positives)', () => {
+  afterAll(() => {
+    if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true, force: true })
+  })
+
+  const entry = (sha256: string, over: Partial<MalwareAllowlistEntry> = {}): MalwareAllowlistEntry => ({
+    sha256,
+    path: `C:/Games/${sha256}.exe`,
+    fileName: `${sha256}.exe`,
+    detectionName: 'Heuristic.Suspicious.PE',
+    addedAt: 1,
+    ...over,
+  })
+
+  it('defaults the allowlist to an empty array', () => {
+    expect(getMalwareAllowlist()).toEqual([])
+  })
+
+  it('adds an entry that survives a simulated restart', async () => {
+    addMalwareAllowlistEntry(entry('aaa'))
+    await flushSettings()
+    const list = getMalwareAllowlist()
+    expect(list).toHaveLength(1)
+    expect(list[0].sha256).toBe('aaa')
+  })
+
+  it('de-dupes by content hash, refreshing the existing entry', async () => {
+    addMalwareAllowlistEntry(entry('aaa', { path: 'C:/Moved/Gw.exe', fileName: 'Gw.exe' }))
+    await flushSettings()
+    const list = getMalwareAllowlist()
+    expect(list.filter((e) => e.sha256 === 'aaa')).toHaveLength(1)
+    expect(list.find((e) => e.sha256 === 'aaa')?.fileName).toBe('Gw.exe')
+  })
+
+  it('removes an entry by hash', async () => {
+    addMalwareAllowlistEntry(entry('bbb'))
+    await flushSettings()
+    expect(getMalwareAllowlist().some((e) => e.sha256 === 'bbb')).toBe(true)
+
+    removeMalwareAllowlistEntry('bbb')
+    await flushSettings()
+    expect(getMalwareAllowlist().some((e) => e.sha256 === 'bbb')).toBe(false)
+  })
+
+  it('merges concurrent adds without dropping earlier entries', async () => {
+    addMalwareAllowlistEntry(entry('c1'))
+    addMalwareAllowlistEntry(entry('c2'))
+    await flushSettings()
+    const hashes = getMalwareAllowlist().map((e) => e.sha256)
+    expect(hashes).toContain('c1')
+    expect(hashes).toContain('c2')
   })
 })

@@ -308,6 +308,12 @@ const api = {
     ipcRenderer.invoke(IPC.MALWARE_RESTORE, quarantinedPath, originalPath),
   malwareQuarantineList: (): Promise<import('../shared/types').QuarantinedItem[]> =>
     ipcRenderer.invoke(IPC.MALWARE_QUARANTINE_LIST),
+  malwareIgnore: (path: string, meta?: import('../shared/types').QuarantineMeta): Promise<import('../shared/types').MalwareAllowlistEntry | null> =>
+    ipcRenderer.invoke(IPC.MALWARE_IGNORE, path, meta),
+  malwareAllowlistList: (): Promise<import('../shared/types').MalwareAllowlistEntry[]> =>
+    ipcRenderer.invoke(IPC.MALWARE_ALLOWLIST_LIST),
+  malwareAllowlistRemove: (sha256: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.MALWARE_ALLOWLIST_REMOVE, sha256),
   onMalwareProgress: (callback: (data: MalwareScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: MalwareScanProgress) => callback(data)
     ipcRenderer.on(IPC.MALWARE_PROGRESS, handler)

@@ -304,6 +304,17 @@ export interface QuarantinedItem {
   details?: string
 }
 
+/** A file the user marked as a false positive. Detections whose content hash
+ *  matches `sha256` are suppressed on future scans. Path/fileName/detectionName
+ *  are retained for display in the allowlist management UI only. */
+export interface MalwareAllowlistEntry {
+  sha256: string
+  path: string
+  fileName: string
+  detectionName?: string
+  addedAt: number
+}
+
 /** Detection metadata passed alongside a path when quarantining, so the
  *  quarantine list can show why each file was flagged. */
 export interface QuarantineMeta {
@@ -649,6 +660,13 @@ export interface KuduSettings {
    * in `shared/registry-tweaks.ts` and issue #172.
    */
   registryIgnoredTweaks: string[]
+  /**
+   * Files the user has marked as false positives in the malware scanner. Any
+   * detection whose file content hash matches an entry here is suppressed on
+   * future scans. Keyed by content SHA-256 so a known-good file stays trusted
+   * even if moved, while a different binary at the same path is still scanned.
+   */
+  malwareAllowlist: MalwareAllowlistEntry[]
 }
 
 // ─── Game Mode ──────────────────────────────────────────────

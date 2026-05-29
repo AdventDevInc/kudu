@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
-import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType } from '../../shared/types'
+import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry } from '../../shared/types'
 
 let _dataDir: string | null = null
 let _configPath: string | null = null
@@ -87,7 +87,8 @@ const defaults: StoreData = {
       autoDeactivate: true,
       customGameProcesses: []
     },
-    registryIgnoredTweaks: []
+    registryIgnoredTweaks: [],
+    malwareAllowlist: []
   },
   stats: {
     totalSpaceSaved: 0,
@@ -281,6 +282,49 @@ export function updateRegistryIgnoredTweaks(signatures: string[], ignored: boole
       }
       // Bound the list to match validation (oldest entries dropped first).
       data.settings.registryIgnoredTweaks = [...set].slice(-200)
+      writeStore(data)
+    } finally {
+      unlock!()
+    }
+  })
+}
+
+/** Read the malware false-positive allowlist. */
+export function getMalwareAllowlist(): MalwareAllowlistEntry[] {
+  return readStore().settings.malwareAllowlist ?? []
+}
+
+/**
+ * Add a file to the malware false-positive allowlist within the write lock.
+ * De-dupes by content hash (a re-ignore refreshes the existing entry's
+ * path/detection metadata) and caps the list to the most recent 500 entries.
+ */
+export function addMalwareAllowlistEntry(entry: MalwareAllowlistEntry): void {
+  const prev = writeLock
+  let unlock: () => void
+  writeLock = new Promise<void>((r) => { unlock = r })
+  prev.then(() => {
+    try {
+      const data = readStore()
+      const list = (data.settings.malwareAllowlist ?? []).filter((e) => e.sha256 !== entry.sha256)
+      list.push(entry)
+      data.settings.malwareAllowlist = list.slice(-500)
+      writeStore(data)
+    } finally {
+      unlock!()
+    }
+  })
+}
+
+/** Remove an allowlist entry by content hash within the write lock. */
+export function removeMalwareAllowlistEntry(sha256: string): void {
+  const prev = writeLock
+  let unlock: () => void
+  writeLock = new Promise<void>((r) => { unlock = r })
+  prev.then(() => {
+    try {
+      const data = readStore()
+      data.settings.malwareAllowlist = (data.settings.malwareAllowlist ?? []).filter((e) => e.sha256 !== sha256)
       writeStore(data)
     } finally {
       unlock!()
