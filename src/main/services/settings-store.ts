@@ -299,11 +299,11 @@ export function getMalwareAllowlist(): MalwareAllowlistEntry[] {
  * De-dupes by content hash (a re-ignore refreshes the existing entry's
  * path/detection metadata) and caps the list to the most recent 500 entries.
  */
-export function addMalwareAllowlistEntry(entry: MalwareAllowlistEntry): void {
+export function addMalwareAllowlistEntry(entry: MalwareAllowlistEntry): Promise<void> {
   const prev = writeLock
   let unlock: () => void
   writeLock = new Promise<void>((r) => { unlock = r })
-  prev.then(() => {
+  return prev.then(() => {
     try {
       const data = readStore()
       const list = (data.settings.malwareAllowlist ?? []).filter((e) => e.sha256 !== entry.sha256)
@@ -317,11 +317,11 @@ export function addMalwareAllowlistEntry(entry: MalwareAllowlistEntry): void {
 }
 
 /** Remove an allowlist entry by content hash within the write lock. */
-export function removeMalwareAllowlistEntry(sha256: string): void {
+export function removeMalwareAllowlistEntry(sha256: string): Promise<void> {
   const prev = writeLock
   let unlock: () => void
   writeLock = new Promise<void>((r) => { unlock = r })
-  prev.then(() => {
+  return prev.then(() => {
     try {
       const data = readStore()
       data.settings.malwareAllowlist = (data.settings.malwareAllowlist ?? []).filter((e) => e.sha256 !== sha256)
