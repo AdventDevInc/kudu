@@ -7,7 +7,7 @@ import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAl
 let _dataDir: string | null = null
 let _configPath: string | null = null
 
-function getDataDir(): string {
+export function getDataDir(): string {
   if (!_dataDir) {
     _dataDir = app.isPackaged
       ? app.getPath('userData')

@@ -14,6 +14,7 @@ import { startScheduler, stopScheduler, getNextScanTime, notifyScheduledScanComp
 import { initAutoUpdater } from './services/auto-updater'
 import { attachRendererDiagnostics } from './services/renderer-diagnostics'
 import { cloudAgent } from './services/cloud-agent'
+import { shouldDisableGpu, applyGpuFallbackSwitches, registerGpuCrashRecovery } from './services/gpu-fallback'
 import { runCli } from './cli'
 import { runDaemon } from './daemon'
 
@@ -48,6 +49,19 @@ if (dataDirFlag) {
   if (dir && require('path').isAbsolute(dir)) {
     app.setPath('userData', dir)
   }
+}
+
+// ─── GPU process fallback ───────────────────────────────────
+// disableHardwareAcceleration() still spawns a GPU process; on stripped
+// Windows builds that process fails to launch and Chromium fatally aborts
+// (issue #203).  If a prior launch hit that, or the user opted in, fully
+// disable the GPU process.  Otherwise watch for the failure and recover by
+// relaunching with --disable-gpu.  Placed after the data-dir override so
+// the marker is read from the correct userData path.
+if (shouldDisableGpu()) {
+  applyGpuFallbackSwitches()
+} else {
+  registerGpuCrashRecovery()
 }
 
 // ─── Root detection (macOS + Linux) ─────────────────────────
