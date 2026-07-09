@@ -19,6 +19,14 @@ export function appKey(app: { id: string; source: string }): string {
   return `${app.source}␟${app.id}`
 }
 
+/**
+ * An app is ignored if its composite key is in the set, or — for entries
+ * persisted before ignores were keyed by source — its bare id is.
+ */
+function isAppIgnored(app: { id: string; source: string }, ignoredIds: Set<string>): boolean {
+  return ignoredIds.has(appKey(app)) || ignoredIds.has(app.id)
+}
+
 interface SoftwareUpdaterState {
   apps: UpdatableApp[]
   upToDate: UpToDateApp[]
@@ -62,9 +70,9 @@ interface SoftwareUpdaterState {
   /** Load the persisted ignore list from settings (call once at init) */
   loadIgnoredIds: (ids: string[]) => void
   /** Move an app from the updates list to the ignored list and persist */
-  ignoreApp: (id: string) => void
+  ignoreApp: (app: { id: string; source: string }) => void
   /** Move an app from the ignored list back to the updates list and persist */
-  unignoreApp: (id: string) => void
+  unignoreApp: (app: { id: string; source: string }) => void
   reset: () => void
 }
 
@@ -96,8 +104,8 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
   setApps: (allApps) => {
     const { ignoredIds } = get()
     set({
-      apps: allApps.filter((a) => !ignoredIds.has(a.id)),
-      ignoredApps: allApps.filter((a) => ignoredIds.has(a.id)),
+      apps: allApps.filter((a) => !isAppIgnored(a, ignoredIds)),
+      ignoredApps: allApps.filter((a) => isAppIgnored(a, ignoredIds)),
     })
   },
   setUpToDate: (upToDate) => set({ upToDate }),
@@ -141,33 +149,36 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
       const allApps = [...state.apps, ...state.ignoredApps]
       return {
         ignoredIds: newIds,
-        apps: allApps.filter((a) => !newIds.has(a.id)),
-        ignoredApps: allApps.filter((a) => newIds.has(a.id)),
+        apps: allApps.filter((a) => !isAppIgnored(a, newIds)),
+        ignoredApps: allApps.filter((a) => isAppIgnored(a, newIds)),
       }
     })
   },
-  ignoreApp: (id) =>
+  ignoreApp: (app) =>
     set((state) => {
-      const app = state.apps.find((a) => a.id === id)
+      const key = appKey(app)
+      const found = state.apps.find((a) => appKey(a) === key)
       const newIds = new Set(state.ignoredIds)
-      newIds.add(id)
+      newIds.add(key)
       persistIgnoredIds(newIds)
       return {
         ignoredIds: newIds,
-        apps: state.apps.filter((a) => a.id !== id),
-        ignoredApps: app ? [...state.ignoredApps, app] : state.ignoredApps,
+        apps: state.apps.filter((a) => appKey(a) !== key),
+        ignoredApps: found ? [...state.ignoredApps, found] : state.ignoredApps,
       }
     }),
-  unignoreApp: (id) =>
+  unignoreApp: (app) =>
     set((state) => {
-      const app = state.ignoredApps.find((a) => a.id === id)
+      const key = appKey(app)
+      const found = state.ignoredApps.find((a) => appKey(a) === key)
       const newIds = new Set(state.ignoredIds)
-      newIds.delete(id)
+      newIds.delete(key)
+      newIds.delete(app.id) // also clear any legacy bare-id entry
       persistIgnoredIds(newIds)
       return {
         ignoredIds: newIds,
-        ignoredApps: state.ignoredApps.filter((a) => a.id !== id),
-        apps: app ? [...state.apps, app] : state.apps,
+        ignoredApps: state.ignoredApps.filter((a) => appKey(a) !== key),
+        apps: found ? [...state.apps, found] : state.apps,
       }
     }),
   reset: () =>

@@ -673,26 +673,40 @@ async function upgradeAppChoco(
   return { success: false, error: lastLine.length > 200 ? lastLine.slice(0, 200) + '...' : lastLine }
 }
 
+// ─── Shim runner (scoop / npm) ─────────────────────────────
+
+/**
+ * Run a `.cmd` shim tool (scoop, npm) via cmd.exe.
+ *
+ * These tools ship as `.cmd`/`.ps1` shims, not native `.exe`, so `execFile`
+ * can't resolve a bare name. We route through `cmd.exe` rather than
+ * `powershell.exe` on purpose: PowerShell command resolution can pick the
+ * `.ps1` shim (npm.ps1 / scoop.ps1), which fails under the default
+ * Restricted / AllSigned execution policy before the tool ever runs. cmd.exe
+ * resolves the `.cmd` shim via PATHEXT (which excludes `.ps1`), and those
+ * shims invoke PowerShell with their own bypass, so they work regardless of
+ * the machine's execution policy.
+ *
+ * `chcp 65001` forces UTF-8 output. Callers MUST validate any dynamic argument
+ * (app id) against the tool's id pattern first; shim ids contain no cmd.exe
+ * metacharacters, so building the command line is safe.
+ */
+async function runShim(tool: 'scoop' | 'npm', args: string[], timeout = 60_000): Promise<string> {
+  const cmdLine = `chcp 65001>nul && ${tool} ${args.join(' ')}`
+  const { stdout } = await execFileAsync(
+    'cmd.exe',
+    ['/d', '/v:off', '/s', '/c', cmdLine],
+    { timeout, maxBuffer: 10 * 1024 * 1024, windowsHide: true, windowsVerbatimArguments: true },
+  )
+  return stdout
+}
+
 // ─── Scoop (Windows) ────────────────────────────────────────
 
 /** Scoop app name: lowercase alphanumeric, hyphens, dots, underscores, plus */
 const SCOOP_ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._+-]{0,200}$/
 
-/**
- * Run a scoop command through PowerShell. Scoop is installed as a `.cmd`/`.ps1`
- * shim on PATH (not a native `.exe`), so `execFile('scoop', …)` fails to resolve
- * it — PowerShell resolves the shim via PATH/PATHEXT. Callers must validate any
- * dynamic argument (app name) against SCOOP_ID_PATTERN before passing it.
- */
-async function runScoop(args: string[], timeout = 60_000): Promise<string> {
-  const cmd = ['scoop', ...args].join(' ')
-  const { stdout } = await execFileAsync(
-    'powershell.exe',
-    ['-NoProfile', '-Command', psUtf8(cmd)],
-    { timeout, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
-  )
-  return stdout
-}
+const runScoop = (args: string[], timeout = 60_000): Promise<string> => runShim('scoop', args, timeout)
 
 async function isScoopAvailable(): Promise<boolean> {
   try {
@@ -848,16 +862,7 @@ async function upgradeAppScoop(appId: string): Promise<{ success: boolean; error
 /** npm package name incl. scoped (@scope/name); npm enforces the rest */
 const NPM_ID_PATTERN = /^(@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]{0,200}$/i
 
-/** npm is a `.cmd` shim on Windows, so it must run through PowerShell too. */
-async function runNpm(args: string[], timeout = 60_000): Promise<string> {
-  const cmd = ['npm', ...args].join(' ')
-  const { stdout } = await execFileAsync(
-    'powershell.exe',
-    ['-NoProfile', '-Command', psUtf8(cmd)],
-    { timeout, maxBuffer: 10 * 1024 * 1024, windowsHide: true },
-  )
-  return stdout
-}
+const runNpm = (args: string[], timeout = 60_000): Promise<string> => runShim('npm', args, timeout)
 
 async function isNpmAvailable(): Promise<boolean> {
   try {

@@ -784,7 +784,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 updating={updating}
                 onToggle={() => useUpdaterStore.getState().toggleAppSelected(appKey(app))}
                 onUpdate={() => handleUpdate([app])}
-                onIgnore={() => useUpdaterStore.getState().ignoreApp(app.id)}
+                onIgnore={() => useUpdaterStore.getState().ignoreApp(app)}
               />
             ))}
           </div>
@@ -813,7 +813,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 <IgnoredRow
                   key={app.id}
                   app={app}
-                  onUnignore={() => useUpdaterStore.getState().unignoreApp(app.id)}
+                  onUnignore={() => useUpdaterStore.getState().unignoreApp(app)}
                 />
               ))}
             </div>
