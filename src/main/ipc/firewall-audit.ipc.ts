@@ -87,6 +87,57 @@ export function isBuiltinRule(args: {
   return looksLikeResourceRef(args.description) || looksLikeResourceRef(args.group)
 }
 
+// Curated allowlist of well-known, legitimate services whose rules require a
+// broad remote scope by design and would otherwise surface as noisy
+// "any-remote" medium findings. These aren't caught by isBuiltinRule because
+// they carry no program filter (mDNS), live outside the system/Program Files
+// tree (Zoom in AppData), or are third-party managed rules with no MUI/AppX
+// resource reference (Tailscale, HNS container networking).
+//
+// An entry matches only when EVERY predicate it specifies matches, so an entry
+// is as tight as the identifying facts we have — a bare port match is
+// deliberately protocol-qualified, and program-based entries pin the full
+// binary tail. Matching downgrades the rule to the same trust level as a
+// built-in: only a stale program path remains a finding.
+type KnownGoodEntry = {
+  label: string
+  nameRe?: RegExp
+  protocol?: string
+  localPort?: string
+  programRe?: RegExp
+}
+
+const KNOWN_GOOD_SERVICES: KnownGoodEntry[] = [
+  // Multicast DNS — link-local service discovery, inherently Any-remote.
+  { label: 'mDNS', protocol: 'UDP', localPort: '5353' },
+  // LLMNR — legacy name resolution, same link-local shape as mDNS.
+  { label: 'LLMNR', protocol: 'UDP', localPort: '5355' },
+  // Tailscale mesh VPN — peer set is dynamic, so Any/Any/Any is by design.
+  { label: 'Tailscale', nameRe: /^Tailscale(-In)?$/i },
+  // Docker Desktop / Windows containers host networking service. Rule names
+  // are GUID-suffixed, e.g. "HNS Container Networking - DNS (UDP-In) - <GUID>".
+  { label: 'HNS Container Networking', nameRe: /^HNS Container Networking\b/i },
+  // Zoom real-time media — UDP port range, peer-to-peer to Any remote.
+  { label: 'Zoom', programRe: /[\\/]Zoom[\\/]bin[\\/]Zoom\.exe$/i },
+]
+
+export function isKnownGoodService(args: {
+  name: string
+  displayName: string
+  protocol: string
+  localPort: string
+  programResolved: string
+}): boolean {
+  return KNOWN_GOOD_SERVICES.some((entry) => {
+    if (entry.protocol && args.protocol.toUpperCase() !== entry.protocol.toUpperCase()) return false
+    if (entry.localPort && args.localPort !== entry.localPort) return false
+    if (entry.nameRe && !entry.nameRe.test(args.name) && !entry.nameRe.test(args.displayName)) return false
+    if (entry.programRe && !entry.programRe.test(args.programResolved)) return false
+    // Reject an entry that specified nothing (defensive — never matches on emptiness).
+    return !!(entry.protocol || entry.localPort || entry.nameRe || entry.programRe)
+  })
+}
+
 export function classifyRule(
   raw: {
     program: string
@@ -97,6 +148,7 @@ export function classifyRule(
     localPort: string
     remoteAddress: string
     builtin: boolean
+    knownGood: boolean
   }
 ): { issues: FirewallIssue[]; risk: FirewallRiskLevel } {
   const issues: FirewallIssue[] = []
@@ -107,10 +159,12 @@ export function classifyRule(
   // a Windows feature was uninstalled but the firewall rule wasn't cleaned up.
   if (hasProgram && !raw.programExists) issues.push('stale')
 
-  if (raw.builtin) {
+  if (raw.builtin || raw.knownGood) {
     // Microsoft-shipped rules are designed to accept Any remote / Any port on
-    // Public profiles (IPv6 routing, Wi-Fi Direct, CDP, etc.). Flagging these
-    // as high-risk produces guidance that breaks features when followed.
+    // Public profiles (IPv6 routing, Wi-Fi Direct, CDP, etc.). Known-good
+    // third-party services (mDNS, Tailscale, container networking, Zoom)
+    // require a broad remote scope by design too. Flagging either as
+    // high/medium produces guidance that breaks the service when followed.
     let risk: FirewallRiskLevel = 'low'
     if (issues.includes('stale')) risk = 'high'
     return { issues, risk }
@@ -154,7 +208,15 @@ export function parseRuleLine(line: string): FirewallRule | null {
 
   const localPort = parts[7] || 'Any'
   const remoteAddress = parts[8] || 'Any'
+  const protocol = parts[6] || 'Any'
   const builtin = isBuiltinRule({ description, group, isManaged, isSystemPath })
+  const knownGood = isKnownGoodService({
+    name,
+    displayName: parts[2] || name,
+    protocol,
+    localPort,
+    programResolved,
+  })
 
   const { issues, risk } = classifyRule({
     program: parts[9],
@@ -165,6 +227,7 @@ export function parseRuleLine(line: string): FirewallRule | null {
     localPort,
     remoteAddress,
     builtin,
+    knownGood,
   })
 
   return {
@@ -173,7 +236,7 @@ export function parseRuleLine(line: string): FirewallRule | null {
     description,
     group,
     profiles,
-    protocol: parts[6] || 'Any',
+    protocol,
     localPort,
     remoteAddress,
     program: parts[9] || '',
