@@ -43,6 +43,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const installing = useDriverStore((s) => s.installing)
   const installResult = useDriverStore((s) => s.installResult)
   const updateError = useDriverStore((s) => s.updateError)
+  const updatesDisabled = useDriverStore((s) => s.updatesDisabled)
   const applying = useDriverStore((s) => s.applying)
   const hasScanned = useDriverStore((s) => s.hasScanned)
 
@@ -80,6 +81,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
     store.setInstallResult(null)
     store.setError(null)
     store.setUpdateError(null)
+    store.setUpdatesDisabled(false)
     store.setScanProgress(null)
     store.setUpdateProgress(null)
 
@@ -109,6 +111,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
     let updateCount = 0
     if (updateResult.status === 'fulfilled') {
       s.setUpdates(updateResult.value.updates)
+      s.setUpdatesDisabled(updateResult.value.updatesDisabled)
       updateCount = updateResult.value.updates.length
     } else {
       console.error('Driver update scan failed:', updateResult.reason)
@@ -245,6 +248,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       }
       if (updateResult.status === 'fulfilled') {
         s.setUpdates(updateResult.value.updates)
+        s.setUpdatesDisabled(updateResult.value.updatesDisabled)
       }
       s.setScanning(false)
       s.setUpdateScanning(false)
@@ -407,6 +411,22 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         </div>
       )}
 
+      {/* Driver updates turned off in Windows */}
+      {hasScanned && !isScanning && updatesDisabled && (
+        <div
+          className="mb-5 flex items-start gap-3 rounded-2xl px-5 py-4"
+          style={{ background: 'rgba(59,130,246,0.04)', border: '1px solid rgba(59,130,246,0.1)' }}
+        >
+          <AlertTriangle className="h-5 w-5 shrink-0 text-blue-400 mt-0.5" strokeWidth={1.8} />
+          <div>
+            <p className="text-[13px] font-medium text-zinc-200">{t('driverManager.updatesDisabledTitle')}</p>
+            <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+              {t('driverManager.updatesDisabledText')}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
       {!hasScanned && !isScanning && (
         <EmptyState
@@ -428,7 +448,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* All up to date state */}
-      {hasScanned && !isScanning && updates.length === 0 && stalePackages.length === 0 && (
+      {hasScanned && !isScanning && !updatesDisabled && updates.length === 0 && stalePackages.length === 0 && (
         <div
           className="flex flex-col items-center justify-center py-16 rounded-2xl"
           style={{ background: 'rgba(34,197,94,0.03)', border: '1px solid rgba(34,197,94,0.08)' }}

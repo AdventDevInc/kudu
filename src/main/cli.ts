@@ -888,7 +888,9 @@ async function handleDrivers(args: string[], ctx: CliContext): Promise<number | 
     })
     if (showProgress(ctx)) log('')
     if (ctx.json) {
-      cliOut(ctx, { updates: updateResult.updates, count: updateResult.updates.length })
+      cliOut(ctx, { updates: updateResult.updates, count: updateResult.updates.length, updatesDisabled: updateResult.updatesDisabled })
+    } else if (updateResult.updatesDisabled) {
+      cliLog(ctx, 'Driver updates are turned off in Windows (excluded from Windows Update); skipped.')
     } else {
       cliLog(ctx, `Found ${updateResult.updates.length} driver updates`)
       for (const u of updateResult.updates) cliLog(ctx, `  ${u.updateTitle}`)

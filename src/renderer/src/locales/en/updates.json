@@ -112,6 +112,8 @@
     "emptyStateDescription": "Scan to find available updates and stale driver packages to clean up.",
     "allUpToDateTitle": "All drivers are up to date",
     "allUpToDateDescription": "No updates available and no stale packages found.",
+    "updatesDisabledTitle": "Driver updates are turned off in Windows",
+    "updatesDisabledText": "Windows is set to exclude drivers from Windows Update, so Kudu did not check for driver updates. Stale driver package cleanup still works. You can re-enable driver updates in Windows device installation settings or Group Policy.",
     "updatesAvailable": "Updates Available ({{count}})",
     "stalePackages": "Stale Packages ({{count}})",
     "selectAll": "Select All",

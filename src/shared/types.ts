@@ -425,6 +425,9 @@ export interface DriverUpdateScanResult {
   updates: DriverUpdate[]
   totalAvailable: number
   scanDuration: number
+  // True when Windows is configured to exclude drivers from Windows Update
+  // (policy / device-installation setting), so no WU driver scan was performed.
+  updatesDisabled: boolean
 }
 
 export interface DriverUpdateInstallResult {
