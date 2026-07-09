@@ -21,6 +21,7 @@ import {
   parseNpmOutdated,
   parseNpmListGlobal,
   isValidAppId,
+  isValidAppIdForSource,
   BREW_PATH_CANDIDATES,
 } from './software-updater'
 
@@ -573,6 +574,38 @@ describe('isValidAppId', () => {
 
   it('rejects very long IDs', () => {
     expect(isValidAppId('a'.repeat(300))).toBe(false)
+  })
+})
+
+// ─── isValidAppIdForSource ─────────────────────────────────
+
+describe('isValidAppIdForSource', () => {
+  it('accepts npm scoped package names (rejected by the legacy pattern)', () => {
+    expect(isValidAppIdForSource('@angular/cli', 'npm')).toBe(true)
+    expect(isValidAppIdForSource('typescript', 'npm')).toBe(true)
+    // The legacy/winget validator would reject the scoped form
+    expect(isValidAppId('@angular/cli')).toBe(false)
+  })
+
+  it('accepts Scoop names containing + (rejected by the legacy pattern)', () => {
+    expect(isValidAppIdForSource('notepad++', 'scoop')).toBe(true)
+    expect(isValidAppId('notepad++')).toBe(false)
+  })
+
+  it('accepts typical ids for each Windows manager', () => {
+    expect(isValidAppIdForSource('Google.Chrome', 'winget')).toBe(true)
+    expect(isValidAppIdForSource('googlechrome', 'choco')).toBe(true)
+    expect(isValidAppIdForSource('7zip', 'scoop')).toBe(true)
+  })
+
+  it('rejects injection-style ids regardless of manager', () => {
+    expect(isValidAppIdForSource('--source evil', 'winget')).toBe(false)
+    expect(isValidAppIdForSource('pkg; rm -rf /', 'npm')).toBe(false)
+    expect(isValidAppIdForSource('a b', 'scoop')).toBe(false)
+  })
+
+  it('falls back to the platform validator for unknown sources', () => {
+    expect(isValidAppIdForSource('', 'mystery')).toBe(false)
   })
 })
 

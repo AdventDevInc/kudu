@@ -111,7 +111,7 @@ export function SettingsPage() {
         <Row label={t('autoRestartLabel')} desc={t('autoRestartDesc')}>
           <Toggle checked={settings.autoRestart} onChange={(v) => save({ autoRestart: v })} />
         </Row>
-        <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')} last={platform !== 'win32'}>
+        <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')} last>
           <select value={settings.updateCheckIntervalHours}
             onChange={(e) => save({ updateCheckIntervalHours: Number(e.target.value) })}
             className={selectStyle} style={selectBorder}>
@@ -121,18 +121,6 @@ export function SettingsPage() {
             <option value={24}>{t('updateCheckOnceADay')}</option>
           </select>
         </Row>
-        {platform === 'win32' && (
-          <Row label={t('windowsPackageManagerLabel')} desc={t('windowsPackageManagerDesc')} last>
-            <select
-              value={settings.windowsPackageManager ?? 'winget'}
-              onChange={(e) => save({ windowsPackageManager: e.target.value as 'winget' | 'choco' })}
-              className={selectStyle} style={selectBorder}
-            >
-              <option value="winget">winget</option>
-              <option value="choco">Chocolatey</option>
-            </select>
-          </Row>
-        )}
       </Section>
 
       <Section title={t('sectionCloudDashboard')}>

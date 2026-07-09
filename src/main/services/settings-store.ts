@@ -175,6 +175,18 @@ function readStore(): StoreData {
       if (merged.settings.cloud.apiKey) {
         merged.settings.cloud.apiKey = decryptApiKey(merged.settings.cloud.apiKey)
       }
+      // Migrate legacy single-manager preference → aggregation list. A user who
+      // deliberately switched to Chocolatey keeps that as their only scanned
+      // manager; everyone else (default winget) gets the aggregate-all default.
+      // Only runs when the new field was never persisted.
+      if (
+        parsed?.settings &&
+        parsed.settings.windowsPackageManagers === undefined &&
+        parsed.settings.windowsPackageManager === 'choco'
+      ) {
+        merged.settings.windowsPackageManagers = ['choco']
+        try { writeStore(merged) } catch { /* best-effort */ }
+      }
       // Migrate legacy single schedule → schedules array
       if (merged.settings.schedule.enabled && merged.settings.schedules.length === 0) {
         const allCleanerTasks: ScheduleTaskType[] = [

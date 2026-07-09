@@ -1751,9 +1751,38 @@ export async function runUpdates(
   return { succeeded: 0, failed: 0, errors: [] }
 }
 
+/** Winget package id: alphanumeric plus dot/dash/underscore */
+const WINGET_ID_PATTERN = /^[\w][\w.\-]{0,200}$/
+
 /** Validate an app ID for the current platform's package manager */
 export function isValidAppId(id: string): boolean {
   if (process.platform === 'darwin') return BREW_ID_PATTERN.test(id) && id.length <= 200
   if (process.platform === 'linux') return LINUX_PKG_PATTERN.test(id)
-  return /^[\w][\w.\-]{0,200}$/.test(id)
+  return WINGET_ID_PATTERN.test(id)
+}
+
+/**
+ * Validate an app ID against the pattern of the manager that owns it. Needed
+ * for aggregation: npm scoped names (`@scope/pkg`) and Scoop names containing
+ * `+` are valid for their manager but rejected by the winget/legacy pattern.
+ */
+export function isValidAppIdForSource(id: string, source: string): boolean {
+  switch (source) {
+    case 'winget':
+      return WINGET_ID_PATTERN.test(id)
+    case 'choco':
+      return CHOCO_ID_PATTERN.test(id)
+    case 'scoop':
+      return SCOOP_ID_PATTERN.test(id)
+    case 'npm':
+      return NPM_ID_PATTERN.test(id)
+    case 'brew':
+      return BREW_ID_PATTERN.test(id) && id.length <= 200
+    case 'apt':
+    case 'dnf':
+    case 'pacman':
+      return LINUX_PKG_PATTERN.test(id)
+    default:
+      return isValidAppId(id)
+  }
 }

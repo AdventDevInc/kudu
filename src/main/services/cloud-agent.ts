@@ -21,7 +21,7 @@ import { cacheItems } from './scan-cache'
 import { psUtf8 } from './exec-utf8'
 import { getPlatform } from '../platform'
 import { CleanerType } from '../../shared/enums'
-import { checkForUpdates, runUpdates, isValidAppId } from './software-updater'
+import { checkForUpdates, runUpdates, isValidAppIdForSource } from './software-updater'
 import { scanRegistry, fixRegistryEntries } from '../ipc/registry-cleaner.ipc'
 import { scanMalware } from '../ipc/malware-scanner.ipc'
 import { scanPrivacy } from '../ipc/privacy-shield.ipc'
@@ -2409,16 +2409,17 @@ class CloudAgentService {
       await this.postCommandResult(requestId, false, undefined, 'Invalid appIds')
       return
     }
-    // Validate appId format to prevent argument injection into package manager
-    if (appIds.some((id) => !isValidAppId(id))) {
-      await this.postCommandResult(requestId, false, undefined, 'Invalid appId format')
-      return
-    }
     // Resolve each id back to the manager that owns it (aggregation-aware);
     // fall back to the primary manager for ids not found in the current scan.
     const check = await checkForUpdates()
     const sourceById = new Map(check.apps.map((a) => [a.id, a.source]))
     const items = appIds.map((id) => ({ id, source: sourceById.get(id) ?? check.packageManagerName ?? 'winget' }))
+    // Validate each id against its owning manager's pattern (npm scoped names
+    // and Scoop `+` names are valid but rejected by the legacy winget pattern).
+    if (items.some((it) => !isValidAppIdForSource(it.id, it.source))) {
+      await this.postCommandResult(requestId, false, undefined, 'Invalid appId format')
+      return
+    }
     const result = await runUpdates(items, () => {})
     // Strip raw error reasons which may contain local paths or system info
     await this.postCommandResult(requestId, true, {

@@ -980,16 +980,19 @@ async function handleUpdates(args: string[], ctx: CliContext): Promise<number | 
     const check = await checkForUpdates()
     if (check.apps.length === 0) { cliOut(ctx, ctx.json ? { message: 'Everything up to date' } : 'All software is up to date.'); return }
     const allFlag = args.includes('--all')
-    const toUpdate = allFlag
-      ? check.apps.map(a => a.id)
-      : (() => {
-          const idArg = args.find(a => a !== 'run' && !a.startsWith('--'))
-          return idArg ? idArg.split(',').map(s => s.trim()).filter(Boolean) : []
-        })()
-    if (toUpdate.length === 0) { cliUsage(ctx, 'kudu --cli updates run <id,...> or --all'); return ExitCode.INVALID_ARGS }
-    // Route each id back to the manager that reported it (aggregation-aware)
-    const sourceById = new Map(check.apps.map(a => [a.id, a.source]))
-    const items = toUpdate.map(id => ({ id, source: sourceById.get(id) ?? check.packageManagerName ?? 'winget' }))
+    // --all: take apps (with their source) directly so aggregation duplicates
+    // like choco/git + scoop/git each keep their own manager. Explicit ids:
+    // resolve each id's source from the scan (fall back to the primary manager).
+    let items: { id: string; source: string }[]
+    if (allFlag) {
+      items = check.apps.map(a => ({ id: a.id, source: a.source }))
+    } else {
+      const idArg = args.find(a => a !== 'run' && !a.startsWith('--'))
+      const ids = idArg ? idArg.split(',').map(s => s.trim()).filter(Boolean) : []
+      const sourceById = new Map(check.apps.map(a => [a.id, a.source]))
+      items = ids.map(id => ({ id, source: sourceById.get(id) ?? check.packageManagerName ?? 'winget' }))
+    }
+    if (items.length === 0) { cliUsage(ctx, 'kudu --cli updates run <id,...> or --all'); return ExitCode.INVALID_ARGS }
     cliLog(ctx, `Updating ${items.length} apps...`)
     const result = await runUpdates(items, (progress) => {
       cliLog(ctx, `  [${progress.current}/${progress.total}] ${progress.currentApp}: ${progress.status}`)
