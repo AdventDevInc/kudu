@@ -93,7 +93,7 @@ function classifyRule(raw: {
   const hasProgram = !!raw.programResolved
   if (hasProgram && !raw.programExists) issues.push('stale')
 
-  if (raw.builtin || raw.knownGood) {
+  if (raw.builtin) {
     let risk: FirewallRiskLevel = 'low'
     if (issues.includes('stale')) risk = 'high'
     return { issues, risk }
@@ -105,8 +105,10 @@ function classifyRule(raw: {
   const isAnyPort = !raw.localPort || raw.localPort.toLowerCase() === 'any'
   const hitsPublic = raw.profiles.includes('Public') || raw.profiles.includes('Any')
 
-  if (isAnyRemote && isAnyPort && hitsPublic) issues.push('broad-scope')
-  else if (isAnyRemote) issues.push('any-remote')
+  if (!raw.knownGood) {
+    if (isAnyRemote && isAnyPort && hitsPublic) issues.push('broad-scope')
+    else if (isAnyRemote) issues.push('any-remote')
+  }
 
   let risk: FirewallRiskLevel = 'low'
   if (issues.includes('stale') || issues.includes('broad-scope')) risk = 'high'
@@ -415,6 +417,21 @@ describe('classifyRule', () => {
     })
     expect(issues).toEqual(['stale'])
     expect(risk).toBe('high')
+  })
+
+  it('still flags unsigned on a known-good match (spoofed binary), suppressing only the scope finding', () => {
+    const { issues, risk } = classifyRule({
+      programResolved: 'C:\\Temp\\Zoom\\bin\\Zoom.exe',
+      programExists: true,
+      signature: 'unsigned',
+      profiles: ['Any'],
+      localPort: '7200-17210',
+      remoteAddress: 'Any',
+      builtin: false,
+      knownGood: true,
+    })
+    expect(issues).toEqual(['unsigned'])
+    expect(risk).toBe('medium')
   })
 })
 

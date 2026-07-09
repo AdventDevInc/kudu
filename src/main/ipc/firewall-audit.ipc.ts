@@ -159,25 +159,34 @@ export function classifyRule(
   // a Windows feature was uninstalled but the firewall rule wasn't cleaned up.
   if (hasProgram && !raw.programExists) issues.push('stale')
 
-  if (raw.builtin || raw.knownGood) {
+  if (raw.builtin) {
     // Microsoft-shipped rules are designed to accept Any remote / Any port on
-    // Public profiles (IPv6 routing, Wi-Fi Direct, CDP, etc.). Known-good
-    // third-party services (mDNS, Tailscale, container networking, Zoom)
-    // require a broad remote scope by design too. Flagging either as
-    // high/medium produces guidance that breaks the service when followed.
+    // Public profiles (IPv6 routing, Wi-Fi Direct, CDP, etc.) and always point
+    // at a signed system binary. Flagging these as high/medium produces
+    // guidance that breaks features when followed.
     let risk: FirewallRiskLevel = 'low'
     if (issues.includes('stale')) risk = 'high'
     return { issues, risk }
   }
 
+  // Program-integrity findings (unsigned) apply even to known-good services:
+  // the allowlist attests to the service's expected scope, not to the identity
+  // of whatever binary a rule with that shape happens to point at. A spoofed
+  // rule matching the allowlist but backed by an unsigned binary must still
+  // surface.
   if (hasProgram && raw.programExists && raw.signature === 'unsigned') issues.push('unsigned')
 
   const isAnyRemote = !raw.remoteAddress || raw.remoteAddress.toLowerCase() === 'any'
   const isAnyPort = !raw.localPort || raw.localPort.toLowerCase() === 'any'
   const hitsPublic = raw.profiles.includes('Public') || raw.profiles.includes('Any')
 
-  if (isAnyRemote && isAnyPort && hitsPublic) issues.push('broad-scope')
-  else if (isAnyRemote) issues.push('any-remote')
+  // Known-good services (mDNS, Tailscale, container networking, Zoom) require a
+  // broad remote scope by design, so suppress ONLY the scope findings — not the
+  // integrity checks above.
+  if (!raw.knownGood) {
+    if (isAnyRemote && isAnyPort && hitsPublic) issues.push('broad-scope')
+    else if (isAnyRemote) issues.push('any-remote')
+  }
 
   let risk: FirewallRiskLevel = 'low'
   if (issues.includes('stale') || issues.includes('broad-scope')) risk = 'high'
