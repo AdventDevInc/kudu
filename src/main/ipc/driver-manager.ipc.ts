@@ -221,6 +221,35 @@ async function getActiveDriverNames(): Promise<Set<string>> {
   return active
 }
 
+/**
+ * Detect whether Windows is configured to exclude drivers from Windows Update.
+ * Checks the "Do not include drivers with Windows Updates" Group Policy and the
+ * per-machine device-installation setting. When either is set, the WU COM search
+ * would still return driver updates (it ignores these settings), so we honor the
+ * user's choice ourselves and skip offering them.
+ */
+async function areDriverUpdatesDisabled(): Promise<boolean> {
+  try {
+    const script = `
+      $disabled = $false
+      try {
+        $v = (Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate' -Name 'ExcludeWUDriversInQualityUpdate' -ErrorAction Stop).ExcludeWUDriversInQualityUpdate
+        if ($v -eq 1) { $disabled = $true }
+      } catch {}
+      try {
+        $v = (Get-ItemProperty -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DriverSearching' -Name 'SearchOrderConfig' -ErrorAction Stop).SearchOrderConfig
+        if ($v -eq 0) { $disabled = $true }
+      } catch {}
+      if ($disabled) { Write-Output 'DISABLED' } else { Write-Output 'ENABLED' }
+    `
+    const { stdout } = await execFileAsync('powershell', psArgs(script), { timeout: 15000, windowsHide: true })
+    return stdout.includes('DISABLED')
+  } catch {
+    // If we can't read the policy, assume updates are allowed (preserve prior behavior)
+    return false
+  }
+}
+
 // ── Exported core logic ──
 
 export async function scanDrivers(
@@ -396,7 +425,13 @@ export async function scanDriverUpdates(
     const startTime = Date.now()
 
     if (process.platform !== 'win32') {
-      return { updates: [], totalAvailable: 0, scanDuration: Date.now() - startTime }
+      return { updates: [], totalAvailable: 0, scanDuration: Date.now() - startTime, updatesDisabled: false }
+    }
+
+    // Honor the user's choice: if Windows is set to exclude drivers from Windows
+    // Update, skip the WU search entirely and report it back to the UI.
+    if (await areDriverUpdatesDisabled()) {
+      return { updates: [], totalAvailable: 0, scanDuration: Date.now() - startTime, updatesDisabled: true }
     }
 
     onProgress?.({
@@ -441,7 +476,7 @@ export async function scanDriverUpdates(
           $size = ''
           if ($update.MaxDownloadSize -gt 0) {
             $mb = [math]::Round($update.MaxDownloadSize / 1MB, 1)
-            $size = "$mb MB"
+            if ($mb -lt 0.1) { $size = '< 0.1 MB' } else { $size = "$mb MB" }
           }
           $verStr = ''
           if ($update.DriverVerDate) {
@@ -540,7 +575,8 @@ export async function scanDriverUpdates(
     return {
       updates,
       totalAvailable: updates.length,
-      scanDuration: Date.now() - startTime
+      scanDuration: Date.now() - startTime,
+      updatesDisabled: false
     }
 }
 

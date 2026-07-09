@@ -25,6 +25,7 @@ interface DriverState {
   installing: boolean
   installResult: DriverUpdateInstallResult | null
   updateError: string | null
+  updatesDisabled: boolean
 
   // Combined
   applying: boolean
@@ -48,6 +49,7 @@ interface DriverState {
   setInstalling: (installing: boolean) => void
   setInstallResult: (result: DriverUpdateInstallResult | null) => void
   setUpdateError: (error: string | null) => void
+  setUpdatesDisabled: (disabled: boolean) => void
   toggleUpdate: (id: string) => void
   selectAllUpdates: () => void
   deselectAllUpdates: () => void
@@ -71,6 +73,7 @@ export const useDriverStore = create<DriverState>((set) => ({
   installing: false,
   installResult: null,
   updateError: null,
+  updatesDisabled: false,
   applying: false,
   hasScanned: false,
 
@@ -102,6 +105,7 @@ export const useDriverStore = create<DriverState>((set) => ({
   setInstalling: (installing) => set({ installing }),
   setInstallResult: (installResult) => set({ installResult }),
   setUpdateError: (updateError) => set({ updateError }),
+  setUpdatesDisabled: (updatesDisabled) => set({ updatesDisabled }),
   toggleUpdate: (id) =>
     set((s) => ({
       updates: s.updates.map((u) => (u.id === id ? { ...u, selected: !u.selected } : u))
@@ -132,6 +136,7 @@ export const useDriverStore = create<DriverState>((set) => ({
       installing: false,
       installResult: null,
       updateError: null,
+      updatesDisabled: false,
       applying: false,
       hasScanned: false
     })
