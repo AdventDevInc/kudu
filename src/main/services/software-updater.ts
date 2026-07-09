@@ -1097,7 +1097,7 @@ async function runUpdatesWindows(
         })
       } else {
         failed++
-        errors.push({ appId, name: appId, reason: result.error || 'Upgrade failed' })
+        errors.push({ appId, name: appId, reason: result.error || 'Upgrade failed', source })
         onProgress({
           phase: 'updating',
           current: completed,

@@ -201,9 +201,15 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         s.setProgress(null)
 
         if (result.succeeded > 0) {
-          // Remove successfully updated apps from the list (by composite key)
-          const failedIds = new Set(result.errors.map((e) => e.appId))
-          const succeededKeys = appsToUpdate.filter((a) => !failedIds.has(a.id)).map(appKey)
+          // Remove successfully updated apps from the list (by composite key).
+          // Match failures by source+id when the manager reported a source, so
+          // a failed choco/git doesn't also strip a succeeded scoop/git.
+          const failedKeys = new Set(
+            result.errors.map((e) => (e.source ? appKey({ id: e.appId, source: e.source }) : e.appId)),
+          )
+          const succeededKeys = appsToUpdate
+            .filter((a) => !failedKeys.has(appKey(a)) && !failedKeys.has(a.id))
+            .map(appKey)
           s.removeApps(succeededKeys)
           toast.success(
             result.succeeded !== 1 ? t('softwareUpdater.toastUpdateSuccessPlural', { count: result.succeeded }) : t('softwareUpdater.toastUpdateSuccess', { count: result.succeeded }),
@@ -217,12 +223,14 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
 
         // Log to history
         const bySeverity: Record<string, { found: number; updated: number }> = {}
-        const failedAppIds = new Set(result.errors.map(e => e.appId))
+        const failedKeysForHistory = new Set(
+          result.errors.map((e) => (e.source ? appKey({ id: e.appId, source: e.source }) : e.appId)),
+        )
         for (const app of appsToUpdate) {
           const sev = app.severity
           if (!bySeverity[sev]) bySeverity[sev] = { found: 0, updated: 0 }
           bySeverity[sev].found++
-          if (!failedAppIds.has(app.id)) bySeverity[sev].updated++
+          if (!failedKeysForHistory.has(appKey(app)) && !failedKeysForHistory.has(app.id)) bySeverity[sev].updated++
         }
         await useHistoryStore.getState().addEntry({
           id: Date.now().toString(),

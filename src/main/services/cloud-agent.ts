@@ -2409,11 +2409,21 @@ class CloudAgentService {
       await this.postCommandResult(requestId, false, undefined, 'Invalid appIds')
       return
     }
-    // Resolve each id back to the manager that owns it (aggregation-aware);
-    // fall back to the primary manager for ids not found in the current scan.
+    // Resolve each id back to the manager(s) that own it (aggregation-aware).
+    // The remote protocol sends only ids, so if the same id is outdated under
+    // two managers (e.g. choco/git + scoop/git) we update every instance rather
+    // than guessing one. Ids absent from the scan fall back to the primary.
     const check = await checkForUpdates()
-    const sourceById = new Map(check.apps.map((a) => [a.id, a.source]))
-    const items = appIds.map((id) => ({ id, source: sourceById.get(id) ?? check.packageManagerName ?? 'winget' }))
+    const sourcesById = new Map<string, string[]>()
+    for (const a of check.apps) {
+      const list = sourcesById.get(a.id) ?? []
+      list.push(a.source)
+      sourcesById.set(a.id, list)
+    }
+    const items = appIds.flatMap((id) => {
+      const sources = sourcesById.get(id) ?? [check.packageManagerName ?? 'winget']
+      return sources.map((source) => ({ id, source }))
+    })
     // Validate each id against its owning manager's pattern (npm scoped names
     // and Scoop `+` names are valid but rejected by the legacy winget pattern).
     if (items.some((it) => !isValidAppIdForSource(it.id, it.source))) {

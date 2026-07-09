@@ -969,7 +969,12 @@ export interface UpdateProgress {
 export interface UpdateResult {
   succeeded: number
   failed: number
-  errors: { appId: string; name: string; reason: string }[]
+  /**
+   * Failed packages. `source` is set on Windows aggregation so a failure can be
+   * matched to the exact package when the same id exists under two managers
+   * (e.g. choco + scoop "git"); it is omitted on single-manager platforms.
+   */
+  errors: { appId: string; name: string; reason: string; source?: string }[]
 }
 
 // ─── Disk Repair ───────────────────────────────────────────
