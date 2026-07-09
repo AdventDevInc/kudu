@@ -1,8 +1,23 @@
 import { create } from 'zustand'
-import type { UpdatableApp, UpToDateApp, UpdateProgress, UpdateResult } from '../../../shared/types'
+import type {
+  PackageManagerStatus,
+  UpdatableApp,
+  UpToDateApp,
+  UpdateProgress,
+  UpdateResult,
+} from '../../../shared/types'
 
 type SortField = 'name' | 'severity' | 'source'
 type SeverityFilter = 'all' | 'major' | 'minor' | 'patch'
+
+/**
+ * Stable composite identity for a package. With multi-manager aggregation the
+ * same `id` can appear under two managers (e.g. choco + scoop "7zip"), so
+ * selection and removal are keyed by `source + id`, not `id` alone.
+ */
+export function appKey(app: { id: string; source: string }): string {
+  return `${app.source}␟${app.id}`
+}
 
 interface SoftwareUpdaterState {
   apps: UpdatableApp[]
@@ -17,6 +32,7 @@ interface SoftwareUpdaterState {
   hasChecked: boolean
   packageManagerAvailable: boolean
   packageManagerName: string | null
+  managers: PackageManagerStatus[]
   searchQuery: string
   sortField: SortField
   sortDirection: 'asc' | 'desc'
@@ -32,14 +48,17 @@ interface SoftwareUpdaterState {
   setHasChecked: (checked: boolean) => void
   setPackageManagerAvailable: (available: boolean) => void
   setPackageManagerName: (name: string | null) => void
+  setManagers: (managers: PackageManagerStatus[]) => void
   setSearchQuery: (query: string) => void
   setSortField: (field: SortField) => void
   setSortDirection: (dir: 'asc' | 'desc') => void
   setSeverityFilter: (filter: SeverityFilter) => void
-  toggleAppSelected: (id: string) => void
+  /** Toggle selection by composite key (see {@link appKey}). */
+  toggleAppSelected: (key: string) => void
   selectAll: () => void
   deselectAll: () => void
-  removeApps: (ids: string[]) => void
+  /** Remove apps by composite key (see {@link appKey}). */
+  removeApps: (keys: string[]) => void
   /** Load the persisted ignore list from settings (call once at init) */
   loadIgnoredIds: (ids: string[]) => void
   /** Move an app from the updates list to the ignored list and persist */
@@ -68,6 +87,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
   hasChecked: false,
   packageManagerAvailable: true,
   packageManagerName: null,
+  managers: [],
   searchQuery: '',
   sortField: 'name',
   sortDirection: 'asc',
@@ -89,6 +109,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
   setHasChecked: (hasChecked) => set({ hasChecked }),
   setPackageManagerAvailable: (packageManagerAvailable) => set({ packageManagerAvailable }),
   setPackageManagerName: (packageManagerName) => set({ packageManagerName }),
+  setManagers: (managers) => set({ managers }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setSortField: (sortField) =>
     set((state) => ({
@@ -97,9 +118,9 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
     })),
   setSortDirection: (sortDirection) => set({ sortDirection }),
   setSeverityFilter: (severityFilter) => set({ severityFilter }),
-  toggleAppSelected: (id) =>
+  toggleAppSelected: (key) =>
     set((state) => ({
-      apps: state.apps.map((a) => (a.id === id ? { ...a, selected: !a.selected } : a)),
+      apps: state.apps.map((a) => (appKey(a) === key ? { ...a, selected: !a.selected } : a)),
     })),
   selectAll: () =>
     set((state) => ({
@@ -109,9 +130,9 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
     set((state) => ({
       apps: state.apps.map((a) => ({ ...a, selected: false })),
     })),
-  removeApps: (ids) =>
+  removeApps: (keys) =>
     set((state) => ({
-      apps: state.apps.filter((a) => !ids.includes(a.id)),
+      apps: state.apps.filter((a) => !keys.includes(appKey(a))),
     })),
   loadIgnoredIds: (ids) => {
     const newIds = new Set(ids)
@@ -162,6 +183,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
       hasChecked: false,
       packageManagerAvailable: true,
       packageManagerName: null,
+      managers: [],
       searchQuery: '',
       sortField: 'name',
       sortDirection: 'asc',

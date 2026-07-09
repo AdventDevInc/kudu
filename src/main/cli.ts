@@ -987,8 +987,11 @@ async function handleUpdates(args: string[], ctx: CliContext): Promise<number | 
           return idArg ? idArg.split(',').map(s => s.trim()).filter(Boolean) : []
         })()
     if (toUpdate.length === 0) { cliUsage(ctx, 'kudu --cli updates run <id,...> or --all'); return ExitCode.INVALID_ARGS }
-    cliLog(ctx, `Updating ${toUpdate.length} apps...`)
-    const result = await runUpdates(toUpdate, (progress) => {
+    // Route each id back to the manager that reported it (aggregation-aware)
+    const sourceById = new Map(check.apps.map(a => [a.id, a.source]))
+    const items = toUpdate.map(id => ({ id, source: sourceById.get(id) ?? check.packageManagerName ?? 'winget' }))
+    cliLog(ctx, `Updating ${items.length} apps...`)
+    const result = await runUpdates(items, (progress) => {
       cliLog(ctx, `  [${progress.current}/${progress.total}] ${progress.currentApp}: ${progress.status}`)
     })
     cliOut(ctx, result)

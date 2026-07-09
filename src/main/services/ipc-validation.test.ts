@@ -166,6 +166,22 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ windowsPackageManager: '' })).toBeNull()
   })
 
+  it('accepts valid windowsPackageManagers arrays', () => {
+    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'scoop'] }))
+      .toEqual({ windowsPackageManagers: ['winget', 'scoop'] })
+    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] }))
+      .toEqual({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] })
+    expect(validateSettingsPartial({ windowsPackageManagers: [] }))
+      .toEqual({ windowsPackageManagers: [] })
+  })
+
+  it('rejects invalid windowsPackageManagers arrays', () => {
+    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'brew'] })).toBeNull()
+    expect(validateSettingsPartial({ windowsPackageManagers: 'winget' })).toBeNull()
+    expect(validateSettingsPartial({ windowsPackageManagers: [123] })).toBeNull()
+    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm', 'winget'] })).toBeNull()
+  })
+
   it('accepts empty object', () => {
     expect(validateSettingsPartial({})).toEqual({})
   })

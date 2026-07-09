@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
-import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry } from '../../shared/types'
+import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager } from '../../shared/types'
 
 let _dataDir: string | null = null
 let _configPath: string | null = null
@@ -73,6 +73,7 @@ const defaults: StoreData = {
       allowRemoteConfig: true
     },
     windowsPackageManager: 'winget' as const,
+    windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] as WindowsPackageManager[],
     gameMode: {
       enabledOptimizations: [
         'svc-wsearch', 'svc-sysmain',

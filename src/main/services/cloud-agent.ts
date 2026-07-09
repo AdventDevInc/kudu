@@ -2414,7 +2414,12 @@ class CloudAgentService {
       await this.postCommandResult(requestId, false, undefined, 'Invalid appId format')
       return
     }
-    const result = await runUpdates(appIds, () => {})
+    // Resolve each id back to the manager that owns it (aggregation-aware);
+    // fall back to the primary manager for ids not found in the current scan.
+    const check = await checkForUpdates()
+    const sourceById = new Map(check.apps.map((a) => [a.id, a.source]))
+    const items = appIds.map((id) => ({ id, source: sourceById.get(id) ?? check.packageManagerName ?? 'winget' }))
+    const result = await runUpdates(items, () => {})
     // Strip raw error reasons which may contain local paths or system info
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,

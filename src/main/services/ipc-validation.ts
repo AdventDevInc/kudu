@@ -17,6 +17,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
     'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'backupPath', 'windowsPackageManager',
+    'windowsPackageManagers',
     'schedule', 'schedules', 'cloud', 'gameMode', 'registryIgnoredTweaks'
   ])
 
@@ -48,6 +49,14 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   // Validate windowsPackageManager is one of the allowed values
   if ('windowsPackageManager' in obj && obj.windowsPackageManager !== undefined) {
     if (!['winget', 'choco'].includes(obj.windowsPackageManager as string)) return null
+  }
+
+  // Validate windowsPackageManagers is an array of known manager names
+  if ('windowsPackageManagers' in obj && obj.windowsPackageManagers !== undefined) {
+    if (!Array.isArray(obj.windowsPackageManagers)) return null
+    const known = ['winget', 'choco', 'scoop', 'npm']
+    if (!obj.windowsPackageManagers.every((v: unknown) => typeof v === 'string' && known.includes(v))) return null
+    if (obj.windowsPackageManagers.length > known.length) return null
   }
 
   // Validate exclusions is an array of safe strings if present

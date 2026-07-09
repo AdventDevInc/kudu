@@ -51,6 +51,7 @@ import type {
   UninstallResult,
   UpdateCheckResult,
   UpdateProgress,
+  UpdateRequestItem,
   UpdateResult,
   FileTypeInfo,
   CloudActionEntry,
@@ -423,8 +424,8 @@ const api = {
   // Software Updater
   softwareUpdateCheck: (): Promise<UpdateCheckResult> =>
     ipcRenderer.invoke(IPC.SOFTWARE_UPDATE_CHECK),
-  softwareUpdateRun: (appIds: string[], source?: string): Promise<UpdateResult> =>
-    ipcRenderer.invoke(IPC.SOFTWARE_UPDATE_RUN, appIds, source),
+  softwareUpdateRun: (items: UpdateRequestItem[]): Promise<UpdateResult> =>
+    ipcRenderer.invoke(IPC.SOFTWARE_UPDATE_RUN, items),
   onSoftwareUpdateProgress: (callback: (data: UpdateProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: UpdateProgress) => callback(data)
     ipcRenderer.on(IPC.SOFTWARE_UPDATE_PROGRESS, handler)

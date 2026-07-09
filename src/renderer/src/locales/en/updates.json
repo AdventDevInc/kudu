@@ -4,7 +4,7 @@
   "tabs": {
     "software": "Software",
     "drivers": "Drivers",
-    "softwareDescriptionWindows": "Third-party apps via winget",
+    "softwareDescriptionWindows": "Third-party apps via winget, Chocolatey, Scoop & npm",
     "softwareDescriptionMac": "Third-party apps via Homebrew",
     "softwareDescriptionLinux": "Third-party apps via package manager",
     "driversDescription": "Updates & stale cleanup"
@@ -14,7 +14,10 @@
     "pageDescription": "Check for outdated software and install updates",
     "checkingButton": "Checking...",
     "recheckButton": "Re-check",
-    "packageManagerLabel": "Package manager",
+    "packageManagerLabel": "Package managers",
+    "managerEnabledHint": "{{manager}} enabled — click to stop scanning it",
+    "managerDisabledHint": "{{manager}} disabled — click to include it",
+    "managerNotInstalled": "{{manager}} is enabled but not installed",
     "checkForUpdatesButton": "Check for Updates",
     "searchPlaceholder": "Search apps...",
     "filterAll": "All",
@@ -47,7 +50,9 @@
       "dnfRequired": "DNF package manager is required. It should be pre-installed on Fedora and RHEL systems.",
       "pacmanNotFound": "pacman not found",
       "pacmanRequired": "Pacman package manager is required. It should be pre-installed on Arch Linux systems.",
-      "noPackageManager": "No supported package manager found. Supported: apt (Debian/Ubuntu), dnf (Fedora/RHEL), or pacman (Arch)."
+      "noPackageManager": "No supported package manager found. Supported: apt (Debian/Ubuntu), dnf (Fedora/RHEL), or pacman (Arch).",
+      "noWindowsManager": "No package manager found",
+      "windowsManagerHint": "Install winget (App Installer), Chocolatey, Scoop, or npm to check for and install software updates."
     },
     "statOutdatedApps": "Outdated Apps",
     "statMajorUpdates": "Major Updates",

@@ -23,11 +23,20 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { StatCard } from '@/components/shared/StatCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
-import { useUpdaterStore, severityOrder } from '@/stores/updater-store'
+import { useUpdaterStore, severityOrder, appKey } from '@/stores/updater-store'
 import { useHistoryStore } from '@/stores/history-store'
 import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
-import type { UpdateProgress, UpdatableApp, UpToDateApp } from '@shared/types'
+import type { UpdateProgress, UpdatableApp, UpToDateApp, WindowsPackageManager } from '@shared/types'
+
+/** Windows managers Kudu can aggregate, with their display labels. */
+const WINDOWS_MANAGER_OPTIONS: { id: WindowsPackageManager; label: string }[] = [
+  { id: 'winget', label: 'winget' },
+  { id: 'choco', label: 'Chocolatey' },
+  { id: 'scoop', label: 'Scoop' },
+  { id: 'npm', label: 'npm' },
+]
+const DEFAULT_WINDOWS_MANAGERS: WindowsPackageManager[] = ['winget', 'choco', 'scoop', 'npm']
 
 const SEVERITY_STYLES_BASE = {
   major: {
@@ -80,6 +89,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   const hasChecked = useUpdaterStore((s) => s.hasChecked)
   const packageManagerAvailable = useUpdaterStore((s) => s.packageManagerAvailable)
   const packageManagerName = useUpdaterStore((s) => s.packageManagerName)
+  const managers = useUpdaterStore((s) => s.managers)
   const searchQuery = useUpdaterStore((s) => s.searchQuery)
   const sortField = useUpdaterStore((s) => s.sortField)
   const sortDirection = useUpdaterStore((s) => s.sortDirection)
@@ -90,7 +100,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   const ignoredApps = useUpdaterStore((s) => s.ignoredApps)
 
   const { platform } = usePlatform()
-  const windowsPackageManager = useSettingsStore((s) => s.settings.windowsPackageManager)
+  const windowsPackageManagers = useSettingsStore((s) => s.settings.windowsPackageManagers)
+  const enabledManagers = windowsPackageManagers ?? DEFAULT_WINDOWS_MANAGERS
 
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [showFilterMenu, setShowFilterMenu] = useState(false)
@@ -152,6 +163,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       s.setUpToDate(result.upToDate)
       s.setPackageManagerAvailable(result.packageManagerAvailable)
       s.setPackageManagerName(result.packageManagerName)
+      s.setManagers(result.managers)
       s.setHasChecked(true)
 
       // Use the visible (non-ignored) count for the toast
@@ -171,8 +183,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
 
   // ─── Run updates ────────────────────────────────────────────
   const handleUpdate = useCallback(
-    async (ids: string[]) => {
-      if (ids.length === 0) return
+    async (appsToUpdate: UpdatableApp[]) => {
+      if (appsToUpdate.length === 0) return
       const store = useUpdaterStore.getState()
       store.setUpdating(true)
       store.setUpdateResult(null)
@@ -180,19 +192,19 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       store.setProgress(null)
 
       const startTime = Date.now()
-      const appsToUpdate = store.apps.filter(a => ids.includes(a.id))
+      const items = appsToUpdate.map((a) => ({ id: a.id, source: a.source }))
 
       try {
-        const result = await window.kudu.softwareUpdateRun(ids, store.packageManagerName ?? undefined)
+        const result = await window.kudu.softwareUpdateRun(items)
         const s = useUpdaterStore.getState()
         s.setUpdateResult(result)
         s.setProgress(null)
 
         if (result.succeeded > 0) {
-          // Remove successfully updated apps from the list
+          // Remove successfully updated apps from the list (by composite key)
           const failedIds = new Set(result.errors.map((e) => e.appId))
-          const succeededIds = ids.filter((id) => !failedIds.has(id))
-          s.removeApps(succeededIds)
+          const succeededKeys = appsToUpdate.filter((a) => !failedIds.has(a.id)).map(appKey)
+          s.removeApps(succeededKeys)
           toast.success(
             result.succeeded !== 1 ? t('softwareUpdater.toastUpdateSuccessPlural', { count: result.succeeded }) : t('softwareUpdater.toastUpdateSuccess', { count: result.succeeded }),
           )
@@ -217,7 +229,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           type: 'software-update',
           timestamp: new Date().toISOString(),
           duration: Date.now() - startTime,
-          totalItemsFound: ids.length,
+          totalItemsFound: appsToUpdate.length,
           totalItemsCleaned: result.succeeded,
           totalItemsSkipped: 0,
           totalSpaceSaved: 0,
@@ -237,9 +249,25 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   )
 
   const handleUpdateSelected = useCallback(() => {
-    const selectedIds = useUpdaterStore.getState().apps.filter((a) => a.selected).map((a) => a.id)
-    handleUpdate(selectedIds)
+    const selectedApps = useUpdaterStore.getState().apps.filter((a) => a.selected)
+    handleUpdate(selectedApps)
   }, [handleUpdate])
+
+  // ─── Toggle a Windows manager on/off (aggregation) ──────────
+  const handleToggleManager = useCallback(
+    async (manager: WindowsPackageManager) => {
+      const current = useSettingsStore.getState().settings.windowsPackageManagers ?? DEFAULT_WINDOWS_MANAGERS
+      const next = current.includes(manager)
+        ? current.filter((m) => m !== manager)
+        : [...current, manager]
+      // Keep at least one manager enabled
+      if (next.length === 0) return
+      useSettingsStore.getState().updateSettings({ windowsPackageManagers: next })
+      await window.kudu.settingsSet({ windowsPackageManagers: next })
+      handleCheck()
+    },
+    [handleCheck],
+  )
 
   // ─── Filtered & sorted list ─────────────────────────────────
   const filteredApps = useMemo(() => {
@@ -305,27 +333,49 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           {loading ? t('softwareUpdater.checkingButton') : hasChecked ? t('softwareUpdater.recheckButton') : t('softwareUpdater.checkForUpdatesButton')}
         </button>
 
-        {/* Package manager selector (Windows only) */}
+        {/* Package manager toggles (Windows only) — aggregate across managers */}
         {platform === 'win32' && (
-          <select
-            value={windowsPackageManager ?? 'winget'}
-            onChange={async (e) => {
-              const value = e.target.value as 'winget' | 'choco'
-              useSettingsStore.getState().updateSettings({ windowsPackageManager: value })
-              await window.kudu.settingsSet({ windowsPackageManager: value })
-              handleCheck()
-            }}
-            disabled={isBusy}
+          <div
+            className="flex items-center gap-1.5 rounded-xl px-2 py-1.5"
+            style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
+            role="group"
             aria-label={t('softwareUpdater.packageManagerLabel')}
-            className="rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 outline-none transition-all disabled:opacity-40"
-            style={{
-              background: 'var(--bg-subtle)',
-              border: '1px solid var(--border-medium)',
-            }}
           >
-            <option value="winget">winget</option>
-            <option value="choco">Chocolatey</option>
-          </select>
+            {WINDOWS_MANAGER_OPTIONS.map(({ id, label }) => {
+              const enabled = enabledManagers.includes(id)
+              const status = managers.find((m) => m.name === id)
+              const notInstalled = hasChecked && enabled && status && !status.available
+              return (
+                <button
+                  key={id}
+                  onClick={() => handleToggleManager(id)}
+                  disabled={isBusy}
+                  title={
+                    notInstalled
+                      ? t('softwareUpdater.managerNotInstalled', { manager: label })
+                      : enabled
+                        ? t('softwareUpdater.managerEnabledHint', { manager: label })
+                        : t('softwareUpdater.managerDisabledHint', { manager: label })
+                  }
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition-all disabled:opacity-40"
+                  style={{
+                    background: enabled ? 'var(--accent-muted-bg)' : 'transparent',
+                    color: enabled ? 'var(--accent)' : 'var(--text-muted)',
+                    border: `1px solid ${enabled ? 'var(--accent-muted-border, transparent)' : 'transparent'}`,
+                    opacity: notInstalled ? 0.5 : 1,
+                  }}
+                >
+                  {enabled ? (
+                    <CheckCircle2 className="h-3 w-3" strokeWidth={2.5} />
+                  ) : (
+                    <Package className="h-3 w-3" strokeWidth={2} />
+                  )}
+                  {label}
+                  {notInstalled && <span className="text-[10px] text-red-400">·</span>}
+                </button>
+              )
+            })}
+          </div>
         )}
 
         {/* Search */}
@@ -456,7 +506,11 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         >
           <AlertTriangle className="h-5 w-5 shrink-0 text-red-400" strokeWidth={1.8} />
           <p className="text-[12px] text-zinc-400">
-            {packageManagerName === 'brew' ? (
+            {platform === 'win32' ? (
+              <>
+                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.noWindowsManager')}</span> — {t('softwareUpdater.packageManagerNotFound.windowsManagerHint')}
+              </>
+            ) : packageManagerName === 'brew' ? (
               <>
                 <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.brewNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.brewRequired')}{' '}
                 <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.brewSite')}</span>.
@@ -717,11 +771,11 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           <div className="grid grid-cols-1 gap-2">
             {filteredApps.map((app) => (
               <AppRow
-                key={app.id}
+                key={appKey(app)}
                 app={app}
                 updating={updating}
-                onToggle={() => useUpdaterStore.getState().toggleAppSelected(app.id)}
-                onUpdate={() => handleUpdate([app.id])}
+                onToggle={() => useUpdaterStore.getState().toggleAppSelected(appKey(app))}
+                onUpdate={() => handleUpdate([app])}
                 onIgnore={() => useUpdaterStore.getState().ignoreApp(app.id)}
               />
             ))}

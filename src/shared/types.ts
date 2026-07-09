@@ -649,8 +649,19 @@ export interface KuduSettings {
     allowRemoteInstalls: boolean
     allowRemoteConfig: boolean
   }
-  /** Preferred Windows package manager for Software Updater */
+  /**
+   * Preferred Windows package manager for Software Updater.
+   * @deprecated Superseded by `windowsPackageManagers` (multi-manager aggregation).
+   * Retained for backward compatibility and as a migration seed.
+   */
   windowsPackageManager: 'winget' | 'choco'
+  /**
+   * Windows package managers to scan and aggregate in the Software Updater.
+   * Results from every enabled+installed manager are merged into one list,
+   * each package routed back to its own manager on update. When undefined,
+   * all supported managers are scanned.
+   */
+  windowsPackageManagers?: WindowsPackageManager[]
   gameMode: GameModeConfig
   /**
    * Registry-cleaner tweaks the user has chosen to ignore. Recurring advisory
@@ -877,6 +888,35 @@ export type FirewallAction = 'disable' | 'delete'
 // ─── Software Updater ──────────────────────────────────────
 export type UpdateSeverity = 'major' | 'minor' | 'patch' | 'unknown'
 
+/** Package managers Kudu can aggregate on Windows. */
+export type WindowsPackageManager = 'winget' | 'choco' | 'scoop' | 'npm'
+
+/** All package-manager names Kudu can report, across every platform. */
+export type PackageManagerName =
+  | 'winget'
+  | 'choco'
+  | 'scoop'
+  | 'npm'
+  | 'brew'
+  | 'apt'
+  | 'dnf'
+  | 'pacman'
+
+/** Per-manager status returned by an aggregated update check. */
+export interface PackageManagerStatus {
+  name: PackageManagerName
+  /** Whether the manager's CLI is installed and reachable. */
+  available: boolean
+  /** Number of outdated packages this manager reported. */
+  outdatedCount: number
+}
+
+/** A single package to update, tagged with the manager that owns it. */
+export interface UpdateRequestItem {
+  id: string
+  source: string
+}
+
 export interface UpdatableApp {
   id: string
   name: string
@@ -901,8 +941,20 @@ export interface UpdateCheckResult {
   majorCount: number
   minorCount: number
   patchCount: number
+  /** True when at least one scanned manager is installed and reachable. */
   packageManagerAvailable: boolean
-  packageManagerName: 'winget' | 'brew' | 'apt' | 'dnf' | 'pacman' | 'choco' | null
+  /**
+   * Primary manager name. On single-manager platforms (macOS/Linux) this is
+   * the active manager. On Windows aggregation it is the first available
+   * manager, or null when none are installed. Prefer `managers` for details.
+   */
+  packageManagerName: PackageManagerName | null
+  /**
+   * Per-manager status for every manager that was scanned. Single-manager
+   * platforms report a single entry; Windows aggregation reports one per
+   * enabled manager (winget/choco/scoop/npm).
+   */
+  managers: PackageManagerStatus[]
 }
 
 export interface UpdateProgress {

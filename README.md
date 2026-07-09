@@ -66,7 +66,7 @@ Kudu is **100% free, open-source, and transparent**. No ads, no upsells, no tele
 - **Driver Manager** — stale driver cleanup
 - **Program Uninstaller** — uninstall + leftover cleanup
 - **Service Manager** — optimize Windows services
-- **Software Updater** — bulk-update via winget
+- **Software Updater** — bulk-update across winget, Chocolatey, Scoop & npm
 
 </td>
 <td width="33%" valign="top">
