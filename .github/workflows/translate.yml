@@ -35,7 +35,7 @@ jobs:
 
       - name: Setup Node.js
         if: env.OPENAI_API_KEY != ''
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
