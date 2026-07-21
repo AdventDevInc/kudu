@@ -1,6 +1,6 @@
 {
   "name": "kudu",
-  "version": "1.44.1",
+  "version": "1.45.0",
   "description": "A modern, open-source system cleaner for Windows, macOS, and Linux",
   "main": "./out/main/index.js",
   "scripts": {
