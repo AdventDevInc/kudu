@@ -650,16 +650,19 @@ describe('isValidAppId', () => {
 // ─── isValidAppIdForSource ─────────────────────────────────
 
 describe('isValidAppIdForSource', () => {
-  it('accepts npm scoped package names (rejected by the legacy pattern)', () => {
+  it('accepts npm scoped package names (rejected by the winget pattern)', () => {
     expect(isValidAppIdForSource('@angular/cli', 'npm')).toBe(true)
     expect(isValidAppIdForSource('typescript', 'npm')).toBe(true)
-    // The legacy/winget validator would reject the scoped form
-    expect(isValidAppId('@angular/cli')).toBe(false)
+    // The winget validator would reject the scoped form (platform-independent —
+    // isValidAppId delegates to the host platform's validator, which varies)
+    expect(isValidAppIdForSource('@angular/cli', 'winget')).toBe(false)
   })
 
-  it('accepts Scoop names containing + (rejected by the legacy pattern)', () => {
+  it('accepts Scoop names containing + (rejected by the winget pattern)', () => {
     expect(isValidAppIdForSource('notepad++', 'scoop')).toBe(true)
-    expect(isValidAppId('notepad++')).toBe(false)
+    // brew/apt accept '+', so assert against winget rather than the
+    // platform-dependent isValidAppId (which is true on macOS/Linux)
+    expect(isValidAppIdForSource('notepad++', 'winget')).toBe(false)
   })
 
   it('accepts typical ids for each Windows manager', () => {
