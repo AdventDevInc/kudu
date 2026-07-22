@@ -830,31 +830,59 @@ async function checkForUpdatesScoop(): Promise<UpdateCheckResult> {
   }
 }
 
-/** Attempt a single `scoop update <app>` */
-async function upgradeAppScoop(appId: string): Promise<{ success: boolean; error?: string }> {
-  if (!SCOOP_ID_PATTERN.test(appId)) {
-    return { success: false, error: 'Invalid app name format' }
-  }
-  let output = ''
-  try {
-    output = await runScoop(['update', appId], 10 * 60 * 1000)
-  } catch (err: any) {
-    if (err?.stdout) output = err.stdout
-    else return { success: false, error: err?.message || 'Unknown error' }
-  }
+const truncateError = (msg: string): string => (msg.length > 200 ? msg.slice(0, 200) + '...' : msg)
 
-  const lower = cleanOutput(output).toLowerCase()
+/**
+ * Decide whether a `scoop update` succeeded from its output and exit status.
+ * Exported for tests. `nonZeroExit` is true when scoop exited nonzero (stdout
+ * may still carry progress). Ambiguous output is only assumed successful on a
+ * clean exit — a nonzero exit with no explicit success marker is a failure, so
+ * a broken update can't be masked by partial progress output. Exported for tests.
+ */
+export function classifyScoopUpdate(
+  output: string,
+  nonZeroExit: boolean,
+  stderrMsg = '',
+): { success: boolean; error?: string } {
+  const cleaned = cleanOutput(output)
+  const lower = cleaned.toLowerCase()
   // scoop prints "'app' was updated" / "was installed" on success; "is already
   // installed" means it's up to date (also a success from the user's view)
   if (/(was updated|was installed|is already installed|latest version)/.test(lower)) {
     return { success: true }
   }
   if (/error|failed|couldn't|could not/.test(lower)) {
-    const lastLine = cleanOutput(output).trim().split('\n').pop() || 'Update failed'
-    return { success: false, error: lastLine.length > 200 ? lastLine.slice(0, 200) + '...' : lastLine }
+    return { success: false, error: truncateError(cleaned.trim().split('\n').pop() || 'Update failed') }
   }
-  // Ambiguous output — assume success only if scoop didn't signal an error
+  // Nonzero exit with no explicit success marker → treat as a failure rather
+  // than letting ambiguous progress output mask it. stderr is the best signal.
+  if (nonZeroExit) {
+    return { success: false, error: truncateError(stderrMsg || cleaned.trim().split('\n').pop() || 'Update failed') }
+  }
+  // Clean exit with ambiguous output — assume success
   return { success: true }
+}
+
+/** Attempt a single `scoop update <app>` */
+async function upgradeAppScoop(appId: string): Promise<{ success: boolean; error?: string }> {
+  if (!SCOOP_ID_PATTERN.test(appId)) {
+    return { success: false, error: 'Invalid app name format' }
+  }
+  let output = ''
+  let nonZeroExit = false
+  let stderrMsg = ''
+  try {
+    output = await runScoop(['update', appId], 10 * 60 * 1000)
+  } catch (err: any) {
+    // A nonzero exit still often carries useful progress on stdout; keep it,
+    // but remember the failure and preserve stderr for diagnostics.
+    nonZeroExit = true
+    stderrMsg = err?.stderr ? cleanOutput(err.stderr).trim() : ''
+    if (err?.stdout) output = err.stdout
+    else return { success: false, error: stderrMsg || err?.message || 'Unknown error' }
+  }
+
+  return classifyScoopUpdate(output, nonZeroExit, stderrMsg)
 }
 
 // ─── npm global (Windows) ───────────────────────────────────
@@ -1051,6 +1079,29 @@ function upgradeWindowsApp(
  * `source`, then each manager's packages are upgraded in turn while a single
  * progress stream is reported across the whole batch.
  */
+/**
+ * Group Windows update items by their routing manager, preserving a stable
+ * manager order. Each entry keeps its *original* source so failures can be
+ * reported under the source the renderer keyed the row by: a winget-owned
+ * package from a non-manager source (e.g. `msstore`) routes through winget but
+ * must be reported as `msstore`, or the renderer's `source␟id` lookup won't
+ * match it. Exported for tests.
+ */
+export function groupWindowsUpdateItems(
+  items: UpdateRequestItem[],
+): Map<WindowsPackageManager, Array<{ id: string; source: string }>> {
+  const groups = new Map<WindowsPackageManager, Array<{ id: string; source: string }>>()
+  for (const item of items) {
+    const manager = WINDOWS_MANAGERS.includes(item.source as WindowsPackageManager)
+      ? (item.source as WindowsPackageManager)
+      : 'winget' // default routing for un-tagged / winget-owned sources (msstore, etc.)
+    const list = groups.get(manager) ?? []
+    list.push({ id: item.id, source: item.source || manager })
+    groups.set(manager, list)
+  }
+  return groups
+}
+
 async function runUpdatesWindows(
   items: UpdateRequestItem[],
   onProgress: (progress: UpdateProgress) => void,
@@ -1062,22 +1113,13 @@ async function runUpdatesWindows(
   let failed = 0
   const errors: UpdateResult['errors'] = []
 
-  // Group by manager, preserving a stable manager order
-  const groups = new Map<WindowsPackageManager, string[]>()
-  for (const item of items) {
-    const source = WINDOWS_MANAGERS.includes(item.source as WindowsPackageManager)
-      ? (item.source as WindowsPackageManager)
-      : 'winget' // default legacy routing for un-tagged ids
-    const list = groups.get(source) ?? []
-    list.push(item.id)
-    groups.set(source, list)
-  }
+  const groups = groupWindowsUpdateItems(items)
 
-  for (const source of WINDOWS_MANAGERS) {
-    const ids = groups.get(source)
-    if (!ids?.length) continue
+  for (const manager of WINDOWS_MANAGERS) {
+    const entries = groups.get(manager)
+    if (!entries?.length) continue
 
-    for (const appId of ids) {
+    for (const { id: appId, source: origSource } of entries) {
       completed++
       onProgress({
         phase: 'updating',
@@ -1088,7 +1130,7 @@ async function runUpdatesWindows(
         status: 'in-progress',
       })
 
-      const result = await upgradeWindowsApp(source, appId, alreadyAdmin)
+      const result = await upgradeWindowsApp(manager, appId, alreadyAdmin)
 
       if (result.success) {
         succeeded++
@@ -1102,7 +1144,7 @@ async function runUpdatesWindows(
         })
       } else {
         failed++
-        errors.push({ appId, name: appId, reason: result.error || 'Upgrade failed', source })
+        errors.push({ appId, name: appId, reason: result.error || 'Upgrade failed', source: origSource })
         onProgress({
           phase: 'updating',
           current: completed,

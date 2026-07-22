@@ -22,6 +22,8 @@ import {
   parseNpmListGlobal,
   isValidAppId,
   isValidAppIdForSource,
+  classifyScoopUpdate,
+  groupWindowsUpdateItems,
   BREW_PATH_CANDIDATES,
 } from './software-updater'
 
@@ -481,6 +483,74 @@ describe('parseScoopExport', () => {
 
   it('returns empty for invalid JSON', () => {
     expect(parseScoopExport('not json')).toEqual([])
+  })
+})
+
+// ─── classifyScoopUpdate ───────────────────────────────────
+
+describe('classifyScoopUpdate', () => {
+  it('treats an explicit success marker as success on clean exit', () => {
+    expect(classifyScoopUpdate("'git' (2.45.0) was updated.", false)).toEqual({ success: true })
+  })
+
+  it('treats "is already installed" as success', () => {
+    expect(classifyScoopUpdate("'7zip' (24.07) is already installed.", false)).toEqual({ success: true })
+  })
+
+  it('assumes success only when the exit is clean and output is ambiguous', () => {
+    expect(classifyScoopUpdate('Updating scoop...\nChecking repo...', false)).toEqual({ success: true })
+  })
+
+  it('treats a nonzero exit with ambiguous output as failure (does not mask it)', () => {
+    const res = classifyScoopUpdate('Updating scoop...\nChecking repo...', true, 'network unreachable')
+    expect(res.success).toBe(false)
+    expect(res.error).toBe('network unreachable')
+  })
+
+  it('falls back to the last stdout line when a nonzero exit has no stderr', () => {
+    const res = classifyScoopUpdate('Updating scoop...\naborted', true)
+    expect(res).toEqual({ success: false, error: 'aborted' })
+  })
+
+  it('detects an error marker even when the exit code was zero', () => {
+    const res = classifyScoopUpdate("Couldn't find manifest for 'ghost'.", false)
+    expect(res.success).toBe(false)
+  })
+
+  it('truncates very long error messages', () => {
+    const long = 'x'.repeat(300)
+    const res = classifyScoopUpdate('progress', true, long)
+    expect(res.success).toBe(false)
+    expect(res.error!.length).toBe(203) // 200 + '...'
+    expect(res.error!.endsWith('...')).toBe(true)
+  })
+})
+
+// ─── groupWindowsUpdateItems ───────────────────────────────
+
+describe('groupWindowsUpdateItems', () => {
+  it('groups items by their manager source', () => {
+    const groups = groupWindowsUpdateItems([
+      { id: 'git', source: 'choco' },
+      { id: 'git', source: 'scoop' },
+      { id: 'vscode', source: 'winget' },
+    ])
+    expect(groups.get('choco')).toEqual([{ id: 'git', source: 'choco' }])
+    expect(groups.get('scoop')).toEqual([{ id: 'git', source: 'scoop' }])
+    expect(groups.get('winget')).toEqual([{ id: 'vscode', source: 'winget' }])
+  })
+
+  it('routes a winget-owned non-manager source (msstore) through winget but preserves the original source', () => {
+    const groups = groupWindowsUpdateItems([{ id: 'SomeStoreApp', source: 'msstore' }])
+    // routed under winget for the actual upgrade pipeline...
+    expect(groups.has('winget')).toBe(true)
+    // ...but the original source is kept so failures match the renderer's key
+    expect(groups.get('winget')).toEqual([{ id: 'SomeStoreApp', source: 'msstore' }])
+  })
+
+  it('defaults an untagged/empty source to winget for both routing and reporting', () => {
+    const groups = groupWindowsUpdateItems([{ id: 'legacy', source: '' }])
+    expect(groups.get('winget')).toEqual([{ id: 'legacy', source: 'winget' }])
   })
 })
 
