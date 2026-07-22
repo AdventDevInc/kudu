@@ -803,7 +803,19 @@ async function checkForUpdatesScoop(): Promise<UpdateCheckResult> {
   if (!(await isScoopAvailable())) return emptyResult(false, 'scoop')
 
   try {
-    // `scoop status` fetches manifests; give it a longer budget
+    // Refresh bucket manifests first. `scoop status` compares installed
+    // versions against the *local* bucket checkout, so a stale checkout reports
+    // apps as up to date even when newer versions exist. `scoop update` with no
+    // app argument only updates Scoop and its buckets — it never upgrades an
+    // installed app — so it's safe to run during a read-only check. Best-effort:
+    // if the refresh fails (offline, etc.) we still read whatever status we can.
+    try {
+      await runScoop(['update'], 120_000)
+    } catch {
+      // Bucket refresh failed — fall through and read status against local manifests.
+    }
+
+    // `scoop status` compares installed versions against the refreshed manifests
     let statusStdout = ''
     try {
       statusStdout = await runScoop(['status'], 120_000)
