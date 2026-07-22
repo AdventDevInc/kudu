@@ -538,6 +538,12 @@ app.on('window-all-closed', () => {
   }
 })
 
+// On macOS, autoUpdater.quitAndInstall() closes all windows *before* emitting
+// before-quit, so mark quitting from this earlier signal too
+app.on('before-quit-for-update', () => {
+  isQuitting = true
+})
+
 app.on('before-quit', () => {
   isQuitting = true
   stopScheduler()
