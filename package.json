@@ -72,7 +72,7 @@
   "dependencies": {
     "@litko/yara-x": "^0.6.1",
     "@tanstack/react-table": "^8.21.3",
-    "better-sqlite3": "^12.11.1",
+    "better-sqlite3": "^13.0.1",
     "clsx": "^2.1.1",
     "electron-updater": "^6.8.3",
     "framer-motion": "^12.40.0",
