@@ -53,14 +53,21 @@ function formatBytes(bytes: number): string {
   return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`
 }
 
-function cliLog(ctx: CliContext, msg: string): void {
+/**
+ * Human-facing progress output. In JSON mode this goes to stderr so that
+ * stdout stays a single parseable JSON document for scripted consumers.
+ */
+export function cliLog(ctx: CliContext, msg: string): void {
   if (ctx.verbosity === 'quiet') return
-  process.stdout.write(msg + '\n')
+  const stream = ctx.json ? process.stderr : process.stdout
+  stream.write(msg + '\n')
 }
 
-function cliVerbose(ctx: CliContext, msg: string): void {
+/** Verbose diagnostics. Also kept off stdout in JSON mode. */
+export function cliVerbose(ctx: CliContext, msg: string): void {
   if (ctx.verbosity !== 'verbose') return
-  process.stdout.write(`  [verbose] ${msg}\n`)
+  const stream = ctx.json ? process.stderr : process.stdout
+  stream.write(`  [verbose] ${msg}\n`)
 }
 
 function cliOut(ctx: CliContext, data: unknown): void {

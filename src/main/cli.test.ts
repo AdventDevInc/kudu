@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { parseCliArgs, ExitCode } from './cli'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import { parseCliArgs, ExitCode, cliLog, cliVerbose } from './cli'
 
 describe('parseCliArgs', () => {
   it('parses --json flag', () => {
@@ -107,5 +107,61 @@ describe('ExitCode', () => {
     for (const code of Object.values(ExitCode)) {
       expect(code).toBeLessThan(128)
     }
+  })
+})
+
+describe('JSON stdout purity', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function captureStreams(): { out: string[]; err: string[] } {
+    const out: string[] = []
+    const err: string[] = []
+    vi.spyOn(process.stdout, 'write').mockImplementation((chunk: any) => {
+      out.push(String(chunk))
+      return true
+    })
+    vi.spyOn(process.stderr, 'write').mockImplementation((chunk: any) => {
+      err.push(String(chunk))
+      return true
+    })
+    return { out, err }
+  }
+
+  it('cliLog writes progress to stderr in JSON mode, keeping stdout parseable', () => {
+    const { out, err } = captureStreams()
+    cliLog({ json: true, verbosity: 'normal' }, 'Loading installed programs...')
+    expect(out).toEqual([])
+    expect(err).toEqual(['Loading installed programs...\n'])
+  })
+
+  it('cliLog writes to stdout in human mode', () => {
+    const { out, err } = captureStreams()
+    cliLog({ json: false, verbosity: 'normal' }, 'Scanning network...')
+    expect(out).toEqual(['Scanning network...\n'])
+    expect(err).toEqual([])
+  })
+
+  it('cliLog stays silent in quiet mode regardless of json', () => {
+    const { out, err } = captureStreams()
+    cliLog({ json: true, verbosity: 'quiet' }, 'noise')
+    cliLog({ json: false, verbosity: 'quiet' }, 'noise')
+    expect(out).toEqual([])
+    expect(err).toEqual([])
+  })
+
+  it('cliVerbose writes to stderr in JSON mode', () => {
+    const { out, err } = captureStreams()
+    cliVerbose({ json: true, verbosity: 'verbose' }, 'took 12ms')
+    expect(out).toEqual([])
+    expect(err).toEqual(['  [verbose] took 12ms\n'])
+  })
+
+  it('cliVerbose writes to stdout in human mode', () => {
+    const { out, err } = captureStreams()
+    cliVerbose({ json: false, verbosity: 'verbose' }, 'took 12ms')
+    expect(out).toEqual(['  [verbose] took 12ms\n'])
+    expect(err).toEqual([])
   })
 })
