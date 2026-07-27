@@ -16,9 +16,42 @@ import { execNativeUtf8, execTracked, psUtf8 } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
+/** Long-form hive names as printed by reg.exe, mapped to the short form used throughout this file. */
+const HIVE_ALIASES: Record<string, string> = {
+  HKEY_LOCAL_MACHINE: 'HKLM',
+  HKEY_CURRENT_USER: 'HKCU',
+  HKEY_CLASSES_ROOT: 'HKCR',
+  HKEY_USERS: 'HKU',
+  HKEY_CURRENT_CONFIG: 'HKCC'
+}
+
+/**
+ * Rewrite the long-form hive names in reg.exe's key headers to their short form.
+ *
+ * `reg query HKLM\...` echoes its results as `HKEY_LOCAL_MACHINE\...`, but every
+ * scan below matches key headers against — and every fix below deletes — short
+ * forms like `HKLM\...`. Without this the header patterns never match, which
+ * silently disables most scans and, worse, makes the App Paths scan fall back to
+ * its container key (see the `keyPath` guard there).
+ *
+ * Only line-leading hive names are rewritten: value lines are indented by four
+ * spaces, so registry *data* containing a hive name is left untouched.
+ */
+export function normalizeHiveNames(stdout: string): string {
+  return stdout.replace(/^(HKEY_[A-Z_]+)/gm, (match) => HIVE_ALIASES[match] ?? match)
+}
+
+/** Convert a single key path's hive to short form (`HKEY_LOCAL_MACHINE\Foo` → `HKLM\Foo`). */
+function normalizeKeyPath(key: string): string {
+  const idx = key.indexOf('\\')
+  if (idx < 0) return HIVE_ALIASES[key] ?? key
+  return (HIVE_ALIASES[key.substring(0, idx)] ?? key.substring(0, idx)) + key.substring(idx)
+}
+
 /** Run reg.exe with UTF-8 code page so accented characters decode correctly */
 async function execReg(args: string[], opts?: { timeout?: number; signal?: AbortSignal }): Promise<{ stdout: string; stderr: string }> {
-  return execNativeUtf8('reg', args, opts)
+  const result = await execNativeUtf8('reg', args, opts)
+  return { ...result, stdout: normalizeHiveNames(result.stdout) }
 }
 
 // ── Active AbortControllers for cancellable operations ──
@@ -84,6 +117,19 @@ function splitTaskPath(fullPath: string): { path: string; name: string } | null 
 
 // Session-scoped scan results keyed by scan ID to prevent race conditions
 const scanSessions = new Map<string, Map<string, RegistryEntry>>()
+
+/**
+ * Pre-selection state for scans that were unreachable until hive-name
+ * normalization landed.
+ *
+ * Their key-header patterns only ever matched short-form hives (`HKCR\…`),
+ * which reg.exe never prints, so `keyMatch` was always null and every one of
+ * them was silently dead. Now that they parse, they are reported but left
+ * unticked: none has ever run against a real machine, and several delete whole
+ * COM registration keys. The user opts in per finding rather than having an
+ * unvalidated heuristic pre-selected for deletion.
+ */
+const UNVALIDATED_SCAN_SELECTED = false
 
 /** Expand common Windows environment variables in a registry path. */
 function expandEnvVars(path: string): string {
@@ -245,17 +291,21 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
         '/s'
       ], { timeout: 15000, signal })
 
+      const appPathsRoot = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths'
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
         const keyMatch = block.match(/^(HKLM\\[^\r\n]+)/m)
         const valMatch = block.match(/\(Default\)\s+REG_SZ\s+(.+)/i)
-        if (valMatch) {
+        // Never fall back to the container key: the fix is delete-key, so a
+        // failed header parse would wipe every App Paths registration on the
+        // machine rather than the one stale entry.
+        if (valMatch && keyMatch && keyMatch[1].trim() !== appPathsRoot) {
           const exePath = valMatch[1].trim().replace(/"/g, '')
           if (exePath && !existsSync(exePath)) {
             entries.push({
               id: randomUUID(),
               type: 'invalid',
-              keyPath: keyMatch?.[1] || 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths',
+              keyPath: keyMatch[1].trim(),
               valueName: '(Default)',
               issue: `App path points to missing file: ${exePath}`,
               risk: 'low',
@@ -369,7 +419,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
                 valueName: appName,
                 issue: `File association references unregistered app: ${appName}`,
                 risk: 'low',
-                selected: true,
+                selected: UNVALIDATED_SCAN_SELECTED,
                 fix: { op: 'delete-value' }
               })
             }
@@ -501,11 +551,15 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
           if (clsidMatch) {
             const clsid = clsidMatch[1]
             const keyMatch = block.match(/^(HK[^\r\n]+)/m)
+            const handlerKey = keyMatch?.[1]?.trim()
+            // As with App Paths: the fix is delete-key, so falling back to the
+            // ContextMenuHandlers container would remove every handler at once.
+            if (!handlerKey || handlerKey === shellKey) continue
             if (!await clsidExists(clsid, signal)) {
               entries.push({
                 id: randomUUID(),
                 type: 'orphaned',
-                keyPath: keyMatch?.[1]?.trim() || shellKey,
+                keyPath: handlerKey,
                 valueName: clsid,
                 issue: `Context menu handler references missing COM object: ${clsid}`,
                 risk: 'low',
@@ -518,7 +572,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
                 entries.push({
                   id: randomUUID(),
                   type: 'broken',
-                  keyPath: keyMatch?.[1]?.trim() || shellKey,
+                  keyPath: handlerKey,
                   valueName: clsid,
                   issue: missingDll === 'no-inproc'
                     ? `Context menu handler has broken COM registration: ${clsid}`
@@ -590,7 +644,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               valueName: '(Default)',
               issue: `COM object DLL missing: ${dllPath}`,
               risk: 'medium',
-              selected: true,
+              selected: UNVALIDATED_SCAN_SELECTED,
               fix: { op: 'delete-key', key: parentClsidKey }
             })
             comCount++
@@ -624,7 +678,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               valueName: '(Default)',
               issue: `Type library file missing: ${tlbPath}`,
               risk: 'low',
-              selected: true,
+              selected: UNVALIDATED_SCAN_SELECTED,
               fix: { op: 'delete-key', key: parentTypeLibKey }
             })
             tlbCount++
@@ -884,7 +938,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               valueName: 'CLSID',
               issue: `MIME type "${mimeType}" references missing handler: ${clsid}`,
               risk: 'low',
-              selected: true,
+              selected: UNVALIDATED_SCAN_SELECTED,
               fix: { op: 'delete-value' }
             })
           }
@@ -920,7 +974,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
                 valueName: 'ProgID',
                 issue: `AutoPlay handler "${handlerName}" references missing ProgID: ${progId}`,
                 risk: 'low',
-                selected: true,
+                selected: UNVALIDATED_SCAN_SELECTED,
                 fix: { op: 'delete-key' }
               })
             }
@@ -1022,7 +1076,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               valueName: clsid,
               issue: `Browser Helper Object references missing COM object: ${clsid}`,
               risk: 'low',
-              selected: true,
+              selected: UNVALIDATED_SCAN_SELECTED,
               fix: { op: 'delete-key' }
             })
           } else {
@@ -1037,7 +1091,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
                   ? `Browser Helper Object has broken COM registration: ${clsid}`
                   : `Browser Helper Object DLL missing: ${missingDll}`,
                 risk: 'low',
-                selected: true,
+                selected: UNVALIDATED_SCAN_SELECTED,
                 fix: { op: 'delete-key' }
               })
             }
@@ -1105,7 +1159,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
                   valueName: 'EventMessageFile',
                   issue: `Event log source "${sourceName}" — all message files missing`,
                   risk: 'low',
-                  selected: true,
+                  selected: UNVALIDATED_SCAN_SELECTED,
                   fix: { op: 'delete-key' }
                 })
               }
@@ -1146,7 +1200,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               valueName: proxyClsid,
               issue: `COM interface references missing proxy stub: ${proxyClsid}`,
               risk: 'medium',
-              selected: true,
+              selected: UNVALIDATED_SCAN_SELECTED,
               fix: { op: 'delete-key', key: parentIfaceKey }
             })
             ifaceCount++
@@ -1164,7 +1218,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
                   ? `COM interface proxy stub has broken registration: ${proxyClsid}`
                   : `COM interface proxy stub DLL missing: ${missingDll}`,
                 risk: 'medium',
-                selected: true,
+                selected: UNVALIDATED_SCAN_SELECTED,
                 fix: { op: 'delete-key', key: parentIfaceKey }
               })
               ifaceCount++
@@ -1207,7 +1261,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               valueName: 'ProgId',
               issue: `Default app for "${ext}" references removed program: ${progId}`,
               risk: 'low',
-              selected: true,
+              selected: UNVALIDATED_SCAN_SELECTED,
               fix: { op: 'delete-key' }
             })
           }
@@ -1834,6 +1888,64 @@ async function createTargetedBackup(
   }
 }
 
+/**
+ * Container keys that `delete-key` must never target.
+ *
+ * Every scan above enumerates one of these and reports a finding about a *subkey*.
+ * If a fix ever resolves to the container itself, the scan failed to parse the
+ * subkey path — applying it would delete the entire branch instead of one stale
+ * entry. That is how a "clean up 3 leftover registry entries" click turns into a
+ * machine-wide outage, so it is refused at the point of execution regardless of
+ * how the entry was produced.
+ */
+const PROTECTED_DELETE_KEYS = new Set([
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SharedDLLs',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce',
+  'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run',
+  'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+  'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+  'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\Folders',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\Handlers',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Browser Helper Objects',
+  'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Browser Helper Objects',
+  'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Fonts',
+  'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers',
+  'HKCU\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\AppCompatFlags\\Layers',
+  'HKCU\\SOFTWARE\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\MuiCache',
+  'HKLM\\SYSTEM\\CurrentControlSet\\Services',
+  'HKLM\\SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application',
+  'HKLM\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\FirewallRules',
+  'HKLM\\SOFTWARE\\Clients',
+  'HKLM\\SOFTWARE\\WOW6432Node\\Clients',
+  'HKCU\\SOFTWARE\\Clients',
+  'HKCR\\CLSID',
+  'HKCR\\WOW6432Node\\CLSID',
+  'HKCR\\TypeLib',
+  'HKCR\\Interface',
+  'HKCR\\MIME',
+  'HKCR\\MIME\\Database\\Content Type',
+  'HKCR\\*\\shellex\\ContextMenuHandlers',
+  'HKCR\\Directory\\shellex\\ContextMenuHandlers',
+  'HKCR\\Folder\\shellex\\ContextMenuHandlers'
+].map(k => k.toLowerCase()))
+
+/**
+ * True when `key` is a hive root or one of the container keys above, in either
+ * long or short hive form. Exported for tests.
+ */
+export function isProtectedDeleteKey(key: string): boolean {
+  const normalized = normalizeKeyPath(key.trim()).replace(/\\+$/, '')
+  if (!normalized) return true
+  // A hive with no subkey ("HKLM", "HKEY_LOCAL_MACHINE") is always the whole hive.
+  if (!normalized.includes('\\')) return true
+  return PROTECTED_DELETE_KEYS.has(normalized.toLowerCase())
+}
+
 export async function fixRegistryEntries(
   entries: RegistryEntry[],
   onProgress?: (current: number, total: number, label: string) => void,
@@ -1884,6 +1996,9 @@ export async function fixRegistryEntries(
             break
 
           case 'delete-key':
+            if (isProtectedDeleteKey(key)) {
+              throw new Error(`Refusing to delete protected registry key: ${key}`)
+            }
             await execReg(['delete', key, '/f'], { timeout: 10000, signal })
             break
 
