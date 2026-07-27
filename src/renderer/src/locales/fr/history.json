@@ -6,15 +6,15 @@
   "viewCloud": "Cloud",
   "clearButton": "Effacer",
   "emptyStateTitle": "Aucun historique pour le moment",
-  "emptyStateDescription": "Lancez une analyse depuis les pages Cleaner, Registry ou Debloater. Les résultats apparaîtront ici.",
+  "emptyStateDescription": "Lancez une analyse depuis les pages Nettoyeur, Registre ou Debloater. Les résultats apparaîtront ici.",
   "confirmClearCloudTitle": "Effacer l’historique Cloud",
   "confirmClearScanTitle": "Effacer l’historique des analyses",
-  "confirmClearCloudDescription": "Cela supprimera définitivement toutes les entrées de l’historique des actions cloud. Cette action est irréversible.",
-  "confirmClearScanDescription": "Cela supprimera définitivement toutes les entrées de l’historique des analyses. Cette action est irréversible.",
+  "confirmClearCloudDescription": "Cette action supprimera définitivement toutes les entrées de l’historique des actions cloud. Cette action est irréversible.",
+  "confirmClearScanDescription": "Cette action supprimera définitivement toutes les entrées de l’historique des analyses. Cette action est irréversible.",
   "confirmClearLabel": "Tout effacer",
   "typeLabels": {
     "cleaner": "Nettoyage du système",
-    "registry": "Correction du registre",
+    "registry": "Réparation du registre",
     "debloater": "Debloater",
     "network": "Nettoyage du réseau",
     "drivers": "Nettoyage des pilotes",
@@ -44,8 +44,8 @@
   },
   "timeline": {
     "filterAll": "Tout",
-    "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterCleaner": "Nettoyeur",
+    "filterRegistry": "Registre",
     "filterDebloater": "Debloater",
     "filterNetwork": "Réseau",
     "filterDrivers": "Pilotes",
@@ -61,7 +61,7 @@
     "columnSpace": "Espace",
     "columnDuration": "Durée",
     "columnStatus": "État",
-    "scheduledBadge": "Planifié",
+    "scheduledBadge": "Planif.",
     "noEntriesMatchFilter": "Aucune entrée ne correspond à ce filtre",
     "dateAt": "à"
   },
@@ -74,11 +74,23 @@
     "errorCount": "{{count}} erreur",
     "errorCountPlural": "{{count}} erreurs",
     "categoriesLabel": "Catégories",
-    "itemsSuffix": "éléments"
+    "itemsSuffix": "éléments",
+    "deletedFiles": {
+      "title": "Fichiers supprimés",
+      "loading": "Chargement…",
+      "shownCount": "{{shown}} sur {{total}}",
+      "loadMore": "Charger plus",
+      "exportCsv": "Exporter en CSV",
+      "openLog": "Ouvrir le journal",
+      "exported": "{{count}} chemins exportés",
+      "exportFailed": "Impossible d’exporter la liste des fichiers supprimés",
+      "emptyRecorded": "Aucun chemin de fichier n’a été enregistré pour cette exécution.",
+      "disabledHint": "La journalisation des suppressions est désactivée ; les chemins individuels de cette exécution n’ont donc pas été enregistrés. Activez « Conserver un journal des fichiers supprimés » dans Paramètres → Préférences de nettoyage pour les enregistrer à l’avenir."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Aucune action cloud pour le moment",
-    "emptyStateDescription": "Lorsque des commandes sont reçues depuis le tableau de bord cloud, elles apparaîtront ici.",
+    "emptyStateDescription": "Lorsque des commandes seront reçues depuis le tableau de bord cloud, elles apparaîtront ici.",
     "totalCommands": "Commandes totales",
     "succeeded": "Réussies",
     "failed": "Échouées",
@@ -99,16 +111,16 @@
     "detailError": "Erreur"
   },
   "cloudCommandLabels": {
-    "scan": "Analyse",
-    "clean": "Nettoyage",
+    "scan": "Analyser",
+    "clean": "Nettoyer",
     "softwareUpdateCheck": "Vérification des mises à jour",
     "softwareUpdateRun": "Mise à jour des logiciels",
     "getStatus": "État",
     "getSystemInfo": "Informations système",
     "getHealthReport": "Rapport d’état",
     "ping": "Ping",
-    "shutdown": "Arrêt",
-    "restart": "Redémarrage",
+    "shutdown": "Arrêter",
+    "restart": "Redémarrer",
     "windowsUpdateCheck": "Vérification de Windows Update",
     "windowsUpdateInstall": "Windows Update",
     "runSfc": "Analyse SFC",
@@ -131,7 +143,7 @@
     "malwareQuarantine": "Quarantaine",
     "malwareDelete": "Suppression des logiciels malveillants",
     "registryScan": "Analyse du registre",
-    "registryFix": "Correction du registre"
+    "registryFix": "Réparation du registre"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

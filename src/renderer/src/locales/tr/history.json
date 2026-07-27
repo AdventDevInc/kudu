@@ -66,7 +66,7 @@
     "dateAt": "saat"
   },
   "detail": {
-    "scheduledBadge": "Zamanlanmış",
+    "scheduledBadge": "Zamanlandı",
     "statFound": "Bulundu",
     "statProcessed": "İşlendi",
     "statSkipped": "Atlandı",
@@ -74,7 +74,19 @@
     "errorCount": "{{count}} hata",
     "errorCountPlural": "{{count}} hata",
     "categoriesLabel": "Kategoriler",
-    "itemsSuffix": "öğe"
+    "itemsSuffix": "öğe",
+    "deletedFiles": {
+      "title": "Silinen Dosyalar",
+      "loading": "Yükleniyor…",
+      "shownCount": "{{shown}} / {{total}}",
+      "loadMore": "Daha fazla yükle",
+      "exportCsv": "CSV olarak dışa aktar",
+      "openLog": "Günlüğü aç",
+      "exported": "{{count}} yol dışa aktarıldı",
+      "exportFailed": "Silinen dosya listesi dışa aktarılamadı",
+      "emptyRecorded": "Bu çalıştırma için hiçbir dosya yolu kaydedilmedi.",
+      "disabledHint": "Silme günlüğü kapalı olduğundan, bu çalıştırmadaki tek tek yollar kaydedilmedi. Bunların bundan sonra kaydedilmesi için Ayarlar → Temizleme Tercihleri bölümünde \"Silinen dosyaların günlüğünü tut\" seçeneğini açın."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Henüz bulut eylemi yok",
@@ -100,12 +112,12 @@
   },
   "cloudCommandLabels": {
     "scan": "Tarama",
-    "clean": "Temizleme",
+    "clean": "Temizle",
     "softwareUpdateCheck": "Güncelleme Denetimi",
     "softwareUpdateRun": "Yazılım Güncellemesi",
     "getStatus": "Durum",
     "getSystemInfo": "Sistem Bilgisi",
-    "getHealthReport": "Durum Raporu",
+    "getHealthReport": "Sağlık Raporu",
     "ping": "Ping",
     "shutdown": "Kapat",
     "restart": "Yeniden Başlat",
@@ -121,21 +133,21 @@
     "driverClean": "Sürücü Temizliği",
     "startupList": "Başlangıç Listesi",
     "startupToggle": "Başlangıç Geçişi",
-    "diskHealth": "Disk Durumu",
+    "diskHealth": "Disk Sağlığı",
     "privacyScan": "Gizlilik Taraması",
-    "privacyApply": "Gizlilik Uygulama",
+    "privacyApply": "Gizlilik Uygula",
     "debloaterScan": "Debloater Taraması",
     "debloaterRemove": "Debloater Kaldırma",
     "serviceScan": "Hizmet Taraması",
-    "serviceApply": "Hizmet Uygulama",
+    "serviceApply": "Hizmet Uygula",
     "malwareQuarantine": "Karantina",
     "malwareDelete": "Kötü Amaçlı Yazılımı Sil",
     "registryScan": "Kayıt Defteri Taraması",
     "registryFix": "Kayıt Defteri Düzeltmesi"
   },
   "duration": {
-    "lessThanOneSecond": "<1sn",
-    "seconds": "{{count}}sn",
-    "minutesAndSeconds": "{{minutes}}dk {{seconds}}sn"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}d {{seconds}}s"
   }
 }

@@ -1,6 +1,6 @@
 {
   "pageTitle": "Ιστορικό σαρώσεων",
-  "pageDescription": "Προβολή αναλυτικών αποτελεσμάτων από προηγούμενες σαρώσεις και καθαρισμούς",
+  "pageDescription": "Δείτε αναλυτικά αποτελέσματα από προηγούμενες σαρώσεις και καθαρισμούς",
   "viewOverview": "Επισκόπηση",
   "viewTimeline": "Χρονολόγιο",
   "viewCloud": "Cloud",
@@ -18,7 +18,7 @@
     "debloater": "Debloater",
     "network": "Καθαρισμός δικτύου",
     "drivers": "Καθαρισμός προγραμμάτων οδήγησης",
-    "malware": "Σάρωση για malware",
+    "malware": "Σάρωση malware",
     "privacy": "Ασπίδα απορρήτου",
     "startup": "Διαχείριση εκκίνησης",
     "services": "Διαχείριση υπηρεσιών",
@@ -74,7 +74,19 @@
     "errorCount": "{{count}} σφάλμα",
     "errorCountPlural": "{{count}} σφάλματα",
     "categoriesLabel": "Κατηγορίες",
-    "itemsSuffix": "στοιχεία"
+    "itemsSuffix": "στοιχεία",
+    "deletedFiles": {
+      "title": "Διαγραμμένα αρχεία",
+      "loading": "Φόρτωση…",
+      "shownCount": "{{shown}} από {{total}}",
+      "loadMore": "Φόρτωση περισσότερων",
+      "exportCsv": "Εξαγωγή CSV",
+      "openLog": "Άνοιγμα αρχείου καταγραφής",
+      "exported": "Εξήχθησαν {{count}} διαδρομές",
+      "exportFailed": "Δεν ήταν δυνατή η εξαγωγή της λίστας διαγραμμένων αρχείων",
+      "emptyRecorded": "Δεν καταγράφηκαν διαδρομές αρχείων για αυτήν την εκτέλεση.",
+      "disabledHint": "Η καταγραφή διαγραφών είναι απενεργοποιημένη, επομένως οι μεμονωμένες διαδρομές από αυτήν την εκτέλεση δεν καταγράφηκαν. Ενεργοποιήστε την επιλογή \"Διατήρηση αρχείου καταγραφής διαγραμμένων αρχείων\" στις Ρυθμίσεις → Προτιμήσεις καθαρισμού για να καταγράφονται από εδώ και στο εξής."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Δεν υπάρχουν ακόμη ενέργειες cloud",
@@ -105,7 +117,7 @@
     "softwareUpdateRun": "Ενημέρωση λογισμικού",
     "getStatus": "Κατάσταση",
     "getSystemInfo": "Πληροφορίες συστήματος",
-    "getHealthReport": "Αναφορά υγείας",
+    "getHealthReport": "Αναφορά κατάστασης",
     "ping": "Ping",
     "shutdown": "Τερματισμός λειτουργίας",
     "restart": "Επανεκκίνηση",
@@ -121,7 +133,7 @@
     "driverClean": "Καθαρισμός προγραμμάτων οδήγησης",
     "startupList": "Λίστα εκκίνησης",
     "startupToggle": "Εναλλαγή εκκίνησης",
-    "diskHealth": "Υγεία δίσκου",
+    "diskHealth": "Κατάσταση δίσκου",
     "privacyScan": "Σάρωση απορρήτου",
     "privacyApply": "Εφαρμογή απορρήτου",
     "debloaterScan": "Σάρωση Debloater",
@@ -134,8 +146,8 @@
     "registryFix": "Επιδιόρθωση μητρώου"
   },
   "duration": {
-    "lessThanOneSecond": "<1δ",
-    "seconds": "{{count}}δ",
-    "minutesAndSeconds": "{{minutes}}λ {{seconds}}δ"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

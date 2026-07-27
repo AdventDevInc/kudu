@@ -1,6 +1,6 @@
 {
   "pageTitle": "スキャン履歴",
-  "pageDescription": "過去のスキャンおよびクリーンアップの詳細な結果を表示します",
+  "pageDescription": "過去のスキャンとクリーンアップの詳細な結果を表示します",
   "viewOverview": "概要",
   "viewTimeline": "タイムライン",
   "viewCloud": "クラウド",
@@ -19,20 +19,20 @@
     "network": "ネットワーク クリーンアップ",
     "drivers": "ドライバー クリーンアップ",
     "malware": "マルウェア スキャン",
-    "privacy": "プライバシー シールド",
+    "privacy": "プライバシー保護",
     "startup": "スタートアップ マネージャー",
     "services": "サービス マネージャー",
     "softwareUpdate": "ソフトウェア更新",
     "cveScan": "CVE スキャン"
   },
   "overview": {
-    "totalScans": "合計スキャン数",
+    "totalScans": "総スキャン数",
     "spaceRecovered": "回復した容量",
     "itemsProcessed": "処理済み項目",
     "avgDuration": "平均所要時間",
-    "spaceRecoveredOverTime": "期間別の回復容量",
+    "spaceRecoveredOverTime": "期間ごとの回復容量",
     "needTwoScansForChart": "傾向グラフの表示には少なくとも 2 回のスキャンが必要です",
-    "scanTypeDistribution": "スキャンの種類の分布",
+    "scanTypeDistribution": "スキャン種類の分布",
     "noData": "データがありません",
     "topCategoriesBySpace": "容量別の上位カテゴリ",
     "noCategoryData": "カテゴリ データがありません",
@@ -61,7 +61,7 @@
     "columnSpace": "容量",
     "columnDuration": "所要時間",
     "columnStatus": "状態",
-    "scheduledBadge": "予定",
+    "scheduledBadge": "予約",
     "noEntriesMatchFilter": "このフィルターに一致するエントリはありません",
     "dateAt": ""
   },
@@ -74,12 +74,24 @@
     "errorCount": "エラー {{count}} 件",
     "errorCountPlural": "エラー {{count}} 件",
     "categoriesLabel": "カテゴリ",
-    "itemsSuffix": "項目"
+    "itemsSuffix": "項目",
+    "deletedFiles": {
+      "title": "削除されたファイル",
+      "loading": "読み込み中…",
+      "shownCount": "{{total}} 件中 {{shown}} 件を表示",
+      "loadMore": "さらに読み込む",
+      "exportCsv": "CSV をエクスポート",
+      "openLog": "ログを開く",
+      "exported": "{{count}} 件のパスをエクスポートしました",
+      "exportFailed": "削除されたファイル一覧をエクスポートできませんでした",
+      "emptyRecorded": "この実行ではファイル パスは記録されませんでした。",
+      "disabledHint": "削除ログがオフになっているため、この実行での個別のパスは記録されませんでした。今後記録するには、[設定] → [クリーニング設定] で「削除したファイルのログを保持する」をオンにしてください。"
+    }
   },
   "cloud": {
     "emptyStateTitle": "クラウド操作はまだありません",
     "emptyStateDescription": "クラウド ダッシュボードからコマンドを受信すると、ここに表示されます。",
-    "totalCommands": "合計コマンド数",
+    "totalCommands": "総コマンド数",
     "succeeded": "成功",
     "failed": "失敗",
     "avgDuration": "平均所要時間",
@@ -121,21 +133,21 @@
     "driverClean": "ドライバー クリーン",
     "startupList": "スタートアップ一覧",
     "startupToggle": "スタートアップ切り替え",
-    "diskHealth": "ディスクの正常性",
+    "diskHealth": "ディスク正常性",
     "privacyScan": "プライバシー スキャン",
-    "privacyApply": "プライバシーの適用",
+    "privacyApply": "プライバシー適用",
     "debloaterScan": "Debloater スキャン",
-    "debloaterRemove": "Debloater の削除",
+    "debloaterRemove": "Debloater 削除",
     "serviceScan": "サービス スキャン",
-    "serviceApply": "サービスの適用",
+    "serviceApply": "サービス適用",
     "malwareQuarantine": "隔離",
-    "malwareDelete": "マルウェアの削除",
+    "malwareDelete": "マルウェア削除",
     "registryScan": "レジストリ スキャン",
     "registryFix": "レジストリ修復"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1秒",
+    "seconds": "{{count}}秒",
+    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
   }
 }

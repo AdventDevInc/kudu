@@ -5,11 +5,11 @@
   "viewTimeline": "Idővonal",
   "viewCloud": "Felhő",
   "clearButton": "Törlés",
-  "emptyStateTitle": "Még nincs előzmény",
+  "emptyStateTitle": "Még nincsenek előzmények",
   "emptyStateDescription": "Indítson vizsgálatot a Tisztító, a Beállításjegyzék vagy a Debloater oldalról. Az eredmények itt jelennek meg.",
   "confirmClearCloudTitle": "Felhőelőzmények törlése",
   "confirmClearScanTitle": "Vizsgálati előzmények törlése",
-  "confirmClearCloudDescription": "Ez véglegesen törli az összes felhőműveleti előzménybejegyzést. Ez a művelet nem vonható vissza.",
+  "confirmClearCloudDescription": "Ez véglegesen törli a felhőműveletek összes előzménybejegyzését. Ez a művelet nem vonható vissza.",
   "confirmClearScanDescription": "Ez véglegesen törli az összes vizsgálati előzménybejegyzést. Ez a művelet nem vonható vissza.",
   "confirmClearLabel": "Összes törlése",
   "typeLabels": {
@@ -29,15 +29,15 @@
     "totalScans": "Vizsgálatok összesen",
     "spaceRecovered": "Felszabadított tárhely",
     "itemsProcessed": "Feldolgozott elemek",
-    "avgDuration": "Átlagos időtartam",
-    "spaceRecoveredOverTime": "Felszabadított tárhely időben",
+    "avgDuration": "Átl. időtartam",
+    "spaceRecoveredOverTime": "Felszabadított tárhely időbeli alakulása",
     "needTwoScansForChart": "A trenddiagramhoz legalább 2 vizsgálat szükséges",
     "scanTypeDistribution": "Vizsgálattípusok megoszlása",
     "noData": "Nincs adat",
     "topCategoriesBySpace": "Legnagyobb kategóriák tárhely szerint",
     "noCategoryData": "Nincs kategóriaadat",
     "weeklyActivity": "Heti aktivitás",
-    "needTwoWeeksData": "Legalább 2 hét adata szükséges",
+    "needTwoWeeksData": "Legalább 2 hét adat szükséges",
     "recentScans": "Legutóbbi vizsgálatok",
     "tooltipSpace": "Tárhely",
     "tooltipScans": "Vizsgálatok"
@@ -74,7 +74,19 @@
     "errorCount": "{{count}} hiba",
     "errorCountPlural": "{{count}} hiba",
     "categoriesLabel": "Kategóriák",
-    "itemsSuffix": "elem"
+    "itemsSuffix": "elem",
+    "deletedFiles": {
+      "title": "Törölt fájlok",
+      "loading": "Betöltés…",
+      "shownCount": "{{shown}} / {{total}}",
+      "loadMore": "Továbbiak betöltése",
+      "exportCsv": "Exportálás CSV-be",
+      "openLog": "Napló megnyitása",
+      "exported": "{{count}} elérési út exportálva",
+      "exportFailed": "A törölt fájlok listáját nem sikerült exportálni",
+      "emptyRecorded": "Ehhez a futtatáshoz nem lettek fájlútvonalak rögzítve.",
+      "disabledHint": "A törlési naplózás ki van kapcsolva, ezért ennél a futtatásnál az egyes elérési utak nem lettek rögzítve. Kapcsolja be a „Törölt fájlok naplózásának megőrzése” lehetőséget a Beállítások → Tisztítási beállítások menüben, hogy ezentúl rögzítésre kerüljenek."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Még nincsenek felhőműveletek",
@@ -82,7 +94,7 @@
     "totalCommands": "Parancsok összesen",
     "succeeded": "Sikeres",
     "failed": "Sikertelen",
-    "avgDuration": "Átlagos időtartam",
+    "avgDuration": "Átl. időtartam",
     "columnStatus": "Állapot",
     "columnCommand": "Parancs",
     "columnSummary": "Összegzés",
@@ -109,7 +121,7 @@
     "ping": "Ping",
     "shutdown": "Leállítás",
     "restart": "Újraindítás",
-    "windowsUpdateCheck": "Windows frissítések keresése",
+    "windowsUpdateCheck": "Windows Update keresés",
     "windowsUpdateInstall": "Windows Update",
     "runSfc": "SFC-vizsgálat",
     "runDism": "DISM-javítás",
@@ -134,8 +146,8 @@
     "registryFix": "Beállításjegyzék javítása"
   },
   "duration": {
-    "lessThanOneSecond": "<1mp",
-    "seconds": "{{count}}mp",
-    "minutesAndSeconds": "{{minutes}}p {{seconds}}mp"
+    "lessThanOneSecond": "<1 mp",
+    "seconds": "{{count}} mp",
+    "minutesAndSeconds": "{{minutes}} p {{seconds}} mp"
   }
 }

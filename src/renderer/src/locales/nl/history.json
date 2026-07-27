@@ -6,11 +6,11 @@
   "viewCloud": "Cloud",
   "clearButton": "Wissen",
   "emptyStateTitle": "Nog geen geschiedenis",
-  "emptyStateDescription": "Voer een scan uit vanaf de pagina's Cleaner, Register of Debloater. De resultaten worden hier weergegeven.",
+  "emptyStateDescription": "Voer een scan uit vanaf de pagina's Cleaner, Register of Debloater. Resultaten verschijnen hier.",
   "confirmClearCloudTitle": "Cloudgeschiedenis wissen",
   "confirmClearScanTitle": "Scangeschiedenis wissen",
-  "confirmClearCloudDescription": "Hiermee worden alle vermeldingen in de geschiedenis van cloudacties permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
-  "confirmClearScanDescription": "Hiermee worden alle vermeldingen in de scangeschiedenis permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+  "confirmClearCloudDescription": "Hiermee worden alle geschiedenisitems van cloudacties permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
+  "confirmClearScanDescription": "Hiermee worden alle items in de scangeschiedenis permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt.",
   "confirmClearLabel": "Alles wissen",
   "typeLabels": {
     "cleaner": "Systeemopschoning",
@@ -30,11 +30,11 @@
     "spaceRecovered": "Vrijgemaakte ruimte",
     "itemsProcessed": "Verwerkte items",
     "avgDuration": "Gem. duur",
-    "spaceRecoveredOverTime": "Vrijgemaakte ruimte in de loop van de tijd",
-    "needTwoScansForChart": "Minimaal 2 scans nodig voor trendgrafiek",
+    "spaceRecoveredOverTime": "Vrijgemaakte ruimte in de tijd",
+    "needTwoScansForChart": "Minimaal 2 scans nodig voor een trendgrafiek",
     "scanTypeDistribution": "Verdeling van scantypen",
     "noData": "Geen gegevens",
-    "topCategoriesBySpace": "Belangrijkste categorieën op ruimte",
+    "topCategoriesBySpace": "Topcategorieën op ruimte",
     "noCategoryData": "Geen categoriegegevens",
     "weeklyActivity": "Wekelijkse activiteit",
     "needTwoWeeksData": "Minimaal 2 weken aan gegevens nodig",
@@ -54,7 +54,7 @@
     "filterStartup": "Opstarten",
     "filterServices": "Services",
     "filterUpdates": "Updates",
-    "entriesCount": "{{count}} vermeldingen",
+    "entriesCount": "{{count}} items",
     "columnType": "Type",
     "columnDate": "Datum",
     "columnItems": "Items",
@@ -62,7 +62,7 @@
     "columnDuration": "Duur",
     "columnStatus": "Status",
     "scheduledBadge": "Gepl.",
-    "noEntriesMatchFilter": "Geen vermeldingen komen overeen met dit filter",
+    "noEntriesMatchFilter": "Geen items komen overeen met dit filter",
     "dateAt": "om"
   },
   "detail": {
@@ -74,11 +74,23 @@
     "errorCount": "{{count}} fout",
     "errorCountPlural": "{{count}} fouten",
     "categoriesLabel": "Categorieën",
-    "itemsSuffix": "items"
+    "itemsSuffix": "items",
+    "deletedFiles": {
+      "title": "Verwijderde bestanden",
+      "loading": "Laden…",
+      "shownCount": "{{shown}} van {{total}}",
+      "loadMore": "Meer laden",
+      "exportCsv": "CSV exporteren",
+      "openLog": "Logboek openen",
+      "exported": "{{count}} paden geëxporteerd",
+      "exportFailed": "Kon de lijst met verwijderde bestanden niet exporteren",
+      "emptyRecorded": "Er zijn geen bestandspaden vastgelegd voor deze uitvoering.",
+      "disabledHint": "Logboekregistratie van verwijderingen is uitgeschakeld, dus de afzonderlijke paden van deze uitvoering zijn niet vastgelegd. Schakel \"Een logboek van verwijderde bestanden bijhouden\" in via Instellingen → Opschoonvoorkeuren om deze vanaf nu vast te leggen."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Nog geen cloudacties",
-    "emptyStateDescription": "Wanneer opdrachten van het cloud-dashboard worden ontvangen, worden ze hier weergegeven.",
+    "emptyStateDescription": "Wanneer opdrachten van het cloud-dashboard worden ontvangen, verschijnen ze hier.",
     "totalCommands": "Totaal aantal opdrachten",
     "succeeded": "Geslaagd",
     "failed": "Mislukt",
@@ -99,7 +111,7 @@
     "detailError": "Fout"
   },
   "cloudCommandLabels": {
-    "scan": "Scan",
+    "scan": "Scannen",
     "clean": "Opschonen",
     "softwareUpdateCheck": "Updatecontrole",
     "softwareUpdateRun": "Software-update",

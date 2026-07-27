@@ -14,11 +14,11 @@
   "confirmClearLabel": "נקה הכול",
   "typeLabels": {
     "cleaner": "ניקוי מערכת",
-    "registry": "תיקון הרישום",
+    "registry": "תיקון Registry",
     "debloater": "Debloater",
     "network": "ניקוי רשת",
     "drivers": "ניקוי מנהלי התקנים",
-    "malware": "סריקת נוזקות",
+    "malware": "סריקת תוכנות זדוניות",
     "privacy": "מגן פרטיות",
     "startup": "מנהל אתחול",
     "services": "מנהל שירותים",
@@ -27,11 +27,11 @@
   },
   "overview": {
     "totalScans": "סך כל הסריקות",
-    "spaceRecovered": "שטח ששוחזר",
+    "spaceRecovered": "שטח שפונה",
     "itemsProcessed": "פריטים שעובדו",
     "avgDuration": "משך ממוצע",
-    "spaceRecoveredOverTime": "שטח ששוחזר לאורך זמן",
-    "needTwoScansForChart": "נדרשות לפחות 2 סריקות עבור תרשים מגמה",
+    "spaceRecoveredOverTime": "שטח שפונה לאורך זמן",
+    "needTwoScansForChart": "נדרשות לפחות 2 סריקות עבור תרשים המגמה",
     "scanTypeDistribution": "התפלגות סוגי הסריקות",
     "noData": "אין נתונים",
     "topCategoriesBySpace": "הקטגוריות המובילות לפי שטח",
@@ -49,7 +49,7 @@
     "filterDebloater": "Debloater",
     "filterNetwork": "רשת",
     "filterDrivers": "מנהלי התקנים",
-    "filterMalware": "נוזקות",
+    "filterMalware": "תוכנות זדוניות",
     "filterPrivacy": "פרטיות",
     "filterStartup": "אתחול",
     "filterServices": "שירותים",
@@ -74,7 +74,19 @@
     "errorCount": "{{count}} שגיאה",
     "errorCountPlural": "{{count}} שגיאות",
     "categoriesLabel": "קטגוריות",
-    "itemsSuffix": "פריטים"
+    "itemsSuffix": "פריטים",
+    "deletedFiles": {
+      "title": "קבצים שנמחקו",
+      "loading": "טוען…",
+      "shownCount": "{{shown}} מתוך {{total}}",
+      "loadMore": "טען עוד",
+      "exportCsv": "ייצא CSV",
+      "openLog": "פתח יומן",
+      "exported": "יוצאו {{count}} נתיבים",
+      "exportFailed": "לא ניתן היה לייצא את רשימת הקבצים שנמחקו",
+      "emptyRecorded": "לא נרשמו נתיבי קבצים עבור הרצה זו.",
+      "disabledHint": "רישום המחיקות כבוי, ולכן הנתיבים הנפרדים מהרצה זו לא נרשמו. הפעל את \"שמור יומן של קבצים שנמחקו\" בהגדרות ← העדפות ניקוי כדי לרשום אותם מעתה ואילך."
+    }
   },
   "cloud": {
     "emptyStateTitle": "אין פעולות ענן עדיין",
@@ -129,13 +141,13 @@
     "serviceScan": "סריקת שירותים",
     "serviceApply": "החלת שירותים",
     "malwareQuarantine": "הסגר",
-    "malwareDelete": "מחיקת נוזקה",
-    "registryScan": "סריקת הרישום",
-    "registryFix": "תיקון הרישום"
+    "malwareDelete": "מחיקת תוכנה זדונית",
+    "registryScan": "סריקת Registry",
+    "registryFix": "תיקון Registry"
   },
   "duration": {
     "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}ש׳",
-    "minutesAndSeconds": "{{minutes}}ד׳ {{seconds}}ש׳"
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

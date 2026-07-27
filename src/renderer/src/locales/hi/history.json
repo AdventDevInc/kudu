@@ -9,12 +9,12 @@
   "emptyStateDescription": "Cleaner, Registry, या Debloater पृष्ठों से स्कैन चलाएँ। परिणाम यहाँ दिखाई देंगे।",
   "confirmClearCloudTitle": "Cloud इतिहास साफ़ करें",
   "confirmClearScanTitle": "स्कैन इतिहास साफ़ करें",
-  "confirmClearCloudDescription": "यह सभी cloud कार्रवाई इतिहास प्रविष्टियों को स्थायी रूप से हटा देगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता।",
-  "confirmClearScanDescription": "यह सभी स्कैन इतिहास प्रविष्टियों को स्थायी रूप से हटा देगा। इस कार्रवाई को पूर्ववत नहीं किया जा सकता।",
+  "confirmClearCloudDescription": "यह सभी Cloud क्रिया इतिहास प्रविष्टियों को स्थायी रूप से हटा देगा। इस क्रिया को पूर्ववत नहीं किया जा सकता।",
+  "confirmClearScanDescription": "यह सभी स्कैन इतिहास प्रविष्टियों को स्थायी रूप से हटा देगा। इस क्रिया को पूर्ववत नहीं किया जा सकता।",
   "confirmClearLabel": "सभी साफ़ करें",
   "typeLabels": {
     "cleaner": "सिस्टम सफ़ाई",
-    "registry": "रजिस्ट्री सुधार",
+    "registry": "Registry सुधार",
     "debloater": "Debloater",
     "network": "नेटवर्क सफ़ाई",
     "drivers": "ड्राइवर सफ़ाई",
@@ -31,7 +31,7 @@
     "itemsProcessed": "प्रसंस्कृत आइटम",
     "avgDuration": "औसत अवधि",
     "spaceRecoveredOverTime": "समय के साथ पुनर्प्राप्त स्थान",
-    "needTwoScansForChart": "ट्रेंड चार्ट के लिए कम से कम 2 स्कैन आवश्यक हैं",
+    "needTwoScansForChart": "रुझान चार्ट के लिए कम से कम 2 स्कैन आवश्यक हैं",
     "scanTypeDistribution": "स्कैन प्रकार वितरण",
     "noData": "कोई डेटा नहीं",
     "topCategoriesBySpace": "स्थान के अनुसार शीर्ष श्रेणियाँ",
@@ -61,7 +61,7 @@
     "columnSpace": "स्थान",
     "columnDuration": "अवधि",
     "columnStatus": "स्थिति",
-    "scheduledBadge": "निर्धा",
+    "scheduledBadge": "निर्धारित",
     "noEntriesMatchFilter": "इस फ़िल्टर से मेल खाने वाली कोई प्रविष्टि नहीं है",
     "dateAt": "पर"
   },
@@ -74,11 +74,23 @@
     "errorCount": "{{count}} त्रुटि",
     "errorCountPlural": "{{count}} त्रुटियाँ",
     "categoriesLabel": "श्रेणियाँ",
-    "itemsSuffix": "आइटम"
+    "itemsSuffix": "आइटम",
+    "deletedFiles": {
+      "title": "हटाई गई फ़ाइलें",
+      "loading": "लोड हो रहा है…",
+      "shownCount": "{{shown}} / {{total}}",
+      "loadMore": "और लोड करें",
+      "exportCsv": "CSV निर्यात करें",
+      "openLog": "लॉग खोलें",
+      "exported": "{{count}} पथ निर्यात किए गए",
+      "exportFailed": "हटाई गई फ़ाइलों की सूची निर्यात नहीं की जा सकी",
+      "emptyRecorded": "इस रन के लिए कोई फ़ाइल पथ रिकॉर्ड नहीं किया गया।",
+      "disabledHint": "हटाने का लॉग बंद है, इसलिए इस रन के अलग-अलग पथ रिकॉर्ड नहीं किए गए। अब से उन्हें रिकॉर्ड करने के लिए Settings → Cleaning Preferences में \"Keep a log of deleted files\" चालू करें।"
+    }
   },
   "cloud": {
-    "emptyStateTitle": "अभी तक कोई cloud कार्रवाई नहीं",
-    "emptyStateDescription": "जब cloud dashboard से कमांड प्राप्त होंगे, वे यहाँ दिखाई देंगे।",
+    "emptyStateTitle": "अभी तक कोई Cloud क्रिया नहीं",
+    "emptyStateDescription": "जब Cloud डैशबोर्ड से कमांड प्राप्त होंगे, वे यहाँ दिखाई देंगे।",
     "totalCommands": "कुल कमांड",
     "succeeded": "सफल",
     "failed": "विफल",
@@ -109,8 +121,8 @@
     "ping": "Ping",
     "shutdown": "शटडाउन",
     "restart": "पुनरारंभ",
-    "windowsUpdateCheck": "Windows Update जाँच",
-    "windowsUpdateInstall": "Windows Update",
+    "windowsUpdateCheck": "Windows अपडेट जाँच",
+    "windowsUpdateInstall": "Windows अपडेट",
     "runSfc": "SFC स्कैन",
     "runDism": "DISM मरम्मत",
     "getNetworkConfig": "नेटवर्क कॉन्फ़िगरेशन",
@@ -130,8 +142,8 @@
     "serviceApply": "सेवा लागू करें",
     "malwareQuarantine": "क्वारंटीन",
     "malwareDelete": "मैलवेयर हटाएँ",
-    "registryScan": "रजिस्ट्री स्कैन",
-    "registryFix": "रजिस्ट्री सुधार"
+    "registryScan": "Registry स्कैन",
+    "registryFix": "Registry सुधार"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

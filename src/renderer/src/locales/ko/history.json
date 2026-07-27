@@ -6,11 +6,11 @@
   "viewCloud": "클라우드",
   "clearButton": "지우기",
   "emptyStateTitle": "아직 기록이 없습니다",
-  "emptyStateDescription": "클리너, 레지스트리 또는 Debloater 페이지에서 검사를 실행하세요. 결과가 여기에 표시됩니다.",
+  "emptyStateDescription": "Cleaner, Registry 또는 Debloater 페이지에서 검사를 실행하세요. 결과가 여기에 표시됩니다.",
   "confirmClearCloudTitle": "클라우드 기록 지우기",
   "confirmClearScanTitle": "검사 기록 지우기",
-  "confirmClearCloudDescription": "모든 클라우드 작업 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
-  "confirmClearScanDescription": "모든 검사 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+  "confirmClearCloudDescription": "이 작업을 수행하면 모든 클라우드 작업 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+  "confirmClearScanDescription": "이 작업을 수행하면 모든 검사 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
   "confirmClearLabel": "모두 지우기",
   "typeLabels": {
     "cleaner": "시스템 정리",
@@ -27,10 +27,10 @@
   },
   "overview": {
     "totalScans": "총 검사 수",
-    "spaceRecovered": "확보된 공간",
+    "spaceRecovered": "복구된 공간",
     "itemsProcessed": "처리된 항목",
     "avgDuration": "평균 소요 시간",
-    "spaceRecoveredOverTime": "시간 경과에 따른 확보 공간",
+    "spaceRecoveredOverTime": "시간 경과에 따른 복구된 공간",
     "needTwoScansForChart": "추세 차트를 보려면 최소 2회의 검사가 필요합니다",
     "scanTypeDistribution": "검사 유형 분포",
     "noData": "데이터 없음",
@@ -44,8 +44,8 @@
   },
   "timeline": {
     "filterAll": "전체",
-    "filterCleaner": "클리너",
-    "filterRegistry": "레지스트리",
+    "filterCleaner": "Cleaner",
+    "filterRegistry": "Registry",
     "filterDebloater": "Debloater",
     "filterNetwork": "네트워크",
     "filterDrivers": "드라이버",
@@ -74,7 +74,19 @@
     "errorCount": "오류 {{count}}개",
     "errorCountPlural": "오류 {{count}}개",
     "categoriesLabel": "범주",
-    "itemsSuffix": "개 항목"
+    "itemsSuffix": "개 항목",
+    "deletedFiles": {
+      "title": "삭제된 파일",
+      "loading": "불러오는 중…",
+      "shownCount": "{{total}}개 중 {{shown}}개 표시",
+      "loadMore": "더 불러오기",
+      "exportCsv": "CSV 내보내기",
+      "openLog": "로그 열기",
+      "exported": "{{count}}개 경로를 내보냈습니다",
+      "exportFailed": "삭제된 파일 목록을 내보낼 수 없습니다",
+      "emptyRecorded": "이 실행에 대해 기록된 파일 경로가 없습니다.",
+      "disabledHint": "삭제 로그가 꺼져 있어 이 실행의 개별 경로는 기록되지 않았습니다. 지금부터 기록하려면 설정 → 정리 기본 설정에서 \"삭제된 파일 로그 유지\"를 켜세요."
+    }
   },
   "cloud": {
     "emptyStateTitle": "아직 클라우드 작업이 없습니다",
@@ -115,7 +127,7 @@
     "runDism": "DISM 복구",
     "getNetworkConfig": "네트워크 구성",
     "getEventLog": "이벤트 로그",
-    "getInstalledApps": "설치된 앱 목록",
+    "getInstalledApps": "앱 목록",
     "driverUpdateScan": "드라이버 검사",
     "driverUpdateInstall": "드라이버 설치",
     "driverClean": "드라이버 정리",

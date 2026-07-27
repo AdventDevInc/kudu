@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Skannelogg",
+  "pageTitle": "Skanningshistorikk",
   "pageDescription": "Vis detaljerte resultater fra tidligere skanninger og oppryddinger",
   "viewOverview": "Oversikt",
   "viewTimeline": "Tidslinje",
@@ -8,9 +8,9 @@
   "emptyStateTitle": "Ingen historikk ennå",
   "emptyStateDescription": "Kjør en skanning fra sidene Renser, Register eller Debloater. Resultatene vises her.",
   "confirmClearCloudTitle": "Tøm skyhistorikk",
-  "confirmClearScanTitle": "Tøm skannelogg",
-  "confirmClearCloudDescription": "Dette vil permanent slette alle oppføringer i handlingshistorikken for skyen. Denne handlingen kan ikke angres.",
-  "confirmClearScanDescription": "Dette vil permanent slette alle oppføringer i skanneloggen. Denne handlingen kan ikke angres.",
+  "confirmClearScanTitle": "Tøm skanningshistorikk",
+  "confirmClearCloudDescription": "Dette vil slette alle historikkoppføringer for skyhandlinger permanent. Denne handlingen kan ikke angres.",
+  "confirmClearScanDescription": "Dette vil slette alle historikkoppføringer for skanninger permanent. Denne handlingen kan ikke angres.",
   "confirmClearLabel": "Tøm alle",
   "typeLabels": {
     "cleaner": "Systemrensing",
@@ -31,7 +31,7 @@
     "itemsProcessed": "Behandlede elementer",
     "avgDuration": "Gj.sn. varighet",
     "spaceRecoveredOverTime": "Frigjort plass over tid",
-    "needTwoScansForChart": "Minst 2 skanninger kreves for trenddiagram",
+    "needTwoScansForChart": "Minst 2 skanninger kreves for trenddiagrammet",
     "scanTypeDistribution": "Fordeling av skanningstyper",
     "noData": "Ingen data",
     "topCategoriesBySpace": "Største kategorier etter plass",
@@ -74,7 +74,19 @@
     "errorCount": "{{count}} feil",
     "errorCountPlural": "{{count}} feil",
     "categoriesLabel": "Kategorier",
-    "itemsSuffix": "elementer"
+    "itemsSuffix": "elementer",
+    "deletedFiles": {
+      "title": "Slettede filer",
+      "loading": "Laster…",
+      "shownCount": "{{shown}} av {{total}}",
+      "loadMore": "Last inn flere",
+      "exportCsv": "Eksporter CSV",
+      "openLog": "Åpne logg",
+      "exported": "Eksporterte {{count}} stier",
+      "exportFailed": "Kunne ikke eksportere listen over slettede filer",
+      "emptyRecorded": "Ingen filstier ble registrert for denne kjøringen.",
+      "disabledHint": "Loggføring av slettinger er slått av, så de individuelle stiene fra denne kjøringen ble ikke registrert. Slå på \"Behold en logg over slettede filer\" i Innstillinger → Renseinnstillinger for å registrere dem fra nå av."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Ingen skyhandlinger ennå",
@@ -110,7 +122,7 @@
     "shutdown": "Slå av",
     "restart": "Start på nytt",
     "windowsUpdateCheck": "Se etter Windows-oppdateringer",
-    "windowsUpdateInstall": "Windows-oppdatering",
+    "windowsUpdateInstall": "Windows Update",
     "runSfc": "SFC-skanning",
     "runDism": "DISM-reparasjon",
     "getNetworkConfig": "Nettverkskonfigurasjon",

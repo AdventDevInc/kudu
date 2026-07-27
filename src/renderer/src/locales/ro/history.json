@@ -4,17 +4,17 @@
   "viewOverview": "Prezentare generală",
   "viewTimeline": "Cronologie",
   "viewCloud": "Cloud",
-  "clearButton": "Șterge",
-  "emptyStateTitle": "Niciun istoric încă",
+  "clearButton": "Ștergeți",
+  "emptyStateTitle": "Încă nu există istoric",
   "emptyStateDescription": "Rulați o scanare din paginile Cleaner, Registry sau Debloater. Rezultatele vor apărea aici.",
-  "confirmClearCloudTitle": "Șterge istoricul Cloud",
-  "confirmClearScanTitle": "Șterge istoricul scanărilor",
+  "confirmClearCloudTitle": "Ștergeți istoricul Cloud",
+  "confirmClearScanTitle": "Ștergeți istoricul scanărilor",
   "confirmClearCloudDescription": "Aceasta va șterge definitiv toate înregistrările din istoricul acțiunilor cloud. Această acțiune nu poate fi anulată.",
   "confirmClearScanDescription": "Aceasta va șterge definitiv toate înregistrările din istoricul scanărilor. Această acțiune nu poate fi anulată.",
-  "confirmClearLabel": "Șterge tot",
+  "confirmClearLabel": "Ștergeți tot",
   "typeLabels": {
     "cleaner": "Curățare sistem",
-    "registry": "Remediere registry",
+    "registry": "Reparare registry",
     "debloater": "Debloater",
     "network": "Curățare rețea",
     "drivers": "Curățare drivere",
@@ -33,7 +33,7 @@
     "spaceRecoveredOverTime": "Spațiu recuperat în timp",
     "needTwoScansForChart": "Sunt necesare cel puțin 2 scanări pentru graficul de tendință",
     "scanTypeDistribution": "Distribuția tipurilor de scanare",
-    "noData": "Fără date",
+    "noData": "Nu există date",
     "topCategoriesBySpace": "Categorii principale după spațiu",
     "noCategoryData": "Nu există date despre categorii",
     "weeklyActivity": "Activitate săptămânală",
@@ -74,10 +74,22 @@
     "errorCount": "{{count}} eroare",
     "errorCountPlural": "{{count}} erori",
     "categoriesLabel": "Categorii",
-    "itemsSuffix": "elemente"
+    "itemsSuffix": "elemente",
+    "deletedFiles": {
+      "title": "Fișiere șterse",
+      "loading": "Se încarcă…",
+      "shownCount": "{{shown}} din {{total}}",
+      "loadMore": "Încărcați mai multe",
+      "exportCsv": "Exportați CSV",
+      "openLog": "Deschideți jurnalul",
+      "exported": "Au fost exportate {{count}} căi",
+      "exportFailed": "Nu s-a putut exporta lista fișierelor șterse",
+      "emptyRecorded": "Nu au fost înregistrate căi de fișiere pentru această rulare.",
+      "disabledHint": "Jurnalizarea ștergerilor este dezactivată, astfel că căile individuale din această rulare nu au fost înregistrate. Activați „Păstrează un jurnal al fișierelor șterse” în Setări → Preferințe de curățare pentru a le înregistra de acum înainte."
+    }
   },
   "cloud": {
-    "emptyStateTitle": "Nicio acțiune cloud încă",
+    "emptyStateTitle": "Încă nu există acțiuni cloud",
     "emptyStateDescription": "Când sunt primite comenzi din tabloul de bord cloud, acestea vor apărea aici.",
     "totalCommands": "Total comenzi",
     "succeeded": "Reușite",
@@ -131,7 +143,7 @@
     "malwareQuarantine": "Carantină",
     "malwareDelete": "Ștergere malware",
     "registryScan": "Scanare registry",
-    "registryFix": "Remediere registry"
+    "registryFix": "Reparare registry"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

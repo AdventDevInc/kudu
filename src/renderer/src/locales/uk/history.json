@@ -34,9 +34,9 @@
     "needTwoScansForChart": "Для графіка тенденції потрібно щонайменше 2 сканування",
     "scanTypeDistribution": "Розподіл типів сканування",
     "noData": "Немає даних",
-    "topCategoriesBySpace": "Основні категорії за обсягом",
+    "topCategoriesBySpace": "Найбільші категорії за обсягом",
     "noCategoryData": "Немає даних за категоріями",
-    "weeklyActivity": "Щотижнева активність",
+    "weeklyActivity": "Тижнева активність",
     "needTwoWeeksData": "Потрібні дані щонайменше за 2 тижні",
     "recentScans": "Останні сканування",
     "tooltipSpace": "Місце",
@@ -74,7 +74,19 @@
     "errorCount": "{{count}} помилка",
     "errorCountPlural": "{{count}} помилок",
     "categoriesLabel": "Категорії",
-    "itemsSuffix": "елементів"
+    "itemsSuffix": "елементів",
+    "deletedFiles": {
+      "title": "Видалені файли",
+      "loading": "Завантаження…",
+      "shownCount": "{{shown}} із {{total}}",
+      "loadMore": "Завантажити ще",
+      "exportCsv": "Експортувати CSV",
+      "openLog": "Відкрити журнал",
+      "exported": "Експортовано {{count}} шляхів",
+      "exportFailed": "Не вдалося експортувати список видалених файлів",
+      "emptyRecorded": "Для цього запуску шляхи до файлів не були записані.",
+      "disabledHint": "Журналювання видалень вимкнено, тому окремі шляхи для цього запуску не були записані. Увімкніть параметр \"Зберігати журнал видалених файлів\" у розділі Налаштування → Параметри очищення, щоб записувати їх надалі."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Дій у хмарі ще немає",
@@ -109,8 +121,8 @@
     "ping": "Ping",
     "shutdown": "Вимкнення",
     "restart": "Перезавантаження",
-    "windowsUpdateCheck": "Перевірка оновлень Windows",
-    "windowsUpdateInstall": "Оновлення Windows",
+    "windowsUpdateCheck": "Перевірка Windows Update",
+    "windowsUpdateInstall": "Windows Update",
     "runSfc": "Сканування SFC",
     "runDism": "Відновлення DISM",
     "getNetworkConfig": "Конфігурація мережі",
