@@ -13,7 +13,7 @@
   "sourceTaskScheduler": "Планировщик заданий",
   "sourceLaunchAgentUser": "Агент запуска пользователя",
   "sourceLaunchAgentGlobal": "Глобальный агент запуска",
-  "sourceLoginItem": "Объект входа",
+  "sourceLoginItem": "Элемент входа",
   "sourceSystemdUser": "Пользовательская служба Systemd",
   "sourceAutostartDesktop": "Автозапуск XDG",
   "sourceCron": "Задание Cron",
@@ -60,8 +60,10 @@
   "safetyTooltipWarning": "Подозрительно — нажмите для подробностей",
   "safetyTooltipDanger": "Потенциально небезопасно — нажмите для подробностей",
   "safetyTooltipPending": "Выполняется анализ безопасности",
-  "safetyTooltipLocked": "Подключите Kudu Cloud для получения оценок безопасности",
+  "safetyTooltipLocked": "Подключите Kudu Cloud для оценок безопасности",
   "safetyScore": "Безопасность: {{score}}/10",
   "safetyAnalyzed": "Проанализировано: {{date}}",
-  "sortBySafety": "Сортировать по безопасности"
+  "sortBySafety": "Сортировать по безопасности",
+  "staleBadge": "Не установлено",
+  "staleTooltip": "Программа, на которую указывает эта запись, отсутствует, поэтому она больше не может запускаться. Удаление этой записи безопасно."
 }

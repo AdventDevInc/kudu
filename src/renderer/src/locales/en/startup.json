@@ -63,5 +63,7 @@
   "safetyTooltipLocked": "Link to Kudu Cloud for safety ratings",
   "safetyScore": "Safety: {{score}}/10",
   "safetyAnalyzed": "Analyzed {{date}}",
-  "sortBySafety": "Sort by Safety"
+  "sortBySafety": "Sort by Safety",
+  "staleBadge": "Not installed",
+  "staleTooltip": "The program this entry points to is missing, so it can no longer start. Removing the entry is safe."
 }

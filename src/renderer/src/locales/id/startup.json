@@ -15,7 +15,7 @@
   "sourceLaunchAgentGlobal": "Launch Agent Global",
   "sourceLoginItem": "Item Login",
   "sourceSystemdUser": "Layanan Pengguna Systemd",
-  "sourceAutostartDesktop": "Autostart XDG",
+  "sourceAutostartDesktop": "XDG Autostart",
   "sourceCron": "Tugas Cron",
   "bootTraceAnalyzing": "Menganalisis data jejak boot...",
   "bootTraceNeedsAdmin": "Data jejak boot memerlukan hak administrator — mulai ulang aplikasi sebagai administrator untuk melihat analisis dampak startup.",
@@ -31,7 +31,7 @@
   "statAppsMeasured": "Aplikasi yang Diukur",
   "statPotentialSavings": "Potensi Penghematan",
   "chartBootTimeImpact": "Dampak Waktu Boot per Aplikasi",
-  "chartNoPerAppData": "Tidak ada data boot per aplikasi yang tersedia",
+  "chartNoPerAppData": "Data boot per aplikasi tidak tersedia",
   "chartBootTimeBreakdown": "Rincian Waktu Boot",
   "chartTooltipDelay": "Penundaan",
   "pieCoreBoot": "Boot Inti",
@@ -63,5 +63,7 @@
   "safetyTooltipLocked": "Tautkan ke Kudu Cloud untuk penilaian keamanan",
   "safetyScore": "Keamanan: {{score}}/10",
   "safetyAnalyzed": "Dianalisis {{date}}",
-  "sortBySafety": "Urutkan berdasarkan Keamanan"
+  "sortBySafety": "Urutkan berdasarkan Keamanan",
+  "staleBadge": "Tidak terpasang",
+  "staleTooltip": "Program yang dituju entri ini tidak ada, sehingga tidak dapat lagi dijalankan. Menghapus entri ini aman."
 }

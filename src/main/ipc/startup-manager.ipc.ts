@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'fs'
@@ -20,7 +20,17 @@ interface DisabledEntry {
   command: string
   location: string
   source: StartupItem['source']
+  /** Epoch ms when the program was first seen to be gone from disk. */
+  missingSince?: number
 }
+
+/**
+ * How long a disabled program must stay missing before we forget it. A single
+ * scan is not enough evidence: an updater that replaces its executable makes
+ * the program briefly disappear, and these records are the only copy of the
+ * command we have.
+ */
+const MISSING_GRACE_MS = 24 * 60 * 60 * 1000
 
 function getDisabledFilePath(): string {
   const dir = app.isPackaged
@@ -118,6 +128,81 @@ function friendlyExeName(name: string): string {
     .trim()
 }
 
+// ── Stale target detection ──
+// A startup entry whose program has been uninstalled can no longer launch
+// anything. We surface those so the user can clear them, and we never let
+// them linger in our own bookkeeping (see listStartupItems).
+
+/**
+ * Resolve the program a startup command launches.
+ *
+ * Returns `null` when the target cannot be determined with confidence —
+ * relative commands (`rundll32.exe …`), unresolved environment variables,
+ * and UNC paths (which can block for seconds when the host is offline).
+ * Callers must treat `null` as "unknown, assume present".
+ */
+function resolveCommandTarget(command: string): string | null {
+  if (!command) return null
+  const trimmed = command.trim()
+  const quoted = trimmed.match(/^"([^"]+)"/)
+  let target = quoted
+    ? quoted[1]
+    : trimmed.match(/^(.+?\.(?:exe|com|bat|cmd|scr|lnk))(?:\s|$)/i)?.[1]
+      || trimmed.match(/^(\S+)/)?.[1]
+      || ''
+  if (!target) return null
+
+  // Expand %VAR% references; bail out when any of them is unknown to us
+  let unresolved = false
+  target = target.replace(/%([^%]+)%/g, (match, name: string) => {
+    const value = process.env[name] ?? process.env[name.toUpperCase()]
+    if (!value) {
+      unresolved = true
+      return match
+    }
+    return value
+  })
+  if (unresolved) return null
+
+  // Only drive-letter absolute paths can be checked cheaply and reliably
+  if (!/^[a-z]:[\\/]/i.test(target)) return null
+  return target
+}
+
+/** Entries living under the Windows directory are never treated as stale. */
+function isSystemPath(target: string): boolean {
+  const winDir = process.env.SystemRoot || process.env.windir || 'C:\\Windows'
+  return target.toLowerCase().startsWith(winDir.toLowerCase().replace(/[\\/]+$/, '') + '\\')
+}
+
+/** True only when the command's target is *known* to be gone from disk. */
+function isTargetMissing(command: string): boolean {
+  const target = resolveCommandTarget(command)
+  if (!target || isSystemPath(target)) return false
+  try {
+    // Trust a negative result only when the volume itself is mounted, so an
+    // unplugged drive is not mistaken for an uninstalled program.
+    if (!existsSync(target.slice(0, 3))) return false
+    return !existsSync(target)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Resolve a Startup-folder shortcut to the program it launches so shortcuts
+ * left behind by uninstalled apps can be flagged. Falls back to the shortcut
+ * path itself when the link cannot be read.
+ */
+function resolveShortcutTarget(filePath: string): string {
+  if (extname(filePath).toLowerCase() !== '.lnk') return filePath
+  try {
+    return shell.readShortcutLink(filePath)?.target || filePath
+  } catch {
+    return filePath
+  }
+}
+
 function parseRegOutput(stdout: string, location: string, source: StartupItem['source']): StartupItem[] {
   const items: StartupItem[] = []
   const lines = stdout.split('\n')
@@ -135,7 +220,8 @@ function parseRegOutput(stdout: string, location: string, source: StartupItem['s
         source,
         enabled: true,
         publisher: extractPublisher(command),
-        impact: estimateImpact(name, command)
+        impact: estimateImpact(name, command),
+        stale: isTargetMissing(command)
       })
     }
   }
@@ -162,7 +248,8 @@ function getStartupFolderItems(): StartupItem[] {
         source: 'startup-folder',
         enabled: true,
         publisher: extractPublisher(filePath),
-        impact: estimateImpact(name, filePath)
+        impact: estimateImpact(name, filePath),
+        stale: isTargetMissing(resolveShortcutTarget(filePath))
       })
     }
   } catch { /* skip */ }
@@ -175,23 +262,32 @@ function getStartupFolderItems(): StartupItem[] {
  * disabled via Task Manager. These items have a REG_BINARY value where the
  * first byte indicates status: 02 = enabled, 03 = disabled by user,
  * 06 = disabled by OS/policy.
+ *
+ * Returns which value names each key holds, so callers can tell "no marker"
+ * apart from "could not read the key".
  */
-async function mergeStartupApproved(items: StartupItem[]): Promise<void> {
+async function mergeStartupApproved(items: StartupItem[]): Promise<ApprovedMarkers> {
   const approvedKeys = [
     { key: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run', source: 'registry-hkcu' as const },
     { key: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\StartupFolder', source: 'startup-folder' as const },
     { key: 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run', source: 'registry-hklm' as const },
   ]
 
+  const markers: ApprovedMarkers = new Map()
+
   for (const { key, source } of approvedKeys) {
+    const state: ApprovedKeyState = { read: false, names: new Set<string>() }
+    markers.set(source, state)
     try {
       const { stdout } = await execNativeUtf8('reg',['query', key], { timeout: 10000 })
+      state.read = true
       const lines = stdout.split('\n')
       for (const line of lines) {
         const match = line.match(/^\s+(.+?)\s{4,}REG_BINARY\s{4,}(\S+)/i)
         if (!match) continue
         const name = match[1].trim()
         const hexData = match[2].trim()
+        state.names.add(name)
         // First byte: 02=enabled, 03=disabled by user, 06=disabled by policy
         const firstByte = parseInt(hexData.substring(0, 2), 16)
         const isDisabledByUser = firstByte === 0x03 || firstByte === 0x06
@@ -208,6 +304,8 @@ async function mergeStartupApproved(items: StartupItem[]): Promise<void> {
       }
     } catch { /* key may not exist */ }
   }
+
+  return markers
 }
 
 /**
@@ -258,7 +356,8 @@ async function getScheduledLogonTasks(): Promise<StartupItem[]> {
         source: 'task-scheduler',
         enabled: state === 'Ready' || state === 'Running',
         publisher: extractPublisher(command),
-        impact: estimateImpact(name, command)
+        impact: estimateImpact(name, command),
+        stale: isTargetMissing(command)
       })
     }
   } catch { /* task scheduler unavailable */ }
@@ -277,6 +376,50 @@ const ALLOWED_STARTUP_LOCATIONS = new Set([
   'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run',
   'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run',
 ])
+
+/** Value names found under one StartupApproved key. */
+interface ApprovedKeyState {
+  /** false when the key could not be read — presence is then unknown */
+  read: boolean
+  names: Set<string>
+}
+
+type ApprovedMarkers = Map<StartupItem['source'], ApprovedKeyState>
+
+/** The StartupApproved key Windows consults for a given item source. */
+function approvedKeyFor(source: StartupItem['source']): string {
+  return source === 'registry-hkcu'
+    ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+    : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+}
+
+/**
+ * Drop the "disabled by user" marker written to StartupApproved when the item
+ * was disabled, so nothing is left behind once we forget an entry.
+ *
+ * Returns false unless the marker is known to be gone: the caller must then
+ * keep its record, otherwise reinstalling the program would leave it silently
+ * blocked by the stale marker with no stored command to re-enable it from.
+ * A key we failed to read is not evidence of absence — the next scan retries.
+ */
+async function clearStartupApprovedMarker(
+  name: string,
+  source: StartupItem['source'],
+  markers: ApprovedMarkers
+): Promise<boolean> {
+  if (source !== 'registry-hkcu' && source !== 'registry-hklm') return true
+
+  const state = markers.get(source)
+  if (!state?.read) return false
+  if (!state.names.has(name)) return true
+
+  try {
+    await execNativeUtf8('reg', ['delete', approvedKeyFor(source), '/v', name, '/f'], { timeout: 5000 })
+    return true
+  } catch {
+    return false // e.g. HKLM without elevation
+  }
+}
 
 // ── Exported core logic ──
 
@@ -327,7 +470,7 @@ export async function listStartupItems(): Promise<StartupItem[]> {
     // Check StartupApproved\Run — items disabled via Task Manager are removed
     // from Run but kept here with a 03 byte prefix. Merge their enabled state
     // and add any missing items that exist only in the approved list.
-    await mergeStartupApproved(items)
+    const approvedMarkers = await mergeStartupApproved(items)
 
     // Read Task Scheduler logon-trigger tasks (user-facing apps like Spotify)
     const scheduledItems = await getScheduledLogonTasks()
@@ -337,8 +480,52 @@ export async function listStartupItems(): Promise<StartupItem[]> {
       }
     }
 
-    // Merge disabled state: mark items found in disabled file, add missing ones
-    const disabled = readDisabledEntries()
+    // Merge disabled state: mark items found in disabled file, add missing ones.
+    //
+    // Disabling an item removes it from the Run key, so this file is the only
+    // record we have of it. If the program is uninstalled afterwards, nothing
+    // on the system references it any more and the entry would haunt the list
+    // forever — surviving registry cleaning and even a Kudu reinstall, since
+    // the file lives in userData.
+    //
+    // Such an entry is flagged as stale straight away so the user can clear it
+    // in one click, and is forgotten automatically once its program has stayed
+    // missing for MISSING_GRACE_MS and Windows' own disable marker is gone too.
+    const now = Date.now()
+    const disabled = await withDisabledFileLock(async () => {
+      const entries = readDisabledEntries()
+      const kept: DisabledEntry[] = []
+      let changed = false
+
+      for (const entry of entries) {
+        const backed = items.some((i) => i.name === entry.name && i.source === entry.source)
+        if (backed || !isTargetMissing(entry.command)) {
+          // Present again — restart the clock
+          if (entry.missingSince !== undefined) changed = true
+          kept.push({
+            name: entry.name,
+            command: entry.command,
+            location: entry.location,
+            source: entry.source
+          })
+          continue
+        }
+
+        const missingSince = entry.missingSince ?? now
+        if (missingSince !== entry.missingSince) changed = true
+
+        const expired = now - missingSince >= MISSING_GRACE_MS
+        if (expired && await clearStartupApprovedMarker(entry.name, entry.source, approvedMarkers)) {
+          changed = true
+          continue
+        }
+        kept.push({ ...entry, missingSince })
+      }
+
+      if (changed) writeDisabledEntries(kept)
+      return kept
+    })
+
     for (const entry of disabled) {
       const existing = items.find((i) => i.name === entry.name && i.source === entry.source)
       if (existing) {
@@ -353,7 +540,8 @@ export async function listStartupItems(): Promise<StartupItem[]> {
           source: entry.source,
           enabled: false,
           publisher: extractPublisher(entry.command),
-          impact: estimateImpact(entry.name, entry.command)
+          impact: estimateImpact(entry.name, entry.command),
+          stale: entry.missingSince !== undefined
         })
       }
     }
@@ -388,9 +576,7 @@ export async function toggleStartupItem(
 
       // Determine the matching StartupApproved key so Windows itself
       // honours the enable/disable state (same mechanism Task Manager uses).
-      const approvedKey = source === 'registry-hkcu'
-        ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
-        : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+      const approvedKey = approvedKeyFor(source)
 
       if (!enabled) {
         // Write a "disabled by user" marker (first byte 03) to StartupApproved.
@@ -481,8 +667,13 @@ export async function deleteStartupItem(
       try {
         if (source === 'task-scheduler') {
           if (!isSafeTaskName(name)) return false
+          // Unregister only if the task is still there — a task that has
+          // already been removed elsewhere must not fail the delete, or the
+          // item stays listed with no way to clear it.
+          const taskName = name.replace(/'/g, "''")
           await execFileAsync('powershell', psArgs(
-            `Unregister-ScheduledTask -TaskName '${name.replace(/'/g, "''")}' -Confirm:$false -ErrorAction Stop`
+            `$task = Get-ScheduledTask -TaskName '${taskName}' -ErrorAction SilentlyContinue; ` +
+            `if ($task) { Unregister-ScheduledTask -TaskName '${taskName}' -Confirm:$false -ErrorAction Stop }`
           ), { timeout: 10000, windowsHide: true })
           deletedSource = true
         } else if (source === 'startup-folder') {
@@ -512,9 +703,7 @@ export async function deleteStartupItem(
             deletedSource = true
           }
           // Also clean up StartupApproved entry if it exists
-          const approvedKey = source === 'registry-hkcu'
-            ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
-            : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+          const approvedKey = approvedKeyFor(source)
           try {
             await execNativeUtf8('reg',['delete', approvedKey, '/v', name, '/f'], { timeout: 5000 })
           } catch { /* may not exist */ }

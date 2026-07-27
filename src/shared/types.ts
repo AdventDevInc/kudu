@@ -134,6 +134,8 @@ export interface StartupItem {
   enabled: boolean
   publisher: string
   impact: 'high' | 'medium' | 'low' | 'none'
+  /** The program this entry launches is no longer installed. */
+  stale?: boolean
 }
 
 export interface StartupBootEntry {
