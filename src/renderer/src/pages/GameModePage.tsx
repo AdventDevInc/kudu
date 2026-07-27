@@ -182,6 +182,7 @@ export function GameModePage() {
   const active = useGameModeStore((s) => s.active)
   const activatedAt = useGameModeStore((s) => s.activatedAt)
   const pendingRestore = useGameModeStore((s) => s.pendingRestore)
+  const pendingReason = useGameModeStore((s) => s.pendingReason)
   const status = useGameModeStore((s) => s.status)
   const progress = useGameModeStore((s) => s.progress)
   const lastResult = useGameModeStore((s) => s.lastResult)
@@ -192,12 +193,18 @@ export function GameModePage() {
   const [elapsed, setElapsed] = useState(0)
   const [customInput, setCustomInput] = useState('')
   const [gameInput, setGameInput] = useState('')
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const progressCleanupRef = useRef<(() => void) | null>(null)
 
   // Cleanup progress listener on unmount
   useEffect(() => {
     return () => { progressCleanupRef.current?.() }
   }, [])
+
+  // Drop the discard confirmation whenever the banner is no longer showing
+  useEffect(() => {
+    if (!pendingRestore) setConfirmDiscard(false)
+  }, [pendingRestore])
 
   // Session timer
   useEffect(() => {
@@ -266,9 +273,10 @@ export function GameModePage() {
     try {
       const result = await window.kudu.gameModeDeactivate()
       store.getState().setActive(false, null)
-      store.getState().setPendingRestore(result.failed > 0)
+      const reason = result.errors[0]?.reason ?? null
+      store.getState().setPendingRestore(result.failed > 0, reason)
       if (result.failed > 0) {
-        toast.warning(`${result.failed} setting(s) could not be restored — use the cleanup banner below to retry once the cause is fixed`)
+        toast.warning(t('restoreFailedToast', { count: result.failed, reason: reason ?? t('restoreReasonUnknown') }))
       }
       store.getState().setLastResult({ type: 'deactivate', succeeded: result.restored, failed: result.failed })
     } catch (err: any) {
@@ -279,7 +287,21 @@ export function GameModePage() {
       progressCleanupRef.current?.()
       progressCleanupRef.current = null
     }
-  }, [])
+  }, [t])
+
+  const handleDiscardPending = useCallback(async () => {
+    try {
+      const result = await window.kudu.gameModeDiscardPending()
+      if (!result.discarded) {
+        toast.error(result.reason ?? t('discardFailed'))
+        return
+      }
+      store.getState().setPendingRestore(false, null)
+      toast.success(t('discardDone'))
+    } catch (err: any) {
+      toast.error(err?.message ?? t('discardFailed'))
+    }
+  }, [t])
 
   const handleAddCustomProcess = useCallback(() => {
     const name = customInput.trim()
@@ -561,21 +583,42 @@ export function GameModePage() {
         {/* ── Pending restore banner ──────────────────── */}
         {!active && pendingRestore && (
           <div
-            className="flex items-center gap-3 rounded-lg px-4 py-3 text-[12px]"
+            className="flex items-start gap-3 rounded-lg px-4 py-3 text-[12px]"
             style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b' }}
           >
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span className="flex-1">
-              Some settings from the last session couldn't be restored automatically. Retry once the cause (e.g. admin rights) is resolved.
-            </span>
-            <button
-              onClick={handleDeactivate}
-              disabled={isBusy}
-              className="shrink-0 rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
-              style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
-            >
-              {isBusy ? 'Retrying…' : 'Retry cleanup'}
-            </button>
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div className="flex-1">
+              <span>{t('pendingRestoreBanner')}</span>
+              {pendingReason && (
+                <div className="mt-1 wrap-break-word opacity-70">{pendingReason}</div>
+              )}
+              <div className="mt-1 opacity-70">{t('pendingRestoreDiscardHint')}</div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <button
+                onClick={handleDeactivate}
+                disabled={isBusy}
+                className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
+                style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
+              >
+                {isBusy ? t('retryingCleanup') : t('retryCleanup')}
+              </button>
+              <button
+                onClick={() => {
+                  if (!confirmDiscard) {
+                    setConfirmDiscard(true)
+                    return
+                  }
+                  setConfirmDiscard(false)
+                  void handleDiscardPending()
+                }}
+                disabled={isBusy}
+                className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
+                style={{ background: 'transparent', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
+              >
+                {confirmDiscard ? t('discardConfirm') : t('discardPending')}
+              </button>
+            </div>
           </div>
         )}
 

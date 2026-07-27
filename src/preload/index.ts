@@ -563,6 +563,8 @@ const api = {
     ipcRenderer.invoke(IPC.GAME_MODE_DEACTIVATE),
   gameModeStatus: (): Promise<GameModeStatus> =>
     ipcRenderer.invoke(IPC.GAME_MODE_STATUS),
+  gameModeDiscardPending: (): Promise<{ discarded: boolean; reason?: string }> =>
+    ipcRenderer.invoke(IPC.GAME_MODE_DISCARD_PENDING),
   onGameModeProgress: (callback: (data: GameModeProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: GameModeProgress) => callback(data)
     ipcRenderer.on(IPC.GAME_MODE_PROGRESS, handler)

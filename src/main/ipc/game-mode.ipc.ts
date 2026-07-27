@@ -136,15 +136,40 @@ function validateSnapshot(raw: unknown): GameModeSnapshot | null {
     if (tv.originalValue !== null && (typeof tv.originalValue !== 'number' || !Number.isInteger(tv.originalValue))) return null
   }
 
+  // Validate restoreErrors — display-only diagnostics, never fed back into a
+  // shell command, but still bounded so a tampered file can't bloat the UI.
+  if ('restoreErrors' in s) {
+    if (!Array.isArray(s.restoreErrors)) return null
+    if (s.restoreErrors.length > 20) return null
+    for (const e of s.restoreErrors) {
+      if (typeof e !== 'object' || e === null) return null
+      const ev = e as Record<string, unknown>
+      if (typeof ev.optimizationId !== 'string' || ev.optimizationId.length > 100) return null
+      if (typeof ev.reason !== 'string' || ev.reason.length > 500) return null
+    }
+  }
+
   return s as unknown as GameModeSnapshot
 }
+
+// In-memory reference to the powerSaveBlocker ID (also stored in snapshot for restart recovery)
+let activePowerBlockerId: number | null = null
 
 function readSnapshot(): GameModeSnapshot | null {
   try {
     const path = getSnapshotPath()
     if (!existsSync(path)) return null
     const raw = JSON.parse(readFileSync(path, 'utf-8'))
-    return validateSnapshot(raw)
+    const snapshot = validateSnapshot(raw)
+    if (!snapshot) return null
+
+    // A powerSaveBlocker ID only means anything inside the process that created
+    // it. If this process didn't, the blocker died with the old process and the
+    // ID is dead weight — carrying it would queue a restore step that can never
+    // do anything. Drop it so it can't keep a residual snapshot alive.
+    if (activePowerBlockerId === null) snapshot.powerSaveBlockerId = null
+
+    return snapshot
   } catch {
     return null
   }
@@ -244,7 +269,12 @@ async function restoreService(
     '4': 'Disabled',
   }
   const targetType = typeMap[entry.originalStartType] ?? 'Manual'
-  await ps(`Set-Service -Name '${entry.name}' -StartupType ${targetType} -ErrorAction Stop`)
+  // A service that no longer exists has nothing left to restore. Without this
+  // guard `Set-Service -ErrorAction Stop` would throw on every retry forever.
+  await ps(
+    `if (Get-Service -Name '${entry.name}' -ErrorAction SilentlyContinue) { ` +
+    `Set-Service -Name '${entry.name}' -StartupType ${targetType} -ErrorAction Stop }`
+  )
   if (entry.wasRunning && targetType !== 'Disabled') {
     await ps(`Start-Service -Name '${entry.name}' -ErrorAction SilentlyContinue`)
   }
@@ -356,6 +386,7 @@ async function restoreFocusAssist(originalState: number | null): Promise<void> {
   if (originalState === null) return
   await ps(
     `$p = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings'; ` +
+    `if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }; ` +
     `Set-ItemProperty -Path $p -Name NOC_GLOBAL_SETTING_TOASTS_ENABLED -Value ${originalState} -Type DWord -Force`
   )
 }
@@ -391,25 +422,41 @@ async function applyRegistryTweak(
   )
 }
 
-/** Restore all registry tweaks from snapshot */
+/**
+ * Restore all registry tweaks from snapshot.
+ * Reports the tweaks that failed so the caller can keep only those pending —
+ * re-running the ones that already succeeded on every retry is pointless.
+ */
 async function restoreRegistryTweaks(
   tweaks: GameModeSnapshot['registryTweaks'],
-): Promise<{ restored: number; errors: Array<{ path: string; name: string; reason: string }> }> {
+): Promise<{
+  restored: number
+  failed: GameModeSnapshot['registryTweaks']
+  errors: Array<{ path: string; name: string; reason: string }>
+}> {
   let restored = 0
+  const failed: GameModeSnapshot['registryTweaks'] = []
   const errors: Array<{ path: string; name: string; reason: string }> = []
   for (const tweak of tweaks) {
     try {
       if (tweak.originalValue !== null) {
-        await ps(`Set-ItemProperty -Path '${tweak.path}' -Name '${tweak.name}' -Value ${tweak.originalValue} -Type DWord -Force`)
+        // Recreate the key if it vanished — otherwise Set-ItemProperty throws
+        // and this tweak stays pending forever.
+        await ps(
+          `$p = '${tweak.path}'; ` +
+          `if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }; ` +
+          `Set-ItemProperty -Path $p -Name '${tweak.name}' -Value ${tweak.originalValue} -Type DWord -Force`
+        )
       } else {
         await ps(`Remove-ItemProperty -Path '${tweak.path}' -Name '${tweak.name}' -ErrorAction SilentlyContinue`)
       }
       restored++
     } catch (err: any) {
+      failed.push(tweak)
       errors.push({ path: tweak.path, name: tweak.name, reason: err?.message ?? 'unknown' })
     }
   }
-  return { restored, errors }
+  return { restored, failed, errors }
 }
 
 // ── Game Bar / DVR ──────────────────────────────────────────
@@ -467,36 +514,41 @@ async function disableNagle(snapshot: GameModeSnapshot): Promise<void> {
   )
 }
 
+/**
+ * Restore per-interface Nagle settings.
+ * Interfaces that no longer exist (VPN / virtual adapters routinely disappear
+ * across a reboot) count as restored — there is nothing left to write to.
+ * Returns the interfaces still pending so the caller can scrub the rest.
+ */
 async function restoreNagle(
   interfaces: GameModeSnapshot['nagleInterfaces'],
-): Promise<void> {
-  if (!interfaces.length) return
-  const failed: string[] = []
+): Promise<{
+  restored: number
+  failed: GameModeSnapshot['nagleInterfaces']
+  errors: string[]
+}> {
+  let restored = 0
+  const failed: GameModeSnapshot['nagleInterfaces'] = []
+  const errors: string[] = []
   for (const iface of interfaces) {
+    const noDelay = iface.originalTcpNoDelay !== null
+      ? `Set-ItemProperty -Path $p -Name TcpNoDelay -Value ${iface.originalTcpNoDelay} -Type DWord -Force`
+      : `Remove-ItemProperty -Path $p -Name TcpNoDelay -ErrorAction SilentlyContinue`
+    const ackFreq = iface.originalTcpAckFrequency !== null
+      ? `Set-ItemProperty -Path $p -Name TcpAckFrequency -Value ${iface.originalTcpAckFrequency} -Type DWord -Force`
+      : `Remove-ItemProperty -Path $p -Name TcpAckFrequency -ErrorAction SilentlyContinue`
     try {
-      if (iface.originalTcpNoDelay !== null) {
-        await ps(`Set-ItemProperty -Path '${iface.path}' -Name TcpNoDelay -Value ${iface.originalTcpNoDelay} -Type DWord -Force`)
-      } else {
-        await ps(`Remove-ItemProperty -Path '${iface.path}' -Name TcpNoDelay -ErrorAction SilentlyContinue`)
-      }
-      if (iface.originalTcpAckFrequency !== null) {
-        await ps(`Set-ItemProperty -Path '${iface.path}' -Name TcpAckFrequency -Value ${iface.originalTcpAckFrequency} -Type DWord -Force`)
-      } else {
-        await ps(`Remove-ItemProperty -Path '${iface.path}' -Name TcpAckFrequency -ErrorAction SilentlyContinue`)
-      }
+      await ps(`$p = '${iface.path}'; if (Test-Path $p) { ${noDelay}; ${ackFreq} }`)
+      restored++
     } catch (err: any) {
-      failed.push(err?.message ?? 'unknown')
+      failed.push(iface)
+      errors.push(err?.message ?? 'unknown')
     }
   }
-  if (failed.length > 0) {
-    throw new Error(`Failed to restore ${failed.length} network interface(s)`)
-  }
+  return { restored, failed, errors }
 }
 
 // ── Activate / Deactivate ────────────────────────────────────
-
-// In-memory reference to the powerSaveBlocker ID (also stored in snapshot for restart recovery)
-let activePowerBlockerId: number | null = null
 
 export async function activateGameMode(
   config: GameModeConfig,
@@ -706,11 +758,19 @@ export async function deactivateGameMode(
     })
   }
 
-  // Restore Nagle
+  // Restore Nagle. Grouped steps narrow the residual to the entries that
+  // actually failed before throwing, so a single stuck interface doesn't drag
+  // the healthy ones into every future retry.
   if (snapshot.nagleInterfaces.length > 0) {
     steps.push({
       id: 'net-disable-nagle',
-      fn: () => restoreNagle(snapshot.nagleInterfaces),
+      fn: async () => {
+        const r = await restoreNagle(snapshot.nagleInterfaces)
+        residual.nagleInterfaces = r.failed
+        if (r.failed.length > 0) {
+          throw new Error(`${r.failed.length} network interface(s) failed to restore: ${r.errors[0]}`)
+        }
+      },
       clear: () => { residual.nagleInterfaces = [] },
     })
   }
@@ -721,7 +781,10 @@ export async function deactivateGameMode(
       id: 'sys-registry-tweaks',
       fn: async () => {
         const r = await restoreRegistryTweaks(snapshot.registryTweaks)
-        if (r.errors.length > 0) throw new Error(`${r.errors.length} registry value(s) failed to restore`)
+        residual.registryTweaks = r.failed
+        if (r.failed.length > 0) {
+          throw new Error(`${r.failed.length} registry value(s) failed to restore: ${r.errors[0].reason}`)
+        }
       },
       clear: () => { residual.registryTweaks = [] },
     })
@@ -747,9 +810,32 @@ export async function deactivateGameMode(
     deleteSnapshot()
   } else {
     residual.active = false
+    // Persist why, so the cleanup banner can name the stuck step even after
+    // the app restarts.
+    residual.restoreErrors = errors.map((e) => ({
+      optimizationId: e.optimizationId,
+      reason: (e.reason ?? 'Unknown error').slice(0, 500),
+    }))
     writeSnapshot(residual)
   }
   return { restored, failed: errors.length, errors }
+}
+
+/**
+ * Drop a residual snapshot without restoring it. The escape hatch for a
+ * restore step that can never succeed on this machine — without it, activation
+ * stays blocked forever and the only fix is deleting the file by hand.
+ * Refuses while Game Mode is live: discarding then would strand real changes.
+ */
+export function discardPendingRestore(): { discarded: boolean; reason?: string } {
+  const snapshot = readSnapshot()
+  if (snapshot?.active === true) {
+    return { discarded: false, reason: 'Game Mode is still active — deactivate it first' }
+  }
+  // A snapshot that fails validation reads back as null but the file is still
+  // on disk blocking nothing; deleting it here also clears that case.
+  deleteSnapshot()
+  return { discarded: true }
 }
 
 export function getGameModeStatus(): GameModeStatus {
@@ -758,6 +844,7 @@ export function getGameModeStatus(): GameModeStatus {
     active: snapshot?.active === true,
     activatedAt: snapshot?.activatedAt ?? null,
     pendingRestore: snapshot !== null && snapshot.active === false,
+    pendingReason: snapshot?.restoreErrors?.[0]?.reason ?? null,
   }
 }
 
@@ -831,10 +918,16 @@ export function registerGameModeIpc(getWindow: WindowGetter): void {
       return { succeeded: 0, failed: 1, errors: [{ optimizationId: 'config', reason: 'Game Mode is already active' }], snapshot: null }
     }
     if (existing) {
+      const detail = existing.restoreErrors?.[0]?.reason
       return {
         succeeded: 0,
         failed: 1,
-        errors: [{ optimizationId: 'config', reason: 'Previous deactivation left unrestored items — please retry deactivation first' }],
+        errors: [{
+          optimizationId: 'config',
+          reason: detail
+            ? `Previous deactivation left unrestored items (${detail}) — retry the cleanup, or discard it to unblock Game Mode`
+            : 'Previous deactivation left unrestored items — retry the cleanup, or discard it to unblock Game Mode',
+        }],
         snapshot: null,
       }
     }
@@ -853,6 +946,10 @@ export function registerGameModeIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(IPC.GAME_MODE_STATUS, () => {
     return getGameModeStatus()
+  })
+
+  ipcMain.handle(IPC.GAME_MODE_DISCARD_PENDING, () => {
+    return discardPendingRestore()
   })
 
   // ── Auto-detect lifecycle ────────────────────────────────────

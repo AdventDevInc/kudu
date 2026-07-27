@@ -79,6 +79,17 @@
   "noOptimizationsSelected": "Select at least one optimization to activate Game Mode",
   "configLockedWhileActive": "Deactivate Game Mode to change settings",
 
+  "pendingRestoreBanner": "Some settings from the last session couldn't be restored automatically. Retry once the cause (e.g. admin rights) is resolved.",
+  "pendingRestoreDiscardHint": "If it keeps failing, discard the pending state to unblock Game Mode. Any settings still changed stay as they are.",
+  "retryCleanup": "Retry cleanup",
+  "retryingCleanup": "Retrying…",
+  "discardPending": "Discard",
+  "discardConfirm": "Confirm discard",
+  "discardDone": "Pending cleanup discarded — Game Mode can be activated again",
+  "discardFailed": "Could not discard the pending cleanup",
+  "restoreFailedToast": "Cleanup incomplete — {{count}} still pending: {{reason}}",
+  "restoreReasonUnknown": "unknown error",
+
   "statOptimizationsActive": "Optimizations Active",
   "statServicesDisabled": "Services Paused",
   "statSessionTimer": "Session Timer",

@@ -1,4 +1,73 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+// ── Mocks ──
+// game-mode.ipc pulls in electron, child_process and a handful of services.
+// Stub them all so the restore/deactivate logic can be exercised in-process:
+// a fake in-memory snapshot file plus a scriptable PowerShell double.
+
+const psCalls: string[] = []
+/** Substrings that make the fake PowerShell call reject, mimicking a stuck step */
+let psFailOn: string[] = []
+/** Canned stdout per matching substring */
+let psOutput: Array<[string, string]> = []
+
+const fakeFs = new Map<string, string>()
+
+vi.mock('electron', () => ({
+  app: { isPackaged: true, getPath: () => 'C:\\kudu-test-userdata' },
+  ipcMain: { handle: vi.fn() },
+  powerSaveBlocker: { start: vi.fn(() => 7), stop: vi.fn(), isStarted: vi.fn(() => false) },
+}))
+
+vi.mock('fs', () => ({
+  existsSync: (p: string) => fakeFs.has(p),
+  readFileSync: (p: string) => {
+    const v = fakeFs.get(p)
+    if (v === undefined) throw new Error('ENOENT')
+    return v
+  },
+  writeFileSync: (p: string, data: string) => { fakeFs.set(p, data) },
+  unlinkSync: (p: string) => {
+    if (!fakeFs.delete(p)) throw new Error('ENOENT')
+  },
+}))
+
+vi.mock('child_process', () => ({
+  execFile: (
+    _file: string,
+    args: string[],
+    _opts: unknown,
+    cb: (err: Error | null, res?: { stdout: string; stderr: string }) => void,
+  ) => {
+    const script = args[args.length - 1]
+    psCalls.push(script)
+    const failure = psFailOn.find((needle) => script.includes(needle))
+    if (failure) {
+      cb(new Error(`fake failure for ${failure}`))
+      return
+    }
+    const canned = psOutput.find(([needle]) => script.includes(needle))
+    cb(null, { stdout: canned?.[1] ?? '', stderr: '' })
+  },
+}))
+
+vi.mock('../services/exec-utf8', () => ({ psUtf8: (s: string) => s }))
+vi.mock('../services/elevation', () => ({ isAdmin: () => true }))
+vi.mock('../platform', () => ({ getPlatform: () => ({ network: { flushDnsCache: async () => true } }) }))
+vi.mock('../services/game-detector', () => ({
+  startGameDetector: vi.fn(),
+  stopGameDetector: vi.fn(),
+  suppressCurrentGame: vi.fn(),
+  isDetectorRunning: () => false,
+}))
+vi.mock('../services/settings-store', () => ({ getSettings: () => ({ gameMode: { autoDetect: false } }) }))
+
+import { join } from 'path'
+import { deactivateGameMode, discardPendingRestore, getGameModeStatus } from './game-mode.ipc'
+
+// Built with join() rather than hardcoded so the fake fs keys match on both
+// Windows and the Linux CI runner.
+const SNAPSHOT_PATH = join('C:\\kudu-test-userdata', 'game-mode-snapshot.json')
 
 // We test the exported validateSnapshot logic by importing the module's internal
 // validation indirectly through its exported functions.  Since validateSnapshot
@@ -76,6 +145,17 @@ function validateSnapshot(raw: unknown): boolean {
     if (typeof tv.path !== 'string' || !ALLOWED_REGISTRY_TWEAK_PATHS.has(tv.path)) return false
     if (typeof tv.name !== 'string' || !ALLOWED_REGISTRY_TWEAK_NAMES.has(tv.name)) return false
     if (tv.originalValue !== null && (typeof tv.originalValue !== 'number' || !Number.isInteger(tv.originalValue))) return false
+  }
+
+  if ('restoreErrors' in s) {
+    if (!Array.isArray(s.restoreErrors)) return false
+    if (s.restoreErrors.length > 20) return false
+    for (const e of s.restoreErrors) {
+      if (typeof e !== 'object' || e === null) return false
+      const ev = e as Record<string, unknown>
+      if (typeof ev.optimizationId !== 'string' || ev.optimizationId.length > 100) return false
+      if (typeof ev.reason !== 'string' || ev.reason.length > 500) return false
+    }
   }
 
   return true
@@ -303,6 +383,26 @@ describe('snapshot validation', () => {
     expect(validateSnapshot(snap)).toBe(false)
   })
 
+  // ── Restore errors validation ──
+
+  it('accepts a snapshot carrying restore errors', () => {
+    const snap = validSnapshot()
+    ;(snap as any).restoreErrors = [{ optimizationId: 'sys-registry-tweaks', reason: 'Access denied' }]
+    expect(validateSnapshot(snap)).toBe(true)
+  })
+
+  it('rejects restore errors with a non-string reason', () => {
+    const snap = validSnapshot()
+    ;(snap as any).restoreErrors = [{ optimizationId: 'sys-registry-tweaks', reason: 42 }]
+    expect(validateSnapshot(snap)).toBe(false)
+  })
+
+  it('rejects an unbounded restore error reason', () => {
+    const snap = validSnapshot()
+    ;(snap as any).restoreErrors = [{ optimizationId: 'sys-registry-tweaks', reason: 'x'.repeat(501) }]
+    expect(validateSnapshot(snap)).toBe(false)
+  })
+
   it('rejects registry tweaks with string originalValue', () => {
     const snap = validSnapshot()
     ;(snap as any).registryTweaks = [
@@ -395,6 +495,199 @@ describe('IPC config validation', () => {
 })
 
 // ── Service map and optimization ID consistency ──
+
+// ── Deactivation / residual handling (issue #241) ──
+
+const GAME_DVR = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR'
+const GAME_CONFIG_STORE = 'HKCU:\\System\\GameConfigStore'
+const IFACE_A = 'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{aaaaaaaa-1111-2222-3333-444444444444}'
+const IFACE_B = 'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{bbbbbbbb-1111-2222-3333-444444444444}'
+
+function seedSnapshot(overrides: Record<string, unknown> = {}): void {
+  fakeFs.set(SNAPSHOT_PATH, JSON.stringify({
+    activatedAt: '2026-07-21T22:00:00.000Z',
+    active: true,
+    services: [],
+    killedProcesses: [],
+    originalPowerPlanGuid: null,
+    originalFocusAssistState: null,
+    powerSaveBlockerId: null,
+    nagleInterfaces: [],
+    registryTweaks: [],
+    ...overrides,
+  }))
+}
+
+function storedSnapshot(): any {
+  const raw = fakeFs.get(SNAPSHOT_PATH)
+  return raw === undefined ? null : JSON.parse(raw)
+}
+
+const noop = () => {}
+
+describe('deactivateGameMode residual handling', () => {
+  beforeEach(() => {
+    fakeFs.clear()
+    psCalls.length = 0
+    psFailOn = []
+    psOutput = []
+  })
+
+  it('keeps only the failed registry tweak pending, not the whole group', async () => {
+    seedSnapshot({
+      registryTweaks: [
+        { path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 },
+        { path: GAME_CONFIG_STORE, name: 'GameDVR_Enabled', originalValue: 1 },
+      ],
+    })
+    psFailOn = ['GameDVR_Enabled']
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(1)
+    const stored = storedSnapshot()
+    expect(stored.active).toBe(false)
+    expect(stored.registryTweaks).toEqual([
+      { path: GAME_CONFIG_STORE, name: 'GameDVR_Enabled', originalValue: 1 },
+    ])
+  })
+
+  it('persists the failure reason so the banner can name the stuck step', async () => {
+    seedSnapshot({
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+    })
+    psFailOn = ['AppCaptureEnabled']
+
+    await deactivateGameMode(noop)
+
+    const stored = storedSnapshot()
+    expect(stored.restoreErrors).toHaveLength(1)
+    expect(stored.restoreErrors[0].optimizationId).toBe('sys-registry-tweaks')
+    expect(stored.restoreErrors[0].reason).toContain('fake failure')
+    expect(getGameModeStatus().pendingReason).toContain('fake failure')
+  })
+
+  it('drops the snapshot once a retry clears the remaining item', async () => {
+    seedSnapshot({
+      active: false,
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+      restoreErrors: [{ optimizationId: 'sys-registry-tweaks', reason: 'earlier failure' }],
+    })
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(0)
+    expect(fakeFs.has(SNAPSHOT_PATH)).toBe(false)
+    expect(getGameModeStatus().pendingRestore).toBe(false)
+  })
+
+  it('recreates a vanished registry key instead of failing forever', async () => {
+    seedSnapshot({
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+    })
+
+    await deactivateGameMode(noop)
+
+    const script = psCalls.find((s) => s.includes('AppCaptureEnabled'))
+    expect(script).toContain('if (!(Test-Path $p)) { New-Item -Path $p -Force | Out-Null }')
+  })
+
+  it('skips Nagle interfaces whose registry key no longer exists', async () => {
+    seedSnapshot({
+      nagleInterfaces: [{ path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 }],
+    })
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(0)
+    const script = psCalls.find((s) => s.includes(IFACE_A))
+    expect(script).toContain('if (Test-Path $p)')
+  })
+
+  it('keeps only the failed Nagle interface pending', async () => {
+    seedSnapshot({
+      nagleInterfaces: [
+        { path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 },
+        { path: IFACE_B, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 },
+      ],
+    })
+    psFailOn = ['{bbbbbbbb-']
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(1)
+    expect(storedSnapshot().nagleInterfaces).toHaveLength(1)
+    expect(storedSnapshot().nagleInterfaces[0].path).toBe(IFACE_B)
+  })
+
+  it('guards service restore against a service that no longer exists', async () => {
+    seedSnapshot({
+      services: [{ name: 'WSearch', originalStartType: 'Automatic', wasRunning: true }],
+    })
+
+    await deactivateGameMode(noop)
+
+    const script = psCalls.find((s) => s.includes('Set-Service'))
+    expect(script).toContain("if (Get-Service -Name 'WSearch' -ErrorAction SilentlyContinue)")
+  })
+
+  it('ignores a powerSaveBlocker ID left behind by a previous process', async () => {
+    // Written by an older run; the blocker died with that process, so this must
+    // not queue a step that keeps the snapshot alive.
+    seedSnapshot({ active: false, powerSaveBlockerId: 7 })
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.restored).toBe(0)
+    expect(result.failed).toBe(0)
+    expect(fakeFs.has(SNAPSHOT_PATH)).toBe(false)
+  })
+})
+
+describe('discardPendingRestore', () => {
+  beforeEach(() => {
+    fakeFs.clear()
+    psCalls.length = 0
+    psFailOn = []
+    psOutput = []
+  })
+
+  it('clears a residual snapshot so activation is unblocked', () => {
+    seedSnapshot({
+      active: false,
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+      restoreErrors: [{ optimizationId: 'sys-registry-tweaks', reason: 'Access denied' }],
+    })
+    expect(getGameModeStatus().pendingRestore).toBe(true)
+
+    expect(discardPendingRestore()).toEqual({ discarded: true })
+    expect(fakeFs.has(SNAPSHOT_PATH)).toBe(false)
+    expect(getGameModeStatus()).toEqual({
+      active: false,
+      activatedAt: null,
+      pendingRestore: false,
+      pendingReason: null,
+    })
+  })
+
+  it('refuses while Game Mode is still active', () => {
+    seedSnapshot({
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+    })
+
+    const result = discardPendingRestore()
+
+    expect(result.discarded).toBe(false)
+    expect(fakeFs.has(SNAPSHOT_PATH)).toBe(true)
+  })
+
+  it('removes a corrupt snapshot file that validation rejects', () => {
+    fakeFs.set(SNAPSHOT_PATH, '{ not json')
+
+    expect(discardPendingRestore().discarded).toBe(true)
+    expect(fakeFs.has(SNAPSHOT_PATH)).toBe(false)
+  })
+})
 
 describe('optimization ID consistency', () => {
   const SERVICE_MAP_KEYS = new Set(['svc-wsearch', 'svc-sysmain', 'svc-wuauserv', 'svc-spooler', 'svc-diagtrack'])
