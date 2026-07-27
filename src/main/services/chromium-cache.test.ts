@@ -8,7 +8,7 @@ vi.mock('fs/promises', () => ({ readdir: (...args: unknown[]) => mockReaddir(...
 
 import { join } from 'path'
 import {
-  BROWSER_CACHE_SKIP_RECENT_MINUTES,
+  BROWSER_CACHE_RECENCY,
   chromiumBrowsers,
   chromiumCacheTargets,
   getChromiumProfiles,
@@ -134,11 +134,16 @@ describe('getChromiumProfiles', () => {
   })
 })
 
-describe('BROWSER_CACHE_SKIP_RECENT_MINUTES', () => {
-  // The 60-minute default hid whole caches: `Code Cache` holds just `js` and
-  // `wasm`, so a browser used in the last hour had both entries skipped and the
-  // result dropped for being empty (issue #265).
-  it('disables the recency guard for browser caches', () => {
-    expect(BROWSER_CACHE_SKIP_RECENT_MINUTES).toBe(0)
+describe('BROWSER_CACHE_RECENCY', () => {
+  // `Code Cache` holds just the `js` and `wasm` directories, so a browser used
+  // in the last hour had both skipped and the result dropped for being empty
+  // (issue #265). Directories are exempt; files are not, which is what keeps a
+  // running browser's memory-mapped block files out of a scan.
+  it('exempts directories from the recency guard but not files', () => {
+    expect(BROWSER_CACHE_RECENCY.filesOnly).toBe(true)
+  })
+
+  it('leaves the default cutoff in place', () => {
+    expect(BROWSER_CACHE_RECENCY.skipRecentMinutes).toBeUndefined()
   })
 })

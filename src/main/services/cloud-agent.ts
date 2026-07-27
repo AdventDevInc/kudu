@@ -18,7 +18,7 @@ type Pusher = PusherImport
 import { getSettings, setSettings, getMachineId } from './settings-store'
 import { scanDirectory, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems } from './file-utils'
 import { cacheItems } from './scan-cache'
-import { BROWSER_CACHE_SKIP_RECENT_MINUTES, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
+import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
 import { psUtf8 } from './exec-utf8'
 import { getPlatform } from '../platform'
 import { CleanerType } from '../../shared/enums'
@@ -1935,12 +1935,12 @@ class CloudAgentService {
         const browserResults: ScanResult[] = []
         const browserPaths = getPlatform().paths.browserPaths()
         const browserCategory = CleanerType.Browser
-        const skipRecent = BROWSER_CACHE_SKIP_RECENT_MINUTES
+        const recency = BROWSER_CACHE_RECENCY
 
         for (const browser of chromiumBrowsers(browserPaths)) {
           for (const target of await chromiumCacheTargets(browser)) {
             try {
-              const r = await scanDirectory(target.path, browserCategory, target.label, skipRecent)
+              const r = await scanDirectory(target.path, browserCategory, target.label, recency)
               if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
             } catch { /* skip */ }
           }
@@ -1954,7 +1954,7 @@ class CloudAgentService {
               if (dir.isDirectory()) {
                 const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
                 if (existsSync(cachePath)) {
-                  const r = await scanDirectory(cachePath, browserCategory, `Firefox - ${dir.name} Cache`, skipRecent)
+                  const r = await scanDirectory(cachePath, browserCategory, `Firefox - ${dir.name} Cache`, recency)
                   if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
                 }
               }
@@ -1976,7 +1976,7 @@ class CloudAgentService {
               if (dir.isDirectory()) {
                 const cachePath = join(fork.cache, dir.name, 'cache2')
                 if (existsSync(cachePath)) {
-                  const r = await scanDirectory(cachePath, browserCategory, `${fork.label} - ${dir.name} Cache`, skipRecent)
+                  const r = await scanDirectory(cachePath, browserCategory, `${fork.label} - ${dir.name} Cache`, recency)
                   if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
                 }
               }
@@ -1987,7 +1987,7 @@ class CloudAgentService {
         // Safari (macOS only) — cache directory only, never cookies/history/bookmarks
         if (browserPaths.safari && existsSync(browserPaths.safari.cache)) {
           try {
-            const r = await scanDirectory(browserPaths.safari.cache, browserCategory, 'Safari - Cache', skipRecent)
+            const r = await scanDirectory(browserPaths.safari.cache, browserCategory, 'Safari - Cache', recency)
             if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
           } catch { /* skip */ }
         }

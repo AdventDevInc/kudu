@@ -162,9 +162,10 @@ describe('BROWSER_SCAN handler', () => {
     expect(mockCacheItems).toHaveBeenCalled()
   })
 
-  // Issue #265: the 60-minute default made scanDirectory drop `Code Cache`
-  // whole — it holds only `js` and `wasm`, both touched by any recent browsing.
-  it('scans browser caches with the recency guard disabled', async () => {
+  // Issue #265: the guard made scanDirectory drop `Code Cache` whole — it holds
+  // only `js` and `wasm`, both touched by any recent browsing. Directories are
+  // now exempt; files are not, so the block files stay protected.
+  it('scans browser caches with the recency guard applied to files only', async () => {
     mockExistsSync.mockReturnValue(true)
     mockReaddir.mockResolvedValue([])
     mockScanDirectory.mockResolvedValue({ category: 'browser', subcategory: 'test', items: [], totalSize: 0, itemCount: 0 })
@@ -174,7 +175,7 @@ describe('BROWSER_SCAN handler', () => {
 
     expect(mockScanDirectory).toHaveBeenCalled()
     for (const call of mockScanDirectory.mock.calls) {
-      expect(call[3]).toBe(0)
+      expect(call[3]).toEqual({ filesOnly: true })
     }
   })
 
@@ -194,7 +195,7 @@ describe('BROWSER_SCAN handler', () => {
     await getHandler('cleaner:browser:scan')()
 
     expect(mockScanDirectory).toHaveBeenCalledWith(
-      join(chromeBase, 'GrShaderCache'), 'browser', 'Chrome - Skia Shader Cache', 0
+      join(chromeBase, 'GrShaderCache'), 'browser', 'Chrome - Skia Shader Cache', { filesOnly: true }
     )
   })
 

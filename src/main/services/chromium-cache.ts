@@ -8,6 +8,7 @@ import { existsSync } from 'fs'
 import { readdir } from 'fs/promises'
 import { join } from 'path'
 import type { BrowserPathConfig, BrowserPaths } from '../platform/types'
+import type { ScanRecencyOptions } from './file-utils'
 
 export interface ChromiumBrowser extends BrowserPaths {
   key: string
@@ -34,18 +35,20 @@ const BROWSERS: Array<{ key: string; label: string; hasProfiles: boolean }> = [
 ]
 
 /**
- * Browser cache scans pass this as `skipRecentMinutes`.
+ * Recency settings every browser cache scan passes to `scanDirectory`.
  *
- * The default 60-minute guard keeps a scan from listing something an app is
- * still writing, but at directory granularity it hides whole caches: `Code
- * Cache` holds exactly two entries (`js` and `wasm`), so a browser that ran in
- * the last hour has both of them skipped and the entire result discarded for
- * having no items. That is why Chrome's Code Cache never appeared while Edge's
- * did — Edge simply wasn't being used. Chromium rebuilds any of these
- * directories from scratch, and a locked file still fails the delete safely as
- * 'in-use', so there is nothing left for the guard to protect here.
+ * The 60-minute guard stays on for files — that is what keeps the cache block
+ * files a running browser has memory-mapped (`data_0`–`data_3`, `index`) out of
+ * a scan, so they are never unlinked or overwritten underneath it.
+ *
+ * It does not apply to directories. A directory's mtime moves whenever an entry
+ * is added or removed inside it, so applying the guard there hid whole caches:
+ * `Code Cache` holds exactly two entries, the `js` and `wasm` directories, and
+ * any recent browsing had both skipped and the whole result dropped for being
+ * empty. That is why Chrome's Code Cache never appeared while Edge's did —
+ * Edge simply wasn't being used (issue #265).
  */
-export const BROWSER_CACHE_SKIP_RECENT_MINUTES = 0
+export const BROWSER_CACHE_RECENCY: ScanRecencyOptions = { filesOnly: true }
 
 /** Pair each known Chromium browser with its resolved paths. */
 export function chromiumBrowsers(paths: BrowserPathConfig): ChromiumBrowser[] {

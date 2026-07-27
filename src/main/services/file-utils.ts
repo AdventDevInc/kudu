@@ -254,12 +254,32 @@ export async function cleanItems(
   return { totalCleaned, filesDeleted, filesSkipped, errors, needsElevation }
 }
 
+export interface ScanRecencyOptions {
+  /** Skip entries modified within this many minutes (default 60) */
+  skipRecentMinutes?: number
+  /**
+   * Apply the guard to files only.
+   *
+   * A directory's mtime moves whenever an entry is added or removed inside it,
+   * which says nothing about whether its contents are in use — and skipping it
+   * discards the whole subtree. Chrome's `Code Cache` holds exactly two
+   * entries, the `js` and `wasm` directories, so any recent browsing had both
+   * skipped and the entire result dropped for being empty (issue #265).
+   *
+   * Files still get the guard, which is what keeps a running browser's
+   * memory-mapped cache block files out of a scan.
+   */
+  filesOnly?: boolean
+}
+
 export async function scanDirectory(
   dirPath: string,
   category: string,
   subcategory: string,
-  skipRecentMinutes = 60
+  recency: number | ScanRecencyOptions = {}
 ): Promise<ScanResult> {
+  const { skipRecentMinutes = 60, filesOnly = false } =
+    typeof recency === 'number' ? { skipRecentMinutes: recency } : recency
   const items: ScanItem[] = []
   let totalSize = 0
   const cutoff = Date.now() - skipRecentMinutes * 60 * 1000
@@ -278,10 +298,11 @@ export async function scanDirectory(
 
       try {
         const stats = await stat(fullPath)
+        const isDirectory = stats.isDirectory()
 
-        if (stats.mtimeMs > cutoff) continue
+        if (stats.mtimeMs > cutoff && !(filesOnly && isDirectory)) continue
 
-        const size = stats.isDirectory() ? await getDirectorySize(fullPath, 2) : stats.size
+        const size = isDirectory ? await getDirectorySize(fullPath, 2) : stats.size
 
         const item: ScanItem = {
           id: randomUUID(),

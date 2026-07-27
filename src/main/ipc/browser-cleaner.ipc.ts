@@ -11,19 +11,19 @@ import { CleanerType } from '../../shared/enums'
 import type { ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
 import { validateStringArray } from '../services/ipc-validation'
-import { BROWSER_CACHE_SKIP_RECENT_MINUTES, chromiumBrowsers, chromiumCacheTargets } from '../services/chromium-cache'
+import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from '../services/chromium-cache'
 
 export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.BROWSER_SCAN, async (): Promise<ScanResult[]> => {
     const results: ScanResult[] = []
     const category = CleanerType.Browser
     const browserPaths = getPlatform().paths.browserPaths()
-    const skipRecent = BROWSER_CACHE_SKIP_RECENT_MINUTES
+    const recency = BROWSER_CACHE_RECENCY
 
     // Scan all Chromium-based browsers
     for (const browser of chromiumBrowsers(browserPaths)) {
       for (const target of await chromiumCacheTargets(browser)) {
-        const result = await scanDirectory(target.path, category, target.label, skipRecent)
+        const result = await scanDirectory(target.path, category, target.label, recency)
         if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
       }
     }
@@ -36,7 +36,7 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
           if (dir.isDirectory()) {
             const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
             if (existsSync(cachePath)) {
-              const result = await scanDirectory(cachePath, category, `Firefox - ${dir.name} Cache`, skipRecent)
+              const result = await scanDirectory(cachePath, category, `Firefox - ${dir.name} Cache`, recency)
               if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
             }
           }
@@ -60,7 +60,7 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
           if (dir.isDirectory()) {
             const cachePath = join(fork.cache, dir.name, 'cache2')
             if (existsSync(cachePath)) {
-              const result = await scanDirectory(cachePath, category, `${fork.label} - ${dir.name} Cache`, skipRecent)
+              const result = await scanDirectory(cachePath, category, `${fork.label} - ${dir.name} Cache`, recency)
               if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
             }
           }
@@ -72,7 +72,7 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
 
     // Safari (macOS only) — cache directory only, never cookies/history/bookmarks
     if (browserPaths.safari && existsSync(browserPaths.safari.cache)) {
-      const result = await scanDirectory(browserPaths.safari.cache, category, 'Safari - Cache', skipRecent)
+      const result = await scanDirectory(browserPaths.safari.cache, category, 'Safari - Cache', recency)
       if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
     }
 
