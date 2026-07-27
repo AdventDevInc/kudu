@@ -18,6 +18,7 @@ type Pusher = PusherImport
 import { getSettings, setSettings, getMachineId } from './settings-store'
 import { scanDirectory, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems } from './file-utils'
 import { cacheItems } from './scan-cache'
+import { BROWSER_CACHE_SKIP_RECENT_MINUTES, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
 import { psUtf8 } from './exec-utf8'
 import { getPlatform } from '../platform'
 import { CleanerType } from '../../shared/enums'
@@ -1934,54 +1935,14 @@ class CloudAgentService {
         const browserResults: ScanResult[] = []
         const browserPaths = getPlatform().paths.browserPaths()
         const browserCategory = CleanerType.Browser
+        const skipRecent = BROWSER_CACHE_SKIP_RECENT_MINUTES
 
-        const chromiumBrowsers = [
-          { label: 'Chrome', ...browserPaths.chrome, hasProfiles: true },
-          { label: 'Edge', ...browserPaths.edge, hasProfiles: true },
-          { label: 'Brave', ...browserPaths.brave, hasProfiles: true },
-          { label: 'Vivaldi', ...browserPaths.vivaldi, hasProfiles: true },
-          { label: 'Opera', ...browserPaths.opera, hasProfiles: false },
-          { label: 'Opera GX', ...browserPaths.operaGX, hasProfiles: false },
-          { label: 'Arc', ...browserPaths.arc, hasProfiles: true },
-          { label: 'Chromium', ...browserPaths.chromium, hasProfiles: true },
-          { label: 'Thorium', ...browserPaths.thorium, hasProfiles: true },
-          { label: 'Supermium', ...browserPaths.supermium, hasProfiles: true },
-          { label: 'Helium', ...browserPaths.helium, hasProfiles: true },
-          { label: 'Cromite', ...browserPaths.cromite, hasProfiles: true },
-          { label: 'CatsXP', ...browserPaths.catsxp, hasProfiles: true },
-        ]
-
-        for (const browser of chromiumBrowsers) {
-          if (!existsSync(browser.base)) continue
-          const cacheDirs = [
-            { dir: browser.cache, label: 'Cache' },
-            { dir: browser.codeCache, label: 'Code Cache' },
-            { dir: browser.gpuCache, label: 'GPU Cache' },
-            { dir: browser.serviceWorker, label: 'Service Worker Cache' },
-          ]
-          if (browser.hasProfiles) {
-            const profiles = await getChromiumProfiles(browser.base)
-            for (const profile of profiles) {
-              for (const { dir, label } of cacheDirs) {
-                const cachePath = join(browser.base, profile, dir)
-                if (existsSync(cachePath)) {
-                  try {
-                    const r = await scanDirectory(cachePath, browserCategory, `${browser.label} - ${profile} ${label}`)
-                    if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
-                  } catch { /* skip */ }
-                }
-              }
-            }
-          } else {
-            for (const { dir, label } of cacheDirs) {
-              const cachePath = join(browser.base, dir)
-              if (existsSync(cachePath)) {
-                try {
-                  const r = await scanDirectory(cachePath, browserCategory, `${browser.label} - ${label}`)
-                  if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
-                } catch { /* skip */ }
-              }
-            }
+        for (const browser of chromiumBrowsers(browserPaths)) {
+          for (const target of await chromiumCacheTargets(browser)) {
+            try {
+              const r = await scanDirectory(target.path, browserCategory, target.label, skipRecent)
+              if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
+            } catch { /* skip */ }
           }
         }
 
@@ -1993,7 +1954,7 @@ class CloudAgentService {
               if (dir.isDirectory()) {
                 const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
                 if (existsSync(cachePath)) {
-                  const r = await scanDirectory(cachePath, browserCategory, `Firefox - ${dir.name} Cache`)
+                  const r = await scanDirectory(cachePath, browserCategory, `Firefox - ${dir.name} Cache`, skipRecent)
                   if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
                 }
               }
@@ -2015,7 +1976,7 @@ class CloudAgentService {
               if (dir.isDirectory()) {
                 const cachePath = join(fork.cache, dir.name, 'cache2')
                 if (existsSync(cachePath)) {
-                  const r = await scanDirectory(cachePath, browserCategory, `${fork.label} - ${dir.name} Cache`)
+                  const r = await scanDirectory(cachePath, browserCategory, `${fork.label} - ${dir.name} Cache`, skipRecent)
                   if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
                 }
               }
@@ -2026,7 +1987,7 @@ class CloudAgentService {
         // Safari (macOS only) — cache directory only, never cookies/history/bookmarks
         if (browserPaths.safari && existsSync(browserPaths.safari.cache)) {
           try {
-            const r = await scanDirectory(browserPaths.safari.cache, browserCategory, 'Safari - Cache')
+            const r = await scanDirectory(browserPaths.safari.cache, browserCategory, 'Safari - Cache', skipRecent)
             if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
           } catch { /* skip */ }
         }
@@ -3308,18 +3269,3 @@ class CloudAgentService {
 }
 
 export const cloudAgent = new CloudAgentService()
-
-async function getChromiumProfiles(basePath: string): Promise<string[]> {
-  const profiles = ['Default']
-  try {
-    const entries = await readdir(basePath, { withFileTypes: true })
-    for (const entry of entries) {
-      if (entry.isDirectory() && entry.name.startsWith('Profile ')) {
-        profiles.push(entry.name)
-      }
-    }
-  } catch {
-    // Skip
-  }
-  return profiles
-}

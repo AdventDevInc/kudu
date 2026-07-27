@@ -59,6 +59,21 @@
       }
     },
 
+    "ChromiumCacheDir": {
+      "type": "object",
+      "required": ["dir", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Directory relative to the profile (or to the user-data base, for shared entries). Use forward slashes — the loader converts to OS-native separators."
+        },
+        "label": { "type": "string", "minLength": 1, "description": "Display label appended to the browser (and profile) name" },
+        "description": { "type": "string", "description": "Optional explanation of what this directory holds and why it's safe to delete" }
+      }
+    },
+
     "ChromiumBrowser": {
       "type": "object",
       "required": ["key", "base"],
@@ -147,13 +162,20 @@
         "type": { "const": "browsers" },
         "chromiumCacheDirs": {
           "type": "object",
-          "required": ["cache", "codeCache", "gpuCache", "serviceWorker"],
+          "required": ["profile"],
           "additionalProperties": false,
           "properties": {
-            "cache": { "type": "string" },
-            "codeCache": { "type": "string" },
-            "gpuCache": { "type": "string" },
-            "serviceWorker": { "type": "string" }
+            "profile": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/ChromiumCacheDir" },
+              "minItems": 1,
+              "description": "Cache directories that live inside each browser profile (Default, Profile 1, …)"
+            },
+            "shared": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/ChromiumCacheDir" },
+              "description": "Cache directories shared by every profile, sitting directly under the user-data base"
+            }
           }
         },
         "chromium": {

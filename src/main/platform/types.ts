@@ -46,12 +46,19 @@ export interface BrowserPathConfig {
   safari: { cache: string } | null
 }
 
+export interface ChromiumCacheDir {
+  /** Directory relative to the profile, or to `base` for shared entries */
+  dir: string
+  /** Display label appended to the browser (and profile) name */
+  label: string
+}
+
 export interface BrowserPaths {
   base: string
-  cache: string
-  codeCache: string
-  gpuCache: string
-  serviceWorker: string
+  /** Cache directories inside each profile (Default, Profile 1, …) */
+  profileCaches: ChromiumCacheDir[]
+  /** Cache directories shared by every profile, directly under `base` */
+  sharedCaches: ChromiumCacheDir[]
 }
 
 export interface AppCacheDef {

@@ -120,11 +120,21 @@ describe('win32 paths', () => {
     it('Chromium browsers have consistent cache dir names', () => {
       const chromiumBrowsers = [browsers.chrome, browsers.edge, browsers.brave, browsers.vivaldi, browsers.arc, browsers.chromium]
       for (const b of chromiumBrowsers) {
-        expect(b.cache).toBe('Cache\\Cache_Data')
-        expect(b.codeCache).toBe('Code Cache')
-        expect(b.gpuCache).toBe('GPUCache')
-        expect(b.serviceWorker).toBe('Service Worker\\CacheStorage')
+        const profile = b.profileCaches.map((c) => c.dir)
+        expect(profile).toContain('Cache\\Cache_Data')
+        expect(profile).toContain('Code Cache')
+        expect(profile).toContain('GPUCache')
+        expect(profile).toContain('Service Worker\\CacheStorage')
+        // Shader and CRX caches sit beside the profiles, not inside them (issue #265)
+        expect(b.sharedCaches.map((c) => c.dir)).toEqual(
+          expect.arrayContaining(['component_crx_cache', 'extensions_crx_cache', 'GrShaderCache', 'ShaderCache'])
+        )
       }
+    })
+
+    it('every cache dir carries a distinct display label', () => {
+      const labels = [...browsers.chrome.profileCaches, ...browsers.chrome.sharedCaches].map((c) => c.label)
+      expect(new Set(labels).size).toBe(labels.length)
     })
 
     it('Safari is null on Windows', () => {

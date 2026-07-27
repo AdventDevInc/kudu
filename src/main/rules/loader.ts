@@ -9,6 +9,7 @@ import type {
   CleanTarget,
   BrowserPathConfig,
   BrowserPaths,
+  ChromiumCacheDir,
   AppCacheDef,
   DatabaseTarget,
 } from '../platform/types'
@@ -29,10 +30,8 @@ export interface SystemRulesJson {
 export interface BrowserRulesJson {
   type: 'browsers'
   chromiumCacheDirs: {
-    cache: string
-    codeCache: string
-    gpuCache: string
-    serviceWorker: string
+    profile: Array<{ dir: string; label: string }>
+    shared?: Array<{ dir: string; label: string }>
   }
   chromium: Array<{ key: string; base: string }>
   firefox: { base: string; cache: string }
@@ -194,18 +193,17 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
 
     browserPaths(): BrowserPathConfig {
       const dirs = json.browsers.chromiumCacheDirs
-      const cacheDirsResolved = {
-        cache: resolvePath(dirs.cache, vars, platform),
-        codeCache: resolvePath(dirs.codeCache, vars, platform),
-        gpuCache: resolvePath(dirs.gpuCache, vars, platform),
-        serviceWorker: resolvePath(dirs.serviceWorker, vars, platform),
-      }
+      const resolveDirs = (list: Array<{ dir: string; label: string }>): ChromiumCacheDir[] =>
+        list.map((d) => ({ dir: resolvePath(d.dir, vars, platform), label: d.label }))
+      const profileCaches = resolveDirs(dirs.profile)
+      const sharedCaches = resolveDirs(dirs.shared || [])
 
       const config: Record<string, BrowserPaths> = {}
       for (const browser of json.browsers.chromium) {
         config[browser.key] = {
           base: resolvePath(browser.base, vars, platform),
-          ...cacheDirsResolved,
+          profileCaches,
+          sharedCaches,
         }
       }
 
