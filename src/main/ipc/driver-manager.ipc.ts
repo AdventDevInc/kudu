@@ -75,7 +75,7 @@ function compareVersions(a: string, b: string): number {
   return 0
 }
 
-interface RawDriver {
+export interface RawDriver {
   publishedName: string
   originalName: string
   provider: string
@@ -90,7 +90,7 @@ interface RawDriver {
  * Handles both modern and legacy field names, including the combined
  * "Driver date and version" field found on Windows 11 24H2+.
  */
-function parseEnumDrivers(stdout: string): RawDriver[] {
+export function parseEnumDrivers(stdout: string): RawDriver[] {
   const drivers: RawDriver[] = []
   // Split into blocks separated by blank lines
   const blocks = stdout.split(/\n\s*\n/)
@@ -128,10 +128,12 @@ function parseEnumDrivers(stdout: string): RawDriver[] {
 
     drivers.push({
       publishedName,
+      // Never fall back to the provider here: originalName is the package's
+      // identity for duplicate detection, and a provider name shared by every
+      // driver a vendor ships is the opposite of an identity.
       originalName:
         fields['original name'] ||
         fields['original inf'] ||
-        fields['driver package provider'] ||
         publishedName,
       provider:
         fields['driver package provider'] ||
@@ -153,6 +155,106 @@ function parseEnumDrivers(stdout: string): RawDriver[] {
   }
 
   return drivers
+}
+
+/** A dotted numeric version we can order against another one. */
+function isComparableVersion(version: string): boolean {
+  return /^\d+(\.\d+)*$/.test(version.trim())
+}
+
+/**
+ * Identity of a driver package for duplicate detection: the original INF name
+ * plus its publisher (e.g. "wintun.inf" from "Tailscale Inc."). Two packages
+ * are versions of *the same driver* only when both halves match.
+ *
+ * The INF name alone is not enough — it is a filename, not a globally unique
+ * id, and generic names like "driver.inf" ship from more than one vendor.
+ *
+ * Provider + device class is not enough either. Vendors routinely ship several
+ * unrelated drivers in one class — Intel's Ethernet and Wi-Fi packages are both
+ * class "Net" — and treating them as one another's versions marks working
+ * drivers as stale.
+ *
+ * When either half is missing there is no identity to establish, so the package
+ * is keyed on itself and can never be considered a superseded copy of anything.
+ */
+export function driverIdentityKey(d: RawDriver): string {
+  const published = d.publishedName.trim().toLowerCase()
+  const original = d.originalName.trim().toLowerCase()
+  // 'Unknown' is what parseEnumDrivers substitutes for an absent provider.
+  const provider = d.provider.trim().toLowerCase()
+  const hasOriginal = original.endsWith('.inf') && original !== published
+  const hasProvider = provider !== '' && provider !== 'unknown'
+  if (hasOriginal && hasProvider) return `inf:${original}|${provider}`
+  return `pkg:${published}`
+}
+
+/**
+ * Identify driver packages that a newer copy of the same driver has replaced.
+ * Returns the set of published names (lowercased) that are safe to remove.
+ *
+ * A package is only superseded when the same INF has another package that is
+ * both strictly newer AND actually bound to hardware. Everything else is left
+ * alone — in particular, a package that is not bound to any device is NOT
+ * evidence of staleness:
+ *
+ *   - Virtual network adapters (Tailscale/Wintun, WireGuard, VPN tunnels) only
+ *     materialise a device while the tunnel is up, so their driver looks
+ *     unbound whenever the app is idle. Deleting it leaves the client unable to
+ *     create its adapter — the failure reported in #242.
+ *   - Removable hardware — docks, printers, phones, dongles — is unbound
+ *     whenever it is unplugged.
+ *
+ * Ordering only happens between two packages whose versions are both readable
+ * dotted numbers. compareVersions() reads an absent or non-numeric version as
+ * zero, which would make every known version look newer than it.
+ *
+ * If the active-driver query fails entirely the anchor set is empty, nothing is
+ * superseded, and the scan reports no stale packages. That is the safe
+ * direction to fail in.
+ */
+export function findSupersededDrivers(
+  rawDrivers: RawDriver[],
+  activeNames: Set<string>
+): Set<string> {
+  const groups = new Map<string, RawDriver[]>()
+  for (const d of rawDrivers) {
+    const key = driverIdentityKey(d)
+    const group = groups.get(key)
+    if (group) group.push(d)
+    else groups.set(key, [d])
+  }
+
+  const superseded = new Set<string>()
+
+  for (const group of groups.values()) {
+    if (group.length < 2) continue
+
+    // Anchor: the highest-versioned package of this driver that Windows has
+    // actually bound to a device. Without one there is no proof any copy was
+    // replaced, so the whole group stays. A bound package whose version we
+    // cannot read can't prove anything is older than it, so it is not an
+    // anchor either.
+    let anchor: RawDriver | null = null
+    for (const d of group) {
+      if (!activeNames.has(d.publishedName.toLowerCase())) continue
+      if (!isComparableVersion(d.version)) continue
+      if (!anchor || compareVersions(d.version, anchor.version) > 0) anchor = d
+    }
+    if (!anchor) continue
+
+    for (const d of group) {
+      if (activeNames.has(d.publishedName.toLowerCase())) continue
+      // Unknown version — leave it alone rather than guess at its age.
+      if (!isComparableVersion(d.version)) continue
+      // Strictly older than the bound copy. Equal versions are left alone.
+      if (compareVersions(anchor.version, d.version) > 0) {
+        superseded.add(d.publishedName.toLowerCase())
+      }
+    }
+  }
+
+  return superseded
 }
 
 /**
@@ -297,69 +399,50 @@ export async function scanDrivers(
       getOemFolderMap()
     ])
 
-    // Step 3: Group by provider + class to find duplicates (since legacy pnputil
-    // doesn't expose the original inf name, we use provider+class as the grouping key)
-    const groups = new Map<string, RawDriver[]>()
-    for (const d of rawDrivers) {
-      const key = `${d.provider.toLowerCase()}::${d.className.toLowerCase()}`
-      const group = groups.get(key) || []
-      group.push(d)
-      groups.set(key, group)
-    }
+    // Step 3: Identify packages that a newer, actively-bound copy of the same
+    // driver has replaced. Everything else counts as current and is never
+    // offered for removal.
+    const superseded = findSupersededDrivers(rawDrivers, activeNames)
 
-    // Within each group, mark the newest as current; the rest are stale
-    // Also mark any driver actively bound to hardware as current
     const packages: DriverPackage[] = []
     let idx = 0
 
-    for (const [, group] of groups) {
-      // Sort by version descending using numeric comparison
-      group.sort((a, b) => compareVersions(b.version, a.version))
+    for (const d of rawDrivers) {
+      onProgress?.({
+        phase: 'measuring',
+        current: ++idx,
+        total: rawDrivers.length,
+        currentDriver: `${d.provider} - ${d.className} (${d.version})`
+      })
 
-      for (let i = 0; i < group.length; i++) {
-        const d = group[i]
-        const isActive = activeNames.has(d.publishedName.toLowerCase())
-        const isNewest = i === 0
+      // Find folder in FileRepository using registry-based OEM→folder mapping
+      let folderPath = ''
+      let size = 0
+      try {
+        const folders = oemFolderMap.get(d.publishedName.toLowerCase()) || []
+        if (folders.length > 0) {
+          // Use the first (and usually only) matching folder
+          folderPath = join(DRIVER_STORE, folders[0])
+          size = dirSize(folderPath)
+        }
+      } catch { /* skip */ }
 
-        onProgress?.({
-          phase: 'measuring',
-          current: ++idx,
-          total: rawDrivers.length,
-          currentDriver: `${d.provider} - ${d.className} (${d.version})`
-        })
+      const isStale = superseded.has(d.publishedName.toLowerCase())
 
-        // Find folder in FileRepository using registry-based OEM→folder mapping
-        let folderPath = ''
-        let size = 0
-        try {
-          const folders = oemFolderMap.get(d.publishedName.toLowerCase()) || []
-          if (folders.length > 0) {
-            // Use the first (and usually only) matching folder
-            folderPath = join(DRIVER_STORE, folders[0])
-            size = dirSize(folderPath)
-          }
-        } catch { /* skip */ }
-
-        packages.push({
-          id: makeId(d.publishedName, d.version),
-          publishedName: d.publishedName,
-          originalName: d.originalName,
-          provider: d.provider,
-          className: d.className,
-          version: d.version,
-          date: d.date,
-          signer: d.signer,
-          folderPath,
-          size,
-          isCurrent: isActive || isNewest,
-          selected: false
-        })
-      }
-    }
-
-    // Pre-select stale (non-current) drivers
-    for (const pkg of packages) {
-      if (!pkg.isCurrent) pkg.selected = true
+      packages.push({
+        id: makeId(d.publishedName, d.version),
+        publishedName: d.publishedName,
+        originalName: d.originalName,
+        provider: d.provider,
+        className: d.className,
+        version: d.version,
+        date: d.date,
+        signer: d.signer,
+        folderPath,
+        size,
+        isCurrent: !isStale,
+        selected: isStale
+      })
     }
 
     const stale = packages.filter((p) => !p.isCurrent)
@@ -384,10 +467,22 @@ export async function cleanDrivers(publishedNames: string[]): Promise<DriverClea
       // Get OEM→folder mapping for size calculation before removal
       const oemFolderMap = await getOemFolderMap()
 
+      // Re-check hardware bindings at removal time. The scan list the caller is
+      // acting on can be minutes old, and a device that was absent during the
+      // scan may have arrived since. pnputil only refuses in-use packages when
+      // the device is present, so this is the check that catches it.
+      const activeNames = await getActiveDriverNames()
+
       for (const name of publishedNames) {
         // Validate: only allow oem*.inf names
         if (!/^oem\d+\.inf$/i.test(name)) {
           errors.push({ publishedName: name, reason: 'Invalid driver package name' })
+          failed++
+          continue
+        }
+
+        if (activeNames.has(name.toLowerCase())) {
+          errors.push({ publishedName: name, reason: 'Driver is currently in use by a device' })
           failed++
           continue
         }
