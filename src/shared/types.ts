@@ -876,6 +876,10 @@ export interface FirewallScanResult {
   staleCount: number
   unsignedCount: number
   broadScopeCount: number
+  // Set when the scan was cut short (timeout) or returned fewer rules than it
+  // enumerated. The findings shown are real but incomplete, so the UI must not
+  // present them as a full audit.
+  truncated?: boolean
 }
 
 export interface FirewallApplyResult {
