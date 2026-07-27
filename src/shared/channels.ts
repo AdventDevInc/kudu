@@ -253,6 +253,7 @@ export const IPC = {
   GAME_MODE_ACTIVATE: 'game-mode:activate',
   GAME_MODE_DEACTIVATE: 'game-mode:deactivate',
   GAME_MODE_STATUS: 'game-mode:status',
+  GAME_MODE_DISCARD_PENDING: 'game-mode:discard-pending',
   GAME_MODE_PROGRESS: 'game-mode:progress',
   GAME_MODE_AUTO_EVENT: 'game-mode:auto-event',
 

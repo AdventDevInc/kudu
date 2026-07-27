@@ -731,6 +731,9 @@ export interface GameModeSnapshot {
   powerSaveBlockerId: number | null
   nagleInterfaces: Array<{ path: string; originalTcpNoDelay: number | null; originalTcpAckFrequency: number | null }>
   registryTweaks: Array<{ path: string; name: string; originalValue: number | null }>
+  // Why the last deactivation left items behind. Persisted so the cleanup
+  // banner can name the offending step after an app restart.
+  restoreErrors?: Array<{ optimizationId: string; reason: string }>
 }
 
 export interface GameModeActivateResult {
@@ -759,6 +762,8 @@ export interface GameModeStatus {
   /** True when a previous deactivation left items unrestored. The toggle is
    * not "on", but a cleanup retry is available. */
   pendingRestore: boolean
+  /** Reason the first unrestored item failed, or null when unknown. */
+  pendingReason: string | null
 }
 
 // ─── Service Manager ────────────────────────────────────────
