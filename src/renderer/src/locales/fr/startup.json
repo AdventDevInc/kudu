@@ -1,6 +1,6 @@
 {
   "pageTitle": "Gestionnaire de démarrage",
-  "pageDescription": "Gérer les programmes qui s’exécutent au démarrage",
+  "pageDescription": "Gérez les programmes qui s’exécutent au démarrage",
   "filterAll": "Tous les éléments",
   "filterActive": "Actifs uniquement",
   "filterDisabled": "Désactivés uniquement",
@@ -14,7 +14,7 @@
   "sourceLaunchAgentUser": "Agent de lancement utilisateur",
   "sourceLaunchAgentGlobal": "Agent de lancement global",
   "sourceLoginItem": "Élément de connexion",
-  "sourceSystemdUser": "Service utilisateur systemd",
+  "sourceSystemdUser": "Service utilisateur Systemd",
   "sourceAutostartDesktop": "Démarrage automatique XDG",
   "sourceCron": "Tâche Cron",
   "bootTraceAnalyzing": "Analyse des données de trace de démarrage...",
@@ -23,7 +23,7 @@
   "bootTraceTitle": "Analyse de l’impact au démarrage",
   "bootTraceLastBoot": "Dernier démarrage : {{date}}",
   "bootTraceBasedOnLastBoot": "Basé sur la dernière trace de démarrage",
-  "bootTraceTotalBoot": "Démarrage total :",
+  "bootTraceTotalBoot": "Temps de démarrage total :",
   "bootTraceHighImpactApp": "{{count}} application à fort impact",
   "bootTraceHighImpactApps": "{{count}} applications à fort impact",
   "statTotalBootTime": "Temps de démarrage total",
@@ -56,12 +56,14 @@
   "safetyLinkCloud": "Liez Kudu Cloud pour voir les évaluations de sécurité IA de vos programmes de démarrage",
   "safetyPending": "Analyse de la sécurité...",
   "safetyTooltipSafe": "Sûr — cliquez pour plus de détails",
-  "safetyTooltipCaution": "Soyez prudent — cliquez pour plus de détails",
+  "safetyTooltipCaution": "À utiliser avec prudence — cliquez pour plus de détails",
   "safetyTooltipWarning": "Suspect — cliquez pour plus de détails",
   "safetyTooltipDanger": "Potentiellement dangereux — cliquez pour plus de détails",
   "safetyTooltipPending": "Analyse de sécurité en cours",
-  "safetyTooltipLocked": "Liez Kudu Cloud pour obtenir les évaluations de sécurité",
+  "safetyTooltipLocked": "Liez Kudu Cloud pour les évaluations de sécurité",
   "safetyScore": "Sécurité : {{score}}/10",
   "safetyAnalyzed": "Analysé le {{date}}",
-  "sortBySafety": "Trier par sécurité"
+  "sortBySafety": "Trier par sécurité",
+  "staleBadge": "Non installé",
+  "staleTooltip": "Le programme vers lequel cette entrée pointe est introuvable et ne peut donc plus démarrer. Vous pouvez supprimer cette entrée sans risque."
 }

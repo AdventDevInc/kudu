@@ -4,7 +4,7 @@
   "filterAll": "Tüm Öğeler",
   "filterActive": "Yalnızca Etkin",
   "filterDisabled": "Yalnızca Devre Dışı",
-  "sortByImpact": "Etkisine Göre Sırala",
+  "sortByImpact": "Etkiye Göre Sırala",
   "sortByName": "Ada Göre Sırala",
   "impactLabel": "{{level}} etki",
   "sourceUserRegistry": "Kullanıcı Kayıt Defteri",
@@ -47,7 +47,7 @@
   "errorFailedToToggle": "{{name}} için {{action}} işlemi başarısız oldu. Bu işlem yönetici ayrıcalıkları gerektirebilir.",
   "errorFailedToRemove": "{{name}} kaldırılamadı. Bu işlem yönetici ayrıcalıkları gerektirebilir.",
   "confirmRemoveTitle": "{{name}} kaldırılsın mı?",
-  "confirmRemoveDescription": "Bu işlem bu başlangıç girdisini kalıcı olarak kaldıracaktır. Program artık Windows ile başlamayacaktır.",
+  "confirmRemoveDescription": "Bu işlem bu başlangıç girdisini kalıcı olarak kaldıracaktır. Program artık Windows ile birlikte başlamayacaktır.",
   "confirmRemoveLabel": "Kaldır",
   "historyCategoryEnabled": "Etkinleştirildi",
   "historyCategoryDisabled": "Devre Dışı Bırakıldı",
@@ -63,5 +63,7 @@
   "safetyTooltipLocked": "Güvenlik derecelendirmeleri için Kudu Cloud'a bağlanın",
   "safetyScore": "Güvenlik: {{score}}/10",
   "safetyAnalyzed": "Analiz tarihi: {{date}}",
-  "sortBySafety": "Güvenliğe Göre Sırala"
+  "sortBySafety": "Güvenliğe Göre Sırala",
+  "staleBadge": "Yüklü değil",
+  "staleTooltip": "Bu girdinin işaret ettiği program eksik olduğundan artık başlatılamaz. Girdiyi kaldırmak güvenlidir."
 }

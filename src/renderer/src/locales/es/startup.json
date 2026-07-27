@@ -14,7 +14,7 @@
   "sourceLaunchAgentUser": "Agente de inicio de usuario",
   "sourceLaunchAgentGlobal": "Agente de inicio global",
   "sourceLoginItem": "Elemento de inicio de sesión",
-  "sourceSystemdUser": "Servicio de usuario de Systemd",
+  "sourceSystemdUser": "Servicio de usuario de systemd",
   "sourceAutostartDesktop": "Inicio automático XDG",
   "sourceCron": "Tarea Cron",
   "bootTraceAnalyzing": "Analizando los datos de seguimiento del arranque...",
@@ -31,7 +31,7 @@
   "statAppsMeasured": "Aplicaciones medidas",
   "statPotentialSavings": "Ahorro potencial",
   "chartBootTimeImpact": "Impacto en el tiempo de arranque por aplicación",
-  "chartNoPerAppData": "No hay datos de arranque disponibles por aplicación",
+  "chartNoPerAppData": "No hay datos de arranque por aplicación disponibles",
   "chartBootTimeBreakdown": "Desglose del tiempo de arranque",
   "chartTooltipDelay": "Retraso",
   "pieCoreBoot": "Arranque principal",
@@ -53,7 +53,7 @@
   "historyCategoryDisabled": "Deshabilitado",
   "historyCategoryRemoved": "Quitado",
   "removeButtonTitle": "Quitar {{name}}",
-  "safetyLinkCloud": "Vincule con Kudu Cloud para ver las calificaciones de seguridad con IA de sus programas de inicio",
+  "safetyLinkCloud": "Vincule con Kudu Cloud para ver las calificaciones de seguridad con AI de sus programas de inicio",
   "safetyPending": "Analizando la seguridad...",
   "safetyTooltipSafe": "Seguro; haga clic para ver los detalles",
   "safetyTooltipCaution": "Use precaución; haga clic para ver los detalles",
@@ -63,5 +63,7 @@
   "safetyTooltipLocked": "Vincule con Kudu Cloud para ver las calificaciones de seguridad",
   "safetyScore": "Seguridad: {{score}}/10",
   "safetyAnalyzed": "Analizado el {{date}}",
-  "sortBySafety": "Ordenar por seguridad"
+  "sortBySafety": "Ordenar por seguridad",
+  "staleBadge": "No instalado",
+  "staleTooltip": "Falta el programa al que apunta esta entrada, por lo que ya no puede iniciarse. Es seguro quitar la entrada."
 }

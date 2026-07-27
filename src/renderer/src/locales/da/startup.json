@@ -30,7 +30,7 @@
   "statStartupAppsDelay": "Forsinkelse fra opstartsapps",
   "statAppsMeasured": "Målte apps",
   "statPotentialSavings": "Potentiel besparelse",
-  "chartBootTimeImpact": "Påvirkning på opstartstid efter program",
+  "chartBootTimeImpact": "Opstartstidspåvirkning efter program",
   "chartNoPerAppData": "Ingen opstartsdata pr. app tilgængelige",
   "chartBootTimeBreakdown": "Fordeling af opstartstid",
   "chartTooltipDelay": "Forsinkelse",
@@ -47,7 +47,7 @@
   "errorFailedToToggle": "Kunne ikke {{action}} {{name}}. Dette kan kræve administratorrettigheder.",
   "errorFailedToRemove": "Kunne ikke fjerne {{name}}. Dette kan kræve administratorrettigheder.",
   "confirmRemoveTitle": "Fjern {{name}}?",
-  "confirmRemoveDescription": "Dette vil permanent fjerne denne opstartspost. Programmet vil ikke længere starte sammen med Windows.",
+  "confirmRemoveDescription": "Dette vil permanent fjerne denne opstartspost. Programmet starter ikke længere sammen med Windows.",
   "confirmRemoveLabel": "Fjern",
   "historyCategoryEnabled": "Aktiveret",
   "historyCategoryDisabled": "Deaktiveret",
@@ -59,9 +59,11 @@
   "safetyTooltipCaution": "Vær forsigtig — klik for detaljer",
   "safetyTooltipWarning": "Mistænkelig — klik for detaljer",
   "safetyTooltipDanger": "Potentielt usikker — klik for detaljer",
-  "safetyTooltipPending": "Sikkerhedsanalyse i gang",
+  "safetyTooltipPending": "Sikkerhedsanalyse er i gang",
   "safetyTooltipLocked": "Forbind til Kudu Cloud for sikkerhedsvurderinger",
   "safetyScore": "Sikkerhed: {{score}}/10",
   "safetyAnalyzed": "Analyseret {{date}}",
-  "sortBySafety": "Sortér efter sikkerhed"
+  "sortBySafety": "Sortér efter sikkerhed",
+  "staleBadge": "Ikke installeret",
+  "staleTooltip": "Programmet, som denne post peger på, mangler, så det kan ikke længere starte. Det er sikkert at fjerne posten."
 }

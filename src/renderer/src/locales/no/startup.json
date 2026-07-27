@@ -30,8 +30,8 @@
   "statStartupAppsDelay": "Forsinkelse fra oppstartsapper",
   "statAppsMeasured": "Målte apper",
   "statPotentialSavings": "Potensiell besparelse",
-  "chartBootTimeImpact": "Oppstartstidspåvirkning per program",
-  "chartNoPerAppData": "Ingen oppstartsdata tilgjengelig per app",
+  "chartBootTimeImpact": "Påvirkning på oppstartstid per program",
+  "chartNoPerAppData": "Ingen oppstartsdata per app tilgjengelig",
   "chartBootTimeBreakdown": "Fordeling av oppstartstid",
   "chartTooltipDelay": "Forsinkelse",
   "pieCoreBoot": "Kjerneoppstart",
@@ -47,7 +47,7 @@
   "errorFailedToToggle": "Kunne ikke {{action}} {{name}}. Dette kan kreve administratorrettigheter.",
   "errorFailedToRemove": "Kunne ikke fjerne {{name}}. Dette kan kreve administratorrettigheter.",
   "confirmRemoveTitle": "Fjerne {{name}}?",
-  "confirmRemoveDescription": "Dette vil fjerne denne oppstartsoppføringen permanent. Programmet vil ikke lenger starte med Windows.",
+  "confirmRemoveDescription": "Dette vil permanent fjerne denne oppstartsoppføringen. Programmet vil ikke lenger starte med Windows.",
   "confirmRemoveLabel": "Fjern",
   "historyCategoryEnabled": "Aktivert",
   "historyCategoryDisabled": "Deaktivert",
@@ -63,5 +63,7 @@
   "safetyTooltipLocked": "Koble til Kudu Cloud for sikkerhetsvurderinger",
   "safetyScore": "Sikkerhet: {{score}}/10",
   "safetyAnalyzed": "Analysert {{date}}",
-  "sortBySafety": "Sorter etter sikkerhet"
+  "sortBySafety": "Sorter etter sikkerhet",
+  "staleBadge": "Ikke installert",
+  "staleTooltip": "Programmet denne oppføringen peker til mangler, så det kan ikke lenger starte. Det er trygt å fjerne oppføringen."
 }

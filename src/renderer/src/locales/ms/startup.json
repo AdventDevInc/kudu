@@ -1,6 +1,6 @@
 {
   "pageTitle": "Pengurus Permulaan",
-  "pageDescription": "Urus program yang berjalan semasa permulaan",
+  "pageDescription": "Urus program yang dijalankan semasa permulaan",
   "filterAll": "Semua Item",
   "filterActive": "Aktif Sahaja",
   "filterDisabled": "Dilumpuhkan Sahaja",
@@ -23,7 +23,7 @@
   "bootTraceTitle": "Analisis Impak Permulaan",
   "bootTraceLastBoot": "But terakhir: {{date}}",
   "bootTraceBasedOnLastBoot": "Berdasarkan jejak but terakhir",
-  "bootTraceTotalBoot": "Jumlah but:",
+  "bootTraceTotalBoot": "Jumlah masa but:",
   "bootTraceHighImpactApp": "{{count}} aplikasi berimpak tinggi",
   "bootTraceHighImpactApps": "{{count}} aplikasi berimpak tinggi",
   "statTotalBootTime": "Jumlah Masa But",
@@ -53,15 +53,17 @@
   "historyCategoryDisabled": "Dilumpuhkan",
   "historyCategoryRemoved": "Dibuang",
   "removeButtonTitle": "Buang {{name}}",
-  "safetyLinkCloud": "Pautkan ke Kudu Cloud untuk melihat penilaian keselamatan AI bagi program permulaan anda",
+  "safetyLinkCloud": "Pautkan ke Kudu Cloud untuk melihat penarafan keselamatan AI bagi program permulaan anda",
   "safetyPending": "Menganalisis keselamatan...",
   "safetyTooltipSafe": "Selamat — klik untuk butiran",
   "safetyTooltipCaution": "Gunakan dengan berhati-hati — klik untuk butiran",
   "safetyTooltipWarning": "Mencurigakan — klik untuk butiran",
   "safetyTooltipDanger": "Berpotensi tidak selamat — klik untuk butiran",
   "safetyTooltipPending": "Analisis keselamatan sedang dijalankan",
-  "safetyTooltipLocked": "Pautkan ke Kudu Cloud untuk penilaian keselamatan",
+  "safetyTooltipLocked": "Pautkan ke Kudu Cloud untuk penarafan keselamatan",
   "safetyScore": "Keselamatan: {{score}}/10",
   "safetyAnalyzed": "Dianalisis pada {{date}}",
-  "sortBySafety": "Isih mengikut Keselamatan"
+  "sortBySafety": "Isih mengikut Keselamatan",
+  "staleBadge": "Tidak dipasang",
+  "staleTooltip": "Program yang dirujuk oleh entri ini tiada, jadi ia tidak lagi boleh dimulakan. Membuang entri ini adalah selamat."
 }
