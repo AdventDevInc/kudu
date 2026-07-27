@@ -157,23 +157,35 @@ export function parseEnumDrivers(stdout: string): RawDriver[] {
   return drivers
 }
 
+/** A dotted numeric version we can order against another one. */
+function isComparableVersion(version: string): boolean {
+  return /^\d+(\.\d+)*$/.test(version.trim())
+}
+
 /**
  * Identity of a driver package for duplicate detection: the original INF name
- * (e.g. "wintun.inf"). Two packages are versions of *the same driver* only when
- * they came from the same INF.
+ * plus its publisher (e.g. "wintun.inf" from "Tailscale Inc."). Two packages
+ * are versions of *the same driver* only when both halves match.
  *
- * Provider + device class is not an identity. Vendors routinely ship several
+ * The INF name alone is not enough — it is a filename, not a globally unique
+ * id, and generic names like "driver.inf" ship from more than one vendor.
+ *
+ * Provider + device class is not enough either. Vendors routinely ship several
  * unrelated drivers in one class — Intel's Ethernet and Wi-Fi packages are both
  * class "Net" — and treating them as one another's versions marks working
  * drivers as stale.
  *
- * When pnputil reports no original name the package is keyed on itself, so it
- * can never be considered a superseded copy of anything.
+ * When either half is missing there is no identity to establish, so the package
+ * is keyed on itself and can never be considered a superseded copy of anything.
  */
 export function driverIdentityKey(d: RawDriver): string {
   const published = d.publishedName.trim().toLowerCase()
   const original = d.originalName.trim().toLowerCase()
-  if (original.endsWith('.inf') && original !== published) return `inf:${original}`
+  // 'Unknown' is what parseEnumDrivers substitutes for an absent provider.
+  const provider = d.provider.trim().toLowerCase()
+  const hasOriginal = original.endsWith('.inf') && original !== published
+  const hasProvider = provider !== '' && provider !== 'unknown'
+  if (hasOriginal && hasProvider) return `inf:${original}|${provider}`
   return `pkg:${published}`
 }
 
@@ -192,6 +204,10 @@ export function driverIdentityKey(d: RawDriver): string {
  *     create its adapter — the failure reported in #242.
  *   - Removable hardware — docks, printers, phones, dongles — is unbound
  *     whenever it is unplugged.
+ *
+ * Ordering only happens between two packages whose versions are both readable
+ * dotted numbers. compareVersions() reads an absent or non-numeric version as
+ * zero, which would make every known version look newer than it.
  *
  * If the active-driver query fails entirely the anchor set is empty, nothing is
  * superseded, and the scan reports no stale packages. That is the safe
@@ -216,18 +232,22 @@ export function findSupersededDrivers(
 
     // Anchor: the highest-versioned package of this driver that Windows has
     // actually bound to a device. Without one there is no proof any copy was
-    // replaced, so the whole group stays.
+    // replaced, so the whole group stays. A bound package whose version we
+    // cannot read can't prove anything is older than it, so it is not an
+    // anchor either.
     let anchor: RawDriver | null = null
     for (const d of group) {
       if (!activeNames.has(d.publishedName.toLowerCase())) continue
+      if (!isComparableVersion(d.version)) continue
       if (!anchor || compareVersions(d.version, anchor.version) > 0) anchor = d
     }
     if (!anchor) continue
 
     for (const d of group) {
       if (activeNames.has(d.publishedName.toLowerCase())) continue
-      // Strictly older than the bound copy. Equal, missing or unparseable
-      // versions compare as 0 and are left alone rather than guessed at.
+      // Unknown version — leave it alone rather than guess at its age.
+      if (!isComparableVersion(d.version)) continue
+      // Strictly older than the bound copy. Equal versions are left alone.
       if (compareVersions(anchor.version, d.version) > 0) {
         superseded.add(d.publishedName.toLowerCase())
       }

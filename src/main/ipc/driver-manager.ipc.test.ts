@@ -45,7 +45,7 @@ function setPlatform(p: string): void {
 function driver(over: Partial<RawDriver> & { publishedName: string }): RawDriver {
   return {
     originalName: over.publishedName,
-    provider: 'Unknown',
+    provider: 'Contoso',
     className: 'Unknown',
     version: '1.0.0.0',
     date: '01/01/2024',
@@ -164,17 +164,29 @@ describe('parseEnumDrivers', () => {
 // ── driverIdentityKey ──
 
 describe('driverIdentityKey', () => {
-  it('keys on the original INF name', () => {
-    expect(driverIdentityKey(WINTUN)).toBe('inf:wintun.inf')
+  it('keys on the original INF name and its publisher', () => {
+    expect(driverIdentityKey(WINTUN)).toBe('inf:wintun.inf|tailscale inc.')
   })
 
   it('gives distinct keys to different INFs from the same vendor and class', () => {
     expect(driverIdentityKey(WINTUN)).not.toBe(driverIdentityKey(TAILSCALE_TAP))
   })
 
+  it('gives distinct keys to the same INF filename from different vendors', () => {
+    // "driver.inf" and friends are filenames, not globally unique ids.
+    const a = driver({ publishedName: 'oem90.inf', originalName: 'driver.inf', provider: 'Contoso' })
+    const b = driver({ publishedName: 'oem91.inf', originalName: 'driver.inf', provider: 'Fabrikam' })
+    expect(driverIdentityKey(a)).not.toBe(driverIdentityKey(b))
+  })
+
   it('keys a package on itself when no original INF name is reported', () => {
     const d = driver({ publishedName: 'oem7.inf', provider: 'Contoso Corp' })
     expect(driverIdentityKey(d)).toBe('pkg:oem7.inf')
+  })
+
+  it('keys a package on itself when the publisher is unknown', () => {
+    const d = driver({ publishedName: 'oem8.inf', originalName: 'foo.inf', provider: 'Unknown' })
+    expect(driverIdentityKey(d)).toBe('pkg:oem8.inf')
   })
 })
 
@@ -249,6 +261,26 @@ describe('findSupersededDrivers', () => {
     expect(findSupersededDrivers([a, b], new Set(['oem51.inf'])).size).toBe(0)
   })
 
+  it('keeps a copy with no version against a bound copy that has one', () => {
+    // compareVersions() reads a missing version as 0, so without an explicit
+    // guard "2.0" would order above "" and delete an unverified package.
+    const unknown = driver({ publishedName: 'oem52.inf', originalName: 'foo.inf', version: '' })
+    const bound = driver({ publishedName: 'oem53.inf', originalName: 'foo.inf', version: '2.0' })
+    expect(findSupersededDrivers([unknown, bound], new Set(['oem53.inf'])).size).toBe(0)
+  })
+
+  it('keeps a copy with a non-numeric version against a bound copy', () => {
+    const unknown = driver({ publishedName: 'oem54.inf', originalName: 'foo.inf', version: 'n/a' })
+    const bound = driver({ publishedName: 'oem55.inf', originalName: 'foo.inf', version: '2.0' })
+    expect(findSupersededDrivers([unknown, bound], new Set(['oem55.inf'])).size).toBe(0)
+  })
+
+  it('does not anchor on a bound copy whose version cannot be read', () => {
+    const old = driver({ publishedName: 'oem56.inf', originalName: 'foo.inf', version: '1.0' })
+    const bound = driver({ publishedName: 'oem57.inf', originalName: 'foo.inf', version: '' })
+    expect(findSupersededDrivers([old, bound], new Set(['oem57.inf'])).size).toBe(0)
+  })
+
   it('does not remove a copy that is newer than the bound one', () => {
     const staged = driver({ publishedName: 'oem60.inf', originalName: 'foo.inf', version: '3.0' })
     const bound = driver({ publishedName: 'oem61.inf', originalName: 'foo.inf', version: '2.0' })
@@ -267,6 +299,24 @@ describe('findSupersededDrivers', () => {
     const a = driver({ publishedName: 'oem80.inf', provider: 'Contoso', className: 'Net', version: '1.0' })
     const b = driver({ publishedName: 'oem81.inf', provider: 'Contoso', className: 'Net', version: '2.0' })
     expect(findSupersededDrivers([a, b], new Set(['oem81.inf'])).size).toBe(0)
+  })
+
+  it('does not treat one vendor\'s INF as a version of another vendor\'s same-named INF', () => {
+    const contoso = driver({
+      publishedName: 'oem90.inf', originalName: 'driver.inf',
+      provider: 'Contoso', className: 'Net', version: '1.0',
+    })
+    const fabrikam = driver({
+      publishedName: 'oem91.inf', originalName: 'driver.inf',
+      provider: 'Fabrikam', className: 'Net', version: '2.0',
+    })
+    expect(findSupersededDrivers([contoso, fabrikam], new Set(['oem91.inf'])).size).toBe(0)
+  })
+
+  it('never groups packages whose publisher is unknown', () => {
+    const a = driver({ publishedName: 'oem92.inf', originalName: 'foo.inf', provider: 'Unknown', version: '1.0' })
+    const b = driver({ publishedName: 'oem93.inf', originalName: 'foo.inf', provider: 'Unknown', version: '2.0' })
+    expect(findSupersededDrivers([a, b], new Set(['oem93.inf'])).size).toBe(0)
   })
 })
 
