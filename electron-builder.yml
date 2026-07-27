@@ -33,6 +33,14 @@ win:
 
 nsis:
   oneClick: true
+  # Must stay in sync with win.requestedExecutionLevel above.
+  # requestedExecutionLevel only patches the manifest of Kudu.exe — it has no
+  # effect on the installer. Left per-user (the default), the installer compiles
+  # with `RequestExecutionLevel user`, so it never elevates and then drops an
+  # admin-manifested exe into the user-writable %LOCALAPPDATA%\Programs. Going
+  # per-machine makes the installer request elevation up front, installs to
+  # Program Files, and marks isAdminRightsRequired in the update metadata.
+  perMachine: true
   allowToChangeInstallationDirectory: false
   deleteAppDataOnUninstall: false
   shortcutName: Kudu
