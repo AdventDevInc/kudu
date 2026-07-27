@@ -3,8 +3,10 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync, utimesSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
+const state = vi.hoisted(() => ({ exclusions: [] as string[] }))
+
 vi.mock('./settings-store', () => ({
-  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: [] }),
+  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: state.exclusions }),
 }))
 
 vi.mock('./scan-cache', () => ({ getCachedItems: () => [] }))
@@ -41,6 +43,7 @@ function paths(result: { items: Array<{ path: string }> }): string[] {
 
 beforeEach(() => {
   testDir = mkdtempSync(join(tmpdir(), 'kudu-recency-'))
+  state.exclusions = []
 })
 
 afterEach(() => {
@@ -132,5 +135,27 @@ describe('scanDirectory with deepRecencyCheck', () => {
     const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
     expect(result.items).toHaveLength(0)
     expect(result.itemCount).toBe(0)
+  })
+
+  // The top-level scan only ever tested the entries it listed, so a directory
+  // could be offered whole and then recursively deleted along with an excluded
+  // file buried inside it. Descending closes that off too.
+  it('never offers a directory holding an excluded descendant', async () => {
+    file('js/settled', 180, 100)
+    file('js/keep-me.txt', 180, 7)
+    state.exclusions = [join(testDir, 'js', 'keep-me.txt')]
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([join(testDir, 'js', 'settled')])
+    expect(result.totalSize).toBe(100)
+  })
+
+  it('honours an *.ext exclusion below the top level', async () => {
+    file('js/settled', 180, 100)
+    file('js/nested/notes.log', 180, 7)
+    state.exclusions = ['*.log']
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([join(testDir, 'js', 'settled')])
   })
 })
