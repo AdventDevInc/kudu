@@ -17,6 +17,8 @@ interface FirewallState {
   applyResult: FirewallApplyResult | null
   error: string | null
   hasScanned: boolean
+  /** Last scan returned an incomplete rule set — findings are real but partial. */
+  truncated: boolean
 
   searchQuery: string
   riskFilter: RiskFilter
@@ -30,6 +32,7 @@ interface FirewallState {
   setApplyResult: (result: FirewallApplyResult | null) => void
   setError: (error: string | null) => void
   setHasScanned: (hasScanned: boolean) => void
+  setTruncated: (truncated: boolean) => void
 
   setSearchQuery: (query: string) => void
   setRiskFilter: (filter: RiskFilter) => void
@@ -51,6 +54,7 @@ export const useFirewallStore = create<FirewallState>((set) => ({
   applyResult: null,
   error: null,
   hasScanned: false,
+  truncated: false,
 
   searchQuery: '',
   riskFilter: 'all',
@@ -66,6 +70,7 @@ export const useFirewallStore = create<FirewallState>((set) => ({
   setApplyResult: (applyResult) => set({ applyResult }),
   setError: (error) => set({ error }),
   setHasScanned: (hasScanned) => set({ hasScanned }),
+  setTruncated: (truncated) => set({ truncated }),
 
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setRiskFilter: (riskFilter) => set({ riskFilter }),
@@ -97,6 +102,7 @@ export const useFirewallStore = create<FirewallState>((set) => ({
       applyResult: null,
       error: null,
       hasScanned: false,
+      truncated: false,
       searchQuery: '',
       riskFilter: 'all',
       programFilter: 'all',

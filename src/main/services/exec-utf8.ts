@@ -10,7 +10,7 @@
  *  - Native tools: run via cmd /c with chcp 65001 (UTF-8 code page)
  */
 
-import { execFile, type ExecFileOptions, type ChildProcess } from 'child_process'
+import { execFile, spawn, type ExecFileOptions, type ChildProcess } from 'child_process'
 import { promisify } from 'util'
 
 const execFileAsync = promisify(execFile)
@@ -99,6 +99,82 @@ export async function execTracked(
   } finally {
     cleanup()
   }
+}
+
+/** Cap the partial-line buffer so a child that never emits \n can't exhaust memory. */
+const MAX_LINE_BUFFER = 1024 * 1024
+/** Cap retained stderr — we only ever surface the first few lines. */
+const MAX_STDERR = 64 * 1024
+
+/**
+ * Spawn a process and hand each complete stdout line to `onLine` as it arrives.
+ *
+ * `execTracked` buffers all output and rejects on timeout, throwing away
+ * everything the child already produced.  Use this instead for long-running
+ * scans that stream progress markers: the caller sees lines in real time and
+ * keeps whatever was emitted before a timeout, which is reported through the
+ * resolved `timedOut` flag rather than as an exception.  The child is tracked
+ * like every other spawned process, so `killAllChildren()` on app exit and
+ * abort signals still kill the whole tree.
+ *
+ * Rejects only when the process could not be spawned or the operation was
+ * aborted — a non-zero exit is reported via the resolved `code` so callers can
+ * decide whether partial output is still usable.
+ */
+export function spawnTrackedLines(
+  file: string,
+  args: string[],
+  onLine: (line: string) => void,
+  opts?: { timeout?: number; signal?: AbortSignal; windowsHide?: boolean }
+): Promise<{ stderr: string; code: number | null; timedOut: boolean }> {
+  return new Promise((resolve, reject) => {
+    if (opts?.signal?.aborted) {
+      reject(new Error('Operation cancelled'))
+      return
+    }
+
+    const child = spawn(file, args, { windowsHide: opts?.windowsHide ?? true })
+    child.stdout?.setEncoding('utf-8')
+    child.stderr?.setEncoding('utf-8')
+
+    let pending = ''
+    let stderr = ''
+    let timedOut = false
+    let settled = false
+
+    child.stdout?.on('data', (chunk: string) => {
+      pending += chunk
+      let nl = pending.indexOf('\n')
+      while (nl !== -1) {
+        onLine(pending.slice(0, nl))
+        pending = pending.slice(nl + 1)
+        nl = pending.indexOf('\n')
+      }
+      if (pending.length > MAX_LINE_BUFFER) pending = ''
+    })
+
+    child.stderr?.on('data', (chunk: string) => {
+      if (stderr.length < MAX_STDERR) stderr += chunk
+    })
+
+    // trackChild fires onKill for both the timeout and an abort; the abort case
+    // is disambiguated below by checking the signal itself.
+    const cleanup = trackChild(child, opts?.timeout ?? 15_000, opts?.signal, () => { timedOut = true })
+
+    const settle = (fn: () => void): void => {
+      if (settled) return
+      settled = true
+      cleanup()
+      fn()
+    }
+
+    child.on('error', (err) => settle(() => reject(err)))
+    child.on('close', (code) => settle(() => {
+      if (pending) onLine(pending)
+      if (opts?.signal?.aborted) reject(new Error('Operation cancelled'))
+      else resolve({ stderr, code, timedOut })
+    }))
+  })
 }
 
 /**

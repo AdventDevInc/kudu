@@ -57,6 +57,7 @@ export function FirewallAuditPage() {
   const applyResult = useFirewallStore((s) => s.applyResult)
   const error = useFirewallStore((s) => s.error)
   const hasScanned = useFirewallStore((s) => s.hasScanned)
+  const truncated = useFirewallStore((s) => s.truncated)
   const searchQuery = useFirewallStore((s) => s.searchQuery)
   const riskFilter = useFirewallStore((s) => s.riskFilter)
   const programFilter = useFirewallStore((s) => s.programFilter)
@@ -79,11 +80,13 @@ export function FirewallAuditPage() {
     store.setApplyResult(null)
     store.setError(null)
     store.setScanProgress(null)
+    store.setTruncated(false)
 
     try {
       const result = await window.kudu.firewallScan()
       const s = useFirewallStore.getState()
       s.setRules(result.rules)
+      s.setTruncated(!!result.truncated)
       s.setHasScanned(true)
     } catch (err) {
       toast.error('Firewall scan failed')
@@ -270,6 +273,20 @@ export function FirewallAuditPage() {
           onDismiss={() => useFirewallStore.getState().setError(null)}
           className="mb-5"
         />
+      )}
+
+      {/* A partial rule set is still worth acting on, but it must not read as a
+          complete audit — rules Windows never returned aren't "clean". */}
+      {truncated && !scanning && (
+        <div
+          className="mb-5 flex items-start gap-2.5 rounded-xl p-3.5"
+          style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.3)' }}
+        >
+          <AlertTriangle className="mt-px h-4 w-4 shrink-0" style={{ color: '#f59e0b' }} strokeWidth={2} />
+          <span className="text-[12.5px]" style={{ color: 'var(--text-secondary)' }}>
+            This scan finished early, so the list below is incomplete. Rescan to audit every rule.
+          </span>
+        </div>
       )}
 
       {scanning && scanProgress && (

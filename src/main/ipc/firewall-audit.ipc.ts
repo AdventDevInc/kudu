@@ -14,7 +14,7 @@ import type {
   FirewallRiskLevel,
   FirewallAction,
 } from '../../shared/types'
-import { psUtf8 } from '../services/exec-utf8'
+import { psUtf8, spawnTrackedLines } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -22,6 +22,31 @@ function psArgs(script: string): string[] {
   return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
 }
 const PS_OPTS = { timeout: 120_000, maxBuffer: 50 * 1024 * 1024, windowsHide: true }
+
+// The scan streams its results, so a generous ceiling costs nothing on a
+// healthy system and only bounds the pathological case (a machine where the
+// bulk filter enumeration is denied and every rule falls back to a ~240 ms
+// association query).
+const SCAN_TIMEOUT_MS = 300_000
+
+/**
+ * Build an actionable error for a failed PowerShell run.
+ *
+ * Node rejects with "Command failed: <the entire command line>", which for
+ * these scripts means kilobytes of echoed PowerShell with the actual reason
+ * nowhere in it (issue #246). Prefer stderr, fall back to the exit code, and
+ * never include the script itself.
+ */
+function powerShellError(context: string, code: number | null, stderr: string): Error {
+  const detail = stderr
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 5)
+    .join(' ')
+  if (detail) return new Error(`${context}: ${detail}`)
+  return new Error(`${context}: PowerShell exited with code ${code ?? 'unknown'}`)
+}
 
 // User-defined firewall rule names can contain spaces, parentheses, and
 // other printable characters (e.g. "Microsoft Edge (mDNS-In)").  We
@@ -278,6 +303,25 @@ export async function scanFirewallRules(
     $total = $rules.Count
     Write-Output "TOTAL|$total"
     $i = 0
+    # Resolving a rule's filters through the CIM association ("$r | Get-NetFirewallPortFilter")
+    # costs ~80 ms per call, and we need three per rule. Past ~500 inbound rules
+    # that alone exceeds the caller's timeout, and because $ErrorActionPreference
+    # is SilentlyContinue the kill produced no stderr at all — the UI showed only
+    # the echoed script (issue #246). Enumerate each filter class once instead and
+    # join on InstanceID, which is the rule's Name. -All can fail outright or come
+    # back partial when the process lacks rights on a policy store, so any rule
+    # missing from an index still falls back to its own association query.
+    $appIdx = @{}
+    $portIdx = @{}
+    $addrIdx = @{}
+    foreach ($f in @(Get-NetFirewallApplicationFilter -All)) { if ($f.InstanceID) { $appIdx[[string]$f.InstanceID] = $f } }
+    foreach ($f in @(Get-NetFirewallPortFilter -All)) { if ($f.InstanceID) { $portIdx[[string]$f.InstanceID] = $f } }
+    foreach ($f in @(Get-NetFirewallAddressFilter -All)) { if ($f.InstanceID) { $addrIdx[[string]$f.InstanceID] = $f } }
+    # Authenticode verification does certificate revocation lookups that can block
+    # on the network, and multiple rules routinely point at the same binary, so
+    # memoize the verdict per path. Hashtable keys are case-insensitive, which is
+    # what we want for Windows paths.
+    $sigCache = @{}
     # Append the directory separator so StartsWith matches on a directory boundary.
     # Without this, "C:\WindowsTemp\evil.exe" would match "C:\Windows" and be wrongly
     # treated as system-signed, suppressing the unsigned-binary finding.
@@ -290,10 +334,14 @@ export async function scanFirewallRules(
     if ($pfx86) { $pfx86 = $pfx86.TrimEnd($sep) + $sep }
     foreach ($r in $rules) {
       $i++
+      $key = if ($r.InstanceID) { [string]$r.InstanceID } else { [string]$r.Name }
+      $app = $appIdx[$key]
+      $port = $portIdx[$key]
+      $addr = $addrIdx[$key]
       try {
-        $app = $r | Get-NetFirewallApplicationFilter
-        $port = $r | Get-NetFirewallPortFilter
-        $addr = $r | Get-NetFirewallAddressFilter
+        if (-not $app) { $app = $r | Get-NetFirewallApplicationFilter }
+        if (-not $port) { $port = $r | Get-NetFirewallPortFilter }
+        if (-not $addr) { $addr = $r | Get-NetFirewallAddressFilter }
       } catch { continue }
 
       $programRaw = if ($app -and $app.Program) { [string]$app.Program } else { '' }
@@ -325,6 +373,8 @@ export async function scanFirewallRules(
           if (-not $isSystemPath -and $pfx86 -and $programResolved.StartsWith($pfx86, 'OrdinalIgnoreCase')) { $isSystemPath = $true }
           if ($isSystemPath) {
             $signed = 'signed'
+          } elseif ($sigCache.ContainsKey($programResolved)) {
+            $signed = $sigCache[$programResolved]
           } else {
             try {
               $sig = Get-AuthenticodeSignature -LiteralPath $programResolved
@@ -332,6 +382,7 @@ export async function scanFirewallRules(
               elseif ($sig.Status -eq 'NotSigned') { $signed = 'unsigned' }
               else { $signed = 'unknown' }
             } catch { $signed = 'unknown' }
+            $sigCache[$programResolved] = $signed
           }
         }
       }
@@ -351,30 +402,49 @@ export async function scanFirewallRules(
     }
   `
 
-  const { stdout } = await execFileAsync('powershell', psArgs(script), PS_OPTS)
-
   const rules: FirewallRule[] = []
   let total = 0
-  for (const rawLine of stdout.split('\n')) {
-    const line = rawLine.trim()
-    if (!line) continue
-    if (line.startsWith('TOTAL|')) {
-      const n = parseInt(line.split('|')[1], 10)
-      if (!Number.isNaN(n)) total = n
-      continue
-    }
-    if (line.startsWith('PROG|')) {
-      const parts = line.split('|')
-      const cur = parseInt(parts[1], 10)
-      const tot = parseInt(parts[2], 10)
-      const ruleName = parts[3] ?? ''
-      if (!Number.isNaN(cur) && !Number.isNaN(tot)) {
-        onProgress?.({ phase: 'classifying', current: cur, total: tot, currentRule: ruleName })
+
+  // Consume stdout line by line rather than buffering it: the PROG markers the
+  // script emits only drive the progress bar if they arrive while the scan is
+  // still running, and anything already parsed survives a timeout.
+  const { stderr, code, timedOut } = await spawnTrackedLines(
+    'powershell',
+    psArgs(script),
+    (rawLine) => {
+      const line = rawLine.trim()
+      if (!line) return
+      if (line.startsWith('TOTAL|')) {
+        const n = parseInt(line.split('|')[1], 10)
+        if (!Number.isNaN(n)) total = n
+        return
       }
-      continue
+      if (line.startsWith('PROG|')) {
+        const parts = line.split('|')
+        const cur = parseInt(parts[1], 10)
+        const tot = parseInt(parts[2], 10)
+        const ruleName = parts[3] ?? ''
+        if (!Number.isNaN(cur) && !Number.isNaN(tot)) {
+          onProgress?.({ phase: 'classifying', current: cur, total: tot, currentRule: ruleName })
+        }
+        return
+      }
+      const parsed = parseRuleLine(line)
+      if (parsed) rules.push(parsed)
+    },
+    { timeout: SCAN_TIMEOUT_MS }
+  )
+
+  // Only treat the run as a failure when it produced nothing usable — a scan
+  // that streamed rules before being cut short is reported as truncated.
+  if (rules.length === 0) {
+    if (timedOut) {
+      throw new Error(
+        `Firewall scan timed out after ${Math.round(SCAN_TIMEOUT_MS / 1000)}s without returning any rules. ` +
+          'Check that the Windows Defender Firewall (MpsSvc) and Base Filtering Engine (BFE) services are running.'
+      )
     }
-    const parsed = parseRuleLine(line)
-    if (parsed) rules.push(parsed)
+    if (code !== 0) throw powerShellError('Firewall scan failed', code, stderr)
   }
 
   const staleCount = rules.filter((r) => r.issues.includes('stale')).length
@@ -387,6 +457,7 @@ export async function scanFirewallRules(
     staleCount,
     unsignedCount,
     broadScopeCount,
+    truncated: timedOut || (total > 0 && rules.length < total),
   }
 }
 
@@ -453,11 +524,17 @@ try {
     }
   } catch (err) {
     failed = changes.length - succeeded
-    errors.push({
-      name: '',
-      displayName: '',
-      reason: err instanceof Error ? err.message : 'PowerShell execution failed',
-    })
+    // Same trap as the scan: the raw rejection message is the whole echoed
+    // script. Use the stderr/exit code Node attaches to it instead.
+    const e = err as NodeJS.ErrnoException & { stderr?: string; code?: number | string; killed?: boolean }
+    const reason = e?.killed
+      ? 'PowerShell timed out while applying firewall changes'
+      : powerShellError(
+          'Failed to apply firewall changes',
+          typeof e?.code === 'number' ? e.code : null,
+          e?.stderr ?? ''
+        ).message
+    errors.push({ name: '', displayName: '', reason })
   }
 
   return { succeeded, failed, errors }
