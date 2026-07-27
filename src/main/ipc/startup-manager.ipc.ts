@@ -356,6 +356,40 @@ const ALLOWED_STARTUP_LOCATIONS = new Set([
   'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run',
 ])
 
+/** The StartupApproved key Windows consults for a given item source. */
+function approvedKeyFor(source: StartupItem['source']): string {
+  return source === 'registry-hkcu'
+    ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+    : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+}
+
+/**
+ * Drop the "disabled by user" marker written to StartupApproved when the item
+ * was disabled, so nothing is left behind once we forget an entry.
+ *
+ * Returns false only when a marker is still present afterwards: the caller
+ * must then keep its record, otherwise reinstalling the program would leave
+ * it silently blocked by the stale marker with no stored command to re-enable
+ * it from.
+ */
+async function clearStartupApprovedMarker(name: string, source: StartupItem['source']): Promise<boolean> {
+  if (source !== 'registry-hkcu' && source !== 'registry-hklm') return true
+  const approvedKey = approvedKeyFor(source)
+
+  try {
+    await execNativeUtf8('reg', ['query', approvedKey, '/v', name], { timeout: 5000 })
+  } catch {
+    return true // nothing recorded there — safe to forget
+  }
+
+  try {
+    await execNativeUtf8('reg', ['delete', approvedKey, '/v', name, '/f'], { timeout: 5000 })
+    return true
+  } catch {
+    return false // e.g. HKLM without elevation
+  }
+}
+
 // ── Exported core logic ──
 
 export async function listStartupItems(): Promise<StartupItem[]> {
@@ -423,12 +457,20 @@ export async function listStartupItems(): Promise<StartupItem[]> {
     // forever — surviving registry cleaning and even a Kudu reinstall, since
     // the file lives in userData. Prune entries whose program is verifiably
     // gone before rebuilding the list from them.
-    const disabled = await withDisabledFileLock(() => {
+    const disabled = await withDisabledFileLock(async () => {
       const entries = readDisabledEntries()
-      const kept = entries.filter((entry) => {
+      const kept: DisabledEntry[] = []
+      for (const entry of entries) {
         const backed = items.some((i) => i.name === entry.name && i.source === entry.source)
-        return backed || !isTargetMissing(entry.command)
-      })
+        if (backed || !isTargetMissing(entry.command)) {
+          kept.push(entry)
+          continue
+        }
+        // Forget the entry only once Windows' own disable marker is gone too
+        if (!(await clearStartupApprovedMarker(entry.name, entry.source))) {
+          kept.push(entry)
+        }
+      }
       if (kept.length !== entries.length) writeDisabledEntries(kept)
       return kept
     })
@@ -483,9 +525,7 @@ export async function toggleStartupItem(
 
       // Determine the matching StartupApproved key so Windows itself
       // honours the enable/disable state (same mechanism Task Manager uses).
-      const approvedKey = source === 'registry-hkcu'
-        ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
-        : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+      const approvedKey = approvedKeyFor(source)
 
       if (!enabled) {
         // Write a "disabled by user" marker (first byte 03) to StartupApproved.
@@ -612,9 +652,7 @@ export async function deleteStartupItem(
             deletedSource = true
           }
           // Also clean up StartupApproved entry if it exists
-          const approvedKey = source === 'registry-hkcu'
-            ? 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
-            : 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+          const approvedKey = approvedKeyFor(source)
           try {
             await execNativeUtf8('reg',['delete', approvedKey, '/v', name, '/f'], { timeout: 5000 })
           } catch { /* may not exist */ }

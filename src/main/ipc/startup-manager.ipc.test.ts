@@ -649,6 +649,52 @@ describe('stale startup entries', () => {
       expect(lastWrittenDisabledFile()).toEqual([])
     })
 
+    it('clears the StartupApproved marker for the entry it drops', async () => {
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
+      ]))
+      const regCalls: Array<{ cmd: string; args: string[] }> = []
+      mockExecFile.mockImplementation((cmd: string, args: string[], _opts: any, cb: Function) => {
+        regCalls.push({ cmd, args })
+        // Only the StartupApproved lookup returns anything
+        if (args[0] === 'query' && args[1].includes('StartupApproved')) {
+          cb(null, '    DuckDuckGo    REG_BINARY    030000000000000000000000\n', '')
+          return
+        }
+        if (args[0] === 'delete') return cb(null, '', '')
+        cb(new Error('not found'), '', '')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'DuckDuckGo')).toBeUndefined()
+      const markerDelete = regCalls.find(
+        (c) => c.args[0] === 'delete' && c.args[1].includes('StartupApproved') && c.args.includes('DuckDuckGo')
+      )
+      expect(markerDelete).toBeDefined()
+      expect(lastWrittenDisabledFile()).toEqual([])
+    })
+
+    it('keeps the entry when the StartupApproved marker cannot be cleared', async () => {
+      // Without the stored command a reinstalled program could never be
+      // re-enabled, so the record has to survive a failed marker cleanup.
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"', location: HKLM_RUN, source: 'registry-hklm' },
+      ]))
+      mockExecFile.mockImplementation((_cmd: string, args: string[], _opts: any, cb: Function) => {
+        if (args[0] === 'query' && args[1].includes('StartupApproved')) {
+          cb(null, '    Nahimic    REG_BINARY    030000000000000000000000\n', '')
+          return
+        }
+        cb(new Error('Access is denied'), '', '')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'Nahimic')).toBeDefined()
+      expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+
     it('keeps a disabled entry while its program is still installed', async () => {
       onlyExisting(DISABLED_FILE, 'C:\\Users\\User\\AppData\\Local\\DuckDuckGo\\DuckDuckGo.exe')
       mockReadFileSync.mockReturnValue(JSON.stringify([

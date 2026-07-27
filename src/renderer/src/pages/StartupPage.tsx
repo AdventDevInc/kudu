@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Zap, Shield, ShieldCheck, ShieldAlert, ShieldOff, RefreshCw, Clock, Activity, TrendingDown, ChevronDown, ChevronUp, BarChart3, Trash2, Lock, PackageX } from 'lucide-react'
+import { Zap, Shield, ShieldCheck, ShieldAlert, ShieldOff, RefreshCw, Clock, Activity, TrendingDown, ChevronDown, ChevronUp, BarChart3, Trash2, PackageX } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
