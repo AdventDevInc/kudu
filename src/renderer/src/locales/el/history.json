@@ -16,9 +16,9 @@
     "cleaner": "Καθαρισμός συστήματος",
     "registry": "Επιδιόρθωση μητρώου",
     "debloater": "Debloater",
-    "network": "Καθαρισμός δικτύου",
-    "drivers": "Καθαρισμός προγραμμάτων οδήγησης",
-    "malware": "Σάρωση για malware",
+    "network": "Εκκαθάριση δικτύου",
+    "drivers": "Εκκαθάριση προγραμμάτων οδήγησης",
+    "malware": "Σάρωση για κακόβουλο λογισμικό",
     "privacy": "Ασπίδα απορρήτου",
     "startup": "Διαχείριση εκκίνησης",
     "services": "Διαχείριση υπηρεσιών",
@@ -49,7 +49,7 @@
     "filterDebloater": "Debloater",
     "filterNetwork": "Δίκτυο",
     "filterDrivers": "Προγράμματα οδήγησης",
-    "filterMalware": "Malware",
+    "filterMalware": "Κακόβουλο λογισμικό",
     "filterPrivacy": "Απόρρητο",
     "filterStartup": "Εκκίνηση",
     "filterServices": "Υπηρεσίες",
@@ -74,14 +74,28 @@
     "errorCount": "{{count}} σφάλμα",
     "errorCountPlural": "{{count}} σφάλματα",
     "categoriesLabel": "Κατηγορίες",
-    "itemsSuffix": "στοιχεία"
+    "itemsSuffix": "στοιχεία",
+    "deletedFiles": {
+      "title": "Διαγραμμένα αρχεία",
+      "loading": "Φόρτωση…",
+      "shownCount": "{{shown}} από {{total}}",
+      "loadMore": "Φόρτωση περισσότερων",
+      "exportCsv": "Εξαγωγή CSV",
+      "openLog": "Άνοιγμα αρχείου καταγραφής",
+      "exported": "Εξήχθησαν {{count}} διαδρομές",
+      "exportFailed": "Δεν ήταν δυνατή η εξαγωγή της λίστας διαγραμμένων αρχείων",
+      "truncatedBadge": "+{{count}} ακόμη",
+      "truncatedHint": "Αυτός ο φάκελος περιείχε {{count}} επιπλέον καταχωρίσεις πέρα από το όριο καταχώρισης ανά φάκελο. Διαγράφηκαν αλλά δεν καταγράφηκαν ξεχωριστά.",
+      "emptyRecorded": "Δεν καταγράφηκαν διαδρομές αρχείων για αυτή την εκτέλεση.",
+      "disabledHint": "Η καταγραφή διαγραφών είναι απενεργοποιημένη, επομένως οι μεμονωμένες διαδρομές από αυτή την εκτέλεση δεν καταγράφηκαν. Ενεργοποιήστε το \"Keep a log of deleted files\" στις Ρυθμίσεις → Προτιμήσεις καθαρισμού για να καταγράφονται από εδώ και στο εξής."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Δεν υπάρχουν ακόμη ενέργειες cloud",
     "emptyStateDescription": "Όταν λαμβάνονται εντολές από τον πίνακα ελέγχου cloud, θα εμφανίζονται εδώ.",
     "totalCommands": "Συνολικές εντολές",
     "succeeded": "Επιτυχείς",
-    "failed": "Αποτυχημένες",
+    "failed": "Απέτυχαν",
     "avgDuration": "Μέση διάρκεια",
     "columnStatus": "Κατάσταση",
     "columnCommand": "Εντολή",
@@ -94,7 +108,7 @@
     "detailStatusSuccess": "Επιτυχία",
     "detailStatusFailed": "Αποτυχία",
     "detailDuration": "Διάρκεια",
-    "detailRequestId": "ID αιτήματος",
+    "detailRequestId": "Αναγνωριστικό αιτήματος",
     "detailSummary": "Σύνοψη",
     "detailError": "Σφάλμα"
   },
@@ -115,9 +129,9 @@
     "runDism": "Επιδιόρθωση DISM",
     "getNetworkConfig": "Ρυθμίσεις δικτύου",
     "getEventLog": "Αρχείο καταγραφής συμβάντων",
-    "getInstalledApps": "Απογραφή εφαρμογών",
+    "getInstalledApps": "Κατάλογος εφαρμογών",
     "driverUpdateScan": "Σάρωση προγραμμάτων οδήγησης",
-    "driverUpdateInstall": "Εγκατάσταση προγράμματος οδήγησης",
+    "driverUpdateInstall": "Εγκατάσταση προγραμμάτων οδήγησης",
     "driverClean": "Καθαρισμός προγραμμάτων οδήγησης",
     "startupList": "Λίστα εκκίνησης",
     "startupToggle": "Εναλλαγή εκκίνησης",
@@ -129,13 +143,13 @@
     "serviceScan": "Σάρωση υπηρεσιών",
     "serviceApply": "Εφαρμογή υπηρεσιών",
     "malwareQuarantine": "Καραντίνα",
-    "malwareDelete": "Διαγραφή malware",
+    "malwareDelete": "Διαγραφή κακόβουλου λογισμικού",
     "registryScan": "Σάρωση μητρώου",
     "registryFix": "Επιδιόρθωση μητρώου"
   },
   "duration": {
-    "lessThanOneSecond": "<1δ",
-    "seconds": "{{count}}δ",
-    "minutesAndSeconds": "{{minutes}}λ {{seconds}}δ"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

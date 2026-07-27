@@ -10,6 +10,9 @@ import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
 import { cacheItems } from '../services/scan-cache'
 import { psUtf8 } from '../services/exec-utf8'
+import {
+  isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin
+} from '../services/recycle-bin-log'
 
 const execFileAsync = promisify(execFile)
 
@@ -92,6 +95,10 @@ export function registerRecycleBinIpc(): void {
 
     // Windows: SHEmptyRecycleBin Win32 API
     const sizeBeforeClean = lastScannedSize
+    // Capture the contents first — after the bin is emptied there is nothing
+    // left to enumerate.
+    const logDeletions = isDeletionLoggingEnabled()
+    const binContents = logDeletions ? await listRecycleBinContents() : []
     try {
       // Flags: SHERB_NOCONFIRMATION(1) | SHERB_NOPROGRESSUI(2) | SHERB_NOSOUND(4) = 7
       await execFileAsync('powershell.exe', psArgs(
@@ -103,6 +110,8 @@ export function registerRecycleBinIpc(): void {
         `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); Write-Output $items.Count`
       ), { windowsHide: true })
       const remaining = parseInt(stdout.trim()) || 0
+
+      if (logDeletions) await recordEmptiedRecycleBin(binContents, 'local')
 
       if (remaining === 0) {
         lastScannedSize = 0

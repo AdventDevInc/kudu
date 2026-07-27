@@ -24,6 +24,7 @@ describe('settings-store', () => {
           closeBrowsersBeforeClean: false,
           createRestorePoint: false,
           protectRecycleBin: true,
+          keepDeletionLog: false,
         },
         exclusions: [],
         schedule: {

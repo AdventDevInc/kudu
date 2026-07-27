@@ -48,7 +48,8 @@ const defaults: StoreData = {
       secureDelete: false,
       closeBrowsersBeforeClean: false,
       createRestorePoint: false,
-      protectRecycleBin: true
+      protectRecycleBin: true,
+      keepDeletionLog: false
     },
     exclusions: [],
     ignoredSoftwareUpdates: [],

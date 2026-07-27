@@ -74,7 +74,21 @@
     "errorCount": "{{count}} error",
     "errorCountPlural": "{{count}} errors",
     "categoriesLabel": "Categories",
-    "itemsSuffix": "items"
+    "itemsSuffix": "items",
+    "deletedFiles": {
+      "title": "Deleted Files",
+      "loading": "Loading…",
+      "shownCount": "{{shown}} of {{total}}",
+      "loadMore": "Load more",
+      "exportCsv": "Export CSV",
+      "openLog": "Open log",
+      "exported": "Exported {{count}} paths",
+      "exportFailed": "Could not export the deleted file list",
+      "truncatedBadge": "+{{count}} more",
+      "truncatedHint": "This folder held {{count}} further entries beyond the per-folder listing limit. They were deleted but not listed individually.",
+      "emptyRecorded": "No file paths were recorded for this run.",
+      "disabledHint": "Deletion logging is off, so the individual paths from this run weren't recorded. Turn on \"Keep a log of deleted files\" in Settings → Cleaning Preferences to record them from now on."
+    }
   },
   "cloud": {
     "emptyStateTitle": "No cloud actions yet",

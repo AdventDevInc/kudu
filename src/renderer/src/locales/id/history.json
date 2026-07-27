@@ -31,13 +31,13 @@
     "itemsProcessed": "Item Diproses",
     "avgDuration": "Durasi Rata-rata",
     "spaceRecoveredOverTime": "Ruang Dipulihkan dari Waktu ke Waktu",
-    "needTwoScansForChart": "Memerlukan setidaknya 2 pemindaian untuk grafik tren",
+    "needTwoScansForChart": "Perlu setidaknya 2 pemindaian untuk grafik tren",
     "scanTypeDistribution": "Distribusi Jenis Pemindaian",
     "noData": "Tidak ada data",
     "topCategoriesBySpace": "Kategori Teratas berdasarkan Ruang",
     "noCategoryData": "Tidak ada data kategori",
     "weeklyActivity": "Aktivitas Mingguan",
-    "needTwoWeeksData": "Memerlukan setidaknya 2 minggu data",
+    "needTwoWeeksData": "Perlu setidaknya 2 minggu data",
     "recentScans": "Pemindaian Terbaru",
     "tooltipSpace": "Ruang",
     "tooltipScans": "Pemindaian"
@@ -61,7 +61,7 @@
     "columnSpace": "Ruang",
     "columnDuration": "Durasi",
     "columnStatus": "Status",
-    "scheduledBadge": "Terjadwal",
+    "scheduledBadge": "Jadwal",
     "noEntriesMatchFilter": "Tidak ada entri yang cocok dengan filter ini",
     "dateAt": "pukul"
   },
@@ -74,7 +74,21 @@
     "errorCount": "{{count}} kesalahan",
     "errorCountPlural": "{{count}} kesalahan",
     "categoriesLabel": "Kategori",
-    "itemsSuffix": "item"
+    "itemsSuffix": "item",
+    "deletedFiles": {
+      "title": "File yang Dihapus",
+      "loading": "Memuat…",
+      "shownCount": "{{shown}} dari {{total}}",
+      "loadMore": "Muat lebih banyak",
+      "exportCsv": "Ekspor CSV",
+      "openLog": "Buka log",
+      "exported": "{{count}} jalur berhasil diekspor",
+      "exportFailed": "Tidak dapat mengekspor daftar file yang dihapus",
+      "truncatedBadge": "+{{count}} lagi",
+      "truncatedHint": "Folder ini berisi {{count}} entri tambahan di luar batas daftar per folder. Entri tersebut telah dihapus tetapi tidak dicantumkan satu per satu.",
+      "emptyRecorded": "Tidak ada jalur file yang dicatat untuk proses ini.",
+      "disabledHint": "Pencatatan penghapusan dinonaktifkan, sehingga jalur individual dari proses ini tidak dicatat. Aktifkan \"Simpan log file yang dihapus\" di Pengaturan → Preferensi Pembersihan agar dicatat mulai sekarang."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Belum ada tindakan cloud",
@@ -99,7 +113,7 @@
     "detailError": "Kesalahan"
   },
   "cloudCommandLabels": {
-    "scan": "Pemindaian",
+    "scan": "Pindai",
     "clean": "Bersihkan",
     "softwareUpdateCheck": "Pemeriksaan Pembaruan",
     "softwareUpdateRun": "Pembaruan Perangkat Lunak",

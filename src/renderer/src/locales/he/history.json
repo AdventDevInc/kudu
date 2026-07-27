@@ -18,7 +18,7 @@
     "debloater": "Debloater",
     "network": "ניקוי רשת",
     "drivers": "ניקוי מנהלי התקנים",
-    "malware": "סריקת נוזקות",
+    "malware": "סריקת תוכנות זדוניות",
     "privacy": "מגן פרטיות",
     "startup": "מנהל אתחול",
     "services": "מנהל שירותים",
@@ -27,10 +27,10 @@
   },
   "overview": {
     "totalScans": "סך כל הסריקות",
-    "spaceRecovered": "שטח ששוחזר",
+    "spaceRecovered": "שטח שפונה",
     "itemsProcessed": "פריטים שעובדו",
     "avgDuration": "משך ממוצע",
-    "spaceRecoveredOverTime": "שטח ששוחזר לאורך זמן",
+    "spaceRecoveredOverTime": "שטח שפונה לאורך זמן",
     "needTwoScansForChart": "נדרשות לפחות 2 סריקות עבור תרשים מגמה",
     "scanTypeDistribution": "התפלגות סוגי הסריקות",
     "noData": "אין נתונים",
@@ -49,7 +49,7 @@
     "filterDebloater": "Debloater",
     "filterNetwork": "רשת",
     "filterDrivers": "מנהלי התקנים",
-    "filterMalware": "נוזקות",
+    "filterMalware": "תוכנות זדוניות",
     "filterPrivacy": "פרטיות",
     "filterStartup": "אתחול",
     "filterServices": "שירותים",
@@ -74,7 +74,21 @@
     "errorCount": "{{count}} שגיאה",
     "errorCountPlural": "{{count}} שגיאות",
     "categoriesLabel": "קטגוריות",
-    "itemsSuffix": "פריטים"
+    "itemsSuffix": "פריטים",
+    "deletedFiles": {
+      "title": "קבצים שנמחקו",
+      "loading": "טוען…",
+      "shownCount": "{{shown}} מתוך {{total}}",
+      "loadMore": "טען עוד",
+      "exportCsv": "ייצא CSV",
+      "openLog": "פתח יומן",
+      "exported": "יוצאו {{count}} נתיבים",
+      "exportFailed": "לא ניתן היה לייצא את רשימת הקבצים שנמחקו",
+      "truncatedBadge": "+{{count}} נוספים",
+      "truncatedHint": "תיקייה זו הכילה {{count}} רשומות נוספות מעבר למגבלת ההצגה לכל תיקייה. הן נמחקו אך לא הוצגו בנפרד.",
+      "emptyRecorded": "לא נרשמו נתיבי קבצים עבור הפעלה זו.",
+      "disabledHint": "רישום המחיקות כבוי, ולכן הנתיבים הנפרדים מהפעלה זו לא נרשמו. הפעל את \"שמור יומן של קבצים שנמחקו\" תחת הגדרות → העדפות ניקוי כדי לרשום אותם מעתה ואילך."
+    }
   },
   "cloud": {
     "emptyStateTitle": "אין פעולות ענן עדיין",
@@ -117,10 +131,10 @@
     "getEventLog": "יומן אירועים",
     "getInstalledApps": "מלאי יישומים",
     "driverUpdateScan": "סריקת מנהלי התקנים",
-    "driverUpdateInstall": "התקנת מנהל התקן",
+    "driverUpdateInstall": "התקנת מנהלי התקנים",
     "driverClean": "ניקוי מנהלי התקנים",
     "startupList": "רשימת אתחול",
-    "startupToggle": "החלפת מצב אתחול",
+    "startupToggle": "הפעלת/כיבוי אתחול",
     "diskHealth": "תקינות דיסק",
     "privacyScan": "סריקת פרטיות",
     "privacyApply": "החלת פרטיות",
@@ -129,13 +143,13 @@
     "serviceScan": "סריקת שירותים",
     "serviceApply": "החלת שירותים",
     "malwareQuarantine": "הסגר",
-    "malwareDelete": "מחיקת נוזקה",
+    "malwareDelete": "מחיקת תוכנות זדוניות",
     "registryScan": "סריקת הרישום",
     "registryFix": "תיקון הרישום"
   },
   "duration": {
     "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}ש׳",
-    "minutesAndSeconds": "{{minutes}}ד׳ {{seconds}}ש׳"
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

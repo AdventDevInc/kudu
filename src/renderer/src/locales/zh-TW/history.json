@@ -74,7 +74,21 @@
     "errorCount": "{{count}} 個錯誤",
     "errorCountPlural": "{{count}} 個錯誤",
     "categoriesLabel": "類別",
-    "itemsSuffix": "個項目"
+    "itemsSuffix": "個項目",
+    "deletedFiles": {
+      "title": "已刪除的檔案",
+      "loading": "載入中…",
+      "shownCount": "顯示 {{shown}} / {{total}}",
+      "loadMore": "載入更多",
+      "exportCsv": "匯出 CSV",
+      "openLog": "開啟記錄",
+      "exported": "已匯出 {{count}} 個路徑",
+      "exportFailed": "無法匯出已刪除檔案清單",
+      "truncatedBadge": "另有 +{{count}} 筆",
+      "truncatedHint": "此資料夾在每個資料夾的清單上限之外，還有 {{count}} 筆項目。這些項目已刪除，但未逐一列出。",
+      "emptyRecorded": "此次執行未記錄任何檔案路徑。",
+      "disabledHint": "刪除記錄功能目前已關閉，因此未記錄此次執行的個別路徑。請在「設定 → 清理偏好設定」中啟用「保留已刪除檔案的記錄」，之後即可開始記錄。"
+    }
   },
   "cloud": {
     "emptyStateTitle": "尚無雲端動作",
@@ -105,7 +119,7 @@
     "softwareUpdateRun": "軟體更新",
     "getStatus": "狀態",
     "getSystemInfo": "系統資訊",
-    "getHealthReport": "健康狀態報告",
+    "getHealthReport": "健康報告",
     "ping": "Ping",
     "shutdown": "關機",
     "restart": "重新啟動",
@@ -125,7 +139,7 @@
     "privacyScan": "隱私掃描",
     "privacyApply": "套用隱私設定",
     "debloaterScan": "Debloater 掃描",
-    "debloaterRemove": "移除 Debloater 項目",
+    "debloaterRemove": "Debloater 移除",
     "serviceScan": "服務掃描",
     "serviceApply": "套用服務設定",
     "malwareQuarantine": "隔離",
@@ -134,8 +148,8 @@
     "registryFix": "登錄修復"
   },
   "duration": {
-    "lessThanOneSecond": "<1秒",
-    "seconds": "{{count}}秒",
-    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

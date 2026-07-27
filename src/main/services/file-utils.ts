@@ -1,10 +1,12 @@
-import { rm, stat, readdir, open, writeFile } from 'fs/promises'
+import { rm, stat, lstat, readdir, open, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
+import type { Dirent } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
-import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
+import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
 import { getCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
+import { recordDeletions } from './deletion-log-store'
 
 export interface DeleteResult {
   path: string
@@ -106,11 +108,65 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
 }
 
 /**
+ * Cap on how many descendants a single directory contributes to the deletion
+ * log. Beyond this the record carries a `truncated` count, so a capped audit
+ * trail never reads as a complete one.
+ */
+const MAX_LOGGED_DESCENDANTS = 100_000
+
+/**
+ * List the files a recursive delete of `dirPath` will remove.
+ *
+ * Only called when deletion logging is on: a cached scan item is frequently a
+ * whole directory, and recording just that one path would leave the audit trail
+ * unable to answer which file went missing. Symlinks and Windows junctions are
+ * listed but not descended into, matching what `rm -r` actually removes.
+ *
+ * Callers must confirm via lstat that the root is a real directory — a symlink
+ * to one would have readdir list the *target's* files while rm only unlinks the
+ * link, which would put files that still exist into the log.
+ */
+async function listDescendantFiles(dirPath: string): Promise<{ paths: string[]; truncated: number } | null> {
+  let rootEntries: Dirent[]
+  try {
+    rootEntries = await readdir(dirPath, { withFileTypes: true })
+  } catch {
+    return null // Unreadable — nothing to expand.
+  }
+
+  const paths: string[] = []
+  let truncated = 0
+  const queue: Array<[string, Dirent[]]> = [[dirPath, rootEntries]]
+
+  while (queue.length > 0) {
+    const [dir, entries] = queue.shift()!
+    for (const entry of entries) {
+      if (paths.length >= MAX_LOGGED_DESCENDANTS) {
+        truncated++
+        continue
+      }
+      const fullPath = join(dir, entry.name)
+      paths.push(fullPath)
+      if (entry.isDirectory() && !entry.isSymbolicLink()) {
+        try {
+          queue.push([fullPath, await readdir(fullPath, { withFileTypes: true })])
+        } catch {
+          // Unreadable subdirectory — its own path is already recorded.
+        }
+      }
+    }
+  }
+
+  return { paths, truncated }
+}
+
+/**
  * Look up cached scan items by ID, delete each one, and return a CleanResult.
  */
 export async function cleanItems(
   itemIds: unknown,
-  onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void
+  onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void,
+  origin: DeletionOrigin = 'local'
 ): Promise<CleanResult> {
   // Validate input is a string array
   const validIds = Array.isArray(itemIds)
@@ -123,11 +179,59 @@ export async function cleanItems(
   const errors: CleanResult['errors'] = []
   let lastReport = 0
 
+  // Opt-in audit trail of what was removed (issue #247). Buffered so a clean of
+  // 100k files doesn't turn into 100k appends, and flushed as we go so a crash
+  // mid-clean still leaves a record of everything deleted up to that point.
+  const logDeletions = getSettings().cleaner.keepDeletionLog === true
+  const pending: DeletedFileRecord[] = []
+  const flushPending = (): void => {
+    if (pending.length === 0) return
+    recordDeletions(pending)
+    pending.length = 0
+  }
+
   for (const item of items) {
+    // lstat, not stat: it answers both questions the log depends on in one
+    // call — whether the path is still there at all, and whether it is a real
+    // directory rather than a symlink to one. Null means it was already gone
+    // before this clean touched it.
+    let rootInfo: Awaited<ReturnType<typeof lstat>> | null = null
+    if (logDeletions) {
+      try {
+        rootInfo = await lstat(item.path)
+      } catch {
+        rootInfo = null
+      }
+    }
+
+    // A scan item is often a whole directory that rm removes recursively, so
+    // enumerate what's inside before it's gone. Only on success do these get
+    // recorded, so a failed delete never leaves phantom entries behind.
+    const descendants = rootInfo?.isDirectory() ? await listDescendantFiles(item.path) : null
+
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
       filesDeleted++
+      // rm(force) reports success for a path that was already missing, so a
+      // temp file that vanished between the scan and the clean would otherwise
+      // be logged as something Kudu deleted. Counters keep their existing
+      // behavior; only the audit trail is held to what we actually removed.
+      if (logDeletions && rootInfo) {
+        const ts = new Date().toISOString()
+        const category = item.subcategory || item.category
+        const record: DeletedFileRecord = { ts, path: item.path, size: item.size, category, origin }
+        if (descendants && descendants.truncated > 0) record.truncated = descendants.truncated
+        pending.push(record)
+        // Descendants carry size 0: the bytes are already accounted for on the
+        // directory's own record, and stat-ing each one would double the I/O of
+        // the clean for numbers the History page already summarizes.
+        for (const path of descendants?.paths ?? []) {
+          pending.push({ ts, path, size: 0, category, origin })
+          if (pending.length >= 500) flushPending()
+        }
+        if (pending.length >= 500) flushPending()
+      }
     } else {
       filesSkipped++
       if (result.reason) {
@@ -143,6 +247,8 @@ export async function cleanItems(
       }
     }
   }
+
+  flushPending()
 
   const needsElevation = errors.some((e) => e.reason === 'permission-denied')
   return { totalCleaned, filesDeleted, filesSkipped, errors, needsElevation }

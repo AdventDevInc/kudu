@@ -238,6 +238,10 @@ export function CleanerPage() {
         type: 'cleaner',
         timestamp: new Date().toISOString(),
         duration,
+        // Window the deletion log by, so History can list the exact paths this
+        // run removed across all the per-category clean calls above.
+        cleanedFrom: new Date(cleanStartRef.current).toISOString(),
+        cleanedTo: new Date().toISOString(),
         totalItemsFound: totalFound,
         totalItemsCleaned: totalFiles,
         totalItemsSkipped: totalSkipped,

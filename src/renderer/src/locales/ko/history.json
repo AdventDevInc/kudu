@@ -6,7 +6,7 @@
   "viewCloud": "클라우드",
   "clearButton": "지우기",
   "emptyStateTitle": "아직 기록이 없습니다",
-  "emptyStateDescription": "클리너, 레지스트리 또는 Debloater 페이지에서 검사를 실행하세요. 결과가 여기에 표시됩니다.",
+  "emptyStateDescription": "Cleaner, Registry 또는 Debloater 페이지에서 검사를 실행하세요. 결과가 여기에 표시됩니다.",
   "confirmClearCloudTitle": "클라우드 기록 지우기",
   "confirmClearScanTitle": "검사 기록 지우기",
   "confirmClearCloudDescription": "모든 클라우드 작업 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
@@ -44,8 +44,8 @@
   },
   "timeline": {
     "filterAll": "전체",
-    "filterCleaner": "클리너",
-    "filterRegistry": "레지스트리",
+    "filterCleaner": "Cleaner",
+    "filterRegistry": "Registry",
     "filterDebloater": "Debloater",
     "filterNetwork": "네트워크",
     "filterDrivers": "드라이버",
@@ -74,7 +74,21 @@
     "errorCount": "오류 {{count}}개",
     "errorCountPlural": "오류 {{count}}개",
     "categoriesLabel": "범주",
-    "itemsSuffix": "개 항목"
+    "itemsSuffix": "개 항목",
+    "deletedFiles": {
+      "title": "삭제된 파일",
+      "loading": "불러오는 중…",
+      "shownCount": "{{shown}} / {{total}}",
+      "loadMore": "더 불러오기",
+      "exportCsv": "CSV 내보내기",
+      "openLog": "로그 열기",
+      "exported": "{{count}}개 경로를 내보냈습니다",
+      "exportFailed": "삭제된 파일 목록을 내보낼 수 없습니다",
+      "truncatedBadge": "+{{count}}개 더",
+      "truncatedHint": "이 폴더에는 폴더별 목록 제한을 초과하는 {{count}}개의 추가 항목이 있었습니다. 해당 항목은 삭제되었지만 개별적으로 나열되지는 않았습니다.",
+      "emptyRecorded": "이 실행에 대해 기록된 파일 경로가 없습니다.",
+      "disabledHint": "삭제 로그가 꺼져 있어 이 실행의 개별 경로가 기록되지 않았습니다. 지금부터 기록하려면 설정 → 정리 기본 설정에서 \"삭제된 파일 로그 유지\"를 켜세요."
+    }
   },
   "cloud": {
     "emptyStateTitle": "아직 클라우드 작업이 없습니다",

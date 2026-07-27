@@ -1,7 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { execFile } from 'child_process'
-import { mkdirSync } from 'fs'
-import { isAbsolute } from 'path'
+import { existsSync, mkdirSync, writeFileSync } from 'fs'
+import { dirname, isAbsolute } from 'path'
 import { IPC } from '../../shared/channels'
 import { psUtf8 } from '../services/exec-utf8'
 import { registerSystemCleanerIpc } from './system-cleaner.ipc'
@@ -43,7 +43,10 @@ import { getBackupDir } from '../services/backup-dir'
 import { isAdmin } from '../services/elevation'
 import { getHistory, addHistoryEntry, clearHistory } from '../services/history-store'
 import { getCloudHistory, clearCloudHistory } from '../services/cloud-history-store'
-import { validateSettingsPartial, validateHistoryEntry } from '../services/ipc-validation'
+import {
+  queryDeletions, queryAllDeletions, clearDeletionLog, getDeletionLogPath
+} from '../services/deletion-log-store'
+import { validateSettingsPartial, validateHistoryEntry, validateDeletionQuery } from '../services/ipc-validation'
 import { createRestorePoint } from '../services/restore-point'
 import { checkForUpdates, downloadUpdate, installUpdate, getUpdateStatus, setAutoDownload, updateCheckInterval } from '../services/auto-updater'
 
@@ -225,7 +228,65 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     const validated = validateHistoryEntry(entry)
     if (validated) addHistoryEntry(validated)
   })
-  ipcMain.handle(IPC.HISTORY_CLEAR, () => clearHistory())
+  // Clearing scan history also drops the per-file deletion log those entries
+  // point at — leaving it behind would mean "Clear" only half-cleared.
+  ipcMain.handle(IPC.HISTORY_CLEAR, () => {
+    clearHistory()
+    clearDeletionLog()
+  })
+
+  // Deletion log — the individual paths behind a history entry
+  ipcMain.handle(IPC.DELETION_LOG_QUERY, (_event, query) => {
+    const validated = validateDeletionQuery(query)
+    const logPath = getDeletionLogPath()
+    const enabled = getSettings().cleaner.keepDeletionLog === true
+    if (!validated) return { records: [], total: 0, logPath, enabled }
+    const { records, total } = queryDeletions(validated)
+    return { records, total, logPath, enabled }
+  })
+
+  ipcMain.handle(IPC.DELETION_LOG_EXPORT, async (_event, query) => {
+    const validated = validateDeletionQuery(query)
+    if (!validated) return null
+    const records = queryAllDeletions({ from: validated.from, to: validated.to, origin: validated.origin })
+    if (records.length === 0) return null
+
+    const win = getWindow()
+    const opts: Electron.SaveDialogOptions = {
+      title: 'Export deleted files',
+      defaultPath: 'kudu-deleted-files.csv',
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+    }
+    const result = process.platform === 'darwin' || !win
+      ? await dialog.showSaveDialog(opts)
+      : await dialog.showSaveDialog(win, opts)
+    if (result.canceled || !result.filePath) return null
+
+    const escape = (v: string): string => `"${v.replace(/"/g, '""')}"`
+    const csv = [
+      'Deleted At,Category,Size (bytes),Path',
+      ...records.map((r) => [escape(r.ts), escape(r.category), String(r.size), escape(r.path)].join(',')),
+    ].join('\r\n') + '\r\n'
+    try {
+      writeFileSync(result.filePath, csv, 'utf-8')
+      return result.filePath
+    } catch {
+      return null
+    }
+  })
+
+  ipcMain.handle(IPC.DELETION_LOG_REVEAL, async () => {
+    const logPath = getDeletionLogPath()
+    if (existsSync(logPath)) {
+      shell.showItemInFolder(logPath)
+    } else {
+      // Nothing logged yet — open the folder it would be written to.
+      await shell.openPath(dirname(logPath))
+    }
+    return logPath
+  })
+
+  ipcMain.handle(IPC.DELETION_LOG_CLEAR, () => clearDeletionLog())
 
   // Cloud action history
   ipcMain.handle(IPC.CLOUD_HISTORY_GET, () => getCloudHistory())

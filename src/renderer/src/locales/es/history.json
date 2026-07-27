@@ -74,7 +74,21 @@
     "errorCount": "{{count}} error",
     "errorCountPlural": "{{count}} errores",
     "categoriesLabel": "Categorías",
-    "itemsSuffix": "elementos"
+    "itemsSuffix": "elementos",
+    "deletedFiles": {
+      "title": "Archivos eliminados",
+      "loading": "Cargando…",
+      "shownCount": "{{shown}} de {{total}}",
+      "loadMore": "Cargar más",
+      "exportCsv": "Exportar CSV",
+      "openLog": "Abrir registro",
+      "exported": "Se exportaron {{count}} rutas",
+      "exportFailed": "No se pudo exportar la lista de archivos eliminados",
+      "truncatedBadge": "+{{count}} más",
+      "truncatedHint": "Esta carpeta contenía {{count}} entradas adicionales además del límite de listado por carpeta. Se eliminaron, pero no se enumeraron individualmente.",
+      "emptyRecorded": "No se registraron rutas de archivos para esta ejecución.",
+      "disabledHint": "El registro de eliminaciones está desactivado, por lo que no se registraron las rutas individuales de esta ejecución. Active \"Mantener un registro de los archivos eliminados\" en Configuración → Preferencias de limpieza para registrarlas a partir de ahora."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Aún no hay acciones en la nube",
@@ -100,7 +114,7 @@
   },
   "cloudCommandLabels": {
     "scan": "Análisis",
-    "clean": "Limpieza",
+    "clean": "Limpiar",
     "softwareUpdateCheck": "Comprobación de actualizaciones",
     "softwareUpdateRun": "Actualización de software",
     "getStatus": "Estado",
@@ -120,12 +134,12 @@
     "driverUpdateInstall": "Instalación de controladores",
     "driverClean": "Limpieza de controladores",
     "startupList": "Lista de inicio",
-    "startupToggle": "Activar o desactivar inicio",
+    "startupToggle": "Alternar inicio",
     "diskHealth": "Estado del disco",
     "privacyScan": "Análisis de privacidad",
     "privacyApply": "Aplicar privacidad",
     "debloaterScan": "Análisis de Debloater",
-    "debloaterRemove": "Eliminar con Debloater",
+    "debloaterRemove": "Quitar con Debloater",
     "serviceScan": "Análisis de servicios",
     "serviceApply": "Aplicar servicios",
     "malwareQuarantine": "Cuarentena",

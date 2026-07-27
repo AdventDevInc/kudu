@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   History, Sparkles, Database, PackageMinus, Trash2, Info,
   TrendingUp, HardDrive, BarChart3, Clock, AlertCircle, Wifi, Cpu,
-  ShieldCheck, Bug, Zap, Settings2, RefreshCw, Cloud, CheckCircle2, XCircle
+  ShieldCheck, Bug, Zap, Settings2, RefreshCw, Cloud, CheckCircle2, XCircle,
+  FileText, Download, FolderOpen
 } from 'lucide-react'
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -16,7 +18,7 @@ import { useHistoryStore } from '@/stores/history-store'
 import { useCloudHistoryStore } from '@/stores/cloud-history-store'
 import { formatBytes } from '@/lib/utils'
 import { usePlatform } from '@/hooks/usePlatform'
-import type { ScanHistoryEntry, HistoryEntryType, CloudActionEntry } from '@shared/types'
+import type { ScanHistoryEntry, HistoryEntryType, CloudActionEntry, DeletedFileRecord } from '@shared/types'
 
 const typeConfigBase: Record<HistoryEntryType, { labelKey: string; icon: typeof Sparkles; color: string; bg: string }> = {
   cleaner: { labelKey: 'typeLabels.cleaner', icon: Sparkles, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
@@ -592,7 +594,7 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
       <div
-        className="relative w-full max-w-lg animate-scale-in rounded-2xl p-6"
+        className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto animate-scale-in rounded-2xl p-6"
         style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
       >
         {/* Header */}
@@ -664,8 +666,165 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
             </div>
           </div>
         )}
+
+        {entry.cleanedFrom && entry.cleanedTo && (
+          <DeletedFilesSection from={entry.cleanedFrom} to={entry.cleanedTo} />
+        )}
       </div>
     </div>
+  )
+}
+
+// ============ Deleted Files (deletion log) ============
+
+const DELETED_FILES_PAGE = 200
+
+/**
+ * The individual paths a clean removed, read from the deletion log by the time
+ * window the history entry recorded. Loaded lazily and paged — a single run can
+ * hold six figures of paths, so nothing is fetched until the popup opens.
+ */
+function DeletedFilesSection({ from, to }: { from: string; to: string }) {
+  const { t } = useTranslation('history')
+  const [records, setRecords] = useState<DeletedFileRecord[]>([])
+  const [total, setTotal] = useState(0)
+  const [enabled, setEnabled] = useState(true)
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [exporting, setExporting] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    // origin: a cloud-triggered clean can overlap this run's window; its
+    // deletions belong to Cloud history, not to this entry.
+    window.kudu.deletionLogQuery({ from, to, origin: 'local', offset: 0, limit: DELETED_FILES_PAGE })
+      .then((page) => {
+        if (cancelled) return
+        setRecords(page.records)
+        setTotal(page.total)
+        setEnabled(page.enabled)
+      })
+      .catch(() => { if (!cancelled) { setRecords([]); setTotal(0) } })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [from, to])
+
+  const loadMore = async () => {
+    setLoadingMore(true)
+    try {
+      const page = await window.kudu.deletionLogQuery({
+        from, to, origin: 'local', offset: records.length, limit: DELETED_FILES_PAGE
+      })
+      setRecords((prev) => [...prev, ...page.records])
+      setTotal(page.total)
+    } catch {
+      // Leave what we already have on screen
+    }
+    setLoadingMore(false)
+  }
+
+  const handleExport = async () => {
+    setExporting(true)
+    try {
+      const savedTo = await window.kudu.deletionLogExport({ from, to, origin: 'local' })
+      if (savedTo) toast.success(t('detail.deletedFiles.exported', { count: total }))
+    } catch {
+      toast.error(t('detail.deletedFiles.exportFailed'))
+    }
+    setExporting(false)
+  }
+
+  return (
+    <div className="mt-5 border-t pt-5" style={{ borderColor: 'var(--border-default)' }}>
+      <div className="mb-3 flex items-center gap-2">
+        <h4 className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+          {t('detail.deletedFiles.title')}
+        </h4>
+        {total > 0 && (
+          <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            {t('detail.deletedFiles.shownCount', { shown: records.length, total })}
+          </span>
+        )}
+        {total > 0 && (
+          <div className="ml-auto flex items-center gap-1.5">
+            <IconButton icon={Download} label={t('detail.deletedFiles.exportCsv')} onClick={handleExport} disabled={exporting} />
+            <IconButton icon={FolderOpen} label={t('detail.deletedFiles.openLog')} onClick={() => window.kudu.deletionLogReveal()} />
+          </div>
+        )}
+      </div>
+
+      {loading ? (
+        <p className="py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>{t('detail.deletedFiles.loading')}</p>
+      ) : records.length === 0 ? (
+        <div className="flex items-start gap-2.5 rounded-xl p-3.5" style={{ background: 'var(--bg-subtle)' }}>
+          <FileText className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.6} />
+          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            {enabled ? t('detail.deletedFiles.emptyRecorded') : t('detail.deletedFiles.disabledHint')}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="max-h-64 overflow-y-auto rounded-xl" style={{ background: 'var(--bg-subtle)', scrollbarWidth: 'thin' }}>
+            {records.map((r, i) => (
+              <div
+                key={`${r.ts}-${r.path}-${i}`}
+                className="flex items-center gap-3 px-3 py-1.5"
+                style={{ borderBottom: i < records.length - 1 ? '1px solid var(--bg-subtle-2)' : undefined }}
+              >
+                {/* dir=rtl moves the ellipsis to the start so the file name — the
+                    part that answers "what did it delete?" — stays visible. The
+                    <bdi> keeps the path itself rendering left-to-right. */}
+                <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-zinc-300" title={r.path} dir="rtl">
+                  <bdi>{r.path}</bdi>
+                </span>
+                {r.truncated ? (
+                  <span
+                    className="shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-medium"
+                    style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}
+                    title={t('detail.deletedFiles.truncatedHint', { count: r.truncated })}
+                  >
+                    {t('detail.deletedFiles.truncatedBadge', { count: r.truncated })}
+                  </span>
+                ) : r.category ? (
+                  <span className="shrink-0 text-[10.5px] capitalize" style={{ color: 'var(--text-muted)' }}>{r.category}</span>
+                ) : null}
+                <span className="w-16 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  {r.size > 0 ? formatBytes(r.size) : '—'}
+                </span>
+              </div>
+            ))}
+          </div>
+          {records.length < total && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="mt-2 w-full rounded-xl py-2 text-[12px] font-medium transition-colors disabled:opacity-50"
+              style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
+            >
+              {loadingMore ? t('detail.deletedFiles.loading') : t('detail.deletedFiles.loadMore')}
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+function IconButton({ icon: Icon, label, onClick, disabled }: {
+  icon: typeof Download; label: string; onClick: () => void; disabled?: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={label}
+      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-colors disabled:opacity-50"
+      style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-muted)' }}
+    >
+      <Icon className="h-3.5 w-3.5" strokeWidth={1.7} />
+      {label}
+    </button>
   )
 }
 

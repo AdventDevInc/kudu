@@ -18,6 +18,8 @@ import type {
   KuduSettings,
   BloatwareApp,
   ScanHistoryEntry,
+  DeletionLogPage,
+  DeletionOrigin,
   NetworkItem,
   NetworkCleanResult,
   MalwareScanResult,
@@ -270,6 +272,14 @@ const api = {
   historyGet: (): Promise<ScanHistoryEntry[]> => ipcRenderer.invoke(IPC.HISTORY_GET),
   historyAdd: (entry: ScanHistoryEntry): Promise<void> => ipcRenderer.invoke(IPC.HISTORY_ADD, entry),
   historyClear: (): Promise<void> => ipcRenderer.invoke(IPC.HISTORY_CLEAR),
+
+  // Deletion log — individual paths removed by past cleans
+  deletionLogQuery: (query: { from?: string; to?: string; origin?: DeletionOrigin; offset?: number; limit?: number }): Promise<DeletionLogPage> =>
+    ipcRenderer.invoke(IPC.DELETION_LOG_QUERY, query),
+  deletionLogExport: (query: { from?: string; to?: string; origin?: DeletionOrigin }): Promise<string | null> =>
+    ipcRenderer.invoke(IPC.DELETION_LOG_EXPORT, query),
+  deletionLogReveal: (): Promise<string> => ipcRenderer.invoke(IPC.DELETION_LOG_REVEAL),
+  deletionLogClear: (): Promise<void> => ipcRenderer.invoke(IPC.DELETION_LOG_CLEAR),
 
   // Cloud action history
   cloudHistoryGet: (): Promise<CloudActionEntry[]> => ipcRenderer.invoke(IPC.CLOUD_HISTORY_GET),

@@ -6,10 +6,10 @@
   "viewCloud": "Felhő",
   "clearButton": "Törlés",
   "emptyStateTitle": "Még nincs előzmény",
-  "emptyStateDescription": "Indítson vizsgálatot a Tisztító, a Beállításjegyzék vagy a Debloater oldalról. Az eredmények itt jelennek meg.",
+  "emptyStateDescription": "Futtasson vizsgálatot a Tisztító, a Beállításjegyzék vagy a Debloater oldalon. Az eredmények itt jelennek meg.",
   "confirmClearCloudTitle": "Felhőelőzmények törlése",
   "confirmClearScanTitle": "Vizsgálati előzmények törlése",
-  "confirmClearCloudDescription": "Ez véglegesen törli az összes felhőműveleti előzménybejegyzést. Ez a művelet nem vonható vissza.",
+  "confirmClearCloudDescription": "Ez véglegesen törli a felhőműveletek összes előzménybejegyzését. Ez a művelet nem vonható vissza.",
   "confirmClearScanDescription": "Ez véglegesen törli az összes vizsgálati előzménybejegyzést. Ez a művelet nem vonható vissza.",
   "confirmClearLabel": "Összes törlése",
   "typeLabels": {
@@ -27,19 +27,19 @@
   },
   "overview": {
     "totalScans": "Vizsgálatok összesen",
-    "spaceRecovered": "Felszabadított tárhely",
+    "spaceRecovered": "Felszabadított terület",
     "itemsProcessed": "Feldolgozott elemek",
-    "avgDuration": "Átlagos időtartam",
-    "spaceRecoveredOverTime": "Felszabadított tárhely időben",
+    "avgDuration": "Átl. időtartam",
+    "spaceRecoveredOverTime": "Felszabadított terület idővel",
     "needTwoScansForChart": "A trenddiagramhoz legalább 2 vizsgálat szükséges",
     "scanTypeDistribution": "Vizsgálattípusok megoszlása",
     "noData": "Nincs adat",
-    "topCategoriesBySpace": "Legnagyobb kategóriák tárhely szerint",
+    "topCategoriesBySpace": "Legnagyobb kategóriák terület szerint",
     "noCategoryData": "Nincs kategóriaadat",
     "weeklyActivity": "Heti aktivitás",
     "needTwoWeeksData": "Legalább 2 hét adata szükséges",
     "recentScans": "Legutóbbi vizsgálatok",
-    "tooltipSpace": "Tárhely",
+    "tooltipSpace": "Terület",
     "tooltipScans": "Vizsgálatok"
   },
   "timeline": {
@@ -58,7 +58,7 @@
     "columnType": "Típus",
     "columnDate": "Dátum",
     "columnItems": "Elemek",
-    "columnSpace": "Tárhely",
+    "columnSpace": "Terület",
     "columnDuration": "Időtartam",
     "columnStatus": "Állapot",
     "scheduledBadge": "Ütem.",
@@ -70,11 +70,25 @@
     "statFound": "Találat",
     "statProcessed": "Feldolgozva",
     "statSkipped": "Kihagyva",
-    "statSpaceSaved": "Megtakarított tárhely",
+    "statSpaceSaved": "Megtakarított terület",
     "errorCount": "{{count}} hiba",
     "errorCountPlural": "{{count}} hiba",
     "categoriesLabel": "Kategóriák",
-    "itemsSuffix": "elem"
+    "itemsSuffix": "elem",
+    "deletedFiles": {
+      "title": "Törölt fájlok",
+      "loading": "Betöltés…",
+      "shownCount": "{{shown}} / {{total}}",
+      "loadMore": "Továbbiak betöltése",
+      "exportCsv": "Exportálás CSV-be",
+      "openLog": "Napló megnyitása",
+      "exported": "{{count}} elérési út exportálva",
+      "exportFailed": "A törölt fájlok listáját nem sikerült exportálni",
+      "truncatedBadge": "+{{count}} további",
+      "truncatedHint": "Ez a mappa a mappánkénti listázási korláton felül még {{count}} további bejegyzést tartalmazott. Ezek törölve lettek, de nem szerepelnek külön a listában.",
+      "emptyRecorded": "Ehhez a futtatáshoz nem lett rögzítve fájlútvonal.",
+      "disabledHint": "A törlési naplózás ki van kapcsolva, ezért a futtatás egyes elérési útjai nem lettek rögzítve. A jövőbeni rögzítéshez kapcsolja be a „Törölt fájlok naplózásának megőrzése” lehetőséget a Beállítások → Tisztítási beállítások menüben."
+    }
   },
   "cloud": {
     "emptyStateTitle": "Még nincsenek felhőműveletek",
@@ -82,7 +96,7 @@
     "totalCommands": "Parancsok összesen",
     "succeeded": "Sikeres",
     "failed": "Sikertelen",
-    "avgDuration": "Átlagos időtartam",
+    "avgDuration": "Átl. időtartam",
     "columnStatus": "Állapot",
     "columnCommand": "Parancs",
     "columnSummary": "Összegzés",
@@ -104,12 +118,12 @@
     "softwareUpdateCheck": "Frissítések keresése",
     "softwareUpdateRun": "Szoftverfrissítés",
     "getStatus": "Állapot",
-    "getSystemInfo": "Rendszerinformációk",
+    "getSystemInfo": "Rendszerinformáció",
     "getHealthReport": "Állapotjelentés",
     "ping": "Ping",
     "shutdown": "Leállítás",
     "restart": "Újraindítás",
-    "windowsUpdateCheck": "Windows frissítések keresése",
+    "windowsUpdateCheck": "Windows Update keresés",
     "windowsUpdateInstall": "Windows Update",
     "runSfc": "SFC-vizsgálat",
     "runDism": "DISM-javítás",
@@ -134,8 +148,8 @@
     "registryFix": "Beállításjegyzék javítása"
   },
   "duration": {
-    "lessThanOneSecond": "<1mp",
-    "seconds": "{{count}}mp",
-    "minutesAndSeconds": "{{minutes}}p {{seconds}}mp"
+    "lessThanOneSecond": "<1 mp",
+    "seconds": "{{count}} mp",
+    "minutesAndSeconds": "{{minutes}} p {{seconds}} mp"
   }
 }

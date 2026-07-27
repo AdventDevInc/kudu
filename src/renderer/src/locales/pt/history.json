@@ -1,15 +1,15 @@
 {
-  "pageTitle": "Histórico de Verificações",
+  "pageTitle": "Histórico de verificações",
   "pageDescription": "Veja resultados detalhados de verificações e limpezas anteriores",
   "viewOverview": "Visão geral",
   "viewTimeline": "Linha do tempo",
-  "viewCloud": "Cloud",
+  "viewCloud": "Nuvem",
   "clearButton": "Limpar",
   "emptyStateTitle": "Ainda não há histórico",
-  "emptyStateDescription": "Execute uma verificação nas páginas Cleaner, Registry ou Debloater. Os resultados aparecerão aqui.",
-  "confirmClearCloudTitle": "Limpar Histórico do Cloud",
-  "confirmClearScanTitle": "Limpar Histórico de Verificações",
-  "confirmClearCloudDescription": "Isto excluirá permanentemente todas as entradas do histórico de ações do cloud. Esta ação não pode ser desfeita.",
+  "emptyStateDescription": "Execute uma verificação nas páginas Cleaner, Registro ou Debloater. Os resultados aparecerão aqui.",
+  "confirmClearCloudTitle": "Limpar histórico da nuvem",
+  "confirmClearScanTitle": "Limpar histórico de verificações",
+  "confirmClearCloudDescription": "Isto excluirá permanentemente todas as entradas do histórico de ações da nuvem. Esta ação não pode ser desfeita.",
   "confirmClearScanDescription": "Isto excluirá permanentemente todas as entradas do histórico de verificações. Esta ação não pode ser desfeita.",
   "confirmClearLabel": "Limpar tudo",
   "typeLabels": {
@@ -45,7 +45,7 @@
   "timeline": {
     "filterAll": "Todas",
     "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterRegistry": "Registro",
     "filterDebloater": "Debloater",
     "filterNetwork": "Rede",
     "filterDrivers": "Drivers",
@@ -66,7 +66,7 @@
     "dateAt": "às"
   },
   "detail": {
-    "scheduledBadge": "Agendado",
+    "scheduledBadge": "Agendada",
     "statFound": "Encontrados",
     "statProcessed": "Processados",
     "statSkipped": "Ignorados",
@@ -74,11 +74,25 @@
     "errorCount": "{{count}} erro",
     "errorCountPlural": "{{count}} erros",
     "categoriesLabel": "Categorias",
-    "itemsSuffix": "itens"
+    "itemsSuffix": "itens",
+    "deletedFiles": {
+      "title": "Arquivos excluídos",
+      "loading": "Carregando…",
+      "shownCount": "{{shown}} de {{total}}",
+      "loadMore": "Carregar mais",
+      "exportCsv": "Exportar CSV",
+      "openLog": "Abrir log",
+      "exported": "Exportados {{count}} caminhos",
+      "exportFailed": "Não foi possível exportar a lista de arquivos excluídos",
+      "truncatedBadge": "+{{count}} mais",
+      "truncatedHint": "Esta pasta continha mais {{count}} entradas além do limite de listagem por pasta. Elas foram excluídas, mas não foram listadas individualmente.",
+      "emptyRecorded": "Nenhum caminho de arquivo foi registrado para esta execução.",
+      "disabledHint": "O registro de exclusão está desativado, portanto os caminhos individuais desta execução não foram registrados. Ative \"Manter um log dos arquivos excluídos\" em Configurações → Preferências de limpeza para registrá-los a partir de agora."
+    }
   },
   "cloud": {
-    "emptyStateTitle": "Ainda não há ações do cloud",
-    "emptyStateDescription": "Quando comandos forem recebidos do painel do cloud, eles aparecerão aqui.",
+    "emptyStateTitle": "Ainda não há ações na nuvem",
+    "emptyStateDescription": "Quando comandos forem recebidos do painel da nuvem, eles aparecerão aqui.",
     "totalCommands": "Total de comandos",
     "succeeded": "Concluídos com êxito",
     "failed": "Falharam",

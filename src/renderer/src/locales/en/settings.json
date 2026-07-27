@@ -51,6 +51,8 @@
   "closeBrowsersDesc": "Automatically close browsers to unlock cache files",
   "createRestorePointLabel": "Create restore point",
   "createRestorePointDesc": "Create a system restore point before cleaning (requires admin)",
+  "keepDeletionLogLabel": "Keep a log of deleted files",
+  "keepDeletionLogDesc": "Record every deleted path so past cleanups can be reviewed from Scan History. The log lives in your Kudu data folder and clearing Scan History clears it too.",
   "skipRecentFilesLabel": "Skip recent files",
   "skipRecentFilesDesc": "Don't delete files modified within this time",
   "skipRecent30Min": "30 minutes",

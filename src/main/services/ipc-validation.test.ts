@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateSettingsPartial, validateHistoryEntry } from './ipc-validation'
+import { validateSettingsPartial, validateHistoryEntry, validateDeletionQuery } from './ipc-validation'
 
 describe('validateSettingsPartial', () => {
   it('accepts valid boolean settings', () => {
@@ -114,6 +114,37 @@ describe('validateSettingsPartial', () => {
 
   it('rejects unknown cleaner keys', () => {
     expect(validateSettingsPartial({ cleaner: { unknownKey: true } })).toBeNull()
+  })
+
+  it('accepts every cleaner key the settings UI actually sends', () => {
+    // SettingsPage spreads the whole cleaner object on each toggle, so a key
+    // missing from the allowlist silently rejects the entire settings write.
+    const input = {
+      cleaner: {
+        skipRecentMinutes: 60,
+        secureDelete: false,
+        closeBrowsersBeforeClean: false,
+        createRestorePoint: false,
+        protectRecycleBin: true,
+        keepDeletionLog: false
+      }
+    }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('rejects non-boolean protectRecycleBin and keepDeletionLog', () => {
+    expect(validateSettingsPartial({ cleaner: { protectRecycleBin: 'yes' } })).toBeNull()
+    expect(validateSettingsPartial({ cleaner: { keepDeletionLog: 1 } })).toBeNull()
+  })
+
+  it('accepts valid backupMode values', () => {
+    expect(validateSettingsPartial({ backupMode: 'targeted' })).toEqual({ backupMode: 'targeted' })
+    expect(validateSettingsPartial({ backupMode: 'full' })).toEqual({ backupMode: 'full' })
+  })
+
+  it('rejects invalid backupMode values', () => {
+    expect(validateSettingsPartial({ backupMode: 'partial' })).toBeNull()
+    expect(validateSettingsPartial({ backupMode: 42 })).toBeNull()
   })
 
   it('accepts a valid backupPath', () => {
@@ -422,8 +453,72 @@ describe('validateHistoryEntry', () => {
     expect(validateHistoryEntry({ ...validEntry, categories })).toBeNull()
   })
 
+  it('accepts an entry with a deletion-log window', () => {
+    const entry = {
+      ...validEntry,
+      cleanedFrom: '2026-07-20T10:00:00.000Z',
+      cleanedTo: '2026-07-20T10:01:00.000Z'
+    }
+    expect(validateHistoryEntry(entry)).toEqual(entry)
+  })
+
+  it('rejects a malformed deletion-log window', () => {
+    expect(validateHistoryEntry({ ...validEntry, cleanedFrom: 42 })).toBeNull()
+    expect(validateHistoryEntry({ ...validEntry, cleanedTo: 'x'.repeat(51) })).toBeNull()
+  })
+
   it('rejects missing required fields', () => {
     const { id, ...noId } = validEntry
     expect(validateHistoryEntry(noId)).toBeNull()
+  })
+})
+
+describe('validateDeletionQuery', () => {
+  it('treats undefined and null as "everything"', () => {
+    expect(validateDeletionQuery(undefined)).toEqual({})
+    expect(validateDeletionQuery(null)).toEqual({})
+  })
+
+  it('accepts an empty object', () => {
+    expect(validateDeletionQuery({})).toEqual({})
+  })
+
+  it('accepts a full window with paging', () => {
+    const query = {
+      from: '2026-07-20T10:00:00.000Z',
+      to: '2026-07-20T10:01:00.000Z',
+      offset: 200,
+      limit: 200
+    }
+    expect(validateDeletionQuery(query)).toEqual(query)
+  })
+
+  it('rejects unknown keys', () => {
+    expect(validateDeletionQuery({ path: 'C:\\' })).toBeNull()
+  })
+
+  it('accepts known origins and rejects anything else', () => {
+    for (const origin of ['local', 'cloud', 'cli']) {
+      expect(validateDeletionQuery({ origin })).toEqual({ origin })
+    }
+    expect(validateDeletionQuery({ origin: 'remote' })).toBeNull()
+    expect(validateDeletionQuery({ origin: 1 })).toBeNull()
+  })
+
+  it('rejects arrays and primitives', () => {
+    expect(validateDeletionQuery([])).toBeNull()
+    expect(validateDeletionQuery('all')).toBeNull()
+  })
+
+  it('rejects unparseable timestamps', () => {
+    expect(validateDeletionQuery({ from: 'yesterday' })).toBeNull()
+    expect(validateDeletionQuery({ to: 12345 })).toBeNull()
+    expect(validateDeletionQuery({ from: 'x'.repeat(51) })).toBeNull()
+  })
+
+  it('rejects negative or non-finite paging values', () => {
+    expect(validateDeletionQuery({ offset: -1 })).toBeNull()
+    expect(validateDeletionQuery({ limit: Infinity })).toBeNull()
+    expect(validateDeletionQuery({ limit: '200' })).toBeNull()
   })
 })
