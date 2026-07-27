@@ -107,6 +107,9 @@ if (!gotLock) {
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let ipcRegistered = false
+// Set once the app is actually quitting (Cmd+Q, tray Quit, OS shutdown) so the
+// minimize-to-tray close interceptor lets windows close instead of aborting quit
+let isQuitting = false
 
 function getIconPath(): string {
   const ext = process.platform === 'darwin' ? 'icns' : process.platform === 'linux' ? 'png' : 'ico'
@@ -266,10 +269,6 @@ function createTray(): void {
     {
       label: t('quit'),
       click: () => {
-        // Force quit — don't intercept close
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.removeAllListeners('close')
-        }
         app.quit()
       }
     }
@@ -306,9 +305,6 @@ function rebuildTrayMenu(): void {
     {
       label: t('quit'),
       click: () => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.removeAllListeners('close')
-        }
         app.quit()
       }
     }
@@ -370,6 +366,7 @@ function createWindow(): void {
 
   // Intercept close to minimize to tray if enabled
   mainWindow.on('close', (e) => {
+    if (isQuitting) return
     const currentSettings = getSettings()
     if (currentSettings.minimizeToTray && mainWindow && !mainWindow.isDestroyed()) {
       e.preventDefault()
@@ -541,7 +538,14 @@ app.on('window-all-closed', () => {
   }
 })
 
+// On macOS, autoUpdater.quitAndInstall() closes all windows *before* emitting
+// before-quit, so mark quitting from this earlier signal too
+app.on('before-quit-for-update', () => {
+  isQuitting = true
+})
+
 app.on('before-quit', () => {
+  isQuitting = true
   stopScheduler()
   cloudAgent.stop()
   // Kill any active child processes (reg.exe, cmd.exe, etc.) to prevent orphans
