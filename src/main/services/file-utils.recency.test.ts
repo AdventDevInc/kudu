@@ -11,25 +11,32 @@ vi.mock('./scan-cache', () => ({ getCachedItems: () => [] }))
 
 import { scanDirectory } from './file-utils'
 
+const DEEP = { deepRecencyCheck: true }
+
 let testDir: string
 
-/** A file whose mtime is `minutesAgo` in the past. */
-function file(name: string, minutesAgo: number, bytes = 32): string {
-  const path = join(testDir, name)
+function ago(minutes: number): Date {
+  return new Date(Date.now() - minutes * 60 * 1000)
+}
+
+/** A file `minutesAgo` old, creating parent directories as needed. */
+function file(relPath: string, minutesAgo: number, bytes = 32): string {
+  const path = join(testDir, relPath)
+  mkdirSync(join(path, '..'), { recursive: true })
   writeFileSync(path, Buffer.alloc(bytes))
-  const when = new Date(Date.now() - minutesAgo * 60 * 1000)
-  utimesSync(path, when, when)
+  utimesSync(path, ago(minutesAgo), ago(minutesAgo))
   return path
 }
 
-/** A directory holding one file, with the directory's own mtime set to `minutesAgo`. */
-function dir(name: string, minutesAgo: number, bytes = 64): string {
-  const path = join(testDir, name)
-  mkdirSync(path)
-  writeFileSync(join(path, 'entry'), Buffer.alloc(bytes))
-  const when = new Date(Date.now() - minutesAgo * 60 * 1000)
-  utimesSync(path, when, when)
+/** Set a directory's own mtime, leaving its contents alone. */
+function touchDir(relPath: string, minutesAgo: number): string {
+  const path = join(testDir, relPath)
+  utimesSync(path, ago(minutesAgo), ago(minutesAgo))
   return path
+}
+
+function paths(result: { items: Array<{ path: string }> }): string[] {
+  return result.items.map((i) => i.path).sort()
 }
 
 beforeEach(() => {
@@ -41,47 +48,89 @@ afterEach(() => {
 })
 
 describe('scanDirectory recency guard', () => {
-  it('skips both recent files and recent directories by default', async () => {
+  it('skips recent files and recent directories by default', async () => {
     file('hot.bin', 1)
-    dir('hot-dir', 1)
+    file('hot-dir/entry', 1)
+    touchDir('hot-dir', 1)
     file('cold.bin', 180)
 
     const result = await scanDirectory(testDir, 'browser', 'Test')
-    expect(result.items.map((i) => i.path)).toEqual([join(testDir, 'cold.bin')])
-  })
-
-  // Issue #265: Chrome's `Code Cache` holds only the `js` and `wasm`
-  // directories, whose mtimes move on every write, so the guard discarded the
-  // whole cache — ~310 MB — and the empty result was then dropped entirely.
-  it('keeps a recently touched directory when the guard is files-only', async () => {
-    dir('hot-dir', 1)
-    file('cold.bin', 180)
-
-    const result = await scanDirectory(testDir, 'browser', 'Test', { filesOnly: true })
-    expect(result.items.map((i) => i.path).sort()).toEqual(
-      [join(testDir, 'cold.bin'), join(testDir, 'hot-dir')].sort()
-    )
-    expect(result.totalSize).toBe(64 + 32)
-  })
-
-  // A running browser keeps `data_0`-`data_3` and `index` memory-mapped, so
-  // they must stay out of a scan even with the directory exemption on.
-  it('still skips recently written files when the guard is files-only', async () => {
-    file('data_0', 1)
-    file('f_00001', 180)
-
-    const result = await scanDirectory(testDir, 'browser', 'Test', { filesOnly: true })
-    expect(result.items.map((i) => i.path)).toEqual([join(testDir, 'f_00001')])
+    expect(paths(result)).toEqual([join(testDir, 'cold.bin')])
   })
 
   it('accepts a plain number as the cutoff, as before', async () => {
     file('hot.bin', 1)
-    dir('hot-dir', 1)
+    file('hot-dir/entry', 1)
+    touchDir('hot-dir', 1)
 
-    const guarded = await scanDirectory(testDir, 'browser', 'Test', 60)
-    expect(guarded.items).toHaveLength(0)
+    expect((await scanDirectory(testDir, 'browser', 'Test', 60)).items).toHaveLength(0)
+    expect((await scanDirectory(testDir, 'browser', 'Test', 0)).items).toHaveLength(2)
+  })
+})
 
-    const ungated = await scanDirectory(testDir, 'browser', 'Test', 0)
-    expect(ungated.items).toHaveLength(2)
+describe('scanDirectory with deepRecencyCheck', () => {
+  // Issue #265: Chrome's `Code Cache` holds only the `js` and `wasm`
+  // directories. Their mtimes move on every write, so judging them directly
+  // discarded ~310 MB and the empty result was then dropped entirely.
+  it('keeps a directory whose own mtime is recent but whose contents are settled', async () => {
+    file('js/entry', 180, 300)
+    file('wasm/entry', 180, 10)
+    touchDir('js', 1)
+    touchDir('wasm', 1)
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([join(testDir, 'js'), join(testDir, 'wasm')].sort())
+    expect(result.totalSize).toBe(310)
+  })
+
+  // The hole Codex found in the first attempt: admitting the directory whole
+  // means safeDelete recurses into it, so a live descendant would be removed —
+  // and securely overwritten in place — underneath a running browser.
+  it('never offers a directory that still holds a live file', async () => {
+    file('js/settled', 180, 100)
+    file('js/live', 1, 5)
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([join(testDir, 'js', 'settled')])
+    expect(result.totalSize).toBe(100)
+  })
+
+  it('checks descendants all the way down, not just one level', async () => {
+    file('a/b/c/settled', 180, 100)
+    file('a/b/c/live', 1, 5)
+    file('a/other/settled', 180, 20)
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([
+      join(testDir, 'a', 'b', 'c', 'settled'),
+      join(testDir, 'a', 'other'),
+    ].sort())
+    expect(result.totalSize).toBe(120)
+  })
+
+  // A running browser keeps `data_0`-`data_3` and `index` memory-mapped.
+  it('still skips recently written files at the top level', async () => {
+    file('data_0', 1)
+    file('f_00001', 180)
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([join(testDir, 'f_00001')])
+  })
+
+  it('collapses a fully settled tree into one item per top-level entry', async () => {
+    file('js/a', 180, 10)
+    file('js/index-dir/the-real-index', 180, 5)
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(paths(result)).toEqual([join(testDir, 'js')])
+    expect(result.totalSize).toBe(15)
+  })
+
+  it('reports nothing when every entry is live', async () => {
+    file('js/live', 1)
+
+    const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    expect(result.items).toHaveLength(0)
+    expect(result.itemCount).toBe(0)
   })
 })

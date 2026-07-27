@@ -137,10 +137,9 @@ describe('getChromiumProfiles', () => {
 describe('BROWSER_CACHE_RECENCY', () => {
   // `Code Cache` holds just the `js` and `wasm` directories, so a browser used
   // in the last hour had both skipped and the result dropped for being empty
-  // (issue #265). Directories are exempt; files are not, which is what keeps a
-  // running browser's memory-mapped block files out of a scan.
-  it('exempts directories from the recency guard but not files', () => {
-    expect(BROWSER_CACHE_RECENCY.filesOnly).toBe(true)
+  // (issue #265). Directories are judged by their contents instead.
+  it('judges directories by their contents', () => {
+    expect(BROWSER_CACHE_RECENCY.deepRecencyCheck).toBe(true)
   })
 
   it('leaves the default cutoff in place', () => {

@@ -37,18 +37,17 @@ const BROWSERS: Array<{ key: string; label: string; hasProfiles: boolean }> = [
 /**
  * Recency settings every browser cache scan passes to `scanDirectory`.
  *
- * The 60-minute guard stays on for files — that is what keeps the cache block
- * files a running browser has memory-mapped (`data_0`–`data_3`, `index`) out of
- * a scan, so they are never unlinked or overwritten underneath it.
+ * The 60-minute cutoff stays as it was — a browser's live files are still left
+ * alone, at any depth. What changes is that a directory is judged by what is
+ * inside it rather than by its own mtime, which moves whenever an entry is
+ * added or removed and so says nothing about whether the contents are in use.
  *
- * It does not apply to directories. A directory's mtime moves whenever an entry
- * is added or removed inside it, so applying the guard there hid whole caches:
- * `Code Cache` holds exactly two entries, the `js` and `wasm` directories, and
- * any recent browsing had both skipped and the whole result dropped for being
- * empty. That is why Chrome's Code Cache never appeared while Edge's did —
- * Edge simply wasn't being used (issue #265).
+ * Testing it directly hid whole caches: `Code Cache` holds exactly two entries,
+ * the `js` and `wasm` directories, so any recent browsing had both skipped and
+ * the result dropped for being empty. That is why Chrome's Code Cache never
+ * appeared while Edge's did — Edge simply wasn't being used (issue #265).
  */
-export const BROWSER_CACHE_RECENCY: ScanRecencyOptions = { filesOnly: true }
+export const BROWSER_CACHE_RECENCY: ScanRecencyOptions = { deepRecencyCheck: true }
 
 /** Pair each known Chromium browser with its resolved paths. */
 export function chromiumBrowsers(paths: BrowserPathConfig): ChromiumBrowser[] {
