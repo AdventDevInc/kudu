@@ -166,6 +166,103 @@ describe('previously-dead scans ship unticked', () => {
   })
 })
 
+describe('scanRegistry — TypeLib', () => {
+  // {00000300-…} carries both 2.8 and 6.0 on a stock Windows install.
+  const MULTI_VERSION_OUTPUT = [
+    'HKEY_CLASSES_ROOT\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\\2.8\\0\\win32',
+    '    (Default)    REG_SZ    C:\\Program Files\\Gone\\old.tlb',
+    '',
+    'HKEY_CLASSES_ROOT\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\\6.0\\0\\win32',
+    '    (Default)    REG_SZ    C:\\Windows\\System32\\current.tlb',
+    '',
+  ].join('\r\n')
+
+  it('deletes only the stale version key, never the GUID parent', async () => {
+    mockExecNative.mockImplementation(async (tool: string, args: string[]) => {
+      if (tool === 'reg' && args[0] === 'query' && args[1] === 'HKCR\\TypeLib') {
+        return { stdout: MULTI_VERSION_OUTPUT, stderr: '' }
+      }
+      if (tool === 'schtasks') throw new Error('no tasks')
+      return { stdout: '', stderr: '' }
+    })
+    mockExistsSync.mockImplementation((p: string) => !String(p).includes('Gone'))
+
+    const entries = await scanRegistry()
+    const tlb = entries.filter(e => e.issue.startsWith('Type library file missing'))
+
+    expect(tlb).toHaveLength(1)
+    const target = tlb[0].fix?.key ?? tlb[0].keyPath
+    // Deleting the GUID parent would take the healthy 6.0 registration with it.
+    expect(target).toBe('HKCR\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\\2.8\\0\\win32')
+    expect(target).not.toBe('HKCR\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}')
+  })
+
+  it('ignores a GUID node with no version segment below it', async () => {
+    mockExecNative.mockImplementation(async (tool: string, args: string[]) => {
+      if (tool === 'reg' && args[0] === 'query' && args[1] === 'HKCR\\TypeLib') {
+        return {
+          stdout: 'HKEY_CLASSES_ROOT\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\r\n    (Default)    REG_SZ    C:\\Gone\\x.tlb\r\n',
+          stderr: '',
+        }
+      }
+      if (tool === 'schtasks') throw new Error('no tasks')
+      return { stdout: '', stderr: '' }
+    })
+    mockExistsSync.mockImplementation(() => false)
+
+    const entries = await scanRegistry()
+    expect(entries.some(e => e.issue.startsWith('Type library file missing'))).toBe(false)
+  })
+})
+
+describe('scanRegistry — OpenWithList', () => {
+  // Verbatim layout: the app is the value *data*, under an ordinal value *name*.
+  const OPEN_WITH_OUTPUT = [
+    'HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.txt\\OpenWithList',
+    '    a    REG_SZ    notepad.exe',
+    '    b    REG_SZ    ghost.exe',
+    '    MRUList    REG_SZ    ab',
+    '',
+  ].join('\r\n')
+
+  function stubOpenWith(): void {
+    mockExecNative.mockImplementation(async (tool: string, args: string[]) => {
+      if (tool === 'reg' && args[0] === 'query' && String(args[1]).endsWith('FileExts')) {
+        return { stdout: OPEN_WITH_OUTPUT, stderr: '' }
+      }
+      // notepad.exe is a registered App Path; ghost.exe is not.
+      if (tool === 'reg' && args[0] === 'query' && String(args[1]).includes('App Paths\\notepad.exe')) {
+        return { stdout: 'ok', stderr: '' }
+      }
+      if (tool === 'reg' && args[0] === 'query' && String(args[1]).includes('App Paths\\')) {
+        throw new Error('not found')
+      }
+      if (tool === 'schtasks') throw new Error('no tasks')
+      return { stdout: '', stderr: '' }
+    })
+  }
+
+  it('reports the ordinal value name, not the executable data', async () => {
+    stubOpenWith()
+    const entries = await scanRegistry()
+    const found = entries.filter(e => e.issue.startsWith('File association references unregistered app'))
+
+    expect(found).toHaveLength(1)
+    // `reg delete /v ghost.exe` would always fail — the value is named "b".
+    expect(found[0].valueName).toBe('b')
+    expect(found[0].issue).toContain('ghost.exe')
+  })
+
+  it('leaves registered apps and the MRUList index alone', async () => {
+    stubOpenWith()
+    const entries = await scanRegistry()
+    const found = entries.filter(e => e.issue.startsWith('File association references unregistered app'))
+
+    expect(found.some(e => e.valueName === 'a')).toBe(false)
+    expect(found.some(e => e.valueName.toLowerCase() === 'mrulist')).toBe(false)
+  })
+})
+
 describe('isProtectedDeleteKey', () => {
   it('blocks bare hive roots in both forms', () => {
     for (const k of ['HKLM', 'HKCU', 'HKCR', 'HKEY_LOCAL_MACHINE', 'HKEY_CLASSES_ROOT']) {

@@ -402,27 +402,37 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
       const blocks = stdout.split(/\r?\n\r?\n/)
       for (const block of blocks) {
         const keyMatch = block.match(/^(HKCU\\[^\r\n]+\\OpenWithList)/m)
-        const appMatch = block.match(/REG_SZ\s+(.+\.exe)/i)
-        if (keyMatch && appMatch) {
-          const appName = appMatch[1].trim()
+        if (!keyMatch) continue
+        // OpenWithList stores the app in the value *data* under an ordinal value
+        // *name*: `a REG_SZ firefox.exe`. Deleting requires the name, so parse
+        // the two separately — matching REG_SZ alone yields "firefox.exe" and a
+        // `reg delete /v firefox.exe` that can only fail. Every value is checked
+        // rather than just the block's first, and MRUList is left alone since it
+        // is the ordering index, not an app reference.
+        for (const line of block.split(/\r?\n/)) {
+          const valueMatch = line.match(/^\s+(\S+)\s+REG_SZ\s+(.+?)\s*$/i)
+          if (!valueMatch) continue
+          const valueName = valueMatch[1].trim()
+          const appName = valueMatch[2].trim()
+          if (valueName.toLowerCase() === 'mrulist') continue
+          if (!appName.toLowerCase().endsWith('.exe')) continue
+          if (appName.includes('\\') || appName.includes('/')) continue
           try {
             await execReg([
               'query',
               `HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\${appName}`
             ], { timeout: 5000, signal })
           } catch {
-            if (!appName.includes('\\') && !appName.includes('/')) {
-              entries.push({
-                id: randomUUID(),
-                type: 'obsolete',
-                keyPath: keyMatch[1],
-                valueName: appName,
-                issue: `File association references unregistered app: ${appName}`,
-                risk: 'low',
-                selected: UNVALIDATED_SCAN_SELECTED,
-                fix: { op: 'delete-value' }
-              })
-            }
+            entries.push({
+              id: randomUUID(),
+              type: 'obsolete',
+              keyPath: keyMatch[1],
+              valueName,
+              issue: `File association references unregistered app: ${appName}`,
+              risk: 'low',
+              selected: UNVALIDATED_SCAN_SELECTED,
+              fix: { op: 'delete-value' }
+            })
           }
         }
       }
@@ -665,12 +675,17 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
       let tlbCount = 0
       for (const block of blocks) {
         if (tlbCount >= 30) break
-        const keyMatch = block.match(/^(HKCR\\TypeLib\\(\{[^}]+\})[^\r\n]*)/m)
+        // Group 3 is everything below the GUID, e.g. `\2.0\0\win32`. A GUID node
+        // holds every registered version and architecture of the type library
+        // ({00000300-…} carries both 2.8 and 6.0 on a stock machine), so the
+        // stale platform key is deleted on its own — deleting the GUID parent
+        // because one win32 file is missing would take the surviving versions
+        // with it.
+        const keyMatch = block.match(/^(HKCR\\TypeLib\\(\{[^}]+\})(\\[^\r\n]+))/m)
         const valMatch = block.match(/\(Default\)\s+REG_SZ\s+(.+)/i)
         if (keyMatch && valMatch) {
           const tlbPath = valMatch[1].trim().replace(/"/g, '')
           if (tlbPath && tlbPath.includes('\\') && !tlbPath.startsWith('%') && !existsSync(tlbPath)) {
-            const parentTypeLibKey = `HKCR\\TypeLib\\${keyMatch[2]}`
             entries.push({
               id: randomUUID(),
               type: 'orphaned',
@@ -679,7 +694,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
               issue: `Type library file missing: ${tlbPath}`,
               risk: 'low',
               selected: UNVALIDATED_SCAN_SELECTED,
-              fix: { op: 'delete-key', key: parentTypeLibKey }
+              fix: { op: 'delete-key' }
             })
             tlbCount++
           }
