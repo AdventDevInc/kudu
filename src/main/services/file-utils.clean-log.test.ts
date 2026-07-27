@@ -119,6 +119,11 @@ describe('cleanItems deletion logging', () => {
     expect(state.recorded[0].category).toBe('system')
   })
 
+  // The 1200 is load-bearing: flushPending() fires every 500 records, so it takes
+  // more than 1000 items to prove a remainder flush happens on top of two full
+  // batches. That means 1200 real files created and deleted, which runs ~2s on a
+  // developer machine but has timed out against the 5s default on the Windows CI
+  // runner. Give it room rather than weakening the assertion.
   it('flushes in batches so a large clean never buffers everything', async () => {
     state.keepDeletionLog = true
     seedItems(1200)
@@ -130,7 +135,7 @@ describe('cleanItems deletion logging', () => {
     expect(state.recorded).toHaveLength(1200)
     // 500 + 500 + a final flush of the 200 remainder.
     expect(state.batches).toBe(3)
-  })
+  }, 30_000)
 
   it('tags records with the calling surface, defaulting to local', async () => {
     state.keepDeletionLog = true
