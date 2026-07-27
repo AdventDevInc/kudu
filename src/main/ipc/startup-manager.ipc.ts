@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'fs'
@@ -118,6 +118,81 @@ function friendlyExeName(name: string): string {
     .trim()
 }
 
+// ── Stale target detection ──
+// A startup entry whose program has been uninstalled can no longer launch
+// anything. We surface those so the user can clear them, and we never let
+// them linger in our own bookkeeping (see listStartupItems).
+
+/**
+ * Resolve the program a startup command launches.
+ *
+ * Returns `null` when the target cannot be determined with confidence —
+ * relative commands (`rundll32.exe …`), unresolved environment variables,
+ * and UNC paths (which can block for seconds when the host is offline).
+ * Callers must treat `null` as "unknown, assume present".
+ */
+function resolveCommandTarget(command: string): string | null {
+  if (!command) return null
+  const trimmed = command.trim()
+  const quoted = trimmed.match(/^"([^"]+)"/)
+  let target = quoted
+    ? quoted[1]
+    : trimmed.match(/^(.+?\.(?:exe|com|bat|cmd|scr|lnk))(?:\s|$)/i)?.[1]
+      || trimmed.match(/^(\S+)/)?.[1]
+      || ''
+  if (!target) return null
+
+  // Expand %VAR% references; bail out when any of them is unknown to us
+  let unresolved = false
+  target = target.replace(/%([^%]+)%/g, (match, name: string) => {
+    const value = process.env[name] ?? process.env[name.toUpperCase()]
+    if (!value) {
+      unresolved = true
+      return match
+    }
+    return value
+  })
+  if (unresolved) return null
+
+  // Only drive-letter absolute paths can be checked cheaply and reliably
+  if (!/^[a-z]:[\\/]/i.test(target)) return null
+  return target
+}
+
+/** Entries living under the Windows directory are never treated as stale. */
+function isSystemPath(target: string): boolean {
+  const winDir = process.env.SystemRoot || process.env.windir || 'C:\\Windows'
+  return target.toLowerCase().startsWith(winDir.toLowerCase().replace(/[\\/]+$/, '') + '\\')
+}
+
+/** True only when the command's target is *known* to be gone from disk. */
+function isTargetMissing(command: string): boolean {
+  const target = resolveCommandTarget(command)
+  if (!target || isSystemPath(target)) return false
+  try {
+    // Trust a negative result only when the volume itself is mounted, so an
+    // unplugged drive is not mistaken for an uninstalled program.
+    if (!existsSync(target.slice(0, 3))) return false
+    return !existsSync(target)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Resolve a Startup-folder shortcut to the program it launches so shortcuts
+ * left behind by uninstalled apps can be flagged. Falls back to the shortcut
+ * path itself when the link cannot be read.
+ */
+function resolveShortcutTarget(filePath: string): string {
+  if (extname(filePath).toLowerCase() !== '.lnk') return filePath
+  try {
+    return shell.readShortcutLink(filePath)?.target || filePath
+  } catch {
+    return filePath
+  }
+}
+
 function parseRegOutput(stdout: string, location: string, source: StartupItem['source']): StartupItem[] {
   const items: StartupItem[] = []
   const lines = stdout.split('\n')
@@ -135,7 +210,8 @@ function parseRegOutput(stdout: string, location: string, source: StartupItem['s
         source,
         enabled: true,
         publisher: extractPublisher(command),
-        impact: estimateImpact(name, command)
+        impact: estimateImpact(name, command),
+        stale: isTargetMissing(command)
       })
     }
   }
@@ -162,7 +238,8 @@ function getStartupFolderItems(): StartupItem[] {
         source: 'startup-folder',
         enabled: true,
         publisher: extractPublisher(filePath),
-        impact: estimateImpact(name, filePath)
+        impact: estimateImpact(name, filePath),
+        stale: isTargetMissing(resolveShortcutTarget(filePath))
       })
     }
   } catch { /* skip */ }
@@ -258,7 +335,8 @@ async function getScheduledLogonTasks(): Promise<StartupItem[]> {
         source: 'task-scheduler',
         enabled: state === 'Ready' || state === 'Running',
         publisher: extractPublisher(command),
-        impact: estimateImpact(name, command)
+        impact: estimateImpact(name, command),
+        stale: isTargetMissing(command)
       })
     }
   } catch { /* task scheduler unavailable */ }
@@ -337,8 +415,24 @@ export async function listStartupItems(): Promise<StartupItem[]> {
       }
     }
 
-    // Merge disabled state: mark items found in disabled file, add missing ones
-    const disabled = readDisabledEntries()
+    // Merge disabled state: mark items found in disabled file, add missing ones.
+    //
+    // Disabling an item removes it from the Run key, so this file is the only
+    // record we have of it. If the program is uninstalled afterwards, nothing
+    // on the system references it any more and the entry would haunt the list
+    // forever — surviving registry cleaning and even a Kudu reinstall, since
+    // the file lives in userData. Prune entries whose program is verifiably
+    // gone before rebuilding the list from them.
+    const disabled = await withDisabledFileLock(() => {
+      const entries = readDisabledEntries()
+      const kept = entries.filter((entry) => {
+        const backed = items.some((i) => i.name === entry.name && i.source === entry.source)
+        return backed || !isTargetMissing(entry.command)
+      })
+      if (kept.length !== entries.length) writeDisabledEntries(kept)
+      return kept
+    })
+
     for (const entry of disabled) {
       const existing = items.find((i) => i.name === entry.name && i.source === entry.source)
       if (existing) {
@@ -353,7 +447,8 @@ export async function listStartupItems(): Promise<StartupItem[]> {
           source: entry.source,
           enabled: false,
           publisher: extractPublisher(entry.command),
-          impact: estimateImpact(entry.name, entry.command)
+          impact: estimateImpact(entry.name, entry.command),
+          stale: false
         })
       }
     }
@@ -481,8 +576,13 @@ export async function deleteStartupItem(
       try {
         if (source === 'task-scheduler') {
           if (!isSafeTaskName(name)) return false
+          // Unregister only if the task is still there — a task that has
+          // already been removed elsewhere must not fail the delete, or the
+          // item stays listed with no way to clear it.
+          const taskName = name.replace(/'/g, "''")
           await execFileAsync('powershell', psArgs(
-            `Unregister-ScheduledTask -TaskName '${name.replace(/'/g, "''")}' -Confirm:$false -ErrorAction Stop`
+            `$task = Get-ScheduledTask -TaskName '${taskName}' -ErrorAction SilentlyContinue; ` +
+            `if ($task) { Unregister-ScheduledTask -TaskName '${taskName}' -Confirm:$false -ErrorAction Stop }`
           ), { timeout: 10000, windowsHide: true })
           deletedSource = true
         } else if (source === 'startup-folder') {

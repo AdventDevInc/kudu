@@ -60,6 +60,7 @@ vi.mock('fs', () => ({
 
 // ── Mock electron ───────────────────────────────────────────────────
 const mockHandlers = new Map<string, Function>()
+const mockReadShortcutLink = vi.fn()
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
@@ -73,6 +74,9 @@ vi.mock('electron', () => ({
     handle: (channel: string, handler: Function) => {
       mockHandlers.set(channel, handler)
     },
+  },
+  shell: {
+    readShortcutLink: (...args: unknown[]) => mockReadShortcutLink(...args),
   },
 }))
 
@@ -170,6 +174,7 @@ beforeEach(() => {
   mockExistsSync.mockReturnValue(false)
   mockReadFileSync.mockReturnValue('[]')
   mockReaddirSync.mockReturnValue([])
+  mockReadShortcutLink.mockReturnValue(undefined)
   // Default: all execFile calls fail (registry keys don't exist)
   mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: any, cb: Function) => {
     cb(new Error('not found'), '', '')
@@ -612,6 +617,191 @@ describe('listStartupItems', () => {
 })
 
 // =====================================================================
+// Stale entries — programs that are no longer installed (issue #245)
+// =====================================================================
+
+describe('stale startup entries', () => {
+  const DISABLED_FILE = 'disabled-startups.json'
+  const GHOST_CMD = '"C:\\Users\\User\\AppData\\Local\\DuckDuckGo\\DuckDuckGo.exe"'
+
+  /** existsSync mock where only the listed paths (plus the C: volume) exist */
+  function onlyExisting(...paths: string[]) {
+    mockExistsSync.mockImplementation((p: string) =>
+      p === 'C:\\' || paths.some((x) => p === x || (p as string).endsWith(x))
+    )
+  }
+
+  function lastWrittenDisabledFile(): any[] {
+    const calls = mockWriteFileSync.mock.calls
+    return JSON.parse(calls[calls.length - 1][1] as string)
+  }
+
+  describe('disabled-file pruning', () => {
+    it('drops a disabled entry whose program has been uninstalled', async () => {
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
+      ]))
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'DuckDuckGo')).toBeUndefined()
+      // The stale record is removed from disk so it cannot come back
+      expect(lastWrittenDisabledFile()).toEqual([])
+    })
+
+    it('keeps a disabled entry while its program is still installed', async () => {
+      onlyExisting(DISABLED_FILE, 'C:\\Users\\User\\AppData\\Local\\DuckDuckGo\\DuckDuckGo.exe')
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
+      ]))
+
+      const items = await listStartupItems()
+      const ghost = items.find((i) => i.name === 'DuckDuckGo')
+      expect(ghost).toBeDefined()
+      expect(ghost!.enabled).toBe(false)
+      expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+
+    it('keeps a disabled entry whose target cannot be resolved', async () => {
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'Helper', command: 'rundll32.exe C:\\App\\helper.dll,Start', location: HKCU_RUN, source: 'registry-hkcu' },
+      ]))
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'Helper')).toBeDefined()
+      expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+
+    it('keeps a disabled entry when its volume is not mounted', async () => {
+      // Only the JSON file exists — the D: volume is absent, so "missing" is unknown
+      mockExistsSync.mockImplementation((p: string) => (p as string).endsWith(DISABLED_FILE))
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'PortableApp', command: '"D:\\Portable\\app.exe"', location: HKCU_RUN, source: 'registry-hkcu' },
+      ]))
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'PortableApp')).toBeDefined()
+      expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+
+    it('keeps a disabled entry that still has a live registry value', async () => {
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'Discord', command: '"C:\\Discord\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' },
+      ]))
+      setupExecFileHandler((cmd, args) => {
+        if (cmd === 'reg' && args[1] === HKCU_RUN) {
+          return { stdout: regOutput([{ name: 'Discord', command: '"C:\\Discord\\Discord.exe"' }]) }
+        }
+        throw new Error('not found')
+      })
+
+      const items = await listStartupItems()
+      const discord = items.find((i) => i.name === 'Discord')
+      expect(discord).toBeDefined()
+      expect(discord!.enabled).toBe(false)
+      expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('stale flag', () => {
+    it('flags a registry item whose executable is gone', async () => {
+      onlyExisting()
+      setupExecFileHandler((cmd, args) => {
+        if (cmd === 'reg' && args[1] === HKCU_RUN) {
+          return { stdout: regOutput([{ name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"' }]) }
+        }
+        throw new Error('not found')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'Nahimic')!.stale).toBe(true)
+    })
+
+    it('does not flag a registry item whose executable is present', async () => {
+      onlyExisting('C:\\Program Files\\Nahimic\\Nahimic.exe')
+      setupExecFileHandler((cmd, args) => {
+        if (cmd === 'reg' && args[1] === HKCU_RUN) {
+          return { stdout: regOutput([{ name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe" -tray' }]) }
+        }
+        throw new Error('not found')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'Nahimic')!.stale).toBe(false)
+    })
+
+    it('never flags entries under the Windows directory', async () => {
+      onlyExisting()
+      setupExecFileHandler((cmd, args) => {
+        if (cmd === 'reg' && args[1] === HKLM_RUN) {
+          return { stdout: regOutput([{ name: 'SecurityHealth', command: 'C:\\Windows\\system32\\SecurityHealthSystray.exe' }]) }
+        }
+        throw new Error('not found')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'SecurityHealth')!.stale).toBe(false)
+    })
+
+    it('flags a scheduled task pointing at a removed executable', async () => {
+      onlyExisting()
+      setupExecFileHandler((cmd) => {
+        if (cmd === 'powershell') {
+          return { stdout: 'TASK|NahimicSvc32Run|C:\\Program Files\\Nahimic\\NahimicSvc32.exe /run|Ready\n' }
+        }
+        throw new Error('not found')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'NahimicSvc32Run')!.stale).toBe(true)
+    })
+
+    it('flags a startup-folder shortcut whose target is gone', async () => {
+      mockExistsSync.mockImplementation((p: string) => (p as string).includes('Startup') || p === 'C:\\')
+      mockReaddirSync.mockReturnValue(['OldApp.lnk'])
+      mockReadShortcutLink.mockReturnValue({ target: 'C:\\Program Files\\OldApp\\OldApp.exe' })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'OldApp.lnk')!.stale).toBe(true)
+    })
+
+    it('does not flag a shortcut whose target cannot be read', async () => {
+      mockExistsSync.mockImplementation((p: string) => (p as string).includes('Startup') || p === 'C:\\')
+      mockReaddirSync.mockReturnValue(['OldApp.lnk'])
+      mockReadShortcutLink.mockImplementation(() => { throw new Error('not a shortcut') })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'OldApp.lnk')!.stale).toBe(false)
+    })
+
+    it('expands environment variables when resolving the target', async () => {
+      process.env.__KUDU_TEST_APPDIR = 'C:\\Apps'
+      onlyExisting('C:\\Apps\\present.exe')
+      setupExecFileHandler((cmd, args) => {
+        if (cmd === 'reg' && args[1] === HKCU_RUN) {
+          return {
+            stdout: regOutput([
+              { name: 'Present', command: '%__KUDU_TEST_APPDIR%\\present.exe' },
+              { name: 'Gone', command: '%__KUDU_TEST_APPDIR%\\gone.exe' },
+              { name: 'UnknownVar', command: '%__KUDU_NOT_SET__%\\app.exe' },
+            ])
+          }
+        }
+        throw new Error('not found')
+      })
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'Present')!.stale).toBe(false)
+      expect(items.find((i) => i.name === 'Gone')!.stale).toBe(true)
+      expect(items.find((i) => i.name === 'UnknownVar')!.stale).toBe(false)
+      delete process.env.__KUDU_TEST_APPDIR
+    })
+  })
+})
+
+// =====================================================================
 // toggleStartupItem
 // =====================================================================
 
@@ -866,6 +1056,16 @@ describe('deleteStartupItem', () => {
       expect(psCall!.args.join(' ')).toContain('Unregister-ScheduledTask')
       expect(psCall!.args.join(' ')).toContain('SpotifyStartup')
       expect(psCall!.args.join(' ')).toContain('-Confirm:$false')
+    })
+
+    it('only unregisters when the task still exists (already-removed tasks succeed)', async () => {
+      const regCalls = collectRegCalls()
+
+      const result = await deleteStartupItem('GhostTask', 'Task Scheduler', 'task-scheduler')
+      expect(result).toBe(true)
+      const script = regCalls.find((c) => c.cmd === 'powershell')!.args.join(' ')
+      expect(script).toContain("Get-ScheduledTask -TaskName 'GhostTask' -ErrorAction SilentlyContinue")
+      expect(script).toContain('if ($task) { Unregister-ScheduledTask')
     })
 
     it('rejects unsafe task names', async () => {

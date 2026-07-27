@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Zap, Shield, ShieldCheck, ShieldAlert, ShieldOff, RefreshCw, Clock, Activity, TrendingDown, ChevronDown, ChevronUp, BarChart3, Trash2, Lock } from 'lucide-react'
+import { Zap, Shield, ShieldCheck, ShieldAlert, ShieldOff, RefreshCw, Clock, Activity, TrendingDown, ChevronDown, ChevronUp, BarChart3, Trash2, Lock, PackageX } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -329,9 +329,9 @@ export function StartupPage() {
   }, [])
 
   useEffect(() => {
-    if (items.length === 0) {
-      loadItems()
-    }
+    // Always re-read on mount: entries change outside the app (installs,
+    // uninstalls, Task Manager) and the store keeps the previous visit's list.
+    loadItems()
     if (!bootTrace) {
       loadBootTrace()
     }
@@ -483,6 +483,16 @@ export function StartupPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[14px] font-medium text-zinc-200">{item.displayName}</span>
                     {item.impact === 'none' && <Shield className="h-3.5 w-3.5" style={{ color: 'var(--text-faint)' }} strokeWidth={1.8} />}
+                    {item.stale && (
+                      <span
+                        className="flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                        style={{ background: 'rgba(245,158,11,0.10)', color: '#f59e0b' }}
+                        title={t('staleTooltip')}
+                      >
+                        <PackageX className="h-3 w-3" strokeWidth={1.8} />
+                        {t('staleBadge')}
+                      </span>
+                    )}
                   </div>
                   <div className="mt-0.5 flex items-center gap-2 text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     <span>{item.publisher}</span>
