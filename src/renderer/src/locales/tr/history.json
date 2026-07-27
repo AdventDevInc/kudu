@@ -61,7 +61,7 @@
     "columnSpace": "Alan",
     "columnDuration": "Süre",
     "columnStatus": "Durum",
-    "scheduledBadge": "Zamanlı",
+    "scheduledBadge": "Planlı",
     "noEntriesMatchFilter": "Bu filtreyle eşleşen kayıt yok",
     "dateAt": "saat"
   },
@@ -84,8 +84,10 @@
       "openLog": "Günlüğü aç",
       "exported": "{{count}} yol dışa aktarıldı",
       "exportFailed": "Silinen dosya listesi dışa aktarılamadı",
+      "truncatedBadge": "+{{count}} daha",
+      "truncatedHint": "Bu klasörde, klasör başına listeleme sınırının ötesinde {{count}} ek kayıt vardı. Bunlar silindi ancak tek tek listelenmedi.",
       "emptyRecorded": "Bu çalıştırma için hiçbir dosya yolu kaydedilmedi.",
-      "disabledHint": "Silme günlüğü kapalı olduğundan, bu çalıştırmadaki tek tek yollar kaydedilmedi. Bunların bundan sonra kaydedilmesi için Ayarlar → Temizleme Tercihleri bölümünde \"Silinen dosyaların günlüğünü tut\" seçeneğini açın."
+      "disabledHint": "Silme günlüğü kapalı olduğundan, bu çalıştırmadaki tek tek yollar kaydedilmedi. Bunları bundan sonra kaydetmek için Ayarlar → Temizleme Tercihleri bölümünde \"Silinen dosyaların günlüğünü tut\" seçeneğini açın."
     }
   },
   "cloud": {
@@ -137,7 +139,7 @@
     "privacyScan": "Gizlilik Taraması",
     "privacyApply": "Gizlilik Uygula",
     "debloaterScan": "Debloater Taraması",
-    "debloaterRemove": "Debloater Kaldırma",
+    "debloaterRemove": "Debloater Kaldır",
     "serviceScan": "Hizmet Taraması",
     "serviceApply": "Hizmet Uygula",
     "malwareQuarantine": "Karantina",
@@ -146,8 +148,8 @@
     "registryFix": "Kayıt Defteri Düzeltmesi"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}d {{seconds}}s"
+    "lessThanOneSecond": "<1sn",
+    "seconds": "{{count}}sn",
+    "minutesAndSeconds": "{{minutes}}dk {{seconds}}sn"
   }
 }

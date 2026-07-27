@@ -21,7 +21,7 @@
     "malware": "Malware-Scan",
     "privacy": "Datenschutzschild",
     "startup": "Autostart-Manager",
-    "services": "Dienste-Manager",
+    "services": "Dienst-Manager",
     "softwareUpdate": "Software-Update",
     "cveScan": "CVE-Scan"
   },
@@ -84,8 +84,10 @@
       "openLog": "Protokoll öffnen",
       "exported": "{{count}} Pfade exportiert",
       "exportFailed": "Die Liste der gelöschten Dateien konnte nicht exportiert werden",
+      "truncatedBadge": "+{{count}} weitere",
+      "truncatedHint": "Dieser Ordner enthielt {{count}} weitere Einträge über das Limit der Auflistung pro Ordner hinaus. Sie wurden gelöscht, aber nicht einzeln aufgeführt.",
       "emptyRecorded": "Für diesen Durchlauf wurden keine Dateipfade aufgezeichnet.",
-      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll gelöschter Dateien führen“, um sie künftig aufzuzeichnen."
+      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll gelöschter Dateien führen“, um sie ab jetzt aufzuzeichnen."
     }
   },
   "cloud": {
@@ -103,7 +105,7 @@
     "completed": "Abgeschlossen",
     "detailCommand": "Befehl",
     "detailStatus": "Status",
-    "detailStatusSuccess": "Erfolgreich",
+    "detailStatusSuccess": "Erfolg",
     "detailStatusFailed": "Fehlgeschlagen",
     "detailDuration": "Dauer",
     "detailRequestId": "Anfrage-ID",
@@ -138,7 +140,7 @@
     "privacyApply": "Datenschutzeinstellungen anwenden",
     "debloaterScan": "Debloater-Scan",
     "debloaterRemove": "Debloater entfernen",
-    "serviceScan": "Dienstescan",
+    "serviceScan": "Dienst-Scan",
     "serviceApply": "Dienste anwenden",
     "malwareQuarantine": "Quarantäne",
     "malwareDelete": "Malware löschen",

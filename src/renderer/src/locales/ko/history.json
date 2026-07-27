@@ -9,8 +9,8 @@
   "emptyStateDescription": "Cleaner, Registry 또는 Debloater 페이지에서 검사를 실행하세요. 결과가 여기에 표시됩니다.",
   "confirmClearCloudTitle": "클라우드 기록 지우기",
   "confirmClearScanTitle": "검사 기록 지우기",
-  "confirmClearCloudDescription": "이 작업을 수행하면 모든 클라우드 작업 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
-  "confirmClearScanDescription": "이 작업을 수행하면 모든 검사 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+  "confirmClearCloudDescription": "모든 클라우드 작업 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+  "confirmClearScanDescription": "모든 검사 기록 항목이 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
   "confirmClearLabel": "모두 지우기",
   "typeLabels": {
     "cleaner": "시스템 정리",
@@ -27,10 +27,10 @@
   },
   "overview": {
     "totalScans": "총 검사 수",
-    "spaceRecovered": "복구된 공간",
+    "spaceRecovered": "확보된 공간",
     "itemsProcessed": "처리된 항목",
     "avgDuration": "평균 소요 시간",
-    "spaceRecoveredOverTime": "시간 경과에 따른 복구된 공간",
+    "spaceRecoveredOverTime": "시간 경과에 따른 확보 공간",
     "needTwoScansForChart": "추세 차트를 보려면 최소 2회의 검사가 필요합니다",
     "scanTypeDistribution": "검사 유형 분포",
     "noData": "데이터 없음",
@@ -78,14 +78,16 @@
     "deletedFiles": {
       "title": "삭제된 파일",
       "loading": "불러오는 중…",
-      "shownCount": "{{total}}개 중 {{shown}}개 표시",
+      "shownCount": "{{shown}} / {{total}}",
       "loadMore": "더 불러오기",
       "exportCsv": "CSV 내보내기",
       "openLog": "로그 열기",
       "exported": "{{count}}개 경로를 내보냈습니다",
       "exportFailed": "삭제된 파일 목록을 내보낼 수 없습니다",
+      "truncatedBadge": "+{{count}}개 더",
+      "truncatedHint": "이 폴더에는 폴더별 목록 제한을 초과하는 {{count}}개의 추가 항목이 있었습니다. 해당 항목은 삭제되었지만 개별적으로 나열되지는 않았습니다.",
       "emptyRecorded": "이 실행에 대해 기록된 파일 경로가 없습니다.",
-      "disabledHint": "삭제 로그가 꺼져 있어 이 실행의 개별 경로는 기록되지 않았습니다. 지금부터 기록하려면 설정 → 정리 기본 설정에서 \"삭제된 파일 로그 유지\"를 켜세요."
+      "disabledHint": "삭제 로그가 꺼져 있어 이 실행의 개별 경로가 기록되지 않았습니다. 지금부터 기록하려면 설정 → 정리 기본 설정에서 \"삭제된 파일 로그 유지\"를 켜세요."
     }
   },
   "cloud": {
@@ -127,7 +129,7 @@
     "runDism": "DISM 복구",
     "getNetworkConfig": "네트워크 구성",
     "getEventLog": "이벤트 로그",
-    "getInstalledApps": "앱 목록",
+    "getInstalledApps": "설치된 앱 목록",
     "driverUpdateScan": "드라이버 검사",
     "driverUpdateInstall": "드라이버 설치",
     "driverClean": "드라이버 정리",

@@ -14,7 +14,7 @@
   "confirmClearLabel": "مسح الكل",
   "typeLabels": {
     "cleaner": "تنظيف النظام",
-    "registry": "إصلاح Registry",
+    "registry": "إصلاح السجل",
     "debloater": "Debloater",
     "network": "تنظيف الشبكة",
     "drivers": "تنظيف برامج التشغيل",
@@ -66,15 +66,15 @@
     "dateAt": "في"
   },
   "detail": {
-    "scheduledBadge": "مجدولة",
-    "statFound": "تم العثور عليه",
-    "statProcessed": "تمت معالجته",
-    "statSkipped": "تم تخطيه",
-    "statSpaceSaved": "المساحة الموفَّرة",
+    "scheduledBadge": "مجدول",
+    "statFound": "تم العثور على",
+    "statProcessed": "تمت المعالجة",
+    "statSkipped": "تم التخطي",
+    "statSpaceSaved": "المساحة الموفرة",
     "errorCount": "{{count}} خطأ",
     "errorCountPlural": "{{count}} أخطاء",
     "categoriesLabel": "الفئات",
-    "itemsSuffix": "عنصر",
+    "itemsSuffix": "عناصر",
     "deletedFiles": {
       "title": "الملفات المحذوفة",
       "loading": "جارٍ التحميل…",
@@ -82,18 +82,20 @@
       "loadMore": "تحميل المزيد",
       "exportCsv": "تصدير CSV",
       "openLog": "فتح السجل",
-      "exported": "تم تصدير {{count}} مسارًا",
+      "exported": "تم تصدير {{count}} مسار",
       "exportFailed": "تعذر تصدير قائمة الملفات المحذوفة",
-      "emptyRecorded": "لم يتم تسجيل أي مسارات ملفات لهذا التشغيل.",
-      "disabledHint": "تسجيل الحذف متوقف، لذلك لم يتم تسجيل المسارات الفردية لهذا التشغيل. فعّل \"الاحتفاظ بسجل للملفات المحذوفة\" من الإعدادات ← تفضيلات التنظيف لتسجيلها من الآن فصاعدًا."
+      "truncatedBadge": "+{{count}} أخرى",
+      "truncatedHint": "كان هذا المجلد يحتوي على {{count}} إدخالًا إضافيًا يتجاوز حد عرض الإدخالات لكل مجلد. تم حذفها ولكن لم تُدرج بشكل فردي.",
+      "emptyRecorded": "لم يتم تسجيل أي مسارات ملفات لهذه العملية.",
+      "disabledHint": "تسجيل الحذف متوقف، لذلك لم يتم تسجيل المسارات الفردية لهذه العملية. فعّل \"الاحتفاظ بسجل للملفات المحذوفة\" من الإعدادات ← تفضيلات التنظيف لتسجيلها من الآن فصاعدًا."
     }
   },
   "cloud": {
     "emptyStateTitle": "لا توجد إجراءات سحابية بعد",
     "emptyStateDescription": "عند استلام الأوامر من لوحة التحكم السحابية، ستظهر هنا.",
     "totalCommands": "إجمالي الأوامر",
-    "succeeded": "ناجحة",
-    "failed": "فاشلة",
+    "succeeded": "نجحت",
+    "failed": "فشلت",
     "avgDuration": "متوسط المدة",
     "columnStatus": "الحالة",
     "columnCommand": "الأمر",
@@ -127,7 +129,7 @@
     "runDism": "إصلاح DISM",
     "getNetworkConfig": "تكوين الشبكة",
     "getEventLog": "سجل الأحداث",
-    "getInstalledApps": "جرد التطبيقات",
+    "getInstalledApps": "قائمة التطبيقات المثبتة",
     "driverUpdateScan": "فحص برامج التشغيل",
     "driverUpdateInstall": "تثبيت برنامج التشغيل",
     "driverClean": "تنظيف برامج التشغيل",
@@ -135,18 +137,18 @@
     "startupToggle": "تبديل بدء التشغيل",
     "diskHealth": "حالة القرص",
     "privacyScan": "فحص الخصوصية",
-    "privacyApply": "تطبيق الخصوصية",
+    "privacyApply": "تطبيق إعدادات الخصوصية",
     "debloaterScan": "فحص Debloater",
     "debloaterRemove": "إزالة Debloater",
     "serviceScan": "فحص الخدمات",
     "serviceApply": "تطبيق الخدمات",
     "malwareQuarantine": "الحجر",
     "malwareDelete": "حذف البرامج الضارة",
-    "registryScan": "فحص Registry",
-    "registryFix": "إصلاح Registry"
+    "registryScan": "فحص السجل",
+    "registryFix": "إصلاح السجل"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
+    "lessThanOneSecond": "<1ث",
     "seconds": "{{count}}ث",
     "minutesAndSeconds": "{{minutes}}د {{seconds}}ث"
   }

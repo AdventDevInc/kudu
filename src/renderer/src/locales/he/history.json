@@ -14,7 +14,7 @@
   "confirmClearLabel": "נקה הכול",
   "typeLabels": {
     "cleaner": "ניקוי מערכת",
-    "registry": "תיקון Registry",
+    "registry": "תיקון הרישום",
     "debloater": "Debloater",
     "network": "ניקוי רשת",
     "drivers": "ניקוי מנהלי התקנים",
@@ -31,7 +31,7 @@
     "itemsProcessed": "פריטים שעובדו",
     "avgDuration": "משך ממוצע",
     "spaceRecoveredOverTime": "שטח שפונה לאורך זמן",
-    "needTwoScansForChart": "נדרשות לפחות 2 סריקות עבור תרשים המגמה",
+    "needTwoScansForChart": "נדרשות לפחות 2 סריקות עבור תרשים מגמה",
     "scanTypeDistribution": "התפלגות סוגי הסריקות",
     "noData": "אין נתונים",
     "topCategoriesBySpace": "הקטגוריות המובילות לפי שטח",
@@ -84,8 +84,10 @@
       "openLog": "פתח יומן",
       "exported": "יוצאו {{count}} נתיבים",
       "exportFailed": "לא ניתן היה לייצא את רשימת הקבצים שנמחקו",
-      "emptyRecorded": "לא נרשמו נתיבי קבצים עבור הרצה זו.",
-      "disabledHint": "רישום המחיקות כבוי, ולכן הנתיבים הנפרדים מהרצה זו לא נרשמו. הפעל את \"שמור יומן של קבצים שנמחקו\" בהגדרות ← העדפות ניקוי כדי לרשום אותם מעתה ואילך."
+      "truncatedBadge": "+{{count}} נוספים",
+      "truncatedHint": "תיקייה זו הכילה {{count}} רשומות נוספות מעבר למגבלת ההצגה לכל תיקייה. הן נמחקו אך לא הוצגו בנפרד.",
+      "emptyRecorded": "לא נרשמו נתיבי קבצים עבור הפעלה זו.",
+      "disabledHint": "רישום המחיקות כבוי, ולכן הנתיבים הנפרדים מהפעלה זו לא נרשמו. הפעל את \"שמור יומן של קבצים שנמחקו\" תחת הגדרות → העדפות ניקוי כדי לרשום אותם מעתה ואילך."
     }
   },
   "cloud": {
@@ -129,10 +131,10 @@
     "getEventLog": "יומן אירועים",
     "getInstalledApps": "מלאי יישומים",
     "driverUpdateScan": "סריקת מנהלי התקנים",
-    "driverUpdateInstall": "התקנת מנהל התקן",
+    "driverUpdateInstall": "התקנת מנהלי התקנים",
     "driverClean": "ניקוי מנהלי התקנים",
     "startupList": "רשימת אתחול",
-    "startupToggle": "החלפת מצב אתחול",
+    "startupToggle": "הפעלת/כיבוי אתחול",
     "diskHealth": "תקינות דיסק",
     "privacyScan": "סריקת פרטיות",
     "privacyApply": "החלת פרטיות",
@@ -141,9 +143,9 @@
     "serviceScan": "סריקת שירותים",
     "serviceApply": "החלת שירותים",
     "malwareQuarantine": "הסגר",
-    "malwareDelete": "מחיקת תוכנה זדונית",
-    "registryScan": "סריקת Registry",
-    "registryFix": "תיקון Registry"
+    "malwareDelete": "מחיקת תוכנות זדוניות",
+    "registryScan": "סריקת הרישום",
+    "registryFix": "תיקון הרישום"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

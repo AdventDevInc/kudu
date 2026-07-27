@@ -1,6 +1,6 @@
 {
   "pageTitle": "Lịch sử quét",
-  "pageDescription": "Xem kết quả chi tiết từ các lần quét và dọn dẹp trước đây",
+  "pageDescription": "Xem kết quả chi tiết từ các lần quét và dọn dẹp trước đó",
   "viewOverview": "Tổng quan",
   "viewTimeline": "Dòng thời gian",
   "viewCloud": "Cloud",
@@ -19,7 +19,7 @@
     "network": "Dọn dẹp mạng",
     "drivers": "Dọn dẹp driver",
     "malware": "Quét malware",
-    "privacy": "Lá chắn quyền riêng tư",
+    "privacy": "Bảo vệ quyền riêng tư",
     "startup": "Trình quản lý khởi động",
     "services": "Trình quản lý dịch vụ",
     "softwareUpdate": "Cập nhật phần mềm",
@@ -36,9 +36,9 @@
     "noData": "Không có dữ liệu",
     "topCategoriesBySpace": "Danh mục chiếm nhiều dung lượng nhất",
     "noCategoryData": "Không có dữ liệu danh mục",
-    "weeklyActivity": "Hoạt động hàng tuần",
+    "weeklyActivity": "Hoạt động theo tuần",
     "needTwoWeeksData": "Cần ít nhất 2 tuần dữ liệu",
-    "recentScans": "Lần quét gần đây",
+    "recentScans": "Các lần quét gần đây",
     "tooltipSpace": "Dung lượng",
     "tooltipScans": "Lần quét"
   },
@@ -84,8 +84,10 @@
       "openLog": "Mở nhật ký",
       "exported": "Đã xuất {{count}} đường dẫn",
       "exportFailed": "Không thể xuất danh sách tệp đã xóa",
+      "truncatedBadge": "+{{count}} nữa",
+      "truncatedHint": "Thư mục này chứa thêm {{count}} mục vượt quá giới hạn liệt kê cho mỗi thư mục. Chúng đã bị xóa nhưng không được liệt kê riêng lẻ.",
       "emptyRecorded": "Không có đường dẫn tệp nào được ghi lại cho lần chạy này.",
-      "disabledHint": "Tính năng ghi nhật ký xóa đang tắt, vì vậy các đường dẫn riêng lẻ từ lần chạy này không được ghi lại. Bật \"Giữ nhật ký các tệp đã xóa\" trong Cài đặt → Tùy chọn dọn dẹp để ghi lại từ bây giờ."
+      "disabledHint": "Tính năng ghi nhật ký xóa đang tắt, nên các đường dẫn riêng lẻ từ lần chạy này không được ghi lại. Hãy bật \"Giữ nhật ký các tệp đã xóa\" trong Cài đặt → Tùy chọn dọn dẹp để ghi lại từ bây giờ."
     }
   },
   "cloud": {
@@ -146,8 +148,8 @@
     "registryFix": "Sửa Registry"
   },
   "duration": {
-    "lessThanOneSecond": "<1 giây",
-    "seconds": "{{count}} giây",
-    "minutesAndSeconds": "{{minutes}} phút {{seconds}} giây"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

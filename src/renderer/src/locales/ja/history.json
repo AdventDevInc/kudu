@@ -26,16 +26,16 @@
     "cveScan": "CVE スキャン"
   },
   "overview": {
-    "totalScans": "総スキャン数",
+    "totalScans": "合計スキャン数",
     "spaceRecovered": "回復した容量",
     "itemsProcessed": "処理済み項目",
     "avgDuration": "平均所要時間",
     "spaceRecoveredOverTime": "期間ごとの回復容量",
-    "needTwoScansForChart": "傾向グラフの表示には少なくとも 2 回のスキャンが必要です",
+    "needTwoScansForChart": "傾向グラフには少なくとも 2 回のスキャンが必要です",
     "scanTypeDistribution": "スキャン種類の分布",
-    "noData": "データがありません",
+    "noData": "データなし",
     "topCategoriesBySpace": "容量別の上位カテゴリ",
-    "noCategoryData": "カテゴリ データがありません",
+    "noCategoryData": "カテゴリ データなし",
     "weeklyActivity": "週間アクティビティ",
     "needTwoWeeksData": "少なくとも 2 週間分のデータが必要です",
     "recentScans": "最近のスキャン",
@@ -84,14 +84,16 @@
       "openLog": "ログを開く",
       "exported": "{{count}} 件のパスをエクスポートしました",
       "exportFailed": "削除されたファイル一覧をエクスポートできませんでした",
+      "truncatedBadge": "さらに +{{count}} 件",
+      "truncatedHint": "このフォルダーには、フォルダーごとの一覧表示上限を超える {{count}} 件の追加エントリがありました。これらは削除されましたが、個別には一覧表示されていません。",
       "emptyRecorded": "この実行ではファイル パスは記録されませんでした。",
-      "disabledHint": "削除ログがオフになっているため、この実行での個別のパスは記録されませんでした。今後記録するには、[設定] → [クリーニング設定] で「削除したファイルのログを保持する」をオンにしてください。"
+      "disabledHint": "削除ログがオフになっているため、この実行での個別のパスは記録されませんでした。今後記録するには、設定 → クリーニング設定で「削除されたファイルのログを保持する」をオンにしてください。"
     }
   },
   "cloud": {
     "emptyStateTitle": "クラウド操作はまだありません",
     "emptyStateDescription": "クラウド ダッシュボードからコマンドを受信すると、ここに表示されます。",
-    "totalCommands": "総コマンド数",
+    "totalCommands": "合計コマンド数",
     "succeeded": "成功",
     "failed": "失敗",
     "avgDuration": "平均所要時間",
@@ -133,7 +135,7 @@
     "driverClean": "ドライバー クリーン",
     "startupList": "スタートアップ一覧",
     "startupToggle": "スタートアップ切り替え",
-    "diskHealth": "ディスク正常性",
+    "diskHealth": "ディスクの正常性",
     "privacyScan": "プライバシー スキャン",
     "privacyApply": "プライバシー適用",
     "debloaterScan": "Debloater スキャン",
@@ -146,8 +148,8 @@
     "registryFix": "レジストリ修復"
   },
   "duration": {
-    "lessThanOneSecond": "<1秒",
-    "seconds": "{{count}}秒",
-    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }
