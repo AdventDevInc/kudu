@@ -117,7 +117,8 @@ export class YaraEngine {
       sources.push({ name: `source-${i}`, content: extraSources[i] })
     }
     if (skippedPlatform > 0) {
-      console.log(`[yara] Skipped ${skippedPlatform} rule files for other platforms`)
+      // stderr, not stdout — keeps the CLI's --json output parseable.
+      console.error(`[yara] Skipped ${skippedPlatform} rule files for other platforms`)
     }
 
     if (sources.length === 0) {
