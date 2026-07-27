@@ -82,6 +82,14 @@ When `--json` is passed, output is a single JSON object:
 
 The `clean` key is only present when `--clean` is used.
 
+With `--json`, stdout carries nothing but the JSON document — progress lines and verbose
+diagnostics are written to stderr instead, so output can be piped straight into a parser:
+
+```bash
+kudu --cli programs list --json | jq '.count'   # stdout is pure JSON
+kudu --cli programs list --json 2>/dev/null     # discard progress entirely
+```
+
 ## Prometheus Metrics
 
 Print metrics in Prometheus text format (useful for `node_exporter` textfile collector):
