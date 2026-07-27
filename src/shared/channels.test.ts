@@ -32,6 +32,10 @@ describe('IPC channels', () => {
     expect(IPC.HISTORY_GET).toBe('history:get')
     expect(IPC.HISTORY_ADD).toBe('history:add')
     expect(IPC.HISTORY_CLEAR).toBe('history:clear')
+    expect(IPC.DELETION_LOG_QUERY).toBe('deletion-log:query')
+    expect(IPC.DELETION_LOG_EXPORT).toBe('deletion-log:export')
+    expect(IPC.DELETION_LOG_REVEAL).toBe('deletion-log:reveal')
+    expect(IPC.DELETION_LOG_CLEAR).toBe('deletion-log:clear')
   })
 })
 

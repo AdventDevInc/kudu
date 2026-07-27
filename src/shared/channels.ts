@@ -125,6 +125,12 @@ export const IPC = {
   HISTORY_ADD: 'history:add',
   HISTORY_CLEAR: 'history:clear',
 
+  // Deletion log (per-file record of what cleaners removed)
+  DELETION_LOG_QUERY: 'deletion-log:query',
+  DELETION_LOG_EXPORT: 'deletion-log:export',
+  DELETION_LOG_REVEAL: 'deletion-log:reveal',
+  DELETION_LOG_CLEAR: 'deletion-log:clear',
+
   // Malware scanner
   MALWARE_SCAN: 'malware:scan',
   MALWARE_QUARANTINE: 'malware:quarantine',

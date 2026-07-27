@@ -6,6 +6,7 @@
 import { app } from 'electron'
 import { isAbsolute } from 'path'
 import type { ScanHistoryEntry } from '../../shared/types'
+import type { DeletionQuery } from './deletion-log-store'
 
 /** Validate that a partial settings object only contains expected keys and safe values */
 export function validateSettingsPartial(input: unknown): Record<string, unknown> | null {
@@ -257,7 +258,40 @@ export function validateHistoryEntry(input: unknown): ScanHistoryEntry | null {
   if (!Array.isArray(obj.categories)) return null
   // Limit categories array size to prevent disk-fill attacks
   if (obj.categories.length > 50) return null
+  // Optional deletion-log window — absent on entries from older versions
+  if (obj.cleanedFrom !== undefined && (typeof obj.cleanedFrom !== 'string' || obj.cleanedFrom.length > 50)) return null
+  if (obj.cleanedTo !== undefined && (typeof obj.cleanedTo !== 'string' || obj.cleanedTo.length > 50)) return null
 
   return obj as unknown as ScanHistoryEntry
+}
+
+/**
+ * Validate a deletion-log query. Returns a normalized query, or null when the
+ * input is malformed. An empty object is valid and means "everything".
+ */
+export function validateDeletionQuery(input: unknown): DeletionQuery | null {
+  if (input === undefined || input === null) return {}
+  if (typeof input !== 'object' || Array.isArray(input)) return null
+  const obj = input as Record<string, unknown>
+
+  const allowedKeys = new Set(['from', 'to', 'offset', 'limit'])
+  for (const key of Object.keys(obj)) {
+    if (!allowedKeys.has(key)) return null
+  }
+
+  const query: DeletionQuery = {}
+  for (const key of ['from', 'to'] as const) {
+    const val = obj[key]
+    if (val === undefined) continue
+    if (typeof val !== 'string' || val.length > 50 || Number.isNaN(Date.parse(val))) return null
+    query[key] = val
+  }
+  for (const key of ['offset', 'limit'] as const) {
+    const val = obj[key]
+    if (val === undefined) continue
+    if (typeof val !== 'number' || !Number.isFinite(val) || val < 0) return null
+    query[key] = val
+  }
+  return query
 }
 

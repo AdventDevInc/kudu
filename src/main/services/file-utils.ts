@@ -2,9 +2,10 @@ import { rm, stat, readdir, open, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
-import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
+import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord } from '../../shared/types'
 import { getCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
+import { recordDeletions } from './deletion-log-store'
 
 export interface DeleteResult {
   path: string
@@ -123,11 +124,31 @@ export async function cleanItems(
   const errors: CleanResult['errors'] = []
   let lastReport = 0
 
+  // Opt-in audit trail of what was removed (issue #247). Buffered so a clean of
+  // 100k files doesn't turn into 100k appends, and flushed as we go so a crash
+  // mid-clean still leaves a record of everything deleted up to that point.
+  const logDeletions = getSettings().cleaner.keepDeletionLog === true
+  const pending: DeletedFileRecord[] = []
+  const flushPending = (): void => {
+    if (pending.length === 0) return
+    recordDeletions(pending)
+    pending.length = 0
+  }
+
   for (const item of items) {
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
       filesDeleted++
+      if (logDeletions) {
+        pending.push({
+          ts: new Date().toISOString(),
+          path: item.path,
+          size: item.size,
+          category: item.subcategory || item.category,
+        })
+        if (pending.length >= 500) flushPending()
+      }
     } else {
       filesSkipped++
       if (result.reason) {
@@ -143,6 +164,8 @@ export async function cleanItems(
       }
     }
   }
+
+  flushPending()
 
   const needsElevation = errors.some((e) => e.reason === 'permission-denied')
   return { totalCleaned, filesDeleted, filesSkipped, errors, needsElevation }

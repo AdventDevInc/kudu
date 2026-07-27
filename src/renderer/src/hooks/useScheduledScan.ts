@@ -207,6 +207,9 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
       type: historyType,
       timestamp: new Date().toISOString(),
       duration: Date.now() - startTime,
+      // Window for looking up the deleted paths in the deletion log
+      cleanedFrom: new Date(startTime).toISOString(),
+      cleanedTo: new Date().toISOString(),
       totalItemsFound: totalItems,
       totalItemsCleaned: totalCleaned,
       totalItemsSkipped: totalItems - totalCleaned,

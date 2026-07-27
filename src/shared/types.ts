@@ -47,6 +47,34 @@ export interface ScanHistoryEntry {
   scheduled?: boolean
   /** Name of the schedule that triggered this entry */
   scheduleName?: string
+  /**
+   * ISO timestamps bounding the clean phase of this entry. Used to look up the
+   * individual deleted paths in the deletion log, which is written separately
+   * so a 100k-file clean never has to travel through a history entry.
+   * Absent on entries recorded before the deletion log existed.
+   */
+  cleanedFrom?: string
+  cleanedTo?: string
+}
+
+/** One deleted path, as persisted to the deletion log. */
+export interface DeletedFileRecord {
+  /** ISO timestamp of the deletion */
+  ts: string
+  path: string
+  size: number
+  category: string
+}
+
+/** A windowed page of deletion-log records, plus the context the UI needs. */
+export interface DeletionLogPage {
+  records: DeletedFileRecord[]
+  /** Total records matching the window, before offset/limit are applied */
+  total: number
+  /** Absolute path of the log file, for reveal/export affordances */
+  logPath: string
+  /** Whether deletion logging is currently enabled in settings */
+  enabled: boolean
 }
 
 // ─── Cloud Action History ────────────────────────────────────
@@ -625,6 +653,12 @@ export interface KuduSettings {
     closeBrowsersBeforeClean: boolean
     createRestorePoint: boolean
     protectRecycleBin: boolean
+    /**
+     * Record every deleted path to the deletion log so past cleans can be
+     * audited from Scan History. Off by default: the log is a plaintext index
+     * of file paths, which is not something to write without being asked.
+     */
+    keepDeletionLog: boolean
   }
   exclusions: string[]
   ignoredSoftwareUpdates: string[]
