@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, mkdirSync, rmSync, existsSync, writeFileSync } from 'fs'
+import { mkdtempSync, mkdirSync, rmSync, existsSync, writeFileSync, symlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import type { DeletedFileRecord, ScanItem } from '../../shared/types'
@@ -119,25 +119,6 @@ describe('cleanItems deletion logging', () => {
     expect(state.recorded[0].category).toBe('system')
   })
 
-  it('records exactly the files that were actually deleted', async () => {
-    state.keepDeletionLog = true
-    seedItems(2)
-    // A third item pointing at a path that was never created — rm treats a
-    // missing path as already-gone, so it still counts as deleted.
-    state.items.push({
-      id: 'id-missing',
-      path: join(testDir, 'never-existed.tmp'),
-      size: 0,
-      category: 'system',
-      subcategory: 'Temp Files',
-      lastModified: 0,
-      selected: true,
-    })
-
-    const result = await cleanItems(['id-0', 'id-1', 'id-missing'])
-    expect(state.recorded).toHaveLength(result.filesDeleted)
-  })
-
   it('flushes in batches so a large clean never buffers everything', async () => {
     state.keepDeletionLog = true
     seedItems(1200)
@@ -233,6 +214,52 @@ describe('cleanItems deletion logging', () => {
     expect(result.filesDeleted).toBe(0)
     expect(result.needsElevation).toBe(true)
     expect(state.recorded).toHaveLength(0)
+  })
+
+  it('does not log a path that was already gone before the clean', async () => {
+    state.keepDeletionLog = true
+    seedItems(1)
+    // A temp file that disappeared between the scan and the clean: rm(force)
+    // still reports success, but Kudu did not delete it.
+    state.items.push({
+      id: 'id-vanished',
+      path: join(testDir, 'vanished.tmp'),
+      size: 500,
+      category: 'system',
+      subcategory: 'Temp Files',
+      lastModified: 0,
+      selected: true,
+    })
+
+    const result = await cleanItems(['id-0', 'id-vanished'])
+
+    expect(result.filesDeleted).toBe(2) // counters keep their existing behavior
+    expect(state.recorded.map((r) => r.path)).toEqual([join(testDir, 'file-0.tmp')])
+  })
+
+  it('does not expand a symlinked directory, which rm only unlinks', async () => {
+    state.keepDeletionLog = true
+    const target = join(testDir, 'real-target')
+    mkdirSync(target, { recursive: true })
+    writeFileSync(join(target, 'keep-me.dat'), 'a', 'utf-8')
+
+    const link = join(testDir, 'link-to-target')
+    try {
+      symlinkSync(target, link, 'junction')
+    } catch {
+      return // Unprivileged Windows without Developer Mode — nothing to assert.
+    }
+
+    state.items = [{
+      id: 'link-0', path: link, size: 1, category: 'system',
+      subcategory: 'App Cache', lastModified: 0, selected: true,
+    }]
+
+    await cleanItems(['link-0'])
+
+    // Only the link itself: its target's files are still on disk.
+    expect(state.recorded.map((r) => r.path)).toEqual([link])
+    expect(existsSync(join(target, 'keep-me.dat'))).toBe(true)
   })
 
   it('does not log when no items match the given ids', async () => {

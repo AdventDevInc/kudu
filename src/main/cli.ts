@@ -411,11 +411,19 @@ async function cleanRecycleBin(sizeBytes: number = 0): Promise<CleanResult> {
   const { execFile } = await import('child_process')
   const { promisify } = await import('util')
   const execFileAsync = promisify(execFile)
+  // This path empties the bin through PowerShell rather than cleanItems, so it
+  // has to do its own deletion logging — same gap as the IPC handler, different
+  // implementation. Contents must be read before they're gone.
+  const { isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin } =
+    await import('./services/recycle-bin-log')
+  const logDeletions = isDeletionLoggingEnabled()
+  const binContents = logDeletions ? await listRecycleBinContents() : []
   try {
     const cleanScript = `$shell = New-Object -ComObject Shell.Application; $shell.NameSpace(0x0a).Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }; Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue`
     await execFileAsync('powershell.exe', [
       '-NoProfile', '-Command', psUtf8(cleanScript)
     ], { windowsHide: true })
+    if (logDeletions) await recordEmptiedRecycleBin(binContents, 'cli')
     return { totalCleaned: sizeBytes, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
   } catch (err: any) {
     return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [{ path: 'Recycle Bin', reason: err.message }], needsElevation: false }

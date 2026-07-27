@@ -1,4 +1,4 @@
-import { rm, stat, readdir, open, writeFile } from 'fs/promises'
+import { rm, stat, lstat, readdir, open, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import type { Dirent } from 'fs'
 import { join } from 'path'
@@ -122,14 +122,16 @@ const MAX_LOGGED_DESCENDANTS = 100_000
  * unable to answer which file went missing. Symlinks and Windows junctions are
  * listed but not descended into, matching what `rm -r` actually removes.
  *
- * Returns null when the path is not a directory (i.e. nothing to expand).
+ * Callers must confirm via lstat that the root is a real directory — a symlink
+ * to one would have readdir list the *target's* files while rm only unlinks the
+ * link, which would put files that still exist into the log.
  */
 async function listDescendantFiles(dirPath: string): Promise<{ paths: string[]; truncated: number } | null> {
   let rootEntries: Dirent[]
   try {
     rootEntries = await readdir(dirPath, { withFileTypes: true })
   } catch {
-    return null // Not a directory, or unreadable — nothing to expand.
+    return null // Unreadable — nothing to expand.
   }
 
   const paths: string[] = []
@@ -189,16 +191,33 @@ export async function cleanItems(
   }
 
   for (const item of items) {
+    // lstat, not stat: it answers both questions the log depends on in one
+    // call — whether the path is still there at all, and whether it is a real
+    // directory rather than a symlink to one. Null means it was already gone
+    // before this clean touched it.
+    let rootInfo: Awaited<ReturnType<typeof lstat>> | null = null
+    if (logDeletions) {
+      try {
+        rootInfo = await lstat(item.path)
+      } catch {
+        rootInfo = null
+      }
+    }
+
     // A scan item is often a whole directory that rm removes recursively, so
     // enumerate what's inside before it's gone. Only on success do these get
     // recorded, so a failed delete never leaves phantom entries behind.
-    const descendants = logDeletions ? await listDescendantFiles(item.path) : null
+    const descendants = rootInfo?.isDirectory() ? await listDescendantFiles(item.path) : null
 
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
       filesDeleted++
-      if (logDeletions) {
+      // rm(force) reports success for a path that was already missing, so a
+      // temp file that vanished between the scan and the clean would otherwise
+      // be logged as something Kudu deleted. Counters keep their existing
+      // behavior; only the audit trail is held to what we actually removed.
+      if (logDeletions && rootInfo) {
         const ts = new Date().toISOString()
         const category = item.subcategory || item.category
         const record: DeletedFileRecord = { ts, path: item.path, size: item.size, category, origin }

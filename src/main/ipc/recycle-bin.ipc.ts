@@ -2,7 +2,6 @@ import { ipcMain } from 'electron'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { existsSync } from 'fs'
-import { join } from 'path'
 import { IPC } from '../../shared/channels'
 import { CleanerType } from '../../shared/enums'
 import type { ScanResult, CleanResult } from '../../shared/types'
@@ -11,48 +10,14 @@ import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
 import { cacheItems } from '../services/scan-cache'
 import { psUtf8 } from '../services/exec-utf8'
-import { getSettings } from '../services/settings-store'
-import { recordDeletions } from '../services/deletion-log-store'
-import type { DeletedFileRecord } from '../../shared/types'
+import {
+  isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin
+} from '../services/recycle-bin-log'
 
 const execFileAsync = promisify(execFile)
 
 function psArgs(script: string): string[] {
   return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
-}
-
-/**
- * List what's currently in the Windows Recycle Bin, by original location.
- *
- * SHEmptyRecycleBin destroys the bin wholesale without going through
- * cleanItems, so the deletion log would otherwise show nothing for a category
- * that just permanently destroyed recoverable files — the one clean where
- * knowing what went is worth the most. Called only when logging is enabled.
- * Best-effort: any failure just means no records, never a blocked clean.
- */
-async function listRecycleBinContents(): Promise<Array<{ path: string; size: number }>> {
-  try {
-    const { stdout } = await execFileAsync('powershell.exe', psArgs(
-      `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); ` +
-      `$out = @(); foreach ($i in $rb.Items()) { ` +
-      `$origin = $rb.GetDetailsOf($i, 1); ` +
-      `$out += [PSCustomObject]@{ name = $i.Name; origin = $origin; size = $i.Size } }; ` +
-      `ConvertTo-Json -InputObject @($out) -Compress`
-    ), { windowsHide: true, maxBuffer: 32 * 1024 * 1024 })
-
-    const parsed = JSON.parse(stdout.trim() || '[]')
-    const rows = Array.isArray(parsed) ? parsed : [parsed]
-    return rows
-      .filter((r) => r && typeof r.name === 'string' && r.name.length > 0)
-      .map((r) => ({
-        // GetDetailsOf(item, 1) is the original folder. Fall back to the bare
-        // name when Windows won't tell us where the file came from.
-        path: typeof r.origin === 'string' && r.origin.length > 0 ? join(r.origin, r.name) : r.name,
-        size: typeof r.size === 'number' ? r.size : 0,
-      }))
-  } catch {
-    return []
-  }
 }
 
 // Windows: track last scanned size (virtual items have no real path)
@@ -132,7 +97,7 @@ export function registerRecycleBinIpc(): void {
     const sizeBeforeClean = lastScannedSize
     // Capture the contents first — after the bin is emptied there is nothing
     // left to enumerate.
-    const logDeletions = getSettings().cleaner.keepDeletionLog === true
+    const logDeletions = isDeletionLoggingEnabled()
     const binContents = logDeletions ? await listRecycleBinContents() : []
     try {
       // Flags: SHERB_NOCONFIRMATION(1) | SHERB_NOPROGRESSUI(2) | SHERB_NOSOUND(4) = 7
@@ -146,24 +111,7 @@ export function registerRecycleBinIpc(): void {
       ), { windowsHide: true })
       const remaining = parseInt(stdout.trim()) || 0
 
-      // Record what's actually gone. SHEmptyRecycleBin doesn't report which
-      // items it kept, so on a partial empty we diff against what's still in
-      // the bin rather than guessing — the log should never name a file that
-      // survived.
-      if (logDeletions && binContents.length > 0) {
-        const survivors = remaining === 0
-          ? new Set<string>()
-          : new Set((await listRecycleBinContents()).map((entry) => entry.path))
-        const emptied = binContents.filter((entry) => !survivors.has(entry.path))
-        const ts = new Date().toISOString()
-        recordDeletions(emptied.map<DeletedFileRecord>((entry) => ({
-          ts,
-          path: entry.path,
-          size: entry.size,
-          category: 'Recycle Bin',
-          origin: 'local',
-        })))
-      }
+      if (logDeletions) await recordEmptiedRecycleBin(binContents, 'local')
 
       if (remaining === 0) {
         lastScannedSize = 0
