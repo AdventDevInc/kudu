@@ -2,10 +2,23 @@
   "$schema": "../schema/rules.schema.json",
   "type": "browsers",
   "chromiumCacheDirs": {
-    "cache": "Cache/Cache_Data",
-    "codeCache": "Code Cache",
-    "gpuCache": "GPUCache",
-    "serviceWorker": "Service Worker/CacheStorage"
+    "profile": [
+      { "dir": "Cache/Cache_Data", "label": "Cache" },
+      { "dir": "Code Cache", "label": "Code Cache" },
+      { "dir": "GPUCache", "label": "GPU Cache" },
+      { "dir": "Service Worker/CacheStorage", "label": "Service Worker Cache" },
+      { "dir": "DawnWebGPUCache", "label": "WebGPU Shader Cache", "description": "Dawn's compiled WebGPU shaders — rebuilt on demand" },
+      { "dir": "DawnGraphiteCache", "label": "Graphite Shader Cache", "description": "Dawn/Skia Graphite pipeline cache — rebuilt on demand" }
+    ],
+    "shared": [
+      { "dir": "component_crx_cache", "label": "Component Extension Cache", "description": "Downloaded CRX packages for component extensions — re-fetched on next update check, not the installed extensions themselves" },
+      { "dir": "extensions_crx_cache", "label": "Extension Update Cache", "description": "Downloaded CRX packages awaiting install — re-fetched on next update check" },
+      { "dir": "GrShaderCache", "label": "Skia Shader Cache", "description": "Skia GPU shader cache — rebuilt on demand" },
+      { "dir": "ShaderCache", "label": "Shader Cache", "description": "Legacy GPU shader cache — rebuilt on demand" },
+      { "dir": "GraphiteDawnCache", "label": "Graphite Pipeline Cache", "description": "Where newer Chromium builds keep the Graphite pipeline cache — rebuilt on demand" },
+      { "dir": "GPUPersistentCache", "label": "Persistent GPU Cache", "description": "Where newer Chromium builds keep the on-disk GPU cache — rebuilt on demand" },
+      { "dir": "PnaclTranslationCache", "label": "PNaCl Translation Cache", "description": "Translated PNaCl modules — regenerated on demand" }
+    ]
   },
   "chromium": [
     { "key": "chrome", "base": "${LOCALAPPDATA}/Google/Chrome/User Data" },

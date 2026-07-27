@@ -67,10 +67,13 @@ describe('buildCleanerPaths', () => {
     browsers: {
       type: 'browsers',
       chromiumCacheDirs: {
-        cache: 'Cache',
-        codeCache: 'Code Cache',
-        gpuCache: 'GpuCache',
-        serviceWorker: 'Service Worker/CacheStorage',
+        profile: [
+          { dir: 'Cache', label: 'Cache' },
+          { dir: 'Code Cache', label: 'Code Cache' },
+          { dir: 'GpuCache', label: 'GPU Cache' },
+          { dir: 'Service Worker/CacheStorage', label: 'Service Worker Cache' },
+        ],
+        shared: [{ dir: 'GrShaderCache', label: 'Skia Shader Cache' }],
       },
       chromium: [
         { key: 'chrome', base: '${CONFIG}/google-chrome' },
@@ -132,10 +135,22 @@ describe('buildCleanerPaths', () => {
 
   it('resolves browserPaths with chromium cache dirs', () => {
     const bp = paths.browserPaths()
-    expect(bp.chrome.cache).toBe('Cache')
+    expect(bp.chrome.profileCaches).toContainEqual({ dir: 'Cache', label: 'Cache' })
+    expect(bp.chrome.sharedCaches).toEqual([{ dir: 'GrShaderCache', label: 'Skia Shader Cache' }])
     expect(bp.chrome.base).toContain('google-chrome')
     expect(bp.firefox.base).toContain('.mozilla')
     expect(bp.safari).toBeNull()
+  })
+
+  it('defaults sharedCaches to an empty list when the rules omit it', () => {
+    const noShared = {
+      ...minimalJson,
+      browsers: {
+        ...minimalJson.browsers,
+        chromiumCacheDirs: { profile: [{ dir: 'Cache', label: 'Cache' }] },
+      },
+    }
+    expect(buildCleanerPaths(noShared, 'linux').browserPaths().chrome.sharedCaches).toEqual([])
   })
 
   it('resolves appPaths with childSubdir', () => {

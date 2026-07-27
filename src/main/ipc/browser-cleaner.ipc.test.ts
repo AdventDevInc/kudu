@@ -59,21 +59,33 @@ function getHandler(channel: string): (...args: unknown[]) => unknown {
   return call[1] as (...args: unknown[]) => unknown
 }
 
+const PROFILE_CACHES = [
+  { dir: 'Cache', label: 'Cache' },
+  { dir: 'Code Cache', label: 'Code Cache' },
+  { dir: 'GPUCache', label: 'GPU Cache' },
+  { dir: 'Service Worker', label: 'Service Worker Cache' },
+]
+const SHARED_CACHES = [{ dir: 'GrShaderCache', label: 'Skia Shader Cache' }]
+
+function browser(base: string) {
+  return { base, profileCaches: PROFILE_CACHES, sharedCaches: SHARED_CACHES }
+}
+
 function makeBrowserPaths() {
   return {
-    chrome: { base: '/home/user/.config/google-chrome', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    edge: { base: '/home/user/.config/microsoft-edge', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    brave: { base: '/fake/brave', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    vivaldi: { base: '/fake/vivaldi', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    opera: { base: '/fake/opera', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    operaGX: { base: '/fake/operaGX', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    arc: { base: '/fake/arc', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    chromium: { base: '/fake/chromium', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    thorium: { base: '/fake/thorium', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    supermium: { base: '/fake/supermium', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    helium: { base: '/fake/helium', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    cromite: { base: '/fake/cromite', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
-    catsxp: { base: '/fake/catsxp', cache: 'Cache', codeCache: 'Code Cache', gpuCache: 'GPUCache', serviceWorker: 'Service Worker' },
+    chrome: browser('/home/user/.config/google-chrome'),
+    edge: browser('/home/user/.config/microsoft-edge'),
+    brave: browser('/fake/brave'),
+    vivaldi: browser('/fake/vivaldi'),
+    opera: browser('/fake/opera'),
+    operaGX: browser('/fake/operaGX'),
+    arc: browser('/fake/arc'),
+    chromium: browser('/fake/chromium'),
+    thorium: browser('/fake/thorium'),
+    supermium: browser('/fake/supermium'),
+    helium: browser('/fake/helium'),
+    cromite: browser('/fake/cromite'),
+    catsxp: browser('/fake/catsxp'),
     firefox: { cache: '/fake/firefox-cache' },
     librewolf: { cache: '' },
     waterfox: { cache: '' },
@@ -148,6 +160,43 @@ describe('BROWSER_SCAN handler', () => {
     expect(Array.isArray(results)).toBe(true)
     expect(mockScanDirectory).toHaveBeenCalled()
     expect(mockCacheItems).toHaveBeenCalled()
+  })
+
+  // Issue #265: judging a directory by its own mtime made scanDirectory drop
+  // `Code Cache` whole — it holds only `js` and `wasm`, both touched by any
+  // recent browsing.
+  it('scans browser caches with directories judged by their contents', async () => {
+    mockExistsSync.mockReturnValue(true)
+    mockReaddir.mockResolvedValue([])
+    mockScanDirectory.mockResolvedValue({ category: 'browser', subcategory: 'test', items: [], totalSize: 0, itemCount: 0 })
+
+    registerBrowserCleanerIpc(() => mockWindow() as any)
+    await getHandler('cleaner:browser:scan')()
+
+    expect(mockScanDirectory).toHaveBeenCalled()
+    for (const call of mockScanDirectory.mock.calls) {
+      expect(call[3]).toEqual({ deepRecencyCheck: true })
+    }
+  })
+
+  it('scans the shared caches that sit beside the profiles', async () => {
+    const chromeBase = '/home/user/.config/google-chrome'
+    mockExistsSync.mockImplementation((p: string) => p === chromeBase || p.startsWith(join(chromeBase, 'GrShaderCache')))
+    mockReaddir.mockResolvedValue([])
+    mockScanDirectory.mockResolvedValue({
+      category: 'browser',
+      subcategory: 'Chrome - Skia Shader Cache',
+      items: [{ id: '1', path: '/test', size: 100 }],
+      totalSize: 100,
+      itemCount: 1,
+    })
+
+    registerBrowserCleanerIpc(() => mockWindow() as any)
+    await getHandler('cleaner:browser:scan')()
+
+    expect(mockScanDirectory).toHaveBeenCalledWith(
+      join(chromeBase, 'GrShaderCache'), 'browser', 'Chrome - Skia Shader Cache', { deepRecencyCheck: true }
+    )
   })
 
   it('scans Opera-style browsers without profiles', async () => {

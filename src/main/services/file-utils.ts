@@ -1,6 +1,6 @@
 import { rm, stat, lstat, readdir, open, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
-import type { Dirent } from 'fs'
+import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
@@ -254,17 +254,138 @@ export async function cleanItems(
   return { totalCleaned, filesDeleted, filesSkipped, errors, needsElevation }
 }
 
+export interface ScanRecencyOptions {
+  /** Skip entries modified within this many minutes (default 60) */
+  skipRecentMinutes?: number
+  /**
+   * Judge a directory by its contents rather than by its own mtime.
+   *
+   * A directory's mtime moves whenever an entry is added or removed inside it,
+   * which says nothing about whether the contents are in use. Testing it
+   * directly discards the whole subtree: Chrome's `Code Cache` holds exactly
+   * two entries, the `js` and `wasm` directories, so any recent browsing had
+   * both skipped and the entire result dropped for being empty (issue #265).
+   *
+   * With this on, a directory is only offered as one item when nothing beneath
+   * it falls inside the cutoff — which is what makes the recursive delete that
+   * follows safe. When something under it is live, the directory is opened and
+   * its children judged the same way, so a running app keeps the files it is
+   * still writing while everything settled around them is still reclaimed.
+   */
+  deepRecencyCheck?: boolean
+}
+
+/** How far the contents check descends before it gives up on a subtree. */
+const MAX_RECENCY_DEPTH = 8
+
+interface RecencyScan {
+  cutoff: number
+  exclusions: string[]
+  /** Item budget shared across the whole scan */
+  remaining: number
+}
+
+interface ResolvedEntry {
+  items: Array<{ path: string; size: number; mtimeMs: number }>
+  /** Nothing beneath this entry was withheld, so deleting it whole is safe */
+  complete: boolean
+  size: number
+}
+
+function withheld(): ResolvedEntry {
+  return { items: [], complete: false, size: 0 }
+}
+
+/** Resolve the entries inside `dirPath`, honouring the cutoff at every depth. */
+async function resolveChildren(dirPath: string, ctx: RecencyScan, depth: number): Promise<ResolvedEntry> {
+  let entries: Dirent[]
+  try {
+    entries = await readdir(dirPath, { withFileTypes: true })
+  } catch {
+    return withheld()
+  }
+
+  const items: ResolvedEntry['items'] = []
+  let complete = true
+  let size = 0
+
+  for (const entry of entries) {
+    if (ctx.remaining <= 0) { complete = false; break }
+    const childPath = join(dirPath, entry.name)
+    if (isExcluded(childPath, ctx.exclusions)) { complete = false; continue }
+
+    // Never descend a symlink — rm only unlinks the link, so what readdir would
+    // list here is the target's contents, which this scan does not remove.
+    const child = entry.isSymbolicLink()
+      ? withheld()
+      : await resolveEntry(childPath, entry.isDirectory(), ctx, depth)
+
+    if (!child.complete) complete = false
+    items.push(...child.items)
+    size += child.size
+  }
+
+  return { items, complete, size }
+}
+
+/** Resolve a single entry into the items it contributes. */
+async function resolveEntry(
+  path: string,
+  isDirectory: boolean,
+  ctx: RecencyScan,
+  depth: number
+): Promise<ResolvedEntry> {
+  let stats: Stats
+  try {
+    stats = await stat(path)
+  } catch {
+    return withheld()
+  }
+
+  if (!isDirectory) {
+    if (stats.mtimeMs > ctx.cutoff) return withheld()
+    ctx.remaining--
+    return { items: [{ path, size: stats.size, mtimeMs: stats.mtimeMs }], complete: true, size: stats.size }
+  }
+
+  // Out of depth: the subtree can't be shown to be settled, so leave it alone.
+  if (depth <= 0) return withheld()
+
+  const children = await resolveChildren(path, ctx, depth - 1)
+  if (!children.complete) return children
+
+  // Everything inside is settled, so collapse to one item and let a single
+  // recursive delete take the lot — handing back the budget those children held.
+  ctx.remaining += children.items.length - 1
+  return { items: [{ path, size: children.size, mtimeMs: stats.mtimeMs }], complete: true, size: children.size }
+}
+
 export async function scanDirectory(
   dirPath: string,
   category: string,
   subcategory: string,
-  skipRecentMinutes = 60
+  recency: number | ScanRecencyOptions = {}
 ): Promise<ScanResult> {
+  const { skipRecentMinutes = 60, deepRecencyCheck = false } =
+    typeof recency === 'number' ? { skipRecentMinutes: recency } : recency
   const items: ScanItem[] = []
   let totalSize = 0
   const cutoff = Date.now() - skipRecentMinutes * 60 * 1000
   const MAX_ITEMS = 5000
   const exclusions = getSettings().exclusions
+
+  const add = (path: string, size: number, mtimeMs: number): void => {
+    items.push({ id: randomUUID(), path, size, category, subcategory, lastModified: mtimeMs, selected: true })
+    totalSize += size
+  }
+
+  if (deepRecencyCheck) {
+    // The scanned directory itself is never offered — only what is inside it —
+    // so the top level takes `resolveChildren` and ignores whether it collapsed.
+    const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_ITEMS }, MAX_RECENCY_DEPTH)
+    for (const item of resolved.items.slice(0, MAX_ITEMS)) add(item.path, item.size, item.mtimeMs)
+    return { category, subcategory, items, totalSize, itemCount: items.length }
+  }
 
   try {
     const entries = await readdir(dirPath, { withFileTypes: true })
@@ -283,18 +404,7 @@ export async function scanDirectory(
 
         const size = stats.isDirectory() ? await getDirectorySize(fullPath, 2) : stats.size
 
-        const item: ScanItem = {
-          id: randomUUID(),
-          path: fullPath,
-          size,
-          category,
-          subcategory,
-          lastModified: stats.mtimeMs,
-          selected: true
-        }
-
-        items.push(item)
-        totalSize += item.size
+        add(fullPath, size, stats.mtimeMs)
       } catch {
         // Skip inaccessible files
       }
