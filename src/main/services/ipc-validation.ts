@@ -16,8 +16,8 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'theme', 'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
-    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'backupPath', 'windowsPackageManager',
-    'windowsPackageManagers',
+    'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'backupPath', 'backupMode',
+    'windowsPackageManager', 'windowsPackageManagers',
     'schedule', 'schedules', 'cloud', 'gameMode', 'registryIgnoredTweaks'
   ])
 
@@ -88,6 +88,11 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if (obj.backupPath.length > 0 && !isAbsolute(obj.backupPath)) return null
   }
 
+  // Validate backupMode is one of the allowed values
+  if ('backupMode' in obj && obj.backupMode !== undefined) {
+    if (!['targeted', 'full'].includes(obj.backupMode as string)) return null
+  }
+
   // Validate schedule has expected shape if present
   if ('schedule' in obj && obj.schedule !== undefined) {
     const s = obj.schedule as Record<string, unknown>
@@ -135,7 +140,10 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   if ('cleaner' in obj && obj.cleaner !== undefined) {
     const c = obj.cleaner as Record<string, unknown>
     if (typeof c !== 'object' || c === null || Array.isArray(c)) return null
-    const allowedCleanerKeys = new Set(['skipRecentMinutes', 'secureDelete', 'closeBrowsersBeforeClean', 'createRestorePoint'])
+    const allowedCleanerKeys = new Set([
+      'skipRecentMinutes', 'secureDelete', 'closeBrowsersBeforeClean',
+      'createRestorePoint', 'protectRecycleBin', 'keepDeletionLog'
+    ])
     for (const key of Object.keys(c)) {
       if (!allowedCleanerKeys.has(key)) return null
     }
@@ -143,6 +151,8 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if ('secureDelete' in c && typeof c.secureDelete !== 'boolean') return null
     if ('closeBrowsersBeforeClean' in c && typeof c.closeBrowsersBeforeClean !== 'boolean') return null
     if ('createRestorePoint' in c && typeof c.createRestorePoint !== 'boolean') return null
+    if ('protectRecycleBin' in c && typeof c.protectRecycleBin !== 'boolean') return null
+    if ('keepDeletionLog' in c && typeof c.keepDeletionLog !== 'boolean') return null
   }
 
   // Validate cloud has expected shape if present

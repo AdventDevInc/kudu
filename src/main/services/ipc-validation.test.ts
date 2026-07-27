@@ -116,6 +116,37 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ cleaner: { unknownKey: true } })).toBeNull()
   })
 
+  it('accepts every cleaner key the settings UI actually sends', () => {
+    // SettingsPage spreads the whole cleaner object on each toggle, so a key
+    // missing from the allowlist silently rejects the entire settings write.
+    const input = {
+      cleaner: {
+        skipRecentMinutes: 60,
+        secureDelete: false,
+        closeBrowsersBeforeClean: false,
+        createRestorePoint: false,
+        protectRecycleBin: true,
+        keepDeletionLog: false
+      }
+    }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('rejects non-boolean protectRecycleBin and keepDeletionLog', () => {
+    expect(validateSettingsPartial({ cleaner: { protectRecycleBin: 'yes' } })).toBeNull()
+    expect(validateSettingsPartial({ cleaner: { keepDeletionLog: 1 } })).toBeNull()
+  })
+
+  it('accepts valid backupMode values', () => {
+    expect(validateSettingsPartial({ backupMode: 'targeted' })).toEqual({ backupMode: 'targeted' })
+    expect(validateSettingsPartial({ backupMode: 'full' })).toEqual({ backupMode: 'full' })
+  })
+
+  it('rejects invalid backupMode values', () => {
+    expect(validateSettingsPartial({ backupMode: 'partial' })).toBeNull()
+    expect(validateSettingsPartial({ backupMode: 42 })).toBeNull()
+  })
+
   it('accepts a valid backupPath', () => {
     // path.isAbsolute is platform-aware, so use a path absolute on the current OS.
     const backupPath = process.platform === 'win32' ? 'C:\\Users\\dave\\Backups' : '/Users/dave/Backups'
