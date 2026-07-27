@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, rmSync, existsSync, writeFileSync } from 'fs'
+import { mkdtempSync, mkdirSync, rmSync, existsSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import type { DeletedFileRecord, ScanItem } from '../../shared/types'
@@ -9,7 +9,21 @@ const state = vi.hoisted(() => ({
   items: [] as any[],
   recorded: [] as any[],
   batches: 0,
+  failRm: false,
 }))
+
+// Pass through to the real fs, with a switch to force a delete failure so we
+// can assert nothing is logged for a directory that survived.
+vi.mock('fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs/promises')>()
+  return {
+    ...actual,
+    rm: (...args: Parameters<typeof actual.rm>) =>
+      state.failRm
+        ? Promise.reject(Object.assign(new Error('denied'), { code: 'EACCES' }))
+        : actual.rm(...args),
+  }
+})
 
 vi.mock('./settings-store', () => ({
   getSettings: () => ({
@@ -64,6 +78,7 @@ describe('cleanItems deletion logging', () => {
     state.items = []
     state.recorded = []
     state.batches = 0
+    state.failRm = false
   })
 
   afterEach(() => {
@@ -134,6 +149,90 @@ describe('cleanItems deletion logging', () => {
     expect(state.recorded).toHaveLength(1200)
     // 500 + 500 + a final flush of the 200 remainder.
     expect(state.batches).toBe(3)
+  })
+
+  it('tags records with the calling surface, defaulting to local', async () => {
+    state.keepDeletionLog = true
+    seedItems(1)
+    await cleanItems(['id-0'])
+    expect(state.recorded[0].origin).toBe('local')
+
+    state.recorded = []
+    seedItems(1)
+    await cleanItems(['id-0'], undefined, 'cloud')
+    expect(state.recorded[0].origin).toBe('cloud')
+  })
+
+  it('records every file inside a directory that was removed recursively', async () => {
+    state.keepDeletionLog = true
+    const dir = join(testDir, 'cache')
+    mkdirSync(join(dir, 'nested', 'deeper'), { recursive: true })
+    writeFileSync(join(dir, 'top.dat'), 'a', 'utf-8')
+    writeFileSync(join(dir, 'nested', 'mid.dat'), 'b', 'utf-8')
+    writeFileSync(join(dir, 'nested', 'deeper', 'leaf.dat'), 'c', 'utf-8')
+
+    state.items = [{
+      id: 'dir-0',
+      path: dir,
+      size: 3,
+      category: 'system',
+      subcategory: 'App Cache',
+      lastModified: 0,
+      selected: true,
+    }]
+
+    const result = await cleanItems(['dir-0'])
+    expect(result.filesDeleted).toBe(1)
+    expect(existsSync(dir)).toBe(false)
+
+    const logged = state.recorded.map((r) => r.path).sort()
+    expect(logged).toEqual([
+      dir,
+      join(dir, 'nested'),
+      join(dir, 'nested', 'deeper'),
+      join(dir, 'nested', 'deeper', 'leaf.dat'),
+      join(dir, 'nested', 'mid.dat'),
+      join(dir, 'top.dat'),
+    ].sort())
+
+    // Bytes stay on the directory record so a CSV sum doesn't double-count.
+    expect(state.recorded.find((r) => r.path === dir).size).toBe(3)
+    expect(state.recorded.find((r) => r.path === join(dir, 'top.dat')).size).toBe(0)
+    for (const record of state.recorded) {
+      expect(record.category).toBe('App Cache')
+    }
+  })
+
+  it('does not expand a directory when logging is off', async () => {
+    const dir = join(testDir, 'cache')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'top.dat'), 'a', 'utf-8')
+    state.items = [{
+      id: 'dir-0', path: dir, size: 1, category: 'system',
+      subcategory: 'App Cache', lastModified: 0, selected: true,
+    }]
+
+    await cleanItems(['dir-0'])
+    expect(state.recorded).toHaveLength(0)
+  })
+
+  it('records nothing for a directory whose deletion failed', async () => {
+    state.keepDeletionLog = true
+    const dir = join(testDir, 'cache')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, 'top.dat'), 'a', 'utf-8')
+    state.items = [{
+      id: 'dir-0', path: dir, size: 1, category: 'system',
+      subcategory: 'App Cache', lastModified: 0, selected: true,
+    }]
+
+    // Fail the delete after the descendants were already enumerated.
+    state.failRm = true
+    const result = await cleanItems(['dir-0'])
+
+    expect(result.filesDeleted).toBe(0)
+    expect(result.needsElevation).toBe(true)
+    expect(state.recorded).toHaveLength(0)
   })
 
   it('does not log when no items match the given ids', async () => {

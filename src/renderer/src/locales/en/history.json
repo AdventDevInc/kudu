@@ -84,6 +84,8 @@
       "openLog": "Open log",
       "exported": "Exported {{count}} paths",
       "exportFailed": "Could not export the deleted file list",
+      "truncatedBadge": "+{{count}} more",
+      "truncatedHint": "This folder held {{count}} further entries beyond the per-folder listing limit. They were deleted but not listed individually.",
       "emptyRecorded": "No file paths were recorded for this run.",
       "disabledHint": "Deletion logging is off, so the individual paths from this run weren't recorded. Turn on \"Keep a log of deleted files\" in Settings → Cleaning Preferences to record them from now on."
     }

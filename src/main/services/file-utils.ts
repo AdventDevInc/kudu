@@ -1,8 +1,9 @@
 import { rm, stat, readdir, open, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
+import type { Dirent } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
-import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord } from '../../shared/types'
+import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
 import { getCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
@@ -107,11 +108,63 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
 }
 
 /**
+ * Cap on how many descendants a single directory contributes to the deletion
+ * log. Beyond this the record carries a `truncated` count, so a capped audit
+ * trail never reads as a complete one.
+ */
+const MAX_LOGGED_DESCENDANTS = 100_000
+
+/**
+ * List the files a recursive delete of `dirPath` will remove.
+ *
+ * Only called when deletion logging is on: a cached scan item is frequently a
+ * whole directory, and recording just that one path would leave the audit trail
+ * unable to answer which file went missing. Symlinks and Windows junctions are
+ * listed but not descended into, matching what `rm -r` actually removes.
+ *
+ * Returns null when the path is not a directory (i.e. nothing to expand).
+ */
+async function listDescendantFiles(dirPath: string): Promise<{ paths: string[]; truncated: number } | null> {
+  let rootEntries: Dirent[]
+  try {
+    rootEntries = await readdir(dirPath, { withFileTypes: true })
+  } catch {
+    return null // Not a directory, or unreadable — nothing to expand.
+  }
+
+  const paths: string[] = []
+  let truncated = 0
+  const queue: Array<[string, Dirent[]]> = [[dirPath, rootEntries]]
+
+  while (queue.length > 0) {
+    const [dir, entries] = queue.shift()!
+    for (const entry of entries) {
+      if (paths.length >= MAX_LOGGED_DESCENDANTS) {
+        truncated++
+        continue
+      }
+      const fullPath = join(dir, entry.name)
+      paths.push(fullPath)
+      if (entry.isDirectory() && !entry.isSymbolicLink()) {
+        try {
+          queue.push([fullPath, await readdir(fullPath, { withFileTypes: true })])
+        } catch {
+          // Unreadable subdirectory — its own path is already recorded.
+        }
+      }
+    }
+  }
+
+  return { paths, truncated }
+}
+
+/**
  * Look up cached scan items by ID, delete each one, and return a CleanResult.
  */
 export async function cleanItems(
   itemIds: unknown,
-  onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void
+  onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void,
+  origin: DeletionOrigin = 'local'
 ): Promise<CleanResult> {
   // Validate input is a string array
   const validIds = Array.isArray(itemIds)
@@ -136,17 +189,28 @@ export async function cleanItems(
   }
 
   for (const item of items) {
+    // A scan item is often a whole directory that rm removes recursively, so
+    // enumerate what's inside before it's gone. Only on success do these get
+    // recorded, so a failed delete never leaves phantom entries behind.
+    const descendants = logDeletions ? await listDescendantFiles(item.path) : null
+
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
       filesDeleted++
       if (logDeletions) {
-        pending.push({
-          ts: new Date().toISOString(),
-          path: item.path,
-          size: item.size,
-          category: item.subcategory || item.category,
-        })
+        const ts = new Date().toISOString()
+        const category = item.subcategory || item.category
+        const record: DeletedFileRecord = { ts, path: item.path, size: item.size, category, origin }
+        if (descendants && descendants.truncated > 0) record.truncated = descendants.truncated
+        pending.push(record)
+        // Descendants carry size 0: the bytes are already accounted for on the
+        // directory's own record, and stat-ing each one would double the I/O of
+        // the clean for numbers the History page already summarizes.
+        for (const path of descendants?.paths ?? []) {
+          pending.push({ ts, path, size: 0, category, origin })
+          if (pending.length >= 500) flushPending()
+        }
         if (pending.length >= 500) flushPending()
       }
     } else {

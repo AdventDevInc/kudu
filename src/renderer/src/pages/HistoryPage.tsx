@@ -696,7 +696,9 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    window.kudu.deletionLogQuery({ from, to, offset: 0, limit: DELETED_FILES_PAGE })
+    // origin: a cloud-triggered clean can overlap this run's window; its
+    // deletions belong to Cloud history, not to this entry.
+    window.kudu.deletionLogQuery({ from, to, origin: 'local', offset: 0, limit: DELETED_FILES_PAGE })
       .then((page) => {
         if (cancelled) return
         setRecords(page.records)
@@ -712,7 +714,7 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
     setLoadingMore(true)
     try {
       const page = await window.kudu.deletionLogQuery({
-        from, to, offset: records.length, limit: DELETED_FILES_PAGE
+        from, to, origin: 'local', offset: records.length, limit: DELETED_FILES_PAGE
       })
       setRecords((prev) => [...prev, ...page.records])
       setTotal(page.total)
@@ -725,7 +727,7 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const savedTo = await window.kudu.deletionLogExport({ from, to })
+      const savedTo = await window.kudu.deletionLogExport({ from, to, origin: 'local' })
       if (savedTo) toast.success(t('detail.deletedFiles.exported', { count: total }))
     } catch {
       toast.error(t('detail.deletedFiles.exportFailed'))
@@ -776,9 +778,17 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
                 <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-zinc-300" title={r.path} dir="rtl">
                   <bdi>{r.path}</bdi>
                 </span>
-                {r.category && (
+                {r.truncated ? (
+                  <span
+                    className="shrink-0 rounded-full px-1.5 py-0.5 text-[9.5px] font-medium"
+                    style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}
+                    title={t('detail.deletedFiles.truncatedHint', { count: r.truncated })}
+                  >
+                    {t('detail.deletedFiles.truncatedBadge', { count: r.truncated })}
+                  </span>
+                ) : r.category ? (
                   <span className="shrink-0 text-[10.5px] capitalize" style={{ color: 'var(--text-muted)' }}>{r.category}</span>
-                )}
+                ) : null}
                 <span className="w-16 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
                   {r.size > 0 ? formatBytes(r.size) : '—'}
                 </span>

@@ -497,6 +497,14 @@ describe('validateDeletionQuery', () => {
     expect(validateDeletionQuery({ path: 'C:\\' })).toBeNull()
   })
 
+  it('accepts known origins and rejects anything else', () => {
+    for (const origin of ['local', 'cloud', 'cli']) {
+      expect(validateDeletionQuery({ origin })).toEqual({ origin })
+    }
+    expect(validateDeletionQuery({ origin: 'remote' })).toBeNull()
+    expect(validateDeletionQuery({ origin: 1 })).toBeNull()
+  })
+
   it('rejects arrays and primitives', () => {
     expect(validateDeletionQuery([])).toBeNull()
     expect(validateDeletionQuery('all')).toBeNull()

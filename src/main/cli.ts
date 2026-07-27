@@ -1071,7 +1071,7 @@ async function handleLeftovers(args: string[], ctx: CliContext): Promise<number 
       if (totalItems === 0) { cliOut(ctx, ctx.json ? { message: 'No leftovers found' } : 'No leftovers found.'); return ExitCode.NOTHING_FOUND }
       cliLog(ctx, `Cleaning ${totalItems} items (${formatBytes(totalSize)})...`)
       const itemIds = results.flatMap(r => r.items.map(i => i.id))
-      const cleanResult = await cleanItems(itemIds)
+      const cleanResult = await cleanItems(itemIds, undefined, 'cli')
       cliOut(ctx, cleanResult)
     }
   } else {
@@ -1533,7 +1533,7 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: C
     let fileCleaned: CleanResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
     let recycleCleaned: CleanResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
     let dbCleaned: CleanResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
-    if (fileItemIds.length > 0) fileCleaned = await cleanItems(fileItemIds)
+    if (fileItemIds.length > 0) fileCleaned = await cleanItems(fileItemIds, undefined, 'cli')
     if (hasRecycleBin) {
       const rbSize = allResults.find(r => r.category === CleanerType.RecycleBin)?.totalSize || 0
       recycleCleaned = await cleanRecycleBin(rbSize)

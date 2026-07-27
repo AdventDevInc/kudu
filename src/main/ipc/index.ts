@@ -248,7 +248,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.DELETION_LOG_EXPORT, async (_event, query) => {
     const validated = validateDeletionQuery(query)
     if (!validated) return null
-    const records = queryAllDeletions({ from: validated.from, to: validated.to })
+    const records = queryAllDeletions({ from: validated.from, to: validated.to, origin: validated.origin })
     if (records.length === 0) return null
 
     const win = getWindow()

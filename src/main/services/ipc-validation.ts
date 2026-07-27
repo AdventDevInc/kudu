@@ -274,12 +274,16 @@ export function validateDeletionQuery(input: unknown): DeletionQuery | null {
   if (typeof input !== 'object' || Array.isArray(input)) return null
   const obj = input as Record<string, unknown>
 
-  const allowedKeys = new Set(['from', 'to', 'offset', 'limit'])
+  const allowedKeys = new Set(['from', 'to', 'origin', 'offset', 'limit'])
   for (const key of Object.keys(obj)) {
     if (!allowedKeys.has(key)) return null
   }
 
   const query: DeletionQuery = {}
+  if (obj.origin !== undefined) {
+    if (!['local', 'cloud', 'cli'].includes(obj.origin as string)) return null
+    query.origin = obj.origin as DeletionQuery['origin']
+  }
   for (const key of ['from', 'to'] as const) {
     const val = obj[key]
     if (val === undefined) continue

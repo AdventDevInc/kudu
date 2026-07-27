@@ -57,6 +57,9 @@ export interface ScanHistoryEntry {
   cleanedTo?: string
 }
 
+/** Which surface triggered a deletion. */
+export type DeletionOrigin = 'local' | 'cloud' | 'cli'
+
 /** One deleted path, as persisted to the deletion log. */
 export interface DeletedFileRecord {
   /** ISO timestamp of the deletion */
@@ -64,6 +67,19 @@ export interface DeletedFileRecord {
   path: string
   size: number
   category: string
+  /**
+   * Surface that triggered the deletion. A cloud-triggered clean can overlap a
+   * manual one, so history filters on this rather than trusting the time window
+   * alone. Absent on records written before origins were tracked; treated as
+   * 'local'.
+   */
+  origin?: DeletionOrigin
+  /**
+   * On a directory record, how many further descendants existed beyond the
+   * per-item listing cap. Present only when the list was capped, so a truncated
+   * audit trail never reads as a complete one.
+   */
+  truncated?: number
 }
 
 /** A windowed page of deletion-log records, plus the context the UI needs. */

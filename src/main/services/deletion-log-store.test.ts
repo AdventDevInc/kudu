@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync, appendFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import type { DeletedFileRecord } from '../../shared/types'
 
 let testDir: string
 
@@ -22,7 +23,8 @@ import {
   _resetDeletionLogPathCache,
 } from './deletion-log-store'
 
-const rec = (ts: string, path: string, size = 100, category = 'Temp') => ({ ts, path, size, category })
+const rec = (ts: string, path: string, size = 100, category = 'Temp'): DeletedFileRecord =>
+  ({ ts, path, size, category })
 
 describe('deletion-log-store', () => {
   beforeEach(() => {
@@ -123,7 +125,9 @@ describe('deletion-log-store', () => {
       'utf-8'
     )
     const { records } = queryDeletions()
-    expect(records[0]).toEqual({ ts: '2026-07-20T10:00:00.000Z', path: 'C:\\x.tmp', size: 0, category: '' })
+    expect(records[0]).toEqual({
+      ts: '2026-07-20T10:00:00.000Z', path: 'C:\\x.tmp', size: 0, category: '', origin: 'local'
+    })
   })
 
   it('excludes records with an unparseable timestamp from a windowed query', () => {
@@ -158,6 +162,40 @@ describe('deletion-log-store', () => {
     )
     expect(queryAllDeletions()).toHaveLength(250)
     expect(queryAllDeletions({ from: new Date(Date.UTC(2026, 6, 20, 10, 0, 200)).toISOString() })).toHaveLength(50)
+  })
+
+  it('filters by origin so overlapping runs stay separable', () => {
+    recordDeletions([
+      { ...rec('2026-07-20T10:00:00.000Z', 'C:\\manual.tmp'), origin: 'local' },
+      { ...rec('2026-07-20T10:00:01.000Z', 'C:\\remote.tmp'), origin: 'cloud' },
+      { ...rec('2026-07-20T10:00:02.000Z', 'C:\\terminal.tmp'), origin: 'cli' },
+    ])
+
+    const window = { from: '2026-07-20T10:00:00.000Z', to: '2026-07-20T10:00:02.000Z' }
+    expect(queryDeletions(window).total).toBe(3)
+    expect(queryDeletions({ ...window, origin: 'local' }).records.map((r) => r.path)).toEqual(['C:\\manual.tmp'])
+    expect(queryDeletions({ ...window, origin: 'cloud' }).records.map((r) => r.path)).toEqual(['C:\\remote.tmp'])
+    expect(queryDeletions({ ...window, origin: 'cli' }).records.map((r) => r.path)).toEqual(['C:\\terminal.tmp'])
+  })
+
+  it('treats records written before origin tracking as local', () => {
+    writeFileSync(
+      getDeletionLogPath(),
+      JSON.stringify({ ts: '2026-07-20T10:00:00.000Z', path: 'C:\\legacy.tmp', size: 1, category: 'Temp' }) + '\n',
+      'utf-8'
+    )
+    expect(queryDeletions({ origin: 'local' }).total).toBe(1)
+    expect(queryDeletions({ origin: 'cloud' }).total).toBe(0)
+  })
+
+  it('round-trips a truncation count and ignores a meaningless one', () => {
+    recordDeletions([
+      { ...rec('2026-07-20T10:00:00.000Z', 'C:\\big-folder'), truncated: 1200 },
+      { ...rec('2026-07-20T10:00:01.000Z', 'C:\\small-folder'), truncated: 0 },
+    ])
+    const { records } = queryDeletions()
+    expect(records.find((r) => r.path === 'C:\\big-folder')?.truncated).toBe(1200)
+    expect(records.find((r) => r.path === 'C:\\small-folder')?.truncated).toBeUndefined()
   })
 
   it('clear empties the live log and drops the rotated one', () => {

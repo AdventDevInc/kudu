@@ -1,7 +1,7 @@
 import { appendFileSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync, renameSync, unlinkSync } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
-import type { DeletedFileRecord } from '../../shared/types'
+import type { DeletedFileRecord, DeletionOrigin } from '../../shared/types'
 
 /**
  * Append-only record of every path a cleaner deleted, so a past clean can be
@@ -90,12 +90,18 @@ function parseLines(raw: string, out: DeletedFileRecord[]): void {
         parsed && typeof parsed === 'object' &&
         typeof parsed.ts === 'string' && typeof parsed.path === 'string'
       ) {
-        out.push({
+        const record: DeletedFileRecord = {
           ts: parsed.ts,
           path: parsed.path,
           size: typeof parsed.size === 'number' ? parsed.size : 0,
           category: typeof parsed.category === 'string' ? parsed.category : '',
-        })
+          // Records predating origin tracking came from the local UI.
+          origin: parsed.origin === 'cloud' || parsed.origin === 'cli' ? parsed.origin : 'local',
+        }
+        if (typeof parsed.truncated === 'number' && parsed.truncated > 0) {
+          record.truncated = parsed.truncated
+        }
+        out.push(record)
       }
     } catch {
       // Skip a truncated or corrupt line rather than losing the whole log.
@@ -121,6 +127,8 @@ export interface DeletionQuery {
   from?: string
   /** ISO timestamp, inclusive upper bound */
   to?: string
+  /** Restrict to deletions triggered by one surface */
+  origin?: DeletionOrigin
   offset?: number
   limit?: number
 }
@@ -131,6 +139,7 @@ export function queryAllDeletions(query: Omit<DeletionQuery, 'offset' | 'limit'>
   const toMs = query.to ? Date.parse(query.to) : NaN
 
   const matched = readAll().filter((r) => {
+    if (query.origin && r.origin !== query.origin) return false
     if (Number.isNaN(fromMs) && Number.isNaN(toMs)) return true
     const ts = Date.parse(r.ts)
     if (Number.isNaN(ts)) return false

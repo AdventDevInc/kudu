@@ -2331,7 +2331,9 @@ class CloudAgentService {
       else fileIds.push(id)
     }
 
-    const fileResult = fileIds.length > 0 ? await cleanItems(fileIds) : { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
+    // Tagged 'cloud' so a remote clean overlapping a manual one can't have its
+    // deletions attributed to that run's Scan History entry.
+    const fileResult = fileIds.length > 0 ? await cleanItems(fileIds, undefined, 'cloud') : { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
 
     let dbResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
     if (dbIds.length > 0) {
