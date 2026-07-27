@@ -20,7 +20,17 @@ interface DisabledEntry {
   command: string
   location: string
   source: StartupItem['source']
+  /** Epoch ms when the program was first seen to be gone from disk. */
+  missingSince?: number
 }
+
+/**
+ * How long a disabled program must stay missing before we forget it. A single
+ * scan is not enough evidence: an updater that replaces its executable makes
+ * the program briefly disappear, and these records are the only copy of the
+ * command we have.
+ */
+const MISSING_GRACE_MS = 24 * 60 * 60 * 1000
 
 function getDisabledFilePath(): string {
   const dir = app.isPackaged
@@ -252,23 +262,32 @@ function getStartupFolderItems(): StartupItem[] {
  * disabled via Task Manager. These items have a REG_BINARY value where the
  * first byte indicates status: 02 = enabled, 03 = disabled by user,
  * 06 = disabled by OS/policy.
+ *
+ * Returns which value names each key holds, so callers can tell "no marker"
+ * apart from "could not read the key".
  */
-async function mergeStartupApproved(items: StartupItem[]): Promise<void> {
+async function mergeStartupApproved(items: StartupItem[]): Promise<ApprovedMarkers> {
   const approvedKeys = [
     { key: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run', source: 'registry-hkcu' as const },
     { key: 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\StartupFolder', source: 'startup-folder' as const },
     { key: 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run', source: 'registry-hklm' as const },
   ]
 
+  const markers: ApprovedMarkers = new Map()
+
   for (const { key, source } of approvedKeys) {
+    const state: ApprovedKeyState = { read: false, names: new Set<string>() }
+    markers.set(source, state)
     try {
       const { stdout } = await execNativeUtf8('reg',['query', key], { timeout: 10000 })
+      state.read = true
       const lines = stdout.split('\n')
       for (const line of lines) {
         const match = line.match(/^\s+(.+?)\s{4,}REG_BINARY\s{4,}(\S+)/i)
         if (!match) continue
         const name = match[1].trim()
         const hexData = match[2].trim()
+        state.names.add(name)
         // First byte: 02=enabled, 03=disabled by user, 06=disabled by policy
         const firstByte = parseInt(hexData.substring(0, 2), 16)
         const isDisabledByUser = firstByte === 0x03 || firstByte === 0x06
@@ -285,6 +304,8 @@ async function mergeStartupApproved(items: StartupItem[]): Promise<void> {
       }
     } catch { /* key may not exist */ }
   }
+
+  return markers
 }
 
 /**
@@ -356,6 +377,15 @@ const ALLOWED_STARTUP_LOCATIONS = new Set([
   'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Run',
 ])
 
+/** Value names found under one StartupApproved key. */
+interface ApprovedKeyState {
+  /** false when the key could not be read — presence is then unknown */
+  read: boolean
+  names: Set<string>
+}
+
+type ApprovedMarkers = Map<StartupItem['source'], ApprovedKeyState>
+
 /** The StartupApproved key Windows consults for a given item source. */
 function approvedKeyFor(source: StartupItem['source']): string {
   return source === 'registry-hkcu'
@@ -367,23 +397,24 @@ function approvedKeyFor(source: StartupItem['source']): string {
  * Drop the "disabled by user" marker written to StartupApproved when the item
  * was disabled, so nothing is left behind once we forget an entry.
  *
- * Returns false only when a marker is still present afterwards: the caller
- * must then keep its record, otherwise reinstalling the program would leave
- * it silently blocked by the stale marker with no stored command to re-enable
- * it from.
+ * Returns false unless the marker is known to be gone: the caller must then
+ * keep its record, otherwise reinstalling the program would leave it silently
+ * blocked by the stale marker with no stored command to re-enable it from.
+ * A key we failed to read is not evidence of absence — the next scan retries.
  */
-async function clearStartupApprovedMarker(name: string, source: StartupItem['source']): Promise<boolean> {
+async function clearStartupApprovedMarker(
+  name: string,
+  source: StartupItem['source'],
+  markers: ApprovedMarkers
+): Promise<boolean> {
   if (source !== 'registry-hkcu' && source !== 'registry-hklm') return true
-  const approvedKey = approvedKeyFor(source)
+
+  const state = markers.get(source)
+  if (!state?.read) return false
+  if (!state.names.has(name)) return true
 
   try {
-    await execNativeUtf8('reg', ['query', approvedKey, '/v', name], { timeout: 5000 })
-  } catch {
-    return true // nothing recorded there — safe to forget
-  }
-
-  try {
-    await execNativeUtf8('reg', ['delete', approvedKey, '/v', name, '/f'], { timeout: 5000 })
+    await execNativeUtf8('reg', ['delete', approvedKeyFor(source), '/v', name, '/f'], { timeout: 5000 })
     return true
   } catch {
     return false // e.g. HKLM without elevation
@@ -439,7 +470,7 @@ export async function listStartupItems(): Promise<StartupItem[]> {
     // Check StartupApproved\Run — items disabled via Task Manager are removed
     // from Run but kept here with a 03 byte prefix. Merge their enabled state
     // and add any missing items that exist only in the approved list.
-    await mergeStartupApproved(items)
+    const approvedMarkers = await mergeStartupApproved(items)
 
     // Read Task Scheduler logon-trigger tasks (user-facing apps like Spotify)
     const scheduledItems = await getScheduledLogonTasks()
@@ -455,23 +486,43 @@ export async function listStartupItems(): Promise<StartupItem[]> {
     // record we have of it. If the program is uninstalled afterwards, nothing
     // on the system references it any more and the entry would haunt the list
     // forever — surviving registry cleaning and even a Kudu reinstall, since
-    // the file lives in userData. Prune entries whose program is verifiably
-    // gone before rebuilding the list from them.
+    // the file lives in userData.
+    //
+    // Such an entry is flagged as stale straight away so the user can clear it
+    // in one click, and is forgotten automatically once its program has stayed
+    // missing for MISSING_GRACE_MS and Windows' own disable marker is gone too.
+    const now = Date.now()
     const disabled = await withDisabledFileLock(async () => {
       const entries = readDisabledEntries()
       const kept: DisabledEntry[] = []
+      let changed = false
+
       for (const entry of entries) {
         const backed = items.some((i) => i.name === entry.name && i.source === entry.source)
         if (backed || !isTargetMissing(entry.command)) {
-          kept.push(entry)
+          // Present again — restart the clock
+          if (entry.missingSince !== undefined) changed = true
+          kept.push({
+            name: entry.name,
+            command: entry.command,
+            location: entry.location,
+            source: entry.source
+          })
           continue
         }
-        // Forget the entry only once Windows' own disable marker is gone too
-        if (!(await clearStartupApprovedMarker(entry.name, entry.source))) {
-          kept.push(entry)
+
+        const missingSince = entry.missingSince ?? now
+        if (missingSince !== entry.missingSince) changed = true
+
+        const expired = now - missingSince >= MISSING_GRACE_MS
+        if (expired && await clearStartupApprovedMarker(entry.name, entry.source, approvedMarkers)) {
+          changed = true
+          continue
         }
+        kept.push({ ...entry, missingSince })
       }
-      if (kept.length !== entries.length) writeDisabledEntries(kept)
+
+      if (changed) writeDisabledEntries(kept)
       return kept
     })
 
@@ -490,7 +541,7 @@ export async function listStartupItems(): Promise<StartupItem[]> {
           enabled: false,
           publisher: extractPublisher(entry.command),
           impact: estimateImpact(entry.name, entry.command),
-          stale: false
+          stale: entry.missingSince !== undefined
         })
       }
     }

@@ -636,12 +636,48 @@ describe('stale startup entries', () => {
     return JSON.parse(calls[calls.length - 1][1] as string)
   }
 
+  const DAY_MS = 24 * 60 * 60 * 1000
+  const longGone = () => Date.now() - DAY_MS - 60_000
+
+  /** reg mock where the StartupApproved key holds a disabled marker for `name` */
+  function withApprovedMarker(name: string, opts: { deleteFails?: boolean } = {}) {
+    const regCalls: Array<{ cmd: string; args: string[] }> = []
+    mockExecFile.mockImplementation((cmd: string, args: string[], _opts: any, cb: Function) => {
+      regCalls.push({ cmd, args })
+      if (args[0] === 'query' && args[1].includes('StartupApproved')) {
+        return cb(null, `    ${name}    REG_BINARY    030000000000000000000000\n`, '')
+      }
+      if (args[0] === 'delete') {
+        return opts.deleteFails ? cb(new Error('Access is denied'), '', '') : cb(null, '', '')
+      }
+      cb(new Error('not found'), '', '')
+    })
+    return regCalls
+  }
+
   describe('disabled-file pruning', () => {
-    it('drops a disabled entry whose program has been uninstalled', async () => {
+    it('flags — but keeps — an entry the first time its program is missing', async () => {
+      // A single missing-file observation could just be an updater mid-replace
       onlyExisting(DISABLED_FILE)
       mockReadFileSync.mockReturnValue(JSON.stringify([
         { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
       ]))
+      withApprovedMarker('DuckDuckGo')
+
+      const items = await listStartupItems()
+      const ghost = items.find((i) => i.name === 'DuckDuckGo')
+      expect(ghost).toBeDefined()
+      expect(ghost!.stale).toBe(true)
+      // The record is stamped so the grace period can start running
+      expect(lastWrittenDisabledFile()[0].missingSince).toBeTypeOf('number')
+    })
+
+    it('drops an entry whose program has stayed uninstalled', async () => {
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
+      ]))
+      withApprovedMarker('DuckDuckGo')
 
       const items = await listStartupItems()
       expect(items.find((i) => i.name === 'DuckDuckGo')).toBeUndefined()
@@ -652,19 +688,9 @@ describe('stale startup entries', () => {
     it('clears the StartupApproved marker for the entry it drops', async () => {
       onlyExisting(DISABLED_FILE)
       mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
       ]))
-      const regCalls: Array<{ cmd: string; args: string[] }> = []
-      mockExecFile.mockImplementation((cmd: string, args: string[], _opts: any, cb: Function) => {
-        regCalls.push({ cmd, args })
-        // Only the StartupApproved lookup returns anything
-        if (args[0] === 'query' && args[1].includes('StartupApproved')) {
-          cb(null, '    DuckDuckGo    REG_BINARY    030000000000000000000000\n', '')
-          return
-        }
-        if (args[0] === 'delete') return cb(null, '', '')
-        cb(new Error('not found'), '', '')
-      })
+      const regCalls = withApprovedMarker('DuckDuckGo')
 
       const items = await listStartupItems()
       expect(items.find((i) => i.name === 'DuckDuckGo')).toBeUndefined()
@@ -675,24 +701,61 @@ describe('stale startup entries', () => {
       expect(lastWrittenDisabledFile()).toEqual([])
     })
 
+    it('restarts the clock when the program comes back', async () => {
+      onlyExisting(DISABLED_FILE, 'C:\\Users\\User\\AppData\\Local\\DuckDuckGo\\DuckDuckGo.exe')
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
+      ]))
+
+      const items = await listStartupItems()
+      const ghost = items.find((i) => i.name === 'DuckDuckGo')
+      expect(ghost).toBeDefined()
+      expect(ghost!.stale).toBe(false)
+      expect(lastWrittenDisabledFile()[0].missingSince).toBeUndefined()
+    })
+
     it('keeps the entry when the StartupApproved marker cannot be cleared', async () => {
       // Without the stored command a reinstalled program could never be
       // re-enabled, so the record has to survive a failed marker cleanup.
       onlyExisting(DISABLED_FILE)
       mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"', location: HKLM_RUN, source: 'registry-hklm' },
+        { name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"', location: HKLM_RUN, source: 'registry-hklm', missingSince: longGone() },
       ]))
-      mockExecFile.mockImplementation((_cmd: string, args: string[], _opts: any, cb: Function) => {
-        if (args[0] === 'query' && args[1].includes('StartupApproved')) {
-          cb(null, '    Nahimic    REG_BINARY    030000000000000000000000\n', '')
-          return
-        }
-        cb(new Error('Access is denied'), '', '')
-      })
+      withApprovedMarker('Nahimic', { deleteFails: true })
 
       const items = await listStartupItems()
-      expect(items.find((i) => i.name === 'Nahimic')).toBeDefined()
+      const retained = items.find((i) => i.name === 'Nahimic')
+      expect(retained).toBeDefined()
+      // Retained because we could not clean up — still flagged so the user can
+      expect(retained!.stale).toBe(true)
       expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+
+    it('keeps the entry when the StartupApproved key cannot be read', async () => {
+      // A failed lookup is not evidence that no marker exists
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
+      ]))
+      // Default execFile mock fails every call, including the approved query
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'DuckDuckGo')).toBeDefined()
+      expect(mockWriteFileSync).not.toHaveBeenCalled()
+    })
+
+    it('drops the entry when the key is readable and holds no marker', async () => {
+      onlyExisting(DISABLED_FILE)
+      mockReadFileSync.mockReturnValue(JSON.stringify([
+        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
+      ]))
+      const regCalls = withApprovedMarker('SomethingElse')
+
+      const items = await listStartupItems()
+      expect(items.find((i) => i.name === 'DuckDuckGo')).toBeUndefined()
+      // Nothing to delete — no marker was there
+      expect(regCalls.some((c) => c.args[0] === 'delete')).toBe(false)
+      expect(lastWrittenDisabledFile()).toEqual([])
     })
 
     it('keeps a disabled entry while its program is still installed', async () => {
