@@ -3,7 +3,7 @@ import { join } from 'path'
 import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
 import { logError } from './logger'
-import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager, WindowState } from '../../shared/types'
+import type { KuduSettings, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager, WindowState } from '../../shared/types'
 
 let _dataDir: string | null = null
 let _configPath: string | null = null
@@ -26,7 +26,6 @@ function getConfigPath(): string {
 
 interface StoreData {
   settings: KuduSettings
-  stats: AppStats
   onboardingComplete: boolean
   machineId: string
   /** Last known main-window geometry; null until the window is first sized. */
@@ -95,13 +94,6 @@ const defaults: StoreData = {
     },
     registryIgnoredTweaks: [],
     malwareAllowlist: []
-  },
-  stats: {
-    totalSpaceSaved: 0,
-    totalFilesCleaned: 0,
-    totalScans: 0,
-    lastScanDate: null,
-    recentActivity: []
   }
 }
 
@@ -176,6 +168,12 @@ function readStore(): StoreData {
       const raw = readFileSync(getConfigPath(), 'utf-8')
       const parsed = JSON.parse(raw)
       const merged = deepMerge(defaults, parsed)
+      // Drop the legacy `stats` block. Nothing has ever read it — the counters
+      // the UI shows are derived from history.json — so it sat at zero in
+      // config.json while the dashboard reported real numbers, which reads as
+      // data loss to anyone who opens the file (issue #269). Deleting it here
+      // clears it from existing installs on their next write.
+      delete (merged as { stats?: unknown }).stats
       // Decrypt API key if stored encrypted
       if (merged.settings.cloud.apiKey) {
         merged.settings.cloud.apiKey = decryptApiKey(merged.settings.cloud.apiKey)

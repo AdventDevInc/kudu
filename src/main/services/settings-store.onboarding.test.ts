@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll, vi } from 'vitest'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { rmSync, mkdirSync, existsSync, readFileSync, readdirSync } from 'fs'
+import { rmSync, mkdirSync, existsSync, readFileSync, writeFileSync, readdirSync } from 'fs'
 import { randomUUID } from 'crypto'
 
 const TEST_DIR = join(tmpdir(), `kudu-test-${randomUUID()}`)
@@ -72,6 +72,18 @@ describe('onboarding completion persistence (issue #269)', () => {
     expect(onDisk().machineId).toBe(id)
     // Stable across calls — a second read must not mint a new one.
     expect(getMachineId()).toBe(id)
+  })
+
+  it('clears the legacy stats block that never tracked anything', async () => {
+    const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf-8'))
+    config.stats = { totalSpaceSaved: 0, totalFilesCleaned: 0, totalScans: 0, lastScanDate: null, recentActivity: [] }
+    writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8')
+
+    setSettings({ theme: 'dark' })
+    await flushSettings()
+
+    expect(onDisk()).not.toHaveProperty('stats')
+    expect(onDisk().onboardingComplete).toBe(true)
   })
 
   it('reports a failed write instead of resolving as if it saved', async () => {
