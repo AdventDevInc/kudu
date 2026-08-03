@@ -899,15 +899,15 @@ async function handleServices(args: string[], ctx: CliContext): Promise<number |
       cliLog(ctx, `Found ${result.services.length} optimizable services`)
       for (const s of result.services) cliLog(ctx, `  [${s.startType}] ${s.displayName} (${s.name}) — ${s.description || ''}`)
     }
-  } else if (sub === 'disable' || sub === 'manual') {
+  } else if (sub === 'disable' || sub === 'manual' || sub === 'enable' || sub === 'auto') {
     const name = args.slice(1).filter(a => !a.startsWith('--')).join(' ')
     if (!name) { cliUsage(ctx, `kudu --cli services ${sub} <service-name>`); return ExitCode.INVALID_ARGS }
-    const targetType = sub === 'disable' ? 'Disabled' : 'Manual'
+    const targetType = sub === 'disable' ? 'Disabled' : sub === 'auto' ? 'Automatic' : 'Manual'
     cliLog(ctx, `Setting ${name} to ${targetType}...`)
     const result = await applyServiceChanges([{ name, targetStartType: targetType }])
     cliOut(ctx, result)
   } else {
-    cliUsage(ctx, 'kudu --cli services <scan|disable|manual> [service-name]')
+    cliUsage(ctx, 'kudu --cli services <scan|disable|enable|manual|auto> [service-name]')
     return ExitCode.INVALID_ARGS
   }
 }

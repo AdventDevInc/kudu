@@ -22,6 +22,9 @@ interface ServiceState {
   categoryFilter: 'all' | ServiceCategory
   statusFilter: 'all' | 'running' | 'stopped' | 'disabled'
 
+  /** Startup type a disabled service is restored to when it is re-enabled. */
+  enableStartType: 'Manual' | 'Automatic'
+
   // Actions
   setServices: (services: WindowsService[]) => void
   setScanning: (scanning: boolean) => void
@@ -35,6 +38,7 @@ interface ServiceState {
   setSafetyFilter: (filter: 'all' | ServiceSafety) => void
   setCategoryFilter: (filter: 'all' | ServiceCategory) => void
   setStatusFilter: (filter: 'all' | 'running' | 'stopped' | 'disabled') => void
+  setEnableStartType: (startType: 'Manual' | 'Automatic') => void
 
   toggleService: (name: string) => void
   selectRecommended: () => void
@@ -55,6 +59,7 @@ export const useServiceStore = create<ServiceState>((set) => ({
   safetyFilter: 'all',
   categoryFilter: 'all',
   statusFilter: 'all',
+  enableStartType: 'Manual',
 
   setServices: (services) => set({ services }),
   setScanning: (scanning) => set({ scanning }),
@@ -68,11 +73,14 @@ export const useServiceStore = create<ServiceState>((set) => ({
   setSafetyFilter: (safetyFilter) => set({ safetyFilter }),
   setCategoryFilter: (categoryFilter) => set({ categoryFilter }),
   setStatusFilter: (statusFilter) => set({ statusFilter }),
+  setEnableStartType: (enableStartType) => set({ enableStartType }),
 
+  // System-critical services can never be selected for disabling, but a disabled
+  // one must stay selectable so it can be restored.
   toggleService: (name) =>
     set((s) => ({
       services: s.services.map((svc) =>
-        svc.name === name && svc.safety !== 'unsafe'
+        svc.name === name && (svc.safety !== 'unsafe' || svc.startType === 'Disabled')
           ? { ...svc, selected: !svc.selected }
           : svc
       )
@@ -104,6 +112,7 @@ export const useServiceStore = create<ServiceState>((set) => ({
       searchQuery: '',
       safetyFilter: 'all',
       categoryFilter: 'all',
-      statusFilter: 'all'
+      statusFilter: 'all',
+      enableStartType: 'Manual'
     })
 }))

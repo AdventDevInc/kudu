@@ -213,13 +213,16 @@ describe('applyServiceChanges input validation', () => {
     expect(error).toBe('Invalid change entry')
   })
 
-  it('sanitizes targetStartType to Manual or Disabled only', () => {
-    // The source coerces: Manual stays Manual, everything else becomes Disabled
-    const safeType = (t: string) => t === 'Manual' ? 'Manual' : 'Disabled'
-    expect(safeType('Manual')).toBe('Manual')
-    expect(safeType('Disabled')).toBe('Disabled')
-    expect(safeType('Automatic')).toBe('Disabled')
-    expect(safeType('evil; rm -rf /')).toBe('Disabled')
+  it('accepts only known start types', () => {
+    // Anything unrecognised is rejected rather than coerced — see
+    // service-manager.ipc.apply.test.ts for the end-to-end behaviour.
+    const ALLOWED_START_TYPES = ['Manual', 'Disabled', 'Automatic', 'AutomaticDelayed']
+    const accepted = (t: string) => ALLOWED_START_TYPES.includes(t)
+    expect(accepted('Manual')).toBe(true)
+    expect(accepted('Disabled')).toBe(true)
+    expect(accepted('Automatic')).toBe(true)
+    expect(accepted('Enabled')).toBe(false)
+    expect(accepted('evil; rm -rf /')).toBe(false)
   })
 })
 
