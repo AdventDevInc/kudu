@@ -1,4 +1,15 @@
 # [1.48.0](https://github.com/adventdevinc/kudu/compare/v1.47.0...v1.48.0) (2026-08-03)
+
+### Bug Fixes
+
+* triage and fix the four remaining open security advisories ([#283](https://github.com/adventdevinc/kudu/issues/283)) ([04a3c77](https://github.com/adventdevinc/kudu/commit/04a3c779b23488070b1e50e2f85c7490754de7ff))
+* **malware:** bind quarantine/delete to a real detection, gate remote quarantine ([#281](https://github.com/adventdevinc/kudu/issues/281)) ([6691097](https://github.com/adventdevinc/kudu/commit/66910978997f302d1b608d5a7a4e31900035c073))
+
+
+### Features
+
+* **window:** remember window size and position across restarts ([#284](https://github.com/adventdevinc/kudu/issues/284)) ([582cacd](https://github.com/adventdevinc/kudu/commit/582cacd69f5f4adb40f8e00f319e9e22be7adc75))
+* **services:** allow re-enabling a disabled service ([#282](https://github.com/adventdevinc/kudu/issues/282)) ([3d8e955](https://github.com/adventdevinc/kudu/commit/3d8e955f073ae7b3ade0a3d4cabd7d219acdc3d4))
 # [1.47.0](https://github.com/adventdevinc/kudu/compare/v1.46.0...v1.47.0) (2026-07-27)
 # [1.46.0](https://github.com/adventdevinc/kudu/compare/v1.45.0...v1.46.0) (2026-07-27)
 # [1.45.0](https://github.com/adventdevinc/kudu/compare/v1.44.1...v1.45.0) (2026-07-21)
