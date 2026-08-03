@@ -1565,6 +1565,7 @@ class CloudAgentService {
         if (s.allowRemotePower === false) return 'Disabled by user: remote power control is turned off'
         break
       case 'clean':
+      case 'malware-quarantine':
       case 'malware-delete':
       case 'driver-clean':
       case 'debloater-remove':
@@ -1608,7 +1609,6 @@ class CloudAgentService {
     'software-update-check', 'windows-update-check',
     'driver-update-scan', 'startup-list', 'disk-health',
     'privacy-scan', 'debloater-scan', 'service-scan', 'registry-scan',
-    'malware-quarantine', // quarantine is read-like (moves to vault)
     'get-threat-status',
   ])
 
@@ -3001,7 +3001,9 @@ class CloudAgentService {
       return
     }
     cloudLog('INFO', `Deleting ${paths.length} malware files`)
-    const result = await deleteMalware(paths)
+    // Recoverable on the device: the confirmation dialog for this command lives
+    // in the dashboard, which the agent cannot verify actually ran.
+    const result = await deleteMalware(paths, { mode: 'recycle' })
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
