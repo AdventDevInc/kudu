@@ -18,7 +18,7 @@ vi.mock('electron', () => ({
   },
 }))
 
-import { setSettings, getSettings, flushSettings, updateRegistryIgnoredTweaks, getMalwareAllowlist, addMalwareAllowlistEntry, removeMalwareAllowlistEntry } from './settings-store'
+import { setSettings, getSettings, flushSettings, updateRegistryIgnoredTweaks, getMalwareAllowlist, addMalwareAllowlistEntry, removeMalwareAllowlistEntry, getWindowState, setWindowState } from './settings-store'
 import type { MalwareAllowlistEntry } from '../../shared/types'
 
 describe('settings persistence — game mode toggle round-trip (issue #172)', () => {
@@ -90,6 +90,38 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
     updateRegistryIgnoredTweaks([a], false)
     await flushSettings()
     expect(getSettings().registryIgnoredTweaks).toEqual([b])
+  })
+})
+
+describe('window geometry persistence (issue #270)', () => {
+  afterAll(() => {
+    if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true, force: true })
+  })
+
+  it('has no window state on a fresh install', () => {
+    expect(getWindowState()).toBeNull()
+  })
+
+  it('survives a simulated restart', async () => {
+    await setWindowState({ x: 120, y: 80, width: 1310, height: 880, isMaximized: false })
+    expect(getWindowState()).toEqual({ x: 120, y: 80, width: 1310, height: 880, isMaximized: false })
+  })
+
+  it('replaces the previous geometry rather than merging with it', async () => {
+    await setWindowState({ width: 1000, height: 640, isMaximized: true })
+    const state = getWindowState()
+    expect(state).toEqual({ width: 1000, height: 640, isMaximized: true })
+    // A later save without a position must not resurrect the stale one.
+    expect(state?.x).toBeUndefined()
+  })
+
+  it('does not clobber a concurrent settings write', async () => {
+    setSettings({ minimizeToTray: true })
+    void setWindowState({ x: 5, y: 5, width: 1200, height: 700, isMaximized: false })
+    await flushSettings()
+
+    expect(getSettings().minimizeToTray).toBe(true)
+    expect(getWindowState()).toMatchObject({ width: 1200, height: 700 })
   })
 })
 

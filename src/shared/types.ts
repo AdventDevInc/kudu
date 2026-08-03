@@ -250,6 +250,20 @@ export interface ActivityEntry {
   spaceSaved?: number
 }
 
+/**
+ * Last known main-window geometry, persisted so a resized/moved window comes
+ * back the same way on the next launch.  `x`/`y` are omitted when the window
+ * has never been positioned explicitly (first run) or when the saved position
+ * no longer lands on a connected display.
+ */
+export interface WindowState {
+  width: number
+  height: number
+  x?: number
+  y?: number
+  isMaximized: boolean
+}
+
 export interface BloatwareApp {
   id: string
   name: string

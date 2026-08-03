@@ -10,6 +10,7 @@ import { IPC } from '../shared/channels'
 import { t } from './i18n'
 import { registerCleanerIpc } from './ipc'
 import { getSettings } from './services/settings-store'
+import { loadWindowState, trackWindowState, MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT } from './services/window-state'
 import { startScheduler, stopScheduler, getNextScanTime, notifyScheduledScanComplete, completeScheduleRun } from './services/scheduler'
 import { initAutoUpdater } from './services/auto-updater'
 import { attachRendererDiagnostics } from './services/renderer-diagnostics'
@@ -321,16 +322,24 @@ function destroyTray(): void {
 
 function createWindow(): void {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-  const width = Math.round(screenWidth * 0.75)
-  const height = Math.round(screenHeight * 0.8)
+  const defaultWidth = Math.round(screenWidth * 0.75)
+  const defaultHeight = Math.round(screenHeight * 0.8)
+
+  // Reopen at the size/position the user left the window at (issue #270).
+  const { width, height, x, y, isMaximized } = loadWindowState({
+    width: defaultWidth,
+    height: defaultHeight
+  })
 
   const icon = nativeImage.createFromPath(getIconPath())
 
   mainWindow = new BrowserWindow({
     width,
     height,
-    minWidth: 900,
-    minHeight: 600,
+    // Omitted when no saved position survived validation, so Electron centres.
+    ...(x !== undefined && y !== undefined ? { x, y } : {}),
+    minWidth: MIN_WINDOW_WIDTH,
+    minHeight: MIN_WINDOW_HEIGHT,
     frame: false,
     backgroundColor: '#09090b',
     icon,
@@ -346,6 +355,12 @@ function createWindow(): void {
       sandbox: !isRoot
     }
   })
+
+  // Maximize before first paint so the window never flashes at its restored
+  // size; getNormalBounds() keeps the un-maximized geometry for later.
+  if (isMaximized) mainWindow.maximize()
+
+  trackWindowState(mainWindow)
 
   const settings = getSettings()
   // Detect startup launch: --startup flag (Windows Task Scheduler / Linux),

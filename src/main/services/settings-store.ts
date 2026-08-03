@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
-import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager } from '../../shared/types'
+import type { KuduSettings, AppStats, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager, WindowState } from '../../shared/types'
 
 let _dataDir: string | null = null
 let _configPath: string | null = null
@@ -28,11 +28,14 @@ interface StoreData {
   stats: AppStats
   onboardingComplete: boolean
   machineId: string
+  /** Last known main-window geometry; null until the window is first sized. */
+  windowState: WindowState | null
 }
 
 const defaults: StoreData = {
   machineId: '',
   onboardingComplete: false,
+  windowState: null,
   settings: {
     theme: 'dark' as const,
     language: 'en',
@@ -341,6 +344,30 @@ export function removeMalwareAllowlistEntry(sha256: string): Promise<void> {
     try {
       const data = readStore()
       data.settings.malwareAllowlist = (data.settings.malwareAllowlist ?? []).filter((e) => e.sha256 !== sha256)
+      writeStore(data)
+    } finally {
+      unlock!()
+    }
+  })
+}
+
+/** Read the last persisted main-window geometry (null on first run). */
+export function getWindowState(): WindowState | null {
+  return readStore().windowState ?? null
+}
+
+/**
+ * Persist the main-window geometry within the write lock so a resize landing
+ * at the same time as a settings write can't clobber either one.
+ */
+export function setWindowState(state: WindowState): Promise<void> {
+  const prev = writeLock
+  let unlock: () => void
+  writeLock = new Promise<void>((r) => { unlock = r })
+  return prev.then(() => {
+    try {
+      const data = readStore()
+      data.windowState = state
       writeStore(data)
     } finally {
       unlock!()
