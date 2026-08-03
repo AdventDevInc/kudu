@@ -1,18 +1,49 @@
 # [1.48.0](https://github.com/adventdevinc/kudu/compare/v1.47.0...v1.48.0) (2026-08-03)
 
+
 ### Bug Fixes
 
-* triage and fix the four remaining open security advisories ([#283](https://github.com/adventdevinc/kudu/issues/283)) ([04a3c77](https://github.com/adventdevinc/kudu/commit/04a3c779b23488070b1e50e2f85c7490754de7ff))
 * **malware:** bind quarantine/delete to a real detection, gate remote quarantine ([#281](https://github.com/adventdevinc/kudu/issues/281)) ([6691097](https://github.com/adventdevinc/kudu/commit/66910978997f302d1b608d5a7a4e31900035c073))
+* triage and fix the four remaining open security advisories ([#283](https://github.com/adventdevinc/kudu/issues/283)) ([04a3c77](https://github.com/adventdevinc/kudu/commit/04a3c779b23488070b1e50e2f85c7490754de7ff))
 
 
 ### Features
 
-* **window:** remember window size and position across restarts ([#284](https://github.com/adventdevinc/kudu/issues/284)) ([582cacd](https://github.com/adventdevinc/kudu/commit/582cacd69f5f4adb40f8e00f319e9e22be7adc75))
 * **services:** allow re-enabling a disabled service ([#282](https://github.com/adventdevinc/kudu/issues/282)) ([3d8e955](https://github.com/adventdevinc/kudu/commit/3d8e955f073ae7b3ade0a3d4cabd7d219acdc3d4))
+* **window:** remember window size and position across restarts ([#284](https://github.com/adventdevinc/kudu/issues/284)) ([582cacd](https://github.com/adventdevinc/kudu/commit/582cacd69f5f4adb40f8e00f319e9e22be7adc75))
 # [1.47.0](https://github.com/adventdevinc/kudu/compare/v1.46.0...v1.47.0) (2026-07-27)
+
+
+### Bug Fixes
+
+* **browser-cleaner:** report Chromium caches the scan was silently dropping ([#265](https://github.com/adventdevinc/kudu/issues/265)) ([#266](https://github.com/adventdevinc/kudu/issues/266)) ([ac81503](https://github.com/adventdevinc/kudu/commit/ac8150380f5a2d5726afae93eace8444a0725d3e))
+* **build:** install per-machine so the Windows installer elevates ([#264](https://github.com/adventdevinc/kudu/issues/264)) ([#268](https://github.com/adventdevinc/kudu/issues/268)) ([f12ba9d](https://github.com/adventdevinc/kudu/commit/f12ba9dd9b1e1327cbf5764acbbeccee95510200))
 # [1.46.0](https://github.com/adventdevinc/kudu/compare/v1.45.0...v1.46.0) (2026-07-27)
+
+
+### Bug Fixes
+
+* **cli:** keep stdout parseable in JSON mode ([#257](https://github.com/adventdevinc/kudu/issues/257)) ([0af251b](https://github.com/adventdevinc/kudu/commit/0af251b18ea3bd2d159f6f64910b38c2c1875f07))
+* **driver-manager:** stop flagging installed drivers as stale duplicates ([#262](https://github.com/adventdevinc/kudu/issues/262)) ([c85e72d](https://github.com/adventdevinc/kudu/commit/c85e72d6e9461b7230c316738c90ae9d575ddc23))
+* **firewall:** stop the rule audit timing out and echoing its own script ([#259](https://github.com/adventdevinc/kudu/issues/259)) ([f1c3799](https://github.com/adventdevinc/kudu/commit/f1c37995d8bc310b9f98b28eb44bb849b0cf69c6))
+* **game-mode:** unblock activation when a restore step can never succeed ([#258](https://github.com/adventdevinc/kudu/issues/258)) ([e055e17](https://github.com/adventdevinc/kudu/commit/e055e174e4cc80bcd18183ec57670d50e464bfa7))
+* **gui:** don't let minimize-to-tray block app quit and OS shutdown ([#240](https://github.com/adventdevinc/kudu/issues/240)) ([252e3e4](https://github.com/adventdevinc/kudu/commit/252e3e446ad2d7c45969dfad57fb3cd1e59f8f24))
+* **registry:** stop deleting whole registry branches on a failed key parse ([#261](https://github.com/adventdevinc/kudu/issues/261)) ([106bb56](https://github.com/adventdevinc/kudu/commit/106bb562e34399b4c1cfb8101badce25f82583fc))
+* **startup:** stop listing programs that are no longer installed ([#260](https://github.com/adventdevinc/kudu/issues/260)) ([9c7567c](https://github.com/adventdevinc/kudu/commit/9c7567c7ff63e7a4c24b99f350d968edca2a7043))
+
+
+### Features
+
+* **cleaner:** opt-in log of deleted file paths ([#247](https://github.com/adventdevinc/kudu/issues/247)) ([#263](https://github.com/adventdevinc/kudu/issues/263)) ([7231707](https://github.com/adventdevinc/kudu/commit/72317074633e069d7b20b68ca19973c7e2c48581))
+* **updater:** aggregate Scoop & npm alongside winget/Chocolatey ([#227](https://github.com/adventdevinc/kudu/issues/227)) ([086c887](https://github.com/adventdevinc/kudu/commit/086c88792b4949e074ebe3643746b9cea5c7ac05))
 # [1.45.0](https://github.com/adventdevinc/kudu/compare/v1.44.1...v1.45.0) (2026-07-21)
+
+
+### Bug Fixes
+
+* **drivers:** respect Windows "driver updates disabled" policy and fix 0.0 MB display ([#228](https://github.com/adventdevinc/kudu/issues/228)) ([d8cde59](https://github.com/adventdevinc/kudu/commit/d8cde591a2abdc92de0b954cb8c75b992a681568))
+* **firewall-audit:** stop flagging known-good services as medium risk ([#226](https://github.com/adventdevinc/kudu/issues/226)) ([296ef94](https://github.com/adventdevinc/kudu/commit/296ef9476f3bc981d47e3a2b77b4249414bd9b3d))
+* **malware-scanner:** drop Heuristic.HiddenADS false positives ([#237](https://github.com/adventdevinc/kudu/issues/237)) ([50eac72](https://github.com/adventdevinc/kudu/commit/50eac72d2e51cd1618509427bbd4d6fbc4511698))
 ## [1.44.1](https://github.com/adventdevinc/kudu/compare/v1.44.0...v1.44.1) (2026-06-11)
 # [1.44.0](https://github.com/adventdevinc/kudu/compare/v1.43.0...v1.44.0) (2026-06-09)
 
