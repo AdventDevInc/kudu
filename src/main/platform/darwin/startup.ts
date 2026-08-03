@@ -11,6 +11,21 @@ import type { StartupItem, StartupBootTrace } from '../../../shared/types'
 const execFileAsync = promisify(execFile)
 const HOME = resolve(homedir())
 
+// Login item names are chosen by whoever created the item, so they are
+// untrusted input. Rather than splice them into script text and try to
+// neutralise the result — the previous approach stripped \ and ", which also
+// silently mangled legitimate names and could act on the wrong item — the name
+// is passed as an argument and read from `argv`, so it is never parsed as code.
+const MAKE_LOGIN_ITEM_SCRIPT =
+  'on run argv\n' +
+  '  tell application "System Events" to make login item at end with properties {name:(item 1 of argv), hidden:false}\n' +
+  'end run'
+
+const DELETE_LOGIN_ITEM_SCRIPT =
+  'on run argv\n' +
+  '  tell application "System Events" to delete login item (item 1 of argv)\n' +
+  'end run'
+
 export function createDarwinStartup(): PlatformStartup {
   return {
     async listItems(): Promise<StartupItem[]> {
@@ -123,15 +138,13 @@ export function createDarwinStartup(): PlatformStartup {
           return true
         }
         if (source === 'login-item') {
-          // Sanitize name to prevent AppleScript injection
-          const safeName = name.replace(/[\\"]/g, '')
           if (enabled) {
             await execFileAsync('/usr/bin/osascript', [
-              '-e', `tell application "System Events" to make login item at end with properties {name:"${safeName}", hidden:false}`,
+              '-e', MAKE_LOGIN_ITEM_SCRIPT, name,
             ], { timeout: 10_000 })
           } else {
             await execFileAsync('/usr/bin/osascript', [
-              '-e', `tell application "System Events" to delete login item "${safeName}"`,
+              '-e', DELETE_LOGIN_ITEM_SCRIPT, name,
             ], { timeout: 10_000 })
           }
           return true
@@ -165,9 +178,8 @@ export function createDarwinStartup(): PlatformStartup {
           return true
         }
         if (source === 'login-item') {
-          const safeName = name.replace(/[\\"]/g, '')
           await execFileAsync('/usr/bin/osascript', [
-            '-e', `tell application "System Events" to delete login item "${safeName}"`,
+            '-e', DELETE_LOGIN_ITEM_SCRIPT, name,
           ], { timeout: 10_000 })
           return true
         }
