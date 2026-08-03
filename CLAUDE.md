@@ -12,6 +12,15 @@ npm run release -- patch|minor|major
 
 This handles everything: version bump, changelog generation, commit, tag, push, and triggers CI to build and publish.
 
+`conventional-changelog-angular` is pinned to `^8` as a direct devDependency even
+though nothing imports it. This is deliberate: commitlint depends on `^9`, which
+npm hoists to the top of `node_modules`, where `conventional-changelog`'s preset
+loader picks it up instead of the `^8` it needs — and v9 exports a shape v8's
+loader can't read, so changelog generation silently produces empty sections.
+Pinning `^8` as a direct dependency keeps the right version hoisted and pushes
+commitlint's copy into a nested folder. Don't remove it as unused. `npm ls
+conventional-changelog-angular` should show `8.x` at the top level.
+
 ## Testing
 
 ```
