@@ -1,5 +1,6 @@
 import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { readdir, rmdir, stat, lstat, open, rm } from 'fs/promises'
+import { constants as fsConstants } from 'fs'
 import { join, isAbsolute, basename, resolve, normalize } from 'path'
 import { randomBytes } from 'crypto'
 import { IPC } from '../../shared/channels'
@@ -72,17 +73,42 @@ function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
 
 /**
  * Overwrite a single file with random data then zeros (2-pass shred).
- * Uses lstat to avoid following symlinks.  Checks the module-level
- * `cancelled` flag between chunks so large files can be interrupted.
+ * Checks the module-level `cancelled` flag between chunks so large files can
+ * be interrupted.
+ *
+ * lstat alone cannot make this safe: it describes the path at one instant, and
+ * the open() that follows resolves the path a second time. Between those two
+ * resolutions anything that can write to the directory — which for a shred
+ * target is by definition somewhere the user picked, possibly a shared or
+ * removable volume — can swap the file for a symlink or junction and redirect
+ * this elevated process onto a file it was never meant to touch. So the handle
+ * is re-checked against the lstat once it is open, and O_NOFOLLOW refuses the
+ * substitution outright where the platform provides it.
  */
 async function shredFile(filePath: string): Promise<void> {
-  const stats = await lstat(filePath)
-  if (stats.isSymbolicLink() || !stats.isFile() || stats.size === 0) return
+  const stats = await lstat(filePath, { bigint: true })
+  if (stats.isSymbolicLink() || !stats.isFile() || stats.size === 0n) return
 
-  const size = stats.size
+  const size = Number(stats.size)
   const CHUNK = 1024 * 1024 // 1 MB
-  const fh = await open(filePath, 'r+')
+  // O_NOFOLLOW is POSIX-only; on Windows the fstat comparison below carries it.
+  const openFlags = fsConstants.O_RDWR | (fsConstants.O_NOFOLLOW ?? 0)
+  const fh = await open(filePath, openFlags)
   try {
+    // Confirm the handle refers to the same file lstat described. A swapped
+    // path resolves to a different inode, so this closes the window that
+    // remains between the two path resolutions.
+    const opened = await fh.stat({ bigint: true })
+    const identityKnown = stats.ino !== 0n && opened.ino !== 0n
+    if (
+      !opened.isFile() ||
+      opened.size !== stats.size ||
+      (identityKnown && (opened.ino !== stats.ino || opened.dev !== stats.dev))
+    ) {
+      // Throw rather than return: the caller deletes whatever shredFile leaves
+      // behind, so a silent skip here would still destroy the substituted file.
+      throw new Error('File changed while being shredded — skipped')
+    }
     // Pass 1: random data
     let offset = 0
     while (offset < size) {
