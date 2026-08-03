@@ -99,6 +99,10 @@ class CloudHttpError extends Error {
 
 const COMMAND_TIMEOUT_MS = 5 * 60 * 1000
 const LONG_COMMAND_TIMEOUT_MS = 30 * 60 * 1000 // for bulk update / install commands
+/** Ceiling on concurrently executing commands, so a burst can't saturate the device. */
+const MAX_PARALLEL_COMMANDS = 4
+/** Minimum spacing between two starts of the same parallel-safe command type. */
+const PARALLEL_COMMAND_MIN_SPACING_MS = 1000
 
 const LONG_RUNNING_COMMANDS = new Set([
   'scan',
@@ -202,6 +206,8 @@ class CloudAgentService {
   private runningCommands: number = 0
   private healthReportRunning: boolean = false
   private lastCommandFinishedAt: number = 0
+  /** Last start time per parallel-safe command type, for spacing repeats. */
+  private lastParallelStartAt: Map<string, number> = new Map()
   private processedRequestIds = new Map<string, number>() // requestId → timestamp
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private reconnectAttempts: number = 0
@@ -1631,6 +1637,17 @@ class CloudAgentService {
       return
     }
 
+    // Parallel-safe means "won't corrupt state if overlapped", not "free".
+    // A scan walks the whole disk, so an unbounded number in flight is a way
+    // to pin the device's CPU and I/O — reachable by anything that can send
+    // commands, whether hostile or just a dashboard retrying too eagerly.
+    if (isParallelSafe && this.runningCommands >= MAX_PARALLEL_COMMANDS) {
+      if ('requestId' in cmd) {
+        this.postCommandResult(cmd.requestId, false, undefined, 'Too many commands running — try again shortly').catch(() => {})
+      }
+      return
+    }
+
     // Rate limit mutating commands: minimum 500ms to prevent accidental double-fires
     if (!isParallelSafe) {
       const elapsed = Date.now() - this.lastCommandFinishedAt
@@ -1640,6 +1657,18 @@ class CloudAgentService {
         }
         return
       }
+    } else {
+      // Cheap reads can still arrive faster than they finish, so space out the
+      // expensive ones too. Keyed per command type so a burst of scans can't
+      // crowd out an unrelated get-status.
+      const lastStart = this.lastParallelStartAt.get(cmd.type) ?? 0
+      if (Date.now() - lastStart < PARALLEL_COMMAND_MIN_SPACING_MS) {
+        if ('requestId' in cmd) {
+          this.postCommandResult(cmd.requestId, false, undefined, 'Rate limited — try again shortly').catch(() => {})
+        }
+        return
+      }
+      this.lastParallelStartAt.set(cmd.type, Date.now())
     }
 
     if (!isParallelSafe) this.commandRunning = true
