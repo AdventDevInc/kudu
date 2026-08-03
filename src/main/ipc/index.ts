@@ -162,6 +162,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.ONBOARDING_GET, () => getOnboardingComplete())
   ipcMain.handle(IPC.ONBOARDING_SET, async (_event, value: boolean) => {
     if (typeof value !== 'boolean') return
+    // Rejects if the write failed — the renderer logs that, so a wizard that
+    // keeps reappearing leaves evidence behind (issue #269).
     await setOnboardingComplete(value)
   })
 

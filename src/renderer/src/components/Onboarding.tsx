@@ -9,7 +9,8 @@ import { usePlatform } from '@/hooks/usePlatform'
 import logoSrc from '@/assets/logo.png'
 
 interface OnboardingProps {
-  onComplete: () => void
+  /** Records that onboarding is done; awaited before anything that can stall. */
+  onComplete: () => void | Promise<void>
 }
 
 interface OnboardingSettings {
@@ -30,6 +31,15 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   })
 
   const applyAndFinish = async () => {
+    // Record completion first. Applying the startup preference below shells out
+    // to Task Scheduler — three schtasks calls with a 10s timeout each — so the
+    // wizard can sit there for seconds before this line would otherwise be
+    // reached. Quitting during that window used to lose the flag entirely and
+    // the wizard came back on the next launch, forever (issue #269). The
+    // preferences are all editable in Settings; the flag is not.
+    navigate('/')
+    await onComplete()
+
     try {
       const settingsPayload: Record<string, any> = {
         runAtStartup: settings.runAtStartup,
@@ -44,8 +54,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     } catch {
       // Best-effort
     }
-    onComplete()
-    navigate('/')
   }
 
   return (
