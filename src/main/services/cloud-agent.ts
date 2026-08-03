@@ -3001,7 +3001,9 @@ class CloudAgentService {
       return
     }
     cloudLog('INFO', `Deleting ${paths.length} malware files`)
-    const result = await deleteMalware(paths)
+    // Recoverable on the device: the confirmation dialog for this command lives
+    // in the dashboard, which the agent cannot verify actually ran.
+    const result = await deleteMalware(paths, { mode: 'recycle' })
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
