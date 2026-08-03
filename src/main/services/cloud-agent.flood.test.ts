@@ -97,3 +97,59 @@ describe('parallel-safe command admission', () => {
     expect(admit(state, 'clean', false, T)).toMatch(/still running/)
   })
 })
+
+// ─── Slot accounting across a timeout ───────────────────────────
+// Timing out gives up waiting for a result; it does not stop the work. If the
+// timeout released the slot, every timeout would admit another batch while the
+// previous one still ran, and real concurrency would drift past the ceiling.
+// The slot is therefore released only when the operation settles.
+
+interface Slots {
+  running: number
+  release(): void
+  onTimeout(): void
+}
+
+function slots(): Slots {
+  const s = {
+    running: 0,
+    release() { s.running = Math.max(0, s.running - 1) },
+    onTimeout() { /* reports the failure; deliberately does not release */ },
+  }
+  return s
+}
+
+describe('command slot accounting', () => {
+  it('keeps the slot held when a command times out', () => {
+    const s = slots()
+    s.running++
+    s.onTimeout()
+    expect(s.running).toBe(1)
+  })
+
+  it('releases the slot when the timed-out command finally settles', () => {
+    const s = slots()
+    s.running++
+    s.onTimeout()
+    s.release()
+    expect(s.running).toBe(0)
+  })
+
+  it('releases exactly once, so a timeout plus settle cannot double-count', () => {
+    const s = slots()
+    s.running += 2
+    s.onTimeout() // command A times out, still running
+    s.release()   // command B settles
+    expect(s.running).toBe(1)
+  })
+
+  it('does not let repeated timeouts open unlimited slots', () => {
+    const s = slots()
+    for (let i = 0; i < MAX_PARALLEL_COMMANDS; i++) {
+      s.running++
+      s.onTimeout()
+    }
+    const state = newState({ runningCommands: s.running })
+    expect(admit(state, 'scan', true, 10_000_000)).toMatch(/Too many commands running/)
+  })
+})

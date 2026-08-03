@@ -147,6 +147,8 @@ function createTrayIcon(): Electron.NativeImage {
 }
 
 const TASK_NAME = 'KuduStartup'
+/** The only arguments the startup task is allowed to carry — verified after registration. */
+const TASK_ARGUMENTS = '--startup'
 
 async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
   // Use Task Scheduler with RunLevel HighestAvailable so the app starts
@@ -192,7 +194,7 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
       '  <Actions Context="Author">',
       `    <Exec>`,
       `      <Command>${escapeXml(exePath)}</Command>`,
-      '      <Arguments>--startup</Arguments>',
+      `      <Arguments>${escapeXml(TASK_ARGUMENTS)}</Arguments>`,
       '    </Exec>',
       '  </Actions>',
       '</Task>'
@@ -223,18 +225,26 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
     }
 
     // Verify what was actually registered, not merely that something was.
-    // If the definition doesn't run our executable, the XML was tampered with
+    // If the definition isn't the one we submitted, the XML was tampered with
     // in the window above \u2014 tear the task down rather than leave an elevated
-    // logon entry pointing somewhere else.
-    const { stdout: registered } = await execNativeUtf8('schtasks',[
-      '/Query', '/TN', TASK_NAME, '/XML', 'ONE'
-    ], { timeout: 10000 })
+    // logon entry running something else.
+    //
+    // A query that fails or times out is also a failure to verify, and is
+    // treated the same way: an unverified elevated logon task must not survive
+    // this function, whatever the reason we couldn't check it.
+    let verified = false
+    try {
+      const { stdout: registered } = await execNativeUtf8('schtasks',[
+        '/Query', '/TN', TASK_NAME, '/XML', 'ONE'
+      ], { timeout: 10000 })
+      verified = registeredTaskMatches(registered, exePath, TASK_ARGUMENTS)
+    } catch { /* treated as unverified below */ }
 
-    if (!registeredCommandMatches(registered, exePath)) {
+    if (!verified) {
       await execNativeUtf8('schtasks',[
         '/Delete', '/TN', TASK_NAME, '/F'
       ], { timeout: 10000 }).catch(() => {})
-      throw new Error('Startup task verification failed \u2014 registered command did not match')
+      throw new Error('Startup task verification failed \u2014 the registered task did not match')
     }
   } else {
     try {
@@ -253,21 +263,45 @@ function escapeXml(s: string): string {
 }
 
 /**
- * Does the registered task definition run exactly `exePath`?
+ * Is the registered task definition exactly the one we asked for?
  *
- * Compares every <Command> the definition declares — an injected XML can carry
- * more than one Exec action, so checking only the first would miss a payload
- * appended after a legitimate entry. Returns false when no command is present
- * at all, so an unparseable read is treated as a failed verification.
+ * Task Scheduler runs the whole <Actions> block at HighestAvailable, so
+ * matching the command alone is not enough. Arguments decide what that command
+ * does — `--inspect-brk` would turn our own binary into arbitrary elevated code
+ * execution — and a definition may carry action types other than Exec
+ * (ComHandler, SendEmail, ShowMessage) that run without naming a command at
+ * all. So this requires precisely one Exec action, the expected command, the
+ * expected arguments, and no other action of any kind.
+ *
+ * Returns false on anything it cannot account for, so an unparseable or empty
+ * read is a failed verification rather than a pass.
  */
-function registeredCommandMatches(taskXml: string, exePath: string): boolean {
-  const commands = [...taskXml.matchAll(/<Command>([\s\S]*?)<\/Command>/gi)]
-    .map((m) => m[1].trim().replace(/^"|"$/g, ''))
-    .filter((c) => c.length > 0)
-  if (commands.length === 0) return false
-  const expected = exePath.trim().toLowerCase()
-  return commands.every((c) => decodeXmlEntities(c).toLowerCase() === expected)
+function registeredTaskMatches(taskXml: string, exePath: string, expectedArgs: string): boolean {
+  const actionsBlock = taskXml.match(/<Actions\b[^>]*>([\s\S]*?)<\/Actions>/i)
+  if (!actionsBlock) return false
+  const actions = actionsBlock[1]
+
+  // Any element directly under <Actions> is an action. Exactly one, and it
+  // must be an Exec.
+  const actionTags = [...actions.matchAll(/<([A-Za-z][\w.-]*)\b/g)]
+    .map((m) => m[1])
+    .filter((tag) => !TASK_EXEC_CHILD_TAGS.has(tag))
+  if (actionTags.length !== 1 || actionTags[0].toLowerCase() !== 'exec') return false
+
+  const commands = [...actions.matchAll(/<Command>([\s\S]*?)<\/Command>/gi)]
+  if (commands.length !== 1) return false
+  const command = decodeXmlEntities(commands[0][1].trim().replace(/^"|"$/g, '')).toLowerCase()
+  if (command !== exePath.trim().toLowerCase()) return false
+
+  // Arguments may legitimately be absent only if we asked for none.
+  const argMatches = [...actions.matchAll(/<Arguments>([\s\S]*?)<\/Arguments>/gi)]
+  if (argMatches.length > 1) return false
+  const args = argMatches.length === 1 ? decodeXmlEntities(argMatches[0][1].trim()) : ''
+  return args === expectedArgs.trim()
 }
+
+/** Elements that appear *inside* an Exec action rather than being actions themselves. */
+const TASK_EXEC_CHILD_TAGS = new Set(['Command', 'Arguments', 'WorkingDirectory'])
 
 function decodeXmlEntities(s: string): string {
   return s

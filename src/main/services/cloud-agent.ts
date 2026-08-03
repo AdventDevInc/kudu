@@ -1678,8 +1678,12 @@ class CloudAgentService {
 
     const timeout = setTimeout(() => {
       timedOut = true
+      // Release the mutating exclusive lock so a slow command can't wedge the
+      // queue, but keep holding the concurrency slot. Timing out only gives up
+      // waiting for the result — it does not stop the work, which is still
+      // consuming the device. Freeing the slot here would let a new batch in
+      // after every timeout and let real concurrency drift past the ceiling.
       if (!isParallelSafe) this.commandRunning = false
-      this.runningCommands = Math.max(0, this.runningCommands - 1)
       if ('requestId' in cmd) {
         this.postCommandResult(cmd.requestId, false, undefined, 'Command timed out').catch(() => {})
       }
@@ -1846,11 +1850,11 @@ class CloudAgentService {
       }
     } finally {
       clearTimeout(timeout)
-      if (!timedOut) {
-        if (!isParallelSafe) this.commandRunning = false
-        this.runningCommands = Math.max(0, this.runningCommands - 1)
-        this.lastCommandFinishedAt = Date.now()
-      }
+      // Release unconditionally: the slot tracks work that is actually running,
+      // so it comes back when the operation settles, timed out or not.
+      if (!isParallelSafe) this.commandRunning = false
+      this.runningCommands = Math.max(0, this.runningCommands - 1)
+      this.lastCommandFinishedAt = Date.now()
     }
   }
 

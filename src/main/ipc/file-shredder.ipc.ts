@@ -65,6 +65,24 @@ function isProtectedPath(targetPath: string): boolean {
   return false
 }
 
+/** What a file was when we found it, so we can tell later whether it still is. */
+interface FileIdentity {
+  dev: bigint
+  ino: bigint
+  size: bigint
+}
+
+/** Identity of a regular file, or null if the path isn't one we should shred. */
+async function readIdentity(filePath: string): Promise<FileIdentity | null> {
+  try {
+    const s = await lstat(filePath, { bigint: true })
+    if (s.isSymbolicLink() || !s.isFile()) return null
+    return { dev: s.dev, ino: s.ino, size: s.size }
+  } catch {
+    return null
+  }
+}
+
 function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
   if (win && !win.isDestroyed()) {
     win.webContents.send(IPC.SHREDDER_PROGRESS, data)
@@ -76,34 +94,34 @@ function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
  * Checks the module-level `cancelled` flag between chunks so large files can
  * be interrupted.
  *
- * lstat alone cannot make this safe: it describes the path at one instant, and
- * the open() that follows resolves the path a second time. Between those two
- * resolutions anything that can write to the directory — which for a shred
- * target is by definition somewhere the user picked, possibly a shared or
- * removable volume — can swap the file for a symlink or junction and redirect
- * this elevated process onto a file it was never meant to touch. So the handle
- * is re-checked against the lstat once it is open, and O_NOFOLLOW refuses the
- * substitution outright where the platform provides it.
+ * A path is not a stable reference to a file. Every resolution of it consults
+ * the directories above it, and for a shred target those directories are
+ * wherever the user pointed — possibly a shared or removable volume something
+ * else can write. So `expected` is the identity recorded when the tree was
+ * walked and the path was known to lie inside the selection; the handle opened
+ * here has to still be that same file.
+ *
+ * Re-lstat'ing the path here instead would not be enough: swapping a *parent*
+ * directory for a symlink redirects both the lstat and the open equally, so
+ * the two agree with each other while both point somewhere the user never
+ * selected. O_NOFOLLOW only guards the final component. Comparing against an
+ * identity captured before the walk finished is what closes that.
  */
-async function shredFile(filePath: string): Promise<void> {
-  const stats = await lstat(filePath, { bigint: true })
-  if (stats.isSymbolicLink() || !stats.isFile() || stats.size === 0n) return
+async function shredFile(filePath: string, expected: FileIdentity): Promise<void> {
+  if (expected.size === 0n) return
 
-  const size = Number(stats.size)
+  const size = Number(expected.size)
   const CHUNK = 1024 * 1024 // 1 MB
   // O_NOFOLLOW is POSIX-only; on Windows the fstat comparison below carries it.
   const openFlags = fsConstants.O_RDWR | (fsConstants.O_NOFOLLOW ?? 0)
   const fh = await open(filePath, openFlags)
   try {
-    // Confirm the handle refers to the same file lstat described. A swapped
-    // path resolves to a different inode, so this closes the window that
-    // remains between the two path resolutions.
     const opened = await fh.stat({ bigint: true })
-    const identityKnown = stats.ino !== 0n && opened.ino !== 0n
+    const identityKnown = expected.ino !== 0n && opened.ino !== 0n
     if (
       !opened.isFile() ||
-      opened.size !== stats.size ||
-      (identityKnown && (opened.ino !== stats.ino || opened.dev !== stats.dev))
+      opened.size !== expected.size ||
+      (identityKnown && (opened.ino !== expected.ino || opened.dev !== expected.dev))
     ) {
       // Throw rather than return: the caller deletes whatever shredFile leaves
       // behind, so a silent skip here would still destroy the substituted file.
@@ -140,10 +158,16 @@ const MAX_DEPTH = 50
  * Collect all file paths within a directory recursively.
  * Skips symlinks and protected paths, respects a depth limit.
  * Sets `state.depthExceeded` if any branch is cut short by MAX_DEPTH.
+ *
+ * Records each file's identity as it is found. That identity is what the shred
+ * pass verifies against — captured here, while the path is known to resolve
+ * inside the walked tree, rather than re-derived later from a path whose
+ * ancestors may since have been swapped.
  */
 async function collectFiles(
   dirPath: string,
   files: string[],
+  identities: Map<string, FileIdentity>,
   state: { depthExceeded: boolean },
   depth: number = 0
 ): Promise<void> {
@@ -158,9 +182,12 @@ async function collectFiles(
       const fullPath = join(dirPath, entry.name)
       if (entry.isDirectory()) {
         if (isProtectedPath(fullPath)) continue
-        await collectFiles(fullPath, files, state, depth + 1)
+        await collectFiles(fullPath, files, identities, state, depth + 1)
       } else if (entry.isFile()) {
+        const identity = await readIdentity(fullPath)
+        if (!identity) continue
         files.push(fullPath)
+        identities.set(fullPath, identity)
       }
     }
   } catch {
@@ -296,6 +323,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     // First, collect all individual files to shred
     const allFiles: string[] = []
     const dirPaths: string[] = []
+    const identities = new Map<string, FileIdentity>()
     const collectState = { depthExceeded: false }
 
     for (const p of allowedPaths) {
@@ -304,9 +332,12 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
         if (s.isSymbolicLink()) continue
         if (s.isDirectory()) {
           dirPaths.push(p)
-          await collectFiles(p, allFiles, collectState)
+          await collectFiles(p, allFiles, identities, collectState)
         } else if (s.isFile()) {
+          const identity = await readIdentity(p)
+          if (!identity) continue
           allFiles.push(p)
+          identities.set(p, identity)
         }
       } catch { /* skip */ }
     }
@@ -353,7 +384,9 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
       }
 
       try {
-        await shredFile(filePath)
+        const identity = identities.get(filePath)
+        if (!identity) throw new Error('File was not verified during collection — skipped')
+        await shredFile(filePath, identity)
         await rm(filePath, { force: true })
         const fileSize = fileSizes.get(filePath) || 0
         bytesShredded += fileSize

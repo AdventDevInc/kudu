@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-// ─── registeredCommandMatches (replica of src/main/index.ts) ─────
+// ─── registeredTaskMatches (replica of src/main/index.ts) ────────
 // index.ts boots the Electron app on import, so the pure helper is replicated
 // here — same convention as malware-scanner.test.ts.
 //
@@ -8,8 +8,10 @@ import { describe, it, expect } from 'vitest'
 // any process running as this user can write, including a non-elevated one.
 // schtasks reads it back elevated and the task carries RunLevel
 // HighestAvailable, so a swap between our write and its read would register an
-// attacker's command as a logon-triggered admin task. After registering we ask
-// Task Scheduler what it actually stored and compare it against our exe.
+// attacker's definition as a logon-triggered admin task. After registering we
+// ask Task Scheduler what it actually stored and compare it to what we sent.
+
+const TASK_EXEC_CHILD_TAGS = new Set(['Command', 'Arguments', 'WorkingDirectory'])
 
 function decodeXmlEntities(s: string): string {
   return s
@@ -18,73 +20,129 @@ function decodeXmlEntities(s: string): string {
     .replace(/&amp;/g, '&')
 }
 
-function registeredCommandMatches(taskXml: string, exePath: string): boolean {
-  const commands = [...taskXml.matchAll(/<Command>([\s\S]*?)<\/Command>/gi)]
-    .map((m) => m[1].trim().replace(/^"|"$/g, ''))
-    .filter((c) => c.length > 0)
-  if (commands.length === 0) return false
-  const expected = exePath.trim().toLowerCase()
-  return commands.every((c) => decodeXmlEntities(c).toLowerCase() === expected)
+function registeredTaskMatches(taskXml: string, exePath: string, expectedArgs: string): boolean {
+  const actionsBlock = taskXml.match(/<Actions\b[^>]*>([\s\S]*?)<\/Actions>/i)
+  if (!actionsBlock) return false
+  const actions = actionsBlock[1]
+
+  const actionTags = [...actions.matchAll(/<([A-Za-z][\w.-]*)\b/g)]
+    .map((m) => m[1])
+    .filter((tag) => !TASK_EXEC_CHILD_TAGS.has(tag))
+  if (actionTags.length !== 1 || actionTags[0].toLowerCase() !== 'exec') return false
+
+  const commands = [...actions.matchAll(/<Command>([\s\S]*?)<\/Command>/gi)]
+  if (commands.length !== 1) return false
+  const command = decodeXmlEntities(commands[0][1].trim().replace(/^"|"$/g, '')).toLowerCase()
+  if (command !== exePath.trim().toLowerCase()) return false
+
+  const argMatches = [...actions.matchAll(/<Arguments>([\s\S]*?)<\/Arguments>/gi)]
+  if (argMatches.length > 1) return false
+  const args = argMatches.length === 1 ? decodeXmlEntities(argMatches[0][1].trim()) : ''
+  return args === expectedArgs.trim()
 }
 
 const EXE = 'C:\\Program Files\\Kudu\\Kudu.exe'
+const ARGS = '--startup'
 
-function taskXml(...commands: string[]): string {
+/** Wrap raw action XML in the surrounding task document. */
+function withActions(actionsInner: string): string {
   return [
     '<?xml version="1.0" encoding="UTF-16"?>',
     '<Task version="1.2">',
     '  <Actions Context="Author">',
-    ...commands.map((c) => `    <Exec><Command>${c}</Command><Arguments>--startup</Arguments></Exec>`),
+    actionsInner,
     '  </Actions>',
     '</Task>',
   ].join('\r\n')
 }
 
-describe('registeredCommandMatches', () => {
+function execAction(command: string, args: string | null = ARGS): string {
+  const argLine = args === null ? '' : `<Arguments>${args}</Arguments>`
+  return `    <Exec><Command>${command}</Command>${argLine}</Exec>`
+}
+
+describe('registeredTaskMatches', () => {
   it('accepts the task we meant to register', () => {
-    expect(registeredCommandMatches(taskXml(EXE), EXE)).toBe(true)
+    expect(registeredTaskMatches(withActions(execAction(EXE)), EXE, ARGS)).toBe(true)
   })
 
   it('accepts a command Task Scheduler echoed back quoted', () => {
-    expect(registeredCommandMatches(taskXml(`"${EXE}"`), EXE)).toBe(true)
+    expect(registeredTaskMatches(withActions(execAction(`"${EXE}"`)), EXE, ARGS)).toBe(true)
   })
 
   it('accepts a path whose ampersand came back XML-escaped', () => {
     const exe = 'C:\\Tools\\R&D\\Kudu.exe'
-    expect(registeredCommandMatches(taskXml('C:\\Tools\\R&amp;D\\Kudu.exe'), exe)).toBe(true)
+    expect(registeredTaskMatches(withActions(execAction('C:\\Tools\\R&amp;D\\Kudu.exe')), exe, ARGS)).toBe(true)
   })
 
   it('ignores case, which Windows paths do', () => {
-    expect(registeredCommandMatches(taskXml(EXE.toUpperCase()), EXE)).toBe(true)
-  })
-
-  it('tolerates surrounding whitespace', () => {
-    expect(registeredCommandMatches(taskXml(`\r\n      ${EXE}\r\n    `), EXE)).toBe(true)
+    expect(registeredTaskMatches(withActions(execAction(EXE.toUpperCase())), EXE, ARGS)).toBe(true)
   })
 
   it('rejects a substituted command', () => {
-    expect(registeredCommandMatches(taskXml('C:\\attacker\\backdoor.exe'), EXE)).toBe(false)
-  })
-
-  it('rejects a payload appended after a legitimate entry', () => {
-    // Checking only the first <Command> would pass this — an injected XML can
-    // declare more than one Exec action and Task Scheduler runs them all.
-    expect(registeredCommandMatches(taskXml(EXE, 'C:\\attacker\\backdoor.exe'), EXE)).toBe(false)
-  })
-
-  it('rejects a payload placed before the legitimate entry', () => {
-    expect(registeredCommandMatches(taskXml('C:\\attacker\\backdoor.exe', EXE), EXE)).toBe(false)
-  })
-
-  it('rejects a definition with no command at all', () => {
-    expect(registeredCommandMatches('<Task version="1.2"><Actions /></Task>', EXE)).toBe(false)
-  })
-
-  it('rejects empty output, so a failed query is not read as success', () => {
-    expect(registeredCommandMatches('', EXE)).toBe(false)
+    expect(registeredTaskMatches(withActions(execAction('C:\\attacker\\backdoor.exe')), EXE, ARGS)).toBe(false)
   })
 
   it('rejects a command that merely starts with our path', () => {
-    expect(registeredCommandMatches(taskXml(EXE + '.evil.exe'), EXE)).toBe(false)
+    expect(registeredTaskMatches(withActions(execAction(EXE + '.evil.exe')), EXE, ARGS)).toBe(false)
+  })
+
+  // Matching the command alone is not enough — Task Scheduler runs the whole
+  // action, and the arguments decide what our own binary does.
+  it('rejects altered arguments that would turn our binary into a debug server', () => {
+    const xml = withActions(execAction(EXE, '--startup --inspect-brk=0.0.0.0:9229'))
+    expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects arguments that were stripped entirely', () => {
+    expect(registeredTaskMatches(withActions(execAction(EXE, null)), EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects a second Arguments element smuggled into the action', () => {
+    const xml = withActions(
+      `    <Exec><Command>${EXE}</Command><Arguments>${ARGS}</Arguments><Arguments>--inspect</Arguments></Exec>`
+    )
+    expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
+  })
+
+  // A definition can run things without naming a command at all.
+  it('rejects a ComHandler action added alongside ours', () => {
+    const xml = withActions(
+      execAction(EXE) + '\r\n    <ComHandler><ClassId>{00000000-0000-0000-0000-000000000000}</ClassId></ComHandler>'
+    )
+    expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects a lone ComHandler action', () => {
+    const xml = withActions('    <ComHandler><ClassId>{11111111-2222-3333-4444-555555555555}</ClassId></ComHandler>')
+    expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects a payload appended after a legitimate entry', () => {
+    const xml = withActions(execAction(EXE) + '\r\n' + execAction('C:\\attacker\\backdoor.exe'))
+    expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects a payload placed before the legitimate entry', () => {
+    const xml = withActions(execAction('C:\\attacker\\backdoor.exe') + '\r\n' + execAction(EXE))
+    expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects a definition with no actions block', () => {
+    expect(registeredTaskMatches('<Task version="1.2" />', EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects an empty actions block', () => {
+    expect(registeredTaskMatches(withActions(''), EXE, ARGS)).toBe(false)
+  })
+
+  // A query that returns nothing must not read as a pass — the caller treats a
+  // failed or empty verification the same as a mismatch and deletes the task.
+  it('rejects empty output', () => {
+    expect(registeredTaskMatches('', EXE, ARGS)).toBe(false)
+  })
+
+  it('rejects unparseable output', () => {
+    expect(registeredTaskMatches('ERROR: The system cannot find the file specified.', EXE, ARGS)).toBe(false)
   })
 })

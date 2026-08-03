@@ -508,4 +508,50 @@ describe('shredFile identity verification', () => {
     const result = await shred(fhStub({ size: 100, ino: 99, dev: 1 }))
     expect(result.errors[0].reason).toMatch(/changed while being shredded/)
   })
+
+  // The ancestor-swap case. Replacing a parent *directory* with a symlink
+  // redirects every later resolution of the path equally, so a fresh lstat and
+  // the open would agree with each other while both point at a file outside the
+  // selection — O_NOFOLLOW only guards the final component. The identity
+  // captured during collection predates the swap, which is what catches it.
+  it('refuses when a parent directory was swapped after collection', async () => {
+    let identityReads = 0
+    const beforeSwap = lstatStub({ size: 100, ino: 1, dev: 1 })
+    const afterSwap = lstatStub({ size: 100, ino: 7, dev: 1 })
+    mockLstat.mockImplementation((p: string, statOpts?: { bigint?: boolean }) => {
+      // The identity capture is the bigint read. It happens during collection,
+      // before the swap; every resolution after it sees the redirected path.
+      if (!statOpts?.bigint) return beforeSwap(p, statOpts)
+      identityReads++
+      return identityReads <= 1 ? beforeSwap(p, statOpts) : afterSwap(p, statOpts)
+    })
+    // The open resolves through the swapped parent and lands on the same file a
+    // fresh lstat would now report — self-consistent, but not what we collected.
+    const fh = fhStub({ size: 100, ino: 7, dev: 1 })
+    mockOpen.mockResolvedValue(fh)
+
+    registerFileShredderIpc(() => mockWindow() as any)
+    const handler = getHandler('shredder:shred')
+    const result = (await handler({}, ['/home/user/temp/secret.txt'])) as {
+      shredded: number
+      failed: number
+    }
+
+    expect(result.shredded).toBe(0)
+    expect(result.failed).toBe(1)
+    expect(fh.write).not.toHaveBeenCalled()
+    expect(mockRm).not.toHaveBeenCalled()
+  })
+
+  it('skips a file whose identity was never captured', async () => {
+    // Nothing should reach open() without having been verified during
+    // collection — if it somehow does, refuse rather than shred blind.
+    mockLstat.mockImplementation(lstatStub({ isFile: false, size: 100 }))
+    mockOpen.mockResolvedValue(fhStub({ size: 100 }))
+    registerFileShredderIpc(() => mockWindow() as any)
+    const handler = getHandler('shredder:shred')
+    const result = (await handler({}, ['/home/user/temp/secret.txt'])) as { shredded: number }
+    expect(result.shredded).toBe(0)
+    expect(mockRm).not.toHaveBeenCalled()
+  })
 })
