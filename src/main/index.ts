@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron'
 import { execFile } from 'child_process'
 import { readFileSync } from 'fs'
+import { randomUUID } from 'crypto'
 import { promisify } from 'util'
 import { join } from 'path'
 
@@ -197,8 +198,16 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
       '</Task>'
     ].join('\r\n')
 
-    const tmpPath = join(app.getPath('temp'), `${TASK_NAME}.xml`)
-    const { writeFile, unlink } = await import('fs/promises')
+    // The XML lands in %LOCALAPPDATA%\Temp, which any process running as this
+    // user can write \u2014 including a non-elevated one. Since schtasks reads it
+    // back elevated and the task carries RunLevel HighestAvailable, a swap
+    // between our write and its read would register an attacker's command as a
+    // logon-triggered admin task. A random name denies the attacker a path to
+    // camp on, and the post-registration check below is what actually settles
+    // it: whatever ends up registered has to be the command we asked for.
+    const { writeFile, unlink, mkdtemp, rmdir } = await import('fs/promises')
+    const tmpDir = await mkdtemp(join(app.getPath('temp'), 'kudu-task-'))
+    const tmpPath = join(tmpDir, `${randomUUID()}.xml`)
     await writeFile(tmpPath, '\uFEFF' + xml, 'utf-16le')
 
     try {
@@ -209,13 +218,24 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
         '/F',
       ], { timeout: 10000 })
     } finally {
-      unlink(tmpPath).catch(() => {})
+      await unlink(tmpPath).catch(() => {})
+      await rmdir(tmpDir).catch(() => {})
     }
 
-    // Verify the task was actually registered
-    await execNativeUtf8('schtasks',[
-      '/Query', '/TN', TASK_NAME
+    // Verify what was actually registered, not merely that something was.
+    // If the definition doesn't run our executable, the XML was tampered with
+    // in the window above \u2014 tear the task down rather than leave an elevated
+    // logon entry pointing somewhere else.
+    const { stdout: registered } = await execNativeUtf8('schtasks',[
+      '/Query', '/TN', TASK_NAME, '/XML', 'ONE'
     ], { timeout: 10000 })
+
+    if (!registeredCommandMatches(registered, exePath)) {
+      await execNativeUtf8('schtasks',[
+        '/Delete', '/TN', TASK_NAME, '/F'
+      ], { timeout: 10000 }).catch(() => {})
+      throw new Error('Startup task verification failed \u2014 registered command did not match')
+    }
   } else {
     try {
       await execNativeUtf8('schtasks',[
@@ -230,6 +250,30 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+/**
+ * Does the registered task definition run exactly `exePath`?
+ *
+ * Compares every <Command> the definition declares — an injected XML can carry
+ * more than one Exec action, so checking only the first would miss a payload
+ * appended after a legitimate entry. Returns false when no command is present
+ * at all, so an unparseable read is treated as a failed verification.
+ */
+function registeredCommandMatches(taskXml: string, exePath: string): boolean {
+  const commands = [...taskXml.matchAll(/<Command>([\s\S]*?)<\/Command>/gi)]
+    .map((m) => m[1].trim().replace(/^"|"$/g, ''))
+    .filter((c) => c.length > 0)
+  if (commands.length === 0) return false
+  const expected = exePath.trim().toLowerCase()
+  return commands.every((c) => decodeXmlEntities(c).toLowerCase() === expected)
+}
+
+function decodeXmlEntities(s: string): string {
+  return s
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
 }
 
 async function applyAutoLaunch(enabled: boolean): Promise<void> {
