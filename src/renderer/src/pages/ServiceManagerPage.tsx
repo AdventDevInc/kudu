@@ -12,7 +12,8 @@ import {
   ChevronDown,
   ChevronRight,
   Circle,
-  Link2
+  Link2,
+  Play
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -54,6 +55,13 @@ const STATUS_KEY_MAP: Record<string, string> = {
   Unknown: 'serviceManager.statusUnknown'
 }
 
+type ApplyMode = 'disable' | 'enable'
+
+/** Selecting a disabled service means "restore it"; anything else means "disable it". */
+function isTarget(svc: WindowsService, mode: ApplyMode): boolean {
+  return mode === 'enable' ? svc.startType === 'Disabled' : svc.startType !== 'Disabled'
+}
+
 const CATEGORY_LABEL_KEYS: Record<ServiceCategory | 'all', string> = {
   all: 'serviceManager.filterAllCategories',
   telemetry: 'serviceManager.categoryTelemetry',
@@ -85,8 +93,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
   const safetyFilter = useServiceStore((s) => s.safetyFilter)
   const categoryFilter = useServiceStore((s) => s.categoryFilter)
   const statusFilter = useServiceStore((s) => s.statusFilter)
+  const enableStartType = useServiceStore((s) => s.enableStartType)
 
-  const [showConfirm, setShowConfirm] = useState(false)
+  const [confirmMode, setConfirmMode] = useState<ApplyMode | null>(null)
+  const [appliedMode, setAppliedMode] = useState<ApplyMode>('disable')
   const isBusy = scanning || applying
 
   // Listen for progress events
@@ -128,24 +138,33 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Apply ─────────────────────────────────────────────────
-  const handleApply = useCallback(async () => {
-    setShowConfirm(false)
+  const handleApply = useCallback(async (mode: ApplyMode) => {
+    setConfirmMode(null)
     const store = useServiceStore.getState()
+    const selected = store.services.filter((s) => s.selected && isTarget(s, mode))
+    if (selected.length === 0) return
+
+    setAppliedMode(mode)
     store.setApplying(true)
     store.setApplyResult(null)
     store.setError(null)
 
     const startTime = Date.now()
-    const selected = store.services.filter((s) => s.selected)
+    const targetStartType = mode === 'disable' ? 'Disabled' : store.enableStartType
     const changes = selected.map((s) => ({
       name: s.name,
-      targetStartType: 'Disabled'
+      targetStartType
     }))
 
     try {
       const result = await window.kudu.serviceApply(changes)
       useServiceStore.getState().setApplyResult(result)
-      if (result.succeeded > 0) toast.success(t(result.succeeded > 1 ? 'serviceManager.serviceDisabledToastPlural' : 'serviceManager.serviceDisabledToast', { count: result.succeeded }))
+      if (result.succeeded > 0) {
+        const key = mode === 'disable'
+          ? (result.succeeded > 1 ? 'serviceManager.serviceDisabledToastPlural' : 'serviceManager.serviceDisabledToast')
+          : (result.succeeded > 1 ? 'serviceManager.serviceEnabledToastPlural' : 'serviceManager.serviceEnabledToast')
+        toast.success(t(key, { count: result.succeeded }))
+      }
       if (result.failed > 0) toast.error(t(result.failed > 1 ? 'serviceManager.serviceFailedToastPlural' : 'serviceManager.serviceFailedToast', { count: result.failed }))
 
       // Re-scan to refresh state
@@ -153,12 +172,12 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
       useServiceStore.getState().setServices(scanResult.services)
 
       // Log to history
-      const byCat: Record<string, { found: number; disabled: number }> = {}
+      const byCat: Record<string, { found: number; changed: number }> = {}
       for (const svc of selected) {
         const cat = svc.category
-        if (!byCat[cat]) byCat[cat] = { found: 0, disabled: 0 }
+        if (!byCat[cat]) byCat[cat] = { found: 0, changed: 0 }
         byCat[cat].found++
-        if (!result.errors.some(e => e.name === svc.name)) byCat[cat].disabled++
+        if (!result.errors.some(e => e.name === svc.name)) byCat[cat].changed++
       }
       await useHistoryStore.getState().addEntry({
         id: Date.now().toString(),
@@ -170,7 +189,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
         totalItemsSkipped: 0,
         totalSpaceSaved: 0,
         categories: Object.entries(byCat).map(([name, d]) => ({
-          name, itemsFound: d.found, itemsCleaned: d.disabled, spaceSaved: 0
+          name, itemsFound: d.found, itemsCleaned: d.changed, spaceSaved: 0
         })),
         errorCount: result.failed
       })
@@ -219,7 +238,10 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
     return result
   }, [services, searchQuery, safetyFilter, categoryFilter, statusFilter])
 
-  const selectedCount = services.filter((s) => s.selected).length
+  // A selected service is either on its way to Disabled or on its way back —
+  // which one depends only on where it is now.
+  const disableCount = services.filter((s) => s.selected && isTarget(s, 'disable')).length
+  const enableCount = services.filter((s) => s.selected && isTarget(s, 'enable')).length
   const totalSafeToDisable = services.filter(
     (s) => s.safety === 'safe' && s.startType !== 'Disabled'
   ).length
@@ -289,21 +311,56 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             </button>
 
             <button
-              onClick={() => setShowConfirm(true)}
-              disabled={isBusy || selectedCount === 0}
+              onClick={() => setConfirmMode('disable')}
+              disabled={isBusy || disableCount === 0}
               className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-all"
               style={{
-                background: selectedCount > 0 && !isBusy ? '#dc2626' : '#27272a',
-                opacity: isBusy || selectedCount === 0 ? 0.5 : 1
+                background: disableCount > 0 && !isBusy ? '#dc2626' : '#27272a',
+                opacity: isBusy || disableCount === 0 ? 0.5 : 1
               }}
             >
-              {applying ? (
+              {applying && appliedMode === 'disable' ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Shield className="h-4 w-4" strokeWidth={2} />
               )}
-              {applying ? t('serviceManager.applyingButton') : t('serviceManager.disableSelectedButton', { count: selectedCount })}
+              {applying && appliedMode === 'disable'
+                ? t('serviceManager.applyingButton')
+                : t('serviceManager.disableSelectedButton', { count: disableCount })}
             </button>
+
+            {enableCount > 0 && (
+              <>
+                <button
+                  onClick={() => setConfirmMode('enable')}
+                  disabled={isBusy}
+                  className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-all"
+                  style={{ background: '#2563eb', opacity: isBusy ? 0.5 : 1 }}
+                >
+                  {applying && appliedMode === 'enable' ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4" strokeWidth={2} />
+                  )}
+                  {applying && appliedMode === 'enable'
+                    ? t('serviceManager.applyingButton')
+                    : t('serviceManager.enableSelectedButton', { count: enableCount })}
+                </button>
+
+                <div title={t('serviceManager.enableStartTypeTitle')}>
+                  <FilterDropdown
+                    value={enableStartType}
+                    options={[
+                      { value: 'Manual', label: t('serviceManager.startTypeManual') },
+                      { value: 'Automatic', label: t('serviceManager.startTypeAutomatic') }
+                    ]}
+                    onChange={(v) =>
+                      useServiceStore.getState().setEnableStartType(v as 'Manual' | 'Automatic')
+                    }
+                  />
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -320,6 +377,7 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
             <span className="font-medium" style={{ color: '#f59e0b' }}>{t('serviceManager.infoBannerAmber')}</span> {t('serviceManager.infoBannerMayAffect')}{' '}
             <span className="font-medium" style={{ color: '#ef4444' }}>{t('serviceManager.infoBannerRed')}</span> {t('serviceManager.infoBannerSystemCritical')}
             {' '}{t('serviceManager.infoBannerUseRecommended')}
+            {' '}{t('serviceManager.infoBannerReEnable')}
           </div>
         </div>
       )}
@@ -382,7 +440,12 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
               <CheckCircle2 className="h-4 w-4" style={{ color: '#22c55e' }} />
             )}
             <span className="text-[13px] font-medium text-white">
-              {t(applyResult.succeeded !== 1 ? 'serviceManager.servicesDisabledPlural' : 'serviceManager.servicesDisabled', { count: applyResult.succeeded })}
+              {t(
+                appliedMode === 'enable'
+                  ? (applyResult.succeeded !== 1 ? 'serviceManager.servicesEnabledPlural' : 'serviceManager.servicesEnabled')
+                  : (applyResult.succeeded !== 1 ? 'serviceManager.servicesDisabledPlural' : 'serviceManager.servicesDisabled'),
+                { count: applyResult.succeeded }
+              )}
               {applyResult.failed > 0 && `, ${t('serviceManager.servicesFailed', { count: applyResult.failed })}`}
             </span>
           </div>
@@ -501,13 +564,20 @@ export function ServiceManagerPage({ embedded }: { embedded?: boolean }) {
 
       {/* ── Confirm dialog ───────────────────────────────────── */}
       <ConfirmDialog
-        open={showConfirm}
-        title={t('serviceManager.confirmTitle')}
-        description={t('serviceManager.confirmDescription', { count: selectedCount })}
-        confirmLabel={t('serviceManager.confirmLabel')}
-        variant="danger"
-        onConfirm={handleApply}
-        onCancel={() => setShowConfirm(false)}
+        open={confirmMode !== null}
+        title={t(confirmMode === 'enable' ? 'serviceManager.confirmEnableTitle' : 'serviceManager.confirmTitle')}
+        description={
+          confirmMode === 'enable'
+            ? t('serviceManager.confirmEnableDescription', {
+                count: enableCount,
+                startType: t(START_TYPE_KEY_MAP[enableStartType])
+              })
+            : t('serviceManager.confirmDescription', { count: disableCount })
+        }
+        confirmLabel={t(confirmMode === 'enable' ? 'serviceManager.confirmEnableLabel' : 'serviceManager.confirmLabel')}
+        variant={confirmMode === 'enable' ? 'default' : 'danger'}
+        onConfirm={() => handleApply(confirmMode ?? 'disable')}
+        onCancel={() => setConfirmMode(null)}
       />
     </div>
   )
@@ -592,18 +662,24 @@ function SafetyGroup({
 
 function ServiceRow({ service: svc }: { service: WindowsService }) {
   const { t } = useTranslation('hardening')
+  const enableStartType = useServiceStore((s) => s.enableStartType)
   const isUnsafe = svc.safety === 'unsafe'
+  const isDisabled = svc.startType === 'Disabled'
+  // Critical services can't be picked for disabling — but a disabled one is
+  // selectable so it can be restored.
+  const locked = isUnsafe && !isDisabled
   const colors = SAFETY_COLORS[svc.safety]
 
   return (
     <button
-      onClick={() => !isUnsafe && useServiceStore.getState().toggleService(svc.name)}
+      onClick={() => !locked && useServiceStore.getState().toggleService(svc.name)}
+      title={locked ? undefined : isDisabled ? t('serviceManager.selectToReEnableTitle') : undefined}
       className="grid w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-100"
       style={{
         gridTemplateColumns: '32px 1fr 120px 100px 60px',
         background: svc.selected ? colors.bg : 'transparent',
         borderBottom: '1px solid var(--border-subtle)',
-        cursor: isUnsafe ? 'default' : 'pointer'
+        cursor: locked ? 'default' : 'pointer'
       }}
     >
       {/* Checkbox */}
@@ -611,9 +687,9 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
         <div
           className="flex h-[18px] w-[18px] items-center justify-center rounded"
           style={{
-            border: `1.5px solid ${svc.selected ? colors.dot : isUnsafe ? 'var(--text-faint)' : 'var(--text-muted)'}`,
+            border: `1.5px solid ${svc.selected ? colors.dot : locked ? 'var(--text-faint)' : 'var(--text-muted)'}`,
             background: svc.selected ? colors.dot : 'transparent',
-            opacity: isUnsafe ? 0.4 : 1
+            opacity: locked ? 0.4 : 1
           }}
         >
           {svc.selected && <CheckCircle2 className="h-3 w-3 text-white" strokeWidth={3} />}
@@ -659,6 +735,12 @@ function ServiceRow({ service: svc }: { service: WindowsService }) {
         >
           {svc.startType === 'AutomaticDelayed' ? t('serviceManager.startTypeAutoDelayed') : t(START_TYPE_KEY_MAP[svc.startType] || 'serviceManager.startTypeUnknown')}
         </span>
+        {/* Make it obvious that selecting a disabled service restores it */}
+        {isDisabled && svc.selected && (
+          <span className="ml-1 text-[11px] font-medium" style={{ color: '#22c55e' }}>
+            → {t(START_TYPE_KEY_MAP[enableStartType])}
+          </span>
+        )}
       </div>
 
       {/* Status */}

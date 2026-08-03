@@ -2944,9 +2944,9 @@ class CloudAgentService {
       await this.postCommandResult(requestId, false, undefined, 'Invalid changes')
       return
     }
-    const validStartTypes = new Set(['Disabled', 'Manual'])
+    const validStartTypes = new Set(['Disabled', 'Manual', 'Automatic'])
     if (changes.some((c) => typeof c.name !== 'string' || !validStartTypes.has(c.targetStartType))) {
-      await this.postCommandResult(requestId, false, undefined, 'Invalid changes — targetStartType must be Disabled or Manual')
+      await this.postCommandResult(requestId, false, undefined, 'Invalid changes — targetStartType must be Disabled, Manual or Automatic')
       return
     }
     // Validate service names against safe character set

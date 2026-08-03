@@ -48,6 +48,18 @@ describe('service-store', () => {
       useServiceStore.getState().toggleService('RpcSs')
       expect(useServiceStore.getState().services[0].selected).toBe(false)
     })
+
+    it('toggles a disabled service so it can be re-enabled', () => {
+      useServiceStore.getState().setServices([makeService('seclogon', 'caution', 'Disabled', 'Stopped')])
+      useServiceStore.getState().toggleService('seclogon')
+      expect(useServiceStore.getState().services[0].selected).toBe(true)
+    })
+
+    it('toggles an unsafe service that is already disabled', () => {
+      useServiceStore.getState().setServices([makeService('RpcSs', 'unsafe', 'Disabled', 'Stopped')])
+      useServiceStore.getState().toggleService('RpcSs')
+      expect(useServiceStore.getState().services[0].selected).toBe(true)
+    })
   })
 
   describe('selectRecommended', () => {

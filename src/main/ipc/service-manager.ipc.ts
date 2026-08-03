@@ -22,6 +22,14 @@ function psArgs(script: string): string[] {
 }
 const PS_OPTS = { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
 
+// Start types callers may request, mapped to the value Set-Service expects.
+const ALLOWED_START_TYPES: Record<string, string> = {
+  Manual: 'Manual',
+  Disabled: 'Disabled',
+  Automatic: 'Automatic',
+  AutomaticDelayed: 'AutomaticDelayedStart'
+}
+
 // ── Helpers ──────────────────────────────────────────────────
 
 function normalizeStartType(raw: string): ServiceStartType {
@@ -203,10 +211,16 @@ export async function applyServiceChanges(
         if (!/^[A-Za-z0-9_.\-]{1,256}$/.test(c.name)) {
           return { succeeded: 0, failed: 0, errors: [{ name: c.name, displayName: c.name, reason: 'Invalid service name' }] }
         }
+        // Never coerce an unrecognised target — a typo must not silently disable a service
+        if (!Object.prototype.hasOwnProperty.call(ALLOWED_START_TYPES, c.targetStartType)) {
+          return { succeeded: 0, failed: 0, errors: [{ name: c.name, displayName: c.name, reason: 'Invalid start type' }] }
+        }
       }
 
-      // Validate — reject unsafe services unless forced
+      // Reject unsafe services unless forced. Only disabling can break the system —
+      // restoring a service to Manual/Automatic is always allowed.
       const validChanges = changes.filter((c) => {
+        if (c.targetStartType !== 'Disabled') return true
         const kb = lookupServiceSafety(c.name)
         return kb.safety !== 'unsafe' || force === true
       })
@@ -214,22 +228,17 @@ export async function applyServiceChanges(
       // Build a single PowerShell script for all changes
       const lines = validChanges.map((c) => {
         const safeName = c.name.replace(/'/g, "''")
-        const ALLOWED_TYPES: Record<string, string> = {
-          Manual: 'Manual',
-          Disabled: 'Disabled',
-          Automatic: 'Automatic',
-          AutomaticDelayed: 'AutomaticDelayedStart',
-        }
-        const safeType = ALLOWED_TYPES[c.targetStartType] ?? 'Disabled'
+        const safeType = ALLOWED_START_TYPES[c.targetStartType]
+        const disabling = c.targetStartType === 'Disabled'
+        // An automatic service is expected to be running — start it now so the
+        // user does not have to reboot for the change to take effect.
+        const starting = c.targetStartType === 'Automatic' || c.targetStartType === 'AutomaticDelayed'
         return `
 try {
   $svc = Get-Service -Name '${safeName}' -ErrorAction Stop
   $dn = $svc.DisplayName
-  if ($svc.Status -eq 'Running' -and '${safeType}' -eq 'Disabled') {
-    Stop-Service -Name '${safeName}' -Force -ErrorAction Stop
-  }
-  Set-Service -Name '${safeName}' -StartupType ${safeType} -ErrorAction Stop
-  Write-Output "OK|${safeName}|$dn"
+${disabling ? `  if ($svc.Status -eq 'Running') { Stop-Service -Name '${safeName}' -Force -ErrorAction Stop }\n` : ''}  Set-Service -Name '${safeName}' -StartupType ${safeType} -ErrorAction Stop
+${starting ? `  if ($svc.Status -ne 'Running') { try { Start-Service -Name '${safeName}' -ErrorAction Stop } catch {} }\n` : ''}  Write-Output "OK|${safeName}|$dn"
 } catch {
   Write-Output "FAIL|${safeName}|${safeName}|$($_.Exception.Message)"
 }`
