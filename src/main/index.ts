@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron'
 import { execFile } from 'child_process'
 import { readFileSync } from 'fs'
+import { randomUUID } from 'crypto'
 import { promisify } from 'util'
 import { join } from 'path'
 
@@ -147,6 +148,8 @@ function createTrayIcon(): Electron.NativeImage {
 }
 
 const TASK_NAME = 'KuduStartup'
+/** The only arguments the startup task is allowed to carry — verified after registration. */
+const TASK_ARGUMENTS = '--startup'
 
 async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
   // Use Task Scheduler with RunLevel HighestAvailable so the app starts
@@ -192,14 +195,22 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
       '  <Actions Context="Author">',
       `    <Exec>`,
       `      <Command>${escapeXml(exePath)}</Command>`,
-      '      <Arguments>--startup</Arguments>',
+      `      <Arguments>${escapeXml(TASK_ARGUMENTS)}</Arguments>`,
       '    </Exec>',
       '  </Actions>',
       '</Task>'
     ].join('\r\n')
 
-    const tmpPath = join(app.getPath('temp'), `${TASK_NAME}.xml`)
-    const { writeFile, unlink } = await import('fs/promises')
+    // The XML lands in %LOCALAPPDATA%\Temp, which any process running as this
+    // user can write \u2014 including a non-elevated one. Since schtasks reads it
+    // back elevated and the task carries RunLevel HighestAvailable, a swap
+    // between our write and its read would register an attacker's command as a
+    // logon-triggered admin task. A random name denies the attacker a path to
+    // camp on, and the post-registration check below is what actually settles
+    // it: whatever ends up registered has to be the command we asked for.
+    const { writeFile, unlink, mkdtemp, rmdir } = await import('fs/promises')
+    const tmpDir = await mkdtemp(join(app.getPath('temp'), 'kudu-task-'))
+    const tmpPath = join(tmpDir, `${randomUUID()}.xml`)
     await writeFile(tmpPath, '\uFEFF' + xml, 'utf-16le')
 
     try {
@@ -210,13 +221,32 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
         '/F',
       ], { timeout: 10000 })
     } finally {
-      unlink(tmpPath).catch(() => {})
+      await unlink(tmpPath).catch(() => {})
+      await rmdir(tmpDir).catch(() => {})
     }
 
-    // Verify the task was actually registered
-    await execNativeUtf8('schtasks',[
-      '/Query', '/TN', TASK_NAME
-    ], { timeout: 10000 })
+    // Verify what was actually registered, not merely that something was.
+    // If the definition isn't the one we submitted, the XML was tampered with
+    // in the window above \u2014 tear the task down rather than leave an elevated
+    // logon entry running something else.
+    //
+    // A query that fails or times out is also a failure to verify, and is
+    // treated the same way: an unverified elevated logon task must not survive
+    // this function, whatever the reason we couldn't check it.
+    let verified = false
+    try {
+      const { stdout: registered } = await execNativeUtf8('schtasks',[
+        '/Query', '/TN', TASK_NAME, '/XML', 'ONE'
+      ], { timeout: 10000 })
+      verified = registeredTaskMatches(registered, exePath, TASK_ARGUMENTS)
+    } catch { /* treated as unverified below */ }
+
+    if (!verified) {
+      await execNativeUtf8('schtasks',[
+        '/Delete', '/TN', TASK_NAME, '/F'
+      ], { timeout: 10000 }).catch(() => {})
+      throw new Error('Startup task verification failed \u2014 the registered task did not match')
+    }
   } else {
     try {
       await execNativeUtf8('schtasks',[
@@ -231,6 +261,54 @@ async function applyAutoLaunchWin32(enabled: boolean): Promise<void> {
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+/**
+ * Is the registered task definition exactly the one we asked for?
+ *
+ * Task Scheduler runs the whole <Actions> block at HighestAvailable, so
+ * matching the command alone is not enough. Arguments decide what that command
+ * does — `--inspect-brk` would turn our own binary into arbitrary elevated code
+ * execution — and a definition may carry action types other than Exec
+ * (ComHandler, SendEmail, ShowMessage) that run without naming a command at
+ * all. So this requires precisely one Exec action, the expected command, the
+ * expected arguments, and no other action of any kind.
+ *
+ * Returns false on anything it cannot account for, so an unparseable or empty
+ * read is a failed verification rather than a pass.
+ */
+function registeredTaskMatches(taskXml: string, exePath: string, expectedArgs: string): boolean {
+  const actionsBlock = taskXml.match(/<Actions\b[^>]*>([\s\S]*?)<\/Actions>/i)
+  if (!actionsBlock) return false
+  const actions = actionsBlock[1]
+
+  // Any element directly under <Actions> is an action. Exactly one, and it
+  // must be an Exec.
+  const actionTags = [...actions.matchAll(/<([A-Za-z][\w.-]*)\b/g)]
+    .map((m) => m[1])
+    .filter((tag) => !TASK_EXEC_CHILD_TAGS.has(tag))
+  if (actionTags.length !== 1 || actionTags[0].toLowerCase() !== 'exec') return false
+
+  const commands = [...actions.matchAll(/<Command>([\s\S]*?)<\/Command>/gi)]
+  if (commands.length !== 1) return false
+  const command = decodeXmlEntities(commands[0][1].trim().replace(/^"|"$/g, '')).toLowerCase()
+  if (command !== exePath.trim().toLowerCase()) return false
+
+  // Arguments may legitimately be absent only if we asked for none.
+  const argMatches = [...actions.matchAll(/<Arguments>([\s\S]*?)<\/Arguments>/gi)]
+  if (argMatches.length > 1) return false
+  const args = argMatches.length === 1 ? decodeXmlEntities(argMatches[0][1].trim()) : ''
+  return args === expectedArgs.trim()
+}
+
+/** Elements that appear *inside* an Exec action rather than being actions themselves. */
+const TASK_EXEC_CHILD_TAGS = new Set(['Command', 'Arguments', 'WorkingDirectory'])
+
+function decodeXmlEntities(s: string): string {
+  return s
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
 }
 
 async function applyAutoLaunch(enabled: boolean): Promise<void> {

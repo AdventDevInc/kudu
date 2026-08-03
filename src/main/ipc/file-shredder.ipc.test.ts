@@ -46,6 +46,46 @@ function mockWindow() {
   return { isDestroyed: () => false, webContents: { send: mockSend } }
 }
 
+/**
+ * lstat stands in for two callers: the directory walk, which reads plain
+ * numeric stats, and shredFile, which asks for bigint stats so it can compare
+ * the file's identity against the handle it later opens.
+ */
+function lstatStub(opts: {
+  isSymlink?: boolean
+  isFile?: boolean
+  isDir?: boolean
+  size?: number
+  ino?: number
+  dev?: number
+} = {}) {
+  const { isSymlink = false, isFile = true, isDir = false, size = 100, ino = 1, dev = 1 } = opts
+  return (_path?: unknown, statOpts?: { bigint?: boolean }) => {
+    const shape = { isSymbolicLink: () => isSymlink, isFile: () => isFile, isDirectory: () => isDir }
+    return Promise.resolve(
+      statOpts?.bigint
+        ? { ...shape, size: BigInt(size), ino: BigInt(ino), dev: BigInt(dev) }
+        : { ...shape, size }
+    )
+  }
+}
+
+/** A file handle whose fstat agrees with what lstat reported — the benign case. */
+function fhStub(opts: { size?: number; ino?: number; dev?: number; isFile?: boolean } = {}) {
+  const { size = 100, ino = 1, dev = 1, isFile = true } = opts
+  return {
+    write: vi.fn().mockResolvedValue(undefined),
+    datasync: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
+    stat: vi.fn().mockResolvedValue({
+      isFile: () => isFile,
+      size: BigInt(size),
+      ino: BigInt(ino),
+      dev: BigInt(dev),
+    }),
+  }
+}
+
 // ── Tests ──
 
 describe('registerFileShredderIpc', () => {
@@ -160,7 +200,7 @@ describe('SHREDDER_SELECT_FOLDERS handler', () => {
       filePaths: ['/home/user/secret-folder'],
     })
     // getEntrySize calls lstat, readdir, stat
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => false, isFile: () => false, isDirectory: () => true, size: 0 })
+    mockLstat.mockImplementation(lstatStub({ isFile: false, isDir: true, size: 0 }))
     mockReaddir.mockResolvedValue([
       { isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, name: 'a.txt' },
     ])
@@ -230,12 +270,8 @@ describe('SHREDDER_SHRED handler', () => {
   })
 
   it('shreds a single file successfully', async () => {
-    const mockFh = {
-      write: vi.fn().mockResolvedValue(undefined),
-      datasync: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined),
-    }
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, size: 512 })
+    const mockFh = fhStub({ size: 512 })
+    mockLstat.mockImplementation(lstatStub({ size: 512 }))
     mockOpen.mockResolvedValue(mockFh)
     mockRm.mockResolvedValue(undefined)
     mockStat.mockResolvedValue({ size: 512 })
@@ -253,7 +289,7 @@ describe('SHREDDER_SHRED handler', () => {
   })
 
   it('handles shred errors and reports them', async () => {
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, size: 100 })
+    mockLstat.mockImplementation(lstatStub({ size: 100 }))
     mockOpen.mockRejectedValue(new Error('EACCES: permission denied'))
     mockStat.mockResolvedValue({ size: 100 })
 
@@ -267,12 +303,8 @@ describe('SHREDDER_SHRED handler', () => {
   })
 
   it('deduplicates file paths', async () => {
-    const mockFh = {
-      write: vi.fn().mockResolvedValue(undefined),
-      datasync: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined),
-    }
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, size: 100 })
+    const mockFh = fhStub({ size: 100 })
+    mockLstat.mockImplementation(lstatStub({ size: 100 }))
     mockOpen.mockResolvedValue(mockFh)
     mockRm.mockResolvedValue(undefined)
     mockStat.mockResolvedValue({ size: 100 })
@@ -286,7 +318,7 @@ describe('SHREDDER_SHRED handler', () => {
   })
 
   it('skips symlinks during file shredding', async () => {
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => true, isFile: () => false, isDirectory: () => false, size: 100 })
+    mockLstat.mockImplementation(lstatStub({ isSymlink: true, isFile: false, size: 100 }))
 
     registerFileShredderIpc(() => null)
     const handler = getHandler('shredder:shred')
@@ -296,21 +328,13 @@ describe('SHREDDER_SHRED handler', () => {
   })
 
   it('recursively collects files from directories', async () => {
-    const mockFh = {
-      write: vi.fn().mockResolvedValue(undefined),
-      datasync: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined),
-    }
+    const mockFh = fhStub({ size: 256 })
 
-    let lstatCallCount = 0
-    mockLstat.mockImplementation((p: string) => {
-      lstatCallCount++
-      if (p === '/home/user/temp/mydir') {
-        return Promise.resolve({ isSymbolicLink: () => false, isFile: () => false, isDirectory: () => true, size: 0 })
-      }
-      // shredFile lstat
-      return Promise.resolve({ isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, size: 256 })
-    })
+    const dirStub = lstatStub({ isFile: false, isDir: true, size: 0 })
+    const fileStub = lstatStub({ size: 256 })
+    mockLstat.mockImplementation((p: string, statOpts?: { bigint?: boolean }) =>
+      p === '/home/user/temp/mydir' ? dirStub(p, statOpts) : fileStub(p, statOpts)
+    )
 
     mockReaddir.mockImplementation((p: string) => {
       if (typeof p === 'string' && p.includes('mydir')) {
@@ -334,15 +358,11 @@ describe('SHREDDER_SHRED handler', () => {
   })
 
   it('sends final progress after shredding', async () => {
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, size: 0 })
+    mockLstat.mockImplementation(lstatStub({ size: 0 }))
     mockStat.mockResolvedValue({ size: 0 })
 
     // shredFile skips zero-size files, rm still called
-    const mockFh = {
-      write: vi.fn().mockResolvedValue(undefined),
-      datasync: vi.fn().mockResolvedValue(undefined),
-      close: vi.fn().mockResolvedValue(undefined),
-    }
+    const mockFh = fhStub({ size: 0 })
     mockOpen.mockResolvedValue(mockFh)
     mockRm.mockResolvedValue(undefined)
 
@@ -390,7 +410,7 @@ describe('protected path safety', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Make lstat return file for all so we can check protection
-    mockLstat.mockResolvedValue({ isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, size: 100 })
+    mockLstat.mockImplementation(lstatStub({ size: 100 }))
     mockStat.mockResolvedValue({ size: 100 })
   })
 
@@ -413,5 +433,125 @@ describe('protected path safety', () => {
     const handler = getHandler('shredder:shred')
     const result = await handler({}, ['/home/user/project/node_modules'])
     expect(result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))).toBe(true)
+  })
+})
+
+// ── Swap-under-the-shredder (TOCTOU) ──
+// lstat describes the path at one instant; the open() that follows resolves it
+// again. Anything that can write to the directory can swap the file for a
+// symlink in between and redirect this elevated process onto a file it was
+// never meant to touch. The handle is therefore re-checked against the lstat.
+
+describe('shredFile identity verification', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockRm.mockResolvedValue(undefined)
+    mockStat.mockResolvedValue({ size: 100 })
+  })
+
+  async function shred(fh: ReturnType<typeof fhStub>) {
+    mockLstat.mockImplementation(lstatStub({ size: 100, ino: 1, dev: 1 }))
+    mockOpen.mockResolvedValue(fh)
+    registerFileShredderIpc(() => mockWindow() as any)
+    const handler = getHandler('shredder:shred')
+    return (await handler({}, ['/home/user/temp/secret.txt'])) as {
+      shredded: number
+      failed: number
+      errors: { path: string; reason: string }[]
+    }
+  }
+
+  it('shreds a file whose handle matches what lstat described', async () => {
+    const fh = fhStub({ size: 100, ino: 1, dev: 1 })
+    const result = await shred(fh)
+    expect(result.shredded).toBe(1)
+    expect(fh.write).toHaveBeenCalled()
+    expect(mockRm).toHaveBeenCalled()
+  })
+
+  it('refuses to overwrite when the inode changed under it', async () => {
+    const fh = fhStub({ size: 100, ino: 99, dev: 1 })
+    const result = await shred(fh)
+    expect(result.shredded).toBe(0)
+    expect(result.failed).toBe(1)
+    expect(fh.write).not.toHaveBeenCalled()
+  })
+
+  it('refuses when the path now resolves to another device', async () => {
+    const fh = fhStub({ size: 100, ino: 1, dev: 42 })
+    const result = await shred(fh)
+    expect(result.shredded).toBe(0)
+    expect(fh.write).not.toHaveBeenCalled()
+  })
+
+  it('refuses when the opened handle is no longer a regular file', async () => {
+    const fh = fhStub({ size: 100, ino: 1, dev: 1, isFile: false })
+    const result = await shred(fh)
+    expect(result.shredded).toBe(0)
+    expect(fh.write).not.toHaveBeenCalled()
+  })
+
+  it('refuses when the size changed between check and open', async () => {
+    const fh = fhStub({ size: 4096, ino: 1, dev: 1 })
+    const result = await shred(fh)
+    expect(result.shredded).toBe(0)
+    expect(fh.write).not.toHaveBeenCalled()
+  })
+
+  it('does not delete the substituted file — a silent skip would still destroy it', async () => {
+    const fh = fhStub({ size: 100, ino: 99, dev: 1 })
+    await shred(fh)
+    expect(mockRm).not.toHaveBeenCalled()
+  })
+
+  it('reports the refusal rather than counting it as shredded', async () => {
+    const result = await shred(fhStub({ size: 100, ino: 99, dev: 1 }))
+    expect(result.errors[0].reason).toMatch(/changed while being shredded/)
+  })
+
+  // The ancestor-swap case. Replacing a parent *directory* with a symlink
+  // redirects every later resolution of the path equally, so a fresh lstat and
+  // the open would agree with each other while both point at a file outside the
+  // selection — O_NOFOLLOW only guards the final component. The identity
+  // captured during collection predates the swap, which is what catches it.
+  it('refuses when a parent directory was swapped after collection', async () => {
+    let identityReads = 0
+    const beforeSwap = lstatStub({ size: 100, ino: 1, dev: 1 })
+    const afterSwap = lstatStub({ size: 100, ino: 7, dev: 1 })
+    mockLstat.mockImplementation((p: string, statOpts?: { bigint?: boolean }) => {
+      // The identity capture is the bigint read. It happens during collection,
+      // before the swap; every resolution after it sees the redirected path.
+      if (!statOpts?.bigint) return beforeSwap(p, statOpts)
+      identityReads++
+      return identityReads <= 1 ? beforeSwap(p, statOpts) : afterSwap(p, statOpts)
+    })
+    // The open resolves through the swapped parent and lands on the same file a
+    // fresh lstat would now report — self-consistent, but not what we collected.
+    const fh = fhStub({ size: 100, ino: 7, dev: 1 })
+    mockOpen.mockResolvedValue(fh)
+
+    registerFileShredderIpc(() => mockWindow() as any)
+    const handler = getHandler('shredder:shred')
+    const result = (await handler({}, ['/home/user/temp/secret.txt'])) as {
+      shredded: number
+      failed: number
+    }
+
+    expect(result.shredded).toBe(0)
+    expect(result.failed).toBe(1)
+    expect(fh.write).not.toHaveBeenCalled()
+    expect(mockRm).not.toHaveBeenCalled()
+  })
+
+  it('skips a file whose identity was never captured', async () => {
+    // Nothing should reach open() without having been verified during
+    // collection — if it somehow does, refuse rather than shred blind.
+    mockLstat.mockImplementation(lstatStub({ isFile: false, size: 100 }))
+    mockOpen.mockResolvedValue(fhStub({ size: 100 }))
+    registerFileShredderIpc(() => mockWindow() as any)
+    const handler = getHandler('shredder:shred')
+    const result = (await handler({}, ['/home/user/temp/secret.txt'])) as { shredded: number }
+    expect(result.shredded).toBe(0)
+    expect(mockRm).not.toHaveBeenCalled()
   })
 })
