@@ -83,15 +83,27 @@ export function App() {
       p.then((done) => {
         setShowOnboarding(!done)
         setOnboardingChecked(true)
-      }).catch(() => setOnboardingChecked(true))
+      }).catch((err) => {
+        // Fail open — a broken check must not lock the user out of the app —
+        // but say so, since it also means onboarding is skipped silently.
+        console.error('[onboarding] could not read completion state:', err)
+        setOnboardingChecked(true)
+      })
     } else {
       setOnboardingChecked(true)
     }
   }, [])
 
-  const handleOnboardingComplete = () => {
-    window.kudu?.onboardingSet?.(true).catch(() => {})
+  const handleOnboardingComplete = async () => {
     setShowOnboarding(false)
+    try {
+      await window.kudu?.onboardingSet?.(true)
+    } catch (err) {
+      // Swallowing this is what let the wizard come back on every launch with
+      // nothing to go on (issue #269). The main process forwards renderer
+      // console errors into kudu.log.
+      console.error('[onboarding] failed to persist completion:', err)
+    }
   }
 
   useEffect(() => {
