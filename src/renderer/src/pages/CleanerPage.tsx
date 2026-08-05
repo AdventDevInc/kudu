@@ -12,6 +12,8 @@ import {
   Search,
   Sparkles,
   ChevronRight,
+  ChevronDown,
+  ArrowUpDown,
   Folder,
   FolderOpen,
   AlertTriangle,
@@ -55,6 +57,14 @@ const categories: CategoryDef[] = [
   { type: CleanerType.Database, labelKey: 'categoryDatabases', icon: Database, descriptionKey: 'categoryDatabasesDescription' }
 ]
 
+type SortMode = 'default' | 'size-desc' | 'size-asc'
+
+const SORT_LABEL_KEYS: Record<SortMode, string> = {
+  default: 'sortDefault',
+  'size-desc': 'sortSizeDesc',
+  'size-asc': 'sortSizeAsc'
+}
+
 export function CleanerPage() {
   const { t } = useTranslation('cleaner')
   const { platform } = usePlatform()
@@ -71,6 +81,9 @@ export function CleanerPage() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const cleanStartRef = useRef<number>(0)
   const [scanningCategory, setScanningCategory] = useState<CleanerType | null>(null)
+  const [sortMode, setSortMode] = useState<SortMode>('default')
+  const [showSortMenu, setShowSortMenu] = useState(false)
+  const sortMenuRef = useRef<HTMLDivElement>(null)
 
   const scanIndexRef = useRef(0)
   const cleanIndexRef = useRef(0)
@@ -94,6 +107,18 @@ export function CleanerPage() {
       }
     })
   }, [])
+
+  // Close the sort menu when clicking anywhere outside it.
+  useEffect(() => {
+    if (!showSortMenu) return
+    const handler = (e: globalThis.MouseEvent) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) {
+        setShowSortMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showSortMenu])
 
   const [failedCategories, setFailedCategories] = useState<string[]>([])
   const [elevationSkipped, setElevationSkipped] = useState<string[]>([])
@@ -286,6 +311,13 @@ export function CleanerPage() {
     store.toggleSubcategory(result)
   }
 
+  // Sort results by aggregate size, keeping the scanner's order when 'default'.
+  const sortResults = (list: ScanResult[]): ScanResult[] => {
+    if (sortMode === 'default') return list
+    const dir = sortMode === 'size-desc' ? -1 : 1
+    return [...list].sort((a, b) => dir * (a.totalSize - b.totalSize))
+  }
+
   const isScanning = store.status === ScanStatus.Scanning
   const isCleaning = store.status === ScanStatus.Cleaning
   const hasResults = store.results.length > 0
@@ -459,12 +491,42 @@ export function CleanerPage() {
                 <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                   {t('categoryItemsHeading', { category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '') })}
                 </span>
-                <button
-                  onClick={() => store.toggleCategory(activeCategory)}
-                  className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
-                >
-                  {t('toggleAll')}
-                </button>
+                <div className="flex items-center gap-3">
+                  <div className="relative" ref={sortMenuRef}>
+                    <button
+                      onClick={() => setShowSortMenu((v) => !v)}
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition-colors"
+                      style={{ color: 'var(--text-muted)', border: '1px solid var(--border-medium)' }}
+                    >
+                      <ArrowUpDown className="h-3 w-3" strokeWidth={1.8} />
+                      {t(SORT_LABEL_KEYS[sortMode])}
+                      <ChevronDown className={cn('h-3 w-3 transition-transform', showSortMenu && 'rotate-180')} strokeWidth={2} />
+                    </button>
+                    {showSortMenu && (
+                      <div
+                        className="absolute right-0 top-full z-50 mt-1 rounded-xl py-1 shadow-xl"
+                        style={{ background: '#1e1e22', border: '1px solid var(--border-strong)', minWidth: 140 }}
+                      >
+                        {(Object.keys(SORT_LABEL_KEYS) as SortMode[]).map((mode) => (
+                          <button
+                            key={mode}
+                            onClick={() => { setSortMode(mode); setShowSortMenu(false) }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-[12px] transition-colors hover:bg-white/5"
+                            style={{ color: sortMode === mode ? 'var(--accent-hover)' : 'var(--text-secondary)' }}
+                          >
+                            {t(SORT_LABEL_KEYS[mode])}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => store.toggleCategory(activeCategory)}
+                    className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
+                  >
+                    {t('toggleAll')}
+                  </button>
+                </div>
               </div>
 
               {categoryResults(activeCategory).length === 0 && (
@@ -475,14 +537,17 @@ export function CleanerPage() {
 
               {(() => {
                 const results = categoryResults(activeCategory)
-                // Group results by group label (ungrouped first, then grouped sections)
-                const ungrouped = results.filter((r) => !r.group)
+                // Group results by group label (ungrouped first, then grouped
+                // sections); each section is sorted independently so sort
+                // order never interleaves group sections.
+                const ungrouped = sortResults(results.filter((r) => !r.group))
                 const grouped = new Map<string, ScanResult[]>()
                 for (const r of results) {
                   if (!r.group) continue
                   if (!grouped.has(r.group)) grouped.set(r.group, [])
                   grouped.get(r.group)!.push(r)
                 }
+                for (const [label, items] of grouped) grouped.set(label, sortResults(items))
 
                 const sections: { label?: string; items: ScanResult[] }[] = []
                 if (ungrouped.length > 0) sections.push({ items: ungrouped })
