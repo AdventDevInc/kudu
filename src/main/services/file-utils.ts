@@ -15,9 +15,15 @@ export interface DeleteResult {
 }
 
 /** Translate filesystem failures without conflating permissions with locks. */
-export function deleteFailureReason(err: { code?: string; message?: string }): string {
+export function deleteFailureReason(
+  err: { code?: string; message?: string },
+  platform: NodeJS.Platform = process.platform,
+): string {
   if (err.code === 'EBUSY' || err.code === 'ENOTEMPTY') return 'in-use'
-  if (err.code === 'EPERM' || err.code === 'EACCES') return 'permission-denied'
+  // Windows reports sharing violations as EPERM. Treating them as an access
+  // failure incorrectly prompts for elevation, which cannot release a lock.
+  if (err.code === 'EPERM') return platform === 'win32' ? 'in-use' : 'permission-denied'
+  if (err.code === 'EACCES') return 'permission-denied'
   return err.message || 'unknown-error'
 }
 

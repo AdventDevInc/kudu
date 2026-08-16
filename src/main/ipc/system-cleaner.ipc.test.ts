@@ -30,12 +30,13 @@ vi.mock('../services/ipc-validation', () => ({
   validateStringArray: (input: unknown) => Array.isArray(input) ? input : null,
 }))
 
+const configuredUserTempPath = join(tmpdir(), '..', 'configured-user-temp')
 const ordinaryPath = join(tmpdir(), '..', 'ordinary-cache')
 vi.mock('../platform', () => ({
   getPlatform: () => ({
     paths: {
       systemCleanTargets: () => [
-        { path: tmpdir(), subcategory: 'User Temp Files' },
+        { path: configuredUserTempPath, subcategory: 'User Temp Files' },
         { path: ordinaryPath, subcategory: 'Ordinary Cache' },
       ],
       protectedEventLogs: () => [],
@@ -66,7 +67,7 @@ describe('system temp scanning', () => {
 
     expect(mockScanDirectory).toHaveBeenNthCalledWith(
       1,
-      tmpdir(),
+      configuredUserTempPath,
       'system',
       'User Temp Files',
       { skipRecentMinutes: 30, deepRecencyCheck: true },

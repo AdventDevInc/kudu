@@ -1,6 +1,4 @@
 import { ipcMain } from 'electron'
-import { tmpdir } from 'os'
-import { resolve } from 'path'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
 import { scanDirectory, scanFile, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from '../services/file-utils'
@@ -26,7 +24,6 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
     const skipRecentMinutes = Number.isFinite(configuredRecency)
       ? Math.max(0, configuredRecency)
       : 60
-    const userTempPath = resolve(tmpdir())
 
     // Find the event logs target path for filtering
     const eventLogsTarget = targets.find((t) => t.subcategory === 'Event Log Archives')
@@ -50,11 +47,7 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
           const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
           result = await scanMultipleDirectories(childPaths, category, target.subcategory, skipRecentMinutes)
         } else {
-          const targetPath = resolve(target.path)
-          const isUserTemp =
-            process.platform === 'win32'
-              ? targetPath.toLowerCase() === userTempPath.toLowerCase()
-              : targetPath === userTempPath
+          const isUserTemp = target.subcategory === 'User Temp Files'
           result = await scanDirectory(target.path, category, target.subcategory, {
             skipRecentMinutes,
             // Temp directories are frequently old while a descendant remains

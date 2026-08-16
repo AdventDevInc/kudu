@@ -86,8 +86,12 @@ describe('deleteFailureReason', () => {
     expect(deleteFailureReason({ code: 'ENOTEMPTY' })).toBe('in-use')
   })
 
-  it('reports Windows EPERM as a permission failure', () => {
-    expect(deleteFailureReason({ code: 'EPERM' })).toBe('permission-denied')
+  it('reports Windows EPERM sharing violations as in use', () => {
+    expect(deleteFailureReason({ code: 'EPERM' }, 'win32')).toBe('in-use')
+  })
+
+  it('keeps non-Windows EPERM and EACCES as permission failures', () => {
+    expect(deleteFailureReason({ code: 'EPERM' }, 'linux')).toBe('permission-denied')
     expect(deleteFailureReason({ code: 'EACCES' })).toBe('permission-denied')
   })
 
