@@ -525,7 +525,7 @@ export function DashboardPage() {
   const unresolvedThreatCount = (lastMalwareScan?.unresolvedThreats ?? 0) + knownActiveThreats
   const hasProtectionBaseline = !!lastMalwareScan
   const hasCompletedCoreChecks = updaterHasChecked && startupHasLoaded && hasProtectionBaseline
-  const primaryDrive = drives[0]
+  const primaryDrive = drives.find((drive) => drive.isSystem)
   const primaryDriveUsedPercent = primaryDrive?.totalSize
     ? Math.round((primaryDrive.usedSpace / primaryDrive.totalSize) * 100)
     : diskPct

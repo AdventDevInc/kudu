@@ -139,20 +139,21 @@ async function quickSize(dirPath: string): Promise<number> {
 export async function getDrives(): Promise<DriveInfo[]> {
   if (process.platform === 'win32') {
     try {
-      const driveScript = `$fixed = (Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }).DeviceID -replace ':',''; Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null -and $fixed -contains $_.Name } | ForEach-Object { "$($_.Name)|$($_.Description)|$($_.Used)|$($_.Free)" }`
+      const driveScript = `$fixed = (Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }).DeviceID -replace ':',''; $system = $env:SystemDrive.TrimEnd(':'); Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null -and $fixed -contains $_.Name } | ForEach-Object { "$($_.Name)|$($_.Description)|$($_.Used)|$($_.Free)|$($_.Name -eq $system)" }`
       const { stdout } = await execFileAsync('powershell.exe', [
         '-NoProfile', '-Command', psUtf8(driveScript)
       ], { timeout: 10000, windowsHide: true })
 
       const drives: DriveInfo[] = []
       for (const line of stdout.trim().split('\n')) {
-        const [letter, label, used, free] = line.trim().split('|')
+        const [letter, label, used, free, isSystem] = line.trim().split('|')
         if (letter && used && free) {
           const usedSpace = parseInt(used) || 0
           const freeSpace = parseInt(free) || 0
           drives.push({
             letter: letter.trim(),
             label: label?.trim() || letter.trim(),
+            isSystem: isSystem?.trim().toLowerCase() === 'true',
             totalSize: usedSpace + freeSpace,
             freeSpace,
             usedSpace
@@ -182,6 +183,7 @@ export async function getDrives(): Promise<DriveInfo[]> {
       drives.push({
         letter: mount,
         label: mount === '/' ? 'Root' : basename(mount),
+        isSystem: mount === '/',
         totalSize: totalKb * 1024,
         freeSpace: freeKb * 1024,
         usedSpace: usedKb * 1024

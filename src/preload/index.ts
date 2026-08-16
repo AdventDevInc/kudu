@@ -25,6 +25,7 @@ import type {
   MalwareScanResult,
   MalwareScanProgress,
   MalwareActionResult,
+  MalwareRestoreResult,
   PrivacyShieldState,
   PrivacyApplyResult,
   PrivacyScanProgress,
@@ -315,7 +316,7 @@ const api = {
     ipcRenderer.invoke(IPC.MALWARE_QUARANTINE, paths, meta),
   malwareDelete: (paths: string[]): Promise<MalwareActionResult> =>
     ipcRenderer.invoke(IPC.MALWARE_DELETE, paths),
-  malwareRestore: (quarantinedPath: string, originalPath: string): Promise<boolean> =>
+  malwareRestore: (quarantinedPath: string, originalPath: string): Promise<MalwareRestoreResult> =>
     ipcRenderer.invoke(IPC.MALWARE_RESTORE, quarantinedPath, originalPath),
   malwareQuarantineList: (): Promise<import('../shared/types').QuarantinedItem[]> =>
     ipcRenderer.invoke(IPC.MALWARE_QUARANTINE_LIST),
