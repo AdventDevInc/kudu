@@ -27,7 +27,7 @@ export function ScanProgress({
     >
       <div className="mb-3 flex items-center justify-between" aria-live="polite">
         <div className="flex items-center gap-2.5">
-          <Loader2 className="h-4 w-4 animate-spin text-amber-400" aria-hidden="true" />
+          <Loader2 className="h-4 w-4 animate-spin" style={{ color: 'var(--accent)' }} aria-hidden="true" />
           <span className="text-[13px] font-medium text-zinc-200">
             {status === 'scanning' ? t('scanning') : t('cleaning')}
           </span>
@@ -51,7 +51,7 @@ export function ScanProgress({
           className="h-full rounded-full transition-all duration-300 ease-out"
           style={{
             width: `${progress}%`,
-            background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 100%)'
+            background: 'var(--accent)'
           }}
         />
       </div>

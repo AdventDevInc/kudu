@@ -225,9 +225,15 @@ export interface DiskNode {
 export interface DriveInfo {
   letter: string
   label: string
+  isSystem: boolean
   totalSize: number
   freeSpace: number
   usedSpace: number
+}
+
+export interface MalwareRestoreResult {
+  restored: boolean
+  manifestUpdated: boolean
 }
 
 export interface FileTypeInfo {

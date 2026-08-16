@@ -20,6 +20,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/lib/utils'
 import { useBreachStore } from '@/stores/breach-store'
 import { useSettingsStore } from '@/stores/settings-store'
+import { useCloudConnection } from '@/hooks/useCloudConnection'
 import type { BreachEntry } from '@shared/types'
 
 function formatCount(n: number): string {
@@ -50,7 +51,9 @@ export function BreachMonitorPage() {
   const { t } = useTranslation('breachMonitor')
   const navigate = useNavigate()
   const settings = useSettingsStore((s) => s.settings)
-  const isLinked = !!settings.cloud.apiKey
+  const hasCloudKey = !!settings.cloud.apiKey
+  const cloudConnection = useCloudConnection(hasCloudKey)
+  const isLinked = cloudConnection === 'connected'
 
   const emails = useBreachStore((s) => s.emails)
   const limit = useBreachStore((s) => s.limit)
@@ -152,10 +155,35 @@ export function BreachMonitorPage() {
   )
 
   // Redirect if not linked
-  useEffect(() => {
-    if (!isLinked) navigate('/', { replace: true })
-  }, [isLinked, navigate])
-  if (!isLinked) return null
+  if (cloudConnection === 'checking') {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <div className="flex items-center justify-center gap-3 py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>
+          <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+          Checking Kudu Cloud connection…
+        </div>
+      </div>
+    )
+  }
+
+  if (!isLinked) {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <EmptyState
+          icon={Mail}
+          title="Connect Kudu Cloud to monitor breaches"
+          description="Link this device to check email addresses against known breach intelligence and track newly reported exposure."
+          action={
+            <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+              Connect Kudu Cloud
+            </button>
+          }
+        />
+      </div>
+    )
+  }
 
   // Loading (first fetch)
   if (status === 'loading' && emails.length === 0 && !error) {

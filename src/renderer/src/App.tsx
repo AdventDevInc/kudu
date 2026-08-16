@@ -60,6 +60,7 @@ export function App() {
     const apply = (mode: 'dark' | 'light') => {
       root.classList.remove('dark', 'light')
       root.classList.add(mode)
+      window.kudu?.windowSetChromeTheme?.(mode)
     }
     if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)')
@@ -135,7 +136,7 @@ export function App() {
     return (
       <div className="flex h-screen w-screen items-center justify-center" style={{ background: '#09090b' }}>
         <div className="flex flex-col items-center gap-4">
-          <img src="" alt="" className="h-16 w-16 rounded-2xl" style={{ visibility: 'hidden' }} />
+          <div className="h-16 w-16 rounded-2xl" aria-hidden="true" />
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 border-t-amber-500" />
         </div>
       </div>
@@ -182,8 +183,9 @@ export function App() {
           <Route path="/schedules" element={<SchedulesPage />} />
           {/* Legacy redirect */}
           <Route path="/hardening" element={<Navigate to="/privacy" replace />} />
-          <Route path="/updater" element={<SoftwareUpdaterPage />} />
+          <Route path="/updater" element={<Navigate to="/updates" replace />} />
           <Route path="/drivers" element={<DriverManagerPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppShell>
       <Toaster
@@ -206,39 +208,39 @@ export function App() {
 }
 
 // Maps routes to page titles for the window/tab title.
-// Uses sidebar i18n keys where possible; nested routes use plain strings
-// so each page gets its own distinct title for screen readers / OS window switcher.
-const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
+// Every route title is sourced from the same translations as its page or nav item.
+const ROUTE_TITLES: Record<string, { key: string }> = {
   '/': { key: 'dashboard' },
-  '/cleaner': { key: 'cleaner' },
-  '/registry': { key: 'registry' },
-  '/startup': { key: 'startup' },
-  '/disk': 'Disk Analyzer',
-  '/duplicates': 'Duplicate Finder',
-  '/large-files': 'Large File Finder',
-  '/empty-folders': 'Empty Folder Cleaner',
-  '/file-shredder': 'File Shredder',
-  '/disk-repair': 'Disk Repair',
-  '/disk-maintenance': 'Disk Maintenance',
-  '/network': { key: 'network' },
-  '/malware': { key: 'malwareScanner' },
-  '/threat-monitor': { key: 'threatMonitor' },
-  '/cve': { key: 'cveScanner' },
-  '/game-mode': { key: 'gameMode' },
-  '/performance': { key: 'performance' },
-  '/uninstaller': 'Uninstaller',
-  '/history': { key: 'history' },
-  '/settings': { key: 'settings' },
-  '/about': 'About',
-  '/privacy': 'Privacy',
-  '/services': 'Services',
-  '/firewall': 'Firewall Audit',
-  '/debloater': 'Bloatware Remover',
-  '/updates': 'Software Updates',
-  '/schedules': { key: 'schedules' },
-  '/drivers': 'Driver Updates',
-  '/cloud': 'Kudu Cloud',
-  '/breach-monitor': 'Breach Monitor',
+  '/cleaner': { key: 'cleaner:pageTitle' },
+  '/registry': { key: 'registry:pageTitle' },
+  '/context-menu': { key: 'contextMenu:pageTitle' },
+  '/startup': { key: 'startup:pageTitle' },
+  '/disk': { key: 'disk:pageTitle' },
+  '/duplicates': { key: 'duplicates:pageTitle' },
+  '/large-files': { key: 'largeFiles:pageTitle' },
+  '/empty-folders': { key: 'emptyFolders:pageTitle' },
+  '/file-shredder': { key: 'fileShredder:pageTitle' },
+  '/disk-repair': { key: 'disk:repairTitle' },
+  '/disk-maintenance': { key: 'disk:maintenanceTitle' },
+  '/network': { key: 'network:pageTitle' },
+  '/malware': { key: 'malware:pageTitle' },
+  '/threat-monitor': { key: 'threatMonitor:pageTitle' },
+  '/cve': { key: 'cveScanner:pageTitle' },
+  '/game-mode': { key: 'gameMode:pageTitle' },
+  '/performance': { key: 'performance:pageTitle' },
+  '/uninstaller': { key: 'uninstaller:pageTitle' },
+  '/history': { key: 'history:pageTitle' },
+  '/settings': { key: 'settings:pageTitle' },
+  '/about': { key: 'settings:sectionAbout' },
+  '/privacy': { key: 'hardening:privacy.pageTitle' },
+  '/services': { key: 'hardening:serviceManager.pageTitle' },
+  '/firewall': { key: 'firewallAudit' },
+  '/debloater': { key: 'hardening:debloater.pageTitle' },
+  '/updates': { key: 'updates:softwareUpdater.pageTitle' },
+  '/schedules': { key: 'schedules:pageTitle' },
+  '/drivers': { key: 'updates:driverManager.pageTitle' },
+  '/cloud': { key: 'cloud:pageTitle' },
+  '/breach-monitor': { key: 'breachMonitor:pageTitle' },
 }
 
 function PageTitleUpdater() {
@@ -247,9 +249,7 @@ function PageTitleUpdater() {
   useEffect(() => {
     const entry = ROUTE_TITLES[location.pathname]
     let name: string | null = null
-    if (typeof entry === 'string') {
-      name = entry
-    } else if (entry) {
+    if (entry) {
       name = t(entry.key)
     }
     document.title = name ? `${name} - Kudu` : 'Kudu'

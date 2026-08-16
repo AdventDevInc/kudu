@@ -25,6 +25,7 @@ import type {
   MalwareScanResult,
   MalwareScanProgress,
   MalwareActionResult,
+  MalwareRestoreResult,
   PrivacyShieldState,
   PrivacyApplyResult,
   PrivacyScanProgress,
@@ -98,6 +99,7 @@ const api = {
   windowMinimize: () => ipcRenderer.send(IPC.WINDOW_MINIMIZE),
   windowMaximize: () => ipcRenderer.send(IPC.WINDOW_MAXIMIZE),
   windowClose: () => ipcRenderer.send(IPC.WINDOW_CLOSE),
+  windowSetChromeTheme: (theme: 'light' | 'dark') => ipcRenderer.send(IPC.WINDOW_SET_CHROME_THEME, theme),
 
   // System cleaner
   systemScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.SYSTEM_SCAN),
@@ -315,7 +317,7 @@ const api = {
     ipcRenderer.invoke(IPC.MALWARE_QUARANTINE, paths, meta),
   malwareDelete: (paths: string[]): Promise<MalwareActionResult> =>
     ipcRenderer.invoke(IPC.MALWARE_DELETE, paths),
-  malwareRestore: (quarantinedPath: string, originalPath: string): Promise<boolean> =>
+  malwareRestore: (quarantinedPath: string, originalPath: string): Promise<MalwareRestoreResult> =>
     ipcRenderer.invoke(IPC.MALWARE_RESTORE, quarantinedPath, originalPath),
   malwareQuarantineList: (): Promise<import('../shared/types').QuarantinedItem[]> =>
     ipcRenderer.invoke(IPC.MALWARE_QUARANTINE_LIST),

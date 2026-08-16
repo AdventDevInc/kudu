@@ -87,12 +87,12 @@ export function ConfirmDialog({
             <div
               className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               style={{
-                background: variant === 'danger' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'
+                background: variant === 'danger' ? 'color-mix(in srgb, var(--danger), transparent 88%)' : 'var(--accent-muted-bg)'
               }}
             >
               <AlertTriangle
                 className="h-5 w-5"
-                style={{ color: variant === 'danger' ? '#ef4444' : '#f59e0b' }}
+                style={{ color: variant === 'danger' ? 'var(--danger)' : 'var(--warning)' }}
                 strokeWidth={1.8}
                 aria-hidden="true"
               />
@@ -128,9 +128,9 @@ export function ConfirmDialog({
             onClick={onConfirm}
             className="rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all duration-200"
             style={{
-              background: variant === 'danger' ? 'rgba(239,68,68,0.12)' : variant === 'warning' ? 'rgba(245,158,11,0.12)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-              color: variant === 'danger' ? '#ef4444' : variant === 'warning' ? '#f59e0b' : 'var(--text-on-accent)',
-              boxShadow: variant === 'default' ? '0 0 16px rgba(245,158,11,0.2)' : undefined
+              background: variant === 'danger' ? 'color-mix(in srgb, var(--danger), transparent 88%)' : variant === 'warning' ? 'var(--accent-muted-bg)' : 'var(--accent)',
+              color: variant === 'danger' ? 'var(--danger)' : variant === 'warning' ? 'var(--warning)' : 'var(--text-on-accent)',
+              border: `1px solid ${variant === 'danger' ? 'color-mix(in srgb, var(--danger), transparent 68%)' : 'var(--accent-muted-border)'}`
             }}
           >
             {confirmLabel ?? t('confirm')}

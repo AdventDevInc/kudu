@@ -23,14 +23,14 @@
   "itemsCount": "{{count}} елементів",
   "selectedLabel": "Вибрано",
   "scannersFailed": "Не вдалося виконати деякі сканування:",
-  "categoriesSkipped": "{{count}} категорій",
+  "categoriesSkipped": "Пропущено категорій: {{count}}",
   "categoriesSkippedSuffix": "пропущено — потрібні права адміністратора",
-  "categoriesSkippedMore": "+{{count}} ще",
+  "categoriesSkippedMore": "+ ще {{count}}",
   "relaunchAsAdmin": "Перезапустити від імені адміністратора",
   "cleaningComplete": "Очищення завершено!",
   "cleanedSummary": "Очищено {{size}} · видалено {{count}} елементів",
-  "skippedSummary": "{{count}} пропущено (використовуються або захищені)",
-  "permissionError": "Не вдалося видалити деякі файли через недостатні дозволи",
+  "skippedSummary": "Пропущено: {{count}} (використовуються або захищені)",
+  "permissionError": "Деякі файли не вдалося видалити через недостатні права доступу",
   "itemsCouldntBeDeleted": "Не вдалося видалити {{count}} елементів",
   "permissionDenied": "доступ заборонено (потрібні права адміністратора)",
   "andMore": "... і ще {{count}}",
@@ -59,5 +59,5 @@
   "summaryFilesDeleted": "Видалено файлів",
   "summaryDurationLabel": "Тривалість",
   "summaryBreakdown": "Розподіл за категоріями",
-  "summarySkipped": "{{count}} елементів пропущено (використовуються або захищені)"
+  "summarySkipped": "Пропущено {{count}} елементів (використовуються або захищені)"
 }

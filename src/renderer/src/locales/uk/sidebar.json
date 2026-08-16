@@ -1,14 +1,14 @@
 {
   "appName": "Kudu",
   "subtitle": "ОЧИЩЕННЯ СИСТЕМИ",
-  "dashboard": "Панель керування",
-  "securityHeading": "БЕЗПЕКА",
+  "dashboard": "Головна",
+  "securityHeading": "Захист",
   "malwareScanner": "Сканер шкідливого ПЗ",
   "threatMonitor": "Монітор загроз",
   "systemHardening": "Посилення захисту системи",
   "cveScanner": "Вразливості",
   "monitoring": "Моніторинг",
-  "maintainHeading": "ОБСЛУГОВУВАННЯ",
+  "maintainHeading": "Керування",
   "cleaner": "Очищення",
   "registry": "Реєстр",
   "contextMenu": "Контекстне меню",
@@ -17,10 +17,11 @@
   "software": "Програми",
   "schedules": "Розклади",
   "toolsHeading": "ІНСТРУМЕНТИ",
-  "performance": "Швидкодія",
-  "diskTools": "Інструменти диска",
-  "history": "Історія",
+  "performance": "Продуктивність",
+  "diskTools": "Сховище",
+  "history": "Журнал дій",
   "settings": "Параметри",
   "breachMonitor": "Монітор витоків",
-  "gameMode": "Ігровий режим"
+  "gameMode": "Ігровий режим",
+  "firewallAudit": "Аудит брандмауера"
 }

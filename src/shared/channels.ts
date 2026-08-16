@@ -270,4 +270,5 @@ export const IPC = {
   WINDOW_MINIMIZE: 'window:minimize',
   WINDOW_MAXIMIZE: 'window:maximize',
   WINDOW_CLOSE: 'window:close',
+  WINDOW_SET_CHROME_THEME: 'window:set-chrome-theme',
 } as const
