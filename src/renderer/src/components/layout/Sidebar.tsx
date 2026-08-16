@@ -46,7 +46,6 @@ import { useDriverStore } from '@/stores/driver-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
 import { useCveStore } from '@/stores/cve-store'
 import { useBreachStore } from '@/stores/breach-store'
-import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
 
 interface SubItemDef {
@@ -182,7 +181,6 @@ export function Sidebar() {
   const navigate = useNavigate()
   const badgeCounts = useBadgeCounts()
   const { features } = usePlatform()
-  const automaticCareEnabled = useSettingsStore((s) => s.settings.schedule.enabled || s.settings.schedules.some((schedule) => schedule.enabled))
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
 
   // Filter nav items based on platform features and cloud state
