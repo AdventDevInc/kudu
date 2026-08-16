@@ -17,6 +17,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/lib/utils'
 import { useCveStore } from '@/stores/cve-store'
 import { useSettingsStore } from '@/stores/settings-store'
+import { useCloudConnection } from '@/hooks/useCloudConnection'
 import type { CveVulnerability, CveSeverity } from '@shared/types'
 
 const severityConfig: Record<string, { color: string; bg: string; border: string }> = {
@@ -38,7 +39,9 @@ export function CveScannerPage() {
   const { t } = useTranslation('cveScanner')
   const navigate = useNavigate()
   const settings = useSettingsStore((s) => s.settings)
-  const isLinked = !!settings.cloud.apiKey
+  const hasCloudKey = !!settings.cloud.apiKey
+  const cloudConnection = useCloudConnection(hasCloudKey)
+  const isLinked = cloudConnection === 'connected'
 
   const vulnerabilities = useCveStore((s) => s.vulnerabilities)
   const status = useCveStore((s) => s.status)
@@ -102,6 +105,18 @@ export function CveScannerPage() {
   }, [fetchVulns])
 
   // Cloud not configured — redirect away (page is hidden from sidebar)
+  if (cloudConnection === 'checking') {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <div className="flex items-center justify-center gap-3 py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>
+          <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+          Checking Kudu Cloud connection…
+        </div>
+      </div>
+    )
+  }
+
   if (!isLinked) {
     return (
       <div className="p-8 animate-fade-in">

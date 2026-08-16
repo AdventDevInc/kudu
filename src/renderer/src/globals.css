@@ -645,9 +645,9 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
   .app-brand > div { display: none; }
   .app-content { padding-right: 24px; padding-left: 24px; }
   .kudu-sidebar { width: 78px !important; }
-  .kudu-sidebar nav button { justify-content: center; padding-right: 0; padding-left: 0; }
-  .kudu-sidebar nav button > span,
-  .kudu-sidebar nav button > svg:last-child,
+  .kudu-sidebar .calm-nav-item { justify-content: center; padding-right: 0; padding-left: 0; }
+  .kudu-sidebar .calm-nav-item > span,
+  .kudu-sidebar .calm-nav-item > svg:last-child,
   .kudu-sidebar [role="group"] > div:first-child,
   .automatic-care-card,
   .sidebar-submenu { display: none; }

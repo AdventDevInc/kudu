@@ -20,6 +20,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/lib/utils'
 import { useBreachStore } from '@/stores/breach-store'
 import { useSettingsStore } from '@/stores/settings-store'
+import { useCloudConnection } from '@/hooks/useCloudConnection'
 import type { BreachEntry } from '@shared/types'
 
 function formatCount(n: number): string {
@@ -50,7 +51,9 @@ export function BreachMonitorPage() {
   const { t } = useTranslation('breachMonitor')
   const navigate = useNavigate()
   const settings = useSettingsStore((s) => s.settings)
-  const isLinked = !!settings.cloud.apiKey
+  const hasCloudKey = !!settings.cloud.apiKey
+  const cloudConnection = useCloudConnection(hasCloudKey)
+  const isLinked = cloudConnection === 'connected'
 
   const emails = useBreachStore((s) => s.emails)
   const limit = useBreachStore((s) => s.limit)
@@ -152,6 +155,18 @@ export function BreachMonitorPage() {
   )
 
   // Redirect if not linked
+  if (cloudConnection === 'checking') {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <div className="flex items-center justify-center gap-3 py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>
+          <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+          Checking Kudu Cloud connection…
+        </div>
+      </div>
+    )
+  }
+
   if (!isLinked) {
     return (
       <div className="p-8 animate-fade-in">
