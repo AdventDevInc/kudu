@@ -12,6 +12,8 @@ import type {
   ChromiumCacheDir,
   AppCacheDef,
   DatabaseTarget,
+  DirectFileMatch,
+  RecursivePathMatch,
 } from '../platform/types'
 
 // ─── JSON type shapes (match the schema) ──────────────────────
@@ -23,6 +25,7 @@ export interface SystemRulesJson {
     subcategory: string
     needsAdmin?: boolean
     childSubdir?: string
+    deepRecencyCheck?: boolean
   }>
   singleFileTargets?: Array<{ path: string; subcategory: string }>
 }
@@ -45,7 +48,10 @@ export interface AppRulesJson {
     id: string
     name: string
     paths: string[]
+    minAgeDays?: number
     childSubdir?: string
+    recursiveMatch?: RecursivePathMatch
+    fileMatch?: DirectFileMatch
   }>
 }
 
@@ -176,6 +182,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         }
         if (t.needsAdmin) target.needsAdmin = true
         if (t.childSubdir) target.childSubdir = t.childSubdir
+        if (t.deepRecencyCheck) target.deepRecencyCheck = true
         return target
       })
     },
@@ -255,6 +262,9 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
+        if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
+        if (a.fileMatch) def.fileMatch = a.fileMatch
         return def
       })
     },
@@ -267,6 +277,9 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
+        if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
+        if (a.fileMatch) def.fileMatch = a.fileMatch
         return def
       })
     },
@@ -279,6 +292,9 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
+        if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
+        if (a.fileMatch) def.fileMatch = a.fileMatch
         return def
       })
     },

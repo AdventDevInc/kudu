@@ -13,6 +13,23 @@ let psOutput: Array<[string, string]> = []
 
 const fakeFs = new Map<string, string>()
 
+const gameDetectorMocks = vi.hoisted(() => ({
+  startGameDetector: vi.fn(),
+  stopGameDetector: vi.fn(),
+  suppressCurrentGame: vi.fn(),
+  isDetectorRunning: vi.fn(() => false),
+}))
+
+const settingsMock = vi.hoisted(() => ({
+  gameMode: {
+    enabledOptimizations: ['net-flush-dns'],
+    customProcessKillList: [] as string[],
+    autoDetect: false,
+    autoDeactivate: true,
+    customGameProcesses: [] as string[],
+  },
+}))
+
 vi.mock('electron', () => ({
   app: { isPackaged: true, getPath: () => 'C:\\kudu-test-userdata' },
   ipcMain: { handle: vi.fn() },
@@ -54,16 +71,11 @@ vi.mock('child_process', () => ({
 vi.mock('../services/exec-utf8', () => ({ psUtf8: (s: string) => s }))
 vi.mock('../services/elevation', () => ({ isAdmin: () => true }))
 vi.mock('../platform', () => ({ getPlatform: () => ({ network: { flushDnsCache: async () => true } }) }))
-vi.mock('../services/game-detector', () => ({
-  startGameDetector: vi.fn(),
-  stopGameDetector: vi.fn(),
-  suppressCurrentGame: vi.fn(),
-  isDetectorRunning: () => false,
-}))
-vi.mock('../services/settings-store', () => ({ getSettings: () => ({ gameMode: { autoDetect: false } }) }))
+vi.mock('../services/game-detector', () => gameDetectorMocks)
+vi.mock('../services/settings-store', () => ({ getSettings: () => settingsMock }))
 
 import { join } from 'path'
-import { deactivateGameMode, discardPendingRestore, getGameModeStatus } from './game-mode.ipc'
+import { deactivateGameMode, discardPendingRestore, getGameModeStatus, initGameDetector } from './game-mode.ipc'
 
 // Built with join() rather than hardcoded so the fake fs keys match on both
 // Windows and the Linux CI runner.
@@ -641,6 +653,63 @@ describe('deactivateGameMode residual handling', () => {
     expect(result.restored).toBe(0)
     expect(result.failed).toBe(0)
     expect(fakeFs.has(SNAPSHOT_PATH)).toBe(false)
+  })
+})
+
+describe('auto-deactivate lifecycle (issue #289)', () => {
+  beforeEach(() => {
+    fakeFs.clear()
+    psCalls.length = 0
+    psFailOn = []
+    psOutput = []
+    gameDetectorMocks.startGameDetector.mockReset()
+    gameDetectorMocks.stopGameDetector.mockReset()
+    settingsMock.gameMode.autoDetect = true
+    settingsMock.gameMode.autoDeactivate = true
+  })
+
+  it('activates on detection and restores on exit', async () => {
+    const sendAutoEvent = vi.fn()
+    const platformSpy = vi.spyOn(process, 'platform', 'get').mockReturnValue('win32')
+
+    try {
+      initGameDetector(() => null, noop, sendAutoEvent)
+      const callbacks = gameDetectorMocks.startGameDetector.mock.calls[0]?.[0]
+
+      expect(callbacks).toBeDefined()
+      await expect(callbacks.onGameDetected('cs2.exe')).resolves.toBe(true)
+      expect(getGameModeStatus().active).toBe(true)
+      expect(sendAutoEvent).toHaveBeenCalledWith({ type: 'game-detected', processName: 'cs2.exe' })
+
+      await callbacks.onGameExited()
+
+      expect(getGameModeStatus().active).toBe(false)
+      expect(sendAutoEvent).toHaveBeenLastCalledWith({ type: 'game-exited', processName: null })
+    } finally {
+      platformSpy.mockRestore()
+    }
+  })
+
+  it('tracks and deactivates a session that was already active when the game was detected', async () => {
+    seedSnapshot()
+    const sendAutoEvent = vi.fn()
+    const platformSpy = vi.spyOn(process, 'platform', 'get').mockReturnValue('win32')
+
+    try {
+      initGameDetector(() => null, noop, sendAutoEvent)
+      const callbacks = gameDetectorMocks.startGameDetector.mock.calls[0]?.[0]
+
+      expect(callbacks).toBeDefined()
+      await expect(callbacks.onGameDetected('cs2.exe')).resolves.toBe(true)
+      expect(sendAutoEvent).toHaveBeenCalledWith({ type: 'game-detected', processName: 'cs2.exe' })
+
+      await callbacks.onGameExited()
+
+      expect(fakeFs.has(SNAPSHOT_PATH)).toBe(false)
+      expect(sendAutoEvent).toHaveBeenLastCalledWith({ type: 'game-exited', processName: null })
+    } finally {
+      platformSpy.mockRestore()
+    }
   })
 })
 

@@ -1,17 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, utimesSync } from 'fs'
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync, utimesSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-const state = vi.hoisted(() => ({ exclusions: [] as string[] }))
+const state = vi.hoisted(() => ({
+  exclusions: [] as string[],
+  items: [] as Array<{ id: string }>,
+}))
 
 vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: state.exclusions }),
 }))
 
-vi.mock('./scan-cache', () => ({ getCachedItems: () => [], removeCachedItems: () => {} }))
+vi.mock('./scan-cache', () => ({
+  getCachedItems: (ids: string[]) => state.items.filter((item) => ids.includes(item.id)),
+  removeCachedItems: (ids: string[]) => { state.items = state.items.filter((item) => !ids.includes(item.id)) },
+}))
 
-import { scanDirectory } from './file-utils'
+import { cleanItems, scanDirectory } from './file-utils'
 
 const DEEP = { deepRecencyCheck: true }
 
@@ -44,6 +50,7 @@ function paths(result: { items: Array<{ path: string }> }): string[] {
 beforeEach(() => {
   testDir = mkdtempSync(join(tmpdir(), 'kudu-recency-'))
   state.exclusions = []
+  state.items = []
 })
 
 afterEach(() => {
@@ -127,6 +134,37 @@ describe('scanDirectory with deepRecencyCheck', () => {
     const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
     expect(paths(result)).toEqual([join(testDir, 'js')])
     expect(result.totalSize).toBe(15)
+  })
+
+  it('revalidates a collapsed directory immediately before recursive deletion', async () => {
+    file('js/settled', 180, 10)
+    const scan = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    const directory = join(testDir, 'js')
+    expect(scan.items).toHaveLength(1)
+    expect(scan.items[0].recencyCutoff).toEqual(expect.any(Number))
+
+    state.items = scan.items
+    file('js/created-after-scan', 1, 5)
+    const cleaned = await cleanItems([scan.items[0].id])
+
+    expect(cleaned.filesDeleted).toBe(0)
+    expect(cleaned.filesSkipped).toBe(1)
+    expect(cleaned.errors).toContainEqual({ path: directory, reason: 'recently-modified' })
+    expect(existsSync(directory)).toBe(true)
+    expect(existsSync(join(directory, 'created-after-scan'))).toBe(true)
+  })
+
+  it('still deletes a collapsed directory when every descendant remains settled', async () => {
+    file('js/settled', 180, 10)
+    const scan = await scanDirectory(testDir, 'browser', 'Test', DEEP)
+    const directory = join(testDir, 'js')
+    state.items = scan.items
+
+    const cleaned = await cleanItems([scan.items[0].id])
+
+    expect(cleaned.filesDeleted).toBe(1)
+    expect(cleaned.filesSkipped).toBe(0)
+    expect(existsSync(directory)).toBe(false)
   })
 
   it('reports nothing when every entry is live', async () => {

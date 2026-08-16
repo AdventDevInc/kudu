@@ -1,4 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { mkdtempSync, rmSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
+import { YaraEngine } from './yara-engine'
 
 // ─── Test pure conversion logic (replicated to avoid Electron imports) ───
 
@@ -170,5 +174,27 @@ rule Test_Simple {
     // Scan again — should still work (rules not recompiled)
     const match2 = scanner.scan(Buffer.from('another target file'))
     expect(match2.length).toBe(1)
+  })
+})
+
+describe('YaraEngine.scanFile', () => {
+  it('closes the file before passing its contents to the native scanner', () => {
+    const testDir = mkdtempSync(join(tmpdir(), 'kudu-yara-engine-'))
+    try {
+      const filePath = join(testDir, 'sample.bin')
+      writeFileSync(filePath, Buffer.from('sample contents'))
+
+      const scan = vi.fn(() => [])
+      const nativeScanFile = vi.fn(() => [])
+      const engine = new YaraEngine()
+      ;(engine as any)._scanner = { scan, scanFile: nativeScanFile }
+
+      expect(engine.scanFile(filePath)).toEqual([])
+      expect(scan).toHaveBeenCalledOnce()
+      expect(scan.mock.calls[0][0]).toEqual(Buffer.from('sample contents'))
+      expect(nativeScanFile).not.toHaveBeenCalled()
+    } finally {
+      rmSync(testDir, { recursive: true, force: true })
+    }
   })
 })

@@ -28,6 +28,7 @@ describe('win32 paths', () => {
       const userTemp = targets.find((t) => t.subcategory === 'User Temp Files')
       expect(userTemp).toBeDefined()
       expect(userTemp!.path).toBe('C:\\Users\\TestUser\\AppData\\Local\\Temp')
+      expect(userTemp!.deepRecencyCheck).toBe(true)
     })
 
     it('includes system temp files under WINDIR\\Temp', () => {
@@ -53,6 +54,15 @@ describe('win32 paths', () => {
       expect(wuCache).toBeDefined()
       expect(doCach).toBeDefined()
       expect(wuCache!.needsAdmin).toBe(true)
+    })
+
+    it('includes administrator-only Update Orchestrator logs', () => {
+      const usoLogs = targets.find((t) => t.subcategory === 'Update Orchestrator Logs')
+      expect(usoLogs).toEqual(expect.objectContaining({
+        path: 'C:\\ProgramData\\USOShared\\Logs',
+        needsAdmin: true,
+        deepRecencyCheck: true,
+      }))
     })
 
     it('includes Previous Windows Installation (Windows.old)', () => {
@@ -125,6 +135,7 @@ describe('win32 paths', () => {
         expect(profile).toContain('Code Cache')
         expect(profile).toContain('GPUCache')
         expect(profile).toContain('Service Worker\\CacheStorage')
+        expect(profile).toContain('Shared Dictionary\\cache')
         // Shader and CRX caches sit beside the profiles, not inside them (issue #265)
         expect(b.sharedCaches.map((c) => c.dir)).toEqual(
           expect.arrayContaining(['component_crx_cache', 'extensions_crx_cache', 'GrShaderCache', 'ShaderCache'])
@@ -165,11 +176,53 @@ describe('win32 paths', () => {
       }
     })
 
-    it('includes common apps (Discord, VS Code, npm)', () => {
+    it('includes the added Windows cache coverage', () => {
       const ids = apps.map((a) => a.id)
       expect(ids).toContain('discord')
       expect(ids).toContain('vscode')
       expect(ids).toContain('npm')
+      expect(ids).toEqual(expect.arrayContaining(['electron', 'ffmpeg-static', 'google-drive', 'kudu', 'webview2', 'zed']))
+      expect(ids).toEqual(expect.arrayContaining([
+        'spotify-store-browser', 'nvidia-app', 'cursor-partitions', 'jetbrains-logs',
+        'ea-desktop-logs', 'edge-update-logs', 'firefox-crash-history', 'chocolatey-logs',
+        'bramblewatch', 'hearthglen', 't3-code', 'buzz-node-cache', 'upscayl',
+        'todesktop-builder', 'electron-updater-artifacts',
+      ]))
+    })
+
+    it('constrains recursive WebView2 matching to cache directory names', () => {
+      const webview = apps.find((app) => app.id === 'webview2')
+      expect(webview?.recursiveMatch).toEqual({
+        anchor: 'EBWebView',
+        anchorPaths: [
+          '*/EBWebView',
+          'Microsoft/*/EBWebView',
+          'Microsoft/*/*/EBWebView',
+          'Microsoft/*/*/*/EBWebView',
+          'Packages/*/*/EBWebView',
+          'Packages/*/*/*/EBWebView',
+          'Packages/*/*/*/*/EBWebView',
+          'TeamViewer/EdgeBrowserControl/*/*/EBWebView',
+          'TeamViewer/EdgeBrowserControl/*/*/*/EBWebView',
+          'Zoom/data/WebviewCacheX64/*/EBWebView',
+          'Google/DriveFS/webview2_user_data/*/EBWebView',
+          'Microsoft/Office/*/Wef/webview2/*/*/EBWebView',
+        ],
+        targets: ['Cache', 'Code Cache', 'GPUCache', 'DawnGraphiteCache', 'DawnWebGPUCache'],
+        excludedAncestors: ['File System', 'IndexedDB', 'Local Storage', 'Network', 'Service Worker', 'Session Storage', 'WebStorage', 'blob_storage', 'databases'],
+        maxDepth: 12,
+      })
+    })
+
+    it('guards stale Electron updater packages with exact names, age, and pending-state checks', () => {
+      const updater = apps.find((app) => app.id === 'electron-updater-artifacts')
+      expect(updater?.fileMatch).toEqual({
+        names: ['installer.exe', 'current.blockmap'],
+        childDirSuffix: '-updater',
+        minAgeDays: 14,
+        skipIfChildExists: ['pending'],
+      })
+      expect(updater?.paths).toHaveLength(1)
     })
   })
 
