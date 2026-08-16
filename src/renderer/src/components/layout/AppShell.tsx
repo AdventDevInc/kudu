@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <header className="app-titlebar drag-region" aria-label="Kudu window titlebar">
         <div className="app-brand">
-          <img src={logoSrc} alt="" className="h-6 w-6 rounded-[8px]" />
+          <img src={logoSrc} alt="" className="h-6 w-6 rounded-full" />
           <div>
             <div className="text-[12px] font-bold leading-none" style={{ color: 'var(--text-primary)' }}>Kudu</div>
           </div>

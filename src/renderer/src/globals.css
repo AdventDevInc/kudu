@@ -222,14 +222,14 @@
 /* Calm Control design tokens */
 :root {
   color-scheme: dark;
-  --page-bg: #101713; --sidebar-bg: rgba(13,24,20,.88); --titlebar-bg: rgba(11,19,16,.76);
+  --page-bg: #101713; --sidebar-bg: #101713; --titlebar-bg: #101713;
   --card-bg: #17231e; --bg-subtle: rgba(237,244,239,.035); --bg-subtle-2: rgba(237,244,239,.055);
   --bg-hover: rgba(237,244,239,.07); --bg-hover-2: rgba(237,244,239,.09); --bg-active: rgba(237,244,239,.12);
   --bg-elevated: #1d2c25; --bg-overlay: #25372f; --flyout-bg: rgba(18,29,24,.97); --toast-bg: rgba(23,35,30,.96);
   --text-primary: #edf3ef; --text-secondary: #c8d4cd; --text-muted: #a9bbb1; --text-dim: #91a59b; --text-faint: #82978d;
   --text-ghost: rgba(237,243,239,.62); --text-ghost-2: rgba(237,243,239,.72); --text-on-accent: #26331f; --toast-text: #edf3ef;
   --brand-solid: #d6e6dc; --brand-ink: #15382e; --brand-surface: rgba(101,164,135,.14); --brand-border: rgba(132,190,163,.22);
-  --nav-active-bg: #274b3f; --nav-active-fg: #f3f7f4;
+  --nav-active-bg: #274b3f; --nav-active-fg: #f3f7f4; --nav-inactive-fg: #c4d2ca; --nav-icon-fg: #9fb2a8; --nav-section-fg: #a9bbb1;
   --border-subtle: rgba(225,239,230,.055); --border-default: rgba(225,239,230,.08); --border-medium: rgba(225,239,230,.11);
   --border-strong: rgba(225,239,230,.16); --border-stronger: rgba(225,239,230,.22);
   --accent: #e9b553; --accent-hover: #f2c46d; --accent-muted-bg: rgba(233,181,83,.11); --accent-muted-border: rgba(233,181,83,.24);
@@ -245,14 +245,14 @@
 
 .light {
   color-scheme: light;
-  --page-bg: #f5f0e6; --sidebar-bg: rgba(238,231,217,.90); --titlebar-bg: rgba(248,243,234,.82);
+  --page-bg: #f5f0e6; --sidebar-bg: #f5f0e6; --titlebar-bg: #f5f0e6;
   --card-bg: #fffdf7; --bg-subtle: rgba(23,63,52,.035); --bg-subtle-2: rgba(23,63,52,.055);
   --bg-hover: rgba(23,63,52,.07); --bg-hover-2: rgba(23,63,52,.10); --bg-active: rgba(23,63,52,.13);
   --bg-elevated: #eee7d9; --bg-overlay: #e4dccd; --flyout-bg: rgba(255,253,247,.98); --toast-bg: rgba(255,253,247,.97);
   --text-primary: #17372f; --text-secondary: #365249; --text-muted: #3f5a51; --text-dim: #4b655c; --text-faint: #526b62;
   --text-ghost: rgba(23,55,47,.66); --text-ghost-2: rgba(23,55,47,.76); --text-on-accent: #293219; --toast-text: #17372f;
   --brand-solid: #173f34; --brand-ink: #f8f2e5; --brand-surface: rgba(23,63,52,.09); --brand-border: rgba(23,63,52,.18);
-  --nav-active-bg: #173f34; --nav-active-fg: #f8f2e5;
+  --nav-active-bg: #173f34; --nav-active-fg: #f8f2e5; --nav-inactive-fg: #557067; --nav-icon-fg: #6c817a; --nav-section-fg: #5a7169;
   --border-subtle: rgba(23,63,52,.065); --border-default: rgba(23,63,52,.10); --border-medium: rgba(23,63,52,.14);
   --border-strong: rgba(23,63,52,.20); --border-stronger: rgba(23,63,52,.28);
   --accent: #f3b64b; --accent-hover: #e7a938; --accent-muted-bg: rgba(243,182,75,.16); --accent-muted-border: rgba(197,135,31,.28);
@@ -540,9 +540,11 @@ summary, .clickable { cursor: pointer; }
 .app-content > * { width: 100%; }
 .kudu-sidebar nav { scrollbar-width: none; }
 .kudu-sidebar nav::-webkit-scrollbar { display: none; }
-.kudu-sidebar [role="group"] > div:first-child span { letter-spacing: .13em; }
+.kudu-sidebar [role="group"] > div:first-child span { color: var(--nav-section-fg) !important; letter-spacing: .13em; }
 .calm-nav-item:hover { background: var(--bg-hover); color: var(--text-primary) !important; }
+.calm-nav-item:hover svg { color: var(--text-primary) !important; }
 .calm-nav-item[aria-current="page"]:hover { background: var(--nav-active-bg); color: var(--nav-active-fg) !important; }
+.calm-nav-item[aria-current="page"]:hover svg { color: var(--nav-active-fg) !important; }
 .sidebar-submenu {
   position: relative;
   display: grid;
@@ -1300,7 +1302,7 @@ body { font-size: 15px; line-height: 1.58; }
 .app-location { font-size: 12px; }
 .window-control { height: 48px; }
 .kudu-sidebar { width: 224px !important; }
-.calm-nav-item { min-height: 42px; font-size: 13px !important; }
+.calm-nav-item { min-height: 44px; font-size: 13px !important; }
 .kudu-sidebar [role="group"] > div:first-child span { font-size: 12px !important; }
 .automatic-care-card { padding: 13px; }
 .automatic-care-card b { font-size: 12px; }

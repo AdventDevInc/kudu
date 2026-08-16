@@ -85,7 +85,7 @@ const navGroups: NavGroup[] = [
         ]
       },
       {
-        icon: Shield, labelKey: 'hardening:serviceManager.categorySecurity', label: 'Security', path: '/malware',
+        icon: Shield, labelKey: 'securityHeading', label: 'Protection', path: '/malware',
         children: [
           { icon: ShieldAlert, labelKey: 'malware:pageTitle', label: 'Malware Scanner', path: '/malware' },
           { icon: Eye, labelKey: 'hardening:privacy.pageTitle', label: 'Privacy', path: '/privacy' },
@@ -130,7 +130,7 @@ const navGroups: NavGroup[] = [
         ]
       },
       { icon: Gamepad2, labelKey: 'gameMode', label: 'Game Mode', path: '/game-mode' },
-      { icon: History, labelKey: 'history:pageTitle', label: 'Activity', path: '/history' },
+      { icon: History, labelKey: 'history', label: 'Activity', path: '/history' },
     ]
   }
 ]
@@ -141,7 +141,7 @@ function useBottomNavItems(): NavItemDef[] {
 
   return [
     {
-      icon: Settings, labelKey: 'settings:pageTitle', label: 'Preferences', path: '/settings',
+      icon: Settings, labelKey: 'settings', label: 'Preferences', path: '/settings',
       children: [
         { icon: Settings, labelKey: 'settings:pageTitle', label: 'Preferences', path: '/settings' },
         { icon: Cloud, labelKey: 'cloud:pageTitle', label: 'Cloud', path: '/cloud' },
@@ -378,13 +378,13 @@ function NavItem({
         aria-current={isActive && !hasChildren ? 'page' : undefined}
         aria-expanded={hasChildren ? !!submenuOpen : undefined}
         className={cn(
-          'calm-nav-item group relative flex w-full items-center gap-2.5 rounded-[11px] px-3 py-2.5 text-[12px] font-semibold transition-all duration-200'
+          'calm-nav-item group relative flex w-full items-center gap-3 rounded-[14px] px-3.5 py-2.5 text-[12px] font-semibold transition-all duration-200'
         )}
         style={isActive ? {
           background: 'var(--nav-active-bg)',
           color: 'var(--nav-active-fg)',
           boxShadow: '0 6px 18px rgba(11,40,31,.12)'
-        } : { color: 'var(--text-muted)' }}
+        } : { color: 'var(--nav-inactive-fg)' }}
       >
         {isActive && (
           <div
@@ -397,11 +397,11 @@ function NavItem({
         )}
         <item.icon
           className={cn(
-            'h-[15px] w-[15px] shrink-0 transition-colors duration-200',
+            'h-[17px] w-[17px] shrink-0 transition-colors duration-200',
             isActive ? '' : 'group-hover:text-zinc-400'
           )}
-          style={{ color: isActive ? 'var(--nav-active-fg)' : 'var(--text-dim)' }}
-          strokeWidth={isActive ? 2 : 1.7}
+          style={{ color: isActive ? 'var(--nav-active-fg)' : 'var(--nav-icon-fg)' }}
+          strokeWidth={isActive ? 2 : 1.8}
           aria-hidden="true"
         />
         <span className="flex-1 text-left">{itemLabel}</span>
@@ -424,7 +424,7 @@ function NavItem({
               'h-3.5 w-3.5 transition-all duration-200',
               submenuOpen ? 'rotate-90' : ''
             )}
-            style={{ color: isActive ? 'var(--nav-active-fg)' : 'var(--text-dim)' }}
+            style={{ color: isActive ? 'var(--nav-active-fg)' : 'var(--nav-icon-fg)' }}
             strokeWidth={1.7}
             aria-hidden="true"
           />
