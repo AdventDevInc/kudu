@@ -20,21 +20,21 @@ const variantConfig = {
     glowClass: '',
   },
   accent: {
-    iconBg: 'rgba(245,158,11,0.10)',
-    iconColor: '#f59e0b',
-    accentLine: 'rgba(245,158,11,0.4)',
+    iconBg: 'var(--accent-muted-bg)',
+    iconColor: 'var(--accent)',
+    accentLine: 'var(--accent-muted-border)',
     glowClass: 'glow-amber',
   },
   success: {
-    iconBg: 'rgba(34,197,94,0.10)',
-    iconColor: '#22c55e',
-    accentLine: 'rgba(34,197,94,0.4)',
+    iconBg: 'color-mix(in srgb, var(--success), transparent 88%)',
+    iconColor: 'var(--success)',
+    accentLine: 'color-mix(in srgb, var(--success), transparent 58%)',
     glowClass: 'glow-green',
   },
   danger: {
-    iconBg: 'rgba(239,68,68,0.10)',
-    iconColor: '#ef4444',
-    accentLine: 'rgba(239,68,68,0.3)',
+    iconBg: 'color-mix(in srgb, var(--danger), transparent 88%)',
+    iconColor: 'var(--danger)',
+    accentLine: 'color-mix(in srgb, var(--danger), transparent 64%)',
     glowClass: '',
   },
 }
@@ -56,7 +56,7 @@ export function StatCard({
       role="group"
       aria-label={label}
       className={cn(
-        'glass-card glass-card-hover group relative overflow-hidden rounded-2xl p-5',
+        'calm-stat-card glass-card glass-card-hover group relative overflow-hidden rounded-2xl p-5',
         config.glowClass,
         className
       )}

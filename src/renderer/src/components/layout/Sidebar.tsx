@@ -39,7 +39,6 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
-import logoSrc from '@/assets/logo.png'
 import { useThreatMonitorStore } from '@/stores/threat-monitor-store'
 import { useAppUpdateStore } from '@/stores/app-update-store'
 import { useUpdaterStore } from '@/stores/updater-store'
@@ -60,71 +59,69 @@ interface SubItemDef {
 
 interface NavItemDef {
   icon: LucideIcon
-  labelKey: string
+  labelKey?: string
+  label?: string
   path: string
   children?: SubItemDef[]
 }
 
 interface NavGroup {
   headingKey?: string
+  heading?: string
   items: NavItemDef[]
 }
 
 const navGroups: NavGroup[] = [
   {
-    items: [{ icon: LayoutDashboard, labelKey: 'dashboard', path: '/' }]
-  },
-  {
-    headingKey: 'securityHeading',
     items: [
-      { icon: ShieldAlert, labelKey: 'malwareScanner', path: '/malware' },
+      { icon: LayoutDashboard, label: 'Home', path: '/' },
       {
-        icon: Shield, labelKey: 'systemHardening', path: '/hardening',
+        icon: Sparkles, label: 'Clean up', path: '/cleaner',
         children: [
-          { icon: Eye, label: 'Privacy', path: '/privacy' },
-          { icon: Server, label: 'Services', path: '/services' },
-          { icon: Flame, label: 'Firewall Audit', path: '/firewall' },
+          { icon: Sparkles, label: 'System Cleaner', path: '/cleaner' },
+          { icon: Database, label: 'Registry', path: '/registry' },
+          { icon: Zap, label: 'Startup', path: '/startup' },
+          { icon: Wifi, label: 'Network', path: '/network' },
+          { icon: CalendarClock, label: 'Automatic Care', path: '/schedules' },
         ]
       },
       {
-        icon: Radar, labelKey: 'monitoring', path: '/monitoring',
+        icon: Shield, label: 'Protection', path: '/malware',
         children: [
-          { icon: Radar, labelKey: 'threatMonitor', path: '/threat-monitor' },
-          { icon: Bug, labelKey: 'cveScanner', path: '/cve' },
-          { icon: Mail, labelKey: 'breachMonitor', path: '/breach-monitor' },
+          { icon: ShieldAlert, label: 'Malware Scanner', path: '/malware' },
+          { icon: Eye, label: 'Privacy', path: '/privacy' },
+          { icon: Radar, label: 'Threat Monitor', path: '/threat-monitor' },
+          { icon: Flame, label: 'Firewall Audit', path: '/firewall' },
+          { icon: Bug, label: 'Vulnerability Scanner', path: '/cve' },
+          { icon: Mail, label: 'Breach Monitor', path: '/breach-monitor' },
+        ]
+      },
+      {
+        icon: Activity, label: 'Performance', path: '/performance',
+        children: [
+          { icon: Activity, label: 'Live Performance', path: '/performance' },
+          { icon: Server, label: 'Services', path: '/services' },
         ]
       },
     ]
   },
   {
-    headingKey: 'maintainHeading',
+    heading: 'Manage',
     items: [
-      { icon: Sparkles, labelKey: 'cleaner', path: '/cleaner' },
-      { icon: Database, labelKey: 'registry', path: '/registry' },
-      { icon: Zap, labelKey: 'startup', path: '/startup' },
-      { icon: Wifi, labelKey: 'network', path: '/network' },
       {
-        icon: Package, labelKey: 'software', path: '/software',
+        icon: Package, label: 'Software', path: '/software',
         children: [
           { icon: Download, label: 'Software Updates', path: '/updates' },
           { icon: Cpu, label: 'Driver Updates', path: '/drivers' },
           { icon: Trash2, label: 'Uninstaller', path: '/uninstaller' },
           { icon: PackageMinus, label: 'Bloatware Remover', path: '/debloater' },
-          { icon: MousePointerClick, labelKey: 'contextMenu', path: '/context-menu' },
+          { icon: MousePointerClick, label: 'Context Menu', path: '/context-menu' },
         ]
       },
-      { icon: CalendarClock, labelKey: 'schedules', path: '/schedules' }
-    ]
-  },
-  {
-    headingKey: 'toolsHeading',
-    items: [
-      { icon: Gamepad2, labelKey: 'gameMode', path: '/game-mode' },
-      { icon: Activity, labelKey: 'performance', path: '/performance' },
       {
-        icon: HardDrive, labelKey: 'diskTools', path: '/disk',
+        icon: HardDrive, label: 'Storage', path: '/disk',
         children: [
-          { icon: HardDrive, label: 'Disk Analyzer', path: '/disk' },
+          { icon: HardDrive, label: 'Storage Overview', path: '/disk' },
           { icon: CopyCheck, label: 'Duplicate Finder', path: '/duplicates' },
           { icon: FileUp, label: 'Large File Finder', path: '/large-files' },
           { icon: FolderX, label: 'Empty Folder Cleaner', path: '/empty-folders' },
@@ -133,6 +130,8 @@ const navGroups: NavGroup[] = [
           { icon: Eraser, label: 'Disk Maintenance', path: '/disk-maintenance' },
         ]
       },
+      { icon: Gamepad2, label: 'Game Mode', path: '/game-mode' },
+      { icon: History, label: 'Activity', path: '/history' },
     ]
   }
 ]
@@ -143,11 +142,10 @@ function useBottomNavItems(): NavItemDef[] {
 
   return [
     {
-      icon: Settings, labelKey: 'settings', path: '/settings',
+      icon: Settings, label: 'Preferences', path: '/settings',
       children: [
         { icon: Settings, label: 'Preferences', path: '/settings' },
         { icon: Cloud, label: 'Cloud', path: '/cloud' },
-        { icon: History, label: 'History', path: '/history' },
         { icon: Info, label: 'About & Updates', path: '/about', badge: showUpdateBadge },
       ]
     }
@@ -181,27 +179,11 @@ function useBadgeCounts(): Record<string, number> {
 export function Sidebar() {
   const { t } = useTranslation('sidebar')
   const location = useLocation()
+  const navigate = useNavigate()
   const badgeCounts = useBadgeCounts()
   const { features } = usePlatform()
-  const threatMonitorLoaded = useThreatMonitorStore((s) => s.loaded)
-  const threatBlacklistActive = useThreatMonitorStore((s) => s.snapshot) !== null
-  const isCloudLinked = !!useSettingsStore((s) => s.settings.cloud.apiKey)
-  const [cloudConnected, setCloudConnected] = useState(false)
+  const automaticCareEnabled = useSettingsStore((s) => s.settings.schedule.enabled || s.settings.schedules.some((schedule) => schedule.enabled))
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
-
-  // Poll cloud connection status so CVE item hides when disconnected
-  useEffect(() => {
-    if (!isCloudLinked) { setCloudConnected(false); return }
-    let cancelled = false
-    const check = () => {
-      window.kudu?.cloudGetStatus?.().then((s) => {
-        if (!cancelled) setCloudConnected(s.status === 'connected')
-      }).catch(() => { if (!cancelled) setCloudConnected(false) })
-    }
-    check()
-    const id = setInterval(check, 10_000)
-    return () => { cancelled = true; clearInterval(id) }
-  }, [isCloudLinked])
 
   // Filter nav items based on platform features and cloud state
   const filteredNavGroups = navGroups.map((group) => ({
@@ -213,13 +195,11 @@ export function Sidebar() {
     }).map((item) => {
       if (!item.children) return item
       const filtered = item.children.filter((child) => {
+        if (child.path === '/registry' && !features.registry) return false
         if (child.path === '/debloater' && !features.debloater) return false
         if (child.path === '/drivers' && !features.drivers) return false
         if (child.path === '/context-menu' && !features.contextMenu) return false
         if (child.path === '/firewall' && !features.firewallAudit) return false
-        if (child.path === '/threat-monitor' && !(threatMonitorLoaded && threatBlacklistActive)) return false
-        if (child.path === '/cve' && !cloudConnected) return false
-        if (child.path === '/breach-monitor' && !cloudConnected) return false
         return true
       })
       return { ...item, children: filtered }
@@ -228,6 +208,14 @@ export function Sidebar() {
       return true
     }),
   }))
+
+  useEffect(() => {
+    const activeParent = navGroups
+      .flatMap((group) => group.items)
+      .find((item) => item.children?.some((child) => child.path === location.pathname))
+    if (activeParent) setOpenSubmenu(activeParent.path)
+    else if (['/settings', '/cloud', '/about'].includes(location.pathname)) setOpenSubmenu('/settings')
+  }, [location.pathname])
 
   // Compute parent badge counts from visible children only
   const effectiveBadgeCounts = { ...badgeCounts }
@@ -256,39 +244,25 @@ export function Sidebar() {
 
   return (
     <div
-      className="flex h-full w-[240px] shrink-0 flex-col"
+      className="kudu-sidebar flex h-full w-[214px] shrink-0 flex-col"
       style={{
         background: 'var(--sidebar-bg)',
         borderRight: '1px solid var(--border-medium)'
       }}
     >
       {/* Logo — doubles as drag region */}
-      <div className="drag-region relative flex items-center gap-3 px-5 pb-4 pt-5">
-        <div
-          className="absolute left-5 top-5 h-8 w-8 rounded-xl opacity-25 blur-xl"
-          style={{ background: 'var(--accent)' }}
-        />
-        <img src={logoSrc} alt="Kudu" className="relative h-8 w-8 shrink-0 rounded-xl" />
-        <div>
-          <div className="text-[13px] font-semibold text-white">{t('appName')}</div>
-          <div className="text-[9px] font-medium tracking-wide" style={{ color: 'var(--text-dim)' }}>
-            {t('subtitle')}
-          </div>
-        </div>
-      </div>
-
       {/* Nav items */}
-      <nav className="mt-1 min-h-0 flex-1 overflow-y-auto px-3" aria-label={t('mainNavigation', 'Main navigation')}>
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-2 pt-4" aria-label={t('mainNavigation', 'Main navigation')}>
         {filteredNavGroups.map((group, gi) => (
-          <div key={gi} className={gi > 0 ? 'mt-5' : ''} role={group.headingKey ? 'group' : undefined} aria-labelledby={group.headingKey ? `nav-group-${gi}` : undefined}>
-            {group.headingKey && (
+          <div key={gi} className={gi > 0 ? 'mt-5' : ''} role={group.headingKey || group.heading ? 'group' : undefined} aria-labelledby={group.headingKey || group.heading ? `nav-group-${gi}` : undefined}>
+            {(group.headingKey || group.heading) && (
               <div className="mb-2 flex items-center gap-2.5 px-3 pt-0.5">
                 <span
                   id={`nav-group-${gi}`}
                   className="text-[10px] font-semibold uppercase tracking-[0.15em]"
                   style={{ color: 'var(--text-faint)' }}
                 >
-                  {t(group.headingKey)}
+                  {group.heading ?? (group.headingKey ? t(group.headingKey) : '')}
                 </span>
                 <div className="h-px flex-1" style={{ background: 'var(--border-subtle)' }} />
               </div>
@@ -309,6 +283,18 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      <button
+        type="button"
+        onClick={() => navigate('/schedules')}
+        className="automatic-care-card mx-3 mb-2 text-left"
+      >
+        <span className="automatic-care-icon"><CalendarClock className="h-3.5 w-3.5" strokeWidth={1.8} /></span>
+        <span className="min-w-0">
+          <b>{automaticCareEnabled ? 'Automatic care is on' : 'Set up automatic care'}</b>
+          <small>{automaticCareEnabled ? 'Kudu will run quietly on schedule.' : 'Keep this device tidy in the background.'}</small>
+        </span>
+      </button>
 
       {/* Bottom */}
       <BottomNav submenuProps={submenuProps} openSubmenu={openSubmenu} isPathActive={isPathActive} badgeCounts={effectiveBadgeCounts} />
@@ -349,7 +335,6 @@ function NavItem({
   isActive: isActiveProp,
   submenuOpen,
   onToggleSubmenu,
-  onCloseSubmenu,
 }: {
   item: NavItemDef
   badge?: boolean
@@ -366,23 +351,6 @@ function NavItem({
   const navigate = useNavigate()
   const isActive = isActiveProp ?? location.pathname === item.path
   const hasChildren = item.children && item.children.length > 0
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const popoverRef = useRef<HTMLDivElement>(null)
-
-  // Close popover on click outside
-  useEffect(() => {
-    if (!submenuOpen) return
-    const handler = (e: MouseEvent) => {
-      if (
-        popoverRef.current && !popoverRef.current.contains(e.target as Node) &&
-        buttonRef.current && !buttonRef.current.contains(e.target as Node)
-      ) {
-        onCloseSubmenu?.()
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [submenuOpen, onCloseSubmenu])
 
   const handleClick = () => {
     if (hasChildren) {
@@ -395,40 +363,37 @@ function NavItem({
   return (
     <div className="relative">
       <button
-        ref={buttonRef}
         onClick={handleClick}
         aria-current={isActive && !hasChildren ? 'page' : undefined}
         aria-expanded={hasChildren ? !!submenuOpen : undefined}
-        aria-haspopup={hasChildren ? 'true' : undefined}
         className={cn(
-          'group relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all duration-200',
-          isActive
-            ? 'text-white'
-            : 'text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300'
+          'calm-nav-item group relative flex w-full items-center gap-2.5 rounded-[11px] px-3 py-2.5 text-[12px] font-semibold transition-all duration-200'
         )}
         style={isActive ? {
-          background: 'var(--accent-muted-bg)',
-          boxShadow: '0 0 20px rgba(245,158,11,0.05)'
-        } : undefined}
+          background: 'var(--brand-solid)',
+          color: 'var(--brand-ink)',
+          boxShadow: '0 6px 18px rgba(11,40,31,.12)'
+        } : { color: 'var(--text-muted)' }}
       >
         {isActive && (
           <div
             className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full"
             style={{
-              background: 'linear-gradient(180deg, #fbbf24, #f59e0b)',
-              boxShadow: '0 0 8px rgba(245,158,11,0.4)'
+              background: 'var(--accent)',
+              boxShadow: 'none'
             }}
           />
         )}
         <item.icon
           className={cn(
             'h-[15px] w-[15px] shrink-0 transition-colors duration-200',
-            isActive ? 'text-amber-400' : 'text-zinc-600 group-hover:text-zinc-400'
+            isActive ? '' : 'group-hover:text-zinc-400'
           )}
+          style={{ color: isActive ? 'var(--brand-ink)' : 'var(--text-dim)' }}
           strokeWidth={isActive ? 2 : 1.7}
           aria-hidden="true"
         />
-        <span className="flex-1 text-left">{t(item.labelKey)}</span>
+        <span className="flex-1 text-left">{item.label ?? (item.labelKey ? t(item.labelKey) : '')}</span>
         {(badge || (badgeCount != null && badgeCount > 0)) && (
           <span
             className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none"
@@ -446,8 +411,9 @@ function NavItem({
           <ChevronRight
             className={cn(
               'h-3.5 w-3.5 transition-all duration-200',
-              submenuOpen ? 'rotate-90 text-zinc-400' : 'text-zinc-600'
+              submenuOpen ? 'rotate-90' : ''
             )}
+            style={{ color: isActive ? 'var(--brand-ink)' : 'var(--text-dim)' }}
             strokeWidth={1.7}
             aria-hidden="true"
           />
@@ -455,7 +421,34 @@ function NavItem({
       </button>
 
       {/* Flyout submenu — rendered fixed to escape sidebar overflow */}
-      {hasChildren && submenuOpen && <FlyoutMenu buttonRef={buttonRef} popoverRef={popoverRef} items={item.children!} badgeCounts={badgeCounts} onSelect={(path) => { navigate(path); onCloseSubmenu?.() }} onClose={() => { onCloseSubmenu?.(); buttonRef.current?.focus() }} />}
+      {hasChildren && submenuOpen && (
+        <div className="sidebar-submenu animate-fade-in" role="group" aria-label={`${item.label ?? 'Section'} tools`}>
+          {item.children!.map((child) => {
+            const isChildActive = location.pathname === child.path
+            return (
+              <button
+                key={child.path}
+                type="button"
+                onClick={() => navigate(child.path)}
+                aria-current={isChildActive ? 'page' : undefined}
+                title={child.label}
+                className="sidebar-submenu-item"
+                style={{
+                  background: isChildActive ? 'var(--brand-surface)' : 'transparent',
+                  color: isChildActive ? 'var(--brand-solid)' : 'var(--text-secondary)'
+                }}
+              >
+                <child.icon aria-hidden="true" strokeWidth={isChildActive ? 2.1 : 1.7} />
+                <span>{child.labelKey ? t(child.labelKey) : child.label}</span>
+                {(badgeCounts?.[child.path] ?? 0) > 0 && (
+                  <b aria-label={`${badgeCounts![child.path]} items`}>{badgeCounts![child.path]}</b>
+                )}
+                {child.badge && <b>NEW</b>}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -541,15 +534,16 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
               onClick={() => onSelect(child.path)}
               className={cn(
                 'flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[12.5px] font-medium transition-all duration-150',
-                isChildActive
-                  ? 'text-amber-400'
-                  : 'text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200'
+                'hover:bg-white/[0.04]'
               )}
-              style={isChildActive ? { background: 'var(--accent-muted-bg)' } : undefined}
+              style={{
+                background: isChildActive ? 'var(--brand-surface)' : undefined,
+                color: isChildActive ? 'var(--brand-solid)' : 'var(--text-secondary)'
+              }}
             >
               <child.icon
                 className="h-[14px] w-[14px] shrink-0"
-                style={{ color: isChildActive ? 'var(--accent)' : 'var(--text-muted)' }}
+                style={{ color: isChildActive ? 'var(--brand-solid)' : 'var(--text-muted)' }}
                 strokeWidth={isChildActive ? 2 : 1.7}
                 aria-hidden="true"
               />

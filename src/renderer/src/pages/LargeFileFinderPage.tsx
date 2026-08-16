@@ -15,6 +15,7 @@ import {
 import { cn, formatBytes } from '@/lib/utils'
 import { useLargeFileStore } from '@/stores/large-file-store'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { PageHeader } from '@/components/layout/PageHeader'
 
 const SIZE_PRESETS = [
   { label: '1 MB', value: 1_048_576 },
@@ -133,15 +134,11 @@ export function LargeFileFinderPage() {
   }
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto px-8 py-7">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-[24px] font-bold tracking-tight text-white">{t('pageTitle')}</h1>
-        <p className="mt-1.5 text-[13px] animate-fade-in" style={{ color: 'var(--text-muted)' }}>{t('pageDescription')}</p>
-      </div>
+    <div className="utility-page animate-fade-in flex h-full flex-col overflow-y-auto">
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
       {/* Directory selector + scan button */}
-      <div className="mb-4 flex items-center gap-3">
+      <div className="utility-toolbar mb-4 flex items-center gap-3">
         <button
           onClick={handleSelectDir}
           disabled={store.status === 'scanning'}
@@ -480,7 +477,7 @@ function StatMini({ label, value }: { label: string; value: string }) {
 
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
+    <div className="utility-empty-stage flex flex-1 flex-col items-center justify-center py-20 text-center">
       <FileUp className="mb-4 h-12 w-12" style={{ color: 'var(--text-faint)' }} strokeWidth={1.2} />
       <h3 className="text-[15px] font-semibold text-white">{title}</h3>
       <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-muted)' }}>{description}</p>

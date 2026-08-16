@@ -152,10 +152,23 @@ export function BreachMonitorPage() {
   )
 
   // Redirect if not linked
-  useEffect(() => {
-    if (!isLinked) navigate('/', { replace: true })
-  }, [isLinked, navigate])
-  if (!isLinked) return null
+  if (!isLinked) {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <EmptyState
+          icon={Mail}
+          title="Connect Kudu Cloud to monitor breaches"
+          description="Link this device to check email addresses against known breach intelligence and track newly reported exposure."
+          action={
+            <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+              Connect Kudu Cloud
+            </button>
+          }
+        />
+      </div>
+    )
+  }
 
   // Loading (first fetch)
   if (status === 'loading' && emails.length === 0 && !error) {

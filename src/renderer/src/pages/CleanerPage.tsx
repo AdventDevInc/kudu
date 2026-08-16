@@ -332,7 +332,7 @@ export function CleanerPage() {
   const isRecycleBinProtected = protectRecycleBin && activeCategory === CleanerType.RecycleBin
 
   return (
-    <div className="animate-fade-in">
+    <div className="feature-page cleaner-page animate-fade-in">
       <PageHeader
         title={t('pageTitle')}
         description={t('pageDescription')}
@@ -364,9 +364,9 @@ export function CleanerPage() {
         }
       />
 
-      <div className="flex gap-5">
+      <div className="cleaner-workspace flex gap-5">
         {/* Category sidebar */}
-        <div className="w-56 shrink-0 space-y-1.5">
+        <div className="cleaner-categories w-56 shrink-0 space-y-1.5">
           {categories.map((cat) => {
             const count = categoryItemCount(cat.type)
             const isActive = activeCategory === cat.type
@@ -378,7 +378,7 @@ export function CleanerPage() {
                 className="relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all"
                 style={{
                   background: isActive ? 'var(--accent-muted-bg)' : 'transparent',
-                  color: isActive ? 'var(--accent-hover)' : 'var(--text-muted)'
+                  color: isActive ? 'var(--warning)' : 'var(--text-muted)'
                 }}
               >
                 {isActive && (
@@ -423,7 +423,7 @@ export function CleanerPage() {
         </div>
 
         {/* Item panel */}
-        <div className="flex-1 min-w-0">
+        <div className="cleaner-results flex-1 min-w-0">
           {(isScanning || isCleaning) && store.progress && (
             <ScanProgress
               status={isScanning ? 'scanning' : 'cleaning'}

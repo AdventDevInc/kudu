@@ -365,8 +365,8 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle: string }
 }
 
 const TIER_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  basic: { bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.25)', text: '#60a5fa' },
-  pro:   { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.25)', text: '#fbbf24' },
+  basic: { bg: 'color-mix(in srgb, var(--info), transparent 89%)', border: 'color-mix(in srgb, var(--info), transparent 72%)', text: 'var(--info)' },
+  pro:   { bg: 'color-mix(in srgb, var(--warning), transparent 89%)', border: 'color-mix(in srgb, var(--warning), transparent 72%)', text: 'var(--warning)' },
 }
 
 function FeatureCard({ icon: Icon, title, description, color, tier }: { icon: LucideIcon; title: string; description: string; color: string; tier?: 'basic' | 'pro' }) {

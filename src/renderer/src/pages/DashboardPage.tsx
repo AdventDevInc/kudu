@@ -457,291 +457,173 @@ export function DashboardPage() {
 
   // ── Render ─────────────────────────────────────────────────
 
+  const startupAttentionCount = startupItems.filter((item) => item.enabled && item.impact === 'high').length
+  const primaryDrive = drives[0]
+  const primaryDriveUsedPercent = primaryDrive?.totalSize
+    ? Math.round((primaryDrive.usedSpace / primaryDrive.totalSize) * 100)
+    : diskPct
+  const freeMemory = perf ? Math.max(0, perf.memTotalBytes - perf.memUsedBytes) : 0
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const attentionCount = Number(!updaterHasChecked) + Number(startupAttentionCount > 0) + Number(!stats.lastScanDate)
+  const healthHeadline = healthScore >= 80
+    ? 'Everything important is protected.'
+    : healthScore >= 55
+      ? 'Your device is in good shape.'
+      : 'A few things are ready for your attention.'
+
   return (
-    <div className="animate-fade-in flex h-full flex-col overflow-y-auto">
-      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
-
-      <div className="flex-1 space-y-5 px-0 pb-8">
-        {/* ── System Gauges Row ────────────────────────── */}
-        <div className="grid grid-cols-4 gap-3">
-          <MiniGauge icon={Cpu} label={t('gaugeCpu')} percent={Math.round(cpuPct)} detail={`${Math.round(cpuPct)}%`} />
-          <MiniGauge icon={MemoryStick} label={t('gaugeRam')} percent={Math.round(ramPct)} detail={perf ? `${formatBytes(perf.memUsedBytes)} / ${formatBytes(perf.memTotalBytes)}` : '—'} />
-          <MiniGauge icon={HardDrive} label={t('gaugeDisk')} percent={diskPct} detail={`${diskPct}% ${t('gaugeDiskUsed')}`} />
-          <MiniGauge icon={BarChart3} label={t('gaugeScans')} percent={Math.min(100, stats.totalScans * 10)} detail={`${stats.totalScans} ${t('gaugeScansRun')}`} />
-        </div>
-
-        {/* ── Hero Row: Health + Game Mode ─────────────── */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Health Score Card */}
-          <div
-            className="glass-card flex flex-col items-center justify-center rounded-2xl px-6 py-6"
-          >
-            <HealthScore score={healthScore} size="md" />
-            <div className="mt-4 flex items-center gap-2">
-              {toolCoverage.map((tool) => {
-                const Icon = tool.icon
-                const route = toolRoutes[tool.key]
-                return (
-                  <div
-                    key={tool.key}
-                    className="relative flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg transition-colors hover:brightness-110"
-                    style={{
-                      background: tool.usedRecently ? tool.color + '18' : 'var(--bg-subtle)',
-                      border: `1px solid ${tool.usedRecently ? tool.color + '30' : 'var(--border-subtle)'}`
-                    }}
-                    title={`${tool.label}: ${tool.usedRecently ? t('toolTipUsedRecently') : tool.usedEver ? t('toolTipNotUsedRecently') : t('toolTipNeverUsed')}`}
-                    onClick={() => route && navigate(route)}
-                  >
-                    <Icon
-                      className="h-3.5 w-3.5"
-                      style={{ color: tool.usedRecently ? tool.color : 'var(--text-faint)' }}
-                      strokeWidth={1.8}
-                    />
-                    {tool.usedRecently && (
-                      <div
-                        className="absolute -top-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full"
-                        style={{ background: '#22c55e' }}
-                      >
-                        <Check className="h-2 w-2 text-white" strokeWidth={3} />
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+    <div className="kudu-home animate-fade-in">
+      <div className="kudu-home-grid">
+        <div className="kudu-home-main">
+          <header className="kudu-home-greeting">
+            <div>
+              <p className="kudu-home-kicker">THIS DEVICE</p>
+              <h1>{greeting}.</h1>
+              <p>
+                {attentionCount === 0
+                  ? 'Your PC is healthy and everything important is up to date.'
+                  : `Your PC is healthy. ${attentionCount} small ${attentionCount === 1 ? 'thing needs' : 'things need'} attention.`}
+              </p>
             </div>
-          </div>
+            <span className="kudu-device-avatar" aria-label="This device">PC</span>
+          </header>
 
-          {/* Game Mode Card */}
-          {features.gameMode ? (
-            <button
-              onClick={() => navigate('/game-mode')}
-              className={cn(
-                'glass-card glass-card-hover group relative flex flex-col items-center justify-center rounded-2xl px-6 py-6 text-center transition-all',
-              )}
-              style={{
-                background: gameModeActive
-                  ? 'linear-gradient(180deg, rgba(6,182,212,0.08) 0%, rgba(139,92,246,0.04) 100%)'
-                  : undefined,
-                borderColor: gameModeActive ? 'rgba(6,182,212,0.2)' : undefined,
-                animation: gameModeActive ? 'game-mode-pulse 2.5s ease-in-out infinite' : undefined,
-              }}
-            >
-              <div
-                className="flex h-14 w-14 items-center justify-center rounded-full transition-all"
-                style={{
-                  background: gameModeActive
-                    ? 'linear-gradient(135deg, #06b6d4, #8b5cf6)'
-                    : 'var(--bg-hover)',
-                  border: `2px solid ${gameModeActive ? '#06b6d4' : 'var(--border-strong)'}`,
-                }}
-              >
-                <Gamepad2
-                  className="h-6 w-6"
-                  style={{ color: gameModeActive ? '#fff' : 'var(--text-muted)' }}
-                  strokeWidth={2}
-                />
+          <section className="kudu-briefing">
+            <div className="kudu-briefing-copy">
+              <span>TODAY&apos;S SYSTEM BRIEFING</span>
+              <h2>{healthHeadline}</h2>
+              <p>
+                {stats.lastScanDate
+                  ? `No active threats. Your last complete scan ran ${formatDate(stats.lastScanDate)}, and ${formatBytes(stats.totalSpaceSaved)} has been safely reclaimed.`
+                  : 'Run a complete scan to establish a protection baseline and uncover safe cleanup opportunities.'}
+              </p>
+            </div>
+            <div className="kudu-briefing-score">
+              <HealthScore score={healthScore} size="md" />
+            </div>
+          </section>
+
+          <section className="kudu-home-section">
+            <div className="kudu-section-title">
+              <h2>Recommended for you</h2>
+              <span>Safe actions only</span>
+            </div>
+            <div className="kudu-recommendations">
+              <button type="button" onClick={() => setShowQuickConfirm(true)} disabled={isRunning} className="kudu-recommendation is-primary">
+                <span className="kudu-recommendation-icon"><Sparkles strokeWidth={1.9} /></span>
+                <span>
+                  <b>{stats.totalSpaceSaved > 0 ? `Clean ${formatBytes(stats.totalSpaceSaved)}` : t('quickCleanTitle')}</b>
+                  <small>Browser cache, downloads residue and temporary files</small>
+                </span>
+                <i aria-hidden="true">→</i>
+              </button>
+              <button type="button" onClick={() => setShowFullConfirm(true)} disabled={isRunning} className="kudu-recommendation">
+                <span className="kudu-recommendation-icon"><Shield strokeWidth={1.9} /></span>
+                <span>
+                  <b>Run smart scan</b>
+                  <small>Protection, privacy and performance check</small>
+                </span>
+                <i aria-hidden="true">→</i>
+              </button>
+            </div>
+          </section>
+
+          {isRunning && (
+            <div className="kudu-operation" role="status">
+              <div>
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin" strokeWidth={2} />
+                <span>{phaseLabel || t('progressWorking')}</span>
+                {stepProgress.total > 0 && <b>{stepProgress.current}/{stepProgress.total}</b>}
               </div>
-              <span
-                className="mt-3 text-xs font-bold tracking-[0.2em]"
-                style={{ color: gameModeActive ? '#06b6d4' : 'var(--text-muted)' }}
-              >
-                {gameModeActive ? t('gameModeActive') : t('gameModeReady')}
-              </span>
-              {gameModeActive && gameModeActivatedAt && (
-                <span className="mt-1 font-mono text-lg font-semibold tabular-nums" style={{ color: '#06b6d4' }}>
-                  {formatGmElapsed(gmElapsed)}
-                </span>
-              )}
-              {!gameModeActive && (
-                <span className="mt-1 text-[11px] text-zinc-600 group-hover:text-zinc-400 transition-colors">
-                  {t('gameModeClickToOpen')}
-                </span>
-              )}
-            </button>
-          ) : (
-            /* Non-Windows: Status block instead of Game Mode */
-            <div
-              className="glass-card flex flex-col justify-center rounded-2xl px-5 py-4"
-            >
-              <h3 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                {t('statusHeading')}
-              </h3>
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('statusLastScan')}</span>
-                  <span className="text-[12px] font-medium text-zinc-300">
-                    {stats.lastScanDate ? formatDate(stats.lastScanDate) : t('statusLastScanNever')}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('statusTotalScans')}</span>
-                  <span className="text-[12px] font-medium text-zinc-300">{formatNumber(stats.totalScans)}</span>
-                </div>
+              {stepProgress.total > 0 && <div className="kudu-operation-track"><i style={{ width: `${(stepProgress.current / stepProgress.total) * 100}%` }} /></div>}
+            </div>
+          )}
+
+          {phase === 'done' && result && (
+            <div className="kudu-operation is-complete" role="status">
+              <CheckCircle2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+              <div className="min-w-0">
+                <b>{t('resultCleanupComplete')}</b>
+                <p>
+                  {result.spaceRecovered > 0 && <span>{t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}</span>}
+                  {result.filesCleaned > 0 && <span>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</span>}
+                  {result.threatsQuarantined > 0 && <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })}>{result.threatsQuarantined} quarantined</button>}
+                  {result.privacyIssues > 0 && <button onClick={() => navigate('/privacy')}>{result.privacyIssues} privacy improvements</button>}
+                  {result.startupHighImpact > 0 && <button onClick={() => navigate('/startup')}>{result.startupHighImpact} startup items</button>}
+                  {result.updatesAvailable > 0 && <button onClick={() => navigate('/updates')}>{result.updatesAvailable} updates</button>}
+                  {result.spaceRecovered === 0 && result.filesCleaned === 0 && result.registryFixed === 0 && result.driversRemoved === 0 && result.threatsFound === 0 && result.privacyIssues === 0 && result.startupHighImpact === 0 && result.updatesAvailable === 0 && <span>{t('resultSystemAlreadyClean')}</span>}
+                </p>
               </div>
             </div>
           )}
+
+          <section className="kudu-home-section">
+            <div className="kudu-section-title">
+              <h2>System at a glance</h2>
+              <span>Updated just now</span>
+            </div>
+            <div className="kudu-glance-grid">
+              <GlanceCard icon={Cpu} label="Processor" value={cpuPct < 70 ? 'Comfortable' : 'Working hard'} percent={Math.round(cpuPct)} tone="gold" />
+              <GlanceCard icon={MemoryStick} label="Memory" value={perf ? `${formatBytes(freeMemory)} free` : 'Checking…'} percent={Math.round(ramPct)} tone="green" />
+              <GlanceCard icon={HardDrive} label="Storage" value={primaryDrive ? `${formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace)} free` : 'Checking…'} percent={primaryDriveUsedPercent} tone="clay" />
+            </div>
+          </section>
+
+          <section className="kudu-activity-strip" aria-label="Lifetime Kudu activity">
+            <div><span>Space reclaimed</span><b>{formatBytes(stats.totalSpaceSaved)}</b></div>
+            <div><span>Files cleaned</span><b>{formatNumber(stats.totalFilesCleaned)}</b></div>
+            <div><span>Scans completed</span><b>{formatNumber(stats.totalScans)}</b></div>
+          </section>
         </div>
 
-        {/* ── Stats Row ───────────────────────────────── */}
-        <div className="grid grid-cols-4 gap-4">
-          <StatCard icon={HardDrive} label={t('statSpaceRecovered')} value={stats.totalSpaceSaved} displayValue={formatBytes(stats.totalSpaceSaved)} variant="accent" />
-          <StatCard icon={FileStack} label={t('statFilesCleaned')} value={stats.totalFilesCleaned} variant="success" />
-          <StatCard icon={BarChart3} label={t('statTotalScans')} value={stats.totalScans} />
-          <CloudStatusCard
-            connected={cloudConnected}
-            label={t('statusCloud')}
-            statusText={cloudConnected ? t('statusCloudConnected') : t('statusCloudNotConnected')}
-            onClick={() => navigate('/cloud')}
-          />
-        </div>
+        <aside className="kudu-attention-rail" aria-label="Needs your attention">
+          <div className="kudu-attention-heading">
+            <div><span>DEVICE CARE</span><h2>Needs your attention</h2></div>
+            <b>{attentionCount}</b>
+          </div>
 
-        {/* ── Action Buttons ──────────────────────────── */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Quick Clean */}
-          <button
-            onClick={() => setShowQuickConfirm(true)}
-            disabled={isRunning}
-            className={cn(
-              'glass-card glass-card-hover glow-amber group relative flex items-center gap-4 rounded-2xl p-5 text-left transition-all disabled:opacity-60',
-            )}
-          >
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-              style={{
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                boxShadow: '0 0 20px rgba(245,158,11,0.2)'
-              }}
-            >
-              <Sparkles className="h-5 w-5" style={{ color: 'var(--text-on-accent)' }} strokeWidth={2.2} />
+          <div className="kudu-attention-list">
+            <button type="button" onClick={() => navigate('/updates')}>
+              <span className="kudu-attention-icon"><Download /></span>
+              <span><b>{updaterHasChecked ? 'Apps are up to date' : 'Check app updates'}</b><small>{updaterHasChecked ? 'Latest check completed' : 'Security and reliability fixes'}</small></span>
+              <em>{updaterHasChecked ? 'DONE' : '5 MIN'}</em>
+            </button>
+            <button type="button" onClick={() => navigate('/startup')}>
+              <span className="kudu-attention-icon"><Zap /></span>
+              <span><b>{startupAttentionCount > 0 ? `${startupAttentionCount} startup ${startupAttentionCount === 1 ? 'app' : 'apps'}` : 'Startup looks good'}</b><small>{startupAttentionCount > 0 ? 'Could slow sign-in by ~8 sec' : 'No high-impact apps found'}</small></span>
+              <em>{startupAttentionCount > 0 ? 'REVIEW' : 'DONE'}</em>
+            </button>
+            <button type="button" onClick={() => navigate('/malware')}>
+              <span className="kudu-attention-icon is-success"><Check /></span>
+              <span><b>{stats.lastScanDate ? 'Protection looks good' : 'Run your first scan'}</b><small>{stats.lastScanDate ? 'No active threats detected' : 'Establish a security baseline'}</small></span>
+              <em>{stats.lastScanDate ? 'DONE' : 'START'}</em>
+            </button>
+          </div>
+
+          <section className="kudu-drive-card">
+            <div>
+              <b>{primaryDrive ? `${primaryDrive.letter}: ${primaryDrive.label || 'System drive'}` : 'System drive'}</b>
+              <span>{primaryDrive ? `${formatBytes(primaryDrive.usedSpace)} / ${formatBytes(primaryDrive.totalSize)}` : 'Checking storage…'}</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-zinc-200">{t('quickCleanTitle')}</p>
-              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                {features.registry ? t('quickCleanDescriptionWithRegistry') : t('quickCleanDescriptionWithoutRegistry')}
-              </p>
-            </div>
+            <div className="kudu-drive-track"><i style={{ width: `${primaryDriveUsedPercent}%` }} /></div>
+            <p>{primaryDriveUsedPercent > 85 ? 'Cleanup is recommended soon.' : 'Plenty of working space is available.'}</p>
+            <button type="button" onClick={() => navigate('/disk')}>Open storage tools →</button>
+          </section>
+
+          {features.gameMode && (
+            <button type="button" className="kudu-rail-link" onClick={() => navigate('/game-mode')}>
+              <span className="kudu-attention-icon"><Gamepad2 /></span>
+              <span><b>{gameModeActive ? 'Game Mode is active' : 'Game Mode is ready'}</b><small>{gameModeActive && gameModeActivatedAt ? formatGmElapsed(gmElapsed) : 'Focus resources before you play'}</small></span>
+              <i>→</i>
+            </button>
+          )}
+
+          <button type="button" className="kudu-cloud-status" onClick={() => navigate('/cloud')}>
+            <i className={cn(cloudConnected && 'is-connected')} />
+            <span>{cloudConnected ? 'Kudu Cloud connected' : 'Connect Kudu Cloud'}</span>
           </button>
-
-          {/* Full Clean */}
-          <button
-            onClick={() => setShowFullConfirm(true)}
-            disabled={isRunning}
-            className={cn(
-              'glass-card glass-card-hover glow-blue group relative flex items-center gap-4 rounded-2xl p-5 text-left transition-all disabled:opacity-60',
-            )}
-          >
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                boxShadow: '0 0 20px rgba(59,130,246,0.2)'
-              }}
-            >
-              <Shield className="h-5 w-5 text-white" strokeWidth={2.2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[14px] font-semibold text-zinc-200">{t('fullCleanTitle')}</p>
-              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                {features.registry ? t('fullCleanDescriptionWithRegistry') : t('fullCleanDescriptionWithoutRegistry')}
-              </p>
-            </div>
-          </button>
-        </div>
-
-        {/* ── Progress / result banner ─────────────────── */}
-        {isRunning && (
-          <div
-            className="glass-card rounded-2xl px-5 py-4"
-            style={{ borderColor: 'rgba(245,158,11,0.15)' }}
-          >
-            <div className="flex items-center gap-3">
-              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-400" strokeWidth={2} />
-              <span className="flex-1 text-[13px] text-zinc-400">{phaseLabel || t('progressWorking')}</span>
-              {stepProgress.total > 0 && (
-                <span className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
-                  {stepProgress.current}/{stepProgress.total}
-                </span>
-              )}
-            </div>
-            {stepProgress.total > 0 && (
-              <div className="mt-2.5 h-[3px] overflow-hidden rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${(stepProgress.current / stepProgress.total) * 100}%`, background: 'var(--accent)' }}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {phase === 'done' && result && (
-          <div
-            className="glass-card rounded-2xl p-4"
-            style={{ background: 'rgba(34,197,94,0.04)', borderColor: 'rgba(34,197,94,0.12)' }}
-          >
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
-              <div>
-                <p className="text-[13px] font-medium text-zinc-200">{t('resultCleanupComplete')}</p>
-                <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1">
-                  {result.spaceRecovered > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}</p>}
-                  {result.filesCleaned > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</p>}
-                  {result.registryFixed > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultRegistryFixed', { count: result.registryFixed })}</p>}
-                  {result.driversRemoved > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultDriversRemoved', { count: result.driversRemoved })}</p>}
-                  {result.threatsFound > 0 && (
-                    result.threatsQuarantined > 0 ? (
-                      <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })} className="text-[12px] hover:underline" style={{ color: '#22c55e' }}>
-                        {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })} &rarr;
-                      </button>
-                    ) : (
-                      <p className="text-[12px]" style={{ color: '#ef4444' }}>
-                        {t(result.threatsQuarantined !== 1 ? 'resultThreatsQuarantinedPlural' : 'resultThreatsQuarantined', { count: result.threatsQuarantined })}
-                      </p>
-                    )
-                  )}
-                  {result.threatsFound === 0 && result.privacyScore > 0 && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultNoThreatsFound')}</p>}
-                  {result.privacyIssues > 0 && (
-                    <button onClick={() => navigate('/hardening')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
-                      {t(result.privacyIssues !== 1 ? 'resultPrivacyImprovementsPlural' : 'resultPrivacyImprovements', { count: result.privacyIssues })} &rarr;
-                    </button>
-                  )}
-                  {result.startupHighImpact > 0 && (
-                    <button onClick={() => navigate('/startup')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
-                      {t(result.startupHighImpact !== 1 ? 'resultStartupHighImpactPlural' : 'resultStartupHighImpact', { count: result.startupHighImpact })} &rarr;
-                    </button>
-                  )}
-                  {result.updatesAvailable > 0 && (
-                    <button onClick={() => navigate('/updates')} className="text-[12px] hover:underline" style={{ color: '#3b82f6' }}>
-                      {t(result.updatesAvailable !== 1 ? 'resultSoftwareUpdatesPlural' : 'resultSoftwareUpdates', { count: result.updatesAvailable })} &rarr;
-                    </button>
-                  )}
-                  {result.spaceRecovered === 0 && result.filesCleaned === 0 && result.registryFixed === 0 && result.driversRemoved === 0 && result.threatsFound === 0 && result.privacyIssues === 0 && result.startupHighImpact === 0 && result.updatesAvailable === 0 && (
-                    <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('resultSystemAlreadyClean')}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Storage Overview ─────────────────────────── */}
-        <div
-          className="glass-card rounded-2xl p-5"
-        >
-          <h3 className="mb-5 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-            {t('storageOverviewHeading')}
-          </h3>
-          <div className="space-y-5">
-            {drives.length === 0 && (
-              <p className="py-4 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
-                {t('storageOverviewEmpty')}
-              </p>
-            )}
-            {drives.map((drive) => (
-              <DriveBar key={drive.letter} drive={drive} platform={platform} />
-            ))}
-          </div>
-        </div>
+        </aside>
       </div>
 
       <ConfirmDialog
@@ -764,6 +646,35 @@ export function DashboardPage() {
         variant="warning"
       />
     </div>
+  )
+}
+
+function GlanceCard({ icon: Icon, label, value, percent, tone }: {
+  icon: typeof Cpu
+  label: string
+  value: string
+  percent: number
+  tone: 'gold' | 'green' | 'clay'
+}) {
+  const clamped = Math.max(0, Math.min(100, percent))
+  return (
+    <article className={`kudu-glance-card is-${tone}`}>
+      <div className="kudu-glance-meta">
+        <span><Icon />{label}</span>
+      </div>
+      <div className="kudu-glance-body">
+        <h3>{value}</h3>
+        <div
+          className="kudu-glance-dial"
+          style={{ background: `conic-gradient(var(--glance-color) ${clamped * 3.6}deg, var(--gauge-track) 0deg)` }}
+          role="img"
+          aria-label={`${label}: ${clamped}%`}
+        >
+          <span>{clamped}%</span>
+        </div>
+      </div>
+      <div className="kudu-glance-track"><i style={{ width: `${clamped}%` }} /></div>
+    </article>
   )
 }
 
@@ -821,47 +732,16 @@ function CloudStatusCard({ connected, label, statusText, onClick }: {
   statusText: string
   onClick: () => void
 }) {
-  const accentLine = connected ? 'rgba(34,197,94,0.4)' : 'var(--border-medium)'
-  const iconBg = connected ? 'rgba(34,197,94,0.10)' : 'var(--bg-hover)'
-  const iconColor = connected ? '#22c55e' : 'var(--text-muted)'
-
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={`${label}: ${statusText}`}
-      className={cn(
-        'glass-card glass-card-hover group relative overflow-hidden rounded-2xl p-5 text-left',
-        connected && 'glow-green'
-      )}
+      className="calm-cloud-card text-left"
     >
-      {/* Accent line at top */}
-      <div
-        className="absolute inset-x-0 top-0 h-[2px]"
-        style={{ background: `linear-gradient(90deg, transparent, ${accentLine}, transparent)` }}
-      />
-
-      {/* Icon in container */}
-      <div
-        className="mb-4 flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
-        style={{ background: iconBg }}
-      >
-        <Cloud className="h-[18px] w-[18px]" style={{ color: iconColor }} strokeWidth={1.8} aria-hidden="true" />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span
-          className="h-2 w-2 shrink-0 rounded-full"
-          style={{ background: connected ? '#22c55e' : 'var(--text-faint)' }}
-        />
-        <span
-          className="truncate text-[18px] font-bold tracking-tight"
-          style={{ color: connected ? '#fff' : 'var(--text-muted)' }}
-        >
-          {statusText}
-        </span>
-      </div>
-      <p className="mt-1 text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <span className="calm-attention-icon success"><Cloud className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" /></span>
+      <span className="min-w-0 flex-1"><b>{statusText}</b><small>{label}</small></span>
+      <span className="h-1.5 w-1.5 rounded-full" style={{ background: connected ? 'var(--success)' : 'var(--text-faint)' }} />
     </button>
   )
 }

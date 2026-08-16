@@ -22,19 +22,20 @@ export function AdminBanner() {
   return (
     <div
       role="status"
-      className="mx-4 mb-2 flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm"
+      className="admin-banner flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm"
       style={{
         background: 'var(--accent-muted-bg)',
         border: '1px solid var(--accent-muted-border)'
       }}
     >
-      <ShieldAlert size={18} className="shrink-0 text-amber-500" aria-hidden="true" />
+      <ShieldAlert size={18} className="shrink-0" style={{ color: 'var(--warning)' }} aria-hidden="true" />
       <span className="text-zinc-300">
         {t('adminBannerMessage')}
       </span>
       <button
         onClick={() => window.kudu.elevationRelaunch()}
-        className="ml-1 shrink-0 rounded px-3 py-1 text-xs font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
+        className="ml-1 shrink-0 rounded-lg px-3 py-1 text-xs font-semibold transition-colors"
+        style={{ background: 'var(--accent-muted-bg)', color: 'var(--warning)' }}
       >
         {t('relaunchAsAdmin')}
       </button>

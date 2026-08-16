@@ -135,7 +135,7 @@ export function App() {
     return (
       <div className="flex h-screen w-screen items-center justify-center" style={{ background: '#09090b' }}>
         <div className="flex flex-col items-center gap-4">
-          <img src="" alt="" className="h-16 w-16 rounded-2xl" style={{ visibility: 'hidden' }} />
+          <div className="h-16 w-16 rounded-2xl" aria-hidden="true" />
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 border-t-amber-500" />
         </div>
       </div>
@@ -182,8 +182,9 @@ export function App() {
           <Route path="/schedules" element={<SchedulesPage />} />
           {/* Legacy redirect */}
           <Route path="/hardening" element={<Navigate to="/privacy" replace />} />
-          <Route path="/updater" element={<SoftwareUpdaterPage />} />
+          <Route path="/updater" element={<Navigate to="/updates" replace />} />
           <Route path="/drivers" element={<DriverManagerPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppShell>
       <Toaster
@@ -210,9 +211,10 @@ export function App() {
 // so each page gets its own distinct title for screen readers / OS window switcher.
 const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
   '/': { key: 'dashboard' },
-  '/cleaner': { key: 'cleaner' },
-  '/registry': { key: 'registry' },
-  '/startup': { key: 'startup' },
+  '/cleaner': 'System Cleaner',
+  '/registry': 'Registry',
+  '/context-menu': 'Context Menu',
+  '/startup': 'Startup Apps',
   '/disk': 'Disk Analyzer',
   '/duplicates': 'Duplicate Finder',
   '/large-files': 'Large File Finder',
@@ -220,22 +222,22 @@ const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
   '/file-shredder': 'File Shredder',
   '/disk-repair': 'Disk Repair',
   '/disk-maintenance': 'Disk Maintenance',
-  '/network': { key: 'network' },
-  '/malware': { key: 'malwareScanner' },
-  '/threat-monitor': { key: 'threatMonitor' },
-  '/cve': { key: 'cveScanner' },
-  '/game-mode': { key: 'gameMode' },
-  '/performance': { key: 'performance' },
+  '/network': 'Network Cleanup',
+  '/malware': 'Malware Scanner',
+  '/threat-monitor': 'Threat Monitor',
+  '/cve': 'Vulnerability Scanner',
+  '/game-mode': 'Game Mode',
+  '/performance': 'Live Performance',
   '/uninstaller': 'Uninstaller',
-  '/history': { key: 'history' },
-  '/settings': { key: 'settings' },
+  '/history': 'Activity',
+  '/settings': 'Preferences',
   '/about': 'About',
   '/privacy': 'Privacy',
   '/services': 'Services',
   '/firewall': 'Firewall Audit',
   '/debloater': 'Bloatware Remover',
   '/updates': 'Software Updates',
-  '/schedules': { key: 'schedules' },
+  '/schedules': 'Automatic Care',
   '/drivers': 'Driver Updates',
   '/cloud': 'Kudu Cloud',
   '/breach-monitor': 'Breach Monitor',

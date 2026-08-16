@@ -37,7 +37,7 @@ const defaults: StoreData = {
   onboardingComplete: false,
   windowState: null,
   settings: {
-    theme: 'dark' as const,
+    theme: 'system' as const,
     language: 'en',
     minimizeToTray: false,
     showNotificationOnComplete: true,
@@ -425,4 +425,3 @@ export function getMachineId(): string {
   }).catch(() => { /* logged in runLocked */ })
   return id
 }
-

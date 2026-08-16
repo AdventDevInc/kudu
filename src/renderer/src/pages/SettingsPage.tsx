@@ -69,11 +69,12 @@ export function SettingsPage() {
   const selectBorder = { background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }
 
   return (
-    <div className="animate-fade-in max-w-2xl">
+    <div className="feature-page settings-page animate-fade-in">
       <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
+      <div className="settings-grid">
       <Section title={t('sectionGeneral')}>
-        <Row label={t('themeLabel', 'Theme')} desc={t('themeDesc', 'Choose between dark and light appearance')}>
+        <Row label={t('themeLabel', 'Theme')} desc={t('themeDesc', 'Follow your system appearance or choose a mode')}>
           <ThemeSelector value={settings.theme} onChange={(v) => save({ theme: v })} />
         </Row>
         <Row label={t('languageLabel')} desc={t('languageDesc')}>
@@ -248,16 +249,17 @@ export function SettingsPage() {
         </div>
       </Section>
 
+      </div>
     </div>
   )
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mb-7">
+    <section className="settings-section mb-7">
       <h3 className="mb-3 text-[11px] font-medium uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{title}</h3>
       <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>{children}</div>
-    </div>
+    </section>
   )
 }
 
@@ -355,9 +357,9 @@ function BackupFolderRow({
 
 function ThemeSelector({ value, onChange }: { value: 'dark' | 'light' | 'system'; onChange: (v: 'dark' | 'light' | 'system') => void }) {
   const options: { id: 'dark' | 'light' | 'system'; icon: typeof Sun; label: string }[] = [
-    { id: 'dark', icon: Moon, label: 'Dark' },
-    { id: 'light', icon: Sun, label: 'Light' },
     { id: 'system', icon: Monitor, label: 'System' },
+    { id: 'light', icon: Sun, label: 'Light' },
+    { id: 'dark', icon: Moon, label: 'Dark' },
   ]
   return (
     <div className="flex gap-1 rounded-lg p-0.5" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}>
@@ -381,4 +383,3 @@ function ThemeSelector({ value, onChange }: { value: 'dark' | 'light' | 'system'
     </div>
   )
 }
-

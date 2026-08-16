@@ -87,7 +87,7 @@ export function PerformanceMonitorPage() {
   ]
 
   return (
-    <div className="mx-auto max-w-[1200px]">
+    <div className="feature-page performance-page mx-auto max-w-[1320px]">
       <PageHeader
         title={t('pageTitle')}
         description={t('pageDescription')}

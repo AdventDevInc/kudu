@@ -9,7 +9,7 @@ interface SettingsState {
 }
 
 const defaultSettings: KuduSettings = {
-  theme: 'dark',
+  theme: 'system',
   language: 'en',
   minimizeToTray: false,
   showNotificationOnComplete: true,

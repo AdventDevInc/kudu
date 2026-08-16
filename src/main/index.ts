@@ -100,7 +100,9 @@ if (process.argv.includes('--cli')) {
 function initGui(): void {
 
 // Prevent multiple instances — if another is already running, focus it and quit this one
-const gotLock = app.requestSingleInstanceLock()
+// Development previews can run alongside an installed Kudu copy. Packaged
+// builds keep the normal single-instance guarantee.
+const gotLock = app.isPackaged ? app.requestSingleInstanceLock() : true
 if (!gotLock) {
   app.quit()
   return

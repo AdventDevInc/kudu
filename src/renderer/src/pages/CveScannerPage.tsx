@@ -102,10 +102,23 @@ export function CveScannerPage() {
   }, [fetchVulns])
 
   // Cloud not configured — redirect away (page is hidden from sidebar)
-  useEffect(() => {
-    if (!isLinked) navigate('/', { replace: true })
-  }, [isLinked, navigate])
-  if (!isLinked) return null
+  if (!isLinked) {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <EmptyState
+          icon={ShieldCheck}
+          title="Connect Kudu Cloud to scan vulnerabilities"
+          description="Cloud intelligence matches installed software against current critical and high-severity security advisories."
+          action={
+            <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+              Connect Kudu Cloud
+            </button>
+          }
+        />
+      </div>
+    )
+  }
 
   // Loading (first fetch)
   if (status === 'loading' && vulnerabilities.length === 0 && !error) {
