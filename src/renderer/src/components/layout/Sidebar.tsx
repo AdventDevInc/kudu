@@ -85,7 +85,7 @@ const navGroups: NavGroup[] = [
         ]
       },
       {
-        icon: Shield, labelKey: 'securityHeading', label: 'Protection', path: '/malware',
+        icon: Shield, labelKey: 'hardening:serviceManager.categorySecurity', label: 'Security', path: '/malware',
         children: [
           { icon: ShieldAlert, labelKey: 'malware:pageTitle', label: 'Malware Scanner', path: '/malware' },
           { icon: Eye, labelKey: 'hardening:privacy.pageTitle', label: 'Privacy', path: '/privacy' },

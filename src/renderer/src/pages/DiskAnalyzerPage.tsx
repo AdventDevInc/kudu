@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HardDrive, ChevronRight, Folder, File, RefreshCw, FileType2 } from 'lucide-react'
+import { HardDrive, ArrowUp, Folder, File, RefreshCw, FileType2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -205,18 +205,23 @@ export function DiskAnalyzerPage() {
 
           {viewMode === 'folders' && currentNode && (
             <>
-              {/* Breadcrumb */}
-              <div className="mb-5 flex items-center gap-1">
-                {breadcrumb.map((node, i) => (
-                  <div key={node.path} className="flex items-center">
-                    {i > 0 && <ChevronRight className="mx-1 h-3 w-3" style={{ color: 'var(--text-faint)' }} />}
-                    <button onClick={() => store.sliceBreadcrumb(i)}
-                      className="rounded-md px-2 py-1 font-mono text-[12px] transition-colors"
-                      style={{ color: i === breadcrumb.length - 1 ? 'var(--accent)' : 'var(--text-secondary)' }}>
-                      {node.name}
-                    </button>
-                  </div>
-                ))}
+              <div className="mb-5 flex min-h-9 items-center gap-2">
+                {breadcrumb.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => store.sliceBreadcrumb(breadcrumb.length - 2)}
+                    className="inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold transition-colors"
+                    style={{ background: 'var(--card-bg)', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+                    aria-label="Up one folder level"
+                  >
+                    <ArrowUp className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>Up</span>
+                  </button>
+                )}
+                <div className="flex min-w-0 items-center gap-2 px-1" style={{ color: 'var(--text-secondary)' }}>
+                  <Folder className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate font-mono text-[12px] font-semibold">{currentNode.name}</span>
+                </div>
               </div>
 
               {/* Treemap */}

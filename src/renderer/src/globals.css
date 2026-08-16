@@ -1716,23 +1716,6 @@ body,
 .app-content { background: var(--page-bg); }
 .app-content[data-route="/"] { background: var(--page-bg); }
 
-.page-breadcrumb {
-  display: flex;
-  min-height: 18px;
-  align-items: center;
-  gap: 5px;
-  margin: 0 0 8px;
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 640;
-  letter-spacing: 0;
-  line-height: 1.35;
-  text-transform: none;
-}
-.page-breadcrumb svg { width: 12px; height: 12px; color: var(--text-dim); stroke-width: 1.8; }
-.page-breadcrumb [aria-current="page"] { color: var(--brand-solid); }
-.kudu-home-kicker.page-breadcrumb { margin-bottom: 8px !important; font-size: 12px !important; letter-spacing: 0; }
-
 @media (max-width: 980px) {
   .app-brand { width: 82px; flex-basis: 82px; justify-content: center; padding: 0; }
   .app-shell[data-platform="darwin"] .app-brand { justify-content: flex-end; padding-right: 12px; padding-left: 0; }
