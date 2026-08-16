@@ -104,8 +104,9 @@ describe('granular directory deletion fallback', () => {
     expect(existsSync(locked)).toBe(true)
     expect(result.filesDeleted).toBe(0)
     expect(result.filesSkipped).toBe(1)
-    expect(result.errors).toEqual([{ path: locked, reason: 'in-use' }])
-    expect(result.needsElevation).toBe(false)
+    const expectedReason = process.platform === 'win32' ? 'in-use' : 'permission-denied'
+    expect(result.errors).toEqual([{ path: locked, reason: expectedReason }])
+    expect(result.needsElevation).toBe(process.platform !== 'win32')
   })
 
   it('unlinks directory junctions without traversing their targets', async () => {
