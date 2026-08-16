@@ -1,8 +1,8 @@
 diff --git a/node_modules/systeminformation/lib/util.js b/node_modules/systeminformation/lib/util.js
-index f8b854d..773dc42 100644
+index 76ebfc3..dda06ca 100644
 --- a/node_modules/systeminformation/lib/util.js
 +++ b/node_modules/systeminformation/lib/util.js
-@@ -571,12 +571,15 @@ function getCodepage() {
+@@ -566,12 +566,15 @@ function getCodepage() {
    if (_windows) {
      if (!codepage) {
        try {
@@ -23,7 +23,7 @@ index f8b854d..773dc42 100644
        }
      }
      return codepage;
-@@ -665,8 +668,13 @@ function execWin(cmd, opts, callback) {
+@@ -660,8 +663,13 @@ function execWin(cmd, opts, callback) {
      callback = opts;
      opts = execOptsWin;
    }
