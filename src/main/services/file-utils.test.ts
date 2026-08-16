@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { isExcluded } from './file-utils'
+import { deleteFailureReason, isExcluded } from './file-utils'
 
 // Mock settings-store to prevent Electron import
 vi.mock('./settings-store', () => ({
@@ -77,5 +77,21 @@ describe('isExcluded', () => {
   it('extension pattern requires dot', () => {
     // *.log should match .log extension, not just "log" at the end
     expect(isExcluded('C:\\temp\\catalog', ['*.log'])).toBe(false)
+  })
+})
+
+describe('deleteFailureReason', () => {
+  it('only describes busy or changing paths as in use', () => {
+    expect(deleteFailureReason({ code: 'EBUSY' })).toBe('in-use')
+    expect(deleteFailureReason({ code: 'ENOTEMPTY' })).toBe('in-use')
+  })
+
+  it('reports Windows EPERM as a permission failure', () => {
+    expect(deleteFailureReason({ code: 'EPERM' })).toBe('permission-denied')
+    expect(deleteFailureReason({ code: 'EACCES' })).toBe('permission-denied')
+  })
+
+  it('preserves an otherwise unknown filesystem message', () => {
+    expect(deleteFailureReason({ code: 'EIO', message: 'device error' })).toBe('device error')
   })
 })

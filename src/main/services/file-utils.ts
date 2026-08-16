@@ -14,6 +14,13 @@ export interface DeleteResult {
   reason?: string
 }
 
+/** Translate filesystem failures without conflating permissions with locks. */
+export function deleteFailureReason(err: { code?: string; message?: string }): string {
+  if (err.code === 'EBUSY' || err.code === 'ENOTEMPTY') return 'in-use'
+  if (err.code === 'EPERM' || err.code === 'EACCES') return 'permission-denied'
+  return err.message || 'unknown-error'
+}
+
 /**
  * Check if a path matches any of the configured exclusions.
  * Supports exact path prefixes and *.ext glob patterns.
@@ -97,16 +104,10 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
     await rm(filePath, { force: true, recursive: true, maxRetries: 3, retryDelay: 100 })
     return { path: filePath, success: true }
   } catch (err: any) {
-    if (err.code === 'EBUSY' || err.code === 'EPERM') {
-      return { path: filePath, success: false, reason: 'in-use' }
-    }
-    if (err.code === 'EACCES') {
-      return { path: filePath, success: false, reason: 'permission-denied' }
-    }
     if (err.code === 'ENOENT') {
       return { path: filePath, success: true }
     }
-    return { path: filePath, success: false, reason: err.message }
+    return { path: filePath, success: false, reason: deleteFailureReason(err) }
   }
 }
 
