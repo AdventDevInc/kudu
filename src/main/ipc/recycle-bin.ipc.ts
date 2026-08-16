@@ -10,6 +10,7 @@ import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { psUtf8 } from '../services/exec-utf8'
+import { queryRecycleBinStats } from '../services/recycle-bin-stats'
 import {
   isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin
 } from '../services/recycle-bin-log'
@@ -50,15 +51,9 @@ export function registerRecycleBinIpc(): void {
       }
     }
 
-    // Windows: COM-based recycle bin
+    // Windows: metadata-only query (does not traverse deleted file contents)
     try {
-      const { stdout } = await execFileAsync('powershell.exe', psArgs(
-        `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-      ), { windowsHide: true })
-
-      const [countStr, sizeStr] = stdout.trim().split('|')
-      const count = parseInt(countStr) || 0
-      const size = parseInt(sizeStr) || 0
+      const { count, size } = await queryRecycleBinStats()
 
       lastScannedSize = size
       lastScannedCount = count
@@ -115,12 +110,7 @@ export function registerRecycleBinIpc(): void {
 
       // Verify both count and bytes. SHEmptyRecycleBin returns an HRESULT rather
       // than throwing, and it can partially succeed across multiple drives.
-      const { stdout } = await execFileAsync('powershell.exe', psArgs(
-        `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-      ), { windowsHide: true })
-      const [remainingCountStr, remainingSizeStr] = stdout.trim().split('|')
-      const remaining = parseInt(remainingCountStr) || 0
-      const remainingSize = parseInt(remainingSizeStr) || 0
+      const { count: remaining, size: remainingSize } = await queryRecycleBinStats()
       const totalCleaned = Math.max(0, sizeBeforeClean - remainingSize)
       const filesDeleted = Math.max(0, countBeforeClean - remaining)
 

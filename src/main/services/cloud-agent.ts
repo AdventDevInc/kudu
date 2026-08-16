@@ -20,6 +20,7 @@ import { scanAppRule, scanDirectory, scanMultipleDirectories, resolveChildSubdir
 import { cacheItems, clearCachedCategory } from './scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
 import { psUtf8 } from './exec-utf8'
+import { queryRecycleBinStats } from './recycle-bin-stats'
 import { getPlatform } from '../platform'
 import { CleanerType } from '../../shared/enums'
 import { checkForUpdates, runUpdates, isValidAppIdForSource } from './software-updater'
@@ -2132,15 +2133,9 @@ class CloudAgentService {
           }
           return
         }
-        // Windows: COM-based recycle bin query
+        // Windows: metadata-only query (does not traverse deleted file contents)
         try {
-          const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-          const { stdout } = await execFileAsync('powershell.exe', [
-            '-NoProfile', '-Command', psUtf8(rbScript)
-          ], { windowsHide: true })
-          const [countStr, sizeStr] = stdout.trim().split('|')
-          const count = parseInt(countStr) || 0
-          const size = parseInt(sizeStr) || 0
+          const { count, size } = await queryRecycleBinStats()
           await this.postCommandResult(requestId, true, {
             scanType,
             totalSize: size,
