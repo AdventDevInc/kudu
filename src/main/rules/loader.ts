@@ -25,6 +25,7 @@ export interface SystemRulesJson {
     subcategory: string
     needsAdmin?: boolean
     childSubdir?: string
+    deepRecencyCheck?: boolean
   }>
   singleFileTargets?: Array<{ path: string; subcategory: string }>
 }
@@ -181,6 +182,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         }
         if (t.needsAdmin) target.needsAdmin = true
         if (t.childSubdir) target.childSubdir = t.childSubdir
+        if (t.deepRecencyCheck) target.deepRecencyCheck = true
         return target
       })
     },

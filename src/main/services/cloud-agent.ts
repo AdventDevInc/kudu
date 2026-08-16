@@ -1940,11 +1940,12 @@ class CloudAgentService {
         for (const t of targets) {
           try {
             let r
+            const recency = { deepRecencyCheck: t.deepRecencyCheck === true }
             if (t.childSubdir) {
               const childPaths = await resolveChildSubdirs([t.path], t.childSubdir)
-              r = await scanMultipleDirectories(childPaths, CleanerType.System, t.subcategory)
+              r = await scanMultipleDirectories(childPaths, CleanerType.System, t.subcategory, recency)
             } else {
-              r = await scanDirectory(t.path, CleanerType.System, t.subcategory)
+              r = await scanDirectory(t.path, CleanerType.System, t.subcategory, recency)
             }
             if (r.items.length > 0) { cacheItems(r.items); results.push(r) }
           } catch { /* skip */ }

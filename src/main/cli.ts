@@ -153,11 +153,12 @@ async function scanSystem(): Promise<ScanResult[]> {
   for (const target of targets) {
     try {
       let result
+      const recency = { deepRecencyCheck: target.deepRecencyCheck === true }
       if (target.childSubdir) {
         const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
-        result = await scanMultipleDirectories(childPaths, category, target.subcategory)
+        result = await scanMultipleDirectories(childPaths, category, target.subcategory, recency)
       } else {
-        result = await scanDirectory(target.path, category, target.subcategory)
+        result = await scanDirectory(target.path, category, target.subcategory, recency)
       }
       if (eventLogsTarget && target.path === eventLogsTarget.path) {
         result.items = result.items.filter((item) => {

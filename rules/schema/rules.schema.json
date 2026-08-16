@@ -27,6 +27,7 @@
         "subcategory": { "type": "string", "minLength": 1, "description": "Display label for this target group" },
         "needsAdmin": { "type": "boolean", "description": "If true, this target requires elevated privileges" },
         "childSubdir": { "type": "string", "description": "If set, scan path/*/childSubdir instead of path directly (e.g. 'cache' for Flatpak)" },
+        "deepRecencyCheck": { "type": "boolean", "description": "Inspect descendant timestamps and revalidate settled items immediately before recursive deletion" },
         "description": { "type": "string", "description": "Optional explanation of what this target cleans and why it's safe" }
       }
     },

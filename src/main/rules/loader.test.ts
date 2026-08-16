@@ -59,7 +59,7 @@ describe('buildCleanerPaths', () => {
     system: {
       type: 'system',
       cleanTargets: [
-        { path: '${HOME}/temp', subcategory: 'Temp' },
+        { path: '${HOME}/temp', subcategory: 'Temp', deepRecencyCheck: true },
         { path: '/var/tmp', subcategory: 'System Temp', needsAdmin: true },
       ],
       singleFileTargets: [{ path: '${HOME}/dump.dmp', subcategory: 'Dump' }],
@@ -126,6 +126,7 @@ describe('buildCleanerPaths', () => {
     const targets = paths.systemCleanTargets()
     expect(targets).toHaveLength(2)
     expect(targets[0].path).toContain('/temp')
+    expect(targets[0].deepRecencyCheck).toBe(true)
     expect(targets[1].needsAdmin).toBe(true)
   })
 

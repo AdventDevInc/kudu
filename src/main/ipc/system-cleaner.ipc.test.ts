@@ -32,12 +32,14 @@ vi.mock('../services/ipc-validation', () => ({
 
 const configuredUserTempPath = join(tmpdir(), '..', 'configured-user-temp')
 const ordinaryPath = join(tmpdir(), '..', 'ordinary-cache')
+const updateOrchestratorPath = join(tmpdir(), '..', 'uso-logs')
 vi.mock('../platform', () => ({
   getPlatform: () => ({
     paths: {
       systemCleanTargets: () => [
-        { path: configuredUserTempPath, subcategory: 'User Temp Files' },
+        { path: configuredUserTempPath, subcategory: 'User Temp Files', deepRecencyCheck: true },
         { path: ordinaryPath, subcategory: 'Ordinary Cache' },
+        { path: updateOrchestratorPath, subcategory: 'Update Orchestrator Logs', deepRecencyCheck: true },
       ],
       protectedEventLogs: () => [],
       singleFileCleanTargets: () => [],
@@ -61,7 +63,7 @@ describe('system temp scanning', () => {
     })
   })
 
-  it('uses the configured recency and inspects descendants only for user temp', async () => {
+  it('uses the configured recency and honours each target deep-recency flag', async () => {
     registerSystemCleanerIpc(() => null)
     await getHandler('cleaner:system:scan')()
 
@@ -78,6 +80,13 @@ describe('system temp scanning', () => {
       'system',
       'Ordinary Cache',
       { skipRecentMinutes: 30, deepRecencyCheck: false },
+    )
+    expect(mockScanDirectory).toHaveBeenNthCalledWith(
+      3,
+      updateOrchestratorPath,
+      'system',
+      'Update Orchestrator Logs',
+      { skipRecentMinutes: 30, deepRecencyCheck: true },
     )
     expect(mockScanMultipleDirectories).not.toHaveBeenCalled()
   })

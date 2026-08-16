@@ -28,6 +28,7 @@ describe('win32 paths', () => {
       const userTemp = targets.find((t) => t.subcategory === 'User Temp Files')
       expect(userTemp).toBeDefined()
       expect(userTemp!.path).toBe('C:\\Users\\TestUser\\AppData\\Local\\Temp')
+      expect(userTemp!.deepRecencyCheck).toBe(true)
     })
 
     it('includes system temp files under WINDIR\\Temp', () => {
@@ -60,6 +61,7 @@ describe('win32 paths', () => {
       expect(usoLogs).toEqual(expect.objectContaining({
         path: 'C:\\ProgramData\\USOShared\\Logs',
         needsAdmin: true,
+        deepRecencyCheck: true,
       }))
     })
 

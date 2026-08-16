@@ -180,6 +180,7 @@ The test suite includes schema validation tests that verify every rule file.
   "subcategory": "Label",       // Required. Shown in the UI.
   "needsAdmin": true,           // Optional. Requires elevation.
   "childSubdir": "cache",       // Optional. Scan path/*/childSubdir.
+  "deepRecencyCheck": true,      // Optional. Protect recent descendants through cleanup.
   "description": "Details"      // Optional.
 }
 ```

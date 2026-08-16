@@ -2,7 +2,7 @@
   "$schema": "../schema/rules.schema.json",
   "type": "system",
   "cleanTargets": [
-    { "path": "${LOCALAPPDATA}/Temp", "subcategory": "User Temp Files", "description": "Temporary files created by applications and the current user session" },
+    { "path": "${LOCALAPPDATA}/Temp", "subcategory": "User Temp Files", "deepRecencyCheck": true, "description": "Temporary files created by applications and the current user session; recent descendants are protected through cleanup" },
     { "path": "${WINDIR}/Temp", "subcategory": "System Temp Files", "description": "Temporary files created by Windows services and system processes" },
     { "path": "${WINDIR}/Prefetch", "subcategory": "Prefetch Data", "needsAdmin": true, "description": "Application launch prefetch files used to speed up program startup" },
     { "path": "${WINDIR}/Logs", "subcategory": "Windows Logs", "needsAdmin": true, "description": "Windows system and component log files including CBS and DISM logs" },
@@ -54,7 +54,7 @@
     { "path": "${WINDIR}/System32/LogFiles/HTTPERR", "subcategory": "HTTP Error Logs", "needsAdmin": true, "description": "HTTP.sys error log files from the Windows HTTP service" },
     { "path": "${LOCALAPPDATA}/ElevatedDiagnostics", "subcategory": "Elevated Diagnostics", "description": "Results from elevated system diagnostic troubleshooters" },
     { "path": "${WINDIR}/System32/LogFiles/setupcln", "subcategory": "Setup Cleanup Logs", "needsAdmin": true, "description": "Log files from Windows setup cleanup operations" },
-    { "path": "${PROGRAMDATA}/USOShared/Logs", "subcategory": "Update Orchestrator Logs", "needsAdmin": true, "description": "Windows Update Orchestrator diagnostic logs; active and recent files remain protected" }
+    { "path": "${PROGRAMDATA}/USOShared/Logs", "subcategory": "Update Orchestrator Logs", "needsAdmin": true, "deepRecencyCheck": true, "description": "Windows Update Orchestrator diagnostic logs; active and recent descendants remain protected through cleanup" }
   ],
   "singleFileTargets": [
     { "path": "${WINDIR}/MEMORY.DMP", "subcategory": "Full Memory Dump", "description": "Complete memory dump file created during a system crash; often several GB" },

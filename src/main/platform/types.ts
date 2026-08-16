@@ -22,6 +22,8 @@ export interface CleanTarget {
   needsAdmin?: boolean
   /** If set, scan path/&ast;/childSubdir instead of path directly (e.g. 'cache' for Flatpak) */
   childSubdir?: string
+  /** Inspect descendant timestamps and revalidate them immediately before deletion. */
+  deepRecencyCheck?: boolean
 }
 
 export interface BrowserPathConfig {

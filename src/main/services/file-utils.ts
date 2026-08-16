@@ -124,6 +124,9 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
  * trail never reads as a complete one.
  */
 const MAX_LOGGED_DESCENDANTS = 100_000
+/** Bounds both the scan and deletion-time recency revalidation. */
+const MAX_RECENCY_DEPTH = 8
+const MAX_RECENCY_ITEMS = 5_000
 
 /**
  * List the files a recursive delete of `dirPath` will remove.
@@ -246,6 +249,20 @@ export async function cleanItems(
       ? await listDescendantFiles(item.path)
       : null
 
+    // A deep-recency scan may collapse a settled tree to one directory item.
+    // Recheck it after any audit enumeration and immediately before recursive
+    // deletion so files created or updated since the scan remain protected.
+    if (!await revalidateRecencyItem(item, rootInfo)) {
+      filesSkipped++
+      errors.push({ path: item.path, reason: 'recently-modified' })
+      consumedIds.push(item.id)
+      if (onProgress) {
+        onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+        lastReport = Date.now()
+      }
+      continue
+    }
+
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
@@ -317,9 +334,6 @@ export interface ScanRecencyOptions {
    */
   deepRecencyCheck?: boolean
 }
-
-/** How far the contents check descends before it gives up on a subtree. */
-const MAX_RECENCY_DEPTH = 8
 
 interface RecencyScan {
   cutoff: number
@@ -403,6 +417,20 @@ async function resolveEntry(
   return { items: [{ path, size: children.size, mtimeMs: stats.mtimeMs }], complete: true, size: children.size }
 }
 
+/** Confirm that a retention-aware scan item is still settled at cleanup time. */
+async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<boolean> {
+  if (item.recencyCutoff === undefined) return true
+  if (!Number.isFinite(item.recencyCutoff) || rootInfo.isSymbolicLink()) return false
+  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= item.recencyCutoff
+
+  const resolved = await resolveChildren(item.path, {
+    cutoff: item.recencyCutoff,
+    exclusions: getSettings().exclusions,
+    remaining: MAX_RECENCY_ITEMS,
+  }, MAX_RECENCY_DEPTH)
+  return resolved.complete
+}
+
 export async function scanDirectory(
   dirPath: string,
   category: string,
@@ -414,19 +442,20 @@ export async function scanDirectory(
   const items: ScanItem[] = []
   let totalSize = 0
   const cutoff = Date.now() - skipRecentMinutes * 60 * 1000
-  const MAX_ITEMS = 5000
   const exclusions = getSettings().exclusions
 
-  const add = (path: string, size: number, mtimeMs: number): void => {
-    items.push({ id: randomUUID(), path, size, category, subcategory, lastModified: mtimeMs, selected: true })
+  const add = (path: string, size: number, mtimeMs: number, recencyCutoff?: number): void => {
+    const item: ScanItem = { id: randomUUID(), path, size, category, subcategory, lastModified: mtimeMs, selected: true }
+    if (recencyCutoff !== undefined) item.recencyCutoff = recencyCutoff
+    items.push(item)
     totalSize += size
   }
 
   if (deepRecencyCheck) {
     // The scanned directory itself is never offered — only what is inside it —
     // so the top level takes `resolveChildren` and ignores whether it collapsed.
-    const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_ITEMS }, MAX_RECENCY_DEPTH)
-    for (const item of resolved.items.slice(0, MAX_ITEMS)) add(item.path, item.size, item.mtimeMs)
+    const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_RECENCY_ITEMS }, MAX_RECENCY_DEPTH)
+    for (const item of resolved.items.slice(0, MAX_RECENCY_ITEMS)) add(item.path, item.size, item.mtimeMs, cutoff)
     return { category, subcategory, items, totalSize, itemCount: items.length }
   }
 
@@ -434,7 +463,7 @@ export async function scanDirectory(
     const entries = await readdir(dirPath, { withFileTypes: true })
 
     for (const entry of entries) {
-      if (items.length >= MAX_ITEMS) break
+      if (items.length >= MAX_RECENCY_ITEMS) break
       const fullPath = join(dirPath, entry.name)
 
       // Check exclusions
