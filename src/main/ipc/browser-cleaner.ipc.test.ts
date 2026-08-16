@@ -24,6 +24,7 @@ vi.mock('../services/file-utils', () => ({
 const mockCacheItems = vi.fn()
 vi.mock('../services/scan-cache', () => ({
   cacheItems: (...args: unknown[]) => mockCacheItems(...args),
+  clearCachedCategory: vi.fn(),
 }))
 
 const mockGetSettings = vi.fn()

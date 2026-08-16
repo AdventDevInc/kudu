@@ -17,7 +17,7 @@ const Pusher = ((PusherImport as unknown as { Pusher?: typeof PusherImport }).Pu
 type Pusher = PusherImport
 import { getSettings, setSettings, getMachineId } from './settings-store'
 import { scanDirectory, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems } from './file-utils'
-import { cacheItems } from './scan-cache'
+import { cacheItems, clearCachedCategory } from './scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
 import { psUtf8 } from './exec-utf8'
 import { getPlatform } from '../platform'
@@ -1934,6 +1934,7 @@ class CloudAgentService {
 
     switch (scanType) {
       case 'system': {
+        clearCachedCategory(CleanerType.System)
         const results: ScanResult[] = []
         const targets = getPlatform().paths.systemCleanTargets()
         for (const t of targets) {
@@ -1965,6 +1966,7 @@ class CloudAgentService {
       }
 
       case 'browser': {
+        clearCachedCategory(CleanerType.Browser)
         const browserResults: ScanResult[] = []
         const browserPaths = getPlatform().paths.browserPaths()
         const browserCategory = CleanerType.Browser
@@ -2041,6 +2043,7 @@ class CloudAgentService {
       }
 
       case 'app': {
+        clearCachedCategory(CleanerType.App)
         const appResults: ScanResult[] = []
         const appCategory = CleanerType.App
         for (const appDef of getPlatform().paths.appPaths()) {
@@ -2066,6 +2069,7 @@ class CloudAgentService {
       }
 
       case 'gaming': {
+        clearCachedCategory(CleanerType.Gaming)
         const gamingResults: ScanResult[] = []
         const gamingCategory = CleanerType.Gaming
 
@@ -2100,6 +2104,7 @@ class CloudAgentService {
       }
 
       case 'recycle-bin': {
+        clearCachedCategory(CleanerType.RecycleBin)
         const trashPath = getPlatform().paths.trashPath()
         if (trashPath) {
           // macOS / Linux
@@ -2214,6 +2219,7 @@ class CloudAgentService {
       }
 
       case 'database': {
+        clearCachedCategory(CleanerType.Database)
         const dbTargets = getPlatform().paths.databaseOptimizeTargets()
         const dbResults: ScanResult[] = []
         const dbCategory = CleanerType.Database

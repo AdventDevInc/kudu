@@ -2,7 +2,7 @@ import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
 import { scanDirectory, scanFile, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from '../services/file-utils'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { isAdmin } from '../services/elevation'
 import type { ScanResult, CleanResult } from '../../shared/types'
 import { CleanerType } from '../../shared/enums'
@@ -13,6 +13,7 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.SYSTEM_SCAN, async (): Promise<ScanResult[]> => {
     const results: ScanResult[] = []
     const category = CleanerType.System
+    clearCachedCategory(category)
 
     const elevated = isAdmin()
     const platform = getPlatform()

@@ -38,6 +38,7 @@ vi.mock('./settings-store', () => ({
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => state.items,
+  removeCachedItems: () => {},
 }))
 
 vi.mock('./deletion-log-store', () => ({
@@ -238,7 +239,10 @@ describe('cleanItems deletion logging', () => {
 
     const result = await cleanItems(['id-0', 'id-vanished'])
 
-    expect(result.filesDeleted).toBe(2) // counters keep their existing behavior
+    expect(result.filesDeleted).toBe(1)
+    expect(result.filesSkipped).toBe(1)
+    expect(result.totalCleaned).toBe(10)
+    expect(result.errors).toContainEqual({ path: join(testDir, 'vanished.tmp'), reason: 'not-found' })
     expect(state.recorded.map((r) => r.path)).toEqual([join(testDir, 'file-0.tmp')])
   })
 
@@ -270,9 +274,11 @@ describe('cleanItems deletion logging', () => {
   it('does not log when no items match the given ids', async () => {
     state.keepDeletionLog = true
     state.items = []
-    await cleanItems(['nope'])
+    const result = await cleanItems(['nope'])
 
     expect(state.recorded).toHaveLength(0)
     expect(state.batches).toBe(0)
+    expect(result.filesSkipped).toBe(1)
+    expect(result.errors).toEqual([{ path: 'nope', reason: 'scan-result-expired' }])
   })
 })

@@ -5,7 +5,7 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { IPC } from '../../shared/channels'
 import { CleanerType } from '../../shared/enums'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { validateStringArray } from '../services/ipc-validation'
 import { psUtf8, execNativeUtf8 } from '../services/exec-utf8'
 import type { ScanItem, ScanResult, CleanResult, CleanError } from '../../shared/types'
@@ -262,6 +262,7 @@ const envEntryCache = new Map<string, EnvEntry>()
 
 export function registerEnvironmentCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.ENVIRONMENT_SCAN, async (): Promise<ScanResult[]> => {
+    clearCachedCategory(CleanerType.Environment)
     envEntryCache.clear()
     const results: ScanResult[] = []
     const category = CleanerType.Environment

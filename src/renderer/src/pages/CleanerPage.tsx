@@ -219,7 +219,7 @@ export function CleanerPage() {
               categoryBreakdown.push({
                 name: t(cat.labelKey),
                 type: cat.type,
-                found: catItemsAll.length,
+                found: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
                 cleaned: result.filesDeleted || 0,
                 space: result.totalCleaned || 0
               })
@@ -227,7 +227,13 @@ export function CleanerPage() {
           } catch { /* continue */ }
           activeIndex++
         } else if (catItemsAll.length > 0) {
-          categoryBreakdown.push({ name: t(cat.labelKey), type: cat.type, found: catItemsAll.length, cleaned: 0, space: 0 })
+          categoryBreakdown.push({
+            name: t(cat.labelKey),
+            type: cat.type,
+            found: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
+            cleaned: 0,
+            space: 0
+          })
         }
       }
 

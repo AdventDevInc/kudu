@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import Database from 'better-sqlite3'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
-import { cacheItems, getCachedItem } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory, getCachedItem } from '../services/scan-cache'
 import { CleanerType } from '../../shared/enums'
 import type { ScanResult, ScanItem, CleanResult, CleanError } from '../../shared/types'
 import type { DatabaseTarget } from '../platform/types'
@@ -60,6 +60,7 @@ function resolveProfileDirs(basePath: string, target: DatabaseTarget): string[] 
 
 export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.DATABASE_SCAN, async (): Promise<ScanResult[]> => {
+    clearCachedCategory(CleanerType.Database)
     const results: ScanResult[] = []
     const category = CleanerType.Database
     const targets = getPlatform().paths.databaseOptimizeTargets()

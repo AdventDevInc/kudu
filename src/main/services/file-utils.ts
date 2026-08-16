@@ -4,7 +4,7 @@ import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
-import { getCachedItems } from './scan-cache'
+import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
 
@@ -91,7 +91,10 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
         // If overwrite fails (e.g. permission), still attempt normal deletion
       }
     }
-    await rm(filePath, { force: true, recursive: true })
+    // Recursive rm only retries transient EBUSY/EPERM/ENOTEMPTY failures when
+    // maxRetries is non-zero. Cache trees are frequently touched by antivirus
+    // and indexer processes for a few milliseconds after scanning.
+    await rm(filePath, { force: true, recursive: true, maxRetries: 3, retryDelay: 100 })
     return { path: filePath, success: true }
   } catch (err: any) {
     if (err.code === 'EBUSY' || err.code === 'EPERM') {
@@ -170,14 +173,27 @@ export async function cleanItems(
 ): Promise<CleanResult> {
   // Validate input is a string array
   const validIds = Array.isArray(itemIds)
-    ? itemIds.filter((v): v is string => typeof v === 'string')
+    ? [...new Set(itemIds.filter((v): v is string => typeof v === 'string'))]
     : []
   const items = getCachedItems(validIds)
   let totalCleaned = 0
   let filesDeleted = 0
   let filesSkipped = 0
   const errors: CleanResult['errors'] = []
+  const consumedIds: string[] = []
   let lastReport = 0
+
+  // A missing cache entry used to disappear from the operation entirely. In a
+  // large scan that made tens of thousands of selected files neither deleted
+  // nor reported. Keep this explicit even though current scans are no longer
+  // capacity-evicted, so stale renderer results can never fail silently.
+  const resolvedIds = new Set(items.map((item) => item.id))
+  for (const id of validIds) {
+    if (!resolvedIds.has(id)) {
+      filesSkipped++
+      errors.push({ path: id, reason: 'scan-result-expired' })
+    }
+  }
 
   // Opt-in audit trail of what was removed (issue #247). Buffered so a clean of
   // 100k files doesn't turn into 100k appends, and flushed as we go so a crash
@@ -196,23 +212,37 @@ export async function cleanItems(
     // directory rather than a symlink to one. Null means it was already gone
     // before this clean touched it.
     let rootInfo: Awaited<ReturnType<typeof lstat>> | null = null
-    if (logDeletions) {
-      try {
-        rootInfo = await lstat(item.path)
-      } catch {
-        rootInfo = null
+    try {
+      rootInfo = await lstat(item.path)
+    } catch {
+      rootInfo = null
+    }
+
+    // force:true makes rm report success for an already-vanished file. Counting
+    // its scanned size as reclaimed substantially overstates what this run did.
+    if (!rootInfo) {
+      filesSkipped++
+      errors.push({ path: item.path, reason: 'not-found' })
+      consumedIds.push(item.id)
+      if (onProgress) {
+        onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+        lastReport = Date.now()
       }
+      continue
     }
 
     // A scan item is often a whole directory that rm removes recursively, so
     // enumerate what's inside before it's gone. Only on success do these get
     // recorded, so a failed delete never leaves phantom entries behind.
-    const descendants = rootInfo?.isDirectory() ? await listDescendantFiles(item.path) : null
+    const descendants = logDeletions && rootInfo.isDirectory()
+      ? await listDescendantFiles(item.path)
+      : null
 
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
       filesDeleted++
+      consumedIds.push(item.id)
       // rm(force) reports success for a path that was already missing, so a
       // temp file that vanished between the scan and the clean would otherwise
       // be logged as something Kudu deleted. Counters keep their existing
@@ -241,14 +271,19 @@ export async function cleanItems(
     if (onProgress) {
       const processed = filesDeleted + filesSkipped
       const now = Date.now()
-      if (now - lastReport > 120 || processed === items.length) {
+      if (now - lastReport > 120 || processed === validIds.length) {
         lastReport = now
-        onProgress(processed, items.length, item.path, totalCleaned)
+        onProgress(processed, validIds.length, item.path, totalCleaned)
       }
     }
   }
 
+  if (onProgress && items.length === 0 && validIds.length > 0) {
+    onProgress(filesSkipped, validIds.length, '', totalCleaned)
+  }
+
   flushPending()
+  removeCachedItems(consumedIds)
 
   const needsElevation = errors.some((e) => e.reason === 'permission-denied')
   return { totalCleaned, filesDeleted, filesSkipped, errors, needsElevation }

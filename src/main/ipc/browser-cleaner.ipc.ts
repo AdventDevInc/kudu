@@ -5,7 +5,7 @@ import { join } from 'path'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { getSettings } from '../services/settings-store'
 import { CleanerType } from '../../shared/enums'
 import type { ScanResult, CleanResult } from '../../shared/types'
@@ -17,6 +17,7 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.BROWSER_SCAN, async (): Promise<ScanResult[]> => {
     const results: ScanResult[] = []
     const category = CleanerType.Browser
+    clearCachedCategory(category)
     const browserPaths = getPlatform().paths.browserPaths()
     const recency = BROWSER_CACHE_RECENCY
 

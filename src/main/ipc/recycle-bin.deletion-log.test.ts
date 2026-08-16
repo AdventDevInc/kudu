@@ -13,7 +13,7 @@ const state = vi.hoisted(() => ({
   /** stdout for the bin-contents enumeration, in call order */
   enumerations: [] as string[],
   /** stdout for the post-empty count check */
-  remainingCount: '0',
+  statsOutputs: [] as string[],
   emptyThrows: false,
   psScripts: [] as string[],
   recorded: [] as any[],
@@ -30,8 +30,8 @@ vi.mock('child_process', () => ({
     if (script.includes('ConvertTo-Json')) {
       return cb(null, { stdout: state.enumerations.shift() ?? '[]' })
     }
-    // Remaining-count verification
-    return cb(null, { stdout: state.remainingCount })
+    // Initial scan and post-empty count/size verification.
+    return cb(null, { stdout: state.statsOutputs.shift() ?? '0|0' })
   },
 }))
 
@@ -44,7 +44,7 @@ vi.mock('../services/file-utils', () => ({
   cleanItems: vi.fn(),
 }))
 
-vi.mock('../services/scan-cache', () => ({ cacheItems: vi.fn() }))
+vi.mock('../services/scan-cache', () => ({ cacheItems: vi.fn(), clearCachedCategory: vi.fn() }))
 
 vi.mock('../services/exec-utf8', () => ({ psUtf8: (s: string) => s }))
 
@@ -65,6 +65,11 @@ function getHandler(channel: string): (...args: unknown[]) => Promise<any> {
   return call[1] as (...args: unknown[]) => Promise<any>
 }
 
+async function scanThenClean(): Promise<any> {
+  await getHandler(IPC.RECYCLE_BIN_SCAN)()
+  return getHandler(IPC.RECYCLE_BIN_CLEAN)()
+}
+
 const binItems = (items: Array<{ name: string; origin?: string; size?: number }>) =>
   JSON.stringify(items.map((i) => ({ name: i.name, origin: i.origin ?? '', size: i.size ?? 0 })))
 
@@ -73,7 +78,7 @@ describe('recycle bin deletion logging (Windows)', () => {
     mockHandle.mockClear()
     state.keepDeletionLog = false
     state.enumerations = []
-    state.remainingCount = '0'
+    state.statsOutputs = ['2|4216', '0|0']
     state.emptyThrows = false
     state.psScripts = []
     state.recorded = []
@@ -81,7 +86,7 @@ describe('recycle bin deletion logging (Windows)', () => {
   })
 
   it('does not enumerate the bin when logging is off', async () => {
-    const result = await getHandler(IPC.RECYCLE_BIN_CLEAN)()
+    const result = await scanThenClean()
 
     expect(result.errors).toEqual([])
     expect(state.recorded).toHaveLength(0)
@@ -95,7 +100,7 @@ describe('recycle bin deletion logging (Windows)', () => {
       { name: 'photo.png', origin: 'D:\\Pictures', size: 4096 },
     ])]
 
-    await getHandler(IPC.RECYCLE_BIN_CLEAN)()
+    await scanThenClean()
 
     expect(state.recorded.map((r) => r.path)).toEqual([
       join('C:\\Users\\dave\\Documents', 'notes.txt'),
@@ -113,14 +118,14 @@ describe('recycle bin deletion logging (Windows)', () => {
     state.keepDeletionLog = true
     state.enumerations = [binItems([{ name: 'orphan.dat' }])]
 
-    await getHandler(IPC.RECYCLE_BIN_CLEAN)()
+    await scanThenClean()
 
     expect(state.recorded.map((r) => r.path)).toEqual(['orphan.dat'])
   })
 
   it('on a partial empty, records only the items that are actually gone', async () => {
     state.keepDeletionLog = true
-    state.remainingCount = '1'
+    state.statsOutputs = ['2|4216', '1|4096']
     state.enumerations = [
       binItems([
         { name: 'gone.txt', origin: 'C:\\a' },
@@ -130,9 +135,11 @@ describe('recycle bin deletion logging (Windows)', () => {
       binItems([{ name: 'locked.txt', origin: 'C:\\b' }]),
     ]
 
-    const result = await getHandler(IPC.RECYCLE_BIN_CLEAN)()
+    const result = await scanThenClean()
 
     expect(result.filesSkipped).toBe(1)
+    expect(result.filesDeleted).toBe(1)
+    expect(result.totalCleaned).toBe(120)
     expect(state.recorded.map((r) => r.path)).toEqual([join('C:\\a', 'gone.txt')])
   })
 
@@ -140,10 +147,10 @@ describe('recycle bin deletion logging (Windows)', () => {
     state.keepDeletionLog = true
     state.enumerations = ['not json at all']
 
-    const result = await getHandler(IPC.RECYCLE_BIN_CLEAN)()
+    const result = await scanThenClean()
 
     expect(result.errors).toEqual([])
-    expect(result.filesDeleted).toBe(1)
+    expect(result.filesDeleted).toBe(2)
     expect(state.recorded).toHaveLength(0)
   })
 
@@ -152,7 +159,7 @@ describe('recycle bin deletion logging (Windows)', () => {
     state.enumerations = [binItems([{ name: 'notes.txt', origin: 'C:\\a' }])]
     state.emptyThrows = true
 
-    const result = await getHandler(IPC.RECYCLE_BIN_CLEAN)()
+    const result = await scanThenClean()
 
     expect(result.filesDeleted).toBe(0)
     expect(result.errors).toHaveLength(1)

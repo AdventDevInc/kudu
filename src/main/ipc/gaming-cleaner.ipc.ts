@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
 import { scanDirectoriesAsItems, cleanItems, getDirectorySize } from '../services/file-utils'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { CleanerType } from '../../shared/enums'
 import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
@@ -16,6 +16,7 @@ export function registerGamingCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.GAMING_SCAN, async (): Promise<ScanResult[]> => {
     const results: ScanResult[] = []
     const category = CleanerType.Gaming
+    clearCachedCategory(category)
 
     // Launcher caches — directory-level items, one row per launcher
     for (const launcher of getPlatform().paths.gamingPaths()) {

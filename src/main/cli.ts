@@ -3,7 +3,7 @@ import { existsSync } from 'fs'
 import { readdir } from 'fs/promises'
 import { join } from 'path'
 import { scanDirectory, scanFile, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems, getDirectorySize } from './services/file-utils'
-import { cacheItems } from './services/scan-cache'
+import { cacheItems, clearCache } from './services/scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './services/chromium-cache'
 import { CleanerType } from '../shared/enums'
 import type { ScanResult, CleanResult } from '../shared/types'
@@ -369,7 +369,7 @@ async function scanDatabaseCli(): Promise<ScanResult[]> {
   return results
 }
 
-async function cleanRecycleBin(sizeBytes: number = 0): Promise<CleanResult> {
+async function cleanRecycleBin(sizeBytes: number = 0, countBefore: number = 0): Promise<CleanResult> {
   // On macOS/Linux, trash items are real files cleaned via cleanItems() in the main flow.
   // This function is only called for Windows COM-based recycle bin.
   const { execFile } = await import('child_process')
@@ -383,12 +383,30 @@ async function cleanRecycleBin(sizeBytes: number = 0): Promise<CleanResult> {
   const logDeletions = isDeletionLoggingEnabled()
   const binContents = logDeletions ? await listRecycleBinContents() : []
   try {
-    const cleanScript = `$shell = New-Object -ComObject Shell.Application; $shell.NameSpace(0x0a).Items() | ForEach-Object { Remove-Item $_.Path -Recurse -Force -ErrorAction SilentlyContinue }; Clear-RecycleBin -Force -Confirm:$false -ErrorAction SilentlyContinue`
-    await execFileAsync('powershell.exe', [
+    const cleanScript = `Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class RecycleBin { [DllImport("Shell32.dll", CharSet = CharSet.Unicode)] public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags); }'; $result = [RecycleBin]::SHEmptyRecycleBin([IntPtr]::Zero, $null, 7); Write-Output $result`
+    const { stdout: emptyStdout } = await execFileAsync('powershell.exe', [
       '-NoProfile', '-Command', psUtf8(cleanScript)
     ], { windowsHide: true })
+    const resultCode = parseInt(emptyStdout.trim()) || 0
+
+    const verifyScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
+    const { stdout } = await execFileAsync('powershell.exe', [
+      '-NoProfile', '-Command', psUtf8(verifyScript)
+    ], { windowsHide: true })
+    const [remainingCountStr, remainingSizeStr] = stdout.trim().split('|')
+    const remaining = parseInt(remainingCountStr) || 0
+    const remainingSize = parseInt(remainingSizeStr) || 0
+
     if (logDeletions) await recordEmptiedRecycleBin(binContents, 'cli')
-    return { totalCleaned: sizeBytes, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
+    return {
+      totalCleaned: Math.max(0, sizeBytes - remainingSize),
+      filesDeleted: Math.max(0, countBefore - remaining),
+      filesSkipped: remaining,
+      errors: remaining > 0
+        ? [{ path: 'Recycle Bin', reason: `${remaining} item(s) could not be removed (may be in use or protected)` }]
+        : [],
+      needsElevation: remaining > 0 && resultCode === 0x80070005,
+    }
   } catch (err: any) {
     return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [{ path: 'Recycle Bin', reason: err.message }], needsElevation: false }
   }
@@ -1437,6 +1455,7 @@ async function handleMetricsServer(args: string[], ctx: CliContext): Promise<voi
 // ─── Legacy file cleaner (backward compatible) ───────────────
 
 async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: CliContext): Promise<number> {
+  clearCache()
   const scannerMap: Record<string, () => Promise<ScanResult[]>> = {
     system: scanSystem,
     browser: scanBrowserCli,
@@ -1496,8 +1515,8 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: C
     let dbCleaned: CleanResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
     if (fileItemIds.length > 0) fileCleaned = await cleanItems(fileItemIds, undefined, 'cli')
     if (hasRecycleBin) {
-      const rbSize = allResults.find(r => r.category === CleanerType.RecycleBin)?.totalSize || 0
-      recycleCleaned = await cleanRecycleBin(rbSize)
+      const rbResult = allResults.find(r => r.category === CleanerType.RecycleBin)
+      recycleCleaned = await cleanRecycleBin(rbResult?.totalSize || 0, rbResult?.itemCount || 0)
     }
     if (dbItemIds.length > 0) dbCleaned = await cleanDatabasesCli(dbItemIds)
     cleanResult = {
