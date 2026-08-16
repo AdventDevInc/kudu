@@ -92,6 +92,7 @@ export function DashboardPage() {
   const startupHasLoaded = useStartupStore((s) => s.hasLoaded)
   const startupLoading = useStartupStore((s) => s.loading)
   const lastMalwareScan = useMalwareStore((s) => s.lastCompletedScan)
+  const knownActiveThreats = useMalwareStore((s) => s.knownActiveThreats)
   const gameModeActive = useGameModeStore((s) => s.active)
   const gameModeActivatedAt = useGameModeStore((s) => s.activatedAt)
   const cleanStartRef = useRef<number>(0)
@@ -502,8 +503,9 @@ export function DashboardPage() {
 
   const startupAttentionCount = startupItems.filter((item) => item.enabled && item.impact === 'high').length
   const pendingUpdateCount = updaterApps.length
-  const unresolvedThreatCount = lastMalwareScan?.unresolvedThreats ?? 0
+  const unresolvedThreatCount = (lastMalwareScan?.unresolvedThreats ?? 0) + knownActiveThreats
   const hasProtectionBaseline = !!lastMalwareScan
+  const hasCompletedCoreChecks = updaterHasChecked && startupHasLoaded && hasProtectionBaseline
   const primaryDrive = drives[0]
   const primaryDriveUsedPercent = primaryDrive?.totalSize
     ? Math.round((primaryDrive.usedSpace / primaryDrive.totalSize) * 100)
@@ -516,11 +518,13 @@ export function DashboardPage() {
     + Number(!hasProtectionBaseline || unresolvedThreatCount > 0)
   const healthHeadline = unresolvedThreatCount > 0
     ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} your attention.`
-    : healthScore >= 80
-      ? 'Everything important is protected.'
-      : healthScore >= 55
-        ? 'Your device is in good shape.'
-        : 'A few things are ready for your attention.'
+    : !hasCompletedCoreChecks
+      ? 'Complete the remaining checks for a full picture.'
+      : healthScore >= 80
+        ? 'Everything important is protected.'
+        : healthScore >= 55
+          ? 'Your device is in good shape.'
+          : 'A few things are ready for your attention.'
 
   return (
     <div className="kudu-home animate-fade-in">
@@ -533,9 +537,11 @@ export function DashboardPage() {
               <p>
                 {unresolvedThreatCount > 0
                   ? `Your device needs attention. ${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat remains' : 'threats remain'}.`
+                  : !hasCompletedCoreChecks
+                    ? 'Kudu is still establishing this device’s status. Complete the remaining checks for a reliable health summary.'
                   : attentionCount === 0
-                  ? 'Your PC is healthy and everything important is up to date.'
-                  : `Your PC is healthy. ${attentionCount} small ${attentionCount === 1 ? 'thing needs' : 'things need'} attention.`}
+                    ? 'Your PC is healthy and everything important is up to date.'
+                    : `Your checks are complete. ${attentionCount} ${attentionCount === 1 ? 'item is' : 'items are'} ready for review.`}
               </p>
             </div>
             <span className="kudu-device-avatar" aria-label="This device">PC</span>
@@ -546,10 +552,10 @@ export function DashboardPage() {
               <span>TODAY&apos;S SYSTEM BRIEFING</span>
               <h2>{healthHeadline}</h2>
               <p>
-                {lastMalwareScan
-                  ? unresolvedThreatCount > 0
-                    ? `${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention. Your last malware scan ran ${formatDate(lastMalwareScan.completedAt)}.`
-                    : `No active threats were found in your last malware scan ${formatDate(lastMalwareScan.completedAt)}. Kudu has reclaimed ${formatBytes(stats.totalSpaceSaved)} over its lifetime.`
+                {unresolvedThreatCount > 0
+                  ? `${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention.${lastMalwareScan ? ` Your last malware scan ran ${formatDate(lastMalwareScan.completedAt)}.` : ''}`
+                  : lastMalwareScan
+                    ? `No active threats were found in your last malware scan ${formatDate(lastMalwareScan.completedAt)}. Kudu has reclaimed ${formatBytes(stats.totalSpaceSaved)} over its lifetime.`
                   : 'Run a complete scan to establish a protection baseline and uncover safe cleanup opportunities.'}
               </p>
             </div>
@@ -653,8 +659,8 @@ export function DashboardPage() {
             </button>
             <button type="button" onClick={() => navigate('/malware')}>
               <span className={cn('kudu-attention-icon', hasProtectionBaseline && unresolvedThreatCount === 0 && 'is-success')}>{hasProtectionBaseline && unresolvedThreatCount === 0 ? <Check /> : <Shield />}</span>
-              <span><b>{!hasProtectionBaseline ? 'Run your first malware scan' : unresolvedThreatCount > 0 ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention` : 'Protection looks good'}</b><small>{!hasProtectionBaseline ? 'Establish a security baseline' : unresolvedThreatCount > 0 ? 'Open the scanner to resolve detections' : 'No active threats detected'}</small></span>
-              <em>{!hasProtectionBaseline ? 'START' : unresolvedThreatCount > 0 ? 'REVIEW' : 'DONE'}</em>
+              <span><b>{unresolvedThreatCount > 0 ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention` : !hasProtectionBaseline ? 'Run your first malware scan' : 'Protection looks good'}</b><small>{unresolvedThreatCount > 0 ? 'Open the scanner to resolve detections' : !hasProtectionBaseline ? 'Establish a security baseline' : 'No active threats detected'}</small></span>
+              <em>{unresolvedThreatCount > 0 ? 'REVIEW' : !hasProtectionBaseline ? 'START' : 'DONE'}</em>
             </button>
           </div>
 
