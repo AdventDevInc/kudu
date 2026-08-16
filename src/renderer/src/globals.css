@@ -952,17 +952,25 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
 .kudu-glance-track { overflow: hidden; border-radius: 99px; background: var(--bg-subtle-2); }
 .kudu-operation-track { height: 4px; margin-top: 10px; }
 .kudu-operation-track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
-.kudu-operation.is-complete {
+.kudu-operation.is-complete,
+.kudu-operation.is-warning {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+}
+.kudu-operation.is-complete {
   border-color: color-mix(in srgb, var(--success), transparent 72%);
   background: color-mix(in srgb, var(--success), transparent 91%);
   color: var(--success);
 }
-.kudu-operation.is-complete b { color: var(--text-primary); font-size: 10px; }
-.kudu-operation.is-complete p { display: flex; flex-wrap: wrap; gap: 5px 14px; margin: 3px 0 0; color: var(--text-muted); font-size: 9px; }
-.kudu-operation.is-complete button { border: 0; background: none; color: var(--brand-solid); font: inherit; }
+.kudu-operation.is-warning {
+  border-color: color-mix(in srgb, var(--danger), transparent 68%);
+  background: color-mix(in srgb, var(--danger), transparent 91%);
+  color: var(--danger);
+}
+.kudu-operation:is(.is-complete, .is-warning) b { color: var(--text-primary); font-size: 10px; }
+.kudu-operation:is(.is-complete, .is-warning) p { display: flex; flex-wrap: wrap; gap: 5px 14px; margin: 3px 0 0; color: var(--text-muted); font-size: 9px; }
+.kudu-operation:is(.is-complete, .is-warning) button { border: 0; background: none; color: var(--brand-solid); font: inherit; }
 .kudu-glance-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .kudu-glance-card {
   padding: 14px 15px;
@@ -1388,9 +1396,9 @@ body { font-size: 15px; line-height: 1.58; }
 .kudu-activity-strip span { font-size: 12px; }
 .kudu-activity-strip b { font-size: 12px; }
 .kudu-operation > div:first-child > span,
-.kudu-operation.is-complete b { font-size: 12px; }
+.kudu-operation:is(.is-complete, .is-warning) b { font-size: 12px; }
 .kudu-operation > div:first-child > b,
-.kudu-operation.is-complete p { font-size: 12px; }
+.kudu-operation:is(.is-complete, .is-warning) p { font-size: 12px; }
 
 .kudu-attention-rail { min-height: calc(100vh - 56px); align-self: stretch; padding: 42px 27px 29px; }
 .kudu-attention-heading { padding-bottom: 18px; }

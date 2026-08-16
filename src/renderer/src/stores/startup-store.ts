@@ -3,6 +3,7 @@ import type { StartupItem, StartupBootTrace, StartupSafetyRating } from '@shared
 
 interface StartupState {
   items: StartupItem[]
+  hasLoaded: boolean
   loading: boolean
   sortBy: 'name' | 'impact' | 'safety'
   filterBy: 'all' | 'active' | 'disabled'
@@ -35,6 +36,7 @@ interface StartupState {
 
 export const useStartupStore = create<StartupState>((set) => ({
   items: [],
+  hasLoaded: false,
   loading: false,
   sortBy: 'impact',
   filterBy: 'all',
@@ -46,7 +48,7 @@ export const useStartupStore = create<StartupState>((set) => ({
   safetyLoading: false,
   expandedItemId: null,
 
-  setItems: (items) => set({ items }),
+  setItems: (items) => set({ items, hasLoaded: true }),
   updateItem: (id, updates) =>
     set((s) => ({
       items: s.items.map((i) => (i.id === id ? { ...i, ...updates } : i))
@@ -83,6 +85,7 @@ export const useStartupStore = create<StartupState>((set) => ({
   reset: () =>
     set({
       items: [],
+      hasLoaded: false,
       loading: false,
       error: null,
       bootTrace: null,

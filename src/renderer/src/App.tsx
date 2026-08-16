@@ -207,40 +207,39 @@ export function App() {
 }
 
 // Maps routes to page titles for the window/tab title.
-// Uses sidebar i18n keys where possible; nested routes use plain strings
-// so each page gets its own distinct title for screen readers / OS window switcher.
-const ROUTE_TITLES: Record<string, { key: string; ns?: string } | string> = {
+// Every route title is sourced from the same translations as its page or nav item.
+const ROUTE_TITLES: Record<string, { key: string }> = {
   '/': { key: 'dashboard' },
-  '/cleaner': 'System Cleaner',
-  '/registry': 'Registry',
-  '/context-menu': 'Context Menu',
-  '/startup': 'Startup Apps',
-  '/disk': 'Disk Analyzer',
-  '/duplicates': 'Duplicate Finder',
-  '/large-files': 'Large File Finder',
-  '/empty-folders': 'Empty Folder Cleaner',
-  '/file-shredder': 'File Shredder',
-  '/disk-repair': 'Disk Repair',
-  '/disk-maintenance': 'Disk Maintenance',
-  '/network': 'Network Cleanup',
-  '/malware': 'Malware Scanner',
-  '/threat-monitor': 'Threat Monitor',
-  '/cve': 'Vulnerability Scanner',
-  '/game-mode': 'Game Mode',
-  '/performance': 'Live Performance',
-  '/uninstaller': 'Uninstaller',
-  '/history': 'Activity',
-  '/settings': 'Preferences',
-  '/about': 'About',
-  '/privacy': 'Privacy',
-  '/services': 'Services',
-  '/firewall': 'Firewall Audit',
-  '/debloater': 'Bloatware Remover',
-  '/updates': 'Software Updates',
-  '/schedules': 'Automatic Care',
-  '/drivers': 'Driver Updates',
-  '/cloud': 'Kudu Cloud',
-  '/breach-monitor': 'Breach Monitor',
+  '/cleaner': { key: 'cleaner:pageTitle' },
+  '/registry': { key: 'registry:pageTitle' },
+  '/context-menu': { key: 'contextMenu:pageTitle' },
+  '/startup': { key: 'startup:pageTitle' },
+  '/disk': { key: 'disk:pageTitle' },
+  '/duplicates': { key: 'duplicates:pageTitle' },
+  '/large-files': { key: 'largeFiles:pageTitle' },
+  '/empty-folders': { key: 'emptyFolders:pageTitle' },
+  '/file-shredder': { key: 'fileShredder:pageTitle' },
+  '/disk-repair': { key: 'disk:repairTitle' },
+  '/disk-maintenance': { key: 'disk:maintenanceTitle' },
+  '/network': { key: 'network:pageTitle' },
+  '/malware': { key: 'malware:pageTitle' },
+  '/threat-monitor': { key: 'threatMonitor:pageTitle' },
+  '/cve': { key: 'cveScanner:pageTitle' },
+  '/game-mode': { key: 'gameMode:pageTitle' },
+  '/performance': { key: 'performance:pageTitle' },
+  '/uninstaller': { key: 'uninstaller:pageTitle' },
+  '/history': { key: 'history:pageTitle' },
+  '/settings': { key: 'settings:pageTitle' },
+  '/about': { key: 'settings:sectionAbout' },
+  '/privacy': { key: 'hardening:privacy.pageTitle' },
+  '/services': { key: 'hardening:serviceManager.pageTitle' },
+  '/firewall': { key: 'firewallAudit' },
+  '/debloater': { key: 'hardening:debloater.pageTitle' },
+  '/updates': { key: 'updates:softwareUpdater.pageTitle' },
+  '/schedules': { key: 'schedules:pageTitle' },
+  '/drivers': { key: 'updates:driverManager.pageTitle' },
+  '/cloud': { key: 'cloud:pageTitle' },
+  '/breach-monitor': { key: 'breachMonitor:pageTitle' },
 }
 
 function PageTitleUpdater() {
@@ -249,9 +248,7 @@ function PageTitleUpdater() {
   useEffect(() => {
     const entry = ROUTE_TITLES[location.pathname]
     let name: string | null = null
-    if (typeof entry === 'string') {
-      name = entry
-    } else if (entry) {
+    if (entry) {
       name = t(entry.key)
     }
     document.title = name ? `${name} - Kudu` : 'Kudu'

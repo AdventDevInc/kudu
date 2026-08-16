@@ -19,7 +19,8 @@ import {
   Server,
   Gamepad2,
   BarChart3,
-  MemoryStick
+  MemoryStick,
+  AlertTriangle
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -36,6 +37,7 @@ import { useUpdaterStore } from '@/stores/updater-store'
 import { useServiceStore } from '@/stores/service-store'
 import { useStartupStore } from '@/stores/startup-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
+import { useMalwareStore } from '@/stores/malware-store'
 import type { DriveInfo, ScanResult, CleanResult, PerfQuickStats } from '@shared/types'
 import { CleanerType } from '@shared/enums'
 import { usePlatform } from '@/hooks/usePlatform'
@@ -84,11 +86,16 @@ export function DashboardPage() {
   const historyStore = useHistoryStore()
   const scanStore = useScanStore()
   const updaterHasChecked = useUpdaterStore((s) => s.hasChecked)
+  const updaterApps = useUpdaterStore((s) => s.apps)
   const serviceHasScanned = useServiceStore((s) => s.hasScanned)
   const startupItems = useStartupStore((s) => s.items)
+  const startupHasLoaded = useStartupStore((s) => s.hasLoaded)
+  const startupLoading = useStartupStore((s) => s.loading)
+  const lastMalwareScan = useMalwareStore((s) => s.lastCompletedScan)
   const gameModeActive = useGameModeStore((s) => s.active)
   const gameModeActivatedAt = useGameModeStore((s) => s.activatedAt)
   const cleanStartRef = useRef<number>(0)
+  const startupLoadAttemptedRef = useRef(false)
   const navigate = useNavigate()
   const [drives, setDrives] = useState<DriveInfo[]>([])
   const [phase, setPhase] = useState<OneClickPhase>('idle')
@@ -153,6 +160,19 @@ export function DashboardPage() {
 
   useEffect(() => { refreshDrives() }, [refreshDrives])
 
+  // The dashboard owns its status claims, so it loads startup state instead
+  // of assuming an empty store means there are no high-impact apps.
+  useEffect(() => {
+    if (startupHasLoaded || startupLoading || startupLoadAttemptedRef.current) return
+    startupLoadAttemptedRef.current = true
+    const startupStore = useStartupStore.getState()
+    startupStore.setLoading(true)
+    window.kudu.startupList()
+      .then((items) => startupStore.setItems(items))
+      .catch(() => startupStore.setError(t('toastStartupCheckFailed')))
+      .finally(() => startupStore.setLoading(false))
+  }, [startupHasLoaded, startupLoading, t])
+
   // ── Health score ───────────────────────────────────────────
 
   const toolCoverage = (() => {
@@ -177,7 +197,7 @@ export function DashboardPage() {
     const sessionTools = [
       { key: 'updater', label: t('toolLabelUpdater'), icon: Download, color: '#06b6d4', active: updaterHasChecked },
       { key: 'services', label: t('toolLabelServices'), icon: Server, color: '#ec4899', active: serviceHasScanned },
-      { key: 'startup', label: t('toolLabelStartup'), icon: Zap, color: '#22c55e', active: startupItems.length > 0 }
+      { key: 'startup', label: t('toolLabelStartup'), icon: Zap, color: '#22c55e', active: startupHasLoaded }
     ]
 
     const sessionResults = sessionTools.map((t) => ({
@@ -213,14 +233,15 @@ export function DashboardPage() {
       }
     }
 
-    if (stats.lastScanDate) {
-      const daysSinceScan = (Date.now() - new Date(stats.lastScanDate).getTime()) / (1000 * 60 * 60 * 24)
+    if (lastMalwareScan) {
+      const daysSinceScan = (Date.now() - new Date(lastMalwareScan.completedAt).getTime()) / (1000 * 60 * 60 * 24)
       score -= Math.min(20, Math.round(daysSinceScan * (20 / 7)))
     } else {
       score -= 10
     }
 
-    if (stats.lastScanDate) score += 40
+    if (lastMalwareScan) score += 40
+    if (lastMalwareScan?.unresolvedThreats) score -= Math.min(30, lastMalwareScan.unresolvedThreats * 10)
     return Math.max(0, Math.min(100, score))
   })()
 
@@ -271,9 +292,17 @@ export function DashboardPage() {
   }, [t])
 
   const runMalwareScan = useCallback(async (): Promise<{ found: number; quarantined: number }> => {
+    const malwareStore = useMalwareStore.getState()
+    malwareStore.setStatus('scanning')
+    malwareStore.setThreats([])
+    malwareStore.setActionResult(null)
     try {
       setPhaseLabel(t('phaseLabelScanningMalware'))
       const result = await window.kudu.malwareScan()
+      malwareStore.setScanResult(result)
+      malwareStore.setThreats(result.threats)
+      malwareStore.setActionResult(null)
+      malwareStore.setStatus('complete')
       if (result.threats.length === 0) return { found: 0, quarantined: 0 }
       setPhaseLabel(t('phaseLabelQuarantiningThreats'))
       const paths = result.threats.map((t) => t.path)
@@ -285,8 +314,14 @@ export function DashboardPage() {
         details: t.details
       }))
       const actionResult = await window.kudu.malwareQuarantine(paths, meta)
+      const failedPaths = new Set(actionResult.errors.map((error) => error.path))
+      const knownUnresolved = result.threats.filter((threat) => failedPaths.has(threat.path))
+      malwareStore.setActionResult(actionResult)
+      malwareStore.setThreats(knownUnresolved)
+      malwareStore.setUnresolvedThreatCount(Math.max(actionResult.failed, result.threats.length - actionResult.succeeded))
       return { found: result.threats.length, quarantined: actionResult.succeeded }
     } catch {
+      malwareStore.setStatus('idle')
       toast.error(t('toastMalwareScanFailed'))
       return { found: 0, quarantined: 0 }
     }
@@ -307,6 +342,7 @@ export function DashboardPage() {
     try {
       setPhaseLabel(t('phaseLabelCheckingStartup'))
       const items = await window.kudu.startupList()
+      useStartupStore.getState().setItems(items)
       return items.filter((i) => i.enabled && i.impact === 'high').length
     } catch {
       toast.error(t('toastStartupCheckFailed'))
@@ -318,6 +354,13 @@ export function DashboardPage() {
     try {
       setPhaseLabel(t('phaseLabelCheckingSoftwareUpdates'))
       const result = await window.kudu.softwareUpdateCheck()
+      const updaterStore = useUpdaterStore.getState()
+      updaterStore.setApps(result.apps)
+      updaterStore.setUpToDate(result.upToDate)
+      updaterStore.setPackageManagerAvailable(result.packageManagerAvailable)
+      updaterStore.setPackageManagerName(result.packageManagerName)
+      updaterStore.setManagers(result.managers)
+      updaterStore.setHasChecked(true)
       return result.apps.length
     } catch {
       toast.error(t('toastSoftwareUpdateCheckFailed'))
@@ -419,14 +462,14 @@ export function DashboardPage() {
         id: Date.now().toString(), type: 'cleaner', timestamp: new Date().toISOString(),
         duration: Date.now() - cleanStartRef.current,
         totalItemsFound: totalItems + malware.found, totalItemsCleaned: totalItems,
-        totalItemsSkipped: 0, totalSpaceSaved: space + drivers.space,
+        totalItemsSkipped: Math.max(0, malware.found - malware.quarantined), totalSpaceSaved: space + drivers.space,
         categories: [
           ...(files > 0 ? [{ name: 'Full Clean', itemsFound: files, itemsCleaned: files, spaceSaved: space }] : []),
           ...(regFixed > 0 ? [{ name: 'Registry', itemsFound: regFixed, itemsCleaned: regFixed, spaceSaved: 0 }] : []),
           ...(drivers.removed > 0 ? [{ name: 'Stale Drivers', itemsFound: drivers.removed, itemsCleaned: drivers.removed, spaceSaved: drivers.space }] : []),
-          ...(malware.quarantined > 0 ? [{ name: 'Malware', itemsFound: malware.found, itemsCleaned: malware.quarantined, spaceSaved: 0 }] : [])
+          ...(malware.found > 0 ? [{ name: 'Malware', itemsFound: malware.found, itemsCleaned: malware.quarantined, spaceSaved: 0 }] : [])
         ],
-        errorCount: 0
+        errorCount: Math.max(0, malware.found - malware.quarantined)
       })
       recomputeStats()
     }
@@ -458,6 +501,9 @@ export function DashboardPage() {
   // ── Render ─────────────────────────────────────────────────
 
   const startupAttentionCount = startupItems.filter((item) => item.enabled && item.impact === 'high').length
+  const pendingUpdateCount = updaterApps.length
+  const unresolvedThreatCount = lastMalwareScan?.unresolvedThreats ?? 0
+  const hasProtectionBaseline = !!lastMalwareScan
   const primaryDrive = drives[0]
   const primaryDriveUsedPercent = primaryDrive?.totalSize
     ? Math.round((primaryDrive.usedSpace / primaryDrive.totalSize) * 100)
@@ -465,12 +511,16 @@ export function DashboardPage() {
   const freeMemory = perf ? Math.max(0, perf.memTotalBytes - perf.memUsedBytes) : 0
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  const attentionCount = Number(!updaterHasChecked) + Number(startupAttentionCount > 0) + Number(!stats.lastScanDate)
-  const healthHeadline = healthScore >= 80
-    ? 'Everything important is protected.'
-    : healthScore >= 55
-      ? 'Your device is in good shape.'
-      : 'A few things are ready for your attention.'
+  const attentionCount = Number(!updaterHasChecked || pendingUpdateCount > 0)
+    + Number(!startupHasLoaded || startupAttentionCount > 0)
+    + Number(!hasProtectionBaseline || unresolvedThreatCount > 0)
+  const healthHeadline = unresolvedThreatCount > 0
+    ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} your attention.`
+    : healthScore >= 80
+      ? 'Everything important is protected.'
+      : healthScore >= 55
+        ? 'Your device is in good shape.'
+        : 'A few things are ready for your attention.'
 
   return (
     <div className="kudu-home animate-fade-in">
@@ -481,7 +531,9 @@ export function DashboardPage() {
               <p className="kudu-home-kicker">THIS DEVICE</p>
               <h1>{greeting}.</h1>
               <p>
-                {attentionCount === 0
+                {unresolvedThreatCount > 0
+                  ? `Your device needs attention. ${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat remains' : 'threats remain'}.`
+                  : attentionCount === 0
                   ? 'Your PC is healthy and everything important is up to date.'
                   : `Your PC is healthy. ${attentionCount} small ${attentionCount === 1 ? 'thing needs' : 'things need'} attention.`}
               </p>
@@ -494,8 +546,10 @@ export function DashboardPage() {
               <span>TODAY&apos;S SYSTEM BRIEFING</span>
               <h2>{healthHeadline}</h2>
               <p>
-                {stats.lastScanDate
-                  ? `No active threats. Your last complete scan ran ${formatDate(stats.lastScanDate)}, and ${formatBytes(stats.totalSpaceSaved)} has been safely reclaimed.`
+                {lastMalwareScan
+                  ? unresolvedThreatCount > 0
+                    ? `${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention. Your last malware scan ran ${formatDate(lastMalwareScan.completedAt)}.`
+                    : `No active threats were found in your last malware scan ${formatDate(lastMalwareScan.completedAt)}. Kudu has reclaimed ${formatBytes(stats.totalSpaceSaved)} over its lifetime.`
                   : 'Run a complete scan to establish a protection baseline and uncover safe cleanup opportunities.'}
               </p>
             </div>
@@ -513,7 +567,7 @@ export function DashboardPage() {
               <button type="button" onClick={() => setShowQuickConfirm(true)} disabled={isRunning} className="kudu-recommendation is-primary">
                 <span className="kudu-recommendation-icon"><Sparkles strokeWidth={1.9} /></span>
                 <span>
-                  <b>{stats.totalSpaceSaved > 0 ? `Clean ${formatBytes(stats.totalSpaceSaved)}` : t('quickCleanTitle')}</b>
+                  <b>{t('quickCleanTitle')}</b>
                   <small>Browser cache, downloads residue and temporary files</small>
                 </span>
                 <i aria-hidden="true">→</i>
@@ -541,14 +595,17 @@ export function DashboardPage() {
           )}
 
           {phase === 'done' && result && (
-            <div className="kudu-operation is-complete" role="status">
-              <CheckCircle2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+            <div className={cn('kudu-operation', result.threatsFound > result.threatsQuarantined ? 'is-warning' : 'is-complete')} role="status">
+              {result.threatsFound > result.threatsQuarantined
+                ? <AlertTriangle className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+                : <CheckCircle2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />}
               <div className="min-w-0">
-                <b>{t('resultCleanupComplete')}</b>
+                <b>{result.threatsFound > result.threatsQuarantined ? 'Scan complete — threats need attention' : t('resultCleanupComplete')}</b>
                 <p>
                   {result.spaceRecovered > 0 && <span>{t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}</span>}
                   {result.filesCleaned > 0 && <span>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</span>}
                   {result.threatsQuarantined > 0 && <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })}>{result.threatsQuarantined} quarantined</button>}
+                  {result.threatsFound > result.threatsQuarantined && <button onClick={() => navigate('/malware')}>{result.threatsFound - result.threatsQuarantined} {result.threatsFound - result.threatsQuarantined === 1 ? 'threat remains active' : 'threats remain active'}</button>}
                   {result.privacyIssues > 0 && <button onClick={() => navigate('/privacy')}>{result.privacyIssues} privacy improvements</button>}
                   {result.startupHighImpact > 0 && <button onClick={() => navigate('/startup')}>{result.startupHighImpact} startup items</button>}
                   {result.updatesAvailable > 0 && <button onClick={() => navigate('/updates')}>{result.updatesAvailable} updates</button>}
@@ -586,18 +643,18 @@ export function DashboardPage() {
           <div className="kudu-attention-list">
             <button type="button" onClick={() => navigate('/updates')}>
               <span className="kudu-attention-icon"><Download /></span>
-              <span><b>{updaterHasChecked ? 'Apps are up to date' : 'Check app updates'}</b><small>{updaterHasChecked ? 'Latest check completed' : 'Security and reliability fixes'}</small></span>
-              <em>{updaterHasChecked ? 'DONE' : '5 MIN'}</em>
+              <span><b>{!updaterHasChecked ? 'Check app updates' : pendingUpdateCount > 0 ? `${pendingUpdateCount} app ${pendingUpdateCount === 1 ? 'update' : 'updates'}` : 'Apps are up to date'}</b><small>{!updaterHasChecked ? 'Security and reliability fixes' : pendingUpdateCount > 0 ? 'Updates are ready to install' : 'Latest check completed'}</small></span>
+              <em>{!updaterHasChecked ? '5 MIN' : pendingUpdateCount > 0 ? 'REVIEW' : 'DONE'}</em>
             </button>
             <button type="button" onClick={() => navigate('/startup')}>
               <span className="kudu-attention-icon"><Zap /></span>
-              <span><b>{startupAttentionCount > 0 ? `${startupAttentionCount} startup ${startupAttentionCount === 1 ? 'app' : 'apps'}` : 'Startup looks good'}</b><small>{startupAttentionCount > 0 ? 'Could slow sign-in by ~8 sec' : 'No high-impact apps found'}</small></span>
-              <em>{startupAttentionCount > 0 ? 'REVIEW' : 'DONE'}</em>
+              <span><b>{!startupHasLoaded ? 'Check startup apps' : startupAttentionCount > 0 ? `${startupAttentionCount} startup ${startupAttentionCount === 1 ? 'app' : 'apps'}` : 'Startup looks good'}</b><small>{!startupHasLoaded ? 'Review what launches when you sign in' : startupAttentionCount > 0 ? 'High-impact apps may slow sign-in' : 'No high-impact apps found'}</small></span>
+              <em>{!startupHasLoaded ? (startupLoading ? 'CHECKING' : 'CHECK') : startupAttentionCount > 0 ? 'REVIEW' : 'DONE'}</em>
             </button>
             <button type="button" onClick={() => navigate('/malware')}>
-              <span className="kudu-attention-icon is-success"><Check /></span>
-              <span><b>{stats.lastScanDate ? 'Protection looks good' : 'Run your first scan'}</b><small>{stats.lastScanDate ? 'No active threats detected' : 'Establish a security baseline'}</small></span>
-              <em>{stats.lastScanDate ? 'DONE' : 'START'}</em>
+              <span className={cn('kudu-attention-icon', hasProtectionBaseline && unresolvedThreatCount === 0 && 'is-success')}>{hasProtectionBaseline && unresolvedThreatCount === 0 ? <Check /> : <Shield />}</span>
+              <span><b>{!hasProtectionBaseline ? 'Run your first malware scan' : unresolvedThreatCount > 0 ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention` : 'Protection looks good'}</b><small>{!hasProtectionBaseline ? 'Establish a security baseline' : unresolvedThreatCount > 0 ? 'Open the scanner to resolve detections' : 'No active threats detected'}</small></span>
+              <em>{!hasProtectionBaseline ? 'START' : unresolvedThreatCount > 0 ? 'REVIEW' : 'DONE'}</em>
             </button>
           </div>
 

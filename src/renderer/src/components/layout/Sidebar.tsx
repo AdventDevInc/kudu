@@ -74,64 +74,64 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     items: [
-      { icon: LayoutDashboard, label: 'Home', path: '/' },
+      { icon: LayoutDashboard, labelKey: 'dashboard', label: 'Home', path: '/' },
       {
-        icon: Sparkles, label: 'Clean up', path: '/cleaner',
+        icon: Sparkles, labelKey: 'cleaner', label: 'Clean up', path: '/cleaner',
         children: [
-          { icon: Sparkles, label: 'System Cleaner', path: '/cleaner' },
-          { icon: Database, label: 'Registry', path: '/registry' },
-          { icon: Zap, label: 'Startup', path: '/startup' },
-          { icon: Wifi, label: 'Network', path: '/network' },
-          { icon: CalendarClock, label: 'Automatic Care', path: '/schedules' },
+          { icon: Sparkles, labelKey: 'cleaner:pageTitle', label: 'System Cleaner', path: '/cleaner' },
+          { icon: Database, labelKey: 'registry:pageTitle', label: 'Registry', path: '/registry' },
+          { icon: Zap, labelKey: 'startup:pageTitle', label: 'Startup', path: '/startup' },
+          { icon: Wifi, labelKey: 'network:pageTitle', label: 'Network', path: '/network' },
+          { icon: CalendarClock, labelKey: 'schedules:pageTitle', label: 'Automatic Care', path: '/schedules' },
         ]
       },
       {
-        icon: Shield, label: 'Protection', path: '/malware',
+        icon: Shield, labelKey: 'securityHeading', label: 'Protection', path: '/malware',
         children: [
-          { icon: ShieldAlert, label: 'Malware Scanner', path: '/malware' },
-          { icon: Eye, label: 'Privacy', path: '/privacy' },
-          { icon: Radar, label: 'Threat Monitor', path: '/threat-monitor' },
-          { icon: Flame, label: 'Firewall Audit', path: '/firewall' },
-          { icon: Bug, label: 'Vulnerability Scanner', path: '/cve' },
-          { icon: Mail, label: 'Breach Monitor', path: '/breach-monitor' },
+          { icon: ShieldAlert, labelKey: 'malware:pageTitle', label: 'Malware Scanner', path: '/malware' },
+          { icon: Eye, labelKey: 'hardening:privacy.pageTitle', label: 'Privacy', path: '/privacy' },
+          { icon: Radar, labelKey: 'threatMonitor:pageTitle', label: 'Threat Monitor', path: '/threat-monitor' },
+          { icon: Flame, labelKey: 'firewallAudit', label: 'Firewall Audit', path: '/firewall' },
+          { icon: Bug, labelKey: 'cveScanner:pageTitle', label: 'Vulnerability Scanner', path: '/cve' },
+          { icon: Mail, labelKey: 'breachMonitor:pageTitle', label: 'Breach Monitor', path: '/breach-monitor' },
         ]
       },
       {
-        icon: Activity, label: 'Performance', path: '/performance',
+        icon: Activity, labelKey: 'performance', label: 'Performance', path: '/performance',
         children: [
-          { icon: Activity, label: 'Live Performance', path: '/performance' },
-          { icon: Server, label: 'Services', path: '/services' },
+          { icon: Activity, labelKey: 'performance:pageTitle', label: 'Live Performance', path: '/performance' },
+          { icon: Server, labelKey: 'hardening:serviceManager.pageTitle', label: 'Services', path: '/services' },
         ]
       },
     ]
   },
   {
-    heading: 'Manage',
+    headingKey: 'maintainHeading',
     items: [
       {
-        icon: Package, label: 'Software', path: '/software',
+        icon: Package, labelKey: 'software', label: 'Software', path: '/software',
         children: [
-          { icon: Download, label: 'Software Updates', path: '/updates' },
-          { icon: Cpu, label: 'Driver Updates', path: '/drivers' },
-          { icon: Trash2, label: 'Uninstaller', path: '/uninstaller' },
-          { icon: PackageMinus, label: 'Bloatware Remover', path: '/debloater' },
-          { icon: MousePointerClick, label: 'Context Menu', path: '/context-menu' },
+          { icon: Download, labelKey: 'updates:softwareUpdater.pageTitle', label: 'Software Updates', path: '/updates' },
+          { icon: Cpu, labelKey: 'updates:driverManager.pageTitle', label: 'Driver Updates', path: '/drivers' },
+          { icon: Trash2, labelKey: 'uninstaller:pageTitle', label: 'Uninstaller', path: '/uninstaller' },
+          { icon: PackageMinus, labelKey: 'hardening:debloater.pageTitle', label: 'Bloatware Remover', path: '/debloater' },
+          { icon: MousePointerClick, labelKey: 'contextMenu:pageTitle', label: 'Context Menu', path: '/context-menu' },
         ]
       },
       {
-        icon: HardDrive, label: 'Storage', path: '/disk',
+        icon: HardDrive, labelKey: 'diskTools', label: 'Storage', path: '/disk',
         children: [
-          { icon: HardDrive, label: 'Storage Overview', path: '/disk' },
-          { icon: CopyCheck, label: 'Duplicate Finder', path: '/duplicates' },
-          { icon: FileUp, label: 'Large File Finder', path: '/large-files' },
-          { icon: FolderX, label: 'Empty Folder Cleaner', path: '/empty-folders' },
-          { icon: ShieldAlertIcon, label: 'File Shredder', path: '/file-shredder' },
-          { icon: Wrench, label: 'Disk Repair', path: '/disk-repair' },
-          { icon: Eraser, label: 'Disk Maintenance', path: '/disk-maintenance' },
+          { icon: HardDrive, labelKey: 'disk:pageTitle', label: 'Storage Overview', path: '/disk' },
+          { icon: CopyCheck, labelKey: 'duplicates:pageTitle', label: 'Duplicate Finder', path: '/duplicates' },
+          { icon: FileUp, labelKey: 'largeFiles:pageTitle', label: 'Large File Finder', path: '/large-files' },
+          { icon: FolderX, labelKey: 'emptyFolders:pageTitle', label: 'Empty Folder Cleaner', path: '/empty-folders' },
+          { icon: ShieldAlertIcon, labelKey: 'fileShredder:pageTitle', label: 'File Shredder', path: '/file-shredder' },
+          { icon: Wrench, labelKey: 'disk:repairTitle', label: 'Disk Repair', path: '/disk-repair' },
+          { icon: Eraser, labelKey: 'disk:maintenanceTitle', label: 'Disk Maintenance', path: '/disk-maintenance' },
         ]
       },
-      { icon: Gamepad2, label: 'Game Mode', path: '/game-mode' },
-      { icon: History, label: 'Activity', path: '/history' },
+      { icon: Gamepad2, labelKey: 'gameMode', label: 'Game Mode', path: '/game-mode' },
+      { icon: History, labelKey: 'history:pageTitle', label: 'Activity', path: '/history' },
     ]
   }
 ]
@@ -142,11 +142,11 @@ function useBottomNavItems(): NavItemDef[] {
 
   return [
     {
-      icon: Settings, label: 'Preferences', path: '/settings',
+      icon: Settings, labelKey: 'settings:pageTitle', label: 'Preferences', path: '/settings',
       children: [
-        { icon: Settings, label: 'Preferences', path: '/settings' },
-        { icon: Cloud, label: 'Cloud', path: '/cloud' },
-        { icon: Info, label: 'About & Updates', path: '/about', badge: showUpdateBadge },
+        { icon: Settings, labelKey: 'settings:pageTitle', label: 'Preferences', path: '/settings' },
+        { icon: Cloud, labelKey: 'cloud:pageTitle', label: 'Cloud', path: '/cloud' },
+        { icon: Info, labelKey: 'settings:sectionAbout', label: 'About & Updates', path: '/about', badge: showUpdateBadge },
       ]
     }
   ]
@@ -291,8 +291,8 @@ export function Sidebar() {
       >
         <span className="automatic-care-icon"><CalendarClock className="h-3.5 w-3.5" strokeWidth={1.8} /></span>
         <span className="min-w-0">
-          <b>{automaticCareEnabled ? 'Automatic care is on' : 'Set up automatic care'}</b>
-          <small>{automaticCareEnabled ? 'Kudu will run quietly on schedule.' : 'Keep this device tidy in the background.'}</small>
+          <b>{t('schedules:pageTitle')}</b>
+          <small>{t('schedules:pageDescription')}</small>
         </span>
       </button>
 
@@ -351,6 +351,7 @@ function NavItem({
   const navigate = useNavigate()
   const isActive = isActiveProp ?? location.pathname === item.path
   const hasChildren = item.children && item.children.length > 0
+  const itemLabel = item.labelKey ? t(item.labelKey, { defaultValue: item.label ?? '' }) : (item.label ?? '')
 
   const handleClick = () => {
     if (hasChildren) {
@@ -393,7 +394,7 @@ function NavItem({
           strokeWidth={isActive ? 2 : 1.7}
           aria-hidden="true"
         />
-        <span className="flex-1 text-left">{item.label ?? (item.labelKey ? t(item.labelKey) : '')}</span>
+        <span className="flex-1 text-left">{itemLabel}</span>
         {(badge || (badgeCount != null && badgeCount > 0)) && (
           <span
             className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none"
@@ -422,16 +423,17 @@ function NavItem({
 
       {/* Flyout submenu — rendered fixed to escape sidebar overflow */}
       {hasChildren && submenuOpen && (
-        <div className="sidebar-submenu animate-fade-in" role="group" aria-label={`${item.label ?? 'Section'} tools`}>
+        <div className="sidebar-submenu animate-fade-in" role="group" aria-label={`${itemLabel} tools`}>
           {item.children!.map((child) => {
             const isChildActive = location.pathname === child.path
+            const childLabel = child.labelKey ? t(child.labelKey, { defaultValue: child.label ?? '' }) : (child.label ?? '')
             return (
               <button
                 key={child.path}
                 type="button"
                 onClick={() => navigate(child.path)}
                 aria-current={isChildActive ? 'page' : undefined}
-                title={child.label}
+                title={childLabel}
                 className="sidebar-submenu-item"
                 style={{
                   background: isChildActive ? 'var(--brand-surface)' : 'transparent',
@@ -439,7 +441,7 @@ function NavItem({
                 }}
               >
                 <child.icon aria-hidden="true" strokeWidth={isChildActive ? 2.1 : 1.7} />
-                <span>{child.labelKey ? t(child.labelKey) : child.label}</span>
+                <span>{childLabel}</span>
                 {(badgeCounts?.[child.path] ?? 0) > 0 && (
                   <b aria-label={`${badgeCounts![child.path]} items`}>{badgeCounts![child.path]}</b>
                 )}

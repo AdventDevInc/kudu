@@ -22,5 +22,6 @@
   "history": "History",
   "settings": "Settings",
   "breachMonitor": "Breach Monitor",
-  "gameMode": "Game Mode"
+  "gameMode": "Game Mode",
+  "firewallAudit": "Firewall Audit"
 }

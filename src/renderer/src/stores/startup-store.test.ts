@@ -34,6 +34,7 @@ describe('startup-store', () => {
     const items = [makeItem({ id: '1' }), makeItem({ id: '2', name: 'Other' })]
     useStartupStore.getState().setItems(items)
     expect(useStartupStore.getState().items).toHaveLength(2)
+    expect(useStartupStore.getState().hasLoaded).toBe(true)
   })
 
   it('updateItem updates a specific item by id', () => {
@@ -104,6 +105,7 @@ describe('startup-store', () => {
 
     const state = useStartupStore.getState()
     expect(state.items).toEqual([])
+    expect(state.hasLoaded).toBe(false)
     expect(state.error).toBeNull()
     expect(state.loading).toBe(false)
     expect(state.bootTrace).toBeNull()
