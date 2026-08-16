@@ -116,8 +116,10 @@ Paths use template variables instead of hardcoded locations. The loader resolves
 - Use **forward slashes** (`/`) in all paths — the loader converts to backslashes on Windows automatically.
 - App IDs must be **lowercase with hyphens** (e.g. `my-app`, not `MyApp`).
 - Each app needs at least one path.
+- Add `"minAgeDays"` when a cache or log needs a longer retention window. Directory contents are checked recursively before a whole directory is offered.
 - Add `"childSubdir"` if caches are in versioned subdirectories (e.g. JetBrains stores caches in `JetBrains/<version>/caches`).
 - Add `"recursiveMatch"` only when cache paths have dynamic nesting. It returns exact target directory names beneath a required anchor and never follows directory links.
+- Add `"fileMatch"` only for a small allowlist of exact direct filenames. It can inspect immediate child directories by suffix, but never traverses their nested state.
 
 ### 5. Editor Autocomplete
 
@@ -148,6 +150,7 @@ The test suite includes schema validation tests that verify every rule file.
   "id": "app-name",           // Required. Lowercase, hyphens ok.
   "name": "Display Name",     // Required. Shown in the UI.
   "paths": ["${VAR}/path"],   // Required. At least one path.
+  "minAgeDays": 7,            // Optional. Preserve newer entries and inspect nested contents.
   "childSubdir": "caches",    // Optional. Scan path/*/childSubdir.
   "recursiveMatch": {          // Optional alternative to childSubdir.
     "anchor": "EBWebView",    // Targets must be beneath this exact directory.
@@ -155,11 +158,17 @@ The test suite includes schema validation tests that verify every rule file.
     "excludedAncestors": ["Local Storage", "IndexedDB"],
     "maxDepth": 12             // Optional; defaults to 12, maximum 32.
   },
+  "fileMatch": {               // Optional alternative for exact direct files.
+    "names": ["installer.exe", "current.blockmap"],
+    "childDirSuffix": "-updater", // Optional; inspect matching immediate children.
+    "minAgeDays": 14,          // Required for file matches.
+    "skipIfChildExists": ["pending"]
+  },
   "description": "Why safe"   // Optional. Explain what's cleaned.
 }
 ```
 
-`childSubdir` and `recursiveMatch` are mutually exclusive. Recursive targets must be single directory names, not paths or globs; this prevents a broad base path from becoming directly cleanable.
+`childSubdir`, `recursiveMatch`, and `fileMatch` are mutually exclusive. Recursive targets and file-match names must be single names, not paths or globs; this prevents a broad base path from becoming directly cleanable. A file match considers direct files only, and `skipIfChildExists` rejects the whole candidate directory when protected state such as `pending` is present.
 
 ### System Clean Target (`system.json`)
 
@@ -191,5 +200,7 @@ Use `"dbFiles": "$chromium"` to reference the `sharedDbFileSets` instead of repe
 
 - **Only clean cache, temp, and log data.** Never target user documents, settings, passwords, bookmarks, or session tokens.
 - **Mark system paths as `needsAdmin: true`** if they require elevated privileges.
+- **Use retention windows for active apps and services.** Prefer `minAgeDays` for logs, updater artifacts, and caches whose containing directories may stay active.
+- **Use exact file allowlists for updater artifacts.** Never target an updater directory wholesale or descend into a `pending` directory.
 - **Test on a real system** before submitting — verify the paths actually exist and contain only disposable data.
 - **When in doubt, don't include it.** It's better to miss a cache directory than to delete something important.

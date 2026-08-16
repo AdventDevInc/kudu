@@ -8,12 +8,10 @@ vi.mock('electron', () => ({
   ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
 }))
 
-const mockScanMultipleDirectories = vi.fn()
-const mockResolveChildSubdirs = vi.fn()
+const mockScanAppRule = vi.fn()
 const mockCleanItems = vi.fn()
 vi.mock('../services/file-utils', () => ({
-  scanMultipleDirectories: (...args: unknown[]) => mockScanMultipleDirectories(...args),
-  resolveChildSubdirs: (...args: unknown[]) => mockResolveChildSubdirs(...args),
+  scanAppRule: (...args: unknown[]) => mockScanAppRule(...args),
   cleanItems: (...args: unknown[]) => mockCleanItems(...args),
 }))
 
@@ -86,11 +84,10 @@ describe('APP_SCAN handler', () => {
       { name: 'VS Code', paths: ['/home/user/.vscode/cache'], childSubdir: undefined, recursiveMatch },
       { name: 'Slack', paths: ['/home/user/.config/Slack/Cache'], childSubdir: undefined },
     ])
-    mockResolveChildSubdirs.mockImplementation((paths: string[]) => Promise.resolve(paths))
-    mockScanMultipleDirectories.mockImplementation((_paths: string[], _cat: string, name: string) => {
+    mockScanAppRule.mockImplementation((app: { name: string }) => {
       return Promise.resolve({
         category: 'app',
-        subcategory: name,
+        subcategory: app.name,
         items: [{ id: '1', path: '/test', size: 100 }],
         totalSize: 100,
         itemCount: 1,
@@ -103,16 +100,15 @@ describe('APP_SCAN handler', () => {
 
     expect(results).toHaveLength(2)
     expect(mockCacheItems).toHaveBeenCalledTimes(2)
-    expect(mockResolveChildSubdirs).toHaveBeenCalledTimes(2)
-    expect(mockResolveChildSubdirs).toHaveBeenNthCalledWith(1, ['/home/user/.vscode/cache'], undefined, recursiveMatch)
+    expect(mockScanAppRule).toHaveBeenCalledTimes(2)
+    expect(mockScanAppRule).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: 'VS Code', recursiveMatch }), 'app')
   })
 
   it('skips apps with zero scan items', async () => {
     mockAppPaths.mockReturnValue([
       { name: 'EmptyApp', paths: ['/empty'], childSubdir: undefined },
     ])
-    mockResolveChildSubdirs.mockResolvedValue(['/empty'])
-    mockScanMultipleDirectories.mockResolvedValue({
+    mockScanAppRule.mockResolvedValue({
       category: 'app',
       subcategory: 'EmptyApp',
       items: [],
@@ -128,21 +124,49 @@ describe('APP_SCAN handler', () => {
     expect(mockCacheItems).not.toHaveBeenCalled()
   })
 
+  it('passes retention-aware rules to the shared scanner', async () => {
+    const app = { name: 'Settled Logs', paths: ['/logs'], minAgeDays: 7 }
+    mockAppPaths.mockReturnValue([app])
+    mockScanAppRule.mockResolvedValue({
+      category: 'app', subcategory: 'Settled Logs', items: [], totalSize: 0, itemCount: 0,
+    })
+
+    registerAppCleanerIpc(() => null)
+    await getHandler('cleaner:app:scan')()
+
+    expect(mockScanAppRule).toHaveBeenCalledWith(app, 'app')
+  })
+
+  it('uses exact file matching without resolving the broad base path', async () => {
+    const fileMatch = {
+      names: ['installer.exe'], childDirSuffix: '-updater', minAgeDays: 14, skipIfChildExists: ['pending'],
+    }
+    const app = { name: 'Updater Artifacts', paths: ['/local'], fileMatch }
+    mockAppPaths.mockReturnValue([app])
+    mockScanAppRule.mockResolvedValue({
+      category: 'app', subcategory: 'Updater Artifacts', items: [], totalSize: 0, itemCount: 0,
+    })
+
+    registerAppCleanerIpc(() => null)
+    await getHandler('cleaner:app:scan')()
+
+    expect(mockScanAppRule).toHaveBeenCalledWith(app, 'app')
+  })
+
   it('skips apps that throw errors during scan', async () => {
     mockAppPaths.mockReturnValue([
       { name: 'FailApp', paths: ['/fail'], childSubdir: undefined },
       { name: 'GoodApp', paths: ['/good'], childSubdir: undefined },
     ])
-    mockResolveChildSubdirs.mockImplementation((paths: string[]) => {
-      if (paths[0] === '/fail') return Promise.reject(new Error('EACCES'))
-      return Promise.resolve(paths)
-    })
-    mockScanMultipleDirectories.mockResolvedValue({
-      category: 'app',
-      subcategory: 'GoodApp',
-      items: [{ id: '1', path: '/test', size: 100 }],
-      totalSize: 100,
-      itemCount: 1,
+    mockScanAppRule.mockImplementation((app: { name: string }) => {
+      if (app.name === 'FailApp') return Promise.reject(new Error('EACCES'))
+      return Promise.resolve({
+        category: 'app',
+        subcategory: 'GoodApp',
+        items: [{ id: '1', path: '/test', size: 100 }],
+        totalSize: 100,
+        itemCount: 1,
+      })
     })
 
     registerAppCleanerIpc(() => mockWindow() as any)

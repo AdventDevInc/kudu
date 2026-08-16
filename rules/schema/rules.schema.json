@@ -46,7 +46,11 @@
       "type": "object",
       "required": ["id", "name", "paths"],
       "additionalProperties": false,
-      "not": { "required": ["childSubdir", "recursiveMatch"] },
+      "allOf": [
+        { "not": { "required": ["childSubdir", "recursiveMatch"] } },
+        { "not": { "required": ["childSubdir", "fileMatch"] } },
+        { "not": { "required": ["recursiveMatch", "fileMatch"] } }
+      ],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Unique identifier (lowercase, hyphens allowed)" },
         "name": { "type": "string", "minLength": 1, "description": "Display name" },
@@ -55,9 +59,44 @@
           "items": { "$ref": "#/definitions/TemplatePath" },
           "minItems": 1
         },
+        "minAgeDays": { "type": "integer", "minimum": 1, "maximum": 3650, "description": "Only clean entries at least this many days old; nested directories are checked before deletion" },
         "childSubdir": { "type": "string", "description": "If set, scan paths/*/childSubdir instead of paths directly" },
         "recursiveMatch": { "$ref": "#/definitions/RecursivePathMatch" },
+        "fileMatch": { "$ref": "#/definitions/DirectFileMatch" },
         "description": { "type": "string" }
+      }
+    },
+
+    "DirectFileMatch": {
+      "type": "object",
+      "required": ["names", "minAgeDays"],
+      "additionalProperties": false,
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Exact direct file names to offer"
+        },
+        "childDirSuffix": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\]+$",
+          "description": "Inspect only immediate child directories whose names end with this suffix"
+        },
+        "minAgeDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3650,
+          "description": "Minimum file age in days"
+        },
+        "skipIfChildExists": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$" },
+          "uniqueItems": true,
+          "description": "Skip the candidate directory if one of these exact direct children exists"
+        }
       }
     },
 

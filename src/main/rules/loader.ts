@@ -12,6 +12,7 @@ import type {
   ChromiumCacheDir,
   AppCacheDef,
   DatabaseTarget,
+  DirectFileMatch,
   RecursivePathMatch,
 } from '../platform/types'
 
@@ -46,8 +47,10 @@ export interface AppRulesJson {
     id: string
     name: string
     paths: string[]
+    minAgeDays?: number
     childSubdir?: string
     recursiveMatch?: RecursivePathMatch
+    fileMatch?: DirectFileMatch
   }>
 }
 
@@ -258,6 +261,8 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
+        if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
+        if (a.fileMatch) def.fileMatch = a.fileMatch
         return def
       })
     },
@@ -271,6 +276,8 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
+        if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
+        if (a.fileMatch) def.fileMatch = a.fileMatch
         return def
       })
     },
@@ -284,6 +291,8 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
+        if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
+        if (a.fileMatch) def.fileMatch = a.fileMatch
         return def
       })
     },

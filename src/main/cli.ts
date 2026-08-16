@@ -2,7 +2,7 @@ import { app } from 'electron'
 import { existsSync } from 'fs'
 import { readdir } from 'fs/promises'
 import { join } from 'path'
-import { scanDirectory, scanFile, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems, getDirectorySize } from './services/file-utils'
+import { scanDirectory, scanFile, scanAppRule, scanMultipleDirectories, resolveChildSubdirs, cleanItems, getDirectorySize } from './services/file-utils'
 import { cacheItems, clearCache } from './services/scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './services/chromium-cache'
 import { CleanerType } from '../shared/enums'
@@ -238,8 +238,7 @@ async function scanApp(): Promise<ScanResult[]> {
   const category = CleanerType.App
   for (const appDef of getPlatform().paths.appPaths()) {
     try {
-      const paths = await resolveChildSubdirs(appDef.paths, appDef.childSubdir, appDef.recursiveMatch)
-      const result = await scanMultipleDirectories(paths, category, appDef.name)
+      const result = await scanAppRule(appDef, category)
       if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
     } catch { /* skip */ }
   }
@@ -251,13 +250,13 @@ async function scanGaming(): Promise<ScanResult[]> {
   const category = CleanerType.Gaming
   for (const launcher of getPlatform().paths.gamingPaths()) {
     try {
-      const result = await scanDirectoriesAsItems(launcher.paths, category, launcher.name, 'Launcher Caches')
+      const result = await scanAppRule(launcher, category, { directoryItems: true, group: 'Launcher Caches' })
       if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
     } catch { /* skip */ }
   }
   for (const gpu of getPlatform().paths.gpuCachePaths()) {
     try {
-      const result = await scanDirectoriesAsItems(gpu.paths, category, gpu.name, 'GPU Shader Caches')
+      const result = await scanAppRule(gpu, category, { directoryItems: true, group: 'GPU Shader Caches' })
       if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
     } catch { /* skip */ }
   }

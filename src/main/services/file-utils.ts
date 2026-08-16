@@ -4,7 +4,7 @@ import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
-import type { RecursivePathMatch } from '../platform/types'
+import type { AppCacheDef, DirectFileMatch, RecursivePathMatch } from '../platform/types'
 import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
@@ -473,13 +473,13 @@ export async function scanMultipleDirectories(
   dirPaths: string[],
   category: string,
   subcategory: string,
-  skipRecentMinutes = 60
+  recency: number | ScanRecencyOptions = {}
 ): Promise<ScanResult> {
   const allItems: ScanItem[] = []
   let totalSize = 0
 
   for (const dirPath of dirPaths) {
-    const result = await scanDirectory(dirPath, category, subcategory, skipRecentMinutes)
+    const result = await scanDirectory(dirPath, category, subcategory, recency)
     allItems.push(...result.items)
     totalSize += result.totalSize
   }
@@ -491,6 +491,116 @@ export async function scanMultipleDirectories(
     totalSize,
     itemCount: allItems.length,
   }
+}
+
+/**
+ * Scan an allowlist of direct files without ever treating the containing
+ * directory as disposable. `childDirSuffix` is intentionally limited to one
+ * directory level, which makes it suitable for layouts such as
+ * LocalAppData/*-updater while keeping nested `pending` trees out of scope.
+ */
+export async function scanMatchingFiles(
+  basePaths: string[],
+  match: DirectFileMatch,
+  category: string,
+  subcategory: string,
+): Promise<ScanResult> {
+  const items: ScanItem[] = []
+  let totalSize = 0
+  const cutoff = Date.now() - match.minAgeDays * 24 * 60 * 60 * 1000
+  const exclusions = getSettings().exclusions
+  const normalize = process.platform === 'win32'
+    ? (name: string): string => name.toLowerCase()
+    : (name: string): string => name
+  const names = new Set(match.names.map(normalize))
+  const blockers = new Set((match.skipIfChildExists || []).map(normalize))
+  const suffix = match.childDirSuffix ? normalize(match.childDirSuffix) : undefined
+  const candidateDirs = new Set<string>()
+
+  for (const basePath of basePaths) {
+    if (match.childDirSuffix) {
+      try {
+        const children = await readdir(basePath, { withFileTypes: true })
+        for (const child of children) {
+          if (!child.isDirectory() || child.isSymbolicLink()) continue
+          if (normalize(child.name).endsWith(suffix!)) candidateDirs.add(join(basePath, child.name))
+        }
+      } catch {
+        // Missing or inaccessible base path.
+      }
+    } else {
+      candidateDirs.add(basePath)
+    }
+  }
+
+  for (const candidateDir of candidateDirs) {
+    if (items.length >= 5000 || isExcluded(candidateDir, exclusions)) continue
+
+    try {
+      const rootStats = await lstat(candidateDir)
+      if (!rootStats.isDirectory() || rootStats.isSymbolicLink()) continue
+
+      const entries = await readdir(candidateDir, { withFileTypes: true })
+      if (entries.some((entry) => blockers.has(normalize(entry.name)))) continue
+
+      for (const entry of entries) {
+        if (items.length >= 5000) break
+        if (!entry.isFile() || entry.isSymbolicLink() || !names.has(normalize(entry.name))) continue
+
+        const filePath = join(candidateDir, entry.name)
+        if (isExcluded(filePath, exclusions)) continue
+
+        try {
+          const stats = await stat(filePath)
+          if (!stats.isFile() || stats.mtimeMs > cutoff) continue
+          items.push({
+            id: randomUUID(),
+            path: filePath,
+            size: stats.size,
+            category,
+            subcategory,
+            lastModified: stats.mtimeMs,
+            selected: true,
+          })
+          totalSize += stats.size
+        } catch {
+          // File changed or became inaccessible during the scan.
+        }
+      }
+    } catch {
+      // Missing or inaccessible candidate directory.
+    }
+  }
+
+  return { category, subcategory, items, totalSize, itemCount: items.length }
+}
+
+/** Scan one declarative app rule with all of its safety options applied. */
+export async function scanAppRule(
+  app: AppCacheDef,
+  category: string,
+  options: { directoryItems?: boolean; group?: string } = {},
+): Promise<ScanResult> {
+  let result: ScanResult
+
+  if (app.fileMatch) {
+    result = await scanMatchingFiles(app.paths, app.fileMatch, category, app.name)
+  } else {
+    const paths = await resolveChildSubdirs(app.paths, app.childSubdir, app.recursiveMatch)
+    if (options.directoryItems && app.minAgeDays === undefined) {
+      result = await scanDirectoriesAsItems(paths, category, app.name, options.group)
+    } else if (app.minAgeDays === undefined) {
+      result = await scanMultipleDirectories(paths, category, app.name)
+    } else {
+      result = await scanMultipleDirectories(paths, category, app.name, {
+        skipRecentMinutes: app.minAgeDays * 24 * 60,
+        deepRecencyCheck: true,
+      })
+    }
+  }
+
+  if (options.group && !result.group) result.group = options.group
+  return result
 }
 
 export async function scanFile(

@@ -16,7 +16,7 @@ const Pusher = ((PusherImport as unknown as { Pusher?: typeof PusherImport }).Pu
   ?? PusherImport) as typeof PusherImport
 type Pusher = PusherImport
 import { getSettings, setSettings, getMachineId } from './settings-store'
-import { scanDirectory, scanMultipleDirectories, scanDirectoriesAsItems, resolveChildSubdirs, cleanItems } from './file-utils'
+import { scanAppRule, scanDirectory, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from './file-utils'
 import { cacheItems, clearCachedCategory } from './scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
 import { psUtf8 } from './exec-utf8'
@@ -2048,8 +2048,7 @@ class CloudAgentService {
         const appCategory = CleanerType.App
         for (const appDef of getPlatform().paths.appPaths()) {
           try {
-            const appPaths = await resolveChildSubdirs(appDef.paths, appDef.childSubdir, appDef.recursiveMatch)
-            const r = await scanMultipleDirectories(appPaths, appCategory, appDef.name)
+            const r = await scanAppRule(appDef, appCategory)
             if (r.items.length > 0) { cacheItems(r.items); appResults.push(r) }
           } catch { /* skip */ }
         }
@@ -2075,14 +2074,14 @@ class CloudAgentService {
 
         for (const launcher of getPlatform().paths.gamingPaths()) {
           try {
-            const r = await scanDirectoriesAsItems(launcher.paths, gamingCategory, launcher.name, 'Launcher Caches')
+            const r = await scanAppRule(launcher, gamingCategory, { directoryItems: true, group: 'Launcher Caches' })
             if (r.items.length > 0) { cacheItems(r.items); gamingResults.push(r) }
           } catch { /* skip */ }
         }
 
         for (const gpu of getPlatform().paths.gpuCachePaths()) {
           try {
-            const r = await scanDirectoriesAsItems(gpu.paths, gamingCategory, gpu.name, 'GPU Shader Caches')
+            const r = await scanAppRule(gpu, gamingCategory, { directoryItems: true, group: 'GPU Shader Caches' })
             if (r.items.length > 0) { cacheItems(r.items); gamingResults.push(r) }
           } catch { /* skip */ }
         }

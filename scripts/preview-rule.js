@@ -59,9 +59,10 @@ function formatSize(bytes) {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
 }
 
-function getDirStats(dir) {
+function getDirStats(dir, minAgeDays) {
   let totalSize = 0
   let fileCount = 0
+  const cutoff = minAgeDays ? Date.now() - minAgeDays * 24 * 60 * 60 * 1000 : Infinity
 
   function walk(d) {
     try {
@@ -70,6 +71,7 @@ function getDirStats(dir) {
         try {
           const stat = statSync(full)
           if (stat.isFile()) {
+            if (stat.mtimeMs > cutoff) continue
             totalSize += stat.size
             fileCount++
           } else if (stat.isDirectory()) {
@@ -82,6 +84,42 @@ function getDirStats(dir) {
 
   walk(dir)
   return { totalSize, fileCount }
+}
+
+function expandFileMatches(basePath, match) {
+  const normalize = currentPlatform === 'win32' ? (name) => name.toLowerCase() : (name) => name
+  const names = new Set(match.names.map(normalize))
+  const blockers = new Set((match.skipIfChildExists || []).map(normalize))
+  const suffix = match.childDirSuffix ? normalize(match.childDirSuffix) : null
+  const cutoff = Date.now() - match.minAgeDays * 24 * 60 * 60 * 1000
+  let candidateDirs = [basePath]
+
+  if (suffix) {
+    try {
+      candidateDirs = readdirSync(basePath, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink() && normalize(entry.name).endsWith(suffix))
+        .map((entry) => path.join(basePath, entry.name))
+    } catch {
+      return []
+    }
+  }
+
+  const matches = []
+  for (const candidateDir of candidateDirs) {
+    let entries
+    try { entries = readdirSync(candidateDir, { withFileTypes: true }) } catch { continue }
+    if (entries.some((entry) => blockers.has(normalize(entry.name)))) continue
+
+    for (const entry of entries) {
+      if (!entry.isFile() || entry.isSymbolicLink() || !names.has(normalize(entry.name))) continue
+      const filePath = path.join(candidateDir, entry.name)
+      try {
+        const stats = statSync(filePath)
+        if (stats.mtimeMs <= cutoff) matches.push(filePath)
+      } catch { /* skip files that change during preview */ }
+    }
+  }
+  return matches
 }
 
 const MAX_RECURSIVE_RULE_DIRECTORIES = 100000
@@ -123,6 +161,7 @@ function expandRecursiveMatches(basePath, match) {
 }
 
 function expandRulePath(basePath, app) {
+  if (app.fileMatch) return expandFileMatches(basePath, app.fileMatch)
   if (app.recursiveMatch) return expandRecursiveMatches(basePath, app.recursiveMatch)
   if (!app.childSubdir) return [basePath]
 
@@ -182,10 +221,16 @@ function main() {
 
   console.log(`\n🔎 Kudu — Rule Preview: ${app.name} (${app.id})\n`)
   console.log(`  Source:  ${currentPlatform}/${app._source}`)
+  if (app.minAgeDays) console.log(`  minAgeDays: ${app.minAgeDays}`)
   if (app.childSubdir) console.log(`  childSubdir: ${app.childSubdir}`)
   if (app.recursiveMatch) {
     console.log(`  recursiveMatch: ${app.recursiveMatch.anchor}/**/{${app.recursiveMatch.targets.join(', ')}}`)
     if (app.recursiveMatch.excludedAncestors) console.log(`  excludedAncestors: ${app.recursiveMatch.excludedAncestors.join(', ')}`)
+  }
+  if (app.fileMatch) {
+    console.log(`  fileMatch: ${app.fileMatch.names.join(', ')} (at least ${app.fileMatch.minAgeDays} days old)`)
+    if (app.fileMatch.childDirSuffix) console.log(`  childDirSuffix: ${app.fileMatch.childDirSuffix}`)
+    if (app.fileMatch.skipIfChildExists) console.log(`  skipIfChildExists: ${app.fileMatch.skipIfChildExists.join(', ')}`)
   }
   if (app.description) console.log(`  Description: ${app.description}`)
   console.log()
@@ -203,14 +248,17 @@ function main() {
       continue
     }
 
-    if (app.childSubdir || app.recursiveMatch) {
+    if (app.childSubdir || app.recursiveMatch || app.fileMatch) {
       const expanded = expandRulePath(resolved, app)
       if (expanded.length === 0) {
-        console.log('     ⚪ No matching cache directories\n')
+        console.log('     ⚪ No matching cleanup targets\n')
         continue
       }
       for (const target of expanded) {
-        const { totalSize, fileCount } = getDirStats(target)
+        const targetStat = statSync(target)
+        const { totalSize, fileCount } = targetStat.isDirectory()
+          ? getDirStats(target, app.minAgeDays)
+          : { totalSize: targetStat.size, fileCount: 1 }
         grandTotal += totalSize
         grandFiles += fileCount
         console.log(`     ↳ ${target}`)
@@ -222,7 +270,7 @@ function main() {
 
     const stat = statSync(resolved)
     if (stat.isDirectory()) {
-      const { totalSize, fileCount } = getDirStats(resolved)
+      const { totalSize, fileCount } = getDirStats(resolved, app.minAgeDays)
       grandTotal += totalSize
       grandFiles += fileCount
       console.log(`     🟢 Exists — ${fileCount} files, ${formatSize(totalSize)}`)
@@ -235,7 +283,7 @@ function main() {
           try {
             const s = statSync(childFull)
             const type = s.isDirectory() ? '📂' : '📄'
-            console.log(`        ${type} ${child}  (${formatSize(s.isDirectory() ? getDirStats(childFull).totalSize : s.size)})`)
+            console.log(`        ${type} ${child}  (${formatSize(s.isDirectory() ? getDirStats(childFull, app.minAgeDays).totalSize : s.size)})`)
           } catch { /* skip */ }
         }
         const total = readdirSync(resolved).length

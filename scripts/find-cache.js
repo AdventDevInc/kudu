@@ -33,7 +33,7 @@ function loadKnownPaths() {
 
       // These rules make only their resolved children cleanable. Treating the
       // broad base itself as covered would hide every other cache below it.
-      if (rule.recursiveMatch) continue
+      if (rule.recursiveMatch || rule.fileMatch) continue
       if (rule.childSubdir) {
         for (const child of getDirsIn(resolved)) {
           const target = path.join(child.full, rule.childSubdir)

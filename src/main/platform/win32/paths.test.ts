@@ -180,6 +180,12 @@ describe('win32 paths', () => {
       expect(ids).toContain('vscode')
       expect(ids).toContain('npm')
       expect(ids).toEqual(expect.arrayContaining(['electron', 'ffmpeg-static', 'google-drive', 'kudu', 'webview2', 'zed']))
+      expect(ids).toEqual(expect.arrayContaining([
+        'spotify-store-browser', 'nvidia-app', 'cursor-partitions', 'jetbrains-logs',
+        'ea-desktop-logs', 'edge-update-logs', 'firefox-crash-history', 'chocolatey-logs',
+        'bramblewatch', 'hearthglen', 't3-code', 'buzz-node-cache', 'upscayl',
+        'todesktop-builder', 'electron-updater-artifacts',
+      ]))
     })
 
     it('constrains recursive WebView2 matching to cache directory names', () => {
@@ -190,6 +196,17 @@ describe('win32 paths', () => {
         excludedAncestors: ['File System', 'IndexedDB', 'Local Storage', 'Network', 'Service Worker', 'Session Storage', 'WebStorage', 'blob_storage', 'databases'],
         maxDepth: 12,
       })
+    })
+
+    it('guards stale Electron updater packages with exact names, age, and pending-state checks', () => {
+      const updater = apps.find((app) => app.id === 'electron-updater-artifacts')
+      expect(updater?.fileMatch).toEqual({
+        names: ['installer.exe', 'current.blockmap'],
+        childDirSuffix: '-updater',
+        minAgeDays: 14,
+        skipIfChildExists: ['pending'],
+      })
+      expect(updater?.paths).toHaveLength(1)
     })
   })
 

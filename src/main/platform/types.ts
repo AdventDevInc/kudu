@@ -65,6 +65,8 @@ export interface AppCacheDef {
   id: string
   name: string
   paths: string[]
+  /** Only offer entries older than this many days, inspecting nested contents before deleting a directory. */
+  minAgeDays?: number
   /** If set, scan paths/&ast;/childSubdir instead of paths directly (e.g. 'caches' for JetBrains on Windows) */
   childSubdir?: string
   /**
@@ -73,6 +75,8 @@ export interface AppCacheDef {
    * App/&ast;/EBWebView/&ast;/Cache without exposing session or user-data folders.
    */
   recursiveMatch?: RecursivePathMatch
+  /** Match a small allowlist of direct files, optionally inside immediate child directories. */
+  fileMatch?: DirectFileMatch
 }
 
 export interface RecursivePathMatch {
@@ -84,6 +88,17 @@ export interface RecursivePathMatch {
   excludedAncestors?: string[]
   /** Maximum directory depth below each configured base path. */
   maxDepth?: number
+}
+
+export interface DirectFileMatch {
+  /** Exact file names to offer for cleanup. */
+  names: string[]
+  /** If set, inspect only immediate child directories ending with this suffix. */
+  childDirSuffix?: string
+  /** Files newer than this age are never offered. */
+  minAgeDays: number
+  /** Skip a candidate directory entirely when any of these direct children exist. */
+  skipIfChildExists?: string[]
 }
 
 export interface UninstallLeftoverDir {
