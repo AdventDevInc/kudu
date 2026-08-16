@@ -1,3 +1,15 @@
+# [1.49.0](https://github.com/adventdevinc/kudu/compare/v1.48.0...v1.49.0) (2026-08-16)
+
+
+### Bug Fixes
+
+* **onboarding:** persist completion before applying preferences ([#269](https://github.com/adventdevinc/kudu/issues/269)) ([#286](https://github.com/adventdevinc/kudu/issues/286)) ([0ea94af](https://github.com/adventdevinc/kudu/commit/0ea94af7656916d53af4ebc184432b3634a3d7de))
+* **release:** repair changelog generation and fail loudly when it breaks ([#285](https://github.com/adventdevinc/kudu/issues/285)) ([c7a9e2d](https://github.com/adventdevinc/kudu/commit/c7a9e2db06aa772946614cd0b5556d971b97c38a))
+
+
+### Features
+
+* **cleaner:** sort scan results by file size ([#291](https://github.com/adventdevinc/kudu/issues/291)) ([6e37b30](https://github.com/adventdevinc/kudu/commit/6e37b301bd16729ddd66769657f30ca7d597589b))
 # [1.48.0](https://github.com/adventdevinc/kudu/compare/v1.47.0...v1.48.0) (2026-08-03)
 
 
