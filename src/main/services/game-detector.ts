@@ -58,8 +58,9 @@ export interface GameAutoEvent {
 }
 
 export interface GameDetectorCallbacks {
-  onGameDetected: (processName: string) => void
-  onGameExited: () => void
+  /** Return true once the detected game has been accepted for this session. */
+  onGameDetected: (processName: string) => boolean | Promise<boolean>
+  onGameExited: () => void | Promise<void>
 }
 
 // ── State ──────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ let suppressedGame: string | null = null
 
 // ── Detection ──────────────────────────────────────────────────
 
-async function getRunningProcessNames(): Promise<Set<string>> {
+async function getRunningProcessNames(): Promise<Set<string> | null> {
   try {
     const { stdout } = await execFileAsync('tasklist', ['/FO', 'CSV', '/NH'], {
       timeout: 10_000,
@@ -87,7 +88,8 @@ async function getRunningProcessNames(): Promise<Set<string>> {
     }
     return names
   } catch {
-    return new Set()
+    // A failed tasklist call is not evidence that the tracked game exited.
+    return null
   }
 }
 
@@ -107,14 +109,21 @@ async function poll(customGameProcesses: string[]): Promise<void> {
 
   try {
     const running = await getRunningProcessNames()
+    if (running === null) return
     const game = findGame(running, customGameProcesses)
 
     if (game && !detectedGame) {
       // Game just appeared
       if (game === suppressedGame) return // user manually deactivated this session
-      detectedGame = game
-      suppressedGame = null
-      try { await callbacks.onGameDetected(game) } catch { /* logged by caller */ }
+      try {
+        // Only mark the process as tracked once Game Mode is active (or the
+        // caller confirms an existing active session). Otherwise a transient
+        // activation failure would suppress every retry until the game exits.
+        if (await callbacks.onGameDetected(game)) {
+          detectedGame = game
+          suppressedGame = null
+        }
+      } catch { /* logged by caller */ }
     } else if (!game && detectedGame) {
       // Game just exited
       detectedGame = null
