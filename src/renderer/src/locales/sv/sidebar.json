@@ -21,6 +21,7 @@
   "diskTools": "Diskverktyg",
   "history": "Historik",
   "settings": "Inställningar",
-  "breachMonitor": "Intrångsövervakning",
-  "gameMode": "Spelläge"
+  "breachMonitor": "Övervakning av dataintrång",
+  "gameMode": "Spelläge",
+  "firewallAudit": "Granskning av brandvägg"
 }

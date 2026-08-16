@@ -10,7 +10,7 @@
   "monitoring": "Pemantauan",
   "maintainHeading": "PEMELIHARAAN",
   "cleaner": "Pembersih",
-  "registry": "Registri",
+  "registry": "Registry",
   "contextMenu": "Menu Konteks",
   "startup": "Startup",
   "network": "Jaringan",
@@ -22,5 +22,6 @@
   "history": "Riwayat",
   "settings": "Pengaturan",
   "breachMonitor": "Pemantau Kebocoran",
-  "gameMode": "Mode Game"
+  "gameMode": "Mode Game",
+  "firewallAudit": "Audit Firewall"
 }

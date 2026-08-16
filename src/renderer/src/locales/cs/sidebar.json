@@ -3,7 +3,7 @@
   "subtitle": "ČIŠTĚNÍ SYSTÉMU",
   "dashboard": "Přehled",
   "securityHeading": "ZABEZPEČENÍ",
-  "malwareScanner": "Kontrola malwaru",
+  "malwareScanner": "Skener malwaru",
   "threatMonitor": "Monitor hrozeb",
   "systemHardening": "Zabezpečení systému",
   "cveScanner": "Zranitelnosti",
@@ -21,6 +21,7 @@
   "diskTools": "Nástroje disku",
   "history": "Historie",
   "settings": "Nastavení",
-  "breachMonitor": "Monitor úniků",
-  "gameMode": "Herní režim"
+  "breachMonitor": "Monitor úniků dat",
+  "gameMode": "Herní režim",
+  "firewallAudit": "Audit brány firewall"
 }

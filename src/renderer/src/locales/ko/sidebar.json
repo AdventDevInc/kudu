@@ -22,5 +22,6 @@
   "history": "기록",
   "settings": "설정",
   "breachMonitor": "유출 모니터",
-  "gameMode": "게임 모드"
+  "gameMode": "게임 모드",
+  "firewallAudit": "방화벽 감사"
 }

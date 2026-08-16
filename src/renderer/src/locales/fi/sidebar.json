@@ -1,11 +1,11 @@
 {
   "appName": "Kudu",
   "subtitle": "JÄRJESTELMÄN PUHDISTUS",
-  "dashboard": "Yleisnäkymä",
-  "securityHeading": "SUOJAUS",
+  "dashboard": "Yhteenveto",
+  "securityHeading": "TIETOTURVA",
   "malwareScanner": "Haittaohjelmien tarkistus",
   "threatMonitor": "Uhkamonitori",
-  "systemHardening": "Järjestelmän suojausvahvistus",
+  "systemHardening": "Järjestelmän suojaus",
   "cveScanner": "Haavoittuvuudet",
   "monitoring": "Valvonta",
   "maintainHeading": "YLLÄPITO",
@@ -22,5 +22,6 @@
   "history": "Historia",
   "settings": "Asetukset",
   "breachMonitor": "Tietomurtovalvonta",
-  "gameMode": "Pelitila"
+  "gameMode": "Pelitila",
+  "firewallAudit": "Palomuurin tarkistus"
 }

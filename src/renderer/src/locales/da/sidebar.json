@@ -3,7 +3,7 @@
   "subtitle": "SYSTEMRENSER",
   "dashboard": "Dashboard",
   "securityHeading": "SIKKERHED",
-  "malwareScanner": "Malwarescanner",
+  "malwareScanner": "Malware-scanner",
   "threatMonitor": "Trusselsmonitor",
   "systemHardening": "Systemhærdning",
   "cveScanner": "Sårbarheder",
@@ -22,5 +22,6 @@
   "history": "Historik",
   "settings": "Indstillinger",
   "breachMonitor": "Brudovervågning",
-  "gameMode": "Spiltilstand"
+  "gameMode": "Spiltilstand",
+  "firewallAudit": "Firewall-audit"
 }

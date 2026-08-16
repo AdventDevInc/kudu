@@ -22,5 +22,6 @@
   "history": "Журнал",
   "settings": "Параметры",
   "breachMonitor": "Монитор утечек",
-  "gameMode": "Игровой режим"
+  "gameMode": "Игровой режим",
+  "firewallAudit": "Аудит брандмауэра"
 }

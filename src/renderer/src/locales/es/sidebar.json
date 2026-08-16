@@ -22,5 +22,6 @@
   "history": "Historial",
   "settings": "Configuración",
   "breachMonitor": "Monitor de filtraciones",
-  "gameMode": "Modo de juego"
+  "gameMode": "Modo de juego",
+  "firewallAudit": "Auditoría del firewall"
 }

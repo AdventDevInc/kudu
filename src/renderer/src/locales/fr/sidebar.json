@@ -8,7 +8,7 @@
   "systemHardening": "Renforcement du système",
   "cveScanner": "Vulnérabilités",
   "monitoring": "Surveillance",
-  "maintainHeading": "ENTRETIEN",
+  "maintainHeading": "MAINTENANCE",
   "cleaner": "Nettoyeur",
   "registry": "Registre",
   "contextMenu": "Menu contextuel",
@@ -22,5 +22,6 @@
   "history": "Historique",
   "settings": "Paramètres",
   "breachMonitor": "Surveillance des violations",
-  "gameMode": "Mode Jeu"
+  "gameMode": "Mode Jeu",
+  "firewallAudit": "Audit du pare-feu"
 }

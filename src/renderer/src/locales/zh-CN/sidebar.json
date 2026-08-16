@@ -22,5 +22,6 @@
   "history": "历史记录",
   "settings": "设置",
   "breachMonitor": "泄露监控",
-  "gameMode": "游戏模式"
+  "gameMode": "游戏模式",
+  "firewallAudit": "防火墙审核"
 }

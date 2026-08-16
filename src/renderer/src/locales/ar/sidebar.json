@@ -5,13 +5,13 @@
   "securityHeading": "الأمان",
   "malwareScanner": "فاحص البرامج الضارة",
   "threatMonitor": "مراقبة التهديدات",
-  "systemHardening": "تقوية النظام",
+  "systemHardening": "تحصين النظام",
   "cveScanner": "الثغرات الأمنية",
   "monitoring": "المراقبة",
   "maintainHeading": "الصيانة",
   "cleaner": "المنظف",
   "registry": "السجل",
-  "contextMenu": "القائمة المختصرة",
+  "contextMenu": "القائمة السياقية",
   "startup": "بدء التشغيل",
   "network": "الشبكة",
   "software": "البرامج",
@@ -22,5 +22,6 @@
   "history": "السجل",
   "settings": "الإعدادات",
   "breachMonitor": "مراقبة الاختراقات",
-  "gameMode": "وضع الألعاب"
+  "gameMode": "وضع الألعاب",
+  "firewallAudit": "تدقيق جدار الحماية"
 }

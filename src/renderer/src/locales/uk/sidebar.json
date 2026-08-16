@@ -22,5 +22,6 @@
   "history": "Історія",
   "settings": "Параметри",
   "breachMonitor": "Монітор витоків",
-  "gameMode": "Ігровий режим"
+  "gameMode": "Ігровий режим",
+  "firewallAudit": "Аудит брандмауера"
 }

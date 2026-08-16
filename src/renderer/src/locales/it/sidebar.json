@@ -1,15 +1,15 @@
 {
   "appName": "Kudu",
-  "subtitle": "PULIZIA DEL SISTEMA",
+  "subtitle": "PULITORE DI SISTEMA",
   "dashboard": "Dashboard",
   "securityHeading": "SICUREZZA",
   "malwareScanner": "Scanner malware",
-  "threatMonitor": "Monitoraggio minacce",
-  "systemHardening": "Protezione sistema",
+  "threatMonitor": "Monitor minacce",
+  "systemHardening": "Protezione avanzata del sistema",
   "cveScanner": "Vulnerabilità",
   "monitoring": "Monitoraggio",
   "maintainHeading": "MANUTENZIONE",
-  "cleaner": "Pulizia",
+  "cleaner": "Pulitore",
   "registry": "Registro di sistema",
   "contextMenu": "Menu contestuale",
   "startup": "Avvio",
@@ -21,6 +21,7 @@
   "diskTools": "Strumenti disco",
   "history": "Cronologia",
   "settings": "Impostazioni",
-  "breachMonitor": "Monitoraggio violazioni",
-  "gameMode": "Modalità gioco"
+  "breachMonitor": "Monitor violazioni",
+  "gameMode": "Modalità gioco",
+  "firewallAudit": "Verifica firewall"
 }

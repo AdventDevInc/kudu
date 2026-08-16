@@ -16,11 +16,12 @@
   "network": "Netzwerk",
   "software": "Software",
   "schedules": "Zeitpläne",
-  "toolsHeading": "WERKZEUGE",
+  "toolsHeading": "TOOLS",
   "performance": "Leistung",
   "diskTools": "Datenträger-Tools",
   "history": "Verlauf",
   "settings": "Einstellungen",
-  "breachMonitor": "Überwachung von Datenlecks",
-  "gameMode": "Spielmodus"
+  "breachMonitor": "Überwachung von Datenpannen",
+  "gameMode": "Spielmodus",
+  "firewallAudit": "Firewall-Überprüfung"
 }

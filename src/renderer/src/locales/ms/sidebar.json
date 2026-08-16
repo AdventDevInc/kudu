@@ -5,7 +5,7 @@
   "securityHeading": "KESELAMATAN",
   "malwareScanner": "Pengimbas Malware",
   "threatMonitor": "Pemantau Ancaman",
-  "systemHardening": "Pengukuhan Sistem",
+  "systemHardening": "Pengerasan Sistem",
   "cveScanner": "Kerentanan",
   "monitoring": "Pemantauan",
   "maintainHeading": "PENYELENGGARAAN",
@@ -22,5 +22,6 @@
   "history": "Sejarah",
   "settings": "Tetapan",
   "breachMonitor": "Pemantau Kebocoran",
-  "gameMode": "Mod Permainan"
+  "gameMode": "Mod Permainan",
+  "firewallAudit": "Audit Firewall"
 }

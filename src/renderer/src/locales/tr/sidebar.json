@@ -22,5 +22,6 @@
   "history": "Geçmiş",
   "settings": "Ayarlar",
   "breachMonitor": "İhlal İzleyicisi",
-  "gameMode": "Oyun Modu"
+  "gameMode": "Oyun Modu",
+  "firewallAudit": "Güvenlik Duvarı Denetimi"
 }

@@ -5,7 +5,7 @@
   "securityHeading": "BEVEILIGING",
   "malwareScanner": "Malwarescanner",
   "threatMonitor": "Bedreigingsmonitor",
-  "systemHardening": "Systeembeveiliging",
+  "systemHardening": "Systeemverharding",
   "cveScanner": "Kwetsbaarheden",
   "monitoring": "Bewaking",
   "maintainHeading": "ONDERHOUD",
@@ -22,5 +22,6 @@
   "history": "Geschiedenis",
   "settings": "Instellingen",
   "breachMonitor": "Datalekmonitor",
-  "gameMode": "Spelmodus"
+  "gameMode": "Spelmodus",
+  "firewallAudit": "Firewall-audit"
 }

@@ -3,9 +3,9 @@
   "subtitle": "ΚΑΘΑΡΙΣΜΟΣ ΣΥΣΤΗΜΑΤΟΣ",
   "dashboard": "Πίνακας ελέγχου",
   "securityHeading": "ΑΣΦΑΛΕΙΑ",
-  "malwareScanner": "Σάρωση για κακόβουλο λογισμικό",
+  "malwareScanner": "Έλεγχος κακόβουλου λογισμικού",
   "threatMonitor": "Παρακολούθηση απειλών",
-  "systemHardening": "Ενίσχυση συστήματος",
+  "systemHardening": "Ενίσχυση ασφάλειας συστήματος",
   "cveScanner": "Ευπάθειες",
   "monitoring": "Παρακολούθηση",
   "maintainHeading": "ΣΥΝΤΗΡΗΣΗ",
@@ -22,5 +22,6 @@
   "history": "Ιστορικό",
   "settings": "Ρυθμίσεις",
   "breachMonitor": "Παρακολούθηση παραβιάσεων",
-  "gameMode": "Λειτουργία παιχνιδιού"
+  "gameMode": "Λειτουργία παιχνιδιού",
+  "firewallAudit": "Έλεγχος τείχους προστασίας"
 }

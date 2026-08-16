@@ -11,7 +11,7 @@
   "maintainHeading": "VEDLIKEHOLD",
   "cleaner": "Renser",
   "registry": "Register",
-  "contextMenu": "Hurtigmeny",
+  "contextMenu": "Kontekstmeny",
   "startup": "Oppstart",
   "network": "Nettverk",
   "software": "Programvare",
@@ -22,5 +22,6 @@
   "history": "Historikk",
   "settings": "Innstillinger",
   "breachMonitor": "Overvåking av datainnbrudd",
-  "gameMode": "Spillmodus"
+  "gameMode": "Spillmodus",
+  "firewallAudit": "Brannmurrevisjon"
 }

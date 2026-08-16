@@ -22,5 +22,6 @@
   "history": "इतिहास",
   "settings": "सेटिंग्स",
   "breachMonitor": "उल्लंघन मॉनिटर",
-  "gameMode": "गेम मोड"
+  "gameMode": "गेम मोड",
+  "firewallAudit": "फ़ायरवॉल ऑडिट"
 }

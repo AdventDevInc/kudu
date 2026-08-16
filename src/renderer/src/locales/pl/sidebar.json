@@ -1,12 +1,12 @@
 {
   "appName": "Kudu",
   "subtitle": "OCZYSZCZANIE SYSTEMU",
-  "dashboard": "Panel",
+  "dashboard": "Pulpit",
   "securityHeading": "ZABEZPIECZENIA",
   "malwareScanner": "Skaner malware",
   "threatMonitor": "Monitor zagrożeń",
-  "systemHardening": "Wzmacnianie systemu",
-  "cveScanner": "Podatności",
+  "systemHardening": "Wzmacnianie zabezpieczeń systemu",
+  "cveScanner": "Luki w zabezpieczeniach",
   "monitoring": "Monitorowanie",
   "maintainHeading": "KONSERWACJA",
   "cleaner": "Oczyszczanie",
@@ -22,5 +22,6 @@
   "history": "Historia",
   "settings": "Ustawienia",
   "breachMonitor": "Monitor wycieków",
-  "gameMode": "Tryb gry"
+  "gameMode": "Tryb gry",
+  "firewallAudit": "Inspekcja zapory"
 }
