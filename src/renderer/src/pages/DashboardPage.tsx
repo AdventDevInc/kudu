@@ -99,6 +99,7 @@ export function DashboardPage() {
   const startupLoadAttemptedRef = useRef(false)
   const navigate = useNavigate()
   const [drives, setDrives] = useState<DriveInfo[]>([])
+  const [driveStatus, setDriveStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
   const [phase, setPhase] = useState<OneClickPhase>('idle')
   const [phaseLabel, setPhaseLabel] = useState('')
   const [result, setResult] = useState<OneClickResult | null>(null)
@@ -156,7 +157,16 @@ export function DashboardPage() {
   }, [gameModeActive, gameModeActivatedAt])
 
   const refreshDrives = useCallback(() => {
-    window.kudu?.diskDrives?.().then(setDrives).catch(() => {})
+    setDriveStatus('loading')
+    window.kudu?.diskDrives?.()
+      .then((nextDrives) => {
+        setDrives(nextDrives)
+        setDriveStatus(nextDrives.length > 0 ? 'ready' : 'unavailable')
+      })
+      .catch(() => {
+        setDrives([])
+        setDriveStatus('unavailable')
+      })
   }, [])
 
   useEffect(() => { refreshDrives() }, [refreshDrives])
@@ -630,7 +640,7 @@ export function DashboardPage() {
             <div className="kudu-glance-grid">
               <GlanceCard icon={Cpu} label="Processor" value={cpuPct < 70 ? 'Comfortable' : 'Working hard'} percent={Math.round(cpuPct)} tone="gold" />
               <GlanceCard icon={MemoryStick} label="Memory" value={perf ? `${formatBytes(freeMemory)} free` : 'Checking…'} percent={Math.round(ramPct)} tone="green" />
-              <GlanceCard icon={HardDrive} label="Storage" value={primaryDrive ? `${formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace)} free` : 'Checking…'} percent={primaryDriveUsedPercent} tone="clay" />
+              <GlanceCard icon={HardDrive} label="Storage" value={primaryDrive ? `${formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace)} free` : driveStatus === 'loading' ? 'Checking…' : 'Unavailable'} percent={primaryDriveUsedPercent} tone="clay" />
             </div>
           </section>
 
@@ -668,10 +678,10 @@ export function DashboardPage() {
           <section className="kudu-drive-card">
             <div>
               <b>{primaryDrive ? `${primaryDrive.letter}: ${primaryDrive.label || 'System drive'}` : 'System drive'}</b>
-              <span>{primaryDrive ? `${formatBytes(primaryDrive.usedSpace)} / ${formatBytes(primaryDrive.totalSize)}` : 'Checking storage…'}</span>
+              <span>{primaryDrive ? `${formatBytes(primaryDrive.usedSpace)} / ${formatBytes(primaryDrive.totalSize)}` : driveStatus === 'loading' ? 'Checking storage…' : 'Storage unavailable'}</span>
             </div>
             <div className="kudu-drive-track"><i style={{ width: `${primaryDriveUsedPercent}%` }} /></div>
-            <p>{primaryDriveUsedPercent > 85 ? 'Cleanup is recommended soon.' : 'Plenty of working space is available.'}</p>
+            <p>{!primaryDrive ? (driveStatus === 'loading' ? 'Checking available storage…' : 'Storage information is unavailable.') : primaryDriveUsedPercent > 85 ? 'Cleanup is recommended soon.' : 'Plenty of working space is available.'}</p>
             <button type="button" onClick={() => navigate('/disk')}>Open storage tools →</button>
           </section>
 

@@ -333,6 +333,7 @@ function NavItem({
   isActive: isActiveProp,
   submenuOpen,
   onToggleSubmenu,
+  onCloseSubmenu,
 }: {
   item: NavItemDef
   badge?: boolean
@@ -350,6 +351,16 @@ function NavItem({
   const isActive = isActiveProp ?? location.pathname === item.path
   const hasChildren = item.children && item.children.length > 0
   const itemLabel = item.labelKey ? t(item.labelKey, { defaultValue: item.label ?? '' }) : (item.label ?? '')
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const [isCompact, setIsCompact] = useState(() => window.matchMedia('(max-width: 980px)').matches)
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 980px)')
+    const update = () => setIsCompact(media.matches)
+    media.addEventListener('change', update)
+    return () => media.removeEventListener('change', update)
+  }, [])
 
   const handleClick = () => {
     if (hasChildren) {
@@ -362,6 +373,7 @@ function NavItem({
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={handleClick}
         aria-current={isActive && !hasChildren ? 'page' : undefined}
         aria-expanded={hasChildren ? !!submenuOpen : undefined}
@@ -420,7 +432,7 @@ function NavItem({
       </button>
 
       {/* Flyout submenu — rendered fixed to escape sidebar overflow */}
-      {hasChildren && submenuOpen && (
+      {hasChildren && submenuOpen && !isCompact && (
         <div className="sidebar-submenu animate-fade-in" role="group" aria-label={`${itemLabel} tools`}>
           {item.children!.map((child) => {
             const isChildActive = location.pathname === child.path
@@ -448,6 +460,19 @@ function NavItem({
             )
           })}
         </div>
+      )}
+      {hasChildren && submenuOpen && isCompact && (
+        <FlyoutMenu
+          buttonRef={buttonRef}
+          popoverRef={popoverRef}
+          items={item.children!}
+          badgeCounts={badgeCounts}
+          onSelect={(path) => {
+            navigate(path)
+            onCloseSubmenu?.()
+          }}
+          onClose={() => onCloseSubmenu?.()}
+        />
       )}
     </div>
   )
@@ -527,6 +552,7 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
       >
         {items.map((child) => {
           const isChildActive = location.pathname === child.path
+          const childLabel = child.labelKey ? t(child.labelKey, { defaultValue: child.label ?? '' }) : (child.label ?? '')
           return (
             <button
               key={child.path}
@@ -547,7 +573,7 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
                 strokeWidth={isChildActive ? 2 : 1.7}
                 aria-hidden="true"
               />
-              <span className="flex-1">{child.labelKey ? t(child.labelKey) : child.label}</span>
+              <span className="flex-1">{childLabel}</span>
               {(badgeCounts?.[child.path] ?? 0) > 0 && (
                 <span
                   className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none"
