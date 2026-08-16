@@ -58,6 +58,22 @@ describe('rules schema validation', () => {
     })).toBe(false)
   })
 
+  it('rejects unsafe recursive anchor paths', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        recursiveMatch: {
+          anchor: 'EBWebView',
+          anchorPaths: ['Packages/../EBWebView'],
+          targets: ['Cache'],
+        },
+      }],
+    })).toBe(false)
+  })
+
   it('rejects combining fileMatch with another path-expansion mode', () => {
     expect(validate({
       type: 'apps',

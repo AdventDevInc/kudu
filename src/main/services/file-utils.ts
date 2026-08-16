@@ -714,6 +714,69 @@ function validDirectoryName(name: string): boolean {
   return name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
 }
 
+function parseAnchorPath(
+  pattern: string,
+  anchor: string,
+  normalizeName: (name: string) => string,
+): string[] | null {
+  const segments = pattern.split('/')
+  if (
+    segments.some((segment) => segment !== '*' && !validDirectoryName(segment))
+    || normalizeName(segments.at(-1) || '') !== anchor
+  ) return null
+  return segments
+}
+
+async function expandAnchorPaths(
+  basePath: string,
+  patterns: string[][],
+  budget: { visited: number },
+): Promise<string[]> {
+  const resolved = new Set<string>()
+
+  for (const segments of patterns) {
+    let candidates = new Set([basePath])
+
+    for (const segment of segments) {
+      const next = new Set<string>()
+
+      for (const candidate of candidates) {
+        if (budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+        budget.visited++
+
+        if (segment === '*') {
+          try {
+            const children = await readdir(candidate, { withFileTypes: true })
+            for (const child of children) {
+              if (!child.isDirectory() || child.isSymbolicLink()) continue
+              next.add(join(candidate, child.name))
+              if (budget.visited + next.size >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+            }
+          } catch {
+            // Skip missing or inaccessible wildcard candidates.
+          }
+        } else {
+          const exactPath = join(candidate, segment)
+          try {
+            const stats = await lstat(exactPath)
+            if (stats.isDirectory() && !stats.isSymbolicLink()) next.add(exactPath)
+          } catch {
+            // Skip missing or inaccessible exact candidates.
+          }
+        }
+      }
+
+      candidates = next
+      if (candidates.size === 0 || budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+    }
+
+    for (const candidate of candidates) resolved.add(candidate)
+    if (budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+  }
+
+  return [...resolved]
+}
+
 /** Resolve tightly scoped recursive cache rules without following links. */
 export async function resolveRecursivePathMatches(
   paths: string[],
@@ -730,23 +793,42 @@ export async function resolveRecursivePathMatches(
     ? (name: string): string => name.toLowerCase()
     : (name: string): string => name
   const anchor = normalizeName(match.anchor)
+  const anchorPaths = match.anchorPaths?.map((pattern) => parseAnchorPath(pattern, anchor, normalizeName))
+  if (anchorPaths?.some((pattern) => pattern === null)) return []
   const targets = new Set(match.targets.map(normalizeName))
   const excludedAncestors = new Set((match.excludedAncestors || []).map(normalizeName))
   const resolved = new Set<string>()
-  let visited = 0
+  const budget = { visited: 0 }
+  const roots = new Map<string, { path: string; belowAnchor: boolean }>()
 
   for (const basePath of paths) {
     if (!existsSync(basePath)) continue
 
+    if (anchorPaths) {
+      const expanded = await expandAnchorPaths(basePath, anchorPaths.filter((pattern): pattern is string[] => pattern !== null), budget)
+      for (const rootPath of expanded) {
+        const key = process.platform === 'win32' ? rootPath.toLowerCase() : rootPath
+        roots.set(key, { path: rootPath, belowAnchor: true })
+      }
+    } else {
+      const key = process.platform === 'win32' ? basePath.toLowerCase() : basePath
+      roots.set(key, {
+        path: basePath,
+        belowAnchor: normalizeName(basePath.split(/[\\/]/).pop() || '') === anchor,
+      })
+    }
+  }
+
+  for (const root of roots.values()) {
     const queue: Array<{ path: string; depth: number; belowAnchor: boolean }> = [{
-      path: basePath,
+      path: root.path,
       depth: 0,
-      belowAnchor: normalizeName(basePath.split(/[\\/]/).pop() || '') === anchor,
+      belowAnchor: root.belowAnchor,
     }]
 
-    for (let index = 0; index < queue.length && visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+    for (let index = 0; index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
       const current = queue[index]
-      visited++
+      budget.visited++
 
       try {
         const children = await readdir(current.path, { withFileTypes: true })

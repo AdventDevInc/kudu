@@ -82,11 +82,16 @@ export interface AppCacheDef {
 export interface RecursivePathMatch {
   /** Directory name that must be present above every returned target. */
   anchor: string
+  /**
+   * Optional relative patterns that locate anchor roots without recursively
+   * walking each base path. Each segment is an exact name or a single `*`.
+   */
+  anchorPaths?: string[]
   /** Exact directory names to return beneath the anchor. */
   targets: string[]
   /** Directory names whose subtrees must never be inspected for targets. */
   excludedAncestors?: string[]
-  /** Maximum directory depth below each configured base path. */
+  /** Maximum directory depth below each resolved anchor (or configured base path). */
   maxDepth?: number
 }
 

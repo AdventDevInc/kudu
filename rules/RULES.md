@@ -118,7 +118,7 @@ Paths use template variables instead of hardcoded locations. The loader resolves
 - Each app needs at least one path.
 - Add `"minAgeDays"` when a cache or log needs a longer retention window. Directory contents are checked recursively before a whole directory is offered.
 - Add `"childSubdir"` if caches are in versioned subdirectories (e.g. JetBrains stores caches in `JetBrains/<version>/caches`).
-- Add `"recursiveMatch"` only when cache paths have dynamic nesting. It returns exact target directory names beneath a required anchor and never follows directory links.
+- Add `"recursiveMatch"` only when cache paths have dynamic nesting. It returns exact target directory names beneath a required anchor and never follows directory links. For broad bases, provide `"anchorPaths"` so anchor discovery follows bounded relative patterns instead of recursively walking unrelated folders.
 - Add `"fileMatch"` only for a small allowlist of exact direct filenames. It can inspect immediate child directories by suffix, but never traverses their nested state.
 
 ### 5. Editor Autocomplete
@@ -154,6 +154,8 @@ The test suite includes schema validation tests that verify every rule file.
   "childSubdir": "caches",    // Optional. Scan path/*/childSubdir.
   "recursiveMatch": {          // Optional alternative to childSubdir.
     "anchor": "EBWebView",    // Targets must be beneath this exact directory.
+    "anchorPaths": ["*/EBWebView", "Packages/*/LocalState/EBWebView"],
+                                // Optional bounded anchor discovery; * matches one directory.
     "targets": ["Cache", "Code Cache", "GPUCache"],
     "excludedAncestors": ["Local Storage", "IndexedDB"],
     "maxDepth": 12             // Optional; defaults to 12, maximum 32.
@@ -168,7 +170,7 @@ The test suite includes schema validation tests that verify every rule file.
 }
 ```
 
-`childSubdir`, `recursiveMatch`, and `fileMatch` are mutually exclusive. Recursive targets and file-match names must be single names, not paths or globs; this prevents a broad base path from becoming directly cleanable. A file match considers direct files only, and `skipIfChildExists` rejects the whole candidate directory when protected state such as `pending` is present.
+`childSubdir`, `recursiveMatch`, and `fileMatch` are mutually exclusive. Recursive targets and file-match names must be single names, not paths or globs; this prevents a broad base path from becoming directly cleanable. Each `anchorPaths` value is relative to a configured base, may use `*` for exactly one directory segment, and must end with the configured anchor name. A file match considers direct files only, and `skipIfChildExists` rejects the whole candidate directory when protected state such as `pending` is present.
 
 ### System Clean Target (`system.json`)
 

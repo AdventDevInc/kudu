@@ -111,6 +111,18 @@
           "pattern": "^[^/\\\\]+$",
           "description": "Exact ancestor directory name that must contain every matched target"
         },
+        "anchorPaths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?:\\*|[^/\\\\*]+)(?:/(?:\\*|[^/\\\\*]+))*$",
+            "not": { "pattern": "(?:^|/)\\.\\.?(?:/|$)" }
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Relative paths to anchor roots; each segment is an exact directory name or a single * wildcard, and the final segment must equal anchor"
+        },
         "targets": {
           "type": "array",
           "items": { "type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$" },
@@ -128,7 +140,7 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 32,
-          "description": "Maximum directory depth to inspect below each base path (default 12)"
+          "description": "Maximum directory depth to inspect below each resolved anchor, or below each base path when anchorPaths is omitted (default 12)"
         }
       }
     },

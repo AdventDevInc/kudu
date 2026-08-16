@@ -192,6 +192,20 @@ describe('win32 paths', () => {
       const webview = apps.find((app) => app.id === 'webview2')
       expect(webview?.recursiveMatch).toEqual({
         anchor: 'EBWebView',
+        anchorPaths: [
+          '*/EBWebView',
+          'Microsoft/*/EBWebView',
+          'Microsoft/*/*/EBWebView',
+          'Microsoft/*/*/*/EBWebView',
+          'Packages/*/*/EBWebView',
+          'Packages/*/*/*/EBWebView',
+          'Packages/*/*/*/*/EBWebView',
+          'TeamViewer/EdgeBrowserControl/*/*/EBWebView',
+          'TeamViewer/EdgeBrowserControl/*/*/*/EBWebView',
+          'Zoom/data/WebviewCacheX64/*/EBWebView',
+          'Google/DriveFS/webview2_user_data/*/EBWebView',
+          'Microsoft/Office/*/Wef/webview2/*/*/EBWebView',
+        ],
         targets: ['Cache', 'Code Cache', 'GPUCache', 'DawnGraphiteCache', 'DawnWebGPUCache'],
         excludedAncestors: ['File System', 'IndexedDB', 'Local Storage', 'Network', 'Service Worker', 'Session Storage', 'WebStorage', 'blob_storage', 'databases'],
         maxDepth: 12,

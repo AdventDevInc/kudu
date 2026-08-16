@@ -5,7 +5,7 @@
 // Run: npm run preview-rule -- <app-id>
 // Run: npm run preview-rule            (lists all available IDs)
 
-const { readFileSync, readdirSync, statSync, existsSync } = require('fs')
+const { readFileSync, readdirSync, statSync, lstatSync, existsSync } = require('fs')
 const { homedir, tmpdir, platform } = require('os')
 const path = require('path')
 
@@ -124,6 +124,52 @@ function expandFileMatches(basePath, match) {
 
 const MAX_RECURSIVE_RULE_DIRECTORIES = 100000
 
+function parseAnchorPath(pattern, anchor, normalize) {
+  const validName = (name) => typeof name === 'string' && name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+  const segments = pattern.split('/')
+  if (segments.some((segment) => segment !== '*' && !validName(segment)) || normalize(segments.at(-1) || '') !== anchor) return null
+  return segments
+}
+
+function expandAnchorPaths(basePath, patterns, budget) {
+  const resolved = new Set()
+
+  for (const segments of patterns) {
+    let candidates = new Set([basePath])
+
+    for (const segment of segments) {
+      const next = new Set()
+      for (const candidate of candidates) {
+        if (budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+        budget.visited++
+
+        if (segment === '*') {
+          let children
+          try { children = readdirSync(candidate, { withFileTypes: true }) } catch { continue }
+          for (const child of children) {
+            if (!child.isDirectory() || child.isSymbolicLink()) continue
+            next.add(path.join(candidate, child.name))
+            if (budget.visited + next.size >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+          }
+        } else {
+          const exactPath = path.join(candidate, segment)
+          try {
+            const stats = lstatSync(exactPath)
+            if (stats.isDirectory() && !stats.isSymbolicLink()) next.add(exactPath)
+          } catch { /* skip missing or inaccessible candidates */ }
+        }
+      }
+      candidates = next
+      if (candidates.size === 0 || budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+    }
+
+    for (const candidate of candidates) resolved.add(candidate)
+    if (budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+  }
+
+  return [...resolved]
+}
+
 function expandRecursiveMatches(basePath, match) {
   const validName = (name) => typeof name === 'string' && name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
   if (!match || !validName(match.anchor) || !Array.isArray(match.targets) || match.targets.some((target) => !validName(target)) || (match.excludedAncestors || []).some((ancestor) => !validName(ancestor))) return []
@@ -134,26 +180,35 @@ function expandRecursiveMatches(basePath, match) {
   const excludedAncestors = new Set((match.excludedAncestors || []).map(normalize))
   const maxDepth = Math.min(32, Math.max(1, match.maxDepth || 12))
   const resolved = new Set()
-  const queue = [{ path: basePath, depth: 0, belowAnchor: normalize(path.basename(basePath)) === anchor }]
+  const budget = { visited: 0 }
+  const anchorPaths = match.anchorPaths?.map((pattern) => parseAnchorPath(pattern, anchor, normalize))
+  if (anchorPaths?.some((pattern) => pattern === null)) return []
+  const roots = anchorPaths
+    ? expandAnchorPaths(basePath, anchorPaths.filter((pattern) => pattern !== null), budget).map((rootPath) => ({ path: rootPath, belowAnchor: true }))
+    : [{ path: basePath, belowAnchor: normalize(path.basename(basePath)) === anchor }]
 
-  for (let index = 0; index < queue.length && index < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
-    const current = queue[index]
-    let children
-    try { children = readdirSync(current.path, { withFileTypes: true }) } catch { continue }
+  for (const root of roots) {
+    const queue = [{ path: root.path, depth: 0, belowAnchor: root.belowAnchor }]
+    for (let index = 0; index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+      const current = queue[index]
+      budget.visited++
+      let children
+      try { children = readdirSync(current.path, { withFileTypes: true }) } catch { continue }
 
-    for (const child of children) {
-      if (!child.isDirectory() || child.isSymbolicLink()) continue
-      const fullPath = path.join(current.path, child.name)
-      const normalized = normalize(child.name)
-      const belowAnchor = current.belowAnchor || normalized === anchor
+      for (const child of children) {
+        if (!child.isDirectory() || child.isSymbolicLink()) continue
+        const fullPath = path.join(current.path, child.name)
+        const normalized = normalize(child.name)
+        const belowAnchor = current.belowAnchor || normalized === anchor
 
-      if (current.belowAnchor && excludedAncestors.has(normalized)) continue
+        if (current.belowAnchor && excludedAncestors.has(normalized)) continue
 
-      if (current.belowAnchor && targets.has(normalized)) {
-        resolved.add(fullPath)
-        continue
+        if (current.belowAnchor && targets.has(normalized)) {
+          resolved.add(fullPath)
+          continue
+        }
+        if (current.depth + 1 < maxDepth) queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
       }
-      if (current.depth + 1 < maxDepth) queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
     }
   }
 
@@ -225,6 +280,7 @@ function main() {
   if (app.childSubdir) console.log(`  childSubdir: ${app.childSubdir}`)
   if (app.recursiveMatch) {
     console.log(`  recursiveMatch: ${app.recursiveMatch.anchor}/**/{${app.recursiveMatch.targets.join(', ')}}`)
+    if (app.recursiveMatch.anchorPaths) console.log(`  anchorPaths: ${app.recursiveMatch.anchorPaths.join(', ')}`)
     if (app.recursiveMatch.excludedAncestors) console.log(`  excludedAncestors: ${app.recursiveMatch.excludedAncestors.join(', ')}`)
   }
   if (app.fileMatch) {
