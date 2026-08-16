@@ -471,7 +471,10 @@ function NavItem({
             navigate(path)
             onCloseSubmenu?.()
           }}
-          onClose={() => onCloseSubmenu?.()}
+          onClose={() => {
+            onCloseSubmenu?.()
+            buttonRef.current?.focus()
+          }}
         />
       )}
     </div>

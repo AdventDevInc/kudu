@@ -325,13 +325,21 @@ export function DashboardPage() {
         source: t.source,
         details: t.details
       }))
-      const actionResult = await window.kudu.malwareQuarantine(paths, meta)
-      const failedPaths = new Set(actionResult.errors.map((error) => error.path))
-      const knownUnresolved = result.threats.filter((threat) => failedPaths.has(threat.path))
-      malwareStore.setActionResult(actionResult)
-      malwareStore.setThreats(knownUnresolved)
-      malwareStore.setUnresolvedThreatCount(Math.max(actionResult.failed, result.threats.length - actionResult.succeeded))
-      return { found: result.threats.length, quarantined: actionResult.succeeded }
+      try {
+        const actionResult = await window.kudu.malwareQuarantine(paths, meta)
+        const failedPaths = new Set(actionResult.errors.map((error) => error.path))
+        const knownUnresolved = result.threats.filter((threat) => failedPaths.has(threat.path))
+        malwareStore.setActionResult(actionResult)
+        malwareStore.setThreats(knownUnresolved)
+        malwareStore.setUnresolvedThreatCount(Math.max(actionResult.failed, result.threats.length - actionResult.succeeded))
+        return { found: result.threats.length, quarantined: actionResult.succeeded }
+      } catch {
+        // The scan still completed successfully. Preserve its detections so the
+        // result, history, and health score do not report active threats as clean.
+        malwareStore.setUnresolvedThreatCount(result.threats.length)
+        toast.error(t('malware:toastActionFailed', { action: 'quarantine' }))
+        return { found: result.threats.length, quarantined: 0 }
+      }
     } catch {
       malwareStore.setStatus('idle')
       toast.error(t('toastMalwareScanFailed'))
