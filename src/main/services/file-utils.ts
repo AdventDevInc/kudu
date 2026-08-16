@@ -1,4 +1,4 @@
-import { chmod, rm, rmdir, stat, lstat, readdir, open, writeFile } from 'fs/promises'
+import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
 import { existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
