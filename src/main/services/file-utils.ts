@@ -1,4 +1,4 @@
-import { rm, stat, lstat, readdir, open, writeFile } from 'fs/promises'
+import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
 import { existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
@@ -12,6 +12,8 @@ export interface DeleteResult {
   path: string
   success: boolean
   reason?: string
+  /** Exact paths left behind when a recursive directory delete only partially succeeds. */
+  failures?: Array<{ path: string; reason: string }>
 }
 
 /** Translate filesystem failures without conflating permissions with locks. */
@@ -25,6 +27,93 @@ export function deleteFailureReason(
   if (err.code === 'EPERM') return platform === 'win32' ? 'in-use' : 'permission-denied'
   if (err.code === 'EACCES') return 'permission-denied'
   return err.message || 'unknown-error'
+}
+
+type FilesystemFailure = { code?: string; message?: string }
+const GRANULAR_DELETE_ERRORS = new Set(['EBUSY', 'EPERM', 'EACCES', 'ENOTEMPTY'])
+
+async function attemptDelete(
+  filePath: string,
+  operation: () => Promise<void>,
+): Promise<FilesystemFailure | null> {
+  try {
+    await operation()
+    return null
+  } catch (err: any) {
+    if (err.code === 'ENOENT') return null
+
+    // A read-only attribute is also surfaced as EPERM on Windows. Clear it and
+    // retry before deciding the path is locked; a real sharing violation will
+    // simply fail the second attempt too.
+    if (process.platform === 'win32' && err.code === 'EPERM') {
+      try {
+        await chmod(filePath, 0o666)
+        await operation()
+        return null
+      } catch (retryErr: any) {
+        if (retryErr.code === 'ENOENT') return null
+        return retryErr
+      }
+    }
+
+    return err
+  }
+}
+
+function recordDeleteFailure(
+  failures: NonNullable<DeleteResult['failures']>,
+  filePath: string,
+  err: FilesystemFailure,
+): void {
+  failures.push({ path: filePath, reason: deleteFailureReason(err) })
+}
+
+/**
+ * Remove a real directory from the leaves upward without following symlinks.
+ * This is the recovery path after the fast recursive rm failed: one bad child
+ * must not prevent settled siblings from being reclaimed.
+ */
+async function deleteDirectoryBestEffort(
+  dirPath: string,
+  failures: NonNullable<DeleteResult['failures']>,
+): Promise<void> {
+  let entries: Dirent[]
+  try {
+    entries = await readdir(dirPath, { withFileTypes: true })
+  } catch (err: any) {
+    if (err.code !== 'ENOENT') recordDeleteFailure(failures, dirPath, err)
+    return
+  }
+
+  const failuresBeforeChildren = failures.length
+  for (const entry of entries) {
+    const childPath = join(dirPath, entry.name)
+    let info: Awaited<ReturnType<typeof lstat>>
+    try {
+      info = await lstat(childPath)
+    } catch (err: any) {
+      if (err.code !== 'ENOENT') recordDeleteFailure(failures, childPath, err)
+      continue
+    }
+
+    if (info.isDirectory() && !info.isSymbolicLink()) {
+      await deleteDirectoryBestEffort(childPath, failures)
+      continue
+    }
+
+    const failure = await attemptDelete(childPath, () =>
+      rm(childPath, { force: true, maxRetries: 3, retryDelay: 100 })
+    )
+    if (failure) recordDeleteFailure(failures, childPath, failure)
+  }
+
+  const directoryFailure = await attemptDelete(dirPath, () =>
+    rmdir(dirPath, { maxRetries: 3, retryDelay: 100 })
+  )
+  // If a child already explains ENOTEMPTY, avoid also blaming every ancestor.
+  if (directoryFailure && failures.length === failuresBeforeChildren) {
+    recordDeleteFailure(failures, dirPath, directoryFailure)
+  }
 }
 
 /**
@@ -95,25 +184,50 @@ async function secureOverwrite(filePath: string): Promise<void> {
 }
 
 export async function safeDelete(filePath: string): Promise<DeleteResult> {
+  const settings = getSettings()
+  if (settings.cleaner.secureDelete) {
+    try {
+      await secureOverwrite(filePath)
+    } catch {
+      // If overwrite fails (e.g. permission), still attempt normal deletion
+    }
+  }
+
+  // Recursive rm only retries transient EBUSY/EPERM/ENOTEMPTY failures when
+  // maxRetries is non-zero. Cache trees are frequently touched by antivirus
+  // and indexer processes for a few milliseconds after scanning.
+  const initialFailure = await attemptDelete(filePath, () =>
+    rm(filePath, { force: true, recursive: true, maxRetries: 3, retryDelay: 100 })
+  )
+  if (!initialFailure) return { path: filePath, success: true }
+  if (!initialFailure.code || !GRANULAR_DELETE_ERRORS.has(initialFailure.code)) {
+    return { path: filePath, success: false, reason: deleteFailureReason(initialFailure) }
+  }
+
+  let rootInfo: Awaited<ReturnType<typeof lstat>>
   try {
-    const settings = getSettings()
-    if (settings.cleaner.secureDelete) {
-      try {
-        await secureOverwrite(filePath)
-      } catch {
-        // If overwrite fails (e.g. permission), still attempt normal deletion
-      }
-    }
-    // Recursive rm only retries transient EBUSY/EPERM/ENOTEMPTY failures when
-    // maxRetries is non-zero. Cache trees are frequently touched by antivirus
-    // and indexer processes for a few milliseconds after scanning.
-    await rm(filePath, { force: true, recursive: true, maxRetries: 3, retryDelay: 100 })
-    return { path: filePath, success: true }
+    rootInfo = await lstat(filePath)
   } catch (err: any) {
-    if (err.code === 'ENOENT') {
-      return { path: filePath, success: true }
-    }
-    return { path: filePath, success: false, reason: deleteFailureReason(err) }
+    if (err.code === 'ENOENT') return { path: filePath, success: true }
+    return { path: filePath, success: false, reason: deleteFailureReason(initialFailure) }
+  }
+
+  // Files and symlinks have no independent descendants to salvage.
+  if (!rootInfo.isDirectory() || rootInfo.isSymbolicLink()) {
+    return { path: filePath, success: false, reason: deleteFailureReason(initialFailure) }
+  }
+
+  const failures: NonNullable<DeleteResult['failures']> = []
+  await deleteDirectoryBestEffort(filePath, failures)
+  if (failures.length === 0) {
+    return { path: filePath, success: true }
+  }
+
+  return {
+    path: filePath,
+    success: false,
+    reason: failures[0].reason,
+    failures,
   }
 }
 
@@ -271,7 +385,9 @@ export async function cleanItems(
       }
     } else {
       filesSkipped++
-      if (result.reason) {
+      if (result.failures?.length) {
+        errors.push(...result.failures)
+      } else if (result.reason) {
         errors.push({ path: item.path, reason: result.reason })
       }
     }
