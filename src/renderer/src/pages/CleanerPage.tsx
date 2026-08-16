@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import {
   Monitor,
   Globe,
@@ -66,14 +67,15 @@ const SORT_LABEL_KEYS: Record<SortMode, string> = {
 }
 
 export function CleanerPage() {
-  const { t } = useTranslation('cleaner')
+  const { t } = useTranslation(['cleaner', 'settings'])
+  const navigate = useNavigate()
   const { platform } = usePlatform()
   const store = useScanStore()
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
   const createRestorePointEnabled = useSettingsStore((s) => s.settings.cleaner.createRestorePoint)
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
-  const visibleCategories = protectRecycleBin
+  const scannableCategories = protectRecycleBin
     ? categories.filter((c) => c.type !== CleanerType.RecycleBin)
     : categories
   const [activeCategory, setActiveCategory] = useState<CleanerType>(CleanerType.System)
@@ -100,13 +102,13 @@ export function CleanerPage() {
         const slice = (data.progress / total)
         store.setProgress({ ...data, progress: base + slice })
       } else {
-        const total = visibleCategories.length
+        const total = scannableCategories.length
         const base = (scanIndexRef.current / total) * 100
         const slice = (data.progress / total)
         store.setProgress({ ...data, progress: base + slice })
       }
     })
-  }, [])
+  }, [protectRecycleBin])
 
   // Close the sort menu when clicking anywhere outside it.
   useEffect(() => {
@@ -146,8 +148,8 @@ export function CleanerPage() {
         [CleanerType.Environment]: () => window.kudu.environmentScan(),
         [CleanerType.Database]: () => window.kudu.databaseScan()
       }
-      for (let ci = 0; ci < visibleCategories.length; ci++) {
-        const cat = visibleCategories[ci]
+      for (let ci = 0; ci < scannableCategories.length; ci++) {
+        const cat = scannableCategories[ci]
         scanIndexRef.current = ci
         setScanningCategory(cat.type)
         try {
@@ -173,7 +175,7 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [])
+  }, [protectRecycleBin])
 
   const handleClean = useCallback(async () => {
     setShowConfirm(false)
@@ -213,7 +215,7 @@ export function CleanerPage() {
 
       // Compute how many categories actually have items to clean so progress
       // scales to 100% even when only a subset of categories is active.
-      const activeCount = visibleCategories.filter((cat) => {
+      const activeCount = scannableCategories.filter((cat) => {
         const catItems = store.results.filter((r) => r.category === cat.type).flatMap((r) => r.items)
         return catItems.some((item) => selectedIds.includes(item.id))
       }).length
@@ -222,8 +224,8 @@ export function CleanerPage() {
 
       store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
 
-      for (let ci = 0; ci < visibleCategories.length; ci++) {
-        const cat = visibleCategories[ci]
+      for (let ci = 0; ci < scannableCategories.length; ci++) {
+        const cat = scannableCategories[ci]
         const catResults = store.results.filter((r) => r.category === cat.type)
         const catItemsAll = catResults.flatMap((r) => r.items)
         const catItemIds = catItemsAll
@@ -299,7 +301,7 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [store.results, createRestorePointEnabled])
+  }, [store.results, createRestorePointEnabled, protectRecycleBin])
 
   const categoryResults = (type: CleanerType) => store.results.filter((r) => r.category === type)
   const categoryItemCount = (type: CleanerType) => categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
@@ -327,6 +329,7 @@ export function CleanerPage() {
   const isScanning = store.status === ScanStatus.Scanning
   const isCleaning = store.status === ScanStatus.Cleaning
   const hasResults = store.results.length > 0
+  const isRecycleBinProtected = protectRecycleBin && activeCategory === CleanerType.RecycleBin
 
   return (
     <div className="animate-fade-in">
@@ -364,9 +367,10 @@ export function CleanerPage() {
       <div className="flex gap-5">
         {/* Category sidebar */}
         <div className="w-56 shrink-0 space-y-1.5">
-          {visibleCategories.map((cat) => {
+          {categories.map((cat) => {
             const count = categoryItemCount(cat.type)
             const isActive = activeCategory === cat.type
+            const isProtected = protectRecycleBin && cat.type === CleanerType.RecycleBin
             return (
               <button
                 key={cat.type}
@@ -387,7 +391,9 @@ export function CleanerPage() {
                 )}
                 <div className="flex-1 min-w-0">
                   <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
-                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t(cat.descriptionKey)}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    {isProtected ? t('settings:protectRecycleBinLabel') : t(cat.descriptionKey)}
+                  </p>
                 </div>
                 {count > 0 && (
                   <span
@@ -472,7 +478,24 @@ export function CleanerPage() {
             <CleanSummary summary={store.cleanSummary} onRelaunchAsAdmin={handleRelaunch} platform={platform} />
           )}
 
-          {!hasResults && !isScanning && (
+          {isRecycleBinProtected && !isScanning && !isCleaning && (
+            <EmptyState
+              icon={ShieldAlert}
+              title={t('settings:protectRecycleBinLabel')}
+              description={t('settings:protectRecycleBinDesc')}
+              action={
+                <button
+                  onClick={() => navigate('/settings')}
+                  className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all"
+                  style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)', color: 'var(--text-secondary)' }}
+                >
+                  {t('settings:sectionCleaningPreferences')}
+                </button>
+              }
+            />
+          )}
+
+          {!hasResults && !isScanning && !isRecycleBinProtected && (
             <EmptyState
               icon={Search}
               title={t('noScanResultsTitle')}
@@ -491,7 +514,7 @@ export function CleanerPage() {
             />
           )}
 
-          {hasResults && (
+          {hasResults && !isRecycleBinProtected && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
                 <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
