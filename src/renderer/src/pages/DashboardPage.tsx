@@ -242,7 +242,8 @@ export function DashboardPage() {
     }
 
     if (lastMalwareScan) score += 40
-    if (lastMalwareScan?.unresolvedThreats) score -= Math.min(30, lastMalwareScan.unresolvedThreats * 10)
+    const activeThreatCount = (lastMalwareScan?.unresolvedThreats ?? 0) + knownActiveThreats
+    if (activeThreatCount > 0) score -= Math.min(30, activeThreatCount * 10)
     return Math.max(0, Math.min(100, score))
   })()
 
