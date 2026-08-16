@@ -889,11 +889,6 @@ function validateGameModeConfig(input: unknown): GameModeConfig | null {
   return obj as unknown as GameModeConfig
 }
 
-// ── Auto-activation tracking ────────────────────────────────────
-
-/** true when Game Mode was activated automatically by the game detector */
-let autoActivated = false
-
 export function registerGameModeIpc(getWindow: WindowGetter): void {
   const sendProgress = (data: GameModeProgress): void => {
     const win = getWindow()
@@ -931,16 +926,14 @@ export function registerGameModeIpc(getWindow: WindowGetter): void {
         snapshot: null,
       }
     }
-    autoActivated = false // manual activation
     return activateGameMode(config, sendProgress)
   })
 
   ipcMain.handle(IPC.GAME_MODE_DEACTIVATE, async () => {
     // If auto-detect is on and a game is still running, suppress re-activation
-    if (autoActivated || isDetectorRunning()) {
+    if (isDetectorRunning()) {
       suppressCurrentGame()
     }
-    autoActivated = false
     return deactivateGameMode(sendProgress)
   })
 
@@ -974,25 +967,29 @@ export function initGameDetector(
   startGameDetector(
     {
       onGameDetected: async (processName) => {
-        // Don't activate if already active
-        if (readSnapshot() !== null) return
+        const existing = readSnapshot()
+        // Track a game that starts while Game Mode is already active. This lets
+        // auto-deactivate honor its UI contract for manually activated sessions
+        // and after a main-process restart, where an in-memory origin flag is lost.
+        if (existing?.active) {
+          sendAutoEvent({ type: 'game-detected', processName })
+          return true
+        }
+        // A pending restore must be cleared before another activation can start.
+        if (existing) return false
 
         const cfg = getSettings().gameMode
-        if (cfg.enabledOptimizations.length === 0) return
+        if (cfg.enabledOptimizations.length === 0) return false
 
-        autoActivated = true
-        await activateGameMode(cfg, sendProgress)
+        const result = await activateGameMode(cfg, sendProgress)
+        if (result.succeeded === 0) return false
         sendAutoEvent({ type: 'game-detected', processName })
+        return true
       },
       onGameExited: async () => {
-        // Only relevant if we auto-activated
-        if (!autoActivated) return
-
-        const wasAutoActivated = autoActivated
-        autoActivated = false
-
         const cfg = getSettings().gameMode
-        if (cfg.autoDeactivate !== false && wasAutoActivated) {
+        const snapshot = readSnapshot()
+        if (cfg.autoDeactivate !== false && snapshot?.active) {
           await deactivateGameMode(sendProgress)
         }
 
