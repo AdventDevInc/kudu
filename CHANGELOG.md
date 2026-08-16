@@ -1,3 +1,9 @@
+# [2.0.0](https://github.com/adventdevinc/kudu/compare/v1.49.0...v2.0.0) (2026-08-16)
+
+
+### Features
+
+* **ui:** redesign Kudu experience ([#315](https://github.com/adventdevinc/kudu/issues/315)) ([fb7f4e2](https://github.com/adventdevinc/kudu/commit/fb7f4e2770b20a29848388626f968a06d60ca3ad))
 # [1.49.0](https://github.com/adventdevinc/kudu/compare/v1.48.0...v1.49.0) (2026-08-16)
 
 
