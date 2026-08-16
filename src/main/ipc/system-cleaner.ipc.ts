@@ -4,6 +4,7 @@ import { getPlatform } from '../platform'
 import { scanDirectory, scanFile, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { isAdmin } from '../services/elevation'
+import { getSettings } from '../services/settings-store'
 import type { ScanResult, CleanResult } from '../../shared/types'
 import { CleanerType } from '../../shared/enums'
 import type { WindowGetter } from './index'
@@ -19,6 +20,10 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
     const platform = getPlatform()
     const targets = platform.paths.systemCleanTargets()
     const protectedEventLogs = platform.paths.protectedEventLogs()
+    const configuredRecency = getSettings().cleaner.skipRecentMinutes
+    const skipRecentMinutes = Number.isFinite(configuredRecency)
+      ? Math.max(0, configuredRecency)
+      : 60
 
     // Find the event logs target path for filtering
     const eventLogsTarget = targets.find((t) => t.subcategory === 'Event Log Archives')
@@ -40,9 +45,16 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
         let result: ScanResult
         if (target.childSubdir) {
           const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
-          result = await scanMultipleDirectories(childPaths, category, target.subcategory)
+          result = await scanMultipleDirectories(childPaths, category, target.subcategory, skipRecentMinutes)
         } else {
-          result = await scanDirectory(target.path, category, target.subcategory)
+          const isUserTemp = target.subcategory === 'User Temp Files'
+          result = await scanDirectory(target.path, category, target.subcategory, {
+            skipRecentMinutes,
+            // Temp directories are frequently old while a descendant remains
+            // open for the lifetime of an application. Inspect the contents so
+            // one active file is never hidden inside a recursively deleted item.
+            deepRecencyCheck: isUserTemp,
+          })
         }
 
         // Exclude protected event logs so boot trace data survives cleaning

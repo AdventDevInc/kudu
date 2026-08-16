@@ -196,13 +196,19 @@ export class YaraEngine {
   }
 
   /**
-   * Scan a file directly from disk (avoids reading into JS memory).
+   * Scan a file from an in-memory snapshot.
+   *
+   * The native `scanFile` API keeps an OS file handle while scanning. If a
+   * cleaner runs concurrently, that makes the malware scanner itself an owner
+   * of the file it is trying to remove. `readFileSync` closes its handle before
+   * native pattern matching starts, eliminating that overlap.
    */
   scanFile(filePath: string): YaraMatch[] {
     if (!this._scanner) return []
 
     try {
-      const results = this._scanner.scanFile(filePath)
+      const contents = readFileSync(filePath)
+      const results = this._scanner.scan(contents)
       return results.map(r => this._convertMatch(r))
     } catch (err) {
       console.warn('[yara] File scan error:', err)
