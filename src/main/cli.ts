@@ -10,6 +10,7 @@ import type { ScanResult, CleanResult } from '../shared/types'
 import { getPlatform } from './platform'
 import { randomUUID } from 'crypto'
 import { psUtf8 } from './services/exec-utf8'
+import { queryRecycleBinStats } from './services/recycle-bin-stats'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -273,18 +274,9 @@ async function scanRecycleBin(): Promise<ScanResult[]> {
     if (result.items.length > 0) { cacheItems(result.items); return [result] }
     return []
   }
-  // Windows: COM-based recycle bin
-  const { execFile } = await import('child_process')
-  const { promisify } = await import('util')
-  const execFileAsync = promisify(execFile)
+  // Windows: metadata-only query (does not traverse deleted file contents)
   try {
-    const rbScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-    const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', psUtf8(rbScript)
-    ], { windowsHide: true })
-    const [countStr, sizeStr] = stdout.trim().split('|')
-    const count = parseInt(countStr) || 0
-    const size = parseInt(sizeStr) || 0
+    const { count, size } = await queryRecycleBinStats()
     if (count === 0) return []
     const item = { id: randomUUID(), path: 'Recycle Bin', size, category: CleanerType.RecycleBin, subcategory: 'Recycle Bin', lastModified: Date.now(), selected: true }
     cacheItems([item])
@@ -389,13 +381,7 @@ async function cleanRecycleBin(sizeBytes: number = 0, countBefore: number = 0): 
     ], { windowsHide: true })
     const resultCode = parseInt(emptyStdout.trim()) || 0
 
-    const verifyScript = `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
-    const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', psUtf8(verifyScript)
-    ], { windowsHide: true })
-    const [remainingCountStr, remainingSizeStr] = stdout.trim().split('|')
-    const remaining = parseInt(remainingCountStr) || 0
-    const remainingSize = parseInt(remainingSizeStr) || 0
+    const { count: remaining, size: remainingSize } = await queryRecycleBinStats()
 
     if (logDeletions) await recordEmptiedRecycleBin(binContents, 'cli')
     return {

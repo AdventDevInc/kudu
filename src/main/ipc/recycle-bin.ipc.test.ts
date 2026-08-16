@@ -1,16 +1,7 @@
 import { describe, it, expect } from 'vitest'
-
-// ── Test the pure logic from recycle-bin.ipc.ts ──
-// Replicated here to avoid importing the Electron-dependent module.
+import { parseRecycleBinStats as parseRecycleBinScanOutput } from '../services/recycle-bin-stats'
 
 // ── PowerShell stdout parsing (Windows scan) ──
-
-function parseRecycleBinScanOutput(stdout: string): { count: number; size: number } {
-  const [countStr, sizeStr] = stdout.trim().split('|')
-  const count = parseInt(countStr) || 0
-  const size = parseInt(sizeStr) || 0
-  return { count, size }
-}
 
 describe('recycle bin scan output parsing', () => {
   it('parses valid count|size output', () => {

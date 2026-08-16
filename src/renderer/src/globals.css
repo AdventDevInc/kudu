@@ -337,8 +337,16 @@ body {
   background: transparent;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  -webkit-user-select: none;
+  user-select: none;
   font-size: 13px;
   line-height: 1.55;
+}
+
+input, textarea, [contenteditable="true"], pre, code,
+.select-text, .select-all {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 ::selection {

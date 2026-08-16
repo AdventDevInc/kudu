@@ -46,7 +46,14 @@ vi.mock('../services/file-utils', () => ({
 
 vi.mock('../services/scan-cache', () => ({ cacheItems: vi.fn(), clearCachedCategory: vi.fn() }))
 
-vi.mock('../services/exec-utf8', () => ({ psUtf8: (s: string) => s }))
+vi.mock('../services/exec-utf8', () => ({
+  psUtf8: (s: string) => s,
+  execTracked: async (_file: string, args: string[]) => {
+    const script = args[args.length - 1]
+    state.psScripts.push(script)
+    return { stdout: state.statsOutputs.shift() ?? '0|0', stderr: '' }
+  },
+}))
 
 vi.mock('../services/settings-store', () => ({
   getSettings: () => ({ cleaner: { keepDeletionLog: state.keepDeletionLog } }),
