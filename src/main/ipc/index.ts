@@ -49,6 +49,7 @@ import {
 import { validateSettingsPartial, validateHistoryEntry, validateDeletionQuery } from '../services/ipc-validation'
 import { createRestorePoint } from '../services/restore-point'
 import { checkForUpdates, downloadUpdate, installUpdate, getUpdateStatus, setAutoDownload, updateCheckInterval } from '../services/auto-updater'
+import { buildLinuxElevationCommand, getLinuxRelaunchExecutable } from '../platform/linux/elevation'
 
 export type WindowGetter = () => BrowserWindow | null
 
@@ -191,17 +192,16 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // pkexec strips the environment for security.  We forward display
       // variables (for GUI) and HOME (so Chromium resolves cache/config
       // paths to the real user dirs instead of /root).
+      // AppImages run from a temporary FUSE mount, so launch the original
+      // AppImage file instead of app.getPath('exe'). The current mount can be
+      // removed as soon as this process exits (issue #290).
       // Use execFile so the app stays visible while the polkit dialog is
-      // open — if the user cancels, we keep running.  The elevated process
-      // is backgrounded with & so pkexec returns after auth succeeds
-      // (same pattern as the macOS osascript path).
-      const sq = (s: string) => `'${s.replace(/'/g, "'\\''")}'`
-      const parts: string[] = []
-      for (const key of ['DISPLAY', 'XAUTHORITY', 'WAYLAND_DISPLAY', 'XDG_RUNTIME_DIR', 'HOME', 'DBUS_SESSION_BUS_ADDRESS']) {
-        if (process.env[key]) parts.push(`${key}=${sq(process.env[key])}`)
-      }
-      parts.push(sq(exePath), '--no-sandbox', `--kudu-data-dir=${sq(userDataDir)}`)
-      execFile('pkexec', ['/bin/sh', '-c', `${parts.join(' ')} > /dev/null 2>&1 &`], (err) => {
+      // open — if the user cancels, we keep running. After authentication,
+      // the backgrounded helper waits for this process to release the
+      // single-instance lock before starting the elevated process.
+      const relaunchPath = getLinuxRelaunchExecutable(exePath)
+      const command = buildLinuxElevationCommand(relaunchPath, userDataDir)
+      execFile('pkexec', ['/bin/sh', '-c', command], (err) => {
         if (!err) {
           app.releaseSingleInstanceLock()
           app.exit(0)
