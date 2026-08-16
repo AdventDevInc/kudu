@@ -222,13 +222,14 @@
 /* Calm Control design tokens */
 :root {
   color-scheme: dark;
-  --page-bg: #101713; --sidebar-bg: #0d1814; --titlebar-bg: #0b1310;
+  --page-bg: #101713; --sidebar-bg: rgba(13,24,20,.88); --titlebar-bg: rgba(11,19,16,.76);
   --card-bg: #17231e; --bg-subtle: rgba(237,244,239,.035); --bg-subtle-2: rgba(237,244,239,.055);
   --bg-hover: rgba(237,244,239,.07); --bg-hover-2: rgba(237,244,239,.09); --bg-active: rgba(237,244,239,.12);
   --bg-elevated: #1d2c25; --bg-overlay: #25372f; --flyout-bg: rgba(18,29,24,.97); --toast-bg: rgba(23,35,30,.96);
   --text-primary: #edf3ef; --text-secondary: #c8d4cd; --text-muted: #a9bbb1; --text-dim: #91a59b; --text-faint: #82978d;
   --text-ghost: rgba(237,243,239,.62); --text-ghost-2: rgba(237,243,239,.72); --text-on-accent: #26331f; --toast-text: #edf3ef;
   --brand-solid: #d6e6dc; --brand-ink: #15382e; --brand-surface: rgba(101,164,135,.14); --brand-border: rgba(132,190,163,.22);
+  --nav-active-bg: #274b3f; --nav-active-fg: #f3f7f4;
   --border-subtle: rgba(225,239,230,.055); --border-default: rgba(225,239,230,.08); --border-medium: rgba(225,239,230,.11);
   --border-strong: rgba(225,239,230,.16); --border-stronger: rgba(225,239,230,.22);
   --accent: #e9b553; --accent-hover: #f2c46d; --accent-muted-bg: rgba(233,181,83,.11); --accent-muted-border: rgba(233,181,83,.24);
@@ -244,13 +245,14 @@
 
 .light {
   color-scheme: light;
-  --page-bg: #f5f0e6; --sidebar-bg: #eee7d9; --titlebar-bg: #f8f3ea;
+  --page-bg: #f5f0e6; --sidebar-bg: rgba(238,231,217,.90); --titlebar-bg: rgba(248,243,234,.82);
   --card-bg: #fffdf7; --bg-subtle: rgba(23,63,52,.035); --bg-subtle-2: rgba(23,63,52,.055);
   --bg-hover: rgba(23,63,52,.07); --bg-hover-2: rgba(23,63,52,.10); --bg-active: rgba(23,63,52,.13);
   --bg-elevated: #eee7d9; --bg-overlay: #e4dccd; --flyout-bg: rgba(255,253,247,.98); --toast-bg: rgba(255,253,247,.97);
   --text-primary: #17372f; --text-secondary: #365249; --text-muted: #3f5a51; --text-dim: #4b655c; --text-faint: #526b62;
   --text-ghost: rgba(23,55,47,.66); --text-ghost-2: rgba(23,55,47,.76); --text-on-accent: #293219; --toast-text: #17372f;
   --brand-solid: #173f34; --brand-ink: #f8f2e5; --brand-surface: rgba(23,63,52,.09); --brand-border: rgba(23,63,52,.18);
+  --nav-active-bg: #173f34; --nav-active-fg: #f8f2e5;
   --border-subtle: rgba(23,63,52,.065); --border-default: rgba(23,63,52,.10); --border-medium: rgba(23,63,52,.14);
   --border-strong: rgba(23,63,52,.20); --border-stronger: rgba(23,63,52,.28);
   --accent: #f3b64b; --accent-hover: #e7a938; --accent-muted-bg: rgba(243,182,75,.16); --accent-muted-border: rgba(197,135,31,.28);
@@ -332,7 +334,7 @@ html, body, #root {
 
 body {
   font-family: var(--font-sans);
-  background: var(--page-bg);
+  background: transparent;
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   font-size: 13px;
@@ -540,7 +542,7 @@ summary, .clickable { cursor: pointer; }
 .kudu-sidebar nav::-webkit-scrollbar { display: none; }
 .kudu-sidebar [role="group"] > div:first-child span { letter-spacing: .13em; }
 .calm-nav-item:hover { background: var(--bg-hover); color: var(--text-primary) !important; }
-.calm-nav-item[aria-current="page"]:hover { background: var(--brand-solid); color: var(--brand-ink) !important; }
+.calm-nav-item[aria-current="page"]:hover { background: var(--nav-active-bg); color: var(--nav-active-fg) !important; }
 .sidebar-submenu {
   position: relative;
   display: grid;
@@ -1134,7 +1136,7 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
 }
 .app-content:not([data-route="/"]) > div {
   width: 100%;
-  min-height: calc(100vh - 132px);
+  min-height: calc(100vh - 124px);
   max-width: none !important;
   margin-right: 0 !important;
   margin-left: 0 !important;
@@ -1143,7 +1145,7 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
 .app-content:not([data-route="/"]) > [class~="px-8"] {
   padding: 0 !important;
 }
-.feature-page { width: 100%; min-height: calc(100vh - 132px); }
+.feature-page { width: 100%; min-height: calc(100vh - 124px); }
 .app-content:not([data-route="/"]) > div:has(> .empty-state) {
   display: flex;
   flex-direction: column;
@@ -1291,12 +1293,12 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
 
 /* Readability pass — desktop UI text should remain comfortable at 100% scaling. */
 body { font-size: 15px; line-height: 1.58; }
-.app-titlebar { height: 56px; flex-basis: 56px; }
+.app-titlebar { height: 48px; flex-basis: 48px; }
 .app-brand { width: 224px; flex-basis: 224px; padding-right: 18px; padding-left: 18px; }
 .app-brand > div > div:first-child { font-size: 13px !important; }
 .app-brand > div > div:last-child { font-size: 12px !important; }
 .app-location { font-size: 12px; }
-.window-control { height: 56px; }
+.window-control { height: 48px; }
 .kudu-sidebar { width: 224px !important; }
 .calm-nav-item { min-height: 42px; font-size: 13px !important; }
 .kudu-sidebar [role="group"] > div:first-child span { font-size: 12px !important; }
@@ -1338,7 +1340,7 @@ body { font-size: 15px; line-height: 1.58; }
 .dark .text-zinc-600 { color: var(--text-dim) !important; }
 
 .kudu-home,
-.kudu-home-grid { min-height: calc(100vh - 56px); }
+.kudu-home-grid { min-height: calc(100vh - 48px); }
 .kudu-home-main { padding-top: 38px; }
 .kudu-home-greeting { min-height: 105px; }
 .kudu-home-kicker { margin-bottom: 6px !important; font-size: 12px !important; }
@@ -1400,7 +1402,7 @@ body { font-size: 15px; line-height: 1.58; }
 .kudu-operation > div:first-child > b,
 .kudu-operation:is(.is-complete, .is-warning) p { font-size: 12px; }
 
-.kudu-attention-rail { min-height: calc(100vh - 56px); align-self: stretch; padding: 42px 27px 29px; }
+.kudu-attention-rail { min-height: calc(100vh - 48px); align-self: stretch; padding: 42px 27px 29px; }
 .kudu-attention-heading { padding-bottom: 18px; }
 .kudu-attention-heading span { font-size: 12px; }
 .kudu-attention-heading h2 { margin-top: 5px; font-size: 16px; }
@@ -1544,7 +1546,7 @@ body { font-size: 15px; line-height: 1.58; }
 /* Service Manager — dense system data with strong hierarchy and readable states. */
 .service-manager-page {
   width: 100%;
-  min-height: calc(100vh - 132px);
+  min-height: calc(100vh - 124px);
 }
 .service-manager-actions {
   min-height: 68px;
@@ -1661,4 +1663,77 @@ body { font-size: 15px; line-height: 1.58; }
   .kudu-home,
   .kudu-home-grid,
   .kudu-attention-rail { min-height: auto; }
+}
+
+/* Native-modern window shell. The OS owns its controls; Kudu owns the canvas around them. */
+html,
+body,
+#root,
+.app-shell { background: transparent; }
+
+.app-titlebar {
+  height: 48px;
+  flex-basis: 48px;
+  padding-left: env(titlebar-area-x, 0px);
+  padding-right: calc(100% - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100%));
+  border-bottom-color: color-mix(in srgb, var(--border-default), transparent 18%);
+  background: var(--titlebar-bg);
+  box-shadow: inset 0 1px color-mix(in srgb, white, transparent 96%);
+  backdrop-filter: blur(30px) saturate(1.12);
+  -webkit-backdrop-filter: blur(30px) saturate(1.12);
+}
+
+.app-brand {
+  width: 224px;
+  height: 48px;
+  flex-basis: 224px;
+  padding: 0 18px;
+  border-right: 0;
+}
+.app-brand > div > div:first-child {
+  font-size: 13px !important;
+  font-weight: 760 !important;
+  letter-spacing: -.015em;
+}
+.app-titlebar-drag { height: 100%; }
+.app-titlebar-actions { padding-left: 8px; }
+.titlebar-icon-button {
+  width: 32px;
+  height: 32px;
+  margin-right: 9px;
+  border-radius: 9px;
+}
+.appearance-menu { top: 39px; right: 8px; }
+
+.app-shell[data-platform="darwin"] .app-brand { padding-left: 80px; }
+.app-shell[data-platform="darwin"] .app-titlebar-actions { padding-right: 8px; }
+
+.kudu-sidebar {
+  background: var(--sidebar-bg) !important;
+  backdrop-filter: blur(32px) saturate(1.08);
+  -webkit-backdrop-filter: blur(32px) saturate(1.08);
+}
+.app-content { background: var(--page-bg); }
+.app-content[data-route="/"] { background: var(--page-bg); }
+
+.page-breadcrumb {
+  display: flex;
+  min-height: 18px;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 640;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+}
+.page-breadcrumb svg { width: 12px; height: 12px; color: var(--text-dim); stroke-width: 1.8; }
+.page-breadcrumb [aria-current="page"] { color: var(--brand-solid); }
+.kudu-home-kicker.page-breadcrumb { margin-bottom: 8px !important; font-size: 12px !important; letter-spacing: 0; }
+
+@media (max-width: 980px) {
+  .app-brand { width: 82px; flex-basis: 82px; justify-content: center; padding: 0; }
+  .app-shell[data-platform="darwin"] .app-brand { justify-content: flex-end; padding-right: 12px; padding-left: 0; }
 }

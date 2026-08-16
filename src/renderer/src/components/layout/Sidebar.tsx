@@ -381,8 +381,8 @@ function NavItem({
           'calm-nav-item group relative flex w-full items-center gap-2.5 rounded-[11px] px-3 py-2.5 text-[12px] font-semibold transition-all duration-200'
         )}
         style={isActive ? {
-          background: 'var(--brand-solid)',
-          color: 'var(--brand-ink)',
+          background: 'var(--nav-active-bg)',
+          color: 'var(--nav-active-fg)',
           boxShadow: '0 6px 18px rgba(11,40,31,.12)'
         } : { color: 'var(--text-muted)' }}
       >
@@ -400,7 +400,7 @@ function NavItem({
             'h-[15px] w-[15px] shrink-0 transition-colors duration-200',
             isActive ? '' : 'group-hover:text-zinc-400'
           )}
-          style={{ color: isActive ? 'var(--brand-ink)' : 'var(--text-dim)' }}
+          style={{ color: isActive ? 'var(--nav-active-fg)' : 'var(--text-dim)' }}
           strokeWidth={isActive ? 2 : 1.7}
           aria-hidden="true"
         />
@@ -424,7 +424,7 @@ function NavItem({
               'h-3.5 w-3.5 transition-all duration-200',
               submenuOpen ? 'rotate-90' : ''
             )}
-            style={{ color: isActive ? 'var(--brand-ink)' : 'var(--text-dim)' }}
+            style={{ color: isActive ? 'var(--nav-active-fg)' : 'var(--text-dim)' }}
             strokeWidth={1.7}
             aria-hidden="true"
           />

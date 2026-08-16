@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { ChevronRight } from 'lucide-react'
 
 interface PageHeaderProps {
   title: string
@@ -12,7 +13,11 @@ export function PageHeader({ title, description, action, className }: PageHeader
     <div className={cn('page-header', className)}>
       <div className="page-header-main flex items-end justify-between gap-6">
         <div>
-          <span className="page-header-eyebrow">KUDU CARE</span>
+          <nav className="page-breadcrumb" aria-label="Breadcrumb">
+            <span>This device</span>
+            <ChevronRight aria-hidden="true" />
+            <span aria-current="page">{title}</span>
+          </nav>
           <h1>{title}</h1>
           {description && (
             <p className="mt-1.5 animate-fade-in text-[12px]">

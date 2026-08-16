@@ -20,7 +20,8 @@ import {
   Gamepad2,
   BarChart3,
   MemoryStick,
-  AlertTriangle
+  AlertTriangle,
+  ChevronRight
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -551,7 +552,11 @@ export function DashboardPage() {
         <div className="kudu-home-main">
           <header className="kudu-home-greeting">
             <div>
-              <p className="kudu-home-kicker">THIS DEVICE</p>
+              <nav className="kudu-home-kicker page-breadcrumb" aria-label="Breadcrumb">
+                <span>Home</span>
+                <ChevronRight aria-hidden="true" />
+                <span aria-current="page">This device</span>
+              </nav>
               <h1>{greeting}.</h1>
               <p>
                 {unresolvedThreatCount > 0

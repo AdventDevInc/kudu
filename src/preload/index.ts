@@ -99,6 +99,7 @@ const api = {
   windowMinimize: () => ipcRenderer.send(IPC.WINDOW_MINIMIZE),
   windowMaximize: () => ipcRenderer.send(IPC.WINDOW_MAXIMIZE),
   windowClose: () => ipcRenderer.send(IPC.WINDOW_CLOSE),
+  windowSetChromeTheme: (theme: 'light' | 'dark') => ipcRenderer.send(IPC.WINDOW_SET_CHROME_THEME, theme),
 
   // System cleaner
   systemScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.SYSTEM_SCAN),

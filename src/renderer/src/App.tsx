@@ -60,6 +60,7 @@ export function App() {
     const apply = (mode: 'dark' | 'light') => {
       root.classList.remove('dark', 'light')
       root.classList.add(mode)
+      window.kudu?.windowSetChromeTheme?.(mode)
     }
     if (theme === 'system') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)')

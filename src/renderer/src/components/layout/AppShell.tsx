@@ -4,44 +4,12 @@ import { useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { AdminBanner } from './AdminBanner'
 import { useSettingsStore } from '@/stores/settings-store'
+import { usePlatform } from '@/hooks/usePlatform'
 import logoSrc from '@/assets/logo.png'
-
-const ROUTE_LABELS: Record<string, string> = {
-  '/': 'Home',
-  '/cleaner': 'Clean up',
-  '/registry': 'Registry',
-  '/context-menu': 'Context menu',
-  '/startup': 'Startup',
-  '/disk': 'Disk analyzer',
-  '/duplicates': 'Duplicate finder',
-  '/large-files': 'Large files',
-  '/empty-folders': 'Empty folders',
-  '/file-shredder': 'File shredder',
-  '/disk-repair': 'Disk repair',
-  '/disk-maintenance': 'Disk maintenance',
-  '/network': 'Network',
-  '/malware': 'Malware scanner',
-  '/threat-monitor': 'Threat monitor',
-  '/cve': 'Vulnerability scanner',
-  '/game-mode': 'Game Mode',
-  '/performance': 'Performance',
-  '/uninstaller': 'Uninstaller',
-  '/history': 'Activity',
-  '/settings': 'Preferences',
-  '/about': 'About & updates',
-  '/cloud': 'Kudu Cloud',
-  '/breach-monitor': 'Breach monitor',
-  '/privacy': 'Privacy',
-  '/services': 'Services',
-  '/firewall': 'Firewall audit',
-  '/debloater': 'Bloatware remover',
-  '/updates': 'Software updates',
-  '/drivers': 'Driver updates',
-  '/schedules': 'Automation',
-}
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation()
+  const { platform } = usePlatform()
   const handleSkip = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault()
     const el = document.getElementById('main-content')
@@ -49,25 +17,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <div className="app-shell h-screen overflow-hidden" style={{ background: 'var(--page-bg)' }}>
+    <div className="app-shell h-screen overflow-hidden" data-platform={platform}>
       <a href="#" className="skip-nav" onClick={handleSkip}>Skip to main content</a>
 
       <header className="app-titlebar drag-region" aria-label="Kudu window titlebar">
-        <div className="app-brand no-drag">
-          <img src={logoSrc} alt="" className="h-7 w-7 rounded-[10px]" />
+        <div className="app-brand">
+          <img src={logoSrc} alt="" className="h-6 w-6 rounded-[8px]" />
           <div>
             <div className="text-[12px] font-bold leading-none" style={{ color: 'var(--text-primary)' }}>Kudu</div>
-            <div className="mt-1 text-[8px] font-bold uppercase tracking-[0.16em]" style={{ color: 'var(--text-dim)' }}>System care</div>
           </div>
         </div>
-        <div className="app-location" aria-live="polite">
-          <span>{ROUTE_LABELS[location.pathname] ?? 'Kudu'}</span>
-          <span aria-hidden="true">·</span>
-          <span>This device</span>
-        </div>
-        <div className="ml-auto flex h-full items-center no-drag">
+        <div className="app-titlebar-drag flex-1" aria-hidden="true" />
+        <div className="app-titlebar-actions no-drag flex h-full items-center">
           <AppearanceMenu />
-          <WindowControls />
         </div>
       </header>
 
@@ -146,16 +108,6 @@ function AppearanceMenu() {
           })}
         </div>
       )}
-    </div>
-  )
-}
-
-function WindowControls() {
-  return (
-    <div className="window-controls flex h-full" role="toolbar" aria-label="Window controls">
-      <button onClick={() => window.kudu.windowMinimize()} aria-label="Minimize window" className="window-control minimize"><i /></button>
-      <button onClick={() => window.kudu.windowMaximize()} aria-label="Maximize window" className="window-control maximize"><i /></button>
-      <button onClick={() => window.kudu.windowClose()} aria-label="Close window" className="window-control close"><i /></button>
     </div>
   )
 }

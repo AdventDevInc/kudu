@@ -420,8 +420,17 @@ function createWindow(): void {
     ...(x !== undefined && y !== undefined ? { x, y } : {}),
     minWidth: MIN_WINDOW_WIDTH,
     minHeight: MIN_WINDOW_HEIGHT,
-    frame: false,
-    backgroundColor: '#09090b',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+    ...(process.platform !== 'darwin' ? {
+      titleBarOverlay: {
+        color: '#00000000',
+        symbolColor: '#edf3ef',
+        height: 48
+      }
+    } : {}),
+    ...(process.platform === 'win32' ? { backgroundMaterial: 'mica' as const } : {}),
+    roundedCorners: true,
+    backgroundColor: process.platform === 'win32' ? '#00000000' : '#101713',
     icon,
     show: false,
     webPreferences: {
@@ -435,6 +444,11 @@ function createWindow(): void {
       sandbox: !isRoot
     }
   })
+
+  if (process.platform === 'win32') {
+    // Respect the user's Windows accent preference for the native active-window border.
+    mainWindow.setAccentColor(true)
+  }
 
   // Maximize before first paint so the window never flashes at its restored
   // size; getNormalBounds() keeps the un-maximized geometry for later.
@@ -494,6 +508,14 @@ function createWindow(): void {
       }
     })
     ipcMain.on(IPC.WINDOW_CLOSE, () => mainWindow?.close())
+    ipcMain.on(IPC.WINDOW_SET_CHROME_THEME, (_event, theme: unknown) => {
+      if (process.platform === 'darwin' || (theme !== 'light' && theme !== 'dark')) return
+      mainWindow?.setTitleBarOverlay({
+        color: '#00000000',
+        symbolColor: theme === 'light' ? '#17372f' : '#edf3ef',
+        height: 48
+      })
+    })
 
     // Register all IPC handlers (pass getter so handlers always use current window)
     registerCleanerIpc(() => mainWindow)
