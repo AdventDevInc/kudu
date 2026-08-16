@@ -117,6 +117,7 @@ Paths use template variables instead of hardcoded locations. The loader resolves
 - App IDs must be **lowercase with hyphens** (e.g. `my-app`, not `MyApp`).
 - Each app needs at least one path.
 - Add `"childSubdir"` if caches are in versioned subdirectories (e.g. JetBrains stores caches in `JetBrains/<version>/caches`).
+- Add `"recursiveMatch"` only when cache paths have dynamic nesting. It returns exact target directory names beneath a required anchor and never follows directory links.
 
 ### 5. Editor Autocomplete
 
@@ -148,9 +149,17 @@ The test suite includes schema validation tests that verify every rule file.
   "name": "Display Name",     // Required. Shown in the UI.
   "paths": ["${VAR}/path"],   // Required. At least one path.
   "childSubdir": "caches",    // Optional. Scan path/*/childSubdir.
+  "recursiveMatch": {          // Optional alternative to childSubdir.
+    "anchor": "EBWebView",    // Targets must be beneath this exact directory.
+    "targets": ["Cache", "Code Cache", "GPUCache"],
+    "excludedAncestors": ["Local Storage", "IndexedDB"],
+    "maxDepth": 12             // Optional; defaults to 12, maximum 32.
+  },
   "description": "Why safe"   // Optional. Explain what's cleaned.
 }
 ```
+
+`childSubdir` and `recursiveMatch` are mutually exclusive. Recursive targets must be single directory names, not paths or globs; this prevents a broad base path from becoming directly cleanable.
 
 ### System Clean Target (`system.json`)
 

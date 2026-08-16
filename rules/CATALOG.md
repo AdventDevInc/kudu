@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 100 |
-| 🪟 Windows rules | 88 |
-| 🍎 macOS rules | 75 |
-| 🐧 Linux rules | 73 |
+| Unique app rules | 108 |
+| 🪟 Windows rules | 97 |
+| 🍎 macOS rules | 77 |
+| 🐧 Linux rules | 75 |
 
 ## Applications
 
@@ -21,6 +21,7 @@
 | Adobe Creative Cloud | ✅ | ✅ | ❌ |
 | Android Studio | ✅ | ✅ | ✅ |
 | Audacious | ❌ | ❌ | ✅ |
+| AWS CLI Cache | ✅ | ✅ | ✅ |
 | Bitwarden | ✅ | ✅ | ✅ |
 | Blender | ✅ | ✅ | ✅ |
 | Bun Cache | ✅ | ✅ | ✅ |
@@ -35,12 +36,16 @@
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
 | Docker Desktop | ✅ | ✅ | ❌ |
+| Electron Runtime Cache | ✅ | ❌ | ❌ |
 | electron-builder Cache | ✅ | ✅ | ✅ |
+| ffmpeg-static Cache | ✅ | ❌ | ❌ |
 | Figma | ✅ | ✅ | ❌ |
 | FileZilla | ✅ | ✅ | ✅ |
 | GIMP | ✅ | ✅ | ✅ |
 | GitHub Desktop | ✅ | ✅ | ❌ |
 | Go Module Cache | ✅ | ✅ | ✅ |
+| Google Cloud CLI Cache | ✅ | ✅ | ✅ |
+| Google Drive | ✅ | ❌ | ❌ |
 | Google Earth | ✅ | ✅ | ❌ |
 | Gradle Cache | ✅ | ✅ | ✅ |
 | HandBrake | ✅ | ✅ | ✅ |
@@ -51,12 +56,14 @@
 | JetBrains IDEs | ✅ | ✅ | ✅ |
 | Kodi | ✅ | ✅ | ✅ |
 | Krita | ✅ | ✅ | ✅ |
+| Kudu | ✅ | ❌ | ❌ |
 | Ledger Live | ✅ | ✅ | ✅ |
 | LibreOffice | ✅ | ✅ | ✅ |
 | Linear | ✅ | ✅ | ✅ |
 | Logitech G HUB | ✅ | ❌ | ❌ |
 | Loom | ✅ | ✅ | ✅ |
 | Maven Cache | ✅ | ✅ | ✅ |
+| Microsoft Edge WebView2 Caches | ✅ | ❌ | ❌ |
 | Microsoft Teams | ✅ | ✅ | ✅ |
 | node-gyp Cache | ✅ | ✅ | ✅ |
 | Notion | ✅ | ✅ | ✅ |
@@ -71,6 +78,7 @@
 | qBittorrent | ✅ | ✅ | ✅ |
 | Rhythmbox | ❌ | ❌ | ✅ |
 | Ruby Gem Cache | ✅ | ✅ | ✅ |
+| Scoop Cache | ✅ | ❌ | ❌ |
 | Signal Desktop | ✅ | ✅ | ✅ |
 | Slack | ✅ | ✅ | ✅ |
 | Spotify | ✅ | ✅ | ✅ |
@@ -89,7 +97,7 @@
 | Windsurf IDE | ✅ | ✅ | ✅ |
 | Wine | ❌ | ❌ | ✅ |
 | Yarn Cache | ✅ | ✅ | ✅ |
-| Zed Editor | ❌ | ✅ | ✅ |
+| Zed Editor | ✅ | ✅ | ✅ |
 | Zen Browser | ✅ | ✅ | ✅ |
 | Zoom | ✅ | ✅ | ✅ |
 
@@ -220,6 +228,7 @@
 - System Temp Files
 - System Tracing Logs 🔒
 - Thumbnail & Icon Cache
+- Update Orchestrator Logs 🔒
 - Update UX Logs 🔒
 - User Temp Files
 - WMI Trace Logs 🔒

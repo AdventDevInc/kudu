@@ -12,6 +12,7 @@ import type {
   ChromiumCacheDir,
   AppCacheDef,
   DatabaseTarget,
+  RecursivePathMatch,
 } from '../platform/types'
 
 // ─── JSON type shapes (match the schema) ──────────────────────
@@ -46,6 +47,7 @@ export interface AppRulesJson {
     name: string
     paths: string[]
     childSubdir?: string
+    recursiveMatch?: RecursivePathMatch
   }>
 }
 
@@ -255,6 +257,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         return def
       })
     },
@@ -267,6 +270,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         return def
       })
     },
@@ -279,6 +283,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         return def
       })
     },

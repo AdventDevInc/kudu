@@ -86,6 +86,7 @@ describe('buildCleanerPaths', () => {
       apps: [
         { id: 'discord', name: 'Discord', paths: ['${CONFIG}/discord/Cache'] },
         { id: 'jetbrains', name: 'JetBrains', paths: ['${CACHE}/JetBrains'], childSubdir: 'caches' },
+        { id: 'webview', name: 'WebView', paths: ['${CACHE}'], recursiveMatch: { anchor: 'EBWebView', targets: ['Cache'], maxDepth: 8 } },
       ],
     },
     gaming: {
@@ -153,10 +154,11 @@ describe('buildCleanerPaths', () => {
     expect(buildCleanerPaths(noShared, 'linux').browserPaths().chrome.sharedCaches).toEqual([])
   })
 
-  it('resolves appPaths with childSubdir', () => {
+  it('resolves appPaths with indirect path matchers', () => {
     const apps = paths.appPaths()
-    expect(apps).toHaveLength(2)
+    expect(apps).toHaveLength(3)
     expect(apps[1].childSubdir).toBe('caches')
+    expect(apps[2].recursiveMatch).toEqual({ anchor: 'EBWebView', targets: ['Cache'], maxDepth: 8 })
   })
 
   it('resolves gamingPaths', () => {

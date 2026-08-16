@@ -238,7 +238,7 @@ async function scanApp(): Promise<ScanResult[]> {
   const category = CleanerType.App
   for (const appDef of getPlatform().paths.appPaths()) {
     try {
-      const paths = await resolveChildSubdirs(appDef.paths, appDef.childSubdir)
+      const paths = await resolveChildSubdirs(appDef.paths, appDef.childSubdir, appDef.recursiveMatch)
       const result = await scanMultipleDirectories(paths, category, appDef.name)
       if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
     } catch { /* skip */ }

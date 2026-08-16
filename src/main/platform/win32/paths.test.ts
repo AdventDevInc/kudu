@@ -55,6 +55,14 @@ describe('win32 paths', () => {
       expect(wuCache!.needsAdmin).toBe(true)
     })
 
+    it('includes administrator-only Update Orchestrator logs', () => {
+      const usoLogs = targets.find((t) => t.subcategory === 'Update Orchestrator Logs')
+      expect(usoLogs).toEqual(expect.objectContaining({
+        path: 'C:\\ProgramData\\USOShared\\Logs',
+        needsAdmin: true,
+      }))
+    })
+
     it('includes Previous Windows Installation (Windows.old)', () => {
       const old = targets.find((t) => t.subcategory === 'Previous Windows Installation')
       expect(old).toBeDefined()
@@ -125,6 +133,7 @@ describe('win32 paths', () => {
         expect(profile).toContain('Code Cache')
         expect(profile).toContain('GPUCache')
         expect(profile).toContain('Service Worker\\CacheStorage')
+        expect(profile).toContain('Shared Dictionary\\cache')
         // Shader and CRX caches sit beside the profiles, not inside them (issue #265)
         expect(b.sharedCaches.map((c) => c.dir)).toEqual(
           expect.arrayContaining(['component_crx_cache', 'extensions_crx_cache', 'GrShaderCache', 'ShaderCache'])
@@ -165,11 +174,22 @@ describe('win32 paths', () => {
       }
     })
 
-    it('includes common apps (Discord, VS Code, npm)', () => {
+    it('includes the added Windows cache coverage', () => {
       const ids = apps.map((a) => a.id)
       expect(ids).toContain('discord')
       expect(ids).toContain('vscode')
       expect(ids).toContain('npm')
+      expect(ids).toEqual(expect.arrayContaining(['electron', 'ffmpeg-static', 'google-drive', 'kudu', 'webview2', 'zed']))
+    })
+
+    it('constrains recursive WebView2 matching to cache directory names', () => {
+      const webview = apps.find((app) => app.id === 'webview2')
+      expect(webview?.recursiveMatch).toEqual({
+        anchor: 'EBWebView',
+        targets: ['Cache', 'Code Cache', 'GPUCache', 'DawnGraphiteCache', 'DawnWebGPUCache'],
+        excludedAncestors: ['File System', 'IndexedDB', 'Local Storage', 'Network', 'Service Worker', 'Session Storage', 'WebStorage', 'blob_storage', 'databases'],
+        maxDepth: 12,
+      })
     })
   })
 

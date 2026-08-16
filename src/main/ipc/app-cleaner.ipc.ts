@@ -16,7 +16,7 @@ export function registerAppCleanerIpc(getWindow: WindowGetter): void {
 
     for (const app of getPlatform().paths.appPaths()) {
       try {
-        const paths = await resolveChildSubdirs(app.paths, app.childSubdir)
+        const paths = await resolveChildSubdirs(app.paths, app.childSubdir, app.recursiveMatch)
         const result = await scanMultipleDirectories(paths, category, app.name)
         if (result.items.length > 0) {
           cacheItems(result.items)

@@ -84,6 +84,58 @@ function getDirStats(dir) {
   return { totalSize, fileCount }
 }
 
+const MAX_RECURSIVE_RULE_DIRECTORIES = 100000
+
+function expandRecursiveMatches(basePath, match) {
+  const validName = (name) => typeof name === 'string' && name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+  if (!match || !validName(match.anchor) || !Array.isArray(match.targets) || match.targets.some((target) => !validName(target)) || (match.excludedAncestors || []).some((ancestor) => !validName(ancestor))) return []
+
+  const normalize = currentPlatform === 'win32' ? (name) => name.toLowerCase() : (name) => name
+  const anchor = normalize(match.anchor)
+  const targets = new Set(match.targets.map(normalize))
+  const excludedAncestors = new Set((match.excludedAncestors || []).map(normalize))
+  const maxDepth = Math.min(32, Math.max(1, match.maxDepth || 12))
+  const resolved = new Set()
+  const queue = [{ path: basePath, depth: 0, belowAnchor: normalize(path.basename(basePath)) === anchor }]
+
+  for (let index = 0; index < queue.length && index < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+    const current = queue[index]
+    let children
+    try { children = readdirSync(current.path, { withFileTypes: true }) } catch { continue }
+
+    for (const child of children) {
+      if (!child.isDirectory() || child.isSymbolicLink()) continue
+      const fullPath = path.join(current.path, child.name)
+      const normalized = normalize(child.name)
+      const belowAnchor = current.belowAnchor || normalized === anchor
+
+      if (current.belowAnchor && excludedAncestors.has(normalized)) continue
+
+      if (current.belowAnchor && targets.has(normalized)) {
+        resolved.add(fullPath)
+        continue
+      }
+      if (current.depth + 1 < maxDepth) queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
+    }
+  }
+
+  return [...resolved]
+}
+
+function expandRulePath(basePath, app) {
+  if (app.recursiveMatch) return expandRecursiveMatches(basePath, app.recursiveMatch)
+  if (!app.childSubdir) return [basePath]
+
+  try {
+    return readdirSync(basePath, { withFileTypes: true })
+      .filter((child) => child.isDirectory() && !child.isSymbolicLink())
+      .map((child) => path.join(basePath, child.name, app.childSubdir))
+      .filter((target) => existsSync(target))
+  } catch {
+    return []
+  }
+}
+
 function loadAllApps() {
   const platformDir = path.join(RULES_DIR, currentPlatform)
   if (!existsSync(platformDir)) {
@@ -131,6 +183,10 @@ function main() {
   console.log(`\n🔎 Kudu — Rule Preview: ${app.name} (${app.id})\n`)
   console.log(`  Source:  ${currentPlatform}/${app._source}`)
   if (app.childSubdir) console.log(`  childSubdir: ${app.childSubdir}`)
+  if (app.recursiveMatch) {
+    console.log(`  recursiveMatch: ${app.recursiveMatch.anchor}/**/{${app.recursiveMatch.targets.join(', ')}}`)
+    if (app.recursiveMatch.excludedAncestors) console.log(`  excludedAncestors: ${app.recursiveMatch.excludedAncestors.join(', ')}`)
+  }
   if (app.description) console.log(`  Description: ${app.description}`)
   console.log()
 
@@ -144,6 +200,23 @@ function main() {
 
     if (!existsSync(resolved)) {
       console.log('     ⚪ Does not exist on this machine\n')
+      continue
+    }
+
+    if (app.childSubdir || app.recursiveMatch) {
+      const expanded = expandRulePath(resolved, app)
+      if (expanded.length === 0) {
+        console.log('     ⚪ No matching cache directories\n')
+        continue
+      }
+      for (const target of expanded) {
+        const { totalSize, fileCount } = getDirStats(target)
+        grandTotal += totalSize
+        grandFiles += fileCount
+        console.log(`     ↳ ${target}`)
+        console.log(`        🟢 ${fileCount} files, ${formatSize(totalSize)}`)
+      }
+      console.log()
       continue
     }
 

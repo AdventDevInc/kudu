@@ -53,7 +53,8 @@
     { "path": "${WINDIR}/System32/LogFiles/WMI", "subcategory": "WMI Trace Logs", "needsAdmin": true, "description": "Windows Management Instrumentation event trace log files" },
     { "path": "${WINDIR}/System32/LogFiles/HTTPERR", "subcategory": "HTTP Error Logs", "needsAdmin": true, "description": "HTTP.sys error log files from the Windows HTTP service" },
     { "path": "${LOCALAPPDATA}/ElevatedDiagnostics", "subcategory": "Elevated Diagnostics", "description": "Results from elevated system diagnostic troubleshooters" },
-    { "path": "${WINDIR}/System32/LogFiles/setupcln", "subcategory": "Setup Cleanup Logs", "needsAdmin": true, "description": "Log files from Windows setup cleanup operations" }
+    { "path": "${WINDIR}/System32/LogFiles/setupcln", "subcategory": "Setup Cleanup Logs", "needsAdmin": true, "description": "Log files from Windows setup cleanup operations" },
+    { "path": "${PROGRAMDATA}/USOShared/Logs", "subcategory": "Update Orchestrator Logs", "needsAdmin": true, "description": "Windows Update Orchestrator diagnostic logs; active and recent files remain protected" }
   ],
   "singleFileTargets": [
     { "path": "${WINDIR}/MEMORY.DMP", "subcategory": "Full Memory Dump", "description": "Complete memory dump file created during a system crash; often several GB" },

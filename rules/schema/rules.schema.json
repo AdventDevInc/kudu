@@ -46,6 +46,7 @@
       "type": "object",
       "required": ["id", "name", "paths"],
       "additionalProperties": false,
+      "not": { "required": ["childSubdir", "recursiveMatch"] },
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "description": "Unique identifier (lowercase, hyphens allowed)" },
         "name": { "type": "string", "minLength": 1, "description": "Display name" },
@@ -55,7 +56,41 @@
           "minItems": 1
         },
         "childSubdir": { "type": "string", "description": "If set, scan paths/*/childSubdir instead of paths directly" },
+        "recursiveMatch": { "$ref": "#/definitions/RecursivePathMatch" },
         "description": { "type": "string" }
+      }
+    },
+
+    "RecursivePathMatch": {
+      "type": "object",
+      "required": ["anchor", "targets"],
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^/\\\\]+$",
+          "description": "Exact ancestor directory name that must contain every matched target"
+        },
+        "targets": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$" },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Exact cache directory names to match beneath the anchor"
+        },
+        "excludedAncestors": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "pattern": "^[^/\\\\]+$" },
+          "uniqueItems": true,
+          "description": "Exact directory names whose subtrees must never be inspected for targets"
+        },
+        "maxDepth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32,
+          "description": "Maximum directory depth to inspect below each base path (default 12)"
+        }
       }
     },
 

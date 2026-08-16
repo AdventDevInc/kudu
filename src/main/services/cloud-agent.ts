@@ -2048,7 +2048,7 @@ class CloudAgentService {
         const appCategory = CleanerType.App
         for (const appDef of getPlatform().paths.appPaths()) {
           try {
-            const appPaths = await resolveChildSubdirs(appDef.paths, appDef.childSubdir)
+            const appPaths = await resolveChildSubdirs(appDef.paths, appDef.childSubdir, appDef.recursiveMatch)
             const r = await scanMultipleDirectories(appPaths, appCategory, appDef.name)
             if (r.items.length > 0) { cacheItems(r.items); appResults.push(r) }
           } catch { /* skip */ }

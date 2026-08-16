@@ -33,6 +33,31 @@ function extractVars(obj: unknown): string[] {
 }
 
 describe('rules schema validation', () => {
+  it('rejects combining childSubdir with recursiveMatch', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        childSubdir: 'cache',
+        recursiveMatch: { anchor: 'EBWebView', targets: ['Cache'] },
+      }],
+    })).toBe(false)
+  })
+
+  it('rejects path-shaped recursive match names', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        recursiveMatch: { anchor: 'EBWebView', targets: ['Default/Cache'] },
+      }],
+    })).toBe(false)
+  })
+
   for (const platform of PLATFORMS) {
     describe(platform, () => {
       const platformDir = path.join(RULES_DIR, platform)

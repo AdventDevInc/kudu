@@ -4,6 +4,7 @@ import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
+import type { RecursivePathMatch } from '../platform/types'
 import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
@@ -567,9 +568,17 @@ export async function scanDirectoriesAsItems(
  * For paths with a childSubdir, expand paths/&ast;/childSubdir.
  * e.g. given ['/home/.var/app'] with childSubdir='cache', returns
  * ['/home/.var/app/com.spotify.Client/cache', '/home/.var/app/org.foo/cache', ...]
- * If no childSubdir, returns the original paths unchanged.
+ * A recursiveMatch instead searches below each path for exact target directory
+ * names beneath a required anchor directory. Directory links are never
+ * followed, and traversal is bounded by depth and directory-count limits.
+ * If neither option is set, returns the original paths unchanged.
  */
-export async function resolveChildSubdirs(paths: string[], childSubdir?: string): Promise<string[]> {
+export async function resolveChildSubdirs(
+  paths: string[],
+  childSubdir?: string,
+  recursiveMatch?: RecursivePathMatch,
+): Promise<string[]> {
+  if (recursiveMatch) return resolveRecursivePathMatches(paths, recursiveMatch)
   if (!childSubdir) return paths
 
   const resolved: string[] = []
@@ -586,6 +595,76 @@ export async function resolveChildSubdirs(paths: string[], childSubdir?: string)
     } catch { /* skip */ }
   }
   return resolved
+}
+
+const MAX_RECURSIVE_RULE_DIRECTORIES = 100_000
+const DEFAULT_RECURSIVE_RULE_DEPTH = 12
+
+function validDirectoryName(name: string): boolean {
+  return name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+}
+
+/** Resolve tightly scoped recursive cache rules without following links. */
+export async function resolveRecursivePathMatches(
+  paths: string[],
+  match: RecursivePathMatch,
+): Promise<string[]> {
+  if (
+    !validDirectoryName(match.anchor)
+    || match.targets.some((target) => !validDirectoryName(target))
+    || (match.excludedAncestors || []).some((ancestor) => !validDirectoryName(ancestor))
+  ) return []
+
+  const maxDepth = Math.min(32, Math.max(1, match.maxDepth ?? DEFAULT_RECURSIVE_RULE_DEPTH))
+  const normalizeName = process.platform === 'win32'
+    ? (name: string): string => name.toLowerCase()
+    : (name: string): string => name
+  const anchor = normalizeName(match.anchor)
+  const targets = new Set(match.targets.map(normalizeName))
+  const excludedAncestors = new Set((match.excludedAncestors || []).map(normalizeName))
+  const resolved = new Set<string>()
+  let visited = 0
+
+  for (const basePath of paths) {
+    if (!existsSync(basePath)) continue
+
+    const queue: Array<{ path: string; depth: number; belowAnchor: boolean }> = [{
+      path: basePath,
+      depth: 0,
+      belowAnchor: normalizeName(basePath.split(/[\\/]/).pop() || '') === anchor,
+    }]
+
+    for (let index = 0; index < queue.length && visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+      const current = queue[index]
+      visited++
+
+      try {
+        const children = await readdir(current.path, { withFileTypes: true })
+        for (const child of children) {
+          if (!child.isDirectory() || child.isSymbolicLink()) continue
+
+          const fullPath = join(current.path, child.name)
+          const normalized = normalizeName(child.name)
+          const belowAnchor = current.belowAnchor || normalized === anchor
+
+          if (current.belowAnchor && excludedAncestors.has(normalized)) continue
+
+          if (current.belowAnchor && targets.has(normalized)) {
+            resolved.add(fullPath)
+            continue
+          }
+
+          if (current.depth + 1 < maxDepth) {
+            queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
+          }
+        }
+      } catch {
+        // Skip inaccessible directories.
+      }
+    }
+  }
+
+  return [...resolved]
 }
 
 export async function getDirectorySize(dirPath: string, maxDepth = 3): Promise<number> {

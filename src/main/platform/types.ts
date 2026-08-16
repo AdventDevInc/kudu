@@ -67,6 +67,23 @@ export interface AppCacheDef {
   paths: string[]
   /** If set, scan paths/&ast;/childSubdir instead of paths directly (e.g. 'caches' for JetBrains on Windows) */
   childSubdir?: string
+  /**
+   * Recursively find exact cache directory names, but only after entering the
+   * named anchor directory. This supports layouts such as
+   * App/&ast;/EBWebView/&ast;/Cache without exposing session or user-data folders.
+   */
+  recursiveMatch?: RecursivePathMatch
+}
+
+export interface RecursivePathMatch {
+  /** Directory name that must be present above every returned target. */
+  anchor: string
+  /** Exact directory names to return beneath the anchor. */
+  targets: string[]
+  /** Directory names whose subtrees must never be inspected for targets. */
+  excludedAncestors?: string[]
+  /** Maximum directory depth below each configured base path. */
+  maxDepth?: number
 }
 
 export interface UninstallLeftoverDir {

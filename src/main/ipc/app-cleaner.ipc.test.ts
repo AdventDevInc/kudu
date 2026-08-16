@@ -81,8 +81,9 @@ describe('APP_SCAN handler', () => {
   })
 
   it('scans each app and caches items with results', async () => {
+    const recursiveMatch = { anchor: 'EBWebView', targets: ['Cache'] }
     mockAppPaths.mockReturnValue([
-      { name: 'VS Code', paths: ['/home/user/.vscode/cache'], childSubdir: undefined },
+      { name: 'VS Code', paths: ['/home/user/.vscode/cache'], childSubdir: undefined, recursiveMatch },
       { name: 'Slack', paths: ['/home/user/.config/Slack/Cache'], childSubdir: undefined },
     ])
     mockResolveChildSubdirs.mockImplementation((paths: string[]) => Promise.resolve(paths))
@@ -103,6 +104,7 @@ describe('APP_SCAN handler', () => {
     expect(results).toHaveLength(2)
     expect(mockCacheItems).toHaveBeenCalledTimes(2)
     expect(mockResolveChildSubdirs).toHaveBeenCalledTimes(2)
+    expect(mockResolveChildSubdirs).toHaveBeenNthCalledWith(1, ['/home/user/.vscode/cache'], undefined, recursiveMatch)
   })
 
   it('skips apps with zero scan items', async () => {
