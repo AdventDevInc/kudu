@@ -25,6 +25,12 @@ describe('lookupServiceSafety', () => {
     expect(result.category).toBe('print')
   })
 
+  it('does not recommend disabling Phone Service used by wireless headset dongles', () => {
+    const result = lookupServiceSafety('PhoneSvc')
+    expect(result.safety).toBe('caution')
+    expect(result.note).toContain('Audeze Maxwell')
+  })
+
   it('strips per-user suffix before lookup', () => {
     // CDPUserSvc_abc12 → CDPUserSvc
     const result = lookupServiceSafety('CDPUserSvc_1a2b3c')

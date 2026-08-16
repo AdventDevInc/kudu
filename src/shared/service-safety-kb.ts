@@ -115,9 +115,9 @@ export const SERVICE_SAFETY_KB: Record<string, ServiceSafetyEntry> = {
     note: 'Windows Insider Service'
   },
   phonesvc: {
-    safety: 'safe',
+    safety: 'caution',
     category: 'misc',
-    note: 'Phone Service'
+    note: 'Phone Service — required by some wireless headset dongles, including Audeze Maxwell'
   },
   icssvc: {
     safety: 'safe',
