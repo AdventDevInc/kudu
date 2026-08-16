@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 100 |
-| 🪟 Windows rules | 88 |
-| 🍎 macOS rules | 75 |
-| 🐧 Linux rules | 73 |
+| Unique app rules | 131 |
+| 🪟 Windows rules | 120 |
+| 🍎 macOS rules | 77 |
+| 🐧 Linux rules | 75 |
 
 ## Applications
 
@@ -21,67 +21,98 @@
 | Adobe Creative Cloud | ✅ | ✅ | ❌ |
 | Android Studio | ✅ | ✅ | ✅ |
 | Audacious | ❌ | ❌ | ✅ |
+| AWS CLI Cache | ✅ | ✅ | ✅ |
 | Bitwarden | ✅ | ✅ | ✅ |
 | Blender | ✅ | ✅ | ✅ |
+| Bramblewatch | ✅ | ❌ | ❌ |
 | Bun Cache | ✅ | ✅ | ✅ |
+| Buzz Node Tools Cache | ✅ | ❌ | ❌ |
 | Cargo/Rust Cache | ✅ | ✅ | ✅ |
 | ccache | ❌ | ✅ | ✅ |
+| Chocolatey Logs | ✅ | ❌ | ❌ |
 | Claude | ✅ | ✅ | ✅ |
 | CocoaPods Cache | ❌ | ✅ | ❌ |
 | Composer Cache | ✅ | ✅ | ✅ |
 | Conda Package Cache | ✅ | ✅ | ✅ |
 | CurseForge | ✅ | ❌ | ❌ |
 | Cursor IDE | ✅ | ✅ | ✅ |
+| Cursor IDE Partitions | ✅ | ❌ | ❌ |
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
 | Docker Desktop | ✅ | ✅ | ❌ |
+| EA Desktop Logs | ✅ | ❌ | ❌ |
+| Electron Runtime Cache | ✅ | ❌ | ❌ |
 | electron-builder Cache | ✅ | ✅ | ✅ |
+| ffmpeg-static Cache | ✅ | ❌ | ❌ |
 | Figma | ✅ | ✅ | ❌ |
 | FileZilla | ✅ | ✅ | ✅ |
+| Firefox Crash History | ✅ | ❌ | ❌ |
 | GIMP | ✅ | ✅ | ✅ |
+| Git Project Updater | ✅ | ❌ | ❌ |
 | GitHub Desktop | ✅ | ✅ | ❌ |
 | Go Module Cache | ✅ | ✅ | ✅ |
+| Google Cloud CLI Cache | ✅ | ✅ | ✅ |
+| Google Drive | ✅ | ❌ | ❌ |
 | Google Earth | ✅ | ✅ | ❌ |
 | Gradle Cache | ✅ | ✅ | ✅ |
 | HandBrake | ✅ | ✅ | ✅ |
+| Hearthglen | ✅ | ❌ | ❌ |
 | Homebrew Cache | ❌ | ✅ | ✅ |
 | Hyper Terminal | ✅ | ✅ | ✅ |
 | Inkscape | ✅ | ✅ | ✅ |
 | Java Runtime Cache | ✅ | ✅ | ✅ |
+| JetBrains IDE Logs | ✅ | ❌ | ❌ |
 | JetBrains IDEs | ✅ | ✅ | ✅ |
 | Kodi | ✅ | ✅ | ✅ |
 | Krita | ✅ | ✅ | ✅ |
+| Kudu | ✅ | ❌ | ❌ |
 | Ledger Live | ✅ | ✅ | ✅ |
 | LibreOffice | ✅ | ✅ | ✅ |
 | Linear | ✅ | ✅ | ✅ |
 | Logitech G HUB | ✅ | ❌ | ❌ |
 | Loom | ✅ | ✅ | ✅ |
 | Maven Cache | ✅ | ✅ | ✅ |
+| Microsoft Edge Update Logs | ✅ | ❌ | ❌ |
+| Microsoft Edge WebView2 Caches | ✅ | ❌ | ❌ |
 | Microsoft Teams | ✅ | ✅ | ✅ |
 | node-gyp Cache | ✅ | ✅ | ✅ |
 | Notion | ✅ | ✅ | ✅ |
 | npm Cache | ✅ | ✅ | ✅ |
 | NuGet Cache | ✅ | ❌ | ❌ |
+| NVIDIA App | ✅ | ❌ | ❌ |
 | OBS Studio | ✅ | ✅ | ✅ |
 | Obsidian | ✅ | ✅ | ✅ |
+| Old Firefox Pending Crashes | ✅ | ❌ | ❌ |
 | Pidgin | ✅ | ❌ | ✅ |
 | pip Cache | ✅ | ✅ | ✅ |
 | pnpm Store | ✅ | ✅ | ✅ |
+| Polyscope | ✅ | ❌ | ❌ |
 | Postman | ✅ | ✅ | ✅ |
 | qBittorrent | ✅ | ✅ | ✅ |
 | Rhythmbox | ❌ | ❌ | ✅ |
 | Ruby Gem Cache | ✅ | ✅ | ✅ |
+| Scoop Cache | ✅ | ❌ | ❌ |
+| ShurePlus MOTIV | ✅ | ❌ | ❌ |
 | Signal Desktop | ✅ | ✅ | ✅ |
 | Slack | ✅ | ✅ | ✅ |
 | Spotify | ✅ | ✅ | ✅ |
+| Spotify Store Browser Cache | ✅ | ❌ | ❌ |
+| Spotify Store Shared Caches | ✅ | ❌ | ❌ |
+| Stale Electron Updater Packages | ✅ | ❌ | ❌ |
 | Sublime Text | ✅ | ✅ | ✅ |
+| T3 Code | ✅ | ❌ | ❌ |
+| T3 Code Logs | ✅ | ❌ | ❌ |
+| T3 Code Partitions | ✅ | ❌ | ❌ |
 | TeamViewer | ✅ | ✅ | ✅ |
 | Telegram | ✅ | ✅ | ✅ |
 | Termius | ✅ | ✅ | ✅ |
+| Termius Beta | ✅ | ❌ | ❌ |
 | Thunderbird | ✅ | ✅ | ✅ |
+| ToDesktop Builder | ✅ | ❌ | ❌ |
 | Todoist | ✅ | ✅ | ✅ |
 | Transmission | ✅ | ✅ | ✅ |
 | Unity Editor | ✅ | ✅ | ✅ |
+| Upscayl | ✅ | ❌ | ❌ |
 | Visual Studio | ✅ | ❌ | ❌ |
 | VLC | ✅ | ✅ | ✅ |
 | VS Code | ✅ | ✅ | ✅ |
@@ -89,7 +120,7 @@
 | Windsurf IDE | ✅ | ✅ | ✅ |
 | Wine | ❌ | ❌ | ✅ |
 | Yarn Cache | ✅ | ✅ | ✅ |
-| Zed Editor | ❌ | ✅ | ✅ |
+| Zed Editor | ✅ | ✅ | ✅ |
 | Zen Browser | ✅ | ✅ | ✅ |
 | Zoom | ✅ | ✅ | ✅ |
 
@@ -220,6 +251,7 @@
 - System Temp Files
 - System Tracing Logs 🔒
 - Thumbnail & Icon Cache
+- Update Orchestrator Logs 🔒
 - Update UX Logs 🔒
 - User Temp Files
 - WMI Trace Logs 🔒

@@ -33,6 +33,72 @@ function extractVars(obj: unknown): string[] {
 }
 
 describe('rules schema validation', () => {
+  it('rejects combining childSubdir with recursiveMatch', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        childSubdir: 'cache',
+        recursiveMatch: { anchor: 'EBWebView', targets: ['Cache'] },
+      }],
+    })).toBe(false)
+  })
+
+  it('rejects path-shaped recursive match names', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        recursiveMatch: { anchor: 'EBWebView', targets: ['Default/Cache'] },
+      }],
+    })).toBe(false)
+  })
+
+  it('rejects unsafe recursive anchor paths', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        recursiveMatch: {
+          anchor: 'EBWebView',
+          anchorPaths: ['Packages/../EBWebView'],
+          targets: ['Cache'],
+        },
+      }],
+    })).toBe(false)
+  })
+
+  it('rejects combining fileMatch with another path-expansion mode', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        childSubdir: 'cache',
+        fileMatch: { names: ['installer.exe'], minAgeDays: 14 },
+      }],
+    })).toBe(false)
+  })
+
+  it('rejects path-shaped direct file match names', () => {
+    expect(validate({
+      type: 'apps',
+      apps: [{
+        id: 'bad-rule',
+        name: 'Bad Rule',
+        paths: ['${HOME}/cache'],
+        fileMatch: { names: ['pending/installer.exe'], minAgeDays: 14 },
+      }],
+    })).toBe(false)
+  })
+
   for (const platform of PLATFORMS) {
     describe(platform, () => {
       const platformDir = path.join(RULES_DIR, platform)

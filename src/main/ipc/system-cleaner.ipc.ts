@@ -43,18 +43,15 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
         // For targets with childSubdir, scan path/*/childSubdir instead of path directly
         // e.g. Flatpak: scan ~/.var/app/*/cache instead of ~/.var/app
         let result: ScanResult
+        const recency = {
+          skipRecentMinutes,
+          deepRecencyCheck: target.deepRecencyCheck === true,
+        }
         if (target.childSubdir) {
           const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
-          result = await scanMultipleDirectories(childPaths, category, target.subcategory, skipRecentMinutes)
+          result = await scanMultipleDirectories(childPaths, category, target.subcategory, recency)
         } else {
-          const isUserTemp = target.subcategory === 'User Temp Files'
-          result = await scanDirectory(target.path, category, target.subcategory, {
-            skipRecentMinutes,
-            // Temp directories are frequently old while a descendant remains
-            // open for the lifetime of an application. Inspect the contents so
-            // one active file is never hidden inside a recursively deleted item.
-            deepRecencyCheck: isUserTemp,
-          })
+          result = await scanDirectory(target.path, category, target.subcategory, recency)
         }
 
         // Exclude protected event logs so boot trace data survives cleaning

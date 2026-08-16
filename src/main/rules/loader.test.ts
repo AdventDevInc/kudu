@@ -59,7 +59,7 @@ describe('buildCleanerPaths', () => {
     system: {
       type: 'system',
       cleanTargets: [
-        { path: '${HOME}/temp', subcategory: 'Temp' },
+        { path: '${HOME}/temp', subcategory: 'Temp', deepRecencyCheck: true },
         { path: '/var/tmp', subcategory: 'System Temp', needsAdmin: true },
       ],
       singleFileTargets: [{ path: '${HOME}/dump.dmp', subcategory: 'Dump' }],
@@ -84,8 +84,10 @@ describe('buildCleanerPaths', () => {
     apps: {
       type: 'apps',
       apps: [
-        { id: 'discord', name: 'Discord', paths: ['${CONFIG}/discord/Cache'] },
+        { id: 'discord', name: 'Discord', paths: ['${CONFIG}/discord/Cache'], minAgeDays: 1 },
         { id: 'jetbrains', name: 'JetBrains', paths: ['${CACHE}/JetBrains'], childSubdir: 'caches' },
+        { id: 'webview', name: 'WebView', paths: ['${CACHE}'], recursiveMatch: { anchor: 'EBWebView', targets: ['Cache'], maxDepth: 8 } },
+        { id: 'updaters', name: 'Updaters', paths: ['${CACHE}'], fileMatch: { names: ['installer.exe'], childDirSuffix: '-updater', minAgeDays: 14, skipIfChildExists: ['pending'] } },
       ],
     },
     gaming: {
@@ -124,6 +126,7 @@ describe('buildCleanerPaths', () => {
     const targets = paths.systemCleanTargets()
     expect(targets).toHaveLength(2)
     expect(targets[0].path).toContain('/temp')
+    expect(targets[0].deepRecencyCheck).toBe(true)
     expect(targets[1].needsAdmin).toBe(true)
   })
 
@@ -153,10 +156,13 @@ describe('buildCleanerPaths', () => {
     expect(buildCleanerPaths(noShared, 'linux').browserPaths().chrome.sharedCaches).toEqual([])
   })
 
-  it('resolves appPaths with childSubdir', () => {
+  it('resolves appPaths with indirect path matchers', () => {
     const apps = paths.appPaths()
-    expect(apps).toHaveLength(2)
+    expect(apps).toHaveLength(4)
+    expect(apps[0].minAgeDays).toBe(1)
     expect(apps[1].childSubdir).toBe('caches')
+    expect(apps[2].recursiveMatch).toEqual({ anchor: 'EBWebView', targets: ['Cache'], maxDepth: 8 })
+    expect(apps[3].fileMatch).toEqual({ names: ['installer.exe'], childDirSuffix: '-updater', minAgeDays: 14, skipIfChildExists: ['pending'] })
   })
 
   it('resolves gamingPaths', () => {

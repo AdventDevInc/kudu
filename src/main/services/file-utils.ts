@@ -4,6 +4,7 @@ import type { Dirent, Stats } from 'fs'
 import { join } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
+import type { AppCacheDef, DirectFileMatch, RecursivePathMatch } from '../platform/types'
 import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
@@ -237,6 +238,9 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
  * trail never reads as a complete one.
  */
 const MAX_LOGGED_DESCENDANTS = 100_000
+/** Bounds both the scan and deletion-time recency revalidation. */
+const MAX_RECENCY_DEPTH = 8
+const MAX_RECENCY_ITEMS = 5_000
 
 /**
  * List the files a recursive delete of `dirPath` will remove.
@@ -359,6 +363,20 @@ export async function cleanItems(
       ? await listDescendantFiles(item.path)
       : null
 
+    // A deep-recency scan may collapse a settled tree to one directory item.
+    // Recheck it after any audit enumeration and immediately before recursive
+    // deletion so files created or updated since the scan remain protected.
+    if (!await revalidateRecencyItem(item, rootInfo)) {
+      filesSkipped++
+      errors.push({ path: item.path, reason: 'recently-modified' })
+      consumedIds.push(item.id)
+      if (onProgress) {
+        onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+        lastReport = Date.now()
+      }
+      continue
+    }
+
     const result = await safeDelete(item.path)
     if (result.success) {
       totalCleaned += item.size
@@ -432,9 +450,6 @@ export interface ScanRecencyOptions {
    */
   deepRecencyCheck?: boolean
 }
-
-/** How far the contents check descends before it gives up on a subtree. */
-const MAX_RECENCY_DEPTH = 8
 
 interface RecencyScan {
   cutoff: number
@@ -518,6 +533,20 @@ async function resolveEntry(
   return { items: [{ path, size: children.size, mtimeMs: stats.mtimeMs }], complete: true, size: children.size }
 }
 
+/** Confirm that a retention-aware scan item is still settled at cleanup time. */
+async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<boolean> {
+  if (item.recencyCutoff === undefined) return true
+  if (!Number.isFinite(item.recencyCutoff) || rootInfo.isSymbolicLink()) return false
+  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= item.recencyCutoff
+
+  const resolved = await resolveChildren(item.path, {
+    cutoff: item.recencyCutoff,
+    exclusions: getSettings().exclusions,
+    remaining: MAX_RECENCY_ITEMS,
+  }, MAX_RECENCY_DEPTH)
+  return resolved.complete
+}
+
 export async function scanDirectory(
   dirPath: string,
   category: string,
@@ -529,19 +558,20 @@ export async function scanDirectory(
   const items: ScanItem[] = []
   let totalSize = 0
   const cutoff = Date.now() - skipRecentMinutes * 60 * 1000
-  const MAX_ITEMS = 5000
   const exclusions = getSettings().exclusions
 
-  const add = (path: string, size: number, mtimeMs: number): void => {
-    items.push({ id: randomUUID(), path, size, category, subcategory, lastModified: mtimeMs, selected: true })
+  const add = (path: string, size: number, mtimeMs: number, recencyCutoff?: number): void => {
+    const item: ScanItem = { id: randomUUID(), path, size, category, subcategory, lastModified: mtimeMs, selected: true }
+    if (recencyCutoff !== undefined) item.recencyCutoff = recencyCutoff
+    items.push(item)
     totalSize += size
   }
 
   if (deepRecencyCheck) {
     // The scanned directory itself is never offered — only what is inside it —
     // so the top level takes `resolveChildren` and ignores whether it collapsed.
-    const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_ITEMS }, MAX_RECENCY_DEPTH)
-    for (const item of resolved.items.slice(0, MAX_ITEMS)) add(item.path, item.size, item.mtimeMs)
+    const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_RECENCY_ITEMS }, MAX_RECENCY_DEPTH)
+    for (const item of resolved.items.slice(0, MAX_RECENCY_ITEMS)) add(item.path, item.size, item.mtimeMs, cutoff)
     return { category, subcategory, items, totalSize, itemCount: items.length }
   }
 
@@ -549,7 +579,7 @@ export async function scanDirectory(
     const entries = await readdir(dirPath, { withFileTypes: true })
 
     for (const entry of entries) {
-      if (items.length >= MAX_ITEMS) break
+      if (items.length >= MAX_RECENCY_ITEMS) break
       const fullPath = join(dirPath, entry.name)
 
       // Check exclusions
@@ -588,13 +618,13 @@ export async function scanMultipleDirectories(
   dirPaths: string[],
   category: string,
   subcategory: string,
-  skipRecentMinutes = 60
+  recency: number | ScanRecencyOptions = {}
 ): Promise<ScanResult> {
   const allItems: ScanItem[] = []
   let totalSize = 0
 
   for (const dirPath of dirPaths) {
-    const result = await scanDirectory(dirPath, category, subcategory, skipRecentMinutes)
+    const result = await scanDirectory(dirPath, category, subcategory, recency)
     allItems.push(...result.items)
     totalSize += result.totalSize
   }
@@ -606,6 +636,116 @@ export async function scanMultipleDirectories(
     totalSize,
     itemCount: allItems.length,
   }
+}
+
+/**
+ * Scan an allowlist of direct files without ever treating the containing
+ * directory as disposable. `childDirSuffix` is intentionally limited to one
+ * directory level, which makes it suitable for layouts such as
+ * LocalAppData/*-updater while keeping nested `pending` trees out of scope.
+ */
+export async function scanMatchingFiles(
+  basePaths: string[],
+  match: DirectFileMatch,
+  category: string,
+  subcategory: string,
+): Promise<ScanResult> {
+  const items: ScanItem[] = []
+  let totalSize = 0
+  const cutoff = Date.now() - match.minAgeDays * 24 * 60 * 60 * 1000
+  const exclusions = getSettings().exclusions
+  const normalize = process.platform === 'win32'
+    ? (name: string): string => name.toLowerCase()
+    : (name: string): string => name
+  const names = new Set(match.names.map(normalize))
+  const blockers = new Set((match.skipIfChildExists || []).map(normalize))
+  const suffix = match.childDirSuffix ? normalize(match.childDirSuffix) : undefined
+  const candidateDirs = new Set<string>()
+
+  for (const basePath of basePaths) {
+    if (match.childDirSuffix) {
+      try {
+        const children = await readdir(basePath, { withFileTypes: true })
+        for (const child of children) {
+          if (!child.isDirectory() || child.isSymbolicLink()) continue
+          if (normalize(child.name).endsWith(suffix!)) candidateDirs.add(join(basePath, child.name))
+        }
+      } catch {
+        // Missing or inaccessible base path.
+      }
+    } else {
+      candidateDirs.add(basePath)
+    }
+  }
+
+  for (const candidateDir of candidateDirs) {
+    if (items.length >= 5000 || isExcluded(candidateDir, exclusions)) continue
+
+    try {
+      const rootStats = await lstat(candidateDir)
+      if (!rootStats.isDirectory() || rootStats.isSymbolicLink()) continue
+
+      const entries = await readdir(candidateDir, { withFileTypes: true })
+      if (entries.some((entry) => blockers.has(normalize(entry.name)))) continue
+
+      for (const entry of entries) {
+        if (items.length >= 5000) break
+        if (!entry.isFile() || entry.isSymbolicLink() || !names.has(normalize(entry.name))) continue
+
+        const filePath = join(candidateDir, entry.name)
+        if (isExcluded(filePath, exclusions)) continue
+
+        try {
+          const stats = await stat(filePath)
+          if (!stats.isFile() || stats.mtimeMs > cutoff) continue
+          items.push({
+            id: randomUUID(),
+            path: filePath,
+            size: stats.size,
+            category,
+            subcategory,
+            lastModified: stats.mtimeMs,
+            selected: true,
+          })
+          totalSize += stats.size
+        } catch {
+          // File changed or became inaccessible during the scan.
+        }
+      }
+    } catch {
+      // Missing or inaccessible candidate directory.
+    }
+  }
+
+  return { category, subcategory, items, totalSize, itemCount: items.length }
+}
+
+/** Scan one declarative app rule with all of its safety options applied. */
+export async function scanAppRule(
+  app: AppCacheDef,
+  category: string,
+  options: { directoryItems?: boolean; group?: string } = {},
+): Promise<ScanResult> {
+  let result: ScanResult
+
+  if (app.fileMatch) {
+    result = await scanMatchingFiles(app.paths, app.fileMatch, category, app.name)
+  } else {
+    const paths = await resolveChildSubdirs(app.paths, app.childSubdir, app.recursiveMatch)
+    if (options.directoryItems && app.minAgeDays === undefined) {
+      result = await scanDirectoriesAsItems(paths, category, app.name, options.group)
+    } else if (app.minAgeDays === undefined) {
+      result = await scanMultipleDirectories(paths, category, app.name)
+    } else {
+      result = await scanMultipleDirectories(paths, category, app.name, {
+        skipRecentMinutes: app.minAgeDays * 24 * 60,
+        deepRecencyCheck: true,
+      })
+    }
+  }
+
+  if (options.group && !result.group) result.group = options.group
+  return result
 }
 
 export async function scanFile(
@@ -683,9 +823,17 @@ export async function scanDirectoriesAsItems(
  * For paths with a childSubdir, expand paths/&ast;/childSubdir.
  * e.g. given ['/home/.var/app'] with childSubdir='cache', returns
  * ['/home/.var/app/com.spotify.Client/cache', '/home/.var/app/org.foo/cache', ...]
- * If no childSubdir, returns the original paths unchanged.
+ * A recursiveMatch instead searches below each path for exact target directory
+ * names beneath a required anchor directory. Directory links are never
+ * followed, and traversal is bounded by depth and directory-count limits.
+ * If neither option is set, returns the original paths unchanged.
  */
-export async function resolveChildSubdirs(paths: string[], childSubdir?: string): Promise<string[]> {
+export async function resolveChildSubdirs(
+  paths: string[],
+  childSubdir?: string,
+  recursiveMatch?: RecursivePathMatch,
+): Promise<string[]> {
+  if (recursiveMatch) return resolveRecursivePathMatches(paths, recursiveMatch)
   if (!childSubdir) return paths
 
   const resolved: string[] = []
@@ -702,6 +850,158 @@ export async function resolveChildSubdirs(paths: string[], childSubdir?: string)
     } catch { /* skip */ }
   }
   return resolved
+}
+
+const MAX_RECURSIVE_RULE_DIRECTORIES = 100_000
+const DEFAULT_RECURSIVE_RULE_DEPTH = 12
+
+function validDirectoryName(name: string): boolean {
+  return name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+}
+
+function parseAnchorPath(
+  pattern: string,
+  anchor: string,
+  normalizeName: (name: string) => string,
+): string[] | null {
+  const segments = pattern.split('/')
+  if (
+    segments.some((segment) => segment !== '*' && !validDirectoryName(segment))
+    || normalizeName(segments.at(-1) || '') !== anchor
+  ) return null
+  return segments
+}
+
+async function expandAnchorPaths(
+  basePath: string,
+  patterns: string[][],
+  budget: { visited: number },
+): Promise<string[]> {
+  const resolved = new Set<string>()
+
+  for (const segments of patterns) {
+    let candidates = new Set([basePath])
+
+    for (const segment of segments) {
+      const next = new Set<string>()
+
+      for (const candidate of candidates) {
+        if (budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+        budget.visited++
+
+        if (segment === '*') {
+          try {
+            const children = await readdir(candidate, { withFileTypes: true })
+            for (const child of children) {
+              if (!child.isDirectory() || child.isSymbolicLink()) continue
+              next.add(join(candidate, child.name))
+              if (budget.visited + next.size >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+            }
+          } catch {
+            // Skip missing or inaccessible wildcard candidates.
+          }
+        } else {
+          const exactPath = join(candidate, segment)
+          try {
+            const stats = await lstat(exactPath)
+            if (stats.isDirectory() && !stats.isSymbolicLink()) next.add(exactPath)
+          } catch {
+            // Skip missing or inaccessible exact candidates.
+          }
+        }
+      }
+
+      candidates = next
+      if (candidates.size === 0 || budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+    }
+
+    for (const candidate of candidates) resolved.add(candidate)
+    if (budget.visited >= MAX_RECURSIVE_RULE_DIRECTORIES) break
+  }
+
+  return [...resolved]
+}
+
+/** Resolve tightly scoped recursive cache rules without following links. */
+export async function resolveRecursivePathMatches(
+  paths: string[],
+  match: RecursivePathMatch,
+): Promise<string[]> {
+  if (
+    !validDirectoryName(match.anchor)
+    || match.targets.some((target) => !validDirectoryName(target))
+    || (match.excludedAncestors || []).some((ancestor) => !validDirectoryName(ancestor))
+  ) return []
+
+  const maxDepth = Math.min(32, Math.max(1, match.maxDepth ?? DEFAULT_RECURSIVE_RULE_DEPTH))
+  const normalizeName = process.platform === 'win32'
+    ? (name: string): string => name.toLowerCase()
+    : (name: string): string => name
+  const anchor = normalizeName(match.anchor)
+  const anchorPaths = match.anchorPaths?.map((pattern) => parseAnchorPath(pattern, anchor, normalizeName))
+  if (anchorPaths?.some((pattern) => pattern === null)) return []
+  const targets = new Set(match.targets.map(normalizeName))
+  const excludedAncestors = new Set((match.excludedAncestors || []).map(normalizeName))
+  const resolved = new Set<string>()
+  const budget = { visited: 0 }
+  const roots = new Map<string, { path: string; belowAnchor: boolean }>()
+
+  for (const basePath of paths) {
+    if (!existsSync(basePath)) continue
+
+    if (anchorPaths) {
+      const expanded = await expandAnchorPaths(basePath, anchorPaths.filter((pattern): pattern is string[] => pattern !== null), budget)
+      for (const rootPath of expanded) {
+        const key = process.platform === 'win32' ? rootPath.toLowerCase() : rootPath
+        roots.set(key, { path: rootPath, belowAnchor: true })
+      }
+    } else {
+      const key = process.platform === 'win32' ? basePath.toLowerCase() : basePath
+      roots.set(key, {
+        path: basePath,
+        belowAnchor: normalizeName(basePath.split(/[\\/]/).pop() || '') === anchor,
+      })
+    }
+  }
+
+  for (const root of roots.values()) {
+    const queue: Array<{ path: string; depth: number; belowAnchor: boolean }> = [{
+      path: root.path,
+      depth: 0,
+      belowAnchor: root.belowAnchor,
+    }]
+
+    for (let index = 0; index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+      const current = queue[index]
+      budget.visited++
+
+      try {
+        const children = await readdir(current.path, { withFileTypes: true })
+        for (const child of children) {
+          if (!child.isDirectory() || child.isSymbolicLink()) continue
+
+          const fullPath = join(current.path, child.name)
+          const normalized = normalizeName(child.name)
+          const belowAnchor = current.belowAnchor || normalized === anchor
+
+          if (current.belowAnchor && excludedAncestors.has(normalized)) continue
+
+          if (current.belowAnchor && targets.has(normalized)) {
+            resolved.add(fullPath)
+            continue
+          }
+
+          if (current.depth + 1 < maxDepth) {
+            queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
+          }
+        }
+      } catch {
+        // Skip inaccessible directories.
+      }
+    }
+  }
+
+  return [...resolved]
 }
 
 export async function getDirectorySize(dirPath: string, maxDepth = 3): Promise<number> {

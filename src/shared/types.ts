@@ -114,6 +114,8 @@ export interface ScanItem {
   subcategory: string
   lastModified: number
   selected: boolean
+  /** Revalidate this age cutoff immediately before deleting a scanned item. */
+  recencyCutoff?: number
 }
 
 export interface ScanResult {

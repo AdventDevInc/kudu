@@ -22,6 +22,8 @@ export interface CleanTarget {
   needsAdmin?: boolean
   /** If set, scan path/&ast;/childSubdir instead of path directly (e.g. 'cache' for Flatpak) */
   childSubdir?: string
+  /** Inspect descendant timestamps and revalidate them immediately before deletion. */
+  deepRecencyCheck?: boolean
 }
 
 export interface BrowserPathConfig {
@@ -65,8 +67,45 @@ export interface AppCacheDef {
   id: string
   name: string
   paths: string[]
+  /** Only offer entries older than this many days, inspecting nested contents before deleting a directory. */
+  minAgeDays?: number
   /** If set, scan paths/&ast;/childSubdir instead of paths directly (e.g. 'caches' for JetBrains on Windows) */
   childSubdir?: string
+  /**
+   * Recursively find exact cache directory names, but only after entering the
+   * named anchor directory. This supports layouts such as
+   * App/&ast;/EBWebView/&ast;/Cache without exposing session or user-data folders.
+   */
+  recursiveMatch?: RecursivePathMatch
+  /** Match a small allowlist of direct files, optionally inside immediate child directories. */
+  fileMatch?: DirectFileMatch
+}
+
+export interface RecursivePathMatch {
+  /** Directory name that must be present above every returned target. */
+  anchor: string
+  /**
+   * Optional relative patterns that locate anchor roots without recursively
+   * walking each base path. Each segment is an exact name or a single `*`.
+   */
+  anchorPaths?: string[]
+  /** Exact directory names to return beneath the anchor. */
+  targets: string[]
+  /** Directory names whose subtrees must never be inspected for targets. */
+  excludedAncestors?: string[]
+  /** Maximum directory depth below each resolved anchor (or configured base path). */
+  maxDepth?: number
+}
+
+export interface DirectFileMatch {
+  /** Exact file names to offer for cleanup. */
+  names: string[]
+  /** If set, inspect only immediate child directories ending with this suffix. */
+  childDirSuffix?: string
+  /** Files newer than this age are never offered. */
+  minAgeDays: number
+  /** Skip a candidate directory entirely when any of these direct children exist. */
+  skipIfChildExists?: string[]
 }
 
 export interface UninstallLeftoverDir {

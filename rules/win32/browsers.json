@@ -7,6 +7,7 @@
       { "dir": "Code Cache", "label": "Code Cache" },
       { "dir": "GPUCache", "label": "GPU Cache" },
       { "dir": "Service Worker/CacheStorage", "label": "Service Worker Cache" },
+      { "dir": "Shared Dictionary/cache", "label": "Shared Dictionary Cache", "description": "Chromium shared-compression dictionary cache; downloaded content rebuilt on demand" },
       { "dir": "DawnWebGPUCache", "label": "WebGPU Shader Cache", "description": "Dawn's compiled WebGPU shaders — rebuilt on demand" },
       { "dir": "DawnGraphiteCache", "label": "Graphite Shader Cache", "description": "Dawn/Skia Graphite pipeline cache — rebuilt on demand" }
     ],

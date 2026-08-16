@@ -5,7 +5,7 @@ import { join } from 'path'
 import { randomUUID } from 'crypto'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
-import { scanDirectoriesAsItems, cleanItems, getDirectorySize } from '../services/file-utils'
+import { scanAppRule, cleanItems, getDirectorySize } from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { CleanerType } from '../../shared/enums'
 import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
@@ -21,9 +21,10 @@ export function registerGamingCleanerIpc(getWindow: WindowGetter): void {
     // Launcher caches — directory-level items, one row per launcher
     for (const launcher of getPlatform().paths.gamingPaths()) {
       try {
-        const result = await scanDirectoriesAsItems(
-          launcher.paths, category, launcher.name, 'Launcher Caches'
-        )
+        const result = await scanAppRule(launcher, category, {
+          directoryItems: true,
+          group: 'Launcher Caches',
+        })
         if (result.items.length > 0) {
           cacheItems(result.items)
           results.push(result)
@@ -36,9 +37,10 @@ export function registerGamingCleanerIpc(getWindow: WindowGetter): void {
     // GPU shader caches — directory-level items, one row per vendor
     for (const gpu of getPlatform().paths.gpuCachePaths()) {
       try {
-        const result = await scanDirectoriesAsItems(
-          gpu.paths, category, gpu.name, 'GPU Shader Caches'
-        )
+        const result = await scanAppRule(gpu, category, {
+          directoryItems: true,
+          group: 'GPU Shader Caches',
+        })
         if (result.items.length > 0) {
           cacheItems(result.items)
           results.push(result)

@@ -25,14 +25,31 @@ function loadKnownPaths() {
   const vars = resolveVars()
   const files = readdirSync(platformDir).filter((f) => f.endsWith('.json'))
 
+  const addRulePaths = (rule) => {
+    const templates = rule.paths || (rule.path ? [rule.path] : [])
+    for (const template of templates) {
+      const resolved = path.normalize(template.replace(/\$\{([A-Z_]+)\}/g, (_, name) => vars[name] || ''))
+      if (!resolved) continue
+
+      // These rules make only their resolved children cleanable. Treating the
+      // broad base itself as covered would hide every other cache below it.
+      if (rule.recursiveMatch || rule.fileMatch) continue
+      if (rule.childSubdir) {
+        for (const child of getDirsIn(resolved)) {
+          const target = path.join(child.full, rule.childSubdir)
+          if (existsSync(target)) known.add(path.normalize(target).toLowerCase())
+        }
+        continue
+      }
+
+      known.add(resolved.toLowerCase())
+    }
+  }
+
   for (const file of files) {
     const data = JSON.parse(readFileSync(path.join(platformDir, file), 'utf-8'))
-    const json = JSON.stringify(data)
-    const pathMatches = json.match(/\$\{[A-Z_]+\}[^"']*/g) || []
-    for (const tmpl of pathMatches) {
-      const resolved = tmpl.replace(/\$\{([A-Z_]+)\}/g, (_, name) => vars[name] || '')
-      if (resolved) known.add(path.normalize(resolved).toLowerCase())
-    }
+    for (const rule of data.apps || []) addRulePaths(rule)
+    for (const rule of data.cleanTargets || []) addRulePaths(rule)
   }
 
   return known
