@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import {
   Monitor,
   Globe,
@@ -12,6 +13,8 @@ import {
   Search,
   Sparkles,
   ChevronRight,
+  ChevronDown,
+  ArrowUpDown,
   Folder,
   FolderOpen,
   AlertTriangle,
@@ -55,15 +58,24 @@ const categories: CategoryDef[] = [
   { type: CleanerType.Database, labelKey: 'categoryDatabases', icon: Database, descriptionKey: 'categoryDatabasesDescription' }
 ]
 
+type SortMode = 'default' | 'size-desc' | 'size-asc'
+
+const SORT_LABEL_KEYS: Record<SortMode, string> = {
+  default: 'sortDefault',
+  'size-desc': 'sortSizeDesc',
+  'size-asc': 'sortSizeAsc'
+}
+
 export function CleanerPage() {
-  const { t } = useTranslation('cleaner')
+  const { t } = useTranslation(['cleaner', 'settings'])
+  const navigate = useNavigate()
   const { platform } = usePlatform()
   const store = useScanStore()
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
   const createRestorePointEnabled = useSettingsStore((s) => s.settings.cleaner.createRestorePoint)
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
-  const visibleCategories = protectRecycleBin
+  const scannableCategories = protectRecycleBin
     ? categories.filter((c) => c.type !== CleanerType.RecycleBin)
     : categories
   const [activeCategory, setActiveCategory] = useState<CleanerType>(CleanerType.System)
@@ -71,6 +83,9 @@ export function CleanerPage() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const cleanStartRef = useRef<number>(0)
   const [scanningCategory, setScanningCategory] = useState<CleanerType | null>(null)
+  const [sortMode, setSortMode] = useState<SortMode>('default')
+  const [showSortMenu, setShowSortMenu] = useState(false)
+  const sortMenuRef = useRef<HTMLDivElement>(null)
 
   const scanIndexRef = useRef(0)
   const cleanIndexRef = useRef(0)
@@ -87,13 +102,25 @@ export function CleanerPage() {
         const slice = (data.progress / total)
         store.setProgress({ ...data, progress: base + slice })
       } else {
-        const total = visibleCategories.length
+        const total = scannableCategories.length
         const base = (scanIndexRef.current / total) * 100
         const slice = (data.progress / total)
         store.setProgress({ ...data, progress: base + slice })
       }
     })
-  }, [])
+  }, [protectRecycleBin])
+
+  // Close the sort menu when clicking anywhere outside it.
+  useEffect(() => {
+    if (!showSortMenu) return
+    const handler = (e: globalThis.MouseEvent) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) {
+        setShowSortMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [showSortMenu])
 
   const [failedCategories, setFailedCategories] = useState<string[]>([])
   const [elevationSkipped, setElevationSkipped] = useState<string[]>([])
@@ -121,8 +148,8 @@ export function CleanerPage() {
         [CleanerType.Environment]: () => window.kudu.environmentScan(),
         [CleanerType.Database]: () => window.kudu.databaseScan()
       }
-      for (let ci = 0; ci < visibleCategories.length; ci++) {
-        const cat = visibleCategories[ci]
+      for (let ci = 0; ci < scannableCategories.length; ci++) {
+        const cat = scannableCategories[ci]
         scanIndexRef.current = ci
         setScanningCategory(cat.type)
         try {
@@ -148,7 +175,7 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [])
+  }, [protectRecycleBin])
 
   const handleClean = useCallback(async () => {
     setShowConfirm(false)
@@ -188,7 +215,7 @@ export function CleanerPage() {
 
       // Compute how many categories actually have items to clean so progress
       // scales to 100% even when only a subset of categories is active.
-      const activeCount = visibleCategories.filter((cat) => {
+      const activeCount = scannableCategories.filter((cat) => {
         const catItems = store.results.filter((r) => r.category === cat.type).flatMap((r) => r.items)
         return catItems.some((item) => selectedIds.includes(item.id))
       }).length
@@ -197,8 +224,8 @@ export function CleanerPage() {
 
       store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
 
-      for (let ci = 0; ci < visibleCategories.length; ci++) {
-        const cat = visibleCategories[ci]
+      for (let ci = 0; ci < scannableCategories.length; ci++) {
+        const cat = scannableCategories[ci]
         const catResults = store.results.filter((r) => r.category === cat.type)
         const catItemsAll = catResults.flatMap((r) => r.items)
         const catItemIds = catItemsAll
@@ -274,7 +301,7 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [store.results, createRestorePointEnabled])
+  }, [store.results, createRestorePointEnabled, protectRecycleBin])
 
   const categoryResults = (type: CleanerType) => store.results.filter((r) => r.category === type)
   const categoryItemCount = (type: CleanerType) => categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
@@ -292,9 +319,17 @@ export function CleanerPage() {
     store.toggleSubcategory(result)
   }
 
+  // Sort results by aggregate size, keeping the scanner's order when 'default'.
+  const sortResults = (list: ScanResult[]): ScanResult[] => {
+    if (sortMode === 'default') return list
+    const dir = sortMode === 'size-desc' ? -1 : 1
+    return [...list].sort((a, b) => dir * (a.totalSize - b.totalSize))
+  }
+
   const isScanning = store.status === ScanStatus.Scanning
   const isCleaning = store.status === ScanStatus.Cleaning
   const hasResults = store.results.length > 0
+  const isRecycleBinProtected = protectRecycleBin && activeCategory === CleanerType.RecycleBin
 
   return (
     <div className="animate-fade-in">
@@ -332,9 +367,10 @@ export function CleanerPage() {
       <div className="flex gap-5">
         {/* Category sidebar */}
         <div className="w-56 shrink-0 space-y-1.5">
-          {visibleCategories.map((cat) => {
+          {categories.map((cat) => {
             const count = categoryItemCount(cat.type)
             const isActive = activeCategory === cat.type
+            const isProtected = protectRecycleBin && cat.type === CleanerType.RecycleBin
             return (
               <button
                 key={cat.type}
@@ -355,7 +391,9 @@ export function CleanerPage() {
                 )}
                 <div className="flex-1 min-w-0">
                   <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
-                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t(cat.descriptionKey)}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    {isProtected ? t('settings:protectRecycleBinLabel') : t(cat.descriptionKey)}
+                  </p>
                 </div>
                 {count > 0 && (
                   <span
@@ -440,7 +478,24 @@ export function CleanerPage() {
             <CleanSummary summary={store.cleanSummary} onRelaunchAsAdmin={handleRelaunch} platform={platform} />
           )}
 
-          {!hasResults && !isScanning && (
+          {isRecycleBinProtected && !isScanning && !isCleaning && (
+            <EmptyState
+              icon={ShieldAlert}
+              title={t('settings:protectRecycleBinLabel')}
+              description={t('settings:protectRecycleBinDesc')}
+              action={
+                <button
+                  onClick={() => navigate('/settings')}
+                  className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all"
+                  style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)', color: 'var(--text-secondary)' }}
+                >
+                  {t('settings:sectionCleaningPreferences')}
+                </button>
+              }
+            />
+          )}
+
+          {!hasResults && !isScanning && !isRecycleBinProtected && (
             <EmptyState
               icon={Search}
               title={t('noScanResultsTitle')}
@@ -459,18 +514,48 @@ export function CleanerPage() {
             />
           )}
 
-          {hasResults && (
+          {hasResults && !isRecycleBinProtected && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
                 <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                   {t('categoryItemsHeading', { category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '') })}
                 </span>
-                <button
-                  onClick={() => store.toggleCategory(activeCategory)}
-                  className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
-                >
-                  {t('toggleAll')}
-                </button>
+                <div className="flex items-center gap-3">
+                  <div className="relative" ref={sortMenuRef}>
+                    <button
+                      onClick={() => setShowSortMenu((v) => !v)}
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition-colors"
+                      style={{ color: 'var(--text-muted)', border: '1px solid var(--border-medium)' }}
+                    >
+                      <ArrowUpDown className="h-3 w-3" strokeWidth={1.8} />
+                      {t(SORT_LABEL_KEYS[sortMode])}
+                      <ChevronDown className={cn('h-3 w-3 transition-transform', showSortMenu && 'rotate-180')} strokeWidth={2} />
+                    </button>
+                    {showSortMenu && (
+                      <div
+                        className="absolute right-0 top-full z-50 mt-1 rounded-xl py-1 shadow-xl"
+                        style={{ background: '#1e1e22', border: '1px solid var(--border-strong)', minWidth: 140 }}
+                      >
+                        {(Object.keys(SORT_LABEL_KEYS) as SortMode[]).map((mode) => (
+                          <button
+                            key={mode}
+                            onClick={() => { setSortMode(mode); setShowSortMenu(false) }}
+                            className="flex w-full items-center gap-2 px-4 py-2 text-[12px] transition-colors hover:bg-white/5"
+                            style={{ color: sortMode === mode ? 'var(--accent-hover)' : 'var(--text-secondary)' }}
+                          >
+                            {t(SORT_LABEL_KEYS[mode])}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => store.toggleCategory(activeCategory)}
+                    className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
+                  >
+                    {t('toggleAll')}
+                  </button>
+                </div>
               </div>
 
               {categoryResults(activeCategory).length === 0 && (
@@ -481,14 +566,17 @@ export function CleanerPage() {
 
               {(() => {
                 const results = categoryResults(activeCategory)
-                // Group results by group label (ungrouped first, then grouped sections)
-                const ungrouped = results.filter((r) => !r.group)
+                // Group results by group label (ungrouped first, then grouped
+                // sections); each section is sorted independently so sort
+                // order never interleaves group sections.
+                const ungrouped = sortResults(results.filter((r) => !r.group))
                 const grouped = new Map<string, ScanResult[]>()
                 for (const r of results) {
                   if (!r.group) continue
                   if (!grouped.has(r.group)) grouped.set(r.group, [])
                   grouped.get(r.group)!.push(r)
                 }
+                for (const [label, items] of grouped) grouped.set(label, sortResults(items))
 
                 const sections: { label?: string; items: ScanResult[] }[] = []
                 if (ungrouped.length > 0) sections.push({ items: ungrouped })
