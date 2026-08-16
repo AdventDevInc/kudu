@@ -9,7 +9,7 @@ vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: state.exclusions }),
 }))
 
-vi.mock('./scan-cache', () => ({ getCachedItems: () => [] }))
+vi.mock('./scan-cache', () => ({ getCachedItems: () => [], removeCachedItems: () => {} }))
 
 import { scanDirectory } from './file-utils'
 

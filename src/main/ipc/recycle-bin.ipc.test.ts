@@ -85,16 +85,17 @@ describe('recycle bin scan result structure', () => {
 describe('recycle bin clean result structure', () => {
   it('reports success when remaining count is 0', () => {
     const sizeBeforeClean = 5000
+    const countBeforeClean = 10
     const remainingStdout = '0'
     const remaining = parseInt(remainingStdout.trim()) || 0
 
     const result = remaining === 0
-      ? { totalCleaned: sizeBeforeClean, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
+      ? { totalCleaned: sizeBeforeClean, filesDeleted: countBeforeClean, filesSkipped: 0, errors: [], needsElevation: false }
       : null
 
     expect(result).toEqual({
       totalCleaned: 5000,
-      filesDeleted: 1,
+      filesDeleted: 10,
       filesSkipped: 0,
       errors: [],
       needsElevation: false
@@ -103,17 +104,21 @@ describe('recycle bin clean result structure', () => {
 
   it('reports partial clean when remaining items exist', () => {
     const sizeBeforeClean = 10000
+    const countBeforeClean = 8
     const remaining = 3
+    const remainingSize = 7000
 
     const result = {
-      totalCleaned: sizeBeforeClean,
-      filesDeleted: 1,
+      totalCleaned: Math.max(0, sizeBeforeClean - remainingSize),
+      filesDeleted: Math.max(0, countBeforeClean - remaining),
       filesSkipped: remaining,
       errors: [{ path: 'Recycle Bin', reason: `${remaining} item(s) could not be removed (may be in use or protected)` }],
       needsElevation: false
     }
 
     expect(result.filesSkipped).toBe(3)
+    expect(result.filesDeleted).toBe(5)
+    expect(result.totalCleaned).toBe(3000)
     expect(result.errors).toHaveLength(1)
     expect(result.errors[0].reason).toContain('3 item(s)')
   })
@@ -162,17 +167,24 @@ describe('trash path handling', () => {
 describe('recycle bin state tracking', () => {
   it('tracks lastScannedSize for clean operations', () => {
     let lastScannedSize = 0
+    let lastScannedCount = 0
 
     // Simulate scan
-    const { size } = parseRecycleBinScanOutput('100|1048576')
+    const { count, size } = parseRecycleBinScanOutput('100|1048576')
     lastScannedSize = size
+    lastScannedCount = count
     expect(lastScannedSize).toBe(1048576)
+    expect(lastScannedCount).toBe(100)
 
-    // Simulate clean - uses the tracked size
+    // Simulate a partial clean and retain the survivors for an accurate retry.
     const sizeBeforeClean = lastScannedSize
-    lastScannedSize = 0
+    const countBeforeClean = lastScannedCount
+    lastScannedSize = 4096
+    lastScannedCount = 2
     expect(sizeBeforeClean).toBe(1048576)
-    expect(lastScannedSize).toBe(0)
+    expect(countBeforeClean).toBe(100)
+    expect(lastScannedSize).toBe(4096)
+    expect(lastScannedCount).toBe(2)
   })
 
   it('tracks lastScannedItemIds for macOS/Linux', () => {

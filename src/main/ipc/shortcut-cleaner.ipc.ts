@@ -8,7 +8,7 @@ import { randomUUID } from 'crypto'
 import { homedir } from 'os'
 import { IPC } from '../../shared/channels'
 import { CleanerType } from '../../shared/enums'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { cleanItems } from '../services/file-utils'
 import { validateStringArray } from '../services/ipc-validation'
 import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
@@ -204,6 +204,7 @@ function isTargetBroken(info: ShortcutInfo): boolean {
 
 export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.SHORTCUT_SCAN, async (): Promise<ScanResult[]> => {
+    clearCachedCategory(CleanerType.Shortcut)
     const results: ScanResult[] = []
     const category = CleanerType.Shortcut
     const dirs = getShortcutDirs()

@@ -5,21 +5,29 @@ import type { ScanItem } from '../../shared/types'
  * item paths by ID. Each scan replaces the previous cache for that category.
  */
 const itemCache = new Map<string, ScanItem>()
-const MAX_CACHE_SIZE = 50000
 
 export function cacheItems(items: ScanItem[]): void {
-  // Evict oldest entries if cache is getting too large
-  if (itemCache.size + items.length > MAX_CACHE_SIZE) {
-    const toRemove = itemCache.size + items.length - MAX_CACHE_SIZE
-    const keys = itemCache.keys()
-    for (let i = 0; i < toRemove; i++) {
-      const key = keys.next().value
-      if (key !== undefined) itemCache.delete(key)
-    }
-  }
+  // Do not evict live scan results here. The renderer can legitimately hold
+  // more than 50k items (browser caches commonly do), and dropping the oldest
+  // IDs makes Clean silently ignore files that are still visible and selected.
+  // Scanner entry points replace their category via clearCachedCategory(), and
+  // successful clean calls remove their own IDs, which bounds stale entries
+  // without making the displayed scan uncleanable.
   for (const item of items) {
     itemCache.set(item.id, item)
   }
+}
+
+/** Remove results from an older scan while preserving the other categories. */
+export function clearCachedCategory(category: string): void {
+  for (const [id, item] of itemCache) {
+    if (item.category === category) itemCache.delete(id)
+  }
+}
+
+/** Drop IDs once a clean has consumed them. */
+export function removeCachedItems(ids: string[]): void {
+  for (const id of ids) itemCache.delete(id)
 }
 
 export function getCachedItem(id: string): ScanItem | undefined {

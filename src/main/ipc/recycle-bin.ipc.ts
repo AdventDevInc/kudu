@@ -8,7 +8,7 @@ import type { ScanResult, CleanResult } from '../../shared/types'
 import { randomUUID } from 'crypto'
 import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { psUtf8 } from '../services/exec-utf8'
 import {
   isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin
@@ -22,11 +22,16 @@ function psArgs(script: string): string[] {
 
 // Windows: track last scanned size (virtual items have no real path)
 let lastScannedSize = 0
+let lastScannedCount = 0
 // macOS/Linux: track last scanned item IDs for cleanItems()
 let lastScannedItemIds: string[] = []
 
 export function registerRecycleBinIpc(): void {
   ipcMain.handle(IPC.RECYCLE_BIN_SCAN, async (): Promise<ScanResult[]> => {
+    clearCachedCategory(CleanerType.RecycleBin)
+    lastScannedSize = 0
+    lastScannedCount = 0
+    lastScannedItemIds = []
     const trashPath = getPlatform().paths.trashPath()
 
     if (trashPath) {
@@ -56,6 +61,7 @@ export function registerRecycleBinIpc(): void {
       const size = parseInt(sizeStr) || 0
 
       lastScannedSize = size
+      lastScannedCount = count
 
       if (count === 0) return []
 
@@ -95,36 +101,45 @@ export function registerRecycleBinIpc(): void {
 
     // Windows: SHEmptyRecycleBin Win32 API
     const sizeBeforeClean = lastScannedSize
+    const countBeforeClean = lastScannedCount
     // Capture the contents first — after the bin is emptied there is nothing
     // left to enumerate.
     const logDeletions = isDeletionLoggingEnabled()
     const binContents = logDeletions ? await listRecycleBinContents() : []
     try {
       // Flags: SHERB_NOCONFIRMATION(1) | SHERB_NOPROGRESSUI(2) | SHERB_NOSOUND(4) = 7
-      await execFileAsync('powershell.exe', psArgs(
-        `Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class RecycleBin { [DllImport("Shell32.dll", CharSet = CharSet.Unicode)] public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags); }'; [RecycleBin]::SHEmptyRecycleBin([IntPtr]::Zero, $null, 7)`
+      const { stdout: emptyStdout } = await execFileAsync('powershell.exe', psArgs(
+        `Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class RecycleBin { [DllImport("Shell32.dll", CharSet = CharSet.Unicode)] public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags); }'; $result = [RecycleBin]::SHEmptyRecycleBin([IntPtr]::Zero, $null, 7); Write-Output $result`
       ), { windowsHide: true })
+      const resultCode = parseInt(emptyStdout.trim()) || 0
 
-      // Verify the bin is actually empty
+      // Verify both count and bytes. SHEmptyRecycleBin returns an HRESULT rather
+      // than throwing, and it can partially succeed across multiple drives.
       const { stdout } = await execFileAsync('powershell.exe', psArgs(
-        `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); Write-Output $items.Count`
+        `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); $items = $rb.Items(); $count = $items.Count; $size = ($items | Measure-Object -Property Size -Sum).Sum; Write-Output "$count|$size"`
       ), { windowsHide: true })
-      const remaining = parseInt(stdout.trim()) || 0
+      const [remainingCountStr, remainingSizeStr] = stdout.trim().split('|')
+      const remaining = parseInt(remainingCountStr) || 0
+      const remainingSize = parseInt(remainingSizeStr) || 0
+      const totalCleaned = Math.max(0, sizeBeforeClean - remainingSize)
+      const filesDeleted = Math.max(0, countBeforeClean - remaining)
 
       if (logDeletions) await recordEmptiedRecycleBin(binContents, 'local')
 
+      lastScannedSize = remainingSize
+      lastScannedCount = remaining
+
       if (remaining === 0) {
-        lastScannedSize = 0
-        return { totalCleaned: sizeBeforeClean, filesDeleted: 1, filesSkipped: 0, errors: [], needsElevation: false }
+        return { totalCleaned, filesDeleted, filesSkipped: 0, errors: [], needsElevation: false }
       } else {
         // Partial clean - some items couldn't be removed
-        lastScannedSize = 0
+        const accessDenied = resultCode === 0x80070005
         return {
-          totalCleaned: sizeBeforeClean,
-          filesDeleted: 1,
+          totalCleaned,
+          filesDeleted,
           filesSkipped: remaining,
           errors: [{ path: 'Recycle Bin', reason: `${remaining} item(s) could not be removed (may be in use or protected)` }],
-          needsElevation: false
+          needsElevation: accessDenied
         }
       }
     } catch (err: any) {

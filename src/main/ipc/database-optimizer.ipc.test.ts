@@ -44,6 +44,7 @@ vi.mock('fs', () => {
 
 vi.mock('../services/scan-cache', () => ({
   cacheItems: (...args: unknown[]) => mockCacheItems(...args),
+  clearCachedCategory: vi.fn(),
   getCachedItem: (...args: unknown[]) => mockGetCachedItem(...args),
 }))
 

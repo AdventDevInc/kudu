@@ -2,7 +2,7 @@ import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
 import { scanMultipleDirectories, resolveChildSubdirs, cleanItems } from '../services/file-utils'
-import { cacheItems } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { CleanerType } from '../../shared/enums'
 import type { ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
@@ -12,6 +12,7 @@ export function registerAppCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.APP_SCAN, async (): Promise<ScanResult[]> => {
     const results: ScanResult[] = []
     const category = CleanerType.App
+    clearCachedCategory(category)
 
     for (const app of getPlatform().paths.appPaths()) {
       try {

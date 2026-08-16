@@ -12,6 +12,7 @@ vi.mock('./settings-store', () => ({
 // Mock scan-cache
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => [],
+  removeCachedItems: () => {},
 }))
 
 describe('isExcluded', () => {

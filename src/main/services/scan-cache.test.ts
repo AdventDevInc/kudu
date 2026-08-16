@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { cacheItems, getCachedItem, getCachedItems, clearCache } from './scan-cache'
+import {
+  cacheItems, getCachedItem, getCachedItems, clearCache,
+  clearCachedCategory, removeCachedItems
+} from './scan-cache'
 import type { ScanItem } from '../../shared/types'
 
 function makeItem(id: string): ScanItem {
@@ -60,17 +63,31 @@ describe('scan-cache', () => {
     expect(getCachedItem('a')?.size).toBe(9999)
   })
 
-  it('evicts cache when exceeding max size', () => {
-    // Fill cache with items up to the limit (50,000), then add more to trigger eviction
+  it('keeps every item in a scan larger than the old 50,000 item cap', () => {
     const batch1 = Array.from({ length: 50000 }, (_, i) => makeItem(`old-${i}`))
     cacheItems(batch1)
-    expect(getCachedItem('old-0')).toBeDefined()
+    cacheItems([makeItem('new-item')])
 
-    // Adding 1 more item should trigger eviction of the oldest entry
-    const batch2 = [makeItem('new-item')]
-    cacheItems(batch2)
-    // Oldest item should be evicted to make room
-    expect(getCachedItem('old-0')).toBeUndefined()
+    expect(getCachedItem('old-0')).toBeDefined()
     expect(getCachedItem('new-item')).toBeDefined()
+  })
+
+  it('clears only the requested category before a replacement scan', () => {
+    cacheItems([
+      makeItem('system-old'),
+      { ...makeItem('browser-old'), category: 'browser' },
+    ])
+
+    clearCachedCategory('system')
+
+    expect(getCachedItem('system-old')).toBeUndefined()
+    expect(getCachedItem('browser-old')).toBeDefined()
+  })
+
+  it('removes consumed IDs after cleaning', () => {
+    cacheItems([makeItem('a'), makeItem('b')])
+    removeCachedItems(['a'])
+    expect(getCachedItem('a')).toBeUndefined()
+    expect(getCachedItem('b')).toBeDefined()
   })
 })
