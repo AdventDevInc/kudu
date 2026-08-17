@@ -1,6 +1,4 @@
 import { ipcMain } from 'electron'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
 import { existsSync } from 'fs'
 import { IPC } from '../../shared/channels'
 import { CleanerType } from '../../shared/enums'
@@ -9,17 +7,11 @@ import { randomUUID } from 'crypto'
 import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
-import { psUtf8 } from '../services/exec-utf8'
 import { queryRecycleBinStats } from '../services/recycle-bin-stats'
+import { emptyRecycleBinFast, finalizeRecycleBinShell } from '../services/recycle-bin-cleaner'
 import {
   isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin
 } from '../services/recycle-bin-log'
-
-const execFileAsync = promisify(execFile)
-
-function psArgs(script: string): string[] {
-  return ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)]
-}
 
 // Windows: track last scanned size (virtual items have no real path)
 let lastScannedSize = 0
@@ -94,7 +86,9 @@ export function registerRecycleBinIpc(): void {
       }
     }
 
-    // Windows: SHEmptyRecycleBin Win32 API
+    // Windows: delete the current user's top-level $R payloads in parallel.
+    // The whole-bin shell call can stall badly on large or interrupted bins;
+    // bounded workers avoid making that shell behavior the normal clean path.
     const sizeBeforeClean = lastScannedSize
     const countBeforeClean = lastScannedCount
     // Capture the contents first — after the bin is emptied there is nothing
@@ -102,17 +96,28 @@ export function registerRecycleBinIpc(): void {
     const logDeletions = isDeletionLoggingEnabled()
     const binContents = logDeletions ? await listRecycleBinContents() : []
     try {
-      // Flags: SHERB_NOCONFIRMATION(1) | SHERB_NOPROGRESSUI(2) | SHERB_NOSOUND(4) = 7
-      const { stdout: emptyStdout } = await execFileAsync('powershell.exe', psArgs(
-        `Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class RecycleBin { [DllImport("Shell32.dll", CharSet = CharSet.Unicode)] public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags); }'; $result = [RecycleBin]::SHEmptyRecycleBin([IntPtr]::Zero, $null, 7); Write-Output $result`
-      ), { windowsHide: true })
-      const resultCode = parseInt(emptyStdout.trim()) || 0
+      let resultCode = 0
+      let accessDenied = false
+      try {
+        const fastResult = await emptyRecycleBinFast()
+        accessDenied = fastResult.accessDenied
+      } catch {
+        // Discovery/initialization failure only: retain a bounded Windows API
+        // fallback without allowing the old shell walk to hang indefinitely.
+        resultCode = await finalizeRecycleBinShell(60_000)
+      }
 
-      // Verify both count and bytes. SHEmptyRecycleBin returns an HRESULT rather
-      // than throwing, and it can partially succeed across multiple drives.
+      // Verify both count and bytes. The direct delete is best-effort and can
+      // partially succeed when a payload is open or protected.
       const { count: remaining, size: remainingSize } = await queryRecycleBinStats()
       const totalCleaned = Math.max(0, sizeBeforeClean - remainingSize)
       const filesDeleted = Math.max(0, countBeforeClean - remaining)
+
+      if (remaining === 0) {
+        // With no payloads left this is a quick no-op that refreshes Windows'
+        // shell state/icon. Never fail an otherwise successful clean on it.
+        try { await finalizeRecycleBinShell() } catch { /* shell refresh is best-effort */ }
+      }
 
       if (logDeletions) await recordEmptiedRecycleBin(binContents, 'local')
 
@@ -123,7 +128,7 @@ export function registerRecycleBinIpc(): void {
         return { totalCleaned, filesDeleted, filesSkipped: 0, errors: [], needsElevation: false }
       } else {
         // Partial clean - some items couldn't be removed
-        const accessDenied = resultCode === 0x80070005
+        accessDenied ||= resultCode === 0x80070005
         return {
           totalCleaned,
           filesDeleted,
