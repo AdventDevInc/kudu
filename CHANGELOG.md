@@ -1,3 +1,9 @@
+# [2.1.0](https://github.com/adventdevinc/kudu/compare/v2.0.1...v2.1.0) (2026-08-17)
+
+
+### Bug Fixes
+
+* **cleaner:** speed up Windows Recycle Bin emptying ([#320](https://github.com/adventdevinc/kudu/issues/320)) ([7576518](https://github.com/adventdevinc/kudu/commit/7576518e9965f13436b3aaac5490293a5af602c3))
 ## [2.0.1](https://github.com/adventdevinc/kudu/compare/v2.0.0...v2.0.1) (2026-08-16)
 # [2.0.0](https://github.com/adventdevinc/kudu/compare/v1.49.0...v2.0.0) (2026-08-16)
 
