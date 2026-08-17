@@ -8,12 +8,12 @@
   "loading": "Yükleniyor...",
   "inactive": {
     "title": "Tehdit izleyicisi etkin değil",
-    "description": "Hiçbir tehdit kara listesi yüklenmedi. Kara liste, bulut aracısı bağlandığında otomatik olarak alınacaktır."
+    "description": "Herhangi bir tehdit kara listesi yüklenmedi. Kara liste, bulut aracısı bağlandığında otomatik olarak alınacaktır."
   },
   "statusBar": {
-    "blacklistVersion": "Kara liste",
-    "connectionsScanned": "{{time}} bağlantılar tarandı",
-    "dnsScanned": "{{time}} DNS tarandı",
+    "blacklistVersion": "Kara Liste",
+    "connectionsScanned": "{{time}} bağlantı tarandı",
+    "dnsScanned": "{{time}} DNS sorgusu tarandı",
     "threatsDetected": "{{count}} tehdit algılandı",
     "threatsDetectedPlural": "{{count}} tehdit algılandı",
     "noThreatsDetected": "Tehdit algılanmadı"

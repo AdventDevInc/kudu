@@ -16,11 +16,11 @@
   "selectAll": "Tümünü Seç",
   "deselectAll": "Tüm Seçimi Kaldır",
   "recycleBin": "Geri Dönüşüm Kutusu",
-  "permanentDelete": "Kalıcı",
+  "permanentDelete": "Kalıcı Silme",
   "deleteSelected": "{{count}} klasörü kaldır",
   "confirmDeleteTitle": "Boş Klasörler Kaldırılsın mı?",
   "confirmRecycleDesc": "{{count}} boş klasör geri dönüşüm kutusuna taşınacak.",
-  "confirmPermanentDesc": "{{count}} boş klasör kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+  "confirmPermanentDesc": "{{count}} boş klasör kalıcı olarak silinecektir. Bu işlem geri alınamaz.",
   "deleting": "Klasörler kaldırılıyor…",
   "deleteSuccess": "{{count}} boş klasör kaldırıldı",
   "deleteFailed": "{{failed}} klasör kaldırılamadı",
@@ -29,5 +29,5 @@
   "emptyDescription": "Seçilen konumda boş dizin bulunamadı.",
   "idleTitle": "Boş Klasörleri Bul",
   "idleDescription": "Güvenle kaldırılabilecek boş klasörleri taramak için bir dizin seçin.",
-  "protectedNote": "Sistem klasörleri, kullanıcı profil dizinleri ve sürüm denetimi klasörleri otomatik olarak korunur."
+  "protectedNote": "Sistem klasörleri, kullanıcı profili dizinleri ve sürüm kontrol (git vb.) klasörleri otomatik olarak korunur."
 }

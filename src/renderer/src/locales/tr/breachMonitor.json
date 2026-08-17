@@ -1,18 +1,21 @@
 {
   "pageTitle": "İhlal İzleme",
-  "pageDescription": "E-posta adreslerinizin bilinen veri ihlallerinde açığa çıkıp çıkmadığını kontrol edin",
+  "pageDescription": "E-posta adreslerinizin bilinen veri ihlallerinde ifşa olup olmadığını denetleyin",
   "loading": "İhlal verileri yükleniyor...",
+
   "summary": {
     "totalBreaches": "Toplam İhlal",
     "unacknowledged": "Yeni",
     "emailsMonitored": "İzlenen E-postalar",
-    "emailsMonitoredTooltip": "Basic plan: 1 e-posta · Pro plan: 5 e-posta. Daha fazla izlemek için planınızı Cloud ayarlarından yükseltin."
+    "emailsMonitoredTooltip": "Temel plan: 1 e-posta · Pro plan: 5 e-posta. Daha fazlasını izlemek için Bulut ayarlarından planınızı yükseltin."
   },
+
   "addEmail": {
     "placeholder": "Bir e-posta adresi girin",
     "button": "E-posta Ekle",
     "adding": "Ekleniyor..."
   },
+
   "toast": {
     "fetchFailed": "İhlal verileri yüklenemedi",
     "addFailed": "E-posta eklenemedi",
@@ -22,53 +25,60 @@
     "acknowledged": "İhlaller incelendi olarak işaretlendi",
     "acknowledgeFailed": "İhlaller işaretlenemedi"
   },
+
   "emptyState": {
     "noEmails": "İzlenen e-posta yok",
-    "noEmailsDesc": "Geçmiş veri ihlallerini kontrol etmek ve yeni sızıntıları sürekli izlemek için bir e-posta adresi ekleyin.",
-    "allClear": "Her şey yolunda",
-    "allClearDesc": "İzlenen e-postalarınızın hiçbiri bilinen veri ihlallerinde bulunmadı.",
-    "upgradeRequired": "Yükseltme gerekli",
-    "upgradeRequiredDesc": "İhlal izleme, Basic plan ve üzeri planlarda kullanılabilir. İzlemeye başlamak için planınızı yükseltin.",
+    "noEmailsDesc": "Geçmiş veri ihlallerini denetlemek ve yeni sızıntıları sürekli izlemek için bir e-posta adresi ekleyin.",
+    "allClear": "Her şey temiz",
+    "allClearDesc": "İzlenen e-postalarınızın hiçbiri bilinen herhangi bir veri ihlalinde bulunamadı.",
+    "upgradeRequired": "Yükseltme gerekiyor",
+    "upgradeRequiredDesc": "İhlal izleme, Temel ve üzeri planlarda kullanılabilir. İzlemeye başlamak için planınızı yükseltin.",
     "goToCloud": "Planları Görüntüle",
     "noBreachesForEmail": "Bu e-posta için ihlal bulunamadı",
     "selectEmail": "İhlal ayrıntılarını görüntülemek için listeden bir e-posta seçin"
   },
+
   "error": {
     "title": "İhlal verileri yüklenemedi",
-    "description": "Cloud bağlantınızı kontrol edin ve tekrar deneyin."
+    "description": "Bulut bağlantınızı kontrol edip tekrar deneyin."
   },
+
   "emailList": {
     "breaches": "{{count}} ihlal",
     "breaches_other": "{{count}} ihlal",
     "newBreaches": "{{count}} yeni",
     "noBreaches": "İhlal yok",
-    "checking": "Kontrol ediliyor...",
+    "checking": "Denetleniyor...",
     "paused": "Duraklatıldı",
     "remove": "E-postayı kaldır",
-    "lastChecked": "{{date}} tarihinde kontrol edildi"
+    "lastChecked": "Denetlendi: {{date}}"
   },
+
   "table": {
     "email": "E-posta",
     "breach": "İhlal",
     "date": "Tarih",
-    "accounts": "Hesaplar",
-    "data": "Ele Geçirilen Veriler",
+    "accounts": "Hesap Sayısı",
+    "data": "İfşa Olan Veriler",
     "status": "Durum",
     "actions": "",
     "new": "Yeni",
     "reviewed": "İncelendi",
     "sensitive": "Hassas İhlal",
-    "verified": "Doğrulandı",
-    "unverified": "Doğrulanmadı"
+    "verified": "Doğrulanmış",
+    "unverified": "Doğrulanmamış"
   },
+
   "filter": {
     "allEmails": "Tüm e-postalar"
   },
+
   "actions": {
     "acknowledge": "İncelendi olarak işaretle",
-    "acknowledgeTooltip": "Bu ihlali görüldü olarak işaretleyin; böylece artık yeni olarak görünmez veya bildirim tetiklemez",
+    "acknowledgeTooltip": "Artık yeni olarak görünmemesi veya bildirim tetiklememesi için bu ihlali görüldü olarak işaretleyin",
     "acknowledgeAll": "Tümünü incelendi olarak işaretle",
     "acknowledgeAllTooltip": "İncelenmemiş tüm ihlalleri görüldü olarak işaretleyin"
   },
+
   "refetchButton": "Yenile"
 }

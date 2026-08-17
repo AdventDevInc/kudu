@@ -1,7 +1,7 @@
 {
   "trayTooltip": "Kudu",
   "openKudu": "Kudu'yu Aç",
-  "quit": "Çık",
+  "quit": "Çıkış",
   "scheduledTaskNotificationTitle": "Kudu - Zamanlanmış Görev",
   "scheduledTaskNotificationBody": "\"{{name}}\" çalıştırılıyor...",
   "scanCompleteNotificationTitle": "Kudu - Tarama Tamamlandı",
