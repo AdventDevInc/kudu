@@ -233,6 +233,19 @@ export function CleanerPage() {
           .map((item) => item.id)
         if (catItemIds.length > 0) {
           cleanIndexRef.current = activeIndex
+          // Some cleaners (notably the Windows Recycle Bin) perform one
+          // blocking platform operation and therefore have no per-file
+          // callbacks. Announce the category before invoking it so the UI
+          // never leaves the previous cleaner's path and 100% progress on
+          // screen while the next category is still working.
+          store.setProgress({
+            phase: 'cleaning',
+            category: cat.type,
+            currentPath: t(cat.labelKey),
+            progress: (activeIndex / cleanTotalRef.current) * 100,
+            itemsFound: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
+            sizeFound: totalCleaned
+          })
           try {
             const cleanFn = cleanFns[cat.type]
             if (!cleanFn) continue

@@ -26,7 +26,7 @@ describe('parseRecycleBinStats', () => {
 describe('queryRecycleBinStats', () => {
   beforeEach(() => execTracked.mockReset())
 
-  it('reads only recycle-bin metadata with a bounded execution time', async () => {
+  it('reads recycle-bin entries without recursively walking payloads', async () => {
     execTracked.mockResolvedValue({ stdout: '42|1048576\r\n', stderr: '' })
 
     await expect(queryRecycleBinStats()).resolves.toEqual({ count: 42, size: 1048576 })
@@ -36,6 +36,10 @@ describe('queryRecycleBinStats', () => {
     expect(file).toBe('powershell.exe')
     expect(args.join(' ')).toContain('Directory.EnumerateFiles')
     expect(args.join(' ')).toContain('$I*')
+    expect(args.join(' ')).toContain('Directory.Exists(payload)')
+    expect(args.join(' ')).toContain('Directory.EnumerateFileSystemEntries')
+    expect(args.join(' ')).toContain('$R*')
+    expect(args.join(' ')).not.toContain('SearchOption.AllDirectories')
     expect(args.join(' ')).not.toContain('Measure-Object')
     expect(options).toMatchObject({ windowsHide: true, timeout: 15_000 })
   })

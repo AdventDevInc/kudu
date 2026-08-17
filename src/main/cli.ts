@@ -364,10 +364,7 @@ async function scanDatabaseCli(): Promise<ScanResult[]> {
 async function cleanRecycleBin(sizeBytes: number = 0, countBefore: number = 0): Promise<CleanResult> {
   // On macOS/Linux, trash items are real files cleaned via cleanItems() in the main flow.
   // This function is only called for Windows COM-based recycle bin.
-  const { execFile } = await import('child_process')
-  const { promisify } = await import('util')
-  const execFileAsync = promisify(execFile)
-  // This path empties the bin through PowerShell rather than cleanItems, so it
+  // This path bypasses cleanItems, so it
   // has to do its own deletion logging — same gap as the IPC handler, different
   // implementation. Contents must be read before they're gone.
   const { isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin } =
@@ -375,13 +372,21 @@ async function cleanRecycleBin(sizeBytes: number = 0, countBefore: number = 0): 
   const logDeletions = isDeletionLoggingEnabled()
   const binContents = logDeletions ? await listRecycleBinContents() : []
   try {
-    const cleanScript = `Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class RecycleBin { [DllImport("Shell32.dll", CharSet = CharSet.Unicode)] public static extern uint SHEmptyRecycleBin(IntPtr hwnd, string pszRootPath, uint dwFlags); }'; $result = [RecycleBin]::SHEmptyRecycleBin([IntPtr]::Zero, $null, 7); Write-Output $result`
-    const { stdout: emptyStdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', psUtf8(cleanScript)
-    ], { windowsHide: true })
-    const resultCode = parseInt(emptyStdout.trim()) || 0
+    const { emptyRecycleBinFast, finalizeRecycleBinShell } = await import('./services/recycle-bin-cleaner')
+    let resultCode = 0
+    let accessDenied = false
+    try {
+      const fastResult = await emptyRecycleBinFast()
+      accessDenied = fastResult.accessDenied
+    } catch {
+      resultCode = await finalizeRecycleBinShell(60_000)
+    }
 
     const { count: remaining, size: remainingSize } = await queryRecycleBinStats()
+
+    if (remaining === 0) {
+      try { await finalizeRecycleBinShell() } catch { /* shell refresh is best-effort */ }
+    }
 
     if (logDeletions) await recordEmptiedRecycleBin(binContents, 'cli')
     return {
@@ -391,7 +396,7 @@ async function cleanRecycleBin(sizeBytes: number = 0, countBefore: number = 0): 
       errors: remaining > 0
         ? [{ path: 'Recycle Bin', reason: `${remaining} item(s) could not be removed (may be in use or protected)` }]
         : [],
-      needsElevation: remaining > 0 && resultCode === 0x80070005,
+      needsElevation: remaining > 0 && (accessDenied || resultCode === 0x80070005),
     }
   } catch (err: any) {
     return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [{ path: 'Recycle Bin', reason: err.message }], needsElevation: false }

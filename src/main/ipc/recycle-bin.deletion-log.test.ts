@@ -15,6 +15,8 @@ const state = vi.hoisted(() => ({
   /** stdout for the post-empty count check */
   statsOutputs: [] as string[],
   emptyThrows: false,
+  fastThrows: false,
+  finalizeTimeouts: [] as number[],
   psScripts: [] as string[],
   recorded: [] as any[],
 }))
@@ -45,6 +47,24 @@ vi.mock('../services/file-utils', () => ({
 }))
 
 vi.mock('../services/scan-cache', () => ({ cacheItems: vi.fn(), clearCachedCategory: vi.fn() }))
+
+vi.mock('../services/recycle-bin-cleaner', () => ({
+  emptyRecycleBinFast: async () => {
+    if (state.fastThrows) throw new Error('fast clean unavailable')
+    return {
+      payloadsFound: 2,
+      payloadsDeleted: 2,
+      payloadsFailed: 0,
+      orphanMetadataDeleted: 0,
+      accessDenied: false,
+    }
+  },
+  finalizeRecycleBinShell: async (timeout = 10_000) => {
+    state.finalizeTimeouts.push(timeout)
+    if (state.emptyThrows) throw new Error('access denied')
+    return 0
+  },
+}))
 
 vi.mock('../services/exec-utf8', () => ({
   psUtf8: (s: string) => s,
@@ -87,6 +107,8 @@ describe('recycle bin deletion logging (Windows)', () => {
     state.enumerations = []
     state.statsOutputs = ['2|4216', '0|0']
     state.emptyThrows = false
+    state.fastThrows = false
+    state.finalizeTimeouts = []
     state.psScripts = []
     state.recorded = []
     registerRecycleBinIpc()
@@ -98,6 +120,7 @@ describe('recycle bin deletion logging (Windows)', () => {
     expect(result.errors).toEqual([])
     expect(state.recorded).toHaveLength(0)
     expect(state.psScripts.some((s) => s.includes('ConvertTo-Json'))).toBe(false)
+    expect(state.finalizeTimeouts).toEqual([10_000])
   })
 
   it('records each emptied item by its original location', async () => {
@@ -164,6 +187,7 @@ describe('recycle bin deletion logging (Windows)', () => {
   it('records nothing when the empty itself fails', async () => {
     state.keepDeletionLog = true
     state.enumerations = [binItems([{ name: 'notes.txt', origin: 'C:\\a' }])]
+    state.fastThrows = true
     state.emptyThrows = true
 
     const result = await scanThenClean()
@@ -171,5 +195,6 @@ describe('recycle bin deletion logging (Windows)', () => {
     expect(result.filesDeleted).toBe(0)
     expect(result.errors).toHaveLength(1)
     expect(state.recorded).toHaveLength(0)
+    expect(state.finalizeTimeouts).toEqual([60_000])
   })
 })
