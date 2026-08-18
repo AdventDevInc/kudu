@@ -12,7 +12,7 @@
   "justNow": "Az önce",
   "minutesAgo": "{{minutes}} dk önce",
   "hoursAgo": "{{hours}} sa önce",
-  "daysAgo": "{{days}} g önce",
+  "daysAgo": "{{days}} gün önce",
   "zeroBytes": "0 B",
   "zeroSpeed": "0 B/s"
 }

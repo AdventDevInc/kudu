@@ -5,15 +5,15 @@
   "refetchButton": "Yenile",
   "cloudNotConfigured": {
     "title": "Cloud Agent Gerekli",
-    "description": "CVE taraması için Cloud Agent'ın bağlanmış olması gerekir. Cihazınızı bağlamak için Ayarlar → Cloud bölümüne gidin."
+    "description": "CVE taraması için Cloud Agent'ın bağlı olması gerekir. Cihazınızı bağlamak için Ayarlar → Bulut bölümüne gidin."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent Bağlı Değil",
-    "description": "Cloud Agent şu anda bağlı değil. Bağlantınızı Ayarlar → Cloud bölümünden kontrol edin."
+    "description": "Cloud Agent şu anda bağlı değil. Bağlantınızı Ayarlar → Bulut bölümünden kontrol edin."
   },
   "emptyState": {
     "title": "Güvenlik Açığı Tespit Edilmedi",
-    "description": "Yüklü yazılımlarınızda bilinen bir CVE bulunamadı. Sisteminiz güvenli görünüyor!"
+    "description": "Yüklü yazılımlarınızda bilinen bir CVE bulunamadı. Sisteminiz güvende görünüyor!"
   },
   "severity": {
     "critical": "Kritik",
@@ -36,12 +36,12 @@
   },
   "error": {
     "title": "Güvenlik Açıkları Yüklenemedi",
-    "description": "Sunucudan güvenlik açığı verileri alınamadı. Yenilemeyi deneyin veya cloud bağlantınızı kontrol edin."
+    "description": "Sunucudan güvenlik açığı verileri alınamadı. Yenilemeyi deneyin veya bulut bağlantınızı kontrol edin."
   },
   "card": {
     "installed": "Yüklü: {{version}}",
     "fixAvailable": "Düzeltme: {{version}}",
-    "noFix": "Düzeltme yok",
+    "noFix": "Düzeltme sürümü yok",
     "cvss": "CVSS {{score}}",
     "firstDetected": "İlk tespit: {{date}}",
     "lastScanned": "Son tarama: {{date}}",

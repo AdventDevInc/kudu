@@ -1,12 +1,12 @@
 {
   "pageTitle": "Tarama Geçmişi",
-  "pageDescription": "Geçmiş tarama ve temizleme işlemlerinin ayrıntılı sonuçlarını görüntüleyin",
+  "pageDescription": "Geçmiş taramaların ve temizliklerin ayrıntılı sonuçlarını görüntüleyin",
   "viewOverview": "Genel Bakış",
   "viewTimeline": "Zaman Çizelgesi",
   "viewCloud": "Bulut",
   "clearButton": "Temizle",
-  "emptyStateTitle": "Henüz geçmiş yok",
-  "emptyStateDescription": "Cleaner, Registry veya Debloater sayfalarından bir tarama çalıştırın. Sonuçlar burada görünecektir.",
+  "emptyStateTitle": "Henüz geçmiş kaydı yok",
+  "emptyStateDescription": "Temizleyici, Kayıt Defteri veya Sistem Sadeleştirici sayfalarından bir tarama çalıştırın. Sonuçlar burada görünecektir.",
   "confirmClearCloudTitle": "Bulut Geçmişini Temizle",
   "confirmClearScanTitle": "Tarama Geçmişini Temizle",
   "confirmClearCloudDescription": "Bu işlem tüm bulut eylem geçmişi kayıtlarını kalıcı olarak silecektir. Bu işlem geri alınamaz.",
@@ -14,8 +14,8 @@
   "confirmClearLabel": "Tümünü Temizle",
   "typeLabels": {
     "cleaner": "Sistem Temizliği",
-    "registry": "Kayıt Defteri Düzeltmesi",
-    "debloater": "Debloater",
+    "registry": "Kayıt Defteri Onarımı",
+    "debloater": "Gereksiz Uygulama Temizliği",
     "network": "Ağ Temizliği",
     "drivers": "Sürücü Temizliği",
     "malware": "Kötü Amaçlı Yazılım Taraması",
@@ -23,30 +23,30 @@
     "startup": "Başlangıç Yöneticisi",
     "services": "Hizmet Yöneticisi",
     "softwareUpdate": "Yazılım Güncellemesi",
-    "cveScan": "CVE Taraması"
+    "cveScan": "Güvenlik Açığı Taraması"
   },
   "overview": {
     "totalScans": "Toplam Tarama",
-    "spaceRecovered": "Kurtarılan Alan",
+    "spaceRecovered": "Kazanılan Alan",
     "itemsProcessed": "İşlenen Öğe",
-    "avgDuration": "Ort. Süre",
-    "spaceRecoveredOverTime": "Zaman İçinde Kurtarılan Alan",
-    "needTwoScansForChart": "Eğilim grafiği için en az 2 tarama gerekir",
+    "avgDuration": "Ortalama Süre",
+    "spaceRecoveredOverTime": "Zaman İçinde Kazanılan Alan",
+    "needTwoScansForChart": "Eğilim grafiği için en az 2 tarama gereklidir",
     "scanTypeDistribution": "Tarama Türü Dağılımı",
     "noData": "Veri yok",
-    "topCategoriesBySpace": "Alana Göre En Büyük Kategoriler",
+    "topCategoriesBySpace": "Alana Göre En Çok Kazandıran Kategoriler",
     "noCategoryData": "Kategori verisi yok",
     "weeklyActivity": "Haftalık Etkinlik",
-    "needTwoWeeksData": "En az 2 haftalık veri gerekir",
+    "needTwoWeeksData": "En az 2 haftalık veri gereklidir",
     "recentScans": "Son Taramalar",
     "tooltipSpace": "Alan",
-    "tooltipScans": "Taramalar"
+    "tooltipScans": "Tarama"
   },
   "timeline": {
     "filterAll": "Tümü",
-    "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
-    "filterDebloater": "Debloater",
+    "filterCleaner": "Temizleyici",
+    "filterRegistry": "Kayıt Defteri",
+    "filterDebloater": "Sadeleştirici",
     "filterNetwork": "Ağ",
     "filterDrivers": "Sürücüler",
     "filterMalware": "Kötü Amaçlı Yazılım",
@@ -66,7 +66,7 @@
     "dateAt": "saat"
   },
   "detail": {
-    "scheduledBadge": "Zamanlandı",
+    "scheduledBadge": "Zamanlanmış",
     "statFound": "Bulundu",
     "statProcessed": "İşlendi",
     "statSkipped": "Atlandı",
@@ -82,12 +82,12 @@
       "loadMore": "Daha fazla yükle",
       "exportCsv": "CSV olarak dışa aktar",
       "openLog": "Günlüğü aç",
-      "exported": "{{count}} yol dışa aktarıldı",
+      "exported": "{{count}} dosya yolu dışa aktarıldı",
       "exportFailed": "Silinen dosya listesi dışa aktarılamadı",
       "truncatedBadge": "+{{count}} daha",
-      "truncatedHint": "Bu klasörde, klasör başına listeleme sınırının ötesinde {{count}} ek kayıt vardı. Bunlar silindi ancak tek tek listelenmedi.",
+      "truncatedHint": "Bu klasörde, klasör başına listeleme sınırının ötesinde {{count}} ek dosya vardı. Bunlar silindi ancak tek tek listelenmedi.",
       "emptyRecorded": "Bu çalıştırma için hiçbir dosya yolu kaydedilmedi.",
-      "disabledHint": "Silme günlüğü kapalı olduğundan, bu çalıştırmadaki tek tek yollar kaydedilmedi. Bunları bundan sonra kaydetmek için Ayarlar → Temizleme Tercihleri bölümünde \"Silinen dosyaların günlüğünü tut\" seçeneğini açın."
+      "disabledHint": "Silme günlüğü kapalı olduğundan, bu çalıştırmadaki tek tek dosya yolları kaydedilmedi. Bunları bundan sonra kaydetmek için Ayarlar → Temizleme Tercihleri bölümünde \"Silinen dosyaların günlüğünü tut\" seçeneğini açabilirsiniz."
     }
   },
   "cloud": {
@@ -114,17 +114,17 @@
   },
   "cloudCommandLabels": {
     "scan": "Tarama",
-    "clean": "Temizle",
+    "clean": "Temizleme",
     "softwareUpdateCheck": "Güncelleme Denetimi",
     "softwareUpdateRun": "Yazılım Güncellemesi",
-    "getStatus": "Durum",
+    "getStatus": "Durum Bilgisi",
     "getSystemInfo": "Sistem Bilgisi",
     "getHealthReport": "Sağlık Raporu",
     "ping": "Ping",
     "shutdown": "Kapat",
     "restart": "Yeniden Başlat",
     "windowsUpdateCheck": "Windows Update Denetimi",
-    "windowsUpdateInstall": "Windows Update",
+    "windowsUpdateInstall": "Windows Update Yükleme",
     "runSfc": "SFC Taraması",
     "runDism": "DISM Onarımı",
     "getNetworkConfig": "Ağ Yapılandırması",
@@ -134,22 +134,22 @@
     "driverUpdateInstall": "Sürücü Yükleme",
     "driverClean": "Sürücü Temizliği",
     "startupList": "Başlangıç Listesi",
-    "startupToggle": "Başlangıç Geçişi",
+    "startupToggle": "Başlangıç Durumu Değiştirme",
     "diskHealth": "Disk Sağlığı",
     "privacyScan": "Gizlilik Taraması",
-    "privacyApply": "Gizlilik Uygula",
-    "debloaterScan": "Debloater Taraması",
-    "debloaterRemove": "Debloater Kaldır",
+    "privacyApply": "Gizlilik Ayarı Uygulama",
+    "debloaterScan": "Gereksiz Uygulama Taraması",
+    "debloaterRemove": "Gereksiz Uygulama Kaldırma",
     "serviceScan": "Hizmet Taraması",
-    "serviceApply": "Hizmet Uygula",
-    "malwareQuarantine": "Karantina",
-    "malwareDelete": "Kötü Amaçlı Yazılımı Sil",
+    "serviceApply": "Hizmet Ayarı Uygulama",
+    "malwareQuarantine": "Karantinaya Alma",
+    "malwareDelete": "Kötü Amaçlı Yazılım Silme",
     "registryScan": "Kayıt Defteri Taraması",
-    "registryFix": "Kayıt Defteri Düzeltmesi"
+    "registryFix": "Kayıt Defteri Onarımı"
   },
   "duration": {
-    "lessThanOneSecond": "<1sn",
-    "seconds": "{{count}}sn",
-    "minutesAndSeconds": "{{minutes}}dk {{seconds}}sn"
+    "lessThanOneSecond": "< 1 sn",
+    "seconds": "{{count}} sn",
+    "minutesAndSeconds": "{{minutes}} dk {{seconds}} sn"
   }
 }
