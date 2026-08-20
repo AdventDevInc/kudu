@@ -1,3 +1,14 @@
+# [2.2.0](https://github.com/adventdevinc/kudu/compare/v2.1.0...v2.2.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **disk:** measure complete folder sizes ([#324](https://github.com/adventdevinc/kudu/issues/324)) ([868cecc](https://github.com/adventdevinc/kudu/commit/868cecc0aa9e8a790c16dc31454536722fe2de5e))
+
+
+### Features
+
+* **cleaner:** add AI tools category ([#326](https://github.com/adventdevinc/kudu/issues/326)) ([88d997a](https://github.com/adventdevinc/kudu/commit/88d997a29c728cd06e526541bec28e8eef1b16fa))
 # [2.1.0](https://github.com/adventdevinc/kudu/compare/v2.0.1...v2.1.0) (2026-08-17)
 
 
