@@ -1,14 +1,27 @@
 {
   "pageTitle": "Monitor de amenazas",
   "pageDescription": "Supervisión en tiempo real de las conexiones de red frente a listas de amenazas conocidas.",
+  "checkingConnection": "Comprobando la conexión con Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud no configurado",
-    "description": "Vincule su dispositivo a Kudu Cloud en Configuración para habilitar la supervisión de amenazas. La lista negra de amenazas la proporciona el servicio en la nube."
+    "title": "Se requiere Kudu Cloud Pro",
+    "description": "Conecte este dispositivo a Kudu Cloud Pro para recibir la lista negra de amenazas actual y supervisar la actividad de red sospechosa.",
+    "action": "Ver Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "La conexión con Cloud requiere atención",
+    "description": "Este dispositivo tiene una clave de Cloud guardada, pero ya no está autorizada. Revise la conexión y vuelva a vincularla.",
+    "action": "Revisar conexión con Cloud"
+  },
+  "planRequired": {
+    "title": "Se requiere Kudu Cloud Pro",
+    "description": "La supervisión de amenazas es una función Pro. Actualice su plan de Cloud para recibir la lista negra de amenazas en vivo en este dispositivo.",
+    "action": "Ver planes de Cloud"
   },
   "loading": "Cargando...",
   "inactive": {
     "title": "Monitor de amenazas inactivo",
-    "description": "No hay ninguna lista negra de amenazas cargada. La lista negra se obtendrá automáticamente cuando se conecte el agente de la nube."
+    "description": "Cloud está conectado, pero todavía no hay ninguna lista negra de amenazas disponible. Compruebe su plan Pro o inténtelo de nuevo después de que el agente de Cloud se vuelva a conectar.",
+    "action": "Revisar plan de Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Lista negra",
@@ -19,10 +32,10 @@
     "noThreatsDetected": "No se detectaron amenazas"
   },
   "allClear": {
-    "title": "Todo en orden",
-    "description": "No se han detectado conexiones sospechosas ni entradas DNS. El monitor continúa analizando en segundo plano."
+    "title": "Sin amenazas",
+    "description": "No se han detectado conexiones sospechosas ni entradas de DNS. El monitor continúa analizando en segundo plano."
   },
   "flaggedConnections": "Conexiones marcadas",
-  "flaggedDnsEntries": "Entradas DNS marcadas",
+  "flaggedDnsEntries": "Entradas de DNS marcadas",
   "connectionPid": "PID {{pid}}"
 }

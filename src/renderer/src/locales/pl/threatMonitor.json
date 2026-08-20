@@ -1,18 +1,31 @@
 {
   "pageTitle": "Monitor zagrożeń",
   "pageDescription": "Monitorowanie połączeń sieciowych w czasie rzeczywistym względem znanych list zagrożeń.",
+  "checkingConnection": "Sprawdzanie połączenia z Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Chmura nie jest skonfigurowana",
-    "description": "Połącz urządzenie z Kudu Cloud w Ustawieniach, aby włączyć monitorowanie zagrożeń. Czarna lista zagrożeń jest dostarczana przez usługę chmurową."
+    "title": "Wymagany Kudu Cloud Pro",
+    "description": "Połącz to urządzenie z Kudu Cloud Pro, aby otrzymywać aktualną czarną listę zagrożeń i monitorować podejrzaną aktywność sieciową.",
+    "action": "Wyświetl Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Połączenie z Cloud wymaga uwagi",
+    "description": "To urządzenie ma zapisany klucz Cloud, ale nie jest on już autoryzowany. Sprawdź połączenie i połącz je ponownie.",
+    "action": "Sprawdź połączenie z Cloud"
+  },
+  "planRequired": {
+    "title": "Wymagany Kudu Cloud Pro",
+    "description": "Monitorowanie zagrożeń jest funkcją Pro. Uaktualnij plan Cloud, aby otrzymywać na tym urządzeniu czarną listę zagrożeń na żywo.",
+    "action": "Wyświetl plany Cloud"
   },
   "loading": "Ładowanie...",
   "inactive": {
     "title": "Monitor zagrożeń jest nieaktywny",
-    "description": "Nie załadowano żadnej czarnej listy zagrożeń. Czarna lista zostanie pobrana automatycznie po połączeniu agenta chmurowego."
+    "description": "Cloud jest połączony, ale czarna lista zagrożeń nie jest jeszcze dostępna. Sprawdź plan Pro lub spróbuj ponownie po ponownym połączeniu agenta Cloud.",
+    "action": "Sprawdź plan Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Czarna lista",
-    "connectionsScanned": "Połączenia przeskanowane {{time}}",
+    "connectionsScanned": "Połączenia przeskanowano {{time}}",
     "dnsScanned": "DNS przeskanowano {{time}}",
     "threatsDetected": "Wykryto {{count}} zagrożenie",
     "threatsDetectedPlural": "Wykryto {{count}} zagrożenia",
@@ -20,7 +33,7 @@
   },
   "allClear": {
     "title": "Brak zagrożeń",
-    "description": "Nie wykryto żadnych podejrzanych połączeń ani wpisów DNS. Monitor nadal skanuje w tle."
+    "description": "Nie wykryto podejrzanych połączeń ani wpisów DNS. Monitor nadal skanuje w tle."
   },
   "flaggedConnections": "Oznaczone połączenia",
   "flaggedDnsEntries": "Oznaczone wpisy DNS",

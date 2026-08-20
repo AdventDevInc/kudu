@@ -2,14 +2,25 @@
   "pageTitle": "Vulnerabilități",
   "pageDescription": "Vizualizați vulnerabilitățile cunoscute detectate în software-ul instalat",
   "loading": "Se încarcă vulnerabilitățile...",
-  "refetchButton": "Reîmprospătează",
+  "refetchButton": "Reîmprospătare",
   "cloudNotConfigured": {
     "title": "Cloud Agent necesar",
-    "description": "Scanarea CVE necesită ca Cloud Agent să fie asociat. Accesați Setări → Cloud pentru a vă conecta dispozitivul."
+    "description": "Scanarea CVE necesită Kudu Cloud Pro. Conectați acest dispozitiv pentru a verifica software-ul instalat în raport cu buletinele de securitate curente.",
+    "action": "Vedeți Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent nu este conectat",
     "description": "Cloud Agent nu este conectat în prezent. Verificați conexiunea în Setări → Cloud."
+  },
+  "connectionError": {
+    "title": "Conexiunea Cloud necesită atenție",
+    "description": "Acest dispozitiv are o cheie Cloud salvată, dar nu mai este autorizată. Verificați conexiunea și asociați-l din nou.",
+    "action": "Verificați conexiunea Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro necesar",
+    "description": "Monitorizarea vulnerabilităților este o funcție Pro. Actualizați-vă planul Cloud pentru a scana software-ul instalat în raport cu baza de date CVE actualizată în timp real.",
+    "action": "Vedeți planurile Cloud"
   },
   "emptyState": {
     "title": "Nu au fost detectate vulnerabilități",
@@ -24,10 +35,10 @@
   },
   "summary": {
     "total": "Total",
-    "critical": "Critice",
-    "high": "Ridicate",
-    "medium": "Medii",
-    "low": "Scăzute"
+    "critical": "Critică",
+    "high": "Ridicată",
+    "medium": "Medie",
+    "low": "Scăzută"
   },
   "filter": {
     "all": "Toate",

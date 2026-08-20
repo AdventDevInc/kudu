@@ -1,18 +1,29 @@
 {
   "pageTitle": "Sårbarheder",
-  "pageDescription": "Se kendte sårbarheder, der er registreret i din installerede software",
+  "pageDescription": "Se kendte sårbarheder fundet i din installerede software",
   "loading": "Indlæser sårbarheder...",
   "refetchButton": "Opdater",
   "cloudNotConfigured": {
     "title": "Cloud Agent påkrævet",
-    "description": "CVE-scanning kræver, at Cloud Agent er tilknyttet. Gå til Indstillinger → Cloud for at forbinde din enhed."
+    "description": "CVE-scanning kræver Kudu Cloud Pro. Tilslut denne enhed for at kontrollere installeret software mod aktuelle sikkerhedsadvarsler.",
+    "action": "Se Kudu Cloud"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent er ikke forbundet",
-    "description": "Cloud Agent er ikke forbundet i øjeblikket. Kontrollér din forbindelse under Indstillinger → Cloud."
+    "title": "Cloud Agent er ikke tilsluttet",
+    "description": "Cloud Agent er ikke tilsluttet i øjeblikket. Kontrollér forbindelsen under Indstillinger → Cloud."
+  },
+  "connectionError": {
+    "title": "Cloud-forbindelsen kræver opmærksomhed",
+    "description": "Denne enhed har en gemt Cloud-nøgle, men den er ikke længere godkendt. Gennemgå forbindelsen, og tilknyt den igen.",
+    "action": "Gennemgå Cloud-forbindelse"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro påkrævet",
+    "description": "Overvågning af sårbarheder er en Pro-funktion. Opgrader din Cloud-plan for at scanne installeret software mod den live CVE-database.",
+    "action": "Se Cloud-planer"
   },
   "emptyState": {
-    "title": "Ingen sårbarheder registreret",
+    "title": "Ingen sårbarheder fundet",
     "description": "Der blev ikke fundet nogen kendte CVE'er i din installerede software. Dit system ser sikkert ud!"
   },
   "severity": {
@@ -32,20 +43,20 @@
   "filter": {
     "all": "Alle",
     "searchPlaceholder": "Søg efter appnavn eller CVE-id...",
-    "noResults": "Ingen sårbarheder matcher dine nuværende filtre"
+    "noResults": "Ingen sårbarheder matcher dine aktuelle filtre"
   },
   "error": {
     "title": "Kunne ikke indlæse sårbarheder",
-    "description": "Kunne ikke hente sårbarhedsdata fra serveren. Prøv at opdatere, eller kontrollér din cloudforbindelse."
+    "description": "Kunne ikke hente sårbarhedsdata fra serveren. Prøv at opdatere, eller kontrollér din Cloud-forbindelse."
   },
   "card": {
     "installed": "Installeret: {{version}}",
     "fixAvailable": "Rettelse: {{version}}",
     "noFix": "Ingen rettelse tilgængelig",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "Først registreret: {{date}}",
-    "lastScanned": "Senest scannet: {{date}}",
-    "viewDetails": "Vis CVE-detaljer",
+    "firstDetected": "Først fundet: {{date}}",
+    "lastScanned": "Sidst scannet: {{date}}",
+    "viewDetails": "Se CVE-detaljer",
     "checkForUpdates": "Søg efter opdateringer"
   },
   "pagination": {
@@ -55,6 +66,6 @@
   },
   "toast": {
     "fetchFailed": "Kunne ikke indlæse sårbarhedsdata",
-    "fetchFailedNotConnected": "Cloud Agent er ikke forbundet"
+    "fetchFailedNotConnected": "Cloud Agent er ikke tilsluttet"
   }
 }

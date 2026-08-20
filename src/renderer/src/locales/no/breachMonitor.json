@@ -1,7 +1,17 @@
 {
-  "pageTitle": "Bruddsovervåking",
+  "pageTitle": "Bruddmonitor",
   "pageDescription": "Sjekk om e-postadressene dine har blitt eksponert i kjente datainnbrudd",
   "loading": "Laster inn data om datainnbrudd...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud kreves",
+    "description": "Koble til denne enheten for å sjekke e-postadresser mot kjent informasjon om datainnbrudd og spore nylig rapportert eksponering.",
+    "action": "Vis Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud-tilkoblingen trenger oppmerksomhet",
+    "description": "Denne enheten har en lagret Cloud-nøkkel, men den er ikke lenger autorisert. Kontroller tilkoblingen og koble den til på nytt.",
+    "action": "Kontroller Cloud-tilkobling"
+  },
   "summary": {
     "totalBreaches": "Totalt antall datainnbrudd",
     "unacknowledged": "Nye",
@@ -19,36 +29,36 @@
     "removeFailed": "Kunne ikke fjerne e-postadresse",
     "invalidEmail": "Skriv inn en gyldig e-postadresse",
     "limitReached": "Grensen for e-postadresser i abonnementet ditt er nådd",
-    "acknowledged": "Datainnbrudd er markert som gjennomgått",
-    "acknowledgeFailed": "Kunne ikke bekrefte datainnbrudd"
+    "acknowledged": "Datainnbrudd er merket som gjennomgått",
+    "acknowledgeFailed": "Kunne ikke markere datainnbrudd som gjennomgått"
   },
   "emptyState": {
     "noEmails": "Ingen e-postadresser overvåkes",
     "noEmailsDesc": "Legg til en e-postadresse for å sjekke tidligere datainnbrudd og overvåke kontinuerlig for nye lekkasjer.",
-    "allClear": "Alt er i orden",
-    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i kjente datainnbrudd.",
+    "allClear": "Alt ser bra ut",
+    "allClearDesc": "Ingen av de overvåkede e-postadressene dine er funnet i noen kjente datainnbrudd.",
     "upgradeRequired": "Oppgradering kreves",
-    "upgradeRequiredDesc": "Bruddsovervåking er tilgjengelig med Basic-abonnementet og høyere. Oppgrader abonnementet ditt for å starte overvåking.",
+    "upgradeRequiredDesc": "Overvåking av datainnbrudd er tilgjengelig med Basic-abonnementet og høyere. Oppgrader abonnementet ditt for å starte overvåking.",
     "goToCloud": "Vis abonnementer",
     "noBreachesForEmail": "Ingen datainnbrudd funnet for denne e-postadressen",
     "selectEmail": "Velg en e-postadresse fra listen for å vise detaljer om datainnbrudd"
   },
   "error": {
     "title": "Kunne ikke laste inn data om datainnbrudd",
-    "description": "Kontroller Cloud-tilkoblingen og prøv igjen."
+    "description": "Kontroller cloud-tilkoblingen og prøv igjen."
   },
   "emailList": {
     "breaches": "{{count}} datainnbrudd",
     "breaches_other": "{{count}} datainnbrudd",
     "newBreaches": "{{count}} nye",
     "noBreaches": "Ingen datainnbrudd",
-    "checking": "Kontrollerer...",
+    "checking": "Sjekker...",
     "paused": "Satt på pause",
     "remove": "Fjern e-postadresse",
-    "lastChecked": "Kontrollert {{date}}"
+    "lastChecked": "Sjekket {{date}}"
   },
   "table": {
-    "email": "E-postadresse",
+    "email": "E-post",
     "breach": "Datainnbrudd",
     "date": "Dato",
     "accounts": "Kontoer",
@@ -58,17 +68,17 @@
     "new": "Ny",
     "reviewed": "Gjennomgått",
     "sensitive": "Sensitivt datainnbrudd",
-    "verified": "Bekreftet",
-    "unverified": "Ubekreftet"
+    "verified": "Verifisert",
+    "unverified": "Ikke verifisert"
   },
   "filter": {
     "allEmails": "Alle e-postadresser"
   },
   "actions": {
-    "acknowledge": "Marker som gjennomgått",
-    "acknowledgeTooltip": "Marker dette datainnbruddet som sett, slik at det ikke lenger vises som nytt eller utløser varsler",
-    "acknowledgeAll": "Marker alle som gjennomgått",
-    "acknowledgeAllTooltip": "Marker alle ugjennomgåtte datainnbrudd som sett"
+    "acknowledge": "Merk som gjennomgått",
+    "acknowledgeTooltip": "Merk dette datainnbruddet som sett, slik at det ikke lenger vises som nytt eller utløser varsler",
+    "acknowledgeAll": "Merk alle som gjennomgått",
+    "acknowledgeAllTooltip": "Merk alle ikke-gjennomgåtte datainnbrudd som sett"
   },
   "refetchButton": "Oppdater"
 }

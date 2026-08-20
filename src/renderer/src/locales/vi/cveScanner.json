@@ -5,11 +5,22 @@
   "refetchButton": "Làm mới",
   "cloudNotConfigured": {
     "title": "Yêu cầu Cloud Agent",
-    "description": "Quét CVE yêu cầu Cloud Agent phải được liên kết. Đi tới Cài đặt → Cloud để kết nối thiết bị của bạn."
+    "description": "Quét CVE yêu cầu Kudu Cloud Pro. Kết nối thiết bị này để kiểm tra phần mềm đã cài đặt với các cảnh báo bảo mật hiện tại.",
+    "action": "Xem Kudu Cloud"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent chưa kết nối",
-    "description": "Cloud Agent hiện chưa được kết nối. Hãy kiểm tra kết nối của bạn trong Cài đặt → Cloud."
+    "title": "Cloud Agent chưa được kết nối",
+    "description": "Cloud Agent hiện chưa được kết nối. Kiểm tra kết nối của bạn trong Cài đặt → Cloud."
+  },
+  "connectionError": {
+    "title": "Kết nối Cloud cần được chú ý",
+    "description": "Thiết bị này có khóa Cloud đã lưu, nhưng không còn được ủy quyền. Hãy kiểm tra kết nối và liên kết lại.",
+    "action": "Kiểm tra kết nối Cloud"
+  },
+  "planRequired": {
+    "title": "Yêu cầu Kudu Cloud Pro",
+    "description": "Giám sát lỗ hổng bảo mật là tính năng Pro. Nâng cấp gói Cloud của bạn để quét phần mềm đã cài đặt với cơ sở dữ liệu CVE trực tiếp.",
+    "action": "Xem các gói Cloud"
   },
   "emptyState": {
     "title": "Không phát hiện lỗ hổng bảo mật",
@@ -41,7 +52,7 @@
   "card": {
     "installed": "Đã cài đặt: {{version}}",
     "fixAvailable": "Bản vá: {{version}}",
-    "noFix": "Không có bản vá",
+    "noFix": "Chưa có bản vá",
     "cvss": "CVSS {{score}}",
     "firstDetected": "Phát hiện lần đầu: {{date}}",
     "lastScanned": "Quét lần cuối: {{date}}",

@@ -1,12 +1,22 @@
 {
-  "pageTitle": "Giám sát vi phạm dữ liệu",
-  "pageDescription": "Kiểm tra xem địa chỉ email của bạn có bị lộ trong các vụ vi phạm dữ liệu đã biết hay không",
-  "loading": "Đang tải dữ liệu vi phạm...",
+  "pageTitle": "Giám sát rò rỉ dữ liệu",
+  "pageDescription": "Kiểm tra xem địa chỉ email của bạn có bị lộ trong các vụ rò rỉ dữ liệu đã biết hay không",
+  "loading": "Đang tải dữ liệu rò rỉ...",
+  "cloudNotConfigured": {
+    "title": "Yêu cầu Kudu Cloud",
+    "description": "Kết nối thiết bị này để kiểm tra địa chỉ email với dữ liệu tình báo về các vụ rò rỉ đã biết và theo dõi các trường hợp lộ lọt mới được báo cáo.",
+    "action": "Xem Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Kết nối Cloud cần được kiểm tra",
+    "description": "Thiết bị này có khóa Cloud đã lưu, nhưng khóa này không còn được ủy quyền. Hãy kiểm tra kết nối và liên kết lại.",
+    "action": "Kiểm tra kết nối Cloud"
+  },
   "summary": {
-    "totalBreaches": "Tổng số vụ vi phạm",
+    "totalBreaches": "Tổng số vụ rò rỉ",
     "unacknowledged": "Mới",
-    "emailsMonitored": "Email đang được giám sát",
-    "emailsMonitoredTooltip": "Gói Basic: 1 email · Gói Pro: 5 email. Nâng cấp gói của bạn trong phần cài đặt Cloud để giám sát nhiều hơn."
+    "emailsMonitored": "Email đang theo dõi",
+    "emailsMonitoredTooltip": "Gói Basic: 1 email · Gói Pro: 5 email. Nâng cấp gói của bạn trong cài đặt Cloud để theo dõi nhiều hơn."
   },
   "addEmail": {
     "placeholder": "Nhập địa chỉ email",
@@ -14,34 +24,34 @@
     "adding": "Đang thêm..."
   },
   "toast": {
-    "fetchFailed": "Không thể tải dữ liệu vi phạm",
+    "fetchFailed": "Không thể tải dữ liệu rò rỉ",
     "addFailed": "Không thể thêm email",
     "removeFailed": "Không thể xóa email",
     "invalidEmail": "Vui lòng nhập địa chỉ email hợp lệ",
-    "limitReached": "Đã đạt giới hạn email cho gói của bạn",
-    "acknowledged": "Các vụ vi phạm đã được đánh dấu là đã xem xét",
-    "acknowledgeFailed": "Không thể xác nhận các vụ vi phạm"
+    "limitReached": "Đã đạt giới hạn email của gói hiện tại",
+    "acknowledged": "Các vụ rò rỉ đã được đánh dấu là đã xem",
+    "acknowledgeFailed": "Không thể xác nhận các vụ rò rỉ"
   },
   "emptyState": {
-    "noEmails": "Chưa có email nào được giám sát",
-    "noEmailsDesc": "Thêm một địa chỉ email để kiểm tra các vụ vi phạm dữ liệu trước đây và liên tục giám sát các rò rỉ mới.",
-    "allClear": "Không có vấn đề",
-    "allClearDesc": "Không có email nào đang được giám sát của bạn được tìm thấy trong bất kỳ vụ vi phạm dữ liệu đã biết nào.",
+    "noEmails": "Chưa theo dõi email nào",
+    "noEmailsDesc": "Thêm một địa chỉ email để kiểm tra các vụ rò rỉ dữ liệu trước đây và liên tục theo dõi các vụ lộ lọt mới.",
+    "allClear": "Không phát hiện vấn đề",
+    "allClearDesc": "Không có email nào bạn đang theo dõi được tìm thấy trong bất kỳ vụ rò rỉ dữ liệu đã biết nào.",
     "upgradeRequired": "Yêu cầu nâng cấp",
-    "upgradeRequiredDesc": "Tính năng giám sát vi phạm dữ liệu khả dụng trên gói Basic trở lên. Nâng cấp gói của bạn để bắt đầu giám sát.",
+    "upgradeRequiredDesc": "Tính năng giám sát rò rỉ dữ liệu khả dụng từ gói Basic trở lên. Hãy nâng cấp gói của bạn để bắt đầu theo dõi.",
     "goToCloud": "Xem các gói",
-    "noBreachesForEmail": "Không tìm thấy vi phạm nào cho email này",
-    "selectEmail": "Chọn một email từ danh sách để xem chi tiết vi phạm"
+    "noBreachesForEmail": "Không tìm thấy vụ rò rỉ nào cho email này",
+    "selectEmail": "Chọn một email từ danh sách để xem chi tiết vụ rò rỉ"
   },
   "error": {
-    "title": "Không thể tải dữ liệu vi phạm",
-    "description": "Kiểm tra kết nối cloud của bạn và thử lại."
+    "title": "Không thể tải dữ liệu rò rỉ",
+    "description": "Hãy kiểm tra kết nối cloud và thử lại."
   },
   "emailList": {
-    "breaches": "{{count}} vụ vi phạm",
-    "breaches_other": "{{count}} vụ vi phạm",
+    "breaches": "{{count}} vụ rò rỉ",
+    "breaches_other": "{{count}} vụ rò rỉ",
     "newBreaches": "{{count}} mới",
-    "noBreaches": "Không có vi phạm",
+    "noBreaches": "Không có vụ rò rỉ",
     "checking": "Đang kiểm tra...",
     "paused": "Đã tạm dừng",
     "remove": "Xóa email",
@@ -49,15 +59,15 @@
   },
   "table": {
     "email": "Email",
-    "breach": "Vi phạm",
+    "breach": "Vụ rò rỉ",
     "date": "Ngày",
     "accounts": "Tài khoản",
     "data": "Dữ liệu bị xâm phạm",
     "status": "Trạng thái",
     "actions": "",
     "new": "Mới",
-    "reviewed": "Đã xem xét",
-    "sensitive": "Vi phạm nhạy cảm",
+    "reviewed": "Đã xem",
+    "sensitive": "Vụ rò rỉ nhạy cảm",
     "verified": "Đã xác minh",
     "unverified": "Chưa xác minh"
   },
@@ -65,10 +75,10 @@
     "allEmails": "Tất cả email"
   },
   "actions": {
-    "acknowledge": "Đánh dấu là đã xem xét",
-    "acknowledgeTooltip": "Đánh dấu vụ vi phạm này là đã xem để không còn hiển thị là mới hoặc kích hoạt thông báo nữa",
-    "acknowledgeAll": "Đánh dấu tất cả là đã xem xét",
-    "acknowledgeAllTooltip": "Đánh dấu tất cả các vụ vi phạm chưa xem xét là đã xem"
+    "acknowledge": "Đánh dấu là đã xem",
+    "acknowledgeTooltip": "Đánh dấu vụ rò rỉ này là đã xem để không còn hiển thị là mới hoặc kích hoạt thông báo",
+    "acknowledgeAll": "Đánh dấu tất cả là đã xem",
+    "acknowledgeAllTooltip": "Đánh dấu tất cả các vụ rò rỉ chưa xem là đã xem"
   },
   "refetchButton": "Làm mới"
 }

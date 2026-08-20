@@ -5,11 +5,22 @@
   "refetchButton": "Uppdatera",
   "cloudNotConfigured": {
     "title": "Cloud Agent krävs",
-    "description": "CVE-skanning kräver att Cloud Agent är länkad. Gå till Inställningar → Cloud för att ansluta din enhet."
+    "description": "CVE-skanning kräver Kudu Cloud Pro. Anslut den här enheten för att kontrollera installerad programvara mot aktuella säkerhetsmeddelanden.",
+    "action": "Visa Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent är inte ansluten",
-    "description": "Cloud Agent är för närvarande inte ansluten. Kontrollera din anslutning i Inställningar → Cloud."
+    "description": "Cloud Agent är för närvarande inte ansluten. Kontrollera anslutningen i Inställningar → Cloud."
+  },
+  "connectionError": {
+    "title": "Cloud-anslutningen behöver åtgärdas",
+    "description": "Den här enheten har en sparad Cloud-nyckel, men den är inte längre auktoriserad. Granska anslutningen och länka den igen.",
+    "action": "Granska Cloud-anslutning"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro krävs",
+    "description": "Sårbarhetsövervakning är en Pro-funktion. Uppgradera din Cloud-plan för att skanna installerad programvara mot den aktuella CVE-databasen.",
+    "action": "Visa Cloud-planer"
   },
   "emptyState": {
     "title": "Inga sårbarheter upptäckta",
@@ -36,7 +47,7 @@
   },
   "error": {
     "title": "Det gick inte att läsa in sårbarheter",
-    "description": "Det gick inte att hämta sårbarhetsdata från servern. Försök att uppdatera eller kontrollera din molnanslutning."
+    "description": "Det gick inte att hämta sårbarhetsdata från servern. Försök att uppdatera eller kontrollera din Cloud-anslutning."
   },
   "card": {
     "installed": "Installerad: {{version}}",

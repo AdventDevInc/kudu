@@ -1,14 +1,27 @@
 {
   "pageTitle": "Bedreigingsmonitor",
   "pageDescription": "Realtime bewaking van netwerkverbindingen aan de hand van bekende dreigingslijsten.",
+  "checkingConnection": "Kudu Cloud-verbinding controleren…",
   "cloudNotConfigured": {
-    "title": "Cloud niet geconfigureerd",
-    "description": "Koppel uw apparaat in Instellingen aan Kudu Cloud om bedreigingsbewaking in te schakelen. De zwarte lijst met bedreigingen wordt geleverd door de cloudservice."
+    "title": "Kudu Cloud Pro vereist",
+    "description": "Verbind dit apparaat met Kudu Cloud Pro om de actuele zwarte lijst met bedreigingen te ontvangen en verdachte netwerkactiviteit te bewaken.",
+    "action": "Kudu Cloud bekijken"
+  },
+  "connectionError": {
+    "title": "Cloud-verbinding vereist aandacht",
+    "description": "Dit apparaat heeft een opgeslagen Cloud-sleutel, maar deze is niet langer geautoriseerd. Controleer de verbinding en koppel het opnieuw.",
+    "action": "Cloud-verbinding controleren"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro vereist",
+    "description": "Bedreigingsbewaking is een Pro-functie. Upgrade uw Cloud-abonnement om op dit apparaat de live zwarte lijst met bedreigingen te ontvangen.",
+    "action": "Cloud-abonnementen bekijken"
   },
   "loading": "Laden...",
   "inactive": {
     "title": "Bedreigingsmonitor inactief",
-    "description": "Er is geen zwarte lijst met bedreigingen geladen. De zwarte lijst wordt automatisch opgehaald wanneer de cloudagent verbinding maakt."
+    "description": "Cloud is verbonden, maar er is nog geen zwarte lijst met bedreigingen beschikbaar. Controleer uw Pro-abonnement of probeer het opnieuw nadat de Cloud-agent opnieuw verbinding heeft gemaakt.",
+    "action": "Cloud-abonnement controleren"
   },
   "statusBar": {
     "blacklistVersion": "Zwarte lijst",

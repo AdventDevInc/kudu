@@ -1,19 +1,30 @@
 {
   "pageTitle": "פגיעויות",
-  "pageDescription": "הצג פגיעויות מוכרות שזוהו בתוכנות המותקנות שלך",
+  "pageDescription": "הצג פגיעויות ידועות שזוהו בתוכנות המותקנות שלך",
   "loading": "טוען פגיעויות...",
   "refetchButton": "רענן",
   "cloudNotConfigured": {
     "title": "נדרש Cloud Agent",
-    "description": "סריקת CVE מחייבת ש-Cloud Agent יהיה מקושר. עבור אל הגדרות → ענן כדי לחבר את המכשיר שלך."
+    "description": "סריקת CVE דורשת את Kudu Cloud Pro. חבר מכשיר זה כדי לבדוק את התוכנות המותקנות מול עדכוני האבטחה העדכניים.",
+    "action": "הצג את Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent אינו מחובר",
-    "description": "Cloud Agent אינו מחובר כעת. בדוק את החיבור שלך בהגדרות → ענן."
+    "description": "Cloud Agent אינו מחובר כעת. בדוק את החיבור שלך בהגדרות ← Cloud."
+  },
+  "connectionError": {
+    "title": "חיבור ה-Cloud דורש תשומת לב",
+    "description": "למכשיר זה שמור מפתח Cloud, אך הוא אינו מורשה עוד. בדוק את החיבור וקשר אותו מחדש.",
+    "action": "בדוק את חיבור ה-Cloud"
+  },
+  "planRequired": {
+    "title": "נדרש Kudu Cloud Pro",
+    "description": "ניטור פגיעויות הוא תכונת Pro. שדרג את תוכנית ה-Cloud שלך כדי לסרוק תוכנות מותקנות מול מסד הנתונים החי של CVE.",
+    "action": "הצג תוכניות Cloud"
   },
   "emptyState": {
     "title": "לא זוהו פגיעויות",
-    "description": "לא נמצאו CVE מוכרים בתוכנות המותקנות שלך. נראה שהמערכת שלך מאובטחת!"
+    "description": "לא נמצאו CVE ידועים בתוכנות המותקנות שלך. נראה שהמערכת שלך מאובטחת!"
   },
   "severity": {
     "critical": "קריטית",
@@ -32,11 +43,11 @@
   "filter": {
     "all": "הכול",
     "searchPlaceholder": "חפש לפי שם יישום או מזהה CVE...",
-    "noResults": "אין פגיעויות התואמות למסננים הנוכחיים"
+    "noResults": "אין פגיעויות התואמות למסננים הנוכחיים שלך"
   },
   "error": {
     "title": "טעינת הפגיעויות נכשלה",
-    "description": "לא ניתן היה לאחזר את נתוני הפגיעויות מהשרת. נסה לרענן או בדוק את חיבור הענן שלך."
+    "description": "לא ניתן היה לאחזר את נתוני הפגיעויות מהשרת. נסה לרענן או בדוק את חיבור ה-Cloud שלך."
   },
   "card": {
     "installed": "מותקן: {{version}}",

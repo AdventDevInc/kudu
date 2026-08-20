@@ -2,8 +2,18 @@
   "pageTitle": "유출 모니터",
   "pageDescription": "이메일 주소가 알려진 데이터 유출 사고에 노출되었는지 확인합니다",
   "loading": "유출 데이터를 불러오는 중...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud 필요",
+    "description": "이 장치를 연결하여 이메일 주소를 알려진 유출 정보와 대조하고 새로 보고된 노출을 추적하세요.",
+    "action": "Kudu Cloud 보기"
+  },
+  "connectionError": {
+    "title": "Cloud 연결을 확인해야 합니다",
+    "description": "이 장치에 저장된 Cloud 키가 있지만 더 이상 인증되지 않습니다. 연결을 검토하고 다시 연결하세요.",
+    "action": "Cloud 연결 검토"
+  },
   "summary": {
-    "totalBreaches": "총 유출 건수",
+    "totalBreaches": "총 유출 사고",
     "unacknowledged": "신규",
     "emailsMonitored": "모니터링 중인 이메일",
     "emailsMonitoredTooltip": "Basic 요금제: 이메일 1개 · Pro 요금제: 이메일 5개. 더 많은 이메일을 모니터링하려면 Cloud 설정에서 요금제를 업그레이드하세요."
@@ -19,56 +29,56 @@
     "removeFailed": "이메일을 제거하지 못했습니다",
     "invalidEmail": "유효한 이메일 주소를 입력하세요",
     "limitReached": "현재 요금제의 이메일 한도에 도달했습니다",
-    "acknowledged": "유출 항목을 검토 완료로 표시했습니다",
-    "acknowledgeFailed": "유출 항목을 확인 처리하지 못했습니다"
+    "acknowledged": "유출 사고를 검토됨으로 표시했습니다",
+    "acknowledgeFailed": "유출 사고를 검토됨으로 표시하지 못했습니다"
   },
   "emptyState": {
     "noEmails": "모니터링 중인 이메일이 없습니다",
-    "noEmailsDesc": "이메일 주소를 추가하여 과거 데이터 유출 여부를 확인하고 새로운 유출을 지속적으로 모니터링하세요.",
+    "noEmailsDesc": "이메일 주소를 추가하여 과거 데이터 유출 사고를 확인하고 새로운 유출을 지속적으로 모니터링하세요.",
     "allClear": "이상 없음",
-    "allClearDesc": "모니터링 중인 이메일이 알려진 데이터 유출 사고에서 발견되지 않았습니다.",
+    "allClearDesc": "모니터링 중인 이메일은 알려진 데이터 유출 사고에서 발견되지 않았습니다.",
     "upgradeRequired": "업그레이드 필요",
     "upgradeRequiredDesc": "유출 모니터링은 Basic 요금제 이상에서 사용할 수 있습니다. 모니터링을 시작하려면 요금제를 업그레이드하세요.",
     "goToCloud": "요금제 보기",
-    "noBreachesForEmail": "이 이메일에서는 유출이 발견되지 않았습니다",
+    "noBreachesForEmail": "이 이메일에서 발견된 유출 사고가 없습니다",
     "selectEmail": "목록에서 이메일을 선택하여 유출 세부 정보를 확인하세요"
   },
   "error": {
     "title": "유출 데이터를 불러오지 못했습니다",
-    "description": "Cloud 연결을 확인한 후 다시 시도하세요."
+    "description": "cloud 연결을 확인한 후 다시 시도하세요."
   },
   "emailList": {
-    "breaches": "유출 {{count}}건",
-    "breaches_other": "유출 {{count}}건",
+    "breaches": "{{count}}건 유출",
+    "breaches_other": "{{count}}건 유출",
     "newBreaches": "신규 {{count}}건",
     "noBreaches": "유출 없음",
     "checking": "확인하는 중...",
     "paused": "일시 중지됨",
     "remove": "이메일 제거",
-    "lastChecked": "{{date}}에 확인함"
+    "lastChecked": "{{date}} 확인"
   },
   "table": {
     "email": "이메일",
-    "breach": "유출",
+    "breach": "유출 사고",
     "date": "날짜",
     "accounts": "계정 수",
     "data": "유출된 데이터",
     "status": "상태",
     "actions": "",
     "new": "신규",
-    "reviewed": "검토 완료",
-    "sensitive": "민감한 유출",
+    "reviewed": "검토됨",
+    "sensitive": "민감한 유출 사고",
     "verified": "확인됨",
-    "unverified": "미확인"
+    "unverified": "확인되지 않음"
   },
   "filter": {
     "allEmails": "모든 이메일"
   },
   "actions": {
-    "acknowledge": "검토 완료로 표시",
-    "acknowledgeTooltip": "이 유출 항목을 확인한 것으로 표시하여 더 이상 신규로 표시되거나 알림을 발생시키지 않도록 합니다",
-    "acknowledgeAll": "모두 검토 완료로 표시",
-    "acknowledgeAllTooltip": "검토하지 않은 모든 유출 항목을 확인한 것으로 표시합니다"
+    "acknowledge": "검토됨으로 표시",
+    "acknowledgeTooltip": "이 유출 사고를 확인한 것으로 표시하여 더 이상 신규로 표시되거나 알림을 발생시키지 않도록 합니다",
+    "acknowledgeAll": "모두 검토됨으로 표시",
+    "acknowledgeAllTooltip": "검토되지 않은 모든 유출 사고를 확인한 것으로 표시합니다"
   },
   "refetchButton": "새로 고침"
 }

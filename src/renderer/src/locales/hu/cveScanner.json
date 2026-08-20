@@ -1,19 +1,30 @@
 {
   "pageTitle": "Sérülékenységek",
-  "pageDescription": "Az telepített szoftverekben észlelt ismert sérülékenységek megtekintése",
+  "pageDescription": "Az ismert, telepített szoftverekben észlelt sérülékenységek megtekintése",
   "loading": "Sérülékenységek betöltése...",
   "refetchButton": "Frissítés",
   "cloudNotConfigured": {
     "title": "Cloud Agent szükséges",
-    "description": "A CVE-vizsgálathoz a Cloud Agent összekapcsolása szükséges. Az eszköz csatlakoztatásához lépjen a Beállítások → Cloud menüpontra."
+    "description": "A CVE-vizsgálathoz Kudu Cloud Pro szükséges. Csatlakoztassa ezt az eszközt, hogy a telepített szoftvereket az aktuális biztonsági figyelmeztetésekkel összevesse.",
+    "action": "Kudu Cloud megtekintése"
   },
   "cloudNotConnected": {
     "title": "A Cloud Agent nincs csatlakoztatva",
     "description": "A Cloud Agent jelenleg nincs csatlakoztatva. Ellenőrizze a kapcsolatot a Beállítások → Cloud menüpontban."
   },
+  "connectionError": {
+    "title": "A Cloud-kapcsolat ellenőrzést igényel",
+    "description": "Ehhez az eszközhöz mentett Cloud-kulcs tartozik, de az már nincs engedélyezve. Ellenőrizze a kapcsolatot, és kapcsolja össze újra.",
+    "action": "Cloud-kapcsolat ellenőrzése"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro szükséges",
+    "description": "A sérülékenységfigyelés Pro funkció. Frissítse Cloud-csomagját, hogy a telepített szoftvereket az élő CVE-adatbázissal vizsgálhassa.",
+    "action": "Cloud-csomagok megtekintése"
+  },
   "emptyState": {
     "title": "Nem észlelhető sérülékenység",
-    "description": "Nem találhatók ismert CVE-k a telepített szoftverekben. A rendszer biztonságosnak tűnik."
+    "description": "Nem találhatók ismert CVE-k a telepített szoftverekben. A rendszer biztonságosnak tűnik!"
   },
   "severity": {
     "critical": "Kritikus",
@@ -36,11 +47,11 @@
   },
   "error": {
     "title": "Nem sikerült betölteni a sérülékenységeket",
-    "description": "Nem sikerült lekérni a sérülékenységi adatokat a kiszolgálóról. Próbálja meg frissíteni, vagy ellenőrizze a felhőkapcsolatot."
+    "description": "Nem sikerült lekérni a sérülékenységi adatokat a kiszolgálóról. Próbálja meg frissíteni, vagy ellenőrizze a Cloud-kapcsolatot."
   },
   "card": {
     "installed": "Telepítve: {{version}}",
-    "fixAvailable": "Javított verzió: {{version}}",
+    "fixAvailable": "Javítás: {{version}}",
     "noFix": "Nem érhető el javítás",
     "cvss": "CVSS {{score}}",
     "firstDetected": "Első észlelés: {{date}}",

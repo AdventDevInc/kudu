@@ -1,14 +1,27 @@
 {
   "pageTitle": "Monitorizare amenințări",
   "pageDescription": "Monitorizare în timp real a conexiunilor de rețea în raport cu listele de amenințări cunoscute.",
+  "checkingConnection": "Se verifică conexiunea Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud neconfigurat",
-    "description": "Conectați dispozitivul la Kudu Cloud în Setări pentru a activa monitorizarea amenințărilor. Lista neagră de amenințări este furnizată de serviciul cloud."
+    "title": "Este necesar Kudu Cloud Pro",
+    "description": "Conectați acest dispozitiv la Kudu Cloud Pro pentru a primi lista neagră actuală de amenințări și pentru a monitoriza activitatea de rețea suspectă.",
+    "action": "Vedeți Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Conexiunea Cloud necesită atenție",
+    "description": "Acest dispozitiv are o cheie Cloud salvată, dar nu mai este autorizată. Verificați conexiunea și asociați-l din nou.",
+    "action": "Verificați conexiunea Cloud"
+  },
+  "planRequired": {
+    "title": "Este necesar Kudu Cloud Pro",
+    "description": "Monitorizarea amenințărilor este o funcție Pro. Actualizați-vă planul Cloud pentru a primi lista neagră de amenințări în timp real pe acest dispozitiv.",
+    "action": "Vedeți planurile Cloud"
   },
   "loading": "Se încarcă...",
   "inactive": {
     "title": "Monitorizarea amenințărilor este inactivă",
-    "description": "Nu este încărcată nicio listă neagră de amenințări. Lista neagră va fi preluată automat când agentul cloud se conectează."
+    "description": "Cloud este conectat, dar nu este disponibilă încă nicio listă neagră de amenințări. Verificați planul Pro sau încercați din nou după ce agentul Cloud se reconectează.",
+    "action": "Verificați planul Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Listă neagră",
@@ -19,8 +32,8 @@
     "noThreatsDetected": "Nu au fost detectate amenințări"
   },
   "allClear": {
-    "title": "Nicio problemă",
-    "description": "Nu au fost detectate conexiuni suspecte sau intrări DNS. Monitorizarea continuă scanarea în fundal."
+    "title": "Totul este în regulă",
+    "description": "Nu au fost detectate conexiuni sau intrări DNS suspecte. Monitorul continuă scanarea în fundal."
   },
   "flaggedConnections": "Conexiuni semnalate",
   "flaggedDnsEntries": "Intrări DNS semnalate",

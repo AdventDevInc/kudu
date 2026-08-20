@@ -1,19 +1,32 @@
 {
   "pageTitle": "위협 모니터",
   "pageDescription": "알려진 위협 목록을 기준으로 네트워크 연결을 실시간으로 모니터링합니다.",
+  "checkingConnection": "Kudu Cloud 연결을 확인하는 중…",
   "cloudNotConfigured": {
-    "title": "Cloud가 구성되지 않음",
-    "description": "위협 모니터링을 사용하려면 설정에서 장치를 Kudu Cloud에 연결하세요. 위협 블랙리스트는 클라우드 서비스에서 제공됩니다."
+    "title": "Kudu Cloud Pro 필요",
+    "description": "현재 위협 블랙리스트를 받고 의심스러운 네트워크 활동을 모니터링하려면 이 장치를 Kudu Cloud Pro에 연결하세요.",
+    "action": "Kudu Cloud 보기"
+  },
+  "connectionError": {
+    "title": "Cloud 연결 확인 필요",
+    "description": "이 장치에 저장된 Cloud 키가 있지만 더 이상 인증되지 않습니다. 연결을 검토하고 다시 연결하세요.",
+    "action": "Cloud 연결 검토"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro 필요",
+    "description": "위협 모니터링은 Pro 기능입니다. 이 장치에서 실시간 위협 블랙리스트를 받으려면 Cloud 요금제를 업그레이드하세요.",
+    "action": "Cloud 요금제 보기"
   },
   "loading": "로드 중...",
   "inactive": {
     "title": "위협 모니터 비활성",
-    "description": "로드된 위협 블랙리스트가 없습니다. 클라우드 에이전트가 연결되면 블랙리스트가 자동으로 가져와집니다."
+    "description": "Cloud는 연결되어 있지만 아직 사용할 수 있는 위협 블랙리스트가 없습니다. Pro 요금제를 확인하거나 Cloud 에이전트가 다시 연결된 후 다시 시도하세요.",
+    "action": "Cloud 요금제 검토"
   },
   "statusBar": {
     "blacklistVersion": "블랙리스트",
-    "connectionsScanned": "{{time}}에 연결 검사함",
-    "dnsScanned": "{{time}}에 DNS 검사함",
+    "connectionsScanned": "연결 검사 {{time}}",
+    "dnsScanned": "DNS 검사 {{time}}",
     "threatsDetected": "위협 {{count}}개 감지됨",
     "threatsDetectedPlural": "위협 {{count}}개 감지됨",
     "noThreatsDetected": "감지된 위협 없음"

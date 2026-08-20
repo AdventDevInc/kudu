@@ -1,7 +1,17 @@
 {
   "pageTitle": "Monitoraggio violazioni",
-  "pageDescription": "Controlla se i tuoi indirizzi email sono stati esposti in violazioni dei dati note",
-  "loading": "Caricamento dei dati sulle violazioni...",
+  "pageDescription": "Verifica se i tuoi indirizzi email sono stati esposti in violazioni dei dati note",
+  "loading": "Caricamento dati delle violazioni...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud richiesto",
+    "description": "Collega questo dispositivo per verificare gli indirizzi email rispetto alle informazioni note sulle violazioni e monitorare le nuove esposizioni segnalate.",
+    "action": "Visualizza Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "La connessione Cloud richiede attenzione",
+    "description": "Questo dispositivo dispone di una chiave Cloud salvata, ma non è più autorizzata. Controlla la connessione e collegalo di nuovo.",
+    "action": "Controlla la connessione Cloud"
+  },
   "summary": {
     "totalBreaches": "Violazioni totali",
     "unacknowledged": "Nuove",
@@ -14,7 +24,7 @@
     "adding": "Aggiunta in corso..."
   },
   "toast": {
-    "fetchFailed": "Impossibile caricare i dati sulle violazioni",
+    "fetchFailed": "Impossibile caricare i dati delle violazioni",
     "addFailed": "Impossibile aggiungere l'email",
     "removeFailed": "Impossibile rimuovere l'email",
     "invalidEmail": "Inserisci un indirizzo email valido",
@@ -26,7 +36,7 @@
     "noEmails": "Nessuna email monitorata",
     "noEmailsDesc": "Aggiungi un indirizzo email per verificare eventuali violazioni dei dati passate e monitorare continuamente nuove fughe di dati.",
     "allClear": "Nessun problema rilevato",
-    "allClearDesc": "Nessuna delle email monitorate è stata trovata in violazioni dei dati note.",
+    "allClearDesc": "Nessuna delle tue email monitorate è stata trovata in violazioni dei dati note.",
     "upgradeRequired": "Aggiornamento richiesto",
     "upgradeRequiredDesc": "Il monitoraggio delle violazioni è disponibile con il piano Basic e superiori. Aggiorna il tuo piano per iniziare il monitoraggio.",
     "goToCloud": "Visualizza piani",
@@ -34,18 +44,18 @@
     "selectEmail": "Seleziona un'email dall'elenco per visualizzare i dettagli della violazione"
   },
   "error": {
-    "title": "Impossibile caricare i dati sulle violazioni",
-    "description": "Controlla la connessione al cloud e riprova."
+    "title": "Impossibile caricare i dati delle violazioni",
+    "description": "Controlla la connessione cloud e riprova."
   },
   "emailList": {
     "breaches": "{{count}} violazione",
     "breaches_other": "{{count}} violazioni",
     "newBreaches": "{{count}} nuove",
     "noBreaches": "Nessuna violazione",
-    "checking": "Controllo in corso...",
+    "checking": "Verifica in corso...",
     "paused": "In pausa",
     "remove": "Rimuovi email",
-    "lastChecked": "Controllata il {{date}}"
+    "lastChecked": "Verificata {{date}}"
   },
   "table": {
     "email": "Email",
@@ -66,7 +76,7 @@
   },
   "actions": {
     "acknowledge": "Contrassegna come esaminata",
-    "acknowledgeTooltip": "Contrassegna questa violazione come visualizzata in modo che non appaia più come nuova e non attivi notifiche",
+    "acknowledgeTooltip": "Contrassegna questa violazione come visualizzata in modo che non venga più mostrata come nuova né generi notifiche",
     "acknowledgeAll": "Contrassegna tutte come esaminate",
     "acknowledgeAllTooltip": "Contrassegna tutte le violazioni non esaminate come visualizzate"
   },

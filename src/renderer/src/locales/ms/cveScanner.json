@@ -1,19 +1,30 @@
 {
   "pageTitle": "Kerentanan",
-  "pageDescription": "Lihat kerentanan yang diketahui yang dikesan dalam perisian yang dipasang",
+  "pageDescription": "Lihat kerentanan yang diketahui yang dikesan dalam perisian anda yang dipasang",
   "loading": "Memuatkan kerentanan...",
   "refetchButton": "Muat semula",
   "cloudNotConfigured": {
     "title": "Cloud Agent Diperlukan",
-    "description": "Pengimbasan CVE memerlukan Cloud Agent dipautkan. Pergi ke Tetapan → Cloud untuk menyambungkan peranti anda."
+    "description": "Pengimbasan CVE memerlukan Kudu Cloud Pro. Sambungkan peranti ini untuk menyemak perisian yang dipasang berbanding nasihat keselamatan semasa.",
+    "action": "Lihat Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent Tidak Disambungkan",
     "description": "Cloud Agent tidak disambungkan pada masa ini. Semak sambungan anda dalam Tetapan → Cloud."
   },
+  "connectionError": {
+    "title": "Sambungan Cloud memerlukan perhatian",
+    "description": "Peranti ini mempunyai kunci Cloud yang disimpan, tetapi ia tidak lagi dibenarkan. Semak sambungan dan pautkannya semula.",
+    "action": "Semak sambungan Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro diperlukan",
+    "description": "Pemantauan kerentanan ialah ciri Pro. Naik taraf pelan Cloud anda untuk mengimbas perisian yang dipasang berbanding pangkalan data CVE langsung.",
+    "action": "Lihat pelan Cloud"
+  },
   "emptyState": {
     "title": "Tiada Kerentanan Dikesan",
-    "description": "Tiada CVE yang diketahui ditemui dalam perisian yang dipasang. Sistem anda kelihatan selamat!"
+    "description": "Tiada CVE yang diketahui ditemui dalam perisian anda yang dipasang. Sistem anda kelihatan selamat!"
   },
   "severity": {
     "critical": "Kritikal",
@@ -43,8 +54,8 @@
     "fixAvailable": "Pembaikan: {{version}}",
     "noFix": "Tiada pembaikan tersedia",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "Mula dikesan: {{date}}",
-    "lastScanned": "Imbasan terakhir: {{date}}",
+    "firstDetected": "Pertama kali dikesan: {{date}}",
+    "lastScanned": "Kali terakhir diimbas: {{date}}",
     "viewDetails": "Lihat Butiran CVE",
     "checkForUpdates": "Semak Kemas Kini"
   },

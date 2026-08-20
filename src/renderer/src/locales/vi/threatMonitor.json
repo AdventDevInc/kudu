@@ -1,17 +1,30 @@
 {
   "pageTitle": "Giám sát mối đe dọa",
-  "pageDescription": "Giám sát theo thời gian thực các kết nối mạng đối chiếu với danh sách mối đe dọa đã biết.",
+  "pageDescription": "Giám sát theo thời gian thực các kết nối mạng dựa trên danh sách mối đe dọa đã biết.",
+  "checkingConnection": "Đang kiểm tra kết nối Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud chưa được cấu hình",
-    "description": "Liên kết thiết bị của bạn với Kudu Cloud trong Cài đặt để bật tính năng giám sát mối đe dọa. Danh sách chặn mối đe dọa được cung cấp bởi dịch vụ đám mây."
+    "title": "Yêu cầu Kudu Cloud Pro",
+    "description": "Kết nối thiết bị này với Kudu Cloud Pro để nhận danh sách đen mối đe dọa hiện tại và giám sát hoạt động mạng đáng ngờ.",
+    "action": "Xem Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Kết nối Cloud cần được chú ý",
+    "description": "Thiết bị này có khóa Cloud đã lưu, nhưng khóa này không còn được ủy quyền. Hãy kiểm tra kết nối và liên kết lại.",
+    "action": "Kiểm tra kết nối Cloud"
+  },
+  "planRequired": {
+    "title": "Yêu cầu Kudu Cloud Pro",
+    "description": "Giám sát mối đe dọa là một tính năng Pro. Nâng cấp gói Cloud của bạn để nhận danh sách đen mối đe dọa trực tiếp trên thiết bị này.",
+    "action": "Xem các gói Cloud"
   },
   "loading": "Đang tải...",
   "inactive": {
-    "title": "Trình giám sát mối đe dọa không hoạt động",
-    "description": "Chưa tải danh sách chặn mối đe dọa. Danh sách chặn sẽ được tự động tải về khi tác nhân đám mây kết nối."
+    "title": "Giám sát mối đe dọa chưa hoạt động",
+    "description": "Cloud đã được kết nối, nhưng chưa có danh sách đen mối đe dọa nào khả dụng. Hãy kiểm tra gói Pro của bạn hoặc thử lại sau khi tác nhân Cloud kết nối lại.",
+    "action": "Kiểm tra gói Cloud"
   },
   "statusBar": {
-    "blacklistVersion": "Danh sách chặn",
+    "blacklistVersion": "Danh sách đen",
     "connectionsScanned": "Đã quét kết nối {{time}}",
     "dnsScanned": "Đã quét DNS {{time}}",
     "threatsDetected": "Đã phát hiện {{count}} mối đe dọa",
@@ -20,9 +33,9 @@
   },
   "allClear": {
     "title": "An toàn",
-    "description": "Không phát hiện kết nối hoặc mục DNS đáng ngờ nào. Trình giám sát tiếp tục quét trong nền."
+    "description": "Không phát hiện kết nối hoặc mục DNS đáng ngờ nào. Trình giám sát vẫn tiếp tục quét trong nền."
   },
-  "flaggedConnections": "Kết nối bị gắn cờ",
-  "flaggedDnsEntries": "Mục DNS bị gắn cờ",
+  "flaggedConnections": "Kết nối bị đánh dấu",
+  "flaggedDnsEntries": "Mục DNS bị đánh dấu",
   "connectionPid": "PID {{pid}}"
 }

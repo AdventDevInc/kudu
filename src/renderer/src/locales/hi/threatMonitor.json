@@ -1,26 +1,39 @@
 {
   "pageTitle": "खतरा मॉनिटर",
   "pageDescription": "ज्ञात खतरा सूचियों के विरुद्ध नेटवर्क कनेक्शनों की रीयल-टाइम निगरानी।",
+  "checkingConnection": "Kudu Cloud कनेक्शन की जाँच की जा रही है…",
   "cloudNotConfigured": {
-    "title": "Cloud कॉन्फ़िगर नहीं है",
-    "description": "खतरा निगरानी सक्षम करने के लिए Settings में अपने डिवाइस को Kudu Cloud से लिंक करें। खतरा ब्लैकलिस्ट cloud सेवा द्वारा प्रदान की जाती है।"
+    "title": "Kudu Cloud Pro आवश्यक है",
+    "description": "वर्तमान खतरा ब्लैकलिस्ट प्राप्त करने और संदिग्ध नेटवर्क गतिविधि की निगरानी करने के लिए इस डिवाइस को Kudu Cloud Pro से कनेक्ट करें।",
+    "action": "Kudu Cloud देखें"
+  },
+  "connectionError": {
+    "title": "Cloud कनेक्शन पर ध्यान देने की आवश्यकता है",
+    "description": "इस डिवाइस में एक सहेजी गई Cloud कुंजी है, लेकिन यह अब अधिकृत नहीं है। कनेक्शन की समीक्षा करें और इसे फिर से लिंक करें।",
+    "action": "Cloud कनेक्शन की समीक्षा करें"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro आवश्यक है",
+    "description": "खतरा निगरानी एक Pro सुविधा है। इस डिवाइस पर लाइव खतरा ब्लैकलिस्ट प्राप्त करने के लिए अपनी Cloud योजना अपग्रेड करें।",
+    "action": "Cloud योजनाएँ देखें"
   },
   "loading": "लोड हो रहा है...",
   "inactive": {
     "title": "खतरा मॉनिटर निष्क्रिय है",
-    "description": "कोई खतरा ब्लैकलिस्ट लोड नहीं है। cloud agent के कनेक्ट होने पर ब्लैकलिस्ट स्वचालित रूप से प्राप्त की जाएगी।"
+    "description": "Cloud कनेक्ट है, लेकिन अभी तक कोई खतरा ब्लैकलिस्ट उपलब्ध नहीं है। अपनी Pro योजना जाँचें या Cloud एजेंट के पुनः कनेक्ट होने के बाद फिर से प्रयास करें।",
+    "action": "Cloud योजना की समीक्षा करें"
   },
   "statusBar": {
     "blacklistVersion": "ब्लैकलिस्ट",
-    "connectionsScanned": "कनेक्शन स्कैन किए गए {{time}}",
-    "dnsScanned": "DNS स्कैन किया गया {{time}}",
-    "threatsDetected": "{{count}} खतरा पता चला",
-    "threatsDetectedPlural": "{{count}} खतरे पता चले",
-    "noThreatsDetected": "कोई खतरा पता नहीं चला"
+    "connectionsScanned": "{{time}} पर कनेक्शन स्कैन किए गए",
+    "dnsScanned": "{{time}} पर DNS स्कैन किया गया",
+    "threatsDetected": "{{count}} खतरा पाया गया",
+    "threatsDetectedPlural": "{{count}} खतरे पाए गए",
+    "noThreatsDetected": "कोई खतरा नहीं पाया गया"
   },
   "allClear": {
     "title": "सब स्पष्ट है",
-    "description": "कोई संदिग्ध कनेक्शन या DNS प्रविष्टियाँ पता नहीं चलीं। मॉनिटर पृष्ठभूमि में स्कैन करना जारी रखता है।"
+    "description": "कोई संदिग्ध कनेक्शन या DNS प्रविष्टियाँ नहीं पाई गईं। मॉनिटर पृष्ठभूमि में स्कैन करना जारी रखता है।"
   },
   "flaggedConnections": "चिह्नित कनेक्शन",
   "flaggedDnsEntries": "चिह्नित DNS प्रविष्टियाँ",

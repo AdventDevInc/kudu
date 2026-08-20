@@ -1,15 +1,26 @@
 {
   "pageTitle": "कमज़ोरियाँ",
   "pageDescription": "अपने इंस्टॉल किए गए सॉफ़्टवेयर में पाई गई ज्ञात कमज़ोरियाँ देखें",
-  "loading": "कमज़ोरियाँ लोड की जा रही हैं...",
+  "loading": "कमज़ोरियाँ लोड हो रही हैं...",
   "refetchButton": "रीफ़्रेश करें",
   "cloudNotConfigured": {
     "title": "Cloud Agent आवश्यक है",
-    "description": "CVE स्कैनिंग के लिए Cloud Agent का लिंक होना आवश्यक है। अपने डिवाइस को कनेक्ट करने के लिए Settings → Cloud पर जाएँ।"
+    "description": "CVE स्कैनिंग के लिए Kudu Cloud Pro आवश्यक है। वर्तमान सुरक्षा परामर्शों के अनुसार इंस्टॉल किए गए सॉफ़्टवेयर की जाँच करने के लिए इस डिवाइस को कनेक्ट करें।",
+    "action": "Kudu Cloud देखें"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent कनेक्ट नहीं है",
-    "description": "Cloud Agent वर्तमान में कनेक्ट नहीं है। Settings → Cloud में अपना कनेक्शन जाँचें।"
+    "description": "Cloud Agent इस समय कनेक्ट नहीं है। Settings → Cloud में अपना कनेक्शन जाँचें।"
+  },
+  "connectionError": {
+    "title": "Cloud कनेक्शन पर ध्यान देने की आवश्यकता है",
+    "description": "इस डिवाइस में एक सहेजी गई Cloud कुंजी है, लेकिन यह अब अधिकृत नहीं है। कनेक्शन की समीक्षा करें और इसे फिर से लिंक करें।",
+    "action": "Cloud कनेक्शन की समीक्षा करें"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro आवश्यक है",
+    "description": "कमज़ोरी निगरानी एक Pro सुविधा है। लाइव CVE डेटाबेस के अनुसार इंस्टॉल किए गए सॉफ़्टवेयर को स्कैन करने के लिए अपना Cloud प्लान अपग्रेड करें।",
+    "action": "Cloud प्लान देखें"
   },
   "emptyState": {
     "title": "कोई कमज़ोरी नहीं मिली",
@@ -46,7 +57,7 @@
     "firstDetected": "पहली बार पता चला: {{date}}",
     "lastScanned": "अंतिम स्कैन: {{date}}",
     "viewDetails": "CVE विवरण देखें",
-    "checkForUpdates": "अपडेट की जाँच करें"
+    "checkForUpdates": "अपडेट के लिए जाँचें"
   },
   "pagination": {
     "previous": "पिछला",
