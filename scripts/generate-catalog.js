@@ -79,18 +79,21 @@ function main() {
   // ─── Apps ──────────────────────────────────────────────────
 
   const categories = [
-    { title: 'Applications', file: 'apps.json' },
+    { title: 'AI Tools', file: 'apps.json', group: 'AI Tools' },
+    { title: 'Applications', file: 'apps.json', excludeGrouped: true },
     { title: 'Gaming & Launchers', file: 'gaming.json' },
     { title: 'GPU Cache', file: 'gpu-cache.json' },
   ]
 
-  for (const { title, file } of categories) {
+  for (const { title, file, group, excludeGrouped } of categories) {
     w(`## ${title}`)
     w()
 
     const allIds = new Map()
     for (const p of PLATFORMS) {
       for (const app of loadApps(p, file)) {
+        if (group && app.group !== group) continue
+        if (excludeGrouped && app.group) continue
         if (!allIds.has(app.id)) {
           allIds.set(app.id, { name: app.name, platforms: new Set() })
         }

@@ -8,10 +8,37 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 131 |
-| 🪟 Windows rules | 120 |
-| 🍎 macOS rules | 77 |
-| 🐧 Linux rules | 75 |
+| Unique app rules | 146 |
+| 🪟 Windows rules | 135 |
+| 🍎 macOS rules | 80 |
+| 🐧 Linux rules | 78 |
+
+## AI Tools
+
+| App | 🪟 | 🍎 | 🐧 |
+|-----|:---:|:---:|:---:|
+| ChatGPT Desktop Caches | ✅ | ❌ | ❌ |
+| ChatGPT Desktop Crash Reports | ✅ | ❌ | ❌ |
+| ChatGPT Desktop Logs | ✅ | ❌ | ❌ |
+| ChatGPT Desktop Partition Caches | ✅ | ❌ | ❌ |
+| Claude Code Cache | ✅ | ❌ | ❌ |
+| Claude Crash Reports | ✅ | ❌ | ❌ |
+| Claude Desktop Caches | ✅ | ✅ | ✅ |
+| Claude Desktop Partition Caches | ✅ | ❌ | ❌ |
+| Claude Logs | ✅ | ✅ | ✅ |
+| Codex Cache | ✅ | ✅ | ✅ |
+| Codex Desktop Caches | ✅ | ❌ | ❌ |
+| Codex Desktop Crash Reports | ✅ | ❌ | ❌ |
+| Codex Desktop Logs | ✅ | ❌ | ❌ |
+| Codex Desktop Partition Caches | ✅ | ❌ | ❌ |
+| Codex Temporary Files | ✅ | ✅ | ✅ |
+| Cursor IDE | ✅ | ✅ | ✅ |
+| Cursor IDE Partitions | ✅ | ❌ | ❌ |
+| GitHub Copilot Logs | ✅ | ❌ | ❌ |
+| T3 Code | ✅ | ❌ | ❌ |
+| T3 Code Logs | ✅ | ❌ | ❌ |
+| T3 Code Partitions | ✅ | ❌ | ❌ |
+| Windsurf IDE | ✅ | ✅ | ✅ |
 
 ## Applications
 
@@ -30,13 +57,10 @@
 | Cargo/Rust Cache | ✅ | ✅ | ✅ |
 | ccache | ❌ | ✅ | ✅ |
 | Chocolatey Logs | ✅ | ❌ | ❌ |
-| Claude | ✅ | ✅ | ✅ |
 | CocoaPods Cache | ❌ | ✅ | ❌ |
 | Composer Cache | ✅ | ✅ | ✅ |
 | Conda Package Cache | ✅ | ✅ | ✅ |
 | CurseForge | ✅ | ❌ | ❌ |
-| Cursor IDE | ✅ | ✅ | ✅ |
-| Cursor IDE Partitions | ✅ | ❌ | ❌ |
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
 | Docker Desktop | ✅ | ✅ | ❌ |
@@ -100,9 +124,6 @@
 | Spotify Store Shared Caches | ✅ | ❌ | ❌ |
 | Stale Electron Updater Packages | ✅ | ❌ | ❌ |
 | Sublime Text | ✅ | ✅ | ✅ |
-| T3 Code | ✅ | ❌ | ❌ |
-| T3 Code Logs | ✅ | ❌ | ❌ |
-| T3 Code Partitions | ✅ | ❌ | ❌ |
 | TeamViewer | ✅ | ✅ | ✅ |
 | Telegram | ✅ | ✅ | ✅ |
 | Termius | ✅ | ✅ | ✅ |
@@ -117,7 +138,6 @@
 | VLC | ✅ | ✅ | ✅ |
 | VS Code | ✅ | ✅ | ✅ |
 | WhatsApp Desktop | ✅ | ✅ | ✅ |
-| Windsurf IDE | ✅ | ✅ | ✅ |
 | Wine | ❌ | ❌ | ✅ |
 | Yarn Cache | ✅ | ✅ | ✅ |
 | Zed Editor | ✅ | ✅ | ✅ |

@@ -9,6 +9,8 @@
   "categoryBrowsersDescription": "Browser caches only",
   "categoryApplications": "Applications",
   "categoryApplicationsDescription": "App caches and dev tools",
+  "categoryAiTools": "AI Tools",
+  "categoryAiToolsDescription": "Caches and logs from AI apps",
   "categoryGaming": "Gaming",
   "categoryGamingDescription": "Launcher caches, redistributables",
   "categoryRecycleBin": "Recycle Bin",

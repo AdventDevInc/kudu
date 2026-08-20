@@ -67,6 +67,8 @@ export interface AppCacheDef {
   id: string
   name: string
   paths: string[]
+  /** Optional UI section for related cleaner rules (for example, AI Tools). */
+  group?: string
   /** Only offer entries older than this many days, inspecting nested contents before deleting a directory. */
   minAgeDays?: number
   /** If set, scan paths/&ast;/childSubdir instead of paths directly (e.g. 'caches' for JetBrains on Windows) */
