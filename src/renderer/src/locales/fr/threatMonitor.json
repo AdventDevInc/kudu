@@ -1,14 +1,27 @@
 {
-  "pageTitle": "Moniteur de menaces",
+  "pageTitle": "Moniteur des menaces",
   "pageDescription": "Surveillance en temps réel des connexions réseau par rapport à des listes de menaces connues.",
+  "checkingConnection": "Vérification de la connexion à Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud non configuré",
-    "description": "Liez votre appareil à Kudu Cloud dans les Paramètres pour activer la surveillance des menaces. La liste noire des menaces est fournie par le service cloud."
+    "title": "Kudu Cloud Pro requis",
+    "description": "Connectez cet appareil à Kudu Cloud Pro pour recevoir la liste noire actuelle des menaces et surveiller l’activité réseau suspecte.",
+    "action": "Afficher Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "La connexion Cloud nécessite votre attention",
+    "description": "Cet appareil dispose d’une clé Cloud enregistrée, mais elle n’est plus autorisée. Vérifiez la connexion et associez-le à nouveau.",
+    "action": "Vérifier la connexion Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro requis",
+    "description": "La surveillance des menaces est une fonctionnalité Pro. Mettez à niveau votre forfait Cloud pour recevoir la liste noire des menaces en direct sur cet appareil.",
+    "action": "Afficher les forfaits Cloud"
   },
   "loading": "Chargement...",
   "inactive": {
-    "title": "Moniteur de menaces inactif",
-    "description": "Aucune liste noire de menaces n’est chargée. La liste noire sera récupérée automatiquement lorsque l’agent cloud se connectera."
+    "title": "Moniteur des menaces inactif",
+    "description": "Cloud est connecté, mais aucune liste noire des menaces n’est encore disponible. Vérifiez votre forfait Pro ou réessayez après la reconnexion de l’agent Cloud.",
+    "action": "Vérifier le forfait Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Liste noire",
@@ -20,7 +33,7 @@
   },
   "allClear": {
     "title": "Aucune menace détectée",
-    "description": "Aucune connexion ni aucune entrée DNS suspecte n’a été détectée. Le moniteur continue l’analyse en arrière-plan."
+    "description": "Aucune connexion suspecte ni aucune entrée DNS suspecte n’a été détectée. Le moniteur continue l’analyse en arrière-plan."
   },
   "flaggedConnections": "Connexions signalées",
   "flaggedDnsEntries": "Entrées DNS signalées",

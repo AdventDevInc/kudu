@@ -1,14 +1,27 @@
 {
   "pageTitle": "Monitor de Ameaças",
   "pageDescription": "Monitorização em tempo real das ligações de rede em relação a listas de ameaças conhecidas.",
+  "checkingConnection": "A verificar a ligação ao Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud não configurada",
-    "description": "Associe o seu dispositivo ao Kudu Cloud nas Definições para ativar a monitorização de ameaças. A lista negra de ameaças é fornecida pelo serviço cloud."
+    "title": "Kudu Cloud Pro necessário",
+    "description": "Ligue este dispositivo ao Kudu Cloud Pro para receber a lista negra de ameaças atual e monitorizar atividade de rede suspeita.",
+    "action": "Ver Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "A ligação à Cloud requer atenção",
+    "description": "Este dispositivo tem uma chave da Cloud guardada, mas já não está autorizada. Reveja a ligação e associe-o novamente.",
+    "action": "Rever ligação à Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro necessário",
+    "description": "A monitorização de ameaças é uma funcionalidade Pro. Atualize o seu plano Cloud para receber a lista negra de ameaças em tempo real neste dispositivo.",
+    "action": "Ver planos Cloud"
   },
   "loading": "A carregar...",
   "inactive": {
     "title": "Monitor de ameaças inativo",
-    "description": "Nenhuma lista negra de ameaças foi carregada. A lista negra será obtida automaticamente quando o agente cloud se ligar."
+    "description": "A Cloud está ligada, mas ainda não existe nenhuma lista negra de ameaças disponível. Verifique o seu plano Pro ou tente novamente depois de o agente Cloud voltar a ligar-se.",
+    "action": "Rever plano Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Lista negra",
@@ -19,7 +32,7 @@
     "noThreatsDetected": "Nenhuma ameaça detetada"
   },
   "allClear": {
-    "title": "Tudo limpo",
+    "title": "Tudo em ordem",
     "description": "Não foram detetadas ligações suspeitas nem entradas DNS suspeitas. O monitor continua a analisar em segundo plano."
   },
   "flaggedConnections": "Ligações assinaladas",

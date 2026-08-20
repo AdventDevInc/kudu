@@ -1,7 +1,17 @@
 {
-  "pageTitle": "Overvågning af databrud",
+  "pageTitle": "Brudsovervågning",
   "pageDescription": "Kontrollér, om dine e-mailadresser er blevet eksponeret i kendte databrud",
   "loading": "Indlæser data om databrud...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud påkrævet",
+    "description": "Tilslut denne enhed for at kontrollere e-mailadresser mod kendt information om databrud og spore nyligt rapporteret eksponering.",
+    "action": "Vis Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud-forbindelsen kræver opmærksomhed",
+    "description": "Denne enhed har en gemt Cloud-nøgle, men den er ikke længere godkendt. Gennemgå forbindelsen, og tilknyt den igen.",
+    "action": "Gennemgå Cloud-forbindelse"
+  },
   "summary": {
     "totalBreaches": "Samlet antal databrud",
     "unacknowledged": "Nye",
@@ -24,18 +34,18 @@
   },
   "emptyState": {
     "noEmails": "Ingen overvågede e-mails",
-    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge nye lækager.",
-    "allClear": "Alt ser godt ud",
+    "noEmailsDesc": "Tilføj en e-mailadresse for at kontrollere tidligere databrud og løbende overvåge for nye læk.",
+    "allClear": "Alt er i orden",
     "allClearDesc": "Ingen af dine overvågede e-mails er fundet i kendte databrud.",
     "upgradeRequired": "Opgradering påkrævet",
     "upgradeRequiredDesc": "Overvågning af databrud er tilgængelig med Basic-abonnementet og højere. Opgrader dit abonnement for at starte overvågning.",
-    "goToCloud": "Se abonnementer",
+    "goToCloud": "Vis abonnementer",
     "noBreachesForEmail": "Ingen databrud fundet for denne e-mail",
     "selectEmail": "Vælg en e-mail på listen for at se detaljer om databrud"
   },
   "error": {
     "title": "Kunne ikke indlæse data om databrud",
-    "description": "Kontrollér din cloudforbindelse, og prøv igen."
+    "description": "Kontrollér din Cloud-forbindelse, og prøv igen."
   },
   "emailList": {
     "breaches": "{{count}} databrud",

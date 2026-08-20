@@ -1,19 +1,32 @@
 {
   "pageTitle": "Tehdit İzleyicisi",
   "pageDescription": "Ağ bağlantılarının bilinen tehdit listelerine karşı gerçek zamanlı izlenmesi.",
+  "checkingConnection": "Kudu Cloud bağlantısı denetleniyor…",
   "cloudNotConfigured": {
-    "title": "Bulut yapılandırılmadı",
-    "description": "Tehdit izlemeyi etkinleştirmek için cihazınızı Ayarlar'dan Kudu Cloud'a bağlayın. Tehdit kara listesi bulut hizmeti tarafından sağlanır."
+    "title": "Kudu Cloud Pro gerekli",
+    "description": "Güncel tehdit kara listesini almak ve şüpheli ağ etkinliğini izlemek için bu cihazı Kudu Cloud Pro'ya bağlayın.",
+    "action": "Kudu Cloud'u görüntüle"
+  },
+  "connectionError": {
+    "title": "Cloud bağlantısı incelenmeli",
+    "description": "Bu cihazda kayıtlı bir Cloud anahtarı var, ancak artık yetkilendirilmemiş. Bağlantıyı gözden geçirin ve yeniden bağlayın.",
+    "action": "Cloud bağlantısını gözden geçir"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro gerekli",
+    "description": "Tehdit izleme bir Pro özelliğidir. Bu cihazda canlı tehdit kara listesini almak için Cloud planınızı yükseltin.",
+    "action": "Cloud planlarını görüntüle"
   },
   "loading": "Yükleniyor...",
   "inactive": {
     "title": "Tehdit izleyicisi etkin değil",
-    "description": "Herhangi bir tehdit kara listesi yüklenmedi. Kara liste, bulut aracısı bağlandığında otomatik olarak alınacaktır."
+    "description": "Cloud bağlı, ancak henüz kullanılabilir bir tehdit kara listesi yok. Pro planınızı denetleyin veya Cloud aracısı yeniden bağlandıktan sonra tekrar deneyin.",
+    "action": "Cloud planını gözden geçir"
   },
   "statusBar": {
-    "blacklistVersion": "Kara Liste",
-    "connectionsScanned": "{{time}} bağlantı tarandı",
-    "dnsScanned": "{{time}} DNS sorgusu tarandı",
+    "blacklistVersion": "Kara liste",
+    "connectionsScanned": "Bağlantılar {{time}} tarandı",
+    "dnsScanned": "DNS {{time}} tarandı",
     "threatsDetected": "{{count}} tehdit algılandı",
     "threatsDetectedPlural": "{{count}} tehdit algılandı",
     "noThreatsDetected": "Tehdit algılanmadı"

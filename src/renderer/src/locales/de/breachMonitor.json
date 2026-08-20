@@ -2,11 +2,21 @@
   "pageTitle": "Breach-Monitor",
   "pageDescription": "Prüfen Sie, ob Ihre E-Mail-Adressen in bekannten Datenschutzverletzungen offengelegt wurden",
   "loading": "Breach-Daten werden geladen...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud erforderlich",
+    "description": "Verbinden Sie dieses Gerät, um E-Mail-Adressen mit bekannten Informationen zu Datenschutzverletzungen abzugleichen und neu gemeldete Offenlegungen nachzuverfolgen.",
+    "action": "Kudu Cloud anzeigen"
+  },
+  "connectionError": {
+    "title": "Cloud-Verbindung erfordert Aufmerksamkeit",
+    "description": "Für dieses Gerät ist ein Cloud-Schlüssel gespeichert, er ist jedoch nicht mehr autorisiert. Überprüfen Sie die Verbindung und verknüpfen Sie sie erneut.",
+    "action": "Cloud-Verbindung überprüfen"
+  },
   "summary": {
-    "totalBreaches": "Gesamte Breaches",
+    "totalBreaches": "Datenschutzverletzungen insgesamt",
     "unacknowledged": "Neu",
     "emailsMonitored": "Überwachte E-Mails",
-    "emailsMonitoredTooltip": "Basic-Tarif: 1 E-Mail · Pro-Tarif: 5 E-Mails. Aktualisieren Sie Ihren Tarif in den Cloud-Einstellungen, um mehr zu überwachen."
+    "emailsMonitoredTooltip": "Basic-Tarif: 1 E-Mail · Pro-Tarif: 5 E-Mails. Erweitern Sie Ihren Tarif in den Cloud-Einstellungen, um mehr zu überwachen."
   },
   "addEmail": {
     "placeholder": "E-Mail-Adresse eingeben",
@@ -19,37 +29,37 @@
     "removeFailed": "E-Mail konnte nicht entfernt werden",
     "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
     "limitReached": "E-Mail-Limit für Ihren Tarif erreicht",
-    "acknowledged": "Breaches als überprüft markiert",
-    "acknowledgeFailed": "Breaches konnten nicht bestätigt werden"
+    "acknowledged": "Datenschutzverletzungen als überprüft markiert",
+    "acknowledgeFailed": "Datenschutzverletzungen konnten nicht als überprüft markiert werden"
   },
   "emptyState": {
-    "noEmails": "Keine E-Mails überwacht",
+    "noEmails": "Keine E-Mails werden überwacht",
     "noEmailsDesc": "Fügen Sie eine E-Mail-Adresse hinzu, um nach früheren Datenschutzverletzungen zu suchen und fortlaufend auf neue Leaks zu überwachen.",
     "allClear": "Alles in Ordnung",
-    "allClearDesc": "Keine Ihrer überwachten E-Mail-Adressen wurde in bekannten Datenschutzverletzungen gefunden.",
+    "allClearDesc": "Keine Ihrer überwachten E-Mails wurde in bekannten Datenschutzverletzungen gefunden.",
     "upgradeRequired": "Upgrade erforderlich",
-    "upgradeRequiredDesc": "Die Breach-Überwachung ist im Basic-Tarif und höher verfügbar. Aktualisieren Sie Ihren Tarif, um die Überwachung zu starten.",
+    "upgradeRequiredDesc": "Die Überwachung von Datenschutzverletzungen ist im Basic-Tarif und höher verfügbar. Erweitern Sie Ihren Tarif, um die Überwachung zu starten.",
     "goToCloud": "Tarife anzeigen",
-    "noBreachesForEmail": "Für diese E-Mail wurden keine Breaches gefunden",
-    "selectEmail": "Wählen Sie eine E-Mail aus der Liste aus, um Breach-Details anzuzeigen"
+    "noBreachesForEmail": "Für diese E-Mail wurden keine Datenschutzverletzungen gefunden",
+    "selectEmail": "Wählen Sie eine E-Mail aus der Liste aus, um Details zur Datenschutzverletzung anzuzeigen"
   },
   "error": {
     "title": "Breach-Daten konnten nicht geladen werden",
     "description": "Überprüfen Sie Ihre Cloud-Verbindung und versuchen Sie es erneut."
   },
   "emailList": {
-    "breaches": "{{count}} Breach",
-    "breaches_other": "{{count}} Breaches",
+    "breaches": "{{count}} Datenschutzverletzung",
+    "breaches_other": "{{count}} Datenschutzverletzungen",
     "newBreaches": "{{count}} neu",
-    "noBreaches": "Keine Breaches",
+    "noBreaches": "Keine Datenschutzverletzungen",
     "checking": "Wird geprüft...",
     "paused": "Pausiert",
     "remove": "E-Mail entfernen",
-    "lastChecked": "Geprüft {{date}}"
+    "lastChecked": "Geprüft am {{date}}"
   },
   "table": {
     "email": "E-Mail",
-    "breach": "Breach",
+    "breach": "Datenschutzverletzung",
     "date": "Datum",
     "accounts": "Konten",
     "data": "Kompromittierte Daten",
@@ -57,7 +67,7 @@
     "actions": "",
     "new": "Neu",
     "reviewed": "Überprüft",
-    "sensitive": "Sensitiver Breach",
+    "sensitive": "Sensible Datenschutzverletzung",
     "verified": "Verifiziert",
     "unverified": "Nicht verifiziert"
   },
@@ -66,9 +76,9 @@
   },
   "actions": {
     "acknowledge": "Als überprüft markieren",
-    "acknowledgeTooltip": "Diesen Breach als gesehen markieren, damit er nicht mehr als neu angezeigt wird oder Benachrichtigungen auslöst",
+    "acknowledgeTooltip": "Markieren Sie diese Datenschutzverletzung als gesehen, damit sie nicht mehr als neu angezeigt wird oder Benachrichtigungen auslöst",
     "acknowledgeAll": "Alle als überprüft markieren",
-    "acknowledgeAllTooltip": "Alle nicht überprüften Breaches als gesehen markieren"
+    "acknowledgeAllTooltip": "Alle nicht überprüften Datenschutzverletzungen als gesehen markieren"
   },
   "refetchButton": "Aktualisieren"
 }

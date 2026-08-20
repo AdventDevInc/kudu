@@ -1,14 +1,27 @@
 {
-  "pageTitle": "Monitoraggio minacce",
-  "pageDescription": "Monitoraggio in tempo reale delle connessioni di rete rispetto a elenchi di minacce conosciute.",
+  "pageTitle": "Monitor minacce",
+  "pageDescription": "Monitoraggio in tempo reale delle connessioni di rete rispetto a elenchi di minacce noti.",
+  "checkingConnection": "Verifica della connessione a Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud non configurato",
-    "description": "Collega il dispositivo a Kudu Cloud nelle Impostazioni per abilitare il monitoraggio delle minacce. La blacklist delle minacce è fornita dal servizio cloud."
+    "title": "Kudu Cloud Pro richiesto",
+    "description": "Collega questo dispositivo a Kudu Cloud Pro per ricevere l'attuale blacklist delle minacce e monitorare l'attività di rete sospetta.",
+    "action": "Visualizza Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "La connessione Cloud richiede attenzione",
+    "description": "Questo dispositivo ha una chiave Cloud salvata, ma non è più autorizzata. Controlla la connessione e collegala di nuovo.",
+    "action": "Controlla la connessione Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro richiesto",
+    "description": "Il monitoraggio delle minacce è una funzionalità Pro. Aggiorna il tuo piano Cloud per ricevere la blacklist delle minacce in tempo reale su questo dispositivo.",
+    "action": "Visualizza i piani Cloud"
   },
   "loading": "Caricamento...",
   "inactive": {
-    "title": "Monitoraggio minacce inattivo",
-    "description": "Nessuna blacklist delle minacce è caricata. La blacklist verrà recuperata automaticamente quando l'agente cloud si connetterà."
+    "title": "Monitor minacce inattivo",
+    "description": "Cloud è connesso, ma non è ancora disponibile alcuna blacklist delle minacce. Controlla il tuo piano Pro oppure riprova dopo la riconnessione dell'agente Cloud.",
+    "action": "Controlla il piano Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Blacklist",
@@ -19,8 +32,8 @@
     "noThreatsDetected": "Nessuna minaccia rilevata"
   },
   "allClear": {
-    "title": "Nessuna minaccia rilevata",
-    "description": "Non sono state rilevate connessioni sospette o voci DNS sospette. Il monitoraggio continua in background."
+    "title": "Nessun problema rilevato",
+    "description": "Non sono state rilevate connessioni sospette né voci DNS sospette. Il monitor continua l'analisi in background."
   },
   "flaggedConnections": "Connessioni segnalate",
   "flaggedDnsEntries": "Voci DNS segnalate",

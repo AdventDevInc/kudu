@@ -1,6 +1,6 @@
 {
   "pageTitle": "Configuración",
-  "pageDescription": "Configurar las preferencias de Kudu",
+  "pageDescription": "Configure las preferencias de Kudu",
   "sectionGeneral": "General",
   "languageLabel": "Idioma",
   "languageDesc": "Elija el idioma de visualización de la aplicación",
@@ -31,7 +31,7 @@
   "cloudLinkedCardDesc": "Administre su conexión a la nube y la configuración del dispositivo",
   "sectionBackups": "Copias de seguridad",
   "backupFolderLabel": "Carpeta de copias de seguridad",
-  "backupFolderDesc": "Dónde Kudu guarda las copias de seguridad del registro y de las extensiones del shell antes de realizar cambios. Las copias de seguridad existentes permanecen en su ubicación anterior cuando cambia de carpeta.",
+  "backupFolderDesc": "Dónde Kudu guarda las copias de seguridad del registro y de las extensiones del shell antes de realizar cambios. Las copias de seguridad existentes permanecen en su ubicación anterior al cambiar de carpeta.",
   "backupFolderDefaultLabel": "Predeterminada (Documentos/Copias de seguridad de Kudu)",
   "backupFolderChooseButton": "Elegir…",
   "backupFolderOpenTooltip": "Abrir en el administrador de archivos",
@@ -78,6 +78,9 @@
   "retry": "Reintentar",
   "github": "GitHub",
   "reportBug": "Informar de un error",
+  "supportKudu": "Apoyar a Kudu",
+  "supportKuduDescription": "Ayude a financiar el desarrollo continuo de código abierto y a mantener gratuitas para todos las herramientas de escritorio de Kudu.",
+  "supportKuduAction": "Ver patrocinios",
   "startupSettingFailedToast": "No se pudo habilitar el inicio automático",
   "startupSettingFailedDesc": "Es posible que el Programador de tareas esté restringido por una directiva de grupo o por software de seguridad.",
   "startupSettingFailedAction": "Más información"

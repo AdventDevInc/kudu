@@ -2,11 +2,21 @@
   "pageTitle": "Monitor úniků dat",
   "pageDescription": "Zkontrolujte, zda vaše e-mailové adresy nebyly zveřejněny při známých únicích dat",
   "loading": "Načítání údajů o únicích dat...",
+  "cloudNotConfigured": {
+    "title": "Vyžaduje se Kudu Cloud",
+    "description": "Připojte toto zařízení, abyste mohli kontrolovat e-mailové adresy vůči známým informacím o únicích dat a sledovat nově nahlášená odhalení.",
+    "action": "Zobrazit Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Připojení ke Cloud vyžaduje pozornost",
+    "description": "Toto zařízení má uložený klíč Cloud, ale již není autorizován. Zkontrolujte připojení a znovu jej propojte.",
+    "action": "Zkontrolovat připojení ke Cloud"
+  },
   "summary": {
-    "totalBreaches": "Celkem úniků dat",
+    "totalBreaches": "Celkem úniků",
     "unacknowledged": "Nové",
     "emailsMonitored": "Sledované e-maily",
-    "emailsMonitoredTooltip": "Tarif Basic: 1 e-mail · Tarif Pro: 5 e-mailů. Chcete-li sledovat více, upgradujte tarif v nastavení Cloudu."
+    "emailsMonitoredTooltip": "Tarif Basic: 1 e-mail · Tarif Pro: 5 e-mailů. Chcete-li sledovat více, upgradujte svůj tarif v nastavení Cloud."
   },
   "addEmail": {
     "placeholder": "Zadejte e-mailovou adresu",
@@ -20,7 +30,7 @@
     "invalidEmail": "Zadejte platnou e-mailovou adresu",
     "limitReached": "Byl dosažen limit e-mailů pro váš tarif",
     "acknowledged": "Úniky dat byly označeny jako zkontrolované",
-    "acknowledgeFailed": "Nepodařilo se označit úniky dat"
+    "acknowledgeFailed": "Nepodařilo se potvrdit úniky dat"
   },
   "emptyState": {
     "noEmails": "Nejsou sledovány žádné e-maily",
@@ -28,20 +38,20 @@
     "allClear": "Vše v pořádku",
     "allClearDesc": "Žádný z vašich sledovaných e-mailů nebyl nalezen v žádném známém úniku dat.",
     "upgradeRequired": "Je vyžadován upgrade",
-    "upgradeRequiredDesc": "Sledování úniků dat je k dispozici v tarifu Basic a vyšším. Upgradujte svůj tarif a začněte sledovat.",
+    "upgradeRequiredDesc": "Sledování úniků dat je dostupné v tarifu Basic a vyšším. Upgradujte svůj tarif a začněte sledovat.",
     "goToCloud": "Zobrazit tarify",
-    "noBreachesForEmail": "Pro tento e-mail nebyly nalezeny žádné úniky dat",
-    "selectEmail": "Vyberte e-mail ze seznamu pro zobrazení podrobností o úniku dat"
+    "noBreachesForEmail": "Pro tento e-mail nebyly nalezeny žádné úniky",
+    "selectEmail": "Vyberte e-mail ze seznamu pro zobrazení podrobností o úniku"
   },
   "error": {
     "title": "Nepodařilo se načíst údaje o únicích dat",
-    "description": "Zkontrolujte připojení ke cloudu a zkuste to znovu."
+    "description": "Zkontrolujte připojení ke cloudové službě a zkuste to znovu."
   },
   "emailList": {
-    "breaches": "{{count}} únik dat",
-    "breaches_other": "{{count}} úniků dat",
+    "breaches": "{{count}} únik",
+    "breaches_other": "{{count}} úniků",
     "newBreaches": "{{count}} nových",
-    "noBreaches": "Žádné úniky dat",
+    "noBreaches": "Žádné úniky",
     "checking": "Kontrola...",
     "paused": "Pozastaveno",
     "remove": "Odebrat e-mail",
@@ -49,7 +59,7 @@
   },
   "table": {
     "email": "E-mail",
-    "breach": "Únik dat",
+    "breach": "Únik",
     "date": "Datum",
     "accounts": "Účty",
     "data": "Kompromitovaná data",
@@ -57,7 +67,7 @@
     "actions": "",
     "new": "Nové",
     "reviewed": "Zkontrolováno",
-    "sensitive": "Citlivý únik dat",
+    "sensitive": "Citlivý únik",
     "verified": "Ověřeno",
     "unverified": "Neověřeno"
   },
@@ -66,9 +76,9 @@
   },
   "actions": {
     "acknowledge": "Označit jako zkontrolované",
-    "acknowledgeTooltip": "Označte tento únik dat jako zobrazený, aby se již nezobrazoval jako nový ani nespouštěl oznámení",
+    "acknowledgeTooltip": "Označte tento únik jako zobrazený, aby se již nezobrazoval jako nový ani nespouštěl oznámení",
     "acknowledgeAll": "Označit vše jako zkontrolované",
-    "acknowledgeAllTooltip": "Označit všechny nezkontrolované úniky dat jako zobrazené"
+    "acknowledgeAllTooltip": "Označte všechny nezkontrolované úniky jako zobrazené"
   },
   "refetchButton": "Obnovit"
 }

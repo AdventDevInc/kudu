@@ -5,11 +5,22 @@
   "refetchButton": "รีเฟรช",
   "cloudNotConfigured": {
     "title": "ต้องใช้ Cloud Agent",
-    "description": "การสแกน CVE ต้องเชื่อมโยง Cloud Agent ก่อน ไปที่ การตั้งค่า → Cloud เพื่อเชื่อมต่ออุปกรณ์ของคุณ"
+    "description": "การสแกน CVE ต้องใช้ Kudu Cloud Pro เชื่อมต่ออุปกรณ์นี้เพื่อตรวจสอบซอฟต์แวร์ที่ติดตั้งกับประกาศด้านความปลอดภัยล่าสุด",
+    "action": "ดู Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent ไม่ได้เชื่อมต่อ",
-    "description": "ขณะนี้ Cloud Agent ไม่ได้เชื่อมต่ออยู่ ตรวจสอบการเชื่อมต่อของคุณได้ที่ การตั้งค่า → Cloud"
+    "description": "ขณะนี้ Cloud Agent ไม่ได้เชื่อมต่อ ตรวจสอบการเชื่อมต่อของคุณได้ใน การตั้งค่า → Cloud"
+  },
+  "connectionError": {
+    "title": "การเชื่อมต่อ Cloud ต้องได้รับการตรวจสอบ",
+    "description": "อุปกรณ์นี้มีคีย์ Cloud ที่บันทึกไว้ แต่ไม่ได้รับอนุญาตอีกต่อไป โปรดตรวจสอบการเชื่อมต่อและเชื่อมโยงอีกครั้ง",
+    "action": "ตรวจสอบการเชื่อมต่อ Cloud"
+  },
+  "planRequired": {
+    "title": "ต้องใช้ Kudu Cloud Pro",
+    "description": "การตรวจสอบช่องโหว่เป็นฟีเจอร์ Pro อัปเกรดแผน Cloud ของคุณเพื่อสแกนซอฟต์แวร์ที่ติดตั้งกับฐานข้อมูล CVE แบบสด",
+    "action": "ดูแผน Cloud"
   },
   "emptyState": {
     "title": "ไม่พบช่องโหว่",
@@ -31,7 +42,7 @@
   },
   "filter": {
     "all": "ทั้งหมด",
-    "searchPlaceholder": "ค้นหาตามชื่อแอปหรือ CVE ID...",
+    "searchPlaceholder": "ค้นหาตามชื่อแอปหรือรหัส CVE...",
     "noResults": "ไม่มีช่องโหว่ที่ตรงกับตัวกรองปัจจุบันของคุณ"
   },
   "error": {
@@ -41,7 +52,7 @@
   "card": {
     "installed": "ติดตั้งอยู่: {{version}}",
     "fixAvailable": "การแก้ไข: {{version}}",
-    "noFix": "ยังไม่มีการแก้ไข",
+    "noFix": "ไม่มีการแก้ไขที่พร้อมใช้งาน",
     "cvss": "CVSS {{score}}",
     "firstDetected": "ตรวจพบครั้งแรก: {{date}}",
     "lastScanned": "สแกนล่าสุด: {{date}}",

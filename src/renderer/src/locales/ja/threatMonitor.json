@@ -1,26 +1,39 @@
 {
   "pageTitle": "脅威モニター",
   "pageDescription": "既知の脅威リストに照らしてネットワーク接続をリアルタイムで監視します。",
+  "checkingConnection": "Kudu Cloud 接続を確認しています…",
   "cloudNotConfigured": {
-    "title": "クラウドが設定されていません",
-    "description": "脅威監視を有効にするには、設定でお使いのデバイスを Kudu Cloud にリンクしてください。脅威ブラックリストはクラウドサービスによって提供されます。"
+    "title": "Kudu Cloud Pro が必要です",
+    "description": "このデバイスを Kudu Cloud Pro に接続すると、最新の脅威ブラックリストを受信し、不審なネットワーク アクティビティを監視できます。",
+    "action": "Kudu Cloud を表示"
+  },
+  "connectionError": {
+    "title": "Cloud 接続の確認が必要です",
+    "description": "このデバイスには保存済みの Cloud キーがありますが、現在は認証されていません。接続を確認して、再度リンクしてください。",
+    "action": "Cloud 接続を確認"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro が必要です",
+    "description": "脅威監視は Pro 機能です。このデバイスでライブ脅威ブラックリストを受信するには、Cloud プランをアップグレードしてください。",
+    "action": "Cloud プランを表示"
   },
   "loading": "読み込み中...",
   "inactive": {
     "title": "脅威モニターは無効です",
-    "description": "脅威ブラックリストが読み込まれていません。クラウドエージェントが接続されると、ブラックリストは自動的に取得されます。"
+    "description": "Cloud は接続されていますが、脅威ブラックリストはまだ利用できません。Pro プランを確認するか、Cloud エージェントが再接続した後でもう一度お試しください。",
+    "action": "Cloud プランを確認"
   },
   "statusBar": {
     "blacklistVersion": "ブラックリスト",
-    "connectionsScanned": "接続をスキャン {{time}}",
-    "dnsScanned": "DNS をスキャン {{time}}",
+    "connectionsScanned": "{{time}} に接続をスキャン",
+    "dnsScanned": "{{time}} に DNS をスキャン",
     "threatsDetected": "{{count}} 件の脅威を検出",
     "threatsDetectedPlural": "{{count}} 件の脅威を検出",
     "noThreatsDetected": "脅威は検出されませんでした"
   },
   "allClear": {
-    "title": "問題はありません",
-    "description": "不審な接続または DNS エントリは検出されませんでした。モニターはバックグラウンドでスキャンを継続します。"
+    "title": "問題ありません",
+    "description": "不審な接続や DNS エントリは検出されていません。モニターはバックグラウンドでスキャンを継続します。"
   },
   "flaggedConnections": "フラグ付き接続",
   "flaggedDnsEntries": "フラグ付き DNS エントリ",

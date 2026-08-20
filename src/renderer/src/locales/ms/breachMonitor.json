@@ -2,6 +2,16 @@
   "pageTitle": "Pemantau Kebocoran",
   "pageDescription": "Semak sama ada alamat e-mel anda telah terdedah dalam kebocoran data yang diketahui",
   "loading": "Memuatkan data kebocoran...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud diperlukan",
+    "description": "Sambungkan peranti ini untuk menyemak alamat e-mel terhadap risikan kebocoran yang diketahui dan menjejaki pendedahan baharu yang dilaporkan.",
+    "action": "Lihat Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Sambungan Cloud memerlukan perhatian",
+    "description": "Peranti ini mempunyai kunci Cloud yang disimpan, tetapi ia tidak lagi dibenarkan. Semak sambungan dan pautkannya semula.",
+    "action": "Semak sambungan Cloud"
+  },
   "summary": {
     "totalBreaches": "Jumlah Kebocoran",
     "unacknowledged": "Baharu",
@@ -19,8 +29,8 @@
     "removeFailed": "Gagal membuang e-mel",
     "invalidEmail": "Sila masukkan alamat e-mel yang sah",
     "limitReached": "Had e-mel telah dicapai untuk pelan anda",
-    "acknowledged": "Kebocoran ditandakan sebagai telah disemak",
-    "acknowledgeFailed": "Gagal mengakui kebocoran"
+    "acknowledged": "Kebocoran ditandakan sebagai disemak",
+    "acknowledgeFailed": "Gagal mengesahkan kebocoran"
   },
   "emptyState": {
     "noEmails": "Tiada e-mel dipantau",
@@ -65,9 +75,9 @@
     "allEmails": "Semua e-mel"
   },
   "actions": {
-    "acknowledge": "Tandakan sebagai telah disemak",
+    "acknowledge": "Tandakan sebagai disemak",
     "acknowledgeTooltip": "Tandakan kebocoran ini sebagai telah dilihat supaya ia tidak lagi dipaparkan sebagai baharu atau mencetuskan pemberitahuan",
-    "acknowledgeAll": "Tandakan semua sebagai telah disemak",
+    "acknowledgeAll": "Tandakan semua sebagai disemak",
     "acknowledgeAllTooltip": "Tandakan semua kebocoran yang belum disemak sebagai telah dilihat"
   },
   "refetchButton": "Muat semula"

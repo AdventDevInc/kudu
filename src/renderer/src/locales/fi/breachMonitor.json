@@ -2,9 +2,19 @@
   "pageTitle": "Tietomurtovalvonta",
   "pageDescription": "Tarkista, ovatko sähköpostiosoitteesi paljastuneet tunnetuissa tietomurroissa",
   "loading": "Ladataan tietomurtotietoja...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud vaaditaan",
+    "description": "Yhdistä tämä laite, jotta voit tarkistaa sähköpostiosoitteet tunnettuja tietomurtotietoja vasten ja seurata uusia ilmoitettuja paljastumisia.",
+    "action": "Näytä Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud-yhteys vaatii huomiota",
+    "description": "Tälle laitteelle on tallennettu Cloud-avain, mutta sitä ei ole enää valtuutettu. Tarkista yhteys ja yhdistä se uudelleen.",
+    "action": "Tarkista Cloud-yhteys"
+  },
   "summary": {
     "totalBreaches": "Tietomurtoja yhteensä",
-    "unacknowledged": "Uudet",
+    "unacknowledged": "Uusia",
     "emailsMonitored": "Valvotut sähköpostit",
     "emailsMonitoredTooltip": "Basic-paketti: 1 sähköposti · Pro-paketti: 5 sähköpostia. Päivitä pakettisi Cloud-asetuksissa valvoaksesi useampia."
   },
@@ -26,16 +36,16 @@
     "noEmails": "Valvottuja sähköposteja ei ole",
     "noEmailsDesc": "Lisää sähköpostiosoite tarkistaaksesi aiemmat tietomurrot ja valvoaksesi jatkuvasti uusia vuotoja.",
     "allClear": "Ei havaintoja",
-    "allClearDesc": "Yhtään valvotuista sähköpostiosoitteistasi ei ole löytynyt tunnetuista tietomurroista.",
+    "allClearDesc": "Yhtäkään valvotuista sähköpostiosoitteistasi ei ole löydetty tunnetuista tietomurroista.",
     "upgradeRequired": "Päivitys vaaditaan",
-    "upgradeRequiredDesc": "Tietomurtovalvonta on käytettävissä Basic-paketissa ja sitä ylemmissä. Päivitä pakettisi aloittaaksesi valvonnan.",
+    "upgradeRequiredDesc": "Tietomurtovalvonta on saatavilla Basic-paketista alkaen. Päivitä pakettisi aloittaaksesi valvonnan.",
     "goToCloud": "Näytä paketit",
     "noBreachesForEmail": "Tälle sähköpostille ei löytynyt tietomurtoja",
     "selectEmail": "Valitse sähköposti luettelosta nähdäksesi tietomurron tiedot"
   },
   "error": {
     "title": "Tietomurtotietojen lataaminen epäonnistui",
-    "description": "Tarkista pilviyhteytesi ja yritä uudelleen."
+    "description": "Tarkista cloud-yhteytesi ja yritä uudelleen."
   },
   "emailList": {
     "breaches": "{{count}} tietomurto",
@@ -66,7 +76,7 @@
   },
   "actions": {
     "acknowledge": "Merkitse tarkistetuksi",
-    "acknowledgeTooltip": "Merkitse tämä tietomurto nähdyksi, jotta sitä ei enää näytetä uutena eikä siitä lähetetä ilmoituksia",
+    "acknowledgeTooltip": "Merkitse tämä tietomurto nähdyksi, jotta se ei enää näy uutena tai käynnistä ilmoituksia",
     "acknowledgeAll": "Merkitse kaikki tarkistetuiksi",
     "acknowledgeAllTooltip": "Merkitse kaikki tarkistamattomat tietomurrot nähdyiksi"
   },

@@ -5,11 +5,22 @@
   "refetchButton": "Làm mới",
   "cloudNotConfigured": {
     "title": "Yêu cầu Cloud Agent",
-    "description": "Quét CVE yêu cầu Cloud Agent phải được liên kết. Đi tới Cài đặt → Cloud để kết nối thiết bị của bạn."
+    "description": "Quét CVE yêu cầu Kudu Cloud Pro. Kết nối thiết bị này để kiểm tra phần mềm đã cài đặt với các cảnh báo bảo mật hiện tại.",
+    "action": "Xem Kudu Cloud"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent chưa kết nối",
-    "description": "Cloud Agent hiện chưa được kết nối. Hãy kiểm tra kết nối của bạn trong Cài đặt → Cloud."
+    "title": "Cloud Agent chưa được kết nối",
+    "description": "Cloud Agent hiện chưa được kết nối. Kiểm tra kết nối của bạn trong Cài đặt → Cloud."
+  },
+  "connectionError": {
+    "title": "Kết nối Cloud cần được chú ý",
+    "description": "Thiết bị này có khóa Cloud đã lưu, nhưng không còn được ủy quyền. Hãy xem lại kết nối và liên kết lại.",
+    "action": "Xem lại kết nối Cloud"
+  },
+  "planRequired": {
+    "title": "Yêu cầu Kudu Cloud Pro",
+    "description": "Giám sát lỗ hổng bảo mật là tính năng Pro. Nâng cấp gói Cloud của bạn để quét phần mềm đã cài đặt với cơ sở dữ liệu CVE trực tiếp.",
+    "action": "Xem các gói Cloud"
   },
   "emptyState": {
     "title": "Không phát hiện lỗ hổng bảo mật",
@@ -32,7 +43,7 @@
   "filter": {
     "all": "Tất cả",
     "searchPlaceholder": "Tìm theo tên ứng dụng hoặc ID CVE...",
-    "noResults": "Không có lỗ hổng bảo mật nào khớp với bộ lọc hiện tại của bạn"
+    "noResults": "Không có lỗ hổng bảo mật nào khớp với bộ lọc hiện tại"
   },
   "error": {
     "title": "Không thể tải lỗ hổng bảo mật",

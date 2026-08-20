@@ -5,11 +5,22 @@
   "refetchButton": "Obnovit",
   "cloudNotConfigured": {
     "title": "Vyžadován Cloud Agent",
-    "description": "Kontrola CVE vyžaduje propojený Cloud Agent. Přejděte do Nastavení → Cloud a připojte své zařízení."
+    "description": "Skenování CVE vyžaduje Kudu Cloud Pro. Připojte toto zařízení, aby bylo možné porovnat nainstalovaný software s aktuálními bezpečnostními upozorněními.",
+    "action": "Zobrazit Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent není připojen",
-    "description": "Cloud Agent momentálně není připojen. Zkontrolujte připojení v Nastavení → Cloud."
+    "description": "Cloud Agent není momentálně připojen. Zkontrolujte připojení v Nastavení → Cloud."
+  },
+  "connectionError": {
+    "title": "Připojení ke Cloud vyžaduje pozornost",
+    "description": "Toto zařízení má uložený Cloud klíč, ale již není autorizován. Zkontrolujte připojení a znovu jej propojte.",
+    "action": "Zkontrolovat připojení ke Cloud"
+  },
+  "planRequired": {
+    "title": "Vyžadován Kudu Cloud Pro",
+    "description": "Monitorování zranitelností je funkce Pro. Upgradujte svůj Cloud tarif, abyste mohli skenovat nainstalovaný software podle živé databáze CVE.",
+    "action": "Zobrazit Cloud tarify"
   },
   "emptyState": {
     "title": "Nebyly zjištěny žádné zranitelnosti",
@@ -36,7 +47,7 @@
   },
   "error": {
     "title": "Nepodařilo se načíst zranitelnosti",
-    "description": "Nepodařilo se načíst data o zranitelnostech ze serveru. Zkuste je obnovit nebo zkontrolujte cloudové připojení."
+    "description": "Nepodařilo se načíst data o zranitelnostech ze serveru. Zkuste obnovení nebo zkontrolujte připojení ke cloudové službě."
   },
   "card": {
     "installed": "Nainstalováno: {{version}}",
@@ -44,9 +55,9 @@
     "noFix": "Není k dispozici žádná oprava",
     "cvss": "CVSS {{score}}",
     "firstDetected": "Poprvé zjištěno: {{date}}",
-    "lastScanned": "Naposledy zkontrolováno: {{date}}",
+    "lastScanned": "Naposledy skenováno: {{date}}",
     "viewDetails": "Zobrazit podrobnosti CVE",
-    "checkForUpdates": "Zkontrolovat aktualizace"
+    "checkForUpdates": "Vyhledat aktualizace"
   },
   "pagination": {
     "previous": "Předchozí",
