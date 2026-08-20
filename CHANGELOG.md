@@ -1,3 +1,15 @@
+# [2.3.0](https://github.com/adventdevinc/kudu/compare/v2.2.0...v2.3.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **i18n:** restore cleaner AI tools labels ([a9c1a50](https://github.com/adventdevinc/kudu/commit/a9c1a50c68bb7d7eeae8577c88984ef490abea91))
+
+
+### Features
+
+* **cleaner:** warn about running app blockers ([#325](https://github.com/adventdevinc/kudu/issues/325)) ([834a32b](https://github.com/adventdevinc/kudu/commit/834a32b3f6b3821158306992bfcc9137e22ff309))
+* **cloud:** add support and upgrade prompts ([#328](https://github.com/adventdevinc/kudu/issues/328)) ([3100e2e](https://github.com/adventdevinc/kudu/commit/3100e2ef059845dab48622d1c8ec497c62cd883c))
 # [2.2.0](https://github.com/adventdevinc/kudu/compare/v2.1.0...v2.2.0) (2026-08-20)
 
 
