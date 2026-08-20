@@ -146,6 +146,8 @@ const api = {
     ipcRenderer.invoke(IPC.CLEANER_OPEN_LOCATION, filePath),
   cleanerBlockers: (itemIds: string[]): Promise<CleanerBlocker[]> =>
     ipcRenderer.invoke(IPC.CLEANER_BLOCKERS, itemIds),
+  cleanerPrepareClean: (): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.CLEANER_PREPARE_CLEAN),
 
   // Environment cleaner
   environmentScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.ENVIRONMENT_SCAN),

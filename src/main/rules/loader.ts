@@ -48,6 +48,7 @@ export interface AppRulesJson {
     id: string
     name: string
     paths: string[]
+    group?: string
     minAgeDays?: number
     childSubdir?: string
     recursiveMatch?: RecursivePathMatch
@@ -262,6 +263,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.group) def.group = a.group
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
         if (a.fileMatch) def.fileMatch = a.fileMatch
@@ -277,6 +279,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.group) def.group = a.group
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
         if (a.fileMatch) def.fileMatch = a.fileMatch
@@ -292,6 +295,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           paths: resolvePathArray(a.paths, vars, platform),
         }
         if (a.childSubdir) def.childSubdir = a.childSubdir
+        if (a.group) def.group = a.group
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
         if (a.fileMatch) def.fileMatch = a.fileMatch

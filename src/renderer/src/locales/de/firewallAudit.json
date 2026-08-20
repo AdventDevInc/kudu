@@ -25,7 +25,7 @@
   "applySucceeded": "{{count}} erfolgreich",
   "applyFailedCount": ", {{count}} fehlgeschlagen",
   "emptyStateNoScanTitle": "Noch kein Scan",
-  "emptyStateNoScanDesc": "Scannen Sie, um eingehende Firewallregeln zu überprüfen und Verdächtiges zu markieren.",
+  "emptyStateNoScanDesc": "Scannen Sie, um eingehende Firewallregeln zu überprüfen und Verdächtiges zu kennzeichnen.",
   "scanRulesButton": "Firewallregeln scannen",
   "searchPlaceholder": "Regeln, Programme, Gruppen suchen…",
   "filterAllRisks": "Alle Risikostufen",

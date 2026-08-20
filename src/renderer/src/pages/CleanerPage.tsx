@@ -41,22 +41,31 @@ import { toast } from 'sonner'
 const isAbsolutePath = (p: string) => /^[A-Za-z]:[\\/]/.test(p) || p.startsWith('/')
 
 interface CategoryDef {
-  type: CleanerType
+  type: CategoryType
   labelKey: string
   icon: LucideIcon
   descriptionKey: string
 }
 
+const AI_TOOLS_VIEW = 'aiTools' as const
+const AI_TOOLS_GROUP = 'AI Tools'
+type CategoryType = CleanerType | typeof AI_TOOLS_VIEW
+
 const categories: CategoryDef[] = [
   { type: CleanerType.System, labelKey: 'categorySystem', icon: Monitor, descriptionKey: 'categorySystemDescription' },
   { type: CleanerType.Browser, labelKey: 'categoryBrowsers', icon: Globe, descriptionKey: 'categoryBrowsersDescription' },
   { type: CleanerType.App, labelKey: 'categoryApplications', icon: AppWindow, descriptionKey: 'categoryApplicationsDescription' },
+  { type: AI_TOOLS_VIEW, labelKey: 'categoryAiTools', icon: Sparkles, descriptionKey: 'categoryAiToolsDescription' },
   { type: CleanerType.Gaming, labelKey: 'categoryGaming', icon: Gamepad2, descriptionKey: 'categoryGamingDescription' },
   { type: CleanerType.RecycleBin, labelKey: 'categoryRecycleBin', icon: Trash2, descriptionKey: 'categoryRecycleBinDescription' },
   { type: CleanerType.Shortcut, labelKey: 'categoryShortcuts', icon: Link2Off, descriptionKey: 'categoryShortcutsDescription' },
   { type: CleanerType.Environment, labelKey: 'categoryEnvironment', icon: Variable, descriptionKey: 'categoryEnvironmentDescription' },
   { type: CleanerType.Database, labelKey: 'categoryDatabases', icon: Database, descriptionKey: 'categoryDatabasesDescription' }
 ]
+
+const scannerCategories = categories.filter(
+  (category): category is CategoryDef & { type: CleanerType } => category.type !== AI_TOOLS_VIEW
+)
 
 type SortMode = 'default' | 'size-desc' | 'size-asc'
 
@@ -83,9 +92,9 @@ export function CleanerPage() {
   const closeBrowsersBeforeClean = useSettingsStore((s) => s.settings.cleaner.closeBrowsersBeforeClean)
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
   const scannableCategories = protectRecycleBin
-    ? categories.filter((c) => c.type !== CleanerType.RecycleBin)
-    : categories
-  const [activeCategory, setActiveCategory] = useState<CleanerType>(CleanerType.System)
+    ? scannerCategories.filter((c) => c.type !== CleanerType.RecycleBin)
+    : scannerCategories
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(CleanerType.System)
   const [showConfirm, setShowConfirm] = useState(false)
   const [blockers, setBlockers] = useState<CleanerBlocker[]>([])
   const [confirmBlockers, setConfirmBlockers] = useState<CleanerBlocker[]>([])
@@ -250,11 +259,22 @@ export function CleanerPage() {
   }, [platform])
 
   const handleClean = useCallback(async () => {
+    const shouldCloseDetectedBrowsers = closeBrowsersBeforeClean
+      && confirmBlockers.some((blocker) => blocker.isBrowser)
     setShowConfirm(false)
     setConfirmBlockers([])
     store.setStatus(ScanStatus.Cleaning)
     cleanStartRef.current = Date.now()
     try {
+      if (shouldCloseDetectedBrowsers) {
+        try {
+          await window.kudu.cleanerPrepareClean()
+        } catch {
+          // Browser closing is best-effort; individual cleaners still report
+          // any files that remain locked.
+        }
+      }
+
       // Create a system restore point before cleaning if enabled
       if (createRestorePointEnabled) {
         try {
@@ -387,10 +407,31 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [store.results, createRestorePointEnabled, protectRecycleBin])
+  }, [store.results, createRestorePointEnabled, protectRecycleBin, closeBrowsersBeforeClean, confirmBlockers])
 
-  const categoryResults = (type: CleanerType) => store.results.filter((r) => r.category === type)
-  const categoryItemCount = (type: CleanerType) => categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
+  const categoryResults = (type: CategoryType) => {
+    if (type === AI_TOOLS_VIEW) {
+      return store.results.filter((r) => r.category === CleanerType.App && r.group === AI_TOOLS_GROUP)
+    }
+    if (type === CleanerType.App) {
+      return store.results.filter((r) => r.category === CleanerType.App && r.group !== AI_TOOLS_GROUP)
+    }
+    return store.results.filter((r) => r.category === type)
+  }
+  const categoryItemCount = (type: CategoryType) => categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
+
+  const toggleActiveCategory = () => {
+    const results = categoryResults(activeCategory)
+    const items = results.flatMap((result) => result.items)
+    const allSelected = items.length > 0 && items.every((item) => store.selectedItems.has(item.id))
+
+    for (const result of results) {
+      const resultSelected = result.items.every((item) => store.selectedItems.has(item.id))
+      if ((allSelected && resultSelected) || (!allSelected && !resultSelected)) {
+        store.toggleSubcategory(result)
+      }
+    }
+  }
 
   const toggleGroup = (key: string) => {
     setExpandedGroups((prev) => {
@@ -426,7 +467,7 @@ export function CleanerPage() {
           <div className="flex items-center gap-2.5">
             <button
               onClick={handleScan}
-              disabled={isScanning || isCleaning}
+              disabled={isScanning || isCleaning || preparingClean}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
               style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
             >
@@ -472,7 +513,7 @@ export function CleanerPage() {
                 {isActive && (
                   <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: 'var(--accent)' }} />
                 )}
-                {scanningCategory === cat.type ? (
+                {scanningCategory === cat.type || (cat.type === AI_TOOLS_VIEW && scanningCategory === CleanerType.App) ? (
                   <Loader2 className="h-[17px] w-[17px] shrink-0 animate-spin text-amber-400" strokeWidth={1.8} />
                 ) : (
                   <cat.icon className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
@@ -616,7 +657,7 @@ export function CleanerPage() {
               action={
                 <button
                   onClick={handleScan}
-                  disabled={isCleaning}
+                  disabled={isCleaning || preparingClean}
                   className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
                   style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
                 >
@@ -663,7 +704,7 @@ export function CleanerPage() {
                     )}
                   </div>
                   <button
-                    onClick={() => store.toggleCategory(activeCategory)}
+                    onClick={toggleActiveCategory}
                     className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
                   >
                     {t('toggleAll')}
@@ -682,12 +723,16 @@ export function CleanerPage() {
                 // Group results by group label (ungrouped first, then grouped
                 // sections); each section is sorted independently so sort
                 // order never interleaves group sections.
-                const ungrouped = sortResults(results.filter((r) => !r.group))
+                const ungrouped = activeCategory === AI_TOOLS_VIEW
+                  ? sortResults(results)
+                  : sortResults(results.filter((r) => !r.group))
                 const grouped = new Map<string, ScanResult[]>()
-                for (const r of results) {
-                  if (!r.group) continue
-                  if (!grouped.has(r.group)) grouped.set(r.group, [])
-                  grouped.get(r.group)!.push(r)
+                if (activeCategory !== AI_TOOLS_VIEW) {
+                  for (const r of results) {
+                    if (!r.group) continue
+                    if (!grouped.has(r.group)) grouped.set(r.group, [])
+                    grouped.get(r.group)!.push(r)
+                  }
                 }
                 for (const [label, items] of grouped) grouped.set(label, sortResults(items))
 

@@ -25,7 +25,7 @@
   "applySucceeded": "{{count}} berhasil",
   "applyFailedCount": ", {{count}} gagal",
   "emptyStateNoScanTitle": "Belum ada pemindaian",
-  "emptyStateNoScanDesc": "Pindai untuk meninjau aturan firewall masuk dan menandai hal yang mencurigakan.",
+  "emptyStateNoScanDesc": "Pindai untuk meninjau aturan firewall masuk dan menandai apa pun yang mencurigakan.",
   "scanRulesButton": "Pindai aturan firewall",
   "searchPlaceholder": "Cari aturan, program, grup…",
   "filterAllRisks": "Semua tingkat risiko",

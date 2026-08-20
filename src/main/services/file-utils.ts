@@ -727,13 +727,14 @@ export async function scanAppRule(
   options: { directoryItems?: boolean; group?: string } = {},
 ): Promise<ScanResult> {
   let result: ScanResult
+  const group = options.group ?? app.group
 
   if (app.fileMatch) {
     result = await scanMatchingFiles(app.paths, app.fileMatch, category, app.name)
   } else {
     const paths = await resolveChildSubdirs(app.paths, app.childSubdir, app.recursiveMatch)
     if (options.directoryItems && app.minAgeDays === undefined) {
-      result = await scanDirectoriesAsItems(paths, category, app.name, options.group)
+      result = await scanDirectoriesAsItems(paths, category, app.name, group)
     } else if (app.minAgeDays === undefined) {
       result = await scanMultipleDirectories(paths, category, app.name)
     } else {
@@ -744,7 +745,7 @@ export async function scanAppRule(
     }
   }
 
-  if (options.group && !result.group) result.group = options.group
+  if (group && !result.group) result.group = group
   return result
 }
 

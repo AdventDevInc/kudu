@@ -5,11 +5,22 @@
   "refetchButton": "Refresh",
   "cloudNotConfigured": {
     "title": "Cloud Agent Required",
-    "description": "CVE scanning requires the Cloud Agent to be linked. Go to Settings → Cloud to connect your device."
+    "description": "CVE scanning requires Kudu Cloud Pro. Connect this device to check installed software against current security advisories.",
+    "action": "View Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent Not Connected",
     "description": "The Cloud Agent is not currently connected. Check your connection in Settings → Cloud."
+  },
+  "connectionError": {
+    "title": "Cloud connection needs attention",
+    "description": "This device has a saved Cloud key, but it is no longer authorized. Review the connection and link it again.",
+    "action": "Review Cloud connection"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro required",
+    "description": "Vulnerability monitoring is a Pro feature. Upgrade your Cloud plan to scan installed software against the live CVE database.",
+    "action": "View Cloud plans"
   },
   "emptyState": {
     "title": "No Vulnerabilities Detected",

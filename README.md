@@ -45,7 +45,7 @@ Get the latest installer for your platform from [GitHub Releases](https://github
 
 Most system cleaners are closed-source, ad-filled, and want your money. Some are barely disguised malware themselves.
 
-Kudu is **100% free, open-source, and transparent**. No ads, no upsells, no telemetry. You can read every line of code, audit every scan, and verify every delete. Built by developers who were tired of recommending CCleaner with a straight face.
+Kudu's desktop tools are **free, open-source, and transparent**. No ads, bundled software, or nagging. Scans and cleaning stay local; optional Kudu Cloud features only connect when you explicitly enable them. You can read every line of code, audit every scan, and verify every delete. Built by developers who were tired of recommending CCleaner with a straight face.
 
 ## What It Does
 
@@ -108,6 +108,10 @@ Contributions are welcome! Feel free to open issues, submit PRs, or suggest feat
 **Want to add a cleaner for your favorite app?** Kudu's cleaning rules are simple JSON files — no code required. See the [Cleaner Rules Guide](rules/RULES.md) to get started, or browse the [full cleaner directory](https://usekudu.com/cleaners) to see what's already covered.
 
 If you find Kudu useful, consider giving it a star — it helps others discover the project.
+
+## Support Kudu
+
+Kudu's desktop tools stay free for everyone. If Kudu saves you time, you can [support continued open-source development](https://usekudu.com/sponsors).
 
 ## License
 

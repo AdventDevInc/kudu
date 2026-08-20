@@ -150,6 +150,7 @@ The test suite includes schema validation tests that verify every rule file.
   "id": "app-name",           // Required. Lowercase, hyphens ok.
   "name": "Display Name",     // Required. Shown in the UI.
   "paths": ["${VAR}/path"],   // Required. At least one path.
+  "group": "AI Tools",        // Optional. Groups related cleaner rules in the UI.
   "minAgeDays": 7,            // Optional. Preserve newer entries and inspect nested contents.
   "childSubdir": "caches",    // Optional. Scan path/*/childSubdir.
   "recursiveMatch": {          // Optional alternative to childSubdir.

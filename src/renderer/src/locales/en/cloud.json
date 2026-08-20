@@ -2,6 +2,11 @@
   "pageTitle": "Kudu Cloud",
   "pageDescription": "Unlock powerful security features by connecting to Kudu Cloud",
   "pageDescriptionLinked": "Manage your cloud connection and device settings",
+  "openDashboard": "Open dashboard",
+  "managePlan": "Manage plan",
+  "subscriptionRequiredTitle": "Cloud subscription required",
+  "subscriptionRequiredDesc": "This device is linked, but Cloud cannot connect without an active subscription. Choose or renew a plan to restore monitoring and remote features.",
+  "subscriptionRequiredAction": "View plans",
 
   "heroTitle": "Supercharge your system security",
   "heroSubtitle": "From $5/month · Cancel anytime",

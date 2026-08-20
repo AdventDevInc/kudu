@@ -78,6 +78,9 @@
   "retry": "Retry",
   "github": "GitHub",
   "reportBug": "Report Bug",
+  "supportKudu": "Support Kudu",
+  "supportKuduDescription": "Help fund continued open-source development and keep Kudu's desktop tools free for everyone.",
+  "supportKuduAction": "View sponsorships",
   "startupSettingFailedToast": "Failed to enable startup",
   "startupSettingFailedDesc": "Task Scheduler may be restricted by group policy or security software.",
   "startupSettingFailedAction": "Learn more"

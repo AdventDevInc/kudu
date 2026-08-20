@@ -1,6 +1,6 @@
 {
   "pageTitle": "Firewall-audit",
-  "pageDescription": "Controleer inkomende Windows Firewall-regels. Schakel vermeldingen met een brede reikwijdte, ontbrekende programma's of niet-ondertekende binaire bestanden uit of verwijder ze.",
+  "pageDescription": "Controleer inkomende Windows Firewall-regels. Schakel vermeldingen uit of verwijder ze als ze een brede reikwijdte hebben, programma's ontbreken of binaire bestanden niet zijn ondertekend.",
   "scanButton": "Opnieuw scannen",
   "scanningButton": "Scannen…",
   "selectStale": "Verouderde selecteren ({{count}})",
@@ -37,7 +37,7 @@
   "filterNoProgram": "Alleen poort",
   "filterStaleOnly": "Alleen verouderd",
   "showBuiltin": "Ingebouwde tonen ({{count}})",
-  "builtinTooltip": "{{count}} Microsoft-/systeem-/verpakte-app-regel(s) standaard verborgen — deze worden met Windows meegeleverd en mogen niet worden verwijderd.",
+  "builtinTooltip": "{{count}} Microsoft-/systeem-/verpakte-app-regel(s) zijn standaard verborgen — deze worden met Windows meegeleverd en mogen niet worden verwijderd.",
   "emptyStateNoMatchTitle": "Geen overeenkomende regels",
   "emptyStateNoMatchDesc": "Probeer uw filters of zoekopdracht aan te passen.",
   "groupHighRisk": "Hoog risico",
@@ -54,7 +54,7 @@
   "issueBroadScope": "Openbaar + Elke poort + Elk IP",
   "issueAnyRemote": "Elk extern IP",
   "ruleProfiles": "Profielen:",
-  "ruleAny": "Elke",
+  "ruleAny": "Elk",
   "rulePort": "poort {{port}}",
   "ruleRemote": "Extern:"
 }

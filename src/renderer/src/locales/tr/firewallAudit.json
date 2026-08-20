@@ -1,6 +1,6 @@
 {
   "pageTitle": "Güvenlik Duvarı Denetimi",
-  "pageDescription": "Gelen Windows Güvenlik Duvarı kurallarını gözden geçirin. Kapsamı geniş olan, programı eksik olan veya imzasız ikili dosyalara sahip girdileri devre dışı bırakın ya da silin.",
+  "pageDescription": "Gelen Windows Güvenlik Duvarı kurallarını gözden geçirin. Kapsamı geniş, programı eksik veya imzasız ikili dosyaları olan girdileri devre dışı bırakın ya da silin.",
   "scanButton": "Yeniden tara",
   "scanningButton": "Taranıyor…",
   "selectStale": "Eski olanları seç ({{count}})",
@@ -10,7 +10,7 @@
   "statStaleProgram": "Eski program",
   "statUnsigned": "İmzasız",
   "statBroadScope": "Geniş kapsam",
-  "scanTruncatedNotice": "Bu tarama erken tamamlandı, bu nedenle aşağıdaki liste eksik. Tüm kuralları denetlemek için yeniden tarayın.",
+  "scanTruncatedNotice": "Bu tarama erken tamamlandı, bu nedenle aşağıdaki liste eksik. Her kuralı denetlemek için yeniden tarayın.",
   "scanProgressEnumerating": "Kurallar listeleniyor…",
   "scanProgressClassifying": "Kurallar sınıflandırılıyor…",
   "scanProgressVerifying": "İmzalar doğrulanıyor…",
