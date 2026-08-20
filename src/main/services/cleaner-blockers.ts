@@ -1,4 +1,4 @@
-import { basename, join } from 'path'
+import { join, win32 } from 'path'
 import { tmpdir } from 'os'
 import { lstat, mkdtemp, readdir, rm, writeFile } from 'fs/promises'
 import type { CleanerBlocker, ScanItem } from '../../shared/types'
@@ -158,7 +158,9 @@ export function parseRestartManagerBlockers(
     return []
   }
 
-  const ownProcessName = normalizedProcessName(basename(currentExecutable))
+  // Restart Manager is Windows-only, so parse this as a Windows path even
+  // when the pure parser is exercised by macOS/Linux CI.
+  const ownProcessName = normalizedProcessName(win32.basename(currentExecutable))
   const blockers = new Map<string, CleanerBlocker>()
 
   for (const entry of parsed) {
