@@ -60,6 +60,7 @@
           "items": { "$ref": "#/definitions/TemplatePath" },
           "minItems": 1
         },
+        "group": { "type": "string", "minLength": 1, "description": "Optional UI section for related cleaner rules" },
         "minAgeDays": { "type": "integer", "minimum": 1, "maximum": 3650, "description": "Only clean entries at least this many days old; nested directories are checked before deletion" },
         "childSubdir": { "type": "string", "description": "If set, scan paths/*/childSubdir instead of paths directly" },
         "recursiveMatch": { "$ref": "#/definitions/RecursivePathMatch" },

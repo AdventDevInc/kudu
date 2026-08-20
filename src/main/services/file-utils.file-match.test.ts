@@ -98,6 +98,21 @@ describe('scanMatchingFiles', () => {
 })
 
 describe('scanAppRule', () => {
+  it('applies a declarative UI group to scan results', async () => {
+    const root = await tempRoot()
+    await makeFile(join(root, 'old.log'), 30)
+
+    const result = await scanAppRule({
+      id: 'ai-logs',
+      name: 'AI Logs',
+      paths: [root],
+      group: 'AI Tools',
+      minAgeDays: 14,
+    }, 'app')
+
+    expect(result.group).toBe('AI Tools')
+  })
+
   it('applies the configured age recursively and preserves recent files', async () => {
     const root = await tempRoot()
     const oldFile = join(root, 'old.log')
