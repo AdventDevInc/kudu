@@ -42,9 +42,10 @@ vi.mock('../platform', () => ({
 }))
 
 vi.mock('../services/ipc-validation', () => ({
-  validateStringArray: (input: unknown) => {
+  validateStringArray: (input: unknown, maxItems = 10_000, maxItemLength = 1024) => {
     if (!Array.isArray(input)) return null
-    if (!input.every((v: unknown) => typeof v === 'string')) return null
+    if (input.length > maxItems) return null
+    if (!input.every((v: unknown) => typeof v === 'string' && v.length <= maxItemLength)) return null
     return input as string[]
   },
 }))
@@ -106,11 +107,12 @@ describe('registerBrowserCleanerIpc', () => {
     vi.clearAllMocks()
   })
 
-  it('registers BROWSER_SCAN and BROWSER_CLEAN handlers', () => {
+  it('registers browser scan, clean, and cleaner preflight handlers', () => {
     registerBrowserCleanerIpc(() => null)
     const channels = mockHandle.mock.calls.map((c) => c[0])
     expect(channels).toContain('cleaner:browser:scan')
     expect(channels).toContain('cleaner:browser:clean')
+    expect(channels).toContain('cleaner:prepare-clean')
   })
 })
 
@@ -361,6 +363,24 @@ describe('BROWSER_CLEAN handler', () => {
     expect(result).toEqual(expect.objectContaining({ totalCleaned: 500 }))
   })
 
+  it('accepts cleaner selections larger than the generic 10,000-item IPC limit', async () => {
+    mockGetSettings.mockReturnValue({ cleaner: { closeBrowsersBeforeClean: false } })
+    mockCleanItems.mockResolvedValue({
+      totalCleaned: 0,
+      filesDeleted: 0,
+      filesSkipped: 0,
+      errors: [],
+      needsElevation: false,
+    })
+    const itemIds = Array.from({ length: 10_001 }, (_, index) => `id-${index}`)
+
+    registerBrowserCleanerIpc(() => null)
+    const handler = getHandler('cleaner:browser:clean')
+    await handler({}, itemIds)
+
+    expect(mockCleanItems).toHaveBeenCalledWith(itemIds, expect.any(Function))
+  })
+
   it('closes browsers before cleaning when setting is enabled', async () => {
     mockGetSettings.mockReturnValue({ cleaner: { closeBrowsersBeforeClean: true } })
     mockCloseBrowsers.mockResolvedValue(undefined)
@@ -393,6 +413,34 @@ describe('BROWSER_CLEAN handler', () => {
     const handler = getHandler('cleaner:browser:clean')
     await handler({}, ['id-1'])
 
+    expect(mockCloseBrowsers).not.toHaveBeenCalled()
+  })
+})
+
+describe('CLEANER_PREPARE_CLEAN handler', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockBrowserPaths.mockReturnValue(makeBrowserPaths())
+  })
+
+  it('closes browsers before the category clean loop when enabled', async () => {
+    mockGetSettings.mockReturnValue({ cleaner: { closeBrowsersBeforeClean: true } })
+    mockCloseBrowsers.mockResolvedValue(undefined)
+
+    registerBrowserCleanerIpc(() => null)
+    const handler = getHandler('cleaner:prepare-clean')
+
+    await expect(handler()).resolves.toBe(true)
+    expect(mockCloseBrowsers).toHaveBeenCalledOnce()
+  })
+
+  it('does not close browsers when the setting is disabled', async () => {
+    mockGetSettings.mockReturnValue({ cleaner: { closeBrowsersBeforeClean: false } })
+
+    registerBrowserCleanerIpc(() => null)
+    const handler = getHandler('cleaner:prepare-clean')
+
+    await expect(handler()).resolves.toBe(false)
     expect(mockCloseBrowsers).not.toHaveBeenCalled()
   })
 })

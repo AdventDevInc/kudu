@@ -90,8 +90,17 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
     return results
   })
 
+  // The full cleaner runs categories in a fixed order, with System before
+  // Browser. Close browsers once up front so they cannot keep selected files
+  // locked in any category (including when no Browser items are selected).
+  ipcMain.handle(IPC.CLEANER_PREPARE_CLEAN, async (): Promise<boolean> => {
+    if (!getSettings().cleaner.closeBrowsersBeforeClean) return false
+    await getPlatform().browser.closeBrowsers()
+    return true
+  })
+
   ipcMain.handle(IPC.BROWSER_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
-    const valid = validateStringArray(itemIds)
+    const valid = validateStringArray(itemIds, 250_000, 100)
     if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
     const settings = getSettings()
     if (settings.cleaner.closeBrowsersBeforeClean) {

@@ -20,7 +20,7 @@ export function registerUninstallLeftoversIpc(getWindow: WindowGetter): void {
   })
 
   ipcMain.handle(IPC.UNINSTALL_LEFTOVERS_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
-    const valid = validateStringArray(itemIds)
+    const valid = validateStringArray(itemIds, 250_000, 100)
     if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
     return cleanItems(valid)
   })

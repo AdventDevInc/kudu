@@ -164,7 +164,7 @@ describe('uninstall-leftovers IPC', () => {
       const result = await invoke('cleaner:uninstall-leftovers:clean', ids)
 
       expect(result).toEqual(expected)
-      expect(mockValidateStringArray).toHaveBeenCalledWith(ids)
+      expect(mockValidateStringArray).toHaveBeenCalledWith(ids, 250_000, 100)
       expect(mockCleanItems).toHaveBeenCalledWith(ids)
     })
 

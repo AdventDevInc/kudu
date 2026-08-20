@@ -37,6 +37,8 @@ export const IPC = {
 
   // Cleaner shared
   CLEANER_OPEN_LOCATION: 'cleaner:open-location',
+  CLEANER_BLOCKERS: 'cleaner:blockers',
+  CLEANER_PREPARE_CLEAN: 'cleaner:prepare-clean',
 
   // Registry
   REGISTRY_SCAN: 'cleaner:registry:scan',

@@ -50,6 +50,7 @@ import { validateSettingsPartial, validateHistoryEntry, validateDeletionQuery } 
 import { createRestorePoint } from '../services/restore-point'
 import { checkForUpdates, downloadUpdate, installUpdate, getUpdateStatus, setAutoDownload, updateCheckInterval } from '../services/auto-updater'
 import { buildLinuxElevationCommand, getLinuxRelaunchExecutable } from '../platform/linux/elevation'
+import { findCleanerBlockers } from '../services/cleaner-blockers'
 
 export type WindowGetter = () => BrowserWindow | null
 
@@ -94,6 +95,12 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     if (typeof filePath !== 'string') return
     if (!isAbsolute(filePath)) return
     shell.showItemInFolder(filePath)
+  })
+
+  // Confirmed lock owners for the current selection. This is advisory only:
+  // a failed/unsupported preflight returns no blockers and never stops a clean.
+  ipcMain.handle(IPC.CLEANER_BLOCKERS, (_event, itemIds: unknown) => {
+    return findCleanerBlockers(itemIds)
   })
 
   // Platform info
