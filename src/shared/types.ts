@@ -140,6 +140,14 @@ export interface CleanError {
   reason: string
 }
 
+/** A running application confirmed to be using at least one selected clean item. */
+export interface CleanerBlocker {
+  pid: number
+  name: string
+  processName: string
+  isBrowser: boolean
+}
+
 export interface ProgressData {
   phase: 'scanning' | 'cleaning'
   category: string

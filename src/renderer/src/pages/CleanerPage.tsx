@@ -33,7 +33,7 @@ import { useHistoryStore } from '@/stores/history-store'
 import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
 import { ScanStatus, CleanerType } from '@shared/enums'
-import type { ScanResult } from '@shared/types'
+import type { CleanerBlocker, ScanResult } from '@shared/types'
 import type { LucideIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -66,6 +66,12 @@ const SORT_LABEL_KEYS: Record<SortMode, string> = {
   'size-asc': 'sortSizeAsc'
 }
 
+function blockerNames(blockers: CleanerBlocker[], moreLabel: (count: number) => string): string {
+  const visible = blockers.slice(0, 4).map((blocker) => blocker.name)
+  if (blockers.length > visible.length) visible.push(moreLabel(blockers.length - visible.length))
+  return visible.join(', ')
+}
+
 export function CleanerPage() {
   const { t } = useTranslation(['cleaner', 'settings'])
   const navigate = useNavigate()
@@ -74,14 +80,20 @@ export function CleanerPage() {
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
   const createRestorePointEnabled = useSettingsStore((s) => s.settings.cleaner.createRestorePoint)
+  const closeBrowsersBeforeClean = useSettingsStore((s) => s.settings.cleaner.closeBrowsersBeforeClean)
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
   const scannableCategories = protectRecycleBin
     ? categories.filter((c) => c.type !== CleanerType.RecycleBin)
     : categories
   const [activeCategory, setActiveCategory] = useState<CleanerType>(CleanerType.System)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [blockers, setBlockers] = useState<CleanerBlocker[]>([])
+  const [confirmBlockers, setConfirmBlockers] = useState<CleanerBlocker[]>([])
+  const [checkingBlockers, setCheckingBlockers] = useState(false)
+  const [preparingClean, setPreparingClean] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const cleanStartRef = useRef<number>(0)
+  const blockerRequestRef = useRef(0)
   const [scanningCategory, setScanningCategory] = useState<CleanerType | null>(null)
   const [sortMode, setSortMode] = useState<SortMode>('default')
   const [showSortMenu, setShowSortMenu] = useState(false)
@@ -125,6 +137,41 @@ export function CleanerPage() {
   const [failedCategories, setFailedCategories] = useState<string[]>([])
   const [elevationSkipped, setElevationSkipped] = useState<string[]>([])
 
+  // Check the default selection after each scan. Selection changes are
+  // revalidated when Clean is clicked, avoiding an OS query on every checkbox.
+  useEffect(() => {
+    if (
+      platform !== 'win32'
+      || store.status !== ScanStatus.Complete
+      || store.cleanSummary
+      || store.selectedItems.size === 0
+      || !window.kudu?.cleanerBlockers
+    ) {
+      setBlockers([])
+      setCheckingBlockers(false)
+      return
+    }
+
+    const requestId = ++blockerRequestRef.current
+    let cancelled = false
+    setCheckingBlockers(true)
+    const timer = window.setTimeout(async () => {
+      try {
+        const result = await window.kudu.cleanerBlockers([...store.selectedItems])
+        if (!cancelled && blockerRequestRef.current === requestId) setBlockers(result)
+      } catch {
+        if (!cancelled && blockerRequestRef.current === requestId) setBlockers([])
+      } finally {
+        if (!cancelled && blockerRequestRef.current === requestId) setCheckingBlockers(false)
+      }
+    }, 250)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [platform, store.status, store.cleanSummary])
+
   const handleRelaunch = useCallback(() => {
     window.kudu.elevationRelaunch()
   }, [])
@@ -132,6 +179,7 @@ export function CleanerPage() {
   const handleScan = useCallback(async () => {
     store.setStatus(ScanStatus.Scanning)
     store.setResults([])
+    store.setCleanSummary(null)
     setExpandedGroups(new Set())
     setFailedCategories([])
     setElevationSkipped([])
@@ -177,8 +225,33 @@ export function CleanerPage() {
     store.setProgress(null)
   }, [protectRecycleBin])
 
+  const handleCleanRequest = useCallback(async () => {
+    const selectedIds = store.getSelectedIds()
+    if (selectedIds.length === 0) return
+
+    setPreparingClean(true)
+    const requestId = ++blockerRequestRef.current
+    let latest: CleanerBlocker[] = []
+    try {
+      if (platform === 'win32' && window.kudu?.cleanerBlockers) {
+        latest = await window.kudu.cleanerBlockers(selectedIds)
+      }
+    } catch {
+      // Advisory preflight failures must not prevent the confirmation dialog.
+    } finally {
+      if (blockerRequestRef.current === requestId) {
+        setBlockers(latest)
+        setConfirmBlockers(latest)
+        setCheckingBlockers(false)
+        setShowConfirm(true)
+        setPreparingClean(false)
+      }
+    }
+  }, [platform])
+
   const handleClean = useCallback(async () => {
     setShowConfirm(false)
+    setConfirmBlockers([])
     store.setStatus(ScanStatus.Cleaning)
     cleanStartRef.current = Date.now()
     try {
@@ -361,8 +434,8 @@ export function CleanerPage() {
               {t('scanButton')}
             </button>
             <button
-              onClick={() => setShowConfirm(true)}
-              disabled={!hasResults || isScanning || isCleaning || store.getSelectedIds().length === 0}
+              onClick={handleCleanRequest}
+              disabled={!hasResults || isScanning || isCleaning || checkingBlockers || preparingClean || store.getSelectedIds().length === 0}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -370,8 +443,10 @@ export function CleanerPage() {
                 boxShadow: hasResults ? '0 4px 20px rgba(245,158,11,0.2)' : 'none'
               }}
             >
-              <Sparkles className="h-4 w-4" strokeWidth={2} />
-              {t('cleanButton')}
+              {preparingClean
+                ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+                : <Sparkles className="h-4 w-4" strokeWidth={2} />}
+              {preparingClean ? t('checkingRunningApps') : t('cleanButton')}
             </button>
           </div>
         }
@@ -484,6 +559,31 @@ export function CleanerPage() {
                   {t('relaunchAsAdmin')}
                 </button>
               )}
+            </div>
+          )}
+
+          {(checkingBlockers || blockers.length > 0) && store.status === ScanStatus.Complete && !store.cleanSummary && (
+            <div
+              className="mb-5 flex items-start gap-3 rounded-2xl px-4 py-3"
+              style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
+            >
+              {checkingBlockers
+                ? <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-amber-400" strokeWidth={1.8} />
+                : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />}
+              <div className="min-w-0 flex-1">
+                <p className="text-[12px] font-medium text-zinc-200">
+                  {checkingBlockers
+                    ? t('checkingRunningApps')
+                    : t('closeAppsBeforeCleaning', { apps: blockerNames(blockers, (count) => t('moreApps', { count })) })}
+                </p>
+                {!checkingBlockers && (
+                  <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    {closeBrowsersBeforeClean && blockers.every((blocker) => blocker.isBrowser)
+                      ? t('blockersAutoCloseDescription')
+                      : t('blockersDescription')}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -744,9 +844,9 @@ export function CleanerPage() {
       <ConfirmDialog
         open={showConfirm}
         onConfirm={handleClean}
-        onCancel={() => setShowConfirm(false)}
+        onCancel={() => { setShowConfirm(false); setConfirmBlockers([]) }}
         title={t('confirmCleanTitle')}
-        description={t('confirmCleanDescription', { count: formatNumber(store.getSelectedIds().length), size: formatBytes(store.getSelectedSize()) })}
+        description={`${t('confirmCleanDescription', { count: formatNumber(store.getSelectedIds().length), size: formatBytes(store.getSelectedSize()) })}${confirmBlockers.length > 0 ? ` ${t('confirmCloseApps', { apps: blockerNames(confirmBlockers, (count) => t('moreApps', { count })) })}` : ''}`}
         confirmLabel={t('confirmCleanLabel')}
         variant="warning"
       />

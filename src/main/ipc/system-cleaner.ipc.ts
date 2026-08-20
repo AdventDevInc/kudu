@@ -113,7 +113,9 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
   })
 
   ipcMain.handle(IPC.SYSTEM_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
-    const valid = validateStringArray(itemIds)
+    // Large scans legitimately exceed the generic 10k IPC-list limit. IDs are
+    // UUIDs from Kudu's own scan cache, so keep a high but bounded cleaner cap.
+    const valid = validateStringArray(itemIds, 250_000, 100)
     if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
