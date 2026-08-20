@@ -31,7 +31,10 @@ async function analyzeDirectory(
   }
 
   if (depth >= MAX_DEPTH) {
-    node.size = await quickSize(dirPath)
+    // Keep the returned tree shallow for the renderer, but continue measuring
+    // the complete subtree. Stopping the size scan here silently omitted every
+    // file nested below the tree depth limit.
+    node.size = await measureDirectorySize(dirPath)
     return node
   }
 
@@ -116,14 +119,20 @@ async function collectFileTypes(
   }
 }
 
-async function quickSize(dirPath: string): Promise<number> {
+async function measureDirectorySize(dirPath: string): Promise<number> {
   let size = 0
   try {
     const entries = await readdir(dirPath, { withFileTypes: true })
     for (const entry of entries) {
       try {
-        const s = await stat(join(dirPath, entry.name))
-        size += s.isDirectory() ? 0 : s.size
+        const fullPath = join(dirPath, entry.name)
+        if (entry.isDirectory()) {
+          size += await measureDirectorySize(fullPath)
+        } else {
+          const s = await stat(fullPath)
+          // Do not count or follow directory symlinks/junctions.
+          if (!s.isDirectory()) size += s.size
+        }
       } catch {
         // Skip
       }

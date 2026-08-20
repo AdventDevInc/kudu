@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { join, sep } from 'path'
 
 // ── Mocks ──
 
@@ -215,6 +216,38 @@ describe('analyzeDisk (exported)', () => {
   it('returns empty node for null-like input', async () => {
     const result = await analyzeDisk(null as any)
     expect(result).toEqual({ name: '', path: '', size: 0, children: [] })
+  })
+
+  it('includes files nested below the displayed tree depth', async () => {
+    const drive = process.platform === 'win32' ? 'C' : '/'
+    const root = process.platform === 'win32' ? 'C:\\' : sep
+    const games = join(root, 'Games')
+    const publisher = join(games, 'Publisher')
+    const game = join(publisher, 'Game')
+    const content = join(game, 'Content')
+    const payload = join(content, 'payload.bin')
+
+    const directory = (name: string) => ({ name, isDirectory: () => true })
+    const file = (name: string) => ({ name, isDirectory: () => false })
+    const entries = new Map<string, unknown[]>([
+      [root, [directory('Games')]],
+      [games, [directory('Publisher')]],
+      [publisher, [directory('Game')]],
+      [game, [directory('Content')]],
+      [content, [file('payload.bin')]],
+    ])
+
+    mockReaddir.mockImplementation(async (path: string) => entries.get(path) ?? [])
+    mockStat.mockImplementation(async (path: string) => ({
+      isDirectory: () => false,
+      size: path === payload ? 54_800_000_000 : 0,
+    }))
+
+    const result = await analyzeDisk(drive)
+
+    expect(result.size).toBe(54_800_000_000)
+    expect(result.children?.[0].size).toBe(54_800_000_000)
+    expect(result.children?.[0].children?.[0].children?.[0].children).toEqual([])
   })
 })
 
