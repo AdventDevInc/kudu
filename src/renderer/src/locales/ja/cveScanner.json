@@ -5,26 +5,15 @@
   "refetchButton": "更新",
   "cloudNotConfigured": {
     "title": "Cloud Agent が必要です",
-    "description": "CVE スキャンには Kudu Cloud Pro が必要です。このデバイスを接続して、インストールされているソフトウェアを最新のセキュリティ アドバイザリと照合してください。",
-    "action": "Kudu Cloud を表示"
+    "description": "CVE スキャンを実行するには、Cloud Agent をリンクする必要があります。設定 → Cloud に移動してデバイスを接続してください。"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent が接続されていません",
     "description": "Cloud Agent は現在接続されていません。設定 → Cloud で接続を確認してください。"
   },
-  "connectionError": {
-    "title": "Cloud 接続の確認が必要です",
-    "description": "このデバイスには保存済みの Cloud キーがありますが、現在は認証されていません。接続を確認して、再度リンクしてください。",
-    "action": "Cloud 接続を確認"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro が必要です",
-    "description": "脆弱性の監視は Pro 機能です。Cloud プランをアップグレードして、インストールされているソフトウェアを最新の CVE データベースと照合してください。",
-    "action": "Cloud プランを表示"
-  },
   "emptyState": {
     "title": "脆弱性は検出されませんでした",
-    "description": "インストールされているソフトウェアに既知の CVE は見つかりませんでした。システムは安全な状態です。"
+    "description": "インストールされているソフトウェアで既知の CVE は見つかりませんでした。システムは安全な状態です。"
   },
   "severity": {
     "critical": "重大",
@@ -52,7 +41,7 @@
   "card": {
     "installed": "インストール済み: {{version}}",
     "fixAvailable": "修正: {{version}}",
-    "noFix": "修正はありません",
+    "noFix": "利用可能な修正はありません",
     "cvss": "CVSS {{score}}",
     "firstDetected": "初回検出: {{date}}",
     "lastScanned": "最終スキャン: {{date}}",

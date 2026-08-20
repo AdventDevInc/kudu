@@ -5,22 +5,11 @@
   "refetchButton": "Muat semula",
   "cloudNotConfigured": {
     "title": "Cloud Agent Diperlukan",
-    "description": "Pengimbasan CVE memerlukan Kudu Cloud Pro. Sambungkan peranti ini untuk menyemak perisian yang dipasang terhadap nasihat keselamatan semasa.",
-    "action": "Lihat Kudu Cloud"
+    "description": "Pengimbasan CVE memerlukan Cloud Agent dipautkan. Pergi ke Tetapan → Cloud untuk menyambungkan peranti anda."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent Tidak Disambungkan",
     "description": "Cloud Agent tidak disambungkan pada masa ini. Semak sambungan anda dalam Tetapan → Cloud."
-  },
-  "connectionError": {
-    "title": "Sambungan Cloud memerlukan perhatian",
-    "description": "Peranti ini mempunyai kunci Cloud yang disimpan, tetapi ia tidak lagi dibenarkan. Semak sambungan dan pautkannya semula.",
-    "action": "Semak sambungan Cloud"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro diperlukan",
-    "description": "Pemantauan kerentanan ialah ciri Pro. Naik taraf pelan Cloud anda untuk mengimbas perisian yang dipasang terhadap pangkalan data CVE langsung.",
-    "action": "Lihat pelan Cloud"
   },
   "emptyState": {
     "title": "Tiada Kerentanan Dikesan",
@@ -54,7 +43,7 @@
     "fixAvailable": "Pembaikan: {{version}}",
     "noFix": "Tiada pembaikan tersedia",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "Pertama kali dikesan: {{date}}",
+    "firstDetected": "Mula dikesan: {{date}}",
     "lastScanned": "Imbasan terakhir: {{date}}",
     "viewDetails": "Lihat Butiran CVE",
     "checkForUpdates": "Semak Kemas Kini"

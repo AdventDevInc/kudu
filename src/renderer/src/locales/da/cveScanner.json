@@ -5,22 +5,11 @@
   "refetchButton": "Opdater",
   "cloudNotConfigured": {
     "title": "Cloud Agent påkrævet",
-    "description": "CVE-scanning kræver Kudu Cloud Pro. Tilslut denne enhed for at kontrollere installeret software mod aktuelle sikkerhedsadvarsler.",
-    "action": "Vis Kudu Cloud"
+    "description": "CVE-scanning kræver, at Cloud Agent er tilknyttet. Gå til Indstillinger → Cloud for at forbinde din enhed."
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent er ikke tilsluttet",
-    "description": "Cloud Agent er ikke tilsluttet i øjeblikket. Kontrollér forbindelsen under Indstillinger → Cloud."
-  },
-  "connectionError": {
-    "title": "Cloud-forbindelsen kræver opmærksomhed",
-    "description": "Denne enhed har en gemt Cloud-nøgle, men den er ikke længere godkendt. Gennemgå forbindelsen, og tilknyt den igen.",
-    "action": "Gennemgå Cloud-forbindelse"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro påkrævet",
-    "description": "Overvågning af sårbarheder er en Pro-funktion. Opgrader din Cloud-plan for at scanne installeret software mod den aktuelle CVE-database.",
-    "action": "Vis Cloud-planer"
+    "title": "Cloud Agent er ikke forbundet",
+    "description": "Cloud Agent er ikke forbundet i øjeblikket. Kontrollér din forbindelse under Indstillinger → Cloud."
   },
   "emptyState": {
     "title": "Ingen sårbarheder registreret",
@@ -43,19 +32,19 @@
   "filter": {
     "all": "Alle",
     "searchPlaceholder": "Søg efter appnavn eller CVE-id...",
-    "noResults": "Ingen sårbarheder matcher dine aktuelle filtre"
+    "noResults": "Ingen sårbarheder matcher dine nuværende filtre"
   },
   "error": {
     "title": "Kunne ikke indlæse sårbarheder",
-    "description": "Kunne ikke hente sårbarhedsdata fra serveren. Prøv at opdatere, eller kontrollér din cloud-forbindelse."
+    "description": "Kunne ikke hente sårbarhedsdata fra serveren. Prøv at opdatere, eller kontrollér din cloudforbindelse."
   },
   "card": {
     "installed": "Installeret: {{version}}",
-    "fixAvailable": "Løsning: {{version}}",
-    "noFix": "Ingen løsning tilgængelig",
+    "fixAvailable": "Rettelse: {{version}}",
+    "noFix": "Ingen rettelse tilgængelig",
     "cvss": "CVSS {{score}}",
     "firstDetected": "Først registreret: {{date}}",
-    "lastScanned": "Sidst scannet: {{date}}",
+    "lastScanned": "Senest scannet: {{date}}",
     "viewDetails": "Vis CVE-detaljer",
     "checkForUpdates": "Søg efter opdateringer"
   },
@@ -66,6 +55,6 @@
   },
   "toast": {
     "fetchFailed": "Kunne ikke indlæse sårbarhedsdata",
-    "fetchFailedNotConnected": "Cloud Agent er ikke tilsluttet"
+    "fetchFailedNotConnected": "Cloud Agent er ikke forbundet"
   }
 }

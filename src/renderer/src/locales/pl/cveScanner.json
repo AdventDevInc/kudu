@@ -1,30 +1,19 @@
 {
   "pageTitle": "Luki w zabezpieczeniach",
   "pageDescription": "Wyświetl znane luki w zabezpieczeniach wykryte w zainstalowanym oprogramowaniu",
-  "loading": "Ładowanie luk w zabezpieczeniach...",
+  "loading": "Wczytywanie luk w zabezpieczeniach...",
   "refetchButton": "Odśwież",
   "cloudNotConfigured": {
     "title": "Wymagany Cloud Agent",
-    "description": "Skanowanie CVE wymaga Kudu Cloud Pro. Połącz to urządzenie, aby sprawdzić zainstalowane oprogramowanie pod kątem aktualnych biuletynów bezpieczeństwa.",
-    "action": "Wyświetl Kudu Cloud"
+    "description": "Skanowanie CVE wymaga połączenia z Cloud Agent. Przejdź do Ustawienia → Chmura, aby połączyć urządzenie."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent nie jest połączony",
     "description": "Cloud Agent nie jest obecnie połączony. Sprawdź połączenie w Ustawienia → Chmura."
   },
-  "connectionError": {
-    "title": "Połączenie z chmurą wymaga uwagi",
-    "description": "To urządzenie ma zapisany klucz chmury, ale nie jest on już autoryzowany. Sprawdź połączenie i połącz je ponownie.",
-    "action": "Sprawdź połączenie z chmurą"
-  },
-  "planRequired": {
-    "title": "Wymagany Kudu Cloud Pro",
-    "description": "Monitorowanie luk w zabezpieczeniach jest funkcją Pro. Uaktualnij swój plan Cloud, aby skanować zainstalowane oprogramowanie względem bieżącej bazy CVE.",
-    "action": "Wyświetl plany Cloud"
-  },
   "emptyState": {
     "title": "Nie wykryto luk w zabezpieczeniach",
-    "description": "W zainstalowanym oprogramowaniu nie znaleziono żadnych znanych CVE. Twój system wygląda na bezpieczny!"
+    "description": "Nie znaleziono żadnych znanych CVE w zainstalowanym oprogramowaniu. Twój system wygląda na bezpieczny!"
   },
   "severity": {
     "critical": "Krytyczny",
@@ -46,15 +35,15 @@
     "noResults": "Żadne luki w zabezpieczeniach nie pasują do bieżących filtrów"
   },
   "error": {
-    "title": "Nie udało się załadować luk w zabezpieczeniach",
-    "description": "Nie można pobrać danych o lukach w zabezpieczeniach z serwera. Spróbuj odświeżyć lub sprawdź połączenie z chmurą."
+    "title": "Nie udało się wczytać luk w zabezpieczeniach",
+    "description": "Nie udało się pobrać danych o lukach w zabezpieczeniach z serwera. Spróbuj odświeżyć lub sprawdź połączenie z chmurą."
   },
   "card": {
     "installed": "Zainstalowano: {{version}}",
     "fixAvailable": "Poprawka: {{version}}",
     "noFix": "Brak dostępnej poprawki",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "Wykryto po raz pierwszy: {{date}}",
+    "firstDetected": "Pierwsze wykrycie: {{date}}",
     "lastScanned": "Ostatnie skanowanie: {{date}}",
     "viewDetails": "Wyświetl szczegóły CVE",
     "checkForUpdates": "Sprawdź aktualizacje"
@@ -65,7 +54,7 @@
     "page": "Strona {{current}}"
   },
   "toast": {
-    "fetchFailed": "Nie udało się załadować danych o lukach w zabezpieczeniach",
+    "fetchFailed": "Nie udało się wczytać danych o lukach w zabezpieczeniach",
     "fetchFailedNotConnected": "Cloud Agent nie jest połączony"
   }
 }

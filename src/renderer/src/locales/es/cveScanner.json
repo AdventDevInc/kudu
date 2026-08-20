@@ -1,26 +1,15 @@
 {
   "pageTitle": "Vulnerabilidades",
-  "pageDescription": "Ver las vulnerabilidades conocidas detectadas en el software instalado",
+  "pageDescription": "Ver vulnerabilidades conocidas detectadas en el software instalado",
   "loading": "Cargando vulnerabilidades...",
   "refetchButton": "Actualizar",
   "cloudNotConfigured": {
     "title": "Se requiere Cloud Agent",
-    "description": "El análisis de CVE requiere Kudu Cloud Pro. Conecte este dispositivo para comprobar el software instalado con los avisos de seguridad actuales.",
-    "action": "Ver Kudu Cloud"
+    "description": "El análisis de CVE requiere que Cloud Agent esté vinculado. Vaya a Configuración → Cloud para conectar su dispositivo."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent no está conectado",
-    "description": "Cloud Agent no está conectado actualmente. Compruebe la conexión en Configuración → Cloud."
-  },
-  "connectionError": {
-    "title": "La conexión a Cloud requiere atención",
-    "description": "Este dispositivo tiene una clave de Cloud guardada, pero ya no está autorizada. Revise la conexión y vuelva a vincularla.",
-    "action": "Revisar conexión a Cloud"
-  },
-  "planRequired": {
-    "title": "Se requiere Kudu Cloud Pro",
-    "description": "La supervisión de vulnerabilidades es una función Pro. Actualice su plan de Cloud para analizar el software instalado con la base de datos CVE en tiempo real.",
-    "action": "Ver planes de Cloud"
+    "description": "Cloud Agent no está conectado actualmente. Compruebe su conexión en Configuración → Cloud."
   },
   "emptyState": {
     "title": "No se detectaron vulnerabilidades",
@@ -47,7 +36,7 @@
   },
   "error": {
     "title": "No se pudieron cargar las vulnerabilidades",
-    "description": "No se pudieron obtener los datos de vulnerabilidades del servidor. Intente actualizar o compruebe su conexión a la nube."
+    "description": "No se pudieron obtener los datos de vulnerabilidades del servidor. Intente actualizar o compruebe su conexión en la nube."
   },
   "card": {
     "installed": "Instalada: {{version}}",

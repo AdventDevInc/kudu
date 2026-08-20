@@ -2,29 +2,18 @@
   "pageTitle": "Vulnerabilități",
   "pageDescription": "Vizualizați vulnerabilitățile cunoscute detectate în software-ul instalat",
   "loading": "Se încarcă vulnerabilitățile...",
-  "refetchButton": "Reîmprospătați",
+  "refetchButton": "Reîmprospătează",
   "cloudNotConfigured": {
     "title": "Cloud Agent necesar",
-    "description": "Scanarea CVE necesită Kudu Cloud Pro. Conectați acest dispozitiv pentru a verifica software-ul instalat în raport cu buletinele de securitate curente.",
-    "action": "Vizualizați Kudu Cloud"
+    "description": "Scanarea CVE necesită ca Cloud Agent să fie asociat. Accesați Setări → Cloud pentru a vă conecta dispozitivul."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent nu este conectat",
     "description": "Cloud Agent nu este conectat în prezent. Verificați conexiunea în Setări → Cloud."
   },
-  "connectionError": {
-    "title": "Conexiunea Cloud necesită atenție",
-    "description": "Acest dispozitiv are o cheie Cloud salvată, dar aceasta nu mai este autorizată. Verificați conexiunea și asociați-l din nou.",
-    "action": "Verificați conexiunea Cloud"
-  },
-  "planRequired": {
-    "title": "Este necesar Kudu Cloud Pro",
-    "description": "Monitorizarea vulnerabilităților este o funcție Pro. Actualizați planul Cloud pentru a scana software-ul instalat în raport cu baza de date CVE actualizată în timp real.",
-    "action": "Vizualizați planurile Cloud"
-  },
   "emptyState": {
     "title": "Nu au fost detectate vulnerabilități",
-    "description": "Nu au fost găsite CVE-uri cunoscute în software-ul instalat. Sistemul dumneavoastră pare sigur!"
+    "description": "Nu au fost găsite CVE-uri cunoscute în software-ul instalat. Sistemul dvs. pare sigur!"
   },
   "severity": {
     "critical": "Critică",
@@ -35,10 +24,10 @@
   },
   "summary": {
     "total": "Total",
-    "critical": "Critică",
-    "high": "Ridicată",
-    "medium": "Medie",
-    "low": "Scăzută"
+    "critical": "Critice",
+    "high": "Ridicate",
+    "medium": "Medii",
+    "low": "Scăzute"
   },
   "filter": {
     "all": "Toate",
@@ -50,13 +39,13 @@
     "description": "Nu s-au putut prelua datele despre vulnerabilități de la server. Încercați să reîmprospătați sau verificați conexiunea cloud."
   },
   "card": {
-    "installed": "Instalat: {{version}}",
+    "installed": "Instalată: {{version}}",
     "fixAvailable": "Remediere: {{version}}",
     "noFix": "Nicio remediere disponibilă",
     "cvss": "CVSS {{score}}",
     "firstDetected": "Detectată prima dată: {{date}}",
     "lastScanned": "Ultima scanare: {{date}}",
-    "viewDetails": "Vizualizați detaliile CVE",
+    "viewDetails": "Vedeți detaliile CVE",
     "checkForUpdates": "Verificați actualizările"
   },
   "pagination": {

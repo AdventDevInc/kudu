@@ -1,26 +1,15 @@
 {
   "pageTitle": "漏洞",
-  "pageDescription": "查看在已安装软件中检测到的已知漏洞",
+  "pageDescription": "查看已安装软件中检测到的已知漏洞",
   "loading": "正在加载漏洞...",
   "refetchButton": "刷新",
   "cloudNotConfigured": {
     "title": "需要 Cloud Agent",
-    "description": "CVE 扫描需要 Kudu Cloud Pro。连接此设备，以根据当前安全公告检查已安装的软件。",
-    "action": "查看 Kudu Cloud"
+    "description": "CVE 扫描需要关联 Cloud Agent。前往“设置 → 云”连接您的设备。"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent 未连接",
-    "description": "Cloud Agent 当前未连接。请在“设置 → Cloud”中检查连接。"
-  },
-  "connectionError": {
-    "title": "Cloud 连接需要处理",
-    "description": "此设备已保存 Cloud 密钥，但该密钥已不再获得授权。请检查连接并重新关联。",
-    "action": "检查 Cloud 连接"
-  },
-  "planRequired": {
-    "title": "需要 Kudu Cloud Pro",
-    "description": "漏洞监控是 Pro 功能。升级您的 Cloud 计划，以根据实时 CVE 数据库扫描已安装的软件。",
-    "action": "查看 Cloud 计划"
+    "description": "Cloud Agent 当前未连接。请在“设置 → 云”中检查您的连接。"
   },
   "emptyState": {
     "title": "未检测到漏洞",
@@ -43,7 +32,7 @@
   "filter": {
     "all": "全部",
     "searchPlaceholder": "按应用名称或 CVE ID 搜索...",
-    "noResults": "没有漏洞符合当前筛选条件"
+    "noResults": "没有与当前筛选条件匹配的漏洞"
   },
   "error": {
     "title": "加载漏洞失败",
@@ -52,7 +41,7 @@
   "card": {
     "installed": "已安装：{{version}}",
     "fixAvailable": "修复版本：{{version}}",
-    "noFix": "无可用修复",
+    "noFix": "暂无修复方案",
     "cvss": "CVSS {{score}}",
     "firstDetected": "首次检测到：{{date}}",
     "lastScanned": "上次扫描：{{date}}",

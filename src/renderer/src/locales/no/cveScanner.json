@@ -1,26 +1,15 @@
 {
   "pageTitle": "Sårbarheter",
   "pageDescription": "Vis kjente sårbarheter som er oppdaget i den installerte programvaren",
-  "loading": "Laster inn sårbarheter...",
+  "loading": "Laster sårbarheter...",
   "refetchButton": "Oppdater",
   "cloudNotConfigured": {
     "title": "Cloud Agent kreves",
-    "description": "CVE-skanning krever Kudu Cloud Pro. Koble til denne enheten for å kontrollere installert programvare mot gjeldende sikkerhetsvarsler.",
-    "action": "Vis Kudu Cloud"
+    "description": "CVE-skanning krever at Cloud Agent er koblet til. Gå til Innstillinger → Cloud for å koble til enheten din."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent er ikke tilkoblet",
-    "description": "Cloud Agent er ikke tilkoblet for øyeblikket. Kontroller tilkoblingen i Innstillinger → Cloud."
-  },
-  "connectionError": {
-    "title": "Cloud-tilkoblingen trenger oppmerksomhet",
-    "description": "Denne enheten har en lagret Cloud-nøkkel, men den er ikke lenger autorisert. Gå gjennom tilkoblingen og koble den til på nytt.",
-    "action": "Gå gjennom Cloud-tilkoblingen"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro kreves",
-    "description": "Overvåking av sårbarheter er en Pro-funksjon. Oppgrader Cloud-abonnementet ditt for å skanne installert programvare mot den oppdaterte CVE-databasen.",
-    "action": "Vis Cloud-abonnementer"
+    "description": "Cloud Agent er for øyeblikket ikke tilkoblet. Kontroller tilkoblingen i Innstillinger → Cloud."
   },
   "emptyState": {
     "title": "Ingen sårbarheter oppdaget",
@@ -47,7 +36,7 @@
   },
   "error": {
     "title": "Kunne ikke laste inn sårbarheter",
-    "description": "Kunne ikke hente sårbarhetsdata fra serveren. Prøv å oppdatere eller kontroller Cloud-tilkoblingen."
+    "description": "Kunne ikke hente sårbarhetsdata fra serveren. Prøv å oppdatere eller kontroller cloud-tilkoblingen."
   },
   "card": {
     "installed": "Installert: {{version}}",

@@ -1,17 +1,7 @@
 {
-  "pageTitle": "Pemantau Kebocoran",
+  "pageTitle": "Monitor Kebocoran",
   "pageDescription": "Periksa apakah alamat email Anda telah terekspos dalam kebocoran data yang diketahui",
   "loading": "Memuat data kebocoran...",
-  "cloudNotConfigured": {
-    "title": "Kudu Cloud diperlukan",
-    "description": "Hubungkan perangkat ini untuk memeriksa alamat email terhadap intelijen kebocoran yang diketahui dan melacak paparan yang baru dilaporkan.",
-    "action": "Lihat Kudu Cloud"
-  },
-  "connectionError": {
-    "title": "Koneksi Cloud memerlukan perhatian",
-    "description": "Perangkat ini memiliki kunci Cloud yang tersimpan, tetapi tidak lagi diotorisasi. Tinjau koneksi dan tautkan kembali.",
-    "action": "Tinjau koneksi Cloud"
-  },
   "summary": {
     "totalBreaches": "Total Kebocoran",
     "unacknowledged": "Baru",
@@ -27,10 +17,10 @@
     "fetchFailed": "Gagal memuat data kebocoran",
     "addFailed": "Gagal menambahkan email",
     "removeFailed": "Gagal menghapus email",
-    "invalidEmail": "Harap masukkan alamat email yang valid",
+    "invalidEmail": "Masukkan alamat email yang valid",
     "limitReached": "Batas email untuk paket Anda telah tercapai",
     "acknowledged": "Kebocoran ditandai sebagai telah ditinjau",
-    "acknowledgeFailed": "Gagal mengonfirmasi kebocoran"
+    "acknowledgeFailed": "Gagal menandai kebocoran"
   },
   "emptyState": {
     "noEmails": "Tidak ada email yang dipantau",
@@ -62,7 +52,7 @@
     "breach": "Kebocoran",
     "date": "Tanggal",
     "accounts": "Akun",
-    "data": "Data yang Terdampak",
+    "data": "Data yang Terekspos",
     "status": "Status",
     "actions": "",
     "new": "Baru",
@@ -76,9 +66,9 @@
   },
   "actions": {
     "acknowledge": "Tandai sebagai ditinjau",
-    "acknowledgeTooltip": "Tandai kebocoran ini sebagai telah dilihat agar tidak lagi muncul sebagai baru atau memicu notifikasi",
+    "acknowledgeTooltip": "Tandai kebocoran ini sebagai sudah dilihat agar tidak lagi muncul sebagai baru atau memicu notifikasi",
     "acknowledgeAll": "Tandai semua sebagai ditinjau",
-    "acknowledgeAllTooltip": "Tandai semua kebocoran yang belum ditinjau sebagai telah dilihat"
+    "acknowledgeAllTooltip": "Tandai semua kebocoran yang belum ditinjau sebagai sudah dilihat"
   },
   "refetchButton": "Segarkan"
 }

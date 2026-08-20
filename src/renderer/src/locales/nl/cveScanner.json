@@ -5,22 +5,11 @@
   "refetchButton": "Vernieuwen",
   "cloudNotConfigured": {
     "title": "Cloud Agent vereist",
-    "description": "Voor CVE-scans is Kudu Cloud Pro vereist. Verbind dit apparaat om geïnstalleerde software te controleren aan de hand van actuele beveiligingsadviezen.",
-    "action": "Kudu Cloud bekijken"
+    "description": "Voor CVE-scans moet de Cloud Agent gekoppeld zijn. Ga naar Instellingen → Cloud om uw apparaat te verbinden."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent niet verbonden",
     "description": "De Cloud Agent is momenteel niet verbonden. Controleer uw verbinding in Instellingen → Cloud."
-  },
-  "connectionError": {
-    "title": "Cloud-verbinding vereist aandacht",
-    "description": "Dit apparaat heeft een opgeslagen Cloud-sleutel, maar deze is niet langer geautoriseerd. Controleer de verbinding en koppel deze opnieuw.",
-    "action": "Cloud-verbinding controleren"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro vereist",
-    "description": "Kwetsbaarheidsbewaking is een Pro-functie. Upgrade uw Cloud-abonnement om geïnstalleerde software te scannen aan de hand van de live CVE-database.",
-    "action": "Cloud-abonnementen bekijken"
   },
   "emptyState": {
     "title": "Geen kwetsbaarheden gedetecteerd",
@@ -47,7 +36,7 @@
   },
   "error": {
     "title": "Kwetsbaarheden laden mislukt",
-    "description": "Kon geen gegevens over kwetsbaarheden van de server ophalen. Probeer te vernieuwen of controleer uw Cloud-verbinding."
+    "description": "Kan kwetsbaarheidsgegevens niet van de server ophalen. Probeer te vernieuwen of controleer uw cloudverbinding."
   },
   "card": {
     "installed": "Geïnstalleerd: {{version}}",
@@ -65,7 +54,7 @@
     "page": "Pagina {{current}}"
   },
   "toast": {
-    "fetchFailed": "Gegevens over kwetsbaarheden laden mislukt",
+    "fetchFailed": "Kwetsbaarheidsgegevens laden mislukt",
     "fetchFailedNotConnected": "Cloud Agent is niet verbonden"
   }
 }

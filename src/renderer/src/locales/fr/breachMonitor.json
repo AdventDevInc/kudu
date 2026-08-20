@@ -1,17 +1,7 @@
 {
-  "pageTitle": "Surveillance des violations de données",
+  "pageTitle": "Surveillance des violations",
   "pageDescription": "Vérifiez si vos adresses e-mail ont été exposées dans des violations de données connues",
   "loading": "Chargement des données de violation...",
-  "cloudNotConfigured": {
-    "title": "Kudu Cloud requis",
-    "description": "Connectez cet appareil pour vérifier les adresses e-mail par rapport aux renseignements connus sur les violations de données et suivre les nouvelles expositions signalées.",
-    "action": "Voir Kudu Cloud"
-  },
-  "connectionError": {
-    "title": "La connexion au Cloud nécessite votre attention",
-    "description": "Cet appareil dispose d’une clé Cloud enregistrée, mais elle n’est plus autorisée. Vérifiez la connexion et reliez-la à nouveau.",
-    "action": "Vérifier la connexion Cloud"
-  },
   "summary": {
     "totalBreaches": "Total des violations",
     "unacknowledged": "Nouvelles",
@@ -30,15 +20,15 @@
     "invalidEmail": "Veuillez saisir une adresse e-mail valide",
     "limitReached": "Limite d’e-mails atteinte pour votre forfait",
     "acknowledged": "Violations marquées comme examinées",
-    "acknowledgeFailed": "Échec du marquage des violations"
+    "acknowledgeFailed": "Échec du marquage des violations comme examinées"
   },
   "emptyState": {
     "noEmails": "Aucun e-mail surveillé",
     "noEmailsDesc": "Ajoutez une adresse e-mail pour rechercher d’anciennes violations de données et surveiller en continu les nouvelles fuites.",
-    "allClear": "Aucun problème détecté",
+    "allClear": "Aucune alerte",
     "allClearDesc": "Aucun de vos e-mails surveillés n’a été trouvé dans des violations de données connues.",
     "upgradeRequired": "Mise à niveau requise",
-    "upgradeRequiredDesc": "La surveillance des violations de données est disponible avec le forfait Basic et supérieur. Mettez à niveau votre forfait pour commencer la surveillance.",
+    "upgradeRequiredDesc": "La surveillance des violations est disponible avec le forfait Basic et supérieur. Mettez à niveau votre forfait pour commencer la surveillance.",
     "goToCloud": "Voir les forfaits",
     "noBreachesForEmail": "Aucune violation trouvée pour cet e-mail",
     "selectEmail": "Sélectionnez un e-mail dans la liste pour afficher les détails de la violation"
@@ -50,12 +40,12 @@
   "emailList": {
     "breaches": "{{count}} violation",
     "breaches_other": "{{count}} violations",
-    "newBreaches": "{{count}} nouvelle(s)",
+    "newBreaches": "{{count}} nouvelle",
     "noBreaches": "Aucune violation",
     "checking": "Vérification...",
     "paused": "En pause",
     "remove": "Supprimer l’e-mail",
-    "lastChecked": "Vérifié le {{date}}"
+    "lastChecked": "Vérifié {{date}}"
   },
   "table": {
     "email": "E-mail",
@@ -66,7 +56,7 @@
     "status": "Statut",
     "actions": "",
     "new": "Nouveau",
-    "reviewed": "Examiné",
+    "reviewed": "Examinée",
     "sensitive": "Violation sensible",
     "verified": "Vérifiée",
     "unverified": "Non vérifiée"
@@ -75,10 +65,10 @@
     "allEmails": "Tous les e-mails"
   },
   "actions": {
-    "acknowledge": "Marquer comme examiné",
+    "acknowledge": "Marquer comme examinée",
     "acknowledgeTooltip": "Marquez cette violation comme vue afin qu’elle n’apparaisse plus comme nouvelle et ne déclenche plus de notifications",
     "acknowledgeAll": "Tout marquer comme examiné",
-    "acknowledgeAllTooltip": "Marquez toutes les violations non examinées comme vues"
+    "acknowledgeAllTooltip": "Marquer toutes les violations non examinées comme vues"
   },
   "refetchButton": "Actualiser"
 }

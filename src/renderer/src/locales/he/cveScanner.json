@@ -5,22 +5,11 @@
   "refetchButton": "רענן",
   "cloudNotConfigured": {
     "title": "נדרש Cloud Agent",
-    "description": "סריקת CVE דורשת את Kudu Cloud Pro. חבר מכשיר זה כדי לבדוק את התוכנות המותקנות מול עדכוני האבטחה העדכניים.",
-    "action": "הצג את Kudu Cloud"
+    "description": "סריקת CVE מחייבת ש-Cloud Agent יהיה מקושר. עבור אל הגדרות → ענן כדי לחבר את המכשיר שלך."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent אינו מחובר",
-    "description": "Cloud Agent אינו מחובר כעת. בדוק את החיבור שלך בהגדרות ← Cloud."
-  },
-  "connectionError": {
-    "title": "חיבור ה-Cloud דורש תשומת לב",
-    "description": "למכשיר זה שמור מפתח Cloud, אך הוא אינו מורשה עוד. בדוק את החיבור וקשר אותו מחדש.",
-    "action": "בדוק את חיבור ה-Cloud"
-  },
-  "planRequired": {
-    "title": "נדרש Kudu Cloud Pro",
-    "description": "ניטור פגיעויות הוא תכונת Pro. שדרג את תוכנית ה-Cloud שלך כדי לסרוק תוכנות מותקנות מול מסד הנתונים החי של CVE.",
-    "action": "הצג תוכניות Cloud"
+    "description": "Cloud Agent אינו מחובר כעת. בדוק את החיבור שלך בהגדרות → ענן."
   },
   "emptyState": {
     "title": "לא זוהו פגיעויות",
@@ -43,11 +32,11 @@
   "filter": {
     "all": "הכול",
     "searchPlaceholder": "חפש לפי שם יישום או מזהה CVE...",
-    "noResults": "אין פגיעויות התואמות למסננים הנוכחיים שלך"
+    "noResults": "אין פגיעויות התואמות למסננים הנוכחיים"
   },
   "error": {
     "title": "טעינת הפגיעויות נכשלה",
-    "description": "לא ניתן היה לאחזר את נתוני הפגיעויות מהשרת. נסה לרענן או בדוק את חיבור ה-Cloud שלך."
+    "description": "לא ניתן היה לאחזר את נתוני הפגיעויות מהשרת. נסה לרענן או בדוק את חיבור הענן שלך."
   },
   "card": {
     "installed": "מותקן: {{version}}",

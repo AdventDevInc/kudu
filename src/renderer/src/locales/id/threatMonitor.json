@@ -1,27 +1,14 @@
 {
   "pageTitle": "Monitor Ancaman",
   "pageDescription": "Pemantauan real-time koneksi jaringan terhadap daftar ancaman yang diketahui.",
-  "checkingConnection": "Memeriksa koneksi Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Kudu Cloud Pro diperlukan",
-    "description": "Hubungkan perangkat ini ke Kudu Cloud Pro untuk menerima daftar hitam ancaman terbaru dan memantau aktivitas jaringan yang mencurigakan.",
-    "action": "Lihat Kudu Cloud"
-  },
-  "connectionError": {
-    "title": "Koneksi Cloud perlu diperhatikan",
-    "description": "Perangkat ini memiliki kunci Cloud yang tersimpan, tetapi sudah tidak lagi diotorisasi. Tinjau koneksi dan tautkan kembali.",
-    "action": "Tinjau koneksi Cloud"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro diperlukan",
-    "description": "Pemantauan ancaman adalah fitur Pro. Tingkatkan paket Cloud Anda untuk menerima daftar hitam ancaman langsung di perangkat ini.",
-    "action": "Lihat paket Cloud"
+    "title": "Cloud belum dikonfigurasi",
+    "description": "Tautkan perangkat Anda ke Kudu Cloud di Pengaturan untuk mengaktifkan pemantauan ancaman. Daftar hitam ancaman disediakan oleh layanan cloud."
   },
   "loading": "Memuat...",
   "inactive": {
     "title": "Monitor ancaman tidak aktif",
-    "description": "Cloud terhubung, tetapi belum ada daftar hitam ancaman yang tersedia. Periksa paket Pro Anda atau coba lagi setelah agen Cloud tersambung kembali.",
-    "action": "Tinjau paket Cloud"
+    "description": "Tidak ada daftar hitam ancaman yang dimuat. Daftar hitam akan diambil secara otomatis saat agen cloud terhubung."
   },
   "statusBar": {
     "blacklistVersion": "Daftar hitam",
@@ -33,7 +20,7 @@
   },
   "allClear": {
     "title": "Aman",
-    "description": "Tidak ada koneksi atau entri DNS mencurigakan yang terdeteksi. Monitor akan terus memindai di latar belakang."
+    "description": "Tidak ada koneksi atau entri DNS mencurigakan yang terdeteksi. Monitor terus memindai di latar belakang."
   },
   "flaggedConnections": "Koneksi yang Ditandai",
   "flaggedDnsEntries": "Entri DNS yang Ditandai",

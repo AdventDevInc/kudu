@@ -2,16 +2,6 @@
   "pageTitle": "Intrångsövervakning",
   "pageDescription": "Kontrollera om dina e-postadresser har exponerats i kända dataintrång",
   "loading": "Läser in intrångsdata...",
-  "cloudNotConfigured": {
-    "title": "Kudu Cloud krävs",
-    "description": "Anslut den här enheten för att kontrollera e-postadresser mot känd intrångsinformation och spåra nyrapporterad exponering.",
-    "action": "Visa Kudu Cloud"
-  },
-  "connectionError": {
-    "title": "Cloud-anslutningen behöver åtgärdas",
-    "description": "Den här enheten har en sparad Cloud-nyckel, men den är inte längre auktoriserad. Granska anslutningen och länka den igen.",
-    "action": "Granska Cloud-anslutning"
-  },
   "summary": {
     "totalBreaches": "Totalt antal intrång",
     "unacknowledged": "Nya",
@@ -28,14 +18,14 @@
     "addFailed": "Det gick inte att lägga till e-postadressen",
     "removeFailed": "Det gick inte att ta bort e-postadressen",
     "invalidEmail": "Ange en giltig e-postadress",
-    "limitReached": "Gränsen för antal e-postadresser i din plan har nåtts",
+    "limitReached": "Gränsen för antal e-postadresser i din plan har uppnåtts",
     "acknowledged": "Intrång markerade som granskade",
-    "acknowledgeFailed": "Det gick inte att bekräfta intrång"
+    "acknowledgeFailed": "Det gick inte att bekräfta intrången"
   },
   "emptyState": {
     "noEmails": "Inga e-postadresser övervakas",
     "noEmailsDesc": "Lägg till en e-postadress för att kontrollera tidigare dataintrång och övervaka nya läckor löpande.",
-    "allClear": "Inga problem upptäckta",
+    "allClear": "Inga problem",
     "allClearDesc": "Ingen av dina övervakade e-postadresser har hittats i några kända dataintrång.",
     "upgradeRequired": "Uppgradering krävs",
     "upgradeRequiredDesc": "Intrångsövervakning är tillgänglig med Basic-planen och högre. Uppgradera din plan för att börja övervaka.",
@@ -76,7 +66,7 @@
   },
   "actions": {
     "acknowledge": "Markera som granskad",
-    "acknowledgeTooltip": "Markera det här intrånget som sett så att det inte längre visas som nytt eller utlöser aviseringar",
+    "acknowledgeTooltip": "Markera detta intrång som sett så att det inte längre visas som nytt eller utlöser aviseringar",
     "acknowledgeAll": "Markera alla som granskade",
     "acknowledgeAllTooltip": "Markera alla ogranskade intrång som sedda"
   },

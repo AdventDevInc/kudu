@@ -1,29 +1,18 @@
 {
-  "pageTitle": "Schwachstellen",
-  "pageDescription": "Bekannte Schwachstellen anzeigen, die in Ihrer installierten Software erkannt wurden",
-  "loading": "Schwachstellen werden geladen...",
+  "pageTitle": "Sicherheitslücken",
+  "pageDescription": "Bekannte Sicherheitslücken anzeigen, die in Ihrer installierten Software erkannt wurden",
+  "loading": "Sicherheitslücken werden geladen...",
   "refetchButton": "Aktualisieren",
   "cloudNotConfigured": {
     "title": "Cloud Agent erforderlich",
-    "description": "Für das Scannen nach CVEs ist Kudu Cloud Pro erforderlich. Verbinden Sie dieses Gerät, um installierte Software mit aktuellen Sicherheitshinweisen abzugleichen.",
-    "action": "Kudu Cloud anzeigen"
+    "description": "Für das Scannen nach CVEs muss der Cloud Agent verknüpft sein. Gehen Sie zu Einstellungen → Cloud, um Ihr Gerät zu verbinden."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent nicht verbunden",
     "description": "Der Cloud Agent ist derzeit nicht verbunden. Überprüfen Sie Ihre Verbindung unter Einstellungen → Cloud."
   },
-  "connectionError": {
-    "title": "Cloud-Verbindung erfordert Aufmerksamkeit",
-    "description": "Für dieses Gerät ist ein Cloud-Schlüssel gespeichert, er ist jedoch nicht mehr autorisiert. Überprüfen Sie die Verbindung und verknüpfen Sie sie erneut.",
-    "action": "Cloud-Verbindung überprüfen"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro erforderlich",
-    "description": "Die Überwachung von Schwachstellen ist eine Pro-Funktion. Aktualisieren Sie Ihren Cloud-Tarif, um installierte Software mit der aktuellen CVE-Datenbank zu scannen.",
-    "action": "Cloud-Tarife anzeigen"
-  },
   "emptyState": {
-    "title": "Keine Schwachstellen erkannt",
+    "title": "Keine Sicherheitslücken erkannt",
     "description": "In Ihrer installierten Software wurden keine bekannten CVEs gefunden. Ihr System wirkt sicher!"
   },
   "severity": {
@@ -43,11 +32,11 @@
   "filter": {
     "all": "Alle",
     "searchPlaceholder": "Nach App-Name oder CVE-ID suchen...",
-    "noResults": "Keine Schwachstellen entsprechen Ihren aktuellen Filtern"
+    "noResults": "Keine Sicherheitslücken entsprechen Ihren aktuellen Filtern"
   },
   "error": {
-    "title": "Schwachstellen konnten nicht geladen werden",
-    "description": "Schwachstellendaten konnten nicht vom Server abgerufen werden. Versuchen Sie es mit einer Aktualisierung oder überprüfen Sie Ihre Cloud-Verbindung."
+    "title": "Sicherheitslücken konnten nicht geladen werden",
+    "description": "Die Daten zu Sicherheitslücken konnten nicht vom Server abgerufen werden. Versuchen Sie es mit einer Aktualisierung oder überprüfen Sie Ihre Cloud-Verbindung."
   },
   "card": {
     "installed": "Installiert: {{version}}",
@@ -65,7 +54,7 @@
     "page": "Seite {{current}}"
   },
   "toast": {
-    "fetchFailed": "Schwachstellendaten konnten nicht geladen werden",
+    "fetchFailed": "Daten zu Sicherheitslücken konnten nicht geladen werden",
     "fetchFailedNotConnected": "Cloud Agent ist nicht verbunden"
   }
 }

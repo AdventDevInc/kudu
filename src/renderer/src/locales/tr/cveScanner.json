@@ -5,26 +5,15 @@
   "refetchButton": "Yenile",
   "cloudNotConfigured": {
     "title": "Cloud Agent Gerekli",
-    "description": "CVE taraması için Kudu Cloud Pro gerekir. Yüklü yazılımları güncel güvenlik duyurularına göre denetlemek için bu cihazı bağlayın.",
-    "action": "Kudu Cloud'u Görüntüle"
+    "description": "CVE taraması için Cloud Agent'ın bağlı olması gerekir. Cihazınızı bağlamak için Ayarlar → Bulut bölümüne gidin."
   },
   "cloudNotConnected": {
     "title": "Cloud Agent Bağlı Değil",
-    "description": "Cloud Agent şu anda bağlı değil. Bağlantınızı Ayarlar → Cloud bölümünden kontrol edin."
-  },
-  "connectionError": {
-    "title": "Cloud bağlantısı dikkat gerektiriyor",
-    "description": "Bu cihazda kayıtlı bir Cloud anahtarı var, ancak artık yetkilendirilmemiş. Bağlantıyı gözden geçirin ve yeniden bağlayın.",
-    "action": "Cloud bağlantısını gözden geçir"
-  },
-  "planRequired": {
-    "title": "Kudu Cloud Pro gerekli",
-    "description": "Güvenlik açığı izleme bir Pro özelliğidir. Yüklü yazılımları canlı CVE veritabanına göre taramak için Cloud planınızı yükseltin.",
-    "action": "Cloud planlarını görüntüle"
+    "description": "Cloud Agent şu anda bağlı değil. Bağlantınızı Ayarlar → Bulut bölümünden kontrol edin."
   },
   "emptyState": {
     "title": "Güvenlik Açığı Tespit Edilmedi",
-    "description": "Yüklü yazılımlarınızda bilinen CVE bulunamadı. Sisteminiz güvenli görünüyor!"
+    "description": "Yüklü yazılımlarınızda bilinen bir CVE bulunamadı. Sisteminiz güvende görünüyor!"
   },
   "severity": {
     "critical": "Kritik",
@@ -42,17 +31,17 @@
   },
   "filter": {
     "all": "Tümü",
-    "searchPlaceholder": "Uygulama adına veya CVE kimliğine göre ara...",
+    "searchPlaceholder": "Uygulama adına veya CVE kimliğine göre arayın...",
     "noResults": "Geçerli filtrelerinizle eşleşen güvenlik açığı yok"
   },
   "error": {
     "title": "Güvenlik Açıkları Yüklenemedi",
-    "description": "Sunucudan güvenlik açığı verileri alınamadı. Yenilemeyi deneyin veya cloud bağlantınızı kontrol edin."
+    "description": "Sunucudan güvenlik açığı verileri alınamadı. Yenilemeyi deneyin veya bulut bağlantınızı kontrol edin."
   },
   "card": {
     "installed": "Yüklü: {{version}}",
     "fixAvailable": "Düzeltme: {{version}}",
-    "noFix": "Düzeltme yok",
+    "noFix": "Düzeltme sürümü yok",
     "cvss": "CVSS {{score}}",
     "firstDetected": "İlk tespit: {{date}}",
     "lastScanned": "Son tarama: {{date}}",
