@@ -1,14 +1,27 @@
 {
-  "pageTitle": "Trusselsmonitor",
+  "pageTitle": "Trusselsovervågning",
   "pageDescription": "Overvågning i realtid af netværksforbindelser mod kendte trusselslister.",
+  "checkingConnection": "Kontrollerer forbindelse til Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud er ikke konfigureret",
-    "description": "Knyt din enhed til Kudu Cloud i Indstillinger for at aktivere trusselsovervågning. Trusselssortlisten leveres af cloudtjenesten."
+    "title": "Kudu Cloud Pro kræves",
+    "description": "Forbind denne enhed til Kudu Cloud Pro for at modtage den aktuelle sortliste over trusler og overvåge mistænkelig netværksaktivitet.",
+    "action": "Vis Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud-forbindelsen kræver opmærksomhed",
+    "description": "Denne enhed har en gemt Cloud-nøgle, men den er ikke længere godkendt. Gennemgå forbindelsen, og tilknyt den igen.",
+    "action": "Gennemgå Cloud-forbindelse"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro kræves",
+    "description": "Trusselsovervågning er en Pro-funktion. Opgrader din Cloud-plan for at modtage den live sortliste over trusler på denne enhed.",
+    "action": "Vis Cloud-planer"
   },
   "loading": "Indlæser...",
   "inactive": {
-    "title": "Trusselsmonitor er inaktiv",
-    "description": "Ingen trusselssortliste er indlæst. Sortlisten hentes automatisk, når cloudagenten opretter forbindelse."
+    "title": "Trusselsovervågning er inaktiv",
+    "description": "Cloud er forbundet, men der er endnu ingen sortliste over trusler tilgængelig. Kontrollér din Pro-plan, eller prøv igen, når Cloud-agenten opretter forbindelse igen.",
+    "action": "Gennemgå Cloud-plan"
   },
   "statusBar": {
     "blacklistVersion": "Sortliste",
@@ -20,7 +33,7 @@
   },
   "allClear": {
     "title": "Alt er i orden",
-    "description": "Der er ikke registreret mistænkelige forbindelser eller DNS-poster. Monitoren fortsætter med at scanne i baggrunden."
+    "description": "Der er ikke registreret mistænkelige forbindelser eller DNS-poster. Overvågningen fortsætter med at scanne i baggrunden."
   },
   "flaggedConnections": "Markerede forbindelser",
   "flaggedDnsEntries": "Markerede DNS-poster",

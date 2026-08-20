@@ -2,6 +2,16 @@
   "pageTitle": "Monitor de breșe",
   "pageDescription": "Verificați dacă adresele dvs. de e-mail au fost expuse în breșe de date cunoscute",
   "loading": "Se încarcă datele despre breșe...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud este necesar",
+    "description": "Conectați acest dispozitiv pentru a verifica adresele de e-mail în raport cu informațiile cunoscute despre breșe și pentru a urmări expunerile nou raportate.",
+    "action": "Vedeți Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Conexiunea la Cloud necesită atenție",
+    "description": "Acest dispozitiv are o cheie Cloud salvată, dar aceasta nu mai este autorizată. Verificați conexiunea și conectați-l din nou.",
+    "action": "Verificați conexiunea la Cloud"
+  },
   "summary": {
     "totalBreaches": "Total breșe",
     "unacknowledged": "Noi",
@@ -14,27 +24,27 @@
     "adding": "Se adaugă..."
   },
   "toast": {
-    "fetchFailed": "Încărcarea datelor despre breșe a eșuat",
-    "addFailed": "Adăugarea e-mailului a eșuat",
-    "removeFailed": "Eliminarea e-mailului a eșuat",
+    "fetchFailed": "Nu s-au putut încărca datele despre breșe",
+    "addFailed": "Nu s-a putut adăuga adresa de e-mail",
+    "removeFailed": "Nu s-a putut elimina adresa de e-mail",
     "invalidEmail": "Introduceți o adresă de e-mail validă",
-    "limitReached": "Limita de e-mailuri pentru planul dvs. a fost atinsă",
+    "limitReached": "A fost atinsă limita de e-mailuri pentru planul dvs.",
     "acknowledged": "Breșele au fost marcate ca revizuite",
-    "acknowledgeFailed": "Marcarea breșelor a eșuat"
+    "acknowledgeFailed": "Breșele nu au putut fi confirmate ca revizuite"
   },
   "emptyState": {
-    "noEmails": "Niciun e-mail monitorizat",
-    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu apariția unor noi scurgeri.",
-    "allClear": "Totul este în regulă",
+    "noEmails": "Nu există e-mailuri monitorizate",
+    "noEmailsDesc": "Adăugați o adresă de e-mail pentru a verifica breșele de date din trecut și pentru a monitoriza continuu scurgerile noi.",
+    "allClear": "Nicio problemă",
     "allClearDesc": "Niciunul dintre e-mailurile dvs. monitorizate nu a fost găsit în vreo breșă de date cunoscută.",
     "upgradeRequired": "Este necesară actualizarea",
-    "upgradeRequiredDesc": "Monitorizarea breșelor este disponibilă în planul Basic și în planurile superioare. Actualizați-vă planul pentru a începe monitorizarea.",
+    "upgradeRequiredDesc": "Monitorizarea breșelor este disponibilă în planul Basic și în cele superioare. Actualizați-vă planul pentru a începe monitorizarea.",
     "goToCloud": "Vedeți planurile",
     "noBreachesForEmail": "Nu au fost găsite breșe pentru acest e-mail",
     "selectEmail": "Selectați un e-mail din listă pentru a vedea detaliile breșei"
   },
   "error": {
-    "title": "Încărcarea datelor despre breșe a eșuat",
+    "title": "Nu s-au putut încărca datele despre breșe",
     "description": "Verificați conexiunea la cloud și încercați din nou."
   },
   "emailList": {
@@ -43,9 +53,9 @@
     "newBreaches": "{{count}} noi",
     "noBreaches": "Nicio breșă",
     "checking": "Se verifică...",
-    "paused": "Întrerupt",
+    "paused": "În pauză",
     "remove": "Eliminați e-mailul",
-    "lastChecked": "Verificat la {{date}}"
+    "lastChecked": "Verificat {{date}}"
   },
   "table": {
     "email": "E-mail",
@@ -65,7 +75,7 @@
     "allEmails": "Toate e-mailurile"
   },
   "actions": {
-    "acknowledge": "Marcați ca revizuit",
+    "acknowledge": "Marcați ca revizuită",
     "acknowledgeTooltip": "Marcați această breșă ca văzută, astfel încât să nu mai apară ca nouă și să nu mai declanșeze notificări",
     "acknowledgeAll": "Marcați totul ca revizuit",
     "acknowledgeAllTooltip": "Marcați toate breșele nerevizuite ca văzute"

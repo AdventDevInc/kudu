@@ -1,14 +1,27 @@
 {
   "pageTitle": "Trusselovervåking",
   "pageDescription": "Sanntidsovervåking av nettverkstilkoblinger mot kjente trussellister.",
+  "checkingConnection": "Kontrollerer tilkoblingen til Kudu Cloud …",
   "cloudNotConfigured": {
-    "title": "Cloud er ikke konfigurert",
-    "description": "Koble enheten din til Kudu Cloud i Innstillinger for å aktivere trusselovervåking. Svartelisten for trusler leveres av skytjenesten."
+    "title": "Kudu Cloud Pro kreves",
+    "description": "Koble denne enheten til Kudu Cloud Pro for å motta den gjeldende svartelisten over trusler og overvåke mistenkelig nettverksaktivitet.",
+    "action": "Vis Kudu Cloud"
   },
-  "loading": "Laster inn...",
+  "connectionError": {
+    "title": "Cloud-tilkoblingen krever oppmerksomhet",
+    "description": "Denne enheten har en lagret Cloud-nøkkel, men den er ikke lenger autorisert. Gå gjennom tilkoblingen og koble den til på nytt.",
+    "action": "Gå gjennom Cloud-tilkoblingen"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro kreves",
+    "description": "Trusselovervåking er en Pro-funksjon. Oppgrader Cloud-abonnementet ditt for å motta den direkte svartelisten over trusler på denne enheten.",
+    "action": "Vis Cloud-abonnementer"
+  },
+  "loading": "Laster inn ...",
   "inactive": {
     "title": "Trusselovervåking er inaktiv",
-    "description": "Ingen svarteliste for trusler er lastet inn. Svartelisten hentes automatisk når cloud-agenten kobler til."
+    "description": "Cloud er tilkoblet, men ingen svarteliste over trusler er tilgjengelig ennå. Kontroller Pro-abonnementet ditt, eller prøv igjen etter at Cloud-agenten har koblet til på nytt.",
+    "action": "Gå gjennom Cloud-abonnementet"
   },
   "statusBar": {
     "blacklistVersion": "Svarteliste",
@@ -19,7 +32,7 @@
     "noThreatsDetected": "Ingen trusler oppdaget"
   },
   "allClear": {
-    "title": "Alt klart",
+    "title": "Alt er i orden",
     "description": "Ingen mistenkelige tilkoblinger eller DNS-oppføringer er oppdaget. Overvåkingen fortsetter å skanne i bakgrunnen."
   },
   "flaggedConnections": "Flaggede tilkoblinger",

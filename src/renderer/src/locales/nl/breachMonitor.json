@@ -1,12 +1,22 @@
 {
-  "pageTitle": "Datalekmonitor",
-  "pageDescription": "Controleer of uw e-mailadressen zijn blootgesteld in bekende datalekken",
+  "pageTitle": "Inbreukmonitor",
+  "pageDescription": "Controleer of uw e-mailadressen zijn blootgesteld bij bekende datalekken",
   "loading": "Gegevens over datalekken laden...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud vereist",
+    "description": "Verbind dit apparaat om e-mailadressen te controleren aan de hand van bekende informatie over datalekken en nieuw gemelde blootstelling bij te houden.",
+    "action": "Kudu Cloud bekijken"
+  },
+  "connectionError": {
+    "title": "Cloud-verbinding vereist aandacht",
+    "description": "Dit apparaat heeft een opgeslagen Cloud-sleutel, maar deze is niet langer geautoriseerd. Controleer de verbinding en koppel deze opnieuw.",
+    "action": "Cloud-verbinding controleren"
+  },
   "summary": {
     "totalBreaches": "Totaal aantal datalekken",
     "unacknowledged": "Nieuw",
-    "emailsMonitored": "Bewaakte e-mailadressen",
-    "emailsMonitoredTooltip": "Basic-abonnement: 1 e-mailadres · Pro-abonnement: 5 e-mailadressen. Upgrade uw abonnement in de Cloud-instellingen om meer adressen te bewaken."
+    "emailsMonitored": "Gecontroleerde e-mailadressen",
+    "emailsMonitoredTooltip": "Basic-abonnement: 1 e-mailadres · Pro-abonnement: 5 e-mailadressen. Upgrade uw abonnement in de Cloud-instellingen om meer te controleren."
   },
   "addEmail": {
     "placeholder": "Voer een e-mailadres in",
@@ -14,28 +24,28 @@
     "adding": "Toevoegen..."
   },
   "toast": {
-    "fetchFailed": "Kan gegevens over datalekken niet laden",
-    "addFailed": "Kan e-mailadres niet toevoegen",
-    "removeFailed": "Kan e-mailadres niet verwijderen",
+    "fetchFailed": "Gegevens over datalekken konden niet worden geladen",
+    "addFailed": "E-mailadres toevoegen mislukt",
+    "removeFailed": "E-mailadres verwijderen mislukt",
     "invalidEmail": "Voer een geldig e-mailadres in",
-    "limitReached": "De limiet voor e-mailadressen van uw abonnement is bereikt",
+    "limitReached": "Limiet voor e-mailadressen bereikt voor uw abonnement",
     "acknowledged": "Datalekken gemarkeerd als beoordeeld",
-    "acknowledgeFailed": "Kan datalekken niet markeren als beoordeeld"
+    "acknowledgeFailed": "Datalekken markeren mislukt"
   },
   "emptyState": {
-    "noEmails": "Geen bewaakte e-mailadressen",
-    "noEmailsDesc": "Voeg een e-mailadres toe om te controleren op eerdere datalekken en doorlopend te bewaken op nieuwe lekken.",
+    "noEmails": "Geen e-mailadressen gecontroleerd",
+    "noEmailsDesc": "Voeg een e-mailadres toe om te controleren op eerdere datalekken en doorlopend te controleren op nieuwe lekken.",
     "allClear": "Alles in orde",
-    "allClearDesc": "Geen van uw bewaakte e-mailadressen is aangetroffen in bekende datalekken.",
+    "allClearDesc": "Geen van uw gecontroleerde e-mailadressen is aangetroffen in bekende datalekken.",
     "upgradeRequired": "Upgrade vereist",
-    "upgradeRequiredDesc": "Bewaking van datalekken is beschikbaar vanaf het Basic-abonnement. Upgrade uw abonnement om bewaking te starten.",
+    "upgradeRequiredDesc": "Monitoring van datalekken is beschikbaar vanaf het Basic-abonnement. Upgrade uw abonnement om te beginnen met controleren.",
     "goToCloud": "Abonnementen bekijken",
     "noBreachesForEmail": "Geen datalekken gevonden voor dit e-mailadres",
     "selectEmail": "Selecteer een e-mailadres uit de lijst om details van het datalek te bekijken"
   },
   "error": {
-    "title": "Kan gegevens over datalekken niet laden",
-    "description": "Controleer uw cloudverbinding en probeer het opnieuw."
+    "title": "Gegevens over datalekken konden niet worden geladen",
+    "description": "Controleer uw Cloud-verbinding en probeer het opnieuw."
   },
   "emailList": {
     "breaches": "{{count}} datalek",
@@ -52,7 +62,7 @@
     "breach": "Datalek",
     "date": "Datum",
     "accounts": "Accounts",
-    "data": "Gelekte gegevens",
+    "data": "Gecompromitteerde gegevens",
     "status": "Status",
     "actions": "",
     "new": "Nieuw",
@@ -66,7 +76,7 @@
   },
   "actions": {
     "acknowledge": "Markeren als beoordeeld",
-    "acknowledgeTooltip": "Markeer dit datalek als gezien zodat het niet langer als nieuw wordt weergegeven of meldingen activeert",
+    "acknowledgeTooltip": "Markeer dit datalek als gezien, zodat het niet langer als nieuw wordt weergegeven of meldingen activeert",
     "acknowledgeAll": "Alles markeren als beoordeeld",
     "acknowledgeAllTooltip": "Markeer alle onbeoordeelde datalekken als gezien"
   },

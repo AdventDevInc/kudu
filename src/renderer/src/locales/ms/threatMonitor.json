@@ -1,14 +1,27 @@
 {
   "pageTitle": "Pemantau Ancaman",
-  "pageDescription": "Pemantauan masa nyata bagi sambungan rangkaian terhadap senarai ancaman yang diketahui.",
+  "pageDescription": "Pemantauan masa nyata sambungan rangkaian terhadap senarai ancaman yang diketahui.",
+  "checkingConnection": "Menyemak sambungan Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud belum dikonfigurasikan",
-    "description": "Pautkan peranti anda ke Kudu Cloud dalam Tetapan untuk mendayakan pemantauan ancaman. Senarai hitam ancaman disediakan oleh perkhidmatan cloud."
+    "title": "Kudu Cloud Pro diperlukan",
+    "description": "Sambungkan peranti ini ke Kudu Cloud Pro untuk menerima senarai hitam ancaman semasa dan memantau aktiviti rangkaian yang mencurigakan.",
+    "action": "Lihat Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Sambungan Cloud memerlukan perhatian",
+    "description": "Peranti ini mempunyai kunci Cloud yang disimpan, tetapi ia tidak lagi dibenarkan. Semak sambungan dan pautkannya semula.",
+    "action": "Semak sambungan Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro diperlukan",
+    "description": "Pemantauan ancaman ialah ciri Pro. Naik taraf pelan Cloud anda untuk menerima senarai hitam ancaman langsung pada peranti ini.",
+    "action": "Lihat pelan Cloud"
   },
   "loading": "Memuatkan...",
   "inactive": {
     "title": "Pemantau ancaman tidak aktif",
-    "description": "Tiada senarai hitam ancaman dimuatkan. Senarai hitam akan diambil secara automatik apabila ejen cloud bersambung."
+    "description": "Cloud disambungkan, tetapi tiada senarai hitam ancaman tersedia lagi. Semak pelan Pro anda atau cuba lagi selepas ejen Cloud menyambung semula.",
+    "action": "Semak pelan Cloud"
   },
   "statusBar": {
     "blacklistVersion": "Senarai hitam",
@@ -20,7 +33,7 @@
   },
   "allClear": {
     "title": "Semua selamat",
-    "description": "Tiada sambungan atau entri DNS yang mencurigakan dikesan. Pemantau akan terus mengimbas di latar belakang."
+    "description": "Tiada sambungan atau entri DNS yang mencurigakan telah dikesan. Pemantau terus mengimbas di latar belakang."
   },
   "flaggedConnections": "Sambungan Ditandai",
   "flaggedDnsEntries": "Entri DNS Ditandai",

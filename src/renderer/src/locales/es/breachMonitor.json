@@ -2,40 +2,50 @@
   "pageTitle": "Monitor de filtraciones",
   "pageDescription": "Compruebe si sus direcciones de correo electrónico han quedado expuestas en filtraciones de datos conocidas",
   "loading": "Cargando datos de filtraciones...",
+  "cloudNotConfigured": {
+    "title": "Se requiere Kudu Cloud",
+    "description": "Conecte este dispositivo para comprobar las direcciones de correo electrónico con información conocida sobre filtraciones y realizar un seguimiento de nuevas exposiciones notificadas.",
+    "action": "Ver Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "La conexión con Cloud requiere atención",
+    "description": "Este dispositivo tiene una clave de Cloud guardada, pero ya no está autorizada. Revise la conexión y vuelva a vincularla.",
+    "action": "Revisar conexión con Cloud"
+  },
   "summary": {
     "totalBreaches": "Total de filtraciones",
     "unacknowledged": "Nuevas",
-    "emailsMonitored": "Correos electrónicos supervisados",
-    "emailsMonitoredTooltip": "Plan Basic: 1 correo electrónico · Plan Pro: 5 correos electrónicos. Mejore su plan en la configuración de Cloud para supervisar más."
+    "emailsMonitored": "Correos supervisados",
+    "emailsMonitoredTooltip": "Plan Basic: 1 correo · Plan Pro: 5 correos. Mejore su plan en la configuración de Cloud para supervisar más."
   },
   "addEmail": {
     "placeholder": "Introduzca una dirección de correo electrónico",
-    "button": "Añadir correo electrónico",
+    "button": "Añadir correo",
     "adding": "Añadiendo..."
   },
   "toast": {
     "fetchFailed": "No se pudieron cargar los datos de filtraciones",
-    "addFailed": "No se pudo añadir el correo electrónico",
-    "removeFailed": "No se pudo eliminar el correo electrónico",
+    "addFailed": "No se pudo añadir el correo",
+    "removeFailed": "No se pudo eliminar el correo",
     "invalidEmail": "Introduzca una dirección de correo electrónico válida",
-    "limitReached": "Se ha alcanzado el límite de correos electrónicos de su plan",
+    "limitReached": "Se alcanzó el límite de correos de su plan",
     "acknowledged": "Las filtraciones se marcaron como revisadas",
     "acknowledgeFailed": "No se pudieron marcar las filtraciones como revisadas"
   },
   "emptyState": {
-    "noEmails": "No hay correos electrónicos supervisados",
-    "noEmailsDesc": "Añada una dirección de correo electrónico para comprobar filtraciones de datos anteriores y supervisar continuamente nuevas filtraciones.",
+    "noEmails": "No hay correos supervisados",
+    "noEmailsDesc": "Añada una dirección de correo electrónico para comprobar filtraciones de datos anteriores y supervisar continuamente nuevas fugas.",
     "allClear": "Todo en orden",
-    "allClearDesc": "No se ha encontrado ninguno de sus correos electrónicos supervisados en filtraciones de datos conocidas.",
-    "upgradeRequired": "Se requiere una actualización",
-    "upgradeRequiredDesc": "La supervisión de filtraciones está disponible en el plan Basic y superiores. Mejore su plan para comenzar a supervisar.",
+    "allClearDesc": "No se ha encontrado ninguno de sus correos supervisados en filtraciones de datos conocidas.",
+    "upgradeRequired": "Se requiere actualización",
+    "upgradeRequiredDesc": "La supervisión de filtraciones está disponible en el plan Basic y superiores. Actualice su plan para empezar a supervisar.",
     "goToCloud": "Ver planes",
-    "noBreachesForEmail": "No se encontraron filtraciones para este correo electrónico",
-    "selectEmail": "Seleccione un correo electrónico de la lista para ver los detalles de la filtración"
+    "noBreachesForEmail": "No se encontraron filtraciones para este correo",
+    "selectEmail": "Seleccione un correo de la lista para ver los detalles de la filtración"
   },
   "error": {
     "title": "No se pudieron cargar los datos de filtraciones",
-    "description": "Compruebe su conexión a la nube y vuelva a intentarlo."
+    "description": "Compruebe su conexión con Cloud e inténtelo de nuevo."
   },
   "emailList": {
     "breaches": "{{count}} filtración",
@@ -44,11 +54,11 @@
     "noBreaches": "Sin filtraciones",
     "checking": "Comprobando...",
     "paused": "En pausa",
-    "remove": "Eliminar correo electrónico",
+    "remove": "Eliminar correo",
     "lastChecked": "Comprobado {{date}}"
   },
   "table": {
-    "email": "Correo electrónico",
+    "email": "Correo",
     "breach": "Filtración",
     "date": "Fecha",
     "accounts": "Cuentas",
@@ -62,13 +72,13 @@
     "unverified": "No verificada"
   },
   "filter": {
-    "allEmails": "Todos los correos electrónicos"
+    "allEmails": "Todos los correos"
   },
   "actions": {
     "acknowledge": "Marcar como revisada",
-    "acknowledgeTooltip": "Marque esta filtración como vista para que deje de aparecer como nueva o de activar notificaciones",
+    "acknowledgeTooltip": "Marque esta filtración como vista para que deje de aparecer como nueva o de generar notificaciones",
     "acknowledgeAll": "Marcar todas como revisadas",
-    "acknowledgeAllTooltip": "Marque como vistas todas las filtraciones no revisadas"
+    "acknowledgeAllTooltip": "Marque todas las filtraciones no revisadas como vistas"
   },
   "refetchButton": "Actualizar"
 }

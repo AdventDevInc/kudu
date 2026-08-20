@@ -1,54 +1,64 @@
 {
   "pageTitle": "侵害モニター",
   "pageDescription": "メールアドレスが既知のデータ侵害で漏えいしていないか確認します",
-  "loading": "侵害データを読み込んでいます...",
+  "loading": "侵害データを読み込み中...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud が必要です",
+    "description": "このデバイスを接続して、メールアドレスを既知の侵害情報と照合し、新たに報告された漏えいを追跡します。",
+    "action": "Kudu Cloud を表示"
+  },
+  "connectionError": {
+    "title": "Cloud 接続の確認が必要です",
+    "description": "このデバイスには保存された Cloud キーがありますが、現在は認証されていません。接続を確認して、再度リンクしてください。",
+    "action": "Cloud 接続を確認"
+  },
   "summary": {
-    "totalBreaches": "侵害の合計",
+    "totalBreaches": "侵害総数",
     "unacknowledged": "新規",
-    "emailsMonitored": "監視中のメールアドレス",
-    "emailsMonitoredTooltip": "Basic プラン: 1 件のメールアドレス · Pro プラン: 5 件のメールアドレス。さらに多く監視するには、Cloud の設定でプランをアップグレードしてください。"
+    "emailsMonitored": "監視中のメール",
+    "emailsMonitoredTooltip": "Basic プラン: 1 件のメール · Pro プラン: 5 件のメール。さらに多くのメールを監視するには、Cloud 設定でプランをアップグレードしてください。"
   },
   "addEmail": {
     "placeholder": "メールアドレスを入力",
-    "button": "メールアドレスを追加",
-    "adding": "追加しています..."
+    "button": "メールを追加",
+    "adding": "追加中..."
   },
   "toast": {
     "fetchFailed": "侵害データの読み込みに失敗しました",
-    "addFailed": "メールアドレスの追加に失敗しました",
-    "removeFailed": "メールアドレスの削除に失敗しました",
+    "addFailed": "メールの追加に失敗しました",
+    "removeFailed": "メールの削除に失敗しました",
     "invalidEmail": "有効なメールアドレスを入力してください",
-    "limitReached": "ご利用のプランのメールアドレス上限に達しました",
+    "limitReached": "ご利用のプランのメール上限に達しました",
     "acknowledged": "侵害を確認済みにしました",
     "acknowledgeFailed": "侵害の確認済みへの変更に失敗しました"
   },
   "emptyState": {
-    "noEmails": "監視中のメールアドレスはありません",
+    "noEmails": "監視中のメールはありません",
     "noEmailsDesc": "メールアドレスを追加すると、過去のデータ侵害を確認し、新たな漏えいを継続的に監視できます。",
-    "allClear": "問題はありません",
+    "allClear": "問題は見つかりませんでした",
     "allClearDesc": "監視中のメールアドレスは、既知のデータ侵害では見つかっていません。",
     "upgradeRequired": "アップグレードが必要です",
-    "upgradeRequiredDesc": "侵害モニタリングは Basic プラン以上で利用できます。監視を開始するには、プランをアップグレードしてください。",
+    "upgradeRequiredDesc": "侵害モニタリングは Basic プラン以上で利用できます。監視を開始するにはプランをアップグレードしてください。",
     "goToCloud": "プランを表示",
-    "noBreachesForEmail": "このメールアドレスでは侵害は見つかりませんでした",
-    "selectEmail": "一覧からメールアドレスを選択して侵害の詳細を表示します"
+    "noBreachesForEmail": "このメールでは侵害は見つかりませんでした",
+    "selectEmail": "一覧からメールを選択して侵害の詳細を表示します"
   },
   "error": {
     "title": "侵害データの読み込みに失敗しました",
-    "description": "Cloud への接続を確認して、もう一度お試しください。"
+    "description": "Cloud 接続を確認して、もう一度お試しください。"
   },
   "emailList": {
-    "breaches": "侵害 {{count}} 件",
-    "breaches_other": "侵害 {{count}} 件",
-    "newBreaches": "新規 {{count}} 件",
+    "breaches": "{{count}} 件の侵害",
+    "breaches_other": "{{count}} 件の侵害",
+    "newBreaches": "{{count}} 件の新規",
     "noBreaches": "侵害なし",
-    "checking": "確認しています...",
+    "checking": "確認中...",
     "paused": "一時停止中",
-    "remove": "メールアドレスを削除",
+    "remove": "メールを削除",
     "lastChecked": "{{date}} に確認"
   },
   "table": {
-    "email": "メールアドレス",
+    "email": "メール",
     "breach": "侵害",
     "date": "日付",
     "accounts": "アカウント数",
@@ -58,15 +68,15 @@
     "new": "新規",
     "reviewed": "確認済み",
     "sensitive": "機密性の高い侵害",
-    "verified": "検証済み",
-    "unverified": "未検証"
+    "verified": "確認済み",
+    "unverified": "未確認"
   },
   "filter": {
-    "allEmails": "すべてのメールアドレス"
+    "allEmails": "すべてのメール"
   },
   "actions": {
     "acknowledge": "確認済みにする",
-    "acknowledgeTooltip": "この侵害を確認済みにして、新規として表示されたり通知が送信されたりしないようにします",
+    "acknowledgeTooltip": "この侵害を確認済みにして、新規表示や通知の対象から外します",
     "acknowledgeAll": "すべて確認済みにする",
     "acknowledgeAllTooltip": "未確認の侵害をすべて確認済みにします"
   },

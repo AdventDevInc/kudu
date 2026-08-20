@@ -4,15 +4,26 @@
   "loading": "A carregar vulnerabilidades...",
   "refetchButton": "Atualizar",
   "cloudNotConfigured": {
-    "title": "Cloud Agent Necessário",
-    "description": "A análise de CVE requer que o Cloud Agent esteja associado. Vá a Definições → Cloud para ligar o seu dispositivo."
+    "title": "Cloud Agent necessário",
+    "description": "A análise de CVE requer o Kudu Cloud Pro. Ligue este dispositivo para verificar o software instalado em relação aos avisos de segurança atuais.",
+    "action": "Ver Kudu Cloud"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent Não Ligado",
+    "title": "Cloud Agent não ligado",
     "description": "O Cloud Agent não está atualmente ligado. Verifique a sua ligação em Definições → Cloud."
   },
+  "connectionError": {
+    "title": "A ligação à Cloud requer atenção",
+    "description": "Este dispositivo tem uma chave Cloud guardada, mas já não está autorizada. Reveja a ligação e associe-a novamente.",
+    "action": "Rever ligação à Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro necessário",
+    "description": "A monitorização de vulnerabilidades é uma funcionalidade Pro. Atualize o seu plano Cloud para analisar o software instalado em relação à base de dados CVE em tempo real.",
+    "action": "Ver planos Cloud"
+  },
   "emptyState": {
-    "title": "Nenhuma Vulnerabilidade Detetada",
+    "title": "Nenhuma vulnerabilidade detetada",
     "description": "Não foram encontrados CVEs conhecidos no software instalado. O seu sistema parece seguro!"
   },
   "severity": {
@@ -35,7 +46,7 @@
     "noResults": "Nenhuma vulnerabilidade corresponde aos filtros atuais"
   },
   "error": {
-    "title": "Falha ao Carregar Vulnerabilidades",
+    "title": "Falha ao carregar vulnerabilidades",
     "description": "Não foi possível obter os dados de vulnerabilidades do servidor. Tente atualizar ou verifique a sua ligação à cloud."
   },
   "card": {
@@ -45,8 +56,8 @@
     "cvss": "CVSS {{score}}",
     "firstDetected": "Primeira deteção: {{date}}",
     "lastScanned": "Última análise: {{date}}",
-    "viewDetails": "Ver Detalhes do CVE",
-    "checkForUpdates": "Procurar Atualizações"
+    "viewDetails": "Ver detalhes do CVE",
+    "checkForUpdates": "Procurar atualizações"
   },
   "pagination": {
     "previous": "Anterior",

@@ -5,15 +5,26 @@
   "refetchButton": "更新",
   "cloudNotConfigured": {
     "title": "Cloud Agent が必要です",
-    "description": "CVE スキャンを実行するには、Cloud Agent をリンクする必要があります。設定 → Cloud に移動してデバイスを接続してください。"
+    "description": "CVE スキャンには Kudu Cloud Pro が必要です。このデバイスを接続して、インストールされているソフトウェアを最新のセキュリティ情報と照合してください。",
+    "action": "Kudu Cloud を表示"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent が接続されていません",
     "description": "Cloud Agent は現在接続されていません。設定 → Cloud で接続を確認してください。"
   },
+  "connectionError": {
+    "title": "Cloud 接続の確認が必要です",
+    "description": "このデバイスには保存された Cloud キーがありますが、現在は認証されていません。接続を確認して、再度リンクしてください。",
+    "action": "Cloud 接続を確認"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro が必要です",
+    "description": "脆弱性の監視は Pro 機能です。Cloud プランをアップグレードして、インストールされているソフトウェアを最新の CVE データベースと照合してください。",
+    "action": "Cloud プランを表示"
+  },
   "emptyState": {
     "title": "脆弱性は検出されませんでした",
-    "description": "インストールされているソフトウェアで既知の CVE は見つかりませんでした。システムは安全な状態です。"
+    "description": "インストールされているソフトウェアに既知の CVE は見つかりませんでした。システムは安全な状態です。"
   },
   "severity": {
     "critical": "重大",
@@ -35,7 +46,7 @@
     "noResults": "現在のフィルターに一致する脆弱性はありません"
   },
   "error": {
-    "title": "脆弱性の読み込みに失敗しました",
+    "title": "脆弱性を読み込めませんでした",
     "description": "サーバーから脆弱性データを取得できませんでした。更新するか、Cloud 接続を確認してください。"
   },
   "card": {
@@ -54,7 +65,7 @@
     "page": "{{current}} ページ"
   },
   "toast": {
-    "fetchFailed": "脆弱性データの読み込みに失敗しました",
+    "fetchFailed": "脆弱性データを読み込めませんでした",
     "fetchFailedNotConnected": "Cloud Agent が接続されていません"
   }
 }

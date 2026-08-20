@@ -1,25 +1,38 @@
 {
   "pageTitle": "Hotövervakning",
   "pageDescription": "Övervakning i realtid av nätverksanslutningar mot kända hotlistor.",
+  "checkingConnection": "Kontrollerar anslutning till Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Molnet är inte konfigurerat",
-    "description": "Länka din enhet till Kudu Cloud i Inställningar för att aktivera hotövervakning. Hotets svartlista tillhandahålls av molntjänsten."
+    "title": "Kudu Cloud Pro krävs",
+    "description": "Anslut den här enheten till Kudu Cloud Pro för att ta emot den aktuella svartlistan över hot och övervaka misstänkt nätverksaktivitet.",
+    "action": "Visa Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud-anslutningen kräver åtgärd",
+    "description": "Den här enheten har en sparad Cloud-nyckel, men den är inte längre auktoriserad. Granska anslutningen och länka den igen.",
+    "action": "Granska Cloud-anslutning"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro krävs",
+    "description": "Hotövervakning är en Pro-funktion. Uppgradera din Cloud-plan för att ta emot den liveuppdaterade svartlistan över hot på den här enheten.",
+    "action": "Visa Cloud-planer"
   },
   "loading": "Läser in...",
   "inactive": {
     "title": "Hotövervakning inaktiv",
-    "description": "Ingen svartlista för hot har lästs in. Svartlistan hämtas automatiskt när molnagenten ansluter."
+    "description": "Cloud är anslutet, men ingen svartlista över hot är tillgänglig ännu. Kontrollera din Pro-plan eller försök igen när Cloud-agenten har återanslutit.",
+    "action": "Granska Cloud-plan"
   },
   "statusBar": {
     "blacklistVersion": "Svartlista",
-    "connectionsScanned": "Anslutningar skannade {{time}}",
-    "dnsScanned": "DNS skannat {{time}}",
+    "connectionsScanned": "Anslutningar genomsökta {{time}}",
+    "dnsScanned": "DNS genomsökt {{time}}",
     "threatsDetected": "{{count}} hot upptäckt",
     "threatsDetectedPlural": "{{count}} hot upptäckta",
     "noThreatsDetected": "Inga hot upptäckta"
   },
   "allClear": {
-    "title": "Inga hot hittades",
+    "title": "Allt klart",
     "description": "Inga misstänkta anslutningar eller DNS-poster har upptäckts. Övervakningen fortsätter att skanna i bakgrunden."
   },
   "flaggedConnections": "Flaggade anslutningar",

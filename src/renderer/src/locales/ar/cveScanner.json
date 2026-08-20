@@ -5,11 +5,22 @@
   "refetchButton": "تحديث",
   "cloudNotConfigured": {
     "title": "يلزم Cloud Agent",
-    "description": "يتطلب فحص CVE ربط Cloud Agent. انتقل إلى الإعدادات ← Cloud لتوصيل جهازك."
+    "description": "يتطلب فحص CVE خدمة Kudu Cloud Pro. قم بتوصيل هذا الجهاز للتحقق من البرامج المثبتة ومقارنتها بالتنبيهات الأمنية الحالية.",
+    "action": "عرض Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent غير متصل",
-    "description": "Cloud Agent غير متصل حاليًا. تحقق من اتصالك في الإعدادات ← Cloud."
+    "description": "Cloud Agent غير متصل حاليًا. تحقق من الاتصال في الإعدادات ← Cloud."
+  },
+  "connectionError": {
+    "title": "اتصال Cloud يحتاج إلى انتباه",
+    "description": "يحتوي هذا الجهاز على مفتاح Cloud محفوظ، لكنه لم يعد مخولًا. راجع الاتصال واربطه مرة أخرى.",
+    "action": "مراجعة اتصال Cloud"
+  },
+  "planRequired": {
+    "title": "يلزم Kudu Cloud Pro",
+    "description": "مراقبة الثغرات الأمنية ميزة Pro. قم بترقية خطة Cloud لفحص البرامج المثبتة بالاستناد إلى قاعدة بيانات CVE المباشرة.",
+    "action": "عرض خطط Cloud"
   },
   "emptyState": {
     "title": "لم يتم اكتشاف أي ثغرات أمنية",

@@ -1,17 +1,30 @@
 {
   "pageTitle": "Uhkamonitori",
   "pageDescription": "Verkkoyhteyksien reaaliaikainen valvonta tunnettuja uhkalistoja vastaan.",
+  "checkingConnection": "Tarkistetaan Kudu Cloud -yhteyttä…",
   "cloudNotConfigured": {
-    "title": "Pilvipalvelua ei ole määritetty",
-    "description": "Yhdistä laitteesi Kudu Cloudiin Asetuksissa ottaaksesi uhkavalvonnan käyttöön. Uhkien estoluettelo toimitetaan pilvipalvelun kautta."
+    "title": "Kudu Cloud Pro vaaditaan",
+    "description": "Yhdistä tämä laite Kudu Cloud Prohon, jotta saat ajantasaisen uhkien estolistan ja voit valvoa epäilyttävää verkkotoimintaa.",
+    "action": "Näytä Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud-yhteys vaatii huomiota",
+    "description": "Tälle laitteelle on tallennettu Cloud-avain, mutta sitä ei ole enää valtuutettu. Tarkista yhteys ja linkitä se uudelleen.",
+    "action": "Tarkista Cloud-yhteys"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro vaaditaan",
+    "description": "Uhkamonitorointi on Pro-ominaisuus. Päivitä Cloud-pakettisi, jotta saat tälle laitteelle reaaliaikaisen uhkien estolistan.",
+    "action": "Näytä Cloud-paketit"
   },
   "loading": "Ladataan...",
   "inactive": {
     "title": "Uhkamonitori ei ole aktiivinen",
-    "description": "Uhkien estoluetteloa ei ole ladattu. Estoluettelo noudetaan automaattisesti, kun pilviagentti muodostaa yhteyden."
+    "description": "Cloud on yhdistetty, mutta uhkien estolista ei ole vielä saatavilla. Tarkista Pro-pakettisi tai yritä uudelleen, kun Cloud-agentti on muodostanut yhteyden uudelleen.",
+    "action": "Tarkista Cloud-paketti"
   },
   "statusBar": {
-    "blacklistVersion": "Estoluettelo",
+    "blacklistVersion": "Estolista",
     "connectionsScanned": "Yhteydet tarkistettu {{time}}",
     "dnsScanned": "DNS tarkistettu {{time}}",
     "threatsDetected": "{{count}} uhka havaittu",
@@ -22,7 +35,7 @@
     "title": "Ei uhkia",
     "description": "Epäilyttäviä yhteyksiä tai DNS-merkintöjä ei havaittu. Monitori jatkaa tarkistusta taustalla."
   },
-  "flaggedConnections": "Merkittyt yhteydet",
+  "flaggedConnections": "Merkityt yhteydet",
   "flaggedDnsEntries": "Merkityt DNS-merkinnät",
   "connectionPid": "PID {{pid}}"
 }

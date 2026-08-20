@@ -5,11 +5,22 @@
   "refetchButton": "Aggiorna",
   "cloudNotConfigured": {
     "title": "Cloud Agent richiesto",
-    "description": "La scansione CVE richiede che il Cloud Agent sia collegato. Vai in Impostazioni → Cloud per connettere il dispositivo."
+    "description": "La scansione CVE richiede Kudu Cloud Pro. Collega questo dispositivo per verificare il software installato rispetto agli avvisi di sicurezza correnti.",
+    "action": "Visualizza Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent non connesso",
-    "description": "Il Cloud Agent non è attualmente connesso. Controlla la connessione in Impostazioni → Cloud."
+    "description": "Cloud Agent non è attualmente connesso. Controlla la connessione in Impostazioni → Cloud."
+  },
+  "connectionError": {
+    "title": "La connessione Cloud richiede attenzione",
+    "description": "Questo dispositivo ha una chiave Cloud salvata, ma non è più autorizzata. Controlla la connessione e collegalo di nuovo.",
+    "action": "Controlla la connessione Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro richiesto",
+    "description": "Il monitoraggio delle vulnerabilità è una funzionalità Pro. Aggiorna il tuo piano Cloud per analizzare il software installato rispetto al database CVE in tempo reale.",
+    "action": "Visualizza i piani Cloud"
   },
   "emptyState": {
     "title": "Nessuna vulnerabilità rilevata",
@@ -32,7 +43,7 @@
   "filter": {
     "all": "Tutte",
     "searchPlaceholder": "Cerca per nome dell'app o ID CVE...",
-    "noResults": "Nessuna vulnerabilità corrisponde ai filtri correnti"
+    "noResults": "Nessuna vulnerabilità corrisponde ai filtri attuali"
   },
   "error": {
     "title": "Impossibile caricare le vulnerabilità",

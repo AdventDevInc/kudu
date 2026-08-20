@@ -5,15 +5,26 @@
   "refetchButton": "Päivitä",
   "cloudNotConfigured": {
     "title": "Cloud Agent vaaditaan",
-    "description": "CVE-tarkistus edellyttää, että Cloud Agent on liitetty. Siirry kohtaan Asetukset → Cloud yhdistääksesi laitteesi."
+    "description": "CVE-tarkistus edellyttää Kudu Cloud Prota. Yhdistä tämä laite, jotta voit tarkistaa asennetut ohjelmistot ajantasaisten tietoturvatiedotteiden perusteella.",
+    "action": "Näytä Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent ei ole yhdistetty",
     "description": "Cloud Agent ei ole tällä hetkellä yhdistetty. Tarkista yhteys kohdasta Asetukset → Cloud."
   },
+  "connectionError": {
+    "title": "Cloud-yhteys vaatii huomiota",
+    "description": "Tähän laitteeseen on tallennettu Cloud-avain, mutta sitä ei ole enää valtuutettu. Tarkista yhteys ja yhdistä se uudelleen.",
+    "action": "Tarkista Cloud-yhteys"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro vaaditaan",
+    "description": "Haavoittuvuuksien valvonta on Pro-ominaisuus. Päivitä Cloud-pakettisi, jotta voit tarkistaa asennetut ohjelmistot reaaliaikaista CVE-tietokantaa vasten.",
+    "action": "Näytä Cloud-paketit"
+  },
   "emptyState": {
     "title": "Haavoittuvuuksia ei havaittu",
-    "description": "Asennetusta ohjelmistostasi ei löytynyt tunnettuja CVE-haavoittuvuuksia. Järjestelmäsi vaikuttaa turvalliselta!"
+    "description": "Asennetuista ohjelmistoistasi ei löytynyt tunnettuja CVE-haavoittuvuuksia. Järjestelmäsi vaikuttaa turvalliselta!"
   },
   "severity": {
     "critical": "Kriittinen",
@@ -36,7 +47,7 @@
   },
   "error": {
     "title": "Haavoittuvuuksien lataaminen epäonnistui",
-    "description": "Haavoittuvuustietoja ei voitu noutaa palvelimelta. Yritä päivittää tai tarkista pilviyhteytesi."
+    "description": "Haavoittuvuustietoja ei voitu noutaa palvelimelta. Yritä päivittää tai tarkista cloud-yhteytesi."
   },
   "card": {
     "installed": "Asennettu: {{version}}",

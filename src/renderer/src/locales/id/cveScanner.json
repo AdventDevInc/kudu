@@ -5,15 +5,26 @@
   "refetchButton": "Segarkan",
   "cloudNotConfigured": {
     "title": "Cloud Agent Diperlukan",
-    "description": "Pemindaian CVE memerlukan Cloud Agent yang ditautkan. Buka Pengaturan → Cloud untuk menghubungkan perangkat Anda."
+    "description": "Pemindaian CVE memerlukan Kudu Cloud Pro. Hubungkan perangkat ini untuk memeriksa perangkat lunak terinstal terhadap advisori keamanan terbaru.",
+    "action": "Lihat Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent Tidak Terhubung",
     "description": "Cloud Agent saat ini tidak terhubung. Periksa koneksi Anda di Pengaturan → Cloud."
   },
+  "connectionError": {
+    "title": "Koneksi Cloud memerlukan perhatian",
+    "description": "Perangkat ini memiliki kunci Cloud yang tersimpan, tetapi sudah tidak lagi diotorisasi. Tinjau koneksinya dan tautkan kembali.",
+    "action": "Tinjau koneksi Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro diperlukan",
+    "description": "Pemantauan kerentanan adalah fitur Pro. Tingkatkan paket Cloud Anda untuk memindai perangkat lunak terinstal terhadap basis data CVE langsung.",
+    "action": "Lihat paket Cloud"
+  },
   "emptyState": {
     "title": "Tidak Ada Kerentanan Terdeteksi",
-    "description": "Tidak ada CVE yang diketahui ditemukan pada perangkat lunak terinstal Anda. Sistem Anda tampak aman!"
+    "description": "Tidak ditemukan CVE yang diketahui pada perangkat lunak terinstal Anda. Sistem Anda tampak aman!"
   },
   "severity": {
     "critical": "Kritis",
@@ -43,7 +54,7 @@
     "fixAvailable": "Perbaikan: {{version}}",
     "noFix": "Tidak ada perbaikan yang tersedia",
     "cvss": "CVSS {{score}}",
-    "firstDetected": "Pertama kali terdeteksi: {{date}}",
+    "firstDetected": "Pertama terdeteksi: {{date}}",
     "lastScanned": "Terakhir dipindai: {{date}}",
     "viewDetails": "Lihat Detail CVE",
     "checkForUpdates": "Periksa Pembaruan"

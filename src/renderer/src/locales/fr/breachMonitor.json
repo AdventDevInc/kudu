@@ -1,9 +1,19 @@
 {
-  "pageTitle": "Surveillance des violations",
-  "pageDescription": "Vérifiez si vos adresses e-mail ont été exposées dans des violations de données connues",
-  "loading": "Chargement des données de violation...",
+  "pageTitle": "Surveillance des fuites de données",
+  "pageDescription": "Vérifiez si vos adresses e-mail ont été exposées dans des fuites de données connues",
+  "loading": "Chargement des données de fuite...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud requis",
+    "description": "Connectez cet appareil pour vérifier les adresses e-mail par rapport aux renseignements connus sur les fuites de données et suivre les nouvelles expositions signalées.",
+    "action": "Afficher Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "La connexion au Cloud nécessite votre attention",
+    "description": "Cet appareil possède une clé Cloud enregistrée, mais elle n’est plus autorisée. Vérifiez la connexion et reliez-la à nouveau.",
+    "action": "Vérifier la connexion au Cloud"
+  },
   "summary": {
-    "totalBreaches": "Total des violations",
+    "totalBreaches": "Total des fuites",
     "unacknowledged": "Nouvelles",
     "emailsMonitored": "E-mails surveillés",
     "emailsMonitoredTooltip": "Forfait Basic : 1 e-mail · Forfait Pro : 5 e-mails. Mettez à niveau votre forfait dans les paramètres Cloud pour en surveiller davantage."
@@ -14,50 +24,50 @@
     "adding": "Ajout..."
   },
   "toast": {
-    "fetchFailed": "Échec du chargement des données de violation",
+    "fetchFailed": "Échec du chargement des données de fuite",
     "addFailed": "Échec de l’ajout de l’e-mail",
     "removeFailed": "Échec de la suppression de l’e-mail",
     "invalidEmail": "Veuillez saisir une adresse e-mail valide",
     "limitReached": "Limite d’e-mails atteinte pour votre forfait",
-    "acknowledged": "Violations marquées comme examinées",
-    "acknowledgeFailed": "Échec du marquage des violations comme examinées"
+    "acknowledged": "Fuites marquées comme examinées",
+    "acknowledgeFailed": "Échec du marquage des fuites"
   },
   "emptyState": {
     "noEmails": "Aucun e-mail surveillé",
-    "noEmailsDesc": "Ajoutez une adresse e-mail pour rechercher d’anciennes violations de données et surveiller en continu les nouvelles fuites.",
-    "allClear": "Aucune alerte",
-    "allClearDesc": "Aucun de vos e-mails surveillés n’a été trouvé dans des violations de données connues.",
+    "noEmailsDesc": "Ajoutez une adresse e-mail pour rechercher d’anciennes fuites de données et surveiller en continu les nouvelles divulgations.",
+    "allClear": "Aucun problème détecté",
+    "allClearDesc": "Aucun de vos e-mails surveillés n’a été trouvé dans des fuites de données connues.",
     "upgradeRequired": "Mise à niveau requise",
-    "upgradeRequiredDesc": "La surveillance des violations est disponible avec le forfait Basic et supérieur. Mettez à niveau votre forfait pour commencer la surveillance.",
-    "goToCloud": "Voir les forfaits",
-    "noBreachesForEmail": "Aucune violation trouvée pour cet e-mail",
-    "selectEmail": "Sélectionnez un e-mail dans la liste pour afficher les détails de la violation"
+    "upgradeRequiredDesc": "La surveillance des fuites de données est disponible avec le forfait Basic et supérieur. Mettez à niveau votre forfait pour commencer la surveillance.",
+    "goToCloud": "Afficher les forfaits",
+    "noBreachesForEmail": "Aucune fuite trouvée pour cet e-mail",
+    "selectEmail": "Sélectionnez un e-mail dans la liste pour afficher les détails de la fuite"
   },
   "error": {
-    "title": "Échec du chargement des données de violation",
+    "title": "Échec du chargement des données de fuite",
     "description": "Vérifiez votre connexion au cloud et réessayez."
   },
   "emailList": {
-    "breaches": "{{count}} violation",
-    "breaches_other": "{{count}} violations",
+    "breaches": "{{count}} fuite",
+    "breaches_other": "{{count}} fuites",
     "newBreaches": "{{count}} nouvelle",
-    "noBreaches": "Aucune violation",
+    "noBreaches": "Aucune fuite",
     "checking": "Vérification...",
     "paused": "En pause",
     "remove": "Supprimer l’e-mail",
-    "lastChecked": "Vérifié {{date}}"
+    "lastChecked": "Vérifié le {{date}}"
   },
   "table": {
     "email": "E-mail",
-    "breach": "Violation",
+    "breach": "Fuite",
     "date": "Date",
     "accounts": "Comptes",
     "data": "Données compromises",
     "status": "Statut",
     "actions": "",
     "new": "Nouveau",
-    "reviewed": "Examinée",
-    "sensitive": "Violation sensible",
+    "reviewed": "Examiné",
+    "sensitive": "Fuite sensible",
     "verified": "Vérifiée",
     "unverified": "Non vérifiée"
   },
@@ -65,10 +75,10 @@
     "allEmails": "Tous les e-mails"
   },
   "actions": {
-    "acknowledge": "Marquer comme examinée",
-    "acknowledgeTooltip": "Marquez cette violation comme vue afin qu’elle n’apparaisse plus comme nouvelle et ne déclenche plus de notifications",
+    "acknowledge": "Marquer comme examiné",
+    "acknowledgeTooltip": "Marquez cette fuite comme vue afin qu’elle n’apparaisse plus comme nouvelle et ne déclenche plus de notifications",
     "acknowledgeAll": "Tout marquer comme examiné",
-    "acknowledgeAllTooltip": "Marquer toutes les violations non examinées comme vues"
+    "acknowledgeAllTooltip": "Marquer toutes les fuites non examinées comme vues"
   },
   "refetchButton": "Actualiser"
 }

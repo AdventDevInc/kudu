@@ -5,15 +5,26 @@
   "refetchButton": "Vernieuwen",
   "cloudNotConfigured": {
     "title": "Cloud Agent vereist",
-    "description": "Voor CVE-scans moet de Cloud Agent gekoppeld zijn. Ga naar Instellingen → Cloud om uw apparaat te verbinden."
+    "description": "Voor CVE-scans is Kudu Cloud Pro vereist. Verbind dit apparaat om geïnstalleerde software te controleren aan de hand van actuele beveiligingsadviezen.",
+    "action": "Kudu Cloud bekijken"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent niet verbonden",
     "description": "De Cloud Agent is momenteel niet verbonden. Controleer uw verbinding in Instellingen → Cloud."
   },
+  "connectionError": {
+    "title": "Cloud-verbinding vereist aandacht",
+    "description": "Dit apparaat heeft een opgeslagen Cloud-sleutel, maar deze is niet langer geautoriseerd. Controleer de verbinding en koppel deze opnieuw.",
+    "action": "Cloud-verbinding controleren"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro vereist",
+    "description": "Kwetsbaarheidsbewaking is een Pro-functie. Upgrade uw Cloud-abonnement om geïnstalleerde software te scannen aan de hand van de live CVE-database.",
+    "action": "Cloud-abonnementen bekijken"
+  },
   "emptyState": {
     "title": "Geen kwetsbaarheden gedetecteerd",
-    "description": "Er zijn geen bekende CVE's gevonden in uw geïnstalleerde software. Uw systeem lijkt veilig!"
+    "description": "Er zijn geen bekende CVE's gevonden in uw geïnstalleerde software. Uw systeem ziet er veilig uit!"
   },
   "severity": {
     "critical": "Kritiek",
@@ -31,12 +42,12 @@
   },
   "filter": {
     "all": "Alle",
-    "searchPlaceholder": "Zoeken op app-naam of CVE-ID...",
+    "searchPlaceholder": "Zoeken op appnaam of CVE-ID...",
     "noResults": "Geen kwetsbaarheden komen overeen met uw huidige filters"
   },
   "error": {
     "title": "Kwetsbaarheden laden mislukt",
-    "description": "Kan kwetsbaarheidsgegevens niet van de server ophalen. Probeer te vernieuwen of controleer uw cloudverbinding."
+    "description": "Kan kwetsbaarheidsgegevens niet ophalen van de server. Probeer te vernieuwen of controleer uw Cloud-verbinding."
   },
   "card": {
     "installed": "Geïnstalleerd: {{version}}",
@@ -54,7 +65,7 @@
     "page": "Pagina {{current}}"
   },
   "toast": {
-    "fetchFailed": "Kwetsbaarheidsgegevens laden mislukt",
+    "fetchFailed": "Laden van kwetsbaarheidsgegevens mislukt",
     "fetchFailedNotConnected": "Cloud Agent is niet verbonden"
   }
 }

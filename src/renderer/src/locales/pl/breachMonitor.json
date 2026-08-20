@@ -1,12 +1,22 @@
 {
   "pageTitle": "Monitor naruszeń",
   "pageDescription": "Sprawdź, czy Twoje adresy e-mail zostały ujawnione w znanych naruszeniach danych",
-  "loading": "Wczytywanie danych o naruszeniach...",
+  "loading": "Ładowanie danych o naruszeniach...",
+  "cloudNotConfigured": {
+    "title": "Wymagane Kudu Cloud",
+    "description": "Połącz to urządzenie, aby sprawdzać adresy e-mail względem znanych informacji o naruszeniach i śledzić nowo zgłoszone ujawnienia.",
+    "action": "Wyświetl Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Połączenie z chmurą wymaga uwagi",
+    "description": "To urządzenie ma zapisany klucz Cloud, ale nie jest on już autoryzowany. Sprawdź połączenie i połącz je ponownie.",
+    "action": "Sprawdź połączenie z chmurą"
+  },
   "summary": {
-    "totalBreaches": "Łączna liczba naruszeń",
+    "totalBreaches": "Łącznie naruszeń",
     "unacknowledged": "Nowe",
     "emailsMonitored": "Monitorowane adresy e-mail",
-    "emailsMonitoredTooltip": "Plan Basic: 1 adres e-mail · Plan Pro: 5 adresów e-mail. Uaktualnij plan w ustawieniach Cloud, aby monitorować więcej."
+    "emailsMonitoredTooltip": "Plan Basic: 1 adres e-mail · Plan Pro: 5 adresów e-mail. Zmień plan w ustawieniach Cloud, aby monitorować więcej."
   },
   "addEmail": {
     "placeholder": "Wprowadź adres e-mail",
@@ -19,8 +29,8 @@
     "removeFailed": "Nie udało się usunąć adresu e-mail",
     "invalidEmail": "Wprowadź prawidłowy adres e-mail",
     "limitReached": "Osiągnięto limit adresów e-mail dla Twojego planu",
-    "acknowledged": "Naruszenia oznaczono jako przejrzane",
-    "acknowledgeFailed": "Nie udało się oznaczyć naruszeń"
+    "acknowledged": "Naruszenia oznaczono jako sprawdzone",
+    "acknowledgeFailed": "Nie udało się oznaczyć naruszeń jako sprawdzone"
   },
   "emptyState": {
     "noEmails": "Brak monitorowanych adresów e-mail",
@@ -28,8 +38,8 @@
     "allClear": "Brak zagrożeń",
     "allClearDesc": "Żaden z monitorowanych adresów e-mail nie został znaleziony w żadnym znanym naruszeniu danych.",
     "upgradeRequired": "Wymagana aktualizacja planu",
-    "upgradeRequiredDesc": "Monitorowanie naruszeń jest dostępne w planie Basic i wyższych. Uaktualnij plan, aby rozpocząć monitorowanie.",
-    "goToCloud": "Zobacz plany",
+    "upgradeRequiredDesc": "Monitorowanie naruszeń jest dostępne w planie Basic i wyższych. Zmień plan, aby rozpocząć monitorowanie.",
+    "goToCloud": "Wyświetl plany",
     "noBreachesForEmail": "Nie znaleziono naruszeń dla tego adresu e-mail",
     "selectEmail": "Wybierz adres e-mail z listy, aby wyświetlić szczegóły naruszeń"
   },
@@ -48,7 +58,7 @@
     "lastChecked": "Sprawdzono {{date}}"
   },
   "table": {
-    "email": "Adres e-mail",
+    "email": "E-mail",
     "breach": "Naruszenie",
     "date": "Data",
     "accounts": "Konta",
@@ -56,7 +66,7 @@
     "status": "Stan",
     "actions": "",
     "new": "Nowe",
-    "reviewed": "Przejrzane",
+    "reviewed": "Sprawdzone",
     "sensitive": "Wrażliwe naruszenie",
     "verified": "Zweryfikowane",
     "unverified": "Niezweryfikowane"
@@ -65,10 +75,10 @@
     "allEmails": "Wszystkie adresy e-mail"
   },
   "actions": {
-    "acknowledge": "Oznacz jako przejrzane",
+    "acknowledge": "Oznacz jako sprawdzone",
     "acknowledgeTooltip": "Oznacz to naruszenie jako widziane, aby nie było już wyświetlane jako nowe ani nie wywoływało powiadomień",
-    "acknowledgeAll": "Oznacz wszystkie jako przejrzane",
-    "acknowledgeAllTooltip": "Oznacz wszystkie nieprzejrzane naruszenia jako widziane"
+    "acknowledgeAll": "Oznacz wszystkie jako sprawdzone",
+    "acknowledgeAllTooltip": "Oznacz wszystkie niesprawdzone naruszenia jako widziane"
   },
   "refetchButton": "Odśwież"
 }

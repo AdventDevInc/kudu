@@ -1,45 +1,55 @@
 {
   "pageTitle": "外洩監控",
-  "pageDescription": "檢查您的電子郵件地址是否已在已知資料外洩事件中曝光",
+  "pageDescription": "檢查您的電子郵件地址是否曾在已知資料外洩事件中曝光",
   "loading": "正在載入外洩資料...",
+  "cloudNotConfigured": {
+    "title": "需要 Kudu Cloud",
+    "description": "連線此裝置，以根據已知外洩情報檢查電子郵件地址，並追蹤新通報的曝光事件。",
+    "action": "檢視 Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud 連線需要處理",
+    "description": "此裝置已儲存 Cloud 金鑰，但已不再獲得授權。請檢查連線並重新連結。",
+    "action": "檢查 Cloud 連線"
+  },
   "summary": {
     "totalBreaches": "外洩總數",
     "unacknowledged": "新增",
     "emailsMonitored": "監控中的電子郵件",
-    "emailsMonitoredTooltip": "Basic 方案：1 個電子郵件 · Pro 方案：5 個電子郵件。可在 Cloud 設定中升級方案以監控更多電子郵件。"
+    "emailsMonitoredTooltip": "Basic 方案：1 個電子郵件 · Pro 方案：5 個電子郵件。請在 Cloud 設定中升級方案，以監控更多電子郵件。"
   },
   "addEmail": {
     "placeholder": "輸入電子郵件地址",
     "button": "新增電子郵件",
-    "adding": "正在新增..."
+    "adding": "新增中..."
   },
   "toast": {
-    "fetchFailed": "載入外洩資料失敗",
-    "addFailed": "新增電子郵件失敗",
-    "removeFailed": "移除電子郵件失敗",
+    "fetchFailed": "無法載入外洩資料",
+    "addFailed": "無法新增電子郵件",
+    "removeFailed": "無法移除電子郵件",
     "invalidEmail": "請輸入有效的電子郵件地址",
     "limitReached": "已達到您方案的電子郵件數量上限",
-    "acknowledged": "已將外洩事件標示為已檢閱",
-    "acknowledgeFailed": "標示外洩事件失敗"
+    "acknowledged": "外洩事件已標示為已檢閱",
+    "acknowledgeFailed": "無法確認外洩事件"
   },
   "emptyState": {
     "noEmails": "沒有監控中的電子郵件",
-    "noEmailsDesc": "新增電子郵件地址以檢查過往資料外洩事件，並持續監控新的外洩。",
+    "noEmailsDesc": "新增電子郵件地址，以檢查過去的資料外洩事件，並持續監控新的外洩。",
     "allClear": "一切正常",
-    "allClearDesc": "您監控的電子郵件皆未在任何已知資料外洩事件中被發現。",
+    "allClearDesc": "您監控中的電子郵件皆未在任何已知資料外洩事件中被發現。",
     "upgradeRequired": "需要升級",
     "upgradeRequiredDesc": "外洩監控功能適用於 Basic 方案及以上。請升級您的方案以開始監控。",
-    "goToCloud": "查看方案",
+    "goToCloud": "檢視方案",
     "noBreachesForEmail": "此電子郵件未發現外洩事件",
-    "selectEmail": "請從清單中選取一個電子郵件以檢視外洩詳細資料"
+    "selectEmail": "請從清單中選取電子郵件以檢視外洩詳細資料"
   },
   "error": {
-    "title": "載入外洩資料失敗",
+    "title": "無法載入外洩資料",
     "description": "請檢查您的雲端連線後再試一次。"
   },
   "emailList": {
-    "breaches": "{{count}} 次外洩",
-    "breaches_other": "{{count}} 次外洩",
+    "breaches": "{{count}} 筆外洩",
+    "breaches_other": "{{count}} 筆外洩",
     "newBreaches": "{{count}} 筆新增",
     "noBreaches": "無外洩事件",
     "checking": "檢查中...",
@@ -52,7 +62,7 @@
     "breach": "外洩事件",
     "date": "日期",
     "accounts": "帳戶",
-    "data": "遭洩露資料",
+    "data": "外洩資料",
     "status": "狀態",
     "actions": "",
     "new": "新增",

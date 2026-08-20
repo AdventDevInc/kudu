@@ -2,6 +2,16 @@
   "pageTitle": "Monitor de Violações",
   "pageDescription": "Verifique se os seus endereços de e-mail foram expostos em violações de dados conhecidas",
   "loading": "A carregar dados de violações...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud necessário",
+    "description": "Ligue este dispositivo para verificar endereços de e-mail com base em informações conhecidas sobre violações e acompanhar novas exposições comunicadas.",
+    "action": "Ver Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "A ligação à Cloud requer atenção",
+    "description": "Este dispositivo tem uma chave da Cloud guardada, mas já não está autorizada. Reveja a ligação e associe-a novamente.",
+    "action": "Rever ligação à Cloud"
+  },
   "summary": {
     "totalBreaches": "Total de Violações",
     "unacknowledged": "Novas",
@@ -20,12 +30,12 @@
     "invalidEmail": "Introduza um endereço de e-mail válido",
     "limitReached": "Limite de e-mails atingido para o seu plano",
     "acknowledged": "Violações marcadas como revistas",
-    "acknowledgeFailed": "Falha ao marcar as violações como revistas"
+    "acknowledgeFailed": "Falha ao confirmar as violações"
   },
   "emptyState": {
     "noEmails": "Nenhum e-mail monitorizado",
     "noEmailsDesc": "Adicione um endereço de e-mail para verificar violações de dados anteriores e monitorizar continuamente novas fugas.",
-    "allClear": "Tudo em ordem",
+    "allClear": "Sem problemas",
     "allClearDesc": "Nenhum dos seus e-mails monitorizados foi encontrado em violações de dados conhecidas.",
     "upgradeRequired": "Atualização necessária",
     "upgradeRequiredDesc": "A monitorização de violações está disponível no plano Basic e superiores. Atualize o seu plano para começar a monitorizar.",
@@ -68,7 +78,7 @@
     "acknowledge": "Marcar como revista",
     "acknowledgeTooltip": "Marque esta violação como vista para que deixe de aparecer como nova ou de acionar notificações",
     "acknowledgeAll": "Marcar todas como revistas",
-    "acknowledgeAllTooltip": "Marcar todas as violações não revistas como vistas"
+    "acknowledgeAllTooltip": "Marque todas as violações não revistas como vistas"
   },
   "refetchButton": "Atualizar"
 }
