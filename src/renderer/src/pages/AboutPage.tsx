@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Github, Bug, ExternalLink, RefreshCw, Download, CheckCircle, AlertCircle, Loader } from 'lucide-react'
+import { Github, Bug, ExternalLink, RefreshCw, Download, CheckCircle, AlertCircle, Loader, Heart } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useAppUpdateStore } from '@/stores/app-update-store'
 import logoSrc from '@/assets/logo.png'
@@ -99,6 +99,17 @@ export function AboutPage() {
         <div className="mt-6 flex items-center gap-2.5">
           <LinkButton icon={Github} label={t('github')} href="https://github.com/adventdevinc/kudu" />
           <LinkButton icon={Bug} label={t('reportBug')} href="https://github.com/adventdevinc/kudu/issues" />
+        </div>
+
+        <div className="mt-6 flex items-center gap-4 rounded-xl p-4" style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+            <Heart className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-semibold text-zinc-200">{t('supportKudu')}</p>
+            <p className="mt-0.5 text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>{t('supportKuduDescription')}</p>
+          </div>
+          <LinkButton icon={Heart} label={t('supportKuduAction')} href="https://usekudu.com/sponsors" />
         </div>
       </div>
     </div>

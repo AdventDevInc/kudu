@@ -10,6 +10,7 @@ import {
   ChevronRight,
   ExternalLink,
   AlertTriangle,
+  Lock,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -26,6 +27,12 @@ const severityConfig: Record<string, { color: string; bg: string; border: string
 }
 
 const shownSeverities: CveSeverity[] = ['critical', 'high']
+const CLOUD_BILLING_URL = 'https://cloud.usekudu.com/organisation/billing'
+
+function isPlanError(error: string | null): boolean {
+  const value = error?.toLowerCase() ?? ''
+  return value.includes('402') || value.includes('403') || value.includes('subscription') || value.includes('upgrade')
+}
 
 function formatDate(iso: string): string {
   try {
@@ -77,7 +84,7 @@ export function CveScannerPage() {
 
   // Show toast on error (skip "not connected" — we retry that silently)
   useEffect(() => {
-    if (error && !error.includes('not connected')) {
+    if (error && !error.includes('not connected') && !isPlanError(error)) {
       toast.error(t('toast.fetchFailed'))
     }
   }, [error, t])
@@ -117,17 +124,31 @@ export function CveScannerPage() {
     )
   }
 
+  if (cloudConnection === 'subscription-required') {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <EmptyState
+          icon={Lock}
+          title={t('planRequired.title')}
+          description={t('planRequired.description')}
+          action={<PlanButton label={t('planRequired.action')} />}
+        />
+      </div>
+    )
+  }
+
   if (!isLinked) {
     return (
       <div className="p-8 animate-fade-in">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <EmptyState
           icon={ShieldCheck}
-          title="Connect Kudu Cloud to scan vulnerabilities"
-          description="Cloud intelligence matches installed software against current critical and high-severity security advisories."
+          title={cloudConnection === 'authorization-error' ? t('connectionError.title') : t('cloudNotConfigured.title')}
+          description={cloudConnection === 'authorization-error' ? t('connectionError.description') : t('cloudNotConfigured.description')}
           action={
             <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
-              Connect Kudu Cloud
+              {cloudConnection === 'authorization-error' ? t('connectionError.action') : t('cloudNotConfigured.action')}
             </button>
           }
         />
@@ -227,9 +248,10 @@ export function CveScannerPage() {
       {/* Error state */}
       {status === 'done' && error && (
         <EmptyState
-          icon={AlertTriangle}
-          title={t('error.title')}
-          description={t('error.description')}
+          icon={isPlanError(error) ? Lock : AlertTriangle}
+          title={isPlanError(error) ? t('planRequired.title') : t('error.title')}
+          description={isPlanError(error) ? t('planRequired.description') : t('error.description')}
+          action={isPlanError(error) ? <PlanButton label={t('planRequired.action')} /> : undefined}
         />
       )}
 
@@ -293,6 +315,19 @@ export function CveScannerPage() {
         </div>
       )}
     </div>
+  )
+}
+
+function PlanButton({ label }: { label: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => window.open(CLOUD_BILLING_URL, '_blank')}
+      className="rounded-xl px-5 py-2.5 text-[13px] font-semibold"
+      style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+    >
+      {label}
+    </button>
   )
 }
 

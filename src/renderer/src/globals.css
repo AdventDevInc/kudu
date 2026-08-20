@@ -1012,6 +1012,86 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
 .kudu-activity-strip > div:last-child { border-right: 0; }
 .kudu-activity-strip span { color: var(--text-muted); font-size: 8px; }
 .kudu-activity-strip b { color: var(--text-primary); font-size: 10px; }
+.kudu-cloud-upsell {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--brand-solid), transparent 76%);
+  border-radius: 18px;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--brand-solid), transparent 91%), transparent 58%),
+    var(--card-bg);
+  box-shadow: 0 8px 28px rgba(20,46,38,.045);
+}
+.kudu-cloud-upsell::after {
+  position: absolute;
+  right: 105px;
+  width: 150px;
+  height: 150px;
+  border: 28px solid color-mix(in srgb, var(--brand-solid), transparent 95%);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+.kudu-cloud-upsell > * { position: relative; z-index: 1; }
+.kudu-cloud-upsell-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--brand-solid), transparent 74%);
+  border-radius: 14px;
+  background: var(--brand-surface);
+  color: var(--brand-solid);
+}
+.kudu-cloud-upsell-icon svg { width: 19px; height: 19px; }
+.kudu-cloud-upsell-copy { min-width: 0; }
+.kudu-cloud-upsell-copy > span {
+  color: var(--brand-solid);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.kudu-cloud-upsell h2 {
+  margin: 4px 0 3px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 760;
+  letter-spacing: -.02em;
+}
+.kudu-cloud-upsell p {
+  max-width: 730px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.kudu-cloud-upsell > button {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 15px;
+  border: 1px solid var(--accent-muted-border);
+  border-radius: 12px;
+  background: var(--accent-muted-bg);
+  color: var(--brand-solid);
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.kudu-cloud-upsell > button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--brand-solid), transparent 55%);
+  background: color-mix(in srgb, var(--brand-solid), transparent 88%);
+}
 .kudu-attention-rail {
   display: flex;
   min-height: 100%;
@@ -1136,6 +1216,8 @@ thead { background: var(--bg-subtle); color: var(--text-muted); }
   .kudu-activity-strip { grid-template-columns: 1fr; }
   .kudu-activity-strip > div { border-right: 0; border-bottom: 1px solid var(--border-subtle); }
   .kudu-activity-strip > div:last-child { border-bottom: 0; }
+  .kudu-cloud-upsell { grid-template-columns: 44px minmax(0, 1fr); }
+  .kudu-cloud-upsell > button { grid-column: 1 / -1; justify-content: center; }
 }
 
 /* Feature pages use the same composed, editorial layout as Home. */

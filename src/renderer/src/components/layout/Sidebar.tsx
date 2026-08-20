@@ -54,6 +54,7 @@ interface SubItemDef {
   labelKey?: string
   path: string
   badge?: boolean
+  cloudTier?: 'basic' | 'pro'
 }
 
 interface NavItemDef {
@@ -89,10 +90,10 @@ const navGroups: NavGroup[] = [
         children: [
           { icon: ShieldAlert, labelKey: 'malware:pageTitle', label: 'Malware Scanner', path: '/malware' },
           { icon: Eye, labelKey: 'hardening:privacy.pageTitle', label: 'Privacy', path: '/privacy' },
-          { icon: Radar, labelKey: 'threatMonitor:pageTitle', label: 'Threat Monitor', path: '/threat-monitor' },
+          { icon: Radar, labelKey: 'threatMonitor:pageTitle', label: 'Threat Monitor', path: '/threat-monitor', cloudTier: 'pro' },
           { icon: Flame, labelKey: 'firewallAudit', label: 'Firewall Audit', path: '/firewall' },
-          { icon: Bug, labelKey: 'cveScanner:pageTitle', label: 'Vulnerability Scanner', path: '/cve' },
-          { icon: Mail, labelKey: 'breachMonitor:pageTitle', label: 'Breach Monitor', path: '/breach-monitor' },
+          { icon: Bug, labelKey: 'cveScanner:pageTitle', label: 'Vulnerability Scanner', path: '/cve', cloudTier: 'pro' },
+          { icon: Mail, labelKey: 'breachMonitor:pageTitle', label: 'Breach Monitor', path: '/breach-monitor', cloudTier: 'basic' },
         ]
       },
       {
@@ -455,6 +456,7 @@ function NavItem({
                 {(badgeCounts?.[child.path] ?? 0) > 0 && (
                   <b aria-label={`${badgeCounts![child.path]} items`}>{badgeCounts![child.path]}</b>
                 )}
+                {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
                 {child.badge && <b>NEW</b>}
               </button>
             )
@@ -590,6 +592,7 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
                   {badgeCounts![child.path]}
                 </span>
               )}
+              {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
               {child.badge && (
                 <span
                   className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[8px] font-bold leading-none"
@@ -607,5 +610,21 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
         })}
       </div>
     </div>
+  )
+}
+
+function CloudTierBadge({ tier }: { tier: 'basic' | 'pro' }) {
+  return (
+    <span
+      className="rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider"
+      style={{
+        background: tier === 'pro' ? 'var(--accent-muted-bg)' : 'color-mix(in srgb, var(--info), transparent 89%)',
+        border: `1px solid ${tier === 'pro' ? 'var(--accent-muted-border)' : 'color-mix(in srgb, var(--info), transparent 72%)'}`,
+        color: tier === 'pro' ? 'var(--warning)' : 'var(--info)',
+      }}
+      aria-label={tier === 'pro' ? 'Kudu Cloud Pro feature' : 'Kudu Cloud Basic feature'}
+    >
+      {tier === 'pro' ? 'Pro' : 'Basic'}
+    </span>
   )
 }
