@@ -656,6 +656,20 @@ export function DashboardPage() {
             <div><span>Files cleaned</span><b>{formatNumber(stats.totalFilesCleaned)}</b></div>
             <div><span>Scans completed</span><b>{formatNumber(stats.totalScans)}</b></div>
           </section>
+
+          {!isCloudLinked && (
+            <section className="kudu-cloud-upsell" aria-labelledby="kudu-cloud-upsell-title">
+              <span className="kudu-cloud-upsell-icon" aria-hidden="true"><Cloud strokeWidth={1.8} /></span>
+              <div className="kudu-cloud-upsell-copy">
+                <span>{t('cloudUpsellEyebrow')}</span>
+                <h2 id="kudu-cloud-upsell-title">{t('cloudUpsellTitle')}</h2>
+                <p>{t('cloudUpsellDescription')}</p>
+              </div>
+              <button type="button" onClick={() => navigate('/cloud')}>
+                {t('cloudUpsellAction')} <span aria-hidden="true">→</span>
+              </button>
+            </section>
+          )}
         </div>
 
         <aside className="kudu-attention-rail" aria-label="Needs your attention">
@@ -702,7 +716,7 @@ export function DashboardPage() {
 
           <button type="button" className="kudu-cloud-status" onClick={() => navigate('/cloud')}>
             <i className={cn(cloudConnected && 'is-connected')} />
-            <span>{cloudConnected ? 'Kudu Cloud connected' : 'Connect Kudu Cloud'}</span>
+            <span>{cloudConnected ? 'Kudu Cloud connected' : isCloudLinked ? 'Kudu Cloud needs attention' : 'Connect Kudu Cloud'}</span>
           </button>
         </aside>
       </div>

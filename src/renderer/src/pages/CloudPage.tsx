@@ -26,6 +26,14 @@ import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
 import type { KuduSettings } from '@shared/types'
 
+const CLOUD_DASHBOARD_URL = 'https://cloud.usekudu.com'
+const CLOUD_BILLING_URL = 'https://cloud.usekudu.com/organisation/billing'
+
+function isSubscriptionError(error: string | null | undefined): boolean {
+  const value = error?.toLowerCase() ?? ''
+  return value.includes('subscription') || value.includes('http 402')
+}
+
 export function CloudPage() {
   const { t } = useTranslation('cloud')
   const { features, platform } = usePlatform()
@@ -118,7 +126,32 @@ export function CloudPage() {
   if (isLinked) {
     return (
       <div className="animate-fade-in max-w-4xl">
-        <PageHeader title={t('pageTitle')} description={t('pageDescriptionLinked')} />
+        <PageHeader
+          title={t('pageTitle')}
+          description={t('pageDescriptionLinked')}
+          action={
+            <>
+              <button
+                type="button"
+                onClick={() => window.open(CLOUD_DASHBOARD_URL, '_blank')}
+                className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[12px] font-medium"
+                style={{ border: '1px solid var(--border-medium)', color: 'var(--text-secondary)' }}
+              >
+                <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
+                {t('openDashboard')}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.open(CLOUD_BILLING_URL, '_blank')}
+                className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[12px] font-semibold"
+                style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+              >
+                <Crown className="h-3.5 w-3.5" strokeWidth={1.8} />
+                {t('managePlan')}
+              </button>
+            </>
+          }
+        />
         <LinkedCloudSettings
           t={t}
           settings={settings}
@@ -475,8 +508,33 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
   onUnlink: () => void
   onSave: (partial: Partial<KuduSettings>) => void
 }) {
+  const subscriptionRequired = isSubscriptionError(cloudStatus?.error)
+
   return (
     <>
+      {subscriptionRequired && (
+        <div
+          className="mb-7 flex items-start gap-4 rounded-2xl p-5"
+          style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+            <Crown className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden="true" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[13px] font-semibold text-zinc-200">{t('subscriptionRequiredTitle')}</h3>
+            <p className="mt-1 text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>{t('subscriptionRequiredDesc')}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.open(CLOUD_BILLING_URL, '_blank')}
+            className="shrink-0 rounded-lg px-3.5 py-2 text-[12px] font-semibold"
+            style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+          >
+            {t('subscriptionRequiredAction')}
+          </button>
+        </div>
+      )}
+
       <Section title={t('sectionStatus')}>
         <Row label={t('statusLabel')}>
           <div className="flex items-center gap-2">
@@ -493,7 +551,7 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
             <span className="text-[13px] text-zinc-400 capitalize">
               {cloudStatus?.status ?? t('statusLoading')}
             </span>
-            {(cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
+            {!subscriptionRequired && (cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
               <button
                 onClick={onReconnect}
                 disabled={cloudReconnecting}
@@ -506,7 +564,7 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
             )}
           </div>
         </Row>
-        {cloudStatus?.error && (
+        {cloudStatus?.error && !subscriptionRequired && (
           <div className="flex items-start gap-2 py-2 px-0.5 -mt-2 mb-1">
             <span
               className="text-[12px] leading-snug"

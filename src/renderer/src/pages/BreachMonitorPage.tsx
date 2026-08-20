@@ -167,17 +167,41 @@ export function BreachMonitorPage() {
     )
   }
 
+  if (cloudConnection === 'subscription-required') {
+    return (
+      <div className="p-8 animate-fade-in">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <EmptyState
+          icon={Lock}
+          title={t('emptyState.upgradeRequired')}
+          description={t('emptyState.upgradeRequiredDesc')}
+          action={
+            <button
+              type="button"
+              onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')}
+              className="rounded-xl px-5 py-2.5 text-[13px] font-semibold"
+              style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+            >
+              {t('emptyState.goToCloud')}
+            </button>
+          }
+        />
+      </div>
+    )
+  }
+
   if (!isLinked) {
+    const needsAttention = cloudConnection === 'authorization-error'
     return (
       <div className="p-8 animate-fade-in">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <EmptyState
           icon={Mail}
-          title="Connect Kudu Cloud to monitor breaches"
-          description="Link this device to check email addresses against known breach intelligence and track newly reported exposure."
+          title={needsAttention ? t('connectionError.title') : t('cloudNotConfigured.title')}
+          description={needsAttention ? t('connectionError.description') : t('cloudNotConfigured.description')}
           action={
             <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
-              Connect Kudu Cloud
+              {needsAttention ? t('connectionError.action') : t('cloudNotConfigured.action')}
             </button>
           }
         />

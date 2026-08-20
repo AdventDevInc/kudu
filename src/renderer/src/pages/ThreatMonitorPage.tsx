@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { Radar, ShieldCheck, Globe, Wifi, CloudOff, Clock } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { useThreatMonitorStore } from '@/stores/threat-monitor-store'
 import { useSettingsStore } from '@/stores/settings-store'
+import { useCloudConnection } from '@/hooks/useCloudConnection'
 import type { FlaggedConnection, FlaggedDnsEntry } from '@shared/types'
 
 function formatTime(iso: string): string {
@@ -17,11 +19,13 @@ function formatTime(iso: string): string {
 
 export function ThreatMonitorPage() {
   const { t } = useTranslation('threatMonitor')
+  const navigate = useNavigate()
   const snapshot = useThreatMonitorStore((s) => s.snapshot)
   const loaded = useThreatMonitorStore((s) => s.loaded)
   const load = useThreatMonitorStore((s) => s.load)
   const settings = useSettingsStore((s) => s.settings)
-  const isLinked = !!settings.cloud.apiKey
+  const hasCloudKey = !!settings.cloud.apiKey
+  const cloudConnection = useCloudConnection(hasCloudKey)
 
   useEffect(() => {
     if (!loaded) load()
@@ -34,8 +38,32 @@ export function ThreatMonitorPage() {
     return () => clearInterval(id)
   }, [load])
 
-  // Cloud not configured
-  if (!isLinked) {
+  if (cloudConnection === 'checking') {
+    return (
+      <div className="p-8">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <div className="flex items-center justify-center py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('checkingConnection')}</div>
+      </div>
+    )
+  }
+
+  if (cloudConnection === 'subscription-required') {
+    return (
+      <div className="p-8">
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <EmptyState
+          icon={CloudOff}
+          title={t('planRequired.title')}
+          description={t('planRequired.description')}
+          action={<CloudAction label={t('planRequired.action')} onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')} />}
+        />
+      </div>
+    )
+  }
+
+  // Cloud not configured or the saved connection needs attention
+  if (cloudConnection !== 'connected') {
+    const needsAttention = cloudConnection === 'authorization-error'
     return (
       <div className="p-8">
         <PageHeader
@@ -44,8 +72,9 @@ export function ThreatMonitorPage() {
         />
         <EmptyState
           icon={CloudOff}
-          title={t('cloudNotConfigured.title')}
-          description={t('cloudNotConfigured.description')}
+          title={needsAttention ? t('connectionError.title') : t('cloudNotConfigured.title')}
+          description={needsAttention ? t('connectionError.description') : t('cloudNotConfigured.description')}
+          action={<CloudAction label={needsAttention ? t('connectionError.action') : t('cloudNotConfigured.action')} onClick={() => navigate('/cloud')} />}
         />
       </div>
     )
@@ -78,6 +107,7 @@ export function ThreatMonitorPage() {
           icon={Radar}
           title={t('inactive.title')}
           description={t('inactive.description')}
+          action={<CloudAction label={t('inactive.action')} onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')} />}
         />
       </div>
     )
@@ -174,6 +204,19 @@ export function ThreatMonitorPage() {
         </section>
       )}
     </div>
+  )
+}
+
+function CloudAction({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="rounded-xl px-5 py-2.5 text-[13px] font-semibold"
+      style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+    >
+      {label}
+    </button>
   )
 }
 

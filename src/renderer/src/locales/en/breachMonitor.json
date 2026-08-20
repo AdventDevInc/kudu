@@ -2,6 +2,16 @@
   "pageTitle": "Breach Monitor",
   "pageDescription": "Check if your email addresses have been exposed in known data breaches",
   "loading": "Loading breach data...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud required",
+    "description": "Connect this device to check email addresses against known breach intelligence and track newly reported exposure.",
+    "action": "View Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud connection needs attention",
+    "description": "This device has a saved Cloud key, but it is no longer authorized. Review the connection and link it again.",
+    "action": "Review Cloud connection"
+  },
 
   "summary": {
     "totalBreaches": "Total Breaches",
