@@ -57,7 +57,7 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^5.2.0",
     "ajv": "^8.20.0",
-    "conventional-changelog-angular": "^8.3.1",
+    "conventional-changelog-angular": "^9.4.0",
     "conventional-changelog-cli": "^5.0.0",
     "electron": "^41.10.5",
     "electron-builder": "^26.15.3",
