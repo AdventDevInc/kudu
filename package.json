@@ -78,7 +78,7 @@
     "electron-updater": "^6.8.9",
     "framer-motion": "^12.43.0",
     "i18next": "^26.3.6",
-    "lucide-react": "^0.577.0",
+    "lucide-react": "^1.33.0",
     "pusher-js": "^8.6.0",
     "react-i18next": "^17.0.11",
     "react-router-dom": "^7.18.2",
