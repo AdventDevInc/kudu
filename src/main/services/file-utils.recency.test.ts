@@ -127,6 +127,15 @@ describe('scanDirectory with deepRecencyCheck', () => {
     expect(paths(result)).toEqual([join(testDir, 'f_00001')])
   })
 
+  it('does not silently truncate a flat cache after 5,000 settled files', async () => {
+    for (let i = 0; i < 5_001; i++) file(`entry-${i}`, 180, 1)
+
+    const result = await scanDirectory(testDir, 'browser', 'Large flat cache', DEEP)
+
+    expect(result.itemCount).toBe(5_001)
+    expect(result.totalSize).toBe(5_001)
+  }, 30_000)
+
   it('collapses a fully settled tree into one item per top-level entry', async () => {
     file('js/a', 180, 10)
     file('js/index-dir/the-real-index', 180, 5)
