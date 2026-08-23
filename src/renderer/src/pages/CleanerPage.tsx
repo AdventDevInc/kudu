@@ -27,6 +27,7 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { CleanSummary } from '@/components/cleaner/CleanSummary'
 import { cn, formatBytes, formatNumber } from '@/lib/utils'
+import { cleanInBatches } from '@/lib/cleaner-batches'
 import { useScanStore } from '@/stores/scan-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useHistoryStore } from '@/stores/history-store'
@@ -306,7 +307,6 @@ export function CleanerPage() {
       let totalCleaned = 0, totalFiles = 0, totalSkipped = 0, anyNeedsElevation = false
       const allErrors: { path: string; reason: string }[] = []
       const categoryBreakdown: Array<{ name: string; type: string; found: number; cleaned: number; space: number }> = []
-      const cleanBatchSize = 250_000
 
       // Build the category plan once with O(1) selection lookups. Large scans
       // can hold tens of thousands of IDs, so repeatedly calling includes()
@@ -351,28 +351,23 @@ export function CleanerPage() {
         try {
           const cleanFn = cleanFns[cat.type]
           if (!cleanFn) continue
-          let categoryCleaned = 0
-          let categoryFiles = 0
-
-          // IPC validation bounds each request. Split unusually large
-          // categories instead of rejecting the entire clean operation.
-          for (let offset = 0; offset < catItemIds.length; offset += cleanBatchSize) {
-            const result = await cleanFn(catItemIds.slice(offset, offset + cleanBatchSize))
-            if (!result) continue
-            categoryCleaned += result.totalCleaned || 0
-            categoryFiles += result.filesDeleted || 0
-            totalSkipped += result.filesSkipped || 0
-            if (result.needsElevation) anyNeedsElevation = true
-            if (result.errors?.length) allErrors.push(...result.errors)
+          const cleaned = await cleanInBatches(catItemIds, cleanFn)
+          const result = cleaned.result
+          totalCleaned += result.totalCleaned
+          totalFiles += result.filesDeleted
+          totalSkipped += result.filesSkipped
+          if (result.needsElevation) anyNeedsElevation = true
+          if (result.errors.length) allErrors.push(...result.errors)
+          if (cleaned.error) {
+            const reason = cleaned.error instanceof Error ? cleaned.error.message : String(cleaned.error)
+            allErrors.push({ path: t(cat.labelKey), reason })
           }
-          totalCleaned += categoryCleaned
-          totalFiles += categoryFiles
           categoryBreakdown.push({
             name: t(cat.labelKey),
             type: cat.type,
             found: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
-            cleaned: categoryFiles,
-            space: categoryCleaned
+            cleaned: result.filesDeleted,
+            space: result.totalCleaned
           })
         } catch (error) {
           const reason = error instanceof Error ? error.message : String(error)
