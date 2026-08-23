@@ -240,7 +240,11 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
 const MAX_LOGGED_DESCENDANTS = 100_000
 /** Bounds both the scan and deletion-time recency revalidation. */
 const MAX_RECENCY_DEPTH = 8
-const MAX_RECENCY_ITEMS = 5_000
+// This also bounds the number of IDs passed through a single cleaner IPC call.
+// Keeping it aligned with that validated boundary avoids silently dropping the
+// tail of large flat caches such as Firefox cache2/entries.
+const MAX_RECENCY_ITEMS = 250_000
+const MAX_PARALLEL_DELETES = 8
 
 /**
  * List the files a recursive delete of `dirPath` will remove.
@@ -331,7 +335,32 @@ export async function cleanItems(
     pending.length = 0
   }
 
-  for (const item of items) {
+  let deleteAccess = new Map<string, 'in-use' | 'permission-denied'>()
+  if (process.platform === 'win32') {
+    const protectedRoots = [
+      process.env.WINDIR,
+      process.env.PROGRAMDATA,
+      process.env.PROGRAMFILES,
+      process.env['PROGRAMFILES(X86)'],
+    ].filter((root): root is string => Boolean(root))
+      .map((root) => root.replace(/[\\/]+$/, '').toLowerCase())
+    const candidates = items
+      .map((item) => item.path)
+      .filter((path) => {
+        const normalized = path.toLowerCase()
+        return protectedRoots.some((root) => normalized === root || normalized.startsWith(`${root}\\`))
+      })
+    if (candidates.length > 0) {
+      try {
+        const { probeWindowsDeleteFailures } = await import('./delete-failure-probe')
+        deleteAccess = await probeWindowsDeleteFailures(candidates)
+      } catch {
+        // The normal delete path remains authoritative if the probe is unavailable.
+      }
+    }
+  }
+
+  const processItem = async (item: ScanItem): Promise<void> => {
     // lstat, not stat: it answers both questions the log depends on in one
     // call — whether the path is still there at all, and whether it is a real
     // directory rather than a symlink to one. Null means it was already gone
@@ -353,7 +382,23 @@ export async function cleanItems(
         onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
         lastReport = Date.now()
       }
-      continue
+      return
+    }
+
+    // Do not spend two full retry cycles on a protected file that the current
+    // token cannot delete. Directories still use granular fallback because
+    // writable descendants may be salvageable even when the root is protected.
+    if (
+      !rootInfo.isDirectory()
+      && deleteAccess.get(item.path.toLowerCase()) === 'permission-denied'
+    ) {
+      filesSkipped++
+      errors.push({ path: item.path, reason: 'permission-denied' })
+      if (onProgress) {
+        onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+        lastReport = Date.now()
+      }
+      return
     }
 
     // A scan item is often a whole directory that rm removes recursively, so
@@ -374,7 +419,7 @@ export async function cleanItems(
         onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
         lastReport = Date.now()
       }
-      continue
+      return
     }
 
     const result = await safeDelete(item.path)
@@ -416,6 +461,49 @@ export async function cleanItems(
         lastReport = now
         onProgress(processed, validIds.length, item.path, totalCleaned)
       }
+    }
+  }
+
+  // Files in independent cache roots can be removed concurrently. The small,
+  // fixed worker pool keeps disk pressure bounded while preventing hundreds of
+  // locked or protected paths from serializing their retry delays.
+  // Keep duplicate path records on the same worker. Two rules can legitimately
+  // resolve to one cache path, and racing force-deletes would overstate bytes.
+  const groupsByPath = new Map<string, ScanItem[]>()
+  for (const item of items) {
+    const key = process.platform === 'win32' ? item.path.toLowerCase() : item.path
+    const group = groupsByPath.get(key) || []
+    group.push(item)
+    groupsByPath.set(key, group)
+  }
+  const itemGroups = [...groupsByPath.values()]
+  let nextGroup = 0
+  const worker = async (): Promise<void> => {
+    while (true) {
+      const index = nextGroup++
+      if (index >= itemGroups.length) return
+      for (const item of itemGroups[index]) await processItem(item)
+    }
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(MAX_PARALLEL_DELETES, itemGroups.length) }, () => worker())
+  )
+
+  // libuv flattens both NTFS ACL failures and sharing violations to EPERM.
+  // Probe DELETE access without setting a delete disposition so the summary
+  // can request elevation for protected paths and reserve "in use" for locks.
+  if (process.platform === 'win32' && errors.some((error) => error.reason === 'in-use')) {
+    try {
+      const { probeWindowsDeleteFailures } = await import('./delete-failure-probe')
+      const classified = await probeWindowsDeleteFailures(
+        errors.filter((error) => error.reason === 'in-use').map((error) => error.path)
+      )
+      for (const error of errors) {
+        const reason = classified.get(error.path.toLowerCase())
+        if (reason) error.reason = reason
+      }
+    } catch {
+      // Classification improves guidance but never blocks cleanup completion.
     }
   }
 

@@ -8,6 +8,10 @@ const state = vi.hoisted(() => ({
   rootPath: '',
   rootFailuresRemaining: 0,
   lockedPath: '',
+  permissionPaths: new Set<string>(),
+  trackConcurrency: false,
+  activeDeletes: 0,
+  maxActiveDeletes: 0,
   items: [] as ScanItem[],
 }))
 
@@ -25,7 +29,15 @@ vi.mock('fs/promises', async (importOriginal) => {
       if (path === state.lockedPath) {
         throw Object.assign(new Error('sharing violation'), { code: 'EPERM' })
       }
-      return actual.rm(...args)
+      if (!state.trackConcurrency) return actual.rm(...args)
+      state.activeDeletes++
+      state.maxActiveDeletes = Math.max(state.maxActiveDeletes, state.activeDeletes)
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 10))
+        return await actual.rm(...args)
+      } finally {
+        state.activeDeletes--
+      }
     },
   }
 })
@@ -43,6 +55,14 @@ vi.mock('./scan-cache', () => ({
 }))
 
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
+
+vi.mock('./delete-failure-probe', () => ({
+  probeWindowsDeleteFailures: async (paths: string[]) => new Map(
+    paths
+      .filter((path) => state.permissionPaths.has(path))
+      .map((path) => [path.toLowerCase(), 'permission-denied'])
+  ),
+}))
 
 import { cleanItems, safeDelete } from './file-utils'
 
@@ -64,6 +84,10 @@ describe('granular directory deletion fallback', () => {
     state.rootPath = ''
     state.rootFailuresRemaining = 0
     state.lockedPath = ''
+    state.permissionPaths.clear()
+    state.trackConcurrency = false
+    state.activeDeletes = 0
+    state.maxActiveDeletes = 0
     state.items = []
   })
 
@@ -107,6 +131,50 @@ describe('granular directory deletion fallback', () => {
     const expectedReason = process.platform === 'win32' ? 'in-use' : 'permission-denied'
     expect(result.errors).toEqual([{ path: locked, reason: expectedReason }])
     expect(result.needsElevation).toBe(process.platform !== 'win32')
+  })
+
+  it('reports Windows EPERM below a non-writable parent as needing elevation', async () => {
+    const { root, locked } = createTree()
+    state.rootPath = root
+    state.rootFailuresRemaining = process.platform === 'win32' ? 2 : 1
+    state.lockedPath = locked
+    state.permissionPaths.add(locked)
+    state.items = [{
+      id: 'abandoned-app',
+      path: root,
+      size: 12,
+      category: 'system',
+      subcategory: 'Protected Cache',
+      lastModified: 0,
+      selected: true,
+    }]
+
+    const result = await cleanItems(['abandoned-app'])
+
+    expect(result.errors).toEqual([{ path: locked, reason: 'permission-denied' }])
+    expect(result.needsElevation).toBe(true)
+  })
+
+  it('uses a bounded worker pool for independent cache entries', async () => {
+    state.trackConcurrency = true
+    state.items = Array.from({ length: 16 }, (_, index) => {
+      const path = join(testDir, `cache-${index}.tmp`)
+      writeFileSync(path, 'cache')
+      return {
+        id: `cache-${index}`,
+        path,
+        size: 5,
+        category: 'browser',
+        subcategory: 'Browser Cache',
+        lastModified: 0,
+        selected: true,
+      }
+    })
+
+    const result = await cleanItems(state.items.map((item) => item.id))
+
+    expect(result.filesDeleted).toBe(16)
+    expect(state.maxActiveDeletes).toBe(8)
   })
 
   it('unlinks directory junctions without traversing their targets', async () => {

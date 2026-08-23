@@ -27,6 +27,7 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { CleanSummary } from '@/components/cleaner/CleanSummary'
 import { cn, formatBytes, formatNumber } from '@/lib/utils'
+import { cleanInBatches } from '@/lib/cleaner-batches'
 import { useScanStore } from '@/stores/scan-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useHistoryStore } from '@/stores/history-store'
@@ -292,6 +293,7 @@ export function CleanerPage() {
       }
 
       const selectedIds = store.getSelectedIds()
+      const selectedIdSet = new Set(selectedIds)
       const cleanFns: Partial<Record<CleanerType, (ids: string[]) => Promise<any>>> = {
         [CleanerType.System]: (ids) => window.kudu.systemClean(ids),
         [CleanerType.Browser]: (ids) => window.kudu.browserClean(ids),
@@ -306,60 +308,83 @@ export function CleanerPage() {
       const allErrors: { path: string; reason: string }[] = []
       const categoryBreakdown: Array<{ name: string; type: string; found: number; cleaned: number; space: number }> = []
 
-      // Compute how many categories actually have items to clean so progress
-      // scales to 100% even when only a subset of categories is active.
-      const activeCount = scannableCategories.filter((cat) => {
-        const catItems = store.results.filter((r) => r.category === cat.type).flatMap((r) => r.items)
-        return catItems.some((item) => selectedIds.includes(item.id))
-      }).length
-      cleanTotalRef.current = Math.max(activeCount, 1)
+      // Build the category plan once with O(1) selection lookups. Large scans
+      // can hold tens of thousands of IDs, so repeatedly calling includes()
+      // here made preparation quadratic. Reclaim the largest selections first
+      // so protected system paths cannot delay all useful cleanup behind their
+      // retry window.
+      const categoryPlans = scannableCategories.map((cat) => {
+        const catResults = store.results.filter((r) => r.category === cat.type)
+        const catItemsAll = catResults.flatMap((r) => r.items)
+        const selectedItems = catItemsAll.filter((item) => selectedIdSet.has(item.id))
+        return {
+          cat,
+          catResults,
+          catItemsAll,
+          catItemIds: selectedItems.map((item) => item.id),
+          selectedSize: selectedItems.reduce((sum, item) => sum + item.size, 0),
+        }
+      })
+      const activePlans = categoryPlans
+        .filter((plan) => plan.catItemIds.length > 0)
+        .sort((a, b) => b.selectedSize - a.selectedSize)
+      cleanTotalRef.current = Math.max(activePlans.length, 1)
       let activeIndex = 0
 
       store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
 
-      for (let ci = 0; ci < scannableCategories.length; ci++) {
-        const cat = scannableCategories[ci]
-        const catResults = store.results.filter((r) => r.category === cat.type)
-        const catItemsAll = catResults.flatMap((r) => r.items)
-        const catItemIds = catItemsAll
-          .filter((item) => selectedIds.includes(item.id))
-          .map((item) => item.id)
-        if (catItemIds.length > 0) {
-          cleanIndexRef.current = activeIndex
-          // Some cleaners (notably the Windows Recycle Bin) perform one
-          // blocking platform operation and therefore have no per-file
-          // callbacks. Announce the category before invoking it so the UI
-          // never leaves the previous cleaner's path and 100% progress on
-          // screen while the next category is still working.
-          store.setProgress({
-            phase: 'cleaning',
-            category: cat.type,
-            currentPath: t(cat.labelKey),
-            progress: (activeIndex / cleanTotalRef.current) * 100,
-            itemsFound: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
-            sizeFound: totalCleaned
+      for (const { cat, catResults, catItemIds } of activePlans) {
+        cleanIndexRef.current = activeIndex
+        // Some cleaners (notably the Windows Recycle Bin) perform one
+        // blocking platform operation and therefore have no per-file
+        // callbacks. Announce the category before invoking it so the UI
+        // never leaves the previous cleaner's path and 100% progress on
+        // screen while the next category is still working.
+        store.setProgress({
+          phase: 'cleaning',
+          category: cat.type,
+          currentPath: t(cat.labelKey),
+          progress: (activeIndex / cleanTotalRef.current) * 100,
+          itemsFound: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
+          sizeFound: totalCleaned
+        })
+        try {
+          const cleanFn = cleanFns[cat.type]
+          if (!cleanFn) continue
+          const cleaned = await cleanInBatches(catItemIds, cleanFn)
+          const result = cleaned.result
+          totalCleaned += result.totalCleaned
+          totalFiles += result.filesDeleted
+          totalSkipped += result.filesSkipped
+          if (result.needsElevation) anyNeedsElevation = true
+          if (result.errors.length) allErrors.push(...result.errors)
+          if (cleaned.error) {
+            const reason = cleaned.error instanceof Error ? cleaned.error.message : String(cleaned.error)
+            allErrors.push({ path: t(cat.labelKey), reason })
+          }
+          categoryBreakdown.push({
+            name: t(cat.labelKey),
+            type: cat.type,
+            found: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
+            cleaned: result.filesDeleted,
+            space: result.totalCleaned
           })
-          try {
-            const cleanFn = cleanFns[cat.type]
-            if (!cleanFn) continue
-            const result = await cleanFn(catItemIds)
-            if (result) {
-              totalCleaned += result.totalCleaned || 0
-              totalFiles += result.filesDeleted || 0
-              totalSkipped += result.filesSkipped || 0
-              if (result.needsElevation) anyNeedsElevation = true
-              if (result.errors?.length) allErrors.push(...result.errors)
-              categoryBreakdown.push({
-                name: t(cat.labelKey),
-                type: cat.type,
-                found: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
-                cleaned: result.filesDeleted || 0,
-                space: result.totalCleaned || 0
-              })
-            }
-          } catch { /* continue */ }
-          activeIndex++
-        } else if (catItemsAll.length > 0) {
+        } catch (error) {
+          const reason = error instanceof Error ? error.message : String(error)
+          allErrors.push({ path: t(cat.labelKey), reason })
+          categoryBreakdown.push({
+            name: t(cat.labelKey),
+            type: cat.type,
+            found: catResults.reduce((sum, scan) => sum + scan.itemCount, 0),
+            cleaned: 0,
+            space: 0
+          })
+        }
+        activeIndex++
+      }
+
+      for (const { cat, catResults, catItemsAll, catItemIds } of categoryPlans) {
+        if (catItemIds.length === 0 && catItemsAll.length > 0) {
           categoryBreakdown.push({
             name: t(cat.labelKey),
             type: cat.type,

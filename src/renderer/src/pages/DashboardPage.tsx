@@ -29,6 +29,7 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { StatCard } from '@/components/shared/StatCard'
 import { HealthScore } from '@/components/shared/HealthScore'
 import { cn, formatBytes, formatDate, formatNumber } from '@/lib/utils'
+import { cleanInBatches } from '@/lib/cleaner-batches'
 import { useStatsStore } from '@/stores/stats-store'
 import { useSettingsStore } from '@/stores/settings-store'
 import { useHistoryStore } from '@/stores/history-store'
@@ -276,9 +277,11 @@ export function DashboardPage() {
           .flatMap((r) => r.items.map((i) => i.id))
         if (selectedIds.length > 0) {
           setPhaseLabel(t('phaseLabelCleaningType', { type }))
-          const res = await clean(selectedIds)
+          const cleaned = await cleanInBatches(selectedIds, clean)
+          const res = cleaned.result
           totalSpace += res.totalCleaned || 0
           totalFiles += res.filesDeleted || 0
+          if (cleaned.error) toast.error(t('toastFailedToCleanType', { type }))
         }
       } catch {
         toast.error(t('toastFailedToCleanType', { type }))
