@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/adventdevinc/kudu/compare/v2.3.0...v2.4.0) (2026-08-23)
+
+
+### Bug Fixes
+
+* **cleaner:** complete large Windows cleanups ([#338](https://github.com/adventdevinc/kudu/issues/338)) ([fb3bfe3](https://github.com/adventdevinc/kudu/commit/fb3bfe3ba22743401988ed5529b4dc40a2a7e3a0))
+* **malware:** initialize YARA engine for status ([#339](https://github.com/adventdevinc/kudu/issues/339)) ([ee244b3](https://github.com/adventdevinc/kudu/commit/ee244b38e90b15d8dc276a588f5eb3a68a3dc7cb))
 # [2.3.0](https://github.com/adventdevinc/kudu/compare/v2.2.0...v2.3.0) (2026-08-20)
 
 
