@@ -470,7 +470,9 @@ export function DashboardPage() {
     setStepProgress({ current: ++step, total: totalSteps })
     const startupHighImpact = await runStartupCheck()
     setStepProgress({ current: ++step, total: totalSteps })
-    const updatesAvailable = await runSoftwareUpdateCheck()
+    const updatesAvailable = useSettingsStore.getState().settings.softwareUpdaterNotifications === false
+      ? 0
+      : await runSoftwareUpdateCheck()
 
     const oneClickResult: OneClickResult = {
       spaceRecovered: space + drivers.space, filesCleaned: files, registryFixed: regFixed,

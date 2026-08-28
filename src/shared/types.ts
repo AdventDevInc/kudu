@@ -693,6 +693,11 @@ export interface KuduSettings {
   autoRestart: boolean
   /** How often (in hours) to check for updates in the background */
   updateCheckIntervalHours: number
+  /**
+   * When false, skip background third-party software update checks and hide
+   * sidebar badge counts. Manual checks from the Software Updater page still work.
+   */
+  softwareUpdaterNotifications: boolean
   cleaner: {
     skipRecentMinutes: number
     secureDelete: boolean

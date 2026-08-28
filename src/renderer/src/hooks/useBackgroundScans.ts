@@ -21,6 +21,7 @@ export function useBackgroundScans(): void {
         if (settings.ignoredSoftwareUpdates?.length) {
           useUpdaterStore.getState().loadIgnoredIds(settings.ignoredSoftwareUpdates)
         }
+        if (settings.softwareUpdaterNotifications === false) return
       } catch { /* best-effort */ }
 
       const store = useUpdaterStore.getState()
