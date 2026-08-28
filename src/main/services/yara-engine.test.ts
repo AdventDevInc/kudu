@@ -197,4 +197,24 @@ describe('YaraEngine.scanFile', () => {
       rmSync(testDir, { recursive: true, force: true })
     }
   })
+
+  it('uses the native async matcher for responsive inline fallback scans', async () => {
+    const testDir = mkdtempSync(join(tmpdir(), 'kudu-yara-engine-'))
+    try {
+      const filePath = join(testDir, 'sample.bin')
+      writeFileSync(filePath, Buffer.from('sample contents'))
+
+      const scan = vi.fn(() => [])
+      const scanAsync = vi.fn(async () => [])
+      const engine = new YaraEngine({ background: false })
+      ;(engine as any)._scanner = { scan, scanAsync }
+
+      await expect(engine.scanFileAsync(filePath)).resolves.toEqual([])
+      expect(scanAsync).toHaveBeenCalledOnce()
+      expect(scanAsync.mock.calls[0][0]).toEqual(Buffer.from('sample contents'))
+      expect(scan).not.toHaveBeenCalled()
+    } finally {
+      rmSync(testDir, { recursive: true, force: true })
+    }
+  })
 })

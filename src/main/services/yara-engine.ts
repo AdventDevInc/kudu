@@ -1,5 +1,6 @@
-import { readFileSync } from 'fs'
-import { basename } from 'path'
+import { existsSync, readFileSync } from 'fs'
+import { basename, join } from 'path'
+import { Worker, isMainThread } from 'worker_threads'
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -36,17 +37,55 @@ interface YaraXScanner {
 
 interface YaraXModule {
   create(): YaraXScanner
+  compile(source: string): YaraXScanner
+}
+
+interface PendingWorkerRequest {
+  resolve: (value: any) => void
+  reject: (error: Error) => void
+  onProgress?: (loaded: number, total: number) => void
+}
+
+interface YaraEngineOptions {
+  /** Disable the worker inside the worker entry itself and in focused tests. */
+  background?: boolean
 }
 
 // ─── Engine ──────────────────────────────────────────────────
 
 export class YaraEngine {
   private _scanner: YaraXScanner | null = null
+  private _worker: Worker | null = null
+  private _pending = new Map<number, PendingWorkerRequest>()
+  private _nextRequestId = 1
+  private readonly _background: boolean
   private _ready = false
   private _rulesLoaded = 0
 
+  constructor(options: YaraEngineOptions = {}) {
+    // Vitest runs the source directly, where the bundled worker entry does not
+    // exist. Electron main/CLI builds use the worker by default.
+    this._background = options.background ?? (Boolean(process.versions.electron) && isMainThread)
+  }
+
   /** Create the scanner instance. Call once before loading rules. */
   async initialize(): Promise<void> {
+    if (this._background) {
+      try {
+        await this._initializeWorker()
+        return
+      } catch (error) {
+        // A missing/corrupt worker bundle must degrade scanner performance, not
+        // disable protection. Keep the inline path as a last-resort fallback.
+        console.warn('[yara] Background worker unavailable, using inline engine:', error)
+        this._worker = null
+      }
+    }
+
+    this._initializeInline()
+  }
+
+  private _initializeInline(): void {
     try {
       const yarax: YaraXModule = require('@litko/yara-x')
       this._scanner = yarax.create()
@@ -58,8 +97,90 @@ export class YaraEngine {
     }
   }
 
+  private _initializeWorker(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Rollup emits shared main-process code under out/main/chunks while the
+      // configured worker entry stays at out/main/yara-worker.js. Keep the
+      // adjacent candidate for unchunked/dev layouts as well.
+      const adjacentWorker = join(__dirname, 'yara-worker.js')
+      const workerPath = existsSync(adjacentWorker)
+        ? adjacentWorker
+        : join(__dirname, '..', 'yara-worker.js')
+      const worker = new Worker(workerPath)
+      let settled = false
+
+      const failStartup = (error: Error): void => {
+        if (settled) return
+        settled = true
+        reject(error)
+      }
+
+      worker.once('error', failStartup)
+      worker.on('message', (message: any) => {
+        if (message?.type === 'ready' && !settled) {
+          settled = true
+          worker.removeListener('error', failStartup)
+          worker.on('error', (error) => this._failWorker(error))
+          this._worker = worker
+          this._ready = true
+          resolve()
+          return
+        }
+        if (message?.type === 'startup-error' && !settled) {
+          void worker.terminate()
+          failStartup(new Error(message.error || 'YARA worker failed to start'))
+          return
+        }
+        this._handleWorkerMessage(message)
+      })
+      worker.once('exit', (code) => {
+        if (!settled) {
+          failStartup(new Error(`YARA worker exited during startup (${code})`))
+        } else if (code !== 0 && this._worker === worker) {
+          this._failWorker(new Error(`YARA worker exited unexpectedly (${code})`))
+        }
+      })
+    })
+  }
+
+  private _handleWorkerMessage(message: any): void {
+    if (!message || typeof message.id !== 'number') return
+    const pending = this._pending.get(message.id)
+    if (!pending) return
+    if (message.type === 'progress') {
+      pending.onProgress?.(message.loaded, message.total)
+      return
+    }
+    this._pending.delete(message.id)
+    if (message.type === 'error') {
+      pending.reject(new Error(message.error || 'YARA worker request failed'))
+    } else if (message.type === 'result') {
+      pending.resolve(message.result)
+    }
+  }
+
+  private _failWorker(error: Error): void {
+    this._worker = null
+    this._ready = false
+    for (const pending of this._pending.values()) pending.reject(error)
+    this._pending.clear()
+  }
+
+  private _requestWorker<T>(
+    message: Record<string, unknown>,
+    onProgress?: (loaded: number, total: number) => void,
+  ): Promise<T> {
+    const worker = this._worker
+    if (!worker) return Promise.reject(new Error('YARA worker is not running'))
+    const id = this._nextRequestId++
+    return new Promise<T>((resolve, reject) => {
+      this._pending.set(id, { resolve, reject, onProgress })
+      worker.postMessage({ ...message, id })
+    })
+  }
+
   isReady(): boolean {
-    return this._ready && this._scanner !== null
+    return this._ready && (this._scanner !== null || this._worker !== null)
   }
 
   /**
@@ -79,6 +200,16 @@ export class YaraEngine {
     extraSources: string[] = [],
     onProgress?: (loaded: number, total: number) => void,
   ): Promise<{ loaded: number; errors: string[] }> {
+    if (this._worker) {
+      const result = await this._requestWorker<{ loaded: number; errors: string[] }>({
+        type: 'load-rules',
+        ruleFilePaths,
+        extraSources,
+      }, onProgress)
+      this._rulesLoaded = result.loaded
+      return result
+    }
+
     if (!this._scanner) {
       return { loaded: 0, errors: ['YARA engine not initialized'] }
     }
@@ -216,6 +347,22 @@ export class YaraEngine {
     }
   }
 
+  /** Run native file matching away from Electron's main thread when available. */
+  async scanFileAsync(filePath: string): Promise<YaraMatch[]> {
+    if (this._worker) {
+      return this._requestWorker<YaraMatch[]>({ type: 'scan-file', filePath })
+    }
+    if (!this._scanner) return []
+    try {
+      const contents = readFileSync(filePath)
+      const results = await this._scanner.scanAsync(contents)
+      return results.map(r => this._convertMatch(r))
+    } catch (err) {
+      console.warn('[yara] Async file scan error:', err)
+      return []
+    }
+  }
+
   private _convertMatch(r: YaraXMatch): YaraMatch {
     const metadata: YaraMatch['metadata'] = {}
     if (r.meta.detectionName) metadata.detectionName = String(r.meta.detectionName)
@@ -234,6 +381,14 @@ export class YaraEngine {
   }
 
   dispose(): void {
+    if (this._worker) {
+      void this._worker.terminate()
+      this._worker = null
+    }
+    for (const pending of this._pending.values()) {
+      pending.reject(new Error('YARA engine disposed'))
+    }
+    this._pending.clear()
     this._scanner = null
     this._ready = false
     this._rulesLoaded = 0

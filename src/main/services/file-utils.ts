@@ -8,6 +8,7 @@ import type { AppCacheDef, DirectFileMatch, RecursivePathMatch } from '../platfo
 import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
+import { CooperativeScheduler } from './cooperative-scheduler'
 
 export interface DeleteResult {
   path: string
@@ -269,9 +270,12 @@ async function listDescendantFiles(dirPath: string): Promise<{ paths: string[]; 
   const paths: string[] = []
   let truncated = 0
   const queue: Array<[string, Dirent[]]> = [[dirPath, rootEntries]]
+  const scheduler = new CooperativeScheduler()
 
-  while (queue.length > 0) {
-    const [dir, entries] = queue.shift()!
+  // Use an index instead of shift(): shifting a six-figure directory queue is
+  // quadratic and can monopolize Electron's main thread for minutes.
+  for (let queueIndex = 0; queueIndex < queue.length; queueIndex++) {
+    const [dir, entries] = queue[queueIndex]
     for (const entry of entries) {
       if (paths.length >= MAX_LOGGED_DESCENDANTS) {
         truncated++
@@ -286,6 +290,7 @@ async function listDescendantFiles(dirPath: string): Promise<{ paths: string[]; 
           // Unreadable subdirectory — its own path is already recorded.
         }
       }
+      await scheduler.yieldIfNeeded()
     }
   }
 
@@ -311,6 +316,7 @@ export async function cleanItems(
   const errors: CleanResult['errors'] = []
   const consumedIds: string[] = []
   let lastReport = 0
+  const scheduler = new CooperativeScheduler()
 
   // A missing cache entry used to disappear from the operation entirely. In a
   // large scan that made tens of thousands of selected files neither deleted
@@ -322,6 +328,7 @@ export async function cleanItems(
       filesSkipped++
       errors.push({ path: id, reason: 'scan-result-expired' })
     }
+    await scheduler.yieldIfNeeded()
   }
 
   // Opt-in audit trail of what was removed (issue #247). Buffered so a clean of
@@ -361,6 +368,7 @@ export async function cleanItems(
   }
 
   const processItem = async (item: ScanItem): Promise<void> => {
+    await scheduler.yieldIfNeeded()
     // lstat, not stat: it answers both questions the log depends on in one
     // call — whether the path is still there at all, and whether it is a real
     // directory rather than a symlink to one. Null means it was already gone
@@ -462,6 +470,7 @@ export async function cleanItems(
         onProgress(processed, validIds.length, item.path, totalCleaned)
       }
     }
+    await scheduler.yieldIfNeeded()
   }
 
   // Files in independent cache roots can be removed concurrently. The small,
@@ -475,6 +484,7 @@ export async function cleanItems(
     const group = groupsByPath.get(key) || []
     group.push(item)
     groupsByPath.set(key, group)
+    await scheduler.yieldIfNeeded()
   }
   const itemGroups = [...groupsByPath.values()]
   let nextGroup = 0
