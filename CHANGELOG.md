@@ -1,3 +1,11 @@
+# [2.5.0](https://github.com/adventdevinc/kudu/compare/v2.4.0...v2.5.0) (2026-08-28)
+
+
+### Bug Fixes
+
+* **main:** keep long-running tasks responsive ([#345](https://github.com/adventdevinc/kudu/issues/345)) ([56dd722](https://github.com/adventdevinc/kudu/commit/56dd722491f309ba314e421c2f783a5d6d4af0cf))
+* **tray:** sharpen Windows icon rendering ([#344](https://github.com/adventdevinc/kudu/issues/344)) ([e42bc80](https://github.com/adventdevinc/kudu/commit/e42bc80a7655a3fe77befc81bd66a29941411dc8))
+* **windows:** detect elevation from process token ([#343](https://github.com/adventdevinc/kudu/issues/343)) ([347a879](https://github.com/adventdevinc/kudu/commit/347a879d857a68fe728d13681be91f50f0e29c49))
 # [2.4.0](https://github.com/adventdevinc/kudu/compare/v2.3.0...v2.4.0) (2026-08-23)
 
 
