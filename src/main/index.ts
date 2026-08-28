@@ -19,6 +19,7 @@ import { cloudAgent } from './services/cloud-agent'
 import { shouldDisableGpu, applyGpuFallbackSwitches, registerGpuCrashRecovery } from './services/gpu-fallback'
 import { runCli } from './cli'
 import { runDaemon } from './daemon'
+import { createWindowsTrayIcon } from './tray-icon'
 
 // ─── Disable hardware acceleration ──────────────────────────
 // Must be called before app.whenReady().  On machines with incompatible
@@ -129,6 +130,10 @@ function getIconsDir(): string {
 }
 
 function createTrayIcon(): Electron.NativeImage {
+  if (process.platform === 'win32') {
+    return createWindowsTrayIcon(nativeImage, join(getIconsDir(), 'tray'))
+  }
+
   if (process.platform === 'darwin') {
     // Build a multi-resolution image so the icon is sharp on Retina displays.
     // Uses pre-rendered 16×16 (@1x) and 32×32 (@2x) PNGs instead of
@@ -141,8 +146,8 @@ function createTrayIcon(): Electron.NativeImage {
     return trayIcon
   }
 
-  // Windows / Linux: load the main icon and resize to standard tray size
-  const ext = process.platform === 'win32' ? 'ico' : 'png'
+  // Linux: load the main icon and resize to standard tray size
+  const ext = 'png'
   const iconPath = app.isPackaged
     ? join(process.resourcesPath, `icon.${ext}`)
     : join(__dirname, `../../resources/icon.${ext}`)
