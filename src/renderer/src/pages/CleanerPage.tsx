@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -82,6 +83,72 @@ function blockerNames(blockers: CleanerBlocker[], moreLabel: (count: number) => 
   return visible.join(', ')
 }
 
+interface CleanerContextMenuState {
+  x: number
+  y: number
+  label: string
+  ids: string[]
+}
+
+function sizeForIds(results: ScanResult[], ids: string[]): number {
+  const idSet = new Set(ids)
+  return results.reduce(
+    (sum, r) => sum + r.items.filter((item) => idSet.has(item.id)).reduce((s, item) => s + item.size, 0),
+    0
+  )
+}
+
+function CleanerContextMenu({
+  menu,
+  size,
+  onClean,
+  onClose,
+  cleanLabel
+}: {
+  menu: CleanerContextMenuState
+  size: number
+  onClean: () => void
+  onClose: () => void
+  cleanLabel: string
+}) {
+  useEffect(() => {
+    const handleDismiss = () => onClose()
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('mousedown', handleDismiss)
+    window.addEventListener('keydown', handleKey)
+    window.addEventListener('scroll', handleDismiss, true)
+    return () => {
+      window.removeEventListener('mousedown', handleDismiss)
+      window.removeEventListener('keydown', handleKey)
+      window.removeEventListener('scroll', handleDismiss, true)
+    }
+  }, [onClose])
+
+  return createPortal(
+    <div
+      className="fixed z-[9999] min-w-[200px] rounded-xl py-1 shadow-xl"
+      style={{ left: menu.x, top: menu.y, background: '#1e1e22', border: '1px solid var(--border-strong)' }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      <button
+        type="button"
+        onClick={onClean}
+        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-[12px] transition-colors hover:bg-white/5"
+        style={{ color: 'var(--accent-hover)' }}
+      >
+        <Sparkles className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+        <span className="min-w-0 truncate">{cleanLabel}</span>
+        <span className="ml-auto shrink-0 font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          {formatBytes(size)}
+        </span>
+      </button>
+    </div>,
+    document.body
+  )
+}
+
 export function CleanerPage() {
   const { t } = useTranslation(['cleaner', 'settings'])
   const navigate = useNavigate()
@@ -108,6 +175,8 @@ export function CleanerPage() {
   const [sortMode, setSortMode] = useState<SortMode>('default')
   const [showSortMenu, setShowSortMenu] = useState(false)
   const sortMenuRef = useRef<HTMLDivElement>(null)
+  const [contextMenu, setContextMenu] = useState<CleanerContextMenuState | null>(null)
+  const [scopedClean, setScopedClean] = useState<{ ids: string[]; label: string } | null>(null)
 
   const scanIndexRef = useRef(0)
   const cleanIndexRef = useRef(0)
@@ -235,10 +304,11 @@ export function CleanerPage() {
     store.setProgress(null)
   }, [protectRecycleBin])
 
-  const handleCleanRequest = useCallback(async () => {
-    const selectedIds = store.getSelectedIds()
+  const handleCleanRequest = useCallback(async (scope?: { ids: string[]; label: string }) => {
+    const selectedIds = scope?.ids ?? store.getSelectedIds()
     if (selectedIds.length === 0) return
 
+    setScopedClean(scope ?? null)
     setPreparingClean(true)
     const requestId = ++blockerRequestRef.current
     let latest: CleanerBlocker[] = []
@@ -292,7 +362,8 @@ export function CleanerPage() {
         }
       }
 
-      const selectedIds = store.getSelectedIds()
+      const selectedIds = scopedClean?.ids ?? store.getSelectedIds()
+      setScopedClean(null)
       const selectedIdSet = new Set(selectedIds)
       const cleanFns: Partial<Record<CleanerType, (ids: string[]) => Promise<any>>> = {
         [CleanerType.System]: (ids) => window.kudu.systemClean(ids),
@@ -432,7 +503,7 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [store.results, createRestorePointEnabled, protectRecycleBin, closeBrowsersBeforeClean, confirmBlockers])
+  }, [store.results, createRestorePointEnabled, protectRecycleBin, closeBrowsersBeforeClean, confirmBlockers, scopedClean])
 
   const categoryResults = (type: CategoryType) => {
     if (type === AI_TOOLS_VIEW) {
@@ -482,6 +553,30 @@ export function CleanerPage() {
   const isCleaning = store.status === ScanStatus.Cleaning
   const hasResults = store.results.length > 0
   const isRecycleBinProtected = protectRecycleBin && activeCategory === CleanerType.RecycleBin
+  const confirmCleanIds = scopedClean?.ids ?? store.getSelectedIds()
+  const confirmCleanSize = scopedClean
+    ? sizeForIds(store.results, scopedClean.ids)
+    : store.getSelectedSize()
+
+  const openContextMenu = useCallback((
+    event: React.MouseEvent,
+    label: string,
+    ids: string[]
+  ) => {
+    if (!hasResults || isScanning || isCleaning || preparingClean || ids.length === 0) return
+    event.preventDefault()
+    event.stopPropagation()
+    setContextMenu({ x: event.clientX, y: event.clientY, label, ids })
+  }, [hasResults, isScanning, isCleaning, preparingClean])
+
+  const closeContextMenu = useCallback(() => setContextMenu(null), [])
+
+  const handleContextMenuClean = useCallback(() => {
+    if (!contextMenu) return
+    const { ids, label } = contextMenu
+    closeContextMenu()
+    void handleCleanRequest({ ids, label })
+  }, [contextMenu, closeContextMenu, handleCleanRequest])
 
   return (
     <div className="feature-page cleaner-page animate-fade-in">
@@ -529,6 +624,11 @@ export function CleanerPage() {
               <button
                 key={cat.type}
                 onClick={() => setActiveCategory(cat.type)}
+                onContextMenu={(e) => {
+                  if (isProtected) return
+                  const ids = categoryResults(cat.type).flatMap((r) => r.items.map((item) => item.id))
+                  openContextMenu(e, t(cat.labelKey), ids)
+                }}
                 className="relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all"
                 style={{
                   background: isActive ? 'var(--accent-muted-bg)' : 'transparent',
@@ -792,6 +892,10 @@ export function CleanerPage() {
                             {/* Group header */}
                             <div className="flex items-center gap-3 px-4 py-3.5 cursor-pointer"
                               onClick={() => toggleGroup(groupKey)}
+                              onContextMenu={(e) => {
+                                const ids = result.items.map((item) => item.id)
+                                openContextMenu(e, result.subcategory, ids)
+                              }}
                               onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
                               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
                               {/* Checkbox */}
@@ -914,12 +1018,22 @@ export function CleanerPage() {
       <ConfirmDialog
         open={showConfirm}
         onConfirm={handleClean}
-        onCancel={() => { setShowConfirm(false); setConfirmBlockers([]) }}
-        title={t('confirmCleanTitle')}
-        description={`${t('confirmCleanDescription', { count: formatNumber(store.getSelectedIds().length), size: formatBytes(store.getSelectedSize()) })}${confirmBlockers.length > 0 ? ` ${t('confirmCloseApps', { apps: blockerNames(confirmBlockers, (count) => t('moreApps', { count })) })}` : ''}`}
+        onCancel={() => { setShowConfirm(false); setConfirmBlockers([]); setScopedClean(null) }}
+        title={scopedClean ? t('confirmCleanCategoryTitle', { name: scopedClean.label }) : t('confirmCleanTitle')}
+        description={`${t('confirmCleanDescription', { count: formatNumber(confirmCleanIds.length), size: formatBytes(confirmCleanSize) })}${confirmBlockers.length > 0 ? ` ${t('confirmCloseApps', { apps: blockerNames(confirmBlockers, (count) => t('moreApps', { count })) })}` : ''}`}
         confirmLabel={t('confirmCleanLabel')}
         variant="warning"
       />
+
+      {contextMenu && (
+        <CleanerContextMenu
+          menu={contextMenu}
+          size={sizeForIds(store.results, contextMenu.ids)}
+          onClean={handleContextMenuClean}
+          onClose={closeContextMenu}
+          cleanLabel={t('contextMenuClean', { name: contextMenu.label })}
+        />
+      )}
     </div>
   )
 }
