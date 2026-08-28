@@ -7,6 +7,7 @@ export const WINDOWS_TRAY_ICON_REPRESENTATIONS = [
   { size: 24, scaleFactor: 1.5 },
   { size: 28, scaleFactor: 1.75 },
   { size: 32, scaleFactor: 2 },
+  { size: 36, scaleFactor: 2.25 },
   { size: 40, scaleFactor: 2.5 },
   { size: 48, scaleFactor: 3 },
 ] as const

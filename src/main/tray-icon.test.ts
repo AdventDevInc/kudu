@@ -4,6 +4,19 @@ import { describe, expect, it, vi } from 'vitest'
 import { createWindowsTrayIcon, WINDOWS_TRAY_ICON_REPRESENTATIONS } from './tray-icon'
 
 describe('Windows tray icon', () => {
+  it('covers every supported Windows scale factor without resampling gaps', () => {
+    expect(WINDOWS_TRAY_ICON_REPRESENTATIONS.map(({ scaleFactor }) => scaleFactor)).toEqual([
+      1,
+      1.25,
+      1.5,
+      1.75,
+      2,
+      2.25,
+      2.5,
+      3,
+    ])
+  })
+
   it('bundles a correctly sized PNG for every Windows DPI representation', () => {
     const iconsDir = join(process.cwd(), 'resources', 'icons', 'tray')
 
