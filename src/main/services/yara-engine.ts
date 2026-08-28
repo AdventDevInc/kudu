@@ -59,6 +59,11 @@ export class YaraEngine {
   private _pending = new Map<number, PendingWorkerRequest>()
   private _nextRequestId = 1
   private readonly _background: boolean
+  private _lastRuleConfig: { ruleFilePaths: string[]; extraSources: string[] } | null = null
+  private _recoveryPromise: Promise<void> | null = null
+  private _leases = 0
+  private _retired = false
+  private _disposed = false
   private _ready = false
   private _rulesLoaded = 0
 
@@ -164,6 +169,56 @@ export class YaraEngine {
     this._ready = false
     for (const pending of this._pending.values()) pending.reject(error)
     this._pending.clear()
+    if (this._canRecover()) {
+      void this._startRecovery(error).catch(() => {})
+    }
+  }
+
+  private _canRecover(): boolean {
+    return !this._disposed
+      && this._lastRuleConfig !== null
+      && (!this._retired || this._leases > 0)
+  }
+
+  private _startRecovery(cause: Error): Promise<void> {
+    if (this._recoveryPromise) return this._recoveryPromise
+    const recovery = this._recoverAfterWorkerFailure(cause)
+    this._recoveryPromise = recovery
+    void recovery
+      .catch((error) => console.warn('[yara] Background recovery failed:', error))
+      .finally(() => {
+        if (this._recoveryPromise === recovery) this._recoveryPromise = null
+      })
+    return recovery
+  }
+
+  private async _recoverAfterWorkerFailure(cause: Error): Promise<void> {
+    const config = this._lastRuleConfig
+    if (!config || !this._canRecover()) throw cause
+
+    console.warn('[yara] Worker failed; restarting scanner:', cause.message)
+    try {
+      await this._initializeWorker()
+      if (!this._canRecover()) throw new Error('YARA engine retired during recovery')
+      const result = await this._requestWorker<{ loaded: number; errors: string[] }>({
+        type: 'load-rules',
+        ruleFilePaths: config.ruleFilePaths,
+        extraSources: config.extraSources,
+      })
+      if (result.loaded === 0) throw new Error('Recovered YARA worker loaded no rules')
+      this._rulesLoaded = result.loaded
+      this._ready = true
+      return
+    } catch (workerError) {
+      if (!this._canRecover()) throw workerError
+      console.warn('[yara] Worker restart failed; using inline fallback:', workerError)
+      if (this._worker) void this._worker.terminate()
+      this._worker = null
+      this._scanner = null
+      this._initializeInline()
+      const result = await this._loadRulesInline(config.ruleFilePaths, config.extraSources)
+      if (result.loaded === 0) throw new Error('Inline YARA fallback loaded no rules')
+    }
   }
 
   private _requestWorker<T>(
@@ -207,9 +262,27 @@ export class YaraEngine {
         extraSources,
       }, onProgress)
       this._rulesLoaded = result.loaded
+      if (result.loaded > 0) this._rememberRules(ruleFilePaths, extraSources)
       return result
     }
 
+    const result = await this._loadRulesInline(ruleFilePaths, extraSources, onProgress)
+    if (result.loaded > 0) this._rememberRules(ruleFilePaths, extraSources)
+    return result
+  }
+
+  private _rememberRules(ruleFilePaths: string[], extraSources: string[]): void {
+    this._lastRuleConfig = {
+      ruleFilePaths: [...ruleFilePaths],
+      extraSources: [...extraSources],
+    }
+  }
+
+  private async _loadRulesInline(
+    ruleFilePaths: string[],
+    extraSources: string[] = [],
+    onProgress?: (loaded: number, total: number) => void,
+  ): Promise<{ loaded: number; errors: string[] }> {
     if (!this._scanner) {
       return { loaded: 0, errors: ['YARA engine not initialized'] }
     }
@@ -349,6 +422,10 @@ export class YaraEngine {
 
   /** Run native file matching away from Electron's main thread when available. */
   async scanFileAsync(filePath: string): Promise<YaraMatch[]> {
+    if (this._recoveryPromise) await this._recoveryPromise
+    if (!this._worker && !this._scanner && this._canRecover()) {
+      await this._startRecovery(new Error('YARA scanner backend is unavailable'))
+    }
     if (this._worker) {
       return this._requestWorker<YaraMatch[]>({ type: 'scan-file', filePath })
     }
@@ -380,7 +457,29 @@ export class YaraEngine {
     }
   }
 
+  /** Keep a retired engine alive until an in-flight malware scan releases it. */
+  acquire(): () => void {
+    if (this._retired || this._disposed) throw new Error('YARA engine is retired')
+    this._leases++
+    let released = false
+    return () => {
+      if (released) return
+      released = true
+      this._leases = Math.max(0, this._leases - 1)
+      if (this._retired && this._leases === 0) this.dispose()
+    }
+  }
+
+  retire(): void {
+    if (this._retired || this._disposed) return
+    this._retired = true
+    if (this._leases === 0) this.dispose()
+  }
+
   dispose(): void {
+    if (this._disposed) return
+    this._disposed = true
+    this._retired = true
     if (this._worker) {
       void this._worker.terminate()
       this._worker = null
@@ -390,6 +489,7 @@ export class YaraEngine {
     }
     this._pending.clear()
     this._scanner = null
+    this._lastRuleConfig = null
     this._ready = false
     this._rulesLoaded = 0
   }

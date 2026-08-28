@@ -217,4 +217,50 @@ describe('YaraEngine.scanFile', () => {
       rmSync(testDir, { recursive: true, force: true })
     }
   })
+
+  it('rebuilds an inline scanner instead of silently disabling YARA after a worker failure', async () => {
+    const testDir = mkdtempSync(join(tmpdir(), 'kudu-yara-recovery-'))
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const filePath = join(testDir, 'sample.bin')
+      writeFileSync(filePath, Buffer.from('contains recovery_marker'))
+      const engine = new YaraEngine({ background: false })
+      await engine.initialize()
+      await engine.loadRules([], [
+        'rule Recovery_Test { strings: $a = "recovery_marker" condition: $a }',
+      ])
+
+      // Model an initialized worker disappearing, then make its restart fail so
+      // the correctness-first inline fallback is exercised.
+      const release = engine.acquire()
+      ;(engine as any)._scanner = null
+      vi.spyOn(engine as any, '_initializeWorker').mockRejectedValue(new Error('worker crashed'))
+      ;(engine as any)._failWorker(new Error('worker exited'))
+      engine.retire()
+
+      const matches = await engine.scanFileAsync(filePath)
+      expect(matches.map((match) => match.ruleName)).toContain('Recovery_Test')
+      expect(engine.isReady()).toBe(true)
+      release()
+      expect(engine.isReady()).toBe(false)
+    } finally {
+      warn.mockRestore()
+      rmSync(testDir, { recursive: true, force: true })
+    }
+  })
+
+  it('terminates a retired worker only after its active scan lease is released', () => {
+    const engine = new YaraEngine({ background: false })
+    const terminate = vi.fn(async () => 0)
+    ;(engine as any)._worker = { terminate }
+    ;(engine as any)._ready = true
+
+    const release = engine.acquire()
+    engine.retire()
+    expect(terminate).not.toHaveBeenCalled()
+
+    release()
+    expect(terminate).toHaveBeenCalledOnce()
+    expect(engine.isReady()).toBe(false)
+  })
 })
