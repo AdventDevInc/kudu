@@ -13,7 +13,7 @@ describe('win32 elevation', () => {
     vi.resetModules()
   })
 
-  it('returns true when net session succeeds (admin)', async () => {
+  it('returns true when the inherited process token is elevated', async () => {
     execFileSyncMock.mockReturnValue(undefined)
 
     const { createWin32Elevation } = await import('./elevation')
@@ -21,12 +21,15 @@ describe('win32 elevation', () => {
     const result = elevation.isAdmin()
 
     expect(result).toBe(true)
-    expect(execFileSyncMock).toHaveBeenCalledWith(
-      'net', ['session'], { stdio: 'ignore', timeout: 5000 }
-    )
+    const [file, args, options] = execFileSyncMock.mock.calls[0]
+    expect(file).toBe('powershell.exe')
+    expect(args).toEqual(expect.arrayContaining(['-NoProfile', '-NonInteractive', '-Command']))
+    expect(args.at(-1)).toContain('WindowsIdentity]::GetCurrent()')
+    expect(args.at(-1)).toContain('WindowsBuiltInRole]::Administrator')
+    expect(options).toEqual({ stdio: 'ignore', timeout: 5000, windowsHide: true })
   })
 
-  it('returns false when net session throws (not admin)', async () => {
+  it('returns false when the inherited process token is not elevated', async () => {
     execFileSyncMock.mockImplementation(() => { throw new Error('Access denied') })
 
     const { createWin32Elevation } = await import('./elevation')
@@ -34,6 +37,17 @@ describe('win32 elevation', () => {
     const result = elevation.isAdmin()
 
     expect(result).toBe(false)
+  })
+
+  it('does not depend on the Server service through net session', async () => {
+    execFileSyncMock.mockReturnValue(undefined)
+
+    const { createWin32Elevation } = await import('./elevation')
+    createWin32Elevation().isAdmin()
+
+    expect(execFileSyncMock).not.toHaveBeenCalledWith(
+      'net', ['session'], expect.anything()
+    )
   })
 
   it('caches the result after first call', async () => {
