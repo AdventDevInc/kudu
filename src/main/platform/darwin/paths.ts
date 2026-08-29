@@ -76,6 +76,22 @@ export function createDarwinPaths(): PlatformPaths {
       ]
     },
 
+    malwareTrustedInstallRoots(): string[] {
+      return [
+        '/Applications',
+        '/Library',
+        '/usr/local',
+        '/opt',
+      ]
+    },
+
+    malwareTrustedUserInstallRoots(): string[] {
+      return [
+        join(HOME, 'Applications'),
+        LIBRARY,
+      ]
+    },
+
     uninstallLeftoverDirs(): UninstallLeftoverDir[] {
       return [
         { id: 'app-support', name: 'Application Support', path: APP_SUPPORT },

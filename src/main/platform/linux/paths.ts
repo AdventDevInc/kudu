@@ -63,6 +63,20 @@ export function createLinuxPaths(): PlatformPaths {
       return ['/usr', '/lib', '/lib64', '/sbin', '/bin', '/opt']
     },
 
+    malwareTrustedInstallRoots(): string[] {
+      return [
+        '/usr',
+        '/usr/local',
+        '/opt',
+        '/snap',
+        '/var/lib/flatpak',
+      ]
+    },
+
+    malwareTrustedUserInstallRoots(): string[] {
+      return [LOCAL_SHARE]
+    },
+
     uninstallLeftoverDirs(): UninstallLeftoverDir[] {
       return [
         { id: 'config', name: 'Config', path: CONFIG },

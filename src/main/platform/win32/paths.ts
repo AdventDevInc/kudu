@@ -72,6 +72,24 @@ export function createWin32Paths(): PlatformPaths {
       ]
     },
 
+    malwareTrustedInstallRoots(): string[] {
+      return [
+        PROGRAMFILES,
+        PROGRAMFILES_X86,
+        PROGRAMDATA,
+      ]
+    },
+
+    malwareTrustedUserInstallRoots(): string[] {
+      // Per-user installs — Chromium forks and vendor updaters live here, but so
+      // can anything the user runs, hence the reduced trust.
+      return [
+        join(LOCALAPPDATA, 'Programs'),
+        LOCALAPPDATA,
+        APPDATA,
+      ]
+    },
+
     uninstallLeftoverDirs(): UninstallLeftoverDir[] {
       return [
         { id: 'localappdata', name: 'AppData Local', path: LOCALAPPDATA },
