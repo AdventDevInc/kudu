@@ -22,6 +22,8 @@
   "updateCheckEvery4Hours": "Ogni 4 ore",
   "updateCheckEvery12Hours": "Ogni 12 ore",
   "updateCheckOnceADay": "Una volta al giorno",
+  "softwareUpdaterNotificationsLabel": "Promemoria aggiornamenti software",
+  "softwareUpdaterNotificationsDesc": "Controlla in background gli aggiornamenti delle app di terze parti e mostra i badge nella barra laterale. Puoi comunque controllare manualmente dalla pagina Aggiornamenti software.",
   "windowsPackageManagerLabel": "Gestore pacchetti di Windows",
   "windowsPackageManagerDesc": "Scegli quale gestore pacchetti utilizzare per gli aggiornamenti software",
   "sectionCloudDashboard": "Cloud",

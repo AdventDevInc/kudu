@@ -112,7 +112,7 @@ export function SettingsPage() {
         <Row label={t('autoRestartLabel')} desc={t('autoRestartDesc')}>
           <Toggle checked={settings.autoRestart} onChange={(v) => save({ autoRestart: v })} />
         </Row>
-        <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')} last>
+        <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')}>
           <select value={settings.updateCheckIntervalHours}
             onChange={(e) => save({ updateCheckIntervalHours: Number(e.target.value) })}
             className={selectStyle} style={selectBorder}>
@@ -121,6 +121,12 @@ export function SettingsPage() {
             <option value={12}>{t('updateCheckEvery12Hours')}</option>
             <option value={24}>{t('updateCheckOnceADay')}</option>
           </select>
+        </Row>
+        <Row label={t('softwareUpdaterNotificationsLabel')} desc={t('softwareUpdaterNotificationsDesc')} last>
+          <Toggle
+            checked={settings.softwareUpdaterNotifications ?? true}
+            onChange={(v) => save({ softwareUpdaterNotifications: v })}
+          />
         </Row>
       </Section>
 

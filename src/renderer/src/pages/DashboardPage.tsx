@@ -88,6 +88,7 @@ export function DashboardPage() {
   const scanStore = useScanStore()
   const updaterHasChecked = useUpdaterStore((s) => s.hasChecked)
   const updaterApps = useUpdaterStore((s) => s.apps)
+  const updaterRemindersEnabled = useSettingsStore((s) => s.settings.softwareUpdaterNotifications ?? true)
   const serviceHasScanned = useServiceStore((s) => s.hasScanned)
   const startupItems = useStartupStore((s) => s.items)
   const startupHasLoaded = useStartupStore((s) => s.hasLoaded)
@@ -207,7 +208,7 @@ export function DashboardPage() {
     }))
 
     const sessionTools = [
-      { key: 'updater', label: t('toolLabelUpdater'), icon: Download, color: '#06b6d4', active: updaterHasChecked },
+      ...(updaterRemindersEnabled ? [{ key: 'updater', label: t('toolLabelUpdater'), icon: Download, color: '#06b6d4', active: updaterHasChecked }] : []),
       { key: 'services', label: t('toolLabelServices'), icon: Server, color: '#ec4899', active: serviceHasScanned },
       { key: 'startup', label: t('toolLabelStartup'), icon: Zap, color: '#22c55e', active: startupHasLoaded }
     ]
@@ -470,7 +471,9 @@ export function DashboardPage() {
     setStepProgress({ current: ++step, total: totalSteps })
     const startupHighImpact = await runStartupCheck()
     setStepProgress({ current: ++step, total: totalSteps })
-    const updatesAvailable = await runSoftwareUpdateCheck()
+    const updatesAvailable = useSettingsStore.getState().settings.softwareUpdaterNotifications === false
+      ? 0
+      : await runSoftwareUpdateCheck()
 
     const oneClickResult: OneClickResult = {
       spaceRecovered: space + drivers.space, filesCleaned: files, registryFixed: regFixed,
@@ -524,10 +527,11 @@ export function DashboardPage() {
   // ── Render ─────────────────────────────────────────────────
 
   const startupAttentionCount = startupItems.filter((item) => item.enabled && item.impact === 'high').length
-  const pendingUpdateCount = updaterApps.length
+  const pendingUpdateCount = updaterRemindersEnabled ? updaterApps.length : 0
   const unresolvedThreatCount = (lastMalwareScan?.unresolvedThreats ?? 0) + knownActiveThreats
   const hasProtectionBaseline = !!lastMalwareScan
-  const hasCompletedCoreChecks = updaterHasChecked && startupHasLoaded && hasProtectionBaseline
+  const updaterNeedsAttention = updaterRemindersEnabled && (!updaterHasChecked || pendingUpdateCount > 0)
+  const hasCompletedCoreChecks = (!updaterRemindersEnabled || updaterHasChecked) && startupHasLoaded && hasProtectionBaseline
   const primaryDrive = drives.find((drive) => drive.isSystem)
   const primaryDriveUsedPercent = primaryDrive?.totalSize
     ? Math.round((primaryDrive.usedSpace / primaryDrive.totalSize) * 100)
@@ -535,7 +539,7 @@ export function DashboardPage() {
   const freeMemory = perf ? Math.max(0, perf.memTotalBytes - perf.memUsedBytes) : 0
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
-  const attentionCount = Number(!updaterHasChecked || pendingUpdateCount > 0)
+  const attentionCount = Number(updaterNeedsAttention)
     + Number(!startupHasLoaded || startupAttentionCount > 0)
     + Number(!hasProtectionBaseline || unresolvedThreatCount > 0)
   const healthHeadline = unresolvedThreatCount > 0
@@ -682,11 +686,13 @@ export function DashboardPage() {
           </div>
 
           <div className="kudu-attention-list">
-            <button type="button" onClick={() => navigate('/updates')}>
-              <span className="kudu-attention-icon"><Download /></span>
-              <span><b>{!updaterHasChecked ? 'Check app updates' : pendingUpdateCount > 0 ? `${pendingUpdateCount} app ${pendingUpdateCount === 1 ? 'update' : 'updates'}` : 'Apps are up to date'}</b><small>{!updaterHasChecked ? 'Security and reliability fixes' : pendingUpdateCount > 0 ? 'Updates are ready to install' : 'Latest check completed'}</small></span>
-              <em>{!updaterHasChecked ? '5 MIN' : pendingUpdateCount > 0 ? 'REVIEW' : 'DONE'}</em>
-            </button>
+            {updaterRemindersEnabled && (
+              <button type="button" onClick={() => navigate('/updates')}>
+                <span className="kudu-attention-icon"><Download /></span>
+                <span><b>{!updaterHasChecked ? 'Check app updates' : pendingUpdateCount > 0 ? `${pendingUpdateCount} app ${pendingUpdateCount === 1 ? 'update' : 'updates'}` : 'Apps are up to date'}</b><small>{!updaterHasChecked ? 'Security and reliability fixes' : pendingUpdateCount > 0 ? 'Updates are ready to install' : 'Latest check completed'}</small></span>
+                <em>{!updaterHasChecked ? '5 MIN' : pendingUpdateCount > 0 ? 'REVIEW' : 'DONE'}</em>
+              </button>
+            )}
             <button type="button" onClick={() => navigate('/startup')}>
               <span className="kudu-attention-icon"><Zap /></span>
               <span><b>{!startupHasLoaded ? 'Check startup apps' : startupAttentionCount > 0 ? `${startupAttentionCount} startup ${startupAttentionCount === 1 ? 'app' : 'apps'}` : 'Startup looks good'}</b><small>{!startupHasLoaded ? 'Review what launches when you sign in' : startupAttentionCount > 0 ? 'High-impact apps may slow sign-in' : 'No high-impact apps found'}</small></span>

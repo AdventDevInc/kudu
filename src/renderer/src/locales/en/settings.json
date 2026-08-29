@@ -22,6 +22,8 @@
   "updateCheckEvery4Hours": "Every 4 hours",
   "updateCheckEvery12Hours": "Every 12 hours",
   "updateCheckOnceADay": "Once a day",
+  "softwareUpdaterNotificationsLabel": "Software updater reminders",
+  "softwareUpdaterNotificationsDesc": "Check for third-party app updates in the background and show badge counts in the sidebar. You can still check manually from the Software Updater page.",
   "windowsPackageManagerLabel": "Windows package manager",
   "windowsPackageManagerDesc": "Choose which package manager to use for software updates",
   "sectionCloudDashboard": "Cloud",

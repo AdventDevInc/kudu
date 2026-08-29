@@ -17,6 +17,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'theme', 'language',
     'minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications',
     'runAtStartup', 'autoUpdate', 'autoRestart', 'updateCheckIntervalHours',
+    'softwareUpdaterNotifications',
     'cleaner', 'exclusions', 'ignoredSoftwareUpdates', 'backupPath', 'backupMode',
     'windowsPackageManager', 'windowsPackageManagers',
     'schedule', 'schedules', 'cloud', 'gameMode', 'registryIgnoredTweaks'
@@ -37,7 +38,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   }
 
   // Validate boolean fields have correct types
-  const boolKeys = ['minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications', 'runAtStartup', 'autoUpdate', 'autoRestart'] as const
+  const boolKeys = ['minimizeToTray', 'showNotificationOnComplete', 'showThreatNotifications', 'runAtStartup', 'autoUpdate', 'autoRestart', 'softwareUpdaterNotifications'] as const
   for (const bk of boolKeys) {
     if (bk in obj && obj[bk] !== undefined && typeof obj[bk] !== 'boolean') return null
   }

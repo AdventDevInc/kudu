@@ -47,6 +47,7 @@ import { useGameModeStore } from '@/stores/game-mode-store'
 import { useCveStore } from '@/stores/cve-store'
 import { useBreachStore } from '@/stores/breach-store'
 import { usePlatform } from '@/hooks/usePlatform'
+import { useSettingsStore } from '@/stores/settings-store'
 
 interface SubItemDef {
   icon: LucideIcon
@@ -154,6 +155,9 @@ function useBottomNavItems(): NavItemDef[] {
 
 // Map nav paths to badge counts from stores
 function useBadgeCounts(): Record<string, number> {
+  const softwareUpdaterNotifications = useSettingsStore(
+    (s) => s.settings.softwareUpdaterNotifications ?? true
+  )
   const updaterApps = useUpdaterStore((s) => s.apps)
   const driverUpdates = useDriverStore((s) => s.updates)
   const threatSnapshot = useThreatMonitorStore((s) => s.snapshot)
@@ -163,10 +167,11 @@ function useBadgeCounts(): Record<string, number> {
   const breachEmails = useBreachStore((s) => s.emails)
   const breachTotal = breachEmails.reduce((sum, e) => sum + e.breaches.filter((b) => !b.acknowledgedAt).length, 0)
 
-  const updatesCount = updaterApps.length + driverUpdates.length
+  const softwareUpdateCount = softwareUpdaterNotifications ? updaterApps.length : 0
+  const updatesCount = softwareUpdateCount + driverUpdates.length
 
   return {
-    '/updates': updaterApps.length,
+    '/updates': softwareUpdateCount,
     '/software': updatesCount,
     '/drivers': driverUpdates.length,
     '/threat-monitor': threatCount,

@@ -55,6 +55,16 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ exclusions: ['x'.repeat(501)] })).toBeNull()
   })
 
+  it('accepts softwareUpdaterNotifications boolean', () => {
+    expect(validateSettingsPartial({ softwareUpdaterNotifications: false })).toEqual({
+      softwareUpdaterNotifications: false,
+    })
+  })
+
+  it('rejects non-boolean softwareUpdaterNotifications', () => {
+    expect(validateSettingsPartial({ softwareUpdaterNotifications: 'off' })).toBeNull()
+  })
+
   it('accepts valid ignoredSoftwareUpdates array', () => {
     const input = { ignoredSoftwareUpdates: ['Google.Chrome', 'Mozilla.Firefox'] }
     expect(validateSettingsPartial(input)).toEqual(input)
