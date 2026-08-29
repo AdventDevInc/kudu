@@ -1,3 +1,15 @@
+# [2.6.0](https://github.com/adventdevinc/kudu/compare/v2.5.0...v2.6.0) (2026-08-29)
+
+
+### Bug Fixes
+
+* **malware:** stop quarantining Helium chrome.exe and Logi Options+ updater ([#347](https://github.com/adventdevinc/kudu/issues/347)) ([dc7e285](https://github.com/adventdevinc/kudu/commit/dc7e285f1f5ef85e2b05a9ad75802b2e44cecfa6))
+
+
+### Features
+
+* **cleaner:** right-click to clean category or folder ([#235](https://github.com/adventdevinc/kudu/issues/235)) ([#348](https://github.com/adventdevinc/kudu/issues/348)) ([af591c2](https://github.com/adventdevinc/kudu/commit/af591c223a594ff7f15c522cfaf21b68e706510b))
+* **settings:** add toggle to disable software updater reminders ([#346](https://github.com/adventdevinc/kudu/issues/346)) ([23e9cc7](https://github.com/adventdevinc/kudu/commit/23e9cc796c0320b98a8553f0c8666fae9bb2ccab))
 # [2.5.0](https://github.com/adventdevinc/kudu/compare/v2.4.0...v2.5.0) (2026-08-28)
 
 
