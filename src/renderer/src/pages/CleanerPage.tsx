@@ -195,6 +195,7 @@ export function CleanerPage() {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
   const cleanStartRef = useRef<number>(0)
   const blockerRequestRef = useRef(0)
+  const scopedBlockerRequestRef = useRef(0)
   const [scanningCategory, setScanningCategory] = useState<CleanerType | null>(null)
   const [sortMode, setSortMode] = useState<SortMode>('default')
   const [showSortMenu, setShowSortMenu] = useState(false)
@@ -334,7 +335,11 @@ export function CleanerPage() {
 
     setScopedClean(scope ?? null)
     setPreparingClean(true)
-    const requestId = ++blockerRequestRef.current
+    // Scoped requests track their own counter so they neither cancel the
+    // page-wide blocker check nor overwrite its banner, which always describes
+    // the globally selected items.
+    const requestRef = scope ? scopedBlockerRequestRef : blockerRequestRef
+    const requestId = ++requestRef.current
     let latest: CleanerBlocker[] = []
     try {
       if (platform === 'win32' && window.kudu?.cleanerBlockers) {
@@ -343,10 +348,12 @@ export function CleanerPage() {
     } catch {
       // Advisory preflight failures must not prevent the confirmation dialog.
     } finally {
-      if (blockerRequestRef.current === requestId) {
-        setBlockers(latest)
+      if (requestRef.current === requestId) {
+        if (!scope) {
+          setBlockers(latest)
+          setCheckingBlockers(false)
+        }
         setConfirmBlockers(latest)
-        setCheckingBlockers(false)
         setShowConfirm(true)
         setPreparingClean(false)
       }
