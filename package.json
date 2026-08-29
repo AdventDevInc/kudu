@@ -80,7 +80,7 @@
     "i18next": "^26.3.6",
     "lucide-react": "^0.577.0",
     "pusher-js": "^8.6.0",
-    "react-i18next": "^17.0.11",
+    "react-i18next": "^17.0.12",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
