@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -83,6 +83,8 @@ function blockerNames(blockers: CleanerBlocker[], moreLabel: (count: number) => 
   return visible.join(', ')
 }
 
+const MENU_VIEWPORT_MARGIN = 8
+
 interface CleanerContextMenuState {
   x: number
   y: number
@@ -111,6 +113,21 @@ function CleanerContextMenu({
   onClose: () => void
   cleanLabel: string
 }) {
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [position, setPosition] = useState({ left: menu.x, top: menu.y, visible: false })
+
+  useLayoutEffect(() => {
+    const el = menuRef.current
+    if (!el) return
+    const maxLeft = window.innerWidth - el.offsetWidth - MENU_VIEWPORT_MARGIN
+    const maxTop = window.innerHeight - el.offsetHeight - MENU_VIEWPORT_MARGIN
+    setPosition({
+      left: Math.max(MENU_VIEWPORT_MARGIN, Math.min(menu.x, maxLeft)),
+      top: Math.max(MENU_VIEWPORT_MARGIN, Math.min(menu.y, maxTop)),
+      visible: true
+    })
+  }, [menu.x, menu.y])
+
   useEffect(() => {
     const handleDismiss = () => onClose()
     const handleKey = (e: KeyboardEvent) => {
@@ -128,8 +145,15 @@ function CleanerContextMenu({
 
   return createPortal(
     <div
-      className="fixed z-[9999] min-w-[200px] rounded-xl py-1 shadow-xl"
-      style={{ left: menu.x, top: menu.y, background: '#1e1e22', border: '1px solid var(--border-strong)' }}
+      ref={menuRef}
+      className="fixed z-[9999] min-w-[200px] max-w-[320px] rounded-xl py-1 shadow-xl"
+      style={{
+        left: position.left,
+        top: position.top,
+        visibility: position.visible ? 'visible' : 'hidden',
+        background: '#1e1e22',
+        border: '1px solid var(--border-strong)'
+      }}
       onMouseDown={(e) => e.stopPropagation()}
     >
       <button
@@ -595,7 +619,7 @@ export function CleanerPage() {
               {t('scanButton')}
             </button>
             <button
-              onClick={handleCleanRequest}
+              onClick={() => void handleCleanRequest()}
               disabled={!hasResults || isScanning || isCleaning || checkingBlockers || preparingClean || store.getSelectedIds().length === 0}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{
