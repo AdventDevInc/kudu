@@ -150,8 +150,18 @@ export interface PlatformPaths {
   /** System directories to exclude from suspicious filename checks */
   malwareSystemDirs(): string[]
 
-  /** Installation roots beneath which a trusted-publisher directory is honoured */
+  /**
+   * Installation roots that need elevation to write to. A trusted-publisher
+   * directory beneath one of these is taken at face value.
+   */
   malwareTrustedInstallRoots(): string[]
+
+  /**
+   * Installation roots any user process can write to (per-user app installs).
+   * A trusted-publisher directory here only suppresses heuristics, never
+   * signature matching.
+   */
+  malwareTrustedUserInstallRoots(): string[]
 
   /** Directories to scan for uninstall leftovers */
   uninstallLeftoverDirs(): UninstallLeftoverDir[]

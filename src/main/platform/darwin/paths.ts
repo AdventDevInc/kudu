@@ -79,11 +79,16 @@ export function createDarwinPaths(): PlatformPaths {
     malwareTrustedInstallRoots(): string[] {
       return [
         '/Applications',
-        join(HOME, 'Applications'),
         '/Library',
-        LIBRARY,
         '/usr/local',
         '/opt',
+      ]
+    },
+
+    malwareTrustedUserInstallRoots(): string[] {
+      return [
+        join(HOME, 'Applications'),
+        LIBRARY,
       ]
     },
 

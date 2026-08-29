@@ -77,7 +77,13 @@ export function createWin32Paths(): PlatformPaths {
         PROGRAMFILES,
         PROGRAMFILES_X86,
         PROGRAMDATA,
-        // Per-user installs — Chromium forks and vendor updaters live here
+      ]
+    },
+
+    malwareTrustedUserInstallRoots(): string[] {
+      // Per-user installs — Chromium forks and vendor updaters live here, but so
+      // can anything the user runs, hence the reduced trust.
+      return [
         join(LOCALAPPDATA, 'Programs'),
         LOCALAPPDATA,
         APPDATA,

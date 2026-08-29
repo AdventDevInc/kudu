@@ -70,8 +70,11 @@ export function createLinuxPaths(): PlatformPaths {
         '/opt',
         '/snap',
         '/var/lib/flatpak',
-        LOCAL_SHARE,
       ]
+    },
+
+    malwareTrustedUserInstallRoots(): string[] {
+      return [LOCAL_SHARE]
     },
 
     uninstallLeftoverDirs(): UninstallLeftoverDir[] {
