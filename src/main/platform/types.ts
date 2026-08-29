@@ -150,6 +150,9 @@ export interface PlatformPaths {
   /** System directories to exclude from suspicious filename checks */
   malwareSystemDirs(): string[]
 
+  /** Installation roots beneath which a trusted-publisher directory is honoured */
+  malwareTrustedInstallRoots(): string[]
+
   /** Directories to scan for uninstall leftovers */
   uninstallLeftoverDirs(): UninstallLeftoverDir[]
 

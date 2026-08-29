@@ -277,6 +277,19 @@ describe('win32 paths', () => {
     })
   })
 
+  describe('malwareTrustedInstallRoots', () => {
+    const roots = paths.malwareTrustedInstallRoots()
+
+    it('includes Program Files and the per-user install roots', () => {
+      expect(roots.some((r) => r.includes('Program Files'))).toBe(true)
+      expect(roots.some((r) => r.includes('AppData'))).toBe(true)
+    })
+
+    it('does not include user drop locations like Downloads', () => {
+      expect(roots.some((r) => r.includes('Downloads'))).toBe(false)
+    })
+  })
+
   describe('uninstallLeftoverDirs', () => {
     const dirs = paths.uninstallLeftoverDirs()
 
