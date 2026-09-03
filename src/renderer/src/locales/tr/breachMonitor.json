@@ -2,6 +2,16 @@
   "pageTitle": "İhlal İzleme",
   "pageDescription": "E-posta adreslerinizin bilinen veri ihlallerinde ifşa olup olmadığını denetleyin",
   "loading": "İhlal verileri yükleniyor...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud gerekli",
+    "description": "E-posta adreslerini bilinen ihlal istihbaratına karşı denetlemek ve yeni bildirilen sızıntıları izlemek için bu cihazı bağlayın.",
+    "action": "Kudu Cloud'u Görüntüle"
+  },
+  "connectionError": {
+    "title": "Bulut bağlantısı ilgilenmenizi gerektiriyor",
+    "description": "Bu cihazda kayıtlı bir Bulut anahtarı var, ancak artık yetkili değil. Bağlantıyı gözden geçirin ve cihazı yeniden bağlayın.",
+    "action": "Bulut bağlantısını incele"
+  },
 
   "summary": {
     "totalBreaches": "Toplam İhlal",
