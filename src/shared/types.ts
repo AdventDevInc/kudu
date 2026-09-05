@@ -106,7 +106,13 @@ export interface CloudActionEntry {
   summary?: string
 }
 
-export type ManagedCleanupAction = 'uv-prune' | 'pnpm-prune' | 'windows-components' | 'delivery-optimization'
+export type ManagedCleanupAction = 'uv-prune' | 'pnpm-prune' | 'windows-components' | 'delivery-optimization' | 'docker-build-prune' | 'journal-vacuum'
+
+export interface DockerCleanupTarget {
+  context: string
+  endpoint: string
+  daemonId: string
+}
 
 export interface ScanItem {
   id: string
@@ -118,9 +124,11 @@ export interface ScanItem {
   selected: boolean
   /** Revalidate this age cutoff immediately before deleting a scanned item. */
   recencyCutoff?: number
-  /** An optional native maintenance operation; its reclaimable size is unknown. */
+  /** An optional performance cache reset which can slow the next launch. */
   cacheReset?: boolean
+  /** An optional native maintenance operation; its reclaimable size is unknown. */
   cleanupAction?: ManagedCleanupAction
+  dockerTarget?: DockerCleanupTarget
 }
 
 export interface ScanResult {

@@ -24,7 +24,7 @@
       "additionalProperties": false,
       "properties": {
         "cacheReset": { "type": "boolean", "description": "Optional performance cache reset; unselected locally and excluded from automatic cleanup" },
-        "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization"] },
+        "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization", "docker-build-prune", "journal-vacuum"] },
         "path": { "$ref": "#/definitions/TemplatePath" },
         "subcategory": { "type": "string", "minLength": 1, "description": "Display label for this target group" },
         "needsAdmin": { "type": "boolean", "description": "If true, this target requires elevated privileges" },
@@ -68,7 +68,7 @@
         "recursiveMatch": { "$ref": "#/definitions/RecursivePathMatch" },
         "fileMatch": { "$ref": "#/definitions/DirectFileMatch" },
         "cacheReset": { "type": "boolean", "description": "Optional performance cache reset; unselected locally and excluded from automatic cleanup" },
-        "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization"] },
+        "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization", "docker-build-prune", "journal-vacuum"] },
         "description": { "type": "string" }
       }
     },
