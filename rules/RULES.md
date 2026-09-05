@@ -175,6 +175,8 @@ The test suite includes schema validation tests that verify every rule file.
 
 ### System Clean Target (`system.json`)
 
+The `docker-build-prune` managed app action targets only the active local Docker engine builder, shown with its context name. It invokes native pruning for dangling build cache unused for seven days, with a 10 GB retained-cache target. It does not clean custom Buildx builders, remote engines, containers, volumes, or images. Context, socket, and engine identity are checked again before pruning. It is unselected by default, requires CLI `--include-maintenance`, and is unavailable to cloud cleanup or when exclusions are configured. Native reclaimed bytes are not estimated from the full cache size.
+
 App and system targets may set `cacheReset: true` for performance caches such as Prefetch and compiled shaders. These remain visible but unselected in an optional reset group, with a slower-next-launch notice. CLI cleanup requires `--include-cache-resets`; cloud cleanup excludes them. Ordinary cache rules retain their existing selection behavior.
 
 ```json

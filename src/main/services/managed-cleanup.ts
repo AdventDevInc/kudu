@@ -6,8 +6,9 @@ import type { ManagedCleanupAction, ScanItem, ScanResult } from '../../shared/ty
 import { execTracked } from './exec-utf8'
 import { getSettings } from './settings-store'
 import { isAdmin } from './elevation'
+import { discoverDockerCleanup, pruneDockerBuildCache } from './docker-cache-cleanup'
 
-const actions = new Set<string>(['uv-prune', 'pnpm-prune', 'windows-components', 'delivery-optimization'])
+const actions = new Set<string>(['uv-prune', 'pnpm-prune', 'windows-components', 'delivery-optimization', 'docker-build-prune'])
 const windowsAction = (action: ManagedCleanupAction) => action === 'windows-components' || action === 'delivery-optimization'
 const systemExe = (name: string) => join(process.env.SystemRoot || 'C:\\Windows', 'System32', name)
 
@@ -28,8 +29,13 @@ export async function scanManagedCleanup(action: ManagedCleanupAction, category:
   // Native tools cannot honor arbitrary Kudu exclusions; never bypass them.
   if (!actions.has(action) || (getSettings().exclusions ?? []).length) return empty
   let path = fallbackPath
+  let dockerTarget: ScanItem['dockerTarget']
   try {
-    if (windowsAction(action)) {
+    if (action === 'docker-build-prune') {
+      dockerTarget = await discoverDockerCleanup()
+      path = `Docker: ${dockerTarget.context} (engine builder)`
+      label = `${label} — ${dockerTarget.context} (unused 7 days; keep 10 GB)`
+    } else if (windowsAction(action)) {
       if (process.platform !== 'win32' || !isAdmin()) return empty
       if (action === 'delivery-optimization') {
         await execTracked(systemExe('WindowsPowerShell/v1.0/powershell.exe'), ['-NoProfile', '-NonInteractive', '-Command', "$ErrorActionPreference='Stop'; Get-Command Delete-DeliveryOptimizationCache -ErrorAction Stop | Out-Null"], { timeout: 10_000 })
@@ -41,9 +47,10 @@ export async function scanManagedCleanup(action: ManagedCleanupAction, category:
       if (!info.isDirectory() || info.isSymbolicLink()) return empty
     }
   } catch { return empty }
-  return { ...empty, group: 'Optional maintenance', itemCount: 1, items: [{
+  return { ...empty, subcategory: label, group: 'Optional maintenance', itemCount: 1, items: [{
     id: randomUUID(), path, size: 0, category, subcategory: label,
     lastModified: 0, selected: false, cleanupAction: action,
+    ...(dockerTarget ? { dockerTarget } : {}),
   }] }
 }
 
@@ -56,7 +63,9 @@ export async function runManagedCleanup(item: ScanItem): Promise<{ success: bool
   if (windowsAction(action) && (process.platform !== 'win32' || !isAdmin())) return { success: false, reason: 'permission-denied' }
   running.add(action)
   try {
-    if (action === 'uv-prune' || action === 'pnpm-prune') {
+    if (action === 'docker-build-prune') {
+      await pruneDockerBuildCache(item.dockerTarget)
+    } else if (action === 'uv-prune' || action === 'pnpm-prune') {
       const current = (await packageCommand(action, false)).stdout.trim()
       if (!isAbsolute(current) || resolve(current) !== resolve(item.path)) return { success: false, reason: 'Cache location changed; scan again.' }
       await packageCommand(action, true)

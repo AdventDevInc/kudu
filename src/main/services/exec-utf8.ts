@@ -81,7 +81,7 @@ export function killAllChildren(): void {
 export async function execTracked(
   file: string,
   args: string[],
-  opts?: Pick<ExecFileOptions, 'windowsHide' | 'cwd'> & { timeout?: number; signal?: AbortSignal }
+  opts?: Pick<ExecFileOptions, 'windowsHide' | 'cwd' | 'env'> & { timeout?: number; signal?: AbortSignal }
 ): Promise<{ stdout: string; stderr: string }> {
   if (opts?.signal?.aborted) throw new Error('Operation cancelled')
   const timeoutMs = opts?.timeout ?? 15_000
@@ -89,6 +89,7 @@ export async function execTracked(
     encoding: 'utf-8' as const,
     windowsHide: opts?.windowsHide ?? true,
     cwd: opts?.cwd,
+    env: opts?.env,
   }) as Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
   let killed = false
   const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })

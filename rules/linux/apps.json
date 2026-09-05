@@ -2,6 +2,7 @@
   "$schema": "../schema/rules.schema.json",
   "type": "apps",
   "apps": [
+    { "id": "docker-build-cache", "name": "Docker Build Cache", "paths": ["${HOME}"], "cleanupAction": "docker-build-prune", "description": "Optional native cleanup of the active local Docker engine build cache. Prunes dangling cache unused for seven days with a 10 GB retained-cache target. Rebuilds may take longer. Does not prune containers, volumes, images, or custom Buildx builders; savings are not estimated." },
     { "id": "discord", "name": "Discord", "paths": ["${CONFIG}/discord/Cache/Cache_Data"], "description": "Discord Electron app cache" },
     { "id": "vscode", "name": "VS Code", "paths": ["${CONFIG}/Code/Cache/Cache_Data", "${CONFIG}/Code/CachedData"], "description": "VS Code cached data and compiled extension cache" },
     { "id": "slack", "name": "Slack", "paths": ["${CONFIG}/Slack/Cache/Cache_Data"], "description": "Slack Electron app cache" },
