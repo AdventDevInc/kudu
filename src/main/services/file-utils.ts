@@ -9,7 +9,7 @@ import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
 import { CooperativeScheduler } from './cooperative-scheduler'
-import { measureCleanupTree, removedCleanupEntries } from './cleanup-measurement'
+import { cleanupTreeSize, measureCleanupTree, removedCleanupEntries } from './cleanup-measurement'
 
 export interface DeleteResult {
   path: string
@@ -113,7 +113,7 @@ async function deleteDirectoryBestEffort(
   }
 
   const directoryFailure = await attemptDelete(dirPath, () =>
-    rmdir(dirPath, { maxRetries: 3, retryDelay: 100 })
+    rmdir(dirPath)
   )
   // If a child already explains ENOTEMPTY, avoid also blaming every ancestor.
   if (directoryFailure && failures.length === failuresBeforeChildren) {
@@ -353,23 +353,16 @@ export async function cleanItems(
       return
     }
     await scheduler.yieldIfNeeded()
-    // lstat, not stat: it answers both questions the log depends on in one
-    // call — whether the path is still there at all, and whether it is a real
-    // directory rather than a symlink to one. Null means it was already gone
-    // before this clean touched it.
-    let rootInfo: Awaited<ReturnType<typeof lstat>> | null = null
+    // Distinguish vanished entries from lookup failures so permission errors
+    // remain retryable and can correctly request elevation.
+    let rootInfo: Awaited<ReturnType<typeof lstat>>
     try {
       rootInfo = await lstat(item.path)
-    } catch {
-      rootInfo = null
-    }
-
-    // force:true makes rm report success for an already-vanished file. Counting
-    // its scanned size as reclaimed substantially overstates what this run did.
-    if (!rootInfo) {
+    } catch (err: any) {
+      const missing = err.code === 'ENOENT'
       filesSkipped++
-      errors.push({ path: item.path, reason: 'not-found' })
-      consumedIds.push(item.id)
+      errors.push({ path: item.path, reason: missing ? 'not-found' : deleteFailureReason(err) })
+      if (missing) consumedIds.push(item.id)
       if (onProgress) {
         onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
         lastReport = Date.now()
@@ -404,12 +397,12 @@ export async function cleanItems(
       return
     }
 
-    // A scan item is often a whole directory that rm removes recursively, so
-    // enumerate what's inside before it's gone. Only on success do these get
-    // recorded, so a failed delete never leaves phantom entries behind.
+    // Snapshot current file sizes for full or partial cleanup accounting.
     const measured = await measureCleanupTree(item.path)
     const measuredSize = measured.reduce((sum, entry) => sum + entry.size, 0)
-    const descendantEntries = measured.filter(entry => entry.path !== item.path)
+    const descendantEntries = logDeletions && rootInfo.isDirectory()
+      ? measured.filter(entry => entry.path !== item.path)
+      : []
     const descendants = logDeletions && rootInfo.isDirectory()
       ? { paths: descendantEntries.slice(0, MAX_LOGGED_DESCENDANTS).map(entry => entry.path), truncated: Math.max(0, descendantEntries.length - MAX_LOGGED_DESCENDANTS) }
       : null
@@ -434,11 +427,7 @@ export async function cleanItems(
       totalCleaned += measuredSize
       filesDeleted++
       consumedIds.push(item.id)
-      // rm(force) reports success for a path that was already missing, so a
-      // temp file that vanished between the scan and the clean would otherwise
-      // be logged as something Kudu deleted. Counters keep their existing
-      // behavior; only the audit trail is held to what we actually removed.
-      if (logDeletions && rootInfo) {
+      if (logDeletions) {
         const ts = new Date().toISOString()
         const category = item.subcategory || item.category
         const record: DeletedFileRecord = { ts, path: item.path, size: measuredSize, category, origin }
@@ -484,8 +473,6 @@ export async function cleanItems(
   // Files in independent cache roots can be removed concurrently. The small,
   // fixed worker pool keeps disk pressure bounded while preventing hundreds of
   // locked or protected paths from serializing their retry delays.
-  // Keep duplicate path records on the same worker. Two rules can legitimately
-  // resolve to one cache path, and racing force-deletes would overstate bytes.
   // Serialize ancestor/descendant selections as well as identical paths.
   // Otherwise concurrent recursive deletes can both claim the same bytes.
   const canonical = (path: string): string => {
@@ -559,6 +546,9 @@ export interface ScanRecencyOptions {
   /** Skip entries modified within this many minutes (default 60) */
   skipRecentMinutes?: number
   /**
+   * Legacy compatibility flag. Descendant checks are always enabled, including
+   * when older rule consumers pass false.
+   *
    * Judge a directory by its contents rather than by its own mtime.
    *
    * A directory's mtime moves whenever an entry is added or removed inside it,
@@ -1097,7 +1087,7 @@ export async function resolveRecursivePathMatches(
   return [...resolved]
 }
 
-/** Full logical size without following links; maxDepth is retained for API compatibility. */
-export async function getDirectorySize(dirPath: string, _maxDepth?: number): Promise<number> {
-  return (await measureCleanupTree(dirPath)).reduce((sum, entry) => sum + entry.size, 0)
+/** Full logical size by default; explicit depth limits keep app estimates bounded. */
+export async function getDirectorySize(dirPath: string, maxDepth?: number): Promise<number> {
+  return cleanupTreeSize(dirPath, maxDepth)
 }

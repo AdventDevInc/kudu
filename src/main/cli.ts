@@ -11,7 +11,6 @@ import { CleanerType } from '../shared/enums'
 import type { ScanResult, CleanResult } from '../shared/types'
 import { getPlatform } from './platform'
 import { randomUUID } from 'crypto'
-import { psUtf8 } from './services/exec-utf8'
 import { queryRecycleBinStats } from './services/recycle-bin-stats'
 
 // ─── Types ──────────────────────────────────────────────────

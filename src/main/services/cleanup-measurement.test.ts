@@ -24,6 +24,17 @@ describe('cleanup measurements', () => {
     state.items = [item(file, 9000)]
     expect((await cleanItems(['one'])).totalCleaned).toBe(37)
   })
+  it('honors explicit depth limits without truncating default cleanup sizing', async () => {
+    const p = await root()
+    await mkdir(join(p, 'a', 'b'), { recursive: true })
+    await writeFile(join(p, 'top'), Buffer.alloc(10))
+    await writeFile(join(p, 'a', 'middle'), Buffer.alloc(20))
+    await writeFile(join(p, 'a', 'b', 'deep'), Buffer.alloc(30))
+    expect(await getDirectorySize(p, 0)).toBe(0)
+    expect(await getDirectorySize(p, 1)).toBe(10)
+    expect(await getDirectorySize(p, 2)).toBe(30)
+    expect(await getDirectorySize(p)).toBe(60)
+  })
   it('does not double-count overlapping parent and child selections', async () => {
     const p = await root(); const file = join(p, 'data'); await writeFile(file, Buffer.alloc(37))
     state.items = [item(file, 37, 'child'), item(p, 37, 'parent')]
