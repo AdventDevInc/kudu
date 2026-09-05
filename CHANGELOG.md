@@ -1,3 +1,20 @@
+# [2.7.0](https://github.com/adventdevinc/kudu/compare/v2.6.0...v2.7.0) (2026-09-05)
+
+
+### Bug Fixes
+
+* **cleaner:** enforce descendant retention and exclusions ([#362](https://github.com/adventdevinc/kudu/issues/362)) ([77b01d4](https://github.com/adventdevinc/kudu/commit/77b01d4ed459eb05bfb5a1ac8d7bbaf2efd9a669))
+* **cleaner:** make performance cache resets opt-in ([#366](https://github.com/adventdevinc/kudu/issues/366)) ([d20b7cb](https://github.com/adventdevinc/kudu/commit/d20b7cb39af5e27f8d239552c7a25542a8bee332))
+* **cleaner:** measure current and partially removed file bytes ([#363](https://github.com/adventdevinc/kudu/issues/363)) ([26ca3cf](https://github.com/adventdevinc/kudu/commit/26ca3cf172f2c652332c120bff1d1edc03874b71))
+* **cleaner:** preserve linked files during secure deletion ([#361](https://github.com/adventdevinc/kudu/issues/361)) ([293d7af](https://github.com/adventdevinc/kudu/commit/293d7afb49c2fce64722fa175ce800c6abd0cc43))
+* **cleaner:** restore bounded estimates and retryable lookup errors ([#365](https://github.com/adventdevinc/kudu/issues/365)) ([849480e](https://github.com/adventdevinc/kudu/commit/849480ec14a874caf34c2e3ec1d84524c7b4b3fe))
+
+
+### Features
+
+* **cleaner:** add native Docker and Linux journal cleanup ([#368](https://github.com/adventdevinc/kudu/issues/368)) ([d5239a1](https://github.com/adventdevinc/kudu/commit/d5239a1893e2b857e090e6b1c6c65bec7adc84f0))
+* **cleaner:** add optional native cache and Windows maintenance ([#364](https://github.com/adventdevinc/kudu/issues/364)) ([f2829a8](https://github.com/adventdevinc/kudu/commit/f2829a8065e58cfbbcd70d6a67f30ddcaa90fdeb))
+* **i18n:** localize dashboard page and update Turkish translations for v2.6.0 ([#359](https://github.com/adventdevinc/kudu/issues/359)) ([01b1307](https://github.com/adventdevinc/kudu/commit/01b13079a06505f8bc414e805bc9e53dab4c6914))
 # [2.6.0](https://github.com/adventdevinc/kudu/compare/v2.5.0...v2.6.0) (2026-08-29)
 
 
