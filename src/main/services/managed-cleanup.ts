@@ -7,8 +7,9 @@ import { execTracked } from './exec-utf8'
 import { getSettings } from './settings-store'
 import { isAdmin } from './elevation'
 import { discoverDockerCleanup, pruneDockerBuildCache } from './docker-cache-cleanup'
+import { inspectJournalCleanup, JOURNAL_ROOT, vacuumJournalCleanup } from './journal-cleanup'
 
-const actions = new Set<string>(['uv-prune', 'pnpm-prune', 'windows-components', 'delivery-optimization', 'docker-build-prune'])
+const actions = new Set<string>(['uv-prune', 'pnpm-prune', 'windows-components', 'delivery-optimization', 'docker-build-prune', 'journal-vacuum'])
 const windowsAction = (action: ManagedCleanupAction) => action === 'windows-components' || action === 'delivery-optimization'
 const systemExe = (name: string) => join(process.env.SystemRoot || 'C:\\Windows', 'System32', name)
 
@@ -31,7 +32,11 @@ export async function scanManagedCleanup(action: ManagedCleanupAction, category:
   let path = fallbackPath
   let dockerTarget: ScanItem['dockerTarget']
   try {
-    if (action === 'docker-build-prune') {
+    if (action === 'journal-vacuum') {
+      if (process.platform !== 'linux' || !isAdmin() || path !== JOURNAL_ROOT) return empty
+      await inspectJournalCleanup()
+      label = `${label} — archived logs: 30-day / 1 GB limits`
+    } else if (action === 'docker-build-prune') {
       dockerTarget = await discoverDockerCleanup()
       path = `Docker: ${dockerTarget.context} (engine builder)`
       label = `${label} — ${dockerTarget.context} (unused 7 days; keep 10 GB)`
@@ -61,9 +66,12 @@ export async function runManagedCleanup(item: ScanItem): Promise<{ success: bool
   if ((getSettings().exclusions ?? []).length) return { success: false, reason: 'Native cleanup cannot honor file exclusions; use ordinary file cleanup instead.' }
   if (running.has(action)) return { success: false, reason: 'in-use' }
   if (windowsAction(action) && (process.platform !== 'win32' || !isAdmin())) return { success: false, reason: 'permission-denied' }
+  if (action === 'journal-vacuum' && (process.platform !== 'linux' || !isAdmin())) return { success: false, reason: 'permission-denied' }
   running.add(action)
   try {
-    if (action === 'docker-build-prune') {
+    if (action === 'journal-vacuum') {
+      await vacuumJournalCleanup(item.path)
+    } else if (action === 'docker-build-prune') {
       await pruneDockerBuildCache(item.dockerTarget)
     } else if (action === 'uv-prune' || action === 'pnpm-prune') {
       const current = (await packageCommand(action, false)).stdout.trim()

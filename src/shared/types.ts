@@ -106,7 +106,7 @@ export interface CloudActionEntry {
   summary?: string
 }
 
-export type ManagedCleanupAction = 'uv-prune' | 'pnpm-prune' | 'windows-components' | 'delivery-optimization' | 'docker-build-prune'
+export type ManagedCleanupAction = 'uv-prune' | 'pnpm-prune' | 'windows-components' | 'delivery-optimization' | 'docker-build-prune' | 'journal-vacuum'
 
 export interface DockerCleanupTarget {
   context: string
