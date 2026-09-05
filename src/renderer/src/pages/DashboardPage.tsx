@@ -538,19 +538,19 @@ export function DashboardPage() {
     : diskPct
   const freeMemory = perf ? Math.max(0, perf.memTotalBytes - perf.memUsedBytes) : 0
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const greeting = hour < 12 ? t('greetingMorning') : hour < 18 ? t('greetingAfternoon') : t('greetingEvening')
   const attentionCount = Number(updaterNeedsAttention)
     + Number(!startupHasLoaded || startupAttentionCount > 0)
     + Number(!hasProtectionBaseline || unresolvedThreatCount > 0)
   const healthHeadline = unresolvedThreatCount > 0
-    ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} your attention.`
+    ? (unresolvedThreatCount === 1 ? t('healthHeadlineThreats', { count: unresolvedThreatCount }) : t('healthHeadlineThreatsPlural', { count: unresolvedThreatCount }))
     : !hasCompletedCoreChecks
-      ? 'Complete the remaining checks for a full picture.'
+      ? t('healthHeadlineRemainingChecks')
       : healthScore >= 80
-        ? 'Everything important is protected.'
+        ? t('healthHeadlineProtected')
         : healthScore >= 55
-          ? 'Your device is in good shape.'
-          : 'A few things are ready for your attention.'
+          ? t('healthHeadlineGoodShape')
+          : t('healthHeadlineReady')
 
   return (
     <div className="kudu-home animate-fade-in">
@@ -561,12 +561,12 @@ export function DashboardPage() {
               <h1>{greeting}.</h1>
               <p>
                 {unresolvedThreatCount > 0
-                  ? `Your device needs attention. ${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat remains' : 'threats remain'}.`
+                  ? (unresolvedThreatCount === 1 ? t('greetingDeviceNeedsAttention', { count: unresolvedThreatCount }) : t('greetingDeviceNeedsAttentionPlural', { count: unresolvedThreatCount }))
                   : !hasCompletedCoreChecks
-                    ? 'Kudu is still establishing this device’s status. Complete the remaining checks for a reliable health summary.'
+                    ? t('greetingEstablishingStatus')
                   : attentionCount === 0
-                    ? 'Your PC is healthy and everything important is up to date.'
-                    : `Your checks are complete. ${attentionCount} ${attentionCount === 1 ? 'item is' : 'items are'} ready for review.`}
+                    ? t('greetingHealthyAllUpToDate')
+                    : (attentionCount === 1 ? t('greetingChecksCompleteItems', { count: attentionCount }) : t('greetingChecksCompleteItemsPlural', { count: attentionCount }))}
               </p>
             </div>
             <span className="kudu-device-avatar" aria-label="This device">PC</span>
@@ -574,14 +574,14 @@ export function DashboardPage() {
 
           <section className="kudu-briefing">
             <div className="kudu-briefing-copy">
-              <span>TODAY&apos;S SYSTEM BRIEFING</span>
+              <span>{t('briefingEyebrow')}</span>
               <h2>{healthHeadline}</h2>
               <p>
                 {unresolvedThreatCount > 0
-                  ? `${unresolvedThreatCount} active ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention.${lastMalwareScan ? ` Your last malware scan ran ${formatDate(lastMalwareScan.completedAt)}.` : ''}`
+                  ? `${unresolvedThreatCount === 1 ? t('briefingDescThreats', { count: unresolvedThreatCount }) : t('briefingDescThreatsPlural', { count: unresolvedThreatCount })}${lastMalwareScan ? t('briefingDescThreatsLastScan', { date: formatDate(lastMalwareScan.completedAt) }) : ''}`
                   : lastMalwareScan
-                    ? `No active threats were found in your last malware scan ${formatDate(lastMalwareScan.completedAt)}. Kudu has reclaimed ${formatBytes(stats.totalSpaceSaved)} over its lifetime.`
-                  : 'Run a complete scan to establish a protection baseline and uncover safe cleanup opportunities.'}
+                    ? t('briefingDescClean', { date: formatDate(lastMalwareScan.completedAt), size: formatBytes(stats.totalSpaceSaved) })
+                  : t('briefingDescBaseline')}
               </p>
             </div>
             <div className="kudu-briefing-score">
@@ -591,23 +591,23 @@ export function DashboardPage() {
 
           <section className="kudu-home-section">
             <div className="kudu-section-title">
-              <h2>Recommended for you</h2>
-              <span>Safe actions only</span>
+              <h2>{t('recommendedHeading')}</h2>
+              <span>{t('safeActionsOnly')}</span>
             </div>
             <div className="kudu-recommendations">
               <button type="button" onClick={() => setShowQuickConfirm(true)} disabled={isRunning} className="kudu-recommendation is-primary">
                 <span className="kudu-recommendation-icon"><Sparkles strokeWidth={1.9} /></span>
                 <span>
                   <b>{t('quickCleanTitle')}</b>
-                  <small>Browser cache, downloads residue and temporary files</small>
+                  <small>{t('quickCleanSubtextDesc')}</small>
                 </span>
                 <i aria-hidden="true">→</i>
               </button>
               <button type="button" onClick={() => setShowFullConfirm(true)} disabled={isRunning} className="kudu-recommendation">
                 <span className="kudu-recommendation-icon"><Shield strokeWidth={1.9} /></span>
                 <span>
-                  <b>Run smart scan</b>
-                  <small>Protection, privacy and performance check</small>
+                  <b>{t('smartScanTitle')}</b>
+                  <small>{t('smartScanDesc')}</small>
                 </span>
                 <i aria-hidden="true">→</i>
               </button>
@@ -631,15 +631,15 @@ export function DashboardPage() {
                 ? <AlertTriangle className="h-5 w-5 shrink-0" strokeWidth={1.8} />
                 : <CheckCircle2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />}
               <div className="min-w-0">
-                <b>{result.threatsFound > result.threatsQuarantined ? 'Scan complete — threats need attention' : t('resultCleanupComplete')}</b>
+                <b>{result.threatsFound > result.threatsQuarantined ? t('scanCompleteThreats') : t('resultCleanupComplete')}</b>
                 <p>
                   {result.spaceRecovered > 0 && <span>{t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}</span>}
                   {result.filesCleaned > 0 && <span>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</span>}
-                  {result.threatsQuarantined > 0 && <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })}>{result.threatsQuarantined} quarantined</button>}
-                  {result.threatsFound > result.threatsQuarantined && <button onClick={() => navigate('/malware')}>{result.threatsFound - result.threatsQuarantined} {result.threatsFound - result.threatsQuarantined === 1 ? 'threat remains active' : 'threats remain active'}</button>}
-                  {result.privacyIssues > 0 && <button onClick={() => navigate('/privacy')}>{result.privacyIssues} privacy improvements</button>}
-                  {result.startupHighImpact > 0 && <button onClick={() => navigate('/startup')}>{result.startupHighImpact} startup items</button>}
-                  {result.updatesAvailable > 0 && <button onClick={() => navigate('/updates')}>{result.updatesAvailable} updates</button>}
+                  {result.threatsQuarantined > 0 && <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })}>{t('threatsQuarantinedCount', { count: result.threatsQuarantined })}</button>}
+                  {result.threatsFound > result.threatsQuarantined && <button onClick={() => navigate('/malware')}>{result.threatsFound - result.threatsQuarantined === 1 ? t('threatsActiveCount', { count: result.threatsFound - result.threatsQuarantined }) : t('threatsActiveCountPlural', { count: result.threatsFound - result.threatsQuarantined })}</button>}
+                  {result.privacyIssues > 0 && <button onClick={() => navigate('/privacy')}>{t('privacyImprovementsCount', { count: result.privacyIssues })}</button>}
+                  {result.startupHighImpact > 0 && <button onClick={() => navigate('/startup')}>{t('startupItemsCount', { count: result.startupHighImpact })}</button>}
+                  {result.updatesAvailable > 0 && <button onClick={() => navigate('/updates')}>{t('updatesCount', { count: result.updatesAvailable })}</button>}
                   {result.spaceRecovered === 0 && result.filesCleaned === 0 && result.registryFixed === 0 && result.driversRemoved === 0 && result.threatsFound === 0 && result.privacyIssues === 0 && result.startupHighImpact === 0 && result.updatesAvailable === 0 && <span>{t('resultSystemAlreadyClean')}</span>}
                 </p>
               </div>
@@ -648,20 +648,20 @@ export function DashboardPage() {
 
           <section className="kudu-home-section">
             <div className="kudu-section-title">
-              <h2>System at a glance</h2>
-              <span>Updated just now</span>
+              <h2>{t('systemGlanceHeading')}</h2>
+              <span>{t('updatedJustNow')}</span>
             </div>
             <div className="kudu-glance-grid">
-              <GlanceCard icon={Cpu} label="Processor" value={cpuPct < 70 ? 'Comfortable' : 'Working hard'} percent={Math.round(cpuPct)} tone="gold" />
-              <GlanceCard icon={MemoryStick} label="Memory" value={perf ? `${formatBytes(freeMemory)} free` : 'Checking…'} percent={Math.round(ramPct)} tone="green" />
-              <GlanceCard icon={HardDrive} label="Storage" value={primaryDrive ? `${formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace)} free` : driveStatus === 'loading' ? 'Checking…' : 'Unavailable'} percent={primaryDriveUsedPercent} tone="clay" />
+              <GlanceCard icon={Cpu} label={t('glanceProcessor')} value={cpuPct < 70 ? t('glanceProcessorComfortable') : t('glanceProcessorWorkingHard')} percent={Math.round(cpuPct)} tone="gold" />
+              <GlanceCard icon={MemoryStick} label={t('glanceMemory')} value={perf ? t('glanceMemoryFree', { size: formatBytes(freeMemory) }) : t('glanceChecking')} percent={Math.round(ramPct)} tone="green" />
+              <GlanceCard icon={HardDrive} label={t('glanceStorage')} value={primaryDrive ? t('glanceMemoryFree', { size: formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace) }) : driveStatus === 'loading' ? t('glanceChecking') : t('glanceStorageUnavailable')} percent={primaryDriveUsedPercent} tone="clay" />
             </div>
           </section>
 
           <section className="kudu-activity-strip" aria-label="Lifetime Kudu activity">
-            <div><span>Space reclaimed</span><b>{formatBytes(stats.totalSpaceSaved)}</b></div>
-            <div><span>Files cleaned</span><b>{formatNumber(stats.totalFilesCleaned)}</b></div>
-            <div><span>Scans completed</span><b>{formatNumber(stats.totalScans)}</b></div>
+            <div><span>{t('activitySpaceReclaimed')}</span><b>{formatBytes(stats.totalSpaceSaved)}</b></div>
+            <div><span>{t('activityFilesCleaned')}</span><b>{formatNumber(stats.totalFilesCleaned)}</b></div>
+            <div><span>{t('activityScansCompleted')}</span><b>{formatNumber(stats.totalScans)}</b></div>
           </section>
 
           {!isCloudLinked && (
@@ -681,7 +681,7 @@ export function DashboardPage() {
 
         <aside className="kudu-attention-rail" aria-label="Needs your attention">
           <div className="kudu-attention-heading">
-            <div><span>DEVICE CARE</span><h2>Needs your attention</h2></div>
+            <div><span>{t('deviceCareEyebrow')}</span><h2>{t('deviceCareHeading')}</h2></div>
             <b>{attentionCount}</b>
           </div>
 
@@ -689,43 +689,43 @@ export function DashboardPage() {
             {updaterRemindersEnabled && (
               <button type="button" onClick={() => navigate('/updates')}>
                 <span className="kudu-attention-icon"><Download /></span>
-                <span><b>{!updaterHasChecked ? 'Check app updates' : pendingUpdateCount > 0 ? `${pendingUpdateCount} app ${pendingUpdateCount === 1 ? 'update' : 'updates'}` : 'Apps are up to date'}</b><small>{!updaterHasChecked ? 'Security and reliability fixes' : pendingUpdateCount > 0 ? 'Updates are ready to install' : 'Latest check completed'}</small></span>
-                <em>{!updaterHasChecked ? '5 MIN' : pendingUpdateCount > 0 ? 'REVIEW' : 'DONE'}</em>
+                <span><b>{!updaterHasChecked ? t('railCheckAppUpdates') : pendingUpdateCount > 0 ? (pendingUpdateCount === 1 ? t('railPendingAppUpdates', { count: pendingUpdateCount }) : t('railPendingAppUpdatesPlural', { count: pendingUpdateCount })) : t('railAppsUpToDate')}</b><small>{!updaterHasChecked ? t('railAppUpdatesSubtextCheck') : pendingUpdateCount > 0 ? t('railAppUpdatesSubtextReady') : t('railAppUpdatesSubtextCompleted')}</small></span>
+                <em>{!updaterHasChecked ? t('railAction5Min') : pendingUpdateCount > 0 ? t('railActionReview') : t('railActionDone')}</em>
               </button>
             )}
             <button type="button" onClick={() => navigate('/startup')}>
               <span className="kudu-attention-icon"><Zap /></span>
-              <span><b>{!startupHasLoaded ? 'Check startup apps' : startupAttentionCount > 0 ? `${startupAttentionCount} startup ${startupAttentionCount === 1 ? 'app' : 'apps'}` : 'Startup looks good'}</b><small>{!startupHasLoaded ? 'Review what launches when you sign in' : startupAttentionCount > 0 ? 'High-impact apps may slow sign-in' : 'No high-impact apps found'}</small></span>
-              <em>{!startupHasLoaded ? (startupLoading ? 'CHECKING' : 'CHECK') : startupAttentionCount > 0 ? 'REVIEW' : 'DONE'}</em>
+              <span><b>{!startupHasLoaded ? t('railCheckStartupApps') : startupAttentionCount > 0 ? (startupAttentionCount === 1 ? t('railStartupAppsAttention', { count: startupAttentionCount }) : t('railStartupAppsAttentionPlural', { count: startupAttentionCount })) : t('railStartupLooksGood')}</b><small>{!startupHasLoaded ? t('railStartupSubtextReview') : startupAttentionCount > 0 ? t('railStartupSubtextHighImpact') : t('railStartupSubtextNone')}</small></span>
+              <em>{!startupHasLoaded ? (startupLoading ? t('railActionChecking') : t('railActionCheck')) : startupAttentionCount > 0 ? t('railActionReview') : t('railActionDone')}</em>
             </button>
             <button type="button" onClick={() => navigate('/malware')}>
               <span className={cn('kudu-attention-icon', hasProtectionBaseline && unresolvedThreatCount === 0 && 'is-success')}>{hasProtectionBaseline && unresolvedThreatCount === 0 ? <Check /> : <Shield />}</span>
-              <span><b>{unresolvedThreatCount > 0 ? `${unresolvedThreatCount} ${unresolvedThreatCount === 1 ? 'threat needs' : 'threats need'} attention` : !hasProtectionBaseline ? 'Run your first malware scan' : 'Protection looks good'}</b><small>{unresolvedThreatCount > 0 ? 'Open the scanner to resolve detections' : !hasProtectionBaseline ? 'Establish a security baseline' : 'No active threats detected'}</small></span>
-              <em>{unresolvedThreatCount > 0 ? 'REVIEW' : !hasProtectionBaseline ? 'START' : 'DONE'}</em>
+              <span><b>{unresolvedThreatCount > 0 ? (unresolvedThreatCount === 1 ? t('railThreatsAttention', { count: unresolvedThreatCount }) : t('railThreatsAttentionPlural', { count: unresolvedThreatCount })) : !hasProtectionBaseline ? t('railFirstMalwareScan') : t('railProtectionGood')}</b><small>{unresolvedThreatCount > 0 ? t('railMalwareSubtextResolve') : !hasProtectionBaseline ? t('railMalwareSubtextBaseline') : t('railMalwareSubtextNone')}</small></span>
+              <em>{unresolvedThreatCount > 0 ? t('railActionReview') : !hasProtectionBaseline ? t('railActionStart') : t('railActionDone')}</em>
             </button>
           </div>
 
           <section className="kudu-drive-card">
             <div>
-              <b>{primaryDrive ? `${primaryDrive.letter}: ${primaryDrive.label || 'System drive'}` : 'System drive'}</b>
-              <span>{primaryDrive ? `${formatBytes(primaryDrive.usedSpace)} / ${formatBytes(primaryDrive.totalSize)}` : driveStatus === 'loading' ? 'Checking storage…' : 'Storage unavailable'}</span>
+              <b>{primaryDrive ? `${primaryDrive.letter}: ${primaryDrive.label || t('systemDriveLabel')}` : t('systemDriveLabel')}</b>
+              <span>{primaryDrive ? `${formatBytes(primaryDrive.usedSpace)} / ${formatBytes(primaryDrive.totalSize)}` : driveStatus === 'loading' ? t('storageChecking') : t('storageUnavailable')}</span>
             </div>
             <div className="kudu-drive-track"><i style={{ width: `${primaryDriveUsedPercent}%` }} /></div>
-            <p>{!primaryDrive ? (driveStatus === 'loading' ? 'Checking available storage…' : 'Storage information is unavailable.') : primaryDriveUsedPercent > 85 ? 'Cleanup is recommended soon.' : 'Plenty of working space is available.'}</p>
-            <button type="button" onClick={() => navigate('/disk')}>Open storage tools →</button>
+            <p>{!primaryDrive ? (driveStatus === 'loading' ? t('storageCheckingDesc') : t('storageUnavailableDesc')) : primaryDriveUsedPercent > 85 ? t('storageCleanupRecommended') : t('storagePlentyAvailable')}</p>
+            <button type="button" onClick={() => navigate('/disk')}>{t('openStorageTools')}</button>
           </section>
 
           {features.gameMode && (
             <button type="button" className="kudu-rail-link" onClick={() => navigate('/game-mode')}>
               <span className="kudu-attention-icon"><Gamepad2 /></span>
-              <span><b>{gameModeActive ? 'Game Mode is active' : 'Game Mode is ready'}</b><small>{gameModeActive && gameModeActivatedAt ? formatGmElapsed(gmElapsed) : 'Focus resources before you play'}</small></span>
+              <span><b>{gameModeActive ? t('gameModeActiveLabel') : t('gameModeReadyLabel')}</b><small>{gameModeActive && gameModeActivatedAt ? formatGmElapsed(gmElapsed) : t('gameModeFocusResources')}</small></span>
               <i>→</i>
             </button>
           )}
 
           <button type="button" className="kudu-cloud-status" onClick={() => navigate('/cloud')}>
             <i className={cn(cloudConnected && 'is-connected')} />
-            <span>{cloudConnected ? 'Kudu Cloud connected' : isCloudLinked ? 'Kudu Cloud needs attention' : 'Connect Kudu Cloud'}</span>
+            <span>{cloudConnected ? t('cloudStatusConnected') : isCloudLinked ? t('cloudStatusNeedsAttention') : t('cloudStatusConnect')}</span>
           </button>
         </aside>
       </div>

@@ -1,26 +1,39 @@
 {
-  "pageTitle": "Tehdit İzleyicisi",
+  "pageTitle": "Tehdit İzleyici",
   "pageDescription": "Ağ bağlantılarının bilinen tehdit listelerine karşı gerçek zamanlı izlenmesi.",
+  "checkingConnection": "Kudu Cloud bağlantısı denetleniyor…",
   "cloudNotConfigured": {
-    "title": "Bulut yapılandırılmadı",
-    "description": "Tehdit izlemeyi etkinleştirmek için cihazınızı Ayarlar'dan Kudu Cloud'a bağlayın. Tehdit kara listesi bulut hizmeti tarafından sağlanır."
+    "title": "Kudu Cloud Pro gerekli",
+    "description": "Güncel tehdit kara listesini almak ve şüpheli ağ etkinliklerini izlemek için bu cihazı Kudu Cloud Pro'ya bağlayın.",
+    "action": "Kudu Cloud'u Görüntüle"
+  },
+  "connectionError": {
+    "title": "Bulut bağlantısı ilgilenmenizi gerektiriyor",
+    "description": "Bu cihazda kayıtlı bir Bulut anahtarı var, ancak artık yetkili değil. Bağlantıyı gözden geçirin ve cihazı yeniden bağlayın.",
+    "action": "Bulut bağlantısını incele"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro gerekli",
+    "description": "Tehdit izleme bir Pro özelliğidir. Canlı tehdit kara listesini bu cihazda almak için Bulut planınızı yükseltin.",
+    "action": "Bulut planlarını görüntüle"
   },
   "loading": "Yükleniyor...",
   "inactive": {
-    "title": "Tehdit izleyicisi etkin değil",
-    "description": "Herhangi bir tehdit kara listesi yüklenmedi. Kara liste, bulut aracısı bağlandığında otomatik olarak alınacaktır."
+    "title": "Tehdit izleyici etkin değil",
+    "description": "Bulut bağlı, ancak henüz bir tehdit kara listesi mevcut değil. Pro planınızı kontrol edin veya Bulut aracısı yeniden bağlandıktan sonra tekrar deneyin.",
+    "action": "Bulut planını incele"
   },
   "statusBar": {
     "blacklistVersion": "Kara Liste",
-    "connectionsScanned": "{{time}} bağlantı tarandı",
-    "dnsScanned": "{{time}} DNS sorgusu tarandı",
+    "connectionsScanned": "Bağlantılar tarandı {{time}}",
+    "dnsScanned": "DNS tarandı {{time}}",
     "threatsDetected": "{{count}} tehdit algılandı",
     "threatsDetectedPlural": "{{count}} tehdit algılandı",
     "noThreatsDetected": "Tehdit algılanmadı"
   },
   "allClear": {
-    "title": "Her şey yolunda",
-    "description": "Şüpheli bağlantı veya DNS girdisi algılanmadı. İzleyici arka planda taramaya devam ediyor."
+    "title": "Her şey temiz",
+    "description": "Şüpheli bir bağlantı veya DNS girdisi algılanmadı. İzleyici arka planda taramaya devam ediyor."
   },
   "flaggedConnections": "İşaretlenen Bağlantılar",
   "flaggedDnsEntries": "İşaretlenen DNS Girdileri",

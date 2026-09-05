@@ -2,6 +2,11 @@
   "pageTitle": "Kudu Cloud",
   "pageDescription": "Kudu Cloud'a bağlanarak güçlü güvenlik özelliklerinin kilidini açın",
   "pageDescriptionLinked": "Bulut bağlantınızı ve cihaz ayarlarınızı yönetin",
+  "openDashboard": "Panoyu aç",
+  "managePlan": "Planı yönet",
+  "subscriptionRequiredTitle": "Bulut aboneliği gerekli",
+  "subscriptionRequiredDesc": "Bu cihaz bağlı, ancak etkin bir abonelik olmadan Bulut bağlantısı kurulamaz. İzleme ve uzaktan yönetim özelliklerini geri yüklemek için bir plan seçin veya yenileyin.",
+  "subscriptionRequiredAction": "Planları görüntüle",
 
   "heroTitle": "Sistem güvenliğinizi üst seviyeye taşıyın",
   "heroSubtitle": "Ayda $5'dan başlayan fiyatlarla · İstediğiniz zaman iptal edin",
