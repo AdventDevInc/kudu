@@ -1,7 +1,7 @@
 import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
-import { dirname, join, resolve } from 'path'
+import { dirname, join, resolve, sep } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
 import type { AppCacheDef, DirectFileMatch, RecursivePathMatch } from '../platform/types'
@@ -9,6 +9,7 @@ import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
 import { CooperativeScheduler } from './cooperative-scheduler'
+import { measureCleanupTree, removedCleanupEntries } from './cleanup-measurement'
 
 export interface DeleteResult {
   path: string
@@ -271,56 +272,6 @@ const MAX_RECENCY_ITEMS = 250_000
 const MAX_PARALLEL_DELETES = 8
 
 /**
- * List the files a recursive delete of `dirPath` will remove.
- *
- * Only called when deletion logging is on: a cached scan item is frequently a
- * whole directory, and recording just that one path would leave the audit trail
- * unable to answer which file went missing. Symlinks and Windows junctions are
- * listed but not descended into, matching what `rm -r` actually removes.
- *
- * Callers must confirm via lstat that the root is a real directory — a symlink
- * to one would have readdir list the *target's* files while rm only unlinks the
- * link, which would put files that still exist into the log.
- */
-async function listDescendantFiles(dirPath: string): Promise<{ paths: string[]; truncated: number } | null> {
-  let rootEntries: Dirent[]
-  try {
-    rootEntries = await readdir(dirPath, { withFileTypes: true })
-  } catch {
-    return null // Unreadable — nothing to expand.
-  }
-
-  const paths: string[] = []
-  let truncated = 0
-  const queue: Array<[string, Dirent[]]> = [[dirPath, rootEntries]]
-  const scheduler = new CooperativeScheduler()
-
-  // Use an index instead of shift(): shifting a six-figure directory queue is
-  // quadratic and can monopolize Electron's main thread for minutes.
-  for (let queueIndex = 0; queueIndex < queue.length; queueIndex++) {
-    const [dir, entries] = queue[queueIndex]
-    for (const entry of entries) {
-      if (paths.length >= MAX_LOGGED_DESCENDANTS) {
-        truncated++
-        continue
-      }
-      const fullPath = join(dir, entry.name)
-      paths.push(fullPath)
-      if (entry.isDirectory() && !entry.isSymbolicLink()) {
-        try {
-          queue.push([fullPath, await readdir(fullPath, { withFileTypes: true })])
-        } catch {
-          // Unreadable subdirectory — its own path is already recorded.
-        }
-      }
-      await scheduler.yieldIfNeeded()
-    }
-  }
-
-  return { paths, truncated }
-}
-
-/**
  * Look up cached scan items by ID, delete each one, and return a CleanResult.
  */
 export async function cleanItems(
@@ -442,8 +393,11 @@ export async function cleanItems(
     // A scan item is often a whole directory that rm removes recursively, so
     // enumerate what's inside before it's gone. Only on success do these get
     // recorded, so a failed delete never leaves phantom entries behind.
+    const measured = await measureCleanupTree(item.path)
+    const measuredSize = measured.reduce((sum, entry) => sum + entry.size, 0)
+    const descendantEntries = measured.filter(entry => entry.path !== item.path)
     const descendants = logDeletions && rootInfo.isDirectory()
-      ? await listDescendantFiles(item.path)
+      ? { paths: descendantEntries.slice(0, MAX_LOGGED_DESCENDANTS).map(entry => entry.path), truncated: Math.max(0, descendantEntries.length - MAX_LOGGED_DESCENDANTS) }
       : null
 
     // A deep-recency scan may collapse a settled tree to one directory item.
@@ -462,7 +416,7 @@ export async function cleanItems(
 
     const result = await safeDelete(item.path)
     if (result.success) {
-      totalCleaned += item.size
+      totalCleaned += measuredSize
       filesDeleted++
       consumedIds.push(item.id)
       // rm(force) reports success for a path that was already missing, so a
@@ -472,7 +426,7 @@ export async function cleanItems(
       if (logDeletions && rootInfo) {
         const ts = new Date().toISOString()
         const category = item.subcategory || item.category
-        const record: DeletedFileRecord = { ts, path: item.path, size: item.size, category, origin }
+        const record: DeletedFileRecord = { ts, path: item.path, size: measuredSize, category, origin }
         if (descendants && descendants.truncated > 0) record.truncated = descendants.truncated
         pending.push(record)
         // Descendants carry size 0: the bytes are already accounted for on the
@@ -485,6 +439,15 @@ export async function cleanItems(
         if (pending.length >= 500) flushPending()
       }
     } else {
+      const removed = await removedCleanupEntries(measured)
+      totalCleaned += removed.reduce((sum, entry) => sum + entry.size, 0)
+      if (logDeletions) {
+        const ts = new Date().toISOString()
+        for (const entry of removed) {
+          pending.push({ ts, path: entry.path, size: entry.size, category: item.subcategory || item.category, origin })
+          if (pending.length >= 500) flushPending()
+        }
+      }
       filesSkipped++
       if (result.failures?.length) {
         errors.push(...result.failures)
@@ -508,15 +471,34 @@ export async function cleanItems(
   // locked or protected paths from serializing their retry delays.
   // Keep duplicate path records on the same worker. Two rules can legitimately
   // resolve to one cache path, and racing force-deletes would overstate bytes.
+  // Serialize ancestor/descendant selections as well as identical paths.
+  // Otherwise concurrent recursive deletes can both claim the same bytes.
+  const canonical = (path: string): string => {
+    const normalized = resolve(path)
+    return process.platform === 'win32' ? normalized.toLowerCase() : normalized
+  }
+  const ordered = items.map(item => ({ item, key: canonical(item.path) }))
+    .sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
+  const itemGroups: ScanItem[][] = []
   const groupsByPath = new Map<string, ScanItem[]>()
-  for (const item of items) {
-    const key = process.platform === 'win32' ? item.path.toLowerCase() : item.path
-    const group = groupsByPath.get(key) || []
+  for (const { item, key } of ordered) {
+    let parent = key
+    let group: ScanItem[] | undefined
+    while (parent) {
+      group = groupsByPath.get(parent)
+      if (group) break
+      const split = parent.lastIndexOf(sep)
+      if (split < 0) break
+      parent = parent.slice(0, split)
+    }
+    if (!group) {
+      group = []
+      groupsByPath.set(key, group)
+      itemGroups.push(group)
+    }
     group.push(item)
-    groupsByPath.set(key, group)
     await scheduler.yieldIfNeeded()
   }
-  const itemGroups = [...groupsByPath.values()]
   let nextGroup = 0
   const worker = async (): Promise<void> => {
     while (true) {
@@ -1093,26 +1075,7 @@ export async function resolveRecursivePathMatches(
   return [...resolved]
 }
 
-export async function getDirectorySize(dirPath: string, maxDepth = 3): Promise<number> {
-  if (maxDepth <= 0) return 0
-  let size = 0
-  try {
-    const entries = await readdir(dirPath, { withFileTypes: true })
-    for (const entry of entries) {
-      const fullPath = join(dirPath, entry.name)
-      try {
-        const stats = await stat(fullPath)
-        if (stats.isDirectory()) {
-          size += await getDirectorySize(fullPath, maxDepth - 1)
-        } else {
-          size += stats.size
-        }
-      } catch {
-        // Skip
-      }
-    }
-  } catch {
-    // Skip
-  }
-  return size
+/** Full logical size without following links; maxDepth is retained for API compatibility. */
+export async function getDirectorySize(dirPath: string, _maxDepth?: number): Promise<number> {
+  return (await measureCleanupTree(dirPath)).reduce((sum, entry) => sum + entry.size, 0)
 }
