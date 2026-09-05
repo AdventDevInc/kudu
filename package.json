@@ -71,20 +71,20 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@litko/yara-x": "^0.6.1",
+    "@litko/yara-x": "^0.7.1",
     "@tanstack/react-table": "^8.21.3",
     "better-sqlite3": "^12.11.1",
     "clsx": "^2.1.1",
     "electron-updater": "^6.8.9",
     "framer-motion": "^12.43.0",
-    "i18next": "^26.3.6",
+    "i18next": "^26.4.0",
     "lucide-react": "^0.577.0",
     "pusher-js": "^8.6.0",
-    "react-i18next": "^17.0.11",
+    "react-i18next": "^17.0.12",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
-    "systeminformation": "^5.33.1",
+    "systeminformation": "^5.33.6",
     "tailwind-merge": "^3.6.0",
     "zustand": "^5.0.15"
   }
