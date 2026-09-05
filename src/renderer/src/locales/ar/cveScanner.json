@@ -5,15 +5,26 @@
   "refetchButton": "تحديث",
   "cloudNotConfigured": {
     "title": "يلزم Cloud Agent",
-    "description": "يتطلب فحص CVE ربط Cloud Agent. انتقل إلى الإعدادات ← Cloud لتوصيل جهازك."
+    "description": "يتطلب فحص CVE خدمة Kudu Cloud Pro. قم بتوصيل هذا الجهاز للتحقق من البرامج المثبتة مقارنةً بالتنبيهات الأمنية الحالية.",
+    "action": "عرض Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent غير متصل",
-    "description": "Cloud Agent غير متصل حاليًا. تحقق من اتصالك في الإعدادات ← Cloud."
+    "description": "Cloud Agent غير متصل حاليًا. تحقق من الاتصال في الإعدادات ← Cloud."
+  },
+  "connectionError": {
+    "title": "اتصال Cloud يحتاج إلى انتباه",
+    "description": "يحتوي هذا الجهاز على مفتاح Cloud محفوظ، لكنه لم يعد مخولًا. راجع الاتصال واربطه مرة أخرى.",
+    "action": "مراجعة اتصال Cloud"
+  },
+  "planRequired": {
+    "title": "يلزم Kudu Cloud Pro",
+    "description": "مراقبة الثغرات الأمنية ميزة Pro. قم بترقية خطة Cloud لفحص البرامج المثبتة باستخدام قاعدة بيانات CVE المباشرة.",
+    "action": "عرض خطط Cloud"
   },
   "emptyState": {
     "title": "لم يتم اكتشاف أي ثغرات أمنية",
-    "description": "لم يتم العثور على أي CVEs معروفة في البرامج المثبتة لديك. يبدو أن نظامك آمن!"
+    "description": "لم يتم العثور على أي CVEs معروفة في البرامج المثبتة لديك. يبدو نظامك آمنًا!"
   },
   "severity": {
     "critical": "حرجة",
@@ -36,7 +47,7 @@
   },
   "error": {
     "title": "فشل تحميل الثغرات الأمنية",
-    "description": "تعذر استرداد بيانات الثغرات الأمنية من الخادم. حاول التحديث أو تحقق من اتصالك السحابي."
+    "description": "تعذر استرداد بيانات الثغرات الأمنية من الخادم. حاول التحديث أو تحقق من اتصالك بـ Cloud."
   },
   "card": {
     "installed": "المثبت: {{version}}",

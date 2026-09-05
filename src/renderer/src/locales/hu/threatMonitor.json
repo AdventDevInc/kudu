@@ -1,14 +1,27 @@
 {
   "pageTitle": "Fenyegetésfigyelő",
   "pageDescription": "A hálózati kapcsolatok valós idejű figyelése ismert fenyegetési listák alapján.",
+  "checkingConnection": "Kudu Cloud kapcsolat ellenőrzése…",
   "cloudNotConfigured": {
-    "title": "A felhő nincs beállítva",
-    "description": "A fenyegetésfigyelés engedélyezéséhez kapcsolja össze eszközét a Kudu Cloud szolgáltatással a Beállításokban. A fenyegetési tiltólistát a felhőszolgáltatás biztosítja."
+    "title": "Kudu Cloud Pro szükséges",
+    "description": "Csatlakoztassa ezt az eszközt a Kudu Cloud Pro szolgáltatáshoz, hogy megkapja az aktuális fenyegetési tiltólistát, és figyelhesse a gyanús hálózati tevékenységet.",
+    "action": "Kudu Cloud megtekintése"
+  },
+  "connectionError": {
+    "title": "A Cloud kapcsolat ellenőrzést igényel",
+    "description": "Ehhez az eszközhöz mentett Cloud-kulcs tartozik, de az már nincs engedélyezve. Ellenőrizze a kapcsolatot, és kapcsolja össze újra.",
+    "action": "Cloud kapcsolat ellenőrzése"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro szükséges",
+    "description": "A fenyegetésfigyelés Pro funkció. Frissítse Cloud-csomagját, hogy ezen az eszközön megkapja az élő fenyegetési tiltólistát.",
+    "action": "Cloud-csomagok megtekintése"
   },
   "loading": "Betöltés...",
   "inactive": {
     "title": "A fenyegetésfigyelő inaktív",
-    "description": "Nincs betöltve fenyegetési tiltólista. A tiltólista automatikusan letöltődik, amikor a felhőügynök csatlakozik."
+    "description": "A Cloud csatlakoztatva van, de még nem érhető el fenyegetési tiltólista. Ellenőrizze Pro csomagját, vagy próbálja újra, miután a Cloud ügynök újracsatlakozott.",
+    "action": "Cloud-csomag ellenőrzése"
   },
   "statusBar": {
     "blacklistVersion": "Tiltólista",
@@ -16,7 +29,7 @@
     "dnsScanned": "DNS ellenőrizve: {{time}}",
     "threatsDetected": "{{count}} fenyegetés észlelve",
     "threatsDetectedPlural": "{{count}} fenyegetés észlelve",
-    "noThreatsDetected": "Nem észleltünk fenyegetést"
+    "noThreatsDetected": "Nem észlelhető fenyegetés"
   },
   "allClear": {
     "title": "Minden rendben",

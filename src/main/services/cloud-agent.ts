@@ -1942,7 +1942,9 @@ class CloudAgentService {
           try {
             let r
             const recency = { deepRecencyCheck: t.deepRecencyCheck === true }
-            if (t.childSubdir) {
+            if (t.cleanupAction) {
+              continue // Native maintenance requires an explicit local selection.
+            } else if (t.childSubdir) {
               const childPaths = await resolveChildSubdirs([t.path], t.childSubdir)
               r = await scanMultipleDirectories(childPaths, CleanerType.System, t.subcategory, recency)
             } else {
@@ -2049,6 +2051,7 @@ class CloudAgentService {
         const appResults: ScanResult[] = []
         const appCategory = CleanerType.App
         for (const appDef of getPlatform().paths.appPaths()) {
+          if (appDef.cleanupAction) continue
           try {
             const r = await scanAppRule(appDef, appCategory)
             if (r.items.length > 0) { cacheItems(r.items); appResults.push(r) }

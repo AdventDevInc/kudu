@@ -1,3 +1,4 @@
+import { scanManagedCleanup } from '../services/managed-cleanup'
 import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
@@ -47,7 +48,9 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
           skipRecentMinutes,
           deepRecencyCheck: target.deepRecencyCheck === true,
         }
-        if (target.childSubdir) {
+        if (target.cleanupAction) {
+          result = await scanManagedCleanup(target.cleanupAction, category, target.subcategory, target.path)
+        } else if (target.childSubdir) {
           const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
           result = await scanMultipleDirectories(childPaths, category, target.subcategory, recency)
         } else {

@@ -342,6 +342,16 @@ export async function cleanItems(
   }
 
   const processItem = async (item: ScanItem): Promise<void> => {
+    if (item.cleanupAction) {
+      // Cloud bulk cleanup has no UI for explicitly choosing native operations.
+      const result = origin === 'cloud'
+        ? { success: false, reason: 'Native maintenance requires local selection.' }
+        : await (await import('./managed-cleanup')).runManagedCleanup(item)
+      if (result.success) { filesDeleted++; consumedIds.push(item.id) }
+      else { filesSkipped++; errors.push({ path: item.path, reason: result.reason || 'Native cleanup failed.' }) }
+      onProgress?.(filesDeleted + filesSkipped, validIds.length, item.subcategory, totalCleaned)
+      return
+    }
     await scheduler.yieldIfNeeded()
     // lstat, not stat: it answers both questions the log depends on in one
     // call — whether the path is still there at all, and whether it is a real
@@ -812,6 +822,9 @@ export async function scanAppRule(
   category: string,
   options: { directoryItems?: boolean; group?: string } = {},
 ): Promise<ScanResult> {
+  if (app.cleanupAction) {
+    return (await import('./managed-cleanup')).scanManagedCleanup(app.cleanupAction, category, app.name, app.paths[0])
+  }
   let result: ScanResult
   const group = options.group ?? app.group
 

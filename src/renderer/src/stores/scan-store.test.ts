@@ -45,6 +45,18 @@ describe('scan-store', () => {
     expect(state.selectedItems.size).toBe(0)
   })
 
+  it('keeps optional maintenance unselected on initial and incremental scans', () => {
+    const result = makeResult('app', 'Native maintenance', [{ id: 'native', size: 0 }])
+    result.items[0].selected = false
+    result.items[0].cleanupAction = 'uv-prune'
+    useScanStore.getState().setResults([result])
+    expect(useScanStore.getState().selectedItems.has('native')).toBe(false)
+    useScanStore.getState().addResults([result])
+    expect(useScanStore.getState().selectedItems.has('native')).toBe(false)
+    useScanStore.getState().toggleItem('native')
+    expect(useScanStore.getState().selectedItems.has('native')).toBe(true)
+  })
+
   it('setResults populates results and auto-selects items', () => {
     const results = [
       makeResult('system', 'temp', [

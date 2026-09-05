@@ -1,3 +1,4 @@
+import { scanManagedCleanup } from './services/managed-cleanup'
 import { flushCliOutput } from './services/cli-output'
 import { app } from 'electron'
 import { existsSync } from 'fs'
@@ -20,6 +21,7 @@ type Verbosity = 'quiet' | 'normal' | 'verbose'
 export interface CliContext {
   json: boolean
   verbosity: Verbosity
+  includeMaintenance?: boolean
 }
 
 export const ExitCode = {
@@ -117,7 +119,7 @@ function showProgress(ctx: CliContext): boolean {
 
 // ─── Argument parsing ───────────────────────────────────────
 
-const GLOBAL_FLAGS = new Set(['--json', '--verbose', '--quiet', '-q', '--help', '-h', '--version', '-v'])
+const GLOBAL_FLAGS = new Set(['--include-maintenance', '--json', '--verbose', '--quiet', '-q', '--help', '-h', '--version', '-v'])
 
 export function parseCliArgs(argv: string[]): ParsedCliArgs {
   const cliIndex = argv.indexOf('--cli')
@@ -131,6 +133,7 @@ export function parseCliArgs(argv: string[]): ParsedCliArgs {
 
   const verbosity: Verbosity = verbose ? 'verbose' : quiet ? 'quiet' : 'normal'
   const ctx: CliContext = { json, verbosity }
+  if (cliArgs.includes('--include-maintenance')) ctx.includeMaintenance = true
 
   const command = cliArgs.find(a => !a.startsWith('--') && !a.startsWith('-'))
   const commandArgs = cliArgs.filter(a => a !== command && !GLOBAL_FLAGS.has(a))
@@ -156,7 +159,9 @@ async function scanSystem(): Promise<ScanResult[]> {
     try {
       let result
       const recency = { deepRecencyCheck: target.deepRecencyCheck === true }
-      if (target.childSubdir) {
+      if (target.cleanupAction) {
+        result = await scanManagedCleanup(target.cleanupAction, category, target.subcategory, target.path)
+      } else if (target.childSubdir) {
         const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
         result = await scanMultipleDirectories(childPaths, category, target.subcategory, recency)
       } else {
@@ -565,6 +570,10 @@ Exit Codes:
   5  Nothing found (scan returned zero items)
   6  Unknown command
   7  Threats/issues found requiring attention
+
+Optional native cleanup:
+  --include-maintenance  Also run native package pruning and Windows maintenance
+                         with --clean; savings are not estimated.
 
 Examples:
   kudu --cli scan --all --clean        Scan & clean all file categories
@@ -1497,7 +1506,7 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: C
     const fileItemIds = allResults
       .filter(r => r.category !== CleanerType.RecycleBin || hasTrashPath)
       .filter(r => r.category !== CleanerType.Database)
-      .flatMap(r => r.items.map(i => i.id))
+      .flatMap(r => r.items.filter(i => !i.cleanupAction || ctx.includeMaintenance === true).map(i => i.id))
     const dbItemIds = allResults
       .filter(r => r.category === CleanerType.Database)
       .flatMap(r => r.items.map(i => i.id))

@@ -70,7 +70,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
     const selected = new Set<string>()
     results.forEach((r) =>
       r.items.forEach((item) => {
-        if (!excluded.has(r.subcategory)) selected.add(item.id)
+        if (item.selected !== false && !excluded.has(r.subcategory)) selected.add(item.id)
       })
     )
     set({ results, selectedItems: selected })
@@ -81,7 +81,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
       const selected = new Set(s.selectedItems)
       newResults.forEach((r) =>
         r.items.forEach((item) => {
-          if (!excluded.has(r.subcategory)) selected.add(item.id)
+          if (item.selected !== false && !excluded.has(r.subcategory)) selected.add(item.id)
         })
       )
       return { results: [...s.results, ...newResults], selectedItems: selected }

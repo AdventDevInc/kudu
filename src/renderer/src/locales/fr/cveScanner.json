@@ -4,12 +4,23 @@
   "loading": "Chargement des vulnérabilités...",
   "refetchButton": "Actualiser",
   "cloudNotConfigured": {
-    "title": "Cloud Agent requis",
-    "description": "L’analyse des CVE nécessite que le Cloud Agent soit lié. Accédez à Paramètres → Cloud pour connecter votre appareil."
+    "title": "Agent Cloud requis",
+    "description": "L’analyse des CVE nécessite Kudu Cloud Pro. Connectez cet appareil pour vérifier les logiciels installés par rapport aux avis de sécurité actuels.",
+    "action": "Afficher Kudu Cloud"
   },
   "cloudNotConnected": {
-    "title": "Cloud Agent non connecté",
-    "description": "Le Cloud Agent n’est pas connecté actuellement. Vérifiez votre connexion dans Paramètres → Cloud."
+    "title": "Agent Cloud non connecté",
+    "description": "L’Agent Cloud n’est pas actuellement connecté. Vérifiez votre connexion dans Paramètres → Cloud."
+  },
+  "connectionError": {
+    "title": "La connexion Cloud nécessite votre attention",
+    "description": "Cet appareil possède une clé Cloud enregistrée, mais elle n’est plus autorisée. Vérifiez la connexion et reliez-la à nouveau.",
+    "action": "Vérifier la connexion Cloud"
+  },
+  "planRequired": {
+    "title": "Kudu Cloud Pro requis",
+    "description": "La surveillance des vulnérabilités est une fonctionnalité Pro. Mettez à niveau votre offre Cloud pour analyser les logiciels installés par rapport à la base de données CVE en direct.",
+    "action": "Afficher les offres Cloud"
   },
   "emptyState": {
     "title": "Aucune vulnérabilité détectée",
@@ -45,7 +56,7 @@
     "cvss": "CVSS {{score}}",
     "firstDetected": "Première détection : {{date}}",
     "lastScanned": "Dernière analyse : {{date}}",
-    "viewDetails": "Voir les détails de la CVE",
+    "viewDetails": "Afficher les détails de la CVE",
     "checkForUpdates": "Rechercher des mises à jour"
   },
   "pagination": {
@@ -55,6 +66,6 @@
   },
   "toast": {
     "fetchFailed": "Échec du chargement des données de vulnérabilité",
-    "fetchFailedNotConnected": "Le Cloud Agent n’est pas connecté"
+    "fetchFailedNotConnected": "L’Agent Cloud n’est pas connecté"
   }
 }

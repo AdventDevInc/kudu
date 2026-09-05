@@ -1,74 +1,84 @@
 {
-  "pageTitle": "Monitor naruszeń",
-  "pageDescription": "Sprawdź, czy Twoje adresy e-mail zostały ujawnione w znanych naruszeniach danych",
-  "loading": "Wczytywanie danych o naruszeniach...",
+  "pageTitle": "Monitor wycieków",
+  "pageDescription": "Sprawdź, czy Twoje adresy e-mail zostały ujawnione w znanych wyciekach danych",
+  "loading": "Ładowanie danych o wyciekach...",
+  "cloudNotConfigured": {
+    "title": "Wymagane Kudu Cloud",
+    "description": "Połącz to urządzenie, aby sprawdzać adresy e-mail względem znanych informacji o wyciekach i śledzić nowo zgłoszone ujawnienia.",
+    "action": "Wyświetl Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Połączenie z Cloud wymaga uwagi",
+    "description": "To urządzenie ma zapisany klucz Cloud, ale nie jest on już autoryzowany. Sprawdź połączenie i połącz je ponownie.",
+    "action": "Sprawdź połączenie z Cloud"
+  },
   "summary": {
-    "totalBreaches": "Łączna liczba naruszeń",
+    "totalBreaches": "Łączna liczba wycieków",
     "unacknowledged": "Nowe",
     "emailsMonitored": "Monitorowane adresy e-mail",
-    "emailsMonitoredTooltip": "Plan Basic: 1 adres e-mail · Plan Pro: 5 adresów e-mail. Uaktualnij plan w ustawieniach Cloud, aby monitorować więcej."
+    "emailsMonitoredTooltip": "Plan Basic: 1 adres e-mail · Plan Pro: 5 adresów e-mail. Zmień plan w ustawieniach Cloud, aby monitorować więcej."
   },
   "addEmail": {
-    "placeholder": "Wprowadź adres e-mail",
+    "placeholder": "Wpisz adres e-mail",
     "button": "Dodaj adres e-mail",
     "adding": "Dodawanie..."
   },
   "toast": {
-    "fetchFailed": "Nie udało się wczytać danych o naruszeniach",
+    "fetchFailed": "Nie udało się załadować danych o wyciekach",
     "addFailed": "Nie udało się dodać adresu e-mail",
     "removeFailed": "Nie udało się usunąć adresu e-mail",
     "invalidEmail": "Wprowadź prawidłowy adres e-mail",
     "limitReached": "Osiągnięto limit adresów e-mail dla Twojego planu",
-    "acknowledged": "Naruszenia oznaczono jako przejrzane",
-    "acknowledgeFailed": "Nie udało się oznaczyć naruszeń"
+    "acknowledged": "Wycieki oznaczono jako sprawdzone",
+    "acknowledgeFailed": "Nie udało się oznaczyć wycieków"
   },
   "emptyState": {
     "noEmails": "Brak monitorowanych adresów e-mail",
-    "noEmailsDesc": "Dodaj adres e-mail, aby sprawdzić wcześniejsze naruszenia danych i stale monitorować nowe wycieki.",
+    "noEmailsDesc": "Dodaj adres e-mail, aby sprawdzić wcześniejsze wycieki danych i stale monitorować nowe wycieki.",
     "allClear": "Brak zagrożeń",
-    "allClearDesc": "Żaden z monitorowanych adresów e-mail nie został znaleziony w żadnym znanym naruszeniu danych.",
+    "allClearDesc": "Żaden z monitorowanych adresów e-mail nie został znaleziony w żadnym znanym wycieku danych.",
     "upgradeRequired": "Wymagana aktualizacja planu",
-    "upgradeRequiredDesc": "Monitorowanie naruszeń jest dostępne w planie Basic i wyższych. Uaktualnij plan, aby rozpocząć monitorowanie.",
-    "goToCloud": "Zobacz plany",
-    "noBreachesForEmail": "Nie znaleziono naruszeń dla tego adresu e-mail",
-    "selectEmail": "Wybierz adres e-mail z listy, aby wyświetlić szczegóły naruszeń"
+    "upgradeRequiredDesc": "Monitorowanie wycieków jest dostępne w planie Basic i wyższych. Zmień plan, aby rozpocząć monitorowanie.",
+    "goToCloud": "Wyświetl plany",
+    "noBreachesForEmail": "Nie znaleziono wycieków dla tego adresu e-mail",
+    "selectEmail": "Wybierz adres e-mail z listy, aby wyświetlić szczegóły wycieku"
   },
   "error": {
-    "title": "Nie udało się wczytać danych o naruszeniach",
+    "title": "Nie udało się załadować danych o wyciekach",
     "description": "Sprawdź połączenie z chmurą i spróbuj ponownie."
   },
   "emailList": {
-    "breaches": "{{count}} naruszenie",
-    "breaches_other": "{{count}} naruszeń",
+    "breaches": "{{count}} wyciek",
+    "breaches_other": "{{count}} wycieków",
     "newBreaches": "{{count}} nowych",
-    "noBreaches": "Brak naruszeń",
+    "noBreaches": "Brak wycieków",
     "checking": "Sprawdzanie...",
     "paused": "Wstrzymano",
     "remove": "Usuń adres e-mail",
     "lastChecked": "Sprawdzono {{date}}"
   },
   "table": {
-    "email": "Adres e-mail",
-    "breach": "Naruszenie",
+    "email": "E-mail",
+    "breach": "Wyciek",
     "date": "Data",
     "accounts": "Konta",
-    "data": "Naruszone dane",
+    "data": "Ujawnione dane",
     "status": "Stan",
     "actions": "",
-    "new": "Nowe",
-    "reviewed": "Przejrzane",
-    "sensitive": "Wrażliwe naruszenie",
-    "verified": "Zweryfikowane",
-    "unverified": "Niezweryfikowane"
+    "new": "Nowy",
+    "reviewed": "Sprawdzone",
+    "sensitive": "Wrażliwy wyciek",
+    "verified": "Zweryfikowany",
+    "unverified": "Niezweryfikowany"
   },
   "filter": {
     "allEmails": "Wszystkie adresy e-mail"
   },
   "actions": {
-    "acknowledge": "Oznacz jako przejrzane",
-    "acknowledgeTooltip": "Oznacz to naruszenie jako widziane, aby nie było już wyświetlane jako nowe ani nie wywoływało powiadomień",
-    "acknowledgeAll": "Oznacz wszystkie jako przejrzane",
-    "acknowledgeAllTooltip": "Oznacz wszystkie nieprzejrzane naruszenia jako widziane"
+    "acknowledge": "Oznacz jako sprawdzone",
+    "acknowledgeTooltip": "Oznacz ten wyciek jako widziany, aby nie był już wyświetlany jako nowy ani nie wywoływał powiadomień",
+    "acknowledgeAll": "Oznacz wszystkie jako sprawdzone",
+    "acknowledgeAllTooltip": "Oznacz wszystkie niesprawdzone wycieki jako widziane"
   },
   "refetchButton": "Odśwież"
 }

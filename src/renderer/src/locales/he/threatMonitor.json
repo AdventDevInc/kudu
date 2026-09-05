@@ -1,14 +1,27 @@
 {
   "pageTitle": "ניטור איומים",
   "pageDescription": "ניטור בזמן אמת של חיבורי רשת מול רשימות איומים מוכרות.",
+  "checkingConnection": "בודק את החיבור ל-Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "הענן לא הוגדר",
-    "description": "קשר את המכשיר שלך ל-Kudu Cloud בהגדרות כדי להפעיל ניטור איומים. הרשימה השחורה של האיומים מסופקת על ידי שירות הענן."
+    "title": "נדרש Kudu Cloud Pro",
+    "description": "חבר מכשיר זה ל-Kudu Cloud Pro כדי לקבל את הרשימה השחורה העדכנית של איומים ולנטר פעילות רשת חשודה.",
+    "action": "הצג את Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "חיבור ה-Cloud דורש תשומת לב",
+    "description": "במכשיר זה שמור מפתח Cloud, אך הוא אינו מורשה עוד. בדוק את החיבור וקשר אותו מחדש.",
+    "action": "בדוק את חיבור ה-Cloud"
+  },
+  "planRequired": {
+    "title": "נדרש Kudu Cloud Pro",
+    "description": "ניטור איומים הוא תכונת Pro. שדרג את תוכנית ה-Cloud שלך כדי לקבל במכשיר זה את הרשימה השחורה החיה של איומים.",
+    "action": "הצג תוכניות Cloud"
   },
   "loading": "טוען...",
   "inactive": {
     "title": "ניטור האיומים אינו פעיל",
-    "description": "לא נטענה רשימה שחורה של איומים. הרשימה השחורה תיאסף אוטומטית כאשר סוכן הענן יתחבר."
+    "description": "ה-Cloud מחובר, אך עדיין אין רשימה שחורה של איומים זמינה. בדוק את תוכנית ה-Pro שלך או נסה שוב לאחר שסוכן ה-Cloud יתחבר מחדש.",
+    "action": "בדוק את תוכנית ה-Cloud"
   },
   "statusBar": {
     "blacklistVersion": "רשימה שחורה",
@@ -20,7 +33,7 @@
   },
   "allClear": {
     "title": "הכול תקין",
-    "description": "לא זוהו חיבורים חשודים או רשומות DNS. הניטור ממשיך לסרוק ברקע."
+    "description": "לא זוהו חיבורים חשודים או רשומות DNS חשודות. הניטור ממשיך לסרוק ברקע."
   },
   "flaggedConnections": "חיבורים שסומנו",
   "flaggedDnsEntries": "רשומות DNS שסומנו",
