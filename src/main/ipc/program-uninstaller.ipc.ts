@@ -86,7 +86,6 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
       })
 
       const leftovers = await scanLeftoversForProgram(program)
-      const leftoversSize = leftovers.reduce((sum, item) => sum + item.size, 0)
 
       if (leftovers.length === 0) {
         return {

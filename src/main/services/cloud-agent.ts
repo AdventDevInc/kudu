@@ -6,8 +6,6 @@ import { existsSync, readFileSync, readdirSync, statSync, openSync, readSync, cl
 import { readdir } from 'fs/promises'
 import { randomUUID } from 'crypto'
 import { join } from 'path'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
 import { lookup } from 'dns/promises'
 import PusherImport from 'pusher-js'
 // pusher-js v8.5+ exports the constructor as a named export (`module.exports.Pusher`),
@@ -19,7 +17,6 @@ import { getSettings, setSettings, getMachineId } from './settings-store'
 import { scanAppRule, scanDirectory, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from './file-utils'
 import { cacheItems, clearCachedCategory } from './scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
-import { psUtf8 } from './exec-utf8'
 import { queryRecycleBinStats } from './recycle-bin-stats'
 import { getPlatform } from '../platform'
 import { CleanerType } from '../../shared/enums'
@@ -28,7 +25,7 @@ import { scanRegistry, fixRegistryEntries } from '../ipc/registry-cleaner.ipc'
 import { scanMalware } from '../ipc/malware-scanner.ipc'
 import { scanPrivacy } from '../ipc/privacy-shield.ipc'
 import { scanServices } from '../ipc/service-manager.ipc'
-import { scanDriverUpdates, installDriverUpdates, scanDrivers, cleanDrivers } from '../ipc/driver-manager.ipc'
+import { scanDriverUpdates, installDriverUpdates, cleanDrivers } from '../ipc/driver-manager.ipc'
 import { scanNetwork } from '../ipc/network-cleanup.ipc'
 import { listStartupItems as listStartupItemsWin32, toggleStartupItem as toggleStartupItemWin32 } from '../ipc/startup-manager.ipc'
 import { applyPrivacySettings } from '../ipc/privacy-shield.ipc'
@@ -56,7 +53,6 @@ import { resetYaraEngine } from '../ipc/malware-scanner.ipc'
 import { threatMonitor } from './threat-monitor'
 import { isLikelyFalsePositive, deduplicateCves } from './cve-filter'
 
-const execFileAsync = promisify(execFile)
 const DEFAULT_SERVER_URL = 'https://cloud.usekudu.com'
 
 /**

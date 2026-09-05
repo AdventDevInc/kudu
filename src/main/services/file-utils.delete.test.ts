@@ -9,6 +9,8 @@ const state = vi.hoisted(() => ({
   rootFailuresRemaining: 0,
   lockedPath: '',
   permissionPaths: new Set<string>(),
+  statFailurePath: '',
+  consumed: [] as string[],
   trackConcurrency: false,
   activeDeletes: 0,
   maxActiveDeletes: 0,
@@ -19,6 +21,10 @@ vi.mock('fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof import('fs/promises')>()
   return {
     ...actual,
+    lstat: async (...args: Parameters<typeof actual.lstat>) => {
+      if (String(args[0]) === state.statFailurePath) throw Object.assign(new Error('access denied'), { code: 'EACCES' })
+      return actual.lstat(...args)
+    },
     rm: async (...args: Parameters<typeof actual.rm>) => {
       const path = String(args[0])
       const options = args[1] as { recursive?: boolean } | undefined
@@ -51,7 +57,7 @@ vi.mock('./settings-store', () => ({
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => state.items,
-  removeCachedItems: () => {},
+  removeCachedItems: (ids: string[]) => { state.consumed.push(...ids) },
 }))
 
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
@@ -85,6 +91,8 @@ describe('granular directory deletion fallback', () => {
     state.rootFailuresRemaining = 0
     state.lockedPath = ''
     state.permissionPaths.clear()
+    state.statFailurePath = ''
+    state.consumed = []
     state.trackConcurrency = false
     state.activeDeletes = 0
     state.maxActiveDeletes = 0
@@ -105,6 +113,21 @@ describe('granular directory deletion fallback', () => {
 
     expect(result).toEqual({ path: root, success: true })
     expect(existsSync(root)).toBe(false)
+  })
+
+  it('reports lookup permission failures without consuming the retryable scan item', async () => {
+    const { removable } = createTree()
+    state.items = [{ id: 'retry', path: removable, size: 5, category: 'system', subcategory: 'Temp', lastModified: 0, selected: true }]
+    state.statFailurePath = removable
+    const progress = vi.fn()
+    const result = await cleanItems(['retry'], progress)
+    expect(result).toMatchObject({ totalCleaned: 0, filesSkipped: 1, needsElevation: true, errors: [{ path: removable, reason: 'permission-denied' }] })
+    expect(state.consumed).toEqual([])
+    expect(existsSync(removable)).toBe(true)
+    expect(progress).toHaveBeenLastCalledWith(1, 1, removable, 0)
+    state.statFailurePath = ''
+    expect((await cleanItems(['retry'])).totalCleaned).toBe(5)
+    expect(state.consumed).toEqual(['retry'])
   })
 
   it('deletes removable siblings and reports only the exact locked descendant', async () => {
@@ -178,7 +201,7 @@ describe('granular directory deletion fallback', () => {
     expect(state.maxActiveDeletes).toBe(8)
   })
 
-  it('unlinks directory junctions without traversing their targets', async () => {
+  it('unlinks directory junctions without traversing their targets', async (ctx) => {
     const { root } = createTree()
     const external = join(testDir, 'keep-external')
     const externalFile = join(external, 'keep.dat')
@@ -186,8 +209,12 @@ describe('granular directory deletion fallback', () => {
     writeFileSync(externalFile, 'keep')
     try {
       symlinkSync(external, join(root, 'external-link'), 'junction')
-    } catch {
-      return // Unprivileged Windows without junction creation support.
+    } catch (err: any) {
+      if (process.platform === 'win32' && ['EPERM', 'EACCES'].includes(err.code)) {
+        ctx.skip('Windows does not permit creating the test junction')
+        return
+      }
+      throw err
     }
     state.rootPath = root
     state.rootFailuresRemaining = process.platform === 'win32' ? 2 : 1

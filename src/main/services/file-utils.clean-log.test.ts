@@ -190,7 +190,7 @@ describe('cleanItems deletion logging', () => {
     }
   })
 
-  it('does not expand a directory when logging is off', async () => {
+  it('measures and deletes a directory without recording logs when logging is off', async () => {
     const dir = join(testDir, 'cache')
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'top.dat'), 'a', 'utf-8')
@@ -199,7 +199,9 @@ describe('cleanItems deletion logging', () => {
       subcategory: 'App Cache', lastModified: 0, selected: true,
     }]
 
-    await cleanItems(['dir-0'])
+    const result = await cleanItems(['dir-0'])
+    expect(result.totalCleaned).toBe(1)
+    expect(existsSync(dir)).toBe(false)
     expect(state.recorded).toHaveLength(0)
   })
 
@@ -246,7 +248,7 @@ describe('cleanItems deletion logging', () => {
     expect(state.recorded.map((r) => r.path)).toEqual([join(testDir, 'file-0.tmp')])
   })
 
-  it('does not expand a symlinked directory, which rm only unlinks', async () => {
+  it('preserves a scan item replaced by a directory link without logging a deletion', async (ctx) => {
     state.keepDeletionLog = true
     const target = join(testDir, 'real-target')
     mkdirSync(target, { recursive: true })
@@ -255,8 +257,12 @@ describe('cleanItems deletion logging', () => {
     const link = join(testDir, 'link-to-target')
     try {
       symlinkSync(target, link, 'junction')
-    } catch {
-      return // Unprivileged Windows without Developer Mode — nothing to assert.
+    } catch (err: any) {
+      if (process.platform === 'win32' && ['EPERM', 'EACCES'].includes(err.code)) {
+        ctx.skip('Windows does not permit creating the test junction')
+        return
+      }
+      throw err
     }
 
     state.items = [{

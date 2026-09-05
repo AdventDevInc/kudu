@@ -175,7 +175,6 @@ function resolvePathArray(arr: string[], vars: Record<string, string>, platform:
 
 export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwin' | 'linux'): CleanerPaths {
   const vars = buildVariables(platform)
-  const j = platform === 'win32' ? path.win32.join : path.posix.join
 
   return {
     systemCleanTargets(): CleanTarget[] {
