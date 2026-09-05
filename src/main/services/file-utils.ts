@@ -1,7 +1,7 @@
 import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
-import { existsSync } from 'fs'
+import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
-import { join } from 'path'
+import { dirname, join, resolve } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
 import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
 import type { AppCacheDef, DirectFileMatch, RecursivePathMatch } from '../platform/types'
@@ -49,6 +49,8 @@ async function attemptDelete(
     // simply fail the second attempt too.
     if (process.platform === 'win32' && err.code === 'EPERM') {
       try {
+        const info = await lstat(filePath)
+        if (info.isSymbolicLink() || info.nlink > 1) return err
         await chmod(filePath, 0o666)
         await operation()
         return null
@@ -146,7 +148,15 @@ export function isExcluded(filePath: string, exclusions: string[]): boolean {
  * For directories, recursively overwrite all files within.
  */
 async function secureOverwrite(filePath: string): Promise<void> {
-  const stats = await stat(filePath)
+  const stats = await lstat(filePath)
+  // Unlink aliases normally; overwriting them would alter data owned by another
+  // path. Check ancestors too, since lstat only inspects the final component.
+  if (stats.isSymbolicLink() || (stats.isFile() && stats.nlink !== 1)) return
+  for (let parent = dirname(resolve(filePath)); ; parent = dirname(parent)) {
+    const info = await lstat(parent)
+    if (info.isSymbolicLink() || !info.isDirectory()) return
+    if (dirname(parent) === parent) break
+  }
 
   if (stats.isDirectory()) {
     const entries = await readdir(filePath, { withFileTypes: true })
@@ -160,13 +170,25 @@ async function secureOverwrite(filePath: string): Promise<void> {
 
   const size = stats.size
   const CHUNK = 1024 * 1024 // 1 MB chunks
-  const fh = await open(filePath, 'r+')
+  const fh = await open(filePath, constants.O_RDWR | (constants.O_NOFOLLOW || 0))
   try {
+    // Recheck the opened file, not just the earlier path lookup. Never write to
+    // a replacement or a file which acquired another hard link before open.
+    const opened = await fh.stat()
+    if (!opened.isFile() || opened.nlink !== 1 || opened.dev !== stats.dev || opened.ino !== stats.ino) return
+    const writeAll = async (buffer: Buffer, position: number): Promise<void> => {
+      let written = 0
+      while (written < buffer.length) {
+        const { bytesWritten } = await fh.write(buffer, written, buffer.length - written, position + written)
+        if (bytesWritten === 0) throw new Error('Secure overwrite made no progress')
+        written += bytesWritten
+      }
+    }
     // Pass 1: random data
     let offset = 0
     while (offset < size) {
       const len = Math.min(CHUNK, size - offset)
-      await fh.write(randomBytes(len), 0, len, offset)
+      await writeAll(randomBytes(len), offset)
       offset += len
     }
     await fh.datasync()
@@ -176,7 +198,7 @@ async function secureOverwrite(filePath: string): Promise<void> {
     offset = 0
     while (offset < size) {
       const len = Math.min(CHUNK, size - offset)
-      await fh.write(zeroBuf, 0, len, offset)
+      await writeAll(zeroBuf.subarray(0, len), offset)
       offset += len
     }
     await fh.datasync()
