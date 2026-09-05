@@ -381,6 +381,10 @@ export async function cleanItems(
       filesSkipped++
       errors.push({ path: item.path, reason: 'excluded' })
       consumedIds.push(item.id)
+      if (onProgress) {
+        onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+        lastReport = Date.now()
+      }
       return
     }
 
@@ -413,9 +417,10 @@ export async function cleanItems(
     // A deep-recency scan may collapse a settled tree to one directory item.
     // Recheck it after any audit enumeration and immediately before recursive
     // deletion so files created or updated since the scan remain protected.
-    if (!await revalidateRecencyItem(item, rootInfo)) {
+    const retentionFailure = await revalidateRecencyItem(item, rootInfo)
+    if (retentionFailure) {
       filesSkipped++
-      errors.push({ path: item.path, reason: 'recently-modified' })
+      errors.push({ path: item.path, reason: retentionFailure })
       consumedIds.push(item.id)
       if (onProgress) {
         onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
@@ -576,6 +581,8 @@ interface RecencyScan {
   exclusions: string[]
   /** Item budget shared across the whole scan */
   remaining: number
+  /** Preserve exclusion failures through a collapsed directory recheck. */
+  excluded?: boolean
 }
 
 interface ResolvedEntry {
@@ -605,7 +612,7 @@ async function resolveChildren(dirPath: string, ctx: RecencyScan, depth: number)
   for (const entry of entries) {
     if (ctx.remaining <= 0) { complete = false; break }
     const childPath = join(dirPath, entry.name)
-    if (isExcluded(childPath, ctx.exclusions)) { complete = false; continue }
+    if (isExcluded(childPath, ctx.exclusions)) { ctx.excluded = true; complete = false; continue }
 
     // Never descend a symlink — rm only unlinks the link, so what readdir would
     // list here is the target's contents, which this scan does not remove.
@@ -655,18 +662,20 @@ async function resolveEntry(
 }
 
 /** Confirm that a retention-aware scan item is still settled at cleanup time. */
-async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<boolean> {
-  if (rootInfo.isSymbolicLink() || isExcluded(item.path, getSettings().exclusions)) return false
-  if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff)) return false
+async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<'excluded' | 'recently-modified' | null> {
+  if (isExcluded(item.path, getSettings().exclusions)) return 'excluded'
+  if (rootInfo.isSymbolicLink()) return 'recently-modified'
+  if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff)) return 'recently-modified'
   const cutoff = item.recencyCutoff ?? Infinity
-  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= cutoff
+  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= cutoff ? null : 'recently-modified'
 
-  const resolved = await resolveChildren(item.path, {
+  const ctx: RecencyScan = {
     cutoff,
     exclusions: getSettings().exclusions,
     remaining: MAX_RECENCY_ITEMS,
-  }, MAX_RECENCY_DEPTH)
-  return resolved.complete
+  }
+  const resolved = await resolveChildren(item.path, ctx, MAX_RECENCY_DEPTH)
+  return resolved.complete ? null : ctx.excluded ? 'excluded' : 'recently-modified'
 }
 
 export async function scanDirectory(
@@ -894,7 +903,7 @@ export async function scanDirectoriesAsItems(
       const root = await lstat(dirPath)
       if (!root.isDirectory() || root.isSymbolicLink()) continue
       const resolved = await resolveEntry(dirPath, true, ctx, MAX_RECENCY_DEPTH)
-      for (const item of resolved.items) items.push({
+      for (const item of resolved.items.filter(item => item.size >= 1024)) items.push({
         id: randomUUID(), path: item.path, size: item.size, category, subcategory,
         lastModified: item.mtimeMs, selected: true, recencyCutoff: cutoff,
       })
