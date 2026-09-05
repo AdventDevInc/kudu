@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, rm, writeFile, utimes } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -100,6 +100,8 @@ describe('scanAppRule', () => {
     const cache = join(root, 'Launcher', 'EBWebView', 'Default', 'Cache')
     await mkdir(cache, { recursive: true })
     await writeFile(join(cache, 'data.bin'), Buffer.alloc(2048))
+    const old = new Date(Date.now() - 2 * 60 * 60 * 1000)
+    await utimes(join(cache, 'data.bin'), old, old)
     await writeFile(join(root, 'user-data.bin'), Buffer.alloc(2048))
 
     const result = await scanAppRule({

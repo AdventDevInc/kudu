@@ -17,7 +17,7 @@ vi.mock('./scan-cache', () => ({
   removeCachedItems: (ids: string[]) => { state.items = state.items.filter((item) => !ids.includes(item.id)) },
 }))
 
-import { cleanItems, scanDirectory } from './file-utils'
+import { cleanItems, scanDirectory, scanDirectoriesAsItems, scanFile } from './file-utils'
 
 const DEEP = { deepRecencyCheck: true }
 
@@ -58,6 +58,52 @@ afterEach(() => {
 })
 
 describe('scanDirectory recency guard', () => {
+  it('protects recent and excluded descendants with the default options', async () => {
+    const recent = file('old/live', 1)
+    const excluded = file('old/keep', 180)
+    const stale = file('old/stale', 180)
+    touchDir('old', 180)
+    state.exclusions = [excluded]
+    const result = await scanDirectory(testDir, 'system', 'Test')
+    expect(paths(result)).toEqual([stale])
+    state.items = result.items
+    await cleanItems(result.items.map(i => i.id))
+    expect(existsSync(recent)).toBe(true)
+    expect(existsSync(excluded)).toBe(true)
+    expect(existsSync(stale)).toBe(false)
+  })
+
+  it('checks new exclusions added after scanning a whole folder', async () => {
+    const keep = file('old/keep', 180)
+    const result = await scanDirectory(testDir, 'system', 'Test')
+    state.items = result.items
+    state.exclusions = [keep]
+    const cleaned = await cleanItems(result.items.map(i => i.id))
+    expect(cleaned.filesDeleted).toBe(0)
+    expect(existsSync(keep)).toBe(true)
+  })
+
+  it('rechecks a file updated after a default scan', async () => {
+    const keep = file('keep', 180)
+    const result = await scanDirectory(testDir, 'app', 'Test')
+    state.items = result.items
+    utimesSync(keep, ago(0), ago(0))
+    expect((await cleanItems(result.items.map(i => i.id))).filesDeleted).toBe(0)
+    expect(existsSync(keep)).toBe(true)
+  })
+
+  it('protects live descendants when scanning whole gaming directories', async () => {
+    file('cache/live', 1)
+    const stale = file('cache/stale', 180)
+    const result = await scanDirectoriesAsItems([join(testDir, 'cache')], 'gaming', 'Test')
+    expect(paths(result)).toEqual([stale])
+    expect(result.items[0].recencyCutoff).toBeTypeOf('number')
+  })
+
+  it('does not offer a freshly written single-file target', async () => {
+    const keep = file('MEMORY.DMP', 1)
+    expect((await scanFile(keep, 'system', 'dump')).items).toEqual([])
+  })
   it('skips recent files and recent directories by default', async () => {
     file('hot.bin', 1)
     file('hot-dir/entry', 1)

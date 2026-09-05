@@ -266,8 +266,9 @@ describe('cleanItems deletion logging', () => {
 
     await cleanItems(['link-0'])
 
-    // Only the link itself: its target's files are still on disk.
-    expect(state.recorded.map((r) => r.path)).toEqual([link])
+    // A replaced scan path is withheld, including its link and target.
+    expect(state.recorded).toEqual([])
+    expect(existsSync(link)).toBe(true)
     expect(existsSync(join(target, 'keep-me.dat'))).toBe(true)
   })
 
