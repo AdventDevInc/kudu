@@ -17,9 +17,23 @@ vi.mock('./scan-cache', () => ({
   removeCachedItems: (ids: string[]) => { state.items = state.items.filter((item) => !ids.includes(item.id)) },
 }))
 
-import { cleanItems, scanDirectory, scanDirectoriesAsItems, scanFile } from './file-utils'
+import { cleanItems, scanDirectory, scanDirectoriesAsItems, scanFile, scanAppRule } from './file-utils'
 
 const DEEP = { deepRecencyCheck: true }
+
+it('offers performance caches only as optional resets while keeping regular cleanup selected', async () => {
+  file('shader/cache.bin', 120, 2048)
+  const rule = { id: 'gpu', name: 'GPU', paths: [join(testDir, 'shader')], cacheReset: true }
+  const result = await scanAppRule(rule, 'gaming', { directoryItems: true, group: 'GPU Shader Caches' })
+  expect(result.items).toHaveLength(1)
+  expect(result.items[0]).toMatchObject({ selected: false, cacheReset: true, size: 2048 })
+  expect(result.group).toContain('next launch may be slower')
+  expect((await scanAppRule({ ...rule, cacheReset: false }, 'app')).items[0].selected).toBe(true)
+  state.items = result.items
+  expect((await cleanItems([result.items[0].id], undefined, 'cloud')).filesSkipped).toBe(1)
+  expect(existsSync(join(testDir, 'shader', 'cache.bin'))).toBe(true)
+  expect((await cleanItems([result.items[0].id])).totalCleaned).toBe(2048)
+})
 
 let testDir: string
 

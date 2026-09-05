@@ -1,3 +1,4 @@
+import { applyCacheResetPolicy } from './cache-reset-policy'
 import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
@@ -342,6 +343,12 @@ export async function cleanItems(
   }
 
   const processItem = async (item: ScanItem): Promise<void> => {
+    if (item.cacheReset && origin === 'cloud') {
+      filesSkipped++
+      errors.push({ path: item.path, reason: 'Performance cache resets require local selection.' })
+      onProgress?.(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+      return
+    }
     if (item.cleanupAction) {
       // Cloud bulk cleanup has no UI for explicitly choosing native operations.
       const result = origin === 'cloud'
@@ -835,7 +842,7 @@ export async function scanAppRule(
   }
 
   if (group && !result.group) result.group = group
-  return result
+  return applyCacheResetPolicy(result, app.cacheReset)
 }
 
 export async function scanFile(

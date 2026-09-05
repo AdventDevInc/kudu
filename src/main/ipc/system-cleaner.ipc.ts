@@ -1,3 +1,4 @@
+import { applyCacheResetPolicy } from '../services/cache-reset-policy'
 import { scanManagedCleanup } from '../services/managed-cleanup'
 import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
@@ -67,6 +68,7 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
           result.itemCount = result.items.length
         }
 
+        applyCacheResetPolicy(result, target.cacheReset)
         if (result.items.length > 0) {
           cacheItems(result.items)
           results.push(result)

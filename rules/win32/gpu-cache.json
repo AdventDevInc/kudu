@@ -2,9 +2,9 @@
   "$schema": "../schema/rules.schema.json",
   "type": "gpu-cache",
   "apps": [
-    { "id": "nvidia", "name": "NVIDIA Shader Cache", "paths": ["${LOCALAPPDATA}/NVIDIA/GLCache", "${LOCALAPPDATA}/NVIDIA/DXCache", "${LOCALAPPDATA}/NVIDIA Corporation/NV_Cache", "${PROGRAMDATA}/NVIDIA Corporation/NV_Cache"], "description": "NVIDIA compiled shader cache for OpenGL, DirectX, and Vulkan; rebuilt automatically per-game" },
-    { "id": "amd", "name": "AMD Shader Cache", "paths": ["${LOCALAPPDATA}/AMD/DxCache", "${LOCALAPPDATA}/AMD/GLCache", "${LOCALAPPDATA}/AMD/VkCache"], "description": "AMD compiled shader cache for DirectX, OpenGL, and Vulkan; rebuilt automatically per-game" },
-    { "id": "intel", "name": "Intel Shader Cache", "paths": ["${LOCALAPPDATA}/Intel/ShaderCache"], "description": "Intel GPU compiled shader cache; rebuilt automatically as needed" },
-    { "id": "unity-cache", "name": "Unity Shader Cache", "paths": ["${LOCALAPPDATA}/Unity/cache"], "description": "Unity engine compiled shader cache; rebuilt when Unity projects are opened" }
+    { "cacheReset": true, "id": "nvidia", "name": "NVIDIA Shader Cache", "paths": ["${LOCALAPPDATA}/NVIDIA/GLCache", "${LOCALAPPDATA}/NVIDIA/DXCache", "${LOCALAPPDATA}/NVIDIA Corporation/NV_Cache", "${PROGRAMDATA}/NVIDIA Corporation/NV_Cache"], "description": "NVIDIA compiled shader cache for OpenGL, DirectX, and Vulkan; rebuilt automatically per-game" },
+    { "cacheReset": true, "id": "amd", "name": "AMD Shader Cache", "paths": ["${LOCALAPPDATA}/AMD/DxCache", "${LOCALAPPDATA}/AMD/GLCache", "${LOCALAPPDATA}/AMD/VkCache"], "description": "AMD compiled shader cache for DirectX, OpenGL, and Vulkan; rebuilt automatically per-game" },
+    { "cacheReset": true, "id": "intel", "name": "Intel Shader Cache", "paths": ["${LOCALAPPDATA}/Intel/ShaderCache"], "description": "Intel GPU compiled shader cache; rebuilt automatically as needed" },
+    { "cacheReset": true, "id": "unity-cache", "name": "Unity Shader Cache", "paths": ["${LOCALAPPDATA}/Unity/cache"], "description": "Unity engine compiled shader cache; rebuilt when Unity projects are opened" }
   ]
 }

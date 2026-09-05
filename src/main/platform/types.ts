@@ -18,6 +18,7 @@ import type { HealthReport } from '../services/cloud-agent-types'
 // ─── Paths ─────────────────────────────────────────────────
 
 export interface CleanTarget {
+  cacheReset?: boolean
   cleanupAction?: ManagedCleanupAction
   path: string
   subcategory: string
@@ -66,6 +67,7 @@ export interface BrowserPaths {
 }
 
 export interface AppCacheDef {
+  cacheReset?: boolean
   cleanupAction?: ManagedCleanupAction
   id: string
   name: string

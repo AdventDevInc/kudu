@@ -2,6 +2,14 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { parseCliArgs, ExitCode, cliLog, cliVerbose } from './cli'
 
 describe('parseCliArgs', () => {
+  it('requires a separate explicit opt-in for performance cache resets', () => {
+    const normal = parseCliArgs(['node', 'kudu', '--cli', 'scan', '--clean', '--include-maintenance'])
+    expect(normal.ctx.includeCacheResets).toBeUndefined()
+    const reset = parseCliArgs(['node', 'kudu', '--cli', '--include-cache-resets', 'scan', '--clean'])
+    expect(reset.ctx.includeCacheResets).toBe(true)
+    expect(reset.command).toBe('scan')
+    expect(reset.commandArgs).not.toContain('--include-cache-resets')
+  })
   it('parses --json flag', () => {
     const result = parseCliArgs(['node', 'kudu', '--cli', '--json', 'registry', 'scan'])
     expect(result.ctx.json).toBe(true)

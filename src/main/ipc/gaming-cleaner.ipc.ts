@@ -182,7 +182,7 @@ async function scanSteamShaderCaches(category: string): Promise<ScanResult[]> {
           results.push({
             category,
             subcategory,
-            group: 'Game Shader Caches',
+            group: 'Optional cache resets — next launch may be slower',
             items: [{
               id: randomUUID(),
               path: cacheDir,
@@ -190,7 +190,8 @@ async function scanSteamShaderCaches(category: string): Promise<ScanResult[]> {
               category,
               subcategory,
               lastModified: Date.now(),
-              selected: true,
+              cacheReset: true,
+              selected: false,
             }],
             totalSize: size,
             itemCount: 1,

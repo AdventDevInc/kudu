@@ -23,6 +23,7 @@
       "required": ["path", "subcategory"],
       "additionalProperties": false,
       "properties": {
+        "cacheReset": { "type": "boolean", "description": "Optional performance cache reset; unselected locally and excluded from automatic cleanup" },
         "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization"] },
         "path": { "$ref": "#/definitions/TemplatePath" },
         "subcategory": { "type": "string", "minLength": 1, "description": "Display label for this target group" },
@@ -66,6 +67,7 @@
         "childSubdir": { "type": "string", "description": "If set, scan paths/*/childSubdir instead of paths directly" },
         "recursiveMatch": { "$ref": "#/definitions/RecursivePathMatch" },
         "fileMatch": { "$ref": "#/definitions/DirectFileMatch" },
+        "cacheReset": { "type": "boolean", "description": "Optional performance cache reset; unselected locally and excluded from automatic cleanup" },
         "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization"] },
         "description": { "type": "string" }
       }
