@@ -80,6 +80,7 @@ describe('scanDirectory recency guard', () => {
     state.exclusions = [keep]
     const cleaned = await cleanItems(result.items.map(i => i.id))
     expect(cleaned.filesDeleted).toBe(0)
+    expect(cleaned.errors).toEqual([{ path: join(testDir, 'old'), reason: 'excluded' }])
     expect(existsSync(keep)).toBe(true)
   })
 
@@ -94,10 +95,34 @@ describe('scanDirectory recency guard', () => {
 
   it('protects live descendants when scanning whole gaming directories', async () => {
     file('cache/live', 1)
-    const stale = file('cache/stale', 180)
+    const stale = file('cache/stale', 180, 2048)
     const result = await scanDirectoriesAsItems([join(testDir, 'cache')], 'gaming', 'Test')
     expect(paths(result)).toEqual([stale])
     expect(result.items[0].recencyCutoff).toBeTypeOf('number')
+  })
+
+  it('withholds empty and sub-1-KiB gaming cache items', async () => {
+    mkdirSync(join(testDir, 'empty'))
+    file('small/data', 180, 1023)
+    file('mixed/live', 1, 4096)
+    file('mixed/tiny', 180, 512)
+    const eligible = file('mixed/eligible', 180, 1024)
+    const result = await scanDirectoriesAsItems(
+      ['empty', 'small', 'mixed'].map(name => join(testDir, name)), 'gaming', 'Test')
+    expect(paths(result)).toEqual([eligible])
+    expect(result.totalSize).toBe(1024)
+  })
+
+  it('reports completion when all selected files become excluded', async () => {
+    const keep = file('keep', 180)
+    const result = await scanDirectory(testDir, 'system', 'Test')
+    state.items = result.items
+    state.exclusions = [keep]
+    const progress = vi.fn()
+    const cleaned = await cleanItems(result.items.map(item => item.id), progress)
+    expect(cleaned.filesSkipped).toBe(1)
+    expect(progress).toHaveBeenLastCalledWith(1, 1, keep, 0)
+    expect(existsSync(keep)).toBe(true)
   })
 
   it('does not offer a freshly written single-file target', async () => {
