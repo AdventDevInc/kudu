@@ -1,4 +1,8 @@
 {
+  "maintenanceSizeUnknown": "Savings vary",
+  "maintenanceOptional": "Optional maintenance",
+  "maintenanceComponentsNote": "Removes older Windows component versions immediately. May take a while; savings are not included in totals.",
+  "maintenanceNativeNote": "Uses the built-in cleanup tool. Savings are not included in totals.",
   "pageTitle": "System Cleaner",
   "pageDescription": "Scan and clean junk files from your system",
   "scanButton": "Scan",

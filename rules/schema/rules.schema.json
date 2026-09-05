@@ -23,6 +23,7 @@
       "required": ["path", "subcategory"],
       "additionalProperties": false,
       "properties": {
+        "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization"] },
         "path": { "$ref": "#/definitions/TemplatePath" },
         "subcategory": { "type": "string", "minLength": 1, "description": "Display label for this target group" },
         "needsAdmin": { "type": "boolean", "description": "If true, this target requires elevated privileges" },
@@ -65,6 +66,7 @@
         "childSubdir": { "type": "string", "description": "If set, scan paths/*/childSubdir instead of paths directly" },
         "recursiveMatch": { "$ref": "#/definitions/RecursivePathMatch" },
         "fileMatch": { "$ref": "#/definitions/DirectFileMatch" },
+        "cleanupAction": { "enum": ["uv-prune", "pnpm-prune", "windows-components", "delivery-optimization"] },
         "description": { "type": "string" }
       }
     },

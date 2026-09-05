@@ -4,6 +4,7 @@
 // containing only the cleaner-related methods.
 
 import { homedir, tmpdir } from 'os'
+import type { ManagedCleanupAction } from '../../shared/types'
 import path from 'path'
 import type {
   CleanTarget,
@@ -26,6 +27,7 @@ export interface SystemRulesJson {
     needsAdmin?: boolean
     childSubdir?: string
     deepRecencyCheck?: boolean
+    cleanupAction?: ManagedCleanupAction
   }>
   singleFileTargets?: Array<{ path: string; subcategory: string }>
 }
@@ -50,6 +52,7 @@ export interface AppRulesJson {
     paths: string[]
     group?: string
     minAgeDays?: number
+    cleanupAction?: ManagedCleanupAction
     childSubdir?: string
     recursiveMatch?: RecursivePathMatch
     fileMatch?: DirectFileMatch
@@ -181,6 +184,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
           path: resolvePath(t.path, vars, platform),
           subcategory: t.subcategory,
         }
+        if (t.cleanupAction) target.cleanupAction = t.cleanupAction
         if (t.needsAdmin) target.needsAdmin = true
         if (t.childSubdir) target.childSubdir = t.childSubdir
         if (t.deepRecencyCheck) target.deepRecencyCheck = true
@@ -267,6 +271,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
         if (a.fileMatch) def.fileMatch = a.fileMatch
+        if (a.cleanupAction) def.cleanupAction = a.cleanupAction
         return def
       })
     },
@@ -283,6 +288,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
         if (a.fileMatch) def.fileMatch = a.fileMatch
+        if (a.cleanupAction) def.cleanupAction = a.cleanupAction
         return def
       })
     },
@@ -299,6 +305,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         if (a.recursiveMatch) def.recursiveMatch = a.recursiveMatch
         if (a.minAgeDays !== undefined) def.minAgeDays = a.minAgeDays
         if (a.fileMatch) def.fileMatch = a.fileMatch
+        if (a.cleanupAction) def.cleanupAction = a.cleanupAction
         return def
       })
     },

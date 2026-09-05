@@ -106,6 +106,8 @@ export interface CloudActionEntry {
   summary?: string
 }
 
+export type ManagedCleanupAction = 'uv-prune' | 'pnpm-prune' | 'windows-components' | 'delivery-optimization'
+
 export interface ScanItem {
   id: string
   path: string
@@ -116,6 +118,8 @@ export interface ScanItem {
   selected: boolean
   /** Revalidate this age cutoff immediately before deleting a scanned item. */
   recencyCutoff?: number
+  /** An optional native maintenance operation; its reclaimable size is unknown. */
+  cleanupAction?: ManagedCleanupAction
 }
 
 export interface ScanResult {

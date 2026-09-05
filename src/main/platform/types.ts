@@ -3,6 +3,7 @@
 // Consumers call getPlatform() to get the active provider.
 
 import type {
+  ManagedCleanupAction,
   StartupItem,
   StartupBootTrace,
   PrivacySetting,
@@ -17,6 +18,7 @@ import type { HealthReport } from '../services/cloud-agent-types'
 // ─── Paths ─────────────────────────────────────────────────
 
 export interface CleanTarget {
+  cleanupAction?: ManagedCleanupAction
   path: string
   subcategory: string
   needsAdmin?: boolean
@@ -64,6 +66,7 @@ export interface BrowserPaths {
 }
 
 export interface AppCacheDef {
+  cleanupAction?: ManagedCleanupAction
   id: string
   name: string
   paths: string[]

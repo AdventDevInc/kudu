@@ -961,6 +961,13 @@ export function CleanerPage() {
                               {/* Label */}
                               <div className="flex-1 min-w-0">
                                 <span className="text-[13px] font-medium text-zinc-300">{result.subcategory}</span>
+                                {result.items[0]?.cleanupAction && (
+                                  <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                                    {result.items[0].cleanupAction === 'windows-components'
+                                      ? t('maintenanceComponentsNote', { defaultValue: 'Removes older Windows component versions immediately. May take a while; savings are not included in totals.' })
+                                      : t('maintenanceNativeNote', { defaultValue: 'Uses the built-in cleanup tool. Savings are not included in totals.' })}
+                                  </p>
+                                )}
                               </div>
 
                               {/* Stats */}
@@ -969,7 +976,7 @@ export function CleanerPage() {
                                 {t(result.itemCount === 1 ? 'itemCount' : 'itemCountPlural', { count: formatNumber(result.itemCount) })}
                               </span>
                               <span className="font-mono text-[12px] font-medium shrink-0" style={{ color: 'var(--text-muted)' }}>
-                                {formatBytes(result.totalSize)}
+                                {result.items.some(item => item.cleanupAction) ? t('maintenanceSizeUnknown', { defaultValue: 'Savings vary' }) : formatBytes(result.totalSize)}
                               </span>
 
                               {/* Open location */}
@@ -1010,10 +1017,10 @@ export function CleanerPage() {
                                         )}
                                       </div>
                                       <span className="flex-1 min-w-0 truncate text-[12px] font-mono" style={{ color: 'var(--text-secondary)' }}>
-                                        {pathLabel}
+                                        {item.cleanupAction ? t('maintenanceOptional', { defaultValue: 'Optional maintenance' }) : pathLabel}
                                       </span>
                                       <span className="font-mono text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
-                                        {formatBytes(item.size)}
+                                        {item.cleanupAction ? t('maintenanceSizeUnknown', { defaultValue: 'Savings vary' }) : formatBytes(item.size)}
                                       </span>
                                       {isAbsolutePath(item.path) && (
                                         <button
