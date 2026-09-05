@@ -137,7 +137,8 @@ export function isExcluded(filePath: string, exclusions: string[]): boolean {
       if (normalized.endsWith(pattern.substring(1))) return true
     } else {
       // Path prefix match
-      if (normalized.startsWith(pattern) || normalized === pattern) return true
+      const root = pattern.replace(/[\\/]+$/, '')
+      if (normalized === root || normalized.startsWith(root + sep)) return true
     }
   }
   return false
@@ -415,6 +416,17 @@ export async function cleanItems(
       return
     }
 
+    if (isExcluded(item.path, getSettings().exclusions)) {
+      filesSkipped++
+      errors.push({ path: item.path, reason: 'excluded' })
+      consumedIds.push(item.id)
+      if (onProgress) {
+        onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
+        lastReport = Date.now()
+      }
+      return
+    }
+
     // Do not spend two full retry cycles on a protected file that the current
     // token cannot delete. Directories still use granular fallback because
     // writable descendants may be salvageable even when the root is protected.
@@ -441,9 +453,10 @@ export async function cleanItems(
     // A deep-recency scan may collapse a settled tree to one directory item.
     // Recheck it after any audit enumeration and immediately before recursive
     // deletion so files created or updated since the scan remain protected.
-    if (!await revalidateRecencyItem(item, rootInfo)) {
+    const retentionFailure = await revalidateRecencyItem(item, rootInfo)
+    if (retentionFailure) {
       filesSkipped++
-      errors.push({ path: item.path, reason: 'recently-modified' })
+      errors.push({ path: item.path, reason: retentionFailure })
       consumedIds.push(item.id)
       if (onProgress) {
         onProgress(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
@@ -562,7 +575,7 @@ export interface ScanRecencyOptions {
    * two entries, the `js` and `wasm` directories, so any recent browsing had
    * both skipped and the entire result dropped for being empty (issue #265).
    *
-   * With this on, a directory is only offered as one item when nothing beneath
+   * A directory is only offered as one item when nothing beneath
    * it falls inside the cutoff — which is what makes the recursive delete that
    * follows safe. When something under it is live, the directory is opened and
    * its children judged the same way, so a running app keeps the files it is
@@ -576,6 +589,8 @@ interface RecencyScan {
   exclusions: string[]
   /** Item budget shared across the whole scan */
   remaining: number
+  /** Preserve exclusion failures through a collapsed directory recheck. */
+  excluded?: boolean
 }
 
 interface ResolvedEntry {
@@ -605,7 +620,7 @@ async function resolveChildren(dirPath: string, ctx: RecencyScan, depth: number)
   for (const entry of entries) {
     if (ctx.remaining <= 0) { complete = false; break }
     const childPath = join(dirPath, entry.name)
-    if (isExcluded(childPath, ctx.exclusions)) { complete = false; continue }
+    if (isExcluded(childPath, ctx.exclusions)) { ctx.excluded = true; complete = false; continue }
 
     // Never descend a symlink — rm only unlinks the link, so what readdir would
     // list here is the target's contents, which this scan does not remove.
@@ -630,7 +645,8 @@ async function resolveEntry(
 ): Promise<ResolvedEntry> {
   let stats: Stats
   try {
-    stats = await stat(path)
+    stats = await lstat(path)
+    if (stats.isSymbolicLink()) return withheld()
   } catch {
     return withheld()
   }
@@ -654,17 +670,20 @@ async function resolveEntry(
 }
 
 /** Confirm that a retention-aware scan item is still settled at cleanup time. */
-async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<boolean> {
-  if (item.recencyCutoff === undefined) return true
-  if (!Number.isFinite(item.recencyCutoff) || rootInfo.isSymbolicLink()) return false
-  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= item.recencyCutoff
+async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<'excluded' | 'recently-modified' | null> {
+  if (isExcluded(item.path, getSettings().exclusions)) return 'excluded'
+  if (rootInfo.isSymbolicLink()) return 'recently-modified'
+  if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff)) return 'recently-modified'
+  const cutoff = item.recencyCutoff ?? Infinity
+  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= cutoff ? null : 'recently-modified'
 
-  const resolved = await resolveChildren(item.path, {
-    cutoff: item.recencyCutoff,
+  const ctx: RecencyScan = {
+    cutoff,
     exclusions: getSettings().exclusions,
     remaining: MAX_RECENCY_ITEMS,
-  }, MAX_RECENCY_DEPTH)
-  return resolved.complete
+  }
+  const resolved = await resolveChildren(item.path, ctx, MAX_RECENCY_DEPTH)
+  return resolved.complete ? null : ctx.excluded ? 'excluded' : 'recently-modified'
 }
 
 export async function scanDirectory(
@@ -673,61 +692,26 @@ export async function scanDirectory(
   subcategory: string,
   recency: number | ScanRecencyOptions = {}
 ): Promise<ScanResult> {
-  const { skipRecentMinutes = 60, deepRecencyCheck = false } =
-    typeof recency === 'number' ? { skipRecentMinutes: recency } : recency
-  const items: ScanItem[] = []
-  let totalSize = 0
-  const cutoff = Date.now() - skipRecentMinutes * 60 * 1000
+  const options = typeof recency === 'number' ? { skipRecentMinutes: recency } : recency
+  const requested = options.skipRecentMinutes ?? getSettings().cleaner.skipRecentMinutes ?? 60
+  const minutes = Number.isFinite(requested) ? Math.max(0, requested) : 60
+  const cutoff = Date.now() - minutes * 60_000
   const exclusions = getSettings().exclusions
-
-  const add = (path: string, size: number, mtimeMs: number, recencyCutoff?: number): void => {
-    const item: ScanItem = { id: randomUUID(), path, size, category, subcategory, lastModified: mtimeMs, selected: true }
-    if (recencyCutoff !== undefined) item.recencyCutoff = recencyCutoff
-    items.push(item)
-    totalSize += size
-  }
-
-  if (deepRecencyCheck) {
-    // The scanned directory itself is never offered — only what is inside it —
-    // so the top level takes `resolveChildren` and ignores whether it collapsed.
-    const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_RECENCY_ITEMS }, MAX_RECENCY_DEPTH)
-    for (const item of resolved.items.slice(0, MAX_RECENCY_ITEMS)) add(item.path, item.size, item.mtimeMs, cutoff)
-    return { category, subcategory, items, totalSize, itemCount: items.length }
-  }
-
   try {
-    const entries = await readdir(dirPath, { withFileTypes: true })
-
-    for (const entry of entries) {
-      if (items.length >= MAX_RECENCY_ITEMS) break
-      const fullPath = join(dirPath, entry.name)
-
-      // Check exclusions
-      if (isExcluded(fullPath, exclusions)) continue
-
-      try {
-        const stats = await stat(fullPath)
-
-        if (stats.mtimeMs > cutoff) continue
-
-        const size = stats.isDirectory() ? await getDirectorySize(fullPath, 2) : stats.size
-
-        add(fullPath, size, stats.mtimeMs)
-      } catch {
-        // Skip inaccessible files
-      }
+    const root = await lstat(dirPath)
+    if (!root.isDirectory() || root.isSymbolicLink() || isExcluded(dirPath, exclusions)) {
+      return { category, subcategory, items: [], totalSize: 0, itemCount: 0 }
     }
   } catch {
-    // Directory doesn't exist or is inaccessible
+    return { category, subcategory, items: [], totalSize: 0, itemCount: 0 }
   }
-
-  return {
-    category,
-    subcategory,
-    items,
-    totalSize,
-    itemCount: items.length
-  }
+  // Descendant safety is mandatory, including for legacy callers passing false.
+  const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_RECENCY_ITEMS }, MAX_RECENCY_DEPTH)
+  const items: ScanItem[] = resolved.items.slice(0, MAX_RECENCY_ITEMS).map(item => ({
+    id: randomUUID(), path: item.path, size: item.size, category, subcategory,
+    lastModified: item.mtimeMs, selected: true, recencyCutoff: cutoff,
+  }))
+  return { category, subcategory, items, totalSize: items.reduce((sum, item) => sum + item.size, 0), itemCount: items.length }
 }
 
 /**
@@ -880,8 +864,10 @@ export async function scanFile(
   }
 
   try {
-    const stats = await stat(filePath)
-    if (!stats.isFile()) {
+    const stats = await lstat(filePath)
+    const configured = getSettings().cleaner.skipRecentMinutes ?? 60
+    const cutoff = Date.now() - (Number.isFinite(configured) ? Math.max(0, configured) : 60) * 60_000
+    if (!stats.isFile() || stats.isSymbolicLink() || stats.mtimeMs > cutoff) {
       return { category, subcategory, items: [], totalSize: 0, itemCount: 0 }
     }
     const item: ScanItem = {
@@ -891,7 +877,8 @@ export async function scanFile(
       category,
       subcategory,
       lastModified: stats.mtimeMs,
-      selected: true
+      selected: true,
+      recencyCutoff: cutoff
     }
     return { category, subcategory, items: [item], totalSize: stats.size, itemCount: 1 }
   } catch {
@@ -909,35 +896,25 @@ export async function scanDirectoriesAsItems(
   subcategory: string,
   group?: string
 ): Promise<ScanResult> {
+  // Keep a whole-root row only when every descendant is eligible. Otherwise
+  // offer settled children, preserving active and excluded files.
   const items: ScanItem[] = []
-  let totalSize = 0
-  const exclusions = getSettings().exclusions
-
+  const configured = getSettings().cleaner.skipRecentMinutes ?? 60
+  const cutoff = Date.now() - (Number.isFinite(configured) ? Math.max(0, configured) : 60) * 60_000
+  const ctx: RecencyScan = { cutoff, exclusions: getSettings().exclusions, remaining: MAX_RECENCY_ITEMS }
   for (const dirPath of dirPaths) {
-    if (isExcluded(dirPath, exclusions)) continue
-
+    if (isExcluded(dirPath, ctx.exclusions)) continue
     try {
-      const stats = await stat(dirPath)
-      if (!stats.isDirectory()) continue
-      const size = await getDirectorySize(dirPath, 3)
-      if (size < 1024) continue
-
-      items.push({
-        id: randomUUID(),
-        path: dirPath,
-        size,
-        category,
-        subcategory,
-        lastModified: stats.mtimeMs,
-        selected: true,
+      const root = await lstat(dirPath)
+      if (!root.isDirectory() || root.isSymbolicLink()) continue
+      const resolved = await resolveEntry(dirPath, true, ctx, MAX_RECENCY_DEPTH)
+      for (const item of resolved.items.filter(item => item.size >= 1024)) items.push({
+        id: randomUUID(), path: item.path, size: item.size, category, subcategory,
+        lastModified: item.mtimeMs, selected: true, recencyCutoff: cutoff,
       })
-      totalSize += size
-    } catch {
-      // Path doesn't exist or inaccessible
-    }
+    } catch { /* Missing or inaccessible root. */ }
   }
-
-  return { category, subcategory, group, items, totalSize, itemCount: items.length }
+  return { category, subcategory, group, items, totalSize: items.reduce((sum, item) => sum + item.size, 0), itemCount: items.length }
 }
 
 /**
