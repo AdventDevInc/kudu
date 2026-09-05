@@ -1,17 +1,30 @@
 {
   "pageTitle": "Monitor hrozeb",
   "pageDescription": "Monitorování síťových připojení v reálném čase podle známých seznamů hrozeb.",
+  "checkingConnection": "Kontroluje se připojení ke Kudu Cloud…",
   "cloudNotConfigured": {
-    "title": "Cloud není nakonfigurován",
-    "description": "Propojte své zařízení s Kudu Cloud v Nastavení, aby bylo možné zapnout monitorování hrozeb. Seznam blokovaných hrozeb poskytuje cloudová služba."
+    "title": "Vyžaduje se Kudu Cloud Pro",
+    "description": "Připojte toto zařízení ke Kudu Cloud Pro, aby mohlo přijímat aktuální blacklist hrozeb a monitorovat podezřelou síťovou aktivitu.",
+    "action": "Zobrazit Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Připojení ke Cloud vyžaduje pozornost",
+    "description": "Toto zařízení má uložený klíč Cloud, ale již není autorizovaný. Zkontrolujte připojení a znovu ho propojte.",
+    "action": "Zkontrolovat připojení ke Cloud"
+  },
+  "planRequired": {
+    "title": "Vyžaduje se Kudu Cloud Pro",
+    "description": "Monitorování hrozeb je funkce Pro. Upgradujte svůj tarif Cloud, aby toto zařízení mohlo přijímat živý blacklist hrozeb.",
+    "action": "Zobrazit tarify Cloud"
   },
   "loading": "Načítání...",
   "inactive": {
     "title": "Monitor hrozeb je neaktivní",
-    "description": "Není načten žádný seznam blokovaných hrozeb. Seznam bude automaticky načten, jakmile se cloudový agent připojí."
+    "description": "Cloud je připojený, ale blacklist hrozeb zatím není k dispozici. Zkontrolujte svůj tarif Pro nebo to zkuste znovu, až se agent Cloud znovu připojí.",
+    "action": "Zkontrolovat tarif Cloud"
   },
   "statusBar": {
-    "blacklistVersion": "Seznam blokovaných",
+    "blacklistVersion": "Blacklist",
     "connectionsScanned": "Připojení zkontrolována {{time}}",
     "dnsScanned": "DNS zkontrolováno {{time}}",
     "threatsDetected": "Zjištěna {{count}} hrozba",

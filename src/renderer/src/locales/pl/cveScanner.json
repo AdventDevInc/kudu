@@ -1,19 +1,30 @@
 {
-  "pageTitle": "Luki w zabezpieczeniach",
-  "pageDescription": "Wyświetl znane luki w zabezpieczeniach wykryte w zainstalowanym oprogramowaniu",
-  "loading": "Wczytywanie luk w zabezpieczeniach...",
+  "pageTitle": "Podatności",
+  "pageDescription": "Wyświetl znane podatności wykryte w zainstalowanym oprogramowaniu",
+  "loading": "Ładowanie podatności...",
   "refetchButton": "Odśwież",
   "cloudNotConfigured": {
     "title": "Wymagany Cloud Agent",
-    "description": "Skanowanie CVE wymaga połączenia z Cloud Agent. Przejdź do Ustawienia → Chmura, aby połączyć urządzenie."
+    "description": "Skanowanie CVE wymaga Kudu Cloud Pro. Połącz to urządzenie, aby sprawdzić zainstalowane oprogramowanie pod kątem aktualnych biuletynów bezpieczeństwa.",
+    "action": "Wyświetl Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent nie jest połączony",
-    "description": "Cloud Agent nie jest obecnie połączony. Sprawdź połączenie w Ustawienia → Chmura."
+    "description": "Cloud Agent nie jest obecnie połączony. Sprawdź połączenie w Ustawienia → Cloud."
+  },
+  "connectionError": {
+    "title": "Połączenie z Cloud wymaga uwagi",
+    "description": "To urządzenie ma zapisany klucz Cloud, ale nie jest on już autoryzowany. Sprawdź połączenie i połącz je ponownie.",
+    "action": "Sprawdź połączenie z Cloud"
+  },
+  "planRequired": {
+    "title": "Wymagany Kudu Cloud Pro",
+    "description": "Monitorowanie podatności jest funkcją Pro. Uaktualnij swój plan Cloud, aby skanować zainstalowane oprogramowanie względem aktualnej bazy CVE.",
+    "action": "Wyświetl plany Cloud"
   },
   "emptyState": {
-    "title": "Nie wykryto luk w zabezpieczeniach",
-    "description": "Nie znaleziono żadnych znanych CVE w zainstalowanym oprogramowaniu. Twój system wygląda na bezpieczny!"
+    "title": "Nie wykryto podatności",
+    "description": "W zainstalowanym oprogramowaniu nie znaleziono żadnych znanych CVE. Twój system wygląda na bezpieczny!"
   },
   "severity": {
     "critical": "Krytyczny",
@@ -32,14 +43,14 @@
   "filter": {
     "all": "Wszystkie",
     "searchPlaceholder": "Szukaj według nazwy aplikacji lub identyfikatora CVE...",
-    "noResults": "Żadne luki w zabezpieczeniach nie pasują do bieżących filtrów"
+    "noResults": "Żadne podatności nie pasują do bieżących filtrów"
   },
   "error": {
-    "title": "Nie udało się wczytać luk w zabezpieczeniach",
-    "description": "Nie udało się pobrać danych o lukach w zabezpieczeniach z serwera. Spróbuj odświeżyć lub sprawdź połączenie z chmurą."
+    "title": "Nie udało się załadować podatności",
+    "description": "Nie udało się pobrać danych o podatnościach z serwera. Spróbuj odświeżyć lub sprawdź połączenie z chmurą."
   },
   "card": {
-    "installed": "Zainstalowano: {{version}}",
+    "installed": "Zainstalowana wersja: {{version}}",
     "fixAvailable": "Poprawka: {{version}}",
     "noFix": "Brak dostępnej poprawki",
     "cvss": "CVSS {{score}}",
@@ -54,7 +65,7 @@
     "page": "Strona {{current}}"
   },
   "toast": {
-    "fetchFailed": "Nie udało się wczytać danych o lukach w zabezpieczeniach",
+    "fetchFailed": "Nie udało się załadować danych o podatnościach",
     "fetchFailedNotConnected": "Cloud Agent nie jest połączony"
   }
 }

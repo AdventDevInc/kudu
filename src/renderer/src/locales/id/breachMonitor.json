@@ -1,7 +1,17 @@
 {
-  "pageTitle": "Monitor Kebocoran",
+  "pageTitle": "Pemantau Kebocoran",
   "pageDescription": "Periksa apakah alamat email Anda telah terekspos dalam kebocoran data yang diketahui",
   "loading": "Memuat data kebocoran...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud diperlukan",
+    "description": "Hubungkan perangkat ini untuk memeriksa alamat email terhadap intelijen kebocoran yang diketahui dan melacak paparan yang baru dilaporkan.",
+    "action": "Lihat Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Koneksi Cloud memerlukan perhatian",
+    "description": "Perangkat ini memiliki kunci Cloud yang tersimpan, tetapi tidak lagi diotorisasi. Tinjau koneksi dan tautkan kembali.",
+    "action": "Tinjau koneksi Cloud"
+  },
   "summary": {
     "totalBreaches": "Total Kebocoran",
     "unacknowledged": "Baru",
@@ -17,7 +27,7 @@
     "fetchFailed": "Gagal memuat data kebocoran",
     "addFailed": "Gagal menambahkan email",
     "removeFailed": "Gagal menghapus email",
-    "invalidEmail": "Masukkan alamat email yang valid",
+    "invalidEmail": "Harap masukkan alamat email yang valid",
     "limitReached": "Batas email untuk paket Anda telah tercapai",
     "acknowledged": "Kebocoran ditandai sebagai telah ditinjau",
     "acknowledgeFailed": "Gagal menandai kebocoran"

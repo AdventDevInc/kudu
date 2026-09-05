@@ -2,11 +2,21 @@
   "pageTitle": "泄露监控",
   "pageDescription": "检查您的电子邮件地址是否已在已知数据泄露事件中暴露",
   "loading": "正在加载泄露数据...",
+  "cloudNotConfigured": {
+    "title": "需要 Kudu Cloud",
+    "description": "连接此设备，以根据已知泄露情报检查电子邮件地址，并跟踪新报告的暴露情况。",
+    "action": "查看 Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Cloud 连接需要处理",
+    "description": "此设备已保存 Cloud 密钥，但该密钥已不再获得授权。请检查连接并重新关联。",
+    "action": "检查 Cloud 连接"
+  },
   "summary": {
     "totalBreaches": "泄露总数",
-    "unacknowledged": "新发现",
-    "emailsMonitored": "已监控的电子邮件",
-    "emailsMonitoredTooltip": "Basic 方案：1 个电子邮件地址 · Pro 方案：5 个电子邮件地址。可在云端设置中升级您的方案以监控更多地址。"
+    "unacknowledged": "新增",
+    "emailsMonitored": "监控的电子邮件",
+    "emailsMonitoredTooltip": "Basic 计划：1 个电子邮件 · Pro 计划：5 个电子邮件。请在 Cloud 设置中升级您的计划，以监控更多电子邮件。"
   },
   "addEmail": {
     "placeholder": "输入电子邮件地址",
@@ -18,29 +28,29 @@
     "addFailed": "添加电子邮件失败",
     "removeFailed": "移除电子邮件失败",
     "invalidEmail": "请输入有效的电子邮件地址",
-    "limitReached": "已达到您当前方案的电子邮件数量上限",
-    "acknowledged": "泄露已标记为已查看",
-    "acknowledgeFailed": "标记泄露失败"
+    "limitReached": "已达到您当前计划的电子邮件数量上限",
+    "acknowledged": "泄露事件已标记为已查看",
+    "acknowledgeFailed": "确认泄露事件失败"
   },
   "emptyState": {
     "noEmails": "未监控任何电子邮件",
-    "noEmailsDesc": "添加一个电子邮件地址，以检查历史数据泄露并持续监控新的泄露事件。",
+    "noEmailsDesc": "添加一个电子邮件地址，以检查过去的数据泄露事件并持续监控新的泄露。",
     "allClear": "一切正常",
     "allClearDesc": "您监控的电子邮件均未在任何已知数据泄露事件中被发现。",
     "upgradeRequired": "需要升级",
-    "upgradeRequiredDesc": "泄露监控功能适用于 Basic 及以上方案。升级您的方案即可开始监控。",
-    "goToCloud": "查看方案",
-    "noBreachesForEmail": "此电子邮件未发现泄露",
+    "upgradeRequiredDesc": "泄露监控适用于 Basic 计划及以上版本。升级您的计划以开始监控。",
+    "goToCloud": "查看计划",
+    "noBreachesForEmail": "未发现此电子邮件存在泄露",
     "selectEmail": "从列表中选择一个电子邮件以查看泄露详情"
   },
   "error": {
     "title": "加载泄露数据失败",
-    "description": "请检查您的云端连接后重试。"
+    "description": "请检查您的云连接后重试。"
   },
   "emailList": {
     "breaches": "{{count}} 次泄露",
     "breaches_other": "{{count}} 次泄露",
-    "newBreaches": "{{count}} 个新发现",
+    "newBreaches": "{{count}} 个新增",
     "noBreaches": "无泄露",
     "checking": "正在检查...",
     "paused": "已暂停",
@@ -55,9 +65,9 @@
     "data": "泄露数据",
     "status": "状态",
     "actions": "",
-    "new": "新发现",
+    "new": "新增",
     "reviewed": "已查看",
-    "sensitive": "敏感泄露",
+    "sensitive": "敏感泄露事件",
     "verified": "已验证",
     "unverified": "未验证"
   },
@@ -66,9 +76,9 @@
   },
   "actions": {
     "acknowledge": "标记为已查看",
-    "acknowledgeTooltip": "将此泄露标记为已查看，使其不再显示为新发现或触发通知",
+    "acknowledgeTooltip": "将此泄露事件标记为已查看，使其不再显示为新增或触发通知",
     "acknowledgeAll": "全部标记为已查看",
-    "acknowledgeAllTooltip": "将所有未查看的泄露标记为已查看"
+    "acknowledgeAllTooltip": "将所有未查看的泄露事件标记为已查看"
   },
   "refetchButton": "刷新"
 }

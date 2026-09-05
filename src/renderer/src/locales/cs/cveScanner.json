@@ -5,11 +5,22 @@
   "refetchButton": "Obnovit",
   "cloudNotConfigured": {
     "title": "Vyžadován Cloud Agent",
-    "description": "Kontrola CVE vyžaduje propojený Cloud Agent. Přejděte do Nastavení → Cloud a připojte své zařízení."
+    "description": "Kontrola CVE vyžaduje Kudu Cloud Pro. Připojte toto zařízení a ověřte nainstalovaný software podle aktuálních bezpečnostních upozornění.",
+    "action": "Zobrazit Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent není připojen",
     "description": "Cloud Agent momentálně není připojen. Zkontrolujte připojení v Nastavení → Cloud."
+  },
+  "connectionError": {
+    "title": "Připojení ke Cloud vyžaduje pozornost",
+    "description": "Toto zařízení má uložený klíč Cloud, ale již není autorizován. Zkontrolujte připojení a znovu jej propojte.",
+    "action": "Zkontrolovat připojení ke Cloud"
+  },
+  "planRequired": {
+    "title": "Vyžadován Kudu Cloud Pro",
+    "description": "Monitorování zranitelností je funkce Pro. Upgradujte svůj tarif Cloud, abyste mohli kontrolovat nainstalovaný software podle živé databáze CVE.",
+    "action": "Zobrazit tarify Cloud"
   },
   "emptyState": {
     "title": "Nebyly zjištěny žádné zranitelnosti",
@@ -36,7 +47,7 @@
   },
   "error": {
     "title": "Nepodařilo se načíst zranitelnosti",
-    "description": "Nepodařilo se načíst data o zranitelnostech ze serveru. Zkuste je obnovit nebo zkontrolujte cloudové připojení."
+    "description": "Nepodařilo se získat data o zranitelnostech ze serveru. Zkuste obnovení nebo zkontrolujte připojení ke cloudové službě."
   },
   "card": {
     "installed": "Nainstalováno: {{version}}",

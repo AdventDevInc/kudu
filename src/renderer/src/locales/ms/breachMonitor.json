@@ -2,6 +2,16 @@
   "pageTitle": "Pemantau Kebocoran",
   "pageDescription": "Semak sama ada alamat e-mel anda telah terdedah dalam kebocoran data yang diketahui",
   "loading": "Memuatkan data kebocoran...",
+  "cloudNotConfigured": {
+    "title": "Kudu Cloud diperlukan",
+    "description": "Sambungkan peranti ini untuk menyemak alamat e-mel terhadap risikan kebocoran yang diketahui dan menjejaki pendedahan baharu yang dilaporkan.",
+    "action": "Lihat Kudu Cloud"
+  },
+  "connectionError": {
+    "title": "Sambungan Cloud memerlukan perhatian",
+    "description": "Peranti ini mempunyai kunci Cloud yang disimpan, tetapi ia tidak lagi dibenarkan. Semak sambungan dan pautkannya semula.",
+    "action": "Semak sambungan Cloud"
+  },
   "summary": {
     "totalBreaches": "Jumlah Kebocoran",
     "unacknowledged": "Baharu",
@@ -18,15 +28,15 @@
     "addFailed": "Gagal menambah e-mel",
     "removeFailed": "Gagal membuang e-mel",
     "invalidEmail": "Sila masukkan alamat e-mel yang sah",
-    "limitReached": "Had e-mel telah dicapai untuk pelan anda",
+    "limitReached": "Had e-mel untuk pelan anda telah dicapai",
     "acknowledged": "Kebocoran ditandakan sebagai telah disemak",
     "acknowledgeFailed": "Gagal mengakui kebocoran"
   },
   "emptyState": {
     "noEmails": "Tiada e-mel dipantau",
     "noEmailsDesc": "Tambah alamat e-mel untuk menyemak kebocoran data yang lalu dan memantau kebocoran baharu secara berterusan.",
-    "allClear": "Semua selamat",
-    "allClearDesc": "Tiada e-mel yang anda pantau ditemui dalam mana-mana kebocoran data yang diketahui.",
+    "allClear": "Semuanya selamat",
+    "allClearDesc": "Tiada satu pun e-mel yang anda pantau ditemui dalam mana-mana kebocoran data yang diketahui.",
     "upgradeRequired": "Naik taraf diperlukan",
     "upgradeRequiredDesc": "Pemantauan kebocoran tersedia pada pelan Basic dan ke atas. Naik taraf pelan anda untuk mula memantau.",
     "goToCloud": "Lihat Pelan",

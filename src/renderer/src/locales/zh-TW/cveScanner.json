@@ -1,15 +1,26 @@
 {
   "pageTitle": "弱點",
-  "pageDescription": "檢視已安裝軟體中偵測到的已知弱點",
+  "pageDescription": "檢視在已安裝軟體中偵測到的已知弱點",
   "loading": "正在載入弱點...",
   "refetchButton": "重新整理",
   "cloudNotConfigured": {
     "title": "需要 Cloud Agent",
-    "description": "CVE 掃描需要先連結 Cloud Agent。請前往「設定」→「雲端」以連線您的裝置。"
+    "description": "CVE 掃描需要 Kudu Cloud Pro。連接此裝置，以根據目前的安全性公告檢查已安裝的軟體。",
+    "action": "檢視 Kudu Cloud"
   },
   "cloudNotConnected": {
     "title": "Cloud Agent 未連線",
-    "description": "Cloud Agent 目前未連線。請在「設定」→「雲端」中檢查您的連線。"
+    "description": "Cloud Agent 目前未連線。請在「設定」→「Cloud」中檢查您的連線。"
+  },
+  "connectionError": {
+    "title": "Cloud 連線需要處理",
+    "description": "此裝置已儲存 Cloud 金鑰，但已不再獲得授權。請檢查連線並重新連結。",
+    "action": "檢查 Cloud 連線"
+  },
+  "planRequired": {
+    "title": "需要 Kudu Cloud Pro",
+    "description": "弱點監控是 Pro 功能。升級您的 Cloud 方案，以根據即時 CVE 資料庫掃描已安裝的軟體。",
+    "action": "檢視 Cloud 方案"
   },
   "emptyState": {
     "title": "未偵測到弱點",
@@ -36,7 +47,7 @@
   },
   "error": {
     "title": "載入弱點失敗",
-    "description": "無法從伺服器取得弱點資料。請嘗試重新整理，或檢查您的雲端連線。"
+    "description": "無法從伺服器取得弱點資料。請嘗試重新整理，或檢查您的 Cloud 連線。"
   },
   "card": {
     "installed": "已安裝：{{version}}",
