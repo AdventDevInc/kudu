@@ -175,6 +175,8 @@ The test suite includes schema validation tests that verify every rule file.
 
 ### System Clean Target (`system.json`)
 
+App and system targets may set `cacheReset: true` for performance caches such as Prefetch and compiled shaders. These remain visible but unselected in an optional reset group, with a slower-next-launch notice. CLI cleanup requires `--include-cache-resets`; cloud cleanup excludes them. Ordinary cache rules retain their existing selection behavior.
+
 ```json
 {
   "path": "${VAR}/path",        // Required.

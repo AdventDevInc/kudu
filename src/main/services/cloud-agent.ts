@@ -1938,7 +1938,7 @@ class CloudAgentService {
           try {
             let r
             const recency = { deepRecencyCheck: t.deepRecencyCheck === true }
-            if (t.cleanupAction) {
+            if (t.cleanupAction || t.cacheReset) {
               continue // Native maintenance requires an explicit local selection.
             } else if (t.childSubdir) {
               const childPaths = await resolveChildSubdirs([t.path], t.childSubdir)
@@ -2047,7 +2047,7 @@ class CloudAgentService {
         const appResults: ScanResult[] = []
         const appCategory = CleanerType.App
         for (const appDef of getPlatform().paths.appPaths()) {
-          if (appDef.cleanupAction) continue
+          if (appDef.cleanupAction || appDef.cacheReset) continue
           try {
             const r = await scanAppRule(appDef, appCategory)
             if (r.items.length > 0) { cacheItems(r.items); appResults.push(r) }
@@ -2074,6 +2074,7 @@ class CloudAgentService {
         const gamingCategory = CleanerType.Gaming
 
         for (const launcher of getPlatform().paths.gamingPaths()) {
+          if (launcher.cacheReset) continue
           try {
             const r = await scanAppRule(launcher, gamingCategory, { directoryItems: true, group: 'Launcher Caches' })
             if (r.items.length > 0) { cacheItems(r.items); gamingResults.push(r) }
@@ -2081,6 +2082,7 @@ class CloudAgentService {
         }
 
         for (const gpu of getPlatform().paths.gpuCachePaths()) {
+          if (gpu.cacheReset) continue
           try {
             const r = await scanAppRule(gpu, gamingCategory, { directoryItems: true, group: 'GPU Shader Caches' })
             if (r.items.length > 0) { cacheItems(r.items); gamingResults.push(r) }

@@ -2,7 +2,7 @@
   "$schema": "../schema/rules.schema.json",
   "type": "gpu-cache",
   "apps": [
-    { "id": "metal-cache", "name": "Metal Shader Cache", "paths": ["${CACHES}/com.apple.metal"], "description": "Apple Metal compiled shader cache; rebuilt automatically by the GPU driver" },
-    { "id": "unity-cache", "name": "Unity Shader Cache", "paths": ["${CACHES}/com.unity3d.UnityEditor"], "description": "Unity engine compiled shader cache; rebuilt when Unity projects are opened" }
+    { "cacheReset": true, "id": "metal-cache", "name": "Metal Shader Cache", "paths": ["${CACHES}/com.apple.metal"], "description": "Apple Metal compiled shader cache; rebuilt automatically by the GPU driver" },
+    { "cacheReset": true, "id": "unity-cache", "name": "Unity Shader Cache", "paths": ["${CACHES}/com.unity3d.UnityEditor"], "description": "Unity engine compiled shader cache; rebuilt when Unity projects are opened" }
   ]
 }

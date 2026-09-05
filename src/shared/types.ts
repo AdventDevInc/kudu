@@ -119,6 +119,7 @@ export interface ScanItem {
   /** Revalidate this age cutoff immediately before deleting a scanned item. */
   recencyCutoff?: number
   /** An optional native maintenance operation; its reclaimable size is unknown. */
+  cacheReset?: boolean
   cleanupAction?: ManagedCleanupAction
 }
 

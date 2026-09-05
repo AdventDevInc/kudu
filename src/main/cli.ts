@@ -1,3 +1,4 @@
+import { applyCacheResetPolicy } from './services/cache-reset-policy'
 import { scanManagedCleanup } from './services/managed-cleanup'
 import { flushCliOutput } from './services/cli-output'
 import { app } from 'electron'
@@ -21,6 +22,7 @@ export interface CliContext {
   json: boolean
   verbosity: Verbosity
   includeMaintenance?: boolean
+  includeCacheResets?: boolean
 }
 
 export const ExitCode = {
@@ -118,7 +120,7 @@ function showProgress(ctx: CliContext): boolean {
 
 // ─── Argument parsing ───────────────────────────────────────
 
-const GLOBAL_FLAGS = new Set(['--include-maintenance', '--json', '--verbose', '--quiet', '-q', '--help', '-h', '--version', '-v'])
+const GLOBAL_FLAGS = new Set(['--include-cache-resets', '--include-maintenance', '--json', '--verbose', '--quiet', '-q', '--help', '-h', '--version', '-v'])
 
 export function parseCliArgs(argv: string[]): ParsedCliArgs {
   const cliIndex = argv.indexOf('--cli')
@@ -132,6 +134,7 @@ export function parseCliArgs(argv: string[]): ParsedCliArgs {
 
   const verbosity: Verbosity = verbose ? 'verbose' : quiet ? 'quiet' : 'normal'
   const ctx: CliContext = { json, verbosity }
+  if (cliArgs.includes('--include-cache-resets')) ctx.includeCacheResets = true
   if (cliArgs.includes('--include-maintenance')) ctx.includeMaintenance = true
 
   const command = cliArgs.find(a => !a.startsWith('--') && !a.startsWith('-'))
@@ -174,6 +177,7 @@ async function scanSystem(): Promise<ScanResult[]> {
         result.totalSize = result.items.reduce((s, item) => s + item.size, 0)
         result.itemCount = result.items.length
       }
+      applyCacheResetPolicy(result, target.cacheReset)
       if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
     } catch { /* skip */ }
   }
@@ -569,6 +573,10 @@ Exit Codes:
   5  Nothing found (scan returned zero items)
   6  Unknown command
   7  Threats/issues found requiring attention
+
+Optional cache resets:
+  --include-cache-resets  Also reset performance caches with --clean; the next
+                         app or game launch may be slower.
 
 Optional native cleanup:
   --include-maintenance  Also run native package pruning and Windows maintenance
@@ -1505,7 +1513,7 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: C
     const fileItemIds = allResults
       .filter(r => r.category !== CleanerType.RecycleBin || hasTrashPath)
       .filter(r => r.category !== CleanerType.Database)
-      .flatMap(r => r.items.filter(i => !i.cleanupAction || ctx.includeMaintenance === true).map(i => i.id))
+      .flatMap(r => r.items.filter(i => (!i.cleanupAction || ctx.includeMaintenance === true) && (!i.cacheReset || ctx.includeCacheResets === true)).map(i => i.id))
     const dbItemIds = allResults
       .filter(r => r.category === CleanerType.Database)
       .flatMap(r => r.items.map(i => i.id))
