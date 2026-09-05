@@ -1,10 +1,17 @@
 import { describe, it, expect } from 'vitest'
-import { spawnTrackedLines } from './exec-utf8'
+import { execTracked, spawnTrackedLines } from './exec-utf8'
 
 // Drive a real child process — the point of spawnTrackedLines is its handling
 // of stdout chunking, exit codes, timeouts and aborts, none of which a mocked
 // ChildProcess would exercise faithfully.
 const NODE = process.execPath
+
+it('executes with the supplied environment instead of inheriting removed overrides', async () => {
+  const result = await execTracked(NODE, ['-e', 'process.stdout.write(process.env.KUDU_COMMAND_TEST || "missing")'], {
+    env: { ...process.env, KUDU_COMMAND_TEST: 'isolated' },
+  })
+  expect(result.stdout).toBe('isolated')
+})
 
 function nodeEval(source: string): string[] {
   return ['-e', source]

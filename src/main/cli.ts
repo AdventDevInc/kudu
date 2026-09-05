@@ -579,7 +579,7 @@ Optional cache resets:
                          app or game launch may be slower.
 
 Optional native cleanup:
-  --include-maintenance  Also run native package pruning and Windows maintenance
+  --include-maintenance  Also run optional native cache pruning and system maintenance
                          with --clean; savings are not estimated.
 
 Examples:
