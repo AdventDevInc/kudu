@@ -162,7 +162,7 @@ export interface PlatformPaths {
   malwareTrustedInstallRoots(): string[]
 
   /**
-   * Installation roots any user process can write to (per-user app installs).
+   * Installation roots writable without elevation (per-user installs, ProgramData).
    * A trusted-publisher directory here only suppresses heuristics, never
    * signature matching.
    */

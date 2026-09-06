@@ -73,20 +73,20 @@ export function createWin32Paths(): PlatformPaths {
     },
 
     malwareTrustedInstallRoots(): string[] {
+      // Elevation-required only — ProgramData is often writable by standard users.
       return [
         PROGRAMFILES,
         PROGRAMFILES_X86,
-        PROGRAMDATA,
       ]
     },
 
     malwareTrustedUserInstallRoots(): string[] {
-      // Per-user installs — Chromium forks and vendor updaters live here, but so
-      // can anything the user runs, hence the reduced trust.
+      // Writable without elevation — heuristics only, never skip YARA.
       return [
         join(LOCALAPPDATA, 'Programs'),
         LOCALAPPDATA,
         APPDATA,
+        PROGRAMDATA,
       ]
     },
 
