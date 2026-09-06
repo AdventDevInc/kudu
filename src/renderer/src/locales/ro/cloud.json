@@ -60,6 +60,8 @@
   "connectTitle": "Începeți",
   "connectDescription": "Creați un cont sau lipiți cheia API pentru a conecta acest dispozitiv.",
   "signUpFree": "Creați cont",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Aveți deja un cont? Lipiți mai jos cheia API.",
   "apiKeyPlaceholder": "Lipiți cheia API",
   "linking": "Se conectează...",

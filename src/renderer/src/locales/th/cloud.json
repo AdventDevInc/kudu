@@ -60,6 +60,8 @@
   "connectTitle": "เริ่มต้นใช้งาน",
   "connectDescription": "สร้างบัญชีหรือวาง API key ของคุณเพื่อเชื่อมโยงอุปกรณ์นี้",
   "signUpFree": "สร้างบัญชี",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "มีบัญชีอยู่แล้วใช่หรือไม่ วาง API key ของคุณด้านล่าง",
   "apiKeyPlaceholder": "วาง API key ของคุณ",
   "linking": "กำลังเชื่อมโยง...",

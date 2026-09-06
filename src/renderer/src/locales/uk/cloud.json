@@ -60,6 +60,8 @@
   "connectTitle": "Початок роботи",
   "connectDescription": "Створіть обліковий запис або вставте свій API key, щоб прив’язати цей пристрій.",
   "signUpFree": "Створити обліковий запис",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Уже маєте обліковий запис? Вставте свій API key нижче.",
   "apiKeyPlaceholder": "Вставте свій API key",
   "linking": "Прив’язування...",

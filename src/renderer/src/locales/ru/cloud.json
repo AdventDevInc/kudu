@@ -60,6 +60,8 @@
   "connectTitle": "Начало работы",
   "connectDescription": "Создайте учётную запись или вставьте свой API key, чтобы привязать это устройство.",
   "signUpFree": "Создать учётную запись",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Уже есть учётная запись? Вставьте свой API key ниже.",
   "apiKeyPlaceholder": "Вставьте свой API key",
   "linking": "Привязка...",

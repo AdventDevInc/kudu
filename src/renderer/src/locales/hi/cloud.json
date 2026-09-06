@@ -60,6 +60,8 @@
   "connectTitle": "शुरू करें",
   "connectDescription": "इस डिवाइस को लिंक करने के लिए खाता बनाएं या अपनी API key पेस्ट करें।",
   "signUpFree": "खाता बनाएं",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "क्या आपके पास पहले से खाता है? अपनी API key नीचे पेस्ट करें।",
   "apiKeyPlaceholder": "अपनी API key पेस्ट करें",
   "linking": "लिंक किया जा रहा है...",

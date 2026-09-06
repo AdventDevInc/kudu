@@ -60,6 +60,8 @@
   "connectTitle": "はじめに",
   "connectDescription": "アカウントを作成するか、API キーを貼り付けてこのデバイスをリンクします。",
   "signUpFree": "アカウントを作成",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "すでにアカウントをお持ちですか？以下に API キーを貼り付けてください。",
   "apiKeyPlaceholder": "API キーを貼り付け",
   "linking": "リンク中...",

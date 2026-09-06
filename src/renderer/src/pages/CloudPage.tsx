@@ -28,6 +28,7 @@ import type { KuduSettings } from '@shared/types'
 
 const CLOUD_DASHBOARD_URL = 'https://cloud.usekudu.com'
 const CLOUD_BILLING_URL = 'https://cloud.usekudu.com/organisation/billing'
+const CLOUD_SIGNUP_URL = 'https://cloud.usekudu.com'
 
 function isSubscriptionError(error: string | null | undefined): boolean {
   const value = error?.toLowerCase() ?? ''
@@ -202,13 +203,15 @@ export function CloudPage() {
             {t('heroDescription')}
           </p>
           <button
-            onClick={() => window.open('https://cloud.usekudu.com', '_blank')}
+            onClick={() => window.open(CLOUD_SIGNUP_URL, '_blank')}
             className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium transition-all"
             style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
           >
             <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
             {t('signUpFree')}
           </button>
+          <p className="text-[11px] mt-2" style={{ color: 'var(--text-dim)' }}>{t('signUpOpensBrowser')}</p>
+          <p className="text-[11px] mt-1 max-w-xl leading-relaxed" style={{ color: 'var(--text-ghost)' }}>{t('signUpBlankPageHelp')}</p>
         </div>
       </div>
 
@@ -346,15 +349,17 @@ export function CloudPage() {
         <h3 className="text-[15px] font-semibold text-white mb-1">{t('connectTitle')}</h3>
         <p className="text-[12px] mb-5" style={{ color: 'var(--text-muted)' }}>{t('connectDescription')}</p>
 
-        <div className="flex gap-3 mb-4">
+        <div className="flex flex-col gap-1 mb-4">
           <button
-            onClick={() => window.open('https://cloud.usekudu.com', '_blank')}
-            className="flex items-center gap-2 rounded-xl px-5 py-3 text-[13px] font-medium transition-all"
+            onClick={() => window.open(CLOUD_SIGNUP_URL, '_blank')}
+            className="flex w-fit items-center gap-2 rounded-xl px-5 py-3 text-[13px] font-medium transition-all"
             style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
           >
             <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
             {t('signUpFree')}
           </button>
+          <p className="text-[11px]" style={{ color: 'var(--text-dim)' }}>{t('signUpOpensBrowser')}</p>
+          <p className="text-[11px] max-w-xl leading-relaxed" style={{ color: 'var(--text-ghost)' }}>{t('signUpBlankPageHelp')}</p>
         </div>
 
         <p className="text-[13px] mb-3" style={{ color: 'var(--text-muted)' }}>{t('alreadyHaveAccount')}</p>
