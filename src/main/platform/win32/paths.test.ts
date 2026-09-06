@@ -287,6 +287,7 @@ describe('win32 paths', () => {
     it('holds only roots that need elevation to write to', () => {
       expect(roots.some((r) => r.includes('AppData'))).toBe(false)
       expect(roots.some((r) => r.includes('Downloads'))).toBe(false)
+      expect(roots.some((r) => /ProgramData$/i.test(r))).toBe(false)
     })
   })
 
@@ -295,6 +296,10 @@ describe('win32 paths', () => {
 
     it('includes the per-user install locations', () => {
       expect(roots.some((r) => r.includes('AppData'))).toBe(true)
+    })
+
+    it('includes ProgramData at heuristics trust (#385)', () => {
+      expect(roots.some((r) => /ProgramData$/i.test(r))).toBe(true)
     })
 
     it('does not include user drop locations like Downloads', () => {
