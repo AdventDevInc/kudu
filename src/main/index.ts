@@ -20,6 +20,7 @@ import { shouldDisableGpu, applyGpuFallbackSwitches, registerGpuCrashRecovery } 
 import { runCli } from './cli'
 import { runDaemon } from './daemon'
 import { createWindowsTrayIcon } from './tray-icon'
+import { isAdmin } from './services/elevation'
 
 // ─── Disable hardware acceleration ──────────────────────────
 // Must be called before app.whenReady().  On machines with incompatible
@@ -335,6 +336,9 @@ async function applyAutoLaunch(enabled: boolean): Promise<void> {
 
 function createTray(): void {
   if (tray) return
+  // Elevated Linux GUIs often fall back to XEmbed via xembedsniproxy, which
+  // triggers Plasma Wayland "Remote Control" prompts on every tray click (#383).
+  if (process.platform === 'linux' && isAdmin()) return
 
   tray = new Tray(createTrayIcon())
   tray.setToolTip(t('trayTooltip'))
@@ -650,8 +654,11 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   const settings = getSettings()
-  // Don't quit if minimize-to-tray or any schedule is enabled
-  if (settings.minimizeToTray || settings.schedules.some((s) => s.enabled)) {
+  // Don't quit if minimize-to-tray or any schedule is enabled — unless the tray
+  // was skipped (elevated Linux), in which case staying alive would leave a
+  // headless process with no UI.
+  const trayActive = tray != null
+  if (trayActive && (settings.minimizeToTray || settings.schedules.some((s) => s.enabled))) {
     // Stay alive in tray
     return
   }
