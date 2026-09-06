@@ -4,6 +4,7 @@ const mockExecFile = vi.fn()
 const mockReadFile = vi.fn()
 const mockWriteFile = vi.fn()
 const mockMkdir = vi.fn()
+const mockUnlink = vi.fn()
 
 vi.mock('child_process', () => ({
   execFile: (...args: any[]) => mockExecFile(...args),
@@ -15,6 +16,7 @@ vi.mock('fs/promises', () => ({
   readFile: (...args: any[]) => mockReadFile(...args),
   writeFile: (...args: any[]) => mockWriteFile(...args),
   mkdir: (...args: any[]) => mockMkdir(...args),
+  unlink: (...args: any[]) => mockUnlink(...args),
 }))
 
 const { createLinuxPrivacy } = await import('./privacy')
@@ -161,7 +163,7 @@ describe('linux privacy', () => {
       }
     })
 
-    it('every setting has check and apply functions', () => {
+    it('every setting has check and apply; revert is optional', () => {
       process.env.XDG_CURRENT_DESKTOP = 'GNOME'
       const privacy = createLinuxPrivacy()
       const settings = privacy.getSettings()
@@ -169,6 +171,36 @@ describe('linux privacy', () => {
       for (const s of settings) {
         expect(typeof s.check).toBe('function')
         expect(typeof s.apply).toBe('function')
+        if (s.revert !== undefined) {
+          expect(typeof s.revert).toBe('function')
+        }
+      }
+    })
+
+    it('omits revert when soft would open an attack path', () => {
+      const privacy = createLinuxPrivacy()
+      const byId = Object.fromEntries(privacy.getSettings().map((s) => [s.id, s]))
+      expect(byId['sysctl-aslr']?.revert).toBeUndefined()
+      expect(byId['sysctl-tcp-syncookies']?.revert).toBeUndefined()
+      expect(byId['sysctl-icmp-broadcast']?.revert).toBeUndefined()
+      expect(byId['sysctl-source-route']?.revert).toBeUndefined()
+      expect(byId['sysctl-accept-redirects']?.revert).toBeUndefined()
+      expect(byId['sysctl-ipv6-redirects']?.revert).toBeUndefined()
+      expect(byId['sysctl-rp-filter']?.revert).toBeUndefined()
+      expect(byId['sysctl-dmesg-restrict']?.revert).toBeUndefined()
+      expect(byId['sysctl-ptrace-scope']?.revert).toBeUndefined()
+      expect(byId['sysctl-unprivileged-bpf']?.revert).toBeUndefined()
+      // Soft 1 still hides pointers from non-root; audit-only softs stay reversible.
+      expect(typeof byId['sysctl-kptr-restrict']?.revert).toBe('function')
+      expect(typeof byId['sysctl-log-martians']?.revert).toBe('function')
+      expect(typeof byId['core-dump-disable']?.revert).toBe('function')
+    })
+
+    it('every KDE desktop setting has a revert function', () => {
+      process.env.XDG_CURRENT_DESKTOP = 'KDE'
+      const privacy = createLinuxPrivacy()
+      for (const s of privacy.getSettings().filter((s) => s.id.startsWith('kde-'))) {
+        expect(typeof s.revert).toBe('function')
       }
     })
 
