@@ -655,12 +655,11 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   const settings = getSettings()
-  // Don't quit if minimize-to-tray or any schedule is enabled — unless the tray
-  // was skipped (elevated Linux), in which case staying alive would leave a
-  // headless process with no UI.
+  // Stay alive for schedules even without a tray (elevated Linux skips tray).
+  // Minimize-to-tray alone must not keep a headless process when tray is missing.
   const trayActive = tray != null
-  if (trayActive && (settings.minimizeToTray || settings.schedules.some((s) => s.enabled))) {
-    // Stay alive in tray
+  if ((trayActive && settings.minimizeToTray) || settings.schedules.some((s) => s.enabled)) {
+    // Stay alive for tray and/or background schedules
     return
   }
   if (process.platform !== 'darwin') {
