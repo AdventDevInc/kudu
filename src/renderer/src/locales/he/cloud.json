@@ -60,6 +60,8 @@
   "connectTitle": "התחל",
   "connectDescription": "צור חשבון או הדבק את מפתח ה-API שלך כדי לקשר מכשיר זה.",
   "signUpFree": "צור חשבון",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "כבר יש לך חשבון? הדבק את מפתח ה-API שלך למטה.",
   "apiKeyPlaceholder": "הדבק את מפתח ה-API שלך",
   "linking": "מקשר...",

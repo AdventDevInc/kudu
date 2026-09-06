@@ -60,6 +60,8 @@
   "connectTitle": "Kom i gang",
   "connectDescription": "Opret en konto, eller indsæt din API key for at tilknytte denne enhed.",
   "signUpFree": "Opret konto",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Har du allerede en konto? Indsæt din API key nedenfor.",
   "apiKeyPlaceholder": "Indsæt din API key",
   "linking": "Tilknytter...",

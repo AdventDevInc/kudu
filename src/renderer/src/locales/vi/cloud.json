@@ -60,6 +60,8 @@
   "connectTitle": "Bắt đầu",
   "connectDescription": "Tạo tài khoản hoặc dán API key của bạn để liên kết thiết bị này.",
   "signUpFree": "Tạo tài khoản",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Đã có tài khoản? Hãy dán API key của bạn bên dưới.",
   "apiKeyPlaceholder": "Dán API key của bạn",
   "linking": "Đang liên kết...",

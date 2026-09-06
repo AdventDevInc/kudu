@@ -60,6 +60,8 @@
   "connectTitle": "Erste Schritte",
   "connectDescription": "Erstellen Sie ein Konto oder fügen Sie Ihren API-Schlüssel ein, um dieses Gerät zu verknüpfen.",
   "signUpFree": "Konto erstellen",
+  "signUpOpensBrowser": "Öffnet cloud.usekudu.com in Ihrem Standardbrowser",
+  "signUpBlankPageHelp": "Wenn die Seite leer oder schwarz wirkt, deaktivieren Sie vorübergehend den Webschutz Ihrer Antivirus-Software und versuchen Sie es erneut. Die Registrierung läuft über WorkOS AuthKit im Browser, nicht in der Kudu-App.",
   "alreadyHaveAccount": "Sie haben bereits ein Konto? Fügen Sie unten Ihren API-Schlüssel ein.",
   "apiKeyPlaceholder": "API-Schlüssel einfügen",
   "linking": "Wird verknüpft...",

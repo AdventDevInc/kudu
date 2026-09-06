@@ -60,6 +60,8 @@
   "connectTitle": "Mulakan",
   "connectDescription": "Cipta akaun atau tampal kunci API anda untuk memautkan peranti ini.",
   "signUpFree": "Cipta akaun",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Sudah mempunyai akaun? Tampal kunci API anda di bawah.",
   "apiKeyPlaceholder": "Tampal kunci API anda",
   "linking": "Sedang memautkan...",

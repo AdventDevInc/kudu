@@ -60,6 +60,8 @@
   "connectTitle": "Aan de slag",
   "connectDescription": "Maak een account aan of plak uw API-sleutel om dit apparaat te koppelen.",
   "signUpFree": "Account aanmaken",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Hebt u al een account? Plak hieronder uw API-sleutel.",
   "apiKeyPlaceholder": "Plak uw API-sleutel",
   "linking": "Koppelen...",

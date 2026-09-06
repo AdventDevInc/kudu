@@ -60,6 +60,8 @@
   "connectTitle": "Mulai",
   "connectDescription": "Buat akun atau tempel kunci API Anda untuk menautkan perangkat ini.",
   "signUpFree": "Buat akun",
+  "signUpOpensBrowser": "Opens cloud.usekudu.com in your default browser",
+  "signUpBlankPageHelp": "If the page looks blank or black, temporarily disable your antivirus web shield and try again. Account signup is hosted by WorkOS AuthKit in the browser, not inside the Kudu app.",
   "alreadyHaveAccount": "Sudah punya akun? Tempel kunci API Anda di bawah.",
   "apiKeyPlaceholder": "Tempel kunci API Anda",
   "linking": "Menautkan...",

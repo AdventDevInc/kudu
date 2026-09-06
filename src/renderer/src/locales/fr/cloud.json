@@ -60,6 +60,8 @@
   "connectTitle": "Commencer",
   "connectDescription": "Créez un compte ou collez votre clé API pour lier cet appareil.",
   "signUpFree": "Créer un compte",
+  "signUpOpensBrowser": "Ouvre cloud.usekudu.com dans votre navigateur par défaut",
+  "signUpBlankPageHelp": "Si la page est vide ou noire, désactivez temporairement le bouclier web de votre antivirus et réessayez. L’inscription est hébergée par WorkOS AuthKit dans le navigateur, pas dans l’application Kudu.",
   "alreadyHaveAccount": "Vous avez déjà un compte ? Collez votre clé API ci-dessous.",
   "apiKeyPlaceholder": "Collez votre clé API",
   "linking": "Liaison...",
