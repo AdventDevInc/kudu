@@ -619,6 +619,8 @@ function FlyoutMenu({ buttonRef, popoverRef, items, badgeCounts, onSelect, onClo
 }
 
 function CloudTierBadge({ tier }: { tier: 'basic' | 'pro' }) {
+  const { t } = useTranslation('cloud')
+  const label = tier === 'pro' ? t('planProName') : t('planBasicName')
   return (
     <span
       className="rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider"
@@ -627,9 +629,9 @@ function CloudTierBadge({ tier }: { tier: 'basic' | 'pro' }) {
         border: `1px solid ${tier === 'pro' ? 'var(--accent-muted-border)' : 'color-mix(in srgb, var(--info), transparent 72%)'}`,
         color: tier === 'pro' ? 'var(--warning)' : 'var(--info)',
       }}
-      aria-label={tier === 'pro' ? 'Kudu Cloud Pro feature' : 'Kudu Cloud Basic feature'}
+      aria-label={t('pageTitle') + ' ' + label}
     >
-      {tier === 'pro' ? 'Pro' : 'Basic'}
+      {label}
     </span>
   )
 }

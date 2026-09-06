@@ -7,14 +7,11 @@
   "subscriptionRequiredTitle": "Cloud subscription required",
   "subscriptionRequiredDesc": "This device is linked, but Cloud cannot connect without an active subscription. Choose or renew a plan to restore monitoring and remote features.",
   "subscriptionRequiredAction": "View plans",
-
   "heroTitle": "Supercharge your system security",
   "heroSubtitle": "From $5/month · Cancel anytime",
   "heroDescription": "Link this device to Kudu Cloud for real-time threat monitoring, AI-powered safety analysis, vulnerability scanning, and a single dashboard to manage every device from anywhere. Plans start at just $5/month — cancel anytime, no commitment.",
-
   "localFeaturesTitle": "Unlocked locally on this device",
   "localFeaturesSubtitle": "These features activate directly in your Kudu app once linked",
-
   "featureThreatMonitorTitle": "Threat Monitoring",
   "featureThreatMonitorDesc": "Tracks and alerts you if your computer communicates with ransomware command servers, criminal infrastructure, botnets, or other known-malicious endpoints in real time.",
   "featureVulnerabilityTitle": "Vulnerability Scanner (CVE)",
@@ -25,15 +22,11 @@
   "featureBreachMonitorDesc": "Add the email addresses you care about and Kudu checks them against known data breaches — showing which sites leaked, what data was exposed, and how many accounts were affected. Get alerted the moment your details appear in a new breach, and mark each one reviewed.",
   "featureHealthReportsTitle": "Security Health Reports",
   "featureHealthReportsDesc": "Automated posture checks covering antivirus, firewall, encryption, Windows Update, password policy, and more — sent to the dashboard every 30 minutes.",
-
   "localFeaturesNote": "Features marked Basic or Pro unlock on that plan or higher. Everything else is included on every plan.",
-
   "upgradeCalloutTitle": "Even on one device, Pro unlocks more",
   "upgradeCalloutDesc": "Basic gives you dashboards, alerts, compliance, AI safety analysis, and breach monitoring. Upgrading to Pro adds threat monitoring, vulnerability scanning, and automated remediation — features that protect you locally, not just in the cloud.",
-
   "cloudFeaturesTitle": "Cloud Dashboard",
   "cloudFeaturesSubtitle": "Manage and monitor all your devices from cloud.usekudu.com",
-
   "featureRemoteTitle": "Remote Management",
   "featureRemoteDesc": "Trigger scans, cleaning, software updates, and power control on any linked device from the web dashboard — no physical access needed.",
   "featureTelemetryTitle": "Live Telemetry",
@@ -42,10 +35,8 @@
   "featureComplianceDesc": "Automated security posture analysis covering antivirus, firewall, encryption, updates, and password policy. Build custom compliance rules.",
   "featureAlertsTitle": "Advanced Alerts",
   "featureAlertsDesc": "Configurable notifications for threats, compliance drift, system offline events, and new vulnerabilities. Integrate with email, Slack, and webhooks.",
-
   "plansTitle": "Simple pricing",
   "plansSubtitle": "From $5/month · Cancel anytime, no contract",
-
   "planBasicName": "Basic",
   "planBasicPrice": "$5",
   "planBasicPeriod": "/ device / month",
@@ -56,7 +47,6 @@
   "planBasicFeature5": "API access",
   "planBasicFeature6": "30-day data retention",
   "planPopularBadge": "Popular",
-
   "planProName": "Pro",
   "planProPrice": "$9",
   "planProPeriod": "/ device / month",
@@ -67,7 +57,6 @@
   "planProFeature5": "Advanced alerts & scheduled reports",
   "planProFeature6": "SSO, audit logs & priority support",
   "planProFeature7": "90-day data retention",
-
   "connectTitle": "Get started",
   "connectDescription": "Create an account or paste your API key to link this device.",
   "signUpFree": "Create account",
@@ -77,7 +66,6 @@
   "linkDevice": "Link Device",
   "telemetryDisclaimer": "Only CPU & memory usage, disk space, network stats, uptime, and periodic health reports ({{registryExtra}}updates, privacy, malware). No file paths or personal data.",
   "telemetryRegistryExtra": "registry, drivers, ",
-
   "deviceLinkedToast": "Device linked to cloud dashboard",
   "linkFailedToast": "Failed to link device",
   "linkFailedDefaultDesc": "Check your API key and try again",
@@ -86,10 +74,12 @@
   "unlinkFailedToast": "Failed to unlink device",
   "reconnectFailedToast": "Failed to reconnect",
   "reconnectFailedDesc": "Check your network connection and try again",
-
   "sectionStatus": "Connection",
   "statusLabel": "Status",
   "statusLoading": "Loading...",
+  "statusConnected": "Connected",
+  "statusDisconnected": "Disconnected",
+  "statusError": "Error",
   "connecting": "Connecting...",
   "reconnect": "Reconnect",
   "deviceIdLabel": "Device ID",
@@ -99,7 +89,6 @@
   "lastHealthReportLabel": "Last health report",
   "lastHealthReportDescWindows": "Registry, drivers, updates, privacy, malware",
   "lastHealthReportDescOther": "Updates, privacy, malware",
-
   "sectionMonitoring": "Monitoring & Data Sharing",
   "shareDiskHealthLabel": "Share disk health",
   "shareDiskHealthDesc": "Include disk SMART data in telemetry",
@@ -119,7 +108,6 @@
   "cveLibrarySize": "{{count}} CVEs tracked",
   "cveNoFindings": "No vulnerabilities found",
   "cveNotScanned": "Not scanned yet",
-
   "sectionRemoteControl": "Remote Control",
   "remotePowerLabel": "Remote power control",
   "remotePowerDesc": "Allow cloud to shutdown or restart this device",
@@ -131,7 +119,6 @@
   "remoteInstallsDescOther": "Allow cloud to install software and system updates",
   "remoteConfigLabel": "Remote config changes",
   "remoteConfigDesc": "Allow cloud to toggle startup items, services, and privacy settings",
-
   "sectionAdvanced": "Advanced",
   "telemetryIntervalLabel": "Telemetry interval",
   "telemetryIntervalDesc": "How often system stats are sent",

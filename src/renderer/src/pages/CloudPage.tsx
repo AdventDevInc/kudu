@@ -34,6 +34,16 @@ function isSubscriptionError(error: string | null | undefined): boolean {
   return value.includes('subscription') || value.includes('http 402')
 }
 
+function cloudStatusLabel(t: (key: string) => string, status?: string | null): string {
+  switch (status) {
+    case 'connected': return t('statusConnected')
+    case 'connecting': return t('connecting')
+    case 'disconnected': return t('statusDisconnected')
+    case 'error': return t('statusError')
+    default: return status ?? t('statusLoading')
+  }
+}
+
 export function CloudPage() {
   const { t } = useTranslation('cloud')
   const { features, platform } = usePlatform()
@@ -403,6 +413,7 @@ const TIER_COLORS: Record<string, { bg: string; border: string; text: string }> 
 }
 
 function FeatureCard({ icon: Icon, title, description, color, tier }: { icon: LucideIcon; title: string; description: string; color: string; tier?: 'basic' | 'pro' }) {
+  const { t } = useTranslation('cloud')
   const tierStyle = tier ? TIER_COLORS[tier] : null
   return (
     <div
@@ -422,7 +433,7 @@ function FeatureCard({ icon: Icon, title, description, color, tier }: { icon: Lu
           className="absolute top-3.5 right-3.5 rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
           style={{ background: tierStyle.bg, border: `1px solid ${tierStyle.border}`, color: tierStyle.text }}
         >
-          {tier}
+          {tier === 'pro' ? t('planProName') : t('planBasicName')}
         </div>
       )}
       <div
@@ -548,8 +559,8 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
                   cloudStatus?.status === 'error' ? '#ef4444' : '#71717a'
               }}
             />
-            <span className="text-[13px] text-zinc-400 capitalize">
-              {cloudStatus?.status ?? t('statusLoading')}
+            <span className="text-[13px] text-zinc-400">
+              {cloudStatusLabel(t, cloudStatus?.status)}
             </span>
             {!subscriptionRequired && (cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
               <button
