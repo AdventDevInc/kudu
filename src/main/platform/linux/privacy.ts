@@ -196,7 +196,9 @@ async function sysctlApply(param: string, value: string): Promise<void> {
 }
 
 async function sysctlRevert(param: string, softValue: string): Promise<void> {
+  // Live write may fail (e.g. irreversible bpf=1); still clear the drop-in.
   await execFileAsync('/usr/sbin/sysctl', ['-w', `${param}=${softValue}`], { timeout: 5_000 })
+    .catch(() => {})
   let existing = ''
   try {
     existing = await readFile(SYSCTL_CONF, 'utf8')
@@ -204,6 +206,14 @@ async function sysctlRevert(param: string, softValue: string): Promise<void> {
     return
   }
   const updated = removeSysctlConfigParam(existing, param)
+  const hasAssignment = updated.split('\n').some((line) => {
+    const t = line.trim()
+    return t.length > 0 && !t.startsWith('#') && t.includes('=')
+  })
+  if (!hasAssignment) {
+    await unlink(SYSCTL_CONF).catch(() => {})
+    return
+  }
   await writeFile(SYSCTL_CONF, updated, 'utf8')
 }
 
@@ -244,33 +254,35 @@ function sysctlSetting(
 // ─── Kernel Hardening (sysctl) ──────────────────────────────
 
 const SYSCTL_KERNEL_SETTINGS: PrivacySettingDef[] = [
-  // ASLR default is already 2 on most kernels — no safe soft ≠ hardened.
+  // Omit revert when soft opens an attack path or equals the common distro default.
   sysctlSetting(
     'sysctl-aslr', 'kernel.randomize_va_space', '2', null,
     'Address Space Randomization (ASLR)',
     'Enable full randomization of memory address layout to prevent exploitation',
     'kernel',
   ),
+  // Soft 1 still hides pointers from non-root (≠ hardened 2); soft 0 would expose them.
   sysctlSetting(
-    'sysctl-kptr-restrict', 'kernel.kptr_restrict', '2', '0',
+    'sysctl-kptr-restrict', 'kernel.kptr_restrict', '2', '1',
     'Kernel Pointer Restriction',
     'Hide kernel pointer addresses from all users to prevent information leaks',
     'kernel',
   ),
   sysctlSetting(
-    'sysctl-dmesg-restrict', 'kernel.dmesg_restrict', '1', '0',
+    'sysctl-dmesg-restrict', 'kernel.dmesg_restrict', '1', null,
     'Restrict dmesg Access',
     'Restrict kernel log (dmesg) access to root only',
     'kernel',
   ),
   sysctlSetting(
-    'sysctl-ptrace-scope', 'kernel.yama.ptrace_scope', '1', '0',
+    'sysctl-ptrace-scope', 'kernel.yama.ptrace_scope', '1', null,
     'Ptrace Scope Restriction',
     'Restrict process tracing to parent processes only (requires Yama LSM)',
     'kernel',
   ),
+  // Harden to 2 (reversible); value 1 cannot be cleared until reboot.
   sysctlSetting(
-    'sysctl-unprivileged-bpf', 'kernel.unprivileged_bpf_disabled', '1', '0',
+    'sysctl-unprivileged-bpf', 'kernel.unprivileged_bpf_disabled', '2', null,
     'Disable Unprivileged BPF',
     'Prevent unprivileged users from loading BPF programs',
     'kernel',
@@ -280,7 +292,6 @@ const SYSCTL_KERNEL_SETTINGS: PrivacySettingDef[] = [
 // ─── Network Hardening (sysctl) ─────────────────────────────
 
 const SYSCTL_NETWORK_SETTINGS: PrivacySettingDef[] = [
-  // tcp_syncookies / icmp_echo_ignore_broadcasts default to 1 — no safe soft.
   sysctlSetting(
     'sysctl-tcp-syncookies', 'net.ipv4.tcp_syncookies', '1', null,
     'TCP SYN Cookie Protection',
@@ -294,18 +305,18 @@ const SYSCTL_NETWORK_SETTINGS: PrivacySettingDef[] = [
     'network',
   ),
   sysctlSetting(
-    'sysctl-rp-filter', 'net.ipv4.conf.all.rp_filter', '1', '0',
+    'sysctl-rp-filter', 'net.ipv4.conf.all.rp_filter', '1', null,
     'Reverse Path Filtering',
     'Enable strict source address verification to prevent IP spoofing',
     'network',
   ),
+  // Soft 1 re-enables ICMP redirect MITM — same policy as source-route.
   sysctlSetting(
-    'sysctl-accept-redirects', 'net.ipv4.conf.all.accept_redirects', '0', '1',
+    'sysctl-accept-redirects', 'net.ipv4.conf.all.accept_redirects', '0', null,
     'Reject ICMP Redirects',
     'Reject ICMP redirect messages that could be used to alter routing tables',
     'network',
   ),
-  // Source routing defaults to off — reverting to 1 would open an attack path.
   sysctlSetting(
     'sysctl-source-route', 'net.ipv4.conf.all.accept_source_route', '0', null,
     'Reject Source-Routed Packets',
@@ -319,7 +330,7 @@ const SYSCTL_NETWORK_SETTINGS: PrivacySettingDef[] = [
     'network',
   ),
   sysctlSetting(
-    'sysctl-ipv6-redirects', 'net.ipv6.conf.all.accept_redirects', '0', '1',
+    'sysctl-ipv6-redirects', 'net.ipv6.conf.all.accept_redirects', '0', null,
     'Reject IPv6 ICMP Redirects',
     'Reject IPv6 ICMP redirect messages to prevent routing table manipulation',
     'network',

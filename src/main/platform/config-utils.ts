@@ -58,10 +58,9 @@ export function updateSysctlConfig(
  * Leaves other params and comments intact.
  */
 export function removeSysctlConfigParam(existing: string, param: string): string {
-  const lines = existing.split('\n').filter((line) => {
-    const trimmed = line.trimStart()
-    return !(trimmed.startsWith(`${param}=`) || trimmed.startsWith(`${param} =`))
-  })
+  const escaped = param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const assignment = new RegExp(`^\\s*${escaped}\\s*=`)
+  const lines = existing.split('\n').filter((line) => !assignment.test(line))
   while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop()
   if (lines.length === 0) return ''
   return lines.join('\n') + '\n'

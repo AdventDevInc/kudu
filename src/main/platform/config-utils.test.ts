@@ -110,6 +110,13 @@ describe('removeSysctlConfigParam', () => {
   it('returns empty when the only param is removed', () => {
     expect(removeSysctlConfigParam('kernel.sysrq = 0\n', 'kernel.sysrq')).toBe('')
   })
+
+  it('removes tab-separated assignments', () => {
+    const existing = 'kernel.sysrq\t=\t0\nnet.ipv4.ip_forward = 0\n'
+    const result = removeSysctlConfigParam(existing, 'kernel.sysrq')
+    expect(result).not.toMatch(/kernel\.sysrq/)
+    expect(result).toContain('net.ipv4.ip_forward = 0')
+  })
 })
 
 // ─── updateSshdConfig ───────────────────────────────────────

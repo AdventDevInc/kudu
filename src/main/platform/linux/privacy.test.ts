@@ -177,17 +177,22 @@ describe('linux privacy', () => {
       }
     })
 
-    it('omits revert when soft would weaken a kernel default', () => {
+    it('omits revert when soft would open an attack path', () => {
       const privacy = createLinuxPrivacy()
       const byId = Object.fromEntries(privacy.getSettings().map((s) => [s.id, s]))
-      // Hardened equals common kernel default — no safe soft ≠ hardened.
       expect(byId['sysctl-aslr']?.revert).toBeUndefined()
       expect(byId['sysctl-tcp-syncookies']?.revert).toBeUndefined()
       expect(byId['sysctl-icmp-broadcast']?.revert).toBeUndefined()
-      // Soft '1' would enable source routing — omit revert.
       expect(byId['sysctl-source-route']?.revert).toBeUndefined()
-      // Soft below hardened still safe — revert present.
+      expect(byId['sysctl-accept-redirects']?.revert).toBeUndefined()
+      expect(byId['sysctl-ipv6-redirects']?.revert).toBeUndefined()
+      expect(byId['sysctl-rp-filter']?.revert).toBeUndefined()
+      expect(byId['sysctl-dmesg-restrict']?.revert).toBeUndefined()
+      expect(byId['sysctl-ptrace-scope']?.revert).toBeUndefined()
+      expect(byId['sysctl-unprivileged-bpf']?.revert).toBeUndefined()
+      // Soft 1 still hides pointers from non-root; audit-only softs stay reversible.
       expect(typeof byId['sysctl-kptr-restrict']?.revert).toBe('function')
+      expect(typeof byId['sysctl-log-martians']?.revert).toBe('function')
       expect(typeof byId['core-dump-disable']?.revert).toBe('function')
     })
 
