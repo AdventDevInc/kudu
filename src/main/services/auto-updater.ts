@@ -45,6 +45,13 @@ export function initAutoUpdater(opts: InitOptions = {}): void {
     return
   }
 
+  // Windows portable builds set PORTABLE_EXECUTABLE_DIR; electron-updater's
+  // Windows path is NSIS-only and would error or try an installer flow.
+  if (process.env.PORTABLE_EXECUTABLE_DIR) {
+    console.log('Auto-updater: skipping on Windows portable build')
+    return
+  }
+
   daemonMode = opts.daemon === true
 
   const settings = getSettings()

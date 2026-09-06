@@ -170,7 +170,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           version="${{ steps.version.outputs.version }}"
-          gh release download "v$version" --repo AdventDevInc/kudu --pattern "Kudu-Setup-*.exe" --pattern "Kudu-*.dmg" --pattern "Kudu-*.AppImage" --pattern "Kudu-*.deb" --dir artifacts/
+          gh release download "v$version" --repo AdventDevInc/kudu --pattern "Kudu-Setup-*.exe" --pattern "Kudu-Portable-*.exe" --pattern "Kudu-*.dmg" --pattern "Kudu-*.AppImage" --pattern "Kudu-*.deb" --dir artifacts/
 
       - name: Scan with VirusTotal
         env:

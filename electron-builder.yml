@@ -28,6 +28,9 @@ win:
     - target: nsis
       arch:
         - x64
+    - target: portable
+      arch:
+        - x64
   icon: resources/icon.ico
   requestedExecutionLevel: requireAdministrator
 
@@ -45,6 +48,9 @@ nsis:
   deleteAppDataOnUninstall: false
   shortcutName: Kudu
   artifactName: Kudu-Setup-${version}.${ext}
+
+portable:
+  artifactName: Kudu-Portable-${version}.${ext}
 
 mac:
   target:
