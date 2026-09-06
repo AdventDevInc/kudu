@@ -20,6 +20,7 @@ import { shouldDisableGpu, applyGpuFallbackSwitches, registerGpuCrashRecovery } 
 import { runCli } from './cli'
 import { runDaemon } from './daemon'
 import { createWindowsTrayIcon } from './tray-icon'
+import { isAdmin } from './services/elevation'
 
 // ─── Disable hardware acceleration ──────────────────────────
 // Must be called before app.whenReady().  On machines with incompatible
@@ -335,6 +336,9 @@ async function applyAutoLaunch(enabled: boolean): Promise<void> {
 
 function createTray(): void {
   if (tray) return
+  // Elevated Linux GUIs often fall back to XEmbed via xembedsniproxy, which
+  // triggers Plasma Wayland "Remote Control" prompts on every tray click (#383).
+  if (process.platform === 'linux' && isAdmin()) return
 
   tray = new Tray(createTrayIcon())
   tray.setToolTip(t('trayTooltip'))
@@ -470,8 +474,9 @@ function createWindow(): void {
   attachRendererDiagnostics(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
-    // If launched at startup with minimize-to-tray, stay hidden
-    if (isStartupLaunch && settings.minimizeToTray) {
+    // If launched at startup with minimize-to-tray, stay hidden — only when a
+    // tray exists to restore the window (elevated Linux skips the tray, #383).
+    if (isStartupLaunch && settings.minimizeToTray && tray) {
       // Don't show — just sit in tray
     } else {
       mainWindow?.show()
@@ -482,7 +487,7 @@ function createWindow(): void {
   mainWindow.on('close', (e) => {
     if (isQuitting) return
     const currentSettings = getSettings()
-    if (currentSettings.minimizeToTray && mainWindow && !mainWindow.isDestroyed()) {
+    if (currentSettings.minimizeToTray && tray && mainWindow && !mainWindow.isDestroyed()) {
       e.preventDefault()
       mainWindow.hide()
     }
@@ -650,9 +655,11 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   const settings = getSettings()
-  // Don't quit if minimize-to-tray or any schedule is enabled
-  if (settings.minimizeToTray || settings.schedules.some((s) => s.enabled)) {
-    // Stay alive in tray
+  // Stay alive for schedules even without a tray (elevated Linux skips tray).
+  // Minimize-to-tray alone must not keep a headless process when tray is missing.
+  const trayActive = tray != null
+  if ((trayActive && settings.minimizeToTray) || settings.schedules.some((s) => s.enabled)) {
+    // Stay alive for tray and/or background schedules
     return
   }
   if (process.platform !== 'darwin') {
