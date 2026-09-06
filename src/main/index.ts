@@ -474,8 +474,9 @@ function createWindow(): void {
   attachRendererDiagnostics(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
-    // If launched at startup with minimize-to-tray, stay hidden
-    if (isStartupLaunch && settings.minimizeToTray) {
+    // If launched at startup with minimize-to-tray, stay hidden — only when a
+    // tray exists to restore the window (elevated Linux skips the tray, #383).
+    if (isStartupLaunch && settings.minimizeToTray && tray) {
       // Don't show — just sit in tray
     } else {
       mainWindow?.show()
@@ -486,7 +487,7 @@ function createWindow(): void {
   mainWindow.on('close', (e) => {
     if (isQuitting) return
     const currentSettings = getSettings()
-    if (currentSettings.minimizeToTray && mainWindow && !mainWindow.isDestroyed()) {
+    if (currentSettings.minimizeToTray && tray && mainWindow && !mainWindow.isDestroyed()) {
       e.preventDefault()
       mainWindow.hide()
     }
