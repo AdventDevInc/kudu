@@ -559,7 +559,7 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
                   cloudStatus?.status === 'error' ? '#ef4444' : '#71717a'
               }}
             />
-            <span className="text-[13px] text-zinc-400 capitalize">
+            <span className="text-[13px] text-zinc-400">
               {cloudStatusLabel(t, cloudStatus?.status)}
             </span>
             {!subscriptionRequired && (cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
