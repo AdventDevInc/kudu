@@ -211,12 +211,12 @@ function sysctlSetting(
   id: string,
   param: string,
   hardenedValue: string,
-  softValue: string,
+  softValue: string | null,
   label: string,
   description: string,
   category: 'kernel' | 'network',
 ): PrivacySettingDef {
-  return {
+  const setting: PrivacySettingDef = {
     id,
     category,
     label,
@@ -230,17 +230,23 @@ function sysctlSetting(
     async apply() {
       await sysctlApply(param, hardenedValue)
     },
-    async revert() {
-      await sysctlRevert(param, softValue)
-    },
   }
+  // Omit revert when soft would be below the kernel default or equal to hardened
+  // (toggle would either weaken security or leave check() stuck on).
+  if (softValue !== null) {
+    setting.revert = async () => {
+      await sysctlRevert(param, softValue)
+    }
+  }
+  return setting
 }
 
 // ─── Kernel Hardening (sysctl) ──────────────────────────────
 
 const SYSCTL_KERNEL_SETTINGS: PrivacySettingDef[] = [
+  // ASLR default is already 2 on most kernels — no safe soft ≠ hardened.
   sysctlSetting(
-    'sysctl-aslr', 'kernel.randomize_va_space', '2', '0',
+    'sysctl-aslr', 'kernel.randomize_va_space', '2', null,
     'Address Space Randomization (ASLR)',
     'Enable full randomization of memory address layout to prevent exploitation',
     'kernel',
@@ -274,14 +280,15 @@ const SYSCTL_KERNEL_SETTINGS: PrivacySettingDef[] = [
 // ─── Network Hardening (sysctl) ─────────────────────────────
 
 const SYSCTL_NETWORK_SETTINGS: PrivacySettingDef[] = [
+  // tcp_syncookies / icmp_echo_ignore_broadcasts default to 1 — no safe soft.
   sysctlSetting(
-    'sysctl-tcp-syncookies', 'net.ipv4.tcp_syncookies', '1', '0',
+    'sysctl-tcp-syncookies', 'net.ipv4.tcp_syncookies', '1', null,
     'TCP SYN Cookie Protection',
     'Enable SYN cookies to protect against SYN flood denial-of-service attacks',
     'network',
   ),
   sysctlSetting(
-    'sysctl-icmp-broadcast', 'net.ipv4.icmp_echo_ignore_broadcasts', '1', '0',
+    'sysctl-icmp-broadcast', 'net.ipv4.icmp_echo_ignore_broadcasts', '1', null,
     'Ignore ICMP Broadcasts',
     'Ignore ICMP echo requests sent to broadcast addresses (Smurf attack defense)',
     'network',
@@ -298,8 +305,9 @@ const SYSCTL_NETWORK_SETTINGS: PrivacySettingDef[] = [
     'Reject ICMP redirect messages that could be used to alter routing tables',
     'network',
   ),
+  // Source routing defaults to off — reverting to 1 would open an attack path.
   sysctlSetting(
-    'sysctl-source-route', 'net.ipv4.conf.all.accept_source_route', '0', '1',
+    'sysctl-source-route', 'net.ipv4.conf.all.accept_source_route', '0', null,
     'Reject Source-Routed Packets',
     'Reject packets with source routing options that bypass normal routing',
     'network',
@@ -360,7 +368,7 @@ const ACCESS_CONTROL_SETTINGS: PrivacySettingDef[] = [
       await writeFile('/etc/security/limits.d/99-kudu.conf', '* hard core 0\n', 'utf8')
     },
     async revert() {
-      await sysctlRevert('fs.suid_dumpable', '2')
+      await sysctlRevert('fs.suid_dumpable', '0')
       await unlink('/etc/security/limits.d/99-kudu.conf').catch(() => {})
     },
   },

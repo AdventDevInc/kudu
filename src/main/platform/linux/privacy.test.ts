@@ -4,6 +4,7 @@ const mockExecFile = vi.fn()
 const mockReadFile = vi.fn()
 const mockWriteFile = vi.fn()
 const mockMkdir = vi.fn()
+const mockUnlink = vi.fn()
 
 vi.mock('child_process', () => ({
   execFile: (...args: any[]) => mockExecFile(...args),
@@ -15,6 +16,7 @@ vi.mock('fs/promises', () => ({
   readFile: (...args: any[]) => mockReadFile(...args),
   writeFile: (...args: any[]) => mockWriteFile(...args),
   mkdir: (...args: any[]) => mockMkdir(...args),
+  unlink: (...args: any[]) => mockUnlink(...args),
 }))
 
 const { createLinuxPrivacy } = await import('./privacy')
@@ -161,7 +163,7 @@ describe('linux privacy', () => {
       }
     })
 
-    it('every setting has check, apply, and revert functions', () => {
+    it('every setting has check and apply; revert is optional', () => {
       process.env.XDG_CURRENT_DESKTOP = 'GNOME'
       const privacy = createLinuxPrivacy()
       const settings = privacy.getSettings()
@@ -169,14 +171,30 @@ describe('linux privacy', () => {
       for (const s of settings) {
         expect(typeof s.check).toBe('function')
         expect(typeof s.apply).toBe('function')
-        expect(typeof s.revert).toBe('function')
+        if (s.revert !== undefined) {
+          expect(typeof s.revert).toBe('function')
+        }
       }
     })
 
-    it('every KDE setting has a revert function', () => {
+    it('omits revert when soft would weaken a kernel default', () => {
+      const privacy = createLinuxPrivacy()
+      const byId = Object.fromEntries(privacy.getSettings().map((s) => [s.id, s]))
+      // Hardened equals common kernel default — no safe soft ≠ hardened.
+      expect(byId['sysctl-aslr']?.revert).toBeUndefined()
+      expect(byId['sysctl-tcp-syncookies']?.revert).toBeUndefined()
+      expect(byId['sysctl-icmp-broadcast']?.revert).toBeUndefined()
+      // Soft '1' would enable source routing — omit revert.
+      expect(byId['sysctl-source-route']?.revert).toBeUndefined()
+      // Soft below hardened still safe — revert present.
+      expect(typeof byId['sysctl-kptr-restrict']?.revert).toBe('function')
+      expect(typeof byId['core-dump-disable']?.revert).toBe('function')
+    })
+
+    it('every KDE desktop setting has a revert function', () => {
       process.env.XDG_CURRENT_DESKTOP = 'KDE'
       const privacy = createLinuxPrivacy()
-      for (const s of privacy.getSettings()) {
+      for (const s of privacy.getSettings().filter((s) => s.id.startsWith('kde-'))) {
         expect(typeof s.revert).toBe('function')
       }
     })
