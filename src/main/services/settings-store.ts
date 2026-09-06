@@ -72,10 +72,11 @@ const defaults: StoreData = {
       shareDiskHealth: true,
       shareProcessList: true,
       shareThreatMonitor: true,
-      allowRemotePower: true,
-      allowRemoteCleanup: true,
-      allowRemoteInstalls: true,
-      allowRemoteConfig: true
+      // Opt-in: GHSA-67rx / remote command blast radius if API key is stolen.
+      allowRemotePower: false,
+      allowRemoteCleanup: false,
+      allowRemoteInstalls: false,
+      allowRemoteConfig: false
     },
     windowsPackageManager: 'winget' as const,
     windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] as WindowsPackageManager[],
