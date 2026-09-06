@@ -37,7 +37,7 @@ Get the latest installer for your platform from [GitHub Releases](https://github
 
 | Platform | Format |
 |----------|--------|
-| Windows | `.exe` installer |
+| Windows | `.exe` installer or portable (`Kudu-Portable-*.exe`) |
 | macOS | `.dmg` (Intel & Apple Silicon) |
 | Linux | `.AppImage` or `.deb` |
 

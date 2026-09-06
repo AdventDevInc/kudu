@@ -35,13 +35,19 @@ interface InitOptions {
   daemon?: boolean
 }
 
+/** electron-updater only supports AppImage on Linux and NSIS on Windows. */
+function shouldSkipUpdater(): boolean {
+  if (process.platform === 'linux' && !process.env.APPIMAGE) return true
+  // Portable builds set PORTABLE_EXECUTABLE_DIR; NSIS update flow would break.
+  if (process.env.PORTABLE_EXECUTABLE_DIR) return true
+  return false
+}
+
 export function initAutoUpdater(opts: InitOptions = {}): void {
   if (!app.isPackaged) return
 
-  // On Linux, electron-updater only supports AppImage.
-  // Skip if not running as an AppImage to avoid silent failures.
-  if (process.platform === 'linux' && !process.env.APPIMAGE) {
-    console.log('Auto-updater: skipping on Linux (not running as AppImage)')
+  if (shouldSkipUpdater()) {
+    console.log('Auto-updater: skipping (unsupported package format)')
     return
   }
 
@@ -110,22 +116,22 @@ function startPeriodicChecks(intervalHours: number): void {
 
 /** Call when the user changes updateCheckIntervalHours at runtime */
 export function updateCheckInterval(hours: number): void {
-  if (!app.isPackaged) return
+  if (!app.isPackaged || shouldSkipUpdater()) return
   startPeriodicChecks(hours)
 }
 
 export function checkForUpdates(): Promise<void> {
-  if (!app.isPackaged) return Promise.resolve()
+  if (!app.isPackaged || shouldSkipUpdater()) return Promise.resolve()
   return autoUpdater.checkForUpdates().then(() => {})
 }
 
 export function downloadUpdate(): Promise<void> {
-  if (!app.isPackaged) return Promise.resolve()
+  if (!app.isPackaged || shouldSkipUpdater()) return Promise.resolve()
   return autoUpdater.downloadUpdate().then(() => {})
 }
 
 export function installUpdate(): void {
-  if (!app.isPackaged) return
+  if (!app.isPackaged || shouldSkipUpdater()) return
   autoUpdater.quitAndInstall(true, true)
 }
 
@@ -134,7 +140,6 @@ export function getUpdateStatus(): UpdateStatus {
 }
 
 export function setAutoDownload(enabled: boolean): void {
-  if (app.isPackaged) {
-    autoUpdater.autoDownload = enabled
-  }
+  if (!app.isPackaged || shouldSkipUpdater()) return
+  autoUpdater.autoDownload = enabled
 }

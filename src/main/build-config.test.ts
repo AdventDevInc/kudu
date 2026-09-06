@@ -54,4 +54,9 @@ describe('electron-builder.yml', () => {
     // elevates when applying an update.
     expect(option('nsis', 'oneClick')).toBe('true')
   })
+
+  it('publishes a Windows portable artifact alongside NSIS', () => {
+    expect(block('win').some((l) => l.includes('target: portable'))).toBe(true)
+    expect(option('portable', 'artifactName')).toBe('Kudu-Portable-${version}.${ext}')
+  })
 })
