@@ -44,10 +44,10 @@ const defaultSettings: KuduSettings = {
     shareDiskHealth: true,
     shareProcessList: true,
     shareThreatMonitor: true,
-    allowRemotePower: true,
-    allowRemoteCleanup: true,
-    allowRemoteInstalls: true,
-    allowRemoteConfig: true
+    allowRemotePower: false,
+    allowRemoteCleanup: false,
+    allowRemoteInstalls: false,
+    allowRemoteConfig: false
   },
   windowsPackageManager: 'winget',
   windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'],

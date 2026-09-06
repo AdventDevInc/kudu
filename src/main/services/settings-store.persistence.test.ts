@@ -125,6 +125,20 @@ describe('window geometry persistence (issue #270)', () => {
   })
 })
 
+describe('cloud remote command defaults (opt-in)', () => {
+  afterAll(() => {
+    if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true, force: true })
+  })
+
+  it('defaults remote power/cleanup/installs/config to off', () => {
+    const cloud = getSettings().cloud
+    expect(cloud.allowRemotePower).toBe(false)
+    expect(cloud.allowRemoteCleanup).toBe(false)
+    expect(cloud.allowRemoteInstalls).toBe(false)
+    expect(cloud.allowRemoteConfig).toBe(false)
+  })
+})
+
 describe('malware allowlist (false positives)', () => {
   afterAll(() => {
     if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true, force: true })
