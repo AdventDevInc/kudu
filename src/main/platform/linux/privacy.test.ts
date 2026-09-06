@@ -161,7 +161,7 @@ describe('linux privacy', () => {
       }
     })
 
-    it('every setting has check and apply functions', () => {
+    it('every setting has check, apply, and revert functions', () => {
       process.env.XDG_CURRENT_DESKTOP = 'GNOME'
       const privacy = createLinuxPrivacy()
       const settings = privacy.getSettings()
@@ -169,6 +169,15 @@ describe('linux privacy', () => {
       for (const s of settings) {
         expect(typeof s.check).toBe('function')
         expect(typeof s.apply).toBe('function')
+        expect(typeof s.revert).toBe('function')
+      }
+    })
+
+    it('every KDE setting has a revert function', () => {
+      process.env.XDG_CURRENT_DESKTOP = 'KDE'
+      const privacy = createLinuxPrivacy()
+      for (const s of privacy.getSettings()) {
+        expect(typeof s.revert).toBe('function')
       }
     })
 

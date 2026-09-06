@@ -1,7 +1,7 @@
 import { execFile } from 'child_process'
-import { readFile, writeFile, mkdir } from 'fs/promises'
+import { readFile, writeFile, mkdir, unlink } from 'fs/promises'
 import { promisify } from 'util'
-import { updateSshdConfig, updateSysctlConfig } from '../config-utils'
+import { updateSshdConfig, updateSysctlConfig, removeSysctlConfigParam } from '../config-utils'
 import type { PlatformPrivacy, PrivacySettingDef } from '../types'
 
 const execFileAsync = promisify(execFile)
@@ -51,6 +51,9 @@ const LINUX_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     async apply() {
       await gsettingsSet('org.gnome.desktop.privacy', 'send-software-usage-stats', 'false')
     },
+    async revert() {
+      await gsettingsSet('org.gnome.desktop.privacy', 'send-software-usage-stats', 'true')
+    },
   },
   {
     id: 'gnome-recent-files',
@@ -66,6 +69,9 @@ const LINUX_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await gsettingsSet('org.gnome.desktop.privacy', 'remember-recent-files', 'false')
+    },
+    async revert() {
+      await gsettingsSet('org.gnome.desktop.privacy', 'remember-recent-files', 'true')
     },
   },
   {
@@ -83,6 +89,9 @@ const LINUX_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     async apply() {
       await gsettingsSet('org.gnome.system.location', 'enabled', 'false')
     },
+    async revert() {
+      await gsettingsSet('org.gnome.system.location', 'enabled', 'true')
+    },
   },
   {
     id: 'gnome-crash-reporting',
@@ -98,6 +107,9 @@ const LINUX_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await gsettingsSet('com.ubuntu.update-notifier', 'show-apport-crashes', 'false')
+    },
+    async revert() {
+      await gsettingsSet('com.ubuntu.update-notifier', 'show-apport-crashes', 'true')
     },
   },
   {
@@ -126,6 +138,14 @@ const LINUX_PRIVACY_SETTINGS: PrivacySettingDef[] = [
         '/org/freedesktop/NetworkManager',
         'org.freedesktop.NetworkManager',
         'ConnectivityCheckEnabled', 'b', 'false',
+      ], { timeout: 5_000 })
+    },
+    async revert() {
+      await execFileAsync('/usr/bin/busctl', [
+        'set-property', 'org.freedesktop.NetworkManager',
+        '/org/freedesktop/NetworkManager',
+        'org.freedesktop.NetworkManager',
+        'ConnectivityCheckEnabled', 'b', 'true',
       ], { timeout: 5_000 })
     },
   },
@@ -175,10 +195,23 @@ async function sysctlApply(param: string, value: string): Promise<void> {
   await writeFile(SYSCTL_CONF, updated, 'utf8')
 }
 
+async function sysctlRevert(param: string, softValue: string): Promise<void> {
+  await execFileAsync('/usr/sbin/sysctl', ['-w', `${param}=${softValue}`], { timeout: 5_000 })
+  let existing = ''
+  try {
+    existing = await readFile(SYSCTL_CONF, 'utf8')
+  } catch {
+    return
+  }
+  const updated = removeSysctlConfigParam(existing, param)
+  await writeFile(SYSCTL_CONF, updated, 'utf8')
+}
+
 function sysctlSetting(
   id: string,
   param: string,
   hardenedValue: string,
+  softValue: string,
   label: string,
   description: string,
   category: 'kernel' | 'network',
@@ -197,6 +230,9 @@ function sysctlSetting(
     async apply() {
       await sysctlApply(param, hardenedValue)
     },
+    async revert() {
+      await sysctlRevert(param, softValue)
+    },
   }
 }
 
@@ -204,31 +240,31 @@ function sysctlSetting(
 
 const SYSCTL_KERNEL_SETTINGS: PrivacySettingDef[] = [
   sysctlSetting(
-    'sysctl-aslr', 'kernel.randomize_va_space', '2',
+    'sysctl-aslr', 'kernel.randomize_va_space', '2', '0',
     'Address Space Randomization (ASLR)',
     'Enable full randomization of memory address layout to prevent exploitation',
     'kernel',
   ),
   sysctlSetting(
-    'sysctl-kptr-restrict', 'kernel.kptr_restrict', '2',
+    'sysctl-kptr-restrict', 'kernel.kptr_restrict', '2', '0',
     'Kernel Pointer Restriction',
     'Hide kernel pointer addresses from all users to prevent information leaks',
     'kernel',
   ),
   sysctlSetting(
-    'sysctl-dmesg-restrict', 'kernel.dmesg_restrict', '1',
+    'sysctl-dmesg-restrict', 'kernel.dmesg_restrict', '1', '0',
     'Restrict dmesg Access',
     'Restrict kernel log (dmesg) access to root only',
     'kernel',
   ),
   sysctlSetting(
-    'sysctl-ptrace-scope', 'kernel.yama.ptrace_scope', '1',
+    'sysctl-ptrace-scope', 'kernel.yama.ptrace_scope', '1', '0',
     'Ptrace Scope Restriction',
     'Restrict process tracing to parent processes only (requires Yama LSM)',
     'kernel',
   ),
   sysctlSetting(
-    'sysctl-unprivileged-bpf', 'kernel.unprivileged_bpf_disabled', '1',
+    'sysctl-unprivileged-bpf', 'kernel.unprivileged_bpf_disabled', '1', '0',
     'Disable Unprivileged BPF',
     'Prevent unprivileged users from loading BPF programs',
     'kernel',
@@ -239,43 +275,43 @@ const SYSCTL_KERNEL_SETTINGS: PrivacySettingDef[] = [
 
 const SYSCTL_NETWORK_SETTINGS: PrivacySettingDef[] = [
   sysctlSetting(
-    'sysctl-tcp-syncookies', 'net.ipv4.tcp_syncookies', '1',
+    'sysctl-tcp-syncookies', 'net.ipv4.tcp_syncookies', '1', '0',
     'TCP SYN Cookie Protection',
     'Enable SYN cookies to protect against SYN flood denial-of-service attacks',
     'network',
   ),
   sysctlSetting(
-    'sysctl-icmp-broadcast', 'net.ipv4.icmp_echo_ignore_broadcasts', '1',
+    'sysctl-icmp-broadcast', 'net.ipv4.icmp_echo_ignore_broadcasts', '1', '0',
     'Ignore ICMP Broadcasts',
     'Ignore ICMP echo requests sent to broadcast addresses (Smurf attack defense)',
     'network',
   ),
   sysctlSetting(
-    'sysctl-rp-filter', 'net.ipv4.conf.all.rp_filter', '1',
+    'sysctl-rp-filter', 'net.ipv4.conf.all.rp_filter', '1', '0',
     'Reverse Path Filtering',
     'Enable strict source address verification to prevent IP spoofing',
     'network',
   ),
   sysctlSetting(
-    'sysctl-accept-redirects', 'net.ipv4.conf.all.accept_redirects', '0',
+    'sysctl-accept-redirects', 'net.ipv4.conf.all.accept_redirects', '0', '1',
     'Reject ICMP Redirects',
     'Reject ICMP redirect messages that could be used to alter routing tables',
     'network',
   ),
   sysctlSetting(
-    'sysctl-source-route', 'net.ipv4.conf.all.accept_source_route', '0',
+    'sysctl-source-route', 'net.ipv4.conf.all.accept_source_route', '0', '1',
     'Reject Source-Routed Packets',
     'Reject packets with source routing options that bypass normal routing',
     'network',
   ),
   sysctlSetting(
-    'sysctl-log-martians', 'net.ipv4.conf.all.log_martians', '1',
+    'sysctl-log-martians', 'net.ipv4.conf.all.log_martians', '1', '0',
     'Log Martian Packets',
     'Log packets arriving with impossible source addresses for security auditing',
     'network',
   ),
   sysctlSetting(
-    'sysctl-ipv6-redirects', 'net.ipv6.conf.all.accept_redirects', '0',
+    'sysctl-ipv6-redirects', 'net.ipv6.conf.all.accept_redirects', '0', '1',
     'Reject IPv6 ICMP Redirects',
     'Reject IPv6 ICMP redirect messages to prevent routing table manipulation',
     'network',
@@ -323,6 +359,10 @@ const ACCESS_CONTROL_SETTINGS: PrivacySettingDef[] = [
       await mkdir('/etc/security/limits.d', { recursive: true })
       await writeFile('/etc/security/limits.d/99-kudu.conf', '* hard core 0\n', 'utf8')
     },
+    async revert() {
+      await sysctlRevert('fs.suid_dumpable', '2')
+      await unlink('/etc/security/limits.d/99-kudu.conf').catch(() => {})
+    },
   },
   {
     id: 'ssh-root-login',
@@ -340,6 +380,9 @@ const ACCESS_CONTROL_SETTINGS: PrivacySettingDef[] = [
     async apply() {
       await applySshdDirective('PermitRootLogin', 'no')
     },
+    async revert() {
+      await applySshdDirective('PermitRootLogin', 'prohibit-password')
+    },
   },
   {
     id: 'ssh-password-auth',
@@ -355,6 +398,9 @@ const ACCESS_CONTROL_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await applySshdDirective('PasswordAuthentication', 'no')
+    },
+    async revert() {
+      await applySshdDirective('PasswordAuthentication', 'yes')
     },
   },
 ]
@@ -375,6 +421,9 @@ const KDE_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     async apply() {
       await kdeConfigWrite('PlasmaUserFeedback', 'Global', 'FeedbackLevel', '0')
     },
+    async revert() {
+      await kdeConfigWrite('PlasmaUserFeedback', 'Global', 'FeedbackLevel', '1')
+    },
   },
   {
     id: 'kde-recent-files',
@@ -390,6 +439,9 @@ const KDE_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await kdeConfigWrite('kactivitymanagerdrc', 'Plugins', 'org.kde.ActivityManager.ResourceScoringEnabled', 'false')
+    },
+    async revert() {
+      await kdeConfigWrite('kactivitymanagerdrc', 'Plugins', 'org.kde.ActivityManager.ResourceScoringEnabled', 'true')
     },
   },
   {
@@ -407,6 +459,9 @@ const KDE_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     async apply() {
       await kdeConfigWrite('baloofilerc', 'Basic Settings', 'Indexing-Enabled', 'false')
     },
+    async revert() {
+      await kdeConfigWrite('baloofilerc', 'Basic Settings', 'Indexing-Enabled', 'true')
+    },
   },
   {
     id: 'kde-crash-reporting',
@@ -422,6 +477,9 @@ const KDE_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await kdeConfigWrite('drkonqirc', 'General', 'Enabled', 'false')
+    },
+    async revert() {
+      await kdeConfigWrite('drkonqirc', 'General', 'Enabled', 'true')
     },
   },
 ]
