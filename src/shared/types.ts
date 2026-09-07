@@ -374,6 +374,18 @@ export interface MalwareScanResult {
   engines: string[]
 }
 
+/** Fixed directories + extension filter the malware scanner covers. */
+export interface MalwareScanRoot {
+  path: string
+  maxDepth: number
+  maxFiles: number
+}
+
+export interface MalwareScanCoverage {
+  roots: MalwareScanRoot[]
+  extensions: string[]
+}
+
 export interface MalwareActionResult {
   succeeded: number
   failed: number
