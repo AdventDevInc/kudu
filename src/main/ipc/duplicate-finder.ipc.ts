@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { BrowserWindow, ipcMain, shell } from 'electron'
 import { readdir, stat, rm } from 'fs/promises'
 import { createReadStream } from 'fs'
 import { createHash } from 'crypto'
@@ -14,6 +14,7 @@ import type {
   DuplicateDeleteResult
 } from '../../shared/types'
 import type { WindowGetter } from './index'
+import { showOpenDialog } from './open-dialog'
 
 let cancelled = false
 
@@ -268,16 +269,12 @@ async function findDuplicates(
 // ── IPC registration ──
 
 export function registerDuplicateFinderIpc(getWindow: WindowGetter): void {
-  // Directory picker — on macOS, avoid passing parent window so the dialog
-  // opens as a standalone panel instead of a sheet (sidebar items like Desktop
-  // are unresponsive in sheet mode).
+  // Directory picker — Linux/macOS omit parent (see open-dialog.ts).
   ipcMain.handle(IPC.DUPLICATES_SELECT_DIR, async () => {
     const win = getWindow()
     if (!win) return null
     const opts: Electron.OpenDialogOptions = { properties: ['openDirectory'] }
-    const result = process.platform === 'darwin'
-      ? await dialog.showOpenDialog(opts)
-      : await dialog.showOpenDialog(win, opts)
+    const result = await showOpenDialog(win, opts)
     if (result.canceled || !result.filePaths.length) return null
     return result.filePaths[0]
   })

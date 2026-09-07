@@ -28,6 +28,7 @@ import { registerFirewallAuditIpc } from './firewall-audit.ipc'
 import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
 import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 import { registerEnvironmentCleanerIpc } from './environment-cleaner.ipc'
+import { showOpenDialog } from './open-dialog'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
 import { registerLargeFileFinderIpc } from './large-file-finder.ipc'
@@ -151,9 +152,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       properties: ['openDirectory', 'createDirectory'],
       defaultPath: getBackupDir(),
     }
-    const result = process.platform === 'darwin' || !win
-      ? await dialog.showOpenDialog(opts)
-      : await dialog.showOpenDialog(win, opts)
+    const result = await showOpenDialog(win, opts)
     if (result.canceled || !result.filePaths.length) return null
     return result.filePaths[0]
   })

@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { BrowserWindow, ipcMain, shell } from 'electron'
 import { readdir, rmdir, stat, lstat, open, rm } from 'fs/promises'
 import { constants as fsConstants } from 'fs'
 import { join, isAbsolute, basename, resolve, normalize } from 'path'
@@ -10,6 +10,7 @@ import type {
   ShredderResult
 } from '../../shared/types'
 import type { WindowGetter } from './index'
+import { showOpenDialog } from './open-dialog'
 
 let cancelled = false
 
@@ -242,16 +243,12 @@ async function getEntrySize(entryPath: string, depth: number = 0): Promise<numbe
 }
 
 export function registerFileShredderIpc(getWindow: WindowGetter): void {
-  // File/folder pickers — on macOS, avoid passing parent window so the dialog
-  // opens as a standalone panel instead of a sheet (sidebar items like Desktop
-  // are unresponsive in sheet mode).
+  // File/folder pickers — Linux/macOS omit parent (see open-dialog.ts).
   ipcMain.handle(IPC.SHREDDER_SELECT_FILES, async () => {
     const win = getWindow()
     if (!win) return []
     const fileOpts: Electron.OpenDialogOptions = { properties: ['openFile', 'multiSelections'] }
-    const result = process.platform === 'darwin'
-      ? await dialog.showOpenDialog(fileOpts)
-      : await dialog.showOpenDialog(win, fileOpts)
+    const result = await showOpenDialog(win, fileOpts)
     if (result.canceled || !result.filePaths.length) return []
 
     const entries: ShredderEntry[] = []
@@ -273,9 +270,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     const win = getWindow()
     if (!win) return []
     const folderOpts: Electron.OpenDialogOptions = { properties: ['openDirectory', 'multiSelections'] }
-    const result = process.platform === 'darwin'
-      ? await dialog.showOpenDialog(folderOpts)
-      : await dialog.showOpenDialog(win, folderOpts)
+    const result = await showOpenDialog(win, folderOpts)
     if (result.canceled || !result.filePaths.length) return []
 
     const entries: ShredderEntry[] = []
