@@ -44,10 +44,10 @@ function makeSettings(
       shareDiskHealth: true,
       shareProcessList: true,
       shareThreatMonitor: true,
-      allowRemotePower: true,
-      allowRemoteCleanup: true,
-      allowRemoteInstalls: true,
-      allowRemoteConfig: true,
+      allowRemotePower: false,
+      allowRemoteCleanup: false,
+      allowRemoteInstalls: false,
+      allowRemoteConfig: false,
     },
   }
 }
