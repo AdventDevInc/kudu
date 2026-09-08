@@ -57,10 +57,20 @@ jobs:
         include:
           - os: windows-latest
             build-args: --win
+            publish: always
           - os: macos-latest
             build-args: --mac
+            publish: always
+          # Arch flags keep each Linux runner on its native CPU — building both
+          # arches on one host breaks better-sqlite3 / yara native rebuilds.
           - os: ubuntu-latest
-            build-args: --linux
+            build-args: --linux --x64
+            publish: always
+          # --publish always would overwrite latest-linux.yml and break x64
+          # AppImage auto-update. Arm artifacts are uploaded to the same tag only.
+          - os: ubuntu-24.04-arm
+            build-args: --linux --arm64
+            publish: never
 
     runs-on: ${{ matrix.os }}
 
@@ -108,6 +118,16 @@ jobs:
               -c.win.azureSignOptions.codeSigningAccountName="kudu-signing" \
               -c.win.azureSignOptions.certificateProfileName="kudu-sign" \
               -c.win.azureSignOptions.publisherName="Advent Development, Inc."
+          elif [ "${{ matrix.publish }}" = "never" ]; then
+            npx electron-builder ${{ matrix.build-args }} --publish never
+            shopt -s nullglob
+            assets=(dist/Kudu-*-arm64.AppImage dist/Kudu-*-arm64.deb dist/Kudu-*-arm64.AppImage.blockmap)
+            if [ ${#assets[@]} -eq 0 ]; then
+              echo "No arm64 Linux artifacts found under dist/" >&2
+              ls -la dist/ || true
+              exit 1
+            fi
+            gh release upload "${GITHUB_REF_NAME}" "${assets[@]}" --clobber
           else
             npx electron-builder ${{ matrix.build-args }} --publish always
           fi

@@ -70,4 +70,32 @@ describe('electron-builder.yml', () => {
   it('keeps versioned Linux deb artifact names', () => {
     expect(option('deb', 'artifactName')).toBe('Kudu-${version}-${arch}.${ext}')
   })
+
+  it('publishes Linux AppImage for x64 and arm64', () => {
+    // Release matrix builds each arch on a native runner; both must be listed
+    // here so --linux --arm64 actually emits an AppImage (#396).
+    const linux = block('linux')
+    const appImageStart = linux.findIndex((l) => l.includes('target: AppImage'))
+    expect(appImageStart).toBeGreaterThanOrEqual(0)
+    const nextTarget = linux.findIndex(
+      (l, i) => i > appImageStart && l.trimStart().startsWith('- target:')
+    )
+    const appImageBlock = linux.slice(
+      appImageStart,
+      nextTarget === -1 ? undefined : nextTarget
+    )
+    expect(appImageBlock.some((l) => l.trim() === '- x64')).toBe(true)
+    expect(appImageBlock.some((l) => l.trim() === '- arm64')).toBe(true)
+  })
+
+  it('documents arm64 Linux release publish mode in the workflow', () => {
+    // Guard the Critical invariant: arm64 must not --publish always or it
+    // clobbers latest-linux.yml and breaks x64 AppImage auto-update.
+    const release = readFileSync(
+      path.resolve(__dirname, '..', '..', '.github', 'workflows', 'release.yml'),
+      'utf-8'
+    )
+    expect(release).toMatch(/ubuntu-24\.04-arm[\s\S]*?publish:\s*never/)
+    expect(release).toMatch(/gh release upload/)
+  })
 })
