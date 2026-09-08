@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Günde bir kez",
   "softwareUpdaterNotificationsLabel": "Yazılım güncelleyici hatırlatmaları",
   "softwareUpdaterNotificationsDesc": "Arka planda üçüncü taraf uygulama güncellemelerini denetleyin ve kenar çubuğunda rozet sayıları gösterin. Yine de Yazılım Güncelleyici sayfasından el ile denetleyebilirsiniz.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows paket yöneticisi",
   "windowsPackageManagerDesc": "Yazılım güncellemeleri için hangi paket yöneticisinin kullanılacağını seçin",
   "sectionCloudDashboard": "Bulut",

@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Mỗi ngày một lần",
   "softwareUpdaterNotificationsLabel": "Nhắc nhở cập nhật phần mềm",
   "softwareUpdaterNotificationsDesc": "Kiểm tra bản cập nhật cho ứng dụng bên thứ ba trong nền và hiển thị số lượng huy hiệu trên thanh bên. Bạn vẫn có thể kiểm tra thủ công từ trang Trình cập nhật phần mềm.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Trình quản lý gói của Windows",
   "windowsPackageManagerDesc": "Chọn trình quản lý gói sẽ dùng để cập nhật phần mềm",
   "sectionCloudDashboard": "Đám mây",

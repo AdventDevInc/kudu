@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Раз в день",
   "softwareUpdaterNotificationsLabel": "Напоминания об обновлении программ",
   "softwareUpdaterNotificationsDesc": "Проверять обновления сторонних приложений в фоновом режиме и показывать количество доступных обновлений на боковой панели. Вы по-прежнему можете выполнить проверку вручную на странице «Обновление программ».",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Диспетчер пакетов Windows",
   "windowsPackageManagerDesc": "Выберите диспетчер пакетов для обновления программ",
   "sectionCloudDashboard": "Облако",

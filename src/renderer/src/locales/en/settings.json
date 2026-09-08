@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Once a day",
   "softwareUpdaterNotificationsLabel": "Software updater reminders",
   "softwareUpdaterNotificationsDesc": "Check for third-party app updates in the background and show badge counts in the sidebar. You can still check manually from the Software Updater page.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows package manager",
   "windowsPackageManagerDesc": "Choose which package manager to use for software updates",
   "sectionCloudDashboard": "Cloud",

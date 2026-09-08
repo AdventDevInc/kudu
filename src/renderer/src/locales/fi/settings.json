@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Kerran päivässä",
   "softwareUpdaterNotificationsLabel": "Ohjelmistopäivittäjän muistutukset",
   "softwareUpdaterNotificationsDesc": "Tarkista kolmansien osapuolten sovelluspäivitykset taustalla ja näytä tunnusmäärät sivupalkissa. Voit silti tarkistaa päivitykset manuaalisesti Ohjelmistopäivittäjä-sivulta.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows-paketinhallinta",
   "windowsPackageManagerDesc": "Valitse, mitä paketinhallintaa käytetään ohjelmistopäivityksiin",
   "sectionCloudDashboard": "Pilvi",

@@ -122,12 +122,24 @@ export function SettingsPage() {
             <option value={24}>{t('updateCheckOnceADay')}</option>
           </select>
         </Row>
-        <Row label={t('softwareUpdaterNotificationsLabel')} desc={t('softwareUpdaterNotificationsDesc')} last>
+        <Row
+          label={t('softwareUpdaterNotificationsLabel')}
+          desc={t('softwareUpdaterNotificationsDesc')}
+          last={platform === 'darwin'}
+        >
           <Toggle
             checked={settings.softwareUpdaterNotifications ?? true}
             onChange={(v) => save({ softwareUpdaterNotifications: v })}
           />
         </Row>
+        {platform !== 'darwin' && (
+          <Row label={t('preferElevatedLaunchLabel')} desc={t('preferElevatedLaunchDesc')} last>
+            <Toggle
+              checked={settings.preferElevatedLaunch ?? false}
+              onChange={(v) => save({ preferElevatedLaunch: v })}
+            />
+          </Row>
+        )}
       </Section>
 
       <Section title={t('sectionCloudDashboard')}>

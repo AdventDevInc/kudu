@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Eén keer per dag",
   "softwareUpdaterNotificationsLabel": "Herinneringen voor software-updates",
   "softwareUpdaterNotificationsDesc": "Controleer op de achtergrond op updates voor apps van derden en toon aantallen badges in de zijbalk. U kunt nog steeds handmatig controleren vanaf de pagina Software Updater.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows-pakketbeheerder",
   "windowsPackageManagerDesc": "Kies welke pakketbeheerder moet worden gebruikt voor software-updates",
   "sectionCloudDashboard": "Cloud",

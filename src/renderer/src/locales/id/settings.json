@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Sekali sehari",
   "softwareUpdaterNotificationsLabel": "Pengingat pembaruan perangkat lunak",
   "softwareUpdaterNotificationsDesc": "Periksa pembaruan aplikasi pihak ketiga di latar belakang dan tampilkan jumlah lencana di bilah samping. Anda tetap dapat memeriksa secara manual dari halaman Software Updater.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Manajer paket Windows",
   "windowsPackageManagerDesc": "Pilih manajer paket yang akan digunakan untuk pembaruan perangkat lunak",
   "sectionCloudDashboard": "Cloud",

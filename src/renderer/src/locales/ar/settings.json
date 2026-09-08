@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "مرة واحدة يوميًا",
   "softwareUpdaterNotificationsLabel": "تذكيرات محدّث البرامج",
   "softwareUpdaterNotificationsDesc": "التحقق من تحديثات تطبيقات الجهات الخارجية في الخلفية وإظهار عدد الشارات في الشريط الجانبي. لا يزال بإمكانك التحقق يدويًا من صفحة محدّث البرامج.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "مدير حزم Windows",
   "windowsPackageManagerDesc": "اختر مدير الحزم الذي تريد استخدامه لتحديثات البرامج",
   "sectionCloudDashboard": "السحابة",

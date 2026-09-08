@@ -1,19 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ShieldAlert, X } from 'lucide-react'
 import { usePlatform } from '@/hooks/usePlatform'
+import { useSettingsStore } from '@/stores/settings-store'
 
 export function AdminBanner() {
   const { t } = useTranslation('common')
   const { platform } = usePlatform()
+  const loaded = useSettingsStore((s) => s.loaded)
+  const preferElevatedLaunch = useSettingsStore(
+    (s) => s.settings.preferElevatedLaunch ?? false
+  )
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const autoRelaunchTried = useRef(false)
 
   useEffect(() => {
     window.kudu.elevationCheck().then((elevated) => {
-      if (!elevated) setVisible(true)
+      if (elevated) return
+      setVisible(true)
+      if (!loaded || !preferElevatedLaunch || autoRelaunchTried.current) return
+      autoRelaunchTried.current = true
+      window.kudu.elevationRelaunch()
     })
-  }, [])
+  }, [loaded, preferElevatedLaunch])
 
   // On macOS the relaunch-as-admin flow doesn't work properly — hide the banner entirely
   if (platform === 'darwin') return null

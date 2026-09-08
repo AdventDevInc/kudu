@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Én gang om dagen",
   "softwareUpdaterNotificationsLabel": "Påminnelser fra programvareoppdatering",
   "softwareUpdaterNotificationsDesc": "Se etter oppdateringer for tredjepartsapper i bakgrunnen og vis antall merker i sidefeltet. Du kan fortsatt se etter oppdateringer manuelt fra siden Programvareoppdatering.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows-pakkebehandler",
   "windowsPackageManagerDesc": "Velg hvilken pakkebehandler som skal brukes for programvareoppdateringer",
   "sectionCloudDashboard": "Sky",
