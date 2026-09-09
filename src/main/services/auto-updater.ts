@@ -2,6 +2,7 @@ import { app, BrowserWindow } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import { IPC } from '../../shared/channels'
 import { getSettings } from './settings-store'
+import { retargetAppImageLaunchers } from './appimage-launchers'
 import type { UpdateStatus } from '../../shared/types'
 
 let status: UpdateStatus = { state: 'idle' }
@@ -41,6 +42,17 @@ function shouldSkipUpdater(): boolean {
   // Portable builds set PORTABLE_EXECUTABLE_DIR; NSIS update flow would break.
   if (process.env.PORTABLE_EXECUTABLE_DIR) return true
   return false
+}
+
+function skipReason(): string {
+  if (!app.isPackaged) return 'Updates are unavailable in development builds'
+  if (process.platform === 'linux' && !process.env.APPIMAGE) {
+    return 'In-app updates require the AppImage build (deb/package installs use your package manager)'
+  }
+  if (process.env.PORTABLE_EXECUTABLE_DIR) {
+    return 'Portable builds do not support in-app updates'
+  }
+  return 'Updates are unavailable for this package format'
 }
 
 export function initAutoUpdater(opts: InitOptions = {}): void {
@@ -92,6 +104,19 @@ export function initAutoUpdater(opts: InitOptions = {}): void {
     broadcast({ state: 'error', error: err?.message || 'Update failed' })
   })
 
+  // Versioned → stable AppImage rename leaves .desktop Exec= on the deleted path (#401).
+  // Must stay sync: this fires inside quitAndInstall before the process exits.
+  autoUpdater.on('appimage-filename-updated', (newFile: string) => {
+    const oldFile = process.env.APPIMAGE
+    if (typeof newFile !== 'string' || !oldFile || oldFile === newFile) return
+    try {
+      retargetAppImageLaunchers(oldFile, newFile)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('Auto-updater: failed to retarget desktop launchers:', message)
+    }
+  })
+
   // Check on startup
   autoUpdater.checkForUpdates().catch((err) => {
     console.error('Auto-updater check failed:', err?.message || err)
@@ -121,13 +146,27 @@ export function updateCheckInterval(hours: number): void {
 }
 
 export function checkForUpdates(): Promise<void> {
-  if (!app.isPackaged || shouldSkipUpdater()) return Promise.resolve()
-  return autoUpdater.checkForUpdates().then(() => {})
+  // About → Check for updates used to resolve with no status change when the
+  // package format is unsupported (common on Linux .deb), so the button looked dead.
+  if (!app.isPackaged || shouldSkipUpdater()) {
+    broadcast({ state: 'error', error: skipReason() })
+    return Promise.resolve()
+  }
+  return autoUpdater.checkForUpdates().then(() => {}).catch((err: unknown) => {
+    const message = err instanceof Error ? err.message : String(err)
+    broadcast({ state: 'error', error: message || 'Update check failed' })
+  })
 }
 
 export function downloadUpdate(): Promise<void> {
-  if (!app.isPackaged || shouldSkipUpdater()) return Promise.resolve()
-  return autoUpdater.downloadUpdate().then(() => {})
+  if (!app.isPackaged || shouldSkipUpdater()) {
+    broadcast({ state: 'error', error: skipReason() })
+    return Promise.resolve()
+  }
+  return autoUpdater.downloadUpdate().then(() => {}).catch((err: unknown) => {
+    const message = err instanceof Error ? err.message : String(err)
+    broadcast({ state: 'error', error: message || 'Update download failed' })
+  })
 }
 
 export function installUpdate(): void {

@@ -59,4 +59,15 @@ describe('electron-builder.yml', () => {
     expect(block('win').some((l) => l.includes('target: portable'))).toBe(true)
     expect(option('portable', 'artifactName')).toBe('Kudu-Portable-${version}.${ext}')
   })
+
+  it('publishes a stable AppImage name for in-place Linux auto-update', () => {
+    // Versioned AppImage basenames make electron-updater write a new file and
+    // delete the old one, breaking desktop Exec= paths (#401).
+    expect(option('appImage', 'artifactName')).toBe('Kudu-${arch}.${ext}')
+    expect(option('appImage', 'artifactName')).not.toContain('${version}')
+  })
+
+  it('keeps versioned Linux deb artifact names', () => {
+    expect(option('deb', 'artifactName')).toBe('Kudu-${version}-${arch}.${ext}')
+  })
 })
