@@ -3,6 +3,7 @@ import { join } from 'path'
 import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
 import { logError } from './logger'
+import { matchLocaleToLanguage } from '../../shared/languages'
 import type { KuduSettings, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager, WindowState } from '../../shared/types'
 
 let _dataDir: string | null = null
@@ -103,6 +104,33 @@ function ensureDir(): void {
   if (!existsSync(getDataDir())) {
     mkdirSync(getDataDir(), { recursive: true })
   }
+}
+
+let _systemLanguage: string | null = null
+
+/**
+ * The UI language a fresh install should start in, derived from the OS locale.
+ *
+ * Without this every install opened in English regardless of the system
+ * language, and the 29 shipped translations were only reachable by finding the
+ * picker — which reads as "this app has no translation for my language".
+ *
+ * Only ever consulted when there is no persisted choice: `readStore()` applies
+ * it to the defaults, and any language the user (or the onboarding wizard)
+ * saves takes precedence from then on.
+ */
+export function resolveSystemLanguage(): string {
+  if (_systemLanguage) return _systemLanguage
+  let locale = ''
+  try {
+    // Guarded: `getLocale` is absent from the electron stub some unit tests
+    // mock, and throws if called before the app is ready.
+    if (typeof app?.getLocale === 'function') locale = app.getLocale()
+  } catch {
+    locale = ''
+  }
+  _systemLanguage = matchLocaleToLanguage(locale)
+  return _systemLanguage
 }
 
 // ── API key encryption via Electron safeStorage ──────────────────────
@@ -227,7 +255,11 @@ function readStore(): StoreData {
     // setting and re-triggers onboarding, so leave a trace of why.
     logError('config.json could not be read — falling back to defaults', err)
   }
-  return JSON.parse(JSON.stringify(defaults))
+  // No persisted config (fresh install, or one we just failed to read): start
+  // in the OS language rather than always in English.
+  const fresh = JSON.parse(JSON.stringify(defaults)) as StoreData
+  fresh.settings.language = resolveSystemLanguage()
+  return fresh
 }
 
 /**
