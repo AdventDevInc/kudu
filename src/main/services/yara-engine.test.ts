@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { YaraEngine } from './yara-engine'
+import { YaraEngine, isAdvisoryDetection } from './yara-engine'
 
 // ─── Test pure conversion logic (replicated to avoid Electron imports) ───
 
@@ -262,5 +262,38 @@ describe('YaraEngine.scanFile', () => {
     release()
     expect(terminate).toHaveBeenCalledOnce()
     expect(engine.isReady()).toBe(false)
+  })
+})
+
+describe('isAdvisoryDetection', () => {
+  it('does not pre-select a vulnerable-driver hit', () => {
+    // A signed HyperX NGENUITY driver with a known CVE. Deleting it breaks the
+    // peripheral software; the remedy is a vendor update.
+    expect(isAdvisoryDetection('Windows.VulnDriver.Otipcibus64.7d564eba')).toBe(true)
+  })
+
+  it('does not pre-select an obfuscator fingerprint', () => {
+    // ConfuserEx is a commercial .NET obfuscator; this fired on all four files
+    // of a paid consumer application.
+    expect(isAdvisoryDetection('SUSP.NET.NAME.ConfuserEx')).toBe(true)
+  })
+
+  it('matches the underscore form rule names fall back to', () => {
+    expect(isAdvisoryDetection('SUSP_NET_NAME_ConfuserEx')).toBe(true)
+  })
+
+  it('is case-insensitive', () => {
+    expect(isAdvisoryDetection('windows.vulndriver.something')).toBe(true)
+    expect(isAdvisoryDetection('susp.packer.upx')).toBe(true)
+  })
+
+  it('still pre-selects real malware families', () => {
+    expect(isAdvisoryDetection('Trojan.Win32.Emotet')).toBe(false)
+    expect(isAdvisoryDetection('Ransom.Wannacry')).toBe(false)
+    expect(isAdvisoryDetection('Backdoor.Generic')).toBe(false)
+  })
+
+  it('does not fire on an unrelated name that merely contains "susp"', () => {
+    expect(isAdvisoryDetection('Trojan.Suspenders')).toBe(false)
   })
 })
