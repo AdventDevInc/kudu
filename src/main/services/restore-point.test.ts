@@ -7,7 +7,7 @@ vi.mock('child_process', () => ({ execFile: (...args: unknown[]) => mockExecFile
 // Mock elevation
 vi.mock('./elevation', () => ({ isAdmin: vi.fn() }))
 
-import { createRestorePoint } from './restore-point'
+import { createRestorePoint, buildRestorePointScript, classifyRestorePointError, PROTECTION_SENTINEL, PROTECTION_DISABLED_ERROR } from './restore-point'
 import { isAdmin } from './elevation'
 
 const mockedIsAdmin = vi.mocked(isAdmin)
@@ -103,5 +103,44 @@ describe('createRestorePoint', () => {
     const result = await createRestorePoint('Test')
     expect(result.success).toBe(false)
     expect(result.error!.length).toBeLessThanOrEqual(500)
+  })
+})
+
+describe('buildRestorePointScript', () => {
+  it('checks System Protection before checkpointing', () => {
+    const script = buildRestorePointScript('Test')
+    expect(script.indexOf('RPSessionInterval')).toBeLessThan(script.indexOf('Checkpoint-Computer'))
+    expect(script).toContain(PROTECTION_SENTINEL)
+  })
+
+  it('only trips on an explicit zero, not on a missing value', () => {
+    // A machine that never configured System Protection has no value at all;
+    // treating that as "off" would refuse a restore point that may succeed.
+    expect(buildRestorePointScript('Test')).toContain('$rp -ne $null -and $rp -eq 0')
+  })
+
+  it('still escapes single quotes in the description', () => {
+    expect(buildRestorePointScript("Kudu's cleanup")).toContain("Kudu''s cleanup")
+  })
+})
+
+describe('classifyRestorePointError', () => {
+  it('translates the sentinel into an actionable message', () => {
+    const msg = classifyRestorePointError(`Write-Error : ${PROTECTION_SENTINEL}\nAt line:1`)
+    expect(msg).toBe(PROTECTION_DISABLED_ERROR)
+    expect(msg).toContain('Enable-ComputerRestore')
+  })
+
+  it('keeps the 24-hour throttle message', () => {
+    expect(classifyRestorePointError('limited by frequency')).toContain('last 24 hours')
+    expect(classifyRestorePointError('within the past 1440 minutes')).toContain('last 24 hours')
+  })
+
+  it('passes other failures through, truncated', () => {
+    expect(classifyRestorePointError('x'.repeat(1000)).length).toBe(500)
+  })
+
+  it('never returns an empty message', () => {
+    expect(classifyRestorePointError('')).toBe('Unknown error')
   })
 })
