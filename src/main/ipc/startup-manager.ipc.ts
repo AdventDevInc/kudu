@@ -864,7 +864,10 @@ export async function getBootTrace(): Promise<StartupBootTrace> {
             name: appName,
             displayName: deriveDisplayName(appName, filePath),
             delayMs,
-            source: 'registry-hkcu',
+            // The event log gives a process and a delay, never an autostart
+            // location — claiming HKCU Run here reported a registry entry that
+            // may not exist.
+            source: null,
             impact: delayMs > 3000 ? 'high' : delayMs > 1000 ? 'medium' : 'low'
           })
         }

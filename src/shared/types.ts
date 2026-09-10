@@ -209,7 +209,14 @@ export interface StartupBootEntry {
   name: string
   displayName: string
   delayMs: number
-  source: StartupItem['source']
+  /**
+   * Where the app is launched from, or null when it could not be determined.
+   *
+   * The Windows boot-performance event log records which processes ran during
+   * boot and how long they delayed it, but says nothing about the autostart
+   * mechanism behind them, so entries derived from it carry null.
+   */
+  source: StartupItem['source'] | null
   impact: StartupItem['impact']
 }
 
