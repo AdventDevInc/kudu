@@ -582,6 +582,9 @@ Scan History:
 Restore Points:
   restore-point create [description]   Create a system restore point
 
+Repair (Windows):
+  repair gpu-restart           Soft-restart display adapters (needs admin)
+
 Config Management:
   config get [key]             Show settings (e.g. config get cloud.apiKey)
   config set <key> <value>     Update a setting (e.g. config set cloud.apiKey my-key)
@@ -1214,6 +1217,46 @@ async function handleRestorePoint(args: string[], ctx: CliContext): Promise<numb
   }
 }
 
+async function handleRepair(args: string[], ctx: CliContext): Promise<number | void> {
+  const sub = args[0]
+  if (sub !== 'gpu-restart') {
+    cliUsage(ctx, 'kudu --cli repair gpu-restart')
+    return ExitCode.INVALID_ARGS
+  }
+  if (process.platform !== 'win32') {
+    const msg = 'GPU restart is only available on Windows'
+    if (ctx.json) cliOut(ctx, { error: 'unsupported_platform', message: msg })
+    else cliLog(ctx, msg)
+    return ExitCode.GENERAL_ERROR
+  }
+
+  const { isAdmin } = await import('./services/elevation')
+  if (!isAdmin()) {
+    const msg = 'GPU restart requires administrator privileges'
+    if (ctx.json) cliOut(ctx, { error: 'permission_denied', message: msg })
+    else cliLog(ctx, msg)
+    return ExitCode.PERMISSION_DENIED
+  }
+
+  cliLog(ctx, 'Restarting display adapters...')
+  const { restartGpuDrivers } = await import('./platform/win32/gpu-restart')
+  const result = await restartGpuDrivers()
+
+  if (ctx.json) {
+    cliOut(ctx, result)
+  } else if (!result.ok) {
+    cliLog(ctx, `  Failed: ${result.error ?? 'unknown error'}`)
+  } else if (result.devices.length === 0) {
+    cliLog(ctx, '  No active display adapters found.')
+  } else {
+    cliLog(ctx, `  Restarted ${result.devices.length} adapter(s):`)
+    for (const d of result.devices) cliLog(ctx, `    ${d.name}`)
+  }
+
+  if (!result.ok) return ExitCode.GENERAL_ERROR
+  if (result.devices.length === 0) return ExitCode.NOTHING_FOUND
+}
+
 // ─── Config management ───────────────────────────────────────
 
 async function handleConfig(args: string[], ctx: CliContext): Promise<number | void> {
@@ -1678,6 +1721,7 @@ export async function runCli(): Promise<void> {
       case 'leftovers': exitCode = await handleLeftovers(parsed.commandArgs, ctx); break
       case 'history': exitCode = await handleHistory(parsed.commandArgs, ctx); break
       case 'restore-point': exitCode = await handleRestorePoint(parsed.commandArgs, ctx); break
+      case 'repair': exitCode = await handleRepair(parsed.commandArgs, ctx); break
       case 'config': exitCode = await handleConfig(parsed.commandArgs, ctx); break
       case 'service': exitCode = await handleService(parsed.commandArgs, ctx); break
       case 'cve': exitCode = await handleCve(parsed.commandArgs, ctx); break
