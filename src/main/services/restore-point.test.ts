@@ -113,6 +113,14 @@ describe('buildRestorePointScript', () => {
     expect(script).toContain(PROTECTION_SENTINEL)
   })
 
+  it('keeps the backslashes in the SystemRestore registry path', () => {
+    // An unescaped "\S" in a double-quoted JS string is just "S"; the path
+    // would collapse to HKLM:SOFTWAREMicrosoft... and the check would never fire.
+    expect(buildRestorePointScript('Test')).toContain(
+      String.raw`'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore'`
+    )
+  })
+
   it('only trips on an explicit zero, not on a missing value', () => {
     // A machine that never configured System Protection has no value at all;
     // treating that as "off" would refuse a restore point that may succeed.

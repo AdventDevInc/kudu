@@ -27,7 +27,9 @@ export const PROTECTION_DISABLED_ERROR =
 export function buildRestorePointScript(description: string): string {
   const safe = description.replace(/'/g, "''")
   return (
-    "$rp = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore'" +
+    // Escaped: a single "\S" in a double-quoted JS string is just "S", which
+    // would silently collapse the path and turn the check into a no-op.
+    "$rp = (Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore'" +
     ' -ErrorAction SilentlyContinue).RPSessionInterval; ' +
     `if ($rp -ne $null -and $rp -eq 0) { Write-Error '${PROTECTION_SENTINEL}'; exit 1 }; ` +
     `Checkpoint-Computer -Description '${safe}' -RestorePointType 'MODIFY_SETTINGS' -ErrorAction Stop`
