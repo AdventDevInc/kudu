@@ -103,7 +103,7 @@ Kudu by design removes files from your system. You are responsible for reviewing
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues, submit PRs, or suggest features.
+Contributions are welcome! Feel free to open issues, submit PRs, or suggest features. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tooling, and PR conventions.
 
 **Want to add a cleaner for your favorite app?** Kudu's cleaning rules are simple JSON files — no code required. See the [Cleaner Rules Guide](rules/RULES.md) to get started, or browse the [full cleaner directory](https://usekudu.com/cleaners) to see what's already covered.
 

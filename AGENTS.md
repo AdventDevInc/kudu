@@ -16,13 +16,15 @@ Breaking changes must include `!` after the type/scope.
 
 ## Before Committing
 
-- Run `npm test` to ensure all tests pass.
-- Run `npm run validate:rules` if rule JSON files were changed.
+- Run `npm run check` — typecheck, lint, format check, rule validation, tests. This is exactly what CI runs.
+- If only formatting fails, `npm run format` fixes it. `npm run lint:fix` handles auto-fixable lint issues.
 
 ## Code Style
 
+- Prettier and ESLint are the source of truth (`.prettierrc`, `eslint.config.mjs`). Don't hand-format.
 - Follow existing patterns in the codebase.
 - Keep PRs focused — one logical change per branch.
+- PRs are squash-merged; the PR title must be a Conventional Commit since it becomes the commit message.
 
 ## Efficient Repository Exploration
 
