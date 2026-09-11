@@ -80,9 +80,15 @@ linux:
         - x64
   icon: resources/icons/
   category: Utility
-  artifactName: Kudu-${version}-${arch}.${ext}
+
+# Stable AppImage name so electron-updater overwrites in place (#401).
+# A versioned basename makes doInstall delete the old file and write a new
+# name, leaving desktop/menu Exec= paths pointing at a missing binary.
+appImage:
+  artifactName: Kudu-${arch}.${ext}
 
 deb:
+  artifactName: Kudu-${version}-${arch}.${ext}
   depends:
     - libgtk-3-0
     - libnss3

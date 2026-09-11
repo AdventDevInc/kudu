@@ -89,13 +89,21 @@ ok "Dependencies installed."
 log "Finding latest Kudu release..."
 RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest")
 VERSION=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
-ASSET_NAME="Kudu-${VERSION#v}-${ARCH_LABEL}.AppImage"
+# Prefer stable AppImage name (in-place auto-update). Fall back to legacy
+# versioned assets still present on older releases.
+ASSET_NAME="Kudu-${ARCH_LABEL}.AppImage"
 DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r \
   --arg name "$ASSET_NAME" \
   '.assets[] | select(.name == $name) | .browser_download_url')
+if [[ -z "$DOWNLOAD_URL" || "$DOWNLOAD_URL" == "null" ]]; then
+  ASSET_NAME="Kudu-${VERSION#v}-${ARCH_LABEL}.AppImage"
+  DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r \
+    --arg name "$ASSET_NAME" \
+    '.assets[] | select(.name == $name) | .browser_download_url')
+fi
 
 if [[ -z "$DOWNLOAD_URL" || "$DOWNLOAD_URL" == "null" ]]; then
-  err "Could not find AppImage asset: $ASSET_NAME"
+  err "Could not find AppImage asset (stable or versioned) for ${ARCH_LABEL}"
   err "Available assets:"
   echo "$RELEASE_JSON" | jq -r '.assets[].name' >&2
   exit 1
