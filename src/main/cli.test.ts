@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { parseCliArgs, ExitCode, cliLog, cliVerbose } from './cli'
+import { parseCliArgs, ExitCode, cliLog, cliVerbose, exitCodeForCleanResult, exitCodeForRestorePoint, exitCodeForRegistryFix } from './cli'
 
 describe('parseCliArgs', () => {
   it('requires a separate explicit opt-in for performance cache resets', () => {
@@ -171,5 +171,67 @@ describe('JSON stdout purity', () => {
     cliVerbose({ json: false, verbosity: 'verbose' }, 'took 12ms')
     expect(out).toEqual(['  [verbose] took 12ms\n'])
     expect(err).toEqual([])
+  })
+})
+
+describe('exitCodeForCleanResult', () => {
+  it('succeeds when nothing failed', () => {
+    expect(exitCodeForCleanResult({ filesDeleted: 12, errors: [] })).toBe(ExitCode.SUCCESS)
+  })
+
+  it('reports a partial success when some files were deleted and some failed', () => {
+    expect(exitCodeForCleanResult({ filesDeleted: 1833, errors: [{ path: 'a', reason: 'in-use' }] }))
+      .toBe(ExitCode.PARTIAL_SUCCESS)
+  })
+
+  it('fails outright when every item was rejected', () => {
+    // The shape `leftovers clean` returns today: 44 found, 44 rejected, and it
+    // still exited 0 before this graded the result.
+    const allRejected = Array.from({ length: 44 }, () => ({ reason: 'scan-result-expired' }))
+    expect(exitCodeForCleanResult({ filesDeleted: 0, errors: allRejected }))
+      .toBe(ExitCode.GENERAL_ERROR)
+  })
+
+  it('prefers the elevation code over the others', () => {
+    expect(exitCodeForCleanResult({ filesDeleted: 5, errors: [{}], needsElevation: true }))
+      .toBe(ExitCode.PERMISSION_DENIED)
+  })
+})
+
+describe('exitCodeForRestorePoint', () => {
+  it('succeeds when the restore point was created', () => {
+    expect(exitCodeForRestorePoint({ success: true })).toBe(ExitCode.SUCCESS)
+  })
+
+  it('fails when System Restore is switched off', () => {
+    expect(exitCodeForRestorePoint({
+      success: false,
+      error: 'Cannot start the service because it is disabled'
+    })).toBe(ExitCode.GENERAL_ERROR)
+  })
+
+  it('reports missing elevation separately', () => {
+    expect(exitCodeForRestorePoint({
+      success: false,
+      error: 'Administrator privileges required to create a restore point.'
+    })).toBe(ExitCode.PERMISSION_DENIED)
+  })
+
+  it('still fails when no error text came back', () => {
+    expect(exitCodeForRestorePoint({ success: false })).toBe(ExitCode.GENERAL_ERROR)
+  })
+})
+
+describe('exitCodeForRegistryFix', () => {
+  it('succeeds when every entry was fixed', () => {
+    expect(exitCodeForRegistryFix({ fixed: 640, failed: 0 })).toBe(ExitCode.SUCCESS)
+  })
+
+  it('reports a partial success when one entry resisted', () => {
+    expect(exitCodeForRegistryFix({ fixed: 639, failed: 1 })).toBe(ExitCode.PARTIAL_SUCCESS)
+  })
+
+  it('fails when nothing could be fixed', () => {
+    expect(exitCodeForRegistryFix({ fixed: 0, failed: 7 })).toBe(ExitCode.GENERAL_ERROR)
   })
 })

@@ -36,6 +36,45 @@ export const ExitCode = {
   SCAN_THREATS: 7,
 } as const
 
+/**
+ * Exit code for an operation that deleted files.
+ *
+ * A run that reports success while nothing was removed is worse than a loud
+ * failure: a scheduled task has no other signal to go on. `runLegacyScanClean`
+ * has always graded its result this way; sharing the rule keeps every delete
+ * path in agreement.
+ */
+export function exitCodeForCleanResult(result: {
+  filesDeleted: number
+  errors: readonly unknown[]
+  needsElevation?: boolean
+}): number {
+  if (result.errors.length === 0) return ExitCode.SUCCESS
+  if (result.needsElevation) return ExitCode.PERMISSION_DENIED
+  if (result.filesDeleted > 0) return ExitCode.PARTIAL_SUCCESS
+  return ExitCode.GENERAL_ERROR
+}
+
+/**
+ * Exit code for `restore-point create`.
+ *
+ * `createRestorePoint` resolves with `{ success: false }` instead of rejecting,
+ * so a failed restore point used to exit 0 — leaving the caller to believe the
+ * safety net it just asked for exists when it does not.
+ */
+export function exitCodeForRestorePoint(result: { success: boolean; error?: string }): number {
+  if (result.success) return ExitCode.SUCCESS
+  return /administrator|elevat|privileg/i.test(result.error ?? '')
+    ? ExitCode.PERMISSION_DENIED
+    : ExitCode.GENERAL_ERROR
+}
+
+/** Exit code for `registry fix`, which reports per-entry successes and failures. */
+export function exitCodeForRegistryFix(result: { fixed: number; failed: number }): number {
+  if (result.failed === 0) return ExitCode.SUCCESS
+  return result.fixed > 0 ? ExitCode.PARTIAL_SUCCESS : ExitCode.GENERAL_ERROR
+}
+
 export interface ParsedCliArgs {
   command: string | undefined
   commandArgs: string[]
@@ -628,6 +667,7 @@ async function handleRegistry(args: string[], ctx: CliContext): Promise<number |
     })
     if (showProgress(ctx)) log('')
     cliOut(ctx, result)
+    return exitCodeForRegistryFix(result)
   } else {
     cliUsage(ctx, 'kudu --cli registry <scan|fix> [--all] [--json]')
     return ExitCode.INVALID_ARGS
@@ -1060,6 +1100,7 @@ async function handleLeftovers(args: string[], ctx: CliContext): Promise<number 
       const itemIds = results.flatMap(r => r.items.map(i => i.id))
       const cleanResult = await cleanItems(itemIds, undefined, 'cli')
       cliOut(ctx, cleanResult)
+      return exitCodeForCleanResult(cleanResult)
     }
   } else {
     cliUsage(ctx, 'kudu --cli leftovers <scan|clean>')
@@ -1166,6 +1207,7 @@ async function handleRestorePoint(args: string[], ctx: CliContext): Promise<numb
     cliLog(ctx, `Creating restore point: ${description}...`)
     const result = await createRestorePoint(description)
     cliOut(ctx, result)
+    return exitCodeForRestorePoint(result)
   } else {
     cliUsage(ctx, 'kudu --cli restore-point create [description]')
     return ExitCode.INVALID_ARGS
@@ -1569,10 +1611,9 @@ async function runLegacyScanClean(categories: string[], doClean: boolean, ctx: C
   }
 
   // Determine exit code
-  if (cleanResult?.errors.length) {
-    if (cleanResult.needsElevation) return ExitCode.PERMISSION_DENIED
-    if (cleanResult.filesDeleted > 0) return ExitCode.PARTIAL_SUCCESS
-    return ExitCode.GENERAL_ERROR
+  if (cleanResult) {
+    const code = exitCodeForCleanResult(cleanResult)
+    if (code !== ExitCode.SUCCESS) return code
   }
   if (totalItems === 0) return ExitCode.NOTHING_FOUND
   return ExitCode.SUCCESS
