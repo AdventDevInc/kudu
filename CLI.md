@@ -90,6 +90,14 @@ kudu --cli programs list --json | jq '.count'   # stdout is pure JSON
 kudu --cli programs list --json 2>/dev/null     # discard progress entirely
 ```
 
+## Repair (Windows)
+
+```bash
+kudu --cli repair gpu-restart   # soft-restart display adapters (admin required)
+```
+
+Uses Disable/Enable-PnpDevice on class `Display` — not key injection of Win+Ctrl+Shift+B.
+
 ## Prometheus Metrics
 
 Print metrics in Prometheus text format (useful for `node_exporter` textfile collector):
