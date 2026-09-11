@@ -507,6 +507,29 @@ export function createYaraEngine(): YaraEngine {
  */
 const VALID_SEVERITIES = new Set(['critical', 'high', 'medium', 'low'] as const)
 
+/**
+ * Whether a YARA hit should arrive pre-ticked for quarantine or deletion.
+ *
+ * Not every rule that fires means "this file is malware". Two families in the
+ * shipped set describe risk or provenance instead:
+ *
+ * - `Windows.VulnDriver.*` — a legitimate, signed driver carrying a known
+ *   vulnerability. It is normally a component of software the user installed
+ *   deliberately, so deleting it breaks that software rather than removing a
+ *   threat; the fix is a vendor update, not quarantine.
+ * - `SUSP.*` — packers, obfuscators and similar traits that legitimate
+ *   software uses too. `SUSP_NET_NAME_ConfuserEx` fires on ConfuserEx, a
+ *   commercial .NET obfuscator shipped inside paid consumer applications.
+ *
+ * Both are still reported at their stated severity. They simply require a
+ * decision rather than arriving already selected, so that one click on
+ * "Delete" cannot remove working software the user paid for.
+ */
+export function isAdvisoryDetection(detectionName: string): boolean {
+  const name = detectionName.toLowerCase()
+  return name.startsWith('susp.') || name.startsWith('susp_') || name.includes('vulndriver')
+}
+
 export function yaraMatchToThreatFields(match: YaraMatch): {
   detectionName: string
   severity: 'critical' | 'high' | 'medium' | 'low'
