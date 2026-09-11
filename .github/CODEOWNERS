@@ -1,2 +1,12 @@
-# Cleaner rules — auto-assign reviewers for community rule contributions
-/rules/ @adventdevinc/rules-maintainers
+# Auto-requests review from the right people when a PR touches these paths.
+# Later rules take precedence over earlier ones.
+
+# Default: everything goes to the core maintainer
+*                       @dbfx
+
+# Cleaner rules — community rule contributions
+/rules/                 @adventdevinc/rules-maintainers
+
+# Repo governance / CI
+/.github/               @dbfx
+/scripts/release.js     @dbfx

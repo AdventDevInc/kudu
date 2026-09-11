@@ -12,7 +12,6 @@
 
 ## Checklist
 
+- [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `fix(scanner): handle missing registry keys`) — it becomes the squash-commit message
 - [ ] Tested on my platform (Windows / macOS / Linux)
-- [ ] `npm test` passes
-- [ ] `npm run build` succeeds
-- [ ] Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+- [ ] `npm run check` passes (typecheck, lint, format, rules, tests)
