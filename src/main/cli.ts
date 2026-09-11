@@ -765,6 +765,7 @@ Restore Points:
 
 Repair (Windows):
   repair gpu-restart           Soft-restart display adapters (needs admin)
+  repair winre-status [--verbose]  Windows Recovery Environment status (needs admin)
 
 Config Management:
   config get [key]             Show settings (e.g. config get cloud.apiKey)
@@ -1571,27 +1572,41 @@ async function handleRestorePoint(args: string[], ctx: CliContext): Promise<numb
   }
 }
 
+const REPAIR_USAGE = 'kudu --cli repair <gpu-restart|winre-status> [--verbose]'
+
 async function handleRepair(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
-  if (sub !== 'gpu-restart') {
-    cliUsage(ctx, 'kudu --cli repair gpu-restart')
+  const labels: Record<string, string> = {
+    'gpu-restart': 'GPU restart',
+    'winre-status': 'WinRE status',
+  }
+  const label = labels[sub ?? '']
+  if (!label) {
+    cliUsage(ctx, REPAIR_USAGE)
     return ExitCode.INVALID_ARGS
   }
   if (process.platform !== 'win32') {
-    const msg = 'GPU restart is only available on Windows'
+    const msg = `${label} is only available on Windows`
     if (ctx.json) cliOut(ctx, { error: 'unsupported_platform', message: msg })
     else cliLog(ctx, msg)
     return ExitCode.GENERAL_ERROR
   }
 
+  // Both subcommands need elevation: Disable/Enable-PnpDevice refuses without
+  // it, and reagentc would otherwise read as an "Unknown" status rather than
+  // a permissions problem.
   const { isAdmin } = await import('./services/elevation')
   if (!isAdmin()) {
-    const msg = 'GPU restart requires administrator privileges'
+    const msg = `${label} requires administrator privileges`
     if (ctx.json) cliOut(ctx, { error: 'permission_denied', message: msg })
     else cliLog(ctx, msg)
     return ExitCode.PERMISSION_DENIED
   }
 
+  return sub === 'gpu-restart' ? repairGpuRestart(ctx) : repairWinReStatus(args, ctx)
+}
+
+async function repairGpuRestart(ctx: CliContext): Promise<number | void> {
   cliLog(ctx, 'Restarting display adapters...')
   const { restartGpuDrivers } = await import('./platform/win32/gpu-restart')
   const result = await restartGpuDrivers()
@@ -1609,6 +1624,32 @@ async function handleRepair(args: string[], ctx: CliContext): Promise<number | v
 
   if (!result.ok) return ExitCode.GENERAL_ERROR
   if (result.devices.length === 0) return ExitCode.NOTHING_FOUND
+}
+
+async function repairWinReStatus(args: string[], ctx: CliContext): Promise<number | void> {
+  const { getWinReInfo } = await import('./platform/win32/winre-status')
+  const info = await getWinReInfo()
+  const verbose = args.includes('--verbose') || ctx.verbosity === 'verbose'
+
+  if (ctx.json) {
+    cliOut(ctx, verbose ? info : {
+      status: info.status,
+      ...(info.location ? { location: info.location } : {}),
+      ...(info.error ? { error: info.error } : {}),
+    })
+    return info.status === 'Unknown' ? ExitCode.GENERAL_ERROR : undefined
+  }
+
+  cliLog(ctx, `  WinRE: ${info.status}`)
+  if (info.error) cliLog(ctx, `  ${info.error}`)
+  if (verbose || info.location) {
+    if (info.location) cliLog(ctx, `  Location: ${info.location}`)
+    else if (verbose) cliLog(ctx, '  Location: (none)')
+  }
+  if (verbose && info.bcdIdentifier) {
+    cliLog(ctx, `  BCD id: ${info.bcdIdentifier}`)
+  }
+  if (info.status === 'Unknown') return ExitCode.GENERAL_ERROR
 }
 
 // ─── Config management ───────────────────────────────────────

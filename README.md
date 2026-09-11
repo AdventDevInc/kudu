@@ -39,7 +39,7 @@ Get the latest installer for your platform from [GitHub Releases](https://github
 |----------|--------|
 | Windows | `.exe` installer or portable (`Kudu-Portable-*.exe`) |
 | macOS | `.dmg` (Intel & Apple Silicon) |
-| Linux | `.AppImage` or `.deb` |
+| Linux | `.AppImage` or `.deb` (x64, arm64) |
 
 ## Why Kudu?
 
