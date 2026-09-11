@@ -1578,7 +1578,7 @@ async function handleRepair(args: string[], ctx: CliContext): Promise<number | v
   const sub = args[0]
   const labels: Record<string, string> = {
     'gpu-restart': 'GPU restart',
-    'winre-status': 'WinRE status',
+    'winre-status': 'WinRE status'
   }
   const label = labels[sub ?? '']
   if (!label) {
@@ -1632,11 +1632,16 @@ async function repairWinReStatus(args: string[], ctx: CliContext): Promise<numbe
   const verbose = args.includes('--verbose') || ctx.verbosity === 'verbose'
 
   if (ctx.json) {
-    cliOut(ctx, verbose ? info : {
-      status: info.status,
-      ...(info.location ? { location: info.location } : {}),
-      ...(info.error ? { error: info.error } : {}),
-    })
+    cliOut(
+      ctx,
+      verbose
+        ? info
+        : {
+            status: info.status,
+            ...(info.location ? { location: info.location } : {}),
+            ...(info.error ? { error: info.error } : {})
+          }
+    )
     return info.status === 'Unknown' ? ExitCode.GENERAL_ERROR : undefined
   }
 

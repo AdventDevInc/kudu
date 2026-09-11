@@ -80,10 +80,7 @@ describe('electron-builder.yml', () => {
     const nextTarget = linux.findIndex(
       (l, i) => i > appImageStart && l.trimStart().startsWith('- target:')
     )
-    const appImageBlock = linux.slice(
-      appImageStart,
-      nextTarget === -1 ? undefined : nextTarget
-    )
+    const appImageBlock = linux.slice(appImageStart, nextTarget === -1 ? undefined : nextTarget)
     expect(appImageBlock.some((l) => l.trim() === '- x64')).toBe(true)
     expect(appImageBlock.some((l) => l.trim() === '- arm64')).toBe(true)
   })
