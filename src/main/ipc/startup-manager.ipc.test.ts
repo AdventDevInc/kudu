@@ -1530,3 +1530,21 @@ describe('error resilience', () => {
     expect(writeOrder.length).toBeGreaterThanOrEqual(2)
   })
 })
+
+describe('getBootTrace source attribution', () => {
+  it('does not claim an autostart location it cannot know', async () => {
+    // The boot-performance event log reports a process and a delay only. Every
+    // entry used to be stamped 'registry-hkcu', which reported a Run entry that
+    // need not exist — a VM launched by hand shortly after logon was presented
+    // as an autostart item.
+    mockExecFile.mockImplementation((_c: string, _a: string[], _o: object, cb: Function) => {
+      cb(null, [
+        'BOOT|15000|8000|2025-06-15T10:30:00.000Z',
+        'APP|SomeApp|5000|C:\Some\app.exe',
+      ].join('\n'), '')
+    })
+    const trace = await getBootTrace()
+    expect(trace.entries.length).toBe(1)
+    expect(trace.entries[0].source).toBeNull()
+  })
+})
