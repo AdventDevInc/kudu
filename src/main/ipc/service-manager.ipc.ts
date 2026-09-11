@@ -134,7 +134,7 @@ export async function scanServices(
       }
     `
 
-    let depMap: Record<string, { dependsOn: string[]; dependents: string[] }> = {}
+    const depMap: Record<string, { dependsOn: string[]; dependents: string[] }> = {}
     try {
       const { stdout: depOut } = await execFileAsync('powershell', psArgs(depScript), PS_OPTS)
       for (const line of depOut.split('\n').filter((l) => l.startsWith('DEP|'))) {

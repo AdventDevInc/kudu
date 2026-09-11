@@ -54,13 +54,10 @@ export function createLinuxNetwork(): PlatformNetwork {
           if (isNaN(localPort)) continue
 
           // Parse remote address — handle IPv6 bracket notation and plain IPv4
-          let remoteAddress: string
-          let remotePort: number
-
           const lastColon = remoteCol.lastIndexOf(':')
           if (lastColon === -1) continue
-          remoteAddress = remoteCol.slice(0, lastColon)
-          remotePort = parseInt(remoteCol.slice(lastColon + 1), 10)
+          let remoteAddress = remoteCol.slice(0, lastColon)
+          const remotePort = parseInt(remoteCol.slice(lastColon + 1), 10)
 
           // Strip brackets from IPv6
           if (remoteAddress.startsWith('[') && remoteAddress.endsWith(']')) {

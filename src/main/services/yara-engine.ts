@@ -125,7 +125,7 @@ export class YaraEngine {
         if (message?.type === 'ready' && !settled) {
           settled = true
           worker.removeListener('error', failStartup)
-          worker.on('error', (error) => this._failWorker(error))
+          worker.on('error', (error: Error) => this._failWorker(error))
           this._worker = worker
           this._ready = true
           resolve()

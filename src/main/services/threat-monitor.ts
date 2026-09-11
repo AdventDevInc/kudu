@@ -34,7 +34,7 @@ export function ipv4ToNumber(ip: string): number | null {
 export function ipv6ToBigInt(ip: string): bigint | null {
   try {
     // Expand :: notation
-    let expanded = ip.toLowerCase()
+    const expanded = ip.toLowerCase()
 
     // Handle IPv4-mapped IPv6 (::ffff:x.x.x.x)
     const v4MappedMatch = expanded.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/)

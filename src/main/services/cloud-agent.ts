@@ -2331,7 +2331,7 @@ class CloudAgentService {
     // deletions attributed to that run's Scan History entry.
     const fileResult = fileIds.length > 0 ? await cleanItems(fileIds, undefined, 'cloud') : { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
 
-    let dbResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
+    const dbResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
     if (dbIds.length > 0) {
       const Database = (await import('better-sqlite3')).default
       for (const id of dbIds) {

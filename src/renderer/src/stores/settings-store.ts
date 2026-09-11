@@ -66,7 +66,8 @@ const defaultSettings: KuduSettings = {
     autoDeactivate: true,
     customGameProcesses: []
   },
-  registryIgnoredTweaks: []
+  registryIgnoredTweaks: [],
+  malwareAllowlist: []
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({

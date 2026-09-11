@@ -1841,7 +1841,7 @@ export function collectBackupTargets(entries: RegistryEntry[]): { keys: string[]
 
 /** Strip the optional UTF-16 BOM and the `Windows Registry Editor Version 5.00` header from reg-export text. */
 function stripRegHeader(content: string): string {
-  return content.replace(/^﻿?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
+  return content.replace(/^\uFEFF?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
 }
 
 /**

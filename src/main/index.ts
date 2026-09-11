@@ -669,7 +669,9 @@ app.on('window-all-closed', () => {
 
 // On macOS, autoUpdater.quitAndInstall() closes all windows *before* emitting
 // before-quit, so mark quitting from this earlier signal too
-app.on('before-quit-for-update', () => {
+// 'before-quit-for-update' isn't in Electron's typed event map
+const appEvents = app as unknown as NodeJS.EventEmitter
+appEvents.on('before-quit-for-update', () => {
   isQuitting = true
 })
 

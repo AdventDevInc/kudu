@@ -562,7 +562,7 @@ describe('collectBackupTargets', () => {
 // reg-export files can be concatenated into one consolidated backup.
 
 function stripRegHeader(content: string): string {
-  return content.replace(/^﻿?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
+  return content.replace(/^\uFEFF?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
 }
 
 describe('stripRegHeader', () => {

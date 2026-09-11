@@ -13,7 +13,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const crypto = require('crypto')
+const { createHash } = require('crypto')
 
 // ─── Configuration ──────────────────────────────────────────
 
@@ -73,7 +73,7 @@ const nsFilter = getArgValue('--ns')?.split(',') ?? null
 // ─── Helpers ────────────────────────────────────────────────
 
 function sha256(content) {
-  return crypto.createHash('sha256').update(content, 'utf-8').digest('hex')
+  return createHash('sha256').update(content, 'utf-8').digest('hex')
 }
 
 function loadChecksums() {

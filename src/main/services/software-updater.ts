@@ -1582,7 +1582,7 @@ async function checkForUpdatesDnf(): Promise<UpdateCheckResult> {
     const apps = parseDnfCheckUpdate(checkStdout)
 
     // Get installed versions to fill in currentVersion and build up-to-date list
-    let upToDate: UpToDateApp[] = []
+    const upToDate: UpToDateApp[] = []
     try {
       const { stdout: rpmOut } = await execFileAsync('/usr/bin/rpm', [
         '-qa', '--queryformat', '%{NAME}\t%{VERSION}-%{RELEASE}\n',
@@ -1668,7 +1668,7 @@ async function checkForUpdatesPacman(): Promise<UpdateCheckResult> {
     const apps = parsePacmanQu(quStdout)
 
     // Get all installed for up-to-date list
-    let upToDate: UpToDateApp[] = []
+    const upToDate: UpToDateApp[] = []
     try {
       const { stdout: qOut } = await execFileAsync('/usr/bin/pacman', ['-Q'], {
         timeout: 30_000,

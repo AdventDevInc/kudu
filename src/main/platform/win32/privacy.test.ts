@@ -13,7 +13,7 @@ const mockPrivacySettings = [
 const MOCK_KEY = '/mock/privacy-shield.ipc'
 
 // Hook Node's module resolution to intercept the require call
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const NativeModule = require('module')
 const origResolve = NativeModule._resolveFilename
 NativeModule._resolveFilename = function (request: string, parent: any, ...args: any[]) {

@@ -9,7 +9,7 @@ const mockGetBootTrace = vi.fn()
 
 const MOCK_KEY = '/mock/startup-manager.ipc'
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+ 
 const NativeModule = require('module')
 const origResolve = NativeModule._resolveFilename
 NativeModule._resolveFilename = function (request: string, parent: any, ...args: any[]) {
