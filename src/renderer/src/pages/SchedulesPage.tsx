@@ -1,9 +1,26 @@
 import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  CalendarClock, Plus, Clock, CheckCircle2, XCircle, Minus,
-  Pencil, Trash2, Copy, Sparkles, Database, Globe, AppWindow,
-  Gamepad2, Trash, Monitor, Download, Zap, AlertTriangle, X
+  CalendarClock,
+  Plus,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Minus,
+  Pencil,
+  Trash2,
+  Copy,
+  Sparkles,
+  Database,
+  Globe,
+  AppWindow,
+  Gamepad2,
+  Trash,
+  Monitor,
+  Download,
+  Zap,
+  AlertTriangle,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -17,7 +34,15 @@ import { getNextRunTime } from './schedules-utils'
 
 // ─── Constants ────────────────────────────────────────────
 
-const DAY_NAME_KEYS = ['dayNames.sunday', 'dayNames.monday', 'dayNames.tuesday', 'dayNames.wednesday', 'dayNames.thursday', 'dayNames.friday', 'dayNames.saturday']
+const DAY_NAME_KEYS = [
+  'dayNames.sunday',
+  'dayNames.monday',
+  'dayNames.tuesday',
+  'dayNames.wednesday',
+  'dayNames.thursday',
+  'dayNames.friday',
+  'dayNames.saturday'
+]
 
 const MAX_SCHEDULES = 10
 
@@ -37,17 +62,31 @@ const ALL_TASKS_BASE: Array<Omit<TaskDef, 'label'> & { labelKey: string }> = [
   { type: 'cleaner:gaming', labelKey: 'tasks.gaming', icon: Gamepad2, group: 'cleaner' },
   { type: 'cleaner:recycleBin', labelKey: 'tasks.recycleBin', icon: Trash, group: 'cleaner' },
   { type: 'cleaner:databases', labelKey: 'tasks.databases', icon: Database, group: 'cleaner' },
-  { type: 'registry', labelKey: 'tasks.registryFixes', icon: Zap, group: 'maintenance', requiresFeature: 'registry' },
-  { type: 'drivers', labelKey: 'tasks.driverUpdates', icon: Download, group: 'maintenance', requiresFeature: 'drivers' },
-  { type: 'software-update', labelKey: 'tasks.softwareUpdates', icon: Sparkles, group: 'maintenance' },
+  {
+    type: 'registry',
+    labelKey: 'tasks.registryFixes',
+    icon: Zap,
+    group: 'maintenance',
+    requiresFeature: 'registry'
+  },
+  {
+    type: 'drivers',
+    labelKey: 'tasks.driverUpdates',
+    icon: Download,
+    group: 'maintenance',
+    requiresFeature: 'drivers'
+  },
+  {
+    type: 'software-update',
+    labelKey: 'tasks.softwareUpdates',
+    icon: Sparkles,
+    group: 'maintenance'
+  }
 ]
 
 function useAllTasks(): TaskDef[] {
   const { t } = useTranslation('schedules')
-  return useMemo(
-    () => ALL_TASKS_BASE.map((task) => ({ ...task, label: t(task.labelKey) })),
-    [t]
-  )
+  return useMemo(() => ALL_TASKS_BASE.map((task) => ({ ...task, label: t(task.labelKey) })), [t])
 }
 
 /** Filter tasks to only those available on the current platform */
@@ -109,7 +148,7 @@ function buildPresets(availableTasks: TaskDef[], t: (key: string) => string): Pr
         tasks: [...allTypes],
         autoApply: true
       }
-    },
+    }
   ]
 }
 
@@ -151,8 +190,8 @@ export function SchedulesPage() {
         toast.error(t('failedEnableStartup'), {
           action: {
             label: t('failedEnableStartupAction'),
-            onClick: () => window.open('https://usekudu.com/help/startup-failed', '_blank'),
-          },
+            onClick: () => window.open('https://usekudu.com/help/startup-failed', '_blank')
+          }
         })
       })
     }
@@ -234,7 +273,9 @@ export function SchedulesPage() {
     if (entry.enabled) ensureBackgroundMode()
     setShowDialog(false)
     setEditingId(null)
-    toast.success(editingId ? t('updatedToast', { name: entry.name }) : t('createdToast', { name: entry.name }))
+    toast.success(
+      editingId ? t('updatedToast', { name: entry.name }) : t('createdToast', { name: entry.name })
+    )
   }
 
   const [dialogInitial, setDialogInitial] = useState<Partial<ScheduleEntry>>(makeBlankEntry())
@@ -303,7 +344,10 @@ export function SchedulesPage() {
           isEditing={!!editingId}
           availableTasks={platformTasks}
           onSave={handleSave}
-          onClose={() => { setShowDialog(false); setEditingId(null) }}
+          onClose={() => {
+            setShowDialog(false)
+            setEditingId(null)
+          }}
         />
       )}
 
@@ -344,10 +388,7 @@ function ScheduleCard({
 
   return (
     <div
-      className={cn(
-        'group rounded-2xl p-5 transition-all',
-        !entry.enabled && 'opacity-50'
-      )}
+      className={cn('group rounded-2xl p-5 transition-all', !entry.enabled && 'opacity-50')}
       style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
       {/* Top row */}
@@ -374,7 +415,12 @@ function ScheduleCard({
           <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             <IconBtn icon={Pencil} title={t('card.editAction')} onClick={onEdit} />
             <IconBtn icon={Copy} title={t('card.duplicateAction')} onClick={onDuplicate} />
-            <IconBtn icon={Trash2} title={t('card.deleteAction')} onClick={onDelete} color="#ef4444" />
+            <IconBtn
+              icon={Trash2}
+              title={t('card.deleteAction')}
+              onClick={onDelete}
+              color="#ef4444"
+            />
           </div>
 
           <Toggle checked={entry.enabled} onChange={onToggle} />
@@ -398,16 +444,25 @@ function ScheduleCard({
           )
         })}
         {taskCount === 0 && (
-          <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t('card.noTasksSelected')}</span>
+          <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            {t('card.noTasksSelected')}
+          </span>
         )}
       </div>
 
       {/* Bottom row */}
-      <div className="mt-4 flex items-center gap-5" style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '12px' }}>
+      <div
+        className="mt-4 flex items-center gap-5"
+        style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '12px' }}
+      >
         {/* Next run */}
         {entry.enabled && nextRun && (
           <div className="flex items-center gap-2">
-            <Clock className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
+            <Clock
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: 'var(--accent)' }}
+              strokeWidth={1.8}
+            />
             <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
               {t('card.nextRun', { time: formatNextRun(nextRun, t) })}
             </span>
@@ -417,19 +472,37 @@ function ScheduleCard({
         {/* Last run */}
         <div className="flex items-center gap-2">
           {entry.lastRunStatus === 'success' && (
-            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" style={{ color: '#22c55e' }} strokeWidth={1.8} />
+            <CheckCircle2
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: '#22c55e' }}
+              strokeWidth={1.8}
+            />
           )}
           {entry.lastRunStatus === 'partial' && (
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0" style={{ color: '#eab308' }} strokeWidth={1.8} />
+            <AlertTriangle
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: '#eab308' }}
+              strokeWidth={1.8}
+            />
           )}
           {entry.lastRunStatus === 'failed' && (
-            <XCircle className="h-3.5 w-3.5 shrink-0" style={{ color: '#ef4444' }} strokeWidth={1.8} />
+            <XCircle
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: '#ef4444' }}
+              strokeWidth={1.8}
+            />
           )}
           {entry.lastRunStatus === 'never' && (
-            <Minus className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--text-faint)' }} strokeWidth={1.8} />
+            <Minus
+              className="h-3.5 w-3.5 shrink-0"
+              style={{ color: 'var(--text-faint)' }}
+              strokeWidth={1.8}
+            />
           )}
           <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-            {entry.lastRunAt ? t('card.lastRun', { time: formatLastRun(entry.lastRunAt, t) }) : t('card.neverRun')}
+            {entry.lastRunAt
+              ? t('card.lastRun', { time: formatLastRun(entry.lastRunAt, t) })
+              : t('card.neverRun')}
           </span>
         </div>
       </div>
@@ -451,10 +524,18 @@ function PresetPicker({
   const { t } = useTranslation('schedules')
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+        onClick={onClose}
+      />
       <div
         className="relative w-full max-w-md animate-scale-in rounded-2xl p-6"
-        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+        style={{
+          background: 'var(--card-bg)',
+          border: '1px solid var(--border-medium)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5)'
+        }}
       >
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-[16px] font-semibold text-white">{t('presets.dialogTitle')}</h3>
@@ -470,11 +551,17 @@ function PresetPicker({
               onClick={() => onSelect(preset.entry)}
               className="w-full rounded-xl p-4 text-left transition-colors"
               style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-default)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-default)'
+              }}
             >
               <p className="text-[14px] font-medium text-zinc-200">{preset.label}</p>
-              <p className="mt-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>{preset.description}</p>
+              <p className="mt-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                {preset.description}
+              </p>
             </button>
           ))}
 
@@ -482,11 +569,17 @@ function PresetPicker({
             onClick={() => onSelect(null)}
             className="w-full rounded-xl p-4 text-left transition-colors"
             style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-default)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(245,158,11,0.3)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border-default)'
+            }}
           >
             <p className="text-[14px] font-medium text-zinc-200">{t('presets.customLabel')}</p>
-            <p className="mt-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>{t('presets.customDescription')}</p>
+            <p className="mt-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+              {t('presets.customDescription')}
+            </p>
           </button>
         </div>
       </div>
@@ -511,7 +604,9 @@ function ScheduleDialog({
 }) {
   const { t } = useTranslation('schedules')
   const [name, setName] = useState(initial.name ?? '')
-  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>(initial.frequency ?? 'weekly')
+  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>(
+    initial.frequency ?? 'weekly'
+  )
   const [day, setDay] = useState(initial.day ?? 1)
   const [hour, setHour] = useState(initial.hour ?? 9)
   const [minute, setMinute] = useState(initial.minute ?? 0)
@@ -519,9 +614,7 @@ function ScheduleDialog({
   const [autoApply, setAutoApply] = useState(initial.autoApply ?? false)
 
   const toggleTask = (type: ScheduleTaskType) => {
-    setTasks((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    )
+    setTasks((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]))
   }
 
   const allAvailableTypes = availableTasks.map((t) => t.type)
@@ -549,18 +642,29 @@ function ScheduleDialog({
     onSave(entry)
   }
 
-  const selectStyle = "rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none"
-  const selectBorder = { background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }
+  const selectStyle = 'rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none'
+  const selectBorder = {
+    background: 'var(--bg-subtle-2)',
+    border: '1px solid var(--border-medium)'
+  }
 
   const cleanerTasks = availableTasks.filter((t) => t.group === 'cleaner')
   const maintTasks = availableTasks.filter((t) => t.group === 'maintenance')
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+        onClick={onClose}
+      />
       <div
         className="relative max-h-[85vh] w-full max-w-lg animate-scale-in overflow-y-auto rounded-2xl p-6"
-        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+        style={{
+          background: 'var(--card-bg)',
+          border: '1px solid var(--border-medium)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5)'
+        }}
       >
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-[16px] font-semibold text-white">
@@ -573,7 +677,12 @@ function ScheduleDialog({
 
         {/* Name */}
         <div className="mb-5">
-          <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.nameLabel')}</label>
+          <label
+            className="mb-1.5 block text-[12px] font-medium"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            {t('dialog.nameLabel')}
+          </label>
           <input
             type="text"
             value={name}
@@ -588,7 +697,12 @@ function ScheduleDialog({
         {/* Schedule timing */}
         <div className="mb-5 grid grid-cols-3 gap-3">
           <div>
-            <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.frequencyLabel')}</label>
+            <label
+              className="mb-1.5 block text-[12px] font-medium"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {t('dialog.frequencyLabel')}
+            </label>
             <select
               value={frequency}
               onChange={(e) => {
@@ -609,21 +723,35 @@ function ScheduleDialog({
 
           {frequency === 'weekly' && (
             <div>
-              <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.dayLabel')}</label>
+              <label
+                className="mb-1.5 block text-[12px] font-medium"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('dialog.dayLabel')}
+              </label>
               <select
                 value={day}
                 onChange={(e) => setDay(Number(e.target.value))}
                 className={cn(selectStyle, 'w-full')}
                 style={selectBorder}
               >
-                {DAY_NAME_KEYS.map((key, i) => <option key={i} value={i}>{t(key)}</option>)}
+                {DAY_NAME_KEYS.map((key, i) => (
+                  <option key={i} value={i}>
+                    {t(key)}
+                  </option>
+                ))}
               </select>
             </div>
           )}
 
           {frequency === 'monthly' && (
             <div>
-              <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.dayLabel')}</label>
+              <label
+                className="mb-1.5 block text-[12px] font-medium"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('dialog.dayLabel')}
+              </label>
               <select
                 value={day}
                 onChange={(e) => setDay(Number(e.target.value))}
@@ -631,14 +759,21 @@ function ScheduleDialog({
                 style={selectBorder}
               >
                 {Array.from({ length: 31 }, (_, i) => (
-                  <option key={i + 1} value={i + 1}>{ordinal(i + 1)}</option>
+                  <option key={i + 1} value={i + 1}>
+                    {ordinal(i + 1)}
+                  </option>
                 ))}
               </select>
             </div>
           )}
 
           <div>
-            <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.timeLabel')}</label>
+            <label
+              className="mb-1.5 block text-[12px] font-medium"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {t('dialog.timeLabel')}
+            </label>
             <div className="flex gap-1.5">
               <select
                 value={hour}
@@ -647,7 +782,9 @@ function ScheduleDialog({
                 style={selectBorder}
               >
                 {Array.from({ length: 24 }, (_, i) => (
-                  <option key={i} value={i}>{String(i).padStart(2, '0')}</option>
+                  <option key={i} value={i}>
+                    {String(i).padStart(2, '0')}
+                  </option>
                 ))}
               </select>
               <span className="flex items-center text-[13px] text-zinc-400">:</span>
@@ -658,7 +795,9 @@ function ScheduleDialog({
                 style={selectBorder}
               >
                 {Array.from({ length: 60 }, (_, i) => (
-                  <option key={i} value={i}>{String(i).padStart(2, '0')}</option>
+                  <option key={i} value={i}>
+                    {String(i).padStart(2, '0')}
+                  </option>
                 ))}
               </select>
             </div>
@@ -668,10 +807,24 @@ function ScheduleDialog({
         {/* Tasks */}
         <div className="mb-5">
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.tasksLabel')}</label>
+            <label className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
+              {t('dialog.tasksLabel')}
+            </label>
             <div className="flex gap-3">
-              <button onClick={selectAll} className="text-[11px] font-medium" style={{ color: 'var(--accent)' }}>{t('dialog.selectAll')}</button>
-              <button onClick={deselectAll} className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('dialog.deselectAll')}</button>
+              <button
+                onClick={selectAll}
+                className="text-[11px] font-medium"
+                style={{ color: 'var(--accent)' }}
+              >
+                {t('dialog.selectAll')}
+              </button>
+              <button
+                onClick={deselectAll}
+                className="text-[11px] font-medium"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('dialog.deselectAll')}
+              </button>
             </div>
           </div>
 
@@ -680,7 +833,12 @@ function ScheduleDialog({
             style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)' }}
           >
             {/* Cleaner group */}
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{t('dialog.cleanerGroup')}</p>
+            <p
+              className="mb-2 text-[10px] font-semibold uppercase tracking-widest"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {t('dialog.cleanerGroup')}
+            </p>
             <div className="mb-4 grid grid-cols-2 gap-1.5">
               {cleanerTasks.map((task) => (
                 <TaskCheckbox
@@ -693,7 +851,12 @@ function ScheduleDialog({
             </div>
 
             {/* Maintenance group */}
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{t('dialog.maintenanceGroup')}</p>
+            <p
+              className="mb-2 text-[10px] font-semibold uppercase tracking-widest"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              {t('dialog.maintenanceGroup')}
+            </p>
             <div className="grid grid-cols-2 gap-1.5">
               {maintTasks.map((task) => (
                 <TaskCheckbox
@@ -724,9 +887,16 @@ function ScheduleDialog({
         {autoApply && (
           <div
             className="mb-6 flex items-start gap-3 rounded-xl p-3"
-            style={{ background: 'var(--accent-muted-bg)', border: '1px solid rgba(245,158,11,0.12)' }}
+            style={{
+              background: 'var(--accent-muted-bg)',
+              border: '1px solid rgba(245,158,11,0.12)'
+            }}
           >
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
+            <AlertTriangle
+              className="mt-0.5 h-4 w-4 shrink-0"
+              style={{ color: 'var(--accent)' }}
+              strokeWidth={1.8}
+            />
             <p className="text-[12px] leading-relaxed" style={{ color: '#d97706' }}>
               {t('dialog.autoApplyWarning')}
             </p>
@@ -739,8 +909,12 @@ function ScheduleDialog({
             onClick={onClose}
             className="rounded-xl px-5 py-2.5 text-[13px] font-medium transition-colors"
             style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle-2)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-subtle-2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+            }}
           >
             {t('dialog.cancelButton')}
           </button>
@@ -763,7 +937,15 @@ function ScheduleDialog({
 
 // ─── Small Components ─────────────────────────────────────
 
-function TaskCheckbox({ task, checked, onChange }: { task: TaskDef; checked: boolean; onChange: () => void }) {
+function TaskCheckbox({
+  task,
+  checked,
+  onChange
+}: {
+  task: TaskDef
+  checked: boolean
+  onChange: () => void
+}) {
   return (
     <button
       onClick={onChange}
@@ -785,7 +967,13 @@ function TaskCheckbox({ task, checked, onChange }: { task: TaskDef; checked: boo
       >
         {checked && (
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 5L4.2 7.5L8 2.5" stroke="var(--text-on-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M2 5L4.2 7.5L8 2.5"
+              stroke="var(--text-on-accent)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         )}
       </div>
@@ -798,7 +986,10 @@ function TaskCheckbox({ task, checked, onChange }: { task: TaskDef; checked: boo
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
-      onClick={(e) => { e.stopPropagation(); onChange(!checked) }}
+      onClick={(e) => {
+        e.stopPropagation()
+        onChange(!checked)
+      }}
       className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
       style={{ background: checked ? 'var(--accent)' : 'var(--bg-active)' }}
     >
@@ -812,15 +1003,32 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   )
 }
 
-function IconBtn({ icon: Icon, title, onClick, color }: { icon: typeof Pencil; title: string; onClick: () => void; color?: string }) {
+function IconBtn({
+  icon: Icon,
+  title,
+  onClick,
+  color
+}: {
+  icon: typeof Pencil
+  title: string
+  onClick: () => void
+  color?: string
+}) {
   return (
     <button
-      onClick={(e) => { e.stopPropagation(); onClick() }}
+      onClick={(e) => {
+        e.stopPropagation()
+        onClick()
+      }}
       title={title}
       className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
       style={{ color: color ?? 'var(--text-muted)' }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover-2)' }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'var(--bg-hover-2)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'transparent'
+      }}
     >
       <Icon className="h-4 w-4" strokeWidth={1.8} />
     </button>
@@ -829,19 +1037,28 @@ function IconBtn({ icon: Icon, title, onClick, color }: { icon: typeof Pencil; t
 
 // ─── Utilities ────────────────────────────────────────────
 
-function formatFrequency(entry: ScheduleEntry, t: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatFrequency(
+  entry: ScheduleEntry,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string {
   const time = `${String(entry.hour).padStart(2, '0')}:${String(entry.minute ?? 0).padStart(2, '0')}`
   switch (entry.frequency) {
     case 'daily':
       return t('frequency.everyDayAt', { time })
     case 'weekly':
-      return t('frequency.everyWeekdayAt', { day: t(DAY_NAME_KEYS[entry.day] ?? 'dayNames.monday'), time })
+      return t('frequency.everyWeekdayAt', {
+        day: t(DAY_NAME_KEYS[entry.day] ?? 'dayNames.monday'),
+        time
+      })
     case 'monthly':
       return t('frequency.monthlyAt', { ordinalDay: ordinal(entry.day), time })
   }
 }
 
-function formatNextRun(date: Date, t: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatNextRun(
+  date: Date,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string {
   const now = new Date()
   const diffMs = date.getTime() - now.getTime()
   const diffD = Math.floor(diffMs / 86_400_000)
@@ -850,12 +1067,23 @@ function formatNextRun(date: Date, t: (key: string, opts?: Record<string, unknow
   if (diffD === 0 && date.getDate() === now.getDate()) return t('nextRun.todayAt', { time })
   const tomorrow = new Date(now)
   tomorrow.setDate(tomorrow.getDate() + 1)
-  if (date.getFullYear() === tomorrow.getFullYear() && date.getMonth() === tomorrow.getMonth() && date.getDate() === tomorrow.getDate()) return t('nextRun.tomorrowAt', { time })
+  if (
+    date.getFullYear() === tomorrow.getFullYear() &&
+    date.getMonth() === tomorrow.getMonth() &&
+    date.getDate() === tomorrow.getDate()
+  )
+    return t('nextRun.tomorrowAt', { time })
   if (diffD < 7) return t('nextRun.inDaysAt', { count: diffD, time })
-  return t('nextRun.dateAt', { date: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), time })
+  return t('nextRun.dateAt', {
+    date: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+    time
+  })
 }
 
-function formatLastRun(iso: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatLastRun(
+  iso: string,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): string {
   const date = new Date(iso)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()

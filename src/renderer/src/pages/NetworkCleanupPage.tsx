@@ -1,14 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  Search,
-  Sparkles,
-  CheckCircle2,
-  Wifi,
-  Globe,
-  Network,
-  History
-} from 'lucide-react'
+import { Search, Sparkles, CheckCircle2, Wifi, Globe, Network, History } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -31,20 +23,41 @@ interface CategoryDef {
 }
 
 const categories: CategoryDef[] = [
-  { type: 'dns-cache', labelKey: 'categoryDnsCache', icon: Globe, descriptionKey: 'categoryDnsCacheDesc' },
-  { type: 'wifi-profile', labelKey: 'categoryWifiProfiles', icon: Wifi, descriptionKey: 'categoryWifiProfilesDesc' },
-  { type: 'arp-cache', labelKey: 'categoryArpCache', icon: Network, descriptionKey: 'categoryArpCacheDesc' },
-  { type: 'network-history', labelKey: 'categoryNetworkHistory', icon: History, descriptionKey: 'categoryNetworkHistoryDesc' }
+  {
+    type: 'dns-cache',
+    labelKey: 'categoryDnsCache',
+    icon: Globe,
+    descriptionKey: 'categoryDnsCacheDesc'
+  },
+  {
+    type: 'wifi-profile',
+    labelKey: 'categoryWifiProfiles',
+    icon: Wifi,
+    descriptionKey: 'categoryWifiProfilesDesc'
+  },
+  {
+    type: 'arp-cache',
+    labelKey: 'categoryArpCache',
+    icon: Network,
+    descriptionKey: 'categoryArpCacheDesc'
+  },
+  {
+    type: 'network-history',
+    labelKey: 'categoryNetworkHistory',
+    icon: History,
+    descriptionKey: 'categoryNetworkHistoryDesc'
+  }
 ]
 
 export function NetworkCleanupPage() {
   const { t } = useTranslation('network')
   const { platform } = usePlatform()
-  const visibleCategories = useMemo(() =>
-    categories.filter((c) => {
-      if (c.type === 'network-history' && platform !== 'win32') return false
-      return true
-    }),
+  const visibleCategories = useMemo(
+    () =>
+      categories.filter((c) => {
+        if (c.type === 'network-history' && platform !== 'win32') return false
+        return true
+      }),
     [platform]
   )
   const items = useNetworkStore((s) => s.items)
@@ -125,7 +138,9 @@ export function NetworkCleanupPage() {
         const ns = useNetworkStore.getState()
         ns.setItems(freshItems)
         ns.setSelectedIds(new Set())
-      } catch { /* re-scan is best-effort */ }
+      } catch {
+        /* re-scan is best-effort */
+      }
     } catch {
       toast.error(t('cleanupFailedToast'))
       useNetworkStore.getState().setStatus('idle')
@@ -187,12 +202,17 @@ export function NetworkCleanupPage() {
                 }}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: 'var(--accent)' }} />
+                  <div
+                    className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full"
+                    style={{ background: 'var(--accent)' }}
+                  />
                 )}
                 <cat.icon className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
                 <div className="flex-1 min-w-0">
                   <span className="text-[13px] font-medium">{t(cat.labelKey)}</span>
-                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t(cat.descriptionKey)}</p>
+                  <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    {t(cat.descriptionKey)}
+                  </p>
                 </div>
                 {count > 0 && (
                   <span
@@ -207,13 +227,24 @@ export function NetworkCleanupPage() {
           })}
 
           {hasItems && (
-            <div className="mt-5 rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('totalFound')}</p>
+            <div
+              className="mt-5 rounded-2xl p-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+            >
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                {t('totalFound')}
+              </p>
               <p className="text-[20px] font-bold tracking-tight text-amber-400">{items.length}</p>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{t('networkItems')}</p>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                {t('networkItems')}
+              </p>
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('selected')}</p>
-                <p className="text-[15px] font-semibold text-zinc-200">{t('selectedItems', { count: selectedIds.size })}</p>
+                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                  {t('selected')}
+                </p>
+                <p className="text-[15px] font-semibold text-zinc-200">
+                  {t('selectedItems', { count: selectedIds.size })}
+                </p>
               </div>
             </div>
           )}
@@ -222,14 +253,20 @@ export function NetworkCleanupPage() {
         {/* Items panel */}
         <div className="flex-1 min-w-0">
           {isScanning && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+            <div
+              className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+            >
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
               <span className="text-[13px] text-zinc-400">{t('scanningStatus')}</span>
             </div>
           )}
 
           {isCleaning && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+            <div
+              className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+            >
               <div className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
               <span className="text-[13px] text-zinc-400">{t('cleaningStatus')}</span>
             </div>
@@ -238,7 +275,10 @@ export function NetworkCleanupPage() {
           {cleanResult && status === 'complete' && (
             <div
               className="mb-5 rounded-2xl p-4"
-              style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
+              style={{
+                background: 'rgba(34,197,94,0.06)',
+                border: '1px solid rgba(34,197,94,0.1)'
+              }}
             >
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" strokeWidth={1.8} />
@@ -246,14 +286,22 @@ export function NetworkCleanupPage() {
                   <p className="text-[13px] font-medium text-zinc-200">{t('cleanupComplete')}</p>
                   <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
                     {t('cleanedCount', { count: cleanResult.cleaned })}
-                    {cleanResult.failed > 0 && <span> · {t('failedCount', { count: cleanResult.failed })}</span>}
+                    {cleanResult.failed > 0 && (
+                      <span> · {t('failedCount', { count: cleanResult.failed })}</span>
+                    )}
                   </p>
                 </div>
               </div>
               {cleanResult.details.length > 0 && (
                 <div className="mt-3 ml-8 space-y-0.5">
                   {cleanResult.details.map((detail, i) => (
-                    <p key={i} className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>{detail}</p>
+                    <p
+                      key={i}
+                      className="text-[11px] font-mono"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      {detail}
+                    </p>
                   ))}
                 </div>
               )}
@@ -270,7 +318,10 @@ export function NetworkCleanupPage() {
                   onClick={handleScan}
                   disabled={isCleaning}
                   className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: 'var(--text-on-accent)'
+                  }}
                 >
                   <Search className="h-4 w-4" strokeWidth={1.8} />
                   {t('startScanButton')}
@@ -282,7 +333,10 @@ export function NetworkCleanupPage() {
           {hasItems && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
-                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                <span
+                  className="text-[11px] font-medium uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   {t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '')}
                 </span>
                 {categoryItems.length > 0 && (
@@ -296,7 +350,10 @@ export function NetworkCleanupPage() {
               </div>
 
               {categoryItems.length === 0 && (
-                <div className="py-12 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+                <div
+                  className="py-12 text-center text-[13px]"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   {t('noItemsInCategory')}
                 </div>
               )}
@@ -317,10 +374,14 @@ export function NetworkCleanupPage() {
                         border: '1px solid var(--border-default)'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = checked ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)'
+                        e.currentTarget.style.background = checked
+                          ? 'var(--accent-muted-bg)'
+                          : 'var(--bg-subtle)'
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.04)' : 'var(--card-bg)'
+                        e.currentTarget.style.background = checked
+                          ? 'rgba(245,158,11,0.04)'
+                          : 'var(--card-bg)'
                       }}
                     >
                       <input
@@ -338,7 +399,13 @@ export function NetworkCleanupPage() {
                       >
                         {checked && (
                           <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none">
-                            <path d="M2.5 6l2.5 2.5 4.5-5" stroke="var(--text-on-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path
+                              d="M2.5 6l2.5 2.5 4.5-5"
+                              stroke="var(--text-on-accent)"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         )}
                       </div>
@@ -349,7 +416,9 @@ export function NetworkCleanupPage() {
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-medium text-zinc-300">{item.label}</p>
-                        <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{item.detail}</p>
+                        <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
+                          {item.detail}
+                        </p>
                       </div>
                     </label>
                   )

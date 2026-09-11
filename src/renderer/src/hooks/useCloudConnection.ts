@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react'
 
-export type CloudConnectionState = 'checking' | 'connected' | 'disconnected' | 'subscription-required' | 'authorization-error'
+export type CloudConnectionState =
+  'checking' | 'connected' | 'disconnected' | 'subscription-required' | 'authorization-error'
 
-export function cloudConnectionStateFromStatus(status: { status?: string; error?: string | null } | undefined): CloudConnectionState {
+export function cloudConnectionStateFromStatus(
+  status: { status?: string; error?: string | null } | undefined
+): CloudConnectionState {
   if (status?.status === 'connected') return 'connected'
 
   const error = status?.error?.toLowerCase() ?? ''
   if (error.includes('subscription') || error.includes('http 402')) return 'subscription-required'
-  if (error.includes('access denied') || error.includes('api key') || error.includes('http 401') || error.includes('http 403')) {
+  if (
+    error.includes('access denied') ||
+    error.includes('api key') ||
+    error.includes('http 401') ||
+    error.includes('http 403')
+  ) {
     return 'authorization-error'
   }
 

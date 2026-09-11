@@ -8,16 +8,16 @@ vi.mock('electron', () => ({
   ipcMain: {
     handle: vi.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
       handleMap.set(channel, handler)
-    }),
-  },
+    })
+  }
 }))
 
 vi.mock('../../shared/channels', () => ({
   IPC: {
     UNINSTALLER_LIST: 'uninstaller:list',
     UNINSTALLER_UNINSTALL: 'uninstaller:uninstall',
-    UNINSTALLER_PROGRESS: 'uninstaller:progress',
-  },
+    UNINSTALLER_PROGRESS: 'uninstaller:progress'
+  }
 }))
 
 const mockGetInstalledProgramsFull = vi.fn()
@@ -29,13 +29,13 @@ vi.mock('../services/program-uninstaller', () => ({
   getInstalledProgramsFull: (...args: unknown[]) => mockGetInstalledProgramsFull(...args),
   runUninstaller: (...args: unknown[]) => mockRunUninstaller(...args),
   verifyUninstall: (...args: unknown[]) => mockVerifyUninstall(...args),
-  scanLeftoversForProgram: (...args: unknown[]) => mockScanLeftoversForProgram(...args),
+  scanLeftoversForProgram: (...args: unknown[]) => mockScanLeftoversForProgram(...args)
 }))
 
 const mockSafeDelete = vi.fn()
 
 vi.mock('../services/file-utils', () => ({
-  safeDelete: (...args: unknown[]) => mockSafeDelete(...args),
+  safeDelete: (...args: unknown[]) => mockSafeDelete(...args)
 }))
 
 import { registerProgramUninstallerIpc } from './program-uninstaller.ipc'
@@ -47,7 +47,7 @@ import type { InstalledProgram } from '../../shared/types'
 function makeWindow(destroyed = false) {
   return {
     isDestroyed: () => destroyed,
-    webContents: { send: vi.fn() },
+    webContents: { send: vi.fn() }
   } as unknown as BrowserWindow
 }
 
@@ -73,7 +73,7 @@ function makeProgram(overrides: Partial<InstalledProgram> = {}): InstalledProgra
     isSystemComponent: false,
     isWindowsInstaller: false,
     lastUsed: 0,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -137,7 +137,7 @@ describe('program-uninstaller IPC', () => {
       expect(result).toMatchObject({
         success: false,
         programName: 'Unknown',
-        error: expect.stringContaining('not found in cache'),
+        error: expect.stringContaining('not found in cache')
       })
     })
 
@@ -148,7 +148,7 @@ describe('program-uninstaller IPC', () => {
       mockVerifyUninstall.mockResolvedValue(true) // registry key removed
       mockScanLeftoversForProgram.mockResolvedValue([
         { path: 'C:\\leftover1', size: 100 },
-        { path: 'C:\\leftover2', size: 200 },
+        { path: 'C:\\leftover2', size: 200 }
       ])
       mockSafeDelete.mockResolvedValue({ success: true })
 
@@ -164,7 +164,7 @@ describe('program-uninstaller IPC', () => {
         exitCode: 0,
         leftoversFound: 2,
         leftoversCleaned: 2,
-        leftoversSize: 300,
+        leftoversSize: 300
       })
       expect(mockRunUninstaller).toHaveBeenCalledWith(program)
       expect(mockVerifyUninstall).toHaveBeenCalledWith(program.registryKey)
@@ -230,7 +230,7 @@ describe('program-uninstaller IPC', () => {
         success: true,
         leftoversFound: 0,
         leftoversCleaned: 0,
-        leftoversSize: 0,
+        leftoversSize: 0
       })
     })
 
@@ -246,7 +246,7 @@ describe('program-uninstaller IPC', () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining('cancelled or failed'),
+        error: expect.stringContaining('cancelled or failed')
       })
       // Should NOT scan for leftovers
       expect(mockScanLeftoversForProgram).not.toHaveBeenCalled()
@@ -275,7 +275,7 @@ describe('program-uninstaller IPC', () => {
       mockScanLeftoversForProgram.mockResolvedValue([
         { path: 'C:\\ok', size: 100 },
         { path: 'C:\\fail', size: 200 },
-        { path: 'C:\\ok2', size: 300 },
+        { path: 'C:\\ok2', size: 300 }
       ])
       mockSafeDelete
         .mockResolvedValueOnce({ success: true })
@@ -290,7 +290,7 @@ describe('program-uninstaller IPC', () => {
         success: true,
         leftoversFound: 3,
         leftoversCleaned: 2,
-        leftoversSize: 400, // 100 + 300, not 200
+        leftoversSize: 400 // 100 + 300, not 200
       })
     })
 

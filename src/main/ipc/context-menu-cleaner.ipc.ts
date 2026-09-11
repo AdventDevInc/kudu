@@ -17,13 +17,16 @@ import type {
   ContextMenuScanResult,
   ContextMenuScope,
   ContextMenuSource,
-  ContextMenuStatus,
+  ContextMenuStatus
 } from '../../shared/types'
 import type { WindowGetter } from './index'
 
 // ── reg.exe helper ──────────────────────────────────────────────────
 
-async function execReg(args: string[], opts?: { timeout?: number; signal?: AbortSignal }): Promise<{ stdout: string; stderr: string }> {
+async function execReg(
+  args: string[],
+  opts?: { timeout?: number; signal?: AbortSignal }
+): Promise<{ stdout: string; stderr: string }> {
   return execNativeUtf8('reg', args, opts)
 }
 
@@ -40,34 +43,112 @@ const scanSession = new Map<string, ContextMenuEntry>()
 interface ScanRoot {
   hive: ContextMenuHive
   scope: ContextMenuScope
-  shellPath: string         // HKCR\*\shell or HKCU\Software\Classes\*\shell etc.
-  shellexPath: string       // …\shellex\ContextMenuHandlers
+  shellPath: string // HKCR\*\shell or HKCU\Software\Classes\*\shell etc.
+  shellexPath: string // …\shellex\ContextMenuHandlers
 }
 
 export const SCAN_ROOTS: ReadonlyArray<ScanRoot> = [
   // HKCR (machine-wide; HKLM-backed for any key not also in HKCU)
-  { hive: 'HKCR', scope: 'AllFiles',             shellPath: 'HKCR\\*\\shell',                            shellexPath: 'HKCR\\*\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCR', scope: 'Directory',            shellPath: 'HKCR\\Directory\\shell',                    shellexPath: 'HKCR\\Directory\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCR', scope: 'DirectoryBackground',  shellPath: 'HKCR\\Directory\\Background\\shell',        shellexPath: 'HKCR\\Directory\\Background\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCR', scope: 'Folder',               shellPath: 'HKCR\\Folder\\shell',                       shellexPath: 'HKCR\\Folder\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCR', scope: 'Drive',                shellPath: 'HKCR\\Drive\\shell',                        shellexPath: 'HKCR\\Drive\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCR', scope: 'AllFilesystemObjects', shellPath: 'HKCR\\AllFilesystemObjects\\shell',         shellexPath: 'HKCR\\AllFilesystemObjects\\shellex\\ContextMenuHandlers' },
+  {
+    hive: 'HKCR',
+    scope: 'AllFiles',
+    shellPath: 'HKCR\\*\\shell',
+    shellexPath: 'HKCR\\*\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCR',
+    scope: 'Directory',
+    shellPath: 'HKCR\\Directory\\shell',
+    shellexPath: 'HKCR\\Directory\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCR',
+    scope: 'DirectoryBackground',
+    shellPath: 'HKCR\\Directory\\Background\\shell',
+    shellexPath: 'HKCR\\Directory\\Background\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCR',
+    scope: 'Folder',
+    shellPath: 'HKCR\\Folder\\shell',
+    shellexPath: 'HKCR\\Folder\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCR',
+    scope: 'Drive',
+    shellPath: 'HKCR\\Drive\\shell',
+    shellexPath: 'HKCR\\Drive\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCR',
+    scope: 'AllFilesystemObjects',
+    shellPath: 'HKCR\\AllFilesystemObjects\\shell',
+    shellexPath: 'HKCR\\AllFilesystemObjects\\shellex\\ContextMenuHandlers'
+  },
   // HKCU mirrors (per-user; never need admin)
-  { hive: 'HKCU', scope: 'AllFiles',             shellPath: 'HKCU\\Software\\Classes\\*\\shell',                            shellexPath: 'HKCU\\Software\\Classes\\*\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCU', scope: 'Directory',            shellPath: 'HKCU\\Software\\Classes\\Directory\\shell',                    shellexPath: 'HKCU\\Software\\Classes\\Directory\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCU', scope: 'DirectoryBackground',  shellPath: 'HKCU\\Software\\Classes\\Directory\\Background\\shell',        shellexPath: 'HKCU\\Software\\Classes\\Directory\\Background\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCU', scope: 'Folder',               shellPath: 'HKCU\\Software\\Classes\\Folder\\shell',                       shellexPath: 'HKCU\\Software\\Classes\\Folder\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCU', scope: 'Drive',                shellPath: 'HKCU\\Software\\Classes\\Drive\\shell',                        shellexPath: 'HKCU\\Software\\Classes\\Drive\\shellex\\ContextMenuHandlers' },
-  { hive: 'HKCU', scope: 'AllFilesystemObjects', shellPath: 'HKCU\\Software\\Classes\\AllFilesystemObjects\\shell',         shellexPath: 'HKCU\\Software\\Classes\\AllFilesystemObjects\\shellex\\ContextMenuHandlers' },
+  {
+    hive: 'HKCU',
+    scope: 'AllFiles',
+    shellPath: 'HKCU\\Software\\Classes\\*\\shell',
+    shellexPath: 'HKCU\\Software\\Classes\\*\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCU',
+    scope: 'Directory',
+    shellPath: 'HKCU\\Software\\Classes\\Directory\\shell',
+    shellexPath: 'HKCU\\Software\\Classes\\Directory\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCU',
+    scope: 'DirectoryBackground',
+    shellPath: 'HKCU\\Software\\Classes\\Directory\\Background\\shell',
+    shellexPath: 'HKCU\\Software\\Classes\\Directory\\Background\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCU',
+    scope: 'Folder',
+    shellPath: 'HKCU\\Software\\Classes\\Folder\\shell',
+    shellexPath: 'HKCU\\Software\\Classes\\Folder\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCU',
+    scope: 'Drive',
+    shellPath: 'HKCU\\Software\\Classes\\Drive\\shell',
+    shellexPath: 'HKCU\\Software\\Classes\\Drive\\shellex\\ContextMenuHandlers'
+  },
+  {
+    hive: 'HKCU',
+    scope: 'AllFilesystemObjects',
+    shellPath: 'HKCU\\Software\\Classes\\AllFilesystemObjects\\shell',
+    shellexPath: 'HKCU\\Software\\Classes\\AllFilesystemObjects\\shellex\\ContextMenuHandlers'
+  }
 ]
 
 /** Verb names that must never be touched — Windows core actions. */
 export const VERB_SAFELIST: ReadonlyArray<string> = [
-  'open', 'edit', 'print', 'printto', 'runas', 'opennewwindow',
-  'opennewprocess', 'find', 'explore', 'cmd', 'properties',
-  'cut', 'copy', 'paste', 'link', 'rename', 'delete', 'sendto',
-  'pintohome', 'pintotaskbar', 'unpinfromtaskbar',
-  'pintostartscreen', 'unpinfromstartscreen',
+  'open',
+  'edit',
+  'print',
+  'printto',
+  'runas',
+  'opennewwindow',
+  'opennewprocess',
+  'find',
+  'explore',
+  'cmd',
+  'properties',
+  'cut',
+  'copy',
+  'paste',
+  'link',
+  'rename',
+  'delete',
+  'sendto',
+  'pintohome',
+  'pintotaskbar',
+  'unpinfromtaskbar',
+  'pintostartscreen',
+  'unpinfromstartscreen'
 ]
 
 /** CLSIDs of essential Microsoft / Windows context-menu handlers. */
@@ -85,7 +166,7 @@ export const CLSID_SAFELIST: ReadonlyArray<string> = [
   '{40dd6e20-7c17-11ce-a804-00aa003ca9f6}', // Briefcase
   '{ECCDF543-45CC-11CE-B9BF-0080C87CDBA6}', // DfsShlEx
   '{00021500-0000-0000-C000-000000000046}', // IQueryAssociations
-  '{B41DB860-8EE4-11D2-9906-E49FADC173CA}', // RAR (when shipped by Windows)
+  '{B41DB860-8EE4-11D2-9906-E49FADC173CA}' // RAR (when shipped by Windows)
 ]
 
 interface SourcePattern {
@@ -95,25 +176,25 @@ interface SourcePattern {
 
 /** Patterns used by inferSource — first match wins. */
 const SOURCE_PATTERNS: ReadonlyArray<SourcePattern> = [
-  { pattern: /onedrive/i,                   source: 'OneDrive' },
-  { pattern: /7-?zip/i,                     source: '7-Zip' },
-  { pattern: /winrar|rarext/i,              source: 'WinRAR' },
-  { pattern: /notepad\+\+|nppshell/i,       source: 'Notepad++' },
+  { pattern: /onedrive/i, source: 'OneDrive' },
+  { pattern: /7-?zip/i, source: '7-Zip' },
+  { pattern: /winrar|rarext/i, source: 'WinRAR' },
+  { pattern: /notepad\+\+|nppshell/i, source: 'Notepad++' },
   { pattern: /[\\/]code[\\/]|code\.exe|code-insiders|vs\s?code/i, source: 'VSCode' },
   { pattern: /defender|antimalware|msmpeng/i, source: 'Defender' },
   { pattern: /[\\/]git[\\/]|git-?bash|tortoisegit/i, source: 'Git' },
-  { pattern: /dropbox/i,                    source: 'Dropbox' },
-  { pattern: /googledrive|googlephotos/i,   source: 'Google Drive' },
-  { pattern: /powertoys/i,                  source: 'PowerToys' },
-  { pattern: /[\\/]system32[\\/]|[\\/]syswow64[\\/]|microsoft|windows/i, source: 'Microsoft' },
+  { pattern: /dropbox/i, source: 'Dropbox' },
+  { pattern: /googledrive|googlephotos/i, source: 'Google Drive' },
+  { pattern: /powertoys/i, source: 'PowerToys' },
+  { pattern: /[\\/]system32[\\/]|[\\/]syswow64[\\/]|microsoft|windows/i, source: 'Microsoft' }
 ]
 
 const DISABLED_STATE_VERSION = 1 as const
 
 interface DisabledStateEntry {
-  keyPath: string         // canonical (enabled) path
+  keyPath: string // canonical (enabled) path
   originalName: string
-  disabledAt: string      // ISO
+  disabledAt: string // ISO
   kind: ContextMenuEntryKind
 }
 
@@ -132,7 +213,7 @@ const HIVE_ALIASES: Record<string, ContextMenuHive | null> = {
   HKEY_CLASSES_ROOT: 'HKCR',
   HKCR: 'HKCR',
   HKEY_CURRENT_USER: 'HKCU',
-  HKCU: 'HKCU',
+  HKCU: 'HKCU'
 }
 
 /** Convert long-form `HKEY_CLASSES_ROOT\…` to short `HKCR\…`. */
@@ -225,7 +306,10 @@ export function parseRegQueryBlocks(stdout: string): ParsedKey[] {
 
   for (const line of lines) {
     if (!line.trim()) {
-      if (current) { out.push(current); current = null }
+      if (current) {
+        out.push(current)
+        current = null
+      }
       continue
     }
     // Header lines are not indented and start with a hive name.
@@ -285,7 +369,7 @@ interface ClsidInfo {
 async function resolveClsid(
   clsid: string,
   cache: Map<string, ClsidInfo>,
-  signal: AbortSignal,
+  signal: AbortSignal
 ): Promise<ClsidInfo> {
   const canonical = canonicalClsid(clsid)
   const hit = cache.get(canonical)
@@ -293,15 +377,25 @@ async function resolveClsid(
 
   const info: ClsidInfo = { friendlyName: null, dllPath: null }
   try {
-    const { stdout } = await execReg(['query', `HKCR\\CLSID\\${canonical}`, '/ve'], { timeout: 4000, signal })
+    const { stdout } = await execReg(['query', `HKCR\\CLSID\\${canonical}`, '/ve'], {
+      timeout: 4000,
+      signal
+    })
     const m = stdout.match(/\(Default\)\s+REG_SZ\s+(.*)$/m)
     if (m) info.friendlyName = m[1].trim() || null
-  } catch { /* missing key */ }
+  } catch {
+    /* missing key */
+  }
   try {
-    const { stdout } = await execReg(['query', `HKCR\\CLSID\\${canonical}\\InprocServer32`, '/ve'], { timeout: 4000, signal })
+    const { stdout } = await execReg(
+      ['query', `HKCR\\CLSID\\${canonical}\\InprocServer32`, '/ve'],
+      { timeout: 4000, signal }
+    )
     const m = stdout.match(/\(Default\)\s+REG_(?:SZ|EXPAND_SZ)\s+(.*)$/m)
     if (m) info.dllPath = m[1].trim().replace(/^"+|"+$/g, '') || null
-  } catch { /* missing key */ }
+  } catch {
+    /* missing key */
+  }
 
   cache.set(canonical, info)
   return info
@@ -325,14 +419,14 @@ async function queryRoot(rootPath: string, signal: AbortSignal): Promise<ParsedK
 async function scanShellVerbs(
   root: ScanRoot,
   signal: AbortSignal,
-  disabled: DisabledStateFile,
+  disabled: DisabledStateFile
 ): Promise<ContextMenuEntry[]> {
   const blocks = await queryRoot(root.shellPath, signal)
   if (blocks.length === 0) return []
 
   const rootKey = normalizeKeyPath(root.shellPath)
-  const verbBlocks = new Map<string, ParsedKey>()      // verb keyPath → block
-  const commandBlocks = new Map<string, ParsedKey>()   // verb keyPath → command block
+  const verbBlocks = new Map<string, ParsedKey>() // verb keyPath → block
+  const commandBlocks = new Map<string, ParsedKey>() // verb keyPath → command block
 
   for (const block of blocks) {
     const rel = block.keyPath.startsWith(rootKey + '\\')
@@ -379,7 +473,7 @@ async function scanShellVerbs(
       status,
       protected: protectedFlag,
       requiresAdmin,
-      selected: false,
+      selected: false
     })
 
     // If our DisabledState says we disabled this entry but on-disk says enabled,
@@ -402,7 +496,7 @@ async function scanShellHandlers(
   root: ScanRoot,
   signal: AbortSignal,
   clsidCache: Map<string, ClsidInfo>,
-  disabled: DisabledStateFile,
+  disabled: DisabledStateFile
 ): Promise<ContextMenuEntry[]> {
   const blocks = await queryRoot(root.shellexPath, signal)
   if (blocks.length === 0) return []
@@ -430,7 +524,11 @@ async function scanShellHandlers(
 
     let info: ClsidInfo = { friendlyName: null, dllPath: null }
     if (clsid) {
-      try { info = await resolveClsid(clsid, clsidCache, signal) } catch { /* skip */ }
+      try {
+        info = await resolveClsid(clsid, clsidCache, signal)
+      } catch {
+        /* skip */
+      }
     }
     const friendly = stripMuiResource(info.friendlyName?.trim() || '')
     const displayName = friendly || logicalName
@@ -454,7 +552,7 @@ async function scanShellHandlers(
       status,
       protected: protectedFlag,
       requiresAdmin,
-      selected: false,
+      selected: false
     })
 
     if (status === 'enabled' && disabled.entries[id]) {
@@ -466,7 +564,7 @@ async function scanShellHandlers(
 
 export async function scanContextMenu(
   signal: AbortSignal,
-  onProgress?: (current: number, total: number, label: string) => void,
+  onProgress?: (current: number, total: number, label: string) => void
 ): Promise<ContextMenuScanResult> {
   if (process.platform !== 'win32') {
     return { entries: [], scanDuration: 0, scanned: 0 }
@@ -493,7 +591,11 @@ export async function scanContextMenu(
   }
 
   // Persist any pruning of stale DisabledState entries detected during scan.
-  try { writeDisabledState(disabled) } catch { /* skip */ }
+  try {
+    writeDisabledState(disabled)
+  } catch {
+    /* skip */
+  }
 
   return { entries: all, scanDuration: Date.now() - start, scanned }
 }
@@ -504,7 +606,9 @@ const BACKUP_DIR = () => getBackupDir()
 
 function pruneOldBackups(backupDir: string, keep: number): void {
   try {
-    const files = readdirSync(backupDir).filter((f: string) => f.startsWith('registry-backup-') && f.endsWith('.reg'))
+    const files = readdirSync(backupDir).filter(
+      (f: string) => f.startsWith('registry-backup-') && f.endsWith('.reg')
+    )
     // Group by timestamp suffix `-<ts>.reg`.
     const groups = new Map<string, string[]>()
     for (const file of files) {
@@ -518,33 +622,45 @@ function pruneOldBackups(backupDir: string, keep: number): void {
     const stale = [...groups.keys()].sort().reverse().slice(keep)
     for (const ts of stale) {
       for (const f of groups.get(ts)!) {
-        try { unlinkSync(join(backupDir, f)) } catch { /* skip */ }
+        try {
+          unlinkSync(join(backupDir, f))
+        } catch {
+          /* skip */
+        }
       }
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
 async function backupShellExtensionHives(signal?: AbortSignal): Promise<void> {
   const backupDir = BACKUP_DIR()
-  try { mkdirSync(backupDir, { recursive: true }) } catch { /* skip */ }
+  try {
+    mkdirSync(backupDir, { recursive: true })
+  } catch {
+    /* skip */
+  }
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
 
   const targets: { src: string; file: string }[] = [
-    { src: 'HKCR\\*\\shellex',                   file: 'AllFileTypes' },
-    { src: 'HKCR\\Directory\\shellex',           file: 'Directory' },
+    { src: 'HKCR\\*\\shellex', file: 'AllFileTypes' },
+    { src: 'HKCR\\Directory\\shellex', file: 'Directory' },
     { src: 'HKCR\\Directory\\Background\\shellex', file: 'DirectoryBackground' },
-    { src: 'HKCR\\Folder\\shellex',              file: 'Folder' },
-    { src: 'HKCR\\Drive\\shellex',               file: 'Drive' },
+    { src: 'HKCR\\Folder\\shellex', file: 'Folder' },
+    { src: 'HKCR\\Drive\\shellex', file: 'Drive' },
     { src: 'HKCR\\AllFilesystemObjects\\shellex', file: 'AllFilesystemObjects' },
-    { src: 'HKCR\\*\\shell',                     file: 'AllFileTypes-shell' },
-    { src: 'HKCR\\Directory\\shell',             file: 'Directory-shell' },
+    { src: 'HKCR\\*\\shell', file: 'AllFileTypes-shell' },
+    { src: 'HKCR\\Directory\\shell', file: 'Directory-shell' },
     { src: 'HKCR\\Directory\\Background\\shell', file: 'DirectoryBackground-shell' },
-    { src: 'HKCR\\Folder\\shell',                file: 'Folder-shell' },
-    { src: 'HKCU\\Software\\Classes',            file: 'HKCU-Classes' },
+    { src: 'HKCR\\Folder\\shell', file: 'Folder-shell' },
+    { src: 'HKCU\\Software\\Classes', file: 'HKCU-Classes' }
   ]
   for (const { src, file } of targets) {
     const dest = join(backupDir, `registry-backup-context-menu-${file}-${timestamp}.reg`)
-    await execReg(['export', src, dest, '/y'], { timeout: 30000, signal }).catch(() => { /* skip */ })
+    await execReg(['export', src, dest, '/y'], { timeout: 30000, signal }).catch(() => {
+      /* skip */
+    })
   }
   pruneOldBackups(backupDir, 3)
 }
@@ -552,7 +668,7 @@ async function backupShellExtensionHives(signal?: AbortSignal): Promise<void> {
 async function applyOne(
   entry: ContextMenuEntry,
   action: ContextMenuAction,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<{ ok: true; newStatus: ContextMenuStatus } | { ok: false; reason: string }> {
   if (entry.protected && action !== 'enable') {
     return { ok: false, reason: 'Entry is protected and cannot be modified.' }
@@ -564,16 +680,26 @@ async function applyOne(
   try {
     if (entry.kind === 'verb') {
       if (action === 'disable') {
-        await execReg(['add', entry.keyPath, '/v', 'LegacyDisable', '/t', 'REG_SZ', '/d', '', '/f'], { timeout: 8000, signal })
+        await execReg(
+          ['add', entry.keyPath, '/v', 'LegacyDisable', '/t', 'REG_SZ', '/d', '', '/f'],
+          { timeout: 8000, signal }
+        )
         return { ok: true, newStatus: 'disabled' }
       } else if (action === 'enable') {
-        await execReg(['delete', entry.keyPath, '/v', 'LegacyDisable', '/f'], { timeout: 8000, signal }).catch(() => { /* idempotent */ })
+        await execReg(['delete', entry.keyPath, '/v', 'LegacyDisable', '/f'], {
+          timeout: 8000,
+          signal
+        }).catch(() => {
+          /* idempotent */
+        })
         return { ok: true, newStatus: 'enabled' }
-      } else { // delete
+      } else {
+        // delete
         await execReg(['delete', entry.keyPath, '/f'], { timeout: 8000, signal })
         return { ok: true, newStatus: 'enabled' /* gone */ }
       }
-    } else { // handler
+    } else {
+      // handler
       const parent = parentKeyOf(entry.keyPath)
       const enabledPath = entry.keyPath
       const disabledPath = parent + '\\-' + entry.name
@@ -588,7 +714,8 @@ async function applyOne(
         await execReg(['copy', disabledPath, enabledPath, '/s', '/f'], { timeout: 8000, signal })
         await execReg(['delete', disabledPath, '/f'], { timeout: 8000, signal })
         return { ok: true, newStatus: 'enabled' }
-      } else { // delete
+      } else {
+        // delete
         const target = entry.status === 'disabled' ? disabledPath : enabledPath
         await execReg(['delete', target, '/f'], { timeout: 8000, signal })
         return { ok: true, newStatus: 'enabled' /* gone */ }
@@ -612,7 +739,7 @@ function cleanRegError(message: string): string {
 export async function applyContextMenu(
   requests: ContextMenuApplyRequest[],
   onProgress?: (p: ContextMenuApplyProgress) => void,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ): Promise<ContextMenuApplyResult> {
   const total = requests.length
   const result: ContextMenuApplyResult = { succeeded: 0, failed: 0, errors: [], updates: [] }
@@ -630,11 +757,17 @@ export async function applyContextMenu(
     onProgress?.({
       current: i + 1,
       total,
-      currentLabel: entry ? `${labelForAction(req.action)} ${entry.displayName}` : `${labelForAction(req.action)} (unknown)`
+      currentLabel: entry
+        ? `${labelForAction(req.action)} ${entry.displayName}`
+        : `${labelForAction(req.action)} (unknown)`
     })
     if (!entry) {
       result.failed++
-      result.errors.push({ entryId: req.entryId, displayName: '(unknown)', reason: 'Entry not found — re-scan and try again.' })
+      result.errors.push({
+        entryId: req.entryId,
+        displayName: '(unknown)',
+        reason: 'Entry not found — re-scan and try again.'
+      })
       continue
     }
 
@@ -648,7 +781,7 @@ export async function applyContextMenu(
           keyPath: entry.keyPath,
           originalName: entry.name,
           disabledAt: new Date().toISOString(),
-          kind: entry.kind,
+          kind: entry.kind
         }
       } else {
         delete disabled.entries[req.entryId]
@@ -656,19 +789,30 @@ export async function applyContextMenu(
       }
     } else {
       result.failed++
-      result.errors.push({ entryId: req.entryId, displayName: entry.displayName, reason: outcome.reason })
+      result.errors.push({
+        entryId: req.entryId,
+        displayName: entry.displayName,
+        reason: outcome.reason
+      })
     }
   }
 
-  try { writeDisabledState(disabled) } catch { /* skip */ }
+  try {
+    writeDisabledState(disabled)
+  } catch {
+    /* skip */
+  }
   return result
 }
 
 function labelForAction(action: ContextMenuAction): string {
   switch (action) {
-    case 'disable': return 'Disabling'
-    case 'enable':  return 'Enabling'
-    case 'delete':  return 'Deleting'
+    case 'disable':
+      return 'Disabling'
+    case 'enable':
+      return 'Enabling'
+    case 'delete':
+      return 'Deleting'
   }
 }
 
@@ -676,11 +820,13 @@ function labelForAction(action: ContextMenuAction): string {
 
 function isApplyRequestArray(input: unknown): input is ContextMenuApplyRequest[] {
   if (!Array.isArray(input)) return false
-  return input.every((r) =>
-    r && typeof r === 'object'
-    && typeof (r as ContextMenuApplyRequest).entryId === 'string'
-    && (r as ContextMenuApplyRequest).action !== undefined
-    && ['disable', 'enable', 'delete'].includes((r as ContextMenuApplyRequest).action),
+  return input.every(
+    (r) =>
+      r &&
+      typeof r === 'object' &&
+      typeof (r as ContextMenuApplyRequest).entryId === 'string' &&
+      (r as ContextMenuApplyRequest).action !== undefined &&
+      ['disable', 'enable', 'delete'].includes((r as ContextMenuApplyRequest).action)
   )
 }
 
@@ -705,20 +851,33 @@ export function registerContextMenuCleanerIpc(getWindow: WindowGetter): void {
     scanAbort?.abort()
   })
 
-  ipcMain.handle(IPC.CONTEXT_MENU_APPLY, async (_event, payload: unknown): Promise<ContextMenuApplyResult> => {
-    if (process.platform !== 'win32') {
-      return { succeeded: 0, failed: 0, errors: [], updates: [] }
-    }
-    if (!isApplyRequestArray(payload)) {
-      return {
-        succeeded: 0,
-        failed: 0,
-        errors: [{ entryId: '', displayName: '(invalid request)', reason: 'Malformed payload — expected an array of {entryId, action}.' }],
-        updates: [],
+  ipcMain.handle(
+    IPC.CONTEXT_MENU_APPLY,
+    async (_event, payload: unknown): Promise<ContextMenuApplyResult> => {
+      if (process.platform !== 'win32') {
+        return { succeeded: 0, failed: 0, errors: [], updates: [] }
       }
+      if (!isApplyRequestArray(payload)) {
+        return {
+          succeeded: 0,
+          failed: 0,
+          errors: [
+            {
+              entryId: '',
+              displayName: '(invalid request)',
+              reason: 'Malformed payload — expected an array of {entryId, action}.'
+            }
+          ],
+          updates: []
+        }
+      }
+      return applyContextMenu(payload, (progress) => {
+        try {
+          getWindow()?.webContents.send(IPC.CONTEXT_MENU_APPLY_PROGRESS, progress)
+        } catch {
+          /* skip */
+        }
+      })
     }
-    return applyContextMenu(payload, (progress) => {
-      try { getWindow()?.webContents.send(IPC.CONTEXT_MENU_APPLY_PROGRESS, progress) } catch { /* skip */ }
-    })
-  })
+  )
 }

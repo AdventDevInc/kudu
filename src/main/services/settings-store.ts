@@ -4,16 +4,21 @@ import { app, safeStorage } from 'electron'
 import { randomUUID } from 'crypto'
 import { logError } from './logger'
 import { matchLocaleToLanguage } from '../../shared/languages'
-import type { KuduSettings, ScheduleEntry, ScheduleTaskType, MalwareAllowlistEntry, WindowsPackageManager, WindowState } from '../../shared/types'
+import type {
+  KuduSettings,
+  ScheduleEntry,
+  ScheduleTaskType,
+  MalwareAllowlistEntry,
+  WindowsPackageManager,
+  WindowState
+} from '../../shared/types'
 
 let _dataDir: string | null = null
 let _configPath: string | null = null
 
 export function getDataDir(): string {
   if (!_dataDir) {
-    _dataDir = app.isPackaged
-      ? app.getPath('userData')
-      : join(app.getPath('userData'), 'Kudu-Dev')
+    _dataDir = app.isPackaged ? app.getPath('userData') : join(app.getPath('userData'), 'Kudu-Dev')
   }
   return _dataDir
 }
@@ -84,11 +89,15 @@ const defaults: StoreData = {
     windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] as WindowsPackageManager[],
     gameMode: {
       enabledOptimizations: [
-        'svc-wsearch', 'svc-sysmain',
+        'svc-wsearch',
+        'svc-sysmain',
         'proc-kill-updaters',
         'mem-clear-standby',
-        'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
-        'sys-disable-game-bar', 'sys-disable-fse-opt',
+        'sys-focus-assist',
+        'sys-power-plan',
+        'sys-prevent-sleep',
+        'sys-disable-game-bar',
+        'sys-disable-fse-opt',
         'net-flush-dns'
       ],
       customProcessKillList: [],
@@ -150,7 +159,9 @@ function encryptApiKey(plain: string): string {
       const cipher = safeStorage.encryptString(plain)
       return ENCRYPTED_KEY_PREFIX + cipher.toString('base64')
     }
-  } catch { /* fall through */ }
+  } catch {
+    /* fall through */
+  }
   return plain // fallback: store as-is if encryption unavailable
 }
 
@@ -181,8 +192,12 @@ export function deepMerge<T extends Record<string, any>>(target: T, source: Part
     const srcVal = source[key]
     const tgtVal = target[key]
     if (
-      srcVal !== null && typeof srcVal === 'object' && !Array.isArray(srcVal) &&
-      tgtVal !== null && typeof tgtVal === 'object' && !Array.isArray(tgtVal)
+      srcVal !== null &&
+      typeof srcVal === 'object' &&
+      !Array.isArray(srcVal) &&
+      tgtVal !== null &&
+      typeof tgtVal === 'object' &&
+      !Array.isArray(tgtVal)
     ) {
       result[key] = deepMerge(tgtVal, srcVal as any)
     } else if (srcVal !== undefined) {
@@ -222,13 +237,21 @@ function readStore(): StoreData {
       ) {
         merged.settings.windowsPackageManagers = [parsed.settings.windowsPackageManager]
         // Best-effort: the migration is recomputed on the next read if it fails.
-        try { writeStore(merged) } catch (err) { logError('Package-manager migration write failed', err) }
+        try {
+          writeStore(merged)
+        } catch (err) {
+          logError('Package-manager migration write failed', err)
+        }
       }
       // Migrate legacy single schedule → schedules array
       if (merged.settings.schedule.enabled && merged.settings.schedules.length === 0) {
         const allCleanerTasks: ScheduleTaskType[] = [
-          'cleaner:system', 'cleaner:browsers', 'cleaner:apps',
-          'cleaner:gaming', 'cleaner:recycleBin', 'cleaner:databases'
+          'cleaner:system',
+          'cleaner:browsers',
+          'cleaner:apps',
+          'cleaner:gaming',
+          'cleaner:recycleBin',
+          'cleaner:databases'
         ]
         const migrated: ScheduleEntry = {
           id: randomUUID(),
@@ -247,7 +270,11 @@ function readStore(): StoreData {
         merged.settings.schedules = [migrated]
         merged.settings.schedule.enabled = false
         // Persist migration immediately (best-effort — retried on the next read)
-        try { writeStore(merged) } catch (err) { logError('Schedule migration write failed', err) }
+        try {
+          writeStore(merged)
+        } catch (err) {
+          logError('Schedule migration write failed', err)
+        }
       }
       return merged
     }
@@ -308,7 +335,11 @@ function writeStore(data: StoreData): void {
       return
     } catch (err) {
       lastErr = err
-      try { unlinkSync(tmp) } catch { /* nothing to clean up */ }
+      try {
+        unlinkSync(tmp)
+      } catch {
+        /* nothing to clean up */
+      }
       if (attempt < WRITE_ATTEMPTS) sleepSync(WRITE_RETRY_MS)
     }
   }
@@ -337,7 +368,9 @@ let writeLock: Promise<void> = Promise.resolve()
 function runLocked(what: string, mutate: (data: StoreData) => boolean | void): Promise<void> {
   const prev = writeLock
   let unlock: () => void
-  writeLock = new Promise<void>((r) => { unlock = r })
+  writeLock = new Promise<void>((r) => {
+    unlock = r
+  })
   return prev.then(() => {
     try {
       const data = readStore()
@@ -357,7 +390,9 @@ export function setSettings(partial: Partial<KuduSettings>): void {
   // runLocked has already logged anything that went wrong.
   void runLocked('settings', (data) => {
     data.settings = deepMerge(data.settings, partial)
-  }).catch(() => { /* logged in runLocked */ })
+  }).catch(() => {
+    /* logged in runLocked */
+  })
 }
 
 /**
@@ -365,12 +400,17 @@ export function setSettings(partial: Partial<KuduSettings>): void {
  * Unlike setSettings({ schedules: [...] }), this reads the latest schedules
  * inside the lock so concurrent completions don't clobber each other.
  */
-export function updateScheduleEntry(scheduleId: string, patch: Partial<import('../../shared/types').ScheduleEntry>): void {
+export function updateScheduleEntry(
+  scheduleId: string,
+  patch: Partial<import('../../shared/types').ScheduleEntry>
+): void {
   void runLocked('schedule entry', (data) => {
     data.settings.schedules = data.settings.schedules.map((s) =>
       s.id === scheduleId ? { ...s, ...patch } : s
     )
-  }).catch(() => { /* logged in runLocked */ })
+  }).catch(() => {
+    /* logged in runLocked */
+  })
 }
 
 /**
@@ -389,7 +429,9 @@ export function updateRegistryIgnoredTweaks(signatures: string[], ignored: boole
     }
     // Bound the list to match validation (oldest entries dropped first).
     data.settings.registryIgnoredTweaks = [...set].slice(-200)
-  }).catch(() => { /* logged in runLocked */ })
+  }).catch(() => {
+    /* logged in runLocked */
+  })
 }
 
 /** Read the malware false-positive allowlist. */
@@ -413,7 +455,9 @@ export function addMalwareAllowlistEntry(entry: MalwareAllowlistEntry): Promise<
 /** Remove an allowlist entry by content hash within the write lock. */
 export function removeMalwareAllowlistEntry(sha256: string): Promise<void> {
   return runLocked('malware allowlist', (data) => {
-    data.settings.malwareAllowlist = (data.settings.malwareAllowlist ?? []).filter((e) => e.sha256 !== sha256)
+    data.settings.malwareAllowlist = (data.settings.malwareAllowlist ?? []).filter(
+      (e) => e.sha256 !== sha256
+    )
   })
 }
 
@@ -457,6 +501,8 @@ export function getMachineId(): string {
     // A concurrent caller may have won the race and already stored one.
     if (fresh.machineId) return false
     fresh.machineId = id
-  }).catch(() => { /* logged in runLocked */ })
+  }).catch(() => {
+    /* logged in runLocked */
+  })
   return id
 }

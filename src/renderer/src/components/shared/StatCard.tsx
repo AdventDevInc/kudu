@@ -17,26 +17,26 @@ const variantConfig = {
     iconBg: 'var(--bg-hover)',
     iconColor: 'var(--text-muted)',
     accentLine: 'var(--border-medium)',
-    glowClass: '',
+    glowClass: ''
   },
   accent: {
     iconBg: 'var(--accent-muted-bg)',
     iconColor: 'var(--accent)',
     accentLine: 'var(--accent-muted-border)',
-    glowClass: 'glow-amber',
+    glowClass: 'glow-amber'
   },
   success: {
     iconBg: 'color-mix(in srgb, var(--success), transparent 88%)',
     iconColor: 'var(--success)',
     accentLine: 'color-mix(in srgb, var(--success), transparent 58%)',
-    glowClass: 'glow-green',
+    glowClass: 'glow-green'
   },
   danger: {
     iconBg: 'color-mix(in srgb, var(--danger), transparent 88%)',
     iconColor: 'var(--danger)',
     accentLine: 'color-mix(in srgb, var(--danger), transparent 64%)',
-    glowClass: '',
-  },
+    glowClass: ''
+  }
 }
 
 export function StatCard({
@@ -74,16 +74,27 @@ export function StatCard({
         className="mb-4 flex h-9 w-9 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110"
         style={{ background: config.iconBg }}
       >
-        <Icon className="h-[18px] w-[18px]" style={{ color: config.iconColor }} strokeWidth={1.8} aria-hidden="true" />
+        <Icon
+          className="h-[18px] w-[18px]"
+          style={{ color: config.iconColor }}
+          strokeWidth={1.8}
+          aria-hidden="true"
+        />
       </div>
 
       <div className="flex items-baseline gap-1.5">
         <span className="text-[24px] font-bold tracking-tight text-white">
           {displayValue ?? Math.round(animatedValue).toLocaleString()}
         </span>
-        {unit && <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{unit}</span>}
+        {unit && (
+          <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
+            {unit}
+          </span>
+        )}
       </div>
-      <p className="mt-1 text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p className="mt-1 text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
+        {label}
+      </p>
     </div>
   )
 }

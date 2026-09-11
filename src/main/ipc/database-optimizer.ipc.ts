@@ -88,7 +88,11 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
               if (!isSqliteFile(dbPath)) continue
 
               let walSize = 0
-              try { walSize = fs.statSync(dbPath + '-wal').size } catch { /* no WAL */ }
+              try {
+                walSize = fs.statSync(dbPath + '-wal').size
+              } catch {
+                /* no WAL */
+              }
 
               // Estimate: WAL is fully reclaimable, plus ~10% of the main DB
               // for internal fragmentation / freelist pages
@@ -102,9 +106,11 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
                 category,
                 subcategory: target.label,
                 lastModified: stat.mtimeMs,
-                selected: true,
+                selected: true
               })
-            } catch { /* inaccessible */ }
+            } catch {
+              /* inaccessible */
+            }
           }
         }
 
@@ -115,7 +121,7 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
             subcategory: target.label,
             items,
             totalSize: items.reduce((s, item) => s + item.size, 0),
-            itemCount: items.length,
+            itemCount: items.length
           })
         }
       } catch {
@@ -130,7 +136,7 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
           currentPath: target.basePath,
           progress: ((i + 1) / targets.length) * 100,
           itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
-          sizeFound: results.reduce((s, r) => s + r.totalSize, 0),
+          sizeFound: results.reduce((s, r) => s + r.totalSize, 0)
         })
       }
     }
@@ -140,7 +146,14 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(IPC.DATABASE_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
     const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
 
     let totalCleaned = 0
     let filesDeleted = 0
@@ -159,11 +172,17 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
         try {
           const sizeBefore = fs.statSync(item.path).size
           let walSizeBefore = 0
-          try { walSizeBefore = fs.statSync(item.path + '-wal').size } catch { /* no WAL */ }
+          try {
+            walSizeBefore = fs.statSync(item.path + '-wal').size
+          } catch {
+            /* no WAL */
+          }
 
           const db = new Database(item.path, { fileMustExist: true })
           try {
-            const journalMode = (db.pragma('journal_mode', { simple: true }) as string).toLowerCase()
+            const journalMode = (
+              db.pragma('journal_mode', { simple: true }) as string
+            ).toLowerCase()
             db.exec('VACUUM')
             if (journalMode === 'wal') {
               db.pragma('journal_mode = WAL')
@@ -174,8 +193,12 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
 
           const sizeAfter = fs.statSync(item.path).size
           let walSizeAfter = 0
-          try { walSizeAfter = fs.statSync(item.path + '-wal').size } catch { /* no WAL */ }
-          const reclaimed = (sizeBefore + walSizeBefore) - (sizeAfter + walSizeAfter)
+          try {
+            walSizeAfter = fs.statSync(item.path + '-wal').size
+          } catch {
+            /* no WAL */
+          }
+          const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
           if (reclaimed > 0) totalCleaned += reclaimed
           filesDeleted++
         } catch (err: unknown) {
@@ -195,14 +218,15 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
       if (now - lastReport > 120 || i === valid.length - 1) {
         lastReport = now
         const win = getWindow()
-        if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-          phase: 'cleaning',
-          category: CleanerType.Database,
-          currentPath: item?.path ?? '',
-          progress: ((i + 1) / valid.length) * 100,
-          itemsFound: valid.length,
-          sizeFound: totalCleaned,
-        })
+        if (win && !win.isDestroyed())
+          win.webContents.send(IPC.SCAN_PROGRESS, {
+            phase: 'cleaning',
+            category: CleanerType.Database,
+            currentPath: item?.path ?? '',
+            progress: ((i + 1) / valid.length) * 100,
+            itemsFound: valid.length,
+            sizeFound: totalCleaned
+          })
       }
     }
 
@@ -211,7 +235,7 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
       filesDeleted,
       filesSkipped,
       errors,
-      needsElevation: errors.some((e) => e.reason === 'permission-denied'),
+      needsElevation: errors.some((e) => e.reason === 'permission-denied')
     }
   })
 }

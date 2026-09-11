@@ -22,7 +22,7 @@ vi.mock('electron', () => ({ ipcMain: { handle: vi.fn() } }))
 vi.mock('../services/exec-utf8', () => ({
   execNativeUtf8: (tool: string, args: string[], opts?: any) => mockExecNative(tool, args, opts),
   execTracked: vi.fn(async () => ({ stdout: '', stderr: '' })),
-  psUtf8: (cmd: string) => cmd,
+  psUtf8: (cmd: string) => cmd
 }))
 
 const mockExistsSync = vi.fn((_p: string): boolean => true)
@@ -36,14 +36,14 @@ vi.mock('fs', () => ({
   mkdtempSync: () => 'C:\\temp\\kudu-test',
   readFileSync: () => '',
   writeFileSync: vi.fn(),
-  rmSync: vi.fn(),
+  rmSync: vi.fn()
 }))
 
 vi.mock('../services/backup-dir', () => ({ getBackupDir: () => 'C:\\temp\\backups' }))
 
 vi.mock('../services/settings-store', () => ({
   getSettings: () => ({}),
-  updateRegistryIgnoredTweaks: vi.fn(),
+  updateRegistryIgnoredTweaks: vi.fn()
 }))
 
 vi.mock('../services/ipc-validation', () => ({ validateStringArray: (a: string[]) => a }))
@@ -52,7 +52,7 @@ import {
   scanRegistry,
   fixRegistryEntries,
   normalizeHiveNames,
-  isProtectedDeleteKey,
+  isProtectedDeleteKey
 } from './registry-cleaner.ipc'
 
 const APP_PATHS_ROOT = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths'
@@ -65,7 +65,7 @@ const APP_PATHS_OUTPUT = [
   '',
   'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\ghost.exe',
   '    (Default)    REG_SZ    C:\\Program Files\\Uninstalled\\ghost.exe',
-  '',
+  ''
 ].join('\r\n')
 
 beforeEach(() => {
@@ -82,8 +82,11 @@ describe('normalizeHiveNames', () => {
   })
 
   it('leaves indented value lines untouched', () => {
-    const input = 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Foo\r\n    Data    REG_SZ    HKEY_LOCAL_MACHINE\\Bar\r\n'
-    expect(normalizeHiveNames(input)).toBe('HKLM\\SOFTWARE\\Foo\r\n    Data    REG_SZ    HKEY_LOCAL_MACHINE\\Bar\r\n')
+    const input =
+      'HKEY_LOCAL_MACHINE\\SOFTWARE\\Foo\r\n    Data    REG_SZ    HKEY_LOCAL_MACHINE\\Bar\r\n'
+    expect(normalizeHiveNames(input)).toBe(
+      'HKLM\\SOFTWARE\\Foo\r\n    Data    REG_SZ    HKEY_LOCAL_MACHINE\\Bar\r\n'
+    )
   })
 
   it('leaves already-short and unknown hives alone', () => {
@@ -107,7 +110,9 @@ describe('scanRegistry — App Paths', () => {
   it('targets the stale subkey, never the App Paths container', async () => {
     stubAppPaths()
     const entries = await scanRegistry()
-    const appPathFindings = entries.filter(e => e.issue.startsWith('App path points to missing file'))
+    const appPathFindings = entries.filter((e) =>
+      e.issue.startsWith('App path points to missing file')
+    )
 
     expect(appPathFindings).toHaveLength(1)
     expect(appPathFindings[0].keyPath).toBe(`${APP_PATHS_ROOT}\\ghost.exe`)
@@ -119,7 +124,7 @@ describe('scanRegistry — App Paths', () => {
   it('does not flag app paths whose executable still exists', async () => {
     stubAppPaths()
     const entries = await scanRegistry()
-    expect(entries.some(e => e.issue.includes('chrome.exe'))).toBe(false)
+    expect(entries.some((e) => e.issue.includes('chrome.exe'))).toBe(false)
   })
 
   it('emits nothing for App Paths when the key header cannot be parsed', async () => {
@@ -134,7 +139,7 @@ describe('scanRegistry — App Paths', () => {
     mockExistsSync.mockImplementation(() => false)
 
     const entries = await scanRegistry()
-    expect(entries.some(e => e.issue.startsWith('App path points to missing file'))).toBe(false)
+    expect(entries.some((e) => e.issue.startsWith('App path points to missing file'))).toBe(false)
   })
 })
 
@@ -142,7 +147,7 @@ describe('previously-dead scans ship unticked', () => {
   const TYPELIB_OUTPUT = [
     'HKEY_CLASSES_ROOT\\TypeLib\\{11111111-2222-3333-4444-555555555555}\\1.0\\0\\win32',
     '    (Default)    REG_SZ    C:\\Program Files\\Gone\\gone.tlb',
-    '',
+    ''
   ].join('\r\n')
 
   it('reports a revived finding but leaves it deselected', async () => {
@@ -156,7 +161,7 @@ describe('previously-dead scans ship unticked', () => {
     mockExistsSync.mockImplementation((p: string) => !String(p).includes('Gone'))
 
     const entries = await scanRegistry()
-    const tlb = entries.filter(e => e.issue.startsWith('Type library file missing'))
+    const tlb = entries.filter((e) => e.issue.startsWith('Type library file missing'))
 
     expect(tlb).toHaveLength(1)
     // These scans never executed before hive normalization landed, so a finding
@@ -174,7 +179,7 @@ describe('scanRegistry — TypeLib', () => {
     '',
     'HKEY_CLASSES_ROOT\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\\6.0\\0\\win32',
     '    (Default)    REG_SZ    C:\\Windows\\System32\\current.tlb',
-    '',
+    ''
   ].join('\r\n')
 
   it('deletes only the stale version key, never the GUID parent', async () => {
@@ -188,7 +193,7 @@ describe('scanRegistry — TypeLib', () => {
     mockExistsSync.mockImplementation((p: string) => !String(p).includes('Gone'))
 
     const entries = await scanRegistry()
-    const tlb = entries.filter(e => e.issue.startsWith('Type library file missing'))
+    const tlb = entries.filter((e) => e.issue.startsWith('Type library file missing'))
 
     expect(tlb).toHaveLength(1)
     const target = tlb[0].fix?.key ?? tlb[0].keyPath
@@ -201,8 +206,9 @@ describe('scanRegistry — TypeLib', () => {
     mockExecNative.mockImplementation(async (tool: string, args: string[]) => {
       if (tool === 'reg' && args[0] === 'query' && args[1] === 'HKCR\\TypeLib') {
         return {
-          stdout: 'HKEY_CLASSES_ROOT\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\r\n    (Default)    REG_SZ    C:\\Gone\\x.tlb\r\n',
-          stderr: '',
+          stdout:
+            'HKEY_CLASSES_ROOT\\TypeLib\\{00000300-0000-0010-8000-00AA006D2EA4}\r\n    (Default)    REG_SZ    C:\\Gone\\x.tlb\r\n',
+          stderr: ''
         }
       }
       if (tool === 'schtasks') throw new Error('no tasks')
@@ -211,7 +217,7 @@ describe('scanRegistry — TypeLib', () => {
     mockExistsSync.mockImplementation(() => false)
 
     const entries = await scanRegistry()
-    expect(entries.some(e => e.issue.startsWith('Type library file missing'))).toBe(false)
+    expect(entries.some((e) => e.issue.startsWith('Type library file missing'))).toBe(false)
   })
 })
 
@@ -222,7 +228,7 @@ describe('scanRegistry — OpenWithList', () => {
     '    a    REG_SZ    notepad.exe',
     '    b    REG_SZ    ghost.exe',
     '    MRUList    REG_SZ    ab',
-    '',
+    ''
   ].join('\r\n')
 
   function stubOpenWith(): void {
@@ -231,7 +237,11 @@ describe('scanRegistry — OpenWithList', () => {
         return { stdout: OPEN_WITH_OUTPUT, stderr: '' }
       }
       // notepad.exe is a registered App Path; ghost.exe is not.
-      if (tool === 'reg' && args[0] === 'query' && String(args[1]).includes('App Paths\\notepad.exe')) {
+      if (
+        tool === 'reg' &&
+        args[0] === 'query' &&
+        String(args[1]).includes('App Paths\\notepad.exe')
+      ) {
         return { stdout: 'ok', stderr: '' }
       }
       if (tool === 'reg' && args[0] === 'query' && String(args[1]).includes('App Paths\\')) {
@@ -245,7 +255,9 @@ describe('scanRegistry — OpenWithList', () => {
   it('reports the ordinal value name, not the executable data', async () => {
     stubOpenWith()
     const entries = await scanRegistry()
-    const found = entries.filter(e => e.issue.startsWith('File association references unregistered app'))
+    const found = entries.filter((e) =>
+      e.issue.startsWith('File association references unregistered app')
+    )
 
     expect(found).toHaveLength(1)
     // `reg delete /v ghost.exe` would always fail — the value is named "b".
@@ -256,10 +268,12 @@ describe('scanRegistry — OpenWithList', () => {
   it('leaves registered apps and the MRUList index alone', async () => {
     stubOpenWith()
     const entries = await scanRegistry()
-    const found = entries.filter(e => e.issue.startsWith('File association references unregistered app'))
+    const found = entries.filter((e) =>
+      e.issue.startsWith('File association references unregistered app')
+    )
 
-    expect(found.some(e => e.valueName === 'a')).toBe(false)
-    expect(found.some(e => e.valueName.toLowerCase() === 'mrulist')).toBe(false)
+    expect(found.some((e) => e.valueName === 'a')).toBe(false)
+    expect(found.some((e) => e.valueName.toLowerCase() === 'mrulist')).toBe(false)
   })
 })
 
@@ -278,7 +292,7 @@ describe('isProtectedDeleteKey', () => {
       'HKCR\\Interface',
       'HKCR\\TypeLib',
       'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-      'HKCR\\*\\shellex\\ContextMenuHandlers',
+      'HKCR\\*\\shellex\\ContextMenuHandlers'
     ]) {
       expect(isProtectedDeleteKey(k)).toBe(true)
     }
@@ -306,7 +320,7 @@ describe('fixRegistryEntries — protected key guard', () => {
     issue: 'test',
     risk: 'low' as const,
     selected: true,
-    fix: { op: 'delete-key' as const },
+    fix: { op: 'delete-key' as const }
   })
 
   it('refuses to delete a container key and reports it as a failure', async () => {
@@ -316,7 +330,7 @@ describe('fixRegistryEntries — protected key guard', () => {
     expect(result.failed).toBe(1)
     expect(result.failures[0].reason).toContain('protected registry key')
 
-    const deletes = mockExecNative.mock.calls.filter(c => c[0] === 'reg' && c[1][0] === 'delete')
+    const deletes = mockExecNative.mock.calls.filter((c) => c[0] === 'reg' && c[1][0] === 'delete')
     expect(deletes).toHaveLength(0)
   })
 
@@ -325,7 +339,7 @@ describe('fixRegistryEntries — protected key guard', () => {
     const result = await fixRegistryEntries([entry(target)] as any)
 
     expect(result.fixed).toBe(1)
-    const deletes = mockExecNative.mock.calls.filter(c => c[0] === 'reg' && c[1][0] === 'delete')
+    const deletes = mockExecNative.mock.calls.filter((c) => c[0] === 'reg' && c[1][0] === 'delete')
     expect(deletes).toHaveLength(1)
     expect(deletes[0][1]).toEqual(['delete', target, '/f'])
   })

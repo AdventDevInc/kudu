@@ -98,18 +98,14 @@ describe('duplicate finder options validation', () => {
   it('exclude patterns match case-insensitively', () => {
     const patterns = ['node_modules', '.git']
     const dirName = 'Node_Modules'
-    const matches = patterns.some(
-      (p) => dirName === p || dirName.toLowerCase() === p.toLowerCase()
-    )
+    const matches = patterns.some((p) => dirName === p || dirName.toLowerCase() === p.toLowerCase())
     expect(matches).toBe(true)
   })
 
   it('exclude patterns do not match partial directory names', () => {
     const patterns = ['node_modules']
     const dirName = 'my_node_modules_backup'
-    const matches = patterns.some(
-      (p) => dirName === p || dirName.toLowerCase() === p.toLowerCase()
-    )
+    const matches = patterns.some((p) => dirName === p || dirName.toLowerCase() === p.toLowerCase())
     expect(matches).toBe(false)
   })
 })

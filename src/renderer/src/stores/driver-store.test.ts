@@ -15,7 +15,7 @@ function makePackage(id: string, isCurrent: boolean, selected = false): DriverPa
     folderPath: `C:\\drivers\\${id}`,
     size: 1024,
     isCurrent,
-    selected,
+    selected
   }
 }
 
@@ -33,7 +33,7 @@ function makeUpdate(id: string, selected = false): DriverUpdate {
     provider: 'Test',
     updateTitle: `Update ${id}`,
     downloadSize: '10 MB',
-    selected,
+    selected
   }
 }
 
@@ -44,10 +44,9 @@ describe('driver-store', () => {
 
   describe('cleanup', () => {
     it('togglePackage only toggles stale drivers (not current)', () => {
-      useDriverStore.getState().setPackages([
-        makePackage('stale', false),
-        makePackage('current', true),
-      ])
+      useDriverStore
+        .getState()
+        .setPackages([makePackage('stale', false), makePackage('current', true)])
       useDriverStore.getState().togglePackage('stale')
       useDriverStore.getState().togglePackage('current')
       const pkgs = useDriverStore.getState().packages
@@ -56,11 +55,13 @@ describe('driver-store', () => {
     })
 
     it('selectAllStale selects only non-current packages', () => {
-      useDriverStore.getState().setPackages([
-        makePackage('stale1', false),
-        makePackage('stale2', false),
-        makePackage('current', true),
-      ])
+      useDriverStore
+        .getState()
+        .setPackages([
+          makePackage('stale1', false),
+          makePackage('stale2', false),
+          makePackage('current', true)
+        ])
       useDriverStore.getState().selectAllStale()
       const pkgs = useDriverStore.getState().packages
       expect(pkgs.filter((p) => p.selected)).toHaveLength(2)
@@ -68,10 +69,9 @@ describe('driver-store', () => {
     })
 
     it('deselectAllStale deselects stale packages', () => {
-      useDriverStore.getState().setPackages([
-        makePackage('stale', false, true),
-        makePackage('current', true, true),
-      ])
+      useDriverStore
+        .getState()
+        .setPackages([makePackage('stale', false, true), makePackage('current', true, true)])
       useDriverStore.getState().deselectAllStale()
       const pkgs = useDriverStore.getState().packages
       expect(pkgs.find((p) => p.id === 'stale')!.selected).toBe(false)

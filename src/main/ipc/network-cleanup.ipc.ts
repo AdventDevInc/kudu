@@ -17,10 +17,11 @@ async function getDnsCacheCount(): Promise<number> {
   // On Windows, use PowerShell for an accurate count since getDnsCacheEntries may be slow
   if (process.platform === 'win32') {
     try {
-      const { stdout } = await execFileAsync('powershell', [
-        '-NoProfile', '-Command',
-        psUtf8('(Get-DnsClientCache | Measure-Object).Count')
-      ], { timeout: 10000, windowsHide: true })
+      const { stdout } = await execFileAsync(
+        'powershell',
+        ['-NoProfile', '-Command', psUtf8('(Get-DnsClientCache | Measure-Object).Count')],
+        { timeout: 10000, windowsHide: true }
+      )
       return parseInt(stdout.trim(), 10) || 0
     } catch {
       return 0
@@ -45,11 +46,15 @@ async function getNetworkHistory(): Promise<{ name: string; guid: string }[]> {
   // Network history is Windows-only (registry-based)
   if (process.platform !== 'win32') return []
   try {
-    const { stdout } = await execNativeUtf8('reg',[
-      'query',
-      'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles',
-      '/s'
-    ], { timeout: 10000, windowsHide: true })
+    const { stdout } = await execNativeUtf8(
+      'reg',
+      [
+        'query',
+        'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles',
+        '/s'
+      ],
+      { timeout: 10000, windowsHide: true }
+    )
     const entries: { name: string; guid: string }[] = []
     let currentGuid = ''
     for (const line of stdout.split('\n')) {
@@ -80,9 +85,10 @@ export async function scanNetwork(): Promise<NetworkItem[]> {
       id: randomUUID(),
       type: 'dns-cache',
       label: 'DNS Resolver Cache',
-      detail: process.platform === 'win32'
-        ? `${dnsCount} cached entries — flushing forces fresh DNS lookups`
-        : 'Flush DNS resolver cache to force fresh lookups',
+      detail:
+        process.platform === 'win32'
+          ? `${dnsCount} cached entries — flushing forces fresh DNS lookups`
+          : 'Flush DNS resolver cache to force fresh lookups',
       selected: true
     })
   }
@@ -150,7 +156,8 @@ export async function cleanNetworkItems(items: NetworkItem[]): Promise<NetworkCl
             details.push(`Invalid profile name: ${item.label}`)
             continue
           }
-          const success = await (platform.network.deleteWifiProfile?.(item.label) ?? Promise.resolve(false))
+          const success = await (platform.network.deleteWifiProfile?.(item.label) ??
+            Promise.resolve(false))
           if (success) {
             details.push(`Removed Wi-Fi profile: ${item.label}`)
             cleaned++
@@ -176,13 +183,19 @@ export async function cleanNetworkItems(items: NetworkItem[]): Promise<NetworkCl
         case 'network-history': {
           // Windows-only
           if (process.platform !== 'win32') break
-          const guidMatch = item.detail.match(/(\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\})/)
+          const guidMatch = item.detail.match(
+            /(\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\})/
+          )
           if (guidMatch) {
-            await execNativeUtf8('reg',[
-              'delete',
-              `HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\${guidMatch[1]}`,
-              '/f'
-            ], { timeout: 10000, windowsHide: true })
+            await execNativeUtf8(
+              'reg',
+              [
+                'delete',
+                `HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\Profiles\\${guidMatch[1]}`,
+                '/f'
+              ],
+              { timeout: 10000, windowsHide: true }
+            )
             details.push(`Removed network history: ${item.label}`)
             cleaned++
           }
@@ -216,17 +229,23 @@ export function registerNetworkCleanupIpc(): void {
     return items
   })
 
-  ipcMain.handle(IPC.NETWORK_CLEAN, async (_event, itemIds: string[]): Promise<NetworkCleanResult> => {
-    const valid = validateStringArray(itemIds)
-    if (!valid) return { cleaned: 0, failed: 0, details: [] }
-    // Search all sessions for the requested items (avoids race if a new scan started)
-    const items: NetworkItem[] = []
-    for (const id of valid) {
-      for (const session of scanSessions.values()) {
-        const item = session.get(id)
-        if (item) { items.push(item); break }
+  ipcMain.handle(
+    IPC.NETWORK_CLEAN,
+    async (_event, itemIds: string[]): Promise<NetworkCleanResult> => {
+      const valid = validateStringArray(itemIds)
+      if (!valid) return { cleaned: 0, failed: 0, details: [] }
+      // Search all sessions for the requested items (avoids race if a new scan started)
+      const items: NetworkItem[] = []
+      for (const id of valid) {
+        for (const session of scanSessions.values()) {
+          const item = session.get(id)
+          if (item) {
+            items.push(item)
+            break
+          }
+        }
       }
+      return cleanNetworkItems(items)
     }
-    return cleanNetworkItems(items)
-  })
+  )
 }

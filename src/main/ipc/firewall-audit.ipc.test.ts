@@ -21,10 +21,14 @@ function parseProfiles(raw: string): FirewallProfile[] {
 
 function parseSignature(raw: string): FirewallSignatureStatus {
   switch (raw) {
-    case 'signed': return 'signed'
-    case 'unsigned': return 'unsigned'
-    case 'unknown': return 'unknown'
-    default: return 'not-applicable'
+    case 'signed':
+      return 'signed'
+    case 'unsigned':
+      return 'unsigned'
+    case 'unknown':
+      return 'unknown'
+    default:
+      return 'not-applicable'
   }
 }
 
@@ -60,7 +64,7 @@ const KNOWN_GOOD_SERVICES: KnownGoodEntry[] = [
   { label: 'LLMNR', protocol: 'UDP', localPort: '5355' },
   { label: 'Tailscale', nameRe: /^Tailscale(-In)?$/i },
   { label: 'HNS Container Networking', nameRe: /^HNS Container Networking\b/i },
-  { label: 'Zoom', programRe: /[\\/]Zoom[\\/]bin[\\/]Zoom\.exe$/i },
+  { label: 'Zoom', programRe: /[\\/]Zoom[\\/]bin[\\/]Zoom\.exe$/i }
 ]
 
 function isKnownGoodService(args: {
@@ -73,7 +77,8 @@ function isKnownGoodService(args: {
   return KNOWN_GOOD_SERVICES.some((entry) => {
     if (entry.protocol && args.protocol.toUpperCase() !== entry.protocol.toUpperCase()) return false
     if (entry.localPort && args.localPort !== entry.localPort) return false
-    if (entry.nameRe && !entry.nameRe.test(args.name) && !entry.nameRe.test(args.displayName)) return false
+    if (entry.nameRe && !entry.nameRe.test(args.name) && !entry.nameRe.test(args.displayName))
+      return false
     if (entry.programRe && !entry.programRe.test(args.programResolved)) return false
     return !!(entry.protocol || entry.localPort || entry.nameRe || entry.programRe)
   })
@@ -182,21 +187,32 @@ describe('isBuiltinRule', () => {
     expect(isBuiltinRule({ ...empty, description: '@FirewallAPI.dll,-25000' })).toBe(true)
   })
   it('detects MUI resource description with trailing semicolon segment', () => {
-    expect(isBuiltinRule({ ...empty, description: '@%SystemRoot%\\system32\\firewallapi.dll,-25000;remarks' })).toBe(true)
+    expect(
+      isBuiltinRule({
+        ...empty,
+        description: '@%SystemRoot%\\system32\\firewallapi.dll,-25000;remarks'
+      })
+    ).toBe(true)
   })
   it('detects MUI resource for an exe path (Hyper-V vmms.exe)', () => {
-    expect(isBuiltinRule({ ...empty, description: '@%systemroot%\\system32\\vmms.exe,-210' })).toBe(true)
+    expect(isBuiltinRule({ ...empty, description: '@%systemroot%\\system32\\vmms.exe,-210' })).toBe(
+      true
+    )
   })
   it('detects AppX resource description (Desktop App Web Viewer)', () => {
-    const description = '@{Microsoft.Win32WebViewHost_10.0.26100.1_neutral_neutral_cw5n1h2txyewy?ms-resource://Windows.Win32WebViewHost/resources/DisplayName}'
+    const description =
+      '@{Microsoft.Win32WebViewHost_10.0.26100.1_neutral_neutral_cw5n1h2txyewy?ms-resource://Windows.Win32WebViewHost/resources/DisplayName}'
     expect(isBuiltinRule({ ...empty, description })).toBe(true)
   })
   it('detects AppX resource description (Windows Feature Experience Pack)', () => {
-    const description = '@{MicrosoftWindows.Client.OOBE_1000.26100.40.0_x64__cw5n1h2txyewy?ms-resource://MicrosoftWindows.Client.OOBE/resources/ProductPkgDisplayName}'
+    const description =
+      '@{MicrosoftWindows.Client.OOBE_1000.26100.40.0_x64__cw5n1h2txyewy?ms-resource://MicrosoftWindows.Client.OOBE/resources/ProductPkgDisplayName}'
     expect(isBuiltinRule({ ...empty, description })).toBe(true)
   })
   it('treats system-path binaries as built-in even without resource description', () => {
-    expect(isBuiltinRule({ ...empty, description: 'Lets stuff through', isSystemPath: true })).toBe(true)
+    expect(isBuiltinRule({ ...empty, description: 'Lets stuff through', isSystemPath: true })).toBe(
+      true
+    )
   })
   it('treats managed rules as built-in (Package or Owner SID set — Game Bar / Microsoft Store)', () => {
     // Both Game Bar and Microsoft Store have description resolved to a
@@ -207,7 +223,9 @@ describe('isBuiltinRule', () => {
     expect(isBuiltinRule({ ...empty, description: 'Microsoft Store', isManaged: true })).toBe(true)
   })
   it('detects resource ref in Group when description is a resolved literal', () => {
-    expect(isBuiltinRule({ ...empty, description: 'Game Bar', group: '@FirewallAPI.dll,-25000' })).toBe(true)
+    expect(
+      isBuiltinRule({ ...empty, description: 'Game Bar', group: '@FirewallAPI.dll,-25000' })
+    ).toBe(true)
   })
   it('does not match user-installed app descriptions', () => {
     expect(isBuiltinRule({ ...empty, description: 'Steam game server traffic' })).toBe(false)
@@ -229,7 +247,7 @@ describe('classifyRule', () => {
       localPort: '443',
       remoteAddress: 'LocalSubnet',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toContain('stale')
     expect(risk).toBe('high')
@@ -244,7 +262,7 @@ describe('classifyRule', () => {
       localPort: '8080',
       remoteAddress: 'LocalSubnet',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual(['unsigned'])
     expect(risk).toBe('medium')
@@ -259,7 +277,7 @@ describe('classifyRule', () => {
       localPort: 'Any',
       remoteAddress: 'Any',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toContain('broad-scope')
     expect(risk).toBe('high')
@@ -274,7 +292,7 @@ describe('classifyRule', () => {
       localPort: 'Any',
       remoteAddress: 'Any',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual(['any-remote'])
     expect(risk).toBe('medium')
@@ -289,7 +307,7 @@ describe('classifyRule', () => {
       localPort: 'Any',
       remoteAddress: 'Any',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toContain('broad-scope')
     expect(risk).toBe('high')
@@ -304,7 +322,7 @@ describe('classifyRule', () => {
       localPort: '445',
       remoteAddress: 'LocalSubnet',
       builtin: true,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual([])
     expect(risk).toBe('low')
@@ -319,7 +337,7 @@ describe('classifyRule', () => {
       localPort: '443',
       remoteAddress: 'LocalSubnet',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toContain('stale')
     expect(issues).not.toContain('unsigned')
@@ -334,7 +352,7 @@ describe('classifyRule', () => {
       localPort: '80',
       remoteAddress: '10.0.0.0/8',
       builtin: false,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual([])
   })
@@ -351,7 +369,7 @@ describe('classifyRule', () => {
       localPort: 'Any',
       remoteAddress: 'Any',
       builtin: true,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual([])
     expect(risk).toBe('low')
@@ -366,7 +384,7 @@ describe('classifyRule', () => {
       localPort: 'Any',
       remoteAddress: 'Any',
       builtin: true,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual([])
     expect(risk).toBe('low')
@@ -381,7 +399,7 @@ describe('classifyRule', () => {
       localPort: 'Any',
       remoteAddress: 'Any',
       builtin: true,
-      knownGood: false,
+      knownGood: false
     })
     expect(issues).toEqual(['stale'])
     expect(risk).toBe('high')
@@ -398,7 +416,7 @@ describe('classifyRule', () => {
       localPort: '5353',
       remoteAddress: 'Any',
       builtin: false,
-      knownGood: true,
+      knownGood: true
     })
     expect(issues).toEqual([])
     expect(risk).toBe('low')
@@ -413,7 +431,7 @@ describe('classifyRule', () => {
       localPort: '7200-17210',
       remoteAddress: 'Any',
       builtin: false,
-      knownGood: true,
+      knownGood: true
     })
     expect(issues).toEqual(['stale'])
     expect(risk).toBe('high')
@@ -428,7 +446,7 @@ describe('classifyRule', () => {
       localPort: '7200-17210',
       remoteAddress: 'Any',
       builtin: false,
-      knownGood: true,
+      knownGood: true
     })
     expect(issues).toEqual(['unsigned'])
     expect(risk).toBe('medium')
@@ -439,32 +457,64 @@ describe('isKnownGoodService', () => {
   const base = { name: '', displayName: '', protocol: 'Any', localPort: 'Any', programResolved: '' }
 
   it('matches mDNS on UDP/5353', () => {
-    expect(isKnownGoodService({ ...base, name: 'mDNS', protocol: 'UDP', localPort: '5353' })).toBe(true)
+    expect(isKnownGoodService({ ...base, name: 'mDNS', protocol: 'UDP', localPort: '5353' })).toBe(
+      true
+    )
   })
   it('matches LLMNR on UDP/5355', () => {
-    expect(isKnownGoodService({ ...base, name: 'LLMNR', protocol: 'UDP', localPort: '5355' })).toBe(true)
+    expect(isKnownGoodService({ ...base, name: 'LLMNR', protocol: 'UDP', localPort: '5355' })).toBe(
+      true
+    )
   })
   it('does not match a foreign service that happens to share port 5353 over TCP', () => {
-    expect(isKnownGoodService({ ...base, name: 'sneaky', protocol: 'TCP', localPort: '5353' })).toBe(false)
+    expect(
+      isKnownGoodService({ ...base, name: 'sneaky', protocol: 'TCP', localPort: '5353' })
+    ).toBe(false)
   })
   it('matches Tailscale-In by name', () => {
-    expect(isKnownGoodService({ ...base, name: 'Tailscale-In', protocol: 'Any', localPort: 'Any' })).toBe(true)
+    expect(
+      isKnownGoodService({ ...base, name: 'Tailscale-In', protocol: 'Any', localPort: 'Any' })
+    ).toBe(true)
   })
   it('matches HNS Container Networking with a GUID suffix', () => {
-    expect(isKnownGoodService({
-      ...base,
-      name: 'HNS Container Networking - DNS (UDP-In) - C08CB7B8-9B3C-408E-8E30-5E16A3AEB445 - 0',
-      protocol: 'UDP',
-      localPort: '53',
-    })).toBe(true)
+    expect(
+      isKnownGoodService({
+        ...base,
+        name: 'HNS Container Networking - DNS (UDP-In) - C08CB7B8-9B3C-408E-8E30-5E16A3AEB445 - 0',
+        protocol: 'UDP',
+        localPort: '53'
+      })
+    ).toBe(true)
   })
   it('matches Zoom by program path (case-insensitive, either separator)', () => {
-    expect(isKnownGoodService({ ...base, name: 'Zoom Video Meeting', programResolved: 'C:\\Users\\User\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe' })).toBe(true)
-    expect(isKnownGoodService({ ...base, name: 'Zoom Video Meeting', programResolved: 'C:/Users/User/AppData/Roaming/zoom/BIN/zoom.exe' })).toBe(true)
+    expect(
+      isKnownGoodService({
+        ...base,
+        name: 'Zoom Video Meeting',
+        programResolved: 'C:\\Users\\User\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe'
+      })
+    ).toBe(true)
+    expect(
+      isKnownGoodService({
+        ...base,
+        name: 'Zoom Video Meeting',
+        programResolved: 'C:/Users/User/AppData/Roaming/zoom/BIN/zoom.exe'
+      })
+    ).toBe(true)
   })
   it('does not match an unrelated rule name or a Zoom-lookalike path', () => {
-    expect(isKnownGoodService({ ...base, name: 'Some Random App', protocol: 'TCP', localPort: '8080' })).toBe(false)
-    expect(isKnownGoodService({ ...base, name: 'evil', programResolved: 'C:\\Temp\\Zoom.exe' })).toBe(false)
-    expect(isKnownGoodService({ ...base, name: 'not-tailscale', programResolved: 'C:\\evil\\Zoom\\bin\\Zoom.exe.bak' })).toBe(false)
+    expect(
+      isKnownGoodService({ ...base, name: 'Some Random App', protocol: 'TCP', localPort: '8080' })
+    ).toBe(false)
+    expect(
+      isKnownGoodService({ ...base, name: 'evil', programResolved: 'C:\\Temp\\Zoom.exe' })
+    ).toBe(false)
+    expect(
+      isKnownGoodService({
+        ...base,
+        name: 'not-tailscale',
+        programResolved: 'C:\\evil\\Zoom\\bin\\Zoom.exe.bak'
+      })
+    ).toBe(false)
   })
 })

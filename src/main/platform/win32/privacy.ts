@@ -8,6 +8,6 @@ export function createWin32Privacy(): PlatformPrivacy {
     getSettings(): PrivacySettingDef[] {
       const { PRIVACY_SETTINGS } = require('../../ipc/privacy-shield.ipc')
       return PRIVACY_SETTINGS
-    },
+    }
   }
 }

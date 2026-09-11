@@ -7,7 +7,13 @@ import { join, basename, sep } from 'path'
 import { IPC } from '../../shared/channels'
 import { extname } from 'path'
 import { isAdmin } from '../services/elevation'
-import type { DiskNode, DriveInfo, FileTypeInfo, DiskRepairResult, DiskRepairProgress } from '../../shared/types'
+import type {
+  DiskNode,
+  DriveInfo,
+  FileTypeInfo,
+  DiskRepairResult,
+  DiskRepairProgress
+} from '../../shared/types'
 import type { WindowGetter } from './index'
 import { psUtf8 } from '../services/exec-utf8'
 
@@ -149,9 +155,11 @@ export async function getDrives(): Promise<DriveInfo[]> {
   if (process.platform === 'win32') {
     try {
       const driveScript = `$fixed = (Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }).DeviceID -replace ':',''; $system = $env:SystemDrive.TrimEnd(':'); Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Used -ne $null -and $fixed -contains $_.Name } | ForEach-Object { "$($_.Name)|$($_.Description)|$($_.Used)|$($_.Free)|$($_.Name -eq $system)" }`
-      const { stdout } = await execFileAsync('powershell.exe', [
-        '-NoProfile', '-Command', psUtf8(driveScript)
-      ], { timeout: 10000, windowsHide: true })
+      const { stdout } = await execFileAsync(
+        'powershell.exe',
+        ['-NoProfile', '-Command', psUtf8(driveScript)],
+        { timeout: 10000, windowsHide: true }
+      )
 
       const drives: DriveInfo[] = []
       for (const line of stdout.trim().split('\n')) {
@@ -249,10 +257,26 @@ function sendRepairProgress(win: BrowserWindow | null, data: DiskRepairProgress)
  */
 async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepairResult> {
   if (process.platform !== 'win32') {
-    return { tool: 'sfc', success: false, exitCode: null, summary: 'SFC is only available on Windows', log: '', requiresReboot: false, needsAdmin: false }
+    return {
+      tool: 'sfc',
+      success: false,
+      exitCode: null,
+      summary: 'SFC is only available on Windows',
+      log: '',
+      requiresReboot: false,
+      needsAdmin: false
+    }
   }
   if (!isAdmin()) {
-    return { tool: 'sfc', success: false, exitCode: null, summary: 'Administrator privileges required to run SFC', log: '', requiresReboot: false, needsAdmin: true }
+    return {
+      tool: 'sfc',
+      success: false,
+      exitCode: null,
+      summary: 'Administrator privileges required to run SFC',
+      log: '',
+      requiresReboot: false,
+      needsAdmin: true
+    }
   }
 
   // Validate drive letter — must be a single A-Z character
@@ -280,7 +304,12 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
         const pct = parseInt(match[1])
         if (pct > lastPercent) {
           lastPercent = pct
-          sendRepairProgress(getWindow(), { tool: 'sfc', phase: 'running', percent: pct, message: `System File Checker: ${pct}% complete` })
+          sendRepairProgress(getWindow(), {
+            tool: 'sfc',
+            phase: 'running',
+            percent: pct,
+            message: `System File Checker: ${pct}% complete`
+          })
         }
       }
     })
@@ -290,8 +319,21 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
     })
 
     child.on('error', (err) => {
-      sendRepairProgress(getWindow(), { tool: 'sfc', phase: 'failed', percent: 0, message: `SFC failed to start: ${err.message}` })
-      resolve({ tool: 'sfc', success: false, exitCode: null, summary: `Failed to start SFC: ${err.message}`, log: stdout, requiresReboot: false, needsAdmin: false })
+      sendRepairProgress(getWindow(), {
+        tool: 'sfc',
+        phase: 'failed',
+        percent: 0,
+        message: `SFC failed to start: ${err.message}`
+      })
+      resolve({
+        tool: 'sfc',
+        success: false,
+        exitCode: null,
+        summary: `Failed to start SFC: ${err.message}`,
+        log: stdout,
+        requiresReboot: false,
+        needsAdmin: false
+      })
     })
 
     child.on('close', (code) => {
@@ -302,7 +344,8 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
       } else if (stdout.includes('successfully repaired')) {
         summary = 'Windows found and repaired corrupted system files.'
       } else if (stdout.includes('found corrupt files but was unable to fix')) {
-        summary = 'Corrupted files were found but could not be repaired. Try running DISM first, then SFC again.'
+        summary =
+          'Corrupted files were found but could not be repaired. Try running DISM first, then SFC again.'
       } else if (success) {
         summary = 'SFC completed successfully.'
       } else {
@@ -310,9 +353,24 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
       }
 
       // Check for reboot indicators — use specific phrases, not generic words
-      const requiresReboot = /pending system repair|restart your computer|reboot.*required/i.test(stdout)
-      sendRepairProgress(getWindow(), { tool: 'sfc', phase: success ? 'done' : 'failed', percent: 100, message: summary })
-      resolve({ tool: 'sfc', success, exitCode: code, summary, log: stdout, requiresReboot, needsAdmin: false })
+      const requiresReboot = /pending system repair|restart your computer|reboot.*required/i.test(
+        stdout
+      )
+      sendRepairProgress(getWindow(), {
+        tool: 'sfc',
+        phase: success ? 'done' : 'failed',
+        percent: 100,
+        message: summary
+      })
+      resolve({
+        tool: 'sfc',
+        success,
+        exitCode: code,
+        summary,
+        log: stdout,
+        requiresReboot,
+        needsAdmin: false
+      })
     })
   })
 }
@@ -323,14 +381,34 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
  */
 async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
   if (process.platform !== 'win32') {
-    return { tool: 'dism', success: false, exitCode: null, summary: 'DISM is only available on Windows', log: '', requiresReboot: false, needsAdmin: false }
+    return {
+      tool: 'dism',
+      success: false,
+      exitCode: null,
+      summary: 'DISM is only available on Windows',
+      log: '',
+      requiresReboot: false,
+      needsAdmin: false
+    }
   }
   if (!isAdmin()) {
-    return { tool: 'dism', success: false, exitCode: null, summary: 'Administrator privileges required to run DISM', log: '', requiresReboot: false, needsAdmin: true }
+    return {
+      tool: 'dism',
+      success: false,
+      exitCode: null,
+      summary: 'Administrator privileges required to run DISM',
+      log: '',
+      requiresReboot: false,
+      needsAdmin: true
+    }
   }
 
   return new Promise((resolve) => {
-    const child = spawn('cmd', ['/c', 'chcp 65001 >nul & DISM', '/Online', '/Cleanup-Image', '/RestoreHealth'], { windowsHide: true })
+    const child = spawn(
+      'cmd',
+      ['/c', 'chcp 65001 >nul & DISM', '/Online', '/Cleanup-Image', '/RestoreHealth'],
+      { windowsHide: true }
+    )
     let stdout = ''
     let lastPercent = 0
     const dismDecoder = new StringDecoder('utf-8')
@@ -344,7 +422,12 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
         const pct = Math.round(parseFloat(match[1]))
         if (pct > lastPercent) {
           lastPercent = pct
-          sendRepairProgress(getWindow(), { tool: 'dism', phase: 'running', percent: pct, message: `DISM RestoreHealth: ${pct}% complete` })
+          sendRepairProgress(getWindow(), {
+            tool: 'dism',
+            phase: 'running',
+            percent: pct,
+            message: `DISM RestoreHealth: ${pct}% complete`
+          })
         }
       }
     })
@@ -354,8 +437,21 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
     })
 
     child.on('error', (err) => {
-      sendRepairProgress(getWindow(), { tool: 'dism', phase: 'failed', percent: 0, message: `DISM failed to start: ${err.message}` })
-      resolve({ tool: 'dism', success: false, exitCode: null, summary: `Failed to start DISM: ${err.message}`, log: stdout, requiresReboot: false, needsAdmin: false })
+      sendRepairProgress(getWindow(), {
+        tool: 'dism',
+        phase: 'failed',
+        percent: 0,
+        message: `DISM failed to start: ${err.message}`
+      })
+      resolve({
+        tool: 'dism',
+        success: false,
+        exitCode: null,
+        summary: `Failed to start DISM: ${err.message}`,
+        log: stdout,
+        requiresReboot: false,
+        needsAdmin: false
+      })
     })
 
     child.on('close', (code) => {
@@ -373,8 +469,21 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
 
       // Check for reboot indicators — use specific phrases to avoid false positives
       const requiresReboot = /restart your computer|reboot.*required|pending reboot/i.test(stdout)
-      sendRepairProgress(getWindow(), { tool: 'dism', phase: success ? 'done' : 'failed', percent: 100, message: summary })
-      resolve({ tool: 'dism', success, exitCode: code, summary, log: stdout, requiresReboot, needsAdmin: false })
+      sendRepairProgress(getWindow(), {
+        tool: 'dism',
+        phase: success ? 'done' : 'failed',
+        percent: 100,
+        message: summary
+      })
+      resolve({
+        tool: 'dism',
+        success,
+        exitCode: code,
+        summary,
+        log: stdout,
+        requiresReboot,
+        needsAdmin: false
+      })
     })
   })
 }
@@ -385,16 +494,34 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
  */
 async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRepairResult> {
   if (process.platform !== 'win32') {
-    return { tool: 'chkdsk', success: false, exitCode: null, summary: 'CHKDSK is only available on Windows', log: '', requiresReboot: false, needsAdmin: false }
+    return {
+      tool: 'chkdsk',
+      success: false,
+      exitCode: null,
+      summary: 'CHKDSK is only available on Windows',
+      log: '',
+      requiresReboot: false,
+      needsAdmin: false
+    }
   }
   if (!isAdmin()) {
-    return { tool: 'chkdsk', success: false, exitCode: null, summary: 'Administrator privileges required to run CHKDSK', log: '', requiresReboot: false, needsAdmin: true }
+    return {
+      tool: 'chkdsk',
+      success: false,
+      exitCode: null,
+      summary: 'Administrator privileges required to run CHKDSK',
+      log: '',
+      requiresReboot: false,
+      needsAdmin: true
+    }
   }
 
   const safeDrive = /^[A-Za-z]$/.test(drive) ? drive.toUpperCase() : 'C'
 
   return new Promise((resolve) => {
-    const child = spawn('cmd', ['/c', `chcp 65001 >nul & chkdsk ${safeDrive}: /scan`], { windowsHide: true })
+    const child = spawn('cmd', ['/c', `chcp 65001 >nul & chkdsk ${safeDrive}: /scan`], {
+      windowsHide: true
+    })
     let stdout = ''
     let lastPercent = 0
     const decoder = new StringDecoder('utf-8')
@@ -408,7 +535,12 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
         const pct = parseInt(match[1])
         if (pct > lastPercent) {
           lastPercent = pct
-          sendRepairProgress(getWindow(), { tool: 'chkdsk', phase: 'running', percent: pct, message: `CHKDSK: ${pct}% complete` })
+          sendRepairProgress(getWindow(), {
+            tool: 'chkdsk',
+            phase: 'running',
+            percent: pct,
+            message: `CHKDSK: ${pct}% complete`
+          })
         }
       }
     })
@@ -418,8 +550,21 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
     })
 
     child.on('error', (err) => {
-      sendRepairProgress(getWindow(), { tool: 'chkdsk', phase: 'failed', percent: 0, message: `CHKDSK failed to start: ${err.message}` })
-      resolve({ tool: 'chkdsk', success: false, exitCode: null, summary: `Failed to start CHKDSK: ${err.message}`, log: stdout, requiresReboot: false, needsAdmin: false })
+      sendRepairProgress(getWindow(), {
+        tool: 'chkdsk',
+        phase: 'failed',
+        percent: 0,
+        message: `CHKDSK failed to start: ${err.message}`
+      })
+      resolve({
+        tool: 'chkdsk',
+        success: false,
+        exitCode: null,
+        summary: `Failed to start CHKDSK: ${err.message}`,
+        log: stdout,
+        requiresReboot: false,
+        needsAdmin: false
+      })
     })
 
     child.on('close', (code) => {
@@ -444,9 +589,23 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
         summary = `CHKDSK exited with code ${code}. Check the log for details.`
       }
 
-      const requiresReboot = /restart your computer|schedule.*check.*restart|cannot run.*volume is in use/i.test(stdout)
-      sendRepairProgress(getWindow(), { tool: 'chkdsk', phase: success ? 'done' : 'failed', percent: 100, message: summary })
-      resolve({ tool: 'chkdsk', success, exitCode: code, summary, log: stdout, requiresReboot, needsAdmin: false })
+      const requiresReboot =
+        /restart your computer|schedule.*check.*restart|cannot run.*volume is in use/i.test(stdout)
+      sendRepairProgress(getWindow(), {
+        tool: 'chkdsk',
+        phase: success ? 'done' : 'failed',
+        percent: 100,
+        message: summary
+      })
+      resolve({
+        tool: 'chkdsk',
+        success,
+        exitCode: code,
+        summary,
+        log: stdout,
+        requiresReboot,
+        needsAdmin: false
+      })
     })
   })
 }
@@ -485,8 +644,11 @@ export function registerDiskAnalyzerIpc(getWindow: WindowGetter): void {
     return runDism(getWindow)
   })
 
-  ipcMain.handle(IPC.DISK_REPAIR_CHKDSK, async (_event, drive: unknown): Promise<DiskRepairResult> => {
-    const safeDrive = typeof drive === 'string' && /^[A-Za-z]$/.test(drive) ? drive : 'C'
-    return runChkdsk(safeDrive, getWindow)
-  })
+  ipcMain.handle(
+    IPC.DISK_REPAIR_CHKDSK,
+    async (_event, drive: unknown): Promise<DiskRepairResult> => {
+      const safeDrive = typeof drive === 'string' && /^[A-Za-z]$/.test(drive) ? drive : 'C'
+      return runChkdsk(safeDrive, getWindow)
+    }
+  )
 }

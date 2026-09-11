@@ -9,7 +9,6 @@ const mockGetBootTrace = vi.fn()
 
 const MOCK_KEY = '/mock/startup-manager.ipc'
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const NativeModule = require('module')
 const origResolve = NativeModule._resolveFilename
 NativeModule._resolveFilename = function (request: string, parent: any, ...args: any[]) {
@@ -28,9 +27,9 @@ require.cache[MOCK_KEY] = {
   exports: {
     listStartupItems: mockListStartupItems,
     toggleStartupItem: mockToggleStartupItem,
-    getBootTrace: mockGetBootTrace,
+    getBootTrace: mockGetBootTrace
   },
-  path: '/mock',
+  path: '/mock'
 } as any
 
 const { createWin32Startup } = await import('./startup')
@@ -45,7 +44,13 @@ describe('win32 startup', () => {
   describe('listItems', () => {
     it('delegates to listStartupItems from the IPC module', async () => {
       const mockItems = [
-        { name: 'Discord', location: 'HKCU\\...\\Run', command: 'discord.exe', source: 'registry', enabled: true },
+        {
+          name: 'Discord',
+          location: 'HKCU\\...\\Run',
+          command: 'discord.exe',
+          source: 'registry',
+          enabled: true
+        }
       ]
       mockListStartupItems.mockResolvedValue(mockItems)
 
@@ -67,11 +72,19 @@ describe('win32 startup', () => {
       mockToggleStartupItem.mockResolvedValue(true)
 
       const result = await startup.toggleItem(
-        'Discord', 'HKCU\\...\\Run', 'discord.exe', 'registry' as any, false
+        'Discord',
+        'HKCU\\...\\Run',
+        'discord.exe',
+        'registry' as any,
+        false
       )
 
       expect(mockToggleStartupItem).toHaveBeenCalledWith(
-        'Discord', 'HKCU\\...\\Run', 'discord.exe', 'registry', false
+        'Discord',
+        'HKCU\\...\\Run',
+        'discord.exe',
+        'registry',
+        false
       )
       expect(result).toBe(true)
     })
@@ -79,9 +92,7 @@ describe('win32 startup', () => {
     it('returns false when toggle fails', async () => {
       mockToggleStartupItem.mockResolvedValue(false)
 
-      const result = await startup.toggleItem(
-        'Test', 'loc', 'cmd', 'registry' as any, true
-      )
+      const result = await startup.toggleItem('Test', 'loc', 'cmd', 'registry' as any, true)
       expect(result).toBe(false)
     })
 

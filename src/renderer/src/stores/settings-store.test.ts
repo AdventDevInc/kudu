@@ -24,14 +24,14 @@ describe('settings-store', () => {
           closeBrowsersBeforeClean: false,
           createRestorePoint: false,
           protectRecycleBin: true,
-          keepDeletionLog: false,
+          keepDeletionLog: false
         },
         exclusions: [],
         schedule: {
           enabled: false,
           frequency: 'weekly',
           day: 1,
-          hour: 9,
+          hour: 9
         },
         schedules: [],
         cloud: {
@@ -43,10 +43,10 @@ describe('settings-store', () => {
           allowRemotePower: false,
           allowRemoteCleanup: false,
           allowRemoteInstalls: false,
-          allowRemoteConfig: false,
-        },
+          allowRemoteConfig: false
+        }
       },
-      loaded: false,
+      loaded: false
     })
   })
 
@@ -58,7 +58,7 @@ describe('settings-store', () => {
     const newSettings = {
       ...useSettingsStore.getState().settings,
       minimizeToTray: true,
-      runAtStartup: true,
+      runAtStartup: true
     }
     useSettingsStore.getState().setSettings(newSettings)
 
@@ -77,7 +77,7 @@ describe('settings-store', () => {
 
   it('updateSettings deep-merges cleaner settings', () => {
     useSettingsStore.getState().updateSettings({
-      cleaner: { secureDelete: true },
+      cleaner: { secureDelete: true }
     } as any)
 
     const { cleaner } = useSettingsStore.getState().settings
@@ -89,7 +89,7 @@ describe('settings-store', () => {
 
   it('updateSettings deep-merges schedule settings', () => {
     useSettingsStore.getState().updateSettings({
-      schedule: { enabled: true, hour: 22 },
+      schedule: { enabled: true, hour: 22 }
     } as any)
 
     const { schedule } = useSettingsStore.getState().settings
@@ -102,7 +102,7 @@ describe('settings-store', () => {
 
   it('updateSettings deep-merges cloud settings', () => {
     useSettingsStore.getState().updateSettings({
-      cloud: { apiKey: 'test-key', allowRemotePower: false },
+      cloud: { apiKey: 'test-key', allowRemotePower: false }
     } as any)
 
     const { cloud } = useSettingsStore.getState().settings

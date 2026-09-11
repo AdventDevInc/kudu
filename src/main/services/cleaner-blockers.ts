@@ -27,7 +27,7 @@ const BROWSER_DISPLAY_NAMES: Record<string, string> = {
   librewolf: 'LibreWolf',
   waterfox: 'Waterfox',
   floorp: 'Floorp',
-  zen: 'Zen Browser',
+  zen: 'Zen Browser'
 }
 
 interface RestartManagerProcess {
@@ -131,7 +131,10 @@ $out = @([KuduRestartManager]::Find($paths) | ForEach-Object {
 ConvertTo-Json -InputObject $out -Compress`
 
 function normalizedProcessName(value: string): string {
-  return value.trim().replace(/\.exe$/i, '').toLowerCase()
+  return value
+    .trim()
+    .replace(/\.exe$/i, '')
+    .toLowerCase()
 }
 
 function sameWindowsPath(a: string, b: string): boolean {
@@ -140,15 +143,17 @@ function sameWindowsPath(a: string, b: string): boolean {
 
 function friendlyProcessName(processName: string, restartManagerName: string): string {
   const normalized = normalizedProcessName(processName)
-  return BROWSER_DISPLAY_NAMES[normalized]
-    || restartManagerName.trim()
-    || processName.trim().replace(/\.exe$/i, '')
-    || 'Unknown application'
+  return (
+    BROWSER_DISPLAY_NAMES[normalized] ||
+    restartManagerName.trim() ||
+    processName.trim().replace(/\.exe$/i, '') ||
+    'Unknown application'
+  )
 }
 
 export function parseRestartManagerBlockers(
   stdout: string,
-  currentExecutable = process.execPath,
+  currentExecutable = process.execPath
 ): CleanerBlocker[] {
   let parsed: RestartManagerProcess[]
   try {
@@ -177,9 +182,10 @@ export function parseRestartManagerBlockers(
     // omit it from the actionable list. In development, do not hide every
     // Electron process merely because the current host is electron.exe.
     if (
-      (executablePath && sameWindowsPath(executablePath, currentExecutable))
-      || (ownProcessName !== 'electron' && normalized === ownProcessName)
-    ) continue
+      (executablePath && sameWindowsPath(executablePath, currentExecutable)) ||
+      (ownProcessName !== 'electron' && normalized === ownProcessName)
+    )
+      continue
 
     const name = friendlyProcessName(processName, restartManagerName)
     const key = (normalized || name).toLowerCase()
@@ -188,7 +194,7 @@ export function parseRestartManagerBlockers(
         pid,
         name,
         processName: processName || restartManagerName,
-        isBrowser: normalized in BROWSER_DISPLAY_NAMES,
+        isBrowser: normalized in BROWSER_DISPLAY_NAMES
       })
     }
   }
@@ -238,7 +244,7 @@ async function filesBelow(root: string, limit: number): Promise<string[]> {
  */
 export async function collectBlockerCandidateFiles(
   items: ScanItem[],
-  maxFiles = MAX_CANDIDATE_FILES,
+  maxFiles = MAX_CANDIDATE_FILES
 ): Promise<string[]> {
   if (maxFiles <= 0) return []
 
@@ -251,9 +257,7 @@ export async function collectBlockerCandidateFiles(
     groups.set(key, group)
   }
 
-  const selectedGroups = [...groups.values()]
-    .sort((a, b) => b.size - a.size)
-    .slice(0, MAX_GROUPS)
+  const selectedGroups = [...groups.values()].sort((a, b) => b.size - a.size).slice(0, MAX_GROUPS)
   if (selectedGroups.length === 0) return []
 
   const perGroup = Math.max(1, Math.floor(maxFiles / selectedGroups.length))
@@ -263,7 +267,7 @@ export async function collectBlockerCandidateFiles(
     const rootsToSample = Math.min(group.items.length, perGroup)
     let groupCandidates = 0
     for (let index = 0; index < rootsToSample && candidates.size < maxFiles; index++) {
-      const rootIndex = Math.floor(index * group.items.length / rootsToSample)
+      const rootIndex = Math.floor((index * group.items.length) / rootsToSample)
       const remainingForGroup = perGroup - groupCandidates
       if (remainingForGroup <= 0) break
       const paths = await filesBelow(group.items[rootIndex].path, remainingForGroup)
@@ -288,12 +292,11 @@ export async function findWindowsFileBlockers(paths: string[]): Promise<CleanerB
     await writeFile(pathFile, JSON.stringify(paths), 'utf8')
     const escapedPath = pathFile.replace(/'/g, "''")
     const script = RESTART_MANAGER_SCRIPT.replace('__PATH_FILE__', escapedPath)
-    const { stdout } = await execTracked('powershell.exe', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-Command',
-      psUtf8(script),
-    ], { windowsHide: true, timeout: 15_000 })
+    const { stdout } = await execTracked(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
+      { windowsHide: true, timeout: 15_000 }
+    )
     return parseRestartManagerBlockers(stdout)
   } catch {
     // This is advisory. A failed preflight must never prevent cleaning.
@@ -306,9 +309,10 @@ export async function findWindowsFileBlockers(paths: string[]): Promise<CleanerB
 export async function findCleanerBlockers(itemIds: unknown): Promise<CleanerBlocker[]> {
   if (process.platform !== 'win32' || !Array.isArray(itemIds)) return []
   if (
-    itemIds.length > 250_000
-    || !itemIds.every((id) => typeof id === 'string' && id.length <= 100)
-  ) return []
+    itemIds.length > 250_000 ||
+    !itemIds.every((id) => typeof id === 'string' && id.length <= 100)
+  )
+    return []
   const ids = [...new Set(itemIds as string[])]
   const items = getCachedItems(ids)
   const files = await collectBlockerCandidateFiles(items)

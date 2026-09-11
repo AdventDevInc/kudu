@@ -4,7 +4,13 @@ import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
 import { dirname, join, resolve, sep } from 'path'
 import { randomUUID, randomBytes } from 'crypto'
-import type { ScanItem, ScanResult, CleanResult, DeletedFileRecord, DeletionOrigin } from '../../shared/types'
+import type {
+  ScanItem,
+  ScanResult,
+  CleanResult,
+  DeletedFileRecord,
+  DeletionOrigin
+} from '../../shared/types'
 import type { AppCacheDef, DirectFileMatch, RecursivePathMatch } from '../platform/types'
 import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
@@ -23,7 +29,7 @@ export interface DeleteResult {
 /** Translate filesystem failures without conflating permissions with locks. */
 export function deleteFailureReason(
   err: { code?: string; message?: string },
-  platform: NodeJS.Platform = process.platform,
+  platform: NodeJS.Platform = process.platform
 ): string {
   if (err.code === 'EBUSY' || err.code === 'ENOTEMPTY') return 'in-use'
   // Windows reports sharing violations as EPERM. Treating them as an access
@@ -38,7 +44,7 @@ const GRANULAR_DELETE_ERRORS = new Set(['EBUSY', 'EPERM', 'EACCES', 'ENOTEMPTY']
 
 async function attemptDelete(
   filePath: string,
-  operation: () => Promise<void>,
+  operation: () => Promise<void>
 ): Promise<FilesystemFailure | null> {
   try {
     await operation()
@@ -69,7 +75,7 @@ async function attemptDelete(
 function recordDeleteFailure(
   failures: NonNullable<DeleteResult['failures']>,
   filePath: string,
-  err: FilesystemFailure,
+  err: FilesystemFailure
 ): void {
   failures.push({ path: filePath, reason: deleteFailureReason(err) })
 }
@@ -81,7 +87,7 @@ function recordDeleteFailure(
  */
 async function deleteDirectoryBestEffort(
   dirPath: string,
-  failures: NonNullable<DeleteResult['failures']>,
+  failures: NonNullable<DeleteResult['failures']>
 ): Promise<void> {
   let entries: Dirent[]
   try {
@@ -113,9 +119,7 @@ async function deleteDirectoryBestEffort(
     if (failure) recordDeleteFailure(failures, childPath, failure)
   }
 
-  const directoryFailure = await attemptDelete(dirPath, () =>
-    rmdir(dirPath)
-  )
+  const directoryFailure = await attemptDelete(dirPath, () => rmdir(dirPath))
   // If a child already explains ENOTEMPTY, avoid also blaming every ancestor.
   if (directoryFailure && failures.length === failuresBeforeChildren) {
     recordDeleteFailure(failures, dirPath, directoryFailure)
@@ -178,11 +182,22 @@ async function secureOverwrite(filePath: string): Promise<void> {
     // Recheck the opened file, not just the earlier path lookup. Never write to
     // a replacement or a file which acquired another hard link before open.
     const opened = await fh.stat()
-    if (!opened.isFile() || opened.nlink !== 1 || opened.dev !== stats.dev || opened.ino !== stats.ino) return
+    if (
+      !opened.isFile() ||
+      opened.nlink !== 1 ||
+      opened.dev !== stats.dev ||
+      opened.ino !== stats.ino
+    )
+      return
     const writeAll = async (buffer: Buffer, position: number): Promise<void> => {
       let written = 0
       while (written < buffer.length) {
-        const { bytesWritten } = await fh.write(buffer, written, buffer.length - written, position + written)
+        const { bytesWritten } = await fh.write(
+          buffer,
+          written,
+          buffer.length - written,
+          position + written
+        )
         if (bytesWritten === 0) throw new Error('Secure overwrite made no progress')
         written += bytesWritten
       }
@@ -254,7 +269,7 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
     path: filePath,
     success: false,
     reason: failures[0].reason,
-    failures,
+    failures
   }
 }
 
@@ -323,14 +338,17 @@ export async function cleanItems(
       process.env.WINDIR,
       process.env.PROGRAMDATA,
       process.env.PROGRAMFILES,
-      process.env['PROGRAMFILES(X86)'],
-    ].filter((root): root is string => Boolean(root))
+      process.env['PROGRAMFILES(X86)']
+    ]
+      .filter((root): root is string => Boolean(root))
       .map((root) => root.replace(/[\\/]+$/, '').toLowerCase())
     const candidates = items
       .map((item) => item.path)
       .filter((path) => {
         const normalized = path.toLowerCase()
-        return protectedRoots.some((root) => normalized === root || normalized.startsWith(`${root}\\`))
+        return protectedRoots.some(
+          (root) => normalized === root || normalized.startsWith(`${root}\\`)
+        )
       })
     if (candidates.length > 0) {
       try {
@@ -351,11 +369,17 @@ export async function cleanItems(
     }
     if (item.cleanupAction) {
       // Cloud bulk cleanup has no UI for explicitly choosing native operations.
-      const result = origin === 'cloud'
-        ? { success: false, reason: 'Native maintenance requires local selection.' }
-        : await (await import('./managed-cleanup')).runManagedCleanup(item)
-      if (result.success) { filesDeleted++; consumedIds.push(item.id) }
-      else { filesSkipped++; errors.push({ path: item.path, reason: result.reason || 'Native cleanup failed.' }) }
+      const result =
+        origin === 'cloud'
+          ? { success: false, reason: 'Native maintenance requires local selection.' }
+          : await (await import('./managed-cleanup')).runManagedCleanup(item)
+      if (result.success) {
+        filesDeleted++
+        consumedIds.push(item.id)
+      } else {
+        filesSkipped++
+        errors.push({ path: item.path, reason: result.reason || 'Native cleanup failed.' })
+      }
       onProgress?.(filesDeleted + filesSkipped, validIds.length, item.subcategory, totalCleaned)
       return
     }
@@ -392,8 +416,8 @@ export async function cleanItems(
     // token cannot delete. Directories still use granular fallback because
     // writable descendants may be salvageable even when the root is protected.
     if (
-      !rootInfo.isDirectory()
-      && deleteAccess.get(item.path.toLowerCase()) === 'permission-denied'
+      !rootInfo.isDirectory() &&
+      deleteAccess.get(item.path.toLowerCase()) === 'permission-denied'
     ) {
       filesSkipped++
       errors.push({ path: item.path, reason: 'permission-denied' })
@@ -407,12 +431,17 @@ export async function cleanItems(
     // Snapshot current file sizes for full or partial cleanup accounting.
     const measured = await measureCleanupTree(item.path)
     const measuredSize = measured.reduce((sum, entry) => sum + entry.size, 0)
-    const descendantEntries = logDeletions && rootInfo.isDirectory()
-      ? measured.filter(entry => entry.path !== item.path)
-      : []
-    const descendants = logDeletions && rootInfo.isDirectory()
-      ? { paths: descendantEntries.slice(0, MAX_LOGGED_DESCENDANTS).map(entry => entry.path), truncated: Math.max(0, descendantEntries.length - MAX_LOGGED_DESCENDANTS) }
-      : null
+    const descendantEntries =
+      logDeletions && rootInfo.isDirectory()
+        ? measured.filter((entry) => entry.path !== item.path)
+        : []
+    const descendants =
+      logDeletions && rootInfo.isDirectory()
+        ? {
+            paths: descendantEntries.slice(0, MAX_LOGGED_DESCENDANTS).map((entry) => entry.path),
+            truncated: Math.max(0, descendantEntries.length - MAX_LOGGED_DESCENDANTS)
+          }
+        : null
 
     // A deep-recency scan may collapse a settled tree to one directory item.
     // Recheck it after any audit enumeration and immediately before recursive
@@ -437,7 +466,13 @@ export async function cleanItems(
       if (logDeletions) {
         const ts = new Date().toISOString()
         const category = item.subcategory || item.category
-        const record: DeletedFileRecord = { ts, path: item.path, size: measuredSize, category, origin }
+        const record: DeletedFileRecord = {
+          ts,
+          path: item.path,
+          size: measuredSize,
+          category,
+          origin
+        }
         if (descendants && descendants.truncated > 0) record.truncated = descendants.truncated
         pending.push(record)
         // Descendants carry size 0: the bytes are already accounted for on the
@@ -455,7 +490,13 @@ export async function cleanItems(
       if (logDeletions) {
         const ts = new Date().toISOString()
         for (const entry of removed) {
-          pending.push({ ts, path: entry.path, size: entry.size, category: item.subcategory || item.category, origin })
+          pending.push({
+            ts,
+            path: entry.path,
+            size: entry.size,
+            category: item.subcategory || item.category,
+            origin
+          })
           if (pending.length >= 500) flushPending()
         }
       }
@@ -486,8 +527,9 @@ export async function cleanItems(
     const normalized = resolve(path)
     return process.platform === 'win32' ? normalized.toLowerCase() : normalized
   }
-  const ordered = items.map(item => ({ item, key: canonical(item.path) }))
-    .sort((a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0)
+  const ordered = items
+    .map((item) => ({ item, key: canonical(item.path) }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
   const itemGroups: ScanItem[][] = []
   const groupsByPath = new Map<string, ScanItem[]>()
   for (const { item, key } of ordered) {
@@ -594,7 +636,11 @@ function withheld(): ResolvedEntry {
 }
 
 /** Resolve the entries inside `dirPath`, honouring the cutoff at every depth. */
-async function resolveChildren(dirPath: string, ctx: RecencyScan, depth: number): Promise<ResolvedEntry> {
+async function resolveChildren(
+  dirPath: string,
+  ctx: RecencyScan,
+  depth: number
+): Promise<ResolvedEntry> {
   let entries: Dirent[]
   try {
     entries = await readdir(dirPath, { withFileTypes: true })
@@ -607,9 +653,16 @@ async function resolveChildren(dirPath: string, ctx: RecencyScan, depth: number)
   let size = 0
 
   for (const entry of entries) {
-    if (ctx.remaining <= 0) { complete = false; break }
+    if (ctx.remaining <= 0) {
+      complete = false
+      break
+    }
     const childPath = join(dirPath, entry.name)
-    if (isExcluded(childPath, ctx.exclusions)) { ctx.excluded = true; complete = false; continue }
+    if (isExcluded(childPath, ctx.exclusions)) {
+      ctx.excluded = true
+      complete = false
+      continue
+    }
 
     // Never descend a symlink — rm only unlinks the link, so what readdir would
     // list here is the target's contents, which this scan does not remove.
@@ -643,7 +696,11 @@ async function resolveEntry(
   if (!isDirectory) {
     if (stats.mtimeMs > ctx.cutoff) return withheld()
     ctx.remaining--
-    return { items: [{ path, size: stats.size, mtimeMs: stats.mtimeMs }], complete: true, size: stats.size }
+    return {
+      items: [{ path, size: stats.size, mtimeMs: stats.mtimeMs }],
+      complete: true,
+      size: stats.size
+    }
   }
 
   // Out of depth: the subtree can't be shown to be settled, so leave it alone.
@@ -655,21 +712,30 @@ async function resolveEntry(
   // Everything inside is settled, so collapse to one item and let a single
   // recursive delete take the lot — handing back the budget those children held.
   ctx.remaining += children.items.length - 1
-  return { items: [{ path, size: children.size, mtimeMs: stats.mtimeMs }], complete: true, size: children.size }
+  return {
+    items: [{ path, size: children.size, mtimeMs: stats.mtimeMs }],
+    complete: true,
+    size: children.size
+  }
 }
 
 /** Confirm that a retention-aware scan item is still settled at cleanup time. */
-async function revalidateRecencyItem(item: ScanItem, rootInfo: Stats): Promise<'excluded' | 'recently-modified' | null> {
+async function revalidateRecencyItem(
+  item: ScanItem,
+  rootInfo: Stats
+): Promise<'excluded' | 'recently-modified' | null> {
   if (isExcluded(item.path, getSettings().exclusions)) return 'excluded'
   if (rootInfo.isSymbolicLink()) return 'recently-modified'
-  if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff)) return 'recently-modified'
+  if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff))
+    return 'recently-modified'
   const cutoff = item.recencyCutoff ?? Infinity
-  if (!rootInfo.isDirectory()) return rootInfo.isFile() && rootInfo.mtimeMs <= cutoff ? null : 'recently-modified'
+  if (!rootInfo.isDirectory())
+    return rootInfo.isFile() && rootInfo.mtimeMs <= cutoff ? null : 'recently-modified'
 
   const ctx: RecencyScan = {
     cutoff,
     exclusions: getSettings().exclusions,
-    remaining: MAX_RECENCY_ITEMS,
+    remaining: MAX_RECENCY_ITEMS
   }
   const resolved = await resolveChildren(item.path, ctx, MAX_RECENCY_DEPTH)
   return resolved.complete ? null : ctx.excluded ? 'excluded' : 'recently-modified'
@@ -695,12 +761,28 @@ export async function scanDirectory(
     return { category, subcategory, items: [], totalSize: 0, itemCount: 0 }
   }
   // Descendant safety is mandatory, including for legacy callers passing false.
-  const resolved = await resolveChildren(dirPath, { cutoff, exclusions, remaining: MAX_RECENCY_ITEMS }, MAX_RECENCY_DEPTH)
-  const items: ScanItem[] = resolved.items.slice(0, MAX_RECENCY_ITEMS).map(item => ({
-    id: randomUUID(), path: item.path, size: item.size, category, subcategory,
-    lastModified: item.mtimeMs, selected: true, recencyCutoff: cutoff,
+  const resolved = await resolveChildren(
+    dirPath,
+    { cutoff, exclusions, remaining: MAX_RECENCY_ITEMS },
+    MAX_RECENCY_DEPTH
+  )
+  const items: ScanItem[] = resolved.items.slice(0, MAX_RECENCY_ITEMS).map((item) => ({
+    id: randomUUID(),
+    path: item.path,
+    size: item.size,
+    category,
+    subcategory,
+    lastModified: item.mtimeMs,
+    selected: true,
+    recencyCutoff: cutoff
   }))
-  return { category, subcategory, items, totalSize: items.reduce((sum, item) => sum + item.size, 0), itemCount: items.length }
+  return {
+    category,
+    subcategory,
+    items,
+    totalSize: items.reduce((sum, item) => sum + item.size, 0),
+    itemCount: items.length
+  }
 }
 
 /**
@@ -727,7 +809,7 @@ export async function scanMultipleDirectories(
     subcategory,
     items: allItems,
     totalSize,
-    itemCount: allItems.length,
+    itemCount: allItems.length
   }
 }
 
@@ -741,15 +823,16 @@ export async function scanMatchingFiles(
   basePaths: string[],
   match: DirectFileMatch,
   category: string,
-  subcategory: string,
+  subcategory: string
 ): Promise<ScanResult> {
   const items: ScanItem[] = []
   let totalSize = 0
   const cutoff = Date.now() - match.minAgeDays * 24 * 60 * 60 * 1000
   const exclusions = getSettings().exclusions
-  const normalize = process.platform === 'win32'
-    ? (name: string): string => name.toLowerCase()
-    : (name: string): string => name
+  const normalize =
+    process.platform === 'win32'
+      ? (name: string): string => name.toLowerCase()
+      : (name: string): string => name
   const names = new Set(match.names.map(normalize))
   const blockers = new Set((match.skipIfChildExists || []).map(normalize))
   const suffix = match.childDirSuffix ? normalize(match.childDirSuffix) : undefined
@@ -798,7 +881,7 @@ export async function scanMatchingFiles(
             category,
             subcategory,
             lastModified: stats.mtimeMs,
-            selected: true,
+            selected: true
           })
           totalSize += stats.size
         } catch {
@@ -817,10 +900,15 @@ export async function scanMatchingFiles(
 export async function scanAppRule(
   app: AppCacheDef,
   category: string,
-  options: { directoryItems?: boolean; group?: string } = {},
+  options: { directoryItems?: boolean; group?: string } = {}
 ): Promise<ScanResult> {
   if (app.cleanupAction) {
-    return (await import('./managed-cleanup')).scanManagedCleanup(app.cleanupAction, category, app.name, app.paths[0])
+    return (await import('./managed-cleanup')).scanManagedCleanup(
+      app.cleanupAction,
+      category,
+      app.name,
+      app.paths[0]
+    )
   }
   let result: ScanResult
   const group = options.group ?? app.group
@@ -836,7 +924,7 @@ export async function scanAppRule(
     } else {
       result = await scanMultipleDirectories(paths, category, app.name, {
         skipRecentMinutes: app.minAgeDays * 24 * 60,
-        deepRecencyCheck: true,
+        deepRecencyCheck: true
       })
     }
   }
@@ -858,7 +946,8 @@ export async function scanFile(
   try {
     const stats = await lstat(filePath)
     const configured = getSettings().cleaner.skipRecentMinutes ?? 60
-    const cutoff = Date.now() - (Number.isFinite(configured) ? Math.max(0, configured) : 60) * 60_000
+    const cutoff =
+      Date.now() - (Number.isFinite(configured) ? Math.max(0, configured) : 60) * 60_000
     if (!stats.isFile() || stats.isSymbolicLink() || stats.mtimeMs > cutoff) {
       return { category, subcategory, items: [], totalSize: 0, itemCount: 0 }
     }
@@ -893,20 +982,40 @@ export async function scanDirectoriesAsItems(
   const items: ScanItem[] = []
   const configured = getSettings().cleaner.skipRecentMinutes ?? 60
   const cutoff = Date.now() - (Number.isFinite(configured) ? Math.max(0, configured) : 60) * 60_000
-  const ctx: RecencyScan = { cutoff, exclusions: getSettings().exclusions, remaining: MAX_RECENCY_ITEMS }
+  const ctx: RecencyScan = {
+    cutoff,
+    exclusions: getSettings().exclusions,
+    remaining: MAX_RECENCY_ITEMS
+  }
   for (const dirPath of dirPaths) {
     if (isExcluded(dirPath, ctx.exclusions)) continue
     try {
       const root = await lstat(dirPath)
       if (!root.isDirectory() || root.isSymbolicLink()) continue
       const resolved = await resolveEntry(dirPath, true, ctx, MAX_RECENCY_DEPTH)
-      for (const item of resolved.items.filter(item => item.size >= 1024)) items.push({
-        id: randomUUID(), path: item.path, size: item.size, category, subcategory,
-        lastModified: item.mtimeMs, selected: true, recencyCutoff: cutoff,
-      })
-    } catch { /* Missing or inaccessible root. */ }
+      for (const item of resolved.items.filter((item) => item.size >= 1024))
+        items.push({
+          id: randomUUID(),
+          path: item.path,
+          size: item.size,
+          category,
+          subcategory,
+          lastModified: item.mtimeMs,
+          selected: true,
+          recencyCutoff: cutoff
+        })
+    } catch {
+      /* Missing or inaccessible root. */
+    }
   }
-  return { category, subcategory, group, items, totalSize: items.reduce((sum, item) => sum + item.size, 0), itemCount: items.length }
+  return {
+    category,
+    subcategory,
+    group,
+    items,
+    totalSize: items.reduce((sum, item) => sum + item.size, 0),
+    itemCount: items.length
+  }
 }
 
 /**
@@ -921,7 +1030,7 @@ export async function scanDirectoriesAsItems(
 export async function resolveChildSubdirs(
   paths: string[],
   childSubdir?: string,
-  recursiveMatch?: RecursivePathMatch,
+  recursiveMatch?: RecursivePathMatch
 ): Promise<string[]> {
   if (recursiveMatch) return resolveRecursivePathMatches(paths, recursiveMatch)
   if (!childSubdir) return paths
@@ -937,7 +1046,9 @@ export async function resolveChildSubdirs(
           if (existsSync(subPath)) resolved.push(subPath)
         }
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
   return resolved
 }
@@ -946,26 +1057,29 @@ const MAX_RECURSIVE_RULE_DIRECTORIES = 100_000
 const DEFAULT_RECURSIVE_RULE_DEPTH = 12
 
 function validDirectoryName(name: string): boolean {
-  return name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+  return (
+    name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+  )
 }
 
 function parseAnchorPath(
   pattern: string,
   anchor: string,
-  normalizeName: (name: string) => string,
+  normalizeName: (name: string) => string
 ): string[] | null {
   const segments = pattern.split('/')
   if (
-    segments.some((segment) => segment !== '*' && !validDirectoryName(segment))
-    || normalizeName(segments.at(-1) || '') !== anchor
-  ) return null
+    segments.some((segment) => segment !== '*' && !validDirectoryName(segment)) ||
+    normalizeName(segments.at(-1) || '') !== anchor
+  )
+    return null
   return segments
 }
 
 async function expandAnchorPaths(
   basePath: string,
   patterns: string[][],
-  budget: { visited: number },
+  budget: { visited: number }
 ): Promise<string[]> {
   const resolved = new Set<string>()
 
@@ -1015,20 +1129,24 @@ async function expandAnchorPaths(
 /** Resolve tightly scoped recursive cache rules without following links. */
 export async function resolveRecursivePathMatches(
   paths: string[],
-  match: RecursivePathMatch,
+  match: RecursivePathMatch
 ): Promise<string[]> {
   if (
-    !validDirectoryName(match.anchor)
-    || match.targets.some((target) => !validDirectoryName(target))
-    || (match.excludedAncestors || []).some((ancestor) => !validDirectoryName(ancestor))
-  ) return []
+    !validDirectoryName(match.anchor) ||
+    match.targets.some((target) => !validDirectoryName(target)) ||
+    (match.excludedAncestors || []).some((ancestor) => !validDirectoryName(ancestor))
+  )
+    return []
 
   const maxDepth = Math.min(32, Math.max(1, match.maxDepth ?? DEFAULT_RECURSIVE_RULE_DEPTH))
-  const normalizeName = process.platform === 'win32'
-    ? (name: string): string => name.toLowerCase()
-    : (name: string): string => name
+  const normalizeName =
+    process.platform === 'win32'
+      ? (name: string): string => name.toLowerCase()
+      : (name: string): string => name
   const anchor = normalizeName(match.anchor)
-  const anchorPaths = match.anchorPaths?.map((pattern) => parseAnchorPath(pattern, anchor, normalizeName))
+  const anchorPaths = match.anchorPaths?.map((pattern) =>
+    parseAnchorPath(pattern, anchor, normalizeName)
+  )
   if (anchorPaths?.some((pattern) => pattern === null)) return []
   const targets = new Set(match.targets.map(normalizeName))
   const excludedAncestors = new Set((match.excludedAncestors || []).map(normalizeName))
@@ -1040,7 +1158,11 @@ export async function resolveRecursivePathMatches(
     if (!existsSync(basePath)) continue
 
     if (anchorPaths) {
-      const expanded = await expandAnchorPaths(basePath, anchorPaths.filter((pattern): pattern is string[] => pattern !== null), budget)
+      const expanded = await expandAnchorPaths(
+        basePath,
+        anchorPaths.filter((pattern): pattern is string[] => pattern !== null),
+        budget
+      )
       for (const rootPath of expanded) {
         const key = process.platform === 'win32' ? rootPath.toLowerCase() : rootPath
         roots.set(key, { path: rootPath, belowAnchor: true })
@@ -1049,19 +1171,25 @@ export async function resolveRecursivePathMatches(
       const key = process.platform === 'win32' ? basePath.toLowerCase() : basePath
       roots.set(key, {
         path: basePath,
-        belowAnchor: normalizeName(basePath.split(/[\\/]/).pop() || '') === anchor,
+        belowAnchor: normalizeName(basePath.split(/[\\/]/).pop() || '') === anchor
       })
     }
   }
 
   for (const root of roots.values()) {
-    const queue: Array<{ path: string; depth: number; belowAnchor: boolean }> = [{
-      path: root.path,
-      depth: 0,
-      belowAnchor: root.belowAnchor,
-    }]
+    const queue: Array<{ path: string; depth: number; belowAnchor: boolean }> = [
+      {
+        path: root.path,
+        depth: 0,
+        belowAnchor: root.belowAnchor
+      }
+    ]
 
-    for (let index = 0; index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+    for (
+      let index = 0;
+      index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES;
+      index++
+    ) {
       const current = queue[index]
       budget.visited++
 

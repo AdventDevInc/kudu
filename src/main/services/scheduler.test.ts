@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 // Mock Electron and dependencies before importing
 vi.mock('electron', () => ({
   BrowserWindow: class {},
-  Notification: { isSupported: () => false },
+  Notification: { isSupported: () => false }
 }))
 vi.mock('./settings-store', () => ({ getSettings: () => ({}), setSettings: () => {} }))
 vi.mock('./history-store', () => ({ getHistory: () => [] }))
@@ -28,14 +28,14 @@ function makeSettings(
       skipRecentMinutes: 60,
       secureDelete: false,
       closeBrowsersBeforeClean: false,
-      createRestorePoint: false,
+      createRestorePoint: false
     },
     exclusions: [],
     schedule: {
       enabled: overrides.enabled ?? true,
       frequency: overrides.frequency ?? 'daily',
       day: overrides.day ?? 1,
-      hour: overrides.hour ?? 9,
+      hour: overrides.hour ?? 9
     },
     schedules: [],
     cloud: {
@@ -47,8 +47,8 @@ function makeSettings(
       allowRemotePower: false,
       allowRemoteCleanup: false,
       allowRemoteInstalls: false,
-      allowRemoteConfig: false,
-    },
+      allowRemoteConfig: false
+    }
   }
 }
 
@@ -183,9 +183,9 @@ describe('getNextScanTime', () => {
     vi.setSystemTime(new Date('2025-06-15T07:00:00')) // Sunday
     const settings = makeSettings({ enabled: false })
     settings.schedules = [
-      makeEntry({ frequency: 'daily', hour: 20 }),    // today at 20:00
-      makeEntry({ frequency: 'daily', hour: 10 }),    // today at 10:00 (soonest)
-      makeEntry({ frequency: 'weekly', day: 3, hour: 9 }),  // Wed at 9:00
+      makeEntry({ frequency: 'daily', hour: 20 }), // today at 20:00
+      makeEntry({ frequency: 'daily', hour: 10 }), // today at 10:00 (soonest)
+      makeEntry({ frequency: 'weekly', day: 3, hour: 9 }) // Wed at 9:00
     ]
     const result = getNextScanTime(settings)!
     expect(result.getHours()).toBe(10)
@@ -209,7 +209,7 @@ function makeEntry(overrides: Partial<ScheduleEntry> = {}): ScheduleEntry {
     lastRunAt: null,
     lastRunStatus: 'never',
     createdAt: new Date().toISOString(),
-    ...overrides,
+    ...overrides
   }
 }
 

@@ -7,7 +7,41 @@ on:
     branches: [main]
 
 jobs:
+  # Fast, platform-independent checks. Runs once and fails early so
+  # contributors get feedback before the 3-OS build matrix finishes.
+  lint:
+    name: Lint
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Validate cleaner rules
+        run: npm run validate:rules
+
   build:
+    name: Build & test (${{ matrix.os }})
     permissions:
       contents: read
     strategy:
@@ -24,14 +58,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Validate cleaner rules
-        run: npm run validate:rules
 
       - name: Test
         run: npm test

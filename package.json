@@ -14,6 +14,12 @@
     "package:all": "electron-vite build && electron-builder --win --mac --linux",
     "test": "vitest run",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run validate:rules && npm test",
     "validate:rules": "npx tsx src/main/rules/validate.ts",
     "new-rule": "node scripts/new-rule.js",
     "find-cache": "node scripts/find-cache.js",
@@ -38,6 +44,9 @@
     "email": "kudu@users.noreply.github.com"
   },
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/adventdevinc/kudu.git"
@@ -51,6 +60,7 @@
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@electron/rebuild": "^4.2.0",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/better-sqlite3": "^7.6.13",
     "@types/react": "^19.2.18",
@@ -62,11 +72,18 @@
     "electron": "^41.10.5",
     "electron-builder": "^26.15.3",
     "electron-vite": "^5.0.0",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
     "patch-package": "^8.0.1",
+    "prettier": "^3.9.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"
   },

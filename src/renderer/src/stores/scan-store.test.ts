@@ -8,7 +8,7 @@ const storage = new Map<string, string>()
 vi.stubGlobal('localStorage', {
   getItem: (key: string) => storage.get(key) ?? null,
   setItem: (key: string, val: string) => storage.set(key, val),
-  removeItem: (key: string) => storage.delete(key),
+  removeItem: (key: string) => storage.delete(key)
 })
 
 function makeResult(
@@ -25,10 +25,10 @@ function makeResult(
       category,
       subcategory,
       lastModified: Date.now(),
-      selected: true,
+      selected: true
     })),
     totalSize: items.reduce((s, i) => s + i.size, 0),
-    itemCount: items.length,
+    itemCount: items.length
   }
 }
 
@@ -61,8 +61,8 @@ describe('scan-store', () => {
     const results = [
       makeResult('system', 'temp', [
         { id: 'a', size: 100 },
-        { id: 'b', size: 200 },
-      ]),
+        { id: 'b', size: 200 }
+      ])
     ]
     useScanStore.getState().setResults(results)
     const state = useScanStore.getState()
@@ -91,7 +91,7 @@ describe('scan-store', () => {
   it('toggleSubcategory deselects all when all selected, selects all when some deselected', () => {
     const result = makeResult('system', 'temp', [
       { id: 'a', size: 100 },
-      { id: 'b', size: 200 },
+      { id: 'b', size: 200 }
     ])
     useScanStore.getState().setResults([result])
     // All selected → toggle deselects all
@@ -105,10 +105,12 @@ describe('scan-store', () => {
   })
 
   it('selectAll / deselectAll works per category', () => {
-    useScanStore.getState().setResults([
-      makeResult('system', 'temp', [{ id: 'a', size: 100 }]),
-      makeResult('browser', 'chrome', [{ id: 'b', size: 200 }]),
-    ])
+    useScanStore
+      .getState()
+      .setResults([
+        makeResult('system', 'temp', [{ id: 'a', size: 100 }]),
+        makeResult('browser', 'chrome', [{ id: 'b', size: 200 }])
+      ])
     useScanStore.getState().deselectAll('system')
     expect(useScanStore.getState().selectedItems.has('a')).toBe(false)
     expect(useScanStore.getState().selectedItems.has('b')).toBe(true)
@@ -117,10 +119,12 @@ describe('scan-store', () => {
   })
 
   it('toggleCategory toggles all items in a category', () => {
-    useScanStore.getState().setResults([
-      makeResult('system', 'temp', [{ id: 'a', size: 100 }]),
-      makeResult('system', 'logs', [{ id: 'b', size: 200 }]),
-    ])
+    useScanStore
+      .getState()
+      .setResults([
+        makeResult('system', 'temp', [{ id: 'a', size: 100 }]),
+        makeResult('system', 'logs', [{ id: 'b', size: 200 }])
+      ])
     // All selected → deselect all
     useScanStore.getState().toggleCategory('system')
     expect(useScanStore.getState().selectedItems.has('a')).toBe(false)
@@ -132,10 +136,12 @@ describe('scan-store', () => {
   })
 
   it('getTotalSize sums all result sizes', () => {
-    useScanStore.getState().setResults([
-      makeResult('system', 'temp', [{ id: 'a', size: 100 }]),
-      makeResult('system', 'logs', [{ id: 'b', size: 200 }]),
-    ])
+    useScanStore
+      .getState()
+      .setResults([
+        makeResult('system', 'temp', [{ id: 'a', size: 100 }]),
+        makeResult('system', 'logs', [{ id: 'b', size: 200 }])
+      ])
     expect(useScanStore.getState().getTotalSize()).toBe(300)
   })
 
@@ -143,8 +149,8 @@ describe('scan-store', () => {
     useScanStore.getState().setResults([
       makeResult('system', 'temp', [
         { id: 'a', size: 100 },
-        { id: 'b', size: 200 },
-      ]),
+        { id: 'b', size: 200 }
+      ])
     ])
     useScanStore.getState().toggleItem('a')
     expect(useScanStore.getState().getSelectedSize()).toBe(200)
@@ -154,8 +160,8 @@ describe('scan-store', () => {
     useScanStore.getState().setResults([
       makeResult('system', 'temp', [
         { id: 'a', size: 100 },
-        { id: 'b', size: 200 },
-      ]),
+        { id: 'b', size: 200 }
+      ])
     ])
     const ids = useScanStore.getState().getSelectedIds()
     expect(ids.sort()).toEqual(['a', 'b'])

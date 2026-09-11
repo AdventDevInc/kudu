@@ -2,14 +2,44 @@ import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
-  History, Sparkles, Database, PackageMinus, Trash2, Info,
-  TrendingUp, HardDrive, BarChart3, Clock, AlertCircle, Wifi, Cpu,
-  ShieldCheck, Bug, Zap, Settings2, RefreshCw, Cloud, CheckCircle2, XCircle,
-  FileText, Download, FolderOpen
+  History,
+  Sparkles,
+  Database,
+  PackageMinus,
+  Trash2,
+  Info,
+  TrendingUp,
+  HardDrive,
+  BarChart3,
+  Clock,
+  AlertCircle,
+  Wifi,
+  Cpu,
+  ShieldCheck,
+  Bug,
+  Zap,
+  Settings2,
+  RefreshCw,
+  Cloud,
+  CheckCircle2,
+  XCircle,
+  FileText,
+  Download,
+  FolderOpen
 } from 'lucide-react'
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid
 } from 'recharts'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -18,26 +48,92 @@ import { useHistoryStore } from '@/stores/history-store'
 import { useCloudHistoryStore } from '@/stores/cloud-history-store'
 import { formatBytes } from '@/lib/utils'
 import { usePlatform } from '@/hooks/usePlatform'
-import type { ScanHistoryEntry, HistoryEntryType, CloudActionEntry, DeletedFileRecord } from '@shared/types'
+import type {
+  ScanHistoryEntry,
+  HistoryEntryType,
+  CloudActionEntry,
+  DeletedFileRecord
+} from '@shared/types'
 
-const typeConfigBase: Record<HistoryEntryType, { labelKey: string; icon: typeof Sparkles; color: string; bg: string }> = {
-  cleaner: { labelKey: 'typeLabels.cleaner', icon: Sparkles, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
-  registry: { labelKey: 'typeLabels.registry', icon: Database, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
-  debloater: { labelKey: 'typeLabels.debloater', icon: PackageMinus, color: '#a855f7', bg: 'rgba(168,85,247,0.1)' },
-  network: { labelKey: 'typeLabels.network', icon: Wifi, color: '#22c55e', bg: 'rgba(34,197,94,0.1)' },
-  drivers: { labelKey: 'typeLabels.drivers', icon: Cpu, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
-  malware: { labelKey: 'typeLabels.malware', icon: Bug, color: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
-  privacy: { labelKey: 'typeLabels.privacy', icon: ShieldCheck, color: '#14b8a6', bg: 'rgba(20,184,166,0.1)' },
-  startup: { labelKey: 'typeLabels.startup', icon: Zap, color: '#f97316', bg: 'rgba(249,115,22,0.1)' },
-  services: { labelKey: 'typeLabels.services', icon: Settings2, color: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
-  'software-update': { labelKey: 'typeLabels.softwareUpdate', icon: RefreshCw, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
-  'cve-scan': { labelKey: 'typeLabels.cveScan', icon: Bug, color: '#dc2626', bg: 'rgba(220,38,38,0.1)' }
+const typeConfigBase: Record<
+  HistoryEntryType,
+  { labelKey: string; icon: typeof Sparkles; color: string; bg: string }
+> = {
+  cleaner: {
+    labelKey: 'typeLabels.cleaner',
+    icon: Sparkles,
+    color: '#f59e0b',
+    bg: 'rgba(245,158,11,0.1)'
+  },
+  registry: {
+    labelKey: 'typeLabels.registry',
+    icon: Database,
+    color: '#3b82f6',
+    bg: 'rgba(59,130,246,0.1)'
+  },
+  debloater: {
+    labelKey: 'typeLabels.debloater',
+    icon: PackageMinus,
+    color: '#a855f7',
+    bg: 'rgba(168,85,247,0.1)'
+  },
+  network: {
+    labelKey: 'typeLabels.network',
+    icon: Wifi,
+    color: '#22c55e',
+    bg: 'rgba(34,197,94,0.1)'
+  },
+  drivers: {
+    labelKey: 'typeLabels.drivers',
+    icon: Cpu,
+    color: '#8b5cf6',
+    bg: 'rgba(139,92,246,0.1)'
+  },
+  malware: {
+    labelKey: 'typeLabels.malware',
+    icon: Bug,
+    color: '#ef4444',
+    bg: 'rgba(239,68,68,0.1)'
+  },
+  privacy: {
+    labelKey: 'typeLabels.privacy',
+    icon: ShieldCheck,
+    color: '#14b8a6',
+    bg: 'rgba(20,184,166,0.1)'
+  },
+  startup: {
+    labelKey: 'typeLabels.startup',
+    icon: Zap,
+    color: '#f97316',
+    bg: 'rgba(249,115,22,0.1)'
+  },
+  services: {
+    labelKey: 'typeLabels.services',
+    icon: Settings2,
+    color: '#6366f1',
+    bg: 'rgba(99,102,241,0.1)'
+  },
+  'software-update': {
+    labelKey: 'typeLabels.softwareUpdate',
+    icon: RefreshCw,
+    color: '#06b6d4',
+    bg: 'rgba(6,182,212,0.1)'
+  },
+  'cve-scan': {
+    labelKey: 'typeLabels.cveScan',
+    icon: Bug,
+    color: '#dc2626',
+    bg: 'rgba(220,38,38,0.1)'
+  }
 }
 
 function useTypeConfig() {
   const { t } = useTranslation('history')
   return useMemo(() => {
-    const result = {} as Record<HistoryEntryType, { label: string; icon: typeof Sparkles; color: string; bg: string }>
+    const result = {} as Record<
+      HistoryEntryType,
+      { label: string; icon: typeof Sparkles; color: string; bg: string }
+    >
     for (const [key, val] of Object.entries(typeConfigBase)) {
       result[key as HistoryEntryType] = { ...val, label: t(val.labelKey) }
     }
@@ -45,7 +141,16 @@ function useTypeConfig() {
   }, [t])
 }
 
-const PIE_COLORS = ['#f59e0b', '#3b82f6', '#22c55e', '#a855f7', '#ec4899', '#14b8a6', '#ef4444', '#6366f1']
+const PIE_COLORS = [
+  '#f59e0b',
+  '#3b82f6',
+  '#22c55e',
+  '#a855f7',
+  '#ec4899',
+  '#14b8a6',
+  '#ef4444',
+  '#6366f1'
+]
 
 type ViewMode = 'overview' | 'timeline' | 'cloud'
 
@@ -54,16 +159,24 @@ export function HistoryPage() {
   const typeConfig = useTypeConfig()
   const { features } = usePlatform()
   const { entries, loaded, load, clear } = useHistoryStore()
-  const { entries: cloudEntries, loaded: cloudLoaded, load: loadCloud, clear: clearCloud } = useCloudHistoryStore()
+  const {
+    entries: cloudEntries,
+    loaded: cloudLoaded,
+    load: loadCloud,
+    clear: clearCloud
+  } = useCloudHistoryStore()
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [selectedEntry, setSelectedEntry] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>('overview')
   const [typeFilter, setTypeFilter] = useState<'all' | ScanHistoryEntry['type']>('all')
 
-  useEffect(() => { load(); loadCloud() }, [])
+  useEffect(() => {
+    load()
+    loadCloud()
+  }, [])
 
-  const filtered = useMemo(() =>
-    typeFilter === 'all' ? entries : entries.filter((e) => e.type === typeFilter),
+  const filtered = useMemo(
+    () => (typeFilter === 'all' ? entries : entries.filter((e) => e.type === typeFilter)),
     [entries, typeFilter]
   )
 
@@ -72,9 +185,8 @@ export function HistoryPage() {
     const totalSpace = entries.reduce((s, e) => s + e.totalSpaceSaved, 0)
     const totalItems = entries.reduce((s, e) => s + e.totalItemsCleaned, 0)
     const totalErrors = entries.reduce((s, e) => s + e.errorCount, 0)
-    const avgDuration = entries.length > 0
-      ? entries.reduce((s, e) => s + e.duration, 0) / entries.length
-      : 0
+    const avgDuration =
+      entries.length > 0 ? entries.reduce((s, e) => s + e.duration, 0) / entries.length : 0
     return { totalSpace, totalItems, totalErrors, avgDuration, totalScans: entries.length }
   }, [entries])
 
@@ -82,7 +194,10 @@ export function HistoryPage() {
   const timelineData = useMemo(() => {
     const byDay: Record<string, { space: number; items: number }> = {}
     for (const e of filtered) {
-      const key = new Date(e.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      const key = new Date(e.timestamp).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric'
+      })
       if (!byDay[key]) byDay[key] = { space: 0, items: 0 }
       byDay[key].space += e.totalSpaceSaved
       byDay[key].items += e.totalItemsCleaned
@@ -164,12 +279,16 @@ export function HistoryPage() {
         action={
           <div className="flex items-center gap-2.5">
             {/* View mode toggle */}
-            <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-medium)' }}>
+            <div
+              className="flex rounded-xl overflow-hidden"
+              style={{ border: '1px solid var(--border-medium)' }}
+            >
               <button
                 onClick={() => setViewMode('overview')}
                 className="px-4 py-2 text-[12px] font-medium transition-colors"
                 style={{
-                  background: viewMode === 'overview' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
+                  background:
+                    viewMode === 'overview' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
                   color: viewMode === 'overview' ? 'var(--accent)' : 'var(--text-muted)'
                 }}
               >
@@ -179,7 +298,8 @@ export function HistoryPage() {
                 onClick={() => setViewMode('timeline')}
                 className="px-4 py-2 text-[12px] font-medium transition-colors"
                 style={{
-                  background: viewMode === 'timeline' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
+                  background:
+                    viewMode === 'timeline' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
                   color: viewMode === 'timeline' ? 'var(--accent)' : 'var(--text-muted)'
                 }}
               >
@@ -234,14 +354,19 @@ export function HistoryPage() {
       <ConfirmDialog
         open={showClearConfirm}
         onConfirm={() => {
-          if (viewMode === 'cloud') { clearCloud() } else { clear() }
+          if (viewMode === 'cloud') {
+            clearCloud()
+          } else {
+            clear()
+          }
           setShowClearConfirm(false)
         }}
         onCancel={() => setShowClearConfirm(false)}
         title={viewMode === 'cloud' ? t('confirmClearCloudTitle') : t('confirmClearScanTitle')}
-        description={viewMode === 'cloud'
-          ? t('confirmClearCloudDescription')
-          : t('confirmClearScanDescription')
+        description={
+          viewMode === 'cloud'
+            ? t('confirmClearCloudDescription')
+            : t('confirmClearScanDescription')
         }
         confirmLabel={t('confirmClearLabel')}
         variant="danger"
@@ -261,30 +386,65 @@ function OverviewView({
   entries,
   typeConfig
 }: {
-  stats: { totalSpace: number; totalItems: number; totalErrors: number; avgDuration: number; totalScans: number }
+  stats: {
+    totalSpace: number
+    totalItems: number
+    totalErrors: number
+    avgDuration: number
+    totalScans: number
+  }
   timelineData: { date: string; space: number; items: number }[]
   typeBreakdown: { name: string; count: number; space: number; items: number }[]
   categoryBreakdown: { name: string; items: number; space: number }[]
   weeklyData: { week: string; space: number; items: number; count: number }[]
   entries: ScanHistoryEntry[]
-  typeConfig: Record<HistoryEntryType, { label: string; icon: typeof Sparkles; color: string; bg: string }>
+  typeConfig: Record<
+    HistoryEntryType,
+    { label: string; icon: typeof Sparkles; color: string; bg: string }
+  >
 }) {
   const { t } = useTranslation('history')
   return (
     <>
       {/* Summary stat cards */}
       <div className="mb-5 grid grid-cols-4 gap-3">
-        <MiniStat icon={BarChart3} label={t('overview.totalScans')} value={stats.totalScans.toString()} color="#f59e0b" />
-        <MiniStat icon={HardDrive} label={t('overview.spaceRecovered')} value={formatBytes(stats.totalSpace)} color="#22c55e" />
-        <MiniStat icon={TrendingUp} label={t('overview.itemsProcessed')} value={stats.totalItems.toLocaleString()} color="#3b82f6" />
-        <MiniStat icon={Clock} label={t('overview.avgDuration')} value={formatDuration(stats.avgDuration, t)} color="#a855f7" />
+        <MiniStat
+          icon={BarChart3}
+          label={t('overview.totalScans')}
+          value={stats.totalScans.toString()}
+          color="#f59e0b"
+        />
+        <MiniStat
+          icon={HardDrive}
+          label={t('overview.spaceRecovered')}
+          value={formatBytes(stats.totalSpace)}
+          color="#22c55e"
+        />
+        <MiniStat
+          icon={TrendingUp}
+          label={t('overview.itemsProcessed')}
+          value={stats.totalItems.toLocaleString()}
+          color="#3b82f6"
+        />
+        <MiniStat
+          icon={Clock}
+          label={t('overview.avgDuration')}
+          value={formatDuration(stats.avgDuration, t)}
+          color="#a855f7"
+        />
       </div>
 
       {/* Charts row 1 — Area chart + Pie chart */}
       <div className="mb-5 grid grid-cols-3 gap-4">
         {/* Space saved over time */}
-        <div className="col-span-2 rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="col-span-2 rounded-2xl p-5"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+        >
+          <h3
+            className="mb-4 text-[12px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {t('overview.spaceRecoveredOverTime')}
           </h3>
           {timelineData.length > 1 ? (
@@ -297,28 +457,59 @@ function OverviewView({
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
-                <XAxis dataKey="date" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false}
-                  tickFormatter={(v) => formatBytes(v, 0)} width={60} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => formatBytes(v, 0)}
+                  width={60}
+                />
                 <Tooltip
-                  contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
+                  contentStyle={{
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-stronger)',
+                    borderRadius: 12,
+                    fontSize: 12
+                  }}
                   labelStyle={{ color: 'var(--text-secondary)' }}
                   formatter={(value) => [formatBytes(Number(value)), t('overview.tooltipSpace')]}
                 />
-                <Area type="monotone" dataKey="space" stroke="#f59e0b" strokeWidth={2}
-                  fill="url(#spaceGrad)" dot={false} activeDot={{ r: 4, fill: '#f59e0b' }} />
+                <Area
+                  type="monotone"
+                  dataKey="space"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  fill="url(#spaceGrad)"
+                  dot={false}
+                  activeDot={{ r: 4, fill: '#f59e0b' }}
+                />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            <div
+              className="flex h-[220px] items-center justify-center text-[13px]"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('overview.needTwoScansForChart')}
             </div>
           )}
         </div>
 
         {/* Scan type distribution */}
-        <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="rounded-2xl p-5"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+        >
+          <h3
+            className="mb-4 text-[12px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {t('overview.scanTypeDistribution')}
           </h3>
           {typeBreakdown.length > 0 ? (
@@ -327,8 +518,10 @@ function OverviewView({
                 <PieChart>
                   <Pie
                     data={typeBreakdown}
-                    cx="50%" cy="50%"
-                    innerRadius={40} outerRadius={60}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={60}
                     dataKey="count"
                     stroke="none"
                   >
@@ -337,7 +530,12 @@ function OverviewView({
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
+                    contentStyle={{
+                      background: 'var(--card-bg)',
+                      border: '1px solid var(--border-stronger)',
+                      borderRadius: 12,
+                      fontSize: 12
+                    }}
                     formatter={(value) => [Number(value), t('overview.tooltipScans')]}
                   />
                 </PieChart>
@@ -345,15 +543,23 @@ function OverviewView({
               <div className="mt-2 space-y-1.5">
                 {typeBreakdown.map((item, i) => (
                   <div key={item.name} className="flex items-center gap-2">
-                    <div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                    <div
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
+                    />
                     <span className="flex-1 text-[12px] text-zinc-400">{item.name}</span>
-                    <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{item.count}</span>
+                    <span className="font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                      {item.count}
+                    </span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
-            <div className="flex h-[200px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            <div
+              className="flex h-[200px] items-center justify-center text-[13px]"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('overview.noData')}
             </div>
           )}
@@ -363,20 +569,42 @@ function OverviewView({
       {/* Charts row 2 — Bar charts */}
       <div className="mb-5 grid grid-cols-2 gap-4">
         {/* Category breakdown */}
-        <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="rounded-2xl p-5"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+        >
+          <h3
+            className="mb-4 text-[12px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {t('overview.topCategoriesBySpace')}
           </h3>
           {categoryBreakdown.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={categoryBreakdown} layout="vertical" barSize={14}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" horizontal={false} />
-                <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false}
-                  tickFormatter={(v) => formatBytes(v, 0)} />
-                <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} axisLine={false}
-                  tickLine={false} width={90} />
+                <XAxis
+                  type="number"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => formatBytes(v, 0)}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={90}
+                />
                 <Tooltip
-                  contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
+                  contentStyle={{
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-stronger)',
+                    borderRadius: 12,
+                    fontSize: 12
+                  }}
                   formatter={(value) => [formatBytes(Number(value)), t('overview.tooltipSpace')]}
                 />
                 <Bar dataKey="space" radius={[0, 6, 6, 0]}>
@@ -387,25 +615,48 @@ function OverviewView({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            <div
+              className="flex h-[220px] items-center justify-center text-[13px]"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('overview.noCategoryData')}
             </div>
           )}
         </div>
 
         {/* Weekly trend */}
-        <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-          <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="rounded-2xl p-5"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+        >
+          <h3
+            className="mb-4 text-[12px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
             {t('overview.weeklyActivity')}
           </h3>
           {weeklyData.length > 1 ? (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={weeklyData} barSize={20}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--grid-line)" />
-                <XAxis dataKey="week" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <XAxis
+                  dataKey="week"
+                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
                 <Tooltip
-                  contentStyle={{ background: 'var(--card-bg)', border: '1px solid var(--border-stronger)', borderRadius: 12, fontSize: 12 }}
+                  contentStyle={{
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-stronger)',
+                    borderRadius: 12,
+                    fontSize: 12
+                  }}
                   labelStyle={{ color: 'var(--text-secondary)' }}
                   formatter={(value, name) => [
                     name === 'count' ? Number(value) : formatBytes(Number(value)),
@@ -416,7 +667,10 @@ function OverviewView({
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[220px] items-center justify-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            <div
+              className="flex h-[220px] items-center justify-center text-[13px]"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('overview.needTwoWeeksData')}
             </div>
           )}
@@ -424,8 +678,14 @@ function OverviewView({
       </div>
 
       {/* Recent 5 scans summary */}
-      <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-        <h3 className="mb-4 text-[12px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+      <div
+        className="rounded-2xl p-5"
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+      >
+        <h3
+          className="mb-4 text-[12px] font-medium uppercase tracking-wider"
+          style={{ color: 'var(--text-muted)' }}
+        >
           {t('overview.recentScans')}
         </h3>
         <div className="space-y-2">
@@ -453,17 +713,26 @@ function TimelineView({
   setTypeFilter: (f: 'all' | ScanHistoryEntry['type']) => void
   selectedEntry: string | null
   setSelectedEntry: (id: string | null) => void
-  typeConfig: Record<HistoryEntryType, { label: string; icon: typeof Sparkles; color: string; bg: string }>
+  typeConfig: Record<
+    HistoryEntryType,
+    { label: string; icon: typeof Sparkles; color: string; bg: string }
+  >
 }) {
   const { t } = useTranslation('history')
   const { features } = usePlatform()
   const filters: { label: string; value: 'all' | ScanHistoryEntry['type'] }[] = [
     { label: t('timeline.filterAll'), value: 'all' },
     { label: t('timeline.filterCleaner'), value: 'cleaner' },
-    ...(features.registry ? [{ label: t('timeline.filterRegistry'), value: 'registry' as const }] : []),
-    ...(features.debloater ? [{ label: t('timeline.filterDebloater'), value: 'debloater' as const }] : []),
+    ...(features.registry
+      ? [{ label: t('timeline.filterRegistry'), value: 'registry' as const }]
+      : []),
+    ...(features.debloater
+      ? [{ label: t('timeline.filterDebloater'), value: 'debloater' as const }]
+      : []),
     { label: t('timeline.filterNetwork'), value: 'network' },
-    ...(features.drivers ? [{ label: t('timeline.filterDrivers'), value: 'drivers' as const }] : []),
+    ...(features.drivers
+      ? [{ label: t('timeline.filterDrivers'), value: 'drivers' as const }]
+      : []),
     { label: t('timeline.filterMalware'), value: 'malware' },
     { label: t('timeline.filterPrivacy'), value: 'privacy' },
     { label: t('timeline.filterStartup'), value: 'startup' },
@@ -496,16 +765,49 @@ function TimelineView({
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+      <div
+        className="overflow-hidden rounded-2xl"
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+      >
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-medium)' }}>
-              <th className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnType')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnDate')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnItems')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnSpace')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnDuration')}</th>
-              <th className="px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('timeline.columnStatus')}</th>
+              <th
+                className="px-5 py-3 text-left text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('timeline.columnType')}
+              </th>
+              <th
+                className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('timeline.columnDate')}
+              </th>
+              <th
+                className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('timeline.columnItems')}
+              </th>
+              <th
+                className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('timeline.columnSpace')}
+              </th>
+              <th
+                className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('timeline.columnDuration')}
+              </th>
+              <th
+                className="px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('timeline.columnStatus')}
+              </th>
               <th className="w-10 px-4 py-3" />
             </tr>
           </thead>
@@ -519,49 +821,89 @@ function TimelineView({
                   className="cursor-pointer transition-colors"
                   style={{ borderBottom: '1px solid var(--bg-subtle)' }}
                   onClick={() => setSelectedEntry(entry.id)}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--bg-subtle)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                  }}
                 >
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg" style={{ background: config.bg }}>
-                        <Icon className="h-3.5 w-3.5" style={{ color: config.color }} strokeWidth={1.8} />
+                      <div
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                        style={{ background: config.bg }}
+                      >
+                        <Icon
+                          className="h-3.5 w-3.5"
+                          style={{ color: config.color }}
+                          strokeWidth={1.8}
+                        />
                       </div>
-                      <span className="text-[12.5px] font-medium text-zinc-200">{config.label}</span>
+                      <span className="text-[12.5px] font-medium text-zinc-200">
+                        {config.label}
+                      </span>
                       {entry.scheduled && (
-                        <span className="rounded-full px-1.5 py-0.5 text-[9px] font-medium" style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}>
+                        <span
+                          className="rounded-full px-1.5 py-0.5 text-[9px] font-medium"
+                          style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}
+                        >
                           {t('timeline.scheduledBadge')}
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                    {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(entry.timestamp).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                     <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(entry.timestamp).toLocaleTimeString(undefined, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-[12px] text-zinc-300">
                     {entry.totalItemsCleaned.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: entry.totalSpaceSaved > 0 ? '#22c55e' : 'var(--text-muted)' }}>
+                  <td
+                    className="px-4 py-3 text-right font-mono text-[12px]"
+                    style={{ color: entry.totalSpaceSaved > 0 ? '#22c55e' : 'var(--text-muted)' }}
+                  >
                     {entry.totalSpaceSaved > 0 ? formatBytes(entry.totalSpaceSaved) : '—'}
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                  <td
+                    className="px-4 py-3 text-right font-mono text-[12px]"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     {formatDuration(entry.duration, t)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     {entry.errorCount > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                        style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
+                      >
                         <AlertCircle className="h-3 w-3" strokeWidth={2} />
                         {entry.errorCount}
                       </span>
                     ) : (
-                      <CheckCircle2 className="inline h-4 w-4" style={{ color: '#22c55e' }} strokeWidth={1.8} />
+                      <CheckCircle2
+                        className="inline h-4 w-4"
+                        style={{ color: '#22c55e' }}
+                        strokeWidth={1.8}
+                      />
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Info className="inline h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
+                    <Info
+                      className="inline h-3.5 w-3.5"
+                      style={{ color: 'var(--text-muted)' }}
+                      strokeWidth={1.8}
+                    />
                   </td>
                 </tr>
               )
@@ -592,50 +934,101 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+        onClick={onClose}
+      />
       <div
         className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto animate-scale-in rounded-2xl p-6"
-        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+        style={{
+          background: 'var(--card-bg)',
+          border: '1px solid var(--border-medium)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5)'
+        }}
       >
         {/* Header */}
         <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: config.bg }}>
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: config.bg }}
+          >
             <Icon className="h-5 w-5" style={{ color: config.color }} strokeWidth={1.8} />
           </div>
           <div className="flex-1">
             <h3 className="text-[15px] font-semibold text-white">{config.label}</h3>
             <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-              {new Date(entry.timestamp).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+              {new Date(entry.timestamp).toLocaleDateString(undefined, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
               {' ' + t('timeline.dateAt') + ' '}
-              {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-              {entry.scheduled && <span className="ml-2 rounded-full px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}>{t('detail.scheduledBadge')}</span>}
+              {new Date(entry.timestamp).toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+              {entry.scheduled && (
+                <span
+                  className="ml-2 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                  style={{ background: 'rgba(99,102,241,0.1)', color: '#818cf8' }}
+                >
+                  {t('detail.scheduledBadge')}
+                </span>
+              )}
             </p>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover-2)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-hover-2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+            }}
+          >
             <XCircle className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </div>
 
         {/* Stats grid */}
         <div className="mb-5 grid grid-cols-4 gap-2.5">
-          <DetailStat label={t('detail.statFound')} value={entry.totalItemsFound.toLocaleString()} />
-          <DetailStat label={t('detail.statProcessed')} value={entry.totalItemsCleaned.toLocaleString()} />
-          <DetailStat label={t('detail.statSkipped')} value={entry.totalItemsSkipped.toLocaleString()} />
-          <DetailStat label={t('detail.statSpaceSaved')} value={entry.totalSpaceSaved > 0 ? formatBytes(entry.totalSpaceSaved) : '—'} />
+          <DetailStat
+            label={t('detail.statFound')}
+            value={entry.totalItemsFound.toLocaleString()}
+          />
+          <DetailStat
+            label={t('detail.statProcessed')}
+            value={entry.totalItemsCleaned.toLocaleString()}
+          />
+          <DetailStat
+            label={t('detail.statSkipped')}
+            value={entry.totalItemsSkipped.toLocaleString()}
+          />
+          <DetailStat
+            label={t('detail.statSpaceSaved')}
+            value={entry.totalSpaceSaved > 0 ? formatBytes(entry.totalSpaceSaved) : '—'}
+          />
         </div>
 
         {/* Duration & errors */}
         <div className="mb-5 flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+          <div
+            className="flex items-center gap-1.5 text-[12px]"
+            style={{ color: 'var(--text-muted)' }}
+          >
             <Clock className="h-3.5 w-3.5" strokeWidth={1.6} />
             {formatDuration(entry.duration, t)}
           </div>
           {entry.errorCount > 0 && (
             <div className="flex items-center gap-1.5 text-[12px]" style={{ color: '#ef4444' }}>
               <AlertCircle className="h-3.5 w-3.5" strokeWidth={1.8} />
-              {entry.errorCount !== 1 ? t('detail.errorCountPlural', { count: entry.errorCount }) : t('detail.errorCount', { count: entry.errorCount })}
+              {entry.errorCount !== 1
+                ? t('detail.errorCountPlural', { count: entry.errorCount })
+                : t('detail.errorCount', { count: entry.errorCount })}
             </div>
           )}
         </div>
@@ -643,22 +1036,50 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
         {/* Category breakdown */}
         {entry.categories.length > 0 && (
           <div>
-            <h4 className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            <h4
+              className="mb-3 text-[11px] font-medium uppercase tracking-wider"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('detail.categoriesLabel')}
             </h4>
-            <div className="space-y-2 max-h-48 overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin' }}>
+            <div
+              className="space-y-2 max-h-48 overflow-y-auto pr-1"
+              style={{ scrollbarWidth: 'thin' }}
+            >
               {entry.categories.map((cat, i) => {
                 const maxItems = Math.max(...entry.categories.map((c) => c.itemsCleaned), 1)
                 const percent = (cat.itemsCleaned / maxItems) * 100
                 return (
                   <div key={cat.name} className="flex items-center gap-3">
-                    <span className="w-24 shrink-0 truncate text-[12px] capitalize text-zinc-400">{cat.name}</span>
-                    <div className="flex-1 h-[6px] rounded-full overflow-hidden" style={{ background: 'var(--bg-subtle-2)' }}>
-                      <div className="h-full rounded-full" style={{ width: `${percent}%`, background: PIE_COLORS[i % PIE_COLORS.length], opacity: 0.8 }} />
+                    <span className="w-24 shrink-0 truncate text-[12px] capitalize text-zinc-400">
+                      {cat.name}
+                    </span>
+                    <div
+                      className="flex-1 h-[6px] rounded-full overflow-hidden"
+                      style={{ background: 'var(--bg-subtle-2)' }}
+                    >
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${percent}%`,
+                          background: PIE_COLORS[i % PIE_COLORS.length],
+                          opacity: 0.8
+                        }}
+                      />
                     </div>
-                    <span className="w-14 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{cat.itemsCleaned}</span>
+                    <span
+                      className="w-14 shrink-0 text-right font-mono text-[11px]"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      {cat.itemsCleaned}
+                    </span>
                     {cat.spaceSaved > 0 && (
-                      <span className="w-18 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{formatBytes(cat.spaceSaved)}</span>
+                      <span
+                        className="w-18 shrink-0 text-right font-mono text-[11px]"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        {formatBytes(cat.spaceSaved)}
+                      </span>
                     )}
                   </div>
                 )
@@ -698,23 +1119,37 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
     setLoading(true)
     // origin: a cloud-triggered clean can overlap this run's window; its
     // deletions belong to Cloud history, not to this entry.
-    window.kudu.deletionLogQuery({ from, to, origin: 'local', offset: 0, limit: DELETED_FILES_PAGE })
+    window.kudu
+      .deletionLogQuery({ from, to, origin: 'local', offset: 0, limit: DELETED_FILES_PAGE })
       .then((page) => {
         if (cancelled) return
         setRecords(page.records)
         setTotal(page.total)
         setEnabled(page.enabled)
       })
-      .catch(() => { if (!cancelled) { setRecords([]); setTotal(0) } })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
+      .catch(() => {
+        if (!cancelled) {
+          setRecords([])
+          setTotal(0)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
   }, [from, to])
 
   const loadMore = async () => {
     setLoadingMore(true)
     try {
       const page = await window.kudu.deletionLogQuery({
-        from, to, origin: 'local', offset: records.length, limit: DELETED_FILES_PAGE
+        from,
+        to,
+        origin: 'local',
+        offset: records.length,
+        limit: DELETED_FILES_PAGE
       })
       setRecords((prev) => [...prev, ...page.records])
       setTotal(page.total)
@@ -738,7 +1173,10 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
   return (
     <div className="mt-5 border-t pt-5" style={{ borderColor: 'var(--border-default)' }}>
       <div className="mb-3 flex items-center gap-2">
-        <h4 className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+        <h4
+          className="text-[11px] font-medium uppercase tracking-wider"
+          style={{ color: 'var(--text-muted)' }}
+        >
           {t('detail.deletedFiles.title')}
         </h4>
         {total > 0 && (
@@ -748,34 +1186,63 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
         )}
         {total > 0 && (
           <div className="ml-auto flex items-center gap-1.5">
-            <IconButton icon={Download} label={t('detail.deletedFiles.exportCsv')} onClick={handleExport} disabled={exporting} />
-            <IconButton icon={FolderOpen} label={t('detail.deletedFiles.openLog')} onClick={() => window.kudu.deletionLogReveal()} />
+            <IconButton
+              icon={Download}
+              label={t('detail.deletedFiles.exportCsv')}
+              onClick={handleExport}
+              disabled={exporting}
+            />
+            <IconButton
+              icon={FolderOpen}
+              label={t('detail.deletedFiles.openLog')}
+              onClick={() => window.kudu.deletionLogReveal()}
+            />
           </div>
         )}
       </div>
 
       {loading ? (
-        <p className="py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>{t('detail.deletedFiles.loading')}</p>
+        <p className="py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+          {t('detail.deletedFiles.loading')}
+        </p>
       ) : records.length === 0 ? (
-        <div className="flex items-start gap-2.5 rounded-xl p-3.5" style={{ background: 'var(--bg-subtle)' }}>
-          <FileText className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.6} />
+        <div
+          className="flex items-start gap-2.5 rounded-xl p-3.5"
+          style={{ background: 'var(--bg-subtle)' }}
+        >
+          <FileText
+            className="mt-0.5 h-4 w-4 shrink-0"
+            style={{ color: 'var(--text-muted)' }}
+            strokeWidth={1.6}
+          />
           <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            {enabled ? t('detail.deletedFiles.emptyRecorded') : t('detail.deletedFiles.disabledHint')}
+            {enabled
+              ? t('detail.deletedFiles.emptyRecorded')
+              : t('detail.deletedFiles.disabledHint')}
           </p>
         </div>
       ) : (
         <>
-          <div className="max-h-64 overflow-y-auto rounded-xl" style={{ background: 'var(--bg-subtle)', scrollbarWidth: 'thin' }}>
+          <div
+            className="max-h-64 overflow-y-auto rounded-xl"
+            style={{ background: 'var(--bg-subtle)', scrollbarWidth: 'thin' }}
+          >
             {records.map((r, i) => (
               <div
                 key={`${r.ts}-${r.path}-${i}`}
                 className="flex items-center gap-3 px-3 py-1.5"
-                style={{ borderBottom: i < records.length - 1 ? '1px solid var(--bg-subtle-2)' : undefined }}
+                style={{
+                  borderBottom: i < records.length - 1 ? '1px solid var(--bg-subtle-2)' : undefined
+                }}
               >
                 {/* dir=rtl moves the ellipsis to the start so the file name — the
                     part that answers "what did it delete?" — stays visible. The
                     <bdi> keeps the path itself rendering left-to-right. */}
-                <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-zinc-300" title={r.path} dir="rtl">
+                <span
+                  className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-zinc-300"
+                  title={r.path}
+                  dir="rtl"
+                >
                   <bdi>{r.path}</bdi>
                 </span>
                 {r.truncated ? (
@@ -787,9 +1254,17 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
                     {t('detail.deletedFiles.truncatedBadge', { count: r.truncated })}
                   </span>
                 ) : r.category ? (
-                  <span className="shrink-0 text-[10.5px] capitalize" style={{ color: 'var(--text-muted)' }}>{r.category}</span>
+                  <span
+                    className="shrink-0 text-[10.5px] capitalize"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    {r.category}
+                  </span>
                 ) : null}
-                <span className="w-16 shrink-0 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                <span
+                  className="w-16 shrink-0 text-right font-mono text-[11px]"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   {r.size > 0 ? formatBytes(r.size) : '—'}
                 </span>
               </div>
@@ -811,8 +1286,16 @@ function DeletedFilesSection({ from, to }: { from: string; to: string }) {
   )
 }
 
-function IconButton({ icon: Icon, label, onClick, disabled }: {
-  icon: typeof Download; label: string; onClick: () => void; disabled?: boolean
+function IconButton({
+  icon: Icon,
+  label,
+  onClick,
+  disabled
+}: {
+  icon: typeof Download
+  label: string
+  onClick: () => void
+  disabled?: boolean
 }) {
   return (
     <button
@@ -831,35 +1314,75 @@ function IconButton({ icon: Icon, label, onClick, disabled }: {
 // ============ Cloud View ============
 
 const cloudCommandColors: Record<string, string> = {
-  'scan': '#f59e0b', 'clean': '#22c55e', 'software-update-check': '#06b6d4', 'software-update-run': '#06b6d4',
-  'get-status': 'var(--text-muted)', 'get-system-info': 'var(--text-muted)', 'get-health-report': '#3b82f6', 'ping': 'var(--text-muted)',
-  'shutdown': '#ef4444', 'restart': '#f97316', 'windows-update-check': '#06b6d4', 'windows-update-install': '#06b6d4',
-  'run-sfc': '#8b5cf6', 'run-dism': '#8b5cf6', 'get-network-config': '#22c55e', 'get-event-log': '#6366f1',
-  'get-installed-apps': '#a855f7', 'driver-update-scan': '#8b5cf6', 'driver-update-install': '#8b5cf6',
-  'driver-clean': '#8b5cf6', 'startup-list': '#f97316', 'startup-toggle': '#f97316', 'disk-health': '#14b8a6',
-  'privacy-scan': '#14b8a6', 'privacy-apply': '#14b8a6', 'debloater-scan': '#a855f7', 'debloater-remove': '#a855f7',
-  'service-scan': '#6366f1', 'service-apply': '#6366f1', 'malware-quarantine': '#ef4444', 'malware-delete': '#ef4444',
-  'registry-scan': '#3b82f6', 'registry-fix': '#3b82f6',
+  scan: '#f59e0b',
+  clean: '#22c55e',
+  'software-update-check': '#06b6d4',
+  'software-update-run': '#06b6d4',
+  'get-status': 'var(--text-muted)',
+  'get-system-info': 'var(--text-muted)',
+  'get-health-report': '#3b82f6',
+  ping: 'var(--text-muted)',
+  shutdown: '#ef4444',
+  restart: '#f97316',
+  'windows-update-check': '#06b6d4',
+  'windows-update-install': '#06b6d4',
+  'run-sfc': '#8b5cf6',
+  'run-dism': '#8b5cf6',
+  'get-network-config': '#22c55e',
+  'get-event-log': '#6366f1',
+  'get-installed-apps': '#a855f7',
+  'driver-update-scan': '#8b5cf6',
+  'driver-update-install': '#8b5cf6',
+  'driver-clean': '#8b5cf6',
+  'startup-list': '#f97316',
+  'startup-toggle': '#f97316',
+  'disk-health': '#14b8a6',
+  'privacy-scan': '#14b8a6',
+  'privacy-apply': '#14b8a6',
+  'debloater-scan': '#a855f7',
+  'debloater-remove': '#a855f7',
+  'service-scan': '#6366f1',
+  'service-apply': '#6366f1',
+  'malware-quarantine': '#ef4444',
+  'malware-delete': '#ef4444',
+  'registry-scan': '#3b82f6',
+  'registry-fix': '#3b82f6'
 }
 
 const cloudCommandLabelKeys: Record<string, string> = {
-  'scan': 'cloudCommandLabels.scan', 'clean': 'cloudCommandLabels.clean',
-  'software-update-check': 'cloudCommandLabels.softwareUpdateCheck', 'software-update-run': 'cloudCommandLabels.softwareUpdateRun',
-  'get-status': 'cloudCommandLabels.getStatus', 'get-system-info': 'cloudCommandLabels.getSystemInfo',
-  'get-health-report': 'cloudCommandLabels.getHealthReport', 'ping': 'cloudCommandLabels.ping',
-  'shutdown': 'cloudCommandLabels.shutdown', 'restart': 'cloudCommandLabels.restart',
-  'windows-update-check': 'cloudCommandLabels.windowsUpdateCheck', 'windows-update-install': 'cloudCommandLabels.windowsUpdateInstall',
-  'run-sfc': 'cloudCommandLabels.runSfc', 'run-dism': 'cloudCommandLabels.runDism',
-  'get-network-config': 'cloudCommandLabels.getNetworkConfig', 'get-event-log': 'cloudCommandLabels.getEventLog',
-  'get-installed-apps': 'cloudCommandLabels.getInstalledApps', 'driver-update-scan': 'cloudCommandLabels.driverUpdateScan',
-  'driver-update-install': 'cloudCommandLabels.driverUpdateInstall', 'driver-clean': 'cloudCommandLabels.driverClean',
-  'startup-list': 'cloudCommandLabels.startupList', 'startup-toggle': 'cloudCommandLabels.startupToggle',
-  'disk-health': 'cloudCommandLabels.diskHealth', 'privacy-scan': 'cloudCommandLabels.privacyScan',
-  'privacy-apply': 'cloudCommandLabels.privacyApply', 'debloater-scan': 'cloudCommandLabels.debloaterScan',
-  'debloater-remove': 'cloudCommandLabels.debloaterRemove', 'service-scan': 'cloudCommandLabels.serviceScan',
-  'service-apply': 'cloudCommandLabels.serviceApply', 'malware-quarantine': 'cloudCommandLabels.malwareQuarantine',
-  'malware-delete': 'cloudCommandLabels.malwareDelete', 'registry-scan': 'cloudCommandLabels.registryScan',
-  'registry-fix': 'cloudCommandLabels.registryFix',
+  scan: 'cloudCommandLabels.scan',
+  clean: 'cloudCommandLabels.clean',
+  'software-update-check': 'cloudCommandLabels.softwareUpdateCheck',
+  'software-update-run': 'cloudCommandLabels.softwareUpdateRun',
+  'get-status': 'cloudCommandLabels.getStatus',
+  'get-system-info': 'cloudCommandLabels.getSystemInfo',
+  'get-health-report': 'cloudCommandLabels.getHealthReport',
+  ping: 'cloudCommandLabels.ping',
+  shutdown: 'cloudCommandLabels.shutdown',
+  restart: 'cloudCommandLabels.restart',
+  'windows-update-check': 'cloudCommandLabels.windowsUpdateCheck',
+  'windows-update-install': 'cloudCommandLabels.windowsUpdateInstall',
+  'run-sfc': 'cloudCommandLabels.runSfc',
+  'run-dism': 'cloudCommandLabels.runDism',
+  'get-network-config': 'cloudCommandLabels.getNetworkConfig',
+  'get-event-log': 'cloudCommandLabels.getEventLog',
+  'get-installed-apps': 'cloudCommandLabels.getInstalledApps',
+  'driver-update-scan': 'cloudCommandLabels.driverUpdateScan',
+  'driver-update-install': 'cloudCommandLabels.driverUpdateInstall',
+  'driver-clean': 'cloudCommandLabels.driverClean',
+  'startup-list': 'cloudCommandLabels.startupList',
+  'startup-toggle': 'cloudCommandLabels.startupToggle',
+  'disk-health': 'cloudCommandLabels.diskHealth',
+  'privacy-scan': 'cloudCommandLabels.privacyScan',
+  'privacy-apply': 'cloudCommandLabels.privacyApply',
+  'debloater-scan': 'cloudCommandLabels.debloaterScan',
+  'debloater-remove': 'cloudCommandLabels.debloaterRemove',
+  'service-scan': 'cloudCommandLabels.serviceScan',
+  'service-apply': 'cloudCommandLabels.serviceApply',
+  'malware-quarantine': 'cloudCommandLabels.malwareQuarantine',
+  'malware-delete': 'cloudCommandLabels.malwareDelete',
+  'registry-scan': 'cloudCommandLabels.registryScan',
+  'registry-fix': 'cloudCommandLabels.registryFix'
 }
 
 function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: boolean }) {
@@ -880,9 +1403,8 @@ function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: b
 
   const successCount = entries.filter((e) => e.success).length
   const failCount = entries.filter((e) => !e.success).length
-  const avgDuration = entries.length > 0
-    ? entries.reduce((s, e) => s + e.duration, 0) / entries.length
-    : 0
+  const avgDuration =
+    entries.length > 0 ? entries.reduce((s, e) => s + e.duration, 0) / entries.length : 0
 
   const detail = entries.find((e) => e.id === selectedId) || null
 
@@ -890,68 +1412,152 @@ function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: b
     <>
       {/* Stats row */}
       <div className="mb-5 grid grid-cols-4 gap-3">
-        <MiniStat icon={Cloud} label={t('cloud.totalCommands')} value={entries.length.toString()} color="#3b82f6" />
-        <MiniStat icon={CheckCircle2} label={t('cloud.succeeded')} value={successCount.toString()} color="#22c55e" />
-        <MiniStat icon={XCircle} label={t('cloud.failed')} value={failCount.toString()} color="#ef4444" />
-        <MiniStat icon={Clock} label={t('cloud.avgDuration')} value={formatDuration(avgDuration, t)} color="#a855f7" />
+        <MiniStat
+          icon={Cloud}
+          label={t('cloud.totalCommands')}
+          value={entries.length.toString()}
+          color="#3b82f6"
+        />
+        <MiniStat
+          icon={CheckCircle2}
+          label={t('cloud.succeeded')}
+          value={successCount.toString()}
+          color="#22c55e"
+        />
+        <MiniStat
+          icon={XCircle}
+          label={t('cloud.failed')}
+          value={failCount.toString()}
+          color="#ef4444"
+        />
+        <MiniStat
+          icon={Clock}
+          label={t('cloud.avgDuration')}
+          value={formatDuration(avgDuration, t)}
+          color="#a855f7"
+        />
       </div>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-2xl" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+      <div
+        className="overflow-hidden rounded-2xl"
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+      >
         <table className="w-full">
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-medium)' }}>
-              <th className="w-10 px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnStatus')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnCommand')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnSummary')}</th>
-              <th className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnDate')}</th>
-              <th className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('cloud.columnDuration')}</th>
+              <th
+                className="w-10 px-4 py-3 text-center text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('cloud.columnStatus')}
+              </th>
+              <th
+                className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('cloud.columnCommand')}
+              </th>
+              <th
+                className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('cloud.columnSummary')}
+              </th>
+              <th
+                className="px-4 py-3 text-left text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('cloud.columnDate')}
+              </th>
+              <th
+                className="px-4 py-3 text-right text-[11px] font-medium uppercase tracking-wider"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {t('cloud.columnDuration')}
+              </th>
               <th className="w-10 px-4 py-3" />
             </tr>
           </thead>
           <tbody>
             {entries.map((entry) => {
               const labelKey = cloudCommandLabelKeys[entry.commandType]
-              const cfg = { label: labelKey ? t(labelKey) : entry.commandType, color: cloudCommandColors[entry.commandType] || 'var(--text-muted)' }
+              const cfg = {
+                label: labelKey ? t(labelKey) : entry.commandType,
+                color: cloudCommandColors[entry.commandType] || 'var(--text-muted)'
+              }
               return (
                 <tr
                   key={entry.id}
                   className="cursor-pointer transition-colors"
                   style={{ borderBottom: '1px solid var(--bg-subtle)' }}
                   onClick={() => setSelectedId(entry.id)}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--bg-subtle)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                  }}
                 >
                   <td className="px-4 py-3 text-center">
-                    {entry.success
-                      ? <CheckCircle2 className="inline h-4 w-4" style={{ color: '#22c55e' }} strokeWidth={1.8} />
-                      : <XCircle className="inline h-4 w-4" style={{ color: '#ef4444' }} strokeWidth={1.8} />
-                    }
+                    {entry.success ? (
+                      <CheckCircle2
+                        className="inline h-4 w-4"
+                        style={{ color: '#22c55e' }}
+                        strokeWidth={1.8}
+                      />
+                    ) : (
+                      <XCircle
+                        className="inline h-4 w-4"
+                        style={{ color: '#ef4444' }}
+                        strokeWidth={1.8}
+                      />
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <span className="text-[12.5px] font-medium text-zinc-200">{cfg.label}</span>
-                      <span className="rounded-full px-2 py-0.5 text-[9px] font-medium" style={{ background: `${cfg.color}15`, color: cfg.color }}>
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[9px] font-medium"
+                        style={{ background: `${cfg.color}15`, color: cfg.color }}
+                      >
                         {entry.commandType}
                       </span>
                     </div>
                   </td>
                   <td className="px-4 py-3 max-w-[240px]">
-                    <span className="block truncate text-[12px]" style={{ color: entry.error ? '#ef4444' : 'var(--text-muted)' }}>
+                    <span
+                      className="block truncate text-[12px]"
+                      style={{ color: entry.error ? '#ef4444' : 'var(--text-muted)' }}
+                    >
                       {entry.summary || entry.error || t('cloud.completed')}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                    {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {new Date(entry.timestamp).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                     <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>
-                      {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(entry.timestamp).toLocaleTimeString(undefined, {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-mono text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                  <td
+                    className="px-4 py-3 text-right font-mono text-[12px]"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     {formatDuration(entry.duration, t)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <Info className="inline h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
+                    <Info
+                      className="inline h-3.5 w-3.5"
+                      style={{ color: 'var(--text-muted)' }}
+                      strokeWidth={1.8}
+                    />
                   </td>
                 </tr>
               )
@@ -971,14 +1577,25 @@ function CloudView({ entries, loaded }: { entries: CloudActionEntry[]; loaded: b
 function CloudDetailPopup({ entry, onClose }: { entry: CloudActionEntry; onClose: () => void }) {
   const { t } = useTranslation('history')
   const labelKey = cloudCommandLabelKeys[entry.commandType]
-  const cfg = { label: labelKey ? t(labelKey) : entry.commandType, color: cloudCommandColors[entry.commandType] || 'var(--text-muted)' }
+  const cfg = {
+    label: labelKey ? t(labelKey) : entry.commandType,
+    color: cloudCommandColors[entry.commandType] || 'var(--text-muted)'
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+        onClick={onClose}
+      />
       <div
         className="relative w-full max-w-md animate-scale-in rounded-2xl p-6"
-        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)', boxShadow: '0 24px 80px rgba(0,0,0,0.5)' }}
+        style={{
+          background: 'var(--card-bg)',
+          border: '1px solid var(--border-medium)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5)'
+        }}
       >
         {/* Header */}
         <div className="mb-5 flex items-center gap-3">
@@ -986,22 +1603,40 @@ function CloudDetailPopup({ entry, onClose }: { entry: CloudActionEntry; onClose
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
             style={{ background: entry.success ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)' }}
           >
-            {entry.success
-              ? <CheckCircle2 className="h-5 w-5" style={{ color: '#22c55e' }} strokeWidth={1.8} />
-              : <XCircle className="h-5 w-5" style={{ color: '#ef4444' }} strokeWidth={1.8} />
-            }
+            {entry.success ? (
+              <CheckCircle2 className="h-5 w-5" style={{ color: '#22c55e' }} strokeWidth={1.8} />
+            ) : (
+              <XCircle className="h-5 w-5" style={{ color: '#ef4444' }} strokeWidth={1.8} />
+            )}
           </div>
           <div className="flex-1">
             <h3 className="text-[15px] font-semibold text-white">{cfg.label}</h3>
             <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-              {new Date(entry.timestamp).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+              {new Date(entry.timestamp).toLocaleDateString(undefined, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
               {' ' + t('timeline.dateAt') + ' '}
-              {new Date(entry.timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              {new Date(entry.timestamp).toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+              })}
             </p>
           </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors" style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-hover-2)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-hover-2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+            }}
+          >
             <XCircle className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </div>
@@ -1009,34 +1644,78 @@ function CloudDetailPopup({ entry, onClose }: { entry: CloudActionEntry; onClose
         {/* Detail rows */}
         <div className="space-y-3 rounded-xl p-4" style={{ background: 'var(--bg-subtle)' }}>
           <DetailRow label={t('cloud.detailCommand')} value={entry.commandType} color={cfg.color} />
-          <DetailRow label={t('cloud.detailStatus')} value={entry.success ? t('cloud.detailStatusSuccess') : t('cloud.detailStatusFailed')} color={entry.success ? '#22c55e' : '#ef4444'} />
+          <DetailRow
+            label={t('cloud.detailStatus')}
+            value={entry.success ? t('cloud.detailStatusSuccess') : t('cloud.detailStatusFailed')}
+            color={entry.success ? '#22c55e' : '#ef4444'}
+          />
           <DetailRow label={t('cloud.detailDuration')} value={formatDuration(entry.duration, t)} />
           <DetailRow label={t('cloud.detailRequestId')} value={entry.requestId} mono />
           {entry.summary && <DetailRow label={t('cloud.detailSummary')} value={entry.summary} />}
-          {entry.error && <DetailRow label={t('cloud.detailError')} value={entry.error} color="#ef4444" />}
+          {entry.error && (
+            <DetailRow label={t('cloud.detailError')} value={entry.error} color="#ef4444" />
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-function DetailRow({ label, value, color, mono }: { label: string; value: string; color?: string; mono?: boolean }) {
+function DetailRow({
+  label,
+  value,
+  color,
+  mono
+}: {
+  label: string
+  value: string
+  color?: string
+  mono?: boolean
+}) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="shrink-0 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
-      <span className={`text-right text-[12px] break-all ${mono ? 'font-mono' : ''}`} style={{ color: color || 'var(--text-secondary)' }}>{value}</span>
+      <span
+        className="shrink-0 text-[11px] font-medium uppercase tracking-wider"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {label}
+      </span>
+      <span
+        className={`text-right text-[12px] break-all ${mono ? 'font-mono' : ''}`}
+        style={{ color: color || 'var(--text-secondary)' }}
+      >
+        {value}
+      </span>
     </div>
   )
 }
 
 // ============ Shared Components ============
 
-function MiniStat({ icon: Icon, label, value, color }: { icon: typeof BarChart3; label: string; value: string; color: string }) {
+function MiniStat({
+  icon: Icon,
+  label,
+  value,
+  color
+}: {
+  icon: typeof BarChart3
+  label: string
+  value: string
+  color: string
+}) {
   return (
-    <div className="rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+    <div
+      className="rounded-2xl p-4"
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+    >
       <div className="mb-2 flex items-center gap-2">
         <Icon className="h-4 w-4" style={{ color }} strokeWidth={1.8} />
-        <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</span>
+        <span
+          className="text-[11px] font-medium uppercase tracking-wider"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {label}
+        </span>
       </div>
       <span className="text-[20px] font-bold tracking-tight text-zinc-100">{value}</span>
     </div>
@@ -1046,7 +1725,12 @@ function MiniStat({ icon: Icon, label, value, color }: { icon: typeof BarChart3;
 function DetailStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl p-3" style={{ background: 'var(--bg-subtle)' }}>
-      <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p
+        className="text-[10px] font-medium uppercase tracking-wider"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {label}
+      </p>
       <p className="mt-1 text-[16px] font-semibold text-zinc-200">{value}</p>
     </div>
   )
@@ -1059,9 +1743,14 @@ function RecentScanRow({ entry }: { entry: ScanHistoryEntry }) {
   const Icon = config.icon
 
   return (
-    <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors"
-      style={{ background: 'var(--bg-subtle)' }}>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" style={{ background: config.bg }}>
+    <div
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors"
+      style={{ background: 'var(--bg-subtle)' }}
+    >
+      <div
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+        style={{ background: config.bg }}
+      >
         <Icon className="h-4 w-4" style={{ color: config.color }} strokeWidth={1.8} />
       </div>
       <div className="flex-1 min-w-0">
@@ -1072,13 +1761,19 @@ function RecentScanRow({ entry }: { entry: ScanHistoryEntry }) {
         </p>
       </div>
       <span className="shrink-0 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-        {new Date(entry.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+        {new Date(entry.timestamp).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric'
+        })}
       </span>
     </div>
   )
 }
 
-function formatDuration(ms: number, t?: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatDuration(
+  ms: number,
+  t?: (key: string, opts?: Record<string, unknown>) => string
+): string {
   if (ms < 1000) return t ? t('duration.lessThanOneSecond') : '<1s'
   const seconds = Math.floor(ms / 1000)
   if (seconds < 60) return t ? t('duration.seconds', { count: seconds }) : `${seconds}s`

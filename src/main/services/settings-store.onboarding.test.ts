@@ -9,13 +9,13 @@ const TEST_DIR = join(tmpdir(), `kudu-test-${randomUUID()}`)
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getPath: () => TEST_DIR,
+    getPath: () => TEST_DIR
   },
   safeStorage: {
     isEncryptionAvailable: () => false,
     encryptString: (s: string) => Buffer.from(s),
-    decryptString: (b: Buffer) => b.toString(),
-  },
+    decryptString: (b: Buffer) => b.toString()
+  }
 }))
 
 import {
@@ -24,7 +24,7 @@ import {
   getSettings,
   getOnboardingComplete,
   setOnboardingComplete,
-  getMachineId,
+  getMachineId
 } from './settings-store'
 
 const DATA_DIR = join(TEST_DIR, 'Kudu-Dev')
@@ -55,7 +55,7 @@ describe('onboarding completion persistence (issue #269)', () => {
     setSettings({
       runAtStartup: true,
       minimizeToTray: true,
-      schedule: { enabled: true, frequency: 'weekly', day: 1, hour: 9 },
+      schedule: { enabled: true, frequency: 'weekly', day: 1, hour: 9 }
     })
     await flushSettings()
 
@@ -76,7 +76,13 @@ describe('onboarding completion persistence (issue #269)', () => {
 
   it('clears the legacy stats block that never tracked anything', async () => {
     const config = JSON.parse(readFileSync(CONFIG_PATH, 'utf-8'))
-    config.stats = { totalSpaceSaved: 0, totalFilesCleaned: 0, totalScans: 0, lastScanDate: null, recentActivity: [] }
+    config.stats = {
+      totalSpaceSaved: 0,
+      totalFilesCleaned: 0,
+      totalScans: 0,
+      lastScanDate: null,
+      recentActivity: []
+    }
     writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8')
 
     setSettings({ theme: 'dark' })

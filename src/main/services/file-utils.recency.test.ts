@@ -5,26 +5,40 @@ import { join } from 'path'
 
 const state = vi.hoisted(() => ({
   exclusions: [] as string[],
-  items: [] as Array<{ id: string }>,
+  items: [] as Array<{ id: string }>
 }))
 
 vi.mock('./settings-store', () => ({
-  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: state.exclusions }),
+  getSettings: () => ({
+    cleaner: { secureDelete: false, skipRecentMinutes: 60 },
+    exclusions: state.exclusions
+  })
 }))
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: (ids: string[]) => state.items.filter((item) => ids.includes(item.id)),
-  removeCachedItems: (ids: string[]) => { state.items = state.items.filter((item) => !ids.includes(item.id)) },
+  removeCachedItems: (ids: string[]) => {
+    state.items = state.items.filter((item) => !ids.includes(item.id))
+  }
 }))
 
-import { cleanItems, scanDirectory, scanDirectoriesAsItems, scanFile, scanAppRule } from './file-utils'
+import {
+  cleanItems,
+  scanDirectory,
+  scanDirectoriesAsItems,
+  scanFile,
+  scanAppRule
+} from './file-utils'
 
 const DEEP = { deepRecencyCheck: true }
 
 it('offers performance caches only as optional resets while keeping regular cleanup selected', async () => {
   file('shader/cache.bin', 120, 2048)
   const rule = { id: 'gpu', name: 'GPU', paths: [join(testDir, 'shader')], cacheReset: true }
-  const result = await scanAppRule(rule, 'gaming', { directoryItems: true, group: 'GPU Shader Caches' })
+  const result = await scanAppRule(rule, 'gaming', {
+    directoryItems: true,
+    group: 'GPU Shader Caches'
+  })
   expect(result.items).toHaveLength(1)
   expect(result.items[0]).toMatchObject({ selected: false, cacheReset: true, size: 2048 })
   expect(result.group).toContain('next launch may be slower')
@@ -81,7 +95,7 @@ describe('scanDirectory recency guard', () => {
     const result = await scanDirectory(testDir, 'system', 'Test')
     expect(paths(result)).toEqual([stale])
     state.items = result.items
-    await cleanItems(result.items.map(i => i.id))
+    await cleanItems(result.items.map((i) => i.id))
     expect(existsSync(recent)).toBe(true)
     expect(existsSync(excluded)).toBe(true)
     expect(existsSync(stale)).toBe(false)
@@ -92,7 +106,7 @@ describe('scanDirectory recency guard', () => {
     const result = await scanDirectory(testDir, 'system', 'Test')
     state.items = result.items
     state.exclusions = [keep]
-    const cleaned = await cleanItems(result.items.map(i => i.id))
+    const cleaned = await cleanItems(result.items.map((i) => i.id))
     expect(cleaned.filesDeleted).toBe(0)
     expect(cleaned.errors).toEqual([{ path: join(testDir, 'old'), reason: 'excluded' }])
     expect(existsSync(keep)).toBe(true)
@@ -103,7 +117,7 @@ describe('scanDirectory recency guard', () => {
     const result = await scanDirectory(testDir, 'app', 'Test')
     state.items = result.items
     utimesSync(keep, ago(0), ago(0))
-    expect((await cleanItems(result.items.map(i => i.id))).filesDeleted).toBe(0)
+    expect((await cleanItems(result.items.map((i) => i.id))).filesDeleted).toBe(0)
     expect(existsSync(keep)).toBe(true)
   })
 
@@ -122,7 +136,10 @@ describe('scanDirectory recency guard', () => {
     file('mixed/tiny', 180, 512)
     const eligible = file('mixed/eligible', 180, 1024)
     const result = await scanDirectoriesAsItems(
-      ['empty', 'small', 'mixed'].map(name => join(testDir, name)), 'gaming', 'Test')
+      ['empty', 'small', 'mixed'].map((name) => join(testDir, name)),
+      'gaming',
+      'Test'
+    )
     expect(paths(result)).toEqual([eligible])
     expect(result.totalSize).toBe(1024)
   })
@@ -133,7 +150,10 @@ describe('scanDirectory recency guard', () => {
     state.items = result.items
     state.exclusions = [keep]
     const progress = vi.fn()
-    const cleaned = await cleanItems(result.items.map(item => item.id), progress)
+    const cleaned = await cleanItems(
+      result.items.map((item) => item.id),
+      progress
+    )
     expect(cleaned.filesSkipped).toBe(1)
     expect(progress).toHaveBeenLastCalledWith(1, 1, keep, 0)
     expect(existsSync(keep)).toBe(true)
@@ -196,10 +216,9 @@ describe('scanDirectory with deepRecencyCheck', () => {
     file('a/other/settled', 180, 20)
 
     const result = await scanDirectory(testDir, 'browser', 'Test', DEEP)
-    expect(paths(result)).toEqual([
-      join(testDir, 'a', 'b', 'c', 'settled'),
-      join(testDir, 'a', 'other'),
-    ].sort())
+    expect(paths(result)).toEqual(
+      [join(testDir, 'a', 'b', 'c', 'settled'), join(testDir, 'a', 'other')].sort()
+    )
     expect(result.totalSize).toBe(120)
   })
 

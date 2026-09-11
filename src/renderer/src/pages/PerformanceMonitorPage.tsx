@@ -104,14 +104,10 @@ export function PerformanceMonitorPage() {
                   onClick={() => setTimeRange(opt.value)}
                   className={cn(
                     'rounded-md px-3 py-1.5 text-[11px] font-semibold transition-all',
-                    timeRange === opt.value
-                      ? 'text-amber-400'
-                      : 'text-zinc-500 hover:text-zinc-300'
+                    timeRange === opt.value ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
                   )}
                   style={
-                    timeRange === opt.value
-                      ? { background: 'rgba(245,158,11,0.1)' }
-                      : undefined
+                    timeRange === opt.value ? { background: 'rgba(245,158,11,0.1)' } : undefined
                   }
                 >
                   {opt.label}
@@ -162,16 +158,29 @@ export function PerformanceMonitorPage() {
         />
         <GaugeCard
           label={t('gaugeDiskIo')}
-          percent={Math.min(100, ((snapshot?.disk.readBytesPerSec ?? 0) + (snapshot?.disk.writeBytesPerSec ?? 0)) / (200 * 1024 * 1024) * 100)}
+          percent={Math.min(
+            100,
+            (((snapshot?.disk.readBytesPerSec ?? 0) + (snapshot?.disk.writeBytesPerSec ?? 0)) /
+              (200 * 1024 * 1024)) *
+              100
+          )}
           detail={
             snapshot
-              ? t('diskIoDetail', { read: formatSpeed(snapshot.disk.readBytesPerSec), write: formatSpeed(snapshot.disk.writeBytesPerSec) })
+              ? t('diskIoDetail', {
+                  read: formatSpeed(snapshot.disk.readBytesPerSec),
+                  write: formatSpeed(snapshot.disk.writeBytesPerSec)
+                })
               : t('noDataPlaceholder')
           }
         />
         <GaugeCard
           label={t('gaugeNetwork')}
-          percent={Math.min(100, ((snapshot?.network.rxBytesPerSec ?? 0) + (snapshot?.network.txBytesPerSec ?? 0)) / (125 * 1024 * 1024) * 100)}
+          percent={Math.min(
+            100,
+            (((snapshot?.network.rxBytesPerSec ?? 0) + (snapshot?.network.txBytesPerSec ?? 0)) /
+              (125 * 1024 * 1024)) *
+              100
+          )}
           detail={
             snapshot
               ? `${formatSpeed(snapshot.network.rxBytesPerSec)} / ${formatSpeed(snapshot.network.txBytesPerSec)}`

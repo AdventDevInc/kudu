@@ -122,7 +122,10 @@ export class PerfMonitorService {
         return { success: true }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err)
-        const requiresAdmin = message.includes('Access') || message.includes('denied') || message.includes('Operation not permitted')
+        const requiresAdmin =
+          message.includes('Access') ||
+          message.includes('denied') ||
+          message.includes('Operation not permitted')
         return {
           success: false,
           error: requiresAdmin
@@ -179,16 +182,40 @@ export class PerfMonitorService {
   }
 
   private async getStorageReliability(): Promise<
-    Map<string, { temperature: number | null; powerOnHours: number | null; wear: number | null; readErrors: number | null; writeErrors: number | null }>
+    Map<
+      string,
+      {
+        temperature: number | null
+        powerOnHours: number | null
+        wear: number | null
+        readErrors: number | null
+        writeErrors: number | null
+      }
+    >
   > {
-    const map = new Map<string, { temperature: number | null; powerOnHours: number | null; wear: number | null; readErrors: number | null; writeErrors: number | null }>()
+    const map = new Map<
+      string,
+      {
+        temperature: number | null
+        powerOnHours: number | null
+        wear: number | null
+        readErrors: number | null
+        writeErrors: number | null
+      }
+    >()
 
     try {
-      const script = 'Get-PhysicalDisk | ForEach-Object { $disk = $_; $rel = $_ | Get-StorageReliabilityCounter; [PSCustomObject]@{ DeviceId = $disk.DeviceId; Temperature = $rel.Temperature; PowerOnHours = $rel.PowerOnHours; ReadErrorsTotal = $rel.ReadErrorsTotal; WriteErrorsTotal = $rel.WriteErrorsTotal; Wear = $rel.Wear } } | ConvertTo-Json -Compress'
+      const script =
+        'Get-PhysicalDisk | ForEach-Object { $disk = $_; $rel = $_ | Get-StorageReliabilityCounter; [PSCustomObject]@{ DeviceId = $disk.DeviceId; Temperature = $rel.Temperature; PowerOnHours = $rel.PowerOnHours; ReadErrorsTotal = $rel.ReadErrorsTotal; WriteErrorsTotal = $rel.WriteErrorsTotal; Wear = $rel.Wear } } | ConvertTo-Json -Compress'
 
-      const { stdout } = await execFileAsync('powershell.exe', ['-NoProfile', '-Command', psUtf8(script)], {
-        timeout: 10000, windowsHide: true
-      })
+      const { stdout } = await execFileAsync(
+        'powershell.exe',
+        ['-NoProfile', '-Command', psUtf8(script)],
+        {
+          timeout: 10000,
+          windowsHide: true
+        }
+      )
 
       const parsed = JSON.parse(stdout.trim())
       const entries = Array.isArray(parsed) ? parsed : [parsed]
@@ -303,9 +330,7 @@ export class PerfMonitorService {
       const totalMem = mem.total
 
       // Sort by CPU + memory and take top 100
-      const sorted = data.list
-        .sort((a, b) => b.cpu + b.memRss - (a.cpu + a.memRss))
-        .slice(0, 100)
+      const sorted = data.list.sort((a, b) => b.cpu + b.memRss - (a.cpu + a.memRss)).slice(0, 100)
 
       const processes: PerfProcess[] = sorted.map((p) => {
         const exeName = (p.name || '').toLowerCase()

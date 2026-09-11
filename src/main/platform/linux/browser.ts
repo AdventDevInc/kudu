@@ -10,11 +10,26 @@ export function createLinuxBrowser(): PlatformBrowser {
       // Use exact process name matching (-x) to avoid killing unrelated processes
       // e.g. pkill -f "opera" would match anything with "opera" in its args
       const processes = [
-        'google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser',
-        'msedge', 'brave-browser', 'vivaldi-bin', 'opera', 'firefox', 'firefox-esr',
-        'thorium', 'thorium-browser',
-        'supermium', 'helium', 'cromite',
-        'catsxp', 'librewolf', 'waterfox', 'floorp', 'zen',
+        'google-chrome',
+        'google-chrome-stable',
+        'chromium',
+        'chromium-browser',
+        'msedge',
+        'brave-browser',
+        'vivaldi-bin',
+        'opera',
+        'firefox',
+        'firefox-esr',
+        'thorium',
+        'thorium-browser',
+        'supermium',
+        'helium',
+        'cromite',
+        'catsxp',
+        'librewolf',
+        'waterfox',
+        'floorp',
+        'zen'
       ]
 
       for (const proc of processes) {
@@ -24,6 +39,6 @@ export function createLinuxBrowser(): PlatformBrowser {
           // Process not running — ignore (pkill exits 1 when no match)
         }
       }
-    },
+    }
   }
 }

@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const execFileMock = vi.fn()
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 vi.mock('util', () => ({
-  promisify: (fn: any) => fn,
+  promisify: (fn: any) => fn
 }))
 
 const { createDarwinCommands } = await import('./commands')
@@ -65,8 +65,8 @@ describe('darwin commands', () => {
           '  nameserver[0] : 8.8.8.8',
           '  nameserver[1] : 8.8.4.4',
           'resolver #2',
-          '  nameserver[0] : 1.1.1.1',
-        ].join('\n'),
+          '  nameserver[0] : 1.1.1.1'
+        ].join('\n')
       })
 
       const entries = await commands.getDnsServers()
@@ -87,8 +87,8 @@ describe('darwin commands', () => {
           'resolver #1',
           '  domain: local',
           'resolver #2',
-          '  nameserver[0] : 10.0.0.1',
-        ].join('\n'),
+          '  nameserver[0] : 10.0.0.1'
+        ].join('\n')
       })
 
       const entries = await commands.getDnsServers()
@@ -100,9 +100,19 @@ describe('darwin commands', () => {
   describe('getEventLog', () => {
     it('parses JSON log output and slices to maxEntries', async () => {
       const logs = [
-        { timestamp: '2025-01-01', messageType: 'Error', subsystem: 'com.test', eventMessage: 'fail' },
-        { timestamp: '2025-01-02', messageType: 'Fault', subsystem: 'com.test2', eventMessage: 'crash' },
-        { timestamp: '2025-01-03', messageType: 'Info', subsystem: 'com.test3', eventMessage: 'ok' },
+        {
+          timestamp: '2025-01-01',
+          messageType: 'Error',
+          subsystem: 'com.test',
+          eventMessage: 'fail'
+        },
+        {
+          timestamp: '2025-01-02',
+          messageType: 'Fault',
+          subsystem: 'com.test2',
+          eventMessage: 'crash'
+        },
+        { timestamp: '2025-01-03', messageType: 'Info', subsystem: 'com.test3', eventMessage: 'ok' }
       ]
       execFileMock.mockResolvedValue({ stdout: JSON.stringify(logs) })
 
@@ -136,7 +146,9 @@ describe('darwin commands', () => {
     it('truncates messages to 200 characters', async () => {
       const longMsg = 'a'.repeat(500)
       execFileMock.mockResolvedValue({
-        stdout: JSON.stringify([{ timestamp: 't', messageType: 'Info', subsystem: 's', eventMessage: longMsg }]),
+        stdout: JSON.stringify([
+          { timestamp: 't', messageType: 'Info', subsystem: 's', eventMessage: longMsg }
+        ])
       })
       const entries = await commands.getEventLog('System', 10)
       expect(entries[0].message).toHaveLength(200)
@@ -150,16 +162,34 @@ describe('darwin commands', () => {
           return Promise.resolve({
             stdout: JSON.stringify({
               SPApplicationsDataType: [
-                { _name: 'Safari', version: '17.0', obtained_from: 'apple', lastModified: '2025-01-01', path: '/Applications/Safari.app' },
-                { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01', path: '/Applications/Slack.app' },
-                { _name: 'Firefox', version: '120.0', obtained_from: 'identified_developer', lastModified: '2025-03-01', path: '/Applications/Firefox.app' },
-              ],
-            }),
+                {
+                  _name: 'Safari',
+                  version: '17.0',
+                  obtained_from: 'apple',
+                  lastModified: '2025-01-01',
+                  path: '/Applications/Safari.app'
+                },
+                {
+                  _name: 'Slack',
+                  version: '4.0',
+                  obtained_from: 'identified_developer',
+                  lastModified: '2025-02-01',
+                  path: '/Applications/Slack.app'
+                },
+                {
+                  _name: 'Firefox',
+                  version: '120.0',
+                  obtained_from: 'identified_developer',
+                  lastModified: '2025-03-01',
+                  path: '/Applications/Firefox.app'
+                }
+              ]
+            })
           })
         }
         if (cmd === '/usr/bin/du') {
           return Promise.resolve({
-            stdout: '524288\t/Applications/Slack.app\n102400\t/Applications/Firefox.app\n',
+            stdout: '524288\t/Applications/Slack.app\n102400\t/Applications/Firefox.app\n'
           })
         }
         return Promise.resolve({ stdout: '', stderr: '' })
@@ -179,9 +209,15 @@ describe('darwin commands', () => {
           return Promise.resolve({
             stdout: JSON.stringify({
               SPApplicationsDataType: [
-                { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01', path: '/Applications/Slack.app' },
-              ],
-            }),
+                {
+                  _name: 'Slack',
+                  version: '4.0',
+                  obtained_from: 'identified_developer',
+                  lastModified: '2025-02-01',
+                  path: '/Applications/Slack.app'
+                }
+              ]
+            })
           })
         }
         if (cmd === '/usr/bin/du') {
@@ -201,9 +237,15 @@ describe('darwin commands', () => {
           return Promise.resolve({
             stdout: JSON.stringify({
               SPApplicationsDataType: [
-                { _name: 'Slack', version: '4.0', obtained_from: 'identified_developer', lastModified: '2025-02-01', path: '/Applications/Slack.app' },
-              ],
-            }),
+                {
+                  _name: 'Slack',
+                  version: '4.0',
+                  obtained_from: 'identified_developer',
+                  lastModified: '2025-02-01',
+                  path: '/Applications/Slack.app'
+                }
+              ]
+            })
           })
         }
         if (cmd === '/usr/bin/du') {
@@ -234,8 +276,8 @@ describe('darwin commands', () => {
           '   * Label: macOS Sequoia 15.2',
           '     Size: 1.5G',
           '   * Label: Safari Update',
-          '     Size: 100M',
-        ].join('\n'),
+          '     Size: 100M'
+        ].join('\n')
       })
 
       const updates = await commands.checkOsUpdates()
@@ -247,7 +289,7 @@ describe('darwin commands', () => {
 
     it('handles K size unit', async () => {
       execFileMock.mockResolvedValue({
-        stdout: '   * Label: Small Update\n     Size: 500K\n',
+        stdout: '   * Label: Small Update\n     Size: 500K\n'
       })
       const updates = await commands.checkOsUpdates()
       expect(updates[0].sizeBytes).toBe(500 * 1024)
@@ -255,7 +297,7 @@ describe('darwin commands', () => {
 
     it('handles bare numeric size (no unit)', async () => {
       execFileMock.mockResolvedValue({
-        stdout: '   * Label: Tiny Update\n     Size: 1024\n',
+        stdout: '   * Label: Tiny Update\n     Size: 1024\n'
       })
       const updates = await commands.checkOsUpdates()
       expect(updates[0].sizeBytes).toBe(1024)

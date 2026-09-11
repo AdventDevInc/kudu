@@ -8,18 +8,18 @@ const mockRename = vi.fn()
 const mockExistsSync = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: (...args: any[]) => mockExecFile(...args),
+  execFile: (...args: any[]) => mockExecFile(...args)
 }))
 vi.mock('util', () => ({
-  promisify: () => mockExecFile,
+  promisify: () => mockExecFile
 }))
 vi.mock('fs/promises', () => ({
   readdir: (...args: any[]) => mockReaddir(...args),
   readFile: (...args: any[]) => mockReadFile(...args),
-  rename: (...args: any[]) => mockRename(...args),
+  rename: (...args: any[]) => mockRename(...args)
 }))
 vi.mock('fs', () => ({
-  existsSync: (...args: any[]) => mockExistsSync(...args),
+  existsSync: (...args: any[]) => mockExistsSync(...args)
 }))
 vi.mock('os', () => ({ homedir: () => '/home/testuser' }))
 vi.mock('crypto', () => ({ randomUUID: () => 'test-uuid-1234' }))
@@ -54,13 +54,11 @@ describe('linux startup', () => {
       mockReadFile.mockImplementation((path: string) => {
         if (path.includes('slack')) {
           return Promise.resolve(
-            '[Desktop Entry]\nName=Slack\nExec=/usr/bin/slack\nComment=Slack Messaging\n',
+            '[Desktop Entry]\nName=Slack\nExec=/usr/bin/slack\nComment=Slack Messaging\n'
           )
         }
         if (path.includes('steam')) {
-          return Promise.resolve(
-            '[Desktop Entry]\nName=Steam\nExec=/usr/bin/steam\nHidden=false\n',
-          )
+          return Promise.resolve('[Desktop Entry]\nName=Steam\nExec=/usr/bin/steam\nHidden=false\n')
         }
         return Promise.reject(new Error('ENOENT'))
       })
@@ -80,9 +78,7 @@ describe('linux startup', () => {
     it('marks .desktop.disabled files as disabled', async () => {
       mockExistsSync.mockReturnValue(true)
       mockReaddir.mockResolvedValueOnce(['app.desktop.disabled'])
-      mockReadFile.mockResolvedValueOnce(
-        '[Desktop Entry]\nName=App\nExec=/usr/bin/app\n',
-      )
+      mockReadFile.mockResolvedValueOnce('[Desktop Entry]\nName=App\nExec=/usr/bin/app\n')
       mockExecFile.mockRejectedValue(new Error('not available'))
 
       const result = await startup.listItems()
@@ -95,7 +91,7 @@ describe('linux startup', () => {
       mockExistsSync.mockReturnValue(true)
       mockReaddir.mockResolvedValueOnce(['app.desktop'])
       mockReadFile.mockResolvedValueOnce(
-        '[Desktop Entry]\nName=App\nExec=/usr/bin/app\nHidden=true\n',
+        '[Desktop Entry]\nName=App\nExec=/usr/bin/app\nHidden=true\n'
       )
       mockExecFile.mockRejectedValue(new Error('not available'))
 
@@ -110,8 +106,9 @@ describe('linux startup', () => {
       mockExecFile.mockImplementation((_cmd: string, args: string[]) => {
         if (args?.includes('--user')) {
           return Promise.resolve({
-            stdout: 'UNIT FILE                    STATE     VENDOR\npipewire.service             enabled   enabled\npulseaudio.service           disabled  disabled\n',
-            stderr: '',
+            stdout:
+              'UNIT FILE                    STATE     VENDOR\npipewire.service             enabled   enabled\npulseaudio.service           disabled  disabled\n',
+            stderr: ''
           })
         }
         return Promise.reject(new Error('not available'))
@@ -132,8 +129,9 @@ describe('linux startup', () => {
       mockExecFile.mockImplementation((_cmd: string, args: string[]) => {
         if (args?.includes('-l')) {
           return Promise.resolve({
-            stdout: '@reboot /usr/local/bin/myapp --daemon\n# regular cron job\n0 * * * * /usr/bin/something\n',
-            stderr: '',
+            stdout:
+              '@reboot /usr/local/bin/myapp --daemon\n# regular cron job\n0 * * * * /usr/bin/something\n',
+            stderr: ''
           })
         }
         return Promise.reject(new Error('not available'))
@@ -150,9 +148,7 @@ describe('linux startup', () => {
     it('skips non-.desktop files in autostart directory', async () => {
       mockExistsSync.mockReturnValue(true)
       mockReaddir.mockResolvedValueOnce(['readme.txt', 'app.desktop', 'config.json'])
-      mockReadFile.mockResolvedValueOnce(
-        '[Desktop Entry]\nName=App\nExec=/usr/bin/app\n',
-      )
+      mockReadFile.mockResolvedValueOnce('[Desktop Entry]\nName=App\nExec=/usr/bin/app\n')
       mockExecFile.mockRejectedValue(new Error('not available'))
 
       const result = await startup.listItems()
@@ -182,14 +178,11 @@ describe('linux startup', () => {
         location,
         '/usr/bin/app',
         'autostart-desktop',
-        true,
+        true
       )
 
       expect(result).toBe(true)
-      expect(mockRename).toHaveBeenCalledWith(
-        location,
-        join(AUTOSTART, 'app.desktop'),
-      )
+      expect(mockRename).toHaveBeenCalledWith(location, join(AUTOSTART, 'app.desktop'))
     })
 
     it('appends .disabled to disable an autostart-desktop item', async () => {
@@ -201,24 +194,15 @@ describe('linux startup', () => {
         location,
         '/usr/bin/app',
         'autostart-desktop',
-        false,
+        false
       )
 
       expect(result).toBe(true)
-      expect(mockRename).toHaveBeenCalledWith(
-        location,
-        location + '.disabled',
-      )
+      expect(mockRename).toHaveBeenCalledWith(location, location + '.disabled')
     })
 
     it('rejects paths outside the autostart directory', async () => {
-      const result = await startup.toggleItem(
-        'evil',
-        '/etc/passwd',
-        '',
-        'autostart-desktop',
-        true,
-      )
+      const result = await startup.toggleItem('evil', '/etc/passwd', '', 'autostart-desktop', true)
 
       expect(result).toBe(false)
       expect(mockRename).not.toHaveBeenCalled()
@@ -230,7 +214,7 @@ describe('linux startup', () => {
         join(AUTOSTART, '..', '..', 'etc', 'passwd'),
         '',
         'autostart-desktop',
-        true,
+        true
       )
 
       expect(result).toBe(false)
@@ -244,7 +228,7 @@ describe('linux startup', () => {
         location,
         '/usr/bin/app',
         'autostart-desktop',
-        true,
+        true
       )
 
       expect(result).toBe(true)
@@ -259,13 +243,14 @@ describe('linux startup', () => {
         'pipewire.service',
         '',
         'systemd-user',
-        true,
+        true
       )
 
       expect(result).toBe(true)
       expect(mockExecFile).toHaveBeenCalledWith(
-        '/usr/bin/systemctl', ['--user', 'enable', 'pipewire.service'],
-        { timeout: 10_000 },
+        '/usr/bin/systemctl',
+        ['--user', 'enable', 'pipewire.service'],
+        { timeout: 10_000 }
       )
     })
 
@@ -277,24 +262,19 @@ describe('linux startup', () => {
         'pipewire.service',
         '',
         'systemd-user',
-        false,
+        false
       )
 
       expect(result).toBe(true)
       expect(mockExecFile).toHaveBeenCalledWith(
-        '/usr/bin/systemctl', ['--user', 'disable', 'pipewire.service'],
-        { timeout: 10_000 },
+        '/usr/bin/systemctl',
+        ['--user', 'disable', 'pipewire.service'],
+        { timeout: 10_000 }
       )
     })
 
     it('returns false for unsupported source types', async () => {
-      const result = await startup.toggleItem(
-        'something',
-        'somewhere',
-        '',
-        'cron' as any,
-        true,
-      )
+      const result = await startup.toggleItem('something', 'somewhere', '', 'cron' as any, true)
 
       expect(result).toBe(false)
     })
@@ -308,7 +288,7 @@ describe('linux startup', () => {
         location,
         '/usr/bin/app',
         'autostart-desktop',
-        false,
+        false
       )
 
       expect(result).toBe(false)
@@ -322,7 +302,7 @@ describe('linux startup', () => {
         'svc.service',
         '',
         'systemd-user',
-        true,
+        true
       )
 
       expect(result).toBe(false)

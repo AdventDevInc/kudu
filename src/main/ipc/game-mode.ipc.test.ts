@@ -17,7 +17,7 @@ const gameDetectorMocks = vi.hoisted(() => ({
   startGameDetector: vi.fn(),
   stopGameDetector: vi.fn(),
   suppressCurrentGame: vi.fn(),
-  isDetectorRunning: vi.fn(() => false),
+  isDetectorRunning: vi.fn(() => false)
 }))
 
 const settingsMock = vi.hoisted(() => ({
@@ -26,14 +26,14 @@ const settingsMock = vi.hoisted(() => ({
     customProcessKillList: [] as string[],
     autoDetect: false,
     autoDeactivate: true,
-    customGameProcesses: [] as string[],
-  },
+    customGameProcesses: [] as string[]
+  }
 }))
 
 vi.mock('electron', () => ({
   app: { isPackaged: true, getPath: () => 'C:\\kudu-test-userdata' },
   ipcMain: { handle: vi.fn() },
-  powerSaveBlocker: { start: vi.fn(() => 7), stop: vi.fn(), isStarted: vi.fn(() => false) },
+  powerSaveBlocker: { start: vi.fn(() => 7), stop: vi.fn(), isStarted: vi.fn(() => false) }
 }))
 
 vi.mock('fs', () => ({
@@ -43,10 +43,12 @@ vi.mock('fs', () => ({
     if (v === undefined) throw new Error('ENOENT')
     return v
   },
-  writeFileSync: (p: string, data: string) => { fakeFs.set(p, data) },
+  writeFileSync: (p: string, data: string) => {
+    fakeFs.set(p, data)
+  },
   unlinkSync: (p: string) => {
     if (!fakeFs.delete(p)) throw new Error('ENOENT')
-  },
+  }
 }))
 
 vi.mock('child_process', () => ({
@@ -54,7 +56,7 @@ vi.mock('child_process', () => ({
     _file: string,
     args: string[],
     _opts: unknown,
-    cb: (err: Error | null, res?: { stdout: string; stderr: string }) => void,
+    cb: (err: Error | null, res?: { stdout: string; stderr: string }) => void
   ) => {
     const script = args[args.length - 1]
     psCalls.push(script)
@@ -65,17 +67,24 @@ vi.mock('child_process', () => ({
     }
     const canned = psOutput.find(([needle]) => script.includes(needle))
     cb(null, { stdout: canned?.[1] ?? '', stderr: '' })
-  },
+  }
 }))
 
 vi.mock('../services/exec-utf8', () => ({ psUtf8: (s: string) => s }))
 vi.mock('../services/elevation', () => ({ isAdmin: () => true }))
-vi.mock('../platform', () => ({ getPlatform: () => ({ network: { flushDnsCache: async () => true } }) }))
+vi.mock('../platform', () => ({
+  getPlatform: () => ({ network: { flushDnsCache: async () => true } })
+}))
 vi.mock('../services/game-detector', () => gameDetectorMocks)
 vi.mock('../services/settings-store', () => ({ getSettings: () => settingsMock }))
 
 import { join } from 'path'
-import { deactivateGameMode, discardPendingRestore, getGameModeStatus, initGameDetector } from './game-mode.ipc'
+import {
+  deactivateGameMode,
+  discardPendingRestore,
+  getGameModeStatus,
+  initGameDetector
+} from './game-mode.ipc'
 
 // Built with join() rather than hardcoded so the fake fs keys match on both
 // Windows and the Linux CI runner.
@@ -89,17 +98,21 @@ const SNAPSHOT_PATH = join('C:\\kudu-test-userdata', 'game-mode-snapshot.json')
 // ── Snapshot validation rules (mirrored from game-mode.ipc.ts) ──
 
 const VALID_SERVICE_NAMES = new Set(['WSearch', 'SysMain', 'wuauserv', 'Spooler', 'DiagTrack'])
-const REGISTRY_PATH_RE = /^Microsoft\.PowerShell\.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{[0-9A-Fa-f\-]+}$/
+const REGISTRY_PATH_RE =
+  /^Microsoft\.PowerShell\.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{[0-9A-Fa-f\-]+}$/
 const ALLOWED_REGISTRY_TWEAK_PATHS = new Set([
   'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR',
   'HKCU:\\System\\GameConfigStore',
-  'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize',
+  'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize'
 ])
 const ALLOWED_REGISTRY_TWEAK_NAMES = new Set([
-  'AppCaptureEnabled', 'GameDVR_Enabled',
-  'GameDVR_FSEBehaviorMode', 'GameDVR_HonorUserFSEBehaviorMode',
-  'GameDVR_DXGIHonorFSEWindowsCompatible', 'GameDVR_EFSEFeatureFlags',
-  'EnableTransparency',
+  'AppCaptureEnabled',
+  'GameDVR_Enabled',
+  'GameDVR_FSEBehaviorMode',
+  'GameDVR_HonorUserFSEBehaviorMode',
+  'GameDVR_DXGIHonorFSEWindowsCompatible',
+  'GameDVR_EFSEFeatureFlags',
+  'EnableTransparency'
 ])
 
 function validateSnapshot(raw: unknown): boolean {
@@ -115,7 +128,11 @@ function validateSnapshot(raw: unknown): boolean {
     if (typeof svc !== 'object' || svc === null) return false
     const sv = svc as Record<string, unknown>
     if (typeof sv.name !== 'string' || !VALID_SERVICE_NAMES.has(sv.name)) return false
-    if (typeof sv.originalStartType !== 'string' || !/^[A-Za-z0-9]{1,20}$/.test(sv.originalStartType)) return false
+    if (
+      typeof sv.originalStartType !== 'string' ||
+      !/^[A-Za-z0-9]{1,20}$/.test(sv.originalStartType)
+    )
+      return false
     if (typeof sv.wasRunning !== 'boolean') return false
   }
 
@@ -129,16 +146,27 @@ function validateSnapshot(raw: unknown): boolean {
 
   if (s.originalPowerPlanGuid !== null) {
     if (typeof s.originalPowerPlanGuid !== 'string') return false
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s.originalPowerPlanGuid)) return false
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        s.originalPowerPlanGuid
+      )
+    )
+      return false
   }
 
   if (s.originalFocusAssistState !== null) {
     if (typeof s.originalFocusAssistState !== 'number') return false
-    if (!Number.isInteger(s.originalFocusAssistState) || s.originalFocusAssistState < 0 || s.originalFocusAssistState > 1) return false
+    if (
+      !Number.isInteger(s.originalFocusAssistState) ||
+      s.originalFocusAssistState < 0 ||
+      s.originalFocusAssistState > 1
+    )
+      return false
   }
 
   if (s.powerSaveBlockerId !== null) {
-    if (typeof s.powerSaveBlockerId !== 'number' || !Number.isInteger(s.powerSaveBlockerId)) return false
+    if (typeof s.powerSaveBlockerId !== 'number' || !Number.isInteger(s.powerSaveBlockerId))
+      return false
   }
 
   if (!Array.isArray(s.nagleInterfaces)) return false
@@ -146,8 +174,22 @@ function validateSnapshot(raw: unknown): boolean {
     if (typeof iface !== 'object' || iface === null) return false
     const iv = iface as Record<string, unknown>
     if (typeof iv.path !== 'string' || !REGISTRY_PATH_RE.test(iv.path)) return false
-    if (iv.originalTcpNoDelay !== null && (typeof iv.originalTcpNoDelay !== 'number' || !Number.isInteger(iv.originalTcpNoDelay) || iv.originalTcpNoDelay < 0 || iv.originalTcpNoDelay > 1)) return false
-    if (iv.originalTcpAckFrequency !== null && (typeof iv.originalTcpAckFrequency !== 'number' || !Number.isInteger(iv.originalTcpAckFrequency) || iv.originalTcpAckFrequency < 0 || iv.originalTcpAckFrequency > 255)) return false
+    if (
+      iv.originalTcpNoDelay !== null &&
+      (typeof iv.originalTcpNoDelay !== 'number' ||
+        !Number.isInteger(iv.originalTcpNoDelay) ||
+        iv.originalTcpNoDelay < 0 ||
+        iv.originalTcpNoDelay > 1)
+    )
+      return false
+    if (
+      iv.originalTcpAckFrequency !== null &&
+      (typeof iv.originalTcpAckFrequency !== 'number' ||
+        !Number.isInteger(iv.originalTcpAckFrequency) ||
+        iv.originalTcpAckFrequency < 0 ||
+        iv.originalTcpAckFrequency > 255)
+    )
+      return false
   }
 
   if (!Array.isArray(s.registryTweaks)) return false
@@ -156,7 +198,11 @@ function validateSnapshot(raw: unknown): boolean {
     const tv = tweak as Record<string, unknown>
     if (typeof tv.path !== 'string' || !ALLOWED_REGISTRY_TWEAK_PATHS.has(tv.path)) return false
     if (typeof tv.name !== 'string' || !ALLOWED_REGISTRY_TWEAK_NAMES.has(tv.name)) return false
-    if (tv.originalValue !== null && (typeof tv.originalValue !== 'number' || !Number.isInteger(tv.originalValue))) return false
+    if (
+      tv.originalValue !== null &&
+      (typeof tv.originalValue !== 'number' || !Number.isInteger(tv.originalValue))
+    )
+      return false
   }
 
   if ('restoreErrors' in s) {
@@ -181,11 +227,9 @@ function validSnapshot() {
     active: true,
     services: [
       { name: 'WSearch', originalStartType: 'Automatic', wasRunning: true },
-      { name: 'SysMain', originalStartType: 'Manual', wasRunning: false },
+      { name: 'SysMain', originalStartType: 'Manual', wasRunning: false }
     ],
-    killedProcesses: [
-      { pid: 1234, name: 'chrome.exe' },
-    ],
+    killedProcesses: [{ pid: 1234, name: 'chrome.exe' }],
     originalPowerPlanGuid: '381b4222-f694-41f0-9685-ff5bb260df2e',
     originalFocusAssistState: 1,
     powerSaveBlockerId: 0,
@@ -193,13 +237,17 @@ function validSnapshot() {
       {
         path: 'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{abc12345-1234-5678-9abc-def012345678}',
         originalTcpNoDelay: null,
-        originalTcpAckFrequency: 1,
-      },
+        originalTcpAckFrequency: 1
+      }
     ],
     registryTweaks: [
-      { path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR', name: 'AppCaptureEnabled', originalValue: 1 },
-      { path: 'HKCU:\\System\\GameConfigStore', name: 'GameDVR_Enabled', originalValue: 1 },
-    ],
+      {
+        path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR',
+        name: 'AppCaptureEnabled',
+        originalValue: 1
+      },
+      { path: 'HKCU:\\System\\GameConfigStore', name: 'GameDVR_Enabled', originalValue: 1 }
+    ]
   }
 }
 
@@ -209,30 +257,34 @@ describe('snapshot validation', () => {
   })
 
   it('accepts a minimal snapshot with empty arrays', () => {
-    expect(validateSnapshot({
-      activatedAt: '2025-01-01T00:00:00Z',
-      active: true,
-      services: [],
-      killedProcesses: [],
-      originalPowerPlanGuid: null,
-      originalFocusAssistState: null,
-      powerSaveBlockerId: null,
-      nagleInterfaces: [],
-      registryTweaks: [],
-    })).toBe(true)
+    expect(
+      validateSnapshot({
+        activatedAt: '2025-01-01T00:00:00Z',
+        active: true,
+        services: [],
+        killedProcesses: [],
+        originalPowerPlanGuid: null,
+        originalFocusAssistState: null,
+        powerSaveBlockerId: null,
+        nagleInterfaces: [],
+        registryTweaks: []
+      })
+    ).toBe(true)
   })
 
   it('accepts a snapshot without active field (pre-fix backward compat)', () => {
-    expect(validateSnapshot({
-      activatedAt: '2025-01-01T00:00:00Z',
-      services: [],
-      killedProcesses: [],
-      originalPowerPlanGuid: null,
-      originalFocusAssistState: null,
-      powerSaveBlockerId: null,
-      nagleInterfaces: [],
-      registryTweaks: [],
-    })).toBe(true)
+    expect(
+      validateSnapshot({
+        activatedAt: '2025-01-01T00:00:00Z',
+        services: [],
+        killedProcesses: [],
+        originalPowerPlanGuid: null,
+        originalFocusAssistState: null,
+        powerSaveBlockerId: null,
+        nagleInterfaces: [],
+        registryTweaks: []
+      })
+    ).toBe(true)
   })
 
   it('rejects snapshot with non-boolean active', () => {
@@ -364,9 +416,21 @@ describe('snapshot validation', () => {
   it('accepts valid registry tweaks', () => {
     const snap = validSnapshot()
     snap.registryTweaks = [
-      { path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR', name: 'AppCaptureEnabled', originalValue: 1 },
-      { path: 'HKCU:\\System\\GameConfigStore', name: 'GameDVR_FSEBehaviorMode', originalValue: null },
-      { path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize', name: 'EnableTransparency', originalValue: 1 },
+      {
+        path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR',
+        name: 'AppCaptureEnabled',
+        originalValue: 1
+      },
+      {
+        path: 'HKCU:\\System\\GameConfigStore',
+        name: 'GameDVR_FSEBehaviorMode',
+        originalValue: null
+      },
+      {
+        path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize',
+        name: 'EnableTransparency',
+        originalValue: 1
+      }
     ]
     expect(validateSnapshot(snap)).toBe(true)
   })
@@ -374,7 +438,11 @@ describe('snapshot validation', () => {
   it('rejects registry tweaks with path not in allowlist', () => {
     const snap = validSnapshot()
     snap.registryTweaks = [
-      { path: "HKLM:\\SOFTWARE\\Evil'; Get-Content C:\\secrets", name: 'AppCaptureEnabled', originalValue: 0 },
+      {
+        path: "HKLM:\\SOFTWARE\\Evil'; Get-Content C:\\secrets",
+        name: 'AppCaptureEnabled',
+        originalValue: 0
+      }
     ]
     expect(validateSnapshot(snap)).toBe(false)
   })
@@ -382,7 +450,11 @@ describe('snapshot validation', () => {
   it('rejects registry tweaks with name not in allowlist', () => {
     const snap = validSnapshot()
     snap.registryTweaks = [
-      { path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR', name: 'EvilKey', originalValue: 0 },
+      {
+        path: 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR',
+        name: 'EvilKey',
+        originalValue: 0
+      }
     ]
     expect(validateSnapshot(snap)).toBe(false)
   })
@@ -390,7 +462,7 @@ describe('snapshot validation', () => {
   it('rejects registry tweaks with non-integer originalValue', () => {
     const snap = validSnapshot()
     snap.registryTweaks = [
-      { path: 'HKCU:\\System\\GameConfigStore', name: 'GameDVR_Enabled', originalValue: 1.5 },
+      { path: 'HKCU:\\System\\GameConfigStore', name: 'GameDVR_Enabled', originalValue: 1.5 }
     ]
     expect(validateSnapshot(snap)).toBe(false)
   })
@@ -399,7 +471,9 @@ describe('snapshot validation', () => {
 
   it('accepts a snapshot carrying restore errors', () => {
     const snap = validSnapshot()
-    ;(snap as any).restoreErrors = [{ optimizationId: 'sys-registry-tweaks', reason: 'Access denied' }]
+    ;(snap as any).restoreErrors = [
+      { optimizationId: 'sys-registry-tweaks', reason: 'Access denied' }
+    ]
     expect(validateSnapshot(snap)).toBe(true)
   })
 
@@ -411,14 +485,20 @@ describe('snapshot validation', () => {
 
   it('rejects an unbounded restore error reason', () => {
     const snap = validSnapshot()
-    ;(snap as any).restoreErrors = [{ optimizationId: 'sys-registry-tweaks', reason: 'x'.repeat(501) }]
+    ;(snap as any).restoreErrors = [
+      { optimizationId: 'sys-registry-tweaks', reason: 'x'.repeat(501) }
+    ]
     expect(validateSnapshot(snap)).toBe(false)
   })
 
   it('rejects registry tweaks with string originalValue', () => {
     const snap = validSnapshot()
     ;(snap as any).registryTweaks = [
-      { path: 'HKCU:\\System\\GameConfigStore', name: 'GameDVR_Enabled', originalValue: '1; malicious' },
+      {
+        path: 'HKCU:\\System\\GameConfigStore',
+        name: 'GameDVR_Enabled',
+        originalValue: '1; malicious'
+      }
     ]
     expect(validateSnapshot(snap)).toBe(false)
   })
@@ -427,12 +507,24 @@ describe('snapshot validation', () => {
 // ── IPC config validation (mirrors game-mode.ipc.ts validateGameModeConfig) ──
 
 const VALID_OPTIMIZATION_IDS = new Set([
-  'svc-wsearch', 'svc-sysmain', 'svc-wuauserv', 'svc-spooler', 'svc-diagtrack',
-  'proc-kill-browsers', 'proc-kill-chat', 'proc-kill-updaters', 'proc-kill-custom',
+  'svc-wsearch',
+  'svc-sysmain',
+  'svc-wuauserv',
+  'svc-spooler',
+  'svc-diagtrack',
+  'proc-kill-browsers',
+  'proc-kill-chat',
+  'proc-kill-updaters',
+  'proc-kill-custom',
   'mem-clear-standby',
-  'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
-  'sys-disable-game-bar', 'sys-disable-fse-opt', 'sys-disable-transparency',
-  'net-flush-dns', 'net-disable-nagle',
+  'sys-focus-assist',
+  'sys-power-plan',
+  'sys-prevent-sleep',
+  'sys-disable-game-bar',
+  'sys-disable-fse-opt',
+  'sys-disable-transparency',
+  'net-flush-dns',
+  'net-disable-nagle'
 ])
 const PROCESS_NAME_RE = /^[A-Za-z0-9._\- ]+$/
 
@@ -442,30 +534,46 @@ function validateGameModeConfig(input: unknown): boolean {
 
   if (!Array.isArray(obj.enabledOptimizations)) return false
   if (obj.enabledOptimizations.length > 30) return false
-  if (!obj.enabledOptimizations.every((v: unknown) => typeof v === 'string' && VALID_OPTIMIZATION_IDS.has(v as string))) return false
+  if (
+    !obj.enabledOptimizations.every(
+      (v: unknown) => typeof v === 'string' && VALID_OPTIMIZATION_IDS.has(v as string)
+    )
+  )
+    return false
 
   if (!Array.isArray(obj.customProcessKillList)) return false
   if (obj.customProcessKillList.length > 50) return false
-  if (!obj.customProcessKillList.every((v: unknown) =>
-    typeof v === 'string' && (v as string).length > 0 && (v as string).length <= 100 && PROCESS_NAME_RE.test(v as string)
-  )) return false
+  if (
+    !obj.customProcessKillList.every(
+      (v: unknown) =>
+        typeof v === 'string' &&
+        (v as string).length > 0 &&
+        (v as string).length <= 100 &&
+        PROCESS_NAME_RE.test(v as string)
+    )
+  )
+    return false
 
   return true
 }
 
 describe('IPC config validation', () => {
   it('accepts valid config', () => {
-    expect(validateGameModeConfig({
-      enabledOptimizations: ['svc-wsearch', 'net-flush-dns'],
-      customProcessKillList: ['spotify.exe'],
-    })).toBe(true)
+    expect(
+      validateGameModeConfig({
+        enabledOptimizations: ['svc-wsearch', 'net-flush-dns'],
+        customProcessKillList: ['spotify.exe']
+      })
+    ).toBe(true)
   })
 
   it('accepts empty arrays', () => {
-    expect(validateGameModeConfig({
-      enabledOptimizations: [],
-      customProcessKillList: [],
-    })).toBe(true)
+    expect(
+      validateGameModeConfig({
+        enabledOptimizations: [],
+        customProcessKillList: []
+      })
+    ).toBe(true)
   })
 
   it('rejects null', () => {
@@ -473,31 +581,39 @@ describe('IPC config validation', () => {
   })
 
   it('rejects config with unknown optimization IDs', () => {
-    expect(validateGameModeConfig({
-      enabledOptimizations: ['inject-command'],
-      customProcessKillList: [],
-    })).toBe(false)
+    expect(
+      validateGameModeConfig({
+        enabledOptimizations: ['inject-command'],
+        customProcessKillList: []
+      })
+    ).toBe(false)
   })
 
   it('rejects config with shell injection in process names', () => {
-    expect(validateGameModeConfig({
-      enabledOptimizations: [],
-      customProcessKillList: ['evil.exe; rm -rf /'],
-    })).toBe(false)
+    expect(
+      validateGameModeConfig({
+        enabledOptimizations: [],
+        customProcessKillList: ['evil.exe; rm -rf /']
+      })
+    ).toBe(false)
   })
 
   it('rejects config with pipe in process names', () => {
-    expect(validateGameModeConfig({
-      enabledOptimizations: [],
-      customProcessKillList: ['evil.exe | cat /etc/passwd'],
-    })).toBe(false)
+    expect(
+      validateGameModeConfig({
+        enabledOptimizations: [],
+        customProcessKillList: ['evil.exe | cat /etc/passwd']
+      })
+    ).toBe(false)
   })
 
   it('rejects config with backtick in process names', () => {
-    expect(validateGameModeConfig({
-      enabledOptimizations: [],
-      customProcessKillList: ['evil`malicious`'],
-    })).toBe(false)
+    expect(
+      validateGameModeConfig({
+        enabledOptimizations: [],
+        customProcessKillList: ['evil`malicious`']
+      })
+    ).toBe(false)
   })
 
   it('rejects config without required fields', () => {
@@ -512,22 +628,27 @@ describe('IPC config validation', () => {
 
 const GAME_DVR = 'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR'
 const GAME_CONFIG_STORE = 'HKCU:\\System\\GameConfigStore'
-const IFACE_A = 'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{aaaaaaaa-1111-2222-3333-444444444444}'
-const IFACE_B = 'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{bbbbbbbb-1111-2222-3333-444444444444}'
+const IFACE_A =
+  'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{aaaaaaaa-1111-2222-3333-444444444444}'
+const IFACE_B =
+  'Microsoft.PowerShell.Core\\Registry::HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{bbbbbbbb-1111-2222-3333-444444444444}'
 
 function seedSnapshot(overrides: Record<string, unknown> = {}): void {
-  fakeFs.set(SNAPSHOT_PATH, JSON.stringify({
-    activatedAt: '2026-07-21T22:00:00.000Z',
-    active: true,
-    services: [],
-    killedProcesses: [],
-    originalPowerPlanGuid: null,
-    originalFocusAssistState: null,
-    powerSaveBlockerId: null,
-    nagleInterfaces: [],
-    registryTweaks: [],
-    ...overrides,
-  }))
+  fakeFs.set(
+    SNAPSHOT_PATH,
+    JSON.stringify({
+      activatedAt: '2026-07-21T22:00:00.000Z',
+      active: true,
+      services: [],
+      killedProcesses: [],
+      originalPowerPlanGuid: null,
+      originalFocusAssistState: null,
+      powerSaveBlockerId: null,
+      nagleInterfaces: [],
+      registryTweaks: [],
+      ...overrides
+    })
+  )
 }
 
 function storedSnapshot(): any {
@@ -549,8 +670,8 @@ describe('deactivateGameMode residual handling', () => {
     seedSnapshot({
       registryTweaks: [
         { path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 },
-        { path: GAME_CONFIG_STORE, name: 'GameDVR_Enabled', originalValue: 1 },
-      ],
+        { path: GAME_CONFIG_STORE, name: 'GameDVR_Enabled', originalValue: 1 }
+      ]
     })
     psFailOn = ['GameDVR_Enabled']
 
@@ -560,13 +681,13 @@ describe('deactivateGameMode residual handling', () => {
     const stored = storedSnapshot()
     expect(stored.active).toBe(false)
     expect(stored.registryTweaks).toEqual([
-      { path: GAME_CONFIG_STORE, name: 'GameDVR_Enabled', originalValue: 1 },
+      { path: GAME_CONFIG_STORE, name: 'GameDVR_Enabled', originalValue: 1 }
     ])
   })
 
   it('persists the failure reason so the banner can name the stuck step', async () => {
     seedSnapshot({
-      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }]
     })
     psFailOn = ['AppCaptureEnabled']
 
@@ -583,7 +704,7 @@ describe('deactivateGameMode residual handling', () => {
     seedSnapshot({
       active: false,
       registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
-      restoreErrors: [{ optimizationId: 'sys-registry-tweaks', reason: 'earlier failure' }],
+      restoreErrors: [{ optimizationId: 'sys-registry-tweaks', reason: 'earlier failure' }]
     })
 
     const result = await deactivateGameMode(noop)
@@ -595,7 +716,7 @@ describe('deactivateGameMode residual handling', () => {
 
   it('recreates a vanished registry key instead of failing forever', async () => {
     seedSnapshot({
-      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }]
     })
 
     await deactivateGameMode(noop)
@@ -606,7 +727,7 @@ describe('deactivateGameMode residual handling', () => {
 
   it('skips Nagle interfaces whose registry key no longer exists', async () => {
     seedSnapshot({
-      nagleInterfaces: [{ path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 }],
+      nagleInterfaces: [{ path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 }]
     })
 
     const result = await deactivateGameMode(noop)
@@ -620,8 +741,8 @@ describe('deactivateGameMode residual handling', () => {
     seedSnapshot({
       nagleInterfaces: [
         { path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 },
-        { path: IFACE_B, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 },
-      ],
+        { path: IFACE_B, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 }
+      ]
     })
     psFailOn = ['{bbbbbbbb-']
 
@@ -634,7 +755,7 @@ describe('deactivateGameMode residual handling', () => {
 
   it('guards service restore against a service that no longer exists', async () => {
     seedSnapshot({
-      services: [{ name: 'WSearch', originalStartType: 'Automatic', wasRunning: true }],
+      services: [{ name: 'WSearch', originalStartType: 'Automatic', wasRunning: true }]
     })
 
     await deactivateGameMode(noop)
@@ -725,7 +846,7 @@ describe('discardPendingRestore', () => {
     seedSnapshot({
       active: false,
       registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
-      restoreErrors: [{ optimizationId: 'sys-registry-tweaks', reason: 'Access denied' }],
+      restoreErrors: [{ optimizationId: 'sys-registry-tweaks', reason: 'Access denied' }]
     })
     expect(getGameModeStatus().pendingRestore).toBe(true)
 
@@ -735,13 +856,13 @@ describe('discardPendingRestore', () => {
       active: false,
       activatedAt: null,
       pendingRestore: false,
-      pendingReason: null,
+      pendingReason: null
     })
   })
 
   it('refuses while Game Mode is still active', () => {
     seedSnapshot({
-      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }],
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: 1 }]
     })
 
     const result = discardPendingRestore()
@@ -759,7 +880,13 @@ describe('discardPendingRestore', () => {
 })
 
 describe('optimization ID consistency', () => {
-  const SERVICE_MAP_KEYS = new Set(['svc-wsearch', 'svc-sysmain', 'svc-wuauserv', 'svc-spooler', 'svc-diagtrack'])
+  const SERVICE_MAP_KEYS = new Set([
+    'svc-wsearch',
+    'svc-sysmain',
+    'svc-wuauserv',
+    'svc-spooler',
+    'svc-diagtrack'
+  ])
 
   it('SERVICE_MAP keys are a subset of valid optimization IDs', () => {
     for (const key of SERVICE_MAP_KEYS) {

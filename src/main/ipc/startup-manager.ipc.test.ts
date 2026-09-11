@@ -27,7 +27,7 @@ function createExecFileMock() {
 }
 
 vi.mock('child_process', () => ({
-  execFile: createExecFileMock(),
+  execFile: createExecFileMock()
 }))
 
 vi.mock('../services/exec-utf8', () => ({
@@ -39,7 +39,7 @@ vi.mock('../services/exec-utf8', () => ({
       })
     })
   },
-  psUtf8: (cmd: string) => cmd,
+  psUtf8: (cmd: string) => cmd
 }))
 
 // ── Mock fs ─────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ vi.mock('fs', () => ({
   writeFileSync: (...args: unknown[]) => mockWriteFileSync(...args),
   mkdirSync: (...args: unknown[]) => mockMkdirSync(...args),
   readdirSync: (...args: unknown[]) => mockReaddirSync(...args),
-  unlinkSync: (...args: unknown[]) => mockUnlinkSync(...args),
+  unlinkSync: (...args: unknown[]) => mockUnlinkSync(...args)
 }))
 
 // ── Mock electron ───────────────────────────────────────────────────
@@ -68,16 +68,16 @@ vi.mock('electron', () => ({
       if (name === 'userData') return 'C:\\Users\\Test\\AppData\\Roaming\\Kudu'
       if (name === 'appData') return 'C:\\Users\\Test\\AppData\\Roaming'
       return 'C:\\mock'
-    },
+    }
   },
   ipcMain: {
     handle: (channel: string, handler: Function) => {
       mockHandlers.set(channel, handler)
-    },
+    }
   },
   shell: {
-    readShortcutLink: (...args: unknown[]) => mockReadShortcutLink(...args),
-  },
+    readShortcutLink: (...args: unknown[]) => mockReadShortcutLink(...args)
+  }
 }))
 
 // ── Mock platform ───────────────────────────────────────────────────
@@ -87,9 +87,9 @@ vi.mock('../platform', () => ({
       listItems: vi.fn().mockResolvedValue([]),
       toggleItem: vi.fn().mockResolvedValue(true),
       deleteItem: vi.fn().mockResolvedValue(true),
-      getBootTrace: vi.fn().mockResolvedValue(null),
-    },
-  }),
+      getBootTrace: vi.fn().mockResolvedValue(null)
+    }
+  })
 }))
 
 // ── Import under test (after mocks) ────────────────────────────────
@@ -98,7 +98,7 @@ import {
   toggleStartupItem,
   deleteStartupItem,
   getBootTrace,
-  registerStartupManagerIpc,
+  registerStartupManagerIpc
 } from './startup-manager.ipc'
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -117,7 +117,9 @@ function setPlatform(p: string) {
  * Helper: sets up mockExecFile so that promisify(execFile) works.
  * `handler` receives (cmd, args, opts) and should return { stdout } or throw.
  */
-function setupExecFileHandler(handler: (cmd: string, args: string[], opts: any) => { stdout: string }) {
+function setupExecFileHandler(
+  handler: (cmd: string, args: string[], opts: any) => { stdout: string }
+) {
   mockExecFile.mockImplementation((cmd: string, args: string[], opts: any, cb: Function) => {
     try {
       const result = handler(cmd, args, opts)
@@ -192,32 +194,42 @@ afterAll(() => {
 describe('deriveDisplayName (logic replica)', () => {
   function friendlyExeName(name: string): string {
     const knownExes: Record<string, string> = {
-      'msedge': 'Microsoft Edge',
-      'chrome': 'Google Chrome',
-      'firefox': 'Mozilla Firefox',
-      'steam': 'Steam',
-      'discord': 'Discord',
-      'spotify': 'Spotify',
-      'teams': 'Microsoft Teams',
+      msedge: 'Microsoft Edge',
+      chrome: 'Google Chrome',
+      firefox: 'Mozilla Firefox',
+      steam: 'Steam',
+      discord: 'Discord',
+      spotify: 'Spotify',
+      teams: 'Microsoft Teams',
       'ms-teams': 'Microsoft Teams',
-      'slack': 'Slack',
-      'notion': 'Notion',
-      'onedrive': 'OneDrive',
-      'googledrivefs': 'Google Drive',
-      'protondrive': 'Proton Drive',
-      'lghub_system_tray': 'Logitech G HUB',
-      'docker desktop': 'Docker Desktop',
+      slack: 'Slack',
+      notion: 'Notion',
+      onedrive: 'OneDrive',
+      googledrivefs: 'Google Drive',
+      protondrive: 'Proton Drive',
+      lghub_system_tray: 'Logitech G HUB',
+      'docker desktop': 'Docker Desktop'
     }
     const lc = name.toLowerCase()
     if (knownExes[lc]) return knownExes[lc]
-    return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[_-]/g, ' ').replace(/\s+/g, ' ').trim()
+    return name
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/[_-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   function deriveDisplayName(registryName: string, command: string): string {
     const quotedMatch = command.match(/^"([^"]+)"/)
-    const exePathMatch = quotedMatch ? quotedMatch[1] : command.match(/^(.+?\.exe)\b/i)?.[1] || command.match(/^(\S+)/)?.[1] || ''
+    const exePathMatch = quotedMatch
+      ? quotedMatch[1]
+      : command.match(/^(.+?\.exe)\b/i)?.[1] || command.match(/^(\S+)/)?.[1] || ''
     const exePath = exePathMatch.replace(/\\/g, '/')
-    const exeName = exePath.split('/').pop()?.replace(/\.[^.]+$/, '') || ''
+    const exeName =
+      exePath
+        .split('/')
+        .pop()
+        ?.replace(/\.[^.]+$/, '') || ''
 
     const electronMatch = registryName.match(/^electron\.app\.(.+)$/i)
     if (electronMatch) return electronMatch[1]
@@ -229,7 +241,10 @@ describe('deriveDisplayName (logic replica)', () => {
       return prefix
     }
 
-    if (registryName.includes(' ') || (registryName.length <= 30 && /^[A-Za-z0-9 ._-]+$/.test(registryName))) {
+    if (
+      registryName.includes(' ') ||
+      (registryName.length <= 30 && /^[A-Za-z0-9 ._-]+$/.test(registryName))
+    ) {
       return registryName
     }
 
@@ -238,7 +253,9 @@ describe('deriveDisplayName (logic replica)', () => {
   }
 
   it('extracts name from electron.app.X pattern', () => {
-    expect(deriveDisplayName('electron.app.Discord', '"C:\\Discord\\Discord.exe" --start-minimized')).toBe('Discord')
+    expect(
+      deriveDisplayName('electron.app.Discord', '"C:\\Discord\\Discord.exe" --start-minimized')
+    ).toBe('Discord')
   })
 
   it('derives from hex-suffixed names using prefix', () => {
@@ -246,7 +263,9 @@ describe('deriveDisplayName (logic replica)', () => {
   })
 
   it('falls back to exe for long hex-suffixed prefix', () => {
-    expect(deriveDisplayName('VeryLongApplicationNameThatExceeds_ABCDEF12', '"C:\\App\\discord.exe"')).toBe('Discord')
+    expect(
+      deriveDisplayName('VeryLongApplicationNameThatExceeds_ABCDEF12', '"C:\\App\\discord.exe"')
+    ).toBe('Discord')
   })
 
   it('returns readable registry names as-is', () => {
@@ -255,7 +274,9 @@ describe('deriveDisplayName (logic replica)', () => {
   })
 
   it('falls back to exe name for unreadable registry names', () => {
-    expect(deriveDisplayName('{CLSID-GUID-HERE}', '"C:\\Program Files\\chrome.exe"')).toBe('Google Chrome')
+    expect(deriveDisplayName('{CLSID-GUID-HERE}', '"C:\\Program Files\\chrome.exe"')).toBe(
+      'Google Chrome'
+    )
   })
 
   it('handles known exe mappings via exe path', () => {
@@ -276,7 +297,13 @@ describe('extractPublisher (logic replica)', () => {
     if (!command) return 'Unknown'
     const lc = command.toLowerCase()
     if (lc.includes('google')) return 'Google LLC'
-    if (lc.includes('\\microsoft\\') || lc.includes('microsoft edge') || lc.includes('\\msteams') || lc.includes('onedrive')) return 'Microsoft Corporation'
+    if (
+      lc.includes('\\microsoft\\') ||
+      lc.includes('microsoft edge') ||
+      lc.includes('\\msteams') ||
+      lc.includes('onedrive')
+    )
+      return 'Microsoft Corporation'
     if (lc.includes('discord')) return 'Discord Inc.'
     if (lc.includes('spotify')) return 'Spotify AB'
     if (lc.includes('steam')) return 'Valve Corporation'
@@ -313,11 +340,15 @@ describe('extractPublisher (logic replica)', () => {
   })
 
   it('detects Microsoft by path', () => {
-    expect(extractPublisher('"C:\\Program Files\\Microsoft\\Edge\\msedge.exe"')).toBe('Microsoft Corporation')
+    expect(extractPublisher('"C:\\Program Files\\Microsoft\\Edge\\msedge.exe"')).toBe(
+      'Microsoft Corporation'
+    )
   })
 
   it('detects Discord', () => {
-    expect(extractPublisher('"C:\\Users\\User\\AppData\\Local\\Discord\\Update.exe"')).toBe('Discord Inc.')
+    expect(extractPublisher('"C:\\Users\\User\\AppData\\Local\\Discord\\Update.exe"')).toBe(
+      'Discord Inc.'
+    )
   })
 
   it('detects Spotify', () => {
@@ -348,7 +379,17 @@ describe('extractPublisher (logic replica)', () => {
 describe('estimateImpact (logic replica)', () => {
   function estimateImpact(name: string, command?: string): 'high' | 'medium' | 'low' | 'none' {
     const lc = (name + ' ' + (command || '')).toLowerCase()
-    const highImpact = ['chrome', 'discord', 'teams', 'ms-teams', 'slack', 'steam', 'edge', 'msedge', 'docker']
+    const highImpact = [
+      'chrome',
+      'discord',
+      'teams',
+      'ms-teams',
+      'slack',
+      'steam',
+      'edge',
+      'msedge',
+      'docker'
+    ]
     const medImpact = ['spotify', 'onedrive', 'dropbox', 'adobe', 'notion', 'zoom', 'firefox']
     const noImpact = ['securityhealth', 'windowsdefender', 'securitycenter', 'windows defender']
 
@@ -389,7 +430,12 @@ describe('estimateImpact (logic replica)', () => {
 
 describe('isSafeTaskName (logic replica)', () => {
   function isSafeTaskName(name: string): boolean {
-    return typeof name === 'string' && name.length > 0 && name.length <= 260 && /^[A-Za-z0-9 \-._()]+$/.test(name)
+    return (
+      typeof name === 'string' &&
+      name.length > 0 &&
+      name.length <= 260 &&
+      /^[A-Za-z0-9 \-._()]+$/.test(name)
+    )
   }
 
   it('accepts simple names', () => {
@@ -429,11 +475,15 @@ describe('makeStableId (logic replica)', () => {
   })
 
   it('differs for different names', () => {
-    expect(makeStableId('Spotify', 'registry-hkcu')).not.toBe(makeStableId('Discord', 'registry-hkcu'))
+    expect(makeStableId('Spotify', 'registry-hkcu')).not.toBe(
+      makeStableId('Discord', 'registry-hkcu')
+    )
   })
 
   it('differs for different sources', () => {
-    expect(makeStableId('Spotify', 'registry-hkcu')).not.toBe(makeStableId('Spotify', 'registry-hklm'))
+    expect(makeStableId('Spotify', 'registry-hkcu')).not.toBe(
+      makeStableId('Spotify', 'registry-hklm')
+    )
   })
 })
 
@@ -447,8 +497,15 @@ describe('listStartupItems', () => {
       if (cmd === 'reg' && args[0] === 'query' && args[1] === HKCU_RUN) {
         return {
           stdout: regOutput([
-            { name: 'Discord', command: '"C:\\Users\\User\\AppData\\Local\\Discord\\Update.exe" --processStart Discord.exe' },
-            { name: 'Spotify', command: '"C:\\Users\\User\\AppData\\Roaming\\Spotify\\Spotify.exe" /minimized' },
+            {
+              name: 'Discord',
+              command:
+                '"C:\\Users\\User\\AppData\\Local\\Discord\\Update.exe" --processStart Discord.exe'
+            },
+            {
+              name: 'Spotify',
+              command: '"C:\\Users\\User\\AppData\\Roaming\\Spotify\\Spotify.exe" /minimized'
+            }
           ])
         }
       }
@@ -468,7 +525,14 @@ describe('listStartupItems', () => {
   it('returns items from HKLM and WOW6432Node registries', async () => {
     setupExecFileHandler((cmd, args) => {
       if (cmd === 'reg' && args[1] === HKLM_RUN) {
-        return { stdout: regOutput([{ name: 'SecurityHealth', command: '"C:\\Windows\\System32\\SecurityHealthSystray.exe"' }]) }
+        return {
+          stdout: regOutput([
+            {
+              name: 'SecurityHealth',
+              command: '"C:\\Windows\\System32\\SecurityHealthSystray.exe"'
+            }
+          ])
+        }
       }
       if (cmd === 'reg' && args[1] === HKLM_WOW64_RUN) {
         return { stdout: regOutput([{ name: 'Steam', command: '"C:\\Steam\\Steam.exe" -silent' }]) }
@@ -477,7 +541,9 @@ describe('listStartupItems', () => {
     })
 
     const items = await listStartupItems()
-    expect(items.some((i) => i.name === 'SecurityHealth' && i.source === 'registry-hklm')).toBe(true)
+    expect(items.some((i) => i.name === 'SecurityHealth' && i.source === 'registry-hklm')).toBe(
+      true
+    )
     expect(items.some((i) => i.name === 'Steam' && i.source === 'registry-hklm')).toBe(true)
   })
 
@@ -498,7 +564,8 @@ describe('listStartupItems', () => {
   })
 
   it('merges StartupApproved disabled state', async () => {
-    const approvedKey = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
+    const approvedKey =
+      'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartupApproved\\Run'
     setupExecFileHandler((cmd, args) => {
       if (cmd === 'reg' && args[1] === HKCU_RUN) {
         return { stdout: regOutput([{ name: 'Discord', command: '"C:\\Discord\\Discord.exe"' }]) }
@@ -562,9 +629,16 @@ describe('listStartupItems', () => {
 
   it('merges disabled entries from JSON file', async () => {
     const disabledEntries = [
-      { name: 'OldApp', command: '"C:\\OldApp\\app.exe"', location: HKCU_RUN, source: 'registry-hkcu' as const },
+      {
+        name: 'OldApp',
+        command: '"C:\\OldApp\\app.exe"',
+        location: HKCU_RUN,
+        source: 'registry-hkcu' as const
+      }
     ]
-    mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+    mockExistsSync.mockImplementation((p: string) =>
+      (p as string).endsWith('disabled-startups.json')
+    )
     mockReadFileSync.mockReturnValue(JSON.stringify(disabledEntries))
 
     const items = await listStartupItems()
@@ -576,9 +650,16 @@ describe('listStartupItems', () => {
 
   it('marks existing items as disabled when found in disabled file', async () => {
     const disabledEntries = [
-      { name: 'Discord', command: '"C:\\Discord\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' as const },
+      {
+        name: 'Discord',
+        command: '"C:\\Discord\\Discord.exe"',
+        location: HKCU_RUN,
+        source: 'registry-hkcu' as const
+      }
     ]
-    mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+    mockExistsSync.mockImplementation((p: string) =>
+      (p as string).endsWith('disabled-startups.json')
+    )
     mockReadFileSync.mockReturnValue(JSON.stringify(disabledEntries))
     setupExecFileHandler((cmd, args) => {
       if (cmd === 'reg' && args[1] === HKCU_RUN) {
@@ -594,7 +675,9 @@ describe('listStartupItems', () => {
   })
 
   it('handles corrupt disabled-startups.json gracefully', async () => {
-    mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+    mockExistsSync.mockImplementation((p: string) =>
+      (p as string).endsWith('disabled-startups.json')
+    )
     mockReadFileSync.mockReturnValue('not valid json{{{')
 
     const items = await listStartupItems()
@@ -626,8 +709,8 @@ describe('stale startup entries', () => {
 
   /** existsSync mock where only the listed paths (plus the C: volume) exist */
   function onlyExisting(...paths: string[]) {
-    mockExistsSync.mockImplementation((p: string) =>
-      p === 'C:\\' || paths.some((x) => p === x || (p as string).endsWith(x))
+    mockExistsSync.mockImplementation(
+      (p: string) => p === 'C:\\' || paths.some((x) => p === x || (p as string).endsWith(x))
     )
   }
 
@@ -659,9 +742,11 @@ describe('stale startup entries', () => {
     it('flags — but keeps — an entry the first time its program is missing', async () => {
       // A single missing-file observation could just be an updater mid-replace
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' }
+        ])
+      )
       withApprovedMarker('DuckDuckGo')
 
       const items = await listStartupItems()
@@ -674,9 +759,17 @@ describe('stale startup entries', () => {
 
     it('drops an entry whose program has stayed uninstalled', async () => {
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'DuckDuckGo',
+            command: GHOST_CMD,
+            location: HKCU_RUN,
+            source: 'registry-hkcu',
+            missingSince: longGone()
+          }
+        ])
+      )
       withApprovedMarker('DuckDuckGo')
 
       const items = await listStartupItems()
@@ -687,15 +780,26 @@ describe('stale startup entries', () => {
 
     it('clears the StartupApproved marker for the entry it drops', async () => {
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'DuckDuckGo',
+            command: GHOST_CMD,
+            location: HKCU_RUN,
+            source: 'registry-hkcu',
+            missingSince: longGone()
+          }
+        ])
+      )
       const regCalls = withApprovedMarker('DuckDuckGo')
 
       const items = await listStartupItems()
       expect(items.find((i) => i.name === 'DuckDuckGo')).toBeUndefined()
       const markerDelete = regCalls.find(
-        (c) => c.args[0] === 'delete' && c.args[1].includes('StartupApproved') && c.args.includes('DuckDuckGo')
+        (c) =>
+          c.args[0] === 'delete' &&
+          c.args[1].includes('StartupApproved') &&
+          c.args.includes('DuckDuckGo')
       )
       expect(markerDelete).toBeDefined()
       expect(lastWrittenDisabledFile()).toEqual([])
@@ -703,9 +807,17 @@ describe('stale startup entries', () => {
 
     it('restarts the clock when the program comes back', async () => {
       onlyExisting(DISABLED_FILE, 'C:\\Users\\User\\AppData\\Local\\DuckDuckGo\\DuckDuckGo.exe')
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'DuckDuckGo',
+            command: GHOST_CMD,
+            location: HKCU_RUN,
+            source: 'registry-hkcu',
+            missingSince: longGone()
+          }
+        ])
+      )
 
       const items = await listStartupItems()
       const ghost = items.find((i) => i.name === 'DuckDuckGo')
@@ -718,9 +830,17 @@ describe('stale startup entries', () => {
       // Without the stored command a reinstalled program could never be
       // re-enabled, so the record has to survive a failed marker cleanup.
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"', location: HKLM_RUN, source: 'registry-hklm', missingSince: longGone() },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'Nahimic',
+            command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"',
+            location: HKLM_RUN,
+            source: 'registry-hklm',
+            missingSince: longGone()
+          }
+        ])
+      )
       withApprovedMarker('Nahimic', { deleteFails: true })
 
       const items = await listStartupItems()
@@ -734,9 +854,17 @@ describe('stale startup entries', () => {
     it('keeps the entry when the StartupApproved key cannot be read', async () => {
       // A failed lookup is not evidence that no marker exists
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'DuckDuckGo',
+            command: GHOST_CMD,
+            location: HKCU_RUN,
+            source: 'registry-hkcu',
+            missingSince: longGone()
+          }
+        ])
+      )
       // Default execFile mock fails every call, including the approved query
 
       const items = await listStartupItems()
@@ -746,9 +874,17 @@ describe('stale startup entries', () => {
 
     it('drops the entry when the key is readable and holds no marker', async () => {
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu', missingSince: longGone() },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'DuckDuckGo',
+            command: GHOST_CMD,
+            location: HKCU_RUN,
+            source: 'registry-hkcu',
+            missingSince: longGone()
+          }
+        ])
+      )
       const regCalls = withApprovedMarker('SomethingElse')
 
       const items = await listStartupItems()
@@ -760,9 +896,11 @@ describe('stale startup entries', () => {
 
     it('keeps a disabled entry while its program is still installed', async () => {
       onlyExisting(DISABLED_FILE, 'C:\\Users\\User\\AppData\\Local\\DuckDuckGo\\DuckDuckGo.exe')
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          { name: 'DuckDuckGo', command: GHOST_CMD, location: HKCU_RUN, source: 'registry-hkcu' }
+        ])
+      )
 
       const items = await listStartupItems()
       const ghost = items.find((i) => i.name === 'DuckDuckGo')
@@ -773,9 +911,16 @@ describe('stale startup entries', () => {
 
     it('keeps a disabled entry whose target cannot be resolved', async () => {
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'Helper', command: 'rundll32.exe C:\\App\\helper.dll,Start', location: HKCU_RUN, source: 'registry-hkcu' },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'Helper',
+            command: 'rundll32.exe C:\\App\\helper.dll,Start',
+            location: HKCU_RUN,
+            source: 'registry-hkcu'
+          }
+        ])
+      )
 
       const items = await listStartupItems()
       expect(items.find((i) => i.name === 'Helper')).toBeDefined()
@@ -785,9 +930,16 @@ describe('stale startup entries', () => {
     it('keeps a disabled entry when its volume is not mounted', async () => {
       // Only the JSON file exists — the D: volume is absent, so "missing" is unknown
       mockExistsSync.mockImplementation((p: string) => (p as string).endsWith(DISABLED_FILE))
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'PortableApp', command: '"D:\\Portable\\app.exe"', location: HKCU_RUN, source: 'registry-hkcu' },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'PortableApp',
+            command: '"D:\\Portable\\app.exe"',
+            location: HKCU_RUN,
+            source: 'registry-hkcu'
+          }
+        ])
+      )
 
       const items = await listStartupItems()
       expect(items.find((i) => i.name === 'PortableApp')).toBeDefined()
@@ -796,9 +948,16 @@ describe('stale startup entries', () => {
 
     it('keeps a disabled entry that still has a live registry value', async () => {
       onlyExisting(DISABLED_FILE)
-      mockReadFileSync.mockReturnValue(JSON.stringify([
-        { name: 'Discord', command: '"C:\\Discord\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' },
-      ]))
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify([
+          {
+            name: 'Discord',
+            command: '"C:\\Discord\\Discord.exe"',
+            location: HKCU_RUN,
+            source: 'registry-hkcu'
+          }
+        ])
+      )
       setupExecFileHandler((cmd, args) => {
         if (cmd === 'reg' && args[1] === HKCU_RUN) {
           return { stdout: regOutput([{ name: 'Discord', command: '"C:\\Discord\\Discord.exe"' }]) }
@@ -819,7 +978,11 @@ describe('stale startup entries', () => {
       onlyExisting()
       setupExecFileHandler((cmd, args) => {
         if (cmd === 'reg' && args[1] === HKCU_RUN) {
-          return { stdout: regOutput([{ name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"' }]) }
+          return {
+            stdout: regOutput([
+              { name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe"' }
+            ])
+          }
         }
         throw new Error('not found')
       })
@@ -832,7 +995,11 @@ describe('stale startup entries', () => {
       onlyExisting('C:\\Program Files\\Nahimic\\Nahimic.exe')
       setupExecFileHandler((cmd, args) => {
         if (cmd === 'reg' && args[1] === HKCU_RUN) {
-          return { stdout: regOutput([{ name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe" -tray' }]) }
+          return {
+            stdout: regOutput([
+              { name: 'Nahimic', command: '"C:\\Program Files\\Nahimic\\Nahimic.exe" -tray' }
+            ])
+          }
         }
         throw new Error('not found')
       })
@@ -845,7 +1012,14 @@ describe('stale startup entries', () => {
       onlyExisting()
       setupExecFileHandler((cmd, args) => {
         if (cmd === 'reg' && args[1] === HKLM_RUN) {
-          return { stdout: regOutput([{ name: 'SecurityHealth', command: 'C:\\Windows\\system32\\SecurityHealthSystray.exe' }]) }
+          return {
+            stdout: regOutput([
+              {
+                name: 'SecurityHealth',
+                command: 'C:\\Windows\\system32\\SecurityHealthSystray.exe'
+              }
+            ])
+          }
         }
         throw new Error('not found')
       })
@@ -858,7 +1032,9 @@ describe('stale startup entries', () => {
       onlyExisting()
       setupExecFileHandler((cmd) => {
         if (cmd === 'powershell') {
-          return { stdout: 'TASK|NahimicSvc32Run|C:\\Program Files\\Nahimic\\NahimicSvc32.exe /run|Ready\n' }
+          return {
+            stdout: 'TASK|NahimicSvc32Run|C:\\Program Files\\Nahimic\\NahimicSvc32.exe /run|Ready\n'
+          }
         }
         throw new Error('not found')
       })
@@ -868,7 +1044,9 @@ describe('stale startup entries', () => {
     })
 
     it('flags a startup-folder shortcut whose target is gone', async () => {
-      mockExistsSync.mockImplementation((p: string) => (p as string).includes('Startup') || p === 'C:\\')
+      mockExistsSync.mockImplementation(
+        (p: string) => (p as string).includes('Startup') || p === 'C:\\'
+      )
       mockReaddirSync.mockReturnValue(['OldApp.lnk'])
       mockReadShortcutLink.mockReturnValue({ target: 'C:\\Program Files\\OldApp\\OldApp.exe' })
 
@@ -877,9 +1055,13 @@ describe('stale startup entries', () => {
     })
 
     it('does not flag a shortcut whose target cannot be read', async () => {
-      mockExistsSync.mockImplementation((p: string) => (p as string).includes('Startup') || p === 'C:\\')
+      mockExistsSync.mockImplementation(
+        (p: string) => (p as string).includes('Startup') || p === 'C:\\'
+      )
       mockReaddirSync.mockReturnValue(['OldApp.lnk'])
-      mockReadShortcutLink.mockImplementation(() => { throw new Error('not a shortcut') })
+      mockReadShortcutLink.mockImplementation(() => {
+        throw new Error('not a shortcut')
+      })
 
       const items = await listStartupItems()
       expect(items.find((i) => i.name === 'OldApp.lnk')!.stale).toBe(false)
@@ -894,7 +1076,7 @@ describe('stale startup entries', () => {
             stdout: regOutput([
               { name: 'Present', command: '%__KUDU_TEST_APPDIR%\\present.exe' },
               { name: 'Gone', command: '%__KUDU_TEST_APPDIR%\\gone.exe' },
-              { name: 'UnknownVar', command: '%__KUDU_NOT_SET__%\\app.exe' },
+              { name: 'UnknownVar', command: '%__KUDU_NOT_SET__%\\app.exe' }
             ])
           }
         }
@@ -919,7 +1101,13 @@ describe('toggleStartupItem', () => {
     it('writes disabled marker to StartupApproved, deletes Run key, and persists to file', async () => {
       const regCalls = collectRegCalls()
 
-      const result = await toggleStartupItem('Discord', HKCU_RUN, '"C:\\Discord.exe"', 'registry-hkcu', false)
+      const result = await toggleStartupItem(
+        'Discord',
+        HKCU_RUN,
+        '"C:\\Discord.exe"',
+        'registry-hkcu',
+        false
+      )
       expect(result).toBe(true)
 
       // Should have called reg add for StartupApproved with 03 (disabled)
@@ -936,8 +1124,17 @@ describe('toggleStartupItem', () => {
     })
 
     it('does not duplicate entries in disabled file', async () => {
-      const existing = [{ name: 'Discord', command: '"C:\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' }]
-      mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+      const existing = [
+        {
+          name: 'Discord',
+          command: '"C:\\Discord.exe"',
+          location: HKCU_RUN,
+          source: 'registry-hkcu'
+        }
+      ]
+      mockExistsSync.mockImplementation((p: string) =>
+        (p as string).endsWith('disabled-startups.json')
+      )
       mockReadFileSync.mockReturnValue(JSON.stringify(existing))
       collectRegCalls() // sets up mock to succeed
 
@@ -953,14 +1150,24 @@ describe('toggleStartupItem', () => {
   describe('enabling a registry item', () => {
     it('uses stored command from disabled file, not renderer-supplied command', async () => {
       const storedCommand = '"C:\\SafePath\\Discord.exe"'
-      const existing = [{ name: 'Discord', command: storedCommand, location: HKCU_RUN, source: 'registry-hkcu' }]
-      mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+      const existing = [
+        { name: 'Discord', command: storedCommand, location: HKCU_RUN, source: 'registry-hkcu' }
+      ]
+      mockExistsSync.mockImplementation((p: string) =>
+        (p as string).endsWith('disabled-startups.json')
+      )
       mockReadFileSync.mockReturnValue(JSON.stringify(existing))
 
       const regCalls = collectRegCalls()
 
       const rendererCommand = '"C:\\Malicious\\evil.exe"'
-      const result = await toggleStartupItem('Discord', HKCU_RUN, rendererCommand, 'registry-hkcu', true)
+      const result = await toggleStartupItem(
+        'Discord',
+        HKCU_RUN,
+        rendererCommand,
+        'registry-hkcu',
+        true
+      )
       expect(result).toBe(true)
 
       // The reg add call for REG_SZ should use the stored command
@@ -971,30 +1178,54 @@ describe('toggleStartupItem', () => {
     })
 
     it('rejects enable if no stored entry exists (prevents arbitrary autorun)', async () => {
-      const result = await toggleStartupItem('EvilApp', HKCU_RUN, '"C:\\evil.exe"', 'registry-hkcu', true)
+      const result = await toggleStartupItem(
+        'EvilApp',
+        HKCU_RUN,
+        '"C:\\evil.exe"',
+        'registry-hkcu',
+        true
+      )
       expect(result).toBe(false)
     })
 
     it('writes enabled marker (02) to StartupApproved', async () => {
-      const existing = [{ name: 'Discord', command: '"C:\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' }]
-      mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+      const existing = [
+        {
+          name: 'Discord',
+          command: '"C:\\Discord.exe"',
+          location: HKCU_RUN,
+          source: 'registry-hkcu'
+        }
+      ]
+      mockExistsSync.mockImplementation((p: string) =>
+        (p as string).endsWith('disabled-startups.json')
+      )
       mockReadFileSync.mockReturnValue(JSON.stringify(existing))
 
       const regCalls = collectRegCalls()
 
       await toggleStartupItem('Discord', HKCU_RUN, '', 'registry-hkcu', true)
 
-      const approvedCall = regCalls.find((c) => c.args[0] === 'add' && c.args.includes('REG_BINARY'))
+      const approvedCall = regCalls.find(
+        (c) => c.args[0] === 'add' && c.args.includes('REG_BINARY')
+      )
       expect(approvedCall).toBeDefined()
       expect(approvedCall!.args).toContain('020000000000000000000000')
     })
 
     it('removes entry from disabled file after enabling', async () => {
       const existing = [
-        { name: 'Discord', command: '"C:\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' },
-        { name: 'Steam', command: '"C:\\Steam.exe"', location: HKCU_RUN, source: 'registry-hkcu' },
+        {
+          name: 'Discord',
+          command: '"C:\\Discord.exe"',
+          location: HKCU_RUN,
+          source: 'registry-hkcu'
+        },
+        { name: 'Steam', command: '"C:\\Steam.exe"', location: HKCU_RUN, source: 'registry-hkcu' }
       ]
-      mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+      mockExistsSync.mockImplementation((p: string) =>
+        (p as string).endsWith('disabled-startups.json')
+      )
       mockReadFileSync.mockReturnValue(JSON.stringify(existing))
       collectRegCalls()
 
@@ -1011,7 +1242,13 @@ describe('toggleStartupItem', () => {
     it('enables a scheduled task via PowerShell', async () => {
       const regCalls = collectRegCalls()
 
-      const result = await toggleStartupItem('SpotifyStartup', 'Task Scheduler', '', 'task-scheduler', true)
+      const result = await toggleStartupItem(
+        'SpotifyStartup',
+        'Task Scheduler',
+        '',
+        'task-scheduler',
+        true
+      )
       expect(result).toBe(true)
       const psCall = regCalls.find((c) => c.cmd === 'powershell')
       expect(psCall).toBeDefined()
@@ -1022,14 +1259,26 @@ describe('toggleStartupItem', () => {
     it('disables a scheduled task via PowerShell', async () => {
       const regCalls = collectRegCalls()
 
-      const result = await toggleStartupItem('SpotifyStartup', 'Task Scheduler', '', 'task-scheduler', false)
+      const result = await toggleStartupItem(
+        'SpotifyStartup',
+        'Task Scheduler',
+        '',
+        'task-scheduler',
+        false
+      )
       expect(result).toBe(true)
       const psCall = regCalls.find((c) => c.cmd === 'powershell')
       expect(psCall!.args.join(' ')).toContain('Disable-ScheduledTask')
     })
 
     it('returns false for unsafe task names', async () => {
-      const result = await toggleStartupItem("evil'; rm -rf /", 'Task Scheduler', '', 'task-scheduler', false)
+      const result = await toggleStartupItem(
+        "evil'; rm -rf /",
+        'Task Scheduler',
+        '',
+        'task-scheduler',
+        false
+      )
       expect(result).toBe(false)
       expect(mockExecFile).not.toHaveBeenCalled()
     })
@@ -1039,32 +1288,62 @@ describe('toggleStartupItem', () => {
         cb(new Error('Access denied'), '', '')
       })
 
-      const result = await toggleStartupItem('SpotifyStartup', 'Task Scheduler', '', 'task-scheduler', true)
+      const result = await toggleStartupItem(
+        'SpotifyStartup',
+        'Task Scheduler',
+        '',
+        'task-scheduler',
+        true
+      )
       expect(result).toBe(false)
     })
   })
 
   describe('input validation', () => {
     it('rejects disallowed registry locations', async () => {
-      const result = await toggleStartupItem('Evil', 'HKLM\\SOFTWARE\\Evil\\Path', 'cmd.exe', 'registry-hklm', false)
+      const result = await toggleStartupItem(
+        'Evil',
+        'HKLM\\SOFTWARE\\Evil\\Path',
+        'cmd.exe',
+        'registry-hklm',
+        false
+      )
       expect(result).toBe(false)
     })
 
     it('accepts HKCU Run location', async () => {
       collectRegCalls()
-      const result = await toggleStartupItem('App', HKCU_RUN, '"C:\\app.exe"', 'registry-hkcu', false)
+      const result = await toggleStartupItem(
+        'App',
+        HKCU_RUN,
+        '"C:\\app.exe"',
+        'registry-hkcu',
+        false
+      )
       expect(result).toBe(true)
     })
 
     it('accepts HKLM Run location', async () => {
       collectRegCalls()
-      const result = await toggleStartupItem('App', HKLM_RUN, '"C:\\app.exe"', 'registry-hklm', false)
+      const result = await toggleStartupItem(
+        'App',
+        HKLM_RUN,
+        '"C:\\app.exe"',
+        'registry-hklm',
+        false
+      )
       expect(result).toBe(true)
     })
 
     it('accepts HKLM WOW6432Node location', async () => {
       collectRegCalls()
-      const result = await toggleStartupItem('App', HKLM_WOW64_RUN, '"C:\\app.exe"', 'registry-hklm', false)
+      const result = await toggleStartupItem(
+        'App',
+        HKLM_WOW64_RUN,
+        '"C:\\app.exe"',
+        'registry-hklm',
+        false
+      )
       expect(result).toBe(true)
     })
   })
@@ -1081,8 +1360,8 @@ describe('toggleStartupItem', () => {
 
     await toggleStartupItem('App', HKLM_RUN, '"C:\\app.exe"', 'registry-hklm', false)
 
-    const approvedCall = regCalls.find((c) =>
-      c.args[0] === 'add' && c.args.some((a) => a.includes('StartupApproved'))
+    const approvedCall = regCalls.find(
+      (c) => c.args[0] === 'add' && c.args.some((a) => a.includes('StartupApproved'))
     )
     expect(approvedCall).toBeDefined()
     expect(approvedCall!.args[1]).toContain('HKLM')
@@ -1099,8 +1378,17 @@ describe('deleteStartupItem', () => {
       const regCalls = collectRegCalls()
 
       // Setup disabled entries file with the item
-      const existing = [{ name: 'Discord', command: '"C:\\Discord.exe"', location: HKCU_RUN, source: 'registry-hkcu' }]
-      mockExistsSync.mockImplementation((p: string) => (p as string).endsWith('disabled-startups.json'))
+      const existing = [
+        {
+          name: 'Discord',
+          command: '"C:\\Discord.exe"',
+          location: HKCU_RUN,
+          source: 'registry-hkcu'
+        }
+      ]
+      mockExistsSync.mockImplementation((p: string) =>
+        (p as string).endsWith('disabled-startups.json')
+      )
       mockReadFileSync.mockReturnValue(JSON.stringify(existing))
 
       const result = await deleteStartupItem('Discord', HKCU_RUN, 'registry-hkcu')
@@ -1111,7 +1399,9 @@ describe('deleteStartupItem', () => {
       expect(runDelete).toBeDefined()
 
       // Should delete from StartupApproved
-      const approvedDelete = regCalls.find((c) => c.args[0] === 'delete' && c.args.some((a) => a.includes('StartupApproved')))
+      const approvedDelete = regCalls.find(
+        (c) => c.args[0] === 'delete' && c.args.some((a) => a.includes('StartupApproved'))
+      )
       expect(approvedDelete).toBeDefined()
 
       // Should clean up disabled file
@@ -1139,7 +1429,9 @@ describe('deleteStartupItem', () => {
 
       await deleteStartupItem('App', HKLM_RUN, 'registry-hklm')
 
-      const approvedDelete = regCalls.find((c) => c.args[0] === 'delete' && c.args.some((a) => a.includes('StartupApproved')))
+      const approvedDelete = regCalls.find(
+        (c) => c.args[0] === 'delete' && c.args.some((a) => a.includes('StartupApproved'))
+      )
       expect(approvedDelete).toBeDefined()
       expect(approvedDelete!.args[1]).toContain('HKLM')
     })
@@ -1149,7 +1441,9 @@ describe('deleteStartupItem', () => {
 
       await deleteStartupItem('App', HKCU_RUN, 'registry-hkcu')
 
-      const approvedDelete = regCalls.find((c) => c.args[0] === 'delete' && c.args.some((a) => a.includes('StartupApproved')))
+      const approvedDelete = regCalls.find(
+        (c) => c.args[0] === 'delete' && c.args.some((a) => a.includes('StartupApproved'))
+      )
       expect(approvedDelete).toBeDefined()
       expect(approvedDelete!.args[1]).toContain('HKCU')
     })
@@ -1173,12 +1467,18 @@ describe('deleteStartupItem', () => {
       const result = await deleteStartupItem('GhostTask', 'Task Scheduler', 'task-scheduler')
       expect(result).toBe(true)
       const script = regCalls.find((c) => c.cmd === 'powershell')!.args.join(' ')
-      expect(script).toContain("Get-ScheduledTask -TaskName 'GhostTask' -ErrorAction SilentlyContinue")
+      expect(script).toContain(
+        "Get-ScheduledTask -TaskName 'GhostTask' -ErrorAction SilentlyContinue"
+      )
       expect(script).toContain('if ($task) { Unregister-ScheduledTask')
     })
 
     it('rejects unsafe task names', async () => {
-      const result = await deleteStartupItem("evil'; DROP TABLE", 'Task Scheduler', 'task-scheduler')
+      const result = await deleteStartupItem(
+        "evil'; DROP TABLE",
+        'Task Scheduler',
+        'task-scheduler'
+      )
       expect(result).toBe(false)
     })
 
@@ -1247,7 +1547,7 @@ describe('getBootTrace', () => {
       'BOOT|15000|8000|2025-06-15T10:30:00.000Z',
       'APP|Discord|5000|C:\\Discord\\Discord.exe',
       'APP|Spotify|2000|C:\\Spotify\\Spotify.exe',
-      'APP|LowImpactApp|500|C:\\App\\app.exe',
+      'APP|LowImpactApp|500|C:\\App\\app.exe'
     ].join('\n')
 
     setupExecFileHandler(() => ({ stdout: output }))
@@ -1274,7 +1574,7 @@ describe('getBootTrace', () => {
     const output = [
       'BOOT|10000|5000|2025-01-01T00:00:00Z',
       'APP|App1|3000|C:\\app1.exe',
-      'APP|App2|1500|C:\\app2.exe',
+      'APP|App2|1500|C:\\app2.exe'
     ].join('\n')
 
     setupExecFileHandler(() => ({ stdout: output }))
@@ -1288,7 +1588,7 @@ describe('getBootTrace', () => {
       'BOOT|10000|5000|2025-01-01T00:00:00Z',
       'APP|Discord|5000|C:\\Discord.exe',
       'APP|Discord|3000|C:\\Discord.exe',
-      'APP|Discord|2000|C:\\Discord.exe',
+      'APP|Discord|2000|C:\\Discord.exe'
     ].join('\n')
 
     setupExecFileHandler(() => ({ stdout: output }))
@@ -1303,7 +1603,7 @@ describe('getBootTrace', () => {
     const output = [
       'BOOT|10000|5000|2025-01-01T00:00:00Z',
       'APP|ZeroApp|0|C:\\zero.exe',
-      'APP|RealApp|1000|C:\\real.exe',
+      'APP|RealApp|1000|C:\\real.exe'
     ].join('\n')
 
     setupExecFileHandler(() => ({ stdout: output }))
@@ -1318,15 +1618,15 @@ describe('getBootTrace', () => {
       'BOOT|10000|5000|2025-01-01T00:00:00Z',
       'APP|HighApp|4000|C:\\high.exe',
       'APP|MedApp|2000|C:\\med.exe',
-      'APP|LowApp|500|C:\\low.exe',
+      'APP|LowApp|500|C:\\low.exe'
     ].join('\n')
 
     setupExecFileHandler(() => ({ stdout: output }))
 
     const trace = await getBootTrace()
-    expect(trace.entries.find((e) => e.name === 'HighApp')!.impact).toBe('high')   // >3000
-    expect(trace.entries.find((e) => e.name === 'MedApp')!.impact).toBe('medium')   // >1000
-    expect(trace.entries.find((e) => e.name === 'LowApp')!.impact).toBe('low')      // <=1000
+    expect(trace.entries.find((e) => e.name === 'HighApp')!.impact).toBe('high') // >3000
+    expect(trace.entries.find((e) => e.name === 'MedApp')!.impact).toBe('medium') // >1000
+    expect(trace.entries.find((e) => e.name === 'LowApp')!.impact).toBe('low') // <=1000
   })
 
   it('handles BOOT line with zero values', async () => {
@@ -1342,7 +1642,7 @@ describe('getBootTrace', () => {
     const output = [
       'BOOT|10000|5000|2025-01-01T00:00:00Z',
       'INVALID|line',
-      'APP|ValidApp|1000|C:\\app.exe',
+      'APP|ValidApp|1000|C:\\app.exe'
     ].join('\n')
 
     setupExecFileHandler(() => ({ stdout: output }))
@@ -1413,7 +1713,7 @@ describe('ALLOWED_STARTUP_LOCATIONS whitelist', () => {
       'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce',
       'HKLM\\SOFTWARE\\Evil',
       'HKCU\\Run',
-      '',
+      ''
     ]
 
     for (const loc of badPaths) {
@@ -1436,7 +1736,7 @@ describe('parseRegOutput (integration via listStartupItems)', () => {
       '    SecurityHealth    REG_SZ    C:\\Windows\\system32\\SecurityHealthSystray.exe',
       '    Discord    REG_SZ    "C:\\Users\\User\\AppData\\Local\\Discord\\Update.exe" --processStart Discord.exe',
       '    electron.app.Notion    REG_SZ    "C:\\Users\\User\\AppData\\Local\\Programs\\Notion\\Notion.exe" --start-hidden',
-      '',
+      ''
     ].join('\n')
 
     setupExecFileHandler((cmd, args) => {
@@ -1466,7 +1766,7 @@ describe('parseRegOutput (integration via listStartupItems)', () => {
       '',
       '    BinaryVal    REG_BINARY    DEADBEEF',
       '    ValidApp    REG_SZ    "C:\\app.exe"',
-      '',
+      ''
     ].join('\n')
 
     setupExecFileHandler((cmd, args) => {
@@ -1489,7 +1789,9 @@ describe('parseRegOutput (integration via listStartupItems)', () => {
 
 describe('error resilience', () => {
   it('listStartupItems handles startup folder read error gracefully', async () => {
-    mockReaddirSync.mockImplementation(() => { throw new Error('permission denied') })
+    mockReaddirSync.mockImplementation(() => {
+      throw new Error('permission denied')
+    })
     mockExistsSync.mockReturnValue(true)
 
     const items = await listStartupItems()
@@ -1538,10 +1840,11 @@ describe('getBootTrace source attribution', () => {
     // need not exist — a VM launched by hand shortly after logon was presented
     // as an autostart item.
     mockExecFile.mockImplementation((_c: string, _a: string[], _o: object, cb: Function) => {
-      cb(null, [
-        'BOOT|15000|8000|2025-06-15T10:30:00.000Z',
-        'APP|SomeApp|5000|C:\Some\app.exe',
-      ].join('\n'), '')
+      cb(
+        null,
+        ['BOOT|15000|8000|2025-06-15T10:30:00.000Z', 'APP|SomeApp|5000|C:\Some\app.exe'].join('\n'),
+        ''
+      )
     })
     const trace = await getBootTrace()
     expect(trace.entries.length).toBe(1)

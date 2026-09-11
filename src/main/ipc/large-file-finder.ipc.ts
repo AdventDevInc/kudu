@@ -103,93 +103,107 @@ export function registerLargeFileFinderIpc(getWindow: WindowGetter): void {
   })
 
   // Scan
-  ipcMain.handle(IPC.LARGE_FILES_SCAN, async (_event, options: unknown): Promise<LargeFileScanResult> => {
-    cancelled = false
-    const startTime = Date.now()
-    const win = getWindow()
-    const emptyResult: LargeFileScanResult = { files: [], totalFilesScanned: 0, duration: 0, cancelled: false }
+  ipcMain.handle(
+    IPC.LARGE_FILES_SCAN,
+    async (_event, options: unknown): Promise<LargeFileScanResult> => {
+      cancelled = false
+      const startTime = Date.now()
+      const win = getWindow()
+      const emptyResult: LargeFileScanResult = {
+        files: [],
+        totalFilesScanned: 0,
+        duration: 0,
+        cancelled: false
+      }
 
-    if (!options || typeof options !== 'object') return emptyResult
-    const opts = options as Record<string, unknown>
+      if (!options || typeof options !== 'object') return emptyResult
+      const opts = options as Record<string, unknown>
 
-    const dir = typeof opts.directory === 'string' ? opts.directory : ''
-    const safeOptions: LargeFileScanOptions = {
-      directory: isAbsolute(dir) ? dir : '',
-      minFileSize: typeof opts.minFileSize === 'number' && opts.minFileSize > 0 ? opts.minFileSize : 10_485_760,
-      maxDepth: typeof opts.maxDepth === 'number' && opts.maxDepth > 0 ? opts.maxDepth : 20,
-      excludePatterns: Array.isArray(opts.excludePatterns)
-        ? (opts.excludePatterns as unknown[]).filter((p): p is string => typeof p === 'string')
-        : []
-    }
+      const dir = typeof opts.directory === 'string' ? opts.directory : ''
+      const safeOptions: LargeFileScanOptions = {
+        directory: isAbsolute(dir) ? dir : '',
+        minFileSize:
+          typeof opts.minFileSize === 'number' && opts.minFileSize > 0
+            ? opts.minFileSize
+            : 10_485_760,
+        maxDepth: typeof opts.maxDepth === 'number' && opts.maxDepth > 0 ? opts.maxDepth : 20,
+        excludePatterns: Array.isArray(opts.excludePatterns)
+          ? (opts.excludePatterns as unknown[]).filter((p): p is string => typeof p === 'string')
+          : []
+      }
 
-    if (!safeOptions.directory) return emptyResult
+      if (!safeOptions.directory) return emptyResult
 
-    // Verify the root directory is readable before starting the walk.
-    // On macOS, TCC restrictions can silently block access to user folders.
-    try {
-      await readdir(safeOptions.directory)
-    } catch {
-      return emptyResult
-    }
-
-    // Send an immediate progress event so the UI shows feedback right away
-    sendProgress(win, {
-      currentPath: safeOptions.directory,
-      filesScanned: 0,
-      largeFilesFound: 0,
-      progress: 0
-    })
-
-    const files: LargeFileEntry[] = []
-    const counters = { scanned: 0 }
-    const lastReport = { time: Date.now() }
-    await walkDirectory(safeOptions.directory, safeOptions, 0, files, counters, win, lastReport)
-
-    // Sort by size descending
-    files.sort((a, b) => b.size - a.size)
-
-    // Cap at 500 results
-    const topFiles = files.slice(0, 500)
-
-    return {
-      files: topFiles,
-      totalFilesScanned: counters.scanned,
-      duration: Date.now() - startTime,
-      cancelled
-    }
-  })
-
-  // Delete
-  ipcMain.handle(IPC.LARGE_FILES_DELETE, async (_event, paths: unknown, mode: unknown): Promise<LargeFileDeleteResult> => {
-    if (!Array.isArray(paths)) return { deleted: 0, failed: 0, spaceRecovered: 0, errors: [] }
-    const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
-    const deleteMode: LargeFileDeleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
-
-    let deleted = 0
-    let failed = 0
-    let spaceRecovered = 0
-    const errors: { path: string; reason: string }[] = []
-
-    for (const filePath of safePaths) {
+      // Verify the root directory is readable before starting the walk.
+      // On macOS, TCC restrictions can silently block access to user folders.
       try {
-        const s = await stat(filePath)
-        const fileSize = s.size
+        await readdir(safeOptions.directory)
+      } catch {
+        return emptyResult
+      }
 
-        if (deleteMode === 'recycle') {
-          await shell.trashItem(filePath)
-        } else {
-          await rm(filePath, { force: true })
-        }
-        deleted++
-        spaceRecovered += fileSize
-      } catch (err: any) {
-        failed++
-        errors.push({ path: filePath, reason: err?.message || 'Unknown error' })
+      // Send an immediate progress event so the UI shows feedback right away
+      sendProgress(win, {
+        currentPath: safeOptions.directory,
+        filesScanned: 0,
+        largeFilesFound: 0,
+        progress: 0
+      })
+
+      const files: LargeFileEntry[] = []
+      const counters = { scanned: 0 }
+      const lastReport = { time: Date.now() }
+      await walkDirectory(safeOptions.directory, safeOptions, 0, files, counters, win, lastReport)
+
+      // Sort by size descending
+      files.sort((a, b) => b.size - a.size)
+
+      // Cap at 500 results
+      const topFiles = files.slice(0, 500)
+
+      return {
+        files: topFiles,
+        totalFilesScanned: counters.scanned,
+        duration: Date.now() - startTime,
+        cancelled
       }
     }
+  )
 
-    return { deleted, failed, spaceRecovered, errors }
-  })
+  // Delete
+  ipcMain.handle(
+    IPC.LARGE_FILES_DELETE,
+    async (_event, paths: unknown, mode: unknown): Promise<LargeFileDeleteResult> => {
+      if (!Array.isArray(paths)) return { deleted: 0, failed: 0, spaceRecovered: 0, errors: [] }
+      const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
+      const deleteMode: LargeFileDeleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
+
+      let deleted = 0
+      let failed = 0
+      let spaceRecovered = 0
+      const errors: { path: string; reason: string }[] = []
+
+      for (const filePath of safePaths) {
+        try {
+          const s = await stat(filePath)
+          const fileSize = s.size
+
+          if (deleteMode === 'recycle') {
+            await shell.trashItem(filePath)
+          } else {
+            await rm(filePath, { force: true })
+          }
+          deleted++
+          spaceRecovered += fileSize
+        } catch (err: any) {
+          failed++
+          errors.push({ path: filePath, reason: err?.message || 'Unknown error' })
+        }
+      }
+
+      return { deleted, failed, spaceRecovered, errors }
+    }
+  )
 
   // Open file location
   ipcMain.handle(IPC.LARGE_FILES_OPEN_LOCATION, (_event, filePath: unknown) => {

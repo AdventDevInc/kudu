@@ -19,14 +19,18 @@ function loadExcluded(): Set<string> {
   try {
     const raw = localStorage.getItem(EXCLUDED_KEY)
     if (raw) return new Set(JSON.parse(raw))
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return new Set()
 }
 
 function saveExcluded(excluded: Set<string>): void {
   try {
     localStorage.setItem(EXCLUDED_KEY, JSON.stringify([...excluded]))
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 interface ScanState {

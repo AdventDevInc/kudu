@@ -1,6 +1,15 @@
 import { execFile } from 'child_process'
 import { promisify } from 'util'
-import type { PlatformCommands, EventLogEntry, InstalledApp, OsUpdateInfo, OsUpdateInstallResult, SfcResult, DismResult, DnsEntry } from '../types'
+import type {
+  PlatformCommands,
+  EventLogEntry,
+  InstalledApp,
+  OsUpdateInfo,
+  OsUpdateInstallResult,
+  SfcResult,
+  DismResult,
+  DnsEntry
+} from '../types'
 
 const execFileAsync = promisify(execFile)
 
@@ -59,17 +68,19 @@ export function createDarwinCommands(): PlatformCommands {
       try {
         // Map Windows-style log names to macOS log predicates
         const predicateMap: Record<string, string> = {
-          System: 'subsystem BEGINSWITH "com.apple" AND messageType >= 16',    // error+fault from Apple subsystems
+          System: 'subsystem BEGINSWITH "com.apple" AND messageType >= 16', // error+fault from Apple subsystems
           Application: 'subsystem != "" AND NOT subsystem BEGINSWITH "com.apple"', // third-party subsystems
-          Security: 'subsystem == "com.apple.securityd" OR subsystem == "com.apple.authd" OR subsystem == "com.apple.Authorization"',
+          Security:
+            'subsystem == "com.apple.securityd" OR subsystem == "com.apple.authd" OR subsystem == "com.apple.Authorization"'
         }
         // Sanitize logName — only allow known keys to prevent predicate injection
         const predicate = predicateMap[logName] ?? predicateMap.System
 
-        const { stdout } = await execFileAsync('/usr/bin/log', [
-          'show', '--style', 'json', '--last', '1h',
-          '--predicate', predicate,
-        ], { timeout: 30_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/log',
+          ['show', '--style', 'json', '--last', '1h', '--predicate', predicate],
+          { timeout: 30_000 }
+        )
 
         const entries: EventLogEntry[] = []
         try {
@@ -80,7 +91,7 @@ export function createDarwinCommands(): PlatformCommands {
               eventId: 0,
               level: entry.messageType ?? 'Default',
               provider: entry.subsystem ?? '',
-              message: (entry.eventMessage ?? '').slice(0, 200),
+              message: (entry.eventMessage ?? '').slice(0, 200)
             })
           }
         } catch {
@@ -94,13 +105,20 @@ export function createDarwinCommands(): PlatformCommands {
 
     async getInstalledApps(): Promise<InstalledApp[]> {
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/system_profiler', [
-          'SPApplicationsDataType', '-json',
-        ], { timeout: 60_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/sbin/system_profiler',
+          ['SPApplicationsDataType', '-json'],
+          { timeout: 60_000 }
+        )
 
         const data = JSON.parse(stdout)
-        const apps: Array<{ _name: string; version: string; obtained_from: string; lastModified: string; path?: string }> =
-          data?.SPApplicationsDataType ?? []
+        const apps: Array<{
+          _name: string
+          version: string
+          obtained_from: string
+          lastModified: string
+          path?: string
+        }> = data?.SPApplicationsDataType ?? []
 
         const filtered = apps.filter((a) => a.obtained_from !== 'apple')
 
@@ -113,7 +131,9 @@ export function createDarwinCommands(): PlatformCommands {
           for (let i = 0; i < paths.length; i += BATCH) {
             const batch = paths.slice(i, i + BATCH)
             try {
-              const { stdout: duOut } = await execFileAsync('/usr/bin/du', ['-sk', ...batch], { timeout: 30_000 })
+              const { stdout: duOut } = await execFileAsync('/usr/bin/du', ['-sk', ...batch], {
+                timeout: 30_000
+              })
               for (const line of duOut.split('\n')) {
                 const tab = line.indexOf('\t')
                 if (tab !== -1) {
@@ -140,7 +160,7 @@ export function createDarwinCommands(): PlatformCommands {
           version: a.version ?? '',
           publisher: a.obtained_from ?? '',
           installDate: a.lastModified ?? '',
-          sizeKb: a.path ? (sizeMap.get(a.path) ?? 0) : 0,
+          sizeKb: a.path ? (sizeMap.get(a.path) ?? 0) : 0
         }))
       } catch {
         return []
@@ -149,7 +169,9 @@ export function createDarwinCommands(): PlatformCommands {
 
     async checkOsUpdates(): Promise<OsUpdateInfo[]> {
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/softwareupdate', ['-l'], { timeout: 120_000 })
+        const { stdout } = await execFileAsync('/usr/sbin/softwareupdate', ['-l'], {
+          timeout: 120_000
+        })
         const updates: OsUpdateInfo[] = []
         const lines = stdout.split('\n')
 
@@ -174,7 +196,7 @@ export function createDarwinCommands(): PlatformCommands {
               kb: '',
               severity: 'Unspecified',
               sizeBytes,
-              downloaded: false,
+              downloaded: false
             })
           }
         }
@@ -186,7 +208,9 @@ export function createDarwinCommands(): PlatformCommands {
 
     async installOsUpdates(): Promise<OsUpdateInstallResult> {
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/softwareupdate', ['-i', '-a'], { timeout: 300_000 })
+        const { stdout } = await execFileAsync('/usr/sbin/softwareupdate', ['-i', '-a'], {
+          timeout: 300_000
+        })
         const needsReboot = stdout.includes('restart')
         return { installed: 1, resultCode: 0, needsReboot }
       } catch {
@@ -202,6 +226,6 @@ export function createDarwinCommands(): PlatformCommands {
     async runSystemImageRepair(): Promise<DismResult | null> {
       // No equivalent on macOS
       return null
-    },
+    }
   }
 }

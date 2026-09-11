@@ -21,8 +21,7 @@ export function parseGpuRestartPayload(stdout: string): GpuRestartDevice[] {
   if (!trimmed) return []
   try {
     const raw = JSON.parse(trimmed) as
-      | { Name?: string; InstanceId?: string }
-      | Array<{ Name?: string; InstanceId?: string }>
+      { Name?: string; InstanceId?: string } | Array<{ Name?: string; InstanceId?: string }>
     const items = Array.isArray(raw) ? raw : [raw]
     return items
       .filter((d) => typeof d?.Name === 'string' && typeof d?.InstanceId === 'string')

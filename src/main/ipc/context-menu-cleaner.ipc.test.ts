@@ -7,15 +7,15 @@ import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('electron', () => ({
   app: { getPath: () => '/tmp/kudu-test-userdata' },
-  ipcMain: { handle: vi.fn() },
+  ipcMain: { handle: vi.fn() }
 }))
 
 vi.mock('../services/exec-utf8', () => ({
-  execNativeUtf8: vi.fn(),
+  execNativeUtf8: vi.fn()
 }))
 
 vi.mock('../services/elevation', () => ({
-  isAdmin: () => true,
+  isAdmin: () => true
 }))
 
 import {
@@ -30,7 +30,7 @@ import {
   isProtectedVerb,
   normalizeKeyPath,
   parentKeyOf,
-  parseRegQueryBlocks,
+  parseRegQueryBlocks
 } from './context-menu-cleaner.ipc'
 
 // ── isProtectedVerb ──
@@ -113,11 +113,15 @@ describe('isDisabledHandlerName', () => {
 
 describe('extractClsid', () => {
   it('extracts a CLSID from a default-value string', () => {
-    expect(extractClsid('{23170F69-40C1-2702-2401-000100020000}')).toBe('{23170F69-40C1-2702-2401-000100020000}')
+    expect(extractClsid('{23170F69-40C1-2702-2401-000100020000}')).toBe(
+      '{23170F69-40C1-2702-2401-000100020000}'
+    )
   })
 
   it('extracts a CLSID embedded in surrounding text', () => {
-    expect(extractClsid('foo {23170F69-40C1-2702-2401-000100020000} bar')).toBe('{23170F69-40C1-2702-2401-000100020000}')
+    expect(extractClsid('foo {23170F69-40C1-2702-2401-000100020000} bar')).toBe(
+      '{23170F69-40C1-2702-2401-000100020000}'
+    )
   })
 
   it('returns null for non-CLSID strings', () => {
@@ -132,13 +136,11 @@ describe('extractClsid', () => {
 
 describe('normalizeKeyPath', () => {
   it('rewrites HKEY_CLASSES_ROOT to HKCR', () => {
-    expect(normalizeKeyPath('HKEY_CLASSES_ROOT\\*\\shell\\7-Zip'))
-      .toBe('HKCR\\*\\shell\\7-Zip')
+    expect(normalizeKeyPath('HKEY_CLASSES_ROOT\\*\\shell\\7-Zip')).toBe('HKCR\\*\\shell\\7-Zip')
   })
 
   it('rewrites HKEY_CURRENT_USER to HKCU', () => {
-    expect(normalizeKeyPath('HKEY_CURRENT_USER\\Software\\Classes'))
-      .toBe('HKCU\\Software\\Classes')
+    expect(normalizeKeyPath('HKEY_CURRENT_USER\\Software\\Classes')).toBe('HKCU\\Software\\Classes')
   })
 
   it('leaves already-short paths alone', () => {
@@ -155,8 +157,9 @@ describe('normalizeKeyPath', () => {
 
 describe('parentKeyOf', () => {
   it('returns everything before the final backslash', () => {
-    expect(parentKeyOf('HKCR\\*\\shellex\\ContextMenuHandlers\\7-Zip'))
-      .toBe('HKCR\\*\\shellex\\ContextMenuHandlers')
+    expect(parentKeyOf('HKCR\\*\\shellex\\ContextMenuHandlers\\7-Zip')).toBe(
+      'HKCR\\*\\shellex\\ContextMenuHandlers'
+    )
   })
 
   it('returns input unchanged for paths with no backslash', () => {
@@ -170,7 +173,11 @@ describe('inferSource', () => {
   const cases: Array<[string | null, string, string]> = [
     ['C:\\Program Files\\7-Zip\\7-zip.dll', '7-Zip', '7-Zip'],
     ['C:\\Program Files\\WinRAR\\rarext.dll', 'RAR', 'WinRAR'],
-    ['C:\\Users\\foo\\AppData\\Local\\Microsoft\\OneDrive\\FileSyncShell64.dll', 'OneDrive', 'OneDrive'],
+    [
+      'C:\\Users\\foo\\AppData\\Local\\Microsoft\\OneDrive\\FileSyncShell64.dll',
+      'OneDrive',
+      'OneDrive'
+    ],
     ['C:\\Program Files\\Notepad++\\NppShell_06.dll', 'Edit with Notepad++', 'Notepad++'],
     [null, 'Edit with Notepad++', 'Notepad++'],
     ['C:\\Program Files\\Microsoft VS Code\\Code.exe', 'Open with Code', 'VSCode'],
@@ -178,7 +185,7 @@ describe('inferSource', () => {
     ['C:\\Program Files (x86)\\Dropbox\\Client\\DropboxExt.dll', 'Dropbox', 'Dropbox'],
     ['C:\\Windows\\System32\\Sharing.dll', 'Share', 'Microsoft'],
     [null, 'thingFromMars', 'Unknown'],
-    [null, '', 'Unknown'],
+    [null, '', 'Unknown']
   ]
 
   it.each(cases)('infers %s/%s as %s', (dll, key, expected) => {
@@ -194,7 +201,7 @@ describe('parseRegQueryBlocks', () => {
       'HKEY_CLASSES_ROOT\\*\\shell\\7-Zip',
       '    (Default)    REG_SZ    7-Zip',
       '    MUIVerb    REG_SZ    7-Zip',
-      '',
+      ''
     ].join('\r\n')
 
     const blocks = parseRegQueryBlocks(stdout)
@@ -211,7 +218,7 @@ describe('parseRegQueryBlocks', () => {
       '',
       'HKEY_CLASSES_ROOT\\*\\shell\\7-Zip\\command',
       '    (Default)    REG_SZ    "C:\\Program Files\\7-Zip\\7zG.exe" "%1"',
-      '',
+      ''
     ].join('\n')
 
     const blocks = parseRegQueryBlocks(stdout)
@@ -236,7 +243,7 @@ describe('parseRegQueryBlocks', () => {
       'HKEY_CLASSES_ROOT\\*\\shell\\Foo',
       '    (Default)    REG_SZ    Foo',
       'some junk that is not a value',
-      '',
+      ''
     ].join('\n')
 
     const blocks = parseRegQueryBlocks(stdout)
@@ -255,7 +262,7 @@ describe('parseRegQueryBlocks', () => {
     const blocks = parseRegQueryBlocks(stdout)
     expect(blocks[0].values['(Default)']).toEqual({
       type: 'REG_EXPAND_SZ',
-      data: '%SystemRoot%\\System32\\foo.dll',
+      data: '%SystemRoot%\\System32\\foo.dll'
     })
   })
 })
@@ -272,8 +279,12 @@ describe('SCAN_ROOTS', () => {
   })
 
   it('has matching scopes between HKCR and HKCU', () => {
-    const hkcrScopes = SCAN_ROOTS.filter((r) => r.hive === 'HKCR').map((r) => r.scope).sort()
-    const hkcuScopes = SCAN_ROOTS.filter((r) => r.hive === 'HKCU').map((r) => r.scope).sort()
+    const hkcrScopes = SCAN_ROOTS.filter((r) => r.hive === 'HKCR')
+      .map((r) => r.scope)
+      .sort()
+    const hkcuScopes = SCAN_ROOTS.filter((r) => r.hive === 'HKCU')
+      .map((r) => r.scope)
+      .sort()
     expect(hkcuScopes).toEqual(hkcrScopes)
   })
 

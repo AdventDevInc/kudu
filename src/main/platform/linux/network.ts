@@ -12,9 +12,9 @@ export function createLinuxNetwork(): PlatformNetwork {
       try {
         // ss -tunap state established outputs lines like:
         // tcp  ESTAB  0  0  10.0.0.5:45678  93.184.216.34:443  users:(("firefox",pid=1234,fd=56))
-        const { stdout } = await execFileAsync('/usr/bin/ss', [
-          '-tunap', 'state', 'established',
-        ], { timeout: 10_000 })
+        const { stdout } = await execFileAsync('/usr/bin/ss', ['-tunap', 'state', 'established'], {
+          timeout: 10_000
+        })
 
         const lines = stdout.split('\n').filter((l) => l.trim())
         const results: ActiveConnection[] = []
@@ -54,13 +54,10 @@ export function createLinuxNetwork(): PlatformNetwork {
           if (isNaN(localPort)) continue
 
           // Parse remote address — handle IPv6 bracket notation and plain IPv4
-          let remoteAddress: string
-          let remotePort: number
-
           const lastColon = remoteCol.lastIndexOf(':')
           if (lastColon === -1) continue
-          remoteAddress = remoteCol.slice(0, lastColon)
-          remotePort = parseInt(remoteCol.slice(lastColon + 1), 10)
+          let remoteAddress = remoteCol.slice(0, lastColon)
+          const remotePort = parseInt(remoteCol.slice(lastColon + 1), 10)
 
           // Strip brackets from IPv6
           if (remoteAddress.startsWith('[') && remoteAddress.endsWith(']')) {
@@ -93,9 +90,7 @@ export function createLinuxNetwork(): PlatformNetwork {
     async getListeningPorts(): Promise<number[]> {
       try {
         // ss -tln lists TCP sockets in LISTEN state with numeric ports
-        const { stdout } = await execFileAsync('/usr/bin/ss', [
-          '-tln',
-        ], { timeout: 10_000 })
+        const { stdout } = await execFileAsync('/usr/bin/ss', ['-tln'], { timeout: 10_000 })
 
         const ports: number[] = []
         for (const line of stdout.split('\n')) {
@@ -147,9 +142,11 @@ export function createLinuxNetwork(): PlatformNetwork {
 
     async getWifiProfiles(): Promise<WifiProfile[]> {
       try {
-        const { stdout } = await execFileAsync('/usr/bin/nmcli', [
-          '-t', '-f', 'NAME,TYPE,DEVICE', 'connection', 'show',
-        ], { timeout: 10000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/nmcli',
+          ['-t', '-f', 'NAME,TYPE,DEVICE', 'connection', 'show'],
+          { timeout: 10000 }
+        )
         const profiles: WifiProfile[] = []
         for (const line of stdout.split('\n').filter(Boolean)) {
           const parts = line.split(':')
@@ -179,6 +176,6 @@ export function createLinuxNetwork(): PlatformNetwork {
       } catch {
         return false
       }
-    },
+    }
   }
 }

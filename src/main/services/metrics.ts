@@ -20,7 +20,7 @@ export async function collectMetrics(): Promise<MetricLine[]> {
     type: 'gauge',
     help: 'Kudu application info',
     labels: { version: app.getVersion(), platform: process.platform, arch: process.arch },
-    value: 1,
+    value: 1
   })
 
   // System uptime
@@ -28,7 +28,7 @@ export async function collectMetrics(): Promise<MetricLine[]> {
     name: 'kudu_system_uptime_seconds',
     type: 'gauge',
     help: 'System uptime in seconds',
-    value: os.uptime(),
+    value: os.uptime()
   })
 
   // CPU and memory
@@ -39,21 +39,21 @@ export async function collectMetrics(): Promise<MetricLine[]> {
       name: 'kudu_system_cpu_usage_percent',
       type: 'gauge',
       help: 'Current CPU usage percentage',
-      value: Math.round(load.currentLoad * 100) / 100,
+      value: Math.round(load.currentLoad * 100) / 100
     })
 
     metrics.push({
       name: 'kudu_system_memory_total_bytes',
       type: 'gauge',
       help: 'Total system memory in bytes',
-      value: mem.total,
+      value: mem.total
     })
 
     metrics.push({
       name: 'kudu_system_memory_used_bytes',
       type: 'gauge',
       help: 'Used system memory in bytes',
-      value: mem.used,
+      value: mem.used
     })
   } catch {
     // systeminformation may fail on some platforms
@@ -68,7 +68,7 @@ export async function collectMetrics(): Promise<MetricLine[]> {
     name: 'kudu_scans_total',
     type: 'gauge',
     help: 'Total number of scans in history',
-    value: history.length,
+    value: history.length
   })
 
   const totalItemsCleaned = history.reduce((s, e) => s + e.totalItemsCleaned, 0)
@@ -76,7 +76,7 @@ export async function collectMetrics(): Promise<MetricLine[]> {
     name: 'kudu_items_cleaned_total',
     type: 'gauge',
     help: 'Total items cleaned across history',
-    value: totalItemsCleaned,
+    value: totalItemsCleaned
   })
 
   const totalSpaceSaved = history.reduce((s, e) => s + e.totalSpaceSaved, 0)
@@ -84,7 +84,7 @@ export async function collectMetrics(): Promise<MetricLine[]> {
     name: 'kudu_space_saved_bytes_total',
     type: 'gauge',
     help: 'Total space saved in bytes across history',
-    value: totalSpaceSaved,
+    value: totalSpaceSaved
   })
 
   const totalErrors = history.reduce((s, e) => s + e.errorCount, 0)
@@ -92,7 +92,7 @@ export async function collectMetrics(): Promise<MetricLine[]> {
     name: 'kudu_scan_errors_total',
     type: 'gauge',
     help: 'Total scan errors across history',
-    value: totalErrors,
+    value: totalErrors
   })
 
   if (history.length > 0) {
@@ -101,21 +101,21 @@ export async function collectMetrics(): Promise<MetricLine[]> {
       name: 'kudu_last_scan_timestamp_seconds',
       type: 'gauge',
       help: 'Timestamp of the most recent scan in seconds since epoch',
-      value: Math.floor(new Date(latest.timestamp).getTime() / 1000),
+      value: Math.floor(new Date(latest.timestamp).getTime() / 1000)
     })
 
     metrics.push({
       name: 'kudu_last_scan_duration_seconds',
       type: 'gauge',
       help: 'Duration of the most recent scan in seconds',
-      value: Math.round(latest.duration / 1000 * 100) / 100,
+      value: Math.round((latest.duration / 1000) * 100) / 100
     })
 
     metrics.push({
       name: 'kudu_last_scan_items_found',
       type: 'gauge',
       help: 'Number of items found in the most recent scan',
-      value: latest.totalItemsFound,
+      value: latest.totalItemsFound
     })
   }
 
@@ -131,7 +131,10 @@ export function formatPrometheus(metrics: MetricLine[]): string {
 
     if (m.labels && Object.keys(m.labels).length > 0) {
       const labelStr = Object.entries(m.labels)
-        .map(([k, v]) => `${k}="${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`)
+        .map(
+          ([k, v]) =>
+            `${k}="${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`
+        )
         .join(',')
       lines.push(`${m.name}{${labelStr}} ${m.value}`)
     } else {

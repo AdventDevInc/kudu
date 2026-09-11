@@ -11,7 +11,8 @@ let prevCpuTimes: { idle: number; total: number } | null = null
 
 function sampleCpu(): number {
   const cpus = os.cpus()
-  let idle = 0, total = 0
+  let idle = 0,
+    total = 0
   for (const cpu of cpus) {
     idle += cpu.times.idle
     total += cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.idle + cpu.times.irq
@@ -29,32 +30,32 @@ function sampleCpu(): number {
 // Critical Windows processes that must never be killed by the user.
 // Terminating these can cause a BSOD, logon failure, or system instability.
 const PROTECTED_PROCESS_NAMES = new Set([
-  'csrss.exe',        // Client/Server Runtime — BSOD if killed
-  'smss.exe',         // Session Manager — BSOD if killed
-  'wininit.exe',      // Windows Init — BSOD if killed
-  'services.exe',     // Service Control Manager
-  'lsass.exe',        // Local Security Authority — logon/auth
-  'lsaiso.exe',       // LSA Isolated (Credential Guard)
-  'svchost.exe',      // Hosts many core OS services
-  'winlogon.exe',     // Logon session manager
-  'dwm.exe',          // Desktop Window Manager — desktop crashes
-  'explorer.exe',     // Windows shell — taskbar/desktop disappears
-  'ntoskrnl.exe',     // Kernel image
-  'system',           // Kernel-mode system process
-  'registry',         // Registry hive process
+  'csrss.exe', // Client/Server Runtime — BSOD if killed
+  'smss.exe', // Session Manager — BSOD if killed
+  'wininit.exe', // Windows Init — BSOD if killed
+  'services.exe', // Service Control Manager
+  'lsass.exe', // Local Security Authority — logon/auth
+  'lsaiso.exe', // LSA Isolated (Credential Guard)
+  'svchost.exe', // Hosts many core OS services
+  'winlogon.exe', // Logon session manager
+  'dwm.exe', // Desktop Window Manager — desktop crashes
+  'explorer.exe', // Windows shell — taskbar/desktop disappears
+  'ntoskrnl.exe', // Kernel image
+  'system', // Kernel-mode system process
+  'registry', // Registry hive process
   'memory compression', // Memory management
   // macOS / Linux equivalents
-  'launchd',          // macOS PID 1
-  'kernel_task',      // macOS kernel
-  'windowserver',     // macOS display server
-  'systemd',          // Linux PID 1
-  'init',             // Linux PID 1 (SysVinit)
-  'kthreadd',         // Linux kernel threads
-  'gdm',              // GNOME Display Manager
-  'sddm',             // KDE Display Manager
-  'lightdm',          // Light Display Manager
-  'xorg',             // X11 display server
-  'xwayland',         // XWayland display server
+  'launchd', // macOS PID 1
+  'kernel_task', // macOS kernel
+  'windowserver', // macOS display server
+  'systemd', // Linux PID 1
+  'init', // Linux PID 1 (SysVinit)
+  'kthreadd', // Linux kernel threads
+  'gdm', // GNOME Display Manager
+  'sddm', // KDE Display Manager
+  'lightdm', // Light Display Manager
+  'xorg', // X11 display server
+  'xwayland' // XWayland display server
 ])
 
 export function registerPerfMonitorIpc(getWindow: () => Electron.BrowserWindow | null): void {
@@ -88,7 +89,7 @@ export function registerPerfMonitorIpc(getWindow: () => Electron.BrowserWindow |
       cpuPercent: sampleCpu(),
       memUsedBytes: usedMem,
       memTotalBytes: totalMem,
-      memPercent: Math.round((usedMem / totalMem) * 100),
+      memPercent: Math.round((usedMem / totalMem) * 100)
     }
   })
 

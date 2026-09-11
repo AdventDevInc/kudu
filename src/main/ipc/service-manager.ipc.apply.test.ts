@@ -4,7 +4,7 @@ import { promisify } from 'util'
 // ── Mocks ──
 
 vi.mock('electron', () => ({
-  ipcMain: { handle: vi.fn() },
+  ipcMain: { handle: vi.fn() }
 }))
 
 const mockExecFile = vi.fn()
@@ -24,12 +24,12 @@ vi.mock('child_process', () => {
 })
 
 vi.mock('../services/exec-utf8', () => ({
-  psUtf8: (cmd: string) => cmd,
+  psUtf8: (cmd: string) => cmd
 }))
 
 const mockPlatformApply = vi.fn()
 vi.mock('../platform', () => ({
-  getPlatform: () => ({ services: { applyChanges: mockPlatformApply } }),
+  getPlatform: () => ({ services: { applyChanges: mockPlatformApply } })
 }))
 
 import { applyServiceChanges } from './service-manager.ipc'
@@ -125,12 +125,16 @@ describe('applyServiceChanges', () => {
     stubPowerShell(['OK|Fax|Fax', 'FAIL|WSearch|WSearch|Access is denied'].join('\n'))
     const result = await applyServiceChanges([
       { name: 'Fax', targetStartType: 'Disabled' },
-      { name: 'WSearch', targetStartType: 'Disabled' },
+      { name: 'WSearch', targetStartType: 'Disabled' }
     ])
 
     expect(result.succeeded).toBe(1)
     expect(result.failed).toBe(1)
-    expect(result.errors[0]).toEqual({ name: 'WSearch', displayName: 'WSearch', reason: 'Access is denied' })
+    expect(result.errors[0]).toEqual({
+      name: 'WSearch',
+      displayName: 'WSearch',
+      reason: 'Access is denied'
+    })
   })
 
   it('delegates to the platform layer off Windows', async () => {

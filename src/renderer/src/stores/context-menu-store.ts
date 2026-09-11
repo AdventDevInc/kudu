@@ -5,7 +5,7 @@ import type {
   ContextMenuEntry,
   ContextMenuScope,
   ContextMenuSource,
-  ContextMenuStatus,
+  ContextMenuStatus
 } from '@shared/types'
 
 export interface ContextMenuFilters {
@@ -44,7 +44,12 @@ interface ContextMenuState {
   reset: () => void
 }
 
-const initialFilters: ContextMenuFilters = { search: '', scope: 'all', source: 'all', status: 'all' }
+const initialFilters: ContextMenuFilters = {
+  search: '',
+  scope: 'all',
+  source: 'all',
+  status: 'all'
+}
 
 export const useContextMenuStore = create<ContextMenuState>((set) => ({
   entries: [],
@@ -66,8 +71,7 @@ export const useContextMenuStore = create<ContextMenuState>((set) => ({
   setApplyResult: (applyResult) => set({ applyResult }),
   setShowErrors: (showErrors) => set({ showErrors }),
   setError: (error) => set({ error }),
-  setFilter: (key, value) =>
-    set((s) => ({ filters: { ...s.filters, [key]: value } })),
+  setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),
   toggleGroup: (key) =>
     set((s) => {
       const next = new Set(s.expandedGroups)
@@ -77,7 +81,7 @@ export const useContextMenuStore = create<ContextMenuState>((set) => ({
     }),
   toggleEntry: (id) =>
     set((s) => ({
-      entries: s.entries.map((e) => (e.id === id ? { ...e, selected: !e.selected } : e)),
+      entries: s.entries.map((e) => (e.id === id ? { ...e, selected: !e.selected } : e))
     })),
   toggleAllVisible: (visibleIds, select) =>
     set((s) => {
@@ -85,7 +89,7 @@ export const useContextMenuStore = create<ContextMenuState>((set) => ({
       return {
         entries: s.entries.map((e) =>
           ids.has(e.id) && !e.protected ? { ...e, selected: select } : e
-        ),
+        )
       }
     }),
   applyUpdates: (updates) =>
@@ -94,7 +98,7 @@ export const useContextMenuStore = create<ContextMenuState>((set) => ({
       return {
         entries: s.entries.map((e) =>
           map.has(e.id) ? { ...e, status: map.get(e.id)!, selected: false } : e
-        ),
+        )
       }
     }),
   removeEntries: (ids) =>
@@ -113,6 +117,6 @@ export const useContextMenuStore = create<ContextMenuState>((set) => ({
       showErrors: false,
       error: null,
       filters: initialFilters,
-      expandedGroups: new Set<string>(),
-    }),
+      expandedGroups: new Set<string>()
+    })
 }))

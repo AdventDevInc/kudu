@@ -15,8 +15,10 @@ const TASK_EXEC_CHILD_TAGS = new Set(['Command', 'Arguments', 'WorkingDirectory'
 
 function decodeXmlEntities(s: string): string {
   return s
-    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
     .replace(/&amp;/g, '&')
 }
 
@@ -52,7 +54,7 @@ function withActions(actionsInner: string): string {
     '  <Actions Context="Author">',
     actionsInner,
     '  </Actions>',
-    '</Task>',
+    '</Task>'
   ].join('\r\n')
 }
 
@@ -72,7 +74,9 @@ describe('registeredTaskMatches', () => {
 
   it('accepts a path whose ampersand came back XML-escaped', () => {
     const exe = 'C:\\Tools\\R&D\\Kudu.exe'
-    expect(registeredTaskMatches(withActions(execAction('C:\\Tools\\R&amp;D\\Kudu.exe')), exe, ARGS)).toBe(true)
+    expect(
+      registeredTaskMatches(withActions(execAction('C:\\Tools\\R&amp;D\\Kudu.exe')), exe, ARGS)
+    ).toBe(true)
   })
 
   it('ignores case, which Windows paths do', () => {
@@ -80,7 +84,9 @@ describe('registeredTaskMatches', () => {
   })
 
   it('rejects a substituted command', () => {
-    expect(registeredTaskMatches(withActions(execAction('C:\\attacker\\backdoor.exe')), EXE, ARGS)).toBe(false)
+    expect(
+      registeredTaskMatches(withActions(execAction('C:\\attacker\\backdoor.exe')), EXE, ARGS)
+    ).toBe(false)
   })
 
   it('rejects a command that merely starts with our path', () => {
@@ -108,13 +114,16 @@ describe('registeredTaskMatches', () => {
   // A definition can run things without naming a command at all.
   it('rejects a ComHandler action added alongside ours', () => {
     const xml = withActions(
-      execAction(EXE) + '\r\n    <ComHandler><ClassId>{00000000-0000-0000-0000-000000000000}</ClassId></ComHandler>'
+      execAction(EXE) +
+        '\r\n    <ComHandler><ClassId>{00000000-0000-0000-0000-000000000000}</ClassId></ComHandler>'
     )
     expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
   })
 
   it('rejects a lone ComHandler action', () => {
-    const xml = withActions('    <ComHandler><ClassId>{11111111-2222-3333-4444-555555555555}</ClassId></ComHandler>')
+    const xml = withActions(
+      '    <ComHandler><ClassId>{11111111-2222-3333-4444-555555555555}</ClassId></ComHandler>'
+    )
     expect(registeredTaskMatches(xml, EXE, ARGS)).toBe(false)
   })
 
@@ -143,6 +152,8 @@ describe('registeredTaskMatches', () => {
   })
 
   it('rejects unparseable output', () => {
-    expect(registeredTaskMatches('ERROR: The system cannot find the file specified.', EXE, ARGS)).toBe(false)
+    expect(
+      registeredTaskMatches('ERROR: The system cannot find the file specified.', EXE, ARGS)
+    ).toBe(false)
   })
 })

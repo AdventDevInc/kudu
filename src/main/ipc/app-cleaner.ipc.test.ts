@@ -5,27 +5,27 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockHandle = vi.fn()
 const mockSend = vi.fn()
 vi.mock('electron', () => ({
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const mockScanAppRule = vi.fn()
 const mockCleanItems = vi.fn()
 vi.mock('../services/file-utils', () => ({
   scanAppRule: (...args: unknown[]) => mockScanAppRule(...args),
-  cleanItems: (...args: unknown[]) => mockCleanItems(...args),
+  cleanItems: (...args: unknown[]) => mockCleanItems(...args)
 }))
 
 const mockCacheItems = vi.fn()
 vi.mock('../services/scan-cache', () => ({
   cacheItems: (...args: unknown[]) => mockCacheItems(...args),
-  clearCachedCategory: vi.fn(),
+  clearCachedCategory: vi.fn()
 }))
 
 const mockAppPaths = vi.fn()
 vi.mock('../platform', () => ({
   getPlatform: () => ({
-    paths: { appPaths: () => mockAppPaths() },
-  }),
+    paths: { appPaths: () => mockAppPaths() }
+  })
 }))
 
 vi.mock('../services/ipc-validation', () => ({
@@ -33,7 +33,7 @@ vi.mock('../services/ipc-validation', () => ({
     if (!Array.isArray(input)) return null
     if (!input.every((v: unknown) => typeof v === 'string')) return null
     return input as string[]
-  },
+  }
 }))
 
 import { registerAppCleanerIpc } from './app-cleaner.ipc'
@@ -81,8 +81,13 @@ describe('APP_SCAN handler', () => {
   it('scans each app and caches items with results', async () => {
     const recursiveMatch = { anchor: 'EBWebView', targets: ['Cache'] }
     mockAppPaths.mockReturnValue([
-      { name: 'VS Code', paths: ['/home/user/.vscode/cache'], childSubdir: undefined, recursiveMatch },
-      { name: 'Slack', paths: ['/home/user/.config/Slack/Cache'], childSubdir: undefined },
+      {
+        name: 'VS Code',
+        paths: ['/home/user/.vscode/cache'],
+        childSubdir: undefined,
+        recursiveMatch
+      },
+      { name: 'Slack', paths: ['/home/user/.config/Slack/Cache'], childSubdir: undefined }
     ])
     mockScanAppRule.mockImplementation((app: { name: string }) => {
       return Promise.resolve({
@@ -90,7 +95,7 @@ describe('APP_SCAN handler', () => {
         subcategory: app.name,
         items: [{ id: '1', path: '/test', size: 100 }],
         totalSize: 100,
-        itemCount: 1,
+        itemCount: 1
       })
     })
 
@@ -101,19 +106,21 @@ describe('APP_SCAN handler', () => {
     expect(results).toHaveLength(2)
     expect(mockCacheItems).toHaveBeenCalledTimes(2)
     expect(mockScanAppRule).toHaveBeenCalledTimes(2)
-    expect(mockScanAppRule).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: 'VS Code', recursiveMatch }), 'app')
+    expect(mockScanAppRule).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ name: 'VS Code', recursiveMatch }),
+      'app'
+    )
   })
 
   it('skips apps with zero scan items', async () => {
-    mockAppPaths.mockReturnValue([
-      { name: 'EmptyApp', paths: ['/empty'], childSubdir: undefined },
-    ])
+    mockAppPaths.mockReturnValue([{ name: 'EmptyApp', paths: ['/empty'], childSubdir: undefined }])
     mockScanAppRule.mockResolvedValue({
       category: 'app',
       subcategory: 'EmptyApp',
       items: [],
       totalSize: 0,
-      itemCount: 0,
+      itemCount: 0
     })
 
     registerAppCleanerIpc(() => mockWindow() as any)
@@ -128,7 +135,11 @@ describe('APP_SCAN handler', () => {
     const app = { name: 'Settled Logs', paths: ['/logs'], minAgeDays: 7 }
     mockAppPaths.mockReturnValue([app])
     mockScanAppRule.mockResolvedValue({
-      category: 'app', subcategory: 'Settled Logs', items: [], totalSize: 0, itemCount: 0,
+      category: 'app',
+      subcategory: 'Settled Logs',
+      items: [],
+      totalSize: 0,
+      itemCount: 0
     })
 
     registerAppCleanerIpc(() => null)
@@ -139,12 +150,19 @@ describe('APP_SCAN handler', () => {
 
   it('uses exact file matching without resolving the broad base path', async () => {
     const fileMatch = {
-      names: ['installer.exe'], childDirSuffix: '-updater', minAgeDays: 14, skipIfChildExists: ['pending'],
+      names: ['installer.exe'],
+      childDirSuffix: '-updater',
+      minAgeDays: 14,
+      skipIfChildExists: ['pending']
     }
     const app = { name: 'Updater Artifacts', paths: ['/local'], fileMatch }
     mockAppPaths.mockReturnValue([app])
     mockScanAppRule.mockResolvedValue({
-      category: 'app', subcategory: 'Updater Artifacts', items: [], totalSize: 0, itemCount: 0,
+      category: 'app',
+      subcategory: 'Updater Artifacts',
+      items: [],
+      totalSize: 0,
+      itemCount: 0
     })
 
     registerAppCleanerIpc(() => null)
@@ -156,7 +174,7 @@ describe('APP_SCAN handler', () => {
   it('skips apps that throw errors during scan', async () => {
     mockAppPaths.mockReturnValue([
       { name: 'FailApp', paths: ['/fail'], childSubdir: undefined },
-      { name: 'GoodApp', paths: ['/good'], childSubdir: undefined },
+      { name: 'GoodApp', paths: ['/good'], childSubdir: undefined }
     ])
     mockScanAppRule.mockImplementation((app: { name: string }) => {
       if (app.name === 'FailApp') return Promise.reject(new Error('EACCES'))
@@ -165,7 +183,7 @@ describe('APP_SCAN handler', () => {
         subcategory: 'GoodApp',
         items: [{ id: '1', path: '/test', size: 100 }],
         totalSize: 100,
-        itemCount: 1,
+        itemCount: 1
       })
     })
 
@@ -185,12 +203,15 @@ describe('APP_SCAN handler', () => {
     const handler = getHandler('cleaner:app:scan')
     await handler()
 
-    expect(mockSend).toHaveBeenCalledWith('scan:progress', expect.objectContaining({
-      phase: 'scanning',
-      category: 'app',
-      currentPath: 'App scan complete',
-      progress: 100,
-    }))
+    expect(mockSend).toHaveBeenCalledWith(
+      'scan:progress',
+      expect.objectContaining({
+        phase: 'scanning',
+        category: 'app',
+        currentPath: 'App scan complete',
+        progress: 100
+      })
+    )
   })
 
   it('does not send progress when window is null', async () => {
@@ -225,7 +246,7 @@ describe('APP_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
   })
 
@@ -238,7 +259,7 @@ describe('APP_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
   })
 
@@ -251,7 +272,7 @@ describe('APP_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
   })
 
@@ -261,17 +282,22 @@ describe('APP_CLEAN handler', () => {
       filesDeleted: 10,
       filesSkipped: 1,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
 
     registerAppCleanerIpc(() => null)
     const handler = getHandler('cleaner:app:clean')
     const result = await handler({}, ['uuid-1', 'uuid-2', 'uuid-3'])
 
-    expect(mockCleanItems).toHaveBeenCalledWith(['uuid-1', 'uuid-2', 'uuid-3'], expect.any(Function))
-    expect(result).toEqual(expect.objectContaining({
-      totalCleaned: 1024,
-      filesDeleted: 10,
-    }))
+    expect(mockCleanItems).toHaveBeenCalledWith(
+      ['uuid-1', 'uuid-2', 'uuid-3'],
+      expect.any(Function)
+    )
+    expect(result).toEqual(
+      expect.objectContaining({
+        totalCleaned: 1024,
+        filesDeleted: 10
+      })
+    )
   })
 })

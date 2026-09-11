@@ -13,9 +13,10 @@ export function createWin32Network(): PlatformNetwork {
       try {
         // Use native netstat instead of PowerShell — starts instantly, uses ~1MB
         // vs PowerShell's ~80MB and 2-5s startup. This runs every 30s.
-        const { stdout } = await execFileAsync('netstat', [
-          '-ano', '-p', 'tcp',
-        ], { timeout: 15_000, windowsHide: true })
+        const { stdout } = await execFileAsync('netstat', ['-ano', '-p', 'tcp'], {
+          timeout: 15_000,
+          windowsHide: true
+        })
 
         const results: ActiveConnection[] = []
         for (const line of stdout.split('\n')) {
@@ -78,9 +79,10 @@ export function createWin32Network(): PlatformNetwork {
 
     async getListeningPorts(): Promise<number[]> {
       try {
-        const { stdout } = await execFileAsync('netstat', [
-          '-ano', '-p', 'tcp',
-        ], { timeout: 15_000, windowsHide: true })
+        const { stdout } = await execFileAsync('netstat', ['-ano', '-p', 'tcp'], {
+          timeout: 15_000,
+          windowsHide: true
+        })
 
         const ports: number[] = []
         for (const line of stdout.split('\n')) {
@@ -113,21 +115,28 @@ export function createWin32Network(): PlatformNetwork {
 
     async getDnsCacheEntries(): Promise<DnsCacheEntry[]> {
       try {
-        const { stdout } = await execFileAsync('powershell.exe', [
-          '-NoProfile', '-NonInteractive', '-Command',
-          psUtf8('Get-DnsClientCache | Select-Object Entry,Data | ConvertTo-Json -Compress'),
-        ], { timeout: 15_000, windowsHide: true })
+        const { stdout } = await execFileAsync(
+          'powershell.exe',
+          [
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            psUtf8('Get-DnsClientCache | Select-Object Entry,Data | ConvertTo-Json -Compress')
+          ],
+          { timeout: 15_000, windowsHide: true }
+        )
 
         const trimmed = stdout.trim()
         if (!trimmed) return []
 
         const raw = JSON.parse(trimmed)
-        const items: Array<{ Entry: string; Data: string | null }> =
-          Array.isArray(raw) ? raw : [raw]
+        const items: Array<{ Entry: string; Data: string | null }> = Array.isArray(raw)
+          ? raw
+          : [raw]
 
         return items.map((e) => ({
           domain: e.Entry?.toLowerCase() ?? '',
-          resolvedAddress: e.Data || null,
+          resolvedAddress: e.Data || null
         }))
       } catch {
         return []
@@ -138,11 +147,14 @@ export function createWin32Network(): PlatformNetwork {
       try {
         // Use PowerShell Clear-DnsClientCache for reliable cache clearing,
         // then also run ipconfig /flushdns as a belt-and-suspenders approach
-        await execFileAsync('powershell.exe', [
-          '-NoProfile', '-NonInteractive', '-Command',
-          psUtf8('Clear-DnsClientCache'),
-        ], { timeout: 10000, windowsHide: true })
-        await execFileAsync('ipconfig', ['/flushdns'], { timeout: 10000, windowsHide: true }).catch(() => {})
+        await execFileAsync(
+          'powershell.exe',
+          ['-NoProfile', '-NonInteractive', '-Command', psUtf8('Clear-DnsClientCache')],
+          { timeout: 10000, windowsHide: true }
+        )
+        await execFileAsync('ipconfig', ['/flushdns'], { timeout: 10000, windowsHide: true }).catch(
+          () => {}
+        )
         return true
       } catch {
         // Fallback to ipconfig only
@@ -157,10 +169,13 @@ export function createWin32Network(): PlatformNetwork {
 
     async getWifiProfiles(): Promise<WifiProfile[]> {
       try {
-        const { stdout } = await execNativeUtf8('netsh', ['wlan', 'show', 'profiles'], { timeout: 10000 })
+        const { stdout } = await execNativeUtf8('netsh', ['wlan', 'show', 'profiles'], {
+          timeout: 10000
+        })
         const profiles: WifiProfile[] = []
         for (const line of stdout.split('\n')) {
-          const match = line.match(/All User Profile\s*:\s*(.+)/i) || line.match(/User Profile\s*:\s*(.+)/i)
+          const match =
+            line.match(/All User Profile\s*:\s*(.+)/i) || line.match(/User Profile\s*:\s*(.+)/i)
           if (match) {
             const name = match[1].trim()
             // Block quotes and control chars — shell metacharacters are handled
@@ -168,10 +183,16 @@ export function createWin32Network(): PlatformNetwork {
             if (/["\x00-\x1f]/.test(name)) continue
             let security = 'Unknown'
             try {
-              const { stdout: detail } = await execNativeUtf8('netsh', ['wlan', 'show', 'profile', `name=${name}`], { timeout: 5000 })
+              const { stdout: detail } = await execNativeUtf8(
+                'netsh',
+                ['wlan', 'show', 'profile', `name=${name}`],
+                { timeout: 5000 }
+              )
               const authMatch = detail.match(/Authentication\s*:\s*(.+)/i)
               if (authMatch) security = authMatch[1].trim()
-            } catch { /* skip */ }
+            } catch {
+              /* skip */
+            }
             profiles.push({ name, security })
           }
         }
@@ -184,7 +205,9 @@ export function createWin32Network(): PlatformNetwork {
     async deleteWifiProfile(name: string): Promise<boolean> {
       try {
         if (/["\x00-\x1f]/.test(name)) return false
-        await execNativeUtf8('netsh', ['wlan', 'delete', 'profile', `name=${name}`], { timeout: 10000 })
+        await execNativeUtf8('netsh', ['wlan', 'delete', 'profile', `name=${name}`], {
+          timeout: 10000
+        })
         return true
       } catch {
         return false
@@ -195,20 +218,28 @@ export function createWin32Network(): PlatformNetwork {
       try {
         // 'netsh interface ip delete arpcache' is deprecated on modern Windows.
         // Use PowerShell Remove-NetNeighbor which works on Windows 10/11.
-        await execFileAsync('powershell.exe', [
-          '-NoProfile', '-NonInteractive', '-Command',
-          psUtf8('Get-NetNeighbor | Remove-NetNeighbor -Confirm:$false -ErrorAction Stop'),
-        ], { timeout: 15000, windowsHide: true })
+        await execFileAsync(
+          'powershell.exe',
+          [
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            psUtf8('Get-NetNeighbor | Remove-NetNeighbor -Confirm:$false -ErrorAction Stop')
+          ],
+          { timeout: 15000, windowsHide: true }
+        )
         return true
       } catch {
         // Fallback to legacy command for older Windows versions
         try {
-          await execNativeUtf8('netsh', ['interface', 'ip', 'delete', 'arpcache'], { timeout: 10000 })
+          await execNativeUtf8('netsh', ['interface', 'ip', 'delete', 'arpcache'], {
+            timeout: 10000
+          })
           return true
         } catch {
           return false
         }
       }
-    },
+    }
   }
 }

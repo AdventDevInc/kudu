@@ -28,7 +28,9 @@ function loadKnownPaths() {
   const addRulePaths = (rule) => {
     const templates = rule.paths || (rule.path ? [rule.path] : [])
     for (const template of templates) {
-      const resolved = path.normalize(template.replace(/\$\{([A-Z_]+)\}/g, (_, name) => vars[name] || ''))
+      const resolved = path.normalize(
+        template.replace(/\$\{([A-Z_]+)\}/g, (_, name) => vars[name] || '')
+      )
       if (!resolved) continue
 
       // These rules make only their resolved children cleanable. Treating the
@@ -68,7 +70,7 @@ function resolveVars() {
       PROGRAMDATA: process.env.ProgramData || 'C:\\ProgramData',
       PROGRAMFILES: process.env.ProgramFiles || 'C:\\Program Files',
       PROGRAMFILES_X86: process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
-      TMPDIR: tmp,
+      TMPDIR: tmp
     }
   }
   if (currentPlatform === 'darwin') {
@@ -77,7 +79,7 @@ function resolveVars() {
       LIBRARY: path.join(home, 'Library'),
       CACHES: path.join(home, 'Library', 'Caches'),
       APP_SUPPORT: path.join(home, 'Library', 'Application Support'),
-      TMPDIR: tmp,
+      TMPDIR: tmp
     }
   }
   // linux
@@ -86,7 +88,7 @@ function resolveVars() {
     CONFIG: process.env.XDG_CONFIG_HOME || path.join(home, '.config'),
     CACHE: process.env.XDG_CACHE_HOME || path.join(home, '.cache'),
     LOCAL_SHARE: process.env.XDG_DATA_HOME || path.join(home, '.local', 'share'),
-    TMPDIR: tmp,
+    TMPDIR: tmp
   }
 }
 
@@ -98,13 +100,29 @@ function getDirsIn(dir) {
     return readdirSync(dir)
       .map((name) => ({ name, full: path.join(dir, name) }))
       .filter(({ full }) => {
-        try { return statSync(full).isDirectory() } catch { return false }
+        try {
+          return statSync(full).isDirectory()
+        } catch {
+          return false
+        }
       })
-  } catch { return [] }
+  } catch {
+    return []
+  }
 }
 
 function hasCacheIndicators(dirPath) {
-  const indicators = ['Cache', 'cache', 'Cache_Data', 'CachedData', 'GPUCache', 'Code Cache', 'logs', 'tmp', 'temp']
+  const indicators = [
+    'Cache',
+    'cache',
+    'Cache_Data',
+    'CachedData',
+    'GPUCache',
+    'Code Cache',
+    'logs',
+    'tmp',
+    'temp'
+  ]
   try {
     const children = readdirSync(dirPath)
     return children.filter((c) => indicators.includes(c))
@@ -129,9 +147,13 @@ function getDirSize(dir) {
         const stat = statSync(full)
         if (stat.isFile()) total += stat.size
         else if (stat.isDirectory()) total += getDirSize(full)
-      } catch { /* skip inaccessible */ }
+      } catch {
+        /* skip inaccessible */
+      }
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
   return total
 }
 
@@ -147,17 +169,17 @@ function main() {
   if (currentPlatform === 'win32') {
     scanDirs.push(
       { dir: vars.APPDATA, varName: '${APPDATA}' },
-      { dir: vars.LOCALAPPDATA, varName: '${LOCALAPPDATA}' },
+      { dir: vars.LOCALAPPDATA, varName: '${LOCALAPPDATA}' }
     )
   } else if (currentPlatform === 'darwin') {
     scanDirs.push(
       { dir: vars.CACHES, varName: '${CACHES}' },
-      { dir: vars.APP_SUPPORT, varName: '${APP_SUPPORT}' },
+      { dir: vars.APP_SUPPORT, varName: '${APP_SUPPORT}' }
     )
   } else {
     scanDirs.push(
       { dir: vars.CACHE, varName: '${CACHE}' },
-      { dir: vars.CONFIG, varName: '${CONFIG}' },
+      { dir: vars.CONFIG, varName: '${CONFIG}' }
     )
   }
 
@@ -183,7 +205,7 @@ function main() {
       const cachePaths = uncoveredCaches.map((child) => ({
         template: `${varName}/${name}/${child}`,
         full: path.join(full, child),
-        size: getDirSize(path.join(full, child)),
+        size: getDirSize(path.join(full, child))
       }))
 
       const totalSize = cachePaths.reduce((sum, p) => sum + p.size, 0)

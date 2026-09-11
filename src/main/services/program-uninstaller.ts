@@ -14,7 +14,7 @@ const execFileAsync = promisify(execFile)
 const REGISTRY_KEYS = [
   'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
   'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-  'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+  'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
 ]
 
 export function parseRegValue(block: string, name: string): string {
@@ -89,7 +89,10 @@ function getExeNames(program: InstalledProgram): string[] {
   if (program.displayIcon) {
     let iconPath = program.displayIcon
     // Remove icon index suffix like ",0" or ",-1"
-    iconPath = iconPath.replace(/,-?\d+$/, '').replace(/^"/, '').replace(/"$/, '')
+    iconPath = iconPath
+      .replace(/,-?\d+$/, '')
+      .replace(/^"/, '')
+      .replace(/"$/, '')
     if (extname(iconPath).toLowerCase() === '.exe') {
       names.push(basename(iconPath, '.exe').toLowerCase())
     }
@@ -102,7 +105,8 @@ function getExeNames(program: InstalledProgram): string[] {
   }
 
   // From DisplayName — simplified (first word, common pattern)
-  const nameLower = program.displayName.toLowerCase()
+  const nameLower = program.displayName
+    .toLowerCase()
     .replace(/\s+[\d.]+\s*$/, '') // strip trailing version
     .trim()
   if (nameLower.length >= 3) {
@@ -124,22 +128,27 @@ export async function getInstalledProgramsFull(): Promise<InstalledProgram[]> {
   if (process.platform !== 'win32') {
     const platform = getPlatform()
     const apps = await platform.commands.getInstalledApps()
-    return apps.map((app) => ({
-      id: createHash('sha256').update(`${app.name}::${app.publisher}`).digest('hex').substring(0, 16),
-      displayName: app.name,
-      publisher: app.publisher,
-      displayVersion: app.version,
-      installDate: app.installDate || '',
-      estimatedSize: (app.sizeKb || 0) * 1024,
-      installLocation: '',
-      uninstallString: '',
-      quietUninstallString: '',
-      displayIcon: '',
-      registryKey: '',
-      isSystemComponent: false,
-      isWindowsInstaller: false,
-      lastUsed: -1,
-    })).sort((a, b) => a.displayName.localeCompare(b.displayName))
+    return apps
+      .map((app) => ({
+        id: createHash('sha256')
+          .update(`${app.name}::${app.publisher}`)
+          .digest('hex')
+          .substring(0, 16),
+        displayName: app.name,
+        publisher: app.publisher,
+        displayVersion: app.version,
+        installDate: app.installDate || '',
+        estimatedSize: (app.sizeKb || 0) * 1024,
+        installLocation: '',
+        uninstallString: '',
+        quietUninstallString: '',
+        displayIcon: '',
+        registryKey: '',
+        isSystemComponent: false,
+        isWindowsInstaller: false,
+        lastUsed: -1
+      }))
+      .sort((a, b) => a.displayName.localeCompare(b.displayName))
   }
 
   const programs: InstalledProgram[] = []
@@ -150,9 +159,9 @@ export async function getInstalledProgramsFull(): Promise<InstalledProgram[]> {
 
   for (const key of REGISTRY_KEYS) {
     try {
-      const { stdout } = await execNativeUtf8('reg',['query', key, '/s'], {
+      const { stdout } = await execNativeUtf8('reg', ['query', key, '/s'], {
         timeout: 20000,
-        maxBuffer: 10 * 1024 * 1024,
+        maxBuffer: 10 * 1024 * 1024
       })
 
       const blocks = stdout.split(/\r?\n\r?\n/)
@@ -191,7 +200,7 @@ export async function getInstalledProgramsFull(): Promise<InstalledProgram[]> {
           registryKey,
           isSystemComponent: false,
           isWindowsInstaller: windowsInstaller === 1,
-          lastUsed: -1, // -1 = unknown, populated below from Prefetch if available
+          lastUsed: -1 // -1 = unknown, populated below from Prefetch if available
         })
       }
     } catch {
@@ -237,7 +246,10 @@ export function splitArgs(str: string): string[] {
       inQuote = !inQuote
       current += ch
     } else if (/\s/.test(ch) && !inQuote) {
-      if (current) { args.push(current); current = '' }
+      if (current) {
+        args.push(current)
+        current = ''
+      }
     } else {
       current += ch
     }
@@ -249,7 +261,10 @@ export function splitArgs(str: string): string[] {
 /**
  * Parse an UninstallString into command and arguments.
  */
-export function parseUninstallCommand(program: InstalledProgram): { command: string; args: string[] } {
+export function parseUninstallCommand(program: InstalledProgram): {
+  command: string
+  args: string[]
+} {
   const raw = program.uninstallString.trim()
 
   // MSI-based: extract GUID and use msiexec
@@ -293,13 +308,20 @@ export function runUninstaller(program: InstalledProgram): Promise<number | null
       const child = spawn(command, args, {
         detached: false,
         stdio: 'ignore',
-        windowsHide: false,
+        windowsHide: false
       })
 
-      const timeout = setTimeout(() => {
-        try { child.kill() } catch { /* already exited */ }
-        resolve(null)
-      }, 10 * 60 * 1000) // 10 minute timeout
+      const timeout = setTimeout(
+        () => {
+          try {
+            child.kill()
+          } catch {
+            /* already exited */
+          }
+          resolve(null)
+        },
+        10 * 60 * 1000
+      ) // 10 minute timeout
 
       child.on('close', (code) => {
         clearTimeout(timeout)
@@ -321,7 +343,7 @@ export function runUninstaller(program: InstalledProgram): Promise<number | null
  */
 export async function verifyUninstall(registryKey: string): Promise<boolean> {
   try {
-    await execNativeUtf8('reg',['query', registryKey], { timeout: 5000 })
+    await execNativeUtf8('reg', ['query', registryKey], { timeout: 5000 })
     return false // key still exists = not fully uninstalled
   } catch {
     return true // key gone = uninstalled successfully
@@ -401,12 +423,18 @@ async function hasRunningProcesses(folderPaths: string[]): Promise<Set<string>> 
   if (folderPaths.length === 0) return running
 
   try {
-    const procScript = 'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NoLogo', '-Command', psUtf8(procScript),
-    ], { timeout: 10000, windowsHide: true })
+    const procScript =
+      'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
+    const { stdout } = await execFileAsync(
+      'powershell',
+      ['-NoProfile', '-NoLogo', '-Command', psUtf8(procScript)],
+      { timeout: 10000, windowsHide: true }
+    )
 
-    const processPaths = stdout.split(/\r?\n/).map((p) => p.trim().toLowerCase()).filter(Boolean)
+    const processPaths = stdout
+      .split(/\r?\n/)
+      .map((p) => p.trim().toLowerCase())
+      .filter(Boolean)
 
     for (const folderPath of folderPaths) {
       const folderLower = folderPath.toLowerCase().replace(/\//g, '\\')
@@ -446,7 +474,7 @@ export async function scanLeftoversForProgram(program: InstalledProgram): Promis
               category: 'uninstall-leftovers',
               subcategory: 'Install Location',
               lastModified: s.mtimeMs,
-              selected: true,
+              selected: true
             })
           }
         }
@@ -478,7 +506,11 @@ export async function scanLeftoversForProgram(program: InstalledProgram): Promis
       if (!entryStat.isDirectory()) continue
 
       // Skip if it's the same as install location already added
-      if (program.installLocation && fullPath.toLowerCase() === program.installLocation.toLowerCase()) continue
+      if (
+        program.installLocation &&
+        fullPath.toLowerCase() === program.installLocation.toLowerCase()
+      )
+        continue
 
       if (isSafeFolder(name)) continue
       if (!folderMatchesProgram(name, program)) continue
@@ -515,7 +547,7 @@ export async function scanLeftoversForProgram(program: InstalledProgram): Promis
         category: 'uninstall-leftovers',
         subcategory: target.name,
         lastModified: folderStat.mtimeMs,
-        selected: true,
+        selected: true
       })
 
       if (items.length >= 50) break

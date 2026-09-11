@@ -12,7 +12,7 @@ function makeApp(overrides: Partial<BloatwareApp> = {}): BloatwareApp {
     category: 'gaming',
     size: '50000000',
     selected: false,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -37,10 +37,9 @@ describe('debloater-store', () => {
   })
 
   it('toggleApp flips selection on specific app', () => {
-    useDebloaterStore.getState().setApps([
-      makeApp({ id: '1', selected: false }),
-      makeApp({ id: '2', selected: false }),
-    ])
+    useDebloaterStore
+      .getState()
+      .setApps([makeApp({ id: '1', selected: false }), makeApp({ id: '2', selected: false })])
 
     useDebloaterStore.getState().toggleApp('1')
     expect(useDebloaterStore.getState().apps[0].selected).toBe(true)
@@ -48,31 +47,31 @@ describe('debloater-store', () => {
   })
 
   it('selectAll selects every app', () => {
-    useDebloaterStore.getState().setApps([
-      makeApp({ id: '1', selected: false }),
-      makeApp({ id: '2', selected: false }),
-    ])
+    useDebloaterStore
+      .getState()
+      .setApps([makeApp({ id: '1', selected: false }), makeApp({ id: '2', selected: false })])
 
     useDebloaterStore.getState().selectAll()
     expect(useDebloaterStore.getState().apps.every((a) => a.selected)).toBe(true)
   })
 
   it('deselectAll deselects every app', () => {
-    useDebloaterStore.getState().setApps([
-      makeApp({ id: '1', selected: true }),
-      makeApp({ id: '2', selected: true }),
-    ])
+    useDebloaterStore
+      .getState()
+      .setApps([makeApp({ id: '1', selected: true }), makeApp({ id: '2', selected: true })])
 
     useDebloaterStore.getState().deselectAll()
     expect(useDebloaterStore.getState().apps.every((a) => !a.selected)).toBe(true)
   })
 
   it('selectFiltered selects only apps matching the filter', () => {
-    useDebloaterStore.getState().setApps([
-      makeApp({ id: '1', category: 'gaming', selected: false }),
-      makeApp({ id: '2', category: 'communication', selected: false }),
-      makeApp({ id: '3', category: 'gaming', selected: false }),
-    ])
+    useDebloaterStore
+      .getState()
+      .setApps([
+        makeApp({ id: '1', category: 'gaming', selected: false }),
+        makeApp({ id: '2', category: 'communication', selected: false }),
+        makeApp({ id: '3', category: 'gaming', selected: false })
+      ])
 
     useDebloaterStore.getState().selectFiltered('gaming', true)
     const apps = useDebloaterStore.getState().apps
@@ -82,10 +81,9 @@ describe('debloater-store', () => {
   })
 
   it('selectFiltered with "all" selects/deselects everything', () => {
-    useDebloaterStore.getState().setApps([
-      makeApp({ id: '1', selected: false }),
-      makeApp({ id: '2', selected: false }),
-    ])
+    useDebloaterStore
+      .getState()
+      .setApps([makeApp({ id: '1', selected: false }), makeApp({ id: '2', selected: false })])
 
     useDebloaterStore.getState().selectFiltered('all', true)
     expect(useDebloaterStore.getState().apps.every((a) => a.selected)).toBe(true)
@@ -104,13 +102,13 @@ describe('debloater-store', () => {
       current: 2,
       total: 5,
       currentApp: 'Xbox',
-      status: 'Removing...',
+      status: 'Removing...'
     })
     expect(useDebloaterStore.getState().removeProgress).toEqual({
       current: 2,
       total: 5,
       currentApp: 'Xbox',
-      status: 'Removing...',
+      status: 'Removing...'
     })
   })
 

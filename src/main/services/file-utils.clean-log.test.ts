@@ -9,7 +9,7 @@ const state = vi.hoisted(() => ({
   items: [] as any[],
   recorded: [] as any[],
   batches: 0,
-  failRm: false,
+  failRm: false
 }))
 
 // Pass through to the real fs, with a switch to force a delete failure so we
@@ -21,7 +21,7 @@ vi.mock('fs/promises', async (importOriginal) => {
     rm: (...args: Parameters<typeof actual.rm>) =>
       state.failRm
         ? Promise.reject(Object.assign(new Error('denied'), { code: 'EACCES' }))
-        : actual.rm(...args),
+        : actual.rm(...args)
   }
 })
 
@@ -30,22 +30,22 @@ vi.mock('./settings-store', () => ({
     cleaner: {
       secureDelete: false,
       skipRecentMinutes: 60,
-      keepDeletionLog: state.keepDeletionLog,
+      keepDeletionLog: state.keepDeletionLog
     },
-    exclusions: [],
-  }),
+    exclusions: []
+  })
 }))
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => state.items,
-  removeCachedItems: () => {},
+  removeCachedItems: () => {}
 }))
 
 vi.mock('./deletion-log-store', () => ({
   recordDeletions: (records: DeletedFileRecord[]) => {
     state.batches++
     state.recorded.push(...records)
-  },
+  }
 }))
 
 import { cleanItems } from './file-utils'
@@ -65,7 +65,7 @@ function seedItems(count: number, subcategory = 'Temp Files'): ScanItem[] {
       category: 'system',
       subcategory,
       lastModified: 0,
-      selected: true,
+      selected: true
     })
   }
   state.items = items
@@ -158,29 +158,33 @@ describe('cleanItems deletion logging', () => {
     writeFileSync(join(dir, 'nested', 'mid.dat'), 'b', 'utf-8')
     writeFileSync(join(dir, 'nested', 'deeper', 'leaf.dat'), 'c', 'utf-8')
 
-    state.items = [{
-      id: 'dir-0',
-      path: dir,
-      size: 3,
-      category: 'system',
-      subcategory: 'App Cache',
-      lastModified: 0,
-      selected: true,
-    }]
+    state.items = [
+      {
+        id: 'dir-0',
+        path: dir,
+        size: 3,
+        category: 'system',
+        subcategory: 'App Cache',
+        lastModified: 0,
+        selected: true
+      }
+    ]
 
     const result = await cleanItems(['dir-0'])
     expect(result.filesDeleted).toBe(1)
     expect(existsSync(dir)).toBe(false)
 
     const logged = state.recorded.map((r) => r.path).sort()
-    expect(logged).toEqual([
-      dir,
-      join(dir, 'nested'),
-      join(dir, 'nested', 'deeper'),
-      join(dir, 'nested', 'deeper', 'leaf.dat'),
-      join(dir, 'nested', 'mid.dat'),
-      join(dir, 'top.dat'),
-    ].sort())
+    expect(logged).toEqual(
+      [
+        dir,
+        join(dir, 'nested'),
+        join(dir, 'nested', 'deeper'),
+        join(dir, 'nested', 'deeper', 'leaf.dat'),
+        join(dir, 'nested', 'mid.dat'),
+        join(dir, 'top.dat')
+      ].sort()
+    )
 
     // Bytes stay on the directory record so a CSV sum doesn't double-count.
     expect(state.recorded.find((r) => r.path === dir).size).toBe(3)
@@ -194,10 +198,17 @@ describe('cleanItems deletion logging', () => {
     const dir = join(testDir, 'cache')
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'top.dat'), 'a', 'utf-8')
-    state.items = [{
-      id: 'dir-0', path: dir, size: 1, category: 'system',
-      subcategory: 'App Cache', lastModified: 0, selected: true,
-    }]
+    state.items = [
+      {
+        id: 'dir-0',
+        path: dir,
+        size: 1,
+        category: 'system',
+        subcategory: 'App Cache',
+        lastModified: 0,
+        selected: true
+      }
+    ]
 
     const result = await cleanItems(['dir-0'])
     expect(result.totalCleaned).toBe(1)
@@ -210,10 +221,17 @@ describe('cleanItems deletion logging', () => {
     const dir = join(testDir, 'cache')
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'top.dat'), 'a', 'utf-8')
-    state.items = [{
-      id: 'dir-0', path: dir, size: 1, category: 'system',
-      subcategory: 'App Cache', lastModified: 0, selected: true,
-    }]
+    state.items = [
+      {
+        id: 'dir-0',
+        path: dir,
+        size: 1,
+        category: 'system',
+        subcategory: 'App Cache',
+        lastModified: 0,
+        selected: true
+      }
+    ]
 
     // Fail the delete after the descendants were already enumerated.
     state.failRm = true
@@ -236,7 +254,7 @@ describe('cleanItems deletion logging', () => {
       category: 'system',
       subcategory: 'Temp Files',
       lastModified: 0,
-      selected: true,
+      selected: true
     })
 
     const result = await cleanItems(['id-0', 'id-vanished'])
@@ -244,7 +262,10 @@ describe('cleanItems deletion logging', () => {
     expect(result.filesDeleted).toBe(1)
     expect(result.filesSkipped).toBe(1)
     expect(result.totalCleaned).toBe(10)
-    expect(result.errors).toContainEqual({ path: join(testDir, 'vanished.tmp'), reason: 'not-found' })
+    expect(result.errors).toContainEqual({
+      path: join(testDir, 'vanished.tmp'),
+      reason: 'not-found'
+    })
     expect(state.recorded.map((r) => r.path)).toEqual([join(testDir, 'file-0.tmp')])
   })
 
@@ -265,10 +286,17 @@ describe('cleanItems deletion logging', () => {
       throw err
     }
 
-    state.items = [{
-      id: 'link-0', path: link, size: 1, category: 'system',
-      subcategory: 'App Cache', lastModified: 0, selected: true,
-    }]
+    state.items = [
+      {
+        id: 'link-0',
+        path: link,
+        size: 1,
+        category: 'system',
+        subcategory: 'App Cache',
+        lastModified: 0,
+        selected: true
+      }
+    ]
 
     await cleanItems(['link-0'])
 

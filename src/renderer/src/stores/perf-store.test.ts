@@ -9,7 +9,7 @@ function makeSnapshot(timestamp: number): PerfSnapshot {
     memory: { usedBytes: 4e9, totalBytes: 8e9, cachedBytes: 1e9, percent: 50 },
     disk: { readBytesPerSec: 1e6, writeBytesPerSec: 5e5 },
     network: { rxBytesPerSec: 1e4, txBytesPerSec: 5e3 },
-    uptime: 3600,
+    uptime: 3600
   }
 }
 
@@ -83,7 +83,7 @@ describe('perf-store', () => {
       cpuThreads: 16,
       totalMemBytes: 16e9,
       osVersion: 'Win11',
-      hostname: 'TEST',
+      hostname: 'TEST'
     })
     usePerfStore.getState().pushSnapshot(makeSnapshot(1))
     usePerfStore.getState().setMonitoring(true)

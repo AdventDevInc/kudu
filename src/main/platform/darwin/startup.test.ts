@@ -7,24 +7,24 @@ const unlinkMock = vi.fn()
 const existsSyncMock = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 vi.mock('util', () => ({
-  promisify: (fn: any) => fn,
+  promisify: (fn: any) => fn
 }))
 vi.mock('fs/promises', () => ({
   readdir: readdirMock,
   readFile: vi.fn(),
-  unlink: unlinkMock,
+  unlink: unlinkMock
 }))
 vi.mock('fs', () => ({
-  existsSync: existsSyncMock,
+  existsSync: existsSyncMock
 }))
 vi.mock('os', () => ({
-  homedir: () => '/Users/TestUser',
+  homedir: () => '/Users/TestUser'
 }))
 vi.mock('crypto', () => ({
-  randomUUID: () => 'test-uuid-1234',
+  randomUUID: () => 'test-uuid-1234'
 }))
 
 const { createDarwinStartup } = await import('./startup')
@@ -44,9 +44,7 @@ describe('darwin startup', () => {
 
   describe('listItems', () => {
     it('lists user launch agents from plist files', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === USER_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === USER_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.example.app.plist', 'notaplist.txt'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
@@ -54,8 +52,8 @@ describe('darwin startup', () => {
             stdout: JSON.stringify({
               Label: 'com.example.app',
               Disabled: false,
-              Program: '/usr/local/bin/example',
-            }),
+              Program: '/usr/local/bin/example'
+            })
           })
         }
         return Promise.reject(new Error('skip'))
@@ -68,14 +66,12 @@ describe('darwin startup', () => {
     })
 
     it('sets source to launch-agent-user for user agents', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === USER_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === USER_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.test.plist'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
           return Promise.resolve({
-            stdout: JSON.stringify({ Label: 'com.test' }),
+            stdout: JSON.stringify({ Label: 'com.test' })
           })
         }
         return Promise.reject(new Error('skip'))
@@ -86,14 +82,12 @@ describe('darwin startup', () => {
     })
 
     it('marks disabled agents as enabled: false', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === USER_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === USER_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.disabled.plist'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
           return Promise.resolve({
-            stdout: JSON.stringify({ Label: 'com.disabled', Disabled: true }),
+            stdout: JSON.stringify({ Label: 'com.disabled', Disabled: true })
           })
         }
         return Promise.reject(new Error('skip'))
@@ -104,14 +98,12 @@ describe('darwin startup', () => {
     })
 
     it('lists global launch agents', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === GLOBAL_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === GLOBAL_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.global.plist'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
           return Promise.resolve({
-            stdout: JSON.stringify({ Label: 'com.global', Program: '/sbin/test' }),
+            stdout: JSON.stringify({ Label: 'com.global', Program: '/sbin/test' })
           })
         }
         return Promise.reject(new Error('skip'))
@@ -145,14 +137,12 @@ describe('darwin startup', () => {
     })
 
     it('extracts publisher from reverse-DNS label', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === USER_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === USER_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.jetbrains.toolbox.plist'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
           return Promise.resolve({
-            stdout: JSON.stringify({ Label: 'com.jetbrains.toolbox' }),
+            stdout: JSON.stringify({ Label: 'com.jetbrains.toolbox' })
           })
         }
         return Promise.reject(new Error('skip'))
@@ -163,14 +153,12 @@ describe('darwin startup', () => {
     })
 
     it('creates friendly display name from reverse-DNS label', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === USER_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === USER_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.docker.helper.update.plist'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
           return Promise.resolve({
-            stdout: JSON.stringify({ Label: 'com.docker.helper.update' }),
+            stdout: JSON.stringify({ Label: 'com.docker.helper.update' })
           })
         }
         return Promise.reject(new Error('skip'))
@@ -182,14 +170,12 @@ describe('darwin startup', () => {
     })
 
     it('falls back to filename when Label is missing', async () => {
-      existsSyncMock.mockImplementation((dir: string) =>
-        dir === USER_AGENTS_DIR,
-      )
+      existsSyncMock.mockImplementation((dir: string) => dir === USER_AGENTS_DIR)
       readdirMock.mockResolvedValue(['com.nolabel.plist'])
       execFileMock.mockImplementation((cmd: string) => {
         if (cmd === '/usr/bin/plutil') {
           return Promise.resolve({
-            stdout: JSON.stringify({}),
+            stdout: JSON.stringify({})
           })
         }
         return Promise.reject(new Error('skip'))
@@ -209,33 +195,32 @@ describe('darwin startup', () => {
     })
 
     it('loads a launch agent when enabling', async () => {
-      const result = await startup.toggleItem(
-        'com.test', userPlist,
-        '', 'launch-agent-user', true,
-      )
+      const result = await startup.toggleItem('com.test', userPlist, '', 'launch-agent-user', true)
       expect(result).toBe(true)
       expect(execFileMock).toHaveBeenCalledWith(
-        '/bin/launchctl', ['load', userPlist],
-        expect.any(Object),
+        '/bin/launchctl',
+        ['load', userPlist],
+        expect.any(Object)
       )
     })
 
     it('unloads a launch agent when disabling', async () => {
-      const result = await startup.toggleItem(
-        'com.test', userPlist,
-        '', 'launch-agent-user', false,
-      )
+      const result = await startup.toggleItem('com.test', userPlist, '', 'launch-agent-user', false)
       expect(result).toBe(true)
       expect(execFileMock).toHaveBeenCalledWith(
-        '/bin/launchctl', ['unload', userPlist],
-        expect.any(Object),
+        '/bin/launchctl',
+        ['unload', userPlist],
+        expect.any(Object)
       )
     })
 
     it('rejects paths outside allowed directories', async () => {
       const result = await startup.toggleItem(
-        'evil', '/etc/evil.plist',
-        '', 'launch-agent-user', true,
+        'evil',
+        '/etc/evil.plist',
+        '',
+        'launch-agent-user',
+        true
       )
       expect(result).toBe(false)
       expect(execFileMock).not.toHaveBeenCalled()
@@ -243,10 +228,7 @@ describe('darwin startup', () => {
 
     it('rejects path traversal attempts', async () => {
       const traversalPath = join(USER_AGENTS_DIR, '..', '..', 'evil.plist')
-      const result = await startup.toggleItem(
-        'evil', traversalPath,
-        '', 'launch-agent-user', true,
-      )
+      const result = await startup.toggleItem('evil', traversalPath, '', 'launch-agent-user', true)
       expect(result).toBe(false)
     })
 
@@ -256,7 +238,7 @@ describe('darwin startup', () => {
       expect(execFileMock).toHaveBeenCalledWith(
         '/usr/bin/osascript',
         expect.arrayContaining(['-e']),
-        expect.any(Object),
+        expect.any(Object)
       )
     })
 
@@ -279,17 +261,17 @@ describe('darwin startup', () => {
 
     it('returns false on error', async () => {
       execFileMock.mockRejectedValue(new Error('fail'))
-      const result = await startup.toggleItem(
-        'com.test', userPlist,
-        '', 'launch-agent-user', true,
-      )
+      const result = await startup.toggleItem('com.test', userPlist, '', 'launch-agent-user', true)
       expect(result).toBe(false)
     })
 
     it('allows global launch agent paths', async () => {
       const result = await startup.toggleItem(
-        'com.test', globalPlist,
-        '', 'launch-agent-global', true,
+        'com.test',
+        globalPlist,
+        '',
+        'launch-agent-global',
+        true
       )
       expect(result).toBe(true)
     })
@@ -304,24 +286,19 @@ describe('darwin startup', () => {
     })
 
     it('unloads and deletes a launch agent plist', async () => {
-      const result = await startup.deleteItem(
-        'com.test', userPlist,
-        'launch-agent-user',
-      )
+      const result = await startup.deleteItem('com.test', userPlist, 'launch-agent-user')
       expect(result).toBe(true)
       expect(execFileMock).toHaveBeenCalledWith(
-        '/bin/launchctl', ['unload', userPlist],
-        expect.any(Object),
+        '/bin/launchctl',
+        ['unload', userPlist],
+        expect.any(Object)
       )
       expect(unlinkMock).toHaveBeenCalledWith(userPlist)
     })
 
     it('still deletes the file if unload fails (already unloaded)', async () => {
       execFileMock.mockRejectedValue(new Error('already unloaded'))
-      const result = await startup.deleteItem(
-        'com.test', userPlist,
-        'launch-agent-user',
-      )
+      const result = await startup.deleteItem('com.test', userPlist, 'launch-agent-user')
       expect(result).toBe(true)
       expect(unlinkMock).toHaveBeenCalled()
     })
@@ -338,7 +315,7 @@ describe('darwin startup', () => {
       expect(execFileMock).toHaveBeenCalledWith(
         '/usr/bin/osascript',
         expect.arrayContaining(['-e']),
-        expect.any(Object),
+        expect.any(Object)
       )
     })
 
@@ -349,10 +326,7 @@ describe('darwin startup', () => {
 
     it('returns false on delete error', async () => {
       unlinkMock.mockRejectedValue(new Error('permission denied'))
-      const result = await startup.deleteItem(
-        'com.test', userPlist,
-        'launch-agent-user',
-      )
+      const result = await startup.deleteItem('com.test', userPlist, 'launch-agent-user')
       expect(result).toBe(false)
     })
   })

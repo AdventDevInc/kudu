@@ -371,7 +371,7 @@ export const SAFE_FOLDER_NAMES = new Set([
   'startup',
   'sendto',
   'printhood',
-  'nethood',
+  'nethood'
 ])
 
 /**
@@ -407,6 +407,6 @@ export const SAFE_PREFIXES = [
   'windowsapps',
   'program',
   'system',
-  '{',   // GUID-style folders like {12345-...}
-  'kb',  // Windows KB update folders
+  '{', // GUID-style folders like {12345-...}
+  'kb' // Windows KB update folders
 ]

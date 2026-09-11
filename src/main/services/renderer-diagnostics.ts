@@ -19,11 +19,13 @@ export function attachRendererDiagnostics(win: BrowserWindow): void {
   const wc = win.webContents
 
   wc.on('render-process-gone', (_event, details) => {
-    logError(
-      `Renderer process gone: reason=${details.reason} exitCode=${details.exitCode}`
-    )
+    logError(`Renderer process gone: reason=${details.reason} exitCode=${details.exitCode}`)
     if (app.isPackaged && !wc.isDestroyed() && !wc.isDevToolsOpened()) {
-      try { wc.openDevTools({ mode: 'detach' }) } catch { /* DevTools may be unavailable */ }
+      try {
+        wc.openDevTools({ mode: 'detach' })
+      } catch {
+        /* DevTools may be unavailable */
+      }
     }
   })
 

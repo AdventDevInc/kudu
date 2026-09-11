@@ -6,13 +6,18 @@ const state = vi.hoisted(() => ({
   settingsThrows: false,
   /** stdout for each successive bin enumeration */
   enumerations: [] as string[],
-  recorded: [] as any[],
+  recorded: [] as any[]
 }))
 
 vi.mock('child_process', () => ({
-  execFile: (_file: string, _args: string[], _opts: unknown, cb: (e: unknown, r?: unknown) => void) => {
+  execFile: (
+    _file: string,
+    _args: string[],
+    _opts: unknown,
+    cb: (e: unknown, r?: unknown) => void
+  ) => {
     cb(null, { stdout: state.enumerations.shift() ?? '[]' })
-  },
+  }
 }))
 
 vi.mock('./exec-utf8', () => ({ psUtf8: (s: string) => s }))
@@ -21,17 +26,19 @@ vi.mock('./settings-store', () => ({
   getSettings: () => {
     if (state.settingsThrows) throw new Error('no app')
     return { cleaner: { keepDeletionLog: state.keepDeletionLog } }
-  },
+  }
 }))
 
 vi.mock('./deletion-log-store', () => ({
-  recordDeletions: (records: unknown[]) => { state.recorded.push(...records) },
+  recordDeletions: (records: unknown[]) => {
+    state.recorded.push(...records)
+  }
 }))
 
 import {
   isDeletionLoggingEnabled,
   listRecycleBinContents,
-  recordEmptiedRecycleBin,
+  recordEmptiedRecycleBin
 } from './recycle-bin-log'
 
 const binItems = (items: Array<{ name: string; origin?: string; size?: number }>) =>
@@ -60,14 +67,16 @@ describe('recycle-bin-log', () => {
 
   describe('listRecycleBinContents', () => {
     it('joins each item onto its original location', async () => {
-      state.enumerations = [binItems([
-        { name: 'notes.txt', origin: 'C:\\Users\\dave\\Documents', size: 120 },
-        { name: 'photo.png', origin: 'D:\\Pictures', size: 4096 },
-      ])]
+      state.enumerations = [
+        binItems([
+          { name: 'notes.txt', origin: 'C:\\Users\\dave\\Documents', size: 120 },
+          { name: 'photo.png', origin: 'D:\\Pictures', size: 4096 }
+        ])
+      ]
 
       expect(await listRecycleBinContents()).toEqual([
         { path: join('C:\\Users\\dave\\Documents', 'notes.txt'), size: 120 },
-        { path: join('D:\\Pictures', 'photo.png'), size: 4096 },
+        { path: join('D:\\Pictures', 'photo.png'), size: 4096 }
       ])
     })
 
@@ -95,7 +104,10 @@ describe('recycle-bin-log', () => {
     it('records everything when the bin came back empty', async () => {
       state.enumerations = ['[]'] // post-empty re-read
       await recordEmptiedRecycleBin(
-        [{ path: 'C:\\a\\one.txt', size: 1 }, { path: 'C:\\b\\two.txt', size: 2 }],
+        [
+          { path: 'C:\\a\\one.txt', size: 1 },
+          { path: 'C:\\b\\two.txt', size: 2 }
+        ],
         'local'
       )
 
@@ -110,7 +122,10 @@ describe('recycle-bin-log', () => {
     it('records only the items that are actually gone', async () => {
       state.enumerations = [binItems([{ name: 'two.txt', origin: 'C:\\b' }])]
       await recordEmptiedRecycleBin(
-        [{ path: 'C:\\a\\one.txt', size: 1 }, { path: join('C:\\b', 'two.txt'), size: 2 }],
+        [
+          { path: 'C:\\a\\one.txt', size: 1 },
+          { path: join('C:\\b', 'two.txt'), size: 2 }
+        ],
         'local'
       )
 

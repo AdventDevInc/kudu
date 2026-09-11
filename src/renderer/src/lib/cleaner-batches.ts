@@ -13,14 +13,14 @@ export interface BatchedCleanResult {
  */
 export async function cleanInBatches(
   ids: string[],
-  clean: (batch: string[]) => Promise<CleanResult>,
+  clean: (batch: string[]) => Promise<CleanResult>
 ): Promise<BatchedCleanResult> {
   const result: CleanResult = {
     totalCleaned: 0,
     filesDeleted: 0,
     filesSkipped: 0,
     errors: [],
-    needsElevation: false,
+    needsElevation: false
   }
 
   for (let offset = 0; offset < ids.length; offset += CLEANER_BATCH_SIZE) {

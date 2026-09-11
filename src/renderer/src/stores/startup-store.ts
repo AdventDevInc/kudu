@@ -64,9 +64,10 @@ export const useStartupStore = create<StartupState>((set) => ({
   setBootTrace: (bootTrace) => set({ bootTrace }),
   setTraceLoading: (traceLoading) => set({ traceLoading }),
   setDeleteTarget: (deleteTarget) => set({ deleteTarget }),
-  setSafetyRatings: (ratings) => set({
-    safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r]))
-  }),
+  setSafetyRatings: (ratings) =>
+    set({
+      safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r]))
+    }),
   setSafetyLoading: (safetyLoading) => set({ safetyLoading }),
   setExpandedItemId: (expandedItemId) => set({ expandedItemId }),
   fetchSafetyRatings: async () => {
@@ -76,7 +77,7 @@ export const useStartupStore = create<StartupState>((set) => ({
       const ratings = Array.isArray(result?.ratings) ? result.ratings : []
       set({
         safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
-        safetyLoading: false,
+        safetyLoading: false
       })
     } catch {
       set({ safetyLoading: false })
@@ -93,19 +94,23 @@ export const useStartupStore = create<StartupState>((set) => ({
       deleteTarget: null,
       safetyRatings: {},
       safetyLoading: false,
-      expandedItemId: null,
+      expandedItemId: null
     })
 }))
 
 // Listen for cloud-pushed safety rating updates (HMR-safe via guard flag)
 let _safetyListenerRegistered = false
-if (typeof window !== 'undefined' && window.kudu?.onStartupSafetyUpdated && !_safetyListenerRegistered) {
+if (
+  typeof window !== 'undefined' &&
+  window.kudu?.onStartupSafetyUpdated &&
+  !_safetyListenerRegistered
+) {
   _safetyListenerRegistered = true
   window.kudu.onStartupSafetyUpdated((result) => {
     const ratings = Array.isArray(result?.ratings) ? result.ratings : []
     useStartupStore.setState({
       safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
-      safetyLoading: false,
+      safetyLoading: false
     })
   })
 }

@@ -27,31 +27,40 @@ export function registerAppCleanerIpc(getWindow: WindowGetter): void {
     }
 
     const win = getWindow()
-    if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-      phase: 'scanning',
-      category,
-      currentPath: 'App scan complete',
-      progress: 100,
-      itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
-      sizeFound: results.reduce((s, r) => s + r.totalSize, 0),
-    })
+    if (win && !win.isDestroyed())
+      win.webContents.send(IPC.SCAN_PROGRESS, {
+        phase: 'scanning',
+        category,
+        currentPath: 'App scan complete',
+        progress: 100,
+        itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
+        sizeFound: results.reduce((s, r) => s + r.totalSize, 0)
+      })
 
     return results
   })
 
   ipcMain.handle(IPC.APP_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
     const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-        phase: 'cleaning',
-        category: CleanerType.App,
-        currentPath,
-        progress: (processed / total) * 100,
-        itemsFound: total,
-        sizeFound: cleanedSize,
-      })
+      if (win && !win.isDestroyed())
+        win.webContents.send(IPC.SCAN_PROGRESS, {
+          phase: 'cleaning',
+          category: CleanerType.App,
+          currentPath,
+          progress: (processed / total) * 100,
+          itemsFound: total,
+          sizeFound: cleanedSize
+        })
     })
   })
 }

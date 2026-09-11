@@ -3,11 +3,21 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 // ── Hoisted mocks (available inside vi.mock factories) ──
 
 const {
-  mockHandle, mockSend,
-  mockExistsSync, mockStatSync, mockOpenSync, mockReadSync, mockCloseSync, mockReaddirSync,
-  mockCacheItems, mockGetCachedItem,
-  mockDbExec, mockDbPragma, mockDbClose, mockDatabaseConstructor,
-  mockDatabaseTargets,
+  mockHandle,
+  mockSend,
+  mockExistsSync,
+  mockStatSync,
+  mockOpenSync,
+  mockReadSync,
+  mockCloseSync,
+  mockReaddirSync,
+  mockCacheItems,
+  mockGetCachedItem,
+  mockDbExec,
+  mockDbPragma,
+  mockDbClose,
+  mockDatabaseConstructor,
+  mockDatabaseTargets
 } = vi.hoisted(() => ({
   mockHandle: vi.fn(),
   mockSend: vi.fn(),
@@ -23,11 +33,11 @@ const {
   mockDbPragma: vi.fn(),
   mockDbClose: vi.fn(),
   mockDatabaseConstructor: vi.fn(),
-  mockDatabaseTargets: vi.fn(),
+  mockDatabaseTargets: vi.fn()
 }))
 
 vi.mock('electron', () => ({
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 vi.mock('fs', () => {
@@ -37,7 +47,7 @@ vi.mock('fs', () => {
     openSync: (...args: unknown[]) => mockOpenSync(...args),
     readSync: (...args: unknown[]) => mockReadSync(...args),
     closeSync: (...args: unknown[]) => mockCloseSync(...args),
-    readdirSync: (...args: unknown[]) => mockReaddirSync(...args),
+    readdirSync: (...args: unknown[]) => mockReaddirSync(...args)
   }
   return { ...methods, default: methods }
 })
@@ -45,7 +55,7 @@ vi.mock('fs', () => {
 vi.mock('../services/scan-cache', () => ({
   cacheItems: (...args: unknown[]) => mockCacheItems(...args),
   clearCachedCategory: vi.fn(),
-  getCachedItem: (...args: unknown[]) => mockGetCachedItem(...args),
+  getCachedItem: (...args: unknown[]) => mockGetCachedItem(...args)
 }))
 
 vi.mock('better-sqlite3', () => {
@@ -56,7 +66,7 @@ vi.mock('better-sqlite3', () => {
     return {
       exec: (...a: unknown[]) => mockDbExec(...a),
       pragma: (...a: unknown[]) => mockDbPragma(...a),
-      close: () => mockDbClose(),
+      close: () => mockDbClose()
     }
   } as any
   return { default: DatabaseMock }
@@ -64,8 +74,8 @@ vi.mock('better-sqlite3', () => {
 
 vi.mock('../platform', () => ({
   getPlatform: () => ({
-    paths: { databaseOptimizeTargets: () => mockDatabaseTargets() },
-  }),
+    paths: { databaseOptimizeTargets: () => mockDatabaseTargets() }
+  })
 }))
 
 vi.mock('../services/ipc-validation', () => ({
@@ -73,7 +83,7 @@ vi.mock('../services/ipc-validation', () => ({
     if (!Array.isArray(input)) return null
     if (!input.every((v: unknown) => typeof v === 'string')) return null
     return input as string[]
-  },
+  }
 }))
 
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
@@ -120,7 +130,7 @@ describe('DATABASE_SCAN handler', () => {
 
   it('skips targets whose basePath does not exist', async () => {
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/nonexistent', label: 'Test', dbFiles: ['test.db'], multiProfile: false },
+      { basePath: '/nonexistent', label: 'Test', dbFiles: ['test.db'], multiProfile: false }
     ])
     mockExistsSync.mockReturnValue(false)
 
@@ -132,7 +142,7 @@ describe('DATABASE_SCAN handler', () => {
 
   it('scans databases and returns results for valid SQLite files', async () => {
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/app/data', label: 'TestApp', dbFiles: ['main.db'], multiProfile: false },
+      { basePath: '/app/data', label: 'TestApp', dbFiles: ['main.db'], multiProfile: false }
     ])
     mockExistsSync.mockReturnValue(true)
 
@@ -160,7 +170,7 @@ describe('DATABASE_SCAN handler', () => {
 
   it('skips zero-size database files', async () => {
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/app/data', label: 'TestApp', dbFiles: ['empty.db'], multiProfile: false },
+      { basePath: '/app/data', label: 'TestApp', dbFiles: ['empty.db'], multiProfile: false }
     ])
     mockExistsSync.mockReturnValue(true)
     mockStatSync.mockReturnValue({ size: 0 })
@@ -173,7 +183,7 @@ describe('DATABASE_SCAN handler', () => {
 
   it('skips files that are not valid SQLite', async () => {
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/app/data', label: 'TestApp', dbFiles: ['not-sqlite.db'], multiProfile: false },
+      { basePath: '/app/data', label: 'TestApp', dbFiles: ['not-sqlite.db'], multiProfile: false }
     ])
     mockExistsSync.mockReturnValue(true)
     mockStatSync.mockImplementation((p: string) => {
@@ -194,7 +204,7 @@ describe('DATABASE_SCAN handler', () => {
 
   it('skips databases with estimated waste below 4096 threshold', async () => {
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/app/data', label: 'TestApp', dbFiles: ['tiny.db'], multiProfile: false },
+      { basePath: '/app/data', label: 'TestApp', dbFiles: ['tiny.db'], multiProfile: false }
     ])
     mockExistsSync.mockReturnValue(true)
     mockStatSync.mockImplementation((p: string) => {
@@ -220,14 +230,14 @@ describe('DATABASE_SCAN handler', () => {
         label: 'Chrome',
         dbFiles: ['History'],
         multiProfile: true,
-        profilePattern: undefined,
-      },
+        profilePattern: undefined
+      }
     ])
     mockExistsSync.mockReturnValue(true)
     mockReaddirSync.mockReturnValue([
       { isDirectory: () => true, name: 'Default' },
       { isDirectory: () => true, name: 'Profile 1' },
-      { isDirectory: () => false, name: 'somefile.txt' },
+      { isDirectory: () => false, name: 'somefile.txt' }
     ])
     mockStatSync.mockImplementation((p: string) => {
       if (typeof p === 'string' && p.endsWith('-wal')) return { size: 10000 }
@@ -250,29 +260,36 @@ describe('DATABASE_SCAN handler', () => {
   it('sends progress to window during scan', async () => {
     // Use a target whose basePath EXISTS so the progress send is reached
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/app/data', label: 'Test', dbFiles: ['test.db'], multiProfile: false },
+      { basePath: '/app/data', label: 'Test', dbFiles: ['test.db'], multiProfile: false }
     ])
     // basePath exists but the db file stat will throw (inaccessible)
     mockExistsSync.mockReturnValue(true)
-    mockStatSync.mockImplementation(() => { throw new Error('ENOENT') })
+    mockStatSync.mockImplementation(() => {
+      throw new Error('ENOENT')
+    })
 
     const win = mockWindow()
     registerDatabaseOptimizerIpc(() => win as any)
     const handler = getHandler('cleaner:database:scan')
     await handler()
 
-    expect(mockSend).toHaveBeenCalledWith('scan:progress', expect.objectContaining({
-      phase: 'scanning',
-      category: 'database',
-      progress: 100,
-    }))
+    expect(mockSend).toHaveBeenCalledWith(
+      'scan:progress',
+      expect.objectContaining({
+        phase: 'scanning',
+        category: 'database',
+        progress: 100
+      })
+    )
   })
 
   it('handles inaccessible targets gracefully', async () => {
     mockDatabaseTargets.mockReturnValue([
-      { basePath: '/locked', label: 'Locked', dbFiles: ['locked.db'], multiProfile: false },
+      { basePath: '/locked', label: 'Locked', dbFiles: ['locked.db'], multiProfile: false }
     ])
-    mockExistsSync.mockImplementation(() => { throw new Error('EACCES') })
+    mockExistsSync.mockImplementation(() => {
+      throw new Error('EACCES')
+    })
 
     registerDatabaseOptimizerIpc(() => mockWindow() as any)
     const handler = getHandler('cleaner:database:scan')
@@ -297,7 +314,7 @@ describe('DATABASE_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
   })
 
@@ -308,11 +325,13 @@ describe('DATABASE_CLEAN handler', () => {
     const handler = getHandler('cleaner:database:clean')
     const result = await handler({}, ['nonexistent-id'])
 
-    expect(result).toEqual(expect.objectContaining({
-      totalCleaned: 0,
-      filesDeleted: 0,
-      filesSkipped: 0,
-    }))
+    expect(result).toEqual(
+      expect.objectContaining({
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0
+      })
+    )
   })
 
   it('performs VACUUM on cached database items', async () => {

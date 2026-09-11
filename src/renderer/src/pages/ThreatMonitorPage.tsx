@@ -42,7 +42,12 @@ export function ThreatMonitorPage() {
     return (
       <div className="p-8">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
-        <div className="flex items-center justify-center py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('checkingConnection')}</div>
+        <div
+          className="flex items-center justify-center py-20 text-[13px]"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {t('checkingConnection')}
+        </div>
       </div>
     )
   }
@@ -55,7 +60,14 @@ export function ThreatMonitorPage() {
           icon={CloudOff}
           title={t('planRequired.title')}
           description={t('planRequired.description')}
-          action={<CloudAction label={t('planRequired.action')} onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')} />}
+          action={
+            <CloudAction
+              label={t('planRequired.action')}
+              onClick={() =>
+                window.open('https://cloud.usekudu.com/organisation/billing', '_blank')
+              }
+            />
+          }
         />
       </div>
     )
@@ -66,15 +78,19 @@ export function ThreatMonitorPage() {
     const needsAttention = cloudConnection === 'authorization-error'
     return (
       <div className="p-8">
-        <PageHeader
-          title={t('pageTitle')}
-          description={t('pageDescription')}
-        />
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <EmptyState
           icon={CloudOff}
           title={needsAttention ? t('connectionError.title') : t('cloudNotConfigured.title')}
-          description={needsAttention ? t('connectionError.description') : t('cloudNotConfigured.description')}
-          action={<CloudAction label={needsAttention ? t('connectionError.action') : t('cloudNotConfigured.action')} onClick={() => navigate('/cloud')} />}
+          description={
+            needsAttention ? t('connectionError.description') : t('cloudNotConfigured.description')
+          }
+          action={
+            <CloudAction
+              label={needsAttention ? t('connectionError.action') : t('cloudNotConfigured.action')}
+              onClick={() => navigate('/cloud')}
+            />
+          }
         />
       </div>
     )
@@ -84,12 +100,11 @@ export function ThreatMonitorPage() {
   if (!loaded) {
     return (
       <div className="p-8">
-        <PageHeader
-          title={t('pageTitle')}
-          description={t('pageDescription')}
-        />
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <div className="flex items-center justify-center py-20">
-          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('loading')}</div>
+          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            {t('loading')}
+          </div>
         </div>
       </div>
     )
@@ -99,29 +114,31 @@ export function ThreatMonitorPage() {
   if (!snapshot) {
     return (
       <div className="p-8">
-        <PageHeader
-          title={t('pageTitle')}
-          description={t('pageDescription')}
-        />
+        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <EmptyState
           icon={Radar}
           title={t('inactive.title')}
           description={t('inactive.description')}
-          action={<CloudAction label={t('inactive.action')} onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')} />}
+          action={
+            <CloudAction
+              label={t('inactive.action')}
+              onClick={() =>
+                window.open('https://cloud.usekudu.com/organisation/billing', '_blank')
+              }
+            />
+          }
         />
       </div>
     )
   }
 
-  const { flaggedConnections, flaggedDns, blacklistVersion, lastConnectionScanAt, lastDnsScanAt } = snapshot
+  const { flaggedConnections, flaggedDns, blacklistVersion, lastConnectionScanAt, lastDnsScanAt } =
+    snapshot
   const totalThreats = flaggedConnections.length + flaggedDns.length
 
   return (
     <div className="p-8">
-      <PageHeader
-        title={t('pageTitle')}
-        description={t('pageDescription')}
-      />
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
       {/* Status bar */}
       <div
@@ -130,7 +147,8 @@ export function ThreatMonitorPage() {
       >
         {blacklistVersion && (
           <span style={{ color: 'var(--text-muted)' }}>
-            {t('statusBar.blacklistVersion')} <span className="font-medium text-zinc-400">v{blacklistVersion}</span>
+            {t('statusBar.blacklistVersion')}{' '}
+            <span className="font-medium text-zinc-400">v{blacklistVersion}</span>
           </span>
         )}
         {lastConnectionScanAt && (
@@ -149,7 +167,11 @@ export function ThreatMonitorPage() {
           className="ml-auto font-medium"
           style={{ color: totalThreats > 0 ? '#ef4444' : '#22c55e' }}
         >
-          {totalThreats > 0 ? (totalThreats > 1 ? t('statusBar.threatsDetectedPlural', { count: totalThreats }) : t('statusBar.threatsDetected', { count: totalThreats })) : t('statusBar.noThreatsDetected')}
+          {totalThreats > 0
+            ? totalThreats > 1
+              ? t('statusBar.threatsDetectedPlural', { count: totalThreats })
+              : t('statusBar.threatsDetected', { count: totalThreats })
+            : t('statusBar.noThreatsDetected')}
         </span>
       </div>
 
@@ -239,7 +261,7 @@ function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
           className="rounded px-2 py-0.5 font-medium uppercase"
           style={{
             background: conn.matchType === 'cidr' ? 'rgba(249,115,22,0.1)' : 'rgba(239,68,68,0.1)',
-            color: conn.matchType === 'cidr' ? '#f97316' : '#ef4444',
+            color: conn.matchType === 'cidr' ? '#f97316' : '#ef4444'
           }}
         >
           {conn.matchType}
@@ -247,9 +269,7 @@ function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
         <span className="text-zinc-600" title={conn.matchedRule}>
           {conn.matchedRule}
         </span>
-        <span className="whitespace-nowrap text-zinc-600">
-          {formatTime(conn.detectedAt)}
-        </span>
+        <span className="whitespace-nowrap text-zinc-600">{formatTime(conn.detectedAt)}</span>
       </div>
     </div>
   )
@@ -271,9 +291,7 @@ function DnsRow({ entry }: { entry: FlaggedDnsEntry }) {
         <span className="text-zinc-600" title={entry.matchedRule}>
           {entry.matchedRule}
         </span>
-        <span className="whitespace-nowrap text-zinc-600">
-          {formatTime(entry.detectedAt)}
-        </span>
+        <span className="whitespace-nowrap text-zinc-600">{formatTime(entry.detectedAt)}</span>
       </div>
     </div>
   )

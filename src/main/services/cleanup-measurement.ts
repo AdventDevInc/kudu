@@ -3,7 +3,10 @@ import { join } from 'path'
 import { CooperativeScheduler } from './cooperative-scheduler'
 
 /** Logical file bytes, not allocated/free-volume bytes (compression and links differ). */
-export interface MeasuredEntry { path: string; size: number }
+export interface MeasuredEntry {
+  path: string
+  size: number
+}
 
 async function* walkCleanupTree(root: string, maxDepth = Infinity): AsyncGenerator<MeasuredEntry> {
   const queue: Array<{ path: string; depth: number }> = [{ path: root, depth: 0 }]
@@ -14,9 +17,12 @@ async function* walkCleanupTree(root: string, maxDepth = Infinity): AsyncGenerat
       const info = await lstat(path)
       yield { path, size: info.isFile() ? info.size : 0 }
       if (info.isDirectory() && !info.isSymbolicLink() && depth < maxDepth) {
-        for (const child of await readdir(path)) queue.push({ path: join(path, child), depth: depth + 1 })
+        for (const child of await readdir(path))
+          queue.push({ path: join(path, child), depth: depth + 1 })
       }
-    } catch { /* Unreadable entries never contribute estimated reclaimed bytes. */ }
+    } catch {
+      /* Unreadable entries never contribute estimated reclaimed bytes. */
+    }
     await scheduler.yieldIfNeeded()
   }
 }
@@ -41,7 +47,9 @@ export async function removedCleanupEntries(before: MeasuredEntry[]): Promise<Me
   const removed: MeasuredEntry[] = []
   const scheduler = new CooperativeScheduler()
   for (const entry of before) {
-    try { await lstat(entry.path) } catch (err: any) {
+    try {
+      await lstat(entry.path)
+    } catch (err: any) {
       if (err.code === 'ENOENT') removed.push(entry)
     }
     await scheduler.yieldIfNeeded()

@@ -8,7 +8,7 @@ const h = vi.hoisted(() => ({
   listeners: {} as Record<string, Array<(...args: unknown[]) => void>>,
   relaunch: vi.fn(),
   exit: vi.fn(),
-  dataDir: { value: '' },
+  dataDir: { value: '' }
 }))
 
 vi.mock('electron', () => ({
@@ -18,8 +18,8 @@ vi.mock('electron', () => ({
       ;(h.listeners[event] ??= []).push(cb)
     },
     relaunch: h.relaunch,
-    exit: h.exit,
-  },
+    exit: h.exit
+  }
 }))
 
 vi.mock('./settings-store', () => ({ getDataDir: () => h.dataDir.value }))

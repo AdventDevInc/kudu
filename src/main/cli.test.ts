@@ -1,11 +1,33 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { parseCliArgs, ExitCode, cliLog, cliVerbose, exitCodeForCleanResult, exitCodeForRestorePoint, exitCodeForRegistryFix } from './cli'
+import {
+  parseCliArgs,
+  ExitCode,
+  cliLog,
+  cliVerbose,
+  exitCodeForCleanResult,
+  exitCodeForRestorePoint,
+  exitCodeForRegistryFix
+} from './cli'
 
 describe('parseCliArgs', () => {
   it('requires a separate explicit opt-in for performance cache resets', () => {
-    const normal = parseCliArgs(['node', 'kudu', '--cli', 'scan', '--clean', '--include-maintenance'])
+    const normal = parseCliArgs([
+      'node',
+      'kudu',
+      '--cli',
+      'scan',
+      '--clean',
+      '--include-maintenance'
+    ])
     expect(normal.ctx.includeCacheResets).toBeUndefined()
-    const reset = parseCliArgs(['node', 'kudu', '--cli', '--include-cache-resets', 'scan', '--clean'])
+    const reset = parseCliArgs([
+      'node',
+      'kudu',
+      '--cli',
+      '--include-cache-resets',
+      'scan',
+      '--clean'
+    ])
     expect(reset.ctx.includeCacheResets).toBe(true)
     expect(reset.command).toBe('scan')
     expect(reset.commandArgs).not.toContain('--include-cache-resets')
@@ -63,7 +85,16 @@ describe('parseCliArgs', () => {
   })
 
   it('filters global flags from commandArgs', () => {
-    const result = parseCliArgs(['node', 'kudu', '--cli', '--json', '--verbose', 'debloat', 'remove', '--all'])
+    const result = parseCliArgs([
+      'node',
+      'kudu',
+      '--cli',
+      '--json',
+      '--verbose',
+      'debloat',
+      'remove',
+      '--all'
+    ])
     expect(result.commandArgs).toContain('remove')
     expect(result.commandArgs).toContain('--all')
     expect(result.commandArgs).not.toContain('--json')
@@ -180,21 +211,24 @@ describe('exitCodeForCleanResult', () => {
   })
 
   it('reports a partial success when some files were deleted and some failed', () => {
-    expect(exitCodeForCleanResult({ filesDeleted: 1833, errors: [{ path: 'a', reason: 'in-use' }] }))
-      .toBe(ExitCode.PARTIAL_SUCCESS)
+    expect(
+      exitCodeForCleanResult({ filesDeleted: 1833, errors: [{ path: 'a', reason: 'in-use' }] })
+    ).toBe(ExitCode.PARTIAL_SUCCESS)
   })
 
   it('fails outright when every item was rejected', () => {
     // The shape `leftovers clean` returns today: 44 found, 44 rejected, and it
     // still exited 0 before this graded the result.
     const allRejected = Array.from({ length: 44 }, () => ({ reason: 'scan-result-expired' }))
-    expect(exitCodeForCleanResult({ filesDeleted: 0, errors: allRejected }))
-      .toBe(ExitCode.GENERAL_ERROR)
+    expect(exitCodeForCleanResult({ filesDeleted: 0, errors: allRejected })).toBe(
+      ExitCode.GENERAL_ERROR
+    )
   })
 
   it('prefers the elevation code over the others', () => {
-    expect(exitCodeForCleanResult({ filesDeleted: 5, errors: [{}], needsElevation: true }))
-      .toBe(ExitCode.PERMISSION_DENIED)
+    expect(exitCodeForCleanResult({ filesDeleted: 5, errors: [{}], needsElevation: true })).toBe(
+      ExitCode.PERMISSION_DENIED
+    )
   })
 })
 
@@ -204,17 +238,21 @@ describe('exitCodeForRestorePoint', () => {
   })
 
   it('fails when System Restore is switched off', () => {
-    expect(exitCodeForRestorePoint({
-      success: false,
-      error: 'Cannot start the service because it is disabled'
-    })).toBe(ExitCode.GENERAL_ERROR)
+    expect(
+      exitCodeForRestorePoint({
+        success: false,
+        error: 'Cannot start the service because it is disabled'
+      })
+    ).toBe(ExitCode.GENERAL_ERROR)
   })
 
   it('reports missing elevation separately', () => {
-    expect(exitCodeForRestorePoint({
-      success: false,
-      error: 'Administrator privileges required to create a restore point.'
-    })).toBe(ExitCode.PERMISSION_DENIED)
+    expect(
+      exitCodeForRestorePoint({
+        success: false,
+        error: 'Administrator privileges required to create a restore point.'
+      })
+    ).toBe(ExitCode.PERMISSION_DENIED)
   })
 
   it('still fails when no error text came back', () => {

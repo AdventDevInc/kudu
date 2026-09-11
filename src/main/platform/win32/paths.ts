@@ -30,7 +30,7 @@ const rulesJson: RulesJsonSet = {
   gpuCache: gpuCacheJson as RulesJsonSet['gpuCache'],
   steam: steamJson as RulesJsonSet['steam'],
   databases: databasesJson as RulesJsonSet['databases'],
-  misc: miscJson as RulesJsonSet['misc'],
+  misc: miscJson as RulesJsonSet['misc']
 }
 
 const cleanerPaths = buildCleanerPaths(rulesJson, 'win32')
@@ -43,22 +43,22 @@ export function createWin32Paths(): PlatformPaths {
       const userProfile = process.env.USERPROFILE || HOME
       return [
         // High-risk: common malware drop locations — deep scan, high file limits
-        { path: join(userProfile, 'Downloads'),  maxDepth: 6, maxFiles: 10000 },
-        { path: join(userProfile, 'Desktop'),    maxDepth: 4, maxFiles: 5000 },
-        { path: join(userProfile, 'Documents'),  maxDepth: 4, maxFiles: 5000 },
-        { path: userProfile,                     maxDepth: 1, maxFiles: 500 },
-        { path: join(LOCALAPPDATA, 'Temp'),      maxDepth: 4, maxFiles: 10000 },
-        { path: 'C:\\Windows\\Temp',             maxDepth: 3, maxFiles: 5000 },
-        { path: 'C:\\Users\\Public',             maxDepth: 4, maxFiles: 3000 },
+        { path: join(userProfile, 'Downloads'), maxDepth: 6, maxFiles: 10000 },
+        { path: join(userProfile, 'Desktop'), maxDepth: 4, maxFiles: 5000 },
+        { path: join(userProfile, 'Documents'), maxDepth: 4, maxFiles: 5000 },
+        { path: userProfile, maxDepth: 1, maxFiles: 500 },
+        { path: join(LOCALAPPDATA, 'Temp'), maxDepth: 4, maxFiles: 10000 },
+        { path: 'C:\\Windows\\Temp', maxDepth: 3, maxFiles: 5000 },
+        { path: 'C:\\Users\\Public', maxDepth: 4, maxFiles: 3000 },
 
         // Medium-risk: persistence & dropper locations — moderate scan
-        { path: APPDATA,                         maxDepth: 5, maxFiles: 8000 },
-        { path: LOCALAPPDATA,                    maxDepth: 4, maxFiles: 8000 },
-        { path: PROGRAMDATA,                     maxDepth: 3, maxFiles: 5000 },
+        { path: APPDATA, maxDepth: 5, maxFiles: 8000 },
+        { path: LOCALAPPDATA, maxDepth: 4, maxFiles: 8000 },
+        { path: PROGRAMDATA, maxDepth: 3, maxFiles: 5000 },
 
         // Lower-risk: installed programs — shallow scan for trojaned executables
-        { path: PROGRAMFILES,                    maxDepth: 2, maxFiles: 3000 },
-        { path: PROGRAMFILES_X86,                maxDepth: 2, maxFiles: 3000 },
+        { path: PROGRAMFILES, maxDepth: 2, maxFiles: 3000 },
+        { path: PROGRAMFILES_X86, maxDepth: 2, maxFiles: 3000 }
       ]
     },
 
@@ -68,26 +68,18 @@ export function createWin32Paths(): PlatformPaths {
         'c:\\windows\\syswow64',
         'c:\\windows',
         'c:\\windows\\servicing',
-        'c:\\windows\\winsxs',
+        'c:\\windows\\winsxs'
       ]
     },
 
     malwareTrustedInstallRoots(): string[] {
       // Elevation-required only — ProgramData is often writable by standard users.
-      return [
-        PROGRAMFILES,
-        PROGRAMFILES_X86,
-      ]
+      return [PROGRAMFILES, PROGRAMFILES_X86]
     },
 
     malwareTrustedUserInstallRoots(): string[] {
       // Writable without elevation — heuristics only, never skip YARA.
-      return [
-        join(LOCALAPPDATA, 'Programs'),
-        LOCALAPPDATA,
-        APPDATA,
-        PROGRAMDATA,
-      ]
+      return [join(LOCALAPPDATA, 'Programs'), LOCALAPPDATA, APPDATA, PROGRAMDATA]
     },
 
     uninstallLeftoverDirs(): UninstallLeftoverDir[] {
@@ -96,8 +88,8 @@ export function createWin32Paths(): PlatformPaths {
         { id: 'appdata', name: 'AppData Roaming', path: APPDATA },
         { id: 'programfiles', name: 'Program Files', path: PROGRAMFILES },
         { id: 'programfiles-x86', name: 'Program Files (x86)', path: PROGRAMFILES_X86 },
-        { id: 'programdata', name: 'ProgramData', path: PROGRAMDATA },
+        { id: 'programdata', name: 'ProgramData', path: PROGRAMDATA }
       ]
-    },
+    }
   }
 }

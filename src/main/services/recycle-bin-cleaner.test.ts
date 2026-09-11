@@ -7,14 +7,14 @@ const execTracked = vi.hoisted(() => vi.fn())
 
 vi.mock('./exec-utf8', () => ({
   execTracked,
-  psUtf8: (script: string) => script,
+  psUtf8: (script: string) => script
 }))
 
 import {
   emptyRecycleBinDirectory,
   emptyRecycleBinFast,
   finalizeRecycleBinShell,
-  parseRecycleBinDirectories,
+  parseRecycleBinDirectories
 } from './recycle-bin-cleaner'
 
 describe('recycle-bin-cleaner', () => {
@@ -31,14 +31,18 @@ describe('recycle-bin-cleaner', () => {
 
   it('accepts only exact per-user Recycle Bin directories', () => {
     const encode = (value: string) => Buffer.from(value).toString('base64')
-    expect(parseRecycleBinDirectories([
-      encode('C:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001'),
-      encode('D:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001'),
-      encode('C:\\Windows'),
-      'not-base64!',
-    ].join('\r\n'))).toEqual([
+    expect(
+      parseRecycleBinDirectories(
+        [
+          encode('C:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001'),
+          encode('D:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001'),
+          encode('C:\\Windows'),
+          'not-base64!'
+        ].join('\r\n')
+      )
+    ).toEqual([
       'C:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001',
-      'D:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001',
+      'D:\\$Recycle.Bin\\S-1-5-21-100-200-300-1001'
     ])
   })
 
@@ -58,7 +62,7 @@ describe('recycle-bin-cleaner', () => {
       payloadsDeleted: 2,
       payloadsFailed: 0,
       orphanMetadataDeleted: 1,
-      accessDenied: false,
+      accessDenied: false
     })
     expect(await readdir(tempRoot)).toEqual(['desktop.ini'])
     expect(await readFile(join(tempRoot, 'desktop.ini'), 'utf-8')).toBe('keep')
@@ -72,10 +76,12 @@ describe('recycle-bin-cleaner', () => {
       payloadsDeleted: 0,
       payloadsFailed: 0,
       orphanMetadataDeleted: 0,
-      accessDenied: false,
+      accessDenied: false
     })
     expect(execTracked).toHaveBeenCalledTimes(1)
-    expect(execTracked.mock.calls[0][1].join(' ')).toContain('WindowsIdentity.GetCurrent().User.Value')
+    expect(execTracked.mock.calls[0][1].join(' ')).toContain(
+      'WindowsIdentity.GetCurrent().User.Value'
+    )
   })
 
   it('bounds the Windows shell finalizer', async () => {

@@ -23,10 +23,7 @@ import { useHistoryStore } from '@/stores/history-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useDriverStore } from '@/stores/driver-store'
 import { formatBytes } from '@/lib/utils'
-import type {
-  DriverScanProgress,
-  DriverUpdateProgress
-} from '@shared/types'
+import type { DriverScanProgress, DriverUpdateProgress } from '@shared/types'
 
 export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const { t } = useTranslation('updates')
@@ -104,7 +101,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       useDriverStore.getState().selectAllStale()
     } else {
       console.error('Driver scan failed:', staleResult.reason)
-      toast.error(t('driverManager.scanFailedToast'), { description: t('driverManager.scanFailedDescription') })
+      toast.error(t('driverManager.scanFailedToast'), {
+        description: t('driverManager.scanFailedDescription')
+      })
       s.setError(t('driverManager.scanFailedError'))
     }
 
@@ -115,7 +114,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       updateCount = updateResult.value.updates.length
     } else {
       console.error('Driver update scan failed:', updateResult.reason)
-      toast.error(t('driverManager.updateScanFailedToast'), { description: t('driverManager.updateScanFailedDescription') })
+      toast.error(t('driverManager.updateScanFailedToast'), {
+        description: t('driverManager.updateScanFailedDescription')
+      })
       s.setUpdateError(t('driverManager.updateScanFailedError'))
     }
 
@@ -139,8 +140,19 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         totalItemsSkipped: 0,
         totalSpaceSaved: 0,
         categories: [
-          ...(staleCount > 0 ? [{ name: 'Stale Drivers', itemsFound: staleCount, itemsCleaned: 0, spaceSaved: staleSize }] : []),
-          ...(updateCount > 0 ? [{ name: 'Driver Updates', itemsFound: updateCount, itemsCleaned: 0, spaceSaved: 0 }] : [])
+          ...(staleCount > 0
+            ? [
+                {
+                  name: 'Stale Drivers',
+                  itemsFound: staleCount,
+                  itemsCleaned: 0,
+                  spaceSaved: staleSize
+                }
+              ]
+            : []),
+          ...(updateCount > 0
+            ? [{ name: 'Driver Updates', itemsFound: updateCount, itemsCleaned: 0, spaceSaved: 0 }]
+            : [])
         ],
         errorCount: 0
       })
@@ -170,7 +182,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         useDriverStore.getState().setInstallResult(result)
       } catch (err) {
         console.error('Driver install failed:', err)
-        toast.error(t('driverManager.installFailedToast'), { description: t('driverManager.installFailedDescription') })
+        toast.error(t('driverManager.installFailedToast'), {
+          description: t('driverManager.installFailedDescription')
+        })
         useDriverStore.getState().setUpdateError(t('driverManager.installFailedError'))
       } finally {
         const s = useDriverStore.getState()
@@ -220,7 +234,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         recomputeStats()
       } catch (err) {
         console.error('Driver clean failed:', err)
-        toast.error(t('driverManager.cleanFailedToast'), { description: t('driverManager.cleanFailedDescription') })
+        toast.error(t('driverManager.cleanFailedToast'), {
+          description: t('driverManager.cleanFailedDescription')
+        })
         useDriverStore.getState().setError(t('driverManager.cleanFailedError'))
       } finally {
         useDriverStore.getState().setCleaning(false)
@@ -322,25 +338,49 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       >
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
         <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-          <span className="font-semibold text-amber-500">{t('driverManager.safeOperationBold')}</span> — {t('driverManager.safeOperationText')}
+          <span className="font-semibold text-amber-500">
+            {t('driverManager.safeOperationBold')}
+          </span>{' '}
+          — {t('driverManager.safeOperationText')}
         </p>
       </div>
 
       {/* Errors */}
-      {error && <ErrorAlert message={error} onDismiss={() => useDriverStore.getState().setError(null)} className="mb-5" />}
-      {updateError && <ErrorAlert message={updateError} onDismiss={() => useDriverStore.getState().setUpdateError(null)} className="mb-5" />}
+      {error && (
+        <ErrorAlert
+          message={error}
+          onDismiss={() => useDriverStore.getState().setError(null)}
+          className="mb-5"
+        />
+      )}
+      {updateError && (
+        <ErrorAlert
+          message={updateError}
+          onDismiss={() => useDriverStore.getState().setUpdateError(null)}
+          className="mb-5"
+        />
+      )}
 
       {/* Scan progress */}
       {scanning && scanProgress && (
         <ScanProgress
           status="scanning"
-          progress={scanProgress.total > 0 ? Math.round((scanProgress.current / scanProgress.total) * 100) : 0}
+          progress={
+            scanProgress.total > 0
+              ? Math.round((scanProgress.current / scanProgress.total) * 100)
+              : 0
+          }
           currentPath={scanProgress.currentDriver}
           className="mb-5"
         />
       )}
       {scanning && !scanProgress && (
-        <ScanProgress status="scanning" progress={0} currentPath={t('driverManager.enumeratingPackages')} className="mb-5" />
+        <ScanProgress
+          status="scanning"
+          progress={0}
+          currentPath={t('driverManager.enumeratingPackages')}
+          className="mb-5"
+        />
       )}
 
       {/* Update progress (during scan or install) */}
@@ -365,7 +405,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               {updateProgress.percent}%
             </span>
           </div>
-          <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--bg-hover-2)' }}>
+          <div
+            className="h-1.5 w-full rounded-full overflow-hidden"
+            style={{ background: 'var(--bg-hover-2)' }}
+          >
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{
@@ -380,33 +423,66 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         </div>
       )}
       {updateScanning && !updateProgress && !scanning && (
-        <ScanProgress status="scanning" progress={0} currentPath={t('driverManager.queryingWindowsUpdate')} className="mb-5" />
+        <ScanProgress
+          status="scanning"
+          progress={0}
+          currentPath={t('driverManager.queryingWindowsUpdate')}
+          className="mb-5"
+        />
       )}
 
       {/* Results summary */}
       {installResult && (
-        <div className="mb-5 flex items-center gap-3 rounded-2xl p-4" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}>
+        <div
+          className="mb-5 flex items-center gap-3 rounded-2xl p-4"
+          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
+        >
           <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
           <div className="text-[13px] text-zinc-200">
             <p>
-              {installResult.installed !== 1 ? t('driverManager.installedDriverUpdatesPlural', { count: installResult.installed }) : t('driverManager.installedDriverUpdates', { count: installResult.installed })}
-              {installResult.failed > 0 && <span className="text-red-400"> {t('driverManager.failedCount', { count: installResult.failed })}</span>}
+              {installResult.installed !== 1
+                ? t('driverManager.installedDriverUpdatesPlural', {
+                    count: installResult.installed
+                  })
+                : t('driverManager.installedDriverUpdates', { count: installResult.installed })}
+              {installResult.failed > 0 && (
+                <span className="text-red-400">
+                  {' '}
+                  {t('driverManager.failedCount', { count: installResult.failed })}
+                </span>
+              )}
             </p>
             {installResult.rebootRequired && (
-              <p className="mt-1 text-[12px] text-amber-400">
-                {t('driverManager.rebootRequired')}
-              </p>
+              <p className="mt-1 text-[12px] text-amber-400">{t('driverManager.rebootRequired')}</p>
             )}
           </div>
         </div>
       )}
       {cleanResult && (
-        <div className="mb-5 flex items-center gap-3 rounded-2xl p-4" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}>
+        <div
+          className="mb-5 flex items-center gap-3 rounded-2xl p-4"
+          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
+        >
           <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
           <p className="text-[13px] text-zinc-200">
-            {cleanResult.removed !== 1 ? t('driverManager.removedStalePackagesPlural', { count: cleanResult.removed }) : t('driverManager.removedStalePackages', { count: cleanResult.removed })}
-            {cleanResult.spaceRecovered > 0 && <span className="text-green-400"> — {t('driverManager.spaceRecovered', { size: formatBytes(cleanResult.spaceRecovered) })}</span>}
-            {cleanResult.failed > 0 && <span className="text-red-400"> {t('driverManager.failedCount', { count: cleanResult.failed })}</span>}
+            {cleanResult.removed !== 1
+              ? t('driverManager.removedStalePackagesPlural', { count: cleanResult.removed })
+              : t('driverManager.removedStalePackages', { count: cleanResult.removed })}
+            {cleanResult.spaceRecovered > 0 && (
+              <span className="text-green-400">
+                {' '}
+                —{' '}
+                {t('driverManager.spaceRecovered', {
+                  size: formatBytes(cleanResult.spaceRecovered)
+                })}
+              </span>
+            )}
+            {cleanResult.failed > 0 && (
+              <span className="text-red-400">
+                {' '}
+                {t('driverManager.failedCount', { count: cleanResult.failed })}
+              </span>
+            )}
           </p>
         </div>
       )}
@@ -419,7 +495,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         >
           <AlertTriangle className="h-5 w-5 shrink-0 text-blue-400 mt-0.5" strokeWidth={1.8} />
           <div>
-            <p className="text-[13px] font-medium text-zinc-200">{t('driverManager.updatesDisabledTitle')}</p>
+            <p className="text-[13px] font-medium text-zinc-200">
+              {t('driverManager.updatesDisabledTitle')}
+            </p>
             <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
               {t('driverManager.updatesDisabledText')}
             </p>
@@ -438,7 +516,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
               onClick={handleScan}
               disabled={isBusy}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: 'var(--text-on-accent)'
+              }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
               {t('driverManager.scanDriversButton')}
@@ -448,16 +529,24 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* All up to date state */}
-      {hasScanned && !isScanning && !updatesDisabled && updates.length === 0 && stalePackages.length === 0 && (
-        <div
-          className="flex flex-col items-center justify-center py-16 rounded-2xl"
-          style={{ background: 'rgba(34,197,94,0.03)', border: '1px solid rgba(34,197,94,0.08)' }}
-        >
-          <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" strokeWidth={1.5} />
-          <p className="text-[15px] font-medium text-zinc-200">{t('driverManager.allUpToDateTitle')}</p>
-          <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>{t('driverManager.allUpToDateDescription')}</p>
-        </div>
-      )}
+      {hasScanned &&
+        !isScanning &&
+        !updatesDisabled &&
+        updates.length === 0 &&
+        stalePackages.length === 0 && (
+          <div
+            className="flex flex-col items-center justify-center py-16 rounded-2xl"
+            style={{ background: 'rgba(34,197,94,0.03)', border: '1px solid rgba(34,197,94,0.08)' }}
+          >
+            <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" strokeWidth={1.5} />
+            <p className="text-[15px] font-medium text-zinc-200">
+              {t('driverManager.allUpToDateTitle')}
+            </p>
+            <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+              {t('driverManager.allUpToDateDescription')}
+            </p>
+          </div>
+        )}
 
       {/* ─── Updates Section ──────────────────────────────────── */}
       {updates.length > 0 && !isScanning && (
@@ -471,7 +560,11 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => allUpdatesSelected ? useDriverStore.getState().deselectAllUpdates() : useDriverStore.getState().selectAllUpdates()}
+                onClick={() =>
+                  allUpdatesSelected
+                    ? useDriverStore.getState().deselectAllUpdates()
+                    : useDriverStore.getState().selectAllUpdates()
+                }
                 className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
                 style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
               >
@@ -492,31 +585,52 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 }}
               >
                 <div className="w-6">
-                  <input type="checkbox" checked={upd.selected} readOnly className="pointer-events-none accent-blue-500 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    checked={upd.selected}
+                    readOnly
+                    className="pointer-events-none accent-blue-500 cursor-pointer"
+                  />
                 </div>
                 <div
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                   style={{ background: 'rgba(59,130,246,0.1)' }}
                 >
-                  <ArrowUpCircle className="h-5 w-5" style={{ color: '#3b82f6' }} strokeWidth={1.8} />
+                  <ArrowUpCircle
+                    className="h-5 w-5"
+                    style={{ color: '#3b82f6' }}
+                    strokeWidth={1.8}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5">
                     <span className="text-[13px] font-medium text-zinc-200">{upd.deviceName}</span>
-                    <span className="rounded-md px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa' }}>
+                    <span
+                      className="rounded-md px-2 py-0.5 text-[10px] font-medium"
+                      style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa' }}
+                    >
                       {upd.className}
                     </span>
                   </div>
                   <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-                    {upd.provider} — {upd.currentVersion ? `v${upd.currentVersion}` : t('driverManager.versionUnknown')} → v{upd.availableVersion}
+                    {upd.provider} —{' '}
+                    {upd.currentVersion
+                      ? `v${upd.currentVersion}`
+                      : t('driverManager.versionUnknown')}{' '}
+                    → v{upd.availableVersion}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
                   {upd.downloadSize && (
-                    <span className="text-[12px] font-medium text-zinc-400">{upd.downloadSize}</span>
+                    <span className="text-[12px] font-medium text-zinc-400">
+                      {upd.downloadSize}
+                    </span>
                   )}
                   {upd.availableDate && (
-                    <div className="mt-0.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                    <div
+                      className="mt-0.5 text-[10px] font-mono"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
                       {upd.availableDate}
                     </div>
                   )}
@@ -537,14 +651,21 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 {t('driverManager.stalePackages', { count: stalePackages.length })}
               </span>
               {totalStaleSize > 0 && (
-                <span className="rounded-md px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>
+                <span
+                  className="rounded-md px-2 py-0.5 text-[10px] font-medium"
+                  style={{ background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}
+                >
                   {formatBytes(totalStaleSize)}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => allStaleSelected ? useDriverStore.getState().deselectAllStale() : useDriverStore.getState().selectAllStale()}
+                onClick={() =>
+                  allStaleSelected
+                    ? useDriverStore.getState().deselectAllStale()
+                    : useDriverStore.getState().selectAllStale()
+                }
                 className="rounded-full px-3 py-1.5 text-[11px] font-medium transition-colors"
                 style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
               >
@@ -565,28 +686,50 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                 }}
               >
                 <div className="w-6">
-                  <input type="checkbox" checked={pkg.selected} readOnly className="pointer-events-none accent-amber-500 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    checked={pkg.selected}
+                    readOnly
+                    className="pointer-events-none accent-amber-500 cursor-pointer"
+                  />
                 </div>
                 <div
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                   style={{ background: 'rgba(245,158,11,0.1)' }}
                 >
-                  <AlertTriangle className="h-5 w-5" style={{ color: '#f59e0b' }} strokeWidth={1.8} />
+                  <AlertTriangle
+                    className="h-5 w-5"
+                    style={{ color: '#f59e0b' }}
+                    strokeWidth={1.8}
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[13px] font-medium text-zinc-200">{pkg.originalName}</span>
-                    <span className="rounded-md px-2 py-0.5 text-[10px] font-medium" style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa' }}>
+                    <span className="text-[13px] font-medium text-zinc-200">
+                      {pkg.originalName}
+                    </span>
+                    <span
+                      className="rounded-md px-2 py-0.5 text-[10px] font-medium"
+                      style={{ background: 'rgba(139,92,246,0.1)', color: '#a78bfa' }}
+                    >
                       {pkg.className}
                     </span>
                   </div>
                   <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-                    {pkg.provider} — v{pkg.version}{pkg.date ? ` — ${pkg.date}` : ''}
+                    {pkg.provider} — v{pkg.version}
+                    {pkg.date ? ` — ${pkg.date}` : ''}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className="text-[12px] font-medium text-zinc-400">{formatBytes(pkg.size)}</span>
-                  <div className="mt-0.5 text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>{pkg.publishedName}</div>
+                  <span className="text-[12px] font-medium text-zinc-400">
+                    {formatBytes(pkg.size)}
+                  </span>
+                  <div
+                    className="mt-0.5 text-[10px] font-mono"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    {pkg.publishedName}
+                  </div>
                 </div>
               </div>
             ))}

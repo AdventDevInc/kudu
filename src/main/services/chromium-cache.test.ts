@@ -11,17 +11,17 @@ import {
   BROWSER_CACHE_RECENCY,
   chromiumBrowsers,
   chromiumCacheTargets,
-  getChromiumProfiles,
+  getChromiumProfiles
 } from './chromium-cache'
 import type { BrowserPathConfig } from '../platform/types'
 
 const PROFILE_CACHES = [
   { dir: 'Cache', label: 'Cache' },
-  { dir: 'Code Cache', label: 'Code Cache' },
+  { dir: 'Code Cache', label: 'Code Cache' }
 ]
 const SHARED_CACHES = [
   { dir: 'component_crx_cache', label: 'Component Extension Cache' },
-  { dir: 'GrShaderCache', label: 'Skia Shader Cache' },
+  { dir: 'GrShaderCache', label: 'Skia Shader Cache' }
 ]
 
 function browser(base: string) {
@@ -29,7 +29,21 @@ function browser(base: string) {
 }
 
 function makePaths(): BrowserPathConfig {
-  const keys = ['chrome', 'edge', 'brave', 'opera', 'operaGX', 'vivaldi', 'arc', 'chromium', 'thorium', 'supermium', 'helium', 'cromite', 'catsxp']
+  const keys = [
+    'chrome',
+    'edge',
+    'brave',
+    'opera',
+    'operaGX',
+    'vivaldi',
+    'arc',
+    'chromium',
+    'thorium',
+    'supermium',
+    'helium',
+    'cromite',
+    'catsxp'
+  ]
   const config: Record<string, unknown> = {}
   for (const key of keys) config[key] = browser(`/fake/${key}`)
   config.firefox = { base: '/fake/ff', cache: '/fake/ff-cache' }
@@ -46,7 +60,9 @@ describe('chromiumBrowsers', () => {
   })
 
   it('marks only the Opera family as profile-less', () => {
-    const profileLess = chromiumBrowsers(makePaths()).filter((b) => !b.hasProfiles).map((b) => b.key)
+    const profileLess = chromiumBrowsers(makePaths())
+      .filter((b) => !b.hasProfiles)
+      .map((b) => b.key)
     expect(profileLess).toEqual(['opera', 'operaGX'])
   })
 
@@ -74,8 +90,14 @@ describe('chromiumCacheTargets', () => {
     mockReaddir.mockResolvedValue([{ isDirectory: () => true, name: 'Profile 1' }])
 
     const targets = await chromiumCacheTargets(chrome)
-    expect(targets).toContainEqual({ path: join('/fake/chrome', 'Default', 'Code Cache'), label: 'Chrome - Default Code Cache' })
-    expect(targets).toContainEqual({ path: join('/fake/chrome', 'Profile 1', 'Cache'), label: 'Chrome - Profile 1 Cache' })
+    expect(targets).toContainEqual({
+      path: join('/fake/chrome', 'Default', 'Code Cache'),
+      label: 'Chrome - Default Code Cache'
+    })
+    expect(targets).toContainEqual({
+      path: join('/fake/chrome', 'Profile 1', 'Cache'),
+      label: 'Chrome - Profile 1 Cache'
+    })
   })
 
   // Issue #265: these live beside the profiles, so scanning only profile
@@ -86,8 +108,13 @@ describe('chromiumCacheTargets', () => {
 
     const targets = await chromiumCacheTargets(chrome)
     const shared = targets.filter((t) => t.path.includes('GrShaderCache'))
-    expect(shared).toEqual([{ path: join('/fake/chrome', 'GrShaderCache'), label: 'Chrome - Skia Shader Cache' }])
-    expect(targets).toContainEqual({ path: join('/fake/chrome', 'component_crx_cache'), label: 'Chrome - Component Extension Cache' })
+    expect(shared).toEqual([
+      { path: join('/fake/chrome', 'GrShaderCache'), label: 'Chrome - Skia Shader Cache' }
+    ])
+    expect(targets).toContainEqual({
+      path: join('/fake/chrome', 'component_crx_cache'),
+      label: 'Chrome - Component Extension Cache'
+    })
   })
 
   it('puts every cache directly under the base for profile-less builds', async () => {
@@ -99,18 +126,20 @@ describe('chromiumCacheTargets', () => {
       'Opera - Component Extension Cache',
       'Opera - Skia Shader Cache',
       'Opera - Cache',
-      'Opera - Code Cache',
+      'Opera - Code Cache'
     ])
     expect(targets.every((t) => t.path.startsWith(join('/fake/opera')))).toBe(true)
     expect(mockReaddir).not.toHaveBeenCalled()
   })
 
   it('omits cache directories that do not exist', async () => {
-    mockExistsSync.mockImplementation((p: string) => p === '/fake/chrome' || p.endsWith('Code Cache'))
+    mockExistsSync.mockImplementation(
+      (p: string) => p === '/fake/chrome' || p.endsWith('Code Cache')
+    )
 
     const targets = await chromiumCacheTargets(chrome)
     expect(targets).toEqual([
-      { path: join('/fake/chrome', 'Default', 'Code Cache'), label: 'Chrome - Default Code Cache' },
+      { path: join('/fake/chrome', 'Default', 'Code Cache'), label: 'Chrome - Default Code Cache' }
     ])
   })
 })
@@ -123,7 +152,7 @@ describe('getChromiumProfiles', () => {
       { isDirectory: () => true, name: 'Profile 1' },
       { isDirectory: () => true, name: 'Profile 2' },
       { isDirectory: () => true, name: 'ShaderCache' },
-      { isDirectory: () => false, name: 'Local State' },
+      { isDirectory: () => false, name: 'Local State' }
     ])
     expect(await getChromiumProfiles('/fake/chrome')).toEqual(['Default', 'Profile 1', 'Profile 2'])
   })

@@ -11,9 +11,7 @@ let _dataDir: string | null = null
 
 function getDataDir(): string {
   if (!_dataDir) {
-    _dataDir = app.isPackaged
-      ? app.getPath('userData')
-      : join(app.getPath('userData'), 'Kudu-Dev')
+    _dataDir = app.isPackaged ? app.getPath('userData') : join(app.getPath('userData'), 'Kudu-Dev')
   }
   return _dataDir
 }
@@ -26,8 +24,10 @@ export function validateBlacklist(raw: unknown): ThreatBlacklist | null {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return null
 
   const obj = raw as Record<string, unknown>
-  if (typeof obj.version !== 'string' || obj.version.length === 0 || obj.version.length > 100) return null
-  if (typeof obj.updatedAt !== 'string' || obj.updatedAt.length === 0 || obj.updatedAt.length > 100) return null
+  if (typeof obj.version !== 'string' || obj.version.length === 0 || obj.version.length > 100)
+    return null
+  if (typeof obj.updatedAt !== 'string' || obj.updatedAt.length === 0 || obj.updatedAt.length > 100)
+    return null
 
   if (!Array.isArray(obj.domains) || obj.domains.length > MAX_ENTRIES_PER_ARRAY) return null
   if (!Array.isArray(obj.ips) || obj.ips.length > MAX_ENTRIES_PER_ARRAY) return null
@@ -45,7 +45,7 @@ export function validateBlacklist(raw: unknown): ThreatBlacklist | null {
     updatedAt: obj.updatedAt,
     domains: obj.domains as string[],
     ips: obj.ips as string[],
-    cidrs: obj.cidrs as string[],
+    cidrs: obj.cidrs as string[]
   }
 }
 
@@ -83,7 +83,7 @@ export async function downloadAndUpdateBlacklist(url: string): Promise<{
     try {
       response = await fetch(url, {
         signal: controller.signal,
-        headers: { 'Accept': 'application/json' },
+        headers: { Accept: 'application/json' }
       })
     } finally {
       clearTimeout(timeout)
@@ -123,8 +123,8 @@ export async function downloadAndUpdateBlacklist(url: string): Promise<{
       stats: {
         domains: blacklist.domains.length,
         ips: blacklist.ips.length,
-        cidrs: blacklist.cidrs.length,
-      },
+        cidrs: blacklist.cidrs.length
+      }
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'

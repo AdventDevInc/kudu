@@ -5,27 +5,29 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 const mockHandle = vi.fn()
 const mockSend = vi.fn()
 vi.mock('electron', () => ({
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const mockExecFile = vi.fn()
 vi.mock('child_process', () => ({
-  execFile: (...args: unknown[]) => mockExecFile(...args),
+  execFile: (...args: unknown[]) => mockExecFile(...args)
 }))
 
 vi.mock('util', () => ({
-  promisify: (fn: unknown) => (...args: unknown[]) => {
-    return new Promise((resolve, reject) => {
-      (fn as Function)(...args, (err: Error | null, result: unknown) => {
-        if (err) reject(err)
-        else resolve(result)
+  promisify:
+    (fn: unknown) =>
+    (...args: unknown[]) => {
+      return new Promise((resolve, reject) => {
+        ;(fn as Function)(...args, (err: Error | null, result: unknown) => {
+          if (err) reject(err)
+          else resolve(result)
+        })
       })
-    })
-  },
+    }
 }))
 
 vi.mock('crypto', () => ({
-  randomUUID: () => 'test-uuid-1234',
+  randomUUID: () => 'test-uuid-1234'
 }))
 
 vi.mock('../services/ipc-validation', () => ({
@@ -33,10 +35,15 @@ vi.mock('../services/ipc-validation', () => ({
     if (!Array.isArray(input)) return null
     if (!input.every((v: unknown) => typeof v === 'string')) return null
     return input as string[]
-  },
+  }
 }))
 
-import { registerDebloaterIpc, scanBloatware, removeBloatware, KNOWN_BLOATWARE } from './debloater.ipc'
+import {
+  registerDebloaterIpc,
+  scanBloatware,
+  removeBloatware,
+  KNOWN_BLOATWARE
+} from './debloater.ipc'
 
 // ── Helpers ──
 
@@ -160,7 +167,14 @@ describe('KNOWN_BLOATWARE', () => {
   })
 
   it('all categories are known values', () => {
-    const validCategories = new Set(['microsoft', 'oem', 'gaming', 'communication', 'media', 'utility'])
+    const validCategories = new Set([
+      'microsoft',
+      'oem',
+      'gaming',
+      'communication',
+      'media',
+      'utility'
+    ])
     for (const entry of KNOWN_BLOATWARE) {
       expect(validCategories.has(entry.category)).toBe(true)
     }
@@ -198,9 +212,24 @@ describe('scanBloatware', () => {
 
   it('matches installed packages against known bloatware', async () => {
     const fakeInstalledPackages = [
-      { Name: 'Microsoft.BingNews', PackageFullName: 'Microsoft.BingNews_1.0', InstallLocation: 'C:\\fake', Size: 5242880 },
-      { Name: 'Microsoft.ZuneVideo', PackageFullName: 'Microsoft.ZuneVideo_1.0', InstallLocation: 'C:\\fake2', Size: 10485760 },
-      { Name: 'SomeUnknownApp', PackageFullName: 'SomeUnknownApp_1.0', InstallLocation: 'C:\\fake3', Size: 1024 },
+      {
+        Name: 'Microsoft.BingNews',
+        PackageFullName: 'Microsoft.BingNews_1.0',
+        InstallLocation: 'C:\\fake',
+        Size: 5242880
+      },
+      {
+        Name: 'Microsoft.ZuneVideo',
+        PackageFullName: 'Microsoft.ZuneVideo_1.0',
+        InstallLocation: 'C:\\fake2',
+        Size: 10485760
+      },
+      {
+        Name: 'SomeUnknownApp',
+        PackageFullName: 'SomeUnknownApp_1.0',
+        InstallLocation: 'C:\\fake3',
+        Size: 1024
+      }
     ]
     mockExecFile.mockImplementation((...args: unknown[]) => {
       const callback = args[args.length - 1] as Function
@@ -220,11 +249,21 @@ describe('scanBloatware', () => {
 
   it('formats size correctly for different byte ranges', async () => {
     const fakePackages = [
-      { Name: 'Microsoft.BingNews', PackageFullName: 'test', InstallLocation: 'C:\\', Size: 2147483648 }, // > 1 GB
-      { Name: 'Microsoft.BingWeather', PackageFullName: 'test2', InstallLocation: 'C:\\', Size: 5242880 }, // > 1 MB
+      {
+        Name: 'Microsoft.BingNews',
+        PackageFullName: 'test',
+        InstallLocation: 'C:\\',
+        Size: 2147483648
+      }, // > 1 GB
+      {
+        Name: 'Microsoft.BingWeather',
+        PackageFullName: 'test2',
+        InstallLocation: 'C:\\',
+        Size: 5242880
+      }, // > 1 MB
       { Name: 'Microsoft.GetHelp', PackageFullName: 'test3', InstallLocation: 'C:\\', Size: 2048 }, // > 1 KB
       { Name: 'Microsoft.People', PackageFullName: 'test4', InstallLocation: 'C:\\', Size: 500 }, // bytes
-      { Name: 'Microsoft.WindowsMaps', PackageFullName: 'test5', InstallLocation: 'C:\\', Size: 0 }, // zero
+      { Name: 'Microsoft.WindowsMaps', PackageFullName: 'test5', InstallLocation: 'C:\\', Size: 0 } // zero
     ]
     mockExecFile.mockImplementation((...args: unknown[]) => {
       const callback = args[args.length - 1] as Function
@@ -252,7 +291,12 @@ describe('scanBloatware', () => {
   })
 
   it('handles single-object PowerShell output (not wrapped in array)', async () => {
-    const singlePackage = { Name: 'Microsoft.BingNews', PackageFullName: 'test', InstallLocation: 'C:\\', Size: 1024 }
+    const singlePackage = {
+      Name: 'Microsoft.BingNews',
+      PackageFullName: 'test',
+      InstallLocation: 'C:\\',
+      Size: 1024
+    }
     mockExecFile.mockImplementation((...args: unknown[]) => {
       const callback = args[args.length - 1] as Function
       if (typeof callback === 'function') {
@@ -267,7 +311,12 @@ describe('scanBloatware', () => {
   it('matches packages where Name starts with known packageName', async () => {
     // Some packages have a suffix after the known name
     const fakePackages = [
-      { Name: 'Microsoft.BingNews.Extra', PackageFullName: 'test', InstallLocation: 'C:\\', Size: 1024 },
+      {
+        Name: 'Microsoft.BingNews.Extra',
+        PackageFullName: 'test',
+        InstallLocation: 'C:\\',
+        Size: 1024
+      }
     ]
     mockExecFile.mockImplementation((...args: unknown[]) => {
       const callback = args[args.length - 1] as Function

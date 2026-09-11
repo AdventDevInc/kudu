@@ -12,7 +12,7 @@ import {
   CheckCheck,
   ArrowUpDown,
   HelpCircle,
-  X,
+  X
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -84,44 +84,68 @@ export function BreachMonitorPage() {
     }
   }, [error, emails.length, t])
 
-  const handleRefresh = useCallback(() => { fetchBreaches() }, [fetchBreaches])
+  const handleRefresh = useCallback(() => {
+    fetchBreaches()
+  }, [fetchBreaches])
 
   const handleAddEmail = useCallback(async () => {
     const value = emailInput.trim().toLowerCase()
     if (!value) return
-    if (!EMAIL_RE.test(value)) { toast.error(t('toast.invalidEmail')); return }
-    if (usage >= limit && limit > 0) { toast.error(t('toast.limitReached')); return }
+    if (!EMAIL_RE.test(value)) {
+      toast.error(t('toast.invalidEmail'))
+      return
+    }
+    if (usage >= limit && limit > 0) {
+      toast.error(t('toast.limitReached'))
+      return
+    }
     try {
       await addEmail(value)
       setEmailInput('')
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
-      toast.error(msg.includes('422') || msg.includes('403') ? t('toast.limitReached') : t('toast.addFailed'))
+      toast.error(
+        msg.includes('422') || msg.includes('403') ? t('toast.limitReached') : t('toast.addFailed')
+      )
     }
   }, [emailInput, usage, limit, addEmail, t])
 
-  const handleRemoveEmail = useCallback(async (email: string) => {
-    try {
-      await removeEmail(email)
-      if (emailFilter === email) setEmailFilter('all')
-    } catch { toast.error(t('toast.removeFailed')) }
-  }, [removeEmail, emailFilter, t])
+  const handleRemoveEmail = useCallback(
+    async (email: string) => {
+      try {
+        await removeEmail(email)
+        if (emailFilter === email) setEmailFilter('all')
+      } catch {
+        toast.error(t('toast.removeFailed'))
+      }
+    },
+    [removeEmail, emailFilter, t]
+  )
 
-  const handleAcknowledge = useCallback(async (breachIds: string[]) => {
-    try {
-      await acknowledgeBreaches(breachIds)
-      toast.success(t('toast.acknowledged'))
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
-      console.error('Acknowledge failed:', msg, 'breachIds:', breachIds)
-      toast.error(msg || t('toast.acknowledgeFailed'))
-    }
-  }, [acknowledgeBreaches, t])
+  const handleAcknowledge = useCallback(
+    async (breachIds: string[]) => {
+      try {
+        await acknowledgeBreaches(breachIds)
+        toast.success(t('toast.acknowledged'))
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : ''
+        console.error('Acknowledge failed:', msg, 'breachIds:', breachIds)
+        toast.error(msg || t('toast.acknowledgeFailed'))
+      }
+    },
+    [acknowledgeBreaches, t]
+  )
 
-  const toggleSort = useCallback((field: SortField) => {
-    if (sortField === field) setSortDir((d) => d === 'asc' ? 'desc' : 'asc')
-    else { setSortField(field); setSortDir('desc') }
-  }, [sortField])
+  const toggleSort = useCallback(
+    (field: SortField) => {
+      if (sortField === field) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+      else {
+        setSortField(field)
+        setSortDir('desc')
+      }
+    },
+    [sortField]
+  )
 
   // Flatten all breaches with email attached, apply filter + sort
   const allBreaches = useMemo<FlatBreach[]>(() => {
@@ -135,13 +159,13 @@ export function BreachMonitorPage() {
   }, [emails])
 
   const filteredBreaches = useMemo(() => {
-    const filtered = emailFilter === 'all'
-      ? allBreaches
-      : allBreaches.filter((b) => b.email === emailFilter)
+    const filtered =
+      emailFilter === 'all' ? allBreaches : allBreaches.filter((b) => b.email === emailFilter)
 
     return [...filtered].sort((a, b) => {
       const dir = sortDir === 'asc' ? 1 : -1
-      if (sortField === 'date') return dir * (new Date(a.breachDate).getTime() - new Date(b.breachDate).getTime())
+      if (sortField === 'date')
+        return dir * (new Date(a.breachDate).getTime() - new Date(b.breachDate).getTime())
       if (sortField === 'accounts') return dir * (a.pwnCount - b.pwnCount)
       const aAck = a.acknowledgedAt ? 1 : 0
       const bAck = b.acknowledgedAt ? 1 : 0
@@ -151,7 +175,7 @@ export function BreachMonitorPage() {
 
   const unacknowledgedIds = useMemo(
     () => filteredBreaches.filter((b) => !b.acknowledgedAt).map((b) => b.name),
-    [filteredBreaches],
+    [filteredBreaches]
   )
 
   // Redirect if not linked
@@ -159,7 +183,10 @@ export function BreachMonitorPage() {
     return (
       <div className="p-8 animate-fade-in">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
-        <div className="flex items-center justify-center gap-3 py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="flex items-center justify-center gap-3 py-20 text-[13px]"
+          style={{ color: 'var(--text-muted)' }}
+        >
           <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
           Checking Kudu Cloud connection…
         </div>
@@ -178,7 +205,9 @@ export function BreachMonitorPage() {
           action={
             <button
               type="button"
-              onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')}
+              onClick={() =>
+                window.open('https://cloud.usekudu.com/organisation/billing', '_blank')
+              }
               className="rounded-xl px-5 py-2.5 text-[13px] font-semibold"
               style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
             >
@@ -198,9 +227,16 @@ export function BreachMonitorPage() {
         <EmptyState
           icon={Mail}
           title={needsAttention ? t('connectionError.title') : t('cloudNotConfigured.title')}
-          description={needsAttention ? t('connectionError.description') : t('cloudNotConfigured.description')}
+          description={
+            needsAttention ? t('connectionError.description') : t('cloudNotConfigured.description')
+          }
           action={
-            <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/cloud')}
+              className="rounded-xl px-5 py-2.5 text-[13px] font-semibold"
+              style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+            >
               {needsAttention ? t('connectionError.action') : t('cloudNotConfigured.action')}
             </button>
           }
@@ -215,7 +251,9 @@ export function BreachMonitorPage() {
       <div className="p-8">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <div className="flex items-center justify-center py-20">
-          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('loading')}</div>
+          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            {t('loading')}
+          </div>
         </div>
       </div>
     )
@@ -227,7 +265,10 @@ export function BreachMonitorPage() {
   const unacknowledgedCount = allBreaches.filter((b) => !b.acknowledgedAt).length
 
   const selectStyle = 'rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none'
-  const selectBorder = { background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }
+  const selectBorder = {
+    background: 'var(--bg-subtle-2)',
+    border: '1px solid var(--border-medium)'
+  }
 
   return (
     <div className="p-8 animate-fade-in">
@@ -240,7 +281,9 @@ export function BreachMonitorPage() {
             disabled={isLoading}
             className={cn(
               'flex items-center gap-2 rounded-lg px-4 py-2 text-[13px] font-medium transition-colors',
-              isLoading ? 'cursor-not-allowed opacity-50' : 'bg-white/5 text-zinc-300 hover:bg-white/10'
+              isLoading
+                ? 'cursor-not-allowed opacity-50'
+                : 'bg-white/5 text-zinc-300 hover:bg-white/10'
             )}
           >
             <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
@@ -257,7 +300,9 @@ export function BreachMonitorPage() {
           description={t('emptyState.upgradeRequiredDesc')}
           action={
             <button
-              onClick={() => window.open('https://cloud.usekudu.com/organisation/billing', '_blank')}
+              onClick={() =>
+                window.open('https://cloud.usekudu.com/organisation/billing', '_blank')
+              }
               className="rounded-lg px-5 py-2.5 text-[13px] font-medium text-black transition-colors"
               style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' }}
             >
@@ -273,18 +318,37 @@ export function BreachMonitorPage() {
           {error && !error.includes('not connected') && emails.length > 0 && (
             <div
               className="mb-6 flex items-center gap-3 rounded-xl px-4 py-3 text-[13px]"
-              style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#f87171' }}
+              style={{
+                background: 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.15)',
+                color: '#f87171'
+              }}
             >
               <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span>{t('error.title')} — {t('error.description')}</span>
+              <span>
+                {t('error.title')} — {t('error.description')}
+              </span>
             </div>
           )}
 
           {/* Summary cards */}
           <div className="mb-6 grid grid-cols-3 gap-3">
-            <SummaryCard label={t('summary.totalBreaches')} count={totalBreaches} color={totalBreaches > 0 ? '#ef4444' : '#22c55e'} />
-            <SummaryCard label={t('summary.unacknowledged')} count={unacknowledgedCount} color={unacknowledgedCount > 0 ? '#f59e0b' : '#22c55e'} />
-            <SummaryCard label={t('summary.emailsMonitored')} value={`${usage} / ${limit}`} color="#a1a1aa" tooltip={t('summary.emailsMonitoredTooltip')} />
+            <SummaryCard
+              label={t('summary.totalBreaches')}
+              count={totalBreaches}
+              color={totalBreaches > 0 ? '#ef4444' : '#22c55e'}
+            />
+            <SummaryCard
+              label={t('summary.unacknowledged')}
+              count={unacknowledgedCount}
+              color={unacknowledgedCount > 0 ? '#f59e0b' : '#22c55e'}
+            />
+            <SummaryCard
+              label={t('summary.emailsMonitored')}
+              value={`${usage} / ${limit}`}
+              color="#a1a1aa"
+              tooltip={t('summary.emailsMonitoredTooltip')}
+            />
           </div>
 
           {/* Add email row + email filter */}
@@ -308,12 +372,15 @@ export function BreachMonitorPage() {
               className={cn(
                 'flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-[13px] font-medium transition-colors',
                 addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)
-                  ? 'cursor-not-allowed opacity-50 text-zinc-500' : 'text-black'
+                  ? 'cursor-not-allowed opacity-50 text-zinc-500'
+                  : 'text-black'
               )}
               style={{
-                background: addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)
-                  ? 'var(--bg-subtle-2)' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                border: '1px solid var(--border-medium)',
+                background:
+                  addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)
+                    ? 'var(--bg-subtle-2)'
+                    : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                border: '1px solid var(--border-medium)'
               }}
             >
               <Plus className="h-3.5 w-3.5" />
@@ -323,7 +390,11 @@ export function BreachMonitorPage() {
 
           {/* No emails yet */}
           {emails.length === 0 && status === 'done' && (
-            <EmptyState icon={Mail} title={t('emptyState.noEmails')} description={t('emptyState.noEmailsDesc')} />
+            <EmptyState
+              icon={Mail}
+              title={t('emptyState.noEmails')}
+              description={t('emptyState.noEmailsDesc')}
+            />
           )}
 
           {/* Breach table */}
@@ -341,14 +412,23 @@ export function BreachMonitorPage() {
                     >
                       <option value="all">{t('filter.allEmails')}</option>
                       {emails.map((em) => (
-                        <option key={em.email} value={em.email}>{em.email}</option>
+                        <option key={em.email} value={em.email}>
+                          {em.email}
+                        </option>
                       ))}
                     </select>
                   )}
                   {/* Managed emails — remove buttons */}
                   {emails.map((em) => (
-                    <span key={em.email} className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px]"
-                      style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}>
+                    <span
+                      key={em.email}
+                      className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px]"
+                      style={{
+                        background: 'var(--bg-subtle)',
+                        border: '1px solid var(--border-subtle)',
+                        color: 'var(--text-muted)'
+                      }}
+                    >
                       {em.email}
                       <button
                         onClick={() => handleRemoveEmail(em.email)}
@@ -374,25 +454,48 @@ export function BreachMonitorPage() {
 
               {/* All clear — no breaches across any email */}
               {totalBreaches === 0 && status === 'done' && (
-                <EmptyState icon={ShieldCheck} title={t('emptyState.allClear')} description={t('emptyState.allClearDesc')} className="py-12" />
+                <EmptyState
+                  icon={ShieldCheck}
+                  title={t('emptyState.allClear')}
+                  description={t('emptyState.allClearDesc')}
+                  className="py-12"
+                />
               )}
 
               {/* Table */}
               {filteredBreaches.length > 0 && (
-                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border-default)' }}>
+                <div
+                  className="rounded-xl overflow-hidden"
+                  style={{ border: '1px solid var(--border-default)' }}
+                >
                   <table className="w-full">
                     <thead>
                       <tr style={{ background: 'var(--bg-subtle)' }}>
                         <Th>{t('table.breach')}</Th>
                         {emails.length > 1 && <Th>{t('table.email')}</Th>}
-                        <ThSortable field="date" current={sortField} dir={sortDir} onSort={toggleSort}>
+                        <ThSortable
+                          field="date"
+                          current={sortField}
+                          dir={sortDir}
+                          onSort={toggleSort}
+                        >
                           {t('table.date')}
                         </ThSortable>
-                        <ThSortable field="accounts" current={sortField} dir={sortDir} onSort={toggleSort}>
+                        <ThSortable
+                          field="accounts"
+                          current={sortField}
+                          dir={sortDir}
+                          onSort={toggleSort}
+                        >
                           {t('table.accounts')}
                         </ThSortable>
                         <Th>{t('table.data')}</Th>
-                        <ThSortable field="status" current={sortField} dir={sortDir} onSort={toggleSort}>
+                        <ThSortable
+                          field="status"
+                          current={sortField}
+                          dir={sortDir}
+                          onSort={toggleSort}
+                        >
                           {t('table.status')}
                         </ThSortable>
                         <Th className="w-10" />
@@ -415,7 +518,12 @@ export function BreachMonitorPage() {
 
               {/* Filter active but no results */}
               {filteredBreaches.length === 0 && totalBreaches > 0 && (
-                <EmptyState icon={ShieldCheck} title={t('emptyState.noBreachesForEmail')} description="" className="py-12" />
+                <EmptyState
+                  icon={ShieldCheck}
+                  title={t('emptyState.noBreachesForEmail')}
+                  description=""
+                  className="py-12"
+                />
               )}
             </>
           )}
@@ -427,44 +535,90 @@ export function BreachMonitorPage() {
 
 // ─── Table helpers ───────────────────────────────────────
 
-function SummaryCard({ label, count, value, color, tooltip }: { label: string; count?: number; value?: string; color: string; tooltip?: string }) {
+function SummaryCard({
+  label,
+  count,
+  value,
+  color,
+  tooltip
+}: {
+  label: string
+  count?: number
+  value?: string
+  color: string
+  tooltip?: string
+}) {
   const [showTip, setShowTip] = useState(false)
   return (
-    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+    <div
+      className="rounded-xl px-4 py-3"
+      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+    >
       <div className="flex items-center gap-1.5">
-        <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>{label}</div>
+        <div
+          className="text-[11px] font-medium uppercase tracking-wide"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          {label}
+        </div>
         {tooltip && (
-          <div className="relative" onMouseEnter={() => setShowTip(true)} onMouseLeave={() => setShowTip(false)}>
+          <div
+            className="relative"
+            onMouseEnter={() => setShowTip(true)}
+            onMouseLeave={() => setShowTip(false)}
+          >
             <HelpCircle className="h-3 w-3 cursor-help" style={{ color: 'var(--text-muted)' }} />
             {showTip && (
               <div
                 className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded-lg px-3 py-1.5 text-[11px] font-medium pointer-events-none z-50 shadow-lg"
-                style={{ background: 'var(--card-bg)', border: '1px solid var(--border-strong)', color: 'var(--text-primary)' }}
+                style={{
+                  background: 'var(--card-bg)',
+                  border: '1px solid var(--border-strong)',
+                  color: 'var(--text-primary)'
+                }}
               >
                 {tooltip}
                 <div
                   className="absolute top-full left-1/2 -translate-x-1/2 -mt-px h-0 w-0"
-                  style={{ borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid var(--border-strong)' }}
+                  style={{
+                    borderLeft: '5px solid transparent',
+                    borderRight: '5px solid transparent',
+                    borderTop: '5px solid var(--border-strong)'
+                  }}
                 />
               </div>
             )}
           </div>
         )}
       </div>
-      <div className="mt-1 text-[22px] font-bold" style={{ color }}>{value ?? count ?? 0}</div>
+      <div className="mt-1 text-[22px] font-bold" style={{ color }}>
+        {value ?? count ?? 0}
+      </div>
     </div>
   )
 }
 
 function Th({ children, className }: { children?: React.ReactNode; className?: string }) {
   return (
-    <th className={cn('px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide', className)} style={{ color: 'var(--text-muted)' }}>
+    <th
+      className={cn(
+        'px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide',
+        className
+      )}
+      style={{ color: 'var(--text-muted)' }}
+    >
       {children}
     </th>
   )
 }
 
-function ThSortable({ children, field, current, dir, onSort }: {
+function ThSortable({
+  children,
+  field,
+  current,
+  dir,
+  onSort
+}: {
   children: React.ReactNode
   field: SortField
   current: SortField
@@ -473,8 +627,14 @@ function ThSortable({ children, field, current, dir, onSort }: {
 }) {
   const active = current === field
   return (
-    <th className="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
-      <button onClick={() => onSort(field)} className="flex items-center gap-1 transition-colors hover:text-zinc-300">
+    <th
+      className="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide"
+      style={{ color: 'var(--text-muted)' }}
+    >
+      <button
+        onClick={() => onSort(field)}
+        className="flex items-center gap-1 transition-colors hover:text-zinc-300"
+      >
         {children}
         <ArrowUpDown
           className={cn('h-3 w-3', active ? 'text-zinc-300' : 'text-zinc-600')}
@@ -485,7 +645,12 @@ function ThSortable({ children, field, current, dir, onSort }: {
   )
 }
 
-function BreachRow({ breach, showEmail, onAcknowledge, t }: {
+function BreachRow({
+  breach,
+  showEmail,
+  onAcknowledge,
+  t
+}: {
   breach: FlatBreach
   showEmail: boolean
   onAcknowledge: () => void
@@ -495,7 +660,10 @@ function BreachRow({ breach, showEmail, onAcknowledge, t }: {
   const isSensitive = breach.isSensitive
 
   return (
-    <tr className="border-t transition-colors hover:bg-white/[0.02]" style={{ borderColor: 'var(--border-subtle)' }}>
+    <tr
+      className="border-t transition-colors hover:bg-white/[0.02]"
+      style={{ borderColor: 'var(--border-subtle)' }}
+    >
       {/* Breach name */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
@@ -503,11 +671,15 @@ function BreachRow({ breach, showEmail, onAcknowledge, t }: {
             {isSensitive ? t('table.sensitive') : breach.title}
           </span>
           {breach.isVerified && (
-            <span className="text-[10px] font-medium" style={{ color: '#60a5fa' }}>{t('table.verified')}</span>
+            <span className="text-[10px] font-medium" style={{ color: '#60a5fa' }}>
+              {t('table.verified')}
+            </span>
           )}
         </div>
         {!isSensitive && breach.domain && (
-          <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{breach.domain}</div>
+          <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {breach.domain}
+          </div>
         )}
       </td>
 
@@ -520,12 +692,16 @@ function BreachRow({ breach, showEmail, onAcknowledge, t }: {
 
       {/* Date */}
       <td className="px-4 py-3">
-        <span className="text-[12px] text-zinc-400">{breach.breachDate ? formatDate(breach.breachDate) : '—'}</span>
+        <span className="text-[12px] text-zinc-400">
+          {breach.breachDate ? formatDate(breach.breachDate) : '—'}
+        </span>
       </td>
 
       {/* Accounts */}
       <td className="px-4 py-3">
-        <span className="text-[12px] text-zinc-400">{breach.pwnCount > 0 ? formatCount(breach.pwnCount) : '—'}</span>
+        <span className="text-[12px] text-zinc-400">
+          {breach.pwnCount > 0 ? formatCount(breach.pwnCount) : '—'}
+        </span>
       </td>
 
       {/* Data classes */}
@@ -533,13 +709,23 @@ function BreachRow({ breach, showEmail, onAcknowledge, t }: {
         {!isSensitive && breach.dataClasses.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {breach.dataClasses.slice(0, 3).map((dc) => (
-              <span key={dc} className="rounded px-1.5 py-0.5 text-[10px]"
-                style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171', border: '1px solid rgba(239,68,68,0.12)' }}>
+              <span
+                key={dc}
+                className="rounded px-1.5 py-0.5 text-[10px]"
+                style={{
+                  background: 'rgba(239,68,68,0.08)',
+                  color: '#f87171',
+                  border: '1px solid rgba(239,68,68,0.12)'
+                }}
+              >
                 {dc}
               </span>
             ))}
             {breach.dataClasses.length > 3 && (
-              <span className="rounded px-1.5 py-0.5 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+              <span
+                className="rounded px-1.5 py-0.5 text-[10px]"
+                style={{ color: 'var(--text-muted)' }}
+              >
                 +{breach.dataClasses.length - 3}
               </span>
             )}
@@ -552,13 +738,17 @@ function BreachRow({ breach, showEmail, onAcknowledge, t }: {
       {/* Status */}
       <td className="px-4 py-3">
         {isNew ? (
-          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
-            style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24' }}>
+          <span
+            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold"
+            style={{ background: 'rgba(245,158,11,0.15)', color: '#fbbf24' }}
+          >
             {t('table.new')}
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
-            style={{ background: 'rgba(113,113,122,0.12)', color: '#71717a' }}>
+          <span
+            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+            style={{ background: 'rgba(113,113,122,0.12)', color: '#71717a' }}
+          >
             {t('table.reviewed')}
           </span>
         )}

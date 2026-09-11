@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const execFileMock = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 
 vi.mock('util', () => ({
-  promisify: () => execFileMock,
+  promisify: () => execFileMock
 }))
 
 const { createWin32Network } = await import('./network')
@@ -27,9 +27,9 @@ describe('win32 network', () => {
           '',
           '  Proto  Local Address          Foreign Address        State           PID',
           '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     1234',
-          '  TCP    10.0.0.5:50000         151.101.1.140:80       ESTABLISHED     5678',
+          '  TCP    10.0.0.5:50000         151.101.1.140:80       ESTABLISHED     5678'
         ].join('\n'),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -39,7 +39,7 @@ describe('win32 network', () => {
         remoteAddress: '93.184.216.34',
         remotePort: 443,
         localPort: 45678,
-        pid: 1234,
+        pid: 1234
       })
     })
 
@@ -47,9 +47,9 @@ describe('win32 network', () => {
       execFileMock.mockResolvedValue({
         stdout: [
           '  TCP    127.0.0.1:8080         127.0.0.1:49000        ESTABLISHED     100',
-          '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     200',
+          '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     200'
         ].join('\n'),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -62,9 +62,9 @@ describe('win32 network', () => {
         stdout: [
           '  TCP    10.0.0.5:45678         93.184.216.34:443      LISTENING       1234',
           '  TCP    10.0.0.5:45679         93.184.216.34:443      ESTABLISHED     1234',
-          '  TCP    10.0.0.5:45680         93.184.216.34:443      TIME_WAIT       1234',
+          '  TCP    10.0.0.5:45680         93.184.216.34:443      TIME_WAIT       1234'
         ].join('\n'),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -75,7 +75,7 @@ describe('win32 network', () => {
     it('handles IPv6 bracket notation', async () => {
       execFileMock.mockResolvedValue({
         stdout: '  TCP    [::1]:45678           [2001:db8::1]:443      ESTABLISHED     1234\n',
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -87,7 +87,7 @@ describe('win32 network', () => {
     it('skips IPv6 loopback addresses', async () => {
       execFileMock.mockResolvedValue({
         stdout: '  TCP    [::1]:45678           [::1]:443              ESTABLISHED     1234\n',
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -97,7 +97,7 @@ describe('win32 network', () => {
     it('sets pid to null when PID is not numeric', async () => {
       execFileMock.mockResolvedValue({
         stdout: '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     abc\n',
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -114,7 +114,7 @@ describe('win32 network', () => {
     it('skips lines with insufficient columns', async () => {
       execFileMock.mockResolvedValue({
         stdout: '  TCP    10.0.0.5:45678\n',
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getEstablishedConnections()
@@ -128,9 +128,9 @@ describe('win32 network', () => {
         stdout: [
           '  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       1000',
           '  TCP    0.0.0.0:443            0.0.0.0:0              LISTENING       1001',
-          '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     1234',
+          '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     1234'
         ].join('\n'),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getListeningPorts()
@@ -140,7 +140,7 @@ describe('win32 network', () => {
     it('handles IPv6 bracket notation for listening ports', async () => {
       execFileMock.mockResolvedValue({
         stdout: '  TCP    [::]:8080              [::]:0                 LISTENING       2000\n',
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getListeningPorts()
@@ -156,7 +156,7 @@ describe('win32 network', () => {
     it('skips non-LISTENING lines', async () => {
       execFileMock.mockResolvedValue({
         stdout: '  TCP    10.0.0.5:45678         93.184.216.34:443      ESTABLISHED     1234\n',
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getListeningPorts()
@@ -169,22 +169,22 @@ describe('win32 network', () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify([
           { Entry: 'example.com', Data: '93.184.216.34' },
-          { Entry: 'Google.com', Data: '142.250.80.14' },
+          { Entry: 'Google.com', Data: '142.250.80.14' }
         ]),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getDnsCacheEntries()
       expect(result).toEqual([
         { domain: 'example.com', resolvedAddress: '93.184.216.34' },
-        { domain: 'google.com', resolvedAddress: '142.250.80.14' },
+        { domain: 'google.com', resolvedAddress: '142.250.80.14' }
       ])
     })
 
     it('handles null Data fields', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ Entry: 'example.com', Data: null }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await network.getDnsCacheEntries()
@@ -209,7 +209,10 @@ describe('win32 network', () => {
       execFileMock.mockResolvedValue({ stdout: '', stderr: '' })
       const result = await network.flushDnsCache()
       expect(result).toBe(true)
-      expect(execFileMock).toHaveBeenCalledWith('ipconfig', ['/flushdns'], { timeout: 10000, windowsHide: true })
+      expect(execFileMock).toHaveBeenCalledWith('ipconfig', ['/flushdns'], {
+        timeout: 10000,
+        windowsHide: true
+      })
     })
 
     it('returns false on error', async () => {
@@ -224,28 +227,28 @@ describe('win32 network', () => {
       execFileMock
         .mockResolvedValueOnce({
           stdout: '    All User Profile     : HomeNetwork\n    All User Profile     : WorkWifi\n',
-          stderr: '',
+          stderr: ''
         })
         .mockResolvedValueOnce({
           stdout: '    Authentication         : WPA2-Personal\n',
-          stderr: '',
+          stderr: ''
         })
         .mockResolvedValueOnce({
           stdout: '    Authentication         : WPA3-Enterprise\n',
-          stderr: '',
+          stderr: ''
         })
 
       const result = await network.getWifiProfiles()
       expect(result).toEqual([
         { name: 'HomeNetwork', security: 'WPA2-Personal' },
-        { name: 'WorkWifi', security: 'WPA3-Enterprise' },
+        { name: 'WorkWifi', security: 'WPA3-Enterprise' }
       ])
     })
 
     it('skips profiles with suspicious characters in name', async () => {
       execFileMock.mockResolvedValue({
         stdout: '    All User Profile     : Safe\n    All User Profile     : Mal"icious\n',
-        stderr: '',
+        stderr: ''
       })
       // Safe profile detail
       execFileMock.mockResolvedValueOnce({ stdout: '', stderr: '' })
@@ -255,11 +258,11 @@ describe('win32 network', () => {
       execFileMock
         .mockResolvedValueOnce({
           stdout: '    All User Profile     : Safe\n    All User Profile     : Mal"icious\n',
-          stderr: '',
+          stderr: ''
         })
         .mockResolvedValueOnce({
           stdout: '    Authentication         : WPA2-Personal\n',
-          stderr: '',
+          stderr: ''
         })
 
       const result = await network.getWifiProfiles()
@@ -277,7 +280,7 @@ describe('win32 network', () => {
       execFileMock
         .mockResolvedValueOnce({
           stdout: '    All User Profile     : TestNet\n',
-          stderr: '',
+          stderr: ''
         })
         .mockRejectedValueOnce(new Error('timeout'))
 

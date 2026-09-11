@@ -1,9 +1,5 @@
 import { create } from 'zustand'
-import type {
-  GameModeConfig,
-  GameModeOptimizationId,
-  GameModeProgress,
-} from '@shared/types'
+import type { GameModeConfig, GameModeOptimizationId, GameModeProgress } from '@shared/types'
 
 interface GameModeStoreState {
   // Status
@@ -29,7 +25,9 @@ interface GameModeStoreState {
   setPendingRestore: (pending: boolean, reason?: string | null) => void
   setStatus: (status: 'idle' | 'activating' | 'deactivating') => void
   setProgress: (progress: GameModeProgress | null) => void
-  setLastResult: (result: { type: 'activate' | 'deactivate'; succeeded: number; failed: number } | null) => void
+  setLastResult: (
+    result: { type: 'activate' | 'deactivate'; succeeded: number; failed: number } | null
+  ) => void
   setDetectedGame: (name: string | null) => void
   setConfig: (config: GameModeConfig) => void
   toggleOptimization: (id: GameModeOptimizationId) => void
@@ -42,17 +40,21 @@ interface GameModeStoreState {
 
 const defaultConfig: GameModeConfig = {
   enabledOptimizations: [
-    'svc-wsearch', 'svc-sysmain',
+    'svc-wsearch',
+    'svc-sysmain',
     'proc-kill-updaters',
     'mem-clear-standby',
-    'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
-    'sys-disable-game-bar', 'sys-disable-fse-opt',
-    'net-flush-dns',
+    'sys-focus-assist',
+    'sys-power-plan',
+    'sys-prevent-sleep',
+    'sys-disable-game-bar',
+    'sys-disable-fse-opt',
+    'net-flush-dns'
   ],
   customProcessKillList: [],
   autoDetect: false,
   autoDeactivate: true,
-  customGameProcesses: [],
+  customGameProcesses: []
 }
 
 export const useGameModeStore = create<GameModeStoreState>((set, get) => ({
@@ -71,7 +73,8 @@ export const useGameModeStore = create<GameModeStoreState>((set, get) => ({
   expandedCategories: new Set<string>(),
 
   setActive: (active, activatedAt) => set({ active, activatedAt }),
-  setPendingRestore: (pendingRestore, pendingReason = null) => set({ pendingRestore, pendingReason }),
+  setPendingRestore: (pendingRestore, pendingReason = null) =>
+    set({ pendingRestore, pendingReason }),
   setStatus: (status) => set({ status }),
   setProgress: (progress) => set({ progress }),
   setLastResult: (lastResult) => set({ lastResult }),
@@ -85,7 +88,7 @@ export const useGameModeStore = create<GameModeStoreState>((set, get) => ({
       ...config,
       enabledOptimizations: enabled
         ? config.enabledOptimizations.filter((o) => o !== id)
-        : [...config.enabledOptimizations, id],
+        : [...config.enabledOptimizations, id]
     }
     set({ config: updated })
     window.kudu?.settingsSet?.({ gameMode: updated }).catch(() => {})
@@ -125,22 +128,28 @@ export const useGameModeStore = create<GameModeStoreState>((set, get) => ({
     const updated: GameModeConfig = { ...config, customGameProcesses: list }
     set({ config: updated })
     window.kudu?.settingsSet?.({ gameMode: updated }).catch(() => {})
-  },
+  }
 }))
 
 /** Hydrate config from persisted settings and check active status */
 export function initGameModeStore(): void {
-  window.kudu?.settingsGet?.().then((settings) => {
-    if (settings?.gameMode) {
-      useGameModeStore.getState().setConfig(settings.gameMode)
-    }
-  }).catch(() => {})
+  window.kudu
+    ?.settingsGet?.()
+    .then((settings) => {
+      if (settings?.gameMode) {
+        useGameModeStore.getState().setConfig(settings.gameMode)
+      }
+    })
+    .catch(() => {})
 
-  window.kudu?.gameModeStatus?.().then((status) => {
-    const s = useGameModeStore.getState()
-    s.setActive(status.active, status.activatedAt)
-    s.setPendingRestore(status.pendingRestore ?? false, status.pendingReason ?? null)
-  }).catch(() => {})
+  window.kudu
+    ?.gameModeStatus?.()
+    .then((status) => {
+      const s = useGameModeStore.getState()
+      s.setActive(status.active, status.activatedAt)
+      s.setPendingRestore(status.pendingRestore ?? false, status.pendingReason ?? null)
+    })
+    .catch(() => {})
 
   // Listen for auto-detect events globally so the store stays in sync
   // even when the user is on a different page.
@@ -152,10 +161,13 @@ export function initGameModeStore(): void {
       s.setDetectedGame(null)
     }
     // Refresh active status from main process (source of truth)
-    window.kudu?.gameModeStatus?.().then((status) => {
-      const st = useGameModeStore.getState()
-      st.setActive(status.active, status.activatedAt)
-      st.setPendingRestore(status.pendingRestore ?? false, status.pendingReason ?? null)
-    }).catch(() => {})
+    window.kudu
+      ?.gameModeStatus?.()
+      .then((status) => {
+        const st = useGameModeStore.getState()
+        st.setActive(status.active, status.activatedAt)
+        st.setPendingRestore(status.pendingRestore ?? false, status.pendingReason ?? null)
+      })
+      .catch(() => {})
   })
 }

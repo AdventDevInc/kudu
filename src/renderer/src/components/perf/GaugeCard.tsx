@@ -19,7 +19,12 @@ const STROKE = 6
 const RADIUS = (SIZE - STROKE * 2) / 2
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
-export const GaugeCard = memo(function GaugeCard({ label, percent, detail, className }: GaugeCardProps) {
+export const GaugeCard = memo(function GaugeCard({
+  label,
+  percent,
+  detail,
+  className
+}: GaugeCardProps) {
   const clamped = Math.max(0, Math.min(100, percent))
   const offset = CIRCUMFERENCE - (clamped / 100) * CIRCUMFERENCE
   const color = getColor(clamped)
@@ -27,7 +32,10 @@ export const GaugeCard = memo(function GaugeCard({ label, percent, detail, class
 
   return (
     <div
-      className={cn('glass-card glass-card-hover flex flex-col items-center rounded-2xl p-5', className)}
+      className={cn(
+        'glass-card glass-card-hover flex flex-col items-center rounded-2xl p-5',
+        className
+      )}
     >
       <div className="relative inline-flex items-center justify-center">
         {/* Glow */}
@@ -69,7 +77,9 @@ export const GaugeCard = memo(function GaugeCard({ label, percent, detail, class
           <span className="text-[26px] font-bold tracking-tight text-white">
             {Math.round(clamped)}
           </span>
-          <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>%</span>
+          <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
+            %
+          </span>
         </div>
       </div>
 

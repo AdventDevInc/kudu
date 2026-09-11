@@ -22,8 +22,18 @@ export function SystemInfoHeader({ info, uptime }: SystemInfoHeaderProps) {
   if (!info) return null
 
   const items = [
-    { icon: Cpu, label: t('systemInfoCpu'), value: `${info.cpuModel}`, sub: `${info.cpuCores}C / ${info.cpuThreads}T` },
-    { icon: MemoryStick, label: t('systemInfoMemory'), value: formatBytes(info.totalMemBytes, 1), sub: '' },
+    {
+      icon: Cpu,
+      label: t('systemInfoCpu'),
+      value: `${info.cpuModel}`,
+      sub: `${info.cpuCores}C / ${info.cpuThreads}T`
+    },
+    {
+      icon: MemoryStick,
+      label: t('systemInfoMemory'),
+      value: formatBytes(info.totalMemBytes, 1),
+      sub: ''
+    },
     { icon: Monitor, label: t('systemInfoOs'), value: info.osVersion, sub: '' },
     { icon: Clock, label: t('systemInfoUptime'), value: formatUptime(uptime), sub: '' }
   ]
@@ -35,14 +45,23 @@ export function SystemInfoHeader({ info, uptime }: SystemInfoHeaderProps) {
     >
       {items.map((item) => (
         <div key={item.label} className="flex items-center gap-3 px-2">
-          <item.icon className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
+          <item.icon
+            className="h-4 w-4 shrink-0"
+            style={{ color: 'var(--text-muted)' }}
+            strokeWidth={1.8}
+          />
           <div className="flex items-baseline gap-2">
-            <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            <span
+              className="text-[11px] font-medium uppercase tracking-wider"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {item.label}
             </span>
             <span className="text-[12px] font-medium text-zinc-300">{item.value}</span>
             {item.sub && (
-              <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{item.sub}</span>
+              <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                {item.sub}
+              </span>
             )}
           </div>
         </div>

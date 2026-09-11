@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { useDuplicateStore } from './duplicate-store'
 import type { DuplicateScanResult } from '@shared/types'
 
-function makeResult(groups: { hash: string; fileSize: number; paths: string[] }[]): DuplicateScanResult {
+function makeResult(
+  groups: { hash: string; fileSize: number; paths: string[] }[]
+): DuplicateScanResult {
   return {
     groups: groups.map((g) => ({
       hash: g.hash.slice(0, 16),
@@ -188,7 +190,9 @@ describe('duplicate-store', () => {
 
     const state = useDuplicateStore.getState()
     expect(state.result!.groups).toHaveLength(1)
-    expect(state.result!.groups[0].fullHash).toBe('ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666')
+    expect(state.result!.groups[0].fullHash).toBe(
+      'ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666'
+    )
     expect(state.result!.totalDuplicates).toBe(2) // 3 files - 1 kept = 2
     expect(state.result!.totalReclaimable).toBe(4000) // 2000 * 2
   })
@@ -217,11 +221,15 @@ describe('duplicate-store', () => {
     store.setDirectory('/home/user')
     store.setMinFileSize(500)
     store.setStatus('complete')
-    store.setResult(makeResult([{
-      hash: 'cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333',
-      fileSize: 100,
-      paths: ['/a', '/b']
-    }]))
+    store.setResult(
+      makeResult([
+        {
+          hash: 'cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333',
+          fileSize: 100,
+          paths: ['/a', '/b']
+        }
+      ])
+    )
     store.togglePath('/a')
 
     useDuplicateStore.getState().reset()

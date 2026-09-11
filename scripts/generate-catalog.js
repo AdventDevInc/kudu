@@ -40,7 +40,7 @@ function loadBrowsers(platform) {
   return {
     chromium: (data.chromium || []).map((b) => b.key),
     hasFirefox: !!data.firefox,
-    hasSafari: !!data.safari,
+    hasSafari: !!data.safari
   }
 }
 
@@ -63,7 +63,11 @@ function main() {
   const appCounts = {}
   const allAppIds = new Set()
   for (const p of PLATFORMS) {
-    const apps = [].concat(loadApps(p, 'apps.json'), loadApps(p, 'gaming.json'), loadApps(p, 'gpu-cache.json'))
+    const apps = [].concat(
+      loadApps(p, 'apps.json'),
+      loadApps(p, 'gaming.json'),
+      loadApps(p, 'gpu-cache.json')
+    )
     appCounts[p] = apps.length
     apps.forEach((a) => allAppIds.add(a.id))
   }
@@ -82,7 +86,7 @@ function main() {
     { title: 'AI Tools', file: 'apps.json', group: 'AI Tools' },
     { title: 'Applications', file: 'apps.json', excludeGrouped: true },
     { title: 'Gaming & Launchers', file: 'gaming.json' },
-    { title: 'GPU Cache', file: 'gpu-cache.json' },
+    { title: 'GPU Cache', file: 'gpu-cache.json' }
   ]
 
   for (const { title, file, group, excludeGrouped } of categories) {
@@ -113,7 +117,7 @@ function main() {
     w('|-----|' + PLATFORMS.map(() => ':---:').join('|') + '|')
 
     for (const [, { name, platforms }] of sorted) {
-      const cols = PLATFORMS.map((p) => platforms.has(p) ? '✅' : '❌')
+      const cols = PLATFORMS.map((p) => (platforms.has(p) ? '✅' : '❌'))
       w(`| ${name} | ${cols.join(' | ')} |`)
     }
     w()
@@ -125,9 +129,16 @@ function main() {
   w()
 
   const browserNames = {
-    chrome: 'Google Chrome', edge: 'Microsoft Edge', brave: 'Brave',
-    opera: 'Opera', operaGX: 'Opera GX', vivaldi: 'Vivaldi',
-    arc: 'Arc', chromium: 'Chromium', firefox: 'Firefox', safari: 'Safari',
+    chrome: 'Google Chrome',
+    edge: 'Microsoft Edge',
+    brave: 'Brave',
+    opera: 'Opera',
+    operaGX: 'Opera GX',
+    vivaldi: 'Vivaldi',
+    arc: 'Arc',
+    chromium: 'Chromium',
+    firefox: 'Firefox',
+    safari: 'Safari'
   }
 
   const allBrowsers = new Set()
@@ -156,7 +167,9 @@ function main() {
 
   for (const key of Array.from(allBrowsers).sort()) {
     const name = browserNames[key] || key
-    const cols = PLATFORMS.map((p) => (browserPlatforms[key] && browserPlatforms[key].has(p) ? '✅' : '❌'))
+    const cols = PLATFORMS.map((p) =>
+      browserPlatforms[key] && browserPlatforms[key].has(p) ? '✅' : '❌'
+    )
     w(`| ${name} | ${cols.join(' | ')} |`)
   }
   w()
@@ -179,8 +192,10 @@ function main() {
   w('| Target | ' + PLATFORMS.map((p) => PLATFORM_EMOJI[p]).join(' | ') + ' |')
   w('|--------|' + PLATFORMS.map(() => ':---:').join('|') + '|')
 
-  for (const [label, platforms] of Array.from(allDbLabels.entries()).sort((a, b) => a[0].localeCompare(b[0]))) {
-    const cols = PLATFORMS.map((p) => platforms.has(p) ? '✅' : '❌')
+  for (const [label, platforms] of Array.from(allDbLabels.entries()).sort((a, b) =>
+    a[0].localeCompare(b[0])
+  )) {
+    const cols = PLATFORMS.map((p) => (platforms.has(p) ? '✅' : '❌'))
     w(`| ${label} | ${cols.join(' | ')} |`)
   }
   w()

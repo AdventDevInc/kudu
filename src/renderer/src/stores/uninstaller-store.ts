@@ -1,5 +1,10 @@
 import { create } from 'zustand'
-import type { InstalledProgram, UninstallProgress, UninstallResult, StartupSafetyRating } from '../../../shared/types'
+import type {
+  InstalledProgram,
+  UninstallProgress,
+  UninstallResult,
+  StartupSafetyRating
+} from '../../../shared/types'
 
 type SortField = 'displayName' | 'estimatedSize' | 'installDate' | 'publisher' | 'safety'
 type FilterMode = 'all' | 'unused'
@@ -91,9 +96,10 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
     }),
   selectAll: (ids) => set({ selectedIds: new Set(ids) }),
   clearSelected: () => set({ selectedIds: new Set<string>() }),
-  setSafetyRatings: (ratings) => set({
-    safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
-  }),
+  setSafetyRatings: (ratings) =>
+    set({
+      safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r]))
+    }),
   setSafetyLoading: (safetyLoading) => set({ safetyLoading }),
   setExpandedItemId: (expandedItemId) => set({ expandedItemId }),
   fetchSafetyRatings: async () => {
@@ -103,7 +109,7 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
       const ratings = Array.isArray(result?.ratings) ? result.ratings : []
       set({
         safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
-        safetyLoading: false,
+        safetyLoading: false
       })
     } catch {
       set({ safetyLoading: false })
@@ -125,19 +131,23 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
       selectedIds: new Set<string>(),
       safetyRatings: {},
       safetyLoading: false,
-      expandedItemId: null,
-    }),
+      expandedItemId: null
+    })
 }))
 
 // Listen for cloud-pushed safety rating updates (HMR-safe via guard flag)
 let _programSafetyListenerRegistered = false
-if (typeof window !== 'undefined' && window.kudu?.onProgramSafetyUpdated && !_programSafetyListenerRegistered) {
+if (
+  typeof window !== 'undefined' &&
+  window.kudu?.onProgramSafetyUpdated &&
+  !_programSafetyListenerRegistered
+) {
   _programSafetyListenerRegistered = true
   window.kudu.onProgramSafetyUpdated((result) => {
     const ratings = Array.isArray(result?.ratings) ? result.ratings : []
     useUninstallerStore.setState({
       safetyRatings: Object.fromEntries(ratings.map((r) => [r.name, r])),
-      safetyLoading: false,
+      safetyLoading: false
     })
   })
 }

@@ -32,7 +32,7 @@ async function main() {
     // Keep timeout active through full body read so a stalling server can't hang CI
     const response = await fetch(RULES_URL, {
       signal: controller.signal,
-      headers: { 'Accept': 'application/json' },
+      headers: { Accept: 'application/json' }
     })
 
     if (!response.ok) {
@@ -58,11 +58,15 @@ async function main() {
 
   // Verify integrity if sha256 is present
   if (body.sha256) {
-    const sorted = [...body.rules].sort((a, b) => a.filename < b.filename ? -1 : a.filename > b.filename ? 1 : 0)
-    const combined = sorted.map(r => r.content).join('')
+    const sorted = [...body.rules].sort((a, b) =>
+      a.filename < b.filename ? -1 : a.filename > b.filename ? 1 : 0
+    )
+    const combined = sorted.map((r) => r.content).join('')
     const computed = createHash('sha256').update(combined).digest('hex')
     if (computed !== body.sha256) {
-      console.error(`[fetch-yara-rules] SHA-256 mismatch — expected ${body.sha256}, got ${computed}`)
+      console.error(
+        `[fetch-yara-rules] SHA-256 mismatch — expected ${body.sha256}, got ${computed}`
+      )
       process.exit(1)
     }
   }
@@ -71,7 +75,11 @@ async function main() {
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true })
   for (const existing of readdirSync(OUT_DIR)) {
     if (existing.endsWith('.yar')) {
-      try { unlinkSync(join(OUT_DIR, existing)) } catch { /* best effort */ }
+      try {
+        unlinkSync(join(OUT_DIR, existing))
+      } catch {
+        /* best effort */
+      }
     }
   }
 
@@ -79,13 +87,16 @@ async function main() {
   for (const rule of body.rules) {
     if (!rule.filename || !rule.content) continue
     if (!rule.filename.endsWith('.yar')) continue
-    if (rule.filename.includes('/') || rule.filename.includes('\\') || rule.filename.includes('..')) continue
+    if (rule.filename.includes('/') || rule.filename.includes('\\') || rule.filename.includes('..'))
+      continue
 
     writeFileSync(join(OUT_DIR, rule.filename), rule.content, 'utf-8')
     count++
   }
 
-  console.log(`[fetch-yara-rules] Wrote ${count} rule files to resources/yara-rules/ (v${body.version || 'unknown'})`)
+  console.log(
+    `[fetch-yara-rules] Wrote ${count} rule files to resources/yara-rules/ (v${body.version || 'unknown'})`
+  )
 }
 
 function ensureEmptyDir() {
@@ -97,12 +108,16 @@ function ensureEmptyDir() {
   }
   for (const f of readdirSync(OUT_DIR)) {
     if (f.endsWith('.yar')) {
-      try { unlinkSync(join(OUT_DIR, f)) } catch { /* best effort */ }
+      try {
+        unlinkSync(join(OUT_DIR, f))
+      } catch {
+        /* best effort */
+      }
     }
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.warn(`[fetch-yara-rules] Unexpected error — skipping bundled rules (${err.message})`)
   ensureEmptyDir()
 })

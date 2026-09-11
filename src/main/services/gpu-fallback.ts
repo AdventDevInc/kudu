@@ -69,7 +69,12 @@ function persistMarker(): void {
 export function registerGpuCrashRecovery(): void {
   app.on('child-process-gone', (_event, details) => {
     if (details.type !== 'GPU') return
-    if (details.reason !== 'launch-failed' && details.reason !== 'crashed' && details.reason !== 'abnormal-exit') return
+    if (
+      details.reason !== 'launch-failed' &&
+      details.reason !== 'crashed' &&
+      details.reason !== 'abnormal-exit'
+    )
+      return
     // Already running without a GPU process — nothing more we can do, and
     // relaunching would loop. Leave the marker in place.
     if (attemptedRecovery || shouldDisableGpu()) return

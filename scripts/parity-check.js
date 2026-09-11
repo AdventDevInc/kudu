@@ -77,23 +77,23 @@ function main() {
 
   console.log(
     '  ' +
-    'ID'.padEnd(25) +
-    'Name'.padEnd(nameWidth + 2) +
-    'win32'.padEnd(8) +
-    'darwin'.padEnd(8) +
-    'linux'.padEnd(8)
+      'ID'.padEnd(25) +
+      'Name'.padEnd(nameWidth + 2) +
+      'win32'.padEnd(8) +
+      'darwin'.padEnd(8) +
+      'linux'.padEnd(8)
   )
   console.log('  ' + '─'.repeat(25 + nameWidth + 2 + 24))
 
   for (const { id, name, present } of [...partial, ...single]) {
-    const cols = PLATFORMS.map((p) => present.includes(p) ? '  ✅' : '  ❌')
+    const cols = PLATFORMS.map((p) => (present.includes(p) ? '  ✅' : '  ❌'))
     console.log(
       '  ' +
-      id.padEnd(25) +
-      name.padEnd(nameWidth + 2) +
-      cols[0].padEnd(8) +
-      cols[1].padEnd(8) +
-      cols[2].padEnd(8)
+        id.padEnd(25) +
+        name.padEnd(nameWidth + 2) +
+        cols[0].padEnd(8) +
+        cols[1].padEnd(8) +
+        cols[2].padEnd(8)
     )
   }
 

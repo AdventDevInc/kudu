@@ -131,7 +131,9 @@ export function DuplicateFinderPage() {
             if (!failedPaths.has(p)) successPaths.add(p)
           }
           store.removeDeletedFiles(successPaths)
-          toast.success(t('deleteSuccess', { count: result.deleted, size: formatBytes(result.spaceRecovered) }))
+          toast.success(
+            t('deleteSuccess', { count: result.deleted, size: formatBytes(result.spaceRecovered) })
+          )
         }
         if (result.failed > 0) {
           toast.error(t('deleteFailed', { failed: result.failed }))
@@ -167,7 +169,10 @@ export function DuplicateFinderPage() {
   const activeExtPreset = useMemo(() => {
     if (store.extensionFilter.length === 0) return 'all'
     for (const [name, exts] of Object.entries(EXT_PRESETS)) {
-      if (exts.length === store.extensionFilter.length && exts.every((e) => store.extensionFilter.includes(e))) {
+      if (
+        exts.length === store.extensionFilter.length &&
+        exts.every((e) => store.extensionFilter.includes(e))
+      ) {
         return name
       }
     }
@@ -186,7 +191,11 @@ export function DuplicateFinderPage() {
           onClick={handleSelectDir}
           disabled={store.status === 'scanning'}
           className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
-          style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+          style={{
+            background: 'var(--bg-hover)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-medium)'
+          }}
         >
           <FolderOpen className="h-4 w-4" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
           {store.directory ? store.directory : t('selectDirectory')}
@@ -235,7 +244,10 @@ export function DuplicateFinderPage() {
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             {/* Min file size */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+              <label
+                className="mb-2 block text-[11px] font-semibold tracking-wide"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('minFileSize')}
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -245,10 +257,15 @@ export function DuplicateFinderPage() {
                     onClick={() => store.setMinFileSize(p.value)}
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors',
-                      store.minFileSize === p.value ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
+                      store.minFileSize === p.value
+                        ? 'text-amber-400'
+                        : 'text-zinc-500 hover:text-zinc-300'
                     )}
                     style={{
-                      background: store.minFileSize === p.value ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
+                      background:
+                        store.minFileSize === p.value
+                          ? 'rgba(245,158,11,0.1)'
+                          : 'var(--bg-subtle-2)'
                     }}
                   >
                     {p.label}
@@ -259,7 +276,10 @@ export function DuplicateFinderPage() {
 
             {/* Max file size */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+              <label
+                className="mb-2 block text-[11px] font-semibold tracking-wide"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('maxFileSize')}
               </label>
               <div className="flex flex-wrap gap-1.5">
@@ -267,10 +287,13 @@ export function DuplicateFinderPage() {
                   onClick={() => store.setMaxFileSize(null)}
                   className={cn(
                     'rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors',
-                    store.maxFileSize === null ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
+                    store.maxFileSize === null
+                      ? 'text-amber-400'
+                      : 'text-zinc-500 hover:text-zinc-300'
                   )}
                   style={{
-                    background: store.maxFileSize === null ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
+                    background:
+                      store.maxFileSize === null ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                   }}
                 >
                   {t('noLimit')}
@@ -281,10 +304,13 @@ export function DuplicateFinderPage() {
                     onClick={() => store.setMaxFileSize(v)}
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors',
-                      store.maxFileSize === v ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
+                      store.maxFileSize === v
+                        ? 'text-amber-400'
+                        : 'text-zinc-500 hover:text-zinc-300'
                     )}
                     style={{
-                      background: store.maxFileSize === v ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
+                      background:
+                        store.maxFileSize === v ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                     }}
                   >
                     {formatBytes(v, 0)}
@@ -295,20 +321,28 @@ export function DuplicateFinderPage() {
 
             {/* Extension filter */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+              <label
+                className="mb-2 block text-[11px] font-semibold tracking-wide"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('extensionFilter')}
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {(['all', 'images', 'videos', 'audio', 'documents'] as const).map((preset) => (
                   <button
                     key={preset}
-                    onClick={() => store.setExtensionFilter(preset === 'all' ? [] : EXT_PRESETS[preset])}
+                    onClick={() =>
+                      store.setExtensionFilter(preset === 'all' ? [] : EXT_PRESETS[preset])
+                    }
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-[12px] font-medium transition-colors',
-                      activeExtPreset === preset ? 'text-amber-400' : 'text-zinc-500 hover:text-zinc-300'
+                      activeExtPreset === preset
+                        ? 'text-amber-400'
+                        : 'text-zinc-500 hover:text-zinc-300'
                     )}
                     style={{
-                      background: activeExtPreset === preset ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
+                      background:
+                        activeExtPreset === preset ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle-2)'
                     }}
                   >
                     {t(preset === 'all' ? 'allFiles' : preset)}
@@ -319,7 +353,10 @@ export function DuplicateFinderPage() {
 
             {/* Max depth */}
             <div>
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+              <label
+                className="mb-2 block text-[11px] font-semibold tracking-wide"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('maxDepth')}
               </label>
               <input
@@ -327,15 +364,23 @@ export function DuplicateFinderPage() {
                 min={1}
                 max={50}
                 value={store.maxDepth}
-                onChange={(e) => store.setMaxDepth(Math.max(1, Math.min(50, parseInt(e.target.value) || 20)))}
+                onChange={(e) =>
+                  store.setMaxDepth(Math.max(1, Math.min(50, parseInt(e.target.value) || 20)))
+                }
                 className="w-20 rounded-lg px-3 py-1.5 text-[13px] text-white"
-                style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
+                style={{
+                  background: 'var(--bg-subtle-2)',
+                  border: '1px solid var(--border-medium)'
+                }}
               />
             </div>
 
             {/* Exclude patterns */}
             <div className="col-span-2">
-              <label className="mb-2 block text-[11px] font-semibold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+              <label
+                className="mb-2 block text-[11px] font-semibold tracking-wide"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 {t('excludePatterns')}
               </label>
               <div className="flex flex-wrap items-center gap-1.5">
@@ -346,7 +391,10 @@ export function DuplicateFinderPage() {
                     style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
                   >
                     {p}
-                    <button onClick={() => handleRemoveExclude(p)} className="text-zinc-600 hover:text-zinc-400">
+                    <button
+                      onClick={() => handleRemoveExclude(p)}
+                      className="text-zinc-600 hover:text-zinc-400"
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </span>
@@ -359,7 +407,10 @@ export function DuplicateFinderPage() {
                     onKeyDown={(e) => e.key === 'Enter' && handleAddExclude()}
                     placeholder={t('excludePlaceholder')}
                     className="w-48 rounded-lg px-2.5 py-1 text-[12px] text-white placeholder-zinc-600"
-                    style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
+                    style={{
+                      background: 'var(--bg-subtle-2)',
+                      border: '1px solid var(--border-medium)'
+                    }}
                   />
                   <button onClick={handleAddExclude} className="text-zinc-500 hover:text-zinc-300">
                     <Plus className="h-4 w-4" />
@@ -378,7 +429,10 @@ export function DuplicateFinderPage() {
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--bg-hover-2)' }}>
+            <div
+              className="h-2 flex-1 overflow-hidden rounded-full"
+              style={{ background: 'var(--bg-hover-2)' }}
+            >
               <div
                 className="h-full rounded-full transition-all duration-300"
                 style={{ background: 'var(--accent)', width: `${store.progress.progress}%` }}
@@ -401,12 +455,21 @@ export function DuplicateFinderPage() {
             </p>
           )}
           <div className="mt-3 flex gap-6">
-            <StatMini label={t('filesScanned')} value={store.progress.filesScanned.toLocaleString()} />
+            <StatMini
+              label={t('filesScanned')}
+              value={store.progress.filesScanned.toLocaleString()}
+            />
             {store.progress.duplicatesFound > 0 && (
-              <StatMini label={t('duplicatesFound')} value={store.progress.duplicatesFound.toLocaleString()} />
+              <StatMini
+                label={t('duplicatesFound')}
+                value={store.progress.duplicatesFound.toLocaleString()}
+              />
             )}
             {store.progress.filesHashed != null && store.progress.filesToHash != null && (
-              <StatMini label="Hashed" value={`${store.progress.filesHashed} / ${store.progress.filesToHash}`} />
+              <StatMini
+                label="Hashed"
+                value={`${store.progress.filesHashed} / ${store.progress.filesToHash}`}
+              />
             )}
           </div>
         </div>
@@ -427,9 +490,19 @@ export function DuplicateFinderPage() {
 
           {/* Summary stats */}
           <div className="mb-5 grid grid-cols-4 gap-3">
-            <StatCard label={t('duplicatesFound')} value={store.result.totalDuplicates.toLocaleString()} />
-            <StatCard label={t('reclaimableSpace')} value={formatBytes(store.result.totalReclaimable)} accent />
-            <StatCard label={t('filesScanned')} value={store.result.totalFilesScanned.toLocaleString()} />
+            <StatCard
+              label={t('duplicatesFound')}
+              value={store.result.totalDuplicates.toLocaleString()}
+            />
+            <StatCard
+              label={t('reclaimableSpace')}
+              value={formatBytes(store.result.totalReclaimable)}
+              accent
+            />
+            <StatCard
+              label={t('filesScanned')}
+              value={store.result.totalFilesScanned.toLocaleString()}
+            />
             <StatCard label={t('duration')} value={formatDuration(store.result.duration)} />
           </div>
 
@@ -449,14 +522,21 @@ export function DuplicateFinderPage() {
                 </button>
 
                 {/* Delete mode toggle */}
-                <div className="flex overflow-hidden rounded-lg" style={{ background: 'var(--bg-subtle-2)' }}>
+                <div
+                  className="flex overflow-hidden rounded-lg"
+                  style={{ background: 'var(--bg-subtle-2)' }}
+                >
                   <button
                     onClick={() => store.setDeleteMode('recycle')}
                     className={cn(
                       'px-3 py-1.5 text-[12px] font-medium transition-colors',
                       store.deleteMode === 'recycle' ? 'text-amber-400' : 'text-zinc-500'
                     )}
-                    style={store.deleteMode === 'recycle' ? { background: 'rgba(245,158,11,0.1)' } : undefined}
+                    style={
+                      store.deleteMode === 'recycle'
+                        ? { background: 'rgba(245,158,11,0.1)' }
+                        : undefined
+                    }
                   >
                     {t('recycleBin')}
                   </button>
@@ -466,7 +546,11 @@ export function DuplicateFinderPage() {
                       'px-3 py-1.5 text-[12px] font-medium transition-colors',
                       store.deleteMode === 'permanent' ? 'text-red-400' : 'text-zinc-500'
                     )}
-                    style={store.deleteMode === 'permanent' ? { background: 'rgba(239,68,68,0.1)' } : undefined}
+                    style={
+                      store.deleteMode === 'permanent'
+                        ? { background: 'rgba(239,68,68,0.1)' }
+                        : undefined
+                    }
                   >
                     {t('permanentDelete')}
                   </button>
@@ -488,7 +572,10 @@ export function DuplicateFinderPage() {
                     onClick={() => setShowConfirm(true)}
                     className="flex items-center gap-2 rounded-xl px-5 py-2 text-[13px] font-semibold transition-colors"
                     style={{
-                      background: store.deleteMode === 'permanent' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                      background:
+                        store.deleteMode === 'permanent'
+                          ? 'rgba(239,68,68,0.12)'
+                          : 'rgba(245,158,11,0.12)',
                       color: store.deleteMode === 'permanent' ? '#ef4444' : '#f59e0b'
                     }}
                   >
@@ -503,29 +590,42 @@ export function DuplicateFinderPage() {
                 {store.result.groups.map((group) => {
                   const isExpanded = expandedGroups.has(group.fullHash)
                   const sorted = [...group.files].sort((a, b) => a.path.length - b.path.length)
-                  const groupSelected = group.files.filter((f) => store.selectedPaths.has(f.path)).length
+                  const groupSelected = group.files.filter((f) =>
+                    store.selectedPaths.has(f.path)
+                  ).length
 
                   return (
                     <div
                       key={group.fullHash}
                       className="overflow-hidden rounded-xl"
-                      style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
+                      style={{
+                        background: 'var(--card-bg)',
+                        border: '1px solid var(--border-subtle)'
+                      }}
                     >
                       {/* Group header */}
                       <button
                         onClick={() => toggleGroup(group.fullHash)}
                         className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]"
                       >
-                        {isExpanded
-                          ? <ChevronDown className="h-4 w-4 shrink-0 text-zinc-500" />
-                          : <ChevronRight className="h-4 w-4 shrink-0 text-zinc-500" />}
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4 shrink-0 text-zinc-500" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 shrink-0 text-zinc-500" />
+                        )}
                         <div className="min-w-0 flex-1">
                           <span className="text-[13px] font-medium text-white">
-                            {t('groupHeader', { size: formatBytes(group.fileSize), count: group.files.length })}
+                            {t('groupHeader', {
+                              size: formatBytes(group.fileSize),
+                              count: group.files.length
+                            })}
                           </span>
                         </div>
                         {groupSelected > 0 && (
-                          <span className="text-[11px] font-medium" style={{ color: 'var(--accent)' }}>
+                          <span
+                            className="text-[11px] font-medium"
+                            style={{ color: 'var(--accent)' }}
+                          >
                             {groupSelected} selected
                           </span>
                         )}
@@ -534,7 +634,10 @@ export function DuplicateFinderPage() {
                         </span>
                         <span
                           className="rounded px-1.5 py-0.5 font-mono text-[10px]"
-                          style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
+                          style={{
+                            background: 'var(--bg-subtle-2)',
+                            color: 'var(--text-secondary)'
+                          }}
                         >
                           {group.hash}
                         </span>
@@ -549,7 +652,9 @@ export function DuplicateFinderPage() {
                               <div
                                 key={file.path}
                                 className="flex items-center gap-3 px-4 py-2 transition-colors hover:bg-white/[0.02]"
-                                style={idx > 0 ? { borderTop: '1px solid var(--bg-subtle)' } : undefined}
+                                style={
+                                  idx > 0 ? { borderTop: '1px solid var(--bg-subtle)' } : undefined
+                                }
                               >
                                 <input
                                   type="checkbox"
@@ -573,7 +678,10 @@ export function DuplicateFinderPage() {
                                     {t('original')}
                                   </span>
                                 )}
-                                <span className="shrink-0 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                                <span
+                                  className="shrink-0 text-[11px]"
+                                  style={{ color: 'var(--text-secondary)' }}
+                                >
                                   {new Date(file.lastModified).toLocaleDateString()}
                                 </span>
                                 <button
@@ -644,7 +752,9 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
       className="rounded-xl px-4 py-3"
       style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
     >
-      <div className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</div>
+      <div className="text-[11px] font-medium" style={{ color: 'var(--text-secondary)' }}>
+        {label}
+      </div>
       <div
         className="mt-1 text-[18px] font-bold"
         style={{ color: accent ? 'var(--accent)' : 'var(--text-primary)' }}
@@ -658,7 +768,9 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
 function StatMini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{label}: </span>
+      <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+        {label}:{' '}
+      </span>
       <span className="text-[12px] font-medium text-white">{value}</span>
     </div>
   )
@@ -667,9 +779,15 @@ function StatMini({ label, value }: { label: string; value: string }) {
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="utility-empty-stage flex flex-1 flex-col items-center justify-center py-20 text-center">
-      <FolderOpen className="mb-4 h-12 w-12" style={{ color: 'var(--text-faint)' }} strokeWidth={1.2} />
+      <FolderOpen
+        className="mb-4 h-12 w-12"
+        style={{ color: 'var(--text-faint)' }}
+        strokeWidth={1.2}
+      />
       <h3 className="text-[15px] font-semibold text-white">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-secondary)' }}>{description}</p>
+      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+        {description}
+      </p>
     </div>
   )
 }

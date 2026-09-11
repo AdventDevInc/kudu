@@ -11,7 +11,11 @@ import { CleanerType } from '../../shared/enums'
 import type { ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
 import { validateStringArray } from '../services/ipc-validation'
-import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from '../services/chromium-cache'
+import {
+  BROWSER_CACHE_RECENCY,
+  chromiumBrowsers,
+  chromiumCacheTargets
+} from '../services/chromium-cache'
 
 export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.BROWSER_SCAN, async (): Promise<ScanResult[]> => {
@@ -25,7 +29,10 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
     for (const browser of chromiumBrowsers(browserPaths)) {
       for (const target of await chromiumCacheTargets(browser)) {
         const result = await scanDirectory(target.path, category, target.label, recency)
-        if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
+        if (result.items.length > 0) {
+          cacheItems(result.items)
+          results.push(result)
+        }
       }
     }
 
@@ -37,8 +44,16 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
           if (dir.isDirectory()) {
             const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
             if (existsSync(cachePath)) {
-              const result = await scanDirectory(cachePath, category, `Firefox - ${dir.name} Cache`, recency)
-              if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
+              const result = await scanDirectory(
+                cachePath,
+                category,
+                `Firefox - ${dir.name} Cache`,
+                recency
+              )
+              if (result.items.length > 0) {
+                cacheItems(result.items)
+                results.push(result)
+              }
             }
           }
         }
@@ -51,7 +66,7 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
     const firefoxForks = [
       { key: 'librewolf', label: 'LibreWolf', ...browserPaths.librewolf },
       { key: 'waterfox', label: 'Waterfox', ...browserPaths.waterfox },
-      { key: 'floorp', label: 'Floorp', ...browserPaths.floorp },
+      { key: 'floorp', label: 'Floorp', ...browserPaths.floorp }
     ]
     for (const fork of firefoxForks) {
       if (!fork.cache || !existsSync(fork.cache)) continue
@@ -61,8 +76,16 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
           if (dir.isDirectory()) {
             const cachePath = join(fork.cache, dir.name, 'cache2')
             if (existsSync(cachePath)) {
-              const result = await scanDirectory(cachePath, category, `${fork.label} - ${dir.name} Cache`, recency)
-              if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
+              const result = await scanDirectory(
+                cachePath,
+                category,
+                `${fork.label} - ${dir.name} Cache`,
+                recency
+              )
+              if (result.items.length > 0) {
+                cacheItems(result.items)
+                results.push(result)
+              }
             }
           }
         }
@@ -73,19 +96,28 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
 
     // Safari (macOS only) — cache directory only, never cookies/history/bookmarks
     if (browserPaths.safari && existsSync(browserPaths.safari.cache)) {
-      const result = await scanDirectory(browserPaths.safari.cache, category, 'Safari - Cache', recency)
-      if (result.items.length > 0) { cacheItems(result.items); results.push(result) }
+      const result = await scanDirectory(
+        browserPaths.safari.cache,
+        category,
+        'Safari - Cache',
+        recency
+      )
+      if (result.items.length > 0) {
+        cacheItems(result.items)
+        results.push(result)
+      }
     }
 
     const win = getWindow()
-    if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-      phase: 'scanning',
-      category,
-      currentPath: 'Browser scan complete',
-      progress: 100,
-      itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
-      sizeFound: results.reduce((s, r) => s + r.totalSize, 0),
-    })
+    if (win && !win.isDestroyed())
+      win.webContents.send(IPC.SCAN_PROGRESS, {
+        phase: 'scanning',
+        category,
+        currentPath: 'Browser scan complete',
+        progress: 100,
+        itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
+        sizeFound: results.reduce((s, r) => s + r.totalSize, 0)
+      })
 
     return results
   })
@@ -101,21 +133,29 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(IPC.BROWSER_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
     const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     const settings = getSettings()
     if (settings.cleaner.closeBrowsersBeforeClean) {
       await getPlatform().browser.closeBrowsers()
     }
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-        phase: 'cleaning',
-        category: CleanerType.Browser,
-        currentPath,
-        progress: (processed / total) * 100,
-        itemsFound: total,
-        sizeFound: cleanedSize,
-      })
+      if (win && !win.isDestroyed())
+        win.webContents.send(IPC.SCAN_PROGRESS, {
+          phase: 'cleaning',
+          category: CleanerType.Browser,
+          currentPath,
+          progress: (processed / total) * 100,
+          itemsFound: total,
+          sizeFound: cleanedSize
+        })
     })
   })
 }

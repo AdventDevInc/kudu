@@ -29,11 +29,16 @@ export function psUtf8(command: string): string {
 
 /** Tools that may be invoked through cmd.exe via execNativeUtf8 */
 const ALLOWED_TOOLS = new Set([
-  'reg', 'reg.exe',
-  'netsh', 'netsh.exe',
-  'pnputil', 'pnputil.exe',
-  'schtasks', 'schtasks.exe',
-  'ipconfig', 'ipconfig.exe',
+  'reg',
+  'reg.exe',
+  'netsh',
+  'netsh.exe',
+  'pnputil',
+  'pnputil.exe',
+  'schtasks',
+  'schtasks.exe',
+  'ipconfig',
+  'ipconfig.exe'
 ])
 
 // ── Active child-process tracking ──
@@ -81,7 +86,10 @@ export function killAllChildren(): void {
 export async function execTracked(
   file: string,
   args: string[],
-  opts?: Pick<ExecFileOptions, 'windowsHide' | 'cwd' | 'env'> & { timeout?: number; signal?: AbortSignal }
+  opts?: Pick<ExecFileOptions, 'windowsHide' | 'cwd' | 'env'> & {
+    timeout?: number
+    signal?: AbortSignal
+  }
 ): Promise<{ stdout: string; stderr: string }> {
   if (opts?.signal?.aborted) throw new Error('Operation cancelled')
   const timeoutMs = opts?.timeout ?? 15_000
@@ -89,10 +97,12 @@ export async function execTracked(
     encoding: 'utf-8' as const,
     windowsHide: opts?.windowsHide ?? true,
     cwd: opts?.cwd,
-    env: opts?.env,
+    env: opts?.env
   }) as Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
   let killed = false
-  const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })
+  const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => {
+    killed = true
+  })
   try {
     return await promise
   } catch (err: any) {
@@ -161,7 +171,9 @@ export function spawnTrackedLines(
 
     // trackChild fires onKill for both the timeout and an abort; the abort case
     // is disambiguated below by checking the signal itself.
-    const cleanup = trackChild(child, opts?.timeout ?? 15_000, opts?.signal, () => { timedOut = true })
+    const cleanup = trackChild(child, opts?.timeout ?? 15_000, opts?.signal, () => {
+      timedOut = true
+    })
 
     const settle = (fn: () => void): void => {
       if (settled) return
@@ -171,11 +183,13 @@ export function spawnTrackedLines(
     }
 
     child.on('error', (err) => settle(() => reject(err)))
-    child.on('close', (code) => settle(() => {
-      if (pending) onLine(pending)
-      if (opts?.signal?.aborted) reject(new Error('Operation cancelled'))
-      else resolve({ stderr, code, timedOut })
-    }))
+    child.on('close', (code) =>
+      settle(() => {
+        if (pending) onLine(pending)
+        if (opts?.signal?.aborted) reject(new Error('Operation cancelled'))
+        else resolve({ stderr, code, timedOut })
+      })
+    )
   })
 }
 
@@ -279,17 +293,21 @@ export async function execNativeUtf8(
   const baseOpts = {
     encoding: 'utf-8' as const,
     windowsHide: opts?.windowsHide ?? true,
-    ...(opts?.maxBuffer != null && { maxBuffer: opts.maxBuffer }),
+    ...(opts?.maxBuffer != null && { maxBuffer: opts.maxBuffer })
   }
 
   // If any argument contains %, call the tool directly to avoid cmd.exe's
   // %VAR% expansion which would corrupt literal percent sequences like
   // %APPDATA%\App\app.exe stored in registry values.
-  if (args.some(a => a.includes('%'))) {
-    const promise = execFileAsync(tool, args, baseOpts) as
-      Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
+  if (args.some((a) => a.includes('%'))) {
+    const promise = execFileAsync(tool, args, baseOpts) as Promise<{
+      stdout: string
+      stderr: string
+    }> & { child?: ChildProcess }
     let killed = false
-    const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })
+    const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => {
+      killed = true
+    })
     try {
       return await promise
     } catch (err: any) {
@@ -326,11 +344,13 @@ export async function execNativeUtf8(
   const promise = execFileAsync('cmd.exe', ['/d', '/v:off', '/s', '/c', cmdLine], {
     ...baseOpts,
     env,
-    windowsVerbatimArguments: true,
+    windowsVerbatimArguments: true
   }) as Promise<{ stdout: string; stderr: string }> & { child?: ChildProcess }
 
   let killed = false
-  const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => { killed = true })
+  const cleanup = trackChild(promise.child, timeoutMs, opts?.signal, () => {
+    killed = true
+  })
   try {
     return await promise
   } catch (err: any) {

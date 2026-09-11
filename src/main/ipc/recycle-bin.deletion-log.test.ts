@@ -5,7 +5,7 @@ import { join } from 'path'
 
 const mockHandle = vi.fn()
 vi.mock('electron', () => ({
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const state = vi.hoisted(() => ({
@@ -18,11 +18,16 @@ const state = vi.hoisted(() => ({
   fastThrows: false,
   finalizeTimeouts: [] as number[],
   psScripts: [] as string[],
-  recorded: [] as any[],
+  recorded: [] as any[]
 }))
 
 vi.mock('child_process', () => ({
-  execFile: (_file: string, args: string[], _opts: unknown, cb: (e: unknown, r?: unknown) => void) => {
+  execFile: (
+    _file: string,
+    args: string[],
+    _opts: unknown,
+    cb: (e: unknown, r?: unknown) => void
+  ) => {
     const script = args[args.length - 1]
     state.psScripts.push(script)
     if (script.includes('SHEmptyRecycleBin')) {
@@ -34,16 +39,16 @@ vi.mock('child_process', () => ({
     }
     // Initial scan and post-empty count/size verification.
     return cb(null, { stdout: state.statsOutputs.shift() ?? '0|0' })
-  },
+  }
 }))
 
 vi.mock('../platform', () => ({
-  getPlatform: () => ({ paths: { trashPath: () => null } }), // Windows
+  getPlatform: () => ({ paths: { trashPath: () => null } }) // Windows
 }))
 
 vi.mock('../services/file-utils', () => ({
   scanDirectory: vi.fn(),
-  cleanItems: vi.fn(),
+  cleanItems: vi.fn()
 }))
 
 vi.mock('../services/scan-cache', () => ({ cacheItems: vi.fn(), clearCachedCategory: vi.fn() }))
@@ -56,14 +61,14 @@ vi.mock('../services/recycle-bin-cleaner', () => ({
       payloadsDeleted: 2,
       payloadsFailed: 0,
       orphanMetadataDeleted: 0,
-      accessDenied: false,
+      accessDenied: false
     }
   },
   finalizeRecycleBinShell: async (timeout = 10_000) => {
     state.finalizeTimeouts.push(timeout)
     if (state.emptyThrows) throw new Error('access denied')
     return 0
-  },
+  }
 }))
 
 vi.mock('../services/exec-utf8', () => ({
@@ -72,15 +77,17 @@ vi.mock('../services/exec-utf8', () => ({
     const script = args[args.length - 1]
     state.psScripts.push(script)
     return { stdout: state.statsOutputs.shift() ?? '0|0', stderr: '' }
-  },
+  }
 }))
 
 vi.mock('../services/settings-store', () => ({
-  getSettings: () => ({ cleaner: { keepDeletionLog: state.keepDeletionLog } }),
+  getSettings: () => ({ cleaner: { keepDeletionLog: state.keepDeletionLog } })
 }))
 
 vi.mock('../services/deletion-log-store', () => ({
-  recordDeletions: (records: unknown[]) => { state.recorded.push(...records) },
+  recordDeletions: (records: unknown[]) => {
+    state.recorded.push(...records)
+  }
 }))
 
 import { registerRecycleBinIpc } from './recycle-bin.ipc'
@@ -125,16 +132,18 @@ describe('recycle bin deletion logging (Windows)', () => {
 
   it('records each emptied item by its original location', async () => {
     state.keepDeletionLog = true
-    state.enumerations = [binItems([
-      { name: 'notes.txt', origin: 'C:\\Users\\dave\\Documents', size: 120 },
-      { name: 'photo.png', origin: 'D:\\Pictures', size: 4096 },
-    ])]
+    state.enumerations = [
+      binItems([
+        { name: 'notes.txt', origin: 'C:\\Users\\dave\\Documents', size: 120 },
+        { name: 'photo.png', origin: 'D:\\Pictures', size: 4096 }
+      ])
+    ]
 
     await scanThenClean()
 
     expect(state.recorded.map((r) => r.path)).toEqual([
       join('C:\\Users\\dave\\Documents', 'notes.txt'),
-      join('D:\\Pictures', 'photo.png'),
+      join('D:\\Pictures', 'photo.png')
     ])
     expect(state.recorded.map((r) => r.size)).toEqual([120, 4096])
     for (const record of state.recorded) {
@@ -159,10 +168,10 @@ describe('recycle bin deletion logging (Windows)', () => {
     state.enumerations = [
       binItems([
         { name: 'gone.txt', origin: 'C:\\a' },
-        { name: 'locked.txt', origin: 'C:\\b' },
+        { name: 'locked.txt', origin: 'C:\\b' }
       ]),
       // Re-enumeration after the empty: the locked item survived.
-      binItems([{ name: 'locked.txt', origin: 'C:\\b' }]),
+      binItems([{ name: 'locked.txt', origin: 'C:\\b' }])
     ]
 
     const result = await scanThenClean()

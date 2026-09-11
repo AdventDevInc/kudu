@@ -130,11 +130,16 @@ export function App() {
   }, [initAppUpdate])
 
   // Hydrate Game Mode status so the sidebar badge works on all pages
-  useEffect(() => { initGameModeStore() }, [])
+  useEffect(() => {
+    initGameModeStore()
+  }, [])
 
   if (!onboardingChecked) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center" style={{ background: '#09090b' }}>
+      <div
+        className="flex h-screen w-screen items-center justify-center"
+        style={{ background: '#09090b' }}
+      >
         <div className="flex flex-col items-center gap-4">
           <div className="h-16 w-16 rounded-2xl" aria-hidden="true" />
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-700 border-t-amber-500" />
@@ -145,64 +150,64 @@ export function App() {
 
   return (
     <PlatformContext value={platformInfo}>
-    <HashRouter>
-      <PageTitleUpdater />
-      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
-      <AppShell>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/cleaner" element={<CleanerPage />} />
-          <Route path="/registry" element={<RegistryPage />} />
-          <Route path="/context-menu" element={<ContextMenuCleanerPage />} />
-          <Route path="/startup" element={<StartupPage />} />
-          <Route path="/disk" element={<DiskAnalyzerPage />} />
-          <Route path="/duplicates" element={<DuplicateFinderPage />} />
-          <Route path="/large-files" element={<LargeFileFinderPage />} />
-          <Route path="/empty-folders" element={<EmptyFolderCleanerPage />} />
-          <Route path="/file-shredder" element={<FileShredderPage />} />
-          <Route path="/disk-repair" element={<DiskRepairPage />} />
-          <Route path="/disk-maintenance" element={<DiskMaintenancePage />} />
-          <Route path="/network" element={<NetworkCleanupPage />} />
-          <Route path="/malware" element={<MalwareScannerPage />} />
-          <Route path="/threat-monitor" element={<ThreatMonitorPage />} />
-          <Route path="/cve" element={<CveScannerPage />} />
-          <Route path="/game-mode" element={<GameModePage />} />
-          <Route path="/performance" element={<PerformanceMonitorPage />} />
-          <Route path="/uninstaller" element={<UninstallerPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/cloud" element={<CloudPage />} />
-          <Route path="/breach-monitor" element={<BreachMonitorPage />} />
-          {/* Standalone pages */}
-          <Route path="/privacy" element={<PrivacyShieldPage />} />
-          <Route path="/services" element={<ServiceManagerPage />} />
-          <Route path="/firewall" element={<FirewallAuditPage />} />
-          <Route path="/debloater" element={<DebloaterPage />} />
-          <Route path="/updates" element={<SoftwareUpdaterPage />} />
-          <Route path="/schedules" element={<SchedulesPage />} />
-          {/* Legacy redirect */}
-          <Route path="/hardening" element={<Navigate to="/privacy" replace />} />
-          <Route path="/updater" element={<Navigate to="/updates" replace />} />
-          <Route path="/drivers" element={<DriverManagerPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AppShell>
-      <Toaster
-        position="bottom-right"
-        theme={theme === 'system' ? 'system' : theme}
-        toastOptions={{
-          style: {
-            background: 'var(--toast-bg)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid var(--border-strong)',
-            color: 'var(--toast-text)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 var(--glass-inset)'
-          }
-        }}
-      />
-    </HashRouter>
+      <HashRouter>
+        <PageTitleUpdater />
+        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
+        <AppShell>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/cleaner" element={<CleanerPage />} />
+            <Route path="/registry" element={<RegistryPage />} />
+            <Route path="/context-menu" element={<ContextMenuCleanerPage />} />
+            <Route path="/startup" element={<StartupPage />} />
+            <Route path="/disk" element={<DiskAnalyzerPage />} />
+            <Route path="/duplicates" element={<DuplicateFinderPage />} />
+            <Route path="/large-files" element={<LargeFileFinderPage />} />
+            <Route path="/empty-folders" element={<EmptyFolderCleanerPage />} />
+            <Route path="/file-shredder" element={<FileShredderPage />} />
+            <Route path="/disk-repair" element={<DiskRepairPage />} />
+            <Route path="/disk-maintenance" element={<DiskMaintenancePage />} />
+            <Route path="/network" element={<NetworkCleanupPage />} />
+            <Route path="/malware" element={<MalwareScannerPage />} />
+            <Route path="/threat-monitor" element={<ThreatMonitorPage />} />
+            <Route path="/cve" element={<CveScannerPage />} />
+            <Route path="/game-mode" element={<GameModePage />} />
+            <Route path="/performance" element={<PerformanceMonitorPage />} />
+            <Route path="/uninstaller" element={<UninstallerPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/cloud" element={<CloudPage />} />
+            <Route path="/breach-monitor" element={<BreachMonitorPage />} />
+            {/* Standalone pages */}
+            <Route path="/privacy" element={<PrivacyShieldPage />} />
+            <Route path="/services" element={<ServiceManagerPage />} />
+            <Route path="/firewall" element={<FirewallAuditPage />} />
+            <Route path="/debloater" element={<DebloaterPage />} />
+            <Route path="/updates" element={<SoftwareUpdaterPage />} />
+            <Route path="/schedules" element={<SchedulesPage />} />
+            {/* Legacy redirect */}
+            <Route path="/hardening" element={<Navigate to="/privacy" replace />} />
+            <Route path="/updater" element={<Navigate to="/updates" replace />} />
+            <Route path="/drivers" element={<DriverManagerPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AppShell>
+        <Toaster
+          position="bottom-right"
+          theme={theme === 'system' ? 'system' : theme}
+          toastOptions={{
+            style: {
+              background: 'var(--toast-bg)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
+              border: '1px solid var(--border-strong)',
+              color: 'var(--toast-text)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 var(--glass-inset)'
+            }
+          }}
+        />
+      </HashRouter>
     </PlatformContext>
   )
 }
@@ -240,7 +245,7 @@ const ROUTE_TITLES: Record<string, { key: string }> = {
   '/schedules': { key: 'schedules:pageTitle' },
   '/drivers': { key: 'updates:driverManager.pageTitle' },
   '/cloud': { key: 'cloud:pageTitle' },
-  '/breach-monitor': { key: 'breachMonitor:pageTitle' },
+  '/breach-monitor': { key: 'breachMonitor:pageTitle' }
 }
 
 function PageTitleUpdater() {

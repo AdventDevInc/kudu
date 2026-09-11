@@ -11,7 +11,7 @@ Thanks for your interest in contributing! Kudu is a community-driven project and
    cd kudu
    git checkout -b my-feature
    ```
-3. Install dependencies:
+3. Install dependencies (Node 22 — see `.nvmrc`):
    ```bash
    npm install
    ```
@@ -56,21 +56,35 @@ npm run catalog          # Regenerate the rules catalog
 
 ## Making Changes
 
-- Keep changes focused — one feature or fix per PR.
-- Follow the existing code style.
-- Write or update tests if applicable (`npm test`).
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages:
-  - `feat: add new feature`
-  - `fix: resolve bug`
-  - `docs: update readme`
-  - `chore: update dependencies`
+- Keep changes focused — one feature or fix per PR. Small PRs get reviewed faster.
+- Open an issue first for anything non-trivial so we can agree on the approach before you invest time.
+- Write or update tests for behaviour changes (`npm test`).
+- Formatting and lint are enforced by CI, so don't hand-format — run the tools:
+  ```bash
+  npm run format      # Prettier — fixes formatting
+  npm run lint:fix    # ESLint — fixes what it can, reports the rest
+  npm run typecheck   # tsc across main + renderer
+  npm run check       # everything CI runs, in one go
+  ```
+  Tip: enable "format on save" with the Prettier extension in your editor and you'll never think about it.
 
 ## Submitting a Pull Request
 
-1. Make sure tests pass: `npm test`
-2. Make sure the app builds: `npm run build`
-3. Push your branch and open a PR against `main`.
-4. Fill out the PR template — describe what changed and why.
+1. Run `npm run check` — it mirrors CI (typecheck, lint, format, rule validation, tests).
+2. Push your branch and open a PR against `main`.
+3. **Give the PR a [Conventional Commits](https://www.conventionalcommits.org/) title.** PRs are squash-merged and the title becomes the commit message, which drives the changelog. Individual commits inside your PR can be anything.
+   - `feat(rules): add Spotify cache rule`
+   - `fix(scanner): handle missing registry keys on Windows`
+   - `docs: clarify install steps`
+   - Breaking change: `feat(api)!: redesign plugin interface`
+
+   Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
+4. Fill out the PR template — what changed, why, and how to test it.
+5. CI runs on Windows, macOS and Linux. All checks must be green before merge.
+
+### Review
+
+A maintainer will review within a few days. We may ask for changes — that's normal and not a judgement on the work. Once approved, a maintainer merges. If a PR goes quiet for 60 days the stale bot will nudge it; just reply to keep it open.
 
 ## Reporting Bugs
 
@@ -82,4 +96,4 @@ Use the [feature request template](https://github.com/adventdevinc/kudu/issues/n
 
 ## Code of Conduct
 
-Be respectful and constructive. We're all here to build something useful.
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md). Be respectful and constructive — we're all here to build something useful.

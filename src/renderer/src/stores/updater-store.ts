@@ -4,7 +4,7 @@ import type {
   UpdatableApp,
   UpToDateApp,
   UpdateProgress,
-  UpdateResult,
+  UpdateResult
 } from '../../../shared/types'
 
 type SortField = 'name' | 'severity' | 'source'
@@ -105,7 +105,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
     const { ignoredIds } = get()
     set({
       apps: allApps.filter((a) => !isAppIgnored(a, ignoredIds)),
-      ignoredApps: allApps.filter((a) => isAppIgnored(a, ignoredIds)),
+      ignoredApps: allApps.filter((a) => isAppIgnored(a, ignoredIds))
     })
   },
   setUpToDate: (upToDate) => set({ upToDate }),
@@ -122,25 +122,25 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
   setSortField: (sortField) =>
     set((state) => ({
       sortField,
-      sortDirection: sortField === 'severity' ? 'asc' : state.sortDirection,
+      sortDirection: sortField === 'severity' ? 'asc' : state.sortDirection
     })),
   setSortDirection: (sortDirection) => set({ sortDirection }),
   setSeverityFilter: (severityFilter) => set({ severityFilter }),
   toggleAppSelected: (key) =>
     set((state) => ({
-      apps: state.apps.map((a) => (appKey(a) === key ? { ...a, selected: !a.selected } : a)),
+      apps: state.apps.map((a) => (appKey(a) === key ? { ...a, selected: !a.selected } : a))
     })),
   selectAll: () =>
     set((state) => ({
-      apps: state.apps.map((a) => ({ ...a, selected: true })),
+      apps: state.apps.map((a) => ({ ...a, selected: true }))
     })),
   deselectAll: () =>
     set((state) => ({
-      apps: state.apps.map((a) => ({ ...a, selected: false })),
+      apps: state.apps.map((a) => ({ ...a, selected: false }))
     })),
   removeApps: (keys) =>
     set((state) => ({
-      apps: state.apps.filter((a) => !keys.includes(appKey(a))),
+      apps: state.apps.filter((a) => !keys.includes(appKey(a)))
     })),
   loadIgnoredIds: (ids) => {
     const newIds = new Set(ids)
@@ -150,7 +150,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
       return {
         ignoredIds: newIds,
         apps: allApps.filter((a) => !isAppIgnored(a, newIds)),
-        ignoredApps: allApps.filter((a) => isAppIgnored(a, newIds)),
+        ignoredApps: allApps.filter((a) => isAppIgnored(a, newIds))
       }
     })
   },
@@ -164,7 +164,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
       return {
         ignoredIds: newIds,
         apps: state.apps.filter((a) => appKey(a) !== key),
-        ignoredApps: found ? [...state.ignoredApps, found] : state.ignoredApps,
+        ignoredApps: found ? [...state.ignoredApps, found] : state.ignoredApps
       }
     }),
   unignoreApp: (app) =>
@@ -178,7 +178,7 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
       return {
         ignoredIds: newIds,
         ignoredApps: state.ignoredApps.filter((a) => appKey(a) !== key),
-        apps: found ? [...state.apps, found] : state.apps,
+        apps: found ? [...state.apps, found] : state.apps
       }
     }),
   reset: () =>
@@ -198,8 +198,8 @@ export const useUpdaterStore = create<SoftwareUpdaterState>((set, get) => ({
       searchQuery: '',
       sortField: 'name',
       sortDirection: 'asc',
-      severityFilter: 'all',
-    }),
+      severityFilter: 'all'
+    })
 }))
 
 export { severityOrder }

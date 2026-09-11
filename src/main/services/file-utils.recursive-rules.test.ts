@@ -4,12 +4,12 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 
 vi.mock('./settings-store', () => ({
-  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: [] }),
+  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: [] })
 }))
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => [],
-  removeCachedItems: () => {},
+  removeCachedItems: () => {}
 }))
 
 import { resolveChildSubdirs, resolveRecursivePathMatches, scanAppRule } from './file-utils'
@@ -34,13 +34,17 @@ describe('resolveRecursivePathMatches', () => {
     const localStorage = join(root, 'App', 'EBWebView', 'Default', 'Local Storage')
     const excludedCache = join(localStorage, 'Cache')
     const unanchoredCache = join(root, 'Other', 'Default', 'Cache')
-    await Promise.all([cache, codeCache, excludedCache, unanchoredCache].map((dir) => mkdir(dir, { recursive: true })))
+    await Promise.all(
+      [cache, codeCache, excludedCache, unanchoredCache].map((dir) =>
+        mkdir(dir, { recursive: true })
+      )
+    )
 
     const resolved = await resolveRecursivePathMatches([root], {
       anchor: 'EBWebView',
       targets: ['Cache', 'Code Cache', 'GPUCache'],
       excludedAncestors: ['Local Storage'],
-      maxDepth: 8,
+      maxDepth: 8
     })
 
     expect(new Set(resolved)).toEqual(new Set([cache, codeCache]))
@@ -53,33 +57,61 @@ describe('resolveRecursivePathMatches', () => {
     const root = await tempRoot()
     await mkdir(join(root, 'one', 'two', 'EBWebView', 'Default', 'Cache'), { recursive: true })
 
-    expect(await resolveRecursivePathMatches([root], {
-      anchor: 'EBWebView',
-      targets: ['Cache'],
-      maxDepth: 2,
-    })).toEqual([])
+    expect(
+      await resolveRecursivePathMatches([root], {
+        anchor: 'EBWebView',
+        targets: ['Cache'],
+        maxDepth: 2
+      })
+    ).toEqual([])
   })
 
   it('uses bounded anchor paths instead of searching unrelated base subtrees', async () => {
     const root = await tempRoot()
-    const packageCache = join(root, 'Packages', 'Example.App', 'LocalState', 'EBWebView', 'Default', 'Cache')
+    const packageCache = join(
+      root,
+      'Packages',
+      'Example.App',
+      'LocalState',
+      'EBWebView',
+      'Default',
+      'Cache'
+    )
     const unrelatedCache = join(root, 'Unrelated', 'Deep', 'Tree', 'EBWebView', 'Default', 'Cache')
     await Promise.all([packageCache, unrelatedCache].map((dir) => mkdir(dir, { recursive: true })))
 
-    expect(await resolveRecursivePathMatches([root], {
-      anchor: 'EBWebView',
-      anchorPaths: ['Packages/*/LocalState/EBWebView'],
-      targets: ['Cache'],
-      maxDepth: 8,
-    })).toEqual([packageCache])
+    expect(
+      await resolveRecursivePathMatches([root], {
+        anchor: 'EBWebView',
+        anchorPaths: ['Packages/*/LocalState/EBWebView'],
+        targets: ['Cache'],
+        maxDepth: 8
+      })
+    ).toEqual([packageCache])
   })
 
   it('rejects directory traversal and path-shaped match names', async () => {
     const root = await tempRoot()
-    expect(await resolveRecursivePathMatches([root], { anchor: '..', targets: ['Cache'] })).toEqual([])
-    expect(await resolveRecursivePathMatches([root], { anchor: 'EBWebView', targets: ['Default/Cache'] })).toEqual([])
-    expect(await resolveRecursivePathMatches([root], { anchor: 'EBWebView', anchorPaths: ['../EBWebView'], targets: ['Cache'] })).toEqual([])
-    expect(await resolveRecursivePathMatches([root], { anchor: 'EBWebView', anchorPaths: ['*/Other'], targets: ['Cache'] })).toEqual([])
+    expect(await resolveRecursivePathMatches([root], { anchor: '..', targets: ['Cache'] })).toEqual(
+      []
+    )
+    expect(
+      await resolveRecursivePathMatches([root], { anchor: 'EBWebView', targets: ['Default/Cache'] })
+    ).toEqual([])
+    expect(
+      await resolveRecursivePathMatches([root], {
+        anchor: 'EBWebView',
+        anchorPaths: ['../EBWebView'],
+        targets: ['Cache']
+      })
+    ).toEqual([])
+    expect(
+      await resolveRecursivePathMatches([root], {
+        anchor: 'EBWebView',
+        anchorPaths: ['*/Other'],
+        targets: ['Cache']
+      })
+    ).toEqual([])
   })
 
   it('takes precedence over a childSubdir when resolving rule paths', async () => {
@@ -87,10 +119,12 @@ describe('resolveRecursivePathMatches', () => {
     const cache = join(root, 'EBWebView', 'Default', 'Cache')
     await mkdir(cache, { recursive: true })
 
-    expect(await resolveChildSubdirs([root], 'unrelated', {
-      anchor: 'EBWebView',
-      targets: ['Cache'],
-    })).toEqual([cache])
+    expect(
+      await resolveChildSubdirs([root], 'unrelated', {
+        anchor: 'EBWebView',
+        targets: ['Cache']
+      })
+    ).toEqual([cache])
   })
 })
 
@@ -104,12 +138,16 @@ describe('scanAppRule', () => {
     await utimes(join(cache, 'data.bin'), old, old)
     await writeFile(join(root, 'user-data.bin'), Buffer.alloc(2048))
 
-    const result = await scanAppRule({
-      id: 'recursive-launcher',
-      name: 'Recursive Launcher',
-      paths: [root],
-      recursiveMatch: { anchor: 'EBWebView', targets: ['Cache'] },
-    }, 'gaming', { directoryItems: true })
+    const result = await scanAppRule(
+      {
+        id: 'recursive-launcher',
+        name: 'Recursive Launcher',
+        paths: [root],
+        recursiveMatch: { anchor: 'EBWebView', targets: ['Cache'] }
+      },
+      'gaming',
+      { directoryItems: true }
+    )
 
     expect(result.items.map((item) => item.path)).toEqual([cache])
     expect(result.items.some((item) => item.path === root)).toBe(false)

@@ -4,25 +4,25 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const { mockExecFile, mockExecNative } = vi.hoisted(() => ({
   mockExecFile: vi.fn(),
-  mockExecNative: vi.fn(),
+  mockExecNative: vi.fn()
 }))
 
 vi.mock('electron', () => ({
-  ipcMain: { handle: vi.fn() },
+  ipcMain: { handle: vi.fn() }
 }))
 
 vi.mock('child_process', () => {
   const execFile = (...args: unknown[]): unknown => mockExecFile(...args)
   // promisify(execFile) must yield { stdout, stderr } like the real one does.
-  ;(execFile as unknown as Record<symbol, unknown>)[
-    Symbol.for('nodejs.util.promisify.custom')
-  ] = (...args: unknown[]): unknown => mockExecFile(...args)
+  ;(execFile as unknown as Record<symbol, unknown>)[Symbol.for('nodejs.util.promisify.custom')] = (
+    ...args: unknown[]
+  ): unknown => mockExecFile(...args)
   return { execFile }
 })
 
 vi.mock('../services/exec-utf8', () => ({
   psUtf8: (cmd: string) => cmd,
-  execNativeUtf8: (...args: unknown[]) => mockExecNative(...args),
+  execNativeUtf8: (...args: unknown[]) => mockExecNative(...args)
 }))
 
 import {
@@ -30,7 +30,7 @@ import {
   driverIdentityKey,
   findSupersededDrivers,
   scanDrivers,
-  cleanDrivers,
+  cleanDrivers
 } from './driver-manager.ipc'
 import type { RawDriver } from './driver-manager.ipc'
 
@@ -50,7 +50,7 @@ function driver(over: Partial<RawDriver> & { publishedName: string }): RawDriver
     version: '1.0.0.0',
     date: '01/01/2024',
     signer: '',
-    ...over,
+    ...over
   }
 }
 
@@ -60,7 +60,7 @@ const WINTUN = driver({
   originalName: 'wintun.inf',
   provider: 'Tailscale Inc.',
   className: 'Network adapters',
-  version: '0.14.1',
+  version: '0.14.1'
 })
 
 /** A second, unrelated driver from the same vendor in the same class. */
@@ -69,7 +69,7 @@ const TAILSCALE_TAP = driver({
   originalName: 'tailscale-tap.inf',
   provider: 'Tailscale Inc.',
   className: 'Network adapters',
-  version: '1.2.0',
+  version: '1.2.0'
 })
 
 /** Renders a driver as a pnputil `-e` block. */
@@ -81,7 +81,7 @@ function enumBlock(d: RawDriver): string {
     `Class Name:         ${d.className}`,
     `Driver Date:        ${d.date}`,
     `Driver Version:     ${d.version}`,
-    `Signer Name:        ${d.signer}`,
+    `Signer Name:        ${d.signer}`
   ].join('\n')
 }
 
@@ -133,7 +133,7 @@ describe('parseEnumDrivers', () => {
       'Driver Package Provider: Contoso Corp',
       'Class Name:         Printers',
       'Driver Version:     3.0.0',
-      '',
+      ''
     ].join('\n')
     const [d] = parseEnumDrivers(stdout)
     // Grouping keys off originalName; a provider shared by every package a
@@ -148,7 +148,7 @@ describe('parseEnumDrivers', () => {
       'Original Name:      nvlddmkm.inf',
       'Class Name:         Display adapters',
       'Driver date and version: 07/18/2024 32.0.15.6094',
-      '',
+      ''
     ].join('\n')
     const [d] = parseEnumDrivers(stdout)
     expect(d.date).toBe('07/18/2024')
@@ -174,8 +174,16 @@ describe('driverIdentityKey', () => {
 
   it('gives distinct keys to the same INF filename from different vendors', () => {
     // "driver.inf" and friends are filenames, not globally unique ids.
-    const a = driver({ publishedName: 'oem90.inf', originalName: 'driver.inf', provider: 'Contoso' })
-    const b = driver({ publishedName: 'oem91.inf', originalName: 'driver.inf', provider: 'Fabrikam' })
+    const a = driver({
+      publishedName: 'oem90.inf',
+      originalName: 'driver.inf',
+      provider: 'Contoso'
+    })
+    const b = driver({
+      publishedName: 'oem91.inf',
+      originalName: 'driver.inf',
+      provider: 'Fabrikam'
+    })
     expect(driverIdentityKey(a)).not.toBe(driverIdentityKey(b))
   })
 
@@ -194,16 +202,34 @@ describe('driverIdentityKey', () => {
 
 describe('findSupersededDrivers', () => {
   it('removes an older copy that a newer, bound copy of the same INF replaced', () => {
-    const old = driver({ publishedName: 'oem20.inf', originalName: 'nvlddmkm.inf', version: '31.0.15.3623' })
-    const current = driver({ publishedName: 'oem21.inf', originalName: 'nvlddmkm.inf', version: '32.0.15.6094' })
+    const old = driver({
+      publishedName: 'oem20.inf',
+      originalName: 'nvlddmkm.inf',
+      version: '31.0.15.3623'
+    })
+    const current = driver({
+      publishedName: 'oem21.inf',
+      originalName: 'nvlddmkm.inf',
+      version: '32.0.15.6094'
+    })
     const result = findSupersededDrivers([old, current], new Set(['oem21.inf']))
     expect([...result]).toEqual(['oem20.inf'])
   })
 
   it('never marks the bound copy itself as superseded', () => {
-    const old = driver({ publishedName: 'oem20.inf', originalName: 'nvlddmkm.inf', version: '31.0' })
-    const current = driver({ publishedName: 'oem21.inf', originalName: 'nvlddmkm.inf', version: '32.0' })
-    expect(findSupersededDrivers([old, current], new Set(['oem21.inf'])).has('oem21.inf')).toBe(false)
+    const old = driver({
+      publishedName: 'oem20.inf',
+      originalName: 'nvlddmkm.inf',
+      version: '31.0'
+    })
+    const current = driver({
+      publishedName: 'oem21.inf',
+      originalName: 'nvlddmkm.inf',
+      version: '32.0'
+    })
+    expect(findSupersededDrivers([old, current], new Set(['oem21.inf'])).has('oem21.inf')).toBe(
+      false
+    )
   })
 
   // ── Regression: issue #242 ──
@@ -223,12 +249,18 @@ describe('findSupersededDrivers', () => {
 
   it('keeps unrelated Intel Net drivers grouped only by vendor and class', () => {
     const ethernet = driver({
-      publishedName: 'oem30.inf', originalName: 'e1d68x64.inf',
-      provider: 'Intel', className: 'Net', version: '12.19.2.45',
+      publishedName: 'oem30.inf',
+      originalName: 'e1d68x64.inf',
+      provider: 'Intel',
+      className: 'Net',
+      version: '12.19.2.45'
     })
     const wifi = driver({
-      publishedName: 'oem31.inf', originalName: 'netwtw10.inf',
-      provider: 'Intel', className: 'Net', version: '23.40.0.7',
+      publishedName: 'oem31.inf',
+      originalName: 'netwtw10.inf',
+      provider: 'Intel',
+      className: 'Net',
+      version: '23.40.0.7'
     })
     expect(findSupersededDrivers([ethernet, wifi], new Set(['oem31.inf'])).size).toBe(0)
   })
@@ -291,31 +323,60 @@ describe('findSupersededDrivers', () => {
     const oldest = driver({ publishedName: 'oem70.inf', originalName: 'foo.inf', version: '1.0' })
     const middle = driver({ publishedName: 'oem71.inf', originalName: 'foo.inf', version: '2.0' })
     const newest = driver({ publishedName: 'oem72.inf', originalName: 'foo.inf', version: '3.0' })
-    const result = findSupersededDrivers([oldest, middle, newest], new Set(['oem71.inf', 'oem72.inf']))
+    const result = findSupersededDrivers(
+      [oldest, middle, newest],
+      new Set(['oem71.inf', 'oem72.inf'])
+    )
     expect([...result]).toEqual(['oem70.inf'])
   })
 
   it('never groups packages that report no original INF name', () => {
-    const a = driver({ publishedName: 'oem80.inf', provider: 'Contoso', className: 'Net', version: '1.0' })
-    const b = driver({ publishedName: 'oem81.inf', provider: 'Contoso', className: 'Net', version: '2.0' })
+    const a = driver({
+      publishedName: 'oem80.inf',
+      provider: 'Contoso',
+      className: 'Net',
+      version: '1.0'
+    })
+    const b = driver({
+      publishedName: 'oem81.inf',
+      provider: 'Contoso',
+      className: 'Net',
+      version: '2.0'
+    })
     expect(findSupersededDrivers([a, b], new Set(['oem81.inf'])).size).toBe(0)
   })
 
-  it('does not treat one vendor\'s INF as a version of another vendor\'s same-named INF', () => {
+  it("does not treat one vendor's INF as a version of another vendor's same-named INF", () => {
     const contoso = driver({
-      publishedName: 'oem90.inf', originalName: 'driver.inf',
-      provider: 'Contoso', className: 'Net', version: '1.0',
+      publishedName: 'oem90.inf',
+      originalName: 'driver.inf',
+      provider: 'Contoso',
+      className: 'Net',
+      version: '1.0'
     })
     const fabrikam = driver({
-      publishedName: 'oem91.inf', originalName: 'driver.inf',
-      provider: 'Fabrikam', className: 'Net', version: '2.0',
+      publishedName: 'oem91.inf',
+      originalName: 'driver.inf',
+      provider: 'Fabrikam',
+      className: 'Net',
+      version: '2.0'
     })
     expect(findSupersededDrivers([contoso, fabrikam], new Set(['oem91.inf'])).size).toBe(0)
   })
 
   it('never groups packages whose publisher is unknown', () => {
-    const a = driver({ publishedName: 'oem92.inf', originalName: 'foo.inf', provider: 'Unknown', version: '1.0' })
-    const b = driver({ publishedName: 'oem93.inf', originalName: 'foo.inf', provider: 'Unknown', version: '2.0' })
+    const a = driver({
+      publishedName: 'oem92.inf',
+      originalName: 'foo.inf',
+      provider: 'Unknown',
+      version: '1.0'
+    })
+    const b = driver({
+      publishedName: 'oem93.inf',
+      originalName: 'foo.inf',
+      provider: 'Unknown',
+      version: '2.0'
+    })
     expect(findSupersededDrivers([a, b], new Set(['oem93.inf'])).size).toBe(0)
   })
 })
@@ -326,7 +387,12 @@ describe('scanDrivers', () => {
   it('returns an empty result off Windows', async () => {
     setPlatform('linux')
     const result = await scanDrivers()
-    expect(result).toEqual({ packages: [], totalStaleSize: 0, totalStaleCount: 0, totalCurrentCount: 0 })
+    expect(result).toEqual({
+      packages: [],
+      totalStaleSize: 0,
+      totalStaleCount: 0,
+      totalCurrentCount: 0
+    })
     expect(mockExecNative).not.toHaveBeenCalled()
   })
 
@@ -342,8 +408,20 @@ describe('scanDrivers', () => {
   })
 
   it('pre-selects only genuinely superseded packages', async () => {
-    const old = driver({ publishedName: 'oem20.inf', originalName: 'nvlddmkm.inf', provider: 'NVIDIA', className: 'Display', version: '31.0.15.3623' })
-    const current = driver({ publishedName: 'oem21.inf', originalName: 'nvlddmkm.inf', provider: 'NVIDIA', className: 'Display', version: '32.0.15.6094' })
+    const old = driver({
+      publishedName: 'oem20.inf',
+      originalName: 'nvlddmkm.inf',
+      provider: 'NVIDIA',
+      className: 'Display',
+      version: '31.0.15.3623'
+    })
+    const current = driver({
+      publishedName: 'oem21.inf',
+      originalName: 'nvlddmkm.inf',
+      provider: 'NVIDIA',
+      className: 'Display',
+      version: '32.0.15.6094'
+    })
     mockExecNative.mockResolvedValue({ stdout: enumOutput([old, current, WINTUN]), stderr: '' })
     stubPowerShell(['oem21.inf'])
 
@@ -373,7 +451,11 @@ describe('cleanDrivers', () => {
     expect(result.removed).toBe(0)
     expect(result.failed).toBe(1)
     expect(result.errors[0].reason).toMatch(/in use/i)
-    expect(mockExecNative).not.toHaveBeenCalledWith('pnputil', ['/delete-driver', 'oem12.inf'], expect.anything())
+    expect(mockExecNative).not.toHaveBeenCalledWith(
+      'pnputil',
+      ['/delete-driver', 'oem12.inf'],
+      expect.anything()
+    )
   })
 
   it('rejects names that are not oem*.inf packages', async () => {
@@ -394,7 +476,11 @@ describe('cleanDrivers', () => {
 
     expect(result.removed).toBe(1)
     expect(result.failed).toBe(0)
-    expect(mockExecNative).toHaveBeenCalledWith('pnputil', ['/delete-driver', 'oem20.inf'], expect.anything())
+    expect(mockExecNative).toHaveBeenCalledWith(
+      'pnputil',
+      ['/delete-driver', 'oem20.inf'],
+      expect.anything()
+    )
   })
 
   it('returns an empty result off Windows', async () => {

@@ -11,7 +11,8 @@ let cachedIsServerAt = 0
 const IS_SERVER_TTL_MS = 24 * 60 * 60_000 // re-check daily
 
 async function isServerMode(): Promise<boolean> {
-  if (cachedIsServer !== null && Date.now() - cachedIsServerAt < IS_SERVER_TTL_MS) return cachedIsServer
+  if (cachedIsServer !== null && Date.now() - cachedIsServerAt < IS_SERVER_TTL_MS)
+    return cachedIsServer
   try {
     const { stdout } = await execFileAsync('systemctl', ['get-default'], { timeout: 5_000 })
     const target = stdout.trim()
@@ -36,8 +37,9 @@ async function isServerMode(): Promise<boolean> {
 async function hasGraphicalSession(): Promise<boolean> {
   try {
     const { stdout } = await execFileAsync(
-      'loginctl', ['list-sessions', '--no-legend', '--no-pager'],
-      { timeout: 5_000 },
+      'loginctl',
+      ['list-sessions', '--no-legend', '--no-pager'],
+      { timeout: 5_000 }
     )
     // Each line is: SESSION UID USER SEAT TTY
     // Fetch the Type property for each session id.
@@ -46,14 +48,19 @@ async function hasGraphicalSession(): Promise<boolean> {
       if (!sessionId) continue
       try {
         const { stdout: typeLine } = await execFileAsync(
-          'loginctl', ['show-session', sessionId, '--property=Type', '--value'],
-          { timeout: 3_000 },
+          'loginctl',
+          ['show-session', sessionId, '--property=Type', '--value'],
+          { timeout: 3_000 }
         )
         const t = typeLine.trim()
         if (t === 'x11' || t === 'wayland') return true
-      } catch { /* skip individual session errors */ }
+      } catch {
+        /* skip individual session errors */
+      }
     }
-  } catch { /* loginctl not available — fall through */ }
+  } catch {
+    /* loginctl not available — fall through */
+  }
   return false
 }
 
@@ -63,7 +70,9 @@ async function findBinary(candidates: string[]): Promise<string | null> {
     try {
       await stat(p)
       return p
-    } catch { /* not at this path */ }
+    } catch {
+      /* not at this path */
+    }
   }
   return null
 }
@@ -79,16 +88,20 @@ export function createLinuxSecurity(): PlatformSecurity {
       const clamscanPaths = ['/usr/bin/clamscan', '/usr/local/bin/clamscan', '/bin/clamscan']
       for (const clamscanPath of clamscanPaths) {
         try {
-          const { stdout: version } = await execFileAsync(clamscanPath, ['--version'], { timeout: 5_000 })
+          const { stdout: version } = await execFileAsync(clamscanPath, ['--version'], {
+            timeout: 5_000
+          })
           products.push({
             name: `ClamAV (${version.trim().split('\n')[0]})`,
             enabled: true,
             realTimeProtection: false,
-            signatureUpToDate: true,
+            signatureUpToDate: true
           })
           primary = 'ClamAV'
           break
-        } catch { /* not at this path */ }
+        } catch {
+          /* not at this path */
+        }
       }
 
       // SELinux detection
@@ -99,13 +112,17 @@ export function createLinuxSecurity(): PlatformSecurity {
           name: `SELinux (${mode})`,
           enabled: mode === 'Enforcing',
           realTimeProtection: mode === 'Enforcing',
-          signatureUpToDate: true,
+          signatureUpToDate: true
         })
-      } catch { /* not installed */ }
+      } catch {
+        /* not installed */
+      }
 
       // AppArmor detection
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/aa-status', ['--json'], { timeout: 5_000 })
+        const { stdout } = await execFileAsync('/usr/sbin/aa-status', ['--json'], {
+          timeout: 5_000
+        })
         const data = JSON.parse(stdout)
         const profiles = data.profiles ?? {}
         const enforced = Object.values(profiles).filter((v: unknown) => v === 'enforce').length
@@ -113,9 +130,11 @@ export function createLinuxSecurity(): PlatformSecurity {
           name: `AppArmor (${enforced} profiles enforcing)`,
           enabled: enforced > 0,
           realTimeProtection: enforced > 0,
-          signatureUpToDate: true,
+          signatureUpToDate: true
         })
-      } catch { /* not installed */ }
+      } catch {
+        /* not installed */
+      }
 
       return { products, primary }
     },
@@ -128,28 +147,42 @@ export function createLinuxSecurity(): PlatformSecurity {
         const { stdout } = await execFileAsync('/usr/sbin/ufw', ['status'], { timeout: 10_000 })
         const enabled = stdout.includes('Status: active')
         return { enabled, products: [{ name: 'UFW', enabled }], windowsProfiles: noProfiles }
-      } catch { /* not available */ }
+      } catch {
+        /* not available */
+      }
 
       // firewalld (Fedora/RHEL/CentOS)
       try {
-        const { stdout } = await execFileAsync('/usr/bin/firewall-cmd', ['--state'], { timeout: 10_000 })
+        const { stdout } = await execFileAsync('/usr/bin/firewall-cmd', ['--state'], {
+          timeout: 10_000
+        })
         const enabled = stdout.trim() === 'running'
         return { enabled, products: [{ name: 'firewalld', enabled }], windowsProfiles: noProfiles }
-      } catch { /* not available */ }
+      } catch {
+        /* not available */
+      }
 
       // nftables (modern default on Debian 11+, Ubuntu 22.04+, Fedora, RHEL 9+)
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/nft', ['list', 'ruleset'], { timeout: 10_000 })
+        const { stdout } = await execFileAsync('/usr/sbin/nft', ['list', 'ruleset'], {
+          timeout: 10_000
+        })
         // If there are any tables defined, nftables is active
         const enabled = stdout.includes('table ')
         return { enabled, products: [{ name: 'nftables', enabled }], windowsProfiles: noProfiles }
-      } catch { /* not available */ }
+      } catch {
+        /* not available */
+      }
 
       // iptables (legacy fallback)
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/iptables', ['-L', '-n'], { timeout: 10_000 })
+        const { stdout } = await execFileAsync('/usr/sbin/iptables', ['-L', '-n'], {
+          timeout: 10_000
+        })
         // If there are rules beyond default ACCEPT policies, consider it enabled
-        const lines = stdout.split('\n').filter(l => l.trim() && !l.startsWith('Chain') && !l.startsWith('target'))
+        const lines = stdout
+          .split('\n')
+          .filter((l) => l.trim() && !l.startsWith('Chain') && !l.startsWith('target'))
         const enabled = lines.length > 0
         return { enabled, products: [{ name: 'iptables', enabled }], windowsProfiles: noProfiles }
       } catch {
@@ -159,9 +192,11 @@ export function createLinuxSecurity(): PlatformSecurity {
 
     async collectDiskEncryptionStatus(): Promise<HealthReport['securityPosture']['bitlocker']> {
       try {
-        const { stdout } = await execFileAsync('/usr/bin/lsblk', [
-          '-J', '-o', 'NAME,TYPE,FSTYPE,MOUNTPOINT',
-        ], { timeout: 10_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/lsblk',
+          ['-J', '-o', 'NAME,TYPE,FSTYPE,MOUNTPOINT'],
+          { timeout: 10_000 }
+        )
 
         const data = JSON.parse(stdout)
         const volumes: HealthReport['securityPosture']['bitlocker']['volumes'] = []
@@ -172,7 +207,7 @@ export function createLinuxSecurity(): PlatformSecurity {
               volumes.push({
                 mount: dev.mountpoint ?? dev.name ?? '',
                 status: 'FullyEncrypted',
-                protectionOn: true,
+                protectionOn: true
               })
             }
             if (dev.children) walk(dev.children)
@@ -188,7 +223,11 @@ export function createLinuxSecurity(): PlatformSecurity {
 
     async collectUpdateStatus(): Promise<HealthReport['securityPosture']['windowsUpdate']> {
       type UpdateResult = HealthReport['securityPosture']['windowsUpdate']
-      let result: UpdateResult = { recentPatches: [], lastPatchDate: null, daysSinceLastPatch: null }
+      let result: UpdateResult = {
+        recentPatches: [],
+        lastPatchDate: null,
+        daysSinceLastPatch: null
+      }
 
       // Try to detect the last package update time
       try {
@@ -197,45 +236,71 @@ export function createLinuxSecurity(): PlatformSecurity {
         const aptStat = await stat(aptLog).catch(() => null)
         if (aptStat) {
           const lastPatchDate = aptStat.mtime.toISOString().split('T')[0]
-          const daysSinceLastPatch = Math.floor((Date.now() - aptStat.mtime.getTime()) / (1000 * 60 * 60 * 24))
+          const daysSinceLastPatch = Math.floor(
+            (Date.now() - aptStat.mtime.getTime()) / (1000 * 60 * 60 * 24)
+          )
           result = {
-            recentPatches: [{ id: 'apt', installedOn: lastPatchDate, description: 'Last APT update' }],
+            recentPatches: [
+              { id: 'apt', installedOn: lastPatchDate, description: 'Last APT update' }
+            ],
             lastPatchDate,
-            daysSinceLastPatch,
+            daysSinceLastPatch
           }
         }
-      } catch { /* try dnf */ }
+      } catch {
+        /* try dnf */
+      }
 
       if (result.recentPatches.length === 0) {
         try {
-          const { stdout } = await execFileAsync('/usr/bin/dnf', ['history', '--json'], { timeout: 15_000 })
+          const { stdout } = await execFileAsync('/usr/bin/dnf', ['history', '--json'], {
+            timeout: 15_000
+          })
           const history = JSON.parse(stdout)
           if (Array.isArray(history) && history.length > 0) {
             const latest = history[0]
             const date = latest.date ?? ''
             result = {
-              recentPatches: [{ id: String(latest.id ?? ''), installedOn: date, description: latest.command ?? '' }],
+              recentPatches: [
+                {
+                  id: String(latest.id ?? ''),
+                  installedOn: date,
+                  description: latest.command ?? ''
+                }
+              ],
               lastPatchDate: date,
-              daysSinceLastPatch: date ? Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24)) : null,
+              daysSinceLastPatch: date
+                ? Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24))
+                : null
             }
           }
-        } catch { /* try pacman */ }
+        } catch {
+          /* try pacman */
+        }
       }
 
       if (result.recentPatches.length === 0) {
         try {
-          const { stdout } = await execFileAsync('/usr/bin/tail', ['-1', '/var/log/pacman.log'], { timeout: 5_000 })
+          const { stdout } = await execFileAsync('/usr/bin/tail', ['-1', '/var/log/pacman.log'], {
+            timeout: 5_000
+          })
           const match = stdout.match(/\[(\d{4}-\d{2}-\d{2})/)
           if (match) {
             const lastPatchDate = match[1]
-            const daysSinceLastPatch = Math.floor((Date.now() - new Date(lastPatchDate).getTime()) / (1000 * 60 * 60 * 24))
+            const daysSinceLastPatch = Math.floor(
+              (Date.now() - new Date(lastPatchDate).getTime()) / (1000 * 60 * 60 * 24)
+            )
             result = {
-              recentPatches: [{ id: 'pacman', installedOn: lastPatchDate, description: 'Last pacman transaction' }],
+              recentPatches: [
+                { id: 'pacman', installedOn: lastPatchDate, description: 'Last pacman transaction' }
+              ],
               lastPatchDate,
-              daysSinceLastPatch,
+              daysSinceLastPatch
             }
           }
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
 
       // Check for automatic update configuration
@@ -245,19 +310,27 @@ export function createLinuxSecurity(): PlatformSecurity {
         result.recentPatches.push({
           id: 'auto-updates',
           installedOn: '',
-          description: autoEnabled ? 'Unattended upgrades: enabled' : 'Unattended upgrades: disabled',
+          description: autoEnabled
+            ? 'Unattended upgrades: enabled'
+            : 'Unattended upgrades: disabled'
         })
       } catch {
         // Try dnf-automatic
         try {
-          const { stdout } = await execFileAsync('/usr/bin/systemctl', ['is-enabled', 'dnf-automatic.timer'], { timeout: 5_000 })
+          const { stdout } = await execFileAsync(
+            '/usr/bin/systemctl',
+            ['is-enabled', 'dnf-automatic.timer'],
+            { timeout: 5_000 }
+          )
           const autoEnabled = stdout.trim() === 'enabled'
           result.recentPatches.push({
             id: 'auto-updates',
             installedOn: '',
-            description: autoEnabled ? 'dnf-automatic: enabled' : 'dnf-automatic: disabled',
+            description: autoEnabled ? 'dnf-automatic: enabled' : 'dnf-automatic: disabled'
           })
-        } catch { /* not available */ }
+        } catch {
+          /* not available */
+        }
       }
 
       return result
@@ -267,11 +340,18 @@ export function createLinuxSecurity(): PlatformSecurity {
       // GNOME settings
       try {
         const [lockResult, delayResult] = await Promise.allSettled([
-          execFileAsync('/usr/bin/gsettings', ['get', 'org.gnome.desktop.screensaver', 'lock-enabled'], { timeout: 5_000 }),
-          execFileAsync('/usr/bin/gsettings', ['get', 'org.gnome.desktop.session', 'idle-delay'], { timeout: 5_000 }),
+          execFileAsync(
+            '/usr/bin/gsettings',
+            ['get', 'org.gnome.desktop.screensaver', 'lock-enabled'],
+            { timeout: 5_000 }
+          ),
+          execFileAsync('/usr/bin/gsettings', ['get', 'org.gnome.desktop.session', 'idle-delay'], {
+            timeout: 5_000
+          })
         ])
 
-        const lockEnabled = lockResult.status === 'fulfilled' && lockResult.value.stdout.trim() === 'true'
+        const lockEnabled =
+          lockResult.status === 'fulfilled' && lockResult.value.stdout.trim() === 'true'
         let timeoutSec: number | null = null
         if (delayResult.status === 'fulfilled') {
           const match = delayResult.value.stdout.match(/uint32\s+(\d+)/)
@@ -282,10 +362,15 @@ export function createLinuxSecurity(): PlatformSecurity {
           screenSaverEnabled: timeoutSec !== null && timeoutSec > 0,
           lockOnResume: lockEnabled,
           timeoutSec,
-          inactivityLockSec: null,
+          inactivityLockSec: null
         }
       } catch {
-        return { screenSaverEnabled: false, lockOnResume: false, timeoutSec: null, inactivityLockSec: null }
+        return {
+          screenSaverEnabled: false,
+          lockOnResume: false,
+          timeoutSec: null,
+          inactivityLockSec: null
+        }
       }
     },
 
@@ -307,7 +392,9 @@ export function createLinuxSecurity(): PlatformSecurity {
         minLength = getVal('PASS_MIN_LEN')
         maxAgeDays = getVal('PASS_MAX_DAYS')
         minAgeDays = getVal('PASS_MIN_DAYS')
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
 
       // Parse /etc/security/pwquality.conf for complexity rules
       try {
@@ -324,7 +411,9 @@ export function createLinuxSecurity(): PlatformSecurity {
         const lcredit = getQVal('lcredit')
         const ocredit = getQVal('ocredit')
         complexityRequired = dcredit < 0 || ucredit < 0 || lcredit < 0 || ocredit < 0
-      } catch { /* pwquality not configured */ }
+      } catch {
+        /* pwquality not configured */
+      }
 
       // Parse /etc/security/faillock.conf for account lockout
       try {
@@ -335,7 +424,9 @@ export function createLinuxSecurity(): PlatformSecurity {
         }
         lockoutThreshold = getFlVal('deny')
         lockoutDurationMin = Math.ceil(getFlVal('unlock_time') / 60)
-      } catch { /* not configured */ }
+      } catch {
+        /* not configured */
+      }
 
       return {
         minLength,
@@ -346,7 +437,12 @@ export function createLinuxSecurity(): PlatformSecurity {
         lockoutThreshold,
         lockoutDurationMin,
         lockoutObservationMin: 0,
-        windowsHello: { enrolled: false, faceEnabled: false, fingerprintEnabled: false, pinEnabled: false },
+        windowsHello: {
+          enrolled: false,
+          faceEnabled: false,
+          fingerprintEnabled: false,
+          pinEnabled: false
+        }
       }
     },
 
@@ -362,7 +458,9 @@ export function createLinuxSecurity(): PlatformSecurity {
         try {
           await stat('/usr/bin/sshd')
           sshdInstalled = true
-        } catch { /* not installed */ }
+        } catch {
+          /* not installed */
+        }
       }
 
       if (!sshdInstalled) {
@@ -373,7 +471,7 @@ export function createLinuxSecurity(): PlatformSecurity {
           rootLoginDisabled: false,
           pubkeyAuthEnabled: false,
           emptyPasswordsDisabled: false,
-          protocol2Only: true,
+          protocol2Only: true
         }
       }
 
@@ -393,7 +491,9 @@ export function createLinuxSecurity(): PlatformSecurity {
               config.set(match[1].toLowerCase(), match[2].trim())
             }
           }
-        } catch { /* file not readable */ }
+        } catch {
+          /* file not readable */
+        }
       }
 
       // Main config first
@@ -403,11 +503,13 @@ export function createLinuxSecurity(): PlatformSecurity {
       try {
         const dropInDir = '/etc/ssh/sshd_config.d'
         const files = await readdir(dropInDir)
-        const confFiles = files.filter(f => f.endsWith('.conf')).sort()
+        const confFiles = files.filter((f) => f.endsWith('.conf')).sort()
         for (const f of confFiles) {
           await parseSshdConfig(`${dropInDir}/${f}`)
         }
-      } catch { /* no drop-in directory */ }
+      } catch {
+        /* no drop-in directory */
+      }
 
       const getVal = (key: string): string | undefined => config.get(key.toLowerCase())
 
@@ -424,14 +526,17 @@ export function createLinuxSecurity(): PlatformSecurity {
         rootLoginDisabled: rootLogin === 'no' || rootLogin === 'prohibit-password',
         pubkeyAuthEnabled: pubkeyAuth !== 'no', // defaults to yes
         emptyPasswordsDisabled: emptyPasswords !== 'yes', // defaults to no
-        protocol2Only: !protocol || protocol === '2', // modern sshd only supports 2
+        protocol2Only: !protocol || protocol === '2' // modern sshd only supports 2
       }
     },
 
     async collectFail2ban(): Promise<HealthReport['securityPosture']['fail2ban']> {
       if (!(await isServerMode())) return null
 
-      const f2bPath = await findBinary(['/usr/bin/fail2ban-client', '/usr/local/bin/fail2ban-client'])
+      const f2bPath = await findBinary([
+        '/usr/bin/fail2ban-client',
+        '/usr/local/bin/fail2ban-client'
+      ])
       if (!f2bPath) {
         return { installed: false, active: false, jails: [], totalBannedIps: 0 }
       }
@@ -439,9 +544,13 @@ export function createLinuxSecurity(): PlatformSecurity {
       // Check if service is active
       let active = false
       try {
-        const { stdout } = await execFileAsync('systemctl', ['is-active', 'fail2ban'], { timeout: 5_000 })
+        const { stdout } = await execFileAsync('systemctl', ['is-active', 'fail2ban'], {
+          timeout: 5_000
+        })
         active = stdout.trim() === 'active'
-      } catch { /* not running */ }
+      } catch {
+        /* not running */
+      }
 
       if (!active) {
         return { installed: true, active: false, jails: [], totalBannedIps: 0 }
@@ -454,22 +563,25 @@ export function createLinuxSecurity(): PlatformSecurity {
         const { stdout } = await execFileAsync(f2bPath, ['status'], { timeout: 10_000 })
         const jailMatch = stdout.match(/Jail list:\s*(.+)/i)
         if (jailMatch) {
-          const names = jailMatch[1].split(',').map(s => s.trim()).filter(Boolean)
+          const names = jailMatch[1]
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
           jails.push(...names)
         }
 
         // Get banned count per jail (parallel)
         const jailResults = await Promise.allSettled(
-          jails.map(jail =>
-            execFileAsync(f2bPath, ['status', jail], { timeout: 5_000 })
-          ),
+          jails.map((jail) => execFileAsync(f2bPath, ['status', jail], { timeout: 5_000 }))
         )
         for (const r of jailResults) {
           if (r.status !== 'fulfilled') continue
           const bannedMatch = r.value.stdout.match(/Currently banned:\s*(\d+)/i)
           if (bannedMatch) totalBannedIps += parseInt(bannedMatch[1], 10)
         }
-      } catch { /* couldn't query jails */ }
+      } catch {
+        /* couldn't query jails */
+      }
 
       return { installed: true, active: true, jails, totalBannedIps }
     },
@@ -483,7 +595,7 @@ export function createLinuxSecurity(): PlatformSecurity {
         // ss -tlnp for TCP, ss -ulnp for UDP
         const [tcp, udp] = await Promise.allSettled([
           execFileAsync('ss', ['-tlnp'], { timeout: 10_000 }),
-          execFileAsync('ss', ['-ulnp'], { timeout: 10_000 }),
+          execFileAsync('ss', ['-ulnp'], { timeout: 10_000 })
         ])
 
         function parseLocalAddr(raw: string): { address: string; port: number } | null {
@@ -533,7 +645,9 @@ export function createLinuxSecurity(): PlatformSecurity {
 
         if (tcp.status === 'fulfilled') parseSsOutput(tcp.value.stdout, 'tcp')
         if (udp.status === 'fulfilled') parseSsOutput(udp.value.stdout, 'udp')
-      } catch { /* ss not available */ }
+      } catch {
+        /* ss not available */
+      }
 
       return result
     },
@@ -548,9 +662,13 @@ export function createLinuxSecurity(): PlatformSecurity {
 
       let active = false
       try {
-        const { stdout } = await execFileAsync('systemctl', ['is-active', 'auditd'], { timeout: 5_000 })
+        const { stdout } = await execFileAsync('systemctl', ['is-active', 'auditd'], {
+          timeout: 5_000
+        })
         active = stdout.trim() === 'active'
-      } catch { /* not running */ }
+      } catch {
+        /* not running */
+      }
 
       let ruleCount = 0
       if (active) {
@@ -560,9 +678,11 @@ export function createLinuxSecurity(): PlatformSecurity {
           try {
             const { stdout } = await execFileAsync(auditctlPath, ['-l'], { timeout: 10_000 })
             // Each non-empty line is a rule; "No rules" means 0
-            const lines = stdout.split('\n').filter(l => l.trim() && !l.includes('No rules'))
+            const lines = stdout.split('\n').filter((l) => l.trim() && !l.includes('No rules'))
             ruleCount = lines.length
-          } catch { /* couldn't query rules */ }
+          } catch {
+            /* couldn't query rules */
+          }
         }
       }
 
@@ -576,18 +696,36 @@ export function createLinuxSecurity(): PlatformSecurity {
 
       // Known system binaries where suid/sgid is expected (both /usr and legacy paths)
       const knownSuidNames = [
-        'sudo', 'su', 'passwd', 'chsh', 'chfn', 'newgrp', 'gpasswd',
-        'mount', 'umount', 'pkexec', 'crontab', 'at', 'ssh-agent',
-        'fusermount', 'fusermount3', 'wall', 'write', 'expiry', 'chage',
+        'sudo',
+        'su',
+        'passwd',
+        'chsh',
+        'chfn',
+        'newgrp',
+        'gpasswd',
+        'mount',
+        'umount',
+        'pkexec',
+        'crontab',
+        'at',
+        'ssh-agent',
+        'fusermount',
+        'fusermount3',
+        'wall',
+        'write',
+        'expiry',
+        'chage'
       ]
       const knownSuidPaths = new Set([
         // Generate both /usr/bin/ and /bin/ variants for merged/non-merged usr
-        ...knownSuidNames.flatMap(n => [`/usr/bin/${n}`, `/bin/${n}`]),
-        '/usr/sbin/unix_chkpwd', '/sbin/unix_chkpwd',
-        '/usr/sbin/pam_timestamp_check', '/sbin/pam_timestamp_check',
+        ...knownSuidNames.flatMap((n) => [`/usr/bin/${n}`, `/bin/${n}`]),
+        '/usr/sbin/unix_chkpwd',
+        '/sbin/unix_chkpwd',
+        '/usr/sbin/pam_timestamp_check',
+        '/sbin/pam_timestamp_check',
         '/usr/lib/dbus-1.0/dbus-daemon-launch-helper',
         '/usr/lib/openssh/ssh-keysign',
-        '/usr/libexec/openssh/ssh-keysign',
+        '/usr/libexec/openssh/ssh-keysign'
       ])
 
       const result: NonNullable<HealthReport['securityPosture']['suidSgidBinaries']> = []
@@ -598,21 +736,43 @@ export function createLinuxSecurity(): PlatformSecurity {
       // 2) Attacker hiding spots — deeper scan, any suid here is suspicious
       const suidPerm = ['(', '-perm', '-4000', '-o', '-perm', '-2000', ')']
       const [binScan, hidingScan] = await Promise.allSettled([
-        execFileAsync('find', [
-          '/usr/bin', '/usr/sbin', '/usr/local/bin', '/usr/local/sbin',
-          '/bin', '/sbin',
-          '-xdev', '-maxdepth', '1',
-          '-type', 'f',
-          ...suidPerm,
-        ], { timeout: 15_000 }),
-        execFileAsync('find', [
-          '/tmp', '/var/tmp', '/dev/shm',
-          '/opt', '/home',
-          '/var/www', '/srv',
-          '-xdev', '-maxdepth', '3',
-          '-type', 'f',
-          ...suidPerm,
-        ], { timeout: 15_000 }),
+        execFileAsync(
+          'find',
+          [
+            '/usr/bin',
+            '/usr/sbin',
+            '/usr/local/bin',
+            '/usr/local/sbin',
+            '/bin',
+            '/sbin',
+            '-xdev',
+            '-maxdepth',
+            '1',
+            '-type',
+            'f',
+            ...suidPerm
+          ],
+          { timeout: 15_000 }
+        ),
+        execFileAsync(
+          'find',
+          [
+            '/tmp',
+            '/var/tmp',
+            '/dev/shm',
+            '/opt',
+            '/home',
+            '/var/www',
+            '/srv',
+            '-xdev',
+            '-maxdepth',
+            '3',
+            '-type',
+            'f',
+            ...suidPerm
+          ],
+          { timeout: 15_000 }
+        )
       ])
 
       // find exits non-zero if any listed dir doesn't exist, but still writes
@@ -624,10 +784,7 @@ export function createLinuxSecurity(): PlatformSecurity {
         return []
       }
 
-      const allPaths: string[] = [
-        ...extractFindOutput(binScan),
-        ...extractFindOutput(hidingScan),
-      ]
+      const allPaths: string[] = [...extractFindOutput(binScan), ...extractFindOutput(hidingScan)]
 
       for (const filePath of allPaths) {
         if (result.length >= MAX_RESULTS) break
@@ -635,9 +792,13 @@ export function createLinuxSecurity(): PlatformSecurity {
         // Resolve real path first for dedup and allowlist checks on merged-usr systems
         let resolved = filePath
         try {
-          const { stdout: realPath } = await execFileAsync('realpath', [filePath], { timeout: 2_000 })
+          const { stdout: realPath } = await execFileAsync('realpath', [filePath], {
+            timeout: 2_000
+          })
           resolved = realPath.trim()
-        } catch { /* use original path */ }
+        } catch {
+          /* use original path */
+        }
 
         if (seen.has(resolved)) continue
         seen.add(resolved)
@@ -653,12 +814,20 @@ export function createLinuxSecurity(): PlatformSecurity {
           // Get owner name via stat -c '%U' (works with UIDs, unlike id -nu)
           let owner = String(fileStat.uid)
           try {
-            const { stdout: statOut } = await execFileAsync('/usr/bin/stat', ['-c', '%U', filePath], { timeout: 2_000 })
+            const { stdout: statOut } = await execFileAsync(
+              '/usr/bin/stat',
+              ['-c', '%U', filePath],
+              { timeout: 2_000 }
+            )
             owner = statOut.trim()
-          } catch { /* use numeric uid */ }
+          } catch {
+            /* use numeric uid */
+          }
 
           result.push({ path: filePath, suid, sgid, owner })
-        } catch { /* can't stat, skip */ }
+        } catch {
+          /* can't stat, skip */
+        }
       }
 
       return result
@@ -680,16 +849,25 @@ export function createLinuxSecurity(): PlatformSecurity {
       const ufwPath = await findBinary(['/usr/sbin/ufw', '/usr/bin/ufw'])
       if (ufwPath) {
         try {
-          const { stdout } = await execFileAsync(ufwPath, ['status', 'verbose'], { timeout: CMD_TIMEOUT })
+          const { stdout } = await execFileAsync(ufwPath, ['status', 'verbose'], {
+            timeout: CMD_TIMEOUT
+          })
           if (/^Status:\s*active/m.test(stdout)) {
             const rawRules = stdout.slice(0, RAW_RULES_MAX)
             const allowedPorts: number[] = []
             for (const m of stdout.matchAll(/^\s*(\d+)(?:\/\w+)?\s+ALLOW/gm)) {
               allowedPorts.push(parseInt(m[1], 10))
             }
-            return { tool: 'ufw' as FwTool, active: true, allowedPorts: uniquePorts(allowedPorts), rawRules }
+            return {
+              tool: 'ufw' as FwTool,
+              active: true,
+              allowedPorts: uniquePorts(allowedPorts),
+              rawRules
+            }
           }
-        } catch { /* ufw failed — fall through */ }
+        } catch {
+          /* ufw failed — fall through */
+        }
       }
 
       // ── 2. firewalld (front-end) ──────────────────────────
@@ -698,9 +876,13 @@ export function createLinuxSecurity(): PlatformSecurity {
       if (fwCmdPath) {
         let active = false
         try {
-          const { stdout } = await execFileAsync('systemctl', ['is-active', 'firewalld'], { timeout: CMD_TIMEOUT })
+          const { stdout } = await execFileAsync('systemctl', ['is-active', 'firewalld'], {
+            timeout: CMD_TIMEOUT
+          })
           active = stdout.trim() === 'active'
-        } catch { /* not active */ }
+        } catch {
+          /* not active */
+        }
 
         if (active) {
           let rawRules = ''
@@ -710,9 +892,13 @@ export function createLinuxSecurity(): PlatformSecurity {
             // are included.  Falls back to --list-all if --list-all-zones fails.
             let stdout: string
             try {
-              ({ stdout } = await execFileAsync(fwCmdPath, ['--list-all-zones'], { timeout: CMD_TIMEOUT }))
+              ;({ stdout } = await execFileAsync(fwCmdPath, ['--list-all-zones'], {
+                timeout: CMD_TIMEOUT
+              }))
             } catch {
-              ({ stdout } = await execFileAsync(fwCmdPath, ['--list-all'], { timeout: CMD_TIMEOUT }))
+              ;({ stdout } = await execFileAsync(fwCmdPath, ['--list-all'], {
+                timeout: CMD_TIMEOUT
+              }))
             }
             rawRules = stdout.slice(0, RAW_RULES_MAX)
 
@@ -726,9 +912,20 @@ export function createLinuxSecurity(): PlatformSecurity {
 
             // Parse "services:" line — map common service names to ports
             const serviceMap: Record<string, number> = {
-              ssh: 22, http: 80, https: 443, ftp: 21, smtp: 25, dns: 53,
-              'imap': 143, 'imaps': 993, 'pop3': 110, 'pop3s': 995,
-              'ntp': 123, 'mysql': 3306, 'postgresql': 5432, 'redis': 6379,
+              ssh: 22,
+              http: 80,
+              https: 443,
+              ftp: 21,
+              smtp: 25,
+              dns: 53,
+              imap: 143,
+              imaps: 993,
+              pop3: 110,
+              pop3s: 995,
+              ntp: 123,
+              mysql: 3306,
+              postgresql: 5432,
+              redis: 6379
             }
             const servicesLine = stdout.match(/^\s*services:\s*(.+)/m)
             if (servicesLine) {
@@ -737,9 +934,16 @@ export function createLinuxSecurity(): PlatformSecurity {
                 if (port) allowedPorts.push(port)
               }
             }
-          } catch { /* couldn't list rules */ }
+          } catch {
+            /* couldn't list rules */
+          }
 
-          return { tool: 'firewalld' as FwTool, active: true, allowedPorts: uniquePorts(allowedPorts), rawRules }
+          return {
+            tool: 'firewalld' as FwTool,
+            active: true,
+            allowedPorts: uniquePorts(allowedPorts),
+            rawRules
+          }
         }
       }
 
@@ -756,7 +960,9 @@ export function createLinuxSecurity(): PlatformSecurity {
         const allowedPorts: number[] = []
 
         try {
-          const { stdout } = await execFileAsync(nftPath, ['list', 'ruleset'], { timeout: CMD_TIMEOUT })
+          const { stdout } = await execFileAsync(nftPath, ['list', 'ruleset'], {
+            timeout: CMD_TIMEOUT
+          })
           rawRules = stdout.slice(0, RAW_RULES_MAX)
 
           // Split ruleset into per-chain blocks so we can scope parsing
@@ -791,13 +997,20 @@ export function createLinuxSecurity(): PlatformSecurity {
               }
             }
           }
-        } catch { /* nft not usable — skip */ }
+        } catch {
+          /* nft not usable — skip */
+        }
 
         // Only return from the nftables branch if it is actually filtering
         // input.  Otherwise fall through to iptables — some hosts ship nft
         // by default but enforce ingress rules via iptables-legacy.
         if (active) {
-          return { tool: 'nftables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+          return {
+            tool: 'nftables' as FwTool,
+            active,
+            allowedPorts: uniquePorts(allowedPorts),
+            rawRules
+          }
         }
       }
 
@@ -809,17 +1022,25 @@ export function createLinuxSecurity(): PlatformSecurity {
         const allowedPorts: number[] = []
 
         try {
-          const { stdout } = await execFileAsync(iptablesPath, ['-L', 'INPUT', '-n', '--line-numbers'], { timeout: CMD_TIMEOUT })
+          const { stdout } = await execFileAsync(
+            iptablesPath,
+            ['-L', 'INPUT', '-n', '--line-numbers'],
+            { timeout: CMD_TIMEOUT }
+          )
           rawRules = stdout.slice(0, RAW_RULES_MAX)
 
           // A non-ACCEPT default policy means the firewall is filtering even without explicit rules
           const policyMatch = stdout.match(/^Chain INPUT \(policy (\w+)\)/m)
           const hasNonAcceptPolicy = policyMatch != null && policyMatch[1] !== 'ACCEPT'
 
-          const ruleLines = stdout.split('\n').filter(l => {
+          const ruleLines = stdout.split('\n').filter((l) => {
             const trimmed = l.trim()
-            return trimmed && !trimmed.startsWith('Chain ') && !trimmed.startsWith('num ')
-              && !trimmed.startsWith('target ')
+            return (
+              trimmed &&
+              !trimmed.startsWith('Chain ') &&
+              !trimmed.startsWith('num ') &&
+              !trimmed.startsWith('target ')
+            )
           })
           active = hasNonAcceptPolicy || ruleLines.length > 0
 
@@ -852,13 +1073,20 @@ export function createLinuxSecurity(): PlatformSecurity {
               }
             }
           }
-        } catch { /* iptables failed — treat as not found */ }
+        } catch {
+          /* iptables failed — treat as not found */
+        }
 
-        return { tool: 'iptables' as FwTool, active, allowedPorts: uniquePorts(allowedPorts), rawRules }
+        return {
+          tool: 'iptables' as FwTool,
+          active,
+          allowedPorts: uniquePorts(allowedPorts),
+          rawRules
+        }
       }
 
       // ── 5. none ────────────────────────────────────────────
       return { tool: 'none' as FwTool, active: false, allowedPorts: [], rawRules: '' }
-    },
+    }
   }
 }

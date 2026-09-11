@@ -28,16 +28,16 @@ async function getInstalledPrograms(): Promise<InstalledProgram[]> {
   const keys = [
     'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
     'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-    'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+    'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
   ]
 
   const programs: InstalledProgram[] = []
 
   for (const key of keys) {
     try {
-      const { stdout } = await execNativeUtf8('reg',['query', key, '/s'], {
+      const { stdout } = await execNativeUtf8('reg', ['query', key, '/s'], {
         timeout: 20000,
-        maxBuffer: 10 * 1024 * 1024,
+        maxBuffer: 10 * 1024 * 1024
       })
 
       // Split into registry key blocks
@@ -53,7 +53,7 @@ async function getInstalledPrograms(): Promise<InstalledProgram[]> {
         programs.push({
           displayName,
           publisher: publisherMatch ? publisherMatch[1].trim() : '',
-          installLocation: installLocMatch ? installLocMatch[1].trim().replace(/\\$/, '') : '',
+          installLocation: installLocMatch ? installLocMatch[1].trim().replace(/\\$/, '') : ''
         })
       }
     } catch {
@@ -186,10 +186,13 @@ async function hasRunningProcesses(folderPaths: string[]): Promise<Set<string>> 
 
   try {
     // Get all running process paths in one call
-    const procScript = 'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
-    const { stdout } = await execFileAsync('powershell', [
-      '-NoProfile', '-NoLogo', '-Command', psUtf8(procScript),
-    ], { timeout: 10000, windowsHide: true })
+    const procScript =
+      'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
+    const { stdout } = await execFileAsync(
+      'powershell',
+      ['-NoProfile', '-NoLogo', '-Command', psUtf8(procScript)],
+      { timeout: 10000, windowsHide: true }
+    )
 
     const processPaths = stdout
       .split(/\r?\n/)
@@ -260,7 +263,7 @@ export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanRes
     currentPath: 'Querying installed programs...',
     progress: 5,
     itemsFound: 0,
-    sizeFound: 0,
+    sizeFound: 0
   })
 
   const programs = await getInstalledPrograms()
@@ -282,7 +285,7 @@ export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanRes
       currentPath: `Scanning ${target.name}...`,
       progress: 10 + Math.round((dirIdx / totalDirs) * 70),
       itemsFound: totalItemsFound,
-      sizeFound: totalSizeFound,
+      sizeFound: totalSizeFound
     })
 
     // Read top-level folders
@@ -346,7 +349,7 @@ export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanRes
         category,
         subcategory: target.name,
         lastModified: folderStat.mtimeMs,
-        selected: false, // NEVER auto-select leftovers
+        selected: false // NEVER auto-select leftovers
       })
 
       totalItemsFound++
@@ -362,7 +365,7 @@ export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanRes
         subcategory: target.name,
         items,
         totalSize: items.reduce((s, i) => s + i.size, 0),
-        itemCount: items.length,
+        itemCount: items.length
       })
     }
   }
@@ -373,7 +376,7 @@ export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanRes
     currentPath: 'Leftover scan complete',
     progress: 100,
     itemsFound: totalItemsFound,
-    sizeFound: totalSizeFound,
+    sizeFound: totalSizeFound
   })
 
   return results

@@ -4,12 +4,12 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 
 vi.mock('./settings-store', () => ({
-  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: [] }),
+  getSettings: () => ({ cleaner: { secureDelete: false, skipRecentMinutes: 60 }, exclusions: [] })
 }))
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => [],
-  removeCachedItems: () => {},
+  removeCachedItems: () => {}
 }))
 
 import { scanAppRule, scanMatchingFiles } from './file-utils'
@@ -48,12 +48,17 @@ describe('scanMatchingFiles', () => {
     await makeFile(join(freshUpdater, 'installer.exe'), 2)
     await makeFile(join(unrelated, 'installer.exe'), 30)
 
-    const result = await scanMatchingFiles([root], {
-      names: ['installer.exe', 'current.blockmap'],
-      childDirSuffix: '-updater',
-      minAgeDays: 14,
-      skipIfChildExists: ['pending'],
-    }, 'app', 'Updater Artifacts')
+    const result = await scanMatchingFiles(
+      [root],
+      {
+        names: ['installer.exe', 'current.blockmap'],
+        childDirSuffix: '-updater',
+        minAgeDays: 14,
+        skipIfChildExists: ['pending']
+      },
+      'app',
+      'Updater Artifacts'
+    )
 
     expect(new Set(result.items.map((item) => item.path))).toEqual(new Set([installer, blockmap]))
     expect(result.itemCount).toBe(2)
@@ -66,12 +71,17 @@ describe('scanMatchingFiles', () => {
     await mkdir(join(updater, 'pending'), { recursive: true })
     await makeFile(join(updater, 'installer.exe'), 30)
 
-    const result = await scanMatchingFiles([root], {
-      names: ['installer.exe'],
-      childDirSuffix: '-updater',
-      minAgeDays: 14,
-      skipIfChildExists: ['pending'],
-    }, 'app', 'Updater Artifacts')
+    const result = await scanMatchingFiles(
+      [root],
+      {
+        names: ['installer.exe'],
+        childDirSuffix: '-updater',
+        minAgeDays: 14,
+        skipIfChildExists: ['pending']
+      },
+      'app',
+      'Updater Artifacts'
+    )
 
     expect(result.items).toEqual([])
   })
@@ -87,11 +97,16 @@ describe('scanMatchingFiles', () => {
       return // Symlink creation may be unavailable on locked-down Windows hosts.
     }
 
-    const result = await scanMatchingFiles([root], {
-      names: ['installer.exe'],
-      childDirSuffix: '-updater',
-      minAgeDays: 14,
-    }, 'app', 'Updater Artifacts')
+    const result = await scanMatchingFiles(
+      [root],
+      {
+        names: ['installer.exe'],
+        childDirSuffix: '-updater',
+        minAgeDays: 14
+      },
+      'app',
+      'Updater Artifacts'
+    )
 
     expect(result.items).toEqual([])
   })
@@ -102,13 +117,16 @@ describe('scanAppRule', () => {
     const root = await tempRoot()
     await makeFile(join(root, 'old.log'), 30)
 
-    const result = await scanAppRule({
-      id: 'ai-logs',
-      name: 'AI Logs',
-      paths: [root],
-      group: 'AI Tools',
-      minAgeDays: 14,
-    }, 'app')
+    const result = await scanAppRule(
+      {
+        id: 'ai-logs',
+        name: 'AI Logs',
+        paths: [root],
+        group: 'AI Tools',
+        minAgeDays: 14
+      },
+      'app'
+    )
 
     expect(result.group).toBe('AI Tools')
   })
@@ -120,12 +138,15 @@ describe('scanAppRule', () => {
     await makeFile(oldFile, 30)
     await makeFile(recentFile, 2)
 
-    const result = await scanAppRule({
-      id: 'settled-logs',
-      name: 'Settled Logs',
-      paths: [root],
-      minAgeDays: 14,
-    }, 'app')
+    const result = await scanAppRule(
+      {
+        id: 'settled-logs',
+        name: 'Settled Logs',
+        paths: [root],
+        minAgeDays: 14
+      },
+      'app'
+    )
 
     expect(result.items.map((item) => item.path)).toEqual([oldFile])
   })

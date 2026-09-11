@@ -7,9 +7,13 @@ import { execTracked, spawnTrackedLines } from './exec-utf8'
 const NODE = process.execPath
 
 it('executes with the supplied environment instead of inheriting removed overrides', async () => {
-  const result = await execTracked(NODE, ['-e', 'process.stdout.write(process.env.KUDU_COMMAND_TEST || "missing")'], {
-    env: { ...process.env, KUDU_COMMAND_TEST: 'isolated' },
-  })
+  const result = await execTracked(
+    NODE,
+    ['-e', 'process.stdout.write(process.env.KUDU_COMMAND_TEST || "missing")'],
+    {
+      env: { ...process.env, KUDU_COMMAND_TEST: 'isolated' }
+    }
+  )
   expect(result.stdout).toBe('isolated')
 })
 
@@ -46,9 +50,14 @@ describe('spawnTrackedLines', () => {
 
   it('emits a final unterminated line when the process exits', async () => {
     const lines: string[] = []
-    await spawnTrackedLines(NODE, nodeEval('process.stdout.write("no-newline")'), (l) => lines.push(l), {
-      timeout: 30_000,
-    })
+    await spawnTrackedLines(
+      NODE,
+      nodeEval('process.stdout.write("no-newline")'),
+      (l) => lines.push(l),
+      {
+        timeout: 30_000
+      }
+    )
     expect(lines).toEqual(['no-newline'])
   })
 
@@ -83,7 +92,7 @@ describe('spawnTrackedLines', () => {
     await expect(
       spawnTrackedLines(NODE, nodeEval('setTimeout(() => {}, 60_000)'), () => {}, {
         timeout: 30_000,
-        signal: controller.signal,
+        signal: controller.signal
       })
     ).rejects.toThrow('Operation cancelled')
   })
@@ -91,7 +100,7 @@ describe('spawnTrackedLines', () => {
   it('rejects immediately when the signal is already aborted', async () => {
     await expect(
       spawnTrackedLines(NODE, nodeEval('process.stdout.write("x")'), () => {}, {
-        signal: AbortSignal.abort(),
+        signal: AbortSignal.abort()
       })
     ).rejects.toThrow('Operation cancelled')
   })

@@ -8,39 +8,39 @@ vi.mock('electron', () => ({
   ipcMain: {
     handle: vi.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
       handleMap.set(channel, handler)
-    }),
-  },
+    })
+  }
 }))
 
 vi.mock('../../shared/channels', () => ({
   IPC: {
     UNINSTALL_LEFTOVERS_SCAN: 'cleaner:uninstall-leftovers:scan',
-    UNINSTALL_LEFTOVERS_CLEAN: 'cleaner:uninstall-leftovers:clean',
-  },
+    UNINSTALL_LEFTOVERS_CLEAN: 'cleaner:uninstall-leftovers:clean'
+  }
 }))
 
 const mockScanForLeftovers = vi.fn()
 
 vi.mock('../services/uninstall-leftovers', () => ({
-  scanForLeftovers: (...args: unknown[]) => mockScanForLeftovers(...args),
+  scanForLeftovers: (...args: unknown[]) => mockScanForLeftovers(...args)
 }))
 
 const mockCleanItems = vi.fn()
 
 vi.mock('../services/file-utils', () => ({
-  cleanItems: (...args: unknown[]) => mockCleanItems(...args),
+  cleanItems: (...args: unknown[]) => mockCleanItems(...args)
 }))
 
 const mockCacheItems = vi.fn()
 
 vi.mock('../services/scan-cache', () => ({
-  cacheItems: (...args: unknown[]) => mockCacheItems(...args),
+  cacheItems: (...args: unknown[]) => mockCacheItems(...args)
 }))
 
 const mockValidateStringArray = vi.fn()
 
 vi.mock('../services/ipc-validation', () => ({
-  validateStringArray: (...args: unknown[]) => mockValidateStringArray(...args),
+  validateStringArray: (...args: unknown[]) => mockValidateStringArray(...args)
 }))
 
 import { registerUninstallLeftoversIpc } from './uninstall-leftovers.ipc'
@@ -52,7 +52,7 @@ import type { ScanResult, ScanItem } from '../../shared/types'
 function makeWindow() {
   return {
     isDestroyed: () => false,
-    webContents: { send: vi.fn() },
+    webContents: { send: vi.fn() }
   } as unknown as BrowserWindow
 }
 
@@ -71,14 +71,14 @@ function makeScanResult(items: Partial<ScanItem>[] = []): ScanResult {
     subcategory: 'files',
     lastModified: Date.now(),
     selected: true,
-    ...partial,
+    ...partial
   }))
   return {
     category: 'uninstall-leftovers',
     subcategory: 'files',
     items: fullItems,
     totalSize: fullItems.reduce((s, it) => s + it.size, 0),
-    itemCount: fullItems.length,
+    itemCount: fullItems.length
   }
 }
 
@@ -157,7 +157,13 @@ describe('uninstall-leftovers IPC', () => {
     it('validates input and delegates to cleanItems', async () => {
       const ids = ['id-1', 'id-2']
       mockValidateStringArray.mockReturnValue(ids)
-      const expected = { totalCleaned: 2, filesDeleted: 2, filesSkipped: 0, errors: [], needsElevation: false }
+      const expected = {
+        totalCleaned: 2,
+        filesDeleted: 2,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
       mockCleanItems.mockResolvedValue(expected)
 
       registerUninstallLeftoversIpc(() => makeWindow())
@@ -179,7 +185,7 @@ describe('uninstall-leftovers IPC', () => {
         filesDeleted: 0,
         filesSkipped: 0,
         errors: [],
-        needsElevation: false,
+        needsElevation: false
       })
       expect(mockCleanItems).not.toHaveBeenCalled()
     })
@@ -195,7 +201,7 @@ describe('uninstall-leftovers IPC', () => {
         filesDeleted: 0,
         filesSkipped: 0,
         errors: [],
-        needsElevation: false,
+        needsElevation: false
       })
     })
 
@@ -210,7 +216,7 @@ describe('uninstall-leftovers IPC', () => {
         filesDeleted: 0,
         filesSkipped: 0,
         errors: [],
-        needsElevation: false,
+        needsElevation: false
       })
     })
 
@@ -225,7 +231,7 @@ describe('uninstall-leftovers IPC', () => {
         filesDeleted: 0,
         filesSkipped: 0,
         errors: [],
-        needsElevation: false,
+        needsElevation: false
       })
     })
 
@@ -234,7 +240,9 @@ describe('uninstall-leftovers IPC', () => {
       mockCleanItems.mockRejectedValue(new Error('delete failed'))
 
       registerUninstallLeftoversIpc(() => makeWindow())
-      await expect(invoke('cleaner:uninstall-leftovers:clean', ['id-1'])).rejects.toThrow('delete failed')
+      await expect(invoke('cleaner:uninstall-leftovers:clean', ['id-1'])).rejects.toThrow(
+        'delete failed'
+      )
     })
   })
 })

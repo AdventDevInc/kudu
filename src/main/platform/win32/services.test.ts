@@ -8,7 +8,6 @@ const mockApplyServiceChanges = vi.fn()
 
 const MOCK_KEY = '/mock/service-manager.ipc'
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const NativeModule = require('module')
 const origResolve = NativeModule._resolveFilename
 NativeModule._resolveFilename = function (request: string, parent: any, ...args: any[]) {
@@ -26,9 +25,9 @@ require.cache[MOCK_KEY] = {
   paths: [],
   exports: {
     scanServices: mockScanServices,
-    applyServiceChanges: mockApplyServiceChanges,
+    applyServiceChanges: mockApplyServiceChanges
   },
-  path: '/mock',
+  path: '/mock'
 } as any
 
 const { createWin32Services } = await import('./services')
@@ -74,7 +73,7 @@ describe('win32 services', () => {
 
       const changes = [
         { name: 'Spooler', targetStartType: 'Disabled' },
-        { name: 'wuauserv', targetStartType: 'Manual' },
+        { name: 'wuauserv', targetStartType: 'Manual' }
       ]
 
       const result = await services.applyChanges(changes)

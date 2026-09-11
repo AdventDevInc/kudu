@@ -10,15 +10,23 @@ const path = require('path')
 const RULES_DIR = path.resolve(__dirname, '..', 'rules')
 
 const PLATFORM_VARS = {
-  win32: ['${HOME}', '${LOCALAPPDATA}', '${APPDATA}', '${WINDIR}', '${PROGRAMDATA}', '${PROGRAMFILES}', '${TMPDIR}'],
+  win32: [
+    '${HOME}',
+    '${LOCALAPPDATA}',
+    '${APPDATA}',
+    '${WINDIR}',
+    '${PROGRAMDATA}',
+    '${PROGRAMFILES}',
+    '${TMPDIR}'
+  ],
   darwin: ['${HOME}', '${LIBRARY}', '${CACHES}', '${APP_SUPPORT}', '${TMPDIR}'],
-  linux: ['${HOME}', '${CONFIG}', '${CACHE}', '${LOCAL_SHARE}', '${TMPDIR}'],
+  linux: ['${HOME}', '${CONFIG}', '${CACHE}', '${LOCAL_SHARE}', '${TMPDIR}']
 }
 
 const CATEGORIES = {
   apps: 'apps.json',
   gaming: 'gaming.json',
-  'gpu-cache': 'gpu-cache.json',
+  'gpu-cache': 'gpu-cache.json'
 }
 
 const CHROMIUM_SUBDIRS = ['Cache/Cache_Data', 'Code Cache', 'GPUCache']
@@ -87,7 +95,10 @@ async function main() {
   // Platforms
   console.log('\nWhich platforms? (comma-separated: win32, darwin, linux)')
   const platformInput = await ask('Platforms', 'win32,darwin,linux')
-  const platforms = platformInput.split(',').map((p) => p.trim()).filter((p) => PLATFORM_VARS[p])
+  const platforms = platformInput
+    .split(',')
+    .map((p) => p.trim())
+    .filter((p) => PLATFORM_VARS[p])
 
   if (platforms.length === 0) {
     console.log('At least one valid platform is required.')
@@ -95,7 +106,9 @@ async function main() {
   }
 
   // Is it a Chromium/Electron app?
-  const isElectron = await askYesNo('\nIs this a Chromium/Electron app? (auto-adds Cache_Data, Code Cache, GPUCache)')
+  const isElectron = await askYesNo(
+    '\nIs this a Chromium/Electron app? (auto-adds Cache_Data, Code Cache, GPUCache)'
+  )
 
   // Collect paths per platform
   const platformPaths = {}
@@ -132,7 +145,7 @@ async function main() {
   const childSubdir = await ask('\nchildSubdir? (leave empty if not needed)')
 
   // Optional description
-  const description = await ask('Description (what gets cleaned and why it\'s safe)')
+  const description = await ask("Description (what gets cleaned and why it's safe)")
 
   // Confirm
   console.log('\n── Summary ──')

@@ -13,11 +13,37 @@ import type { DiskNode, DriveInfo } from '@shared/types'
 
 type ViewMode = 'folders' | 'filetypes'
 
-const COLORS = ['#f59e0b', '#d97706', '#b45309', '#92400e', '#78350f', '#a16207', '#ca8a04', '#eab308', '#facc15', '#fbbf24']
+const COLORS = [
+  '#f59e0b',
+  '#d97706',
+  '#b45309',
+  '#92400e',
+  '#78350f',
+  '#a16207',
+  '#ca8a04',
+  '#eab308',
+  '#facc15',
+  '#fbbf24'
+]
 
-interface TreemapRect { name: string; size: number; x: number; y: number; w: number; h: number; color: string }
+interface TreemapRect {
+  name: string
+  size: number
+  x: number
+  y: number
+  w: number
+  h: number
+  color: string
+}
 
-function squarify(items: { name: string; size: number; fill: string }[], x: number, y: number, w: number, h: number, rects: TreemapRect[]) {
+function squarify(
+  items: { name: string; size: number; fill: string }[],
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  rects: TreemapRect[]
+) {
   if (!items.length || w <= 0 || h <= 0) return
   if (items.length === 1) {
     rects.push({ name: items[0].name, size: items[0].size, x, y, w, h, color: items[0].fill })
@@ -44,8 +70,10 @@ function squarify(items: { name: string; size: number; fill: string }[], x: numb
       const aspect = rowLen > itemLen ? rowLen / itemLen : itemLen / rowLen
       if (aspect > worst) worst = aspect
     }
-    if (worst <= bestWorst) { bestWorst = worst; bestIdx = i }
-    else break
+    if (worst <= bestWorst) {
+      bestWorst = worst
+      bestIdx = i
+    } else break
   }
   const rowItems = items.slice(0, bestIdx + 1)
   const restItems = items.slice(bestIdx + 1)
@@ -56,7 +84,15 @@ function squarify(items: { name: string; size: number; fill: string }[], x: numb
     let cy = y
     for (const item of rowItems) {
       const itemH = h * (item.size / rowTotal)
-      rects.push({ name: item.name, size: item.size, x, y: cy, w: rowW, h: itemH, color: item.fill })
+      rects.push({
+        name: item.name,
+        size: item.size,
+        x,
+        y: cy,
+        w: rowW,
+        h: itemH,
+        color: item.fill
+      })
       cy += itemH
     }
     squarify(restItems, x + rowW, y, w - rowW, h, rects)
@@ -65,14 +101,27 @@ function squarify(items: { name: string; size: number; fill: string }[], x: numb
     let cx = x
     for (const item of rowItems) {
       const itemW = w * (item.size / rowTotal)
-      rects.push({ name: item.name, size: item.size, x: cx, y, w: itemW, h: rowH, color: item.fill })
+      rects.push({
+        name: item.name,
+        size: item.size,
+        x: cx,
+        y,
+        w: itemW,
+        h: rowH,
+        color: item.fill
+      })
       cx += itemW
     }
     squarify(restItems, x, y + rowH, w, h - rowH, rects)
   }
 }
 
-function layoutTreemap(items: { name: string; size: number; fill: string }[], width: number, height: number, otherLabel?: (count: number) => string): TreemapRect[] {
+function layoutTreemap(
+  items: { name: string; size: number; fill: string }[],
+  width: number,
+  height: number,
+  otherLabel?: (count: number) => string
+): TreemapRect[] {
   if (!items.length || width <= 0 || height <= 0) return []
   const total = items.reduce((s, i) => s + i.size, 0)
   if (total <= 0) return []
@@ -83,7 +132,11 @@ function layoutTreemap(items: { name: string; size: number; fill: string }[], wi
   const grouped = [...big]
   if (small.length > 0) {
     const otherSize = small.reduce((s, i) => s + i.size, 0)
-    grouped.push({ name: otherLabel ? otherLabel(small.length) : `${small.length} other items`, size: otherSize, fill: 'var(--text-muted)' })
+    grouped.push({
+      name: otherLabel ? otherLabel(small.length) : `${small.length} other items`,
+      size: otherSize,
+      fill: 'var(--text-muted)'
+    })
   }
   const sorted = grouped.sort((a, b) => b.size - a.size)
   const rects: TreemapRect[] = []
@@ -108,33 +161,55 @@ export function DiskAnalyzerPage() {
 
   useEffect(() => {
     if (drives.length === 0) {
-      window.kudu?.diskDrives?.().then(store.setDrives).catch((err) => {
-        console.error('Failed to load drives:', err)
-      })
+      window.kudu
+        ?.diskDrives?.()
+        .then(store.setDrives)
+        .catch((err) => {
+          console.error('Failed to load drives:', err)
+        })
     }
   }, [])
 
   const handleAnalyze = async () => {
-    store.setAnalyzing(true); store.setData(null); store.setBreadcrumb([]); store.setError(null); store.setFileTypes([])
+    store.setAnalyzing(true)
+    store.setData(null)
+    store.setBreadcrumb([])
+    store.setError(null)
+    store.setFileTypes([])
     try {
       const result = await window.kudu.diskAnalyze(selectedDrive)
-      store.setData(result); store.setBreadcrumb([result])
+      store.setData(result)
+      store.setBreadcrumb([result])
     } catch (err) {
       console.error('Disk analysis failed:', err)
-      toast.error(isWin ? t('failedToAnalyzeToastWindows', { drive: selectedDrive }) : t('failedToAnalyzeToastOther', { drive: selectedDrive }), { description: t('failedToAnalyzeDescMakeAccessible') })
-      store.setError(isWin ? t('failedToAnalyzeErrorWindows', { drive: selectedDrive }) : t('failedToAnalyzeErrorOther', { drive: selectedDrive }))
+      toast.error(
+        isWin
+          ? t('failedToAnalyzeToastWindows', { drive: selectedDrive })
+          : t('failedToAnalyzeToastOther', { drive: selectedDrive }),
+        { description: t('failedToAnalyzeDescMakeAccessible') }
+      )
+      store.setError(
+        isWin
+          ? t('failedToAnalyzeErrorWindows', { drive: selectedDrive })
+          : t('failedToAnalyzeErrorOther', { drive: selectedDrive })
+      )
     }
     store.setAnalyzing(false)
   }
 
   const handleFileTypeScan = async () => {
-    store.setFileTypesLoading(true); store.setError(null)
+    store.setFileTypesLoading(true)
+    store.setError(null)
     try {
       const result = await window.kudu.diskFileTypes(selectedDrive)
       store.setFileTypes(result)
     } catch (err) {
       console.error('File type scan failed:', err)
-      store.setError(isWin ? t('failedToScanFileTypesWindows', { drive: selectedDrive }) : t('failedToScanFileTypesOther', { drive: selectedDrive }))
+      store.setError(
+        isWin
+          ? t('failedToScanFileTypesWindows', { drive: selectedDrive })
+          : t('failedToScanFileTypesOther', { drive: selectedDrive })
+      )
     }
     store.setFileTypesLoading(false)
   }
@@ -149,60 +224,130 @@ export function DiskAnalyzerPage() {
   const currentNode = breadcrumb[breadcrumb.length - 1] ?? data
   const treemapData = useMemo(() => {
     if (!currentNode?.children) return []
-    return [...currentNode.children].sort((a, b) => b.size - a.size).map((c, i) => ({ name: c.name, size: c.size, fill: COLORS[i % COLORS.length] }))
+    return [...currentNode.children]
+      .sort((a, b) => b.size - a.size)
+      .map((c, i) => ({ name: c.name, size: c.size, fill: COLORS[i % COLORS.length] }))
   }, [currentNode])
 
-  const fileTypesTotal = useMemo(() => fileTypes.reduce((s, ft) => s + ft.totalSize, 0), [fileTypes])
+  const fileTypesTotal = useMemo(
+    () => fileTypes.reduce((s, ft) => s + ft.totalSize, 0),
+    [fileTypes]
+  )
 
-  const drillDown = (node: DiskNode) => { if (node.children?.length) store.pushBreadcrumb(node) }
+  const drillDown = (node: DiskNode) => {
+    if (node.children?.length) store.pushBreadcrumb(node)
+  }
 
   return (
     <div className="animate-fade-in">
-      <PageHeader title={t('pageTitle')} description={t('pageDescription')}
+      <PageHeader
+        title={t('pageTitle')}
+        description={t('pageDescription')}
         action={
           <div className="flex items-center gap-2.5">
-            <select value={selectedDrive} onChange={(e) => store.setSelectedDrive(e.target.value)}
+            <select
+              value={selectedDrive}
+              onChange={(e) => store.setSelectedDrive(e.target.value)}
               className="rounded-xl px-4 py-2.5 text-[13px] text-zinc-400 outline-none"
-              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}>
-              {(drives.length > 0 ? drives : [{ letter: isWin ? 'C' : '/', label: 'System', totalSize: 0, freeSpace: 0, usedSpace: 0 }]).map((d) => (
-                <option key={d.letter} value={d.letter}>{isWin ? `${d.letter}: ${d.label}` : `${d.letter} ${d.label}`}</option>
+              style={{ background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }}
+            >
+              {(drives.length > 0
+                ? drives
+                : [
+                    {
+                      letter: isWin ? 'C' : '/',
+                      label: 'System',
+                      totalSize: 0,
+                      freeSpace: 0,
+                      usedSpace: 0
+                    }
+                  ]
+              ).map((d) => (
+                <option key={d.letter} value={d.letter}>
+                  {isWin ? `${d.letter}: ${d.label}` : `${d.letter} ${d.label}`}
+                </option>
               ))}
             </select>
-            <button onClick={handleAnalyze} disabled={analyzing}
+            <button
+              onClick={handleAnalyze}
+              disabled={analyzing}
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}>
-              {analyzing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <HardDrive className="h-4 w-4" strokeWidth={2} />}
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: 'var(--text-on-accent)'
+              }}
+            >
+              {analyzing ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <HardDrive className="h-4 w-4" strokeWidth={2} />
+              )}
               {t('analyzeButton')}
             </button>
           </div>
         }
       />
 
-      {error && <ErrorAlert message={error} onDismiss={() => store.setError(null)} className="mb-5" />}
+      {error && (
+        <ErrorAlert message={error} onDismiss={() => store.setError(null)} className="mb-5" />
+      )}
 
-      {analyzing && <ScanProgress status="scanning" progress={0} currentPath={isWin ? t('analyzingProgressWindows', { drive: selectedDrive }) : t('analyzingProgressOther', { drive: selectedDrive })} className="mb-5" />}
+      {analyzing && (
+        <ScanProgress
+          status="scanning"
+          progress={0}
+          currentPath={
+            isWin
+              ? t('analyzingProgressWindows', { drive: selectedDrive })
+              : t('analyzingProgressOther', { drive: selectedDrive })
+          }
+          className="mb-5"
+        />
+      )}
 
       {/* View mode toggle */}
-      <div className="mb-5 flex items-center gap-1 rounded-xl p-1" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', width: 'fit-content' }}>
-        <button onClick={() => setViewMode('folders')}
+      <div
+        className="mb-5 flex items-center gap-1 rounded-xl p-1"
+        style={{
+          background: 'var(--bg-subtle)',
+          border: '1px solid var(--border-default)',
+          width: 'fit-content'
+        }}
+      >
+        <button
+          onClick={() => setViewMode('folders')}
           className="flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-all"
-          style={{ background: viewMode === 'folders' ? 'var(--accent-muted-border)' : 'transparent', color: viewMode === 'folders' ? 'var(--accent)' : 'var(--text-secondary)' }}>
+          style={{
+            background: viewMode === 'folders' ? 'var(--accent-muted-border)' : 'transparent',
+            color: viewMode === 'folders' ? 'var(--accent)' : 'var(--text-secondary)'
+          }}
+        >
           <Folder className="h-3.5 w-3.5" strokeWidth={2} />
           {t('viewFolders')}
         </button>
-        <button onClick={() => setViewMode('filetypes')}
+        <button
+          onClick={() => setViewMode('filetypes')}
           className="flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-all"
-          style={{ background: viewMode === 'filetypes' ? 'var(--accent-muted-border)' : 'transparent', color: viewMode === 'filetypes' ? 'var(--accent)' : 'var(--text-secondary)' }}>
+          style={{
+            background: viewMode === 'filetypes' ? 'var(--accent-muted-border)' : 'transparent',
+            color: viewMode === 'filetypes' ? 'var(--accent)' : 'var(--text-secondary)'
+          }}
+        >
           <FileType2 className="h-3.5 w-3.5" strokeWidth={2} />
           {t('viewFileTypes')}
         </button>
       </div>
 
-      {!data && !analyzing && !error && <EmptyState icon={HardDrive} title={t('emptyStateTitle')} description={t('emptyStateDescription')} />}
+      {!data && !analyzing && !error && (
+        <EmptyState
+          icon={HardDrive}
+          title={t('emptyStateTitle')}
+          description={t('emptyStateDescription')}
+        />
+      )}
 
       {data && (
         <>
-
           {viewMode === 'folders' && currentNode && (
             <>
               <div className="mb-5 flex min-h-9 items-center gap-2">
@@ -211,37 +356,63 @@ export function DiskAnalyzerPage() {
                     type="button"
                     onClick={() => store.sliceBreadcrumb(breadcrumb.length - 2)}
                     className="inline-flex min-h-9 items-center gap-2 rounded-lg border px-3 text-[12px] font-semibold transition-colors"
-                    style={{ background: 'var(--card-bg)', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+                    style={{
+                      background: 'var(--card-bg)',
+                      borderColor: 'var(--border-medium)',
+                      color: 'var(--text-secondary)'
+                    }}
                     aria-label="Up one folder level"
                   >
                     <ArrowUp className="h-3.5 w-3.5" aria-hidden="true" />
                     <span>Up</span>
                   </button>
                 )}
-                <div className="flex min-w-0 items-center gap-2 px-1" style={{ color: 'var(--text-secondary)' }}>
+                <div
+                  className="flex min-w-0 items-center gap-2 px-1"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
                   <Folder className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span className="truncate font-mono text-[12px] font-semibold">{currentNode.name}</span>
+                  <span className="truncate font-mono text-[12px] font-semibold">
+                    {currentNode.name}
+                  </span>
                 </div>
               </div>
 
               {/* Treemap */}
               {treemapData.length > 0 && (
-                <div className="mb-6 overflow-hidden rounded-2xl p-1.5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+                <div
+                  className="mb-6 overflow-hidden rounded-2xl p-1.5"
+                  style={{
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-default)'
+                  }}
+                >
                   <div className="relative h-[280px] w-full">
-                    {layoutTreemap(treemapData, 100, 100, (count) => t('otherItems', { count })).map((rect) => (
-                      <div key={rect.name}
+                    {layoutTreemap(treemapData, 100, 100, (count) =>
+                      t('otherItems', { count })
+                    ).map((rect) => (
+                      <div
+                        key={rect.name}
                         className="absolute overflow-hidden rounded-md p-2 opacity-75 transition-opacity hover:opacity-100 cursor-pointer"
                         style={{
-                          left: `${rect.x}%`, top: `${rect.y}%`, width: `${rect.w}%`, height: `${rect.h}%`,
+                          left: `${rect.x}%`,
+                          top: `${rect.y}%`,
+                          width: `${rect.w}%`,
+                          height: `${rect.h}%`,
                           background: rect.color,
                           boxSizing: 'border-box',
-                          border: '2px solid #0c0c0e',
-                        }}>
+                          border: '2px solid #0c0c0e'
+                        }}
+                      >
                         {rect.w > 8 && rect.h > 12 && (
-                          <span className="block truncate text-[12px] font-semibold text-white">{rect.name}</span>
+                          <span className="block truncate text-[12px] font-semibold text-white">
+                            {rect.name}
+                          </span>
                         )}
                         {rect.w > 12 && rect.h > 20 && (
-                          <span className="block truncate text-[10px] text-white/80">{formatBytes(rect.size)}</span>
+                          <span className="block truncate text-[10px] text-white/80">
+                            {formatBytes(rect.size)}
+                          </span>
                         )}
                       </div>
                     ))}
@@ -251,34 +422,78 @@ export function DiskAnalyzerPage() {
 
               {/* Folder table */}
               {currentNode.children && (
-                <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid var(--border-default)' }}>
-                  <div className="flex items-center gap-4 px-5 py-3 text-[11px] font-medium uppercase tracking-wider"
-                    style={{ background: 'var(--card-bg)', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)' }}>
+                <div
+                  className="overflow-hidden rounded-2xl"
+                  style={{ border: '1px solid var(--border-default)' }}
+                >
+                  <div
+                    className="flex items-center gap-4 px-5 py-3 text-[11px] font-medium uppercase tracking-wider"
+                    style={{
+                      background: 'var(--card-bg)',
+                      color: 'var(--text-muted)',
+                      borderBottom: '1px solid var(--border-subtle)'
+                    }}
+                  >
                     <div className="flex-1">{t('folderTableHeaderName')}</div>
                     <div className="w-28 text-right">{t('folderTableHeaderSize')}</div>
                     <div className="w-44">{t('folderTableHeaderUsage')}</div>
                   </div>
                   <div>
-                    {[...currentNode.children].sort((a, b) => b.size - a.size).map((child) => {
-                      const percent = currentNode.size > 0 ? (child.size / currentNode.size) * 100 : 0
-                      return (
-                        <button key={child.path} onClick={() => drillDown(child)}
-                          className="flex w-full items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-white/2"
-                          style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
-                          <div className="flex flex-1 items-center gap-2.5 min-w-0">
-                            {child.children ? <Folder className="h-4 w-4 shrink-0 text-amber-500" strokeWidth={1.8} /> : <File className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />}
-                            <span className="truncate text-[13px] text-zinc-300">{child.name}</span>
-                          </div>
-                          <span className="w-28 text-right font-mono text-[12px]" style={{ color: 'var(--text-secondary)' }}>{formatBytes(child.size)}</span>
-                          <div className="w-44 flex items-center gap-2.5">
-                            <div className="flex-1 h-[5px] rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
-                              <div className="h-full rounded-full" style={{ width: `${percent}%`, background: 'var(--accent)' }} />
+                    {[...currentNode.children]
+                      .sort((a, b) => b.size - a.size)
+                      .map((child) => {
+                        const percent =
+                          currentNode.size > 0 ? (child.size / currentNode.size) * 100 : 0
+                        return (
+                          <button
+                            key={child.path}
+                            onClick={() => drillDown(child)}
+                            className="flex w-full items-center gap-4 px-5 py-3 text-left transition-colors hover:bg-white/2"
+                            style={{ borderBottom: '1px solid var(--bg-subtle)' }}
+                          >
+                            <div className="flex flex-1 items-center gap-2.5 min-w-0">
+                              {child.children ? (
+                                <Folder
+                                  className="h-4 w-4 shrink-0 text-amber-500"
+                                  strokeWidth={1.8}
+                                />
+                              ) : (
+                                <File
+                                  className="h-4 w-4 shrink-0"
+                                  style={{ color: 'var(--text-muted)' }}
+                                  strokeWidth={1.8}
+                                />
+                              )}
+                              <span className="truncate text-[13px] text-zinc-300">
+                                {child.name}
+                              </span>
                             </div>
-                            <span className="w-10 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{percent.toFixed(0)}%</span>
-                          </div>
-                        </button>
-                      )
-                    })}
+                            <span
+                              className="w-28 text-right font-mono text-[12px]"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
+                              {formatBytes(child.size)}
+                            </span>
+                            <div className="w-44 flex items-center gap-2.5">
+                              <div
+                                className="flex-1 h-[5px] rounded-full"
+                                style={{ background: 'var(--bg-subtle-2)' }}
+                              >
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{ width: `${percent}%`, background: 'var(--accent)' }}
+                                />
+                              </div>
+                              <span
+                                className="w-10 text-right font-mono text-[11px]"
+                                style={{ color: 'var(--text-muted)' }}
+                              >
+                                {percent.toFixed(0)}%
+                              </span>
+                            </div>
+                          </button>
+                        )
+                      })}
                   </div>
                 </div>
               )}
@@ -287,51 +502,125 @@ export function DiskAnalyzerPage() {
 
           {viewMode === 'filetypes' && (
             <>
-              {fileTypesLoading && <ScanProgress status="scanning" progress={0} currentPath={isWin ? t('scanningFileTypesWindows', { drive: selectedDrive }) : t('scanningFileTypesOther', { drive: selectedDrive })} className="mb-5" />}
+              {fileTypesLoading && (
+                <ScanProgress
+                  status="scanning"
+                  progress={0}
+                  currentPath={
+                    isWin
+                      ? t('scanningFileTypesWindows', { drive: selectedDrive })
+                      : t('scanningFileTypesOther', { drive: selectedDrive })
+                  }
+                  className="mb-5"
+                />
+              )}
 
               {!fileTypesLoading && fileTypes.length === 0 && (
-                <EmptyState icon={FileType2} title={t('fileTypesEmptyTitle')} description={t('fileTypesEmptyDescription')} />
+                <EmptyState
+                  icon={FileType2}
+                  title={t('fileTypesEmptyTitle')}
+                  description={t('fileTypesEmptyDescription')}
+                />
               )}
 
               {!fileTypesLoading && fileTypes.length > 0 && (
                 <>
                   {/* Summary cards */}
                   <div className="mb-5 grid grid-cols-3 gap-3">
-                    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)' }}>
-                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('summaryTotalScanned')}</div>
-                      <div className="mt-1 text-[18px] font-semibold text-zinc-200">{formatBytes(fileTypesTotal)}</div>
+                    <div
+                      className="rounded-xl px-4 py-3"
+                      style={{
+                        background: 'var(--bg-subtle)',
+                        border: '1px solid var(--border-default)'
+                      }}
+                    >
+                      <div
+                        className="text-[11px] font-medium uppercase tracking-wider"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        {t('summaryTotalScanned')}
+                      </div>
+                      <div className="mt-1 text-[18px] font-semibold text-zinc-200">
+                        {formatBytes(fileTypesTotal)}
+                      </div>
                     </div>
-                    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)' }}>
-                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('summaryFileTypes')}</div>
-                      <div className="mt-1 text-[18px] font-semibold text-zinc-200">{fileTypes.length}</div>
+                    <div
+                      className="rounded-xl px-4 py-3"
+                      style={{
+                        background: 'var(--bg-subtle)',
+                        border: '1px solid var(--border-default)'
+                      }}
+                    >
+                      <div
+                        className="text-[11px] font-medium uppercase tracking-wider"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        {t('summaryFileTypes')}
+                      </div>
+                      <div className="mt-1 text-[18px] font-semibold text-zinc-200">
+                        {fileTypes.length}
+                      </div>
                     </div>
-                    <div className="rounded-xl px-4 py-3" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)' }}>
-                      <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t('summaryLargestType')}</div>
-                      <div className="mt-1 text-[18px] font-semibold text-zinc-200">{fileTypes[0]?.extension ?? '-'}</div>
+                    <div
+                      className="rounded-xl px-4 py-3"
+                      style={{
+                        background: 'var(--bg-subtle)',
+                        border: '1px solid var(--border-default)'
+                      }}
+                    >
+                      <div
+                        className="text-[11px] font-medium uppercase tracking-wider"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
+                        {t('summaryLargestType')}
+                      </div>
+                      <div className="mt-1 text-[18px] font-semibold text-zinc-200">
+                        {fileTypes[0]?.extension ?? '-'}
+                      </div>
                     </div>
                   </div>
 
                   {/* File type treemap */}
-                  <div className="mb-6 overflow-hidden rounded-2xl p-1.5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+                  <div
+                    className="mb-6 overflow-hidden rounded-2xl p-1.5"
+                    style={{
+                      background: 'var(--card-bg)',
+                      border: '1px solid var(--border-default)'
+                    }}
+                  >
                     <div className="relative h-[280px] w-full">
                       {layoutTreemap(
-                        fileTypes.slice(0, 30).map((ft, i) => ({ name: ft.extension, size: ft.totalSize, fill: COLORS[i % COLORS.length] })),
-                        100, 100,
+                        fileTypes.slice(0, 30).map((ft, i) => ({
+                          name: ft.extension,
+                          size: ft.totalSize,
+                          fill: COLORS[i % COLORS.length]
+                        })),
+                        100,
+                        100,
                         (count) => t('otherItems', { count })
                       ).map((rect) => (
-                        <div key={rect.name}
+                        <div
+                          key={rect.name}
                           className="absolute overflow-hidden rounded-md p-2 opacity-75 transition-opacity hover:opacity-100"
                           style={{
-                            left: `${rect.x}%`, top: `${rect.y}%`, width: `${rect.w}%`, height: `${rect.h}%`,
+                            left: `${rect.x}%`,
+                            top: `${rect.y}%`,
+                            width: `${rect.w}%`,
+                            height: `${rect.h}%`,
                             background: rect.color,
                             boxSizing: 'border-box',
-                            border: '2px solid #0c0c0e',
-                          }}>
+                            border: '2px solid #0c0c0e'
+                          }}
+                        >
                           {rect.w > 6 && rect.h > 12 && (
-                            <span className="block truncate text-[12px] font-semibold text-white">{rect.name}</span>
+                            <span className="block truncate text-[12px] font-semibold text-white">
+                              {rect.name}
+                            </span>
                           )}
                           {rect.w > 10 && rect.h > 20 && (
-                            <span className="block truncate text-[10px] text-white/80">{formatBytes(rect.size)}</span>
+                            <span className="block truncate text-[10px] text-white/80">
+                              {formatBytes(rect.size)}
+                            </span>
                           )}
                         </div>
                       ))}
@@ -339,9 +628,18 @@ export function DiskAnalyzerPage() {
                   </div>
 
                   {/* File type table */}
-                  <div className="overflow-hidden rounded-2xl" style={{ border: '1px solid var(--border-default)' }}>
-                    <div className="flex items-center gap-4 px-5 py-3 text-[11px] font-medium uppercase tracking-wider"
-                      style={{ background: 'var(--card-bg)', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <div
+                    className="overflow-hidden rounded-2xl"
+                    style={{ border: '1px solid var(--border-default)' }}
+                  >
+                    <div
+                      className="flex items-center gap-4 px-5 py-3 text-[11px] font-medium uppercase tracking-wider"
+                      style={{
+                        background: 'var(--card-bg)',
+                        color: 'var(--text-muted)',
+                        borderBottom: '1px solid var(--border-subtle)'
+                      }}
+                    >
                       <div className="flex-1">{t('fileTypeTableHeaderExtension')}</div>
                       <div className="w-20 text-right">{t('fileTypeTableHeaderFiles')}</div>
                       <div className="w-28 text-right">{t('fileTypeTableHeaderSize')}</div>
@@ -349,24 +647,60 @@ export function DiskAnalyzerPage() {
                     </div>
                     <div>
                       {fileTypes.map((ft, i) => {
-                        const percent = fileTypesTotal > 0 ? (ft.totalSize / fileTypesTotal) * 100 : 0
+                        const percent =
+                          fileTypesTotal > 0 ? (ft.totalSize / fileTypesTotal) * 100 : 0
                         return (
-                          <div key={ft.extension}
+                          <div
+                            key={ft.extension}
                             className="flex w-full items-center gap-4 px-5 py-3 transition-colors hover:bg-white/2"
-                            style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
+                            style={{ borderBottom: '1px solid var(--bg-subtle)' }}
+                          >
                             <div className="flex flex-1 items-center gap-2.5 min-w-0">
-                              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded" style={{ background: COLORS[i % COLORS.length] + '22' }}>
-                                <FileType2 className="h-3.5 w-3.5" style={{ color: COLORS[i % COLORS.length] }} strokeWidth={2} />
+                              <div
+                                className="flex h-6 w-6 shrink-0 items-center justify-center rounded"
+                                style={{ background: COLORS[i % COLORS.length] + '22' }}
+                              >
+                                <FileType2
+                                  className="h-3.5 w-3.5"
+                                  style={{ color: COLORS[i % COLORS.length] }}
+                                  strokeWidth={2}
+                                />
                               </div>
-                              <span className="truncate font-mono text-[13px] text-zinc-300">{ft.extension}</span>
+                              <span className="truncate font-mono text-[13px] text-zinc-300">
+                                {ft.extension}
+                              </span>
                             </div>
-                            <span className="w-20 text-right font-mono text-[12px]" style={{ color: 'var(--text-secondary)' }}>{ft.fileCount.toLocaleString()}</span>
-                            <span className="w-28 text-right font-mono text-[12px]" style={{ color: 'var(--text-secondary)' }}>{formatBytes(ft.totalSize)}</span>
+                            <span
+                              className="w-20 text-right font-mono text-[12px]"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
+                              {ft.fileCount.toLocaleString()}
+                            </span>
+                            <span
+                              className="w-28 text-right font-mono text-[12px]"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
+                              {formatBytes(ft.totalSize)}
+                            </span>
                             <div className="w-44 flex items-center gap-2.5">
-                              <div className="flex-1 h-[5px] rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
-                                <div className="h-full rounded-full" style={{ width: `${Math.max(percent, 0.5)}%`, background: COLORS[i % COLORS.length] }} />
+                              <div
+                                className="flex-1 h-[5px] rounded-full"
+                                style={{ background: 'var(--bg-subtle-2)' }}
+                              >
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${Math.max(percent, 0.5)}%`,
+                                    background: COLORS[i % COLORS.length]
+                                  }}
+                                />
                               </div>
-                              <span className="w-12 text-right font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>{percent.toFixed(1)}%</span>
+                              <span
+                                className="w-12 text-right font-mono text-[11px]"
+                                style={{ color: 'var(--text-muted)' }}
+                              >
+                                {percent.toFixed(1)}%
+                              </span>
                             </div>
                           </div>
                         )
@@ -379,7 +713,6 @@ export function DiskAnalyzerPage() {
           )}
         </>
       )}
-
     </div>
   )
 }

@@ -14,9 +14,11 @@ export function createDarwinNetwork(): PlatformNetwork {
         // Output format (F flag):
         //   p<pid>       — process ID
         //   n<name>      — network name, e.g. "10.0.0.5:45678->93.184.216.34:443"
-        const { stdout } = await execFileAsync('/usr/sbin/lsof', [
-          '-i', '-n', '-P', '+c0', '-sTCP:ESTABLISHED', '-F', 'pn',
-        ], { timeout: 15_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/sbin/lsof',
+          ['-i', '-n', '-P', '+c0', '-sTCP:ESTABLISHED', '-F', 'pn'],
+          { timeout: 15_000 }
+        )
 
         const lines = stdout.split('\n')
         const results: ActiveConnection[] = []
@@ -86,9 +88,11 @@ export function createDarwinNetwork(): PlatformNetwork {
       try {
         // lsof -i -sTCP:LISTEN -F n -n -P lists listening TCP sockets
         // Output: n*:port or n[::]:port lines
-        const { stdout } = await execFileAsync('/usr/sbin/lsof', [
-          '-i', '-n', '-P', '-sTCP:LISTEN', '-F', 'n',
-        ], { timeout: 15_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/sbin/lsof',
+          ['-i', '-n', '-P', '-sTCP:LISTEN', '-F', 'n'],
+          { timeout: 15_000 }
+        )
 
         const ports: number[] = []
         for (const line of stdout.split('\n')) {
@@ -116,7 +120,9 @@ export function createDarwinNetwork(): PlatformNetwork {
       try {
         await execFileAsync('/usr/bin/dscacheutil', ['-flushcache'], { timeout: 5000 })
         // Also kill mDNSResponder to fully flush
-        await execFileAsync('/usr/bin/killall', ['-HUP', 'mDNSResponder'], { timeout: 5000 }).catch(() => {})
+        await execFileAsync('/usr/bin/killall', ['-HUP', 'mDNSResponder'], { timeout: 5000 }).catch(
+          () => {}
+        )
         return true
       } catch {
         return false
@@ -125,9 +131,11 @@ export function createDarwinNetwork(): PlatformNetwork {
 
     async getWifiProfiles(): Promise<WifiProfile[]> {
       try {
-        const { stdout } = await execFileAsync('/usr/sbin/networksetup', [
-          '-listpreferredwirelessnetworks', 'en0',
-        ], { timeout: 10000 })
+        const { stdout } = await execFileAsync(
+          '/usr/sbin/networksetup',
+          ['-listpreferredwirelessnetworks', 'en0'],
+          { timeout: 10000 }
+        )
         const profiles: WifiProfile[] = []
         for (const line of stdout.split('\n').slice(1)) {
           const name = line.trim()
@@ -141,9 +149,11 @@ export function createDarwinNetwork(): PlatformNetwork {
 
     async deleteWifiProfile(name: string): Promise<boolean> {
       try {
-        await execFileAsync('/usr/sbin/networksetup', [
-          '-removepreferredwirelessnetwork', 'en0', name,
-        ], { timeout: 10000 })
+        await execFileAsync(
+          '/usr/sbin/networksetup',
+          ['-removepreferredwirelessnetwork', 'en0', name],
+          { timeout: 10000 }
+        )
         return true
       } catch {
         return false
@@ -157,6 +167,6 @@ export function createDarwinNetwork(): PlatformNetwork {
       } catch {
         return false
       }
-    },
+    }
   }
 }

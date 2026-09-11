@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const processListMock = vi.hoisted(() => ({
   stdout: '',
-  error: null as Error | null,
+  error: null as Error | null
 }))
 
 vi.mock('child_process', () => ({
@@ -10,14 +10,14 @@ vi.mock('child_process', () => ({
     _file: string,
     _args: string[],
     _options: unknown,
-    callback: (error: Error | null, result?: { stdout: string; stderr: string }) => void,
+    callback: (error: Error | null, result?: { stdout: string; stderr: string }) => void
   ) => {
     if (processListMock.error) {
       callback(processListMock.error)
       return
     }
     callback(null, { stdout: processListMock.stdout, stderr: '' })
-  },
+  }
 }))
 
 import { getDetectedGame, startGameDetector, stopGameDetector } from './game-detector'
@@ -36,9 +36,7 @@ describe('game detector lifecycle', () => {
 
   it('retries detection when activation was not accepted', async () => {
     processListMock.stdout = '"cs2.exe","1234","Console","1","100 K"\r\n'
-    const onGameDetected = vi.fn()
-      .mockResolvedValueOnce(false)
-      .mockResolvedValueOnce(true)
+    const onGameDetected = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true)
     const onGameExited = vi.fn()
 
     startGameDetector({ onGameDetected, onGameExited }, [])

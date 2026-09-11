@@ -61,7 +61,7 @@ export function parseWindowsDeleteProbe(stdout: string): Map<string, WindowsDele
 
 /** Probe Windows DELETE access without deleting or modifying the target. */
 export async function probeWindowsDeleteFailures(
-  paths: string[],
+  paths: string[]
 ): Promise<Map<string, WindowsDeleteFailureReason>> {
   const uniquePaths = [...new Set(paths)].slice(0, MAX_PROBED_PATHS)
   if (uniquePaths.length === 0) return new Map()
@@ -71,12 +71,11 @@ export async function probeWindowsDeleteFailures(
   try {
     await writeFile(pathFile, JSON.stringify(uniquePaths), 'utf8')
     const script = DELETE_ACCESS_PROBE.replace('__PATH_FILE__', pathFile.replace(/'/g, "''"))
-    const { stdout } = await execTracked('powershell.exe', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-Command',
-      psUtf8(script),
-    ], { windowsHide: true, timeout: 15_000 })
+    const { stdout } = await execTracked(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
+      { windowsHide: true, timeout: 15_000 }
+    )
     return parseWindowsDeleteProbe(stdout)
   } finally {
     await rm(tempDir, { recursive: true, force: true }).catch(() => {})

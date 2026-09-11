@@ -10,7 +10,7 @@ import {
   ChevronRight,
   ExternalLink,
   AlertTriangle,
-  Lock,
+  Lock
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -23,7 +23,7 @@ import type { CveVulnerability, CveSeverity } from '@shared/types'
 
 const severityConfig: Record<string, { color: string; bg: string; border: string }> = {
   critical: { color: '#ef4444', bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.15)' },
-  high:     { color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.15)' },
+  high: { color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.15)' }
 }
 
 const shownSeverities: CveSeverity[] = ['critical', 'high']
@@ -31,7 +31,12 @@ const CLOUD_BILLING_URL = 'https://cloud.usekudu.com/organisation/billing'
 
 function isPlanError(error: string | null): boolean {
   const value = error?.toLowerCase() ?? ''
-  return value.includes('402') || value.includes('403') || value.includes('subscription') || value.includes('upgrade')
+  return (
+    value.includes('402') ||
+    value.includes('403') ||
+    value.includes('subscription') ||
+    value.includes('upgrade')
+  )
 }
 
 function formatDate(iso: string): string {
@@ -93,30 +98,42 @@ export function CveScannerPage() {
     fetchVulns({ page: 1 })
   }, [fetchVulns])
 
-  const handleSeverityChange = useCallback((filter: typeof severityFilter) => {
-    setSeverityFilter(filter)
-    fetchVulns({ page: 1, severity: filter })
-  }, [setSeverityFilter, fetchVulns])
+  const handleSeverityChange = useCallback(
+    (filter: typeof severityFilter) => {
+      setSeverityFilter(filter)
+      fetchVulns({ page: 1, severity: filter })
+    },
+    [setSeverityFilter, fetchVulns]
+  )
 
   const handleSearch = useCallback(() => {
     setSearchQuery(searchInput)
     fetchVulns({ page: 1, search: searchInput })
   }, [searchInput, setSearchQuery, fetchVulns])
 
-  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearch()
-  }, [handleSearch])
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') handleSearch()
+    },
+    [handleSearch]
+  )
 
-  const handlePageChange = useCallback((newPage: number) => {
-    fetchVulns({ page: newPage })
-  }, [fetchVulns])
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      fetchVulns({ page: newPage })
+    },
+    [fetchVulns]
+  )
 
   // Cloud not configured — redirect away (page is hidden from sidebar)
   if (cloudConnection === 'checking') {
     return (
       <div className="p-8 animate-fade-in">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
-        <div className="flex items-center justify-center gap-3 py-20 text-[13px]" style={{ color: 'var(--text-muted)' }}>
+        <div
+          className="flex items-center justify-center gap-3 py-20 text-[13px]"
+          style={{ color: 'var(--text-muted)' }}
+        >
           <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
           Checking Kudu Cloud connection…
         </div>
@@ -144,11 +161,26 @@ export function CveScannerPage() {
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <EmptyState
           icon={ShieldCheck}
-          title={cloudConnection === 'authorization-error' ? t('connectionError.title') : t('cloudNotConfigured.title')}
-          description={cloudConnection === 'authorization-error' ? t('connectionError.description') : t('cloudNotConfigured.description')}
+          title={
+            cloudConnection === 'authorization-error'
+              ? t('connectionError.title')
+              : t('cloudNotConfigured.title')
+          }
+          description={
+            cloudConnection === 'authorization-error'
+              ? t('connectionError.description')
+              : t('cloudNotConfigured.description')
+          }
           action={
-            <button type="button" onClick={() => navigate('/cloud')} className="rounded-xl px-5 py-2.5 text-[13px] font-semibold" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
-              {cloudConnection === 'authorization-error' ? t('connectionError.action') : t('cloudNotConfigured.action')}
+            <button
+              type="button"
+              onClick={() => navigate('/cloud')}
+              className="rounded-xl px-5 py-2.5 text-[13px] font-semibold"
+              style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+            >
+              {cloudConnection === 'authorization-error'
+                ? t('connectionError.action')
+                : t('cloudNotConfigured.action')}
             </button>
           }
         />
@@ -162,7 +194,9 @@ export function CveScannerPage() {
       <div className="p-8">
         <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
         <div className="flex items-center justify-center py-20">
-          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>{t('loading')}</div>
+          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            {t('loading')}
+          </div>
         </div>
       </div>
     )
@@ -170,7 +204,9 @@ export function CveScannerPage() {
 
   const totalVulns = summary ? summary.critical + summary.high : 0
   const isLoading = status === 'loading'
-  const filteredVulns = vulnerabilities.filter((v) => v.severity === 'critical' || v.severity === 'high')
+  const filteredVulns = vulnerabilities.filter(
+    (v) => v.severity === 'critical' || v.severity === 'high'
+  )
 
   return (
     <div className="p-8 animate-fade-in">
@@ -218,9 +254,7 @@ export function CveScannerPage() {
                 onClick={() => handleSeverityChange(sev as typeof severityFilter)}
                 className={cn(
                   'rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors',
-                  isActive
-                    ? 'bg-white/10 text-zinc-200'
-                    : 'text-zinc-500 hover:text-zinc-300'
+                  isActive ? 'bg-white/10 text-zinc-200' : 'text-zinc-500 hover:text-zinc-300'
                 )}
               >
                 {sev === 'all' ? t('filter.all') : t(`severity.${sev}`)}
@@ -337,7 +371,10 @@ function SummaryCard({ label, count, color }: { label: string; count: number; co
       className="rounded-xl px-4 py-3"
       style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
-      <div className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
+      <div
+        className="text-[11px] font-medium uppercase tracking-wide"
+        style={{ color: 'var(--text-muted)' }}
+      >
         {label}
       </div>
       <div className="mt-1 text-[22px] font-bold" style={{ color }}>
@@ -352,7 +389,7 @@ function VulnerabilityCard({
   expanded,
   onToggle,
   onNavigateUpdater,
-  t,
+  t
 }: {
   vuln: CveVulnerability
   expanded: boolean
@@ -368,12 +405,12 @@ function VulnerabilityCard({
       style={{ background: config.bg, border: `1px solid ${config.border}` }}
     >
       {/* Header row — always visible */}
-      <button
-        onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left"
-      >
+      <button onClick={onToggle} className="flex w-full items-center gap-3 px-4 py-3 text-left">
         <ChevronDown
-          className={cn('h-3.5 w-3.5 shrink-0 text-zinc-500 transition-transform', expanded && 'rotate-180')}
+          className={cn(
+            'h-3.5 w-3.5 shrink-0 text-zinc-500 transition-transform',
+            expanded && 'rotate-180'
+          )}
         />
 
         {/* App name + version */}
@@ -409,18 +446,14 @@ function VulnerabilityCard({
         <div className="border-t px-4 pb-4 pt-3" style={{ borderColor: config.border }}>
           {/* Description */}
           {vuln.description && (
-            <p className="mb-3 text-[12px] leading-relaxed text-zinc-400">
-              {vuln.description}
-            </p>
+            <p className="mb-3 text-[12px] leading-relaxed text-zinc-400">{vuln.description}</p>
           )}
 
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-[12px]">
             {/* Fix version */}
             <div>
               <span className="text-zinc-500">
-                {vuln.fixedIn
-                  ? t('card.fixAvailable', { version: vuln.fixedIn })
-                  : t('card.noFix')}
+                {vuln.fixedIn ? t('card.fixAvailable', { version: vuln.fixedIn }) : t('card.noFix')}
               </span>
             </div>
 

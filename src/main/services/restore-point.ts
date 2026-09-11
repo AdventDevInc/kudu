@@ -54,7 +54,10 @@ export function classifyRestorePointError(raw: string): string {
 export function createRestorePoint(description: string): Promise<RestorePointResult> {
   return new Promise((resolve) => {
     if (!isAdmin()) {
-      resolve({ success: false, error: 'Administrator privileges required to create a restore point.' })
+      resolve({
+        success: false,
+        error: 'Administrator privileges required to create a restore point.'
+      })
       return
     }
 

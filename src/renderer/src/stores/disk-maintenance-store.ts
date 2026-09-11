@@ -56,12 +56,9 @@ export const useDiskMaintenanceStore = create<DiskMaintenanceState>((set) => ({
   setSelected: (ids) => set({ selected: new Set(ids) }),
   clearSelection: () => set({ selected: new Set() }),
 
-  setRunState: (id, state) =>
-    set((s) => ({ runStates: { ...s.runStates, [id]: state } })),
-  setResult: (id, result) =>
-    set((s) => ({ results: { ...s.results, [id]: result } })),
-  setProgress: (data) =>
-    set((s) => ({ progress: { ...s.progress, [data.driveId]: data } })),
+  setRunState: (id, state) => set((s) => ({ runStates: { ...s.runStates, [id]: state } })),
+  setResult: (id, result) => set((s) => ({ results: { ...s.results, [id]: result } })),
+  setProgress: (data) => set((s) => ({ progress: { ...s.progress, [data.driveId]: data } })),
   clearProgress: () => set({ progress: {} }),
   setBatchRunning: (batchRunning) => set({ batchRunning }),
 
@@ -75,8 +72,8 @@ export const useDiskMaintenanceStore = create<DiskMaintenanceState>((set) => ({
       runStates: {},
       results: {},
       progress: {},
-      batchRunning: false,
-    }),
+      batchRunning: false
+    })
 }))
 
 export function isSelectable(drive: TrimDriveInfo): boolean {

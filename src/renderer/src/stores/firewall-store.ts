@@ -3,7 +3,7 @@ import type {
   FirewallRule,
   FirewallScanProgress,
   FirewallApplyResult,
-  FirewallRiskLevel,
+  FirewallRiskLevel
 } from '@shared/types'
 
 type RiskFilter = 'all' | FirewallRiskLevel
@@ -79,19 +79,17 @@ export const useFirewallStore = create<FirewallState>((set) => ({
 
   toggleRule: (name) =>
     set((s) => ({
-      rules: s.rules.map((r) => (r.name === name ? { ...r, selected: !r.selected } : r)),
+      rules: s.rules.map((r) => (r.name === name ? { ...r, selected: !r.selected } : r))
     })),
 
   selectRecommended: () =>
     set((s) => ({
-      rules: s.rules.map((r) => ({ ...r, selected: r.issues.includes('stale') })),
+      rules: s.rules.map((r) => ({ ...r, selected: r.issues.includes('stale') }))
     })),
 
-  selectAll: () =>
-    set((s) => ({ rules: s.rules.map((r) => ({ ...r, selected: true })) })),
+  selectAll: () => set((s) => ({ rules: s.rules.map((r) => ({ ...r, selected: true })) })),
 
-  deselectAll: () =>
-    set((s) => ({ rules: s.rules.map((r) => ({ ...r, selected: false })) })),
+  deselectAll: () => set((s) => ({ rules: s.rules.map((r) => ({ ...r, selected: false })) })),
 
   reset: () =>
     set({
@@ -106,6 +104,6 @@ export const useFirewallStore = create<FirewallState>((set) => ({
       searchQuery: '',
       riskFilter: 'all',
       programFilter: 'all',
-      showBuiltin: false,
-    }),
+      showBuiltin: false
+    })
 }))

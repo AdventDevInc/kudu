@@ -6,15 +6,15 @@ const mockStat = vi.fn()
 const mockReaddir = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: (...args: any[]) => mockExecFile(...args),
+  execFile: (...args: any[]) => mockExecFile(...args)
 }))
 vi.mock('util', () => ({
-  promisify: () => mockExecFile,
+  promisify: () => mockExecFile
 }))
 vi.mock('fs/promises', () => ({
   readFile: (...args: any[]) => mockReadFile(...args),
   stat: (...args: any[]) => mockStat(...args),
-  readdir: (...args: any[]) => mockReaddir(...args),
+  readdir: (...args: any[]) => mockReaddir(...args)
 }))
 
 const { createLinuxSecurity } = await import('./security')
@@ -31,9 +31,12 @@ describe('linux security', () => {
     it('detects ClamAV when clamscan is available', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
         // isServerMode call
-        if (cmd === 'systemctl') return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
-        if (cmd === 'loginctl') return Promise.resolve({ stdout: '1 1000 user seat0 tty1\n', stderr: '' })
-        if (cmd.includes('clamscan')) return Promise.resolve({ stdout: 'ClamAV 0.103.8/26900\n', stderr: '' })
+        if (cmd === 'systemctl')
+          return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
+        if (cmd === 'loginctl')
+          return Promise.resolve({ stdout: '1 1000 user seat0 tty1\n', stderr: '' })
+        if (cmd.includes('clamscan'))
+          return Promise.resolve({ stdout: 'ClamAV 0.103.8/26900\n', stderr: '' })
         if (cmd.includes('getenforce')) return Promise.reject(new Error('not found'))
         if (cmd.includes('aa-status')) return Promise.reject(new Error('not found'))
         return Promise.reject(new Error('not found'))
@@ -58,7 +61,8 @@ describe('linux security', () => {
     it('detects SELinux in Enforcing mode', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
         if (cmd.includes('clamscan')) return Promise.reject(new Error('not found'))
-        if (cmd === '/usr/sbin/getenforce') return Promise.resolve({ stdout: 'Enforcing\n', stderr: '' })
+        if (cmd === '/usr/sbin/getenforce')
+          return Promise.resolve({ stdout: 'Enforcing\n', stderr: '' })
         if (cmd.includes('aa-status')) return Promise.reject(new Error('not found'))
         return Promise.reject(new Error('not found'))
       })
@@ -74,7 +78,8 @@ describe('linux security', () => {
     it('detects SELinux in Permissive mode as not enabled', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
         if (cmd.includes('clamscan')) return Promise.reject(new Error('not found'))
-        if (cmd === '/usr/sbin/getenforce') return Promise.resolve({ stdout: 'Permissive\n', stderr: '' })
+        if (cmd === '/usr/sbin/getenforce')
+          return Promise.resolve({ stdout: 'Permissive\n', stderr: '' })
         if (cmd.includes('aa-status')) return Promise.reject(new Error('not found'))
         return Promise.reject(new Error('not found'))
       })
@@ -93,9 +98,13 @@ describe('linux security', () => {
         if (cmd === '/usr/sbin/aa-status') {
           return Promise.resolve({
             stdout: JSON.stringify({
-              profiles: { '/usr/bin/foo': 'enforce', '/usr/bin/bar': 'enforce', '/usr/bin/baz': 'complain' },
+              profiles: {
+                '/usr/bin/foo': 'enforce',
+                '/usr/bin/bar': 'enforce',
+                '/usr/bin/baz': 'complain'
+              }
             }),
-            stderr: '',
+            stderr: ''
           })
         }
         return Promise.reject(new Error('not found'))
@@ -113,7 +122,11 @@ describe('linux security', () => {
   describe('collectFirewallStatus', () => {
     it('detects active UFW', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
-        if (cmd === '/usr/sbin/ufw') return Promise.resolve({ stdout: 'Status: active\n\nTo    Action From\n22    ALLOW  Anywhere\n', stderr: '' })
+        if (cmd === '/usr/sbin/ufw')
+          return Promise.resolve({
+            stdout: 'Status: active\n\nTo    Action From\n22    ALLOW  Anywhere\n',
+            stderr: ''
+          })
         return Promise.reject(new Error('not found'))
       })
 
@@ -126,7 +139,8 @@ describe('linux security', () => {
     it('detects active firewalld', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
         if (cmd === '/usr/sbin/ufw') return Promise.reject(new Error('not found'))
-        if (cmd === '/usr/bin/firewall-cmd') return Promise.resolve({ stdout: 'running\n', stderr: '' })
+        if (cmd === '/usr/bin/firewall-cmd')
+          return Promise.resolve({ stdout: 'running\n', stderr: '' })
         return Promise.reject(new Error('not found'))
       })
 
@@ -140,7 +154,8 @@ describe('linux security', () => {
       mockExecFile.mockImplementation((cmd: string) => {
         if (cmd === '/usr/sbin/ufw') return Promise.reject(new Error('not found'))
         if (cmd === '/usr/bin/firewall-cmd') return Promise.reject(new Error('not found'))
-        if (cmd === '/usr/sbin/nft') return Promise.resolve({ stdout: 'table inet filter {\n}\n', stderr: '' })
+        if (cmd === '/usr/sbin/nft')
+          return Promise.resolve({ stdout: 'table inet filter {\n}\n', stderr: '' })
         return Promise.reject(new Error('not found'))
       })
 
@@ -157,8 +172,9 @@ describe('linux security', () => {
         if (cmd === '/usr/sbin/nft') return Promise.reject(new Error('not found'))
         if (cmd === '/usr/sbin/iptables') {
           return Promise.resolve({
-            stdout: 'Chain INPUT (policy ACCEPT)\ntarget     prot opt source               destination\nACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22\n',
-            stderr: '',
+            stdout:
+              'Chain INPUT (policy ACCEPT)\ntarget     prot opt source               destination\nACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22\n',
+            stderr: ''
           })
         }
         return Promise.reject(new Error('not found'))
@@ -189,13 +205,11 @@ describe('linux security', () => {
               type: 'part',
               fstype: 'crypto_LUKS',
               mountpoint: null,
-              children: [
-                { name: 'dm-0', type: 'crypt', fstype: 'ext4', mountpoint: '/' },
-              ],
-            },
-          ],
+              children: [{ name: 'dm-0', type: 'crypt', fstype: 'ext4', mountpoint: '/' }]
+            }
+          ]
         }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectDiskEncryptionStatus()
@@ -215,11 +229,9 @@ describe('linux security', () => {
     it('returns empty volumes when no encryption is detected', async () => {
       mockExecFile.mockResolvedValueOnce({
         stdout: JSON.stringify({
-          blockdevices: [
-            { name: 'sda1', type: 'part', fstype: 'ext4', mountpoint: '/' },
-          ],
+          blockdevices: [{ name: 'sda1', type: 'part', fstype: 'ext4', mountpoint: '/' }]
         }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectDiskEncryptionStatus()
@@ -232,9 +244,7 @@ describe('linux security', () => {
     it('parses /etc/login.defs for password policies', async () => {
       mockReadFile.mockImplementation((path: string) => {
         if (path === '/etc/login.defs') {
-          return Promise.resolve(
-            'PASS_MIN_LEN 8\nPASS_MAX_DAYS 90\nPASS_MIN_DAYS 1\n',
-          )
+          return Promise.resolve('PASS_MIN_LEN 8\nPASS_MAX_DAYS 90\nPASS_MIN_DAYS 1\n')
         }
         return Promise.reject(new Error('ENOENT'))
       })
@@ -250,7 +260,9 @@ describe('linux security', () => {
       mockReadFile.mockImplementation((path: string) => {
         if (path === '/etc/login.defs') return Promise.resolve('PASS_MIN_LEN 6\n')
         if (path === '/etc/security/pwquality.conf') {
-          return Promise.resolve('minlen = 12\ndcredit = -1\nucredit = -1\nlcredit = 0\nocredit = 0\n')
+          return Promise.resolve(
+            'minlen = 12\ndcredit = -1\nucredit = -1\nlcredit = 0\nocredit = 0\n'
+          )
         }
         return Promise.reject(new Error('ENOENT'))
       })
@@ -292,7 +304,8 @@ describe('linux security', () => {
   describe('collectSshHardening', () => {
     it('returns sshdInstalled: false when sshd binary is not found', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
-        if (cmd === 'systemctl') return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
+        if (cmd === 'systemctl')
+          return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
         if (cmd === 'loginctl') {
           return Promise.resolve({ stdout: '1 1000 user seat0 tty1\n', stderr: '' })
         }
@@ -307,7 +320,8 @@ describe('linux security', () => {
 
     it('parses sshd_config for hardening directives', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
-        if (cmd === 'systemctl') return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
+        if (cmd === 'systemctl')
+          return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
         if (cmd === 'loginctl') {
           return Promise.resolve({ stdout: '1 1000 user seat0 tty1\n', stderr: '' })
         }
@@ -315,7 +329,7 @@ describe('linux security', () => {
       })
       mockStat.mockResolvedValueOnce({}) // /usr/sbin/sshd exists
       mockReadFile.mockResolvedValueOnce(
-        'PermitRootLogin no\nPasswordAuthentication no\nPubkeyAuthentication yes\nPermitEmptyPasswords no\n',
+        'PermitRootLogin no\nPasswordAuthentication no\nPubkeyAuthentication yes\nPermitEmptyPasswords no\n'
       )
       mockReaddir.mockRejectedValueOnce(new Error('ENOENT')) // no drop-in directory
 
@@ -330,7 +344,8 @@ describe('linux security', () => {
 
     it('detects PermitRootLogin prohibit-password as rootLoginDisabled', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
-        if (cmd === 'systemctl') return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
+        if (cmd === 'systemctl')
+          return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
         if (cmd === 'loginctl') {
           return Promise.resolve({ stdout: '1 1000 user seat0 tty1\n', stderr: '' })
         }
@@ -347,7 +362,8 @@ describe('linux security', () => {
 
     it('stops parsing at Match blocks', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
-        if (cmd === 'systemctl') return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
+        if (cmd === 'systemctl')
+          return Promise.resolve({ stdout: 'graphical.target\n', stderr: '' })
         if (cmd === 'loginctl') {
           return Promise.resolve({ stdout: '1 1000 user seat0 tty1\n', stderr: '' })
         }
@@ -355,7 +371,7 @@ describe('linux security', () => {
       })
       mockStat.mockResolvedValueOnce({})
       mockReadFile.mockResolvedValueOnce(
-        'PasswordAuthentication no\nMatch User admin\nPasswordAuthentication yes\n',
+        'PasswordAuthentication no\nMatch User admin\nPasswordAuthentication yes\n'
       )
       mockReaddir.mockRejectedValueOnce(new Error('ENOENT'))
 
@@ -399,7 +415,8 @@ describe('linux security', () => {
   describe('isServer', () => {
     it('detects multi-user.target as server mode', async () => {
       mockExecFile.mockImplementation((cmd: string) => {
-        if (cmd === 'systemctl') return Promise.resolve({ stdout: 'multi-user.target\n', stderr: '' })
+        if (cmd === 'systemctl')
+          return Promise.resolve({ stdout: 'multi-user.target\n', stderr: '' })
         return Promise.reject(new Error('not found'))
       })
 

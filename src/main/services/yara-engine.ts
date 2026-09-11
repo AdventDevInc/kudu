@@ -125,7 +125,7 @@ export class YaraEngine {
         if (message?.type === 'ready' && !settled) {
           settled = true
           worker.removeListener('error', failStartup)
-          worker.on('error', (error) => this._failWorker(error))
+          worker.on('error', (error: Error) => this._failWorker(error))
           this._worker = worker
           this._ready = true
           resolve()
@@ -175,9 +175,7 @@ export class YaraEngine {
   }
 
   private _canRecover(): boolean {
-    return !this._disposed
-      && this._lastRuleConfig !== null
-      && (!this._retired || this._leases > 0)
+    return !this._disposed && this._lastRuleConfig !== null && (!this._retired || this._leases > 0)
   }
 
   private _startRecovery(cause: Error): Promise<void> {
@@ -203,7 +201,7 @@ export class YaraEngine {
       const result = await this._requestWorker<{ loaded: number; errors: string[] }>({
         type: 'load-rules',
         ruleFilePaths: config.ruleFilePaths,
-        extraSources: config.extraSources,
+        extraSources: config.extraSources
       })
       if (result.loaded === 0) throw new Error('Recovered YARA worker loaded no rules')
       this._rulesLoaded = result.loaded
@@ -223,7 +221,7 @@ export class YaraEngine {
 
   private _requestWorker<T>(
     message: Record<string, unknown>,
-    onProgress?: (loaded: number, total: number) => void,
+    onProgress?: (loaded: number, total: number) => void
   ): Promise<T> {
     const worker = this._worker
     if (!worker) return Promise.reject(new Error('YARA worker is not running'))
@@ -253,14 +251,17 @@ export class YaraEngine {
   async loadRules(
     ruleFilePaths: string[],
     extraSources: string[] = [],
-    onProgress?: (loaded: number, total: number) => void,
+    onProgress?: (loaded: number, total: number) => void
   ): Promise<{ loaded: number; errors: string[] }> {
     if (this._worker) {
-      const result = await this._requestWorker<{ loaded: number; errors: string[] }>({
-        type: 'load-rules',
-        ruleFilePaths,
-        extraSources,
-      }, onProgress)
+      const result = await this._requestWorker<{ loaded: number; errors: string[] }>(
+        {
+          type: 'load-rules',
+          ruleFilePaths,
+          extraSources
+        },
+        onProgress
+      )
       this._rulesLoaded = result.loaded
       if (result.loaded > 0) this._rememberRules(ruleFilePaths, extraSources)
       return result
@@ -274,14 +275,14 @@ export class YaraEngine {
   private _rememberRules(ruleFilePaths: string[], extraSources: string[]): void {
     this._lastRuleConfig = {
       ruleFilePaths: [...ruleFilePaths],
-      extraSources: [...extraSources],
+      extraSources: [...extraSources]
     }
   }
 
   private async _loadRulesInline(
     ruleFilePaths: string[],
     extraSources: string[] = [],
-    onProgress?: (loaded: number, total: number) => void,
+    onProgress?: (loaded: number, total: number) => void
   ): Promise<{ loaded: number; errors: string[] }> {
     if (!this._scanner) {
       return { loaded: 0, errors: ['YARA engine not initialized'] }
@@ -301,7 +302,7 @@ export class YaraEngine {
 
     function shouldSkipForPlatform(name: string): boolean {
       const lower = name.toLowerCase()
-      return platformSkip.some(tag => lower.includes(tag))
+      return platformSkip.some((tag) => lower.includes(tag))
     }
 
     // Read all sources (skipping irrelevant platforms)
@@ -310,7 +311,10 @@ export class YaraEngine {
     let skippedPlatform = 0
     for (const filePath of ruleFilePaths) {
       const name = basename(filePath)
-      if (shouldSkipForPlatform(name)) { skippedPlatform++; continue }
+      if (shouldSkipForPlatform(name)) {
+        skippedPlatform++
+        continue
+      }
       try {
         sources.push({ name, content: readFileSync(filePath, 'utf-8') })
       } catch (err) {
@@ -331,10 +335,10 @@ export class YaraEngine {
     }
 
     // Try fast path: compile everything in one call (~2s for 1400 files)
-    const combined = sources.map(s => s.content).join('\n')
+    const combined = sources.map((s) => s.content).join('\n')
     try {
       onProgress?.(Math.floor(total * 0.5), total)
-      await new Promise(resolve => setImmediate(resolve))
+      await new Promise((resolve) => setImmediate(resolve))
       this._scanner = yarax.compile(combined)
       this._rulesLoaded = sources.length
       onProgress?.(total, total)
@@ -352,11 +356,13 @@ export class YaraEngine {
         yarax.compile(sources[i].content)
         validSources.push(sources[i].content)
       } catch (err) {
-        errors.push(`${sources[i].name}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+        errors.push(
+          `${sources[i].name}: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`
+        )
       }
       if ((i + 1) % 20 === 0) {
         onProgress?.(i + 1, total)
-        await new Promise(resolve => setImmediate(resolve))
+        await new Promise((resolve) => setImmediate(resolve))
       }
     }
 
@@ -370,7 +376,9 @@ export class YaraEngine {
       onProgress?.(total, total)
       this._scanner = yarax.compile(validSources.join('\n'))
     } catch (err) {
-      errors.push(`Final compile: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`)
+      errors.push(
+        `Final compile: ${err instanceof Error ? err.message.split('\n')[0] : String(err)}`
+      )
       this._rulesLoaded = 0
       return { loaded: 0, errors }
     }
@@ -392,7 +400,7 @@ export class YaraEngine {
 
     try {
       const results = this._scanner.scan(buffer)
-      return results.map(r => this._convertMatch(r))
+      return results.map((r) => this._convertMatch(r))
     } catch (err) {
       console.warn('[yara] Scan error:', err)
       return []
@@ -413,7 +421,7 @@ export class YaraEngine {
     try {
       const contents = readFileSync(filePath)
       const results = this._scanner.scan(contents)
-      return results.map(r => this._convertMatch(r))
+      return results.map((r) => this._convertMatch(r))
     } catch (err) {
       console.warn('[yara] File scan error:', err)
       return []
@@ -433,7 +441,7 @@ export class YaraEngine {
     try {
       const contents = readFileSync(filePath)
       const results = await this._scanner.scanAsync(contents)
-      return results.map(r => this._convertMatch(r))
+      return results.map((r) => this._convertMatch(r))
     } catch (err) {
       console.warn('[yara] Async file scan error:', err)
       return []
@@ -445,7 +453,8 @@ export class YaraEngine {
     if (r.meta.detectionName) metadata.detectionName = String(r.meta.detectionName)
     if (r.meta.severity) {
       const sev = String(r.meta.severity).toLowerCase()
-      if (VALID_SEVERITIES.has(sev as any)) metadata.severity = sev as YaraMatch['metadata']['severity']
+      if (VALID_SEVERITIES.has(sev as any))
+        metadata.severity = sev as YaraMatch['metadata']['severity']
     }
     if (r.meta.details) metadata.details = String(r.meta.details)
     if (r.meta.filenameOnly) metadata.filenameOnly = String(r.meta.filenameOnly)
@@ -453,7 +462,7 @@ export class YaraEngine {
     return {
       ruleName: r.ruleIdentifier,
       metadata,
-      matchedStrings: r.matches.map(m => m.data),
+      matchedStrings: r.matches.map((m) => m.data)
     }
   }
 
@@ -540,6 +549,6 @@ export function yaraMatchToThreatFields(match: YaraMatch): {
   return {
     detectionName: match.metadata.detectionName || match.ruleName.replace(/_/g, '.'),
     severity,
-    details: match.metadata.details || `YARA rule match: ${match.ruleName}`,
+    details: match.metadata.details || `YARA rule match: ${match.ruleName}`
   }
 }

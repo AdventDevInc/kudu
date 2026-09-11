@@ -8,8 +8,8 @@ let readThrows = false
 
 vi.mock('electron', () => ({
   screen: {
-    getAllDisplays: () => displays,
-  },
+    getAllDisplays: () => displays
+  }
 }))
 
 vi.mock('./settings-store', () => ({
@@ -20,7 +20,7 @@ vi.mock('./settings-store', () => ({
   setWindowState: (s: WindowState) => {
     savedStates.push(s)
     return Promise.resolve()
-  },
+  }
 }))
 
 import {
@@ -28,11 +28,11 @@ import {
   loadWindowState,
   trackWindowState,
   MIN_WINDOW_WIDTH,
-  MIN_WINDOW_HEIGHT,
+  MIN_WINDOW_HEIGHT
 } from './window-state'
 
 const display = (x: number, y: number, width: number, height: number) => ({
-  workArea: { x, y, width, height },
+  workArea: { x, y, width, height }
 })
 
 const LAPTOP = display(0, 0, 1920, 1040)
@@ -45,7 +45,7 @@ describe('sanitizeWindowState (issue #270)', () => {
     expect(sanitizeWindowState(null, [LAPTOP], FALLBACK)).toEqual({
       width: 1440,
       height: 832,
-      isMaximized: false,
+      isMaximized: false
     })
   })
 
@@ -64,7 +64,11 @@ describe('sanitizeWindowState (issue #270)', () => {
   })
 
   it('clamps a size below the window minimums', () => {
-    const state = sanitizeWindowState({ width: 300, height: 200, isMaximized: false }, [LAPTOP], FALLBACK)
+    const state = sanitizeWindowState(
+      { width: 300, height: 200, isMaximized: false },
+      [LAPTOP],
+      FALLBACK
+    )
     expect(state.width).toBe(MIN_WINDOW_WIDTH)
     expect(state.height).toBe(MIN_WINDOW_HEIGHT)
   })
@@ -118,9 +122,11 @@ describe('sanitizeWindowState (issue #270)', () => {
       { width: Number.NaN, height: 700, isMaximized: false },
       { width: -1200, height: 700, isMaximized: false },
       { width: 1200, isMaximized: false },
-      {},
+      {}
     ]) {
-      expect(sanitizeWindowState(bad as Partial<WindowState>, [LAPTOP], FALLBACK)).toMatchObject(FALLBACK)
+      expect(sanitizeWindowState(bad as Partial<WindowState>, [LAPTOP], FALLBACK)).toMatchObject(
+        FALLBACK
+      )
     }
   })
 

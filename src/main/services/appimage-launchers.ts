@@ -23,7 +23,7 @@ export function rewriteDesktopExec(content: string, oldPath: string, newPath: st
 export function retargetAppImageLaunchers(
   oldPath: string,
   newPath: string,
-  applicationsDir = join(homedir(), '.local', 'share', 'applications'),
+  applicationsDir = join(homedir(), '.local', 'share', 'applications')
 ): number {
   let updated = 0
   let names: string[]

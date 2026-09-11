@@ -13,7 +13,7 @@
 
 const fs = require('fs')
 const path = require('path')
-const crypto = require('crypto')
+const { createHash } = require('crypto')
 
 // ─── Configuration ──────────────────────────────────────────
 
@@ -73,7 +73,7 @@ const nsFilter = getArgValue('--ns')?.split(',') ?? null
 // ─── Helpers ────────────────────────────────────────────────
 
 function sha256(content) {
-  return crypto.createHash('sha256').update(content, 'utf-8').digest('hex')
+  return createHash('sha256').update(content, 'utf-8').digest('hex')
 }
 
 function loadChecksums() {
@@ -349,7 +349,9 @@ async function main() {
               // Auto-repair dropped interpolation variables (common with RTL languages)
               const repaired = repairTranslation(englishJson, result)
               if (repaired > 0) {
-                console.log(`  [repair] ${langCode}/${ns}.json — re-inserted ${repaired} dropped variable(s)`)
+                console.log(
+                  `  [repair] ${langCode}/${ns}.json — re-inserted ${repaired} dropped variable(s)`
+                )
               }
 
               // Validate
@@ -359,7 +361,9 @@ async function main() {
                   console.log(`  [retry] ${langCode}/${ns}.json — validation errors: ${errors[0]}`)
                   continue
                 }
-                console.warn(`  [warn] ${langCode}/${ns}.json — validation issues: ${errors.join('; ')}`)
+                console.warn(
+                  `  [warn] ${langCode}/${ns}.json — validation issues: ${errors.join('; ')}`
+                )
               }
 
               // Write output
@@ -377,7 +381,9 @@ async function main() {
               lastError = err
               if (err.message?.includes('429') && attempt < MAX_RETRIES) {
                 const delay = Math.pow(2, attempt) * 1000
-                console.log(`  [rate-limited] ${langCode}/${ns}.json — retrying in ${delay / 1000}s...`)
+                console.log(
+                  `  [rate-limited] ${langCode}/${ns}.json — retrying in ${delay / 1000}s...`
+                )
                 await sleep(delay)
               } else if (attempt < MAX_RETRIES) {
                 console.log(`  [retry] ${langCode}/${ns}.json — ${err.message}`)

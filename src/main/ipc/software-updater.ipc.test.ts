@@ -8,16 +8,16 @@ vi.mock('electron', () => ({
   ipcMain: {
     handle: vi.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
       handleMap.set(channel, handler)
-    }),
-  },
+    })
+  }
 }))
 
 vi.mock('../../shared/channels', () => ({
   IPC: {
     SOFTWARE_UPDATE_CHECK: 'software-update:check',
     SOFTWARE_UPDATE_RUN: 'software-update:run',
-    SOFTWARE_UPDATE_PROGRESS: 'software-update:progress',
-  },
+    SOFTWARE_UPDATE_PROGRESS: 'software-update:progress'
+  }
 }))
 
 const mockCheckForUpdates = vi.fn()
@@ -25,7 +25,7 @@ const mockRunUpdates = vi.fn()
 
 vi.mock('../services/software-updater', () => ({
   checkForUpdates: (...args: unknown[]) => mockCheckForUpdates(...args),
-  runUpdates: (...args: unknown[]) => mockRunUpdates(...args),
+  runUpdates: (...args: unknown[]) => mockRunUpdates(...args)
 }))
 
 import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
@@ -36,7 +36,7 @@ import type { BrowserWindow } from 'electron'
 function makeWindow(destroyed = false) {
   return {
     isDestroyed: () => destroyed,
-    webContents: { send: vi.fn() },
+    webContents: { send: vi.fn() }
   } as unknown as BrowserWindow
 }
 
@@ -65,7 +65,16 @@ describe('software-updater IPC', () => {
 
   describe('SOFTWARE_UPDATE_CHECK', () => {
     it('delegates to checkForUpdates and returns its result', async () => {
-      const expected = { apps: [], upToDate: [], totalCount: 0, majorCount: 0, minorCount: 0, patchCount: 0, packageManagerAvailable: true, packageManagerName: 'winget' }
+      const expected = {
+        apps: [],
+        upToDate: [],
+        totalCount: 0,
+        majorCount: 0,
+        minorCount: 0,
+        patchCount: 0,
+        packageManagerAvailable: true,
+        packageManagerName: 'winget'
+      }
       mockCheckForUpdates.mockResolvedValue(expected)
 
       registerSoftwareUpdaterIpc(() => makeWindow())
@@ -94,11 +103,17 @@ describe('software-updater IPC', () => {
       const win = makeWindow()
       registerSoftwareUpdaterIpc(() => win)
 
-      const result = await invoke('software-update:run', [item('app1', 'winget'), item('app2', 'choco')])
+      const result = await invoke('software-update:run', [
+        item('app1', 'winget'),
+        item('app2', 'choco')
+      ])
       expect(result).toEqual(expected)
       expect(mockRunUpdates).toHaveBeenCalledOnce()
       // First arg: filtered {id, source} items
-      expect(mockRunUpdates.mock.calls[0][0]).toEqual([item('app1', 'winget'), item('app2', 'choco')])
+      expect(mockRunUpdates.mock.calls[0][0]).toEqual([
+        item('app1', 'winget'),
+        item('app2', 'choco')
+      ])
       // Second arg: sendProgress function
       expect(typeof mockRunUpdates.mock.calls[0][1]).toBe('function')
     })
@@ -134,9 +149,12 @@ describe('software-updater IPC', () => {
         { id: '', source: 'winget' },
         { id: 'no-source' },
         null,
-        item('another-valid', 'npm'),
+        item('another-valid', 'npm')
       ])
-      expect(mockRunUpdates.mock.calls[0][0]).toEqual([item('valid-id', 'winget'), item('another-valid', 'npm')])
+      expect(mockRunUpdates.mock.calls[0][0]).toEqual([
+        item('valid-id', 'winget'),
+        item('another-valid', 'npm')
+      ])
     })
 
     it('filters out ids that are >= 200 characters', async () => {
@@ -150,26 +168,48 @@ describe('software-updater IPC', () => {
     })
 
     it('sendProgress sends data to window via IPC', async () => {
-      mockRunUpdates.mockImplementation(async (_items: unknown[], sendProgress: (data: unknown) => void) => {
-        sendProgress({ phase: 'updating', current: 1, total: 2, currentApp: 'App1', percent: 50, status: 'in-progress' })
-        return { succeeded: 1, failed: 0, errors: [] }
-      })
+      mockRunUpdates.mockImplementation(
+        async (_items: unknown[], sendProgress: (data: unknown) => void) => {
+          sendProgress({
+            phase: 'updating',
+            current: 1,
+            total: 2,
+            currentApp: 'App1',
+            percent: 50,
+            status: 'in-progress'
+          })
+          return { succeeded: 1, failed: 0, errors: [] }
+        }
+      )
 
       const win = makeWindow()
       registerSoftwareUpdaterIpc(() => win)
       await invoke('software-update:run', [item('app1')])
 
-      expect(win.webContents.send).toHaveBeenCalledWith(
-        'software-update:progress',
-        { phase: 'updating', current: 1, total: 2, currentApp: 'App1', percent: 50, status: 'in-progress' },
-      )
+      expect(win.webContents.send).toHaveBeenCalledWith('software-update:progress', {
+        phase: 'updating',
+        current: 1,
+        total: 2,
+        currentApp: 'App1',
+        percent: 50,
+        status: 'in-progress'
+      })
     })
 
     it('sendProgress does not throw when window is null', async () => {
-      mockRunUpdates.mockImplementation(async (_items: unknown[], sendProgress: (data: unknown) => void) => {
-        sendProgress({ phase: 'updating', current: 1, total: 1, currentApp: 'X', percent: 100, status: 'done' })
-        return { succeeded: 1, failed: 0, errors: [] }
-      })
+      mockRunUpdates.mockImplementation(
+        async (_items: unknown[], sendProgress: (data: unknown) => void) => {
+          sendProgress({
+            phase: 'updating',
+            current: 1,
+            total: 1,
+            currentApp: 'X',
+            percent: 100,
+            status: 'done'
+          })
+          return { succeeded: 1, failed: 0, errors: [] }
+        }
+      )
 
       registerSoftwareUpdaterIpc(() => null)
       // Should not throw
@@ -177,10 +217,19 @@ describe('software-updater IPC', () => {
     })
 
     it('sendProgress does not throw when window is destroyed', async () => {
-      mockRunUpdates.mockImplementation(async (_items: unknown[], sendProgress: (data: unknown) => void) => {
-        sendProgress({ phase: 'updating', current: 1, total: 1, currentApp: 'X', percent: 100, status: 'done' })
-        return { succeeded: 1, failed: 0, errors: [] }
-      })
+      mockRunUpdates.mockImplementation(
+        async (_items: unknown[], sendProgress: (data: unknown) => void) => {
+          sendProgress({
+            phase: 'updating',
+            current: 1,
+            total: 1,
+            currentApp: 'X',
+            percent: 100,
+            status: 'done'
+          })
+          return { succeeded: 1, failed: 0, errors: [] }
+        }
+      )
 
       const win = makeWindow(true) // destroyed
       registerSoftwareUpdaterIpc(() => win)

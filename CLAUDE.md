@@ -24,10 +24,16 @@ conventional-changelog-angular` should show `8.x` at the top level.
 ## Testing
 
 ```
-npm test              # run all tests once (vitest run)
-npm run test:watch    # run tests in watch mode
+npm run check          # everything CI runs: typecheck, lint, format, rules, tests
+npm test               # run all tests once (vitest run)
+npm run test:watch     # run tests in watch mode
+npm run typecheck      # tsc across main + renderer (test files excluded for now)
+npm run lint           # eslint
+npm run format         # prettier --write
 npm run validate:rules # validate rule JSON files against schema
 ```
+
+PRs are squash-merged with the PR title as the commit message, so the title must be a Conventional Commit. Individual commits inside a PR are not linted.
 
 ## Development
 

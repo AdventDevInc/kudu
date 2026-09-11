@@ -48,10 +48,7 @@ export default defineConfig({
         name: 'kudu-strip-csp-in-dev',
         apply: 'serve',
         transformIndexHtml(html: string): string {
-          return html.replace(
-            /<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>\s*/i,
-            ''
-          )
+          return html.replace(/<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>\s*/i, '')
         }
       }
     ],

@@ -19,33 +19,38 @@ interface TabDef {
 const PM_DESCRIPTION_KEYS: Record<string, string> = {
   win32: 'tabs.softwareDescriptionWindows',
   darwin: 'tabs.softwareDescriptionMac',
-  linux: 'tabs.softwareDescriptionLinux',
+  linux: 'tabs.softwareDescriptionLinux'
 }
 
 export function UpdatesPage() {
   const { t } = useTranslation('updates')
   const { platform, features } = usePlatform()
   const location = useLocation()
-  const [activeTab, setActiveTab] = useState(location.pathname === '/drivers' ? 'drivers' : 'software')
+  const [activeTab, setActiveTab] = useState(
+    location.pathname === '/drivers' ? 'drivers' : 'software'
+  )
 
   const visibleTabs = useMemo(() => {
     const softwareTab: TabDef = {
       id: 'software',
       label: t('tabs.software'),
       icon: Download,
-      description: t(PM_DESCRIPTION_KEYS[platform] || PM_DESCRIPTION_KEYS.linux),
+      description: t(PM_DESCRIPTION_KEYS[platform] || PM_DESCRIPTION_KEYS.linux)
     }
     const result: TabDef[] = [softwareTab]
-    if (features.drivers) result.push({ id: 'drivers', label: t('tabs.drivers'), icon: Cpu, description: t('tabs.driversDescription') })
+    if (features.drivers)
+      result.push({
+        id: 'drivers',
+        label: t('tabs.drivers'),
+        icon: Cpu,
+        description: t('tabs.driversDescription')
+      })
     return result
   }, [platform, features.drivers, t])
 
   return (
     <div className="animate-fade-in">
-      <PageHeader
-        title={t('pageTitle')}
-        description={t('pageDescription')}
-      />
+      <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
       {/* Tab bar */}
       <div
@@ -67,7 +72,10 @@ export function UpdatesPage() {
             >
               <TabIcon className="h-4 w-4 shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{tab.label}</span>
-              <span className="hidden text-[11px] sm:inline" style={{ color: isActive ? 'var(--text-dim)' : 'var(--text-muted)' }}>
+              <span
+                className="hidden text-[11px] sm:inline"
+                style={{ color: isActive ? 'var(--text-dim)' : 'var(--text-muted)' }}
+              >
                 {tab.description}
               </span>
             </button>

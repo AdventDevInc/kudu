@@ -9,16 +9,26 @@ const TEST_DIR = join(tmpdir(), `kudu-test-${randomUUID()}`)
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getPath: () => TEST_DIR,
+    getPath: () => TEST_DIR
   },
   safeStorage: {
     isEncryptionAvailable: () => false,
     encryptString: (s: string) => Buffer.from(s),
-    decryptString: (b: Buffer) => b.toString(),
-  },
+    decryptString: (b: Buffer) => b.toString()
+  }
 }))
 
-import { setSettings, getSettings, flushSettings, updateRegistryIgnoredTweaks, getMalwareAllowlist, addMalwareAllowlistEntry, removeMalwareAllowlistEntry, getWindowState, setWindowState } from './settings-store'
+import {
+  setSettings,
+  getSettings,
+  flushSettings,
+  updateRegistryIgnoredTweaks,
+  getMalwareAllowlist,
+  addMalwareAllowlistEntry,
+  removeMalwareAllowlistEntry,
+  getWindowState,
+  setWindowState
+} from './settings-store'
 import type { MalwareAllowlistEntry } from '../../shared/types'
 
 describe('settings persistence — game mode toggle round-trip (issue #172)', () => {
@@ -34,8 +44,8 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
     setSettings({
       gameMode: {
         ...initial.gameMode,
-        enabledOptimizations: without,
-      },
+        enabledOptimizations: without
+      }
     })
     await flushSettings()
 
@@ -51,8 +61,8 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
         customProcessKillList: [],
         autoDetect: false,
         autoDeactivate: true,
-        customGameProcesses: [],
-      },
+        customGameProcesses: []
+      }
     })
     await flushSettings()
 
@@ -104,7 +114,13 @@ describe('window geometry persistence (issue #270)', () => {
 
   it('survives a simulated restart', async () => {
     await setWindowState({ x: 120, y: 80, width: 1310, height: 880, isMaximized: false })
-    expect(getWindowState()).toEqual({ x: 120, y: 80, width: 1310, height: 880, isMaximized: false })
+    expect(getWindowState()).toEqual({
+      x: 120,
+      y: 80,
+      width: 1310,
+      height: 880,
+      isMaximized: false
+    })
   })
 
   it('replaces the previous geometry rather than merging with it', async () => {
@@ -144,13 +160,16 @@ describe('malware allowlist (false positives)', () => {
     if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true, force: true })
   })
 
-  const entry = (sha256: string, over: Partial<MalwareAllowlistEntry> = {}): MalwareAllowlistEntry => ({
+  const entry = (
+    sha256: string,
+    over: Partial<MalwareAllowlistEntry> = {}
+  ): MalwareAllowlistEntry => ({
     sha256,
     path: `C:/Games/${sha256}.exe`,
     fileName: `${sha256}.exe`,
     detectionName: 'Heuristic.Suspicious.PE',
     addedAt: 1,
-    ...over,
+    ...over
   })
 
   it('defaults the allowlist to an empty array', () => {

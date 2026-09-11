@@ -19,7 +19,8 @@ export interface WinReInfo {
   error?: string
 }
 
-const UNREADABLE = 'reagentc /info did not report a recognisable status (needs an elevated, English-locale shell)'
+const UNREADABLE =
+  'reagentc /info did not report a recognisable status (needs an elevated, English-locale shell)'
 
 /** Pure parser for `reagentc /info` stdout (#395). */
 export function parseWinReInfo(stdout: string): WinReInfo {
@@ -29,9 +30,7 @@ export function parseWinReInfo(stdout: string): WinReInfo {
   const locationMatch = stdout.match(/Windows RE location:[ \t]*([^\r\n]*)/i)
   const location = locationMatch?.[1]?.trim() || null
 
-  const bcdMatch = stdout.match(
-    /Boot Configuration Data \(BCD\) identifier:\s*([0-9a-fA-F-]{36})/i
-  )
+  const bcdMatch = stdout.match(/Boot Configuration Data \(BCD\) identifier:\s*([0-9a-fA-F-]{36})/i)
   const bcdIdentifier = bcdMatch?.[1] ?? null
 
   if (raw === 'Enabled' || raw === 'Disabled') {
@@ -45,17 +44,21 @@ export async function getWinReInfo(): Promise<WinReInfo> {
   try {
     const { stdout } = await execFileAsync('reagentc.exe', ['/info'], {
       windowsHide: true,
-      timeout: 30_000,
+      timeout: 30_000
     })
     return parseWinReInfo(stdout)
   } catch (err: unknown) {
-    const e = err && typeof err === 'object' ? (err as { stdout?: unknown; stderr?: unknown; message?: unknown }) : {}
+    const e =
+      err && typeof err === 'object'
+        ? (err as { stdout?: unknown; stderr?: unknown; message?: unknown })
+        : {}
     const stdout = String(e.stdout ?? '')
     if (stdout.trim()) {
       const parsed = parseWinReInfo(stdout)
       if (parsed.status !== 'Unknown') return parsed
     }
-    const detail = String(e.stderr ?? '').trim() || String(e.message ?? '').trim() || 'reagentc failed'
+    const detail =
+      String(e.stderr ?? '').trim() || String(e.message ?? '').trim() || 'reagentc failed'
     return { status: 'Unknown', location: null, bcdIdentifier: null, error: detail }
   }
 }
