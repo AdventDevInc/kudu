@@ -730,6 +730,11 @@ export interface KuduSettings {
    * sidebar badge counts. Manual checks from the Software Updater page still work.
    */
   softwareUpdaterNotifications: boolean
+  /**
+   * When true, prompt for elevation (UAC / pkexec) on launch if not already
+   * elevated. Opt-in — default stays unelevated (#390). Hidden on macOS.
+   */
+  preferElevatedLaunch: boolean
   cleaner: {
     skipRecentMinutes: number
     secureDelete: boolean

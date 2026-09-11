@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "每天一次",
   "softwareUpdaterNotificationsLabel": "软件更新器提醒",
   "softwareUpdaterNotificationsDesc": "在后台检查第三方应用更新，并在侧边栏中显示徽章计数。您仍然可以在“软件更新器”页面手动检查。",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows 包管理器",
   "windowsPackageManagerDesc": "选择用于软件更新的包管理器",
   "sectionCloudDashboard": "云",

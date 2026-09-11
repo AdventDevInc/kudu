@@ -48,6 +48,7 @@ const defaults: StoreData = {
     autoRestart: true,
     updateCheckIntervalHours: 4,
     softwareUpdaterNotifications: true,
+    preferElevatedLaunch: false,
     cleaner: {
       skipRecentMinutes: 60,
       secureDelete: false,

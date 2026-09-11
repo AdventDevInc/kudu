@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Naponta egyszer",
   "softwareUpdaterNotificationsLabel": "Szoftverfrissítő emlékeztetők",
   "softwareUpdaterNotificationsDesc": "A háttérben ellenőrzi a külső alkalmazások frissítéseit, és jelvényszámokat jelenít meg az oldalsávon. A Szoftverfrissítő oldalon továbbra is manuálisan is ellenőrizheti.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows csomagkezelő",
   "windowsPackageManagerDesc": "Válassza ki, melyik csomagkezelőt használja a szoftverfrissítésekhez",
   "sectionCloudDashboard": "Felhő",

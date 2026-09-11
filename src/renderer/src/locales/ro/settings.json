@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "O dată pe zi",
   "softwareUpdaterNotificationsLabel": "Mementouri pentru actualizatorul de software",
   "softwareUpdaterNotificationsDesc": "Verificați în fundal actualizările pentru aplicațiile terțe și afișați numărul acestora în bara laterală. Puteți verifica în continuare manual din pagina Actualizator software.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Manager de pachete Windows",
   "windowsPackageManagerDesc": "Alegeți ce manager de pachete să fie utilizat pentru actualizările software",
   "sectionCloudDashboard": "Cloud",

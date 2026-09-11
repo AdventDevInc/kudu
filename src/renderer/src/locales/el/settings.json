@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Μία φορά την ημέρα",
   "softwareUpdaterNotificationsLabel": "Υπενθυμίσεις ενημέρωσης λογισμικού",
   "softwareUpdaterNotificationsDesc": "Έλεγχος για ενημερώσεις εφαρμογών τρίτων στο παρασκήνιο και εμφάνιση μετρητών σημάτων στην πλευρική γραμμή. Μπορείτε επίσης να κάνετε έλεγχο μη αυτόματα από τη σελίδα Ενημέρωση λογισμικού.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Διαχειριστής πακέτων Windows",
   "windowsPackageManagerDesc": "Επιλέξτε ποιος διαχειριστής πακέτων θα χρησιμοποιείται για ενημερώσεις λογισμικού",
   "sectionCloudDashboard": "Cloud",

@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Раз на день",
   "softwareUpdaterNotificationsLabel": "Нагадування про оновлення програм",
   "softwareUpdaterNotificationsDesc": "Перевіряти у фоновому режимі оновлення сторонніх програм і показувати кількість у значку на бічній панелі. Ви також можете виконати перевірку вручну на сторінці оновлення програм.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Менеджер пакетів Windows",
   "windowsPackageManagerDesc": "Виберіть менеджер пакетів для оновлення програм",
   "sectionCloudDashboard": "Хмара",

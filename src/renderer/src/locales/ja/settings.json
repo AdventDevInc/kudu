@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "1 日 1 回",
   "softwareUpdaterNotificationsLabel": "ソフトウェア更新の通知",
   "softwareUpdaterNotificationsDesc": "バックグラウンドでサードパーティ製アプリの更新を確認し、サイドバーにバッジ数を表示します。手動で確認する場合は、ソフトウェア更新ページからいつでも実行できます。",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows パッケージ マネージャー",
   "windowsPackageManagerDesc": "ソフトウェア更新に使用するパッケージ マネージャーを選択します",
   "sectionCloudDashboard": "クラウド",

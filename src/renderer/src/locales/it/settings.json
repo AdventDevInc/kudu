@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Una volta al giorno",
   "softwareUpdaterNotificationsLabel": "Promemoria aggiornamenti software",
   "softwareUpdaterNotificationsDesc": "Controlla in background gli aggiornamenti delle app di terze parti e mostra il conteggio dei badge nella barra laterale. Puoi comunque controllare manualmente dalla pagina Aggiornamento software.",
+  "preferElevatedLaunchLabel": "Preferisci amministratore all'avvio",
+  "preferElevatedLaunchDesc": "Chiede elevazione all'avvio se Kudu non ha diritti di amministratore (UAC su Windows, polkit su Linux). Disattivato di default.",
   "windowsPackageManagerLabel": "Gestore pacchetti di Windows",
   "windowsPackageManagerDesc": "Scegli quale gestore pacchetti usare per gli aggiornamenti software",
   "sectionCloudDashboard": "Cloud",

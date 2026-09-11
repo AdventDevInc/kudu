@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "하루에 한 번",
   "softwareUpdaterNotificationsLabel": "소프트웨어 업데이트 알림",
   "softwareUpdaterNotificationsDesc": "백그라운드에서 타사 앱 업데이트를 확인하고 사이드바에 배지 개수를 표시합니다. 소프트웨어 업데이트 페이지에서 직접 수동으로 확인할 수도 있습니다.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows 패키지 관리자",
   "windowsPackageManagerDesc": "소프트웨어 업데이트에 사용할 패키지 관리자를 선택합니다",
   "sectionCloudDashboard": "클라우드",

@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "Raz dziennie",
   "softwareUpdaterNotificationsLabel": "Przypomnienia aktualizacji oprogramowania",
   "softwareUpdaterNotificationsDesc": "Sprawdzaj w tle aktualizacje aplikacji innych firm i pokazuj liczbę dostępnych aktualizacji na pasku bocznym. Nadal możesz sprawdzać je ręcznie na stronie Aktualizator oprogramowania.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Menedżer pakietów Windows",
   "windowsPackageManagerDesc": "Wybierz menedżer pakietów używany do aktualizacji oprogramowania",
   "sectionCloudDashboard": "Chmura",

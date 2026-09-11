@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "פעם ביום",
   "softwareUpdaterNotificationsLabel": "תזכורות לעדכון תוכנות",
   "softwareUpdaterNotificationsDesc": "בדוק עדכונים ליישומי צד שלישי ברקע והצג מוני תגים בסרגל הצד. עדיין ניתן לבדוק ידנית מדף עדכון התוכנות.",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "מנהל החבילות של Windows",
   "windowsPackageManagerDesc": "בחר באיזה מנהל חבילות להשתמש לעדכוני תוכנה",
   "sectionCloudDashboard": "ענן",

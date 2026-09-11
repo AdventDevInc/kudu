@@ -24,6 +24,8 @@
   "updateCheckOnceADay": "दिन में एक बार",
   "softwareUpdaterNotificationsLabel": "सॉफ़्टवेयर अपडेटर अनुस्मारक",
   "softwareUpdaterNotificationsDesc": "पृष्ठभूमि में तृतीय-पक्ष ऐप अपडेट जाँचें और साइडबार में बैज संख्या दिखाएँ। आप फिर भी Software Updater पेज से मैन्युअल रूप से जाँच सकते हैं।",
+  "preferElevatedLaunchLabel": "Prefer administrator on launch",
+  "preferElevatedLaunchDesc": "Prompt for elevation when Kudu starts without admin rights (UAC on Windows, polkit on Linux). Off by default.",
   "windowsPackageManagerLabel": "Windows पैकेज प्रबंधक",
   "windowsPackageManagerDesc": "सॉफ़्टवेयर अपडेट के लिए कौन-सा पैकेज प्रबंधक उपयोग करना है, चुनें",
   "sectionCloudDashboard": "Cloud",
