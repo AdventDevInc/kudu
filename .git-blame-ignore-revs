@@ -1,4 +1,5 @@
 # Commits to skip in `git blame`. Use with:
 #   git config blame.ignoreRevsFile .git-blame-ignore-revs
 
-9338b0b8d3cf89cf344ffa9f01ff59317a807110  style: format codebase with prettier
+# style: format codebase with prettier (squashed into #420)
+c6a85e93
