@@ -121,7 +121,8 @@ jobs:
           elif [ "${{ matrix.publish }}" = "never" ]; then
             npx electron-builder ${{ matrix.build-args }} --publish never
             shopt -s nullglob
-            assets=(dist/Kudu-*-arm64.AppImage dist/Kudu-*-arm64.deb dist/Kudu-*-arm64.AppImage.blockmap)
+            # Matches both Kudu-<ver>-arm64.* and the stable Kudu-arm64.* name (#404).
+            assets=(dist/Kudu-*arm64.AppImage dist/Kudu-*arm64.deb dist/Kudu-*arm64.AppImage.blockmap)
             if [ ${#assets[@]} -eq 0 ]; then
               echo "No arm64 Linux artifacts found under dist/" >&2
               ls -la dist/ || true
