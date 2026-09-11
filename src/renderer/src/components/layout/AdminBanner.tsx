@@ -8,9 +8,7 @@ export function AdminBanner() {
   const { t } = useTranslation('common')
   const { platform } = usePlatform()
   const loaded = useSettingsStore((s) => s.loaded)
-  const preferElevatedLaunch = useSettingsStore(
-    (s) => s.settings.preferElevatedLaunch ?? false
-  )
+  const preferElevatedLaunch = useSettingsStore((s) => s.settings.preferElevatedLaunch ?? false)
   const [visible, setVisible] = useState(false)
   const [dismissed, setDismissed] = useState(false)
   const autoRelaunchTried = useRef(false)
@@ -38,10 +36,13 @@ export function AdminBanner() {
         border: '1px solid var(--accent-muted-border)'
       }}
     >
-      <ShieldAlert size={18} className="shrink-0" style={{ color: 'var(--warning)' }} aria-hidden="true" />
-      <span className="text-zinc-300">
-        {t('adminBannerMessage')}
-      </span>
+      <ShieldAlert
+        size={18}
+        className="shrink-0"
+        style={{ color: 'var(--warning)' }}
+        aria-hidden="true"
+      />
+      <span className="text-zinc-300">{t('adminBannerMessage')}</span>
       <button
         onClick={() => window.kudu.elevationRelaunch()}
         className="ml-1 shrink-0 rounded-lg px-3 py-1 text-xs font-semibold transition-colors"

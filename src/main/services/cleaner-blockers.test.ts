@@ -3,10 +3,7 @@ import { mkdtemp, mkdir, rm, symlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import type { ScanItem } from '../../shared/types'
-import {
-  collectBlockerCandidateFiles,
-  parseRestartManagerBlockers,
-} from './cleaner-blockers'
+import { collectBlockerCandidateFiles, parseRestartManagerBlockers } from './cleaner-blockers'
 
 const tempDirs: string[] = []
 
@@ -16,28 +13,52 @@ afterEach(async () => {
 
 describe('parseRestartManagerBlockers', () => {
   it('deduplicates app processes and gives browsers friendly names', () => {
-    const result = parseRestartManagerBlockers(JSON.stringify([
-      { pid: 10, name: 'Google Chrome', processName: 'chrome', executablePath: 'C:\\Chrome\\chrome.exe' },
-      { pid: 11, name: 'Google Chrome', processName: 'chrome', executablePath: 'C:\\Chrome\\chrome.exe' },
-      { pid: 20, name: 'Slack', processName: 'slack', executablePath: 'C:\\Slack\\slack.exe' },
-    ]), 'C:\\Program Files\\Kudu\\Kudu.exe')
+    const result = parseRestartManagerBlockers(
+      JSON.stringify([
+        {
+          pid: 10,
+          name: 'Google Chrome',
+          processName: 'chrome',
+          executablePath: 'C:\\Chrome\\chrome.exe'
+        },
+        {
+          pid: 11,
+          name: 'Google Chrome',
+          processName: 'chrome',
+          executablePath: 'C:\\Chrome\\chrome.exe'
+        },
+        { pid: 20, name: 'Slack', processName: 'slack', executablePath: 'C:\\Slack\\slack.exe' }
+      ]),
+      'C:\\Program Files\\Kudu\\Kudu.exe'
+    )
 
     expect(result).toEqual([
       { pid: 10, name: 'Google Chrome', processName: 'chrome', isBrowser: true },
-      { pid: 20, name: 'Slack', processName: 'slack', isBrowser: false },
+      { pid: 20, name: 'Slack', processName: 'slack', isBrowser: false }
     ])
   })
 
   it('omits Kudu processes because they cannot be closed from the cleaner UI', () => {
-    const result = parseRestartManagerBlockers(JSON.stringify([
-      { pid: 30, name: 'Kudu', processName: 'Kudu', executablePath: 'C:\\Program Files\\Kudu\\Kudu.exe' },
-      { pid: 31, name: 'Kudu', processName: 'Kudu', executablePath: '' },
-      { pid: 32, name: 'Firefox', processName: 'firefox', executablePath: 'C:\\Firefox\\firefox.exe' },
-    ]), 'C:\\Program Files\\Kudu\\Kudu.exe')
+    const result = parseRestartManagerBlockers(
+      JSON.stringify([
+        {
+          pid: 30,
+          name: 'Kudu',
+          processName: 'Kudu',
+          executablePath: 'C:\\Program Files\\Kudu\\Kudu.exe'
+        },
+        { pid: 31, name: 'Kudu', processName: 'Kudu', executablePath: '' },
+        {
+          pid: 32,
+          name: 'Firefox',
+          processName: 'firefox',
+          executablePath: 'C:\\Firefox\\firefox.exe'
+        }
+      ]),
+      'C:\\Program Files\\Kudu\\Kudu.exe'
+    )
 
-    expect(result).toEqual([
-      { pid: 32, name: 'Firefox', processName: 'firefox', isBrowser: true },
-    ])
+    expect(result).toEqual([{ pid: 32, name: 'Firefox', processName: 'firefox', isBrowser: true }])
   })
 
   it('treats malformed advisory output as no blockers', () => {
@@ -70,7 +91,7 @@ describe('collectBlockerCandidateFiles', () => {
       category: 'browser',
       subcategory: 'Chrome Cache',
       lastModified: 0,
-      selected: true,
+      selected: true
     }
     const result = await collectBlockerCandidateFiles([item], 10)
 
@@ -93,7 +114,7 @@ describe('collectBlockerCandidateFiles', () => {
         category: 'browser',
         subcategory: index < 5 ? 'Chrome Cache' : 'Firefox Cache',
         lastModified: 0,
-        selected: true,
+        selected: true
       })
     }
 

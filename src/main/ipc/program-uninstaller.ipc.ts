@@ -5,14 +5,14 @@ import {
   runUninstaller,
   verifyUninstall,
   deleteRegistryKey,
-  scanLeftoversForProgram,
+  scanLeftoversForProgram
 } from '../services/program-uninstaller'
 import { safeDelete } from '../services/file-utils'
 import type {
   InstalledProgram,
   UninstallerListResult,
   UninstallProgress,
-  UninstallResult,
+  UninstallResult
 } from '../../shared/types'
 import type { WindowGetter } from './index'
 
@@ -42,7 +42,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           error: 'Program not found in cache. Please refresh the list.',
           leftoversFound: 0,
           leftoversCleaned: 0,
-          leftoversSize: 0,
+          leftoversSize: 0
         }
       }
 
@@ -51,7 +51,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         phase: 'uninstalling',
         currentProgram: program.displayName,
         progress: 10,
-        detail: 'Running native uninstaller...',
+        detail: 'Running native uninstaller...'
       })
 
       const exitCode = await runUninstaller(program)
@@ -69,10 +69,11 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
             success: false,
             programName: program.displayName,
             exitCode,
-            error: 'Uninstall may have been cancelled or failed. The program still appears in the registry.',
+            error:
+              'Uninstall may have been cancelled or failed. The program still appears in the registry.',
             leftoversFound: 0,
             leftoversCleaned: 0,
-            leftoversSize: 0,
+            leftoversSize: 0
           }
         }
       }
@@ -82,7 +83,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         phase: 'scanning-leftovers',
         currentProgram: program.displayName,
         progress: 50,
-        detail: 'Scanning for leftover files...',
+        detail: 'Scanning for leftover files...'
       })
 
       const leftovers = await scanLeftoversForProgram(program)
@@ -94,7 +95,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           exitCode,
           leftoversFound: 0,
           leftoversCleaned: 0,
-          leftoversSize: 0,
+          leftoversSize: 0
         }
       }
 
@@ -103,7 +104,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         phase: 'cleaning-leftovers',
         currentProgram: program.displayName,
         progress: 75,
-        detail: `Cleaning ${leftovers.length} leftover items...`,
+        detail: `Cleaning ${leftovers.length} leftover items...`
       })
 
       let cleaned = 0
@@ -122,9 +123,9 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         exitCode,
         leftoversFound: leftovers.length,
         leftoversCleaned: cleaned,
-        leftoversSize: cleanedSize,
+        leftoversSize: cleanedSize
       }
-    },
+    }
   )
 
   ipcMain.handle(
@@ -139,7 +140,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           error: 'Program not found in cache. Please refresh the list.',
           leftoversFound: 0,
           leftoversCleaned: 0,
-          leftoversSize: 0,
+          leftoversSize: 0
         }
       }
 
@@ -148,7 +149,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         phase: 'force-removing',
         currentProgram: program.displayName,
         progress: 10,
-        detail: 'Removing registry entry...',
+        detail: 'Removing registry entry...'
       })
 
       const deleted = await deleteRegistryKey(program.registryKey)
@@ -160,7 +161,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           error: 'Failed to delete the registry entry. This may require administrator privileges.',
           leftoversFound: 0,
           leftoversCleaned: 0,
-          leftoversSize: 0,
+          leftoversSize: 0
         }
       }
 
@@ -169,7 +170,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         phase: 'scanning-leftovers',
         currentProgram: program.displayName,
         progress: 40,
-        detail: 'Scanning for leftover files...',
+        detail: 'Scanning for leftover files...'
       })
 
       const leftovers = await scanLeftoversForProgram(program)
@@ -181,7 +182,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           exitCode: null,
           leftoversFound: 0,
           leftoversCleaned: 0,
-          leftoversSize: 0,
+          leftoversSize: 0
         }
       }
 
@@ -190,7 +191,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         phase: 'cleaning-leftovers',
         currentProgram: program.displayName,
         progress: 70,
-        detail: `Cleaning ${leftovers.length} leftover items...`,
+        detail: `Cleaning ${leftovers.length} leftover items...`
       })
 
       let cleaned = 0
@@ -209,8 +210,8 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
         exitCode: null,
         leftoversFound: leftovers.length,
         leftoversCleaned: cleaned,
-        leftoversSize: cleanedSize,
+        leftoversSize: cleanedSize
       }
-    },
+    }
   )
 }

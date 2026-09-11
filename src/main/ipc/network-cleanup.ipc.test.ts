@@ -70,14 +70,17 @@ describe('wifi profile label validation', () => {
 // ── Network history GUID extraction (mirrors cleanNetworkItems) ──
 
 function extractGuidFromDetail(detail: string): string | null {
-  const guidMatch = detail.match(/(\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\})/)
+  const guidMatch = detail.match(
+    /(\{[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}\})/
+  )
   return guidMatch ? guidMatch[1] : null
 }
 
 describe('network history GUID extraction', () => {
   it('extracts valid GUID from detail string', () => {
-    expect(extractGuidFromDetail('Saved network profile · {ABC12345-1234-5678-9ABC-DEF012345678}'))
-      .toBe('{ABC12345-1234-5678-9ABC-DEF012345678}')
+    expect(
+      extractGuidFromDetail('Saved network profile · {ABC12345-1234-5678-9ABC-DEF012345678}')
+    ).toBe('{ABC12345-1234-5678-9ABC-DEF012345678}')
   })
 
   it('returns null when no GUID present', () => {
@@ -90,8 +93,9 @@ describe('network history GUID extraction', () => {
   })
 
   it('extracts GUID regardless of surrounding text', () => {
-    expect(extractGuidFromDetail('prefix {aabbccdd-1122-3344-5566-778899aabbcc} suffix'))
-      .toBe('{aabbccdd-1122-3344-5566-778899aabbcc}')
+    expect(extractGuidFromDetail('prefix {aabbccdd-1122-3344-5566-778899aabbcc} suffix')).toBe(
+      '{aabbccdd-1122-3344-5566-778899aabbcc}'
+    )
   })
 
   it('rejects GUID with injection characters', () => {
@@ -172,7 +176,10 @@ describe('scan session management', () => {
     for (const id of requestedIds) {
       for (const session of scanSessions.values()) {
         const item = session.get(id)
-        if (item) { items.push(item); break }
+        if (item) {
+          items.push(item)
+          break
+        }
       }
     }
 
@@ -186,7 +193,11 @@ describe('scan session management', () => {
 
 describe('clean result structure', () => {
   it('has correct shape with cleaned, failed, and details', () => {
-    const result = { cleaned: 2, failed: 1, details: ['Flushed DNS', 'Cleared ARP', 'Failed: WiFi'] }
+    const result = {
+      cleaned: 2,
+      failed: 1,
+      details: ['Flushed DNS', 'Cleared ARP', 'Failed: WiFi']
+    }
     expect(result.cleaned).toBe(2)
     expect(result.failed).toBe(1)
     expect(result.details).toHaveLength(3)
@@ -250,8 +261,14 @@ describe('network history parsing', () => {
     }
 
     expect(entries).toHaveLength(2)
-    expect(entries[0]).toEqual({ name: 'My Home Network', guid: '{AABBCCDD-1122-3344-5566-778899AABBCC}' })
-    expect(entries[1]).toEqual({ name: 'Office WiFi', guid: '{11223344-5566-7788-99AA-BBCCDDEEFF00}' })
+    expect(entries[0]).toEqual({
+      name: 'My Home Network',
+      guid: '{AABBCCDD-1122-3344-5566-778899AABBCC}'
+    })
+    expect(entries[1]).toEqual({
+      name: 'Office WiFi',
+      guid: '{11223344-5566-7788-99AA-BBCCDDEEFF00}'
+    })
   })
 
   it('handles empty registry output', () => {

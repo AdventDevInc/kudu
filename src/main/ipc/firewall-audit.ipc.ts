@@ -12,7 +12,7 @@ import type {
   FirewallSignatureStatus,
   FirewallIssue,
   FirewallRiskLevel,
-  FirewallAction,
+  FirewallAction
 } from '../../shared/types'
 import { psUtf8, spawnTrackedLines } from '../services/exec-utf8'
 
@@ -70,10 +70,14 @@ function parseProfiles(raw: string): FirewallProfile[] {
 
 function parseSignature(raw: string): FirewallSignatureStatus {
   switch (raw) {
-    case 'signed': return 'signed'
-    case 'unsigned': return 'unsigned'
-    case 'unknown': return 'unknown'
-    default: return 'not-applicable'
+    case 'signed':
+      return 'signed'
+    case 'unsigned':
+      return 'unsigned'
+    case 'unknown':
+      return 'unknown'
+    default:
+      return 'not-applicable'
   }
 }
 
@@ -143,7 +147,7 @@ const KNOWN_GOOD_SERVICES: KnownGoodEntry[] = [
   // are GUID-suffixed, e.g. "HNS Container Networking - DNS (UDP-In) - <GUID>".
   { label: 'HNS Container Networking', nameRe: /^HNS Container Networking\b/i },
   // Zoom real-time media — UDP port range, peer-to-peer to Any remote.
-  { label: 'Zoom', programRe: /[\\/]Zoom[\\/]bin[\\/]Zoom\.exe$/i },
+  { label: 'Zoom', programRe: /[\\/]Zoom[\\/]bin[\\/]Zoom\.exe$/i }
 ]
 
 export function isKnownGoodService(args: {
@@ -156,26 +160,25 @@ export function isKnownGoodService(args: {
   return KNOWN_GOOD_SERVICES.some((entry) => {
     if (entry.protocol && args.protocol.toUpperCase() !== entry.protocol.toUpperCase()) return false
     if (entry.localPort && args.localPort !== entry.localPort) return false
-    if (entry.nameRe && !entry.nameRe.test(args.name) && !entry.nameRe.test(args.displayName)) return false
+    if (entry.nameRe && !entry.nameRe.test(args.name) && !entry.nameRe.test(args.displayName))
+      return false
     if (entry.programRe && !entry.programRe.test(args.programResolved)) return false
     // Reject an entry that specified nothing (defensive — never matches on emptiness).
     return !!(entry.protocol || entry.localPort || entry.nameRe || entry.programRe)
   })
 }
 
-export function classifyRule(
-  raw: {
-    program: string
-    programResolved: string
-    programExists: boolean
-    signature: FirewallSignatureStatus
-    profiles: FirewallProfile[]
-    localPort: string
-    remoteAddress: string
-    builtin: boolean
-    knownGood: boolean
-  }
-): { issues: FirewallIssue[]; risk: FirewallRiskLevel } {
+export function classifyRule(raw: {
+  program: string
+  programResolved: string
+  programExists: boolean
+  signature: FirewallSignatureStatus
+  profiles: FirewallProfile[]
+  localPort: string
+  remoteAddress: string
+  builtin: boolean
+  knownGood: boolean
+}): { issues: FirewallIssue[]; risk: FirewallRiskLevel } {
   const issues: FirewallIssue[] = []
 
   const hasProgram = !!raw.programResolved
@@ -249,7 +252,7 @@ export function parseRuleLine(line: string): FirewallRule | null {
     displayName: parts[2] || name,
     protocol,
     localPort,
-    programResolved,
+    programResolved
   })
 
   const { issues, risk } = classifyRule({
@@ -261,7 +264,7 @@ export function parseRuleLine(line: string): FirewallRule | null {
     localPort,
     remoteAddress,
     builtin,
-    knownGood,
+    knownGood
   })
 
   return {
@@ -281,7 +284,7 @@ export function parseRuleLine(line: string): FirewallRule | null {
     enabled,
     issues,
     risk,
-    selected: false,
+    selected: false
   }
 }
 
@@ -292,7 +295,12 @@ export async function scanFirewallRules(
     return { rules: [], totalCount: 0, staleCount: 0, unsignedCount: 0, broadScopeCount: 0 }
   }
 
-  onProgress?.({ phase: 'enumerating', current: 0, total: 0, currentRule: 'Enumerating firewall rules...' })
+  onProgress?.({
+    phase: 'enumerating',
+    current: 0,
+    total: 0,
+    currentRule: 'Enumerating firewall rules...'
+  })
 
   // Pull all enabled inbound Allow rules and stream a single line per rule.
   // Skip Authenticode checks for system-owned paths (Windows / Program Files)
@@ -457,7 +465,7 @@ export async function scanFirewallRules(
     staleCount,
     unsignedCount,
     broadScopeCount,
-    truncated: timedOut || (total > 0 && rules.length < total),
+    truncated: timedOut || (total > 0 && rules.length < total)
   }
 }
 
@@ -468,16 +476,32 @@ export async function applyFirewallChanges(
     return { succeeded: 0, failed: 0, errors: [] }
   }
   if (process.platform !== 'win32') {
-    return { succeeded: 0, failed: changes.length, errors: changes.map((c) => ({ name: c.name, displayName: c.name, reason: 'Firewall audit is Windows-only' })) }
+    return {
+      succeeded: 0,
+      failed: changes.length,
+      errors: changes.map((c) => ({
+        name: c.name,
+        displayName: c.name,
+        reason: 'Firewall audit is Windows-only'
+      }))
+    }
   }
 
   // Validate every name against a strict allowlist before interpolating.
   for (const c of changes) {
     if (typeof c.name !== 'string' || !RULE_NAME_RE.test(c.name)) {
-      return { succeeded: 0, failed: changes.length, errors: [{ name: c.name ?? '', displayName: c.name ?? '', reason: 'Invalid rule name' }] }
+      return {
+        succeeded: 0,
+        failed: changes.length,
+        errors: [{ name: c.name ?? '', displayName: c.name ?? '', reason: 'Invalid rule name' }]
+      }
     }
     if (c.action !== 'disable' && c.action !== 'delete') {
-      return { succeeded: 0, failed: changes.length, errors: [{ name: c.name, displayName: c.name, reason: 'Invalid action' }] }
+      return {
+        succeeded: 0,
+        failed: changes.length,
+        errors: [{ name: c.name, displayName: c.name, reason: 'Invalid action' }]
+      }
     }
   }
 
@@ -505,7 +529,7 @@ try {
   try {
     const { stdout } = await execFileAsync('powershell', psArgs(script), {
       ...PS_OPTS,
-      timeout: changes.length * 5_000 + 30_000,
+      timeout: changes.length * 5_000 + 30_000
     })
 
     for (const rawLine of stdout.split('\n')) {
@@ -518,7 +542,7 @@ try {
         errors.push({
           name: parts[1] || '',
           displayName: parts[2] || '',
-          reason: parts[3] || 'Unknown error',
+          reason: parts[3] || 'Unknown error'
         })
       }
     }
@@ -526,7 +550,11 @@ try {
     failed = changes.length - succeeded
     // Same trap as the scan: the raw rejection message is the whole echoed
     // script. Use the stderr/exit code Node attaches to it instead.
-    const e = err as NodeJS.ErrnoException & { stderr?: string; code?: number | string; killed?: boolean }
+    const e = err as NodeJS.ErrnoException & {
+      stderr?: string
+      code?: number | string
+      killed?: boolean
+    }
     const reason = e?.killed
       ? 'PowerShell timed out while applying firewall changes'
       : powerShellError(
@@ -541,13 +569,18 @@ try {
 }
 
 export function registerFirewallAuditIpc(getWindow: WindowGetter): void {
-  ipcMain.handle(IPC.FIREWALL_SCAN, () => scanFirewallRules((data) => {
-    const win = getWindow()
-    if (win && !win.isDestroyed()) win.webContents.send(IPC.FIREWALL_PROGRESS, data)
-  }))
+  ipcMain.handle(IPC.FIREWALL_SCAN, () =>
+    scanFirewallRules((data) => {
+      const win = getWindow()
+      if (win && !win.isDestroyed()) win.webContents.send(IPC.FIREWALL_PROGRESS, data)
+    })
+  )
 
-  ipcMain.handle(IPC.FIREWALL_APPLY, async (_event, changes: { name: string; action: FirewallAction }[]) => {
-    if (!Array.isArray(changes)) return { succeeded: 0, failed: 0, errors: [] }
-    return applyFirewallChanges(changes)
-  })
+  ipcMain.handle(
+    IPC.FIREWALL_APPLY,
+    async (_event, changes: { name: string; action: FirewallAction }[]) => {
+      if (!Array.isArray(changes)) return { succeeded: 0, failed: 0, errors: [] }
+      return applyFirewallChanges(changes)
+    }
+  )
 }

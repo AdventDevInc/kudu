@@ -20,22 +20,47 @@ function engineOptions() {
 export async function discoverDockerCleanup(): Promise<DockerCleanupTarget> {
   const context = (await execTracked('docker', ['context', 'show'], options)).stdout.trim()
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(context)) throw new Error('Unsupported Docker context')
-  const inspected = JSON.parse((await execTracked('docker', ['context', 'inspect', context], options)).stdout)
+  const inspected = JSON.parse(
+    (await execTracked('docker', ['context', 'inspect', context], options)).stdout
+  )
   const endpoint = inspected?.[0]?.Endpoints?.docker?.Host
-  if (typeof endpoint !== 'string' || !localEndpoint(endpoint)) throw new Error('Docker cleanup requires a local engine')
-  const daemonId = (await execTracked('docker', ['--host', endpoint, 'info', '--format', '{{.ID}}'], engineOptions())).stdout.trim()
+  if (typeof endpoint !== 'string' || !localEndpoint(endpoint))
+    throw new Error('Docker cleanup requires a local engine')
+  const daemonId = (
+    await execTracked(
+      'docker',
+      ['--host', endpoint, 'info', '--format', '{{.ID}}'],
+      engineOptions()
+    )
+  ).stdout.trim()
   if (!daemonId || /\s/.test(daemonId)) throw new Error('Docker engine identity unavailable')
   return { context, endpoint, daemonId }
 }
 
 export async function pruneDockerBuildCache(target?: DockerCleanupTarget): Promise<void> {
-  if (!target || !localEndpoint(target.endpoint)) throw new Error('Docker target missing; scan again.')
+  if (!target || !localEndpoint(target.endpoint))
+    throw new Error('Docker target missing; scan again.')
   const current = await discoverDockerCleanup()
-  if (current.context !== target.context || current.endpoint !== target.endpoint || current.daemonId !== target.daemonId) {
+  if (
+    current.context !== target.context ||
+    current.endpoint !== target.endpoint ||
+    current.daemonId !== target.daemonId
+  ) {
     throw new Error('Docker engine changed; scan again.')
   }
-  await execTracked('docker', [
-    '--host', target.endpoint, 'builder', 'prune', '--force',
-    '--filter', 'until=168h', '--keep-storage', '10GB',
-  ], { ...engineOptions(), timeout: 300_000 })
+  await execTracked(
+    'docker',
+    [
+      '--host',
+      target.endpoint,
+      'builder',
+      'prune',
+      '--force',
+      '--filter',
+      'until=168h',
+      '--keep-storage',
+      '10GB'
+    ],
+    { ...engineOptions(), timeout: 300_000 }
+  )
 }

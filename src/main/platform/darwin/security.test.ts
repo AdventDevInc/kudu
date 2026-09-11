@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const execFileMock = vi.fn()
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 vi.mock('util', () => ({
-  promisify: (fn: any) => fn,
+  promisify: (fn: any) => fn
 }))
 
 const { createDarwinSecurity } = await import('./security')
@@ -113,9 +113,9 @@ describe('darwin security', () => {
         stdout: JSON.stringify({
           SPInstallHistoryDataType: [
             { _name: 'macOS 15.2', install_date: '2025-12-15T10:00:00Z' },
-            { _name: 'Safari 18.0', install_date: '2025-12-10T10:00:00Z' },
-          ],
-        }),
+            { _name: 'Safari 18.0', install_date: '2025-12-10T10:00:00Z' }
+          ]
+        })
       })
 
       const result = await security.collectUpdateStatus()
@@ -138,9 +138,9 @@ describe('darwin security', () => {
         stdout: JSON.stringify({
           SPInstallHistoryDataType: [
             { _name: 'Old', install_date: '2025-01-01T00:00:00Z' },
-            { _name: 'New', install_date: '2025-12-01T00:00:00Z' },
-          ],
-        }),
+            { _name: 'New', install_date: '2025-12-01T00:00:00Z' }
+          ]
+        })
       })
 
       const result = await security.collectUpdateStatus()
@@ -152,9 +152,9 @@ describe('darwin security', () => {
         stdout: JSON.stringify({
           SPInstallHistoryDataType: [
             { _name: 'No Date' },
-            { _name: 'Has Date', install_date: '2025-06-01T00:00:00Z' },
-          ],
-        }),
+            { _name: 'Has Date', install_date: '2025-06-01T00:00:00Z' }
+          ]
+        })
       })
 
       const result = await security.collectUpdateStatus()
@@ -166,8 +166,8 @@ describe('darwin security', () => {
   describe('collectScreenLockStatus', () => {
     it('returns enabled screen saver and lock on resume', async () => {
       execFileMock
-        .mockResolvedValueOnce({ stdout: '300\n' })  // idleTime
-        .mockResolvedValueOnce({ stdout: '1\n' })     // askForPassword
+        .mockResolvedValueOnce({ stdout: '300\n' }) // idleTime
+        .mockResolvedValueOnce({ stdout: '1\n' }) // askForPassword
 
       const result = await security.collectScreenLockStatus()
       expect(result.screenSaverEnabled).toBe(true)
@@ -176,9 +176,7 @@ describe('darwin security', () => {
     })
 
     it('returns disabled screen saver when idleTime is 0', async () => {
-      execFileMock
-        .mockResolvedValueOnce({ stdout: '0\n' })
-        .mockResolvedValueOnce({ stdout: '1\n' })
+      execFileMock.mockResolvedValueOnce({ stdout: '0\n' }).mockResolvedValueOnce({ stdout: '1\n' })
 
       const result = await security.collectScreenLockStatus()
       expect(result.screenSaverEnabled).toBe(false)
@@ -196,7 +194,7 @@ describe('darwin security', () => {
   describe('collectPasswordPolicy', () => {
     it('parses password policy XML for minLength', async () => {
       execFileMock.mockResolvedValue({
-        stdout: '<dict><key>policyAttributePassword</key><integer>8</integer></dict>',
+        stdout: '<dict><key>policyAttributePassword</key><integer>8</integer></dict>'
       })
 
       const result = await security.collectPasswordPolicy()

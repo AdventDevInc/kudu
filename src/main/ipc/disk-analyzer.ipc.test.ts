@@ -7,38 +7,40 @@ const mockHandle = vi.fn()
 const mockSend = vi.fn()
 vi.mock('electron', () => ({
   BrowserWindow: vi.fn(),
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const mockReaddir = vi.fn()
 const mockStat = vi.fn()
 vi.mock('fs/promises', () => ({
   readdir: (...args: unknown[]) => mockReaddir(...args),
-  stat: (...args: unknown[]) => mockStat(...args),
+  stat: (...args: unknown[]) => mockStat(...args)
 }))
 
 const mockExecFile = vi.fn()
 const mockSpawn = vi.fn()
 vi.mock('child_process', () => ({
   execFile: (...args: unknown[]) => mockExecFile(...args),
-  spawn: (...args: unknown[]) => mockSpawn(...args),
+  spawn: (...args: unknown[]) => mockSpawn(...args)
 }))
 
 vi.mock('util', () => ({
-  promisify: (fn: unknown) => (...args: unknown[]) => {
-    // Return a promise-based wrapper around our mock
-    return new Promise((resolve, reject) => {
-      (fn as Function)(...args, (err: Error | null, result: unknown) => {
-        if (err) reject(err)
-        else resolve(result)
+  promisify:
+    (fn: unknown) =>
+    (...args: unknown[]) => {
+      // Return a promise-based wrapper around our mock
+      return new Promise((resolve, reject) => {
+        ;(fn as Function)(...args, (err: Error | null, result: unknown) => {
+          if (err) reject(err)
+          else resolve(result)
+        })
       })
-    })
-  },
+    }
 }))
 
 const mockIsAdmin = vi.fn()
 vi.mock('../services/elevation', () => ({
-  isAdmin: () => mockIsAdmin(),
+  isAdmin: () => mockIsAdmin()
 }))
 
 import { registerDiskAnalyzerIpc, getDrives, analyzeDisk, getFileTypes } from './disk-analyzer.ipc'
@@ -234,13 +236,13 @@ describe('analyzeDisk (exported)', () => {
       [games, [directory('Publisher')]],
       [publisher, [directory('Game')]],
       [game, [directory('Content')]],
-      [content, [file('payload.bin')]],
+      [content, [file('payload.bin')]]
     ])
 
     mockReaddir.mockImplementation(async (path: string) => entries.get(path) ?? [])
     mockStat.mockImplementation(async (path: string) => ({
       isDirectory: () => false,
-      size: path === payload ? 54_800_000_000 : 0,
+      size: path === payload ? 54_800_000_000 : 0
     }))
 
     const result = await analyzeDisk(drive)

@@ -24,6 +24,6 @@ export function createLinuxProvider(): PlatformProvider {
     malware: createLinuxMalware(),
     browser: createLinuxBrowser(),
     malwarePaths: createLinuxMalwarePaths(),
-    network: createLinuxNetwork(),
+    network: createLinuxNetwork()
   }
 }

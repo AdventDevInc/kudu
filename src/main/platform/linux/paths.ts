@@ -27,7 +27,7 @@ const rulesJson: RulesJsonSet = {
   gpuCache: gpuCacheJson as RulesJsonSet['gpuCache'],
   steam: steamJson as RulesJsonSet['steam'],
   databases: databasesJson as RulesJsonSet['databases'],
-  misc: miscJson as RulesJsonSet['misc'],
+  misc: miscJson as RulesJsonSet['misc']
 }
 
 const cleanerPaths = buildCleanerPaths(rulesJson, 'linux')
@@ -39,23 +39,23 @@ export function createLinuxPaths(): PlatformPaths {
     malwareScanDirs() {
       return [
         // High-risk: common drop locations
-        { path: join(HOME, 'Downloads'),            maxDepth: 6, maxFiles: 10000 },
-        { path: join(HOME, 'Desktop'),              maxDepth: 4, maxFiles: 5000 },
-        { path: join(HOME, 'Documents'),            maxDepth: 4, maxFiles: 5000 },
-        { path: HOME,                               maxDepth: 1, maxFiles: 500 },
-        { path: '/tmp',                             maxDepth: 3, maxFiles: 5000 },
-        { path: '/var/tmp',                         maxDepth: 3, maxFiles: 3000 },
-        { path: '/dev/shm',                         maxDepth: 2, maxFiles: 2000 },
+        { path: join(HOME, 'Downloads'), maxDepth: 6, maxFiles: 10000 },
+        { path: join(HOME, 'Desktop'), maxDepth: 4, maxFiles: 5000 },
+        { path: join(HOME, 'Documents'), maxDepth: 4, maxFiles: 5000 },
+        { path: HOME, maxDepth: 1, maxFiles: 500 },
+        { path: '/tmp', maxDepth: 3, maxFiles: 5000 },
+        { path: '/var/tmp', maxDepth: 3, maxFiles: 3000 },
+        { path: '/dev/shm', maxDepth: 2, maxFiles: 2000 },
 
         // Persistence & config locations
-        { path: join(HOME, '.local', 'bin'),        maxDepth: 2, maxFiles: 1000 },
+        { path: join(HOME, '.local', 'bin'), maxDepth: 2, maxFiles: 1000 },
         { path: join(HOME, '.config', 'autostart'), maxDepth: 2, maxFiles: 1000 },
-        { path: CONFIG,                             maxDepth: 3, maxFiles: 5000 },
-        { path: LOCAL_SHARE,                        maxDepth: 3, maxFiles: 5000 },
+        { path: CONFIG, maxDepth: 3, maxFiles: 5000 },
+        { path: LOCAL_SHARE, maxDepth: 3, maxFiles: 5000 },
 
         // System binaries — shallow scan
-        { path: '/usr/local/bin',                   maxDepth: 1, maxFiles: 2000 },
-        { path: '/opt',                             maxDepth: 2, maxFiles: 3000 },
+        { path: '/usr/local/bin', maxDepth: 1, maxFiles: 2000 },
+        { path: '/opt', maxDepth: 2, maxFiles: 3000 }
       ]
     },
 
@@ -64,13 +64,7 @@ export function createLinuxPaths(): PlatformPaths {
     },
 
     malwareTrustedInstallRoots(): string[] {
-      return [
-        '/usr',
-        '/usr/local',
-        '/opt',
-        '/snap',
-        '/var/lib/flatpak',
-      ]
+      return ['/usr', '/usr/local', '/opt', '/snap', '/var/lib/flatpak']
     },
 
     malwareTrustedUserInstallRoots(): string[] {
@@ -81,8 +75,8 @@ export function createLinuxPaths(): PlatformPaths {
       return [
         { id: 'config', name: 'Config', path: CONFIG },
         { id: 'cache', name: 'Cache', path: CACHE },
-        { id: 'local-share', name: 'Data', path: LOCAL_SHARE },
+        { id: 'local-share', name: 'Data', path: LOCAL_SHARE }
       ]
-    },
+    }
   }
 }

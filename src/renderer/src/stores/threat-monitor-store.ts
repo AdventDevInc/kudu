@@ -17,7 +17,7 @@ export const useThreatMonitorStore = create<ThreatMonitorState>((set) => ({
     } catch {
       set({ snapshot: null, loaded: true })
     }
-  },
+  }
 }))
 
 // Load snapshot eagerly so the sidebar can show/hide the nav item.

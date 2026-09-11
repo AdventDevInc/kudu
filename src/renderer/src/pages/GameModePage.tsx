@@ -17,7 +17,7 @@ import {
   Zap,
   Timer,
   Activity,
-  Radar,
+  Radar
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -37,28 +37,136 @@ interface OptimizationDef {
 
 const OPTIMIZATIONS: OptimizationDef[] = [
   // Services
-  { id: 'svc-wsearch', category: 'services', labelKey: 'optSvcWsearch', descKey: 'optSvcWsearchDesc', requiresAdmin: true },
-  { id: 'svc-sysmain', category: 'services', labelKey: 'optSvcSysmain', descKey: 'optSvcSysmainDesc', requiresAdmin: true },
-  { id: 'svc-wuauserv', category: 'services', labelKey: 'optSvcWuauserv', descKey: 'optSvcWuauservDesc', requiresAdmin: true },
-  { id: 'svc-spooler', category: 'services', labelKey: 'optSvcSpooler', descKey: 'optSvcSpoolerDesc', requiresAdmin: true },
-  { id: 'svc-diagtrack', category: 'services', labelKey: 'optSvcDiagtrack', descKey: 'optSvcDiagtrackDesc', requiresAdmin: true },
+  {
+    id: 'svc-wsearch',
+    category: 'services',
+    labelKey: 'optSvcWsearch',
+    descKey: 'optSvcWsearchDesc',
+    requiresAdmin: true
+  },
+  {
+    id: 'svc-sysmain',
+    category: 'services',
+    labelKey: 'optSvcSysmain',
+    descKey: 'optSvcSysmainDesc',
+    requiresAdmin: true
+  },
+  {
+    id: 'svc-wuauserv',
+    category: 'services',
+    labelKey: 'optSvcWuauserv',
+    descKey: 'optSvcWuauservDesc',
+    requiresAdmin: true
+  },
+  {
+    id: 'svc-spooler',
+    category: 'services',
+    labelKey: 'optSvcSpooler',
+    descKey: 'optSvcSpoolerDesc',
+    requiresAdmin: true
+  },
+  {
+    id: 'svc-diagtrack',
+    category: 'services',
+    labelKey: 'optSvcDiagtrack',
+    descKey: 'optSvcDiagtrackDesc',
+    requiresAdmin: true
+  },
   // Processes
-  { id: 'proc-kill-browsers', category: 'processes', labelKey: 'optProcBrowsers', descKey: 'optProcBrowsersDesc', requiresAdmin: false },
-  { id: 'proc-kill-chat', category: 'processes', labelKey: 'optProcChat', descKey: 'optProcChatDesc', requiresAdmin: false },
-  { id: 'proc-kill-updaters', category: 'processes', labelKey: 'optProcUpdaters', descKey: 'optProcUpdatersDesc', requiresAdmin: false },
-  { id: 'proc-kill-custom', category: 'processes', labelKey: 'optProcCustom', descKey: 'optProcCustomDesc', requiresAdmin: false },
+  {
+    id: 'proc-kill-browsers',
+    category: 'processes',
+    labelKey: 'optProcBrowsers',
+    descKey: 'optProcBrowsersDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'proc-kill-chat',
+    category: 'processes',
+    labelKey: 'optProcChat',
+    descKey: 'optProcChatDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'proc-kill-updaters',
+    category: 'processes',
+    labelKey: 'optProcUpdaters',
+    descKey: 'optProcUpdatersDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'proc-kill-custom',
+    category: 'processes',
+    labelKey: 'optProcCustom',
+    descKey: 'optProcCustomDesc',
+    requiresAdmin: false
+  },
   // Memory
-  { id: 'mem-clear-standby', category: 'memory', labelKey: 'optMemStandby', descKey: 'optMemStandbyDesc', requiresAdmin: false },
+  {
+    id: 'mem-clear-standby',
+    category: 'memory',
+    labelKey: 'optMemStandby',
+    descKey: 'optMemStandbyDesc',
+    requiresAdmin: false
+  },
   // System
-  { id: 'sys-focus-assist', category: 'system', labelKey: 'optSysFocusAssist', descKey: 'optSysFocusAssistDesc', requiresAdmin: false },
-  { id: 'sys-power-plan', category: 'system', labelKey: 'optSysPowerPlan', descKey: 'optSysPowerPlanDesc', requiresAdmin: false },
-  { id: 'sys-prevent-sleep', category: 'system', labelKey: 'optSysPreventSleep', descKey: 'optSysPreventSleepDesc', requiresAdmin: false },
-  { id: 'sys-disable-game-bar', category: 'system', labelKey: 'optSysGameBar', descKey: 'optSysGameBarDesc', requiresAdmin: false },
-  { id: 'sys-disable-fse-opt', category: 'system', labelKey: 'optSysFseOpt', descKey: 'optSysFseOptDesc', requiresAdmin: false },
-  { id: 'sys-disable-transparency', category: 'system', labelKey: 'optSysTransparency', descKey: 'optSysTransparencyDesc', requiresAdmin: false },
+  {
+    id: 'sys-focus-assist',
+    category: 'system',
+    labelKey: 'optSysFocusAssist',
+    descKey: 'optSysFocusAssistDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'sys-power-plan',
+    category: 'system',
+    labelKey: 'optSysPowerPlan',
+    descKey: 'optSysPowerPlanDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'sys-prevent-sleep',
+    category: 'system',
+    labelKey: 'optSysPreventSleep',
+    descKey: 'optSysPreventSleepDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'sys-disable-game-bar',
+    category: 'system',
+    labelKey: 'optSysGameBar',
+    descKey: 'optSysGameBarDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'sys-disable-fse-opt',
+    category: 'system',
+    labelKey: 'optSysFseOpt',
+    descKey: 'optSysFseOptDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'sys-disable-transparency',
+    category: 'system',
+    labelKey: 'optSysTransparency',
+    descKey: 'optSysTransparencyDesc',
+    requiresAdmin: false
+  },
   // Network
-  { id: 'net-flush-dns', category: 'network', labelKey: 'optNetFlushDns', descKey: 'optNetFlushDnsDesc', requiresAdmin: false },
-  { id: 'net-disable-nagle', category: 'network', labelKey: 'optNetNagle', descKey: 'optNetNagleDesc', requiresAdmin: true },
+  {
+    id: 'net-flush-dns',
+    category: 'network',
+    labelKey: 'optNetFlushDns',
+    descKey: 'optNetFlushDnsDesc',
+    requiresAdmin: false
+  },
+  {
+    id: 'net-disable-nagle',
+    category: 'network',
+    labelKey: 'optNetNagle',
+    descKey: 'optNetNagleDesc',
+    requiresAdmin: true
+  }
 ]
 
 interface CategoryDef {
@@ -71,11 +179,46 @@ interface CategoryDef {
 }
 
 const CATEGORIES: CategoryDef[] = [
-  { id: 'services', labelKey: 'categoryServices', descKey: 'categoryServicesDesc', icon: Server, color: '#06b6d4', glow: 'rgba(6,182,212,0.12)' },
-  { id: 'processes', labelKey: 'categoryProcesses', descKey: 'categoryProcessesDesc', icon: Cpu, color: '#8b5cf6', glow: 'rgba(139,92,246,0.12)' },
-  { id: 'memory', labelKey: 'categoryMemory', descKey: 'categoryMemoryDesc', icon: MemoryStick, color: '#22c55e', glow: 'rgba(34,197,94,0.12)' },
-  { id: 'system', labelKey: 'categorySystem', descKey: 'categorySystemDesc', icon: Monitor, color: '#f59e0b', glow: 'rgba(245,158,11,0.12)' },
-  { id: 'network', labelKey: 'categoryNetwork', descKey: 'categoryNetworkDesc', icon: Wifi, color: '#ec4899', glow: 'rgba(236,72,153,0.12)' },
+  {
+    id: 'services',
+    labelKey: 'categoryServices',
+    descKey: 'categoryServicesDesc',
+    icon: Server,
+    color: '#06b6d4',
+    glow: 'rgba(6,182,212,0.12)'
+  },
+  {
+    id: 'processes',
+    labelKey: 'categoryProcesses',
+    descKey: 'categoryProcessesDesc',
+    icon: Cpu,
+    color: '#8b5cf6',
+    glow: 'rgba(139,92,246,0.12)'
+  },
+  {
+    id: 'memory',
+    labelKey: 'categoryMemory',
+    descKey: 'categoryMemoryDesc',
+    icon: MemoryStick,
+    color: '#22c55e',
+    glow: 'rgba(34,197,94,0.12)'
+  },
+  {
+    id: 'system',
+    labelKey: 'categorySystem',
+    descKey: 'categorySystemDesc',
+    icon: Monitor,
+    color: '#f59e0b',
+    glow: 'rgba(245,158,11,0.12)'
+  },
+  {
+    id: 'network',
+    labelKey: 'categoryNetwork',
+    descKey: 'categoryNetworkDesc',
+    icon: Wifi,
+    color: '#ec4899',
+    glow: 'rgba(236,72,153,0.12)'
+  }
 ]
 
 // ── Colors ───────────────────────────────────────────────────
@@ -97,7 +240,17 @@ function formatElapsed(ms: number): string {
 
 // ── Animated Ring ────────────────────────────────────────────
 
-function OrbitRing({ radius, duration, delay, active }: { radius: number; duration: number; delay: number; active: boolean }) {
+function OrbitRing({
+  radius,
+  duration,
+  delay,
+  active
+}: {
+  radius: number
+  duration: number
+  delay: number
+  active: boolean
+}) {
   return (
     <motion.div
       className="pointer-events-none absolute rounded-full"
@@ -108,21 +261,29 @@ function OrbitRing({ radius, duration, delay, active }: { radius: number; durati
         left: '50%',
         marginTop: -radius,
         marginLeft: -radius,
-        border: `1px solid ${active ? 'rgba(6,182,212,0.15)' : 'var(--grid-line)'}`,
+        border: `1px solid ${active ? 'rgba(6,182,212,0.15)' : 'var(--grid-line)'}`
       }}
-      animate={active ? {
-        scale: [1, 1.05, 1],
-        opacity: [0.4, 0.8, 0.4],
-      } : {
-        scale: 1,
-        opacity: 0.3,
-      }}
-      transition={active ? {
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      } : { duration: 0.5 }}
+      animate={
+        active
+          ? {
+              scale: [1, 1.05, 1],
+              opacity: [0.4, 0.8, 0.4]
+            }
+          : {
+              scale: 1,
+              opacity: 0.3
+            }
+      }
+      transition={
+        active
+          ? {
+              duration,
+              delay,
+              repeat: Infinity,
+              ease: 'easeInOut'
+            }
+          : { duration: 0.5 }
+      }
     >
       {active && (
         <motion.div
@@ -132,7 +293,7 @@ function OrbitRing({ radius, duration, delay, active }: { radius: number; durati
             boxShadow: `0 0 6px 2px ${CYAN}`,
             top: -3,
             left: '50%',
-            marginLeft: -3,
+            marginLeft: -3
           }}
           animate={{ rotate: 360 }}
           transition={{ duration: duration * 1.5, repeat: Infinity, ease: 'linear', delay }}
@@ -153,7 +314,13 @@ function HexGrid({ active }: { active: boolean }) {
     >
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="hex-grid" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+          <pattern
+            id="hex-grid"
+            width="56"
+            height="100"
+            patternUnits="userSpaceOnUse"
+            patternTransform="scale(0.5)"
+          >
             <path
               d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
               fill="none"
@@ -198,7 +365,9 @@ export function GameModePage() {
 
   // Cleanup progress listener on unmount
   useEffect(() => {
-    return () => { progressCleanupRef.current?.() }
+    return () => {
+      progressCleanupRef.current?.()
+    }
   }, [])
 
   // Drop the discard confirmation whenever the banner is no longer showing
@@ -236,9 +405,10 @@ export function GameModePage() {
     store.getState().setStatus('activating')
     store.getState().setLastResult(null)
 
-    progressCleanupRef.current = window.kudu?.onGameModeProgress?.((data) => {
-      useGameModeStore.getState().setProgress(data)
-    }) ?? null
+    progressCleanupRef.current =
+      window.kudu?.onGameModeProgress?.((data) => {
+        useGameModeStore.getState().setProgress(data)
+      }) ?? null
 
     try {
       const result = await window.kudu.gameModeActivate(config)
@@ -246,7 +416,9 @@ export function GameModePage() {
       if (result.succeeded > 0) {
         store.getState().setActive(true, result.snapshot?.activatedAt ?? new Date().toISOString())
       }
-      store.getState().setLastResult({ type: 'activate', succeeded: result.succeeded, failed: result.failed })
+      store
+        .getState()
+        .setLastResult({ type: 'activate', succeeded: result.succeeded, failed: result.failed })
       if (result.succeeded === 0 && result.failed > 0) {
         toast.error(result.errors[0]?.reason ?? 'All optimizations failed')
       } else if (result.failed > 0) {
@@ -266,9 +438,10 @@ export function GameModePage() {
     store.getState().setStatus('deactivating')
     store.getState().setLastResult(null)
 
-    progressCleanupRef.current = window.kudu?.onGameModeProgress?.((data) => {
-      useGameModeStore.getState().setProgress(data)
-    }) ?? null
+    progressCleanupRef.current =
+      window.kudu?.onGameModeProgress?.((data) => {
+        useGameModeStore.getState().setProgress(data)
+      }) ?? null
 
     try {
       const result = await window.kudu.gameModeDeactivate()
@@ -276,9 +449,16 @@ export function GameModePage() {
       const reason = result.errors[0]?.reason ?? null
       store.getState().setPendingRestore(result.failed > 0, reason)
       if (result.failed > 0) {
-        toast.warning(t('restoreFailedToast', { count: result.failed, reason: reason ?? t('restoreReasonUnknown') }))
+        toast.warning(
+          t('restoreFailedToast', {
+            count: result.failed,
+            reason: reason ?? t('restoreReasonUnknown')
+          })
+        )
       }
-      store.getState().setLastResult({ type: 'deactivate', succeeded: result.restored, failed: result.failed })
+      store
+        .getState()
+        .setLastResult({ type: 'deactivate', succeeded: result.restored, failed: result.failed })
     } catch (err: any) {
       toast.error(err?.message ?? 'Deactivation failed')
     } finally {
@@ -307,35 +487,51 @@ export function GameModePage() {
     const name = customInput.trim()
     if (!name || name.length > 100 || config.customProcessKillList.includes(name)) return
     if (!/^[A-Za-z0-9._\- ]+$/.test(name)) {
-      toast.error('Process name can only contain letters, numbers, dots, hyphens, underscores, and spaces')
+      toast.error(
+        'Process name can only contain letters, numbers, dots, hyphens, underscores, and spaces'
+      )
       return
     }
     store.getState().setCustomProcessKillList([...config.customProcessKillList, name])
     setCustomInput('')
   }, [customInput, config.customProcessKillList])
 
-  const handleRemoveCustomProcess = useCallback((name: string) => {
-    store.getState().setCustomProcessKillList(config.customProcessKillList.filter((n) => n !== name))
-  }, [config.customProcessKillList])
+  const handleRemoveCustomProcess = useCallback(
+    (name: string) => {
+      store
+        .getState()
+        .setCustomProcessKillList(config.customProcessKillList.filter((n) => n !== name))
+    },
+    [config.customProcessKillList]
+  )
 
   const handleAddGameProcess = useCallback(() => {
     const name = gameInput.trim()
     if (!name || name.length > 100 || (config.customGameProcesses ?? []).includes(name)) return
     if (!/^[A-Za-z0-9._\- ]+$/.test(name)) {
-      toast.error('Process name can only contain letters, numbers, dots, hyphens, underscores, and spaces')
+      toast.error(
+        'Process name can only contain letters, numbers, dots, hyphens, underscores, and spaces'
+      )
       return
     }
     store.getState().setCustomGameProcesses([...(config.customGameProcesses ?? []), name])
     setGameInput('')
   }, [gameInput, config.customGameProcesses])
 
-  const handleRemoveGameProcess = useCallback((name: string) => {
-    store.getState().setCustomGameProcesses((config.customGameProcesses ?? []).filter((n) => n !== name))
-  }, [config.customGameProcesses])
+  const handleRemoveGameProcess = useCallback(
+    (name: string) => {
+      store
+        .getState()
+        .setCustomGameProcesses((config.customGameProcesses ?? []).filter((n) => n !== name))
+    },
+    [config.customGameProcesses]
+  )
 
   const enabledSet = new Set(config.enabledOptimizations)
   const enabledCount = config.enabledOptimizations.length
-  const serviceCount = OPTIMIZATIONS.filter((o) => o.category === 'services' && enabledSet.has(o.id)).length
+  const serviceCount = OPTIMIZATIONS.filter(
+    (o) => o.category === 'services' && enabledSet.has(o.id)
+  ).length
 
   return (
     <div className="flex h-full flex-col overflow-y-auto">
@@ -349,7 +545,7 @@ export function GameModePage() {
             background: active
               ? 'linear-gradient(180deg, rgba(6,182,212,0.05) 0%, rgba(139,92,246,0.03) 50%, rgba(6,182,212,0.02) 100%)'
               : 'var(--bg-subtle)',
-            border: active ? 'none' : '1px solid var(--border-medium)',
+            border: active ? 'none' : '1px solid var(--border-medium)'
           }}
         >
           {/* Animated gradient border when active */}
@@ -363,7 +559,7 @@ export function GameModePage() {
                 animation: 'game-mode-border-flow 3s linear infinite',
                 WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
                 WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
+                maskComposite: 'exclude'
               }}
             />
           )}
@@ -377,7 +573,8 @@ export function GameModePage() {
               style={{
                 width: 300,
                 height: 300,
-                background: 'radial-gradient(circle, rgba(6,182,212,0.12) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)',
+                background:
+                  'radial-gradient(circle, rgba(6,182,212,0.12) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)'
               }}
             />
           )}
@@ -402,7 +599,7 @@ export function GameModePage() {
                   boxShadow: active
                     ? `0 0 30px 4px rgba(6,182,212,0.3), 0 0 80px 8px rgba(139,92,246,0.15), inset 0 0 20px rgba(255,255,255,0.1)`
                     : '0 0 0 0 transparent',
-                  animation: active ? 'game-mode-pulse 2.5s ease-in-out infinite' : undefined,
+                  animation: active ? 'game-mode-pulse 2.5s ease-in-out infinite' : undefined
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -424,7 +621,17 @@ export function GameModePage() {
               <motion.div
                 className="text-xs font-bold tracking-[0.25em]"
                 style={{ color: active ? CYAN : 'var(--text-dim)' }}
-                animate={active ? { textShadow: [`0 0 8px rgba(6,182,212,0.4)`, `0 0 16px rgba(6,182,212,0.6)`, `0 0 8px rgba(6,182,212,0.4)`] } : { textShadow: '0 0 0 transparent' }}
+                animate={
+                  active
+                    ? {
+                        textShadow: [
+                          `0 0 8px rgba(6,182,212,0.4)`,
+                          `0 0 16px rgba(6,182,212,0.6)`,
+                          `0 0 8px rgba(6,182,212,0.4)`
+                        ]
+                      }
+                    : { textShadow: '0 0 0 transparent' }
+                }
                 transition={active ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
               >
                 {active ? t('activeLabel') : t('inactiveLabel')}
@@ -451,12 +658,12 @@ export function GameModePage() {
                 style={{
                   background: active ? 'rgba(239,68,68,0.1)' : 'rgba(6,182,212,0.1)',
                   color: active ? '#ef4444' : CYAN,
-                  border: `1px solid ${active ? 'rgba(239,68,68,0.2)' : 'rgba(6,182,212,0.2)'}`,
+                  border: `1px solid ${active ? 'rgba(239,68,68,0.2)' : 'rgba(6,182,212,0.2)'}`
                 }}
                 whileHover={{
                   boxShadow: active
                     ? '0 0 20px rgba(239,68,68,0.15)'
-                    : '0 0 20px rgba(6,182,212,0.15)',
+                    : '0 0 20px rgba(6,182,212,0.15)'
                 }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -476,22 +683,44 @@ export function GameModePage() {
               className="grid grid-cols-3 gap-3"
             >
               {[
-                { icon: Zap, label: t('statOptimizationsActive'), value: String(enabledCount), color: CYAN },
-                { icon: Activity, label: t('statServicesDisabled'), value: String(serviceCount), color: PURPLE },
-                { icon: Timer, label: t('statSessionTimer'), value: formatElapsed(elapsed), color: '#22c55e' },
+                {
+                  icon: Zap,
+                  label: t('statOptimizationsActive'),
+                  value: String(enabledCount),
+                  color: CYAN
+                },
+                {
+                  icon: Activity,
+                  label: t('statServicesDisabled'),
+                  value: String(serviceCount),
+                  color: PURPLE
+                },
+                {
+                  icon: Timer,
+                  label: t('statSessionTimer'),
+                  value: formatElapsed(elapsed),
+                  color: '#22c55e'
+                }
               ].map((stat) => (
                 <div
                   key={stat.label}
                   className="flex items-center gap-3 rounded-xl px-4 py-3"
                   style={{
                     background: 'var(--bg-subtle)',
-                    border: `1px solid var(--border-default)`,
+                    border: `1px solid var(--border-default)`
                   }}
                 >
-                  <stat.icon className="h-4 w-4 shrink-0" style={{ color: stat.color }} strokeWidth={2} />
+                  <stat.icon
+                    className="h-4 w-4 shrink-0"
+                    style={{ color: stat.color }}
+                    strokeWidth={2}
+                  />
                   <div className="min-w-0">
                     <div className="truncate text-[10px] text-zinc-500">{stat.label}</div>
-                    <div className="font-mono text-sm font-semibold tabular-nums" style={{ color: stat.color }}>
+                    <div
+                      className="font-mono text-sm font-semibold tabular-nums"
+                      style={{ color: stat.color }}
+                    >
                       {stat.value}
                     </div>
                   </div>
@@ -518,16 +747,21 @@ export function GameModePage() {
                     style={{ borderColor: `${CYAN} transparent ${CYAN} ${CYAN}` }}
                   />
                   <span className="text-[13px] text-zinc-300">
-                    {progress.phase === 'activating' ? t('activatingProgress') : t('deactivatingProgress')}
+                    {progress.phase === 'activating'
+                      ? t('activatingProgress')
+                      : t('deactivatingProgress')}
                   </span>
                 </div>
-                <div className="relative h-2 overflow-hidden rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
+                <div
+                  className="relative h-2 overflow-hidden rounded-full"
+                  style={{ background: 'var(--bg-subtle-2)' }}
+                >
                   <motion.div
                     className="h-full rounded-full"
                     style={{
                       background: `linear-gradient(90deg, ${CYAN}, ${PURPLE}, ${CYAN})`,
                       backgroundSize: '200% 100%',
-                      animation: 'shimmer 2s linear infinite',
+                      animation: 'shimmer 2s linear infinite'
                     }}
                     animate={{ width: `${(progress.current / progress.total) * 100}%` }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -550,8 +784,9 @@ export function GameModePage() {
               exit={{ opacity: 0, y: -8 }}
               className="flex items-center gap-3 rounded-xl px-5 py-3.5"
               style={{
-                background: lastResult.failed > 0 ? 'var(--accent-muted-bg)' : 'rgba(34,197,94,0.08)',
-                border: `1px solid ${lastResult.failed > 0 ? 'var(--accent-muted-border)' : 'rgba(34,197,94,0.15)'}`,
+                background:
+                  lastResult.failed > 0 ? 'var(--accent-muted-bg)' : 'rgba(34,197,94,0.08)',
+                border: `1px solid ${lastResult.failed > 0 ? 'var(--accent-muted-border)' : 'rgba(34,197,94,0.15)'}`
               }}
             >
               {lastResult.failed > 0 ? (
@@ -559,11 +794,15 @@ export function GameModePage() {
               ) : (
                 <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: '#22c55e' }} />
               )}
-              <span className="text-[13px]" style={{ color: lastResult.failed > 0 ? 'var(--accent-hover)' : '#86efac' }}>
+              <span
+                className="text-[13px]"
+                style={{ color: lastResult.failed > 0 ? 'var(--accent-hover)' : '#86efac' }}
+              >
                 {lastResult.type === 'activate'
                   ? t('resultActivated', { count: lastResult.succeeded })
                   : t('resultDeactivated', { count: lastResult.succeeded })}
-                {lastResult.failed > 0 && ` \u2022 ${t('resultErrors', { count: lastResult.failed })}`}
+                {lastResult.failed > 0 &&
+                  ` \u2022 ${t('resultErrors', { count: lastResult.failed })}`}
               </span>
             </motion.div>
           )}
@@ -573,7 +812,11 @@ export function GameModePage() {
         {active && (
           <div
             className="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[12px]"
-            style={{ background: 'rgba(6,182,212,0.06)', border: `1px solid ${CYAN_BORDER}`, color: CYAN }}
+            style={{
+              background: 'rgba(6,182,212,0.06)',
+              border: `1px solid ${CYAN_BORDER}`,
+              color: CYAN
+            }}
           >
             <Shield className="h-3.5 w-3.5 shrink-0" />
             {t('configLockedWhileActive')}
@@ -584,7 +827,11 @@ export function GameModePage() {
         {!active && pendingRestore && (
           <div
             className="flex items-start gap-3 rounded-lg px-4 py-3 text-[12px]"
-            style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: '#f59e0b' }}
+            style={{
+              background: 'rgba(245,158,11,0.08)',
+              border: '1px solid rgba(245,158,11,0.2)',
+              color: '#f59e0b'
+            }}
           >
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <div className="flex-1">
@@ -599,7 +846,11 @@ export function GameModePage() {
                 onClick={handleDeactivate}
                 disabled={isBusy}
                 className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
-                style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
+                style={{
+                  background: 'rgba(245,158,11,0.15)',
+                  color: '#f59e0b',
+                  border: '1px solid rgba(245,158,11,0.3)'
+                }}
               >
                 {isBusy ? t('retryingCleanup') : t('retryCleanup')}
               </button>
@@ -614,7 +865,11 @@ export function GameModePage() {
                 }}
                 disabled={isBusy}
                 className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
-                style={{ background: 'transparent', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' }}
+                style={{
+                  background: 'transparent',
+                  color: '#f59e0b',
+                  border: '1px solid rgba(245,158,11,0.3)'
+                }}
               >
                 {confirmDiscard ? t('discardConfirm') : t('discardPending')}
               </button>
@@ -630,7 +885,11 @@ export function GameModePage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               className="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[12px]"
-              style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)', color: '#22c55e' }}
+              style={{
+                background: 'rgba(34,197,94,0.08)',
+                border: '1px solid rgba(34,197,94,0.15)',
+                color: '#22c55e'
+              }}
             >
               <Radar className="h-3.5 w-3.5 shrink-0" />
               {t('autoDetectedBanner', { name: detectedGame })}
@@ -646,7 +905,9 @@ export function GameModePage() {
           className="overflow-hidden rounded-xl"
           style={{
             border: `1px solid ${config.autoDetect ? 'rgba(34,197,94,0.15)' : 'var(--border-default)'}`,
-            background: config.autoDetect ? 'linear-gradient(135deg, rgba(34,197,94,0.06), transparent)' : 'var(--bg-subtle)',
+            background: config.autoDetect
+              ? 'linear-gradient(135deg, rgba(34,197,94,0.06), transparent)'
+              : 'var(--bg-subtle)'
           }}
         >
           {/* Header row with main toggle */}
@@ -659,7 +920,9 @@ export function GameModePage() {
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="text-[14px] font-semibold text-zinc-200">{t('autoDetectTitle')}</span>
+                <span className="text-[14px] font-semibold text-zinc-200">
+                  {t('autoDetectTitle')}
+                </span>
               </div>
               <p className="mt-0.5 text-[11px] text-zinc-500">{t('autoDetectDesc')}</p>
             </div>
@@ -672,7 +935,7 @@ export function GameModePage() {
                 className="absolute top-0.5 h-5 w-5 rounded-full"
                 animate={{
                   left: config.autoDetect ? 22 : 2,
-                  background: config.autoDetect ? '#fff' : 'var(--text-muted)',
+                  background: config.autoDetect ? '#fff' : 'var(--text-muted)'
                 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               />
@@ -696,7 +959,9 @@ export function GameModePage() {
                   style={{ borderBottom: '1px solid var(--bg-subtle)' }}
                 >
                   <div className="flex-1">
-                    <span className="text-[13px] font-medium text-zinc-300">{t('autoDeactivateLabel')}</span>
+                    <span className="text-[13px] font-medium text-zinc-300">
+                      {t('autoDeactivateLabel')}
+                    </span>
                     <p className="mt-0.5 text-[11px] text-zinc-500">{t('autoDeactivateDesc')}</p>
                   </div>
                   <button
@@ -708,7 +973,7 @@ export function GameModePage() {
                       className="absolute top-0.5 h-5 w-5 rounded-full"
                       animate={{
                         left: config.autoDeactivate ? 22 : 2,
-                        background: config.autoDeactivate ? '#fff' : 'var(--text-muted)',
+                        background: config.autoDeactivate ? '#fff' : 'var(--text-muted)'
                       }}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
@@ -718,8 +983,12 @@ export function GameModePage() {
                 {/* Custom game processes */}
                 <div className="px-5 py-3.5">
                   <div className="mb-2">
-                    <span className="text-[13px] font-medium text-zinc-300">{t('customGameProcessesLabel')}</span>
-                    <p className="mt-0.5 text-[11px] text-zinc-500">{t('customGameProcessesDesc')}</p>
+                    <span className="text-[13px] font-medium text-zinc-300">
+                      {t('customGameProcessesLabel')}
+                    </span>
+                    <p className="mt-0.5 text-[11px] text-zinc-500">
+                      {t('customGameProcessesDesc')}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
@@ -746,10 +1015,16 @@ export function GameModePage() {
                         <span
                           key={name}
                           className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
-                          style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
+                          style={{
+                            background: 'var(--bg-subtle-2)',
+                            color: 'var(--text-secondary)'
+                          }}
                         >
                           {name}
-                          <button onClick={() => handleRemoveGameProcess(name)} className="hover:text-red-400">
+                          <button
+                            onClick={() => handleRemoveGameProcess(name)}
+                            className="hover:text-red-400"
+                          >
                             <X className="h-3 w-3" />
                           </button>
                         </span>
@@ -782,7 +1057,9 @@ export function GameModePage() {
               className="group overflow-hidden rounded-xl transition-all duration-300"
               style={{
                 border: `1px solid ${isExpanded ? `${cat.color}22` : 'var(--border-default)'}`,
-                background: isExpanded ? `linear-gradient(135deg, ${cat.glow}, transparent)` : 'var(--bg-subtle)',
+                background: isExpanded
+                  ? `linear-gradient(135deg, ${cat.glow}, transparent)`
+                  : 'var(--bg-subtle)'
               }}
             >
               {/* Category header */}
@@ -794,14 +1071,20 @@ export function GameModePage() {
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-all duration-300"
                   style={{
                     background: `${cat.color}14`,
-                    boxShadow: isExpanded ? `0 0 12px ${cat.color}20` : 'none',
+                    boxShadow: isExpanded ? `0 0 12px ${cat.color}20` : 'none'
                   }}
                 >
-                  <CatIcon className="h-[18px] w-[18px]" style={{ color: cat.color }} strokeWidth={1.8} />
+                  <CatIcon
+                    className="h-[18px] w-[18px]"
+                    style={{ color: cat.color }}
+                    strokeWidth={1.8}
+                  />
                 </div>
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-semibold text-zinc-200">{t(cat.labelKey)}</span>
+                    <span className="text-[14px] font-semibold text-zinc-200">
+                      {t(cat.labelKey)}
+                    </span>
                     <span
                       className="rounded-full px-2 py-0.5 text-[10px] font-medium"
                       style={{ background: `${cat.color}14`, color: cat.color }}
@@ -840,11 +1123,16 @@ export function GameModePage() {
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-[13px] font-medium text-zinc-300">{t(opt.labelKey)}</span>
+                              <span className="text-[13px] font-medium text-zinc-300">
+                                {t(opt.labelKey)}
+                              </span>
                               {opt.requiresAdmin && (
                                 <span
                                   className="rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wide"
-                                  style={{ background: 'var(--accent-muted-bg)', color: 'var(--accent)' }}
+                                  style={{
+                                    background: 'var(--accent-muted-bg)',
+                                    color: 'var(--accent)'
+                                  }}
                                 >
                                   {t('adminBadge')}
                                 </span>
@@ -864,7 +1152,7 @@ export function GameModePage() {
                               className="absolute top-0.5 h-5 w-5 rounded-full"
                               animate={{
                                 left: isEnabled ? 22 : 2,
-                                background: isEnabled ? '#fff' : 'var(--text-muted)',
+                                background: isEnabled ? '#fff' : 'var(--text-muted)'
                               }}
                               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             />
@@ -875,7 +1163,10 @@ export function GameModePage() {
 
                     {/* Custom process list (only in processes category) */}
                     {cat.id === 'processes' && (
-                      <div className="px-5 py-3.5" style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
+                      <div
+                        className="px-5 py-3.5"
+                        style={{ borderBottom: '1px solid var(--bg-subtle)' }}
+                      >
                         <div className="flex items-center gap-2">
                           <input
                             type="text"
@@ -902,11 +1193,17 @@ export function GameModePage() {
                               <span
                                 key={name}
                                 className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px]"
-                                style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}
+                                style={{
+                                  background: 'var(--bg-subtle-2)',
+                                  color: 'var(--text-secondary)'
+                                }}
                               >
                                 {name}
                                 {!active && (
-                                  <button onClick={() => handleRemoveCustomProcess(name)} className="hover:text-red-400">
+                                  <button
+                                    onClick={() => handleRemoveCustomProcess(name)}
+                                    className="hover:text-red-400"
+                                  >
                                     <X className="h-3 w-3" />
                                   </button>
                                 )}
@@ -914,11 +1211,16 @@ export function GameModePage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="mt-2 text-[11px] text-zinc-600">{t('customProcessEmpty')}</p>
+                          <p className="mt-2 text-[11px] text-zinc-600">
+                            {t('customProcessEmpty')}
+                          </p>
                         )}
-                        {enabledSet.has('proc-kill-custom') && config.customProcessKillList.length > 0 && (
-                          <p className="mt-2 text-[10px] text-amber-500/70">{t('warningProcesses')}</p>
-                        )}
+                        {enabledSet.has('proc-kill-custom') &&
+                          config.customProcessKillList.length > 0 && (
+                            <p className="mt-2 text-[10px] text-amber-500/70">
+                              {t('warningProcesses')}
+                            </p>
+                          )}
                       </div>
                     )}
                   </motion.div>

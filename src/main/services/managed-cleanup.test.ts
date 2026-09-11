@@ -4,16 +4,21 @@ const state = vi.hoisted(() => ({ exclusions: [] as string[], admin: true }))
 vi.mock('./settings-store', () => ({ getSettings: () => ({ exclusions: state.exclusions }) }))
 vi.mock('./elevation', () => ({ isAdmin: () => state.admin }))
 vi.mock('./exec-utf8', () => ({ execTracked: vi.fn() }))
-vi.mock('fs/promises', () => ({ lstat: vi.fn(async () => ({ isDirectory: () => true, isSymbolicLink: () => false })) }))
+vi.mock('fs/promises', () => ({
+  lstat: vi.fn(async () => ({ isDirectory: () => true, isSymbolicLink: () => false }))
+}))
 import { execTracked } from './exec-utf8'
 import { scanManagedCleanup, runManagedCleanup } from './managed-cleanup'
 import type { ScanItem } from '../../shared/types'
 const cache = resolve('test-cache')
 beforeEach(() => {
-  state.exclusions = []; state.admin = true
+  state.exclusions = []
+  state.admin = true
   vi.mocked(execTracked).mockReset().mockResolvedValue({ stdout: cache, stderr: '' })
 })
-async function uvItem() { return (await scanManagedCleanup('uv-prune', 'app', 'uv', cache)).items[0] }
+async function uvItem() {
+  return (await scanManagedCleanup('uv-prune', 'app', 'uv', cache)).items[0]
+}
 describe('native cleanup', () => {
   it('discovers the configured uv cache without pruning and leaves it unselected', async () => {
     const item = await uvItem()
@@ -47,17 +52,30 @@ describe('native cleanup', () => {
     expect((await runManagedCleanup(item)).success).toBe(false)
   })
   it('rejects unknown actions', async () => {
-    expect((await runManagedCleanup({ cleanupAction: 'arbitrary-command' } as any)).success).toBe(false)
+    expect((await runManagedCleanup({ cleanupAction: 'arbitrary-command' } as any)).success).toBe(
+      false
+    )
     expect(execTracked).not.toHaveBeenCalled()
   })
-  it.skipIf(process.platform !== 'win32')('uses supported Windows commands without ResetBase or pinned-file removal', async () => {
-    const component = (await scanManagedCleanup('windows-components', 'system', 'Components', cache)).items[0]
-    expect(await runManagedCleanup(component)).toEqual({ success: true })
-    expect(execTracked).toHaveBeenCalledWith(expect.stringMatching(/dism\.exe$/), ['/Online', '/Cleanup-Image', '/StartComponentCleanup', '/NoRestart'], expect.anything())
-    const delivery = (await scanManagedCleanup('delivery-optimization', 'system', 'Delivery', cache)).items[0]
-    expect(await runManagedCleanup(delivery)).toEqual({ success: true })
-    const command = vi.mocked(execTracked).mock.calls.at(-1)![1].join(' ')
-    expect(command).toContain('Delete-DeliveryOptimizationCache -Force')
-    expect(command).not.toContain('IncludePinnedFiles')
-  })
+  it.skipIf(process.platform !== 'win32')(
+    'uses supported Windows commands without ResetBase or pinned-file removal',
+    async () => {
+      const component = (
+        await scanManagedCleanup('windows-components', 'system', 'Components', cache)
+      ).items[0]
+      expect(await runManagedCleanup(component)).toEqual({ success: true })
+      expect(execTracked).toHaveBeenCalledWith(
+        expect.stringMatching(/dism\.exe$/),
+        ['/Online', '/Cleanup-Image', '/StartComponentCleanup', '/NoRestart'],
+        expect.anything()
+      )
+      const delivery = (
+        await scanManagedCleanup('delivery-optimization', 'system', 'Delivery', cache)
+      ).items[0]
+      expect(await runManagedCleanup(delivery)).toEqual({ success: true })
+      const command = vi.mocked(execTracked).mock.calls.at(-1)![1].join(' ')
+      expect(command).toContain('Delete-DeliveryOptimizationCache -Force')
+      expect(command).not.toContain('IncludePinnedFiles')
+    }
+  )
 })

@@ -49,12 +49,17 @@ export function ConfirmDialog({
     first?.focus()
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onCancelRef.current(); return }
+      if (e.key === 'Escape') {
+        onCancelRef.current()
+        return
+      }
       if (e.key !== 'Tab') return
       if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last?.focus()
+        e.preventDefault()
+        last?.focus()
       } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first?.focus()
+        e.preventDefault()
+        first?.focus()
       }
     }
     document.addEventListener('keydown', handleKeyDown)
@@ -68,7 +73,12 @@ export function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }} onClick={onCancel} aria-hidden="true" />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)' }}
+        onClick={onCancel}
+        aria-hidden="true"
+      />
 
       <div
         ref={dialogRef}
@@ -87,7 +97,10 @@ export function ConfirmDialog({
             <div
               className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               style={{
-                background: variant === 'danger' ? 'color-mix(in srgb, var(--danger), transparent 88%)' : 'var(--accent-muted-bg)'
+                background:
+                  variant === 'danger'
+                    ? 'color-mix(in srgb, var(--danger), transparent 88%)'
+                    : 'var(--accent-muted-bg)'
               }}
             >
               <AlertTriangle
@@ -99,14 +112,24 @@ export function ConfirmDialog({
             </div>
           )}
           <div>
-            <h3 id="confirm-dialog-title" className="text-[16px] font-semibold text-white">{title}</h3>
-            <p id="confirm-dialog-desc" className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            <h3 id="confirm-dialog-title" className="text-[16px] font-semibold text-white">
+              {title}
+            </h3>
+            <p
+              id="confirm-dialog-desc"
+              className="mt-1.5 text-[13px] leading-relaxed"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {description}
             </p>
             {details && (
               <p
                 className="mt-3 rounded-xl p-3 font-mono text-[11px] break-all overflow-hidden"
-                style={{ background: 'var(--bg-subtle)', color: 'var(--text-muted)', maxHeight: '4.5rem' }}
+                style={{
+                  background: 'var(--bg-subtle)',
+                  color: 'var(--text-muted)',
+                  maxHeight: '4.5rem'
+                }}
               >
                 {details}
               </p>
@@ -119,8 +142,12 @@ export function ConfirmDialog({
             onClick={onCancel}
             className="rounded-xl px-5 py-2.5 text-[13px] font-medium transition-colors"
             style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle-2)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-subtle-2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+            }}
           >
             {t('cancel')}
           </button>
@@ -128,8 +155,18 @@ export function ConfirmDialog({
             onClick={onConfirm}
             className="rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all duration-200"
             style={{
-              background: variant === 'danger' ? 'color-mix(in srgb, var(--danger), transparent 88%)' : variant === 'warning' ? 'var(--accent-muted-bg)' : 'var(--accent)',
-              color: variant === 'danger' ? 'var(--danger)' : variant === 'warning' ? 'var(--warning)' : 'var(--text-on-accent)',
+              background:
+                variant === 'danger'
+                  ? 'color-mix(in srgb, var(--danger), transparent 88%)'
+                  : variant === 'warning'
+                    ? 'var(--accent-muted-bg)'
+                    : 'var(--accent)',
+              color:
+                variant === 'danger'
+                  ? 'var(--danger)'
+                  : variant === 'warning'
+                    ? 'var(--warning)'
+                    : 'var(--text-on-accent)',
               border: `1px solid ${variant === 'danger' ? 'color-mix(in srgb, var(--danger), transparent 68%)' : 'var(--accent-muted-border)'}`
             }}
           >

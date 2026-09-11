@@ -59,7 +59,15 @@ export function ProcessTable() {
     }
   }, [killTarget])
 
-  const SortHeader = ({ column, label, width }: { column: typeof sortColumn; label: string; width: string }) => (
+  const SortHeader = ({
+    column,
+    label,
+    width
+  }: {
+    column: typeof sortColumn
+    label: string
+    width: string
+  }) => (
     <button
       onClick={() => setSort(column)}
       className={cn(
@@ -145,13 +153,19 @@ export function ProcessTable() {
             </div>
 
             {/* PID */}
-            <span className="text-[11px] font-mono" style={{ width: '12%', color: 'var(--text-muted)' }}>
+            <span
+              className="text-[11px] font-mono"
+              style={{ width: '12%', color: 'var(--text-muted)' }}
+            >
               {p.pid}
             </span>
 
             {/* CPU */}
             <div style={{ width: '20%' }} className="flex items-center gap-2">
-              <div className="h-1.5 flex-1 rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
+              <div
+                className="h-1.5 flex-1 rounded-full"
+                style={{ background: 'var(--bg-subtle-2)' }}
+              >
                 <div
                   className="h-full rounded-full transition-all"
                   style={{

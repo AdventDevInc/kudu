@@ -54,15 +54,60 @@ const AI_TOOLS_GROUP = 'AI Tools'
 type CategoryType = CleanerType | typeof AI_TOOLS_VIEW
 
 const categories: CategoryDef[] = [
-  { type: CleanerType.System, labelKey: 'categorySystem', icon: Monitor, descriptionKey: 'categorySystemDescription' },
-  { type: CleanerType.Browser, labelKey: 'categoryBrowsers', icon: Globe, descriptionKey: 'categoryBrowsersDescription' },
-  { type: CleanerType.App, labelKey: 'categoryApplications', icon: AppWindow, descriptionKey: 'categoryApplicationsDescription' },
-  { type: AI_TOOLS_VIEW, labelKey: 'categoryAiTools', icon: Sparkles, descriptionKey: 'categoryAiToolsDescription' },
-  { type: CleanerType.Gaming, labelKey: 'categoryGaming', icon: Gamepad2, descriptionKey: 'categoryGamingDescription' },
-  { type: CleanerType.RecycleBin, labelKey: 'categoryRecycleBin', icon: Trash2, descriptionKey: 'categoryRecycleBinDescription' },
-  { type: CleanerType.Shortcut, labelKey: 'categoryShortcuts', icon: Link2Off, descriptionKey: 'categoryShortcutsDescription' },
-  { type: CleanerType.Environment, labelKey: 'categoryEnvironment', icon: Variable, descriptionKey: 'categoryEnvironmentDescription' },
-  { type: CleanerType.Database, labelKey: 'categoryDatabases', icon: Database, descriptionKey: 'categoryDatabasesDescription' }
+  {
+    type: CleanerType.System,
+    labelKey: 'categorySystem',
+    icon: Monitor,
+    descriptionKey: 'categorySystemDescription'
+  },
+  {
+    type: CleanerType.Browser,
+    labelKey: 'categoryBrowsers',
+    icon: Globe,
+    descriptionKey: 'categoryBrowsersDescription'
+  },
+  {
+    type: CleanerType.App,
+    labelKey: 'categoryApplications',
+    icon: AppWindow,
+    descriptionKey: 'categoryApplicationsDescription'
+  },
+  {
+    type: AI_TOOLS_VIEW,
+    labelKey: 'categoryAiTools',
+    icon: Sparkles,
+    descriptionKey: 'categoryAiToolsDescription'
+  },
+  {
+    type: CleanerType.Gaming,
+    labelKey: 'categoryGaming',
+    icon: Gamepad2,
+    descriptionKey: 'categoryGamingDescription'
+  },
+  {
+    type: CleanerType.RecycleBin,
+    labelKey: 'categoryRecycleBin',
+    icon: Trash2,
+    descriptionKey: 'categoryRecycleBinDescription'
+  },
+  {
+    type: CleanerType.Shortcut,
+    labelKey: 'categoryShortcuts',
+    icon: Link2Off,
+    descriptionKey: 'categoryShortcutsDescription'
+  },
+  {
+    type: CleanerType.Environment,
+    labelKey: 'categoryEnvironment',
+    icon: Variable,
+    descriptionKey: 'categoryEnvironmentDescription'
+  },
+  {
+    type: CleanerType.Database,
+    labelKey: 'categoryDatabases',
+    icon: Database,
+    descriptionKey: 'categoryDatabasesDescription'
+  }
 ]
 
 const scannerCategories = categories.filter(
@@ -95,7 +140,8 @@ interface CleanerContextMenuState {
 function sizeForIds(results: ScanResult[], ids: string[]): number {
   const idSet = new Set(ids)
   return results.reduce(
-    (sum, r) => sum + r.items.filter((item) => idSet.has(item.id)).reduce((s, item) => s + item.size, 0),
+    (sum, r) =>
+      sum + r.items.filter((item) => idSet.has(item.id)).reduce((s, item) => s + item.size, 0),
     0
   )
 }
@@ -164,7 +210,10 @@ function CleanerContextMenu({
       >
         <Sparkles className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
         <span className="min-w-0 truncate">{cleanLabel}</span>
-        <span className="ml-auto shrink-0 font-mono text-[11px]" style={{ color: 'var(--text-muted)' }}>
+        <span
+          className="ml-auto shrink-0 font-mono text-[11px]"
+          style={{ color: 'var(--text-muted)' }}
+        >
           {formatBytes(size)}
         </span>
       </button>
@@ -181,7 +230,9 @@ export function CleanerPage() {
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
   const createRestorePointEnabled = useSettingsStore((s) => s.settings.cleaner.createRestorePoint)
-  const closeBrowsersBeforeClean = useSettingsStore((s) => s.settings.cleaner.closeBrowsersBeforeClean)
+  const closeBrowsersBeforeClean = useSettingsStore(
+    (s) => s.settings.cleaner.closeBrowsersBeforeClean
+  )
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
   const scannableCategories = protectRecycleBin
     ? scannerCategories.filter((c) => c.type !== CleanerType.RecycleBin)
@@ -215,12 +266,12 @@ export function CleanerPage() {
       if (data.phase === 'cleaning') {
         const total = cleanTotalRef.current
         const base = (cleanIndexRef.current / total) * 100
-        const slice = (data.progress / total)
+        const slice = data.progress / total
         store.setProgress({ ...data, progress: base + slice })
       } else {
         const total = scannableCategories.length
         const base = (scanIndexRef.current / total) * 100
-        const slice = (data.progress / total)
+        const slice = data.progress / total
         store.setProgress({ ...data, progress: base + slice })
       }
     })
@@ -245,11 +296,11 @@ export function CleanerPage() {
   // revalidated when Clean is clicked, avoiding an OS query on every checkbox.
   useEffect(() => {
     if (
-      platform !== 'win32'
-      || store.status !== ScanStatus.Complete
-      || store.cleanSummary
-      || store.selectedItems.size === 0
-      || !window.kudu?.cleanerBlockers
+      platform !== 'win32' ||
+      store.status !== ScanStatus.Complete ||
+      store.cleanSummary ||
+      store.selectedItems.size === 0 ||
+      !window.kudu?.cleanerBlockers
     ) {
       setBlockers([])
       setCheckingBlockers(false)
@@ -329,40 +380,43 @@ export function CleanerPage() {
     store.setProgress(null)
   }, [protectRecycleBin])
 
-  const handleCleanRequest = useCallback(async (scope?: { ids: string[]; label: string }) => {
-    const selectedIds = scope?.ids ?? store.getSelectedIds()
-    if (selectedIds.length === 0) return
+  const handleCleanRequest = useCallback(
+    async (scope?: { ids: string[]; label: string }) => {
+      const selectedIds = scope?.ids ?? store.getSelectedIds()
+      if (selectedIds.length === 0) return
 
-    setScopedClean(scope ?? null)
-    setPreparingClean(true)
-    // Scoped requests track their own counter so they neither cancel the
-    // page-wide blocker check nor overwrite its banner, which always describes
-    // the globally selected items.
-    const requestRef = scope ? scopedBlockerRequestRef : blockerRequestRef
-    const requestId = ++requestRef.current
-    let latest: CleanerBlocker[] = []
-    try {
-      if (platform === 'win32' && window.kudu?.cleanerBlockers) {
-        latest = await window.kudu.cleanerBlockers(selectedIds)
-      }
-    } catch {
-      // Advisory preflight failures must not prevent the confirmation dialog.
-    } finally {
-      if (requestRef.current === requestId) {
-        if (!scope) {
-          setBlockers(latest)
-          setCheckingBlockers(false)
+      setScopedClean(scope ?? null)
+      setPreparingClean(true)
+      // Scoped requests track their own counter so they neither cancel the
+      // page-wide blocker check nor overwrite its banner, which always describes
+      // the globally selected items.
+      const requestRef = scope ? scopedBlockerRequestRef : blockerRequestRef
+      const requestId = ++requestRef.current
+      let latest: CleanerBlocker[] = []
+      try {
+        if (platform === 'win32' && window.kudu?.cleanerBlockers) {
+          latest = await window.kudu.cleanerBlockers(selectedIds)
         }
-        setConfirmBlockers(latest)
-        setShowConfirm(true)
-        setPreparingClean(false)
+      } catch {
+        // Advisory preflight failures must not prevent the confirmation dialog.
+      } finally {
+        if (requestRef.current === requestId) {
+          if (!scope) {
+            setBlockers(latest)
+            setCheckingBlockers(false)
+          }
+          setConfirmBlockers(latest)
+          setShowConfirm(true)
+          setPreparingClean(false)
+        }
       }
-    }
-  }, [platform])
+    },
+    [platform]
+  )
 
   const handleClean = useCallback(async () => {
-    const shouldCloseDetectedBrowsers = closeBrowsersBeforeClean
-      && confirmBlockers.some((blocker) => blocker.isBrowser)
+    const shouldCloseDetectedBrowsers =
+      closeBrowsersBeforeClean && confirmBlockers.some((blocker) => blocker.isBrowser)
     setShowConfirm(false)
     setConfirmBlockers([])
     store.setStatus(ScanStatus.Cleaning)
@@ -389,7 +443,9 @@ export function CleanerPage() {
             toast.warning(t('toastRestorePointSkipped'), { description: rpResult.error })
           }
         } catch {
-          toast.warning(t('toastRestorePointSkipped'), { description: t('toastRestorePointSkippedDescription') })
+          toast.warning(t('toastRestorePointSkipped'), {
+            description: t('toastRestorePointSkippedDescription')
+          })
         }
       }
 
@@ -406,9 +462,18 @@ export function CleanerPage() {
         [CleanerType.Environment]: (ids) => window.kudu.environmentClean(ids),
         [CleanerType.Database]: (ids) => window.kudu.databaseClean(ids)
       }
-      let totalCleaned = 0, totalFiles = 0, totalSkipped = 0, anyNeedsElevation = false
+      let totalCleaned = 0,
+        totalFiles = 0,
+        totalSkipped = 0,
+        anyNeedsElevation = false
       const allErrors: { path: string; reason: string }[] = []
-      const categoryBreakdown: Array<{ name: string; type: string; found: number; cleaned: number; space: number }> = []
+      const categoryBreakdown: Array<{
+        name: string
+        type: string
+        found: number
+        cleaned: number
+        space: number
+      }> = []
 
       // Build the category plan once with O(1) selection lookups. Large scans
       // can hold tens of thousands of IDs, so repeatedly calling includes()
@@ -424,7 +489,7 @@ export function CleanerPage() {
           catResults,
           catItemsAll,
           catItemIds: selectedItems.map((item) => item.id),
-          selectedSize: selectedItems.reduce((sum, item) => sum + item.size, 0),
+          selectedSize: selectedItems.reduce((sum, item) => sum + item.size, 0)
         }
       })
       const activePlans = categoryPlans
@@ -433,7 +498,14 @@ export function CleanerPage() {
       cleanTotalRef.current = Math.max(activePlans.length, 1)
       let activeIndex = 0
 
-      store.setProgress({ phase: 'cleaning', category: '', currentPath: '', progress: 0, itemsFound: 0, sizeFound: 0 })
+      store.setProgress({
+        phase: 'cleaning',
+        category: '',
+        currentPath: '',
+        progress: 0,
+        itemsFound: 0,
+        sizeFound: 0
+      })
 
       for (const { cat, catResults, catItemIds } of activePlans) {
         cleanIndexRef.current = activeIndex
@@ -461,7 +533,8 @@ export function CleanerPage() {
           if (result.needsElevation) anyNeedsElevation = true
           if (result.errors.length) allErrors.push(...result.errors)
           if (cleaned.error) {
-            const reason = cleaned.error instanceof Error ? cleaned.error.message : String(cleaned.error)
+            const reason =
+              cleaned.error instanceof Error ? cleaned.error.message : String(cleaned.error)
             allErrors.push({ path: t(cat.labelKey), reason })
           }
           categoryBreakdown.push({
@@ -513,7 +586,10 @@ export function CleanerPage() {
         totalItemsSkipped: totalSkipped,
         totalSpaceSaved: totalCleaned,
         categories: categoryBreakdown.map((d) => ({
-          name: d.name, itemsFound: d.found, itemsCleaned: d.cleaned, spaceSaved: d.space
+          name: d.name,
+          itemsFound: d.found,
+          itemsCleaned: d.cleaned,
+          spaceSaved: d.space
         })),
         errorCount: allErrors.length
       })
@@ -534,18 +610,30 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [store.results, createRestorePointEnabled, protectRecycleBin, closeBrowsersBeforeClean, confirmBlockers, scopedClean])
+  }, [
+    store.results,
+    createRestorePointEnabled,
+    protectRecycleBin,
+    closeBrowsersBeforeClean,
+    confirmBlockers,
+    scopedClean
+  ])
 
   const categoryResults = (type: CategoryType) => {
     if (type === AI_TOOLS_VIEW) {
-      return store.results.filter((r) => r.category === CleanerType.App && r.group === AI_TOOLS_GROUP)
+      return store.results.filter(
+        (r) => r.category === CleanerType.App && r.group === AI_TOOLS_GROUP
+      )
     }
     if (type === CleanerType.App) {
-      return store.results.filter((r) => r.category === CleanerType.App && r.group !== AI_TOOLS_GROUP)
+      return store.results.filter(
+        (r) => r.category === CleanerType.App && r.group !== AI_TOOLS_GROUP
+      )
     }
     return store.results.filter((r) => r.category === type)
   }
-  const categoryItemCount = (type: CategoryType) => categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
+  const categoryItemCount = (type: CategoryType) =>
+    categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
 
   const toggleActiveCategory = () => {
     const results = categoryResults(activeCategory)
@@ -589,16 +677,15 @@ export function CleanerPage() {
     ? sizeForIds(store.results, scopedClean.ids)
     : store.getSelectedSize()
 
-  const openContextMenu = useCallback((
-    event: React.MouseEvent,
-    label: string,
-    ids: string[]
-  ) => {
-    if (!hasResults || isScanning || isCleaning || preparingClean || ids.length === 0) return
-    event.preventDefault()
-    event.stopPropagation()
-    setContextMenu({ x: event.clientX, y: event.clientY, label, ids })
-  }, [hasResults, isScanning, isCleaning, preparingClean])
+  const openContextMenu = useCallback(
+    (event: React.MouseEvent, label: string, ids: string[]) => {
+      if (!hasResults || isScanning || isCleaning || preparingClean || ids.length === 0) return
+      event.preventDefault()
+      event.stopPropagation()
+      setContextMenu({ x: event.clientX, y: event.clientY, label, ids })
+    },
+    [hasResults, isScanning, isCleaning, preparingClean]
+  )
 
   const closeContextMenu = useCallback(() => setContextMenu(null), [])
 
@@ -627,7 +714,14 @@ export function CleanerPage() {
             </button>
             <button
               onClick={() => void handleCleanRequest()}
-              disabled={!hasResults || isScanning || isCleaning || checkingBlockers || preparingClean || store.getSelectedIds().length === 0}
+              disabled={
+                !hasResults ||
+                isScanning ||
+                isCleaning ||
+                checkingBlockers ||
+                preparingClean ||
+                store.getSelectedIds().length === 0
+              }
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -635,9 +729,11 @@ export function CleanerPage() {
                 boxShadow: hasResults ? '0 4px 20px rgba(245,158,11,0.2)' : 'none'
               }}
             >
-              {preparingClean
-                ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
-                : <Sparkles className="h-4 w-4" strokeWidth={2} />}
+              {preparingClean ? (
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+              ) : (
+                <Sparkles className="h-4 w-4" strokeWidth={2} />
+              )}
               {preparingClean ? t('checkingRunningApps') : t('cleanButton')}
             </button>
           </div>
@@ -657,7 +753,9 @@ export function CleanerPage() {
                 onClick={() => setActiveCategory(cat.type)}
                 onContextMenu={(e) => {
                   if (isProtected) return
-                  const ids = categoryResults(cat.type).flatMap((r) => r.items.map((item) => item.id))
+                  const ids = categoryResults(cat.type).flatMap((r) =>
+                    r.items.map((item) => item.id)
+                  )
                   openContextMenu(e, t(cat.labelKey), ids)
                 }}
                 className="relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all"
@@ -667,10 +765,17 @@ export function CleanerPage() {
                 }}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full" style={{ background: 'var(--accent)' }} />
+                  <div
+                    className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full"
+                    style={{ background: 'var(--accent)' }}
+                  />
                 )}
-                {scanningCategory === cat.type || (cat.type === AI_TOOLS_VIEW && scanningCategory === CleanerType.App) ? (
-                  <Loader2 className="h-[17px] w-[17px] shrink-0 animate-spin text-amber-400" strokeWidth={1.8} />
+                {scanningCategory === cat.type ||
+                (cat.type === AI_TOOLS_VIEW && scanningCategory === CleanerType.App) ? (
+                  <Loader2
+                    className="h-[17px] w-[17px] shrink-0 animate-spin text-amber-400"
+                    strokeWidth={1.8}
+                  />
                 ) : (
                   <cat.icon className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
                 )}
@@ -693,15 +798,28 @@ export function CleanerPage() {
           })}
 
           {hasResults && (
-            <div className="mt-5 rounded-2xl p-4" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
-              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('totalRecoverable')}</p>
-              <p className="text-[20px] font-bold tracking-tight text-amber-400">{formatBytes(store.getTotalSize())}</p>
+            <div
+              className="mt-5 rounded-2xl p-4"
+              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+            >
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                {t('totalRecoverable')}
+              </p>
+              <p className="text-[20px] font-bold tracking-tight text-amber-400">
+                {formatBytes(store.getTotalSize())}
+              </p>
               <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                {t('itemsCount', { count: formatNumber(store.results.reduce((s, r) => s + r.itemCount, 0)) })}
+                {t('itemsCount', {
+                  count: formatNumber(store.results.reduce((s, r) => s + r.itemCount, 0))
+                })}
               </p>
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{t('selectedLabel')}</p>
-                <p className="text-[15px] font-semibold text-zinc-200">{formatBytes(store.getSelectedSize())}</p>
+                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                  {t('selectedLabel')}
+                </p>
+                <p className="text-[15px] font-semibold text-zinc-200">
+                  {formatBytes(store.getSelectedSize())}
+                </p>
               </div>
             </div>
           )}
@@ -723,69 +841,105 @@ export function CleanerPage() {
           {failedCategories.length > 0 && store.status === ScanStatus.Complete && (
             <div
               className="mb-5 flex items-center gap-3 rounded-2xl px-4 py-3"
-              style={{ background: 'var(--accent-muted-bg)', border: '1px solid rgba(245,158,11,0.12)' }}
+              style={{
+                background: 'var(--accent-muted-bg)',
+                border: '1px solid rgba(245,158,11,0.12)'
+              }}
             >
               <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
               <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                {t('scannersFailed')} <span className="text-amber-400 font-medium">{failedCategories.join(', ')}</span>
+                {t('scannersFailed')}{' '}
+                <span className="text-amber-400 font-medium">{failedCategories.join(', ')}</span>
               </p>
             </div>
           )}
 
-          {elevationSkipped.length > 0 && store.status === ScanStatus.Complete && !store.cleanSummary && (
-            <div
-              className="mb-5 flex items-center gap-3 rounded-2xl px-4 py-3"
-              style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
-            >
-              <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
-              <div className="flex-1 min-w-0">
-                <p className="text-[12px] text-zinc-300">
-                  <span className="font-medium">{t('categoriesSkipped', { count: elevationSkipped.length })}</span>
-                  <span style={{ color: 'var(--text-muted)' }}> {t('categoriesSkippedSuffix')}</span>
-                </p>
-                <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
-                  {elevationSkipped.slice(0, 4).join(', ')}{elevationSkipped.length > 4 ? ` ${t('categoriesSkippedMore', { count: elevationSkipped.length - 4 })}` : ''}
-                </p>
-              </div>
-              {platform !== 'darwin' && (
-                <button
-                  onClick={handleRelaunch}
-                  className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
-                  style={{ border: '1px solid rgba(245,158,11,0.2)' }}
-                >
-                  {t('relaunchAsAdmin')}
-                </button>
-              )}
-            </div>
-          )}
-
-          {(checkingBlockers || blockers.length > 0) && store.status === ScanStatus.Complete && !store.cleanSummary && (
-            <div
-              className="mb-5 flex items-start gap-3 rounded-2xl px-4 py-3"
-              style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
-            >
-              {checkingBlockers
-                ? <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-amber-400" strokeWidth={1.8} />
-                : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />}
-              <div className="min-w-0 flex-1">
-                <p className="text-[12px] font-medium text-zinc-200">
-                  {checkingBlockers
-                    ? t('checkingRunningApps')
-                    : t('closeAppsBeforeCleaning', { apps: blockerNames(blockers, (count) => t('moreApps', { count })) })}
-                </p>
-                {!checkingBlockers && (
-                  <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                    {closeBrowsersBeforeClean && blockers.every((blocker) => blocker.isBrowser)
-                      ? t('blockersAutoCloseDescription')
-                      : t('blockersDescription')}
+          {elevationSkipped.length > 0 &&
+            store.status === ScanStatus.Complete &&
+            !store.cleanSummary && (
+              <div
+                className="mb-5 flex items-center gap-3 rounded-2xl px-4 py-3"
+                style={{
+                  background: 'var(--accent-muted-bg)',
+                  border: '1px solid var(--accent-muted-border)'
+                }}
+              >
+                <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] text-zinc-300">
+                    <span className="font-medium">
+                      {t('categoriesSkipped', { count: elevationSkipped.length })}
+                    </span>
+                    <span style={{ color: 'var(--text-muted)' }}>
+                      {' '}
+                      {t('categoriesSkippedSuffix')}
+                    </span>
                   </p>
+                  <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-muted)' }}>
+                    {elevationSkipped.slice(0, 4).join(', ')}
+                    {elevationSkipped.length > 4
+                      ? ` ${t('categoriesSkippedMore', { count: elevationSkipped.length - 4 })}`
+                      : ''}
+                  </p>
+                </div>
+                {platform !== 'darwin' && (
+                  <button
+                    onClick={handleRelaunch}
+                    className="shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-medium text-amber-400 transition-colors hover:bg-amber-500/15"
+                    style={{ border: '1px solid rgba(245,158,11,0.2)' }}
+                  >
+                    {t('relaunchAsAdmin')}
+                  </button>
                 )}
               </div>
-            </div>
-          )}
+            )}
+
+          {(checkingBlockers || blockers.length > 0) &&
+            store.status === ScanStatus.Complete &&
+            !store.cleanSummary && (
+              <div
+                className="mb-5 flex items-start gap-3 rounded-2xl px-4 py-3"
+                style={{
+                  background: 'var(--accent-muted-bg)',
+                  border: '1px solid var(--accent-muted-border)'
+                }}
+              >
+                {checkingBlockers ? (
+                  <Loader2
+                    className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-amber-400"
+                    strokeWidth={1.8}
+                  />
+                ) : (
+                  <AlertTriangle
+                    className="mt-0.5 h-4 w-4 shrink-0 text-amber-400"
+                    strokeWidth={1.8}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium text-zinc-200">
+                    {checkingBlockers
+                      ? t('checkingRunningApps')
+                      : t('closeAppsBeforeCleaning', {
+                          apps: blockerNames(blockers, (count) => t('moreApps', { count }))
+                        })}
+                  </p>
+                  {!checkingBlockers && (
+                    <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                      {closeBrowsersBeforeClean && blockers.every((blocker) => blocker.isBrowser)
+                        ? t('blockersAutoCloseDescription')
+                        : t('blockersDescription')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
           {store.cleanSummary && store.status === ScanStatus.Complete && (
-            <CleanSummary summary={store.cleanSummary} onRelaunchAsAdmin={handleRelaunch} platform={platform} />
+            <CleanSummary
+              summary={store.cleanSummary}
+              onRelaunchAsAdmin={handleRelaunch}
+              platform={platform}
+            />
           )}
 
           {isRecycleBinProtected && !isScanning && !isCleaning && (
@@ -797,7 +951,11 @@ export function CleanerPage() {
                 <button
                   onClick={() => navigate('/settings')}
                   className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all"
-                  style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)', color: 'var(--text-secondary)' }}
+                  style={{
+                    background: 'var(--bg-hover)',
+                    border: '1px solid var(--border-medium)',
+                    color: 'var(--text-secondary)'
+                  }}
                 >
                   {t('settings:sectionCleaningPreferences')}
                 </button>
@@ -815,7 +973,10 @@ export function CleanerPage() {
                   onClick={handleScan}
                   disabled={isCleaning || preparingClean}
                   className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
-                  style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: 'var(--text-on-accent)' }}
+                  style={{
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: 'var(--text-on-accent)'
+                  }}
                 >
                   <Search className="h-4 w-4" strokeWidth={1.8} />
                   {t('startScan')}
@@ -827,31 +988,52 @@ export function CleanerPage() {
           {hasResults && !isRecycleBinProtected && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
-                <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  {t('categoryItemsHeading', { category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '') })}
+                <span
+                  className="text-[11px] font-medium uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {t('categoryItemsHeading', {
+                    category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '')
+                  })}
                 </span>
                 <div className="flex items-center gap-3">
                   <div className="relative" ref={sortMenuRef}>
                     <button
                       onClick={() => setShowSortMenu((v) => !v)}
                       className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[12px] font-medium transition-colors"
-                      style={{ color: 'var(--text-muted)', border: '1px solid var(--border-medium)' }}
+                      style={{
+                        color: 'var(--text-muted)',
+                        border: '1px solid var(--border-medium)'
+                      }}
                     >
                       <ArrowUpDown className="h-3 w-3" strokeWidth={1.8} />
                       {t(SORT_LABEL_KEYS[sortMode])}
-                      <ChevronDown className={cn('h-3 w-3 transition-transform', showSortMenu && 'rotate-180')} strokeWidth={2} />
+                      <ChevronDown
+                        className={cn('h-3 w-3 transition-transform', showSortMenu && 'rotate-180')}
+                        strokeWidth={2}
+                      />
                     </button>
                     {showSortMenu && (
                       <div
                         className="absolute right-0 top-full z-50 mt-1 rounded-xl py-1 shadow-xl"
-                        style={{ background: '#1e1e22', border: '1px solid var(--border-strong)', minWidth: 140 }}
+                        style={{
+                          background: '#1e1e22',
+                          border: '1px solid var(--border-strong)',
+                          minWidth: 140
+                        }}
                       >
                         {(Object.keys(SORT_LABEL_KEYS) as SortMode[]).map((mode) => (
                           <button
                             key={mode}
-                            onClick={() => { setSortMode(mode); setShowSortMenu(false) }}
+                            onClick={() => {
+                              setSortMode(mode)
+                              setShowSortMenu(false)
+                            }}
                             className="flex w-full items-center gap-2 px-4 py-2 text-[12px] transition-colors hover:bg-white/5"
-                            style={{ color: sortMode === mode ? 'var(--accent-hover)' : 'var(--text-secondary)' }}
+                            style={{
+                              color:
+                                sortMode === mode ? 'var(--accent-hover)' : 'var(--text-secondary)'
+                            }}
                           >
                             {t(SORT_LABEL_KEYS[mode])}
                           </button>
@@ -869,7 +1051,10 @@ export function CleanerPage() {
               </div>
 
               {categoryResults(activeCategory).length === 0 && (
-                <div className="py-12 text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
+                <div
+                  className="py-12 text-center text-[13px]"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   {t('noItemsInCategory')}
                 </div>
               )}
@@ -879,9 +1064,10 @@ export function CleanerPage() {
                 // Group results by group label (ungrouped first, then grouped
                 // sections); each section is sorted independently so sort
                 // order never interleaves group sections.
-                const ungrouped = activeCategory === AI_TOOLS_VIEW
-                  ? sortResults(results)
-                  : sortResults(results.filter((r) => !r.group))
+                const ungrouped =
+                  activeCategory === AI_TOOLS_VIEW
+                    ? sortResults(results)
+                    : sortResults(results.filter((r) => !r.group))
                 const grouped = new Map<string, ScanResult[]>()
                 if (activeCategory !== AI_TOOLS_VIEW) {
                   for (const r of results) {
@@ -900,11 +1086,17 @@ export function CleanerPage() {
                   <div key={section.label || '_ungrouped'}>
                     {section.label && (
                       <div className="mt-4 mb-2 flex items-center gap-2 px-1">
-                        <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+                        <span
+                          className="text-[11px] font-semibold uppercase tracking-wider"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
                           {section.label}
                         </span>
                         <div className="flex-1 h-px" style={{ background: 'var(--bg-hover-2)' }} />
-                        <span className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                        <span
+                          className="text-[11px] font-mono"
+                          style={{ color: 'var(--text-muted)' }}
+                        >
                           {formatBytes(section.items.reduce((s, r) => s + r.totalSize, 0))}
                         </span>
                       </div>
@@ -913,70 +1105,138 @@ export function CleanerPage() {
                       {section.items.map((result) => {
                         const groupKey = `${result.category}:${result.subcategory}`
                         const isExpanded = expandedGroups.has(groupKey)
-                        const selectedInGroup = result.items.filter((item) => store.selectedItems.has(item.id)).length
+                        const selectedInGroup = result.items.filter((item) =>
+                          store.selectedItems.has(item.id)
+                        ).length
                         const allSelected = selectedInGroup === result.items.length
                         const someSelected = selectedInGroup > 0 && !allSelected
 
                         return (
-                          <div key={result.subcategory} className="rounded-xl overflow-hidden"
-                            style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
+                          <div
+                            key={result.subcategory}
+                            className="rounded-xl overflow-hidden"
+                            style={{
+                              background: 'var(--card-bg)',
+                              border: '1px solid var(--border-default)'
+                            }}
+                          >
                             {/* Group header */}
-                            <div className="flex items-center gap-3 px-4 py-3.5 cursor-pointer"
+                            <div
+                              className="flex items-center gap-3 px-4 py-3.5 cursor-pointer"
                               onClick={() => toggleGroup(groupKey)}
                               onContextMenu={(e) => {
                                 const ids = result.items.map((item) => item.id)
                                 openContextMenu(e, result.subcategory, ids)
                               }}
-                              onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-subtle)' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}>
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'var(--bg-subtle)'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'transparent'
+                              }}
+                            >
                               {/* Checkbox */}
-                              <div onClick={(e) => { e.stopPropagation(); toggleSubcategorySelection(result) }}
-                                className="flex items-center">
-                                <div className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] cursor-pointer"
+                              <div
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleSubcategorySelection(result)
+                                }}
+                                className="flex items-center"
+                              >
+                                <div
+                                  className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] cursor-pointer"
                                   style={{
-                                    background: allSelected || someSelected ? 'var(--accent)' : 'var(--bg-hover-2)',
-                                    border: allSelected || someSelected ? 'none' : '1.5px solid var(--border-stronger)'
-                                  }}>
+                                    background:
+                                      allSelected || someSelected
+                                        ? 'var(--accent)'
+                                        : 'var(--bg-hover-2)',
+                                    border:
+                                      allSelected || someSelected
+                                        ? 'none'
+                                        : '1.5px solid var(--border-stronger)'
+                                  }}
+                                >
                                   {allSelected && (
                                     <svg className="h-3 w-3" viewBox="0 0 12 12" fill="none">
-                                      <path d="M2.5 6l2.5 2.5 4.5-5" stroke="var(--text-on-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                      <path
+                                        d="M2.5 6l2.5 2.5 4.5-5"
+                                        stroke="var(--text-on-accent)"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      />
                                     </svg>
                                   )}
                                   {someSelected && (
-                                    <div className="h-[2px] w-2 rounded-full" style={{ background: 'var(--text-on-accent)' }} />
+                                    <div
+                                      className="h-[2px] w-2 rounded-full"
+                                      style={{ background: 'var(--text-on-accent)' }}
+                                    />
                                   )}
                                 </div>
                               </div>
 
                               {/* Expand arrow */}
                               <ChevronRight
-                                className={cn('h-3.5 w-3.5 shrink-0 transition-transform', isExpanded && 'rotate-90')}
+                                className={cn(
+                                  'h-3.5 w-3.5 shrink-0 transition-transform',
+                                  isExpanded && 'rotate-90'
+                                )}
                                 style={{ color: 'var(--text-muted)' }}
                                 strokeWidth={2}
                               />
 
                               {/* Folder icon */}
-                              <Folder className="h-4 w-4 shrink-0" style={{ color: allSelected ? 'var(--accent)' : 'var(--text-muted)' }} strokeWidth={1.8} />
+                              <Folder
+                                className="h-4 w-4 shrink-0"
+                                style={{
+                                  color: allSelected ? 'var(--accent)' : 'var(--text-muted)'
+                                }}
+                                strokeWidth={1.8}
+                              />
 
                               {/* Label */}
                               <div className="flex-1 min-w-0">
-                                <span className="text-[13px] font-medium text-zinc-300">{result.subcategory}</span>
+                                <span className="text-[13px] font-medium text-zinc-300">
+                                  {result.subcategory}
+                                </span>
                                 {result.items[0]?.cleanupAction && (
-                                  <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                                  <p
+                                    className="mt-1 text-[11px]"
+                                    style={{ color: 'var(--text-muted)' }}
+                                  >
                                     {result.items[0].cleanupAction === 'windows-components'
-                                      ? t('maintenanceComponentsNote', { defaultValue: 'Removes older Windows component versions immediately. May take a while; savings are not included in totals.' })
-                                      : t('maintenanceNativeNote', { defaultValue: 'Uses the built-in cleanup tool. Savings are not included in totals.' })}
+                                      ? t('maintenanceComponentsNote', {
+                                          defaultValue:
+                                            'Removes older Windows component versions immediately. May take a while; savings are not included in totals.'
+                                        })
+                                      : t('maintenanceNativeNote', {
+                                          defaultValue:
+                                            'Uses the built-in cleanup tool. Savings are not included in totals.'
+                                        })}
                                   </p>
                                 )}
                               </div>
 
                               {/* Stats */}
-                              <span className="rounded-md px-2 py-0.5 font-mono text-[11px] shrink-0"
-                                style={{ background: 'var(--bg-subtle-2)', color: 'var(--text-secondary)' }}>
-                                {t(result.itemCount === 1 ? 'itemCount' : 'itemCountPlural', { count: formatNumber(result.itemCount) })}
+                              <span
+                                className="rounded-md px-2 py-0.5 font-mono text-[11px] shrink-0"
+                                style={{
+                                  background: 'var(--bg-subtle-2)',
+                                  color: 'var(--text-secondary)'
+                                }}
+                              >
+                                {t(result.itemCount === 1 ? 'itemCount' : 'itemCountPlural', {
+                                  count: formatNumber(result.itemCount)
+                                })}
                               </span>
-                              <span className="font-mono text-[12px] font-medium shrink-0" style={{ color: 'var(--text-muted)' }}>
-                                {result.items.some(item => item.cleanupAction) ? t('maintenanceSizeUnknown', { defaultValue: 'Savings vary' }) : formatBytes(result.totalSize)}
+                              <span
+                                className="font-mono text-[12px] font-medium shrink-0"
+                                style={{ color: 'var(--text-muted)' }}
+                              >
+                                {result.items.some((item) => item.cleanupAction)
+                                  ? t('maintenanceSizeUnknown', { defaultValue: 'Savings vary' })
+                                  : formatBytes(result.totalSize)}
                               </span>
 
                               {/* Open location */}
@@ -985,8 +1245,15 @@ export function CleanerPage() {
                                   type="button"
                                   title={t('openLocation')}
                                   className="shrink-0 p-1 rounded transition-colors hover:bg-[var(--bg-hover-2)]"
-                                  onClick={(e) => { e.stopPropagation(); window.kudu?.cleanerOpenLocation?.(result.items[0].path) }}>
-                                  <FolderOpen className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    window.kudu?.cleanerOpenLocation?.(result.items[0].path)
+                                  }}
+                                >
+                                  <FolderOpen
+                                    className="h-3.5 w-3.5"
+                                    style={{ color: 'var(--text-muted)' }}
+                                  />
                                 </button>
                               )}
                             </div>
@@ -996,47 +1263,109 @@ export function CleanerPage() {
                               <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
                                 {result.items.slice(0, 50).map((item) => {
                                   const checked = store.selectedItems.has(item.id)
-                                  const pathLabel = item.path.split(/[/\\]/).slice(-2).join('/') || item.path
+                                  const pathLabel =
+                                    item.path.split(/[/\\]/).slice(-2).join('/') || item.path
                                   return (
-                                    <label key={item.id}
+                                    <label
+                                      key={item.id}
                                       className="flex items-center gap-3 px-4 py-2 pl-14 cursor-pointer transition-colors"
-                                      style={{ background: checked ? 'rgba(245,158,11,0.03)' : 'transparent' }}
-                                      onMouseEnter={(e) => { e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.05)' : 'var(--bg-subtle)' }}
-                                      onMouseLeave={(e) => { e.currentTarget.style.background = checked ? 'rgba(245,158,11,0.03)' : 'transparent' }}>
-                                      <input type="checkbox" checked={checked} onChange={() => store.toggleItem(item.id)}
-                                        className="sr-only peer" />
-                                      <div className="flex h-[16px] w-[16px] items-center justify-center rounded-[4px] shrink-0"
+                                      style={{
+                                        background: checked
+                                          ? 'rgba(245,158,11,0.03)'
+                                          : 'transparent'
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.background = checked
+                                          ? 'rgba(245,158,11,0.05)'
+                                          : 'var(--bg-subtle)'
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.background = checked
+                                          ? 'rgba(245,158,11,0.03)'
+                                          : 'transparent'
+                                      }}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={checked}
+                                        onChange={() => store.toggleItem(item.id)}
+                                        className="sr-only peer"
+                                      />
+                                      <div
+                                        className="flex h-[16px] w-[16px] items-center justify-center rounded-[4px] shrink-0"
                                         style={{
-                                          background: checked ? 'var(--accent)' : 'var(--bg-hover-2)',
-                                          border: checked ? 'none' : '1.5px solid var(--border-stronger)'
-                                        }}>
+                                          background: checked
+                                            ? 'var(--accent)'
+                                            : 'var(--bg-hover-2)',
+                                          border: checked
+                                            ? 'none'
+                                            : '1.5px solid var(--border-stronger)'
+                                        }}
+                                      >
                                         {checked && (
-                                          <svg className="h-2.5 w-2.5" viewBox="0 0 12 12" fill="none">
-                                            <path d="M2.5 6l2.5 2.5 4.5-5" stroke="var(--text-on-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                          <svg
+                                            className="h-2.5 w-2.5"
+                                            viewBox="0 0 12 12"
+                                            fill="none"
+                                          >
+                                            <path
+                                              d="M2.5 6l2.5 2.5 4.5-5"
+                                              stroke="var(--text-on-accent)"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                            />
                                           </svg>
                                         )}
                                       </div>
-                                      <span className="flex-1 min-w-0 truncate text-[12px] font-mono" style={{ color: 'var(--text-secondary)' }}>
-                                        {item.cleanupAction ? t('maintenanceOptional', { defaultValue: 'Optional maintenance' }) : pathLabel}
+                                      <span
+                                        className="flex-1 min-w-0 truncate text-[12px] font-mono"
+                                        style={{ color: 'var(--text-secondary)' }}
+                                      >
+                                        {item.cleanupAction
+                                          ? t('maintenanceOptional', {
+                                              defaultValue: 'Optional maintenance'
+                                            })
+                                          : pathLabel}
                                       </span>
-                                      <span className="font-mono text-[11px] shrink-0" style={{ color: 'var(--text-muted)' }}>
-                                        {item.cleanupAction ? t('maintenanceSizeUnknown', { defaultValue: 'Savings vary' }) : formatBytes(item.size)}
+                                      <span
+                                        className="font-mono text-[11px] shrink-0"
+                                        style={{ color: 'var(--text-muted)' }}
+                                      >
+                                        {item.cleanupAction
+                                          ? t('maintenanceSizeUnknown', {
+                                              defaultValue: 'Savings vary'
+                                            })
+                                          : formatBytes(item.size)}
                                       </span>
                                       {isAbsolutePath(item.path) && (
                                         <button
                                           type="button"
                                           title={t('openLocation')}
                                           className="shrink-0 p-0.5 rounded transition-colors hover:bg-[var(--bg-hover-2)]"
-                                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.kudu?.cleanerOpenLocation?.(item.path) }}>
-                                          <FolderOpen className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} />
+                                          onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            window.kudu?.cleanerOpenLocation?.(item.path)
+                                          }}
+                                        >
+                                          <FolderOpen
+                                            className="h-3.5 w-3.5"
+                                            style={{ color: 'var(--text-muted)' }}
+                                          />
                                         </button>
                                       )}
                                     </label>
                                   )
                                 })}
                                 {result.items.length > 50 && (
-                                  <div className="px-4 py-2.5 pl-14 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                                    {t('moreItems', { count: formatNumber(result.items.length - 50) })}
+                                  <div
+                                    className="px-4 py-2.5 pl-14 text-[11px]"
+                                    style={{ color: 'var(--text-muted)' }}
+                                  >
+                                    {t('moreItems', {
+                                      count: formatNumber(result.items.length - 50)
+                                    })}
                                   </div>
                                 )}
                               </div>
@@ -1056,8 +1385,16 @@ export function CleanerPage() {
       <ConfirmDialog
         open={showConfirm}
         onConfirm={handleClean}
-        onCancel={() => { setShowConfirm(false); setConfirmBlockers([]); setScopedClean(null) }}
-        title={scopedClean ? t('confirmCleanCategoryTitle', { name: scopedClean.label }) : t('confirmCleanTitle')}
+        onCancel={() => {
+          setShowConfirm(false)
+          setConfirmBlockers([])
+          setScopedClean(null)
+        }}
+        title={
+          scopedClean
+            ? t('confirmCleanCategoryTitle', { name: scopedClean.label })
+            : t('confirmCleanTitle')
+        }
         description={`${t('confirmCleanDescription', { count: formatNumber(confirmCleanIds.length), size: formatBytes(confirmCleanSize) })}${confirmBlockers.length > 0 ? ` ${t('confirmCloseApps', { apps: blockerNames(confirmBlockers, (count) => t('moreApps', { count })) })}` : ''}`}
         confirmLabel={t('confirmCleanLabel')}
         variant="warning"

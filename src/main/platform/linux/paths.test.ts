@@ -12,7 +12,7 @@ describe('linux paths', () => {
   const paths = createLinuxPaths()
 
   describe('malwareScanDirs', () => {
-    const dirs = paths.malwareScanDirs().map(d => d.path)
+    const dirs = paths.malwareScanDirs().map((d) => d.path)
 
     it('returns an array of scan directories', () => {
       expect(dirs.length).toBeGreaterThanOrEqual(3)
@@ -35,7 +35,7 @@ describe('linux paths', () => {
       const systemPrefixes = ['/tmp', '/var/tmp', '/dev/shm', '/usr/local/bin', '/opt']
       for (const d of dirs) {
         const norm = d.replace(/\\/g, '/')
-        const isSystem = systemPrefixes.some(p => norm === p || norm.startsWith(p + '/'))
+        const isSystem = systemPrefixes.some((p) => norm === p || norm.startsWith(p + '/'))
         if (!isSystem) {
           expect(norm.startsWith(HOME), `Expected "${norm}" to start with "${HOME}"`).toBe(true)
         }

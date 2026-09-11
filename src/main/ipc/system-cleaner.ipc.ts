@@ -3,7 +3,13 @@ import { scanManagedCleanup } from '../services/managed-cleanup'
 import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
-import { scanDirectory, scanFile, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from '../services/file-utils'
+import {
+  scanDirectory,
+  scanFile,
+  scanMultipleDirectories,
+  resolveChildSubdirs,
+  cleanItems
+} from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { isAdmin } from '../services/elevation'
 import { getSettings } from '../services/settings-store'
@@ -47,10 +53,15 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
         let result: ScanResult
         const recency = {
           skipRecentMinutes,
-          deepRecencyCheck: target.deepRecencyCheck === true,
+          deepRecencyCheck: target.deepRecencyCheck === true
         }
         if (target.cleanupAction) {
-          result = await scanManagedCleanup(target.cleanupAction, category, target.subcategory, target.path)
+          result = await scanManagedCleanup(
+            target.cleanupAction,
+            category,
+            target.subcategory,
+            target.path
+          )
         } else if (target.childSubdir) {
           const childPaths = await resolveChildSubdirs([target.path], target.childSubdir)
           result = await scanMultipleDirectories(childPaths, category, target.subcategory, recency)
@@ -75,14 +86,15 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
         }
 
         const win = getWindow()
-        if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-          phase: 'scanning',
-          category,
-          currentPath: target.path,
-          progress: ((i + 1) / targets.length) * 100,
-          itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
-          sizeFound: results.reduce((s, r) => s + r.totalSize, 0),
-        })
+        if (win && !win.isDestroyed())
+          win.webContents.send(IPC.SCAN_PROGRESS, {
+            phase: 'scanning',
+            category,
+            currentPath: target.path,
+            progress: ((i + 1) / targets.length) * 100,
+            itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
+            sizeFound: results.reduce((s, r) => s + r.totalSize, 0)
+          })
       } catch {
         // Skip inaccessible targets
       }
@@ -110,7 +122,7 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
         items: [],
         totalSize: 0,
         itemCount: 0,
-        group: skippedForElevation.join(', '),
+        group: skippedForElevation.join(', ')
       })
     }
 
@@ -121,17 +133,25 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
     // Large scans legitimately exceed the generic 10k IPC-list limit. IDs are
     // UUIDs from Kudu's own scan cache, so keep a high but bounded cleaner cap.
     const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-        phase: 'cleaning',
-        category: CleanerType.System,
-        currentPath,
-        progress: (processed / total) * 100,
-        itemsFound: total,
-        sizeFound: cleanedSize,
-      })
+      if (win && !win.isDestroyed())
+        win.webContents.send(IPC.SCAN_PROGRESS, {
+          phase: 'cleaning',
+          category: CleanerType.System,
+          currentPath,
+          progress: (processed / total) * 100,
+          itemsFound: total,
+          sizeFound: cleanedSize
+        })
     })
   })
 }

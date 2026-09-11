@@ -9,8 +9,8 @@ let testDir: string
 vi.mock('electron', () => ({
   app: {
     isPackaged: true,
-    getPath: () => testDir,
-  },
+    getPath: () => testDir
+  }
 }))
 
 import {
@@ -20,11 +20,15 @@ import {
   clearDeletionLog,
   getDeletionLogPath,
   MAX_QUERY_LIMIT,
-  _resetDeletionLogPathCache,
+  _resetDeletionLogPathCache
 } from './deletion-log-store'
 
-const rec = (ts: string, path: string, size = 100, category = 'Temp'): DeletedFileRecord =>
-  ({ ts, path, size, category })
+const rec = (ts: string, path: string, size = 100, category = 'Temp'): DeletedFileRecord => ({
+  ts,
+  path,
+  size,
+  category
+})
 
 describe('deletion-log-store', () => {
   beforeEach(() => {
@@ -50,7 +54,7 @@ describe('deletion-log-store', () => {
   it('persists records and reads them back newest first', () => {
     recordDeletions([
       rec('2026-07-20T10:00:00.000Z', 'C:\\a.tmp'),
-      rec('2026-07-20T10:00:01.000Z', 'C:\\b.tmp'),
+      rec('2026-07-20T10:00:01.000Z', 'C:\\b.tmp')
     ])
     const { records, total } = queryDeletions()
     expect(total).toBe(2)
@@ -69,11 +73,11 @@ describe('deletion-log-store', () => {
       rec('2026-07-20T10:00:00.000Z', 'C:\\start.tmp'),
       rec('2026-07-20T10:00:30.000Z', 'C:\\middle.tmp'),
       rec('2026-07-20T10:01:00.000Z', 'C:\\end.tmp'),
-      rec('2026-07-20T10:01:01.000Z', 'C:\\after.tmp'),
+      rec('2026-07-20T10:01:01.000Z', 'C:\\after.tmp')
     ])
     const { records, total } = queryDeletions({
       from: '2026-07-20T10:00:00.000Z',
-      to: '2026-07-20T10:01:00.000Z',
+      to: '2026-07-20T10:01:00.000Z'
     })
     expect(total).toBe(3)
     expect(records.map((r) => r.path)).toEqual(['C:\\end.tmp', 'C:\\middle.tmp', 'C:\\start.tmp'])
@@ -81,9 +85,7 @@ describe('deletion-log-store', () => {
 
   it('pages through a window with offset and limit', () => {
     recordDeletions(
-      Array.from({ length: 10 }, (_, i) =>
-        rec(`2026-07-20T10:00:0${i}.000Z`, `C:\\file-${i}.tmp`)
-      )
+      Array.from({ length: 10 }, (_, i) => rec(`2026-07-20T10:00:0${i}.000Z`, `C:\\file-${i}.tmp`))
     )
     const first = queryDeletions({ offset: 0, limit: 4 })
     expect(first.total).toBe(10)
@@ -126,7 +128,11 @@ describe('deletion-log-store', () => {
     )
     const { records } = queryDeletions()
     expect(records[0]).toEqual({
-      ts: '2026-07-20T10:00:00.000Z', path: 'C:\\x.tmp', size: 0, category: '', origin: 'local'
+      ts: '2026-07-20T10:00:00.000Z',
+      path: 'C:\\x.tmp',
+      size: 0,
+      category: '',
+      origin: 'local'
     })
   })
 
@@ -161,27 +167,40 @@ describe('deletion-log-store', () => {
       )
     )
     expect(queryAllDeletions()).toHaveLength(250)
-    expect(queryAllDeletions({ from: new Date(Date.UTC(2026, 6, 20, 10, 0, 200)).toISOString() })).toHaveLength(50)
+    expect(
+      queryAllDeletions({ from: new Date(Date.UTC(2026, 6, 20, 10, 0, 200)).toISOString() })
+    ).toHaveLength(50)
   })
 
   it('filters by origin so overlapping runs stay separable', () => {
     recordDeletions([
       { ...rec('2026-07-20T10:00:00.000Z', 'C:\\manual.tmp'), origin: 'local' },
       { ...rec('2026-07-20T10:00:01.000Z', 'C:\\remote.tmp'), origin: 'cloud' },
-      { ...rec('2026-07-20T10:00:02.000Z', 'C:\\terminal.tmp'), origin: 'cli' },
+      { ...rec('2026-07-20T10:00:02.000Z', 'C:\\terminal.tmp'), origin: 'cli' }
     ])
 
     const window = { from: '2026-07-20T10:00:00.000Z', to: '2026-07-20T10:00:02.000Z' }
     expect(queryDeletions(window).total).toBe(3)
-    expect(queryDeletions({ ...window, origin: 'local' }).records.map((r) => r.path)).toEqual(['C:\\manual.tmp'])
-    expect(queryDeletions({ ...window, origin: 'cloud' }).records.map((r) => r.path)).toEqual(['C:\\remote.tmp'])
-    expect(queryDeletions({ ...window, origin: 'cli' }).records.map((r) => r.path)).toEqual(['C:\\terminal.tmp'])
+    expect(queryDeletions({ ...window, origin: 'local' }).records.map((r) => r.path)).toEqual([
+      'C:\\manual.tmp'
+    ])
+    expect(queryDeletions({ ...window, origin: 'cloud' }).records.map((r) => r.path)).toEqual([
+      'C:\\remote.tmp'
+    ])
+    expect(queryDeletions({ ...window, origin: 'cli' }).records.map((r) => r.path)).toEqual([
+      'C:\\terminal.tmp'
+    ])
   })
 
   it('treats records written before origin tracking as local', () => {
     writeFileSync(
       getDeletionLogPath(),
-      JSON.stringify({ ts: '2026-07-20T10:00:00.000Z', path: 'C:\\legacy.tmp', size: 1, category: 'Temp' }) + '\n',
+      JSON.stringify({
+        ts: '2026-07-20T10:00:00.000Z',
+        path: 'C:\\legacy.tmp',
+        size: 1,
+        category: 'Temp'
+      }) + '\n',
       'utf-8'
     )
     expect(queryDeletions({ origin: 'local' }).total).toBe(1)
@@ -191,7 +210,7 @@ describe('deletion-log-store', () => {
   it('round-trips a truncation count and ignores a meaningless one', () => {
     recordDeletions([
       { ...rec('2026-07-20T10:00:00.000Z', 'C:\\big-folder'), truncated: 1200 },
-      { ...rec('2026-07-20T10:00:01.000Z', 'C:\\small-folder'), truncated: 0 },
+      { ...rec('2026-07-20T10:00:01.000Z', 'C:\\small-folder'), truncated: 0 }
     ])
     const { records } = queryDeletions()
     expect(records.find((r) => r.path === 'C:\\big-folder')?.truncated).toBe(1200)

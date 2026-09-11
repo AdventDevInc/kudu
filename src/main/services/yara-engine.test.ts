@@ -29,7 +29,7 @@ function yaraMatchToThreatFields(match: YaraMatch): {
   return {
     detectionName: match.metadata.detectionName || match.ruleName.replace(/_/g, '.'),
     severity,
-    details: match.metadata.details || `YARA rule match: ${match.ruleName}`,
+    details: match.metadata.details || `YARA rule match: ${match.ruleName}`
   }
 }
 
@@ -42,9 +42,9 @@ describe('yaraMatchToThreatFields', () => {
       metadata: {
         detectionName: 'CoinMiner.XMRig',
         severity: 'critical',
-        details: 'XMRig cryptocurrency miner',
+        details: 'XMRig cryptocurrency miner'
       },
-      matchedStrings: ['xmrig'],
+      matchedStrings: ['xmrig']
     }
     const result = yaraMatchToThreatFields(match)
     expect(result.detectionName).toBe('CoinMiner.XMRig')
@@ -56,7 +56,7 @@ describe('yaraMatchToThreatFields', () => {
     const match: YaraMatch = {
       ruleName: 'CoinMiner_XMRig',
       metadata: {},
-      matchedStrings: [],
+      matchedStrings: []
     }
     const result = yaraMatchToThreatFields(match)
     expect(result.detectionName).toBe('CoinMiner.XMRig')
@@ -66,7 +66,7 @@ describe('yaraMatchToThreatFields', () => {
     const match: YaraMatch = {
       ruleName: 'Trojan_AgentTesla_Variant',
       metadata: {},
-      matchedStrings: [],
+      matchedStrings: []
     }
     const result = yaraMatchToThreatFields(match)
     expect(result.detectionName).toBe('Trojan.AgentTesla.Variant')
@@ -76,7 +76,7 @@ describe('yaraMatchToThreatFields', () => {
     const match: YaraMatch = {
       ruleName: 'Test',
       metadata: {},
-      matchedStrings: [],
+      matchedStrings: []
     }
     const result = yaraMatchToThreatFields(match)
     expect(result.severity).toBe('high')
@@ -86,7 +86,7 @@ describe('yaraMatchToThreatFields', () => {
     const match: YaraMatch = {
       ruleName: 'RAT_DarkComet',
       metadata: {},
-      matchedStrings: [],
+      matchedStrings: []
     }
     const result = yaraMatchToThreatFields(match)
     expect(result.details).toBe('YARA rule match: RAT_DarkComet')
@@ -97,7 +97,7 @@ describe('yaraMatchToThreatFields', () => {
       const match: YaraMatch = {
         ruleName: 'Test',
         metadata: { severity: sev },
-        matchedStrings: [],
+        matchedStrings: []
       }
       expect(yaraMatchToThreatFields(match).severity).toBe(sev)
     }
@@ -107,7 +107,7 @@ describe('yaraMatchToThreatFields', () => {
     const match: YaraMatch = {
       ruleName: 'Test',
       metadata: { severity: 'info' as any },
-      matchedStrings: [],
+      matchedStrings: []
     }
     expect(yaraMatchToThreatFields(match).severity).toBe('high')
   })
@@ -155,7 +155,7 @@ rule Test_Simple {
     const yarax = require('@litko/yara-x')
     const scanner = yarax.create()
     scanner.addRuleSource('rule HexPattern { strings: $h = { 4D 5A 90 00 } condition: $h }')
-    const pe = Buffer.from([0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00])
+    const pe = Buffer.from([0x4d, 0x5a, 0x90, 0x00, 0x03, 0x00])
     const results = scanner.scan(pe)
     expect(results.length).toBe(1)
   })
@@ -226,9 +226,10 @@ describe('YaraEngine.scanFile', () => {
       writeFileSync(filePath, Buffer.from('contains recovery_marker'))
       const engine = new YaraEngine({ background: false })
       await engine.initialize()
-      await engine.loadRules([], [
-        'rule Recovery_Test { strings: $a = "recovery_marker" condition: $a }',
-      ])
+      await engine.loadRules(
+        [],
+        ['rule Recovery_Test { strings: $a = "recovery_marker" condition: $a }']
+      )
 
       // Model an initialized worker disappearing, then make its restart fail so
       // the correctness-first inline fallback is exercised.

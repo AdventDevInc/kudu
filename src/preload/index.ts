@@ -89,7 +89,7 @@ import type {
   ContextMenuApplyProgress,
   ContextMenuApplyRequest,
   ContextMenuApplyResult,
-  ContextMenuScanResult,
+  ContextMenuScanResult
 } from '../shared/types'
 
 const api = {
@@ -100,7 +100,8 @@ const api = {
   windowMinimize: () => ipcRenderer.send(IPC.WINDOW_MINIMIZE),
   windowMaximize: () => ipcRenderer.send(IPC.WINDOW_MAXIMIZE),
   windowClose: () => ipcRenderer.send(IPC.WINDOW_CLOSE),
-  windowSetChromeTheme: (theme: 'light' | 'dark') => ipcRenderer.send(IPC.WINDOW_SET_CHROME_THEME, theme),
+  windowSetChromeTheme: (theme: 'light' | 'dark') =>
+    ipcRenderer.send(IPC.WINDOW_SET_CHROME_THEME, theme),
 
   // System cleaner
   systemScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.SYSTEM_SCAN),
@@ -114,8 +115,7 @@ const api = {
 
   // App cleaner
   appScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.APP_SCAN),
-  appClean: (itemIds: string[]): Promise<CleanResult> =>
-    ipcRenderer.invoke(IPC.APP_CLEAN, itemIds),
+  appClean: (itemIds: string[]): Promise<CleanResult> => ipcRenderer.invoke(IPC.APP_CLEAN, itemIds),
 
   // Gaming cleaner
   gamingScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.GAMING_SCAN),
@@ -128,7 +128,8 @@ const api = {
     ipcRenderer.invoke(IPC.DATABASE_CLEAN, itemIds),
 
   // Uninstall leftovers
-  uninstallLeftoversScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.UNINSTALL_LEFTOVERS_SCAN),
+  uninstallLeftoversScan: (): Promise<ScanResult[]> =>
+    ipcRenderer.invoke(IPC.UNINSTALL_LEFTOVERS_SCAN),
   uninstallLeftoversClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.UNINSTALL_LEFTOVERS_CLEAN, itemIds),
 
@@ -146,8 +147,7 @@ const api = {
     ipcRenderer.invoke(IPC.CLEANER_OPEN_LOCATION, filePath),
   cleanerBlockers: (itemIds: string[]): Promise<CleanerBlocker[]> =>
     ipcRenderer.invoke(IPC.CLEANER_BLOCKERS, itemIds),
-  cleanerPrepareClean: (): Promise<boolean> =>
-    ipcRenderer.invoke(IPC.CLEANER_PREPARE_CLEAN),
+  cleanerPrepareClean: (): Promise<boolean> => ipcRenderer.invoke(IPC.CLEANER_PREPARE_CLEAN),
 
   // Environment cleaner
   environmentScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.ENVIRONMENT_SCAN),
@@ -156,7 +156,9 @@ const api = {
 
   // Registry
   registryScan: (): Promise<RegistryEntry[]> => ipcRenderer.invoke(IPC.REGISTRY_SCAN),
-  registryFix: (entryIds: string[]): Promise<{ fixed: number; failed: number; failures: { issue: string; reason: string }[] }> =>
+  registryFix: (
+    entryIds: string[]
+  ): Promise<{ fixed: number; failed: number; failures: { issue: string; reason: string }[] }> =>
     ipcRenderer.invoke(IPC.REGISTRY_FIX, entryIds),
   registryScanCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_SCAN_CANCEL),
   registryFixCancel: (): Promise<void> => ipcRenderer.invoke(IPC.REGISTRY_FIX_CANCEL),
@@ -169,33 +171,62 @@ const api = {
   contextMenuApply: (requests: ContextMenuApplyRequest[]): Promise<ContextMenuApplyResult> =>
     ipcRenderer.invoke(IPC.CONTEXT_MENU_APPLY, requests),
   onContextMenuApplyProgress: (callback: (data: ContextMenuApplyProgress) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: ContextMenuApplyProgress) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: ContextMenuApplyProgress) =>
+      callback(data)
     ipcRenderer.on(IPC.CONTEXT_MENU_APPLY_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.CONTEXT_MENU_APPLY_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.CONTEXT_MENU_APPLY_PROGRESS, handler)
+    }
   },
 
   // Debloater
   debloaterScan: (): Promise<BloatwareApp[]> => ipcRenderer.invoke(IPC.DEBLOATER_SCAN),
   debloaterRemove: (packageNames: string[]): Promise<{ removed: number; failed: number }> =>
     ipcRenderer.invoke(IPC.DEBLOATER_REMOVE, packageNames),
-  onDebloaterRemoveProgress: (callback: (data: { current: number; total: number; currentApp: string; status: 'removing' | 'done' | 'failed' }) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: { current: number; total: number; currentApp: string; status: 'removing' | 'done' | 'failed' }) => callback(data)
+  onDebloaterRemoveProgress: (
+    callback: (data: {
+      current: number
+      total: number
+      currentApp: string
+      status: 'removing' | 'done' | 'failed'
+    }) => void
+  ) => {
+    const handler = (
+      _event: Electron.IpcRendererEvent,
+      data: {
+        current: number
+        total: number
+        currentApp: string
+        status: 'removing' | 'done' | 'failed'
+      }
+    ) => callback(data)
     ipcRenderer.on(IPC.DEBLOATER_REMOVE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.DEBLOATER_REMOVE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.DEBLOATER_REMOVE_PROGRESS, handler)
+    }
   },
 
   // Startup manager
   startupList: (): Promise<StartupItem[]> => ipcRenderer.invoke(IPC.STARTUP_LIST),
-  startupToggle: (name: string, location: string, command: string, source: string, enabled: boolean): Promise<boolean> =>
+  startupToggle: (
+    name: string,
+    location: string,
+    command: string,
+    source: string,
+    enabled: boolean
+  ): Promise<boolean> =>
     ipcRenderer.invoke(IPC.STARTUP_TOGGLE, name, location, command, source, enabled),
   startupDelete: (name: string, location: string, source: string): Promise<boolean> =>
     ipcRenderer.invoke(IPC.STARTUP_DELETE, name, location, source),
   startupBootTrace: (): Promise<StartupBootTrace> => ipcRenderer.invoke(IPC.STARTUP_BOOT_TRACE),
-  startupSafetyFetch: (): Promise<StartupSafetyResult> => ipcRenderer.invoke(IPC.STARTUP_SAFETY_FETCH),
+  startupSafetyFetch: (): Promise<StartupSafetyResult> =>
+    ipcRenderer.invoke(IPC.STARTUP_SAFETY_FETCH),
   onStartupSafetyUpdated: (callback: (data: StartupSafetyResult) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: StartupSafetyResult) => callback(data)
     ipcRenderer.on(IPC.STARTUP_SAFETY_UPDATED, handler)
-    return () => { ipcRenderer.removeListener(IPC.STARTUP_SAFETY_UPDATED, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.STARTUP_SAFETY_UPDATED, handler)
+    }
   },
 
   // Network cleanup
@@ -213,14 +244,15 @@ const api = {
   // Disk repair
   diskRepairSfc: (drive: string): Promise<DiskRepairResult> =>
     ipcRenderer.invoke(IPC.DISK_REPAIR_SFC, drive),
-  diskRepairDism: (): Promise<DiskRepairResult> =>
-    ipcRenderer.invoke(IPC.DISK_REPAIR_DISM),
+  diskRepairDism: (): Promise<DiskRepairResult> => ipcRenderer.invoke(IPC.DISK_REPAIR_DISM),
   diskRepairChkdsk: (drive: string): Promise<DiskRepairResult> =>
     ipcRenderer.invoke(IPC.DISK_REPAIR_CHKDSK, drive),
   onDiskRepairProgress: (callback: (data: DiskRepairProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: DiskRepairProgress) => callback(data)
     ipcRenderer.on(IPC.DISK_REPAIR_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.DISK_REPAIR_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.DISK_REPAIR_PROGRESS, handler)
+    }
   },
 
   // Disk maintenance (SSD TRIM)
@@ -230,7 +262,9 @@ const api = {
   onDiskTrimProgress: (callback: (data: TrimProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: TrimProgress) => callback(data)
     ipcRenderer.on(IPC.DISK_TRIM_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.DISK_TRIM_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.DISK_TRIM_PROGRESS, handler)
+    }
   },
 
   // Onboarding
@@ -243,8 +277,7 @@ const api = {
     ipcRenderer.invoke(IPC.SETTINGS_SET, settings),
   settingsSelectBackupDir: (): Promise<string | null> =>
     ipcRenderer.invoke(IPC.SETTINGS_SELECT_BACKUP_DIR),
-  settingsOpenBackupDir: (): Promise<string> =>
-    ipcRenderer.invoke(IPC.SETTINGS_OPEN_BACKUP_DIR),
+  settingsOpenBackupDir: (): Promise<string> => ipcRenderer.invoke(IPC.SETTINGS_OPEN_BACKUP_DIR),
 
   // Elevation
   elevationCheck: (): Promise<boolean> => ipcRenderer.invoke(IPC.ELEVATION_CHECK),
@@ -256,35 +289,56 @@ const api = {
 
   // Scheduled scans (legacy)
   scheduleNextScan: (): Promise<string | null> => ipcRenderer.invoke(IPC.SCHEDULE_NEXT_SCAN),
-  applyStartup: (enabled: boolean): Promise<void> => ipcRenderer.invoke(IPC.SETTINGS_APPLY_STARTUP, enabled),
+  applyStartup: (enabled: boolean): Promise<void> =>
+    ipcRenderer.invoke(IPC.SETTINGS_APPLY_STARTUP, enabled),
   applyTray: (enabled: boolean) => ipcRenderer.send(IPC.SETTINGS_APPLY_TRAY, enabled),
   onScheduledScanTrigger: (callback: () => void) => {
     const handler = () => callback()
     ipcRenderer.on(IPC.SCHEDULE_SCAN_TRIGGER, handler)
-    return () => { ipcRenderer.removeListener(IPC.SCHEDULE_SCAN_TRIGGER, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.SCHEDULE_SCAN_TRIGGER, handler)
+    }
   },
   notifyScheduledScanComplete: (totalSize: number, itemCount: number) =>
     ipcRenderer.send(IPC.SCHEDULE_SCAN_COMPLETE, totalSize, itemCount),
 
   // Multi-schedule
-  onScheduleRunTrigger: (callback: (data: { scheduleId: string; scheduleName: string; tasks: string[]; autoApply: boolean }) => void) => {
+  onScheduleRunTrigger: (
+    callback: (data: {
+      scheduleId: string
+      scheduleName: string
+      tasks: string[]
+      autoApply: boolean
+    }) => void
+  ) => {
     const handler = (_event: any, data: any) => callback(data)
     ipcRenderer.on(IPC.SCHEDULE_RUN_TRIGGER, handler)
-    return () => { ipcRenderer.removeListener(IPC.SCHEDULE_RUN_TRIGGER, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.SCHEDULE_RUN_TRIGGER, handler)
+    }
   },
   scheduleRunComplete: (scheduleId: string, status: string) =>
     ipcRenderer.send(IPC.SCHEDULE_RUN_COMPLETE, scheduleId, status),
 
   // Scan history
   historyGet: (): Promise<ScanHistoryEntry[]> => ipcRenderer.invoke(IPC.HISTORY_GET),
-  historyAdd: (entry: ScanHistoryEntry): Promise<void> => ipcRenderer.invoke(IPC.HISTORY_ADD, entry),
+  historyAdd: (entry: ScanHistoryEntry): Promise<void> =>
+    ipcRenderer.invoke(IPC.HISTORY_ADD, entry),
   historyClear: (): Promise<void> => ipcRenderer.invoke(IPC.HISTORY_CLEAR),
 
   // Deletion log — individual paths removed by past cleans
-  deletionLogQuery: (query: { from?: string; to?: string; origin?: DeletionOrigin; offset?: number; limit?: number }): Promise<DeletionLogPage> =>
-    ipcRenderer.invoke(IPC.DELETION_LOG_QUERY, query),
-  deletionLogExport: (query: { from?: string; to?: string; origin?: DeletionOrigin }): Promise<string | null> =>
-    ipcRenderer.invoke(IPC.DELETION_LOG_EXPORT, query),
+  deletionLogQuery: (query: {
+    from?: string
+    to?: string
+    origin?: DeletionOrigin
+    offset?: number
+    limit?: number
+  }): Promise<DeletionLogPage> => ipcRenderer.invoke(IPC.DELETION_LOG_QUERY, query),
+  deletionLogExport: (query: {
+    from?: string
+    to?: string
+    origin?: DeletionOrigin
+  }): Promise<string | null> => ipcRenderer.invoke(IPC.DELETION_LOG_EXPORT, query),
   deletionLogReveal: (): Promise<string> => ipcRenderer.invoke(IPC.DELETION_LOG_REVEAL),
   deletionLogClear: (): Promise<void> => ipcRenderer.invoke(IPC.DELETION_LOG_CLEAR),
 
@@ -296,12 +350,16 @@ const api = {
   onHistoryChanged: (callback: () => void) => {
     const handler = () => callback()
     ipcRenderer.on(IPC.HISTORY_CHANGED, handler)
-    return () => { ipcRenderer.removeListener(IPC.HISTORY_CHANGED, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.HISTORY_CHANGED, handler)
+    }
   },
   onCloudHistoryChanged: (callback: () => void) => {
     const handler = () => callback()
     ipcRenderer.on(IPC.CLOUD_HISTORY_CHANGED, handler)
-    return () => { ipcRenderer.removeListener(IPC.CLOUD_HISTORY_CHANGED, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.CLOUD_HISTORY_CHANGED, handler)
+    }
   },
 
   // Privacy Shield
@@ -313,20 +371,27 @@ const api = {
   onPrivacyProgress: (callback: (data: PrivacyScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: PrivacyScanProgress) => callback(data)
     ipcRenderer.on(IPC.PRIVACY_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.PRIVACY_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.PRIVACY_PROGRESS, handler)
+    }
   },
 
   // Malware scanner
   malwareScan: (): Promise<MalwareScanResult> => ipcRenderer.invoke(IPC.MALWARE_SCAN),
-  malwareQuarantine: (paths: string[], meta?: import('../shared/types').QuarantineMeta[]): Promise<MalwareActionResult> =>
-    ipcRenderer.invoke(IPC.MALWARE_QUARANTINE, paths, meta),
+  malwareQuarantine: (
+    paths: string[],
+    meta?: import('../shared/types').QuarantineMeta[]
+  ): Promise<MalwareActionResult> => ipcRenderer.invoke(IPC.MALWARE_QUARANTINE, paths, meta),
   malwareDelete: (paths: string[]): Promise<MalwareActionResult> =>
     ipcRenderer.invoke(IPC.MALWARE_DELETE, paths),
   malwareRestore: (quarantinedPath: string, originalPath: string): Promise<MalwareRestoreResult> =>
     ipcRenderer.invoke(IPC.MALWARE_RESTORE, quarantinedPath, originalPath),
   malwareQuarantineList: (): Promise<import('../shared/types').QuarantinedItem[]> =>
     ipcRenderer.invoke(IPC.MALWARE_QUARANTINE_LIST),
-  malwareIgnore: (path: string, meta?: import('../shared/types').QuarantineMeta): Promise<import('../shared/types').MalwareAllowlistEntry | null> =>
+  malwareIgnore: (
+    path: string,
+    meta?: import('../shared/types').QuarantineMeta
+  ): Promise<import('../shared/types').MalwareAllowlistEntry | null> =>
     ipcRenderer.invoke(IPC.MALWARE_IGNORE, path, meta),
   malwareAllowlistList: (): Promise<import('../shared/types').MalwareAllowlistEntry[]> =>
     ipcRenderer.invoke(IPC.MALWARE_ALLOWLIST_LIST),
@@ -335,18 +400,26 @@ const api = {
   onMalwareProgress: (callback: (data: MalwareScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: MalwareScanProgress) => callback(data)
     ipcRenderer.on(IPC.MALWARE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.MALWARE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.MALWARE_PROGRESS, handler)
+    }
   },
   malwareYaraInfo: (): Promise<import('../shared/types').YaraRulesInfo> =>
     ipcRenderer.invoke(IPC.MALWARE_YARA_INFO),
-  malwareYaraUpdate: (): Promise<{ success: boolean; error?: string; stats?: { rulesCount: number; version: string } }> =>
-    ipcRenderer.invoke(IPC.MALWARE_YARA_UPDATE),
+  malwareYaraUpdate: (): Promise<{
+    success: boolean
+    error?: string
+    stats?: { rulesCount: number; version: string }
+  }> => ipcRenderer.invoke(IPC.MALWARE_YARA_UPDATE),
   malwareScanCoverage: (): Promise<import('../shared/types').MalwareScanCoverage> =>
     ipcRenderer.invoke(IPC.MALWARE_SCAN_COVERAGE),
   onYaraCompileProgress: (callback: (data: { loaded: number; total: number }) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: { loaded: number; total: number }) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: { loaded: number; total: number }) =>
+      callback(data)
     ipcRenderer.on(IPC.MALWARE_YARA_COMPILE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.MALWARE_YARA_COMPILE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.MALWARE_YARA_COMPILE_PROGRESS, handler)
+    }
   },
 
   // Driver Manager
@@ -356,37 +429,47 @@ const api = {
   onDriverProgress: (callback: (data: DriverScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: DriverScanProgress) => callback(data)
     ipcRenderer.on(IPC.DRIVER_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.DRIVER_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.DRIVER_PROGRESS, handler)
+    }
   },
 
   // Driver Updates
-  driverUpdateScan: (): Promise<DriverUpdateScanResult> => ipcRenderer.invoke(IPC.DRIVER_UPDATE_SCAN),
+  driverUpdateScan: (): Promise<DriverUpdateScanResult> =>
+    ipcRenderer.invoke(IPC.DRIVER_UPDATE_SCAN),
   driverUpdateInstall: (updateIds: string[]): Promise<DriverUpdateInstallResult> =>
     ipcRenderer.invoke(IPC.DRIVER_UPDATE_INSTALL, updateIds),
   onDriverUpdateProgress: (callback: (data: DriverUpdateProgress) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: DriverUpdateProgress) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: DriverUpdateProgress) =>
+      callback(data)
     ipcRenderer.on(IPC.DRIVER_UPDATE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.DRIVER_UPDATE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.DRIVER_UPDATE_PROGRESS, handler)
+    }
   },
 
   // Performance Monitor
-  perfQuickStats: (): Promise<import('../shared/types').PerfQuickStats> => ipcRenderer.invoke(IPC.PERF_QUICK_STATS),
+  perfQuickStats: (): Promise<import('../shared/types').PerfQuickStats> =>
+    ipcRenderer.invoke(IPC.PERF_QUICK_STATS),
   perfGetSystemInfo: (): Promise<PerfSystemInfo> => ipcRenderer.invoke(IPC.PERF_GET_SYSTEM_INFO),
   perfStartMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_START_MONITORING),
   perfStopMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_STOP_MONITORING),
   perfKillProcess: (pid: number): Promise<PerfKillResult> =>
     ipcRenderer.invoke(IPC.PERF_KILL_PROCESS, pid),
-  perfGetDiskHealth: (): Promise<DiskSmartInfo[]> =>
-    ipcRenderer.invoke(IPC.PERF_DISK_HEALTH),
+  perfGetDiskHealth: (): Promise<DiskSmartInfo[]> => ipcRenderer.invoke(IPC.PERF_DISK_HEALTH),
   onPerfSnapshot: (callback: (data: PerfSnapshot) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: PerfSnapshot) => callback(data)
     ipcRenderer.on(IPC.PERF_SNAPSHOT, handler)
-    return () => { ipcRenderer.removeListener(IPC.PERF_SNAPSHOT, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.PERF_SNAPSHOT, handler)
+    }
   },
   onPerfProcessList: (callback: (data: PerfProcessList) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: PerfProcessList) => callback(data)
     ipcRenderer.on(IPC.PERF_PROCESS_LIST, handler)
-    return () => { ipcRenderer.removeListener(IPC.PERF_PROCESS_LIST, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.PERF_PROCESS_LIST, handler)
+    }
   },
 
   // Auto-updater
@@ -397,7 +480,9 @@ const api = {
   onUpdaterStatus: (callback: (data: UpdateStatus) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: UpdateStatus) => callback(data)
     ipcRenderer.on(IPC.UPDATER_STATUS, handler)
-    return () => { ipcRenderer.removeListener(IPC.UPDATER_STATUS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.UPDATER_STATUS, handler)
+    }
   },
 
   // Service Manager
@@ -409,17 +494,23 @@ const api = {
   onServiceProgress: (callback: (data: ServiceScanProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: ServiceScanProgress) => callback(data)
     ipcRenderer.on(IPC.SERVICE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.SERVICE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.SERVICE_PROGRESS, handler)
+    }
   },
 
   // Firewall Audit (Windows-only)
   firewallScan: (): Promise<FirewallScanResult> => ipcRenderer.invoke(IPC.FIREWALL_SCAN),
-  firewallApply: (changes: { name: string; action: FirewallAction }[]): Promise<FirewallApplyResult> =>
-    ipcRenderer.invoke(IPC.FIREWALL_APPLY, changes),
+  firewallApply: (
+    changes: { name: string; action: FirewallAction }[]
+  ): Promise<FirewallApplyResult> => ipcRenderer.invoke(IPC.FIREWALL_APPLY, changes),
   onFirewallProgress: (callback: (data: FirewallScanProgress) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: FirewallScanProgress) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: FirewallScanProgress) =>
+      callback(data)
     ipcRenderer.on(IPC.FIREWALL_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.FIREWALL_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.FIREWALL_PROGRESS, handler)
+    }
   },
 
   // Program Uninstaller
@@ -431,13 +522,18 @@ const api = {
   onUninstallerProgress: (callback: (data: UninstallProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: UninstallProgress) => callback(data)
     ipcRenderer.on(IPC.UNINSTALLER_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.UNINSTALLER_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.UNINSTALLER_PROGRESS, handler)
+    }
   },
-  programSafetyFetch: (): Promise<StartupSafetyResult> => ipcRenderer.invoke(IPC.PROGRAM_SAFETY_FETCH),
+  programSafetyFetch: (): Promise<StartupSafetyResult> =>
+    ipcRenderer.invoke(IPC.PROGRAM_SAFETY_FETCH),
   onProgramSafetyUpdated: (callback: (data: StartupSafetyResult) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: StartupSafetyResult) => callback(data)
     ipcRenderer.on(IPC.PROGRAM_SAFETY_UPDATED, handler)
-    return () => { ipcRenderer.removeListener(IPC.PROGRAM_SAFETY_UPDATED, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.PROGRAM_SAFETY_UPDATED, handler)
+    }
   },
 
   // Software Updater
@@ -448,7 +544,9 @@ const api = {
   onSoftwareUpdateProgress: (callback: (data: UpdateProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: UpdateProgress) => callback(data)
     ipcRenderer.on(IPC.SOFTWARE_UPDATE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.SOFTWARE_UPDATE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.SOFTWARE_UPDATE_PROGRESS, handler)
+    }
   },
 
   // Cloud Agent
@@ -465,41 +563,49 @@ const api = {
     lastHealthReportAt: string | null
     lastCommandAt: string | null
     error: string | null
-    threatBlacklist: { version: string; updatedAt: string; domains: number; ips: number; cidrs: number } | null
+    threatBlacklist: {
+      version: string
+      updatedAt: string
+      domains: number
+      ips: number
+      cidrs: number
+    } | null
   }> => ipcRenderer.invoke(IPC.CLOUD_GET_STATUS),
 
   // Duplicate Finder
-  duplicatesSelectDir: (): Promise<string | null> =>
-    ipcRenderer.invoke(IPC.DUPLICATES_SELECT_DIR),
+  duplicatesSelectDir: (): Promise<string | null> => ipcRenderer.invoke(IPC.DUPLICATES_SELECT_DIR),
   duplicatesScan: (options: DuplicateScanOptions): Promise<DuplicateScanResult> =>
     ipcRenderer.invoke(IPC.DUPLICATES_SCAN, options),
-  duplicatesCancel: (): Promise<void> =>
-    ipcRenderer.invoke(IPC.DUPLICATES_CANCEL),
+  duplicatesCancel: (): Promise<void> => ipcRenderer.invoke(IPC.DUPLICATES_CANCEL),
   duplicatesDelete: (paths: string[], mode: DuplicateDeleteMode): Promise<DuplicateDeleteResult> =>
     ipcRenderer.invoke(IPC.DUPLICATES_DELETE, paths, mode),
   duplicatesOpenLocation: (filePath: string): Promise<void> =>
     ipcRenderer.invoke(IPC.DUPLICATES_OPEN_LOCATION, filePath),
   onDuplicatesProgress: (callback: (data: DuplicateScanProgress) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: DuplicateScanProgress) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: DuplicateScanProgress) =>
+      callback(data)
     ipcRenderer.on(IPC.DUPLICATES_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.DUPLICATES_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.DUPLICATES_PROGRESS, handler)
+    }
   },
 
   // Large File Finder
-  largeFilesSelectDir: (): Promise<string | null> =>
-    ipcRenderer.invoke(IPC.LARGE_FILES_SELECT_DIR),
+  largeFilesSelectDir: (): Promise<string | null> => ipcRenderer.invoke(IPC.LARGE_FILES_SELECT_DIR),
   largeFilesScan: (options: LargeFileScanOptions): Promise<LargeFileScanResult> =>
     ipcRenderer.invoke(IPC.LARGE_FILES_SCAN, options),
-  largeFilesCancel: (): Promise<void> =>
-    ipcRenderer.invoke(IPC.LARGE_FILES_CANCEL),
+  largeFilesCancel: (): Promise<void> => ipcRenderer.invoke(IPC.LARGE_FILES_CANCEL),
   largeFilesDelete: (paths: string[], mode: LargeFileDeleteMode): Promise<LargeFileDeleteResult> =>
     ipcRenderer.invoke(IPC.LARGE_FILES_DELETE, paths, mode),
   largeFilesOpenLocation: (filePath: string): Promise<void> =>
     ipcRenderer.invoke(IPC.LARGE_FILES_OPEN_LOCATION, filePath),
   onLargeFilesProgress: (callback: (data: LargeFileScanProgress) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: LargeFileScanProgress) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: LargeFileScanProgress) =>
+      callback(data)
     ipcRenderer.on(IPC.LARGE_FILES_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.LARGE_FILES_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.LARGE_FILES_PROGRESS, handler)
+    }
   },
 
   // Empty Folder Cleaner
@@ -507,16 +613,18 @@ const api = {
     ipcRenderer.invoke(IPC.EMPTY_FOLDERS_SELECT_DIR),
   emptyFoldersScan: (options: EmptyFolderScanOptions): Promise<EmptyFolderScanResult> =>
     ipcRenderer.invoke(IPC.EMPTY_FOLDERS_SCAN, options),
-  emptyFoldersCancel: (): Promise<void> =>
-    ipcRenderer.invoke(IPC.EMPTY_FOLDERS_CANCEL),
+  emptyFoldersCancel: (): Promise<void> => ipcRenderer.invoke(IPC.EMPTY_FOLDERS_CANCEL),
   emptyFoldersDelete: (paths: string[], mode: string): Promise<EmptyFolderDeleteResult> =>
     ipcRenderer.invoke(IPC.EMPTY_FOLDERS_DELETE, paths, mode),
   emptyFoldersOpenLocation: (folderPath: string): Promise<void> =>
     ipcRenderer.invoke(IPC.EMPTY_FOLDERS_OPEN_LOCATION, folderPath),
   onEmptyFoldersProgress: (callback: (data: EmptyFolderScanProgress) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: EmptyFolderScanProgress) => callback(data)
+    const handler = (_event: Electron.IpcRendererEvent, data: EmptyFolderScanProgress) =>
+      callback(data)
     ipcRenderer.on(IPC.EMPTY_FOLDERS_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.EMPTY_FOLDERS_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.EMPTY_FOLDERS_PROGRESS, handler)
+    }
   },
 
   // File Shredder
@@ -526,31 +634,40 @@ const api = {
     ipcRenderer.invoke(IPC.SHREDDER_SELECT_FOLDERS),
   shredderShred: (paths: string[]): Promise<ShredderResult> =>
     ipcRenderer.invoke(IPC.SHREDDER_SHRED, paths),
-  shredderCancel: (): Promise<void> =>
-    ipcRenderer.invoke(IPC.SHREDDER_CANCEL),
+  shredderCancel: (): Promise<void> => ipcRenderer.invoke(IPC.SHREDDER_CANCEL),
   shredderOpenLocation: (filePath: string): Promise<void> =>
     ipcRenderer.invoke(IPC.SHREDDER_OPEN_LOCATION, filePath),
   onShredderProgress: (callback: (data: ShredderProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: ShredderProgress) => callback(data)
     ipcRenderer.on(IPC.SHREDDER_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.SHREDDER_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.SHREDDER_PROGRESS, handler)
+    }
   },
 
   // Threat Monitor
-  threatMonitorGetSnapshot: (): Promise<ThreatSnapshot | null> => ipcRenderer.invoke(IPC.THREAT_MONITOR_GET_SNAPSHOT),
+  threatMonitorGetSnapshot: (): Promise<ThreatSnapshot | null> =>
+    ipcRenderer.invoke(IPC.THREAT_MONITOR_GET_SNAPSHOT),
   onThreatMonitorUpdated: (callback: (data: ThreatSnapshot) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: ThreatSnapshot) => callback(data)
     ipcRenderer.on(IPC.THREAT_MONITOR_UPDATED, handler)
-    return () => { ipcRenderer.removeListener(IPC.THREAT_MONITOR_UPDATED, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.THREAT_MONITOR_UPDATED, handler)
+    }
   },
 
   // CVE Scanner
-  cveFetch: (opts?: { page?: number; severity?: string; search?: string }): Promise<CvePageResult> =>
-    ipcRenderer.invoke(IPC.CVE_FETCH, opts),
+  cveFetch: (opts?: {
+    page?: number
+    severity?: string
+    search?: string
+  }): Promise<CvePageResult> => ipcRenderer.invoke(IPC.CVE_FETCH, opts),
   onCveUpdated: (callback: (data: CvePageResult) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: CvePageResult) => callback(data)
     ipcRenderer.on(IPC.CVE_UPDATED, handler)
-    return () => { ipcRenderer.removeListener(IPC.CVE_UPDATED, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.CVE_UPDATED, handler)
+    }
   },
 
   // Breach Monitor
@@ -567,12 +684,21 @@ const api = {
   onScanProgress: (callback: (data: ProgressData) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: ProgressData) => callback(data)
     ipcRenderer.on(IPC.SCAN_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.SCAN_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.SCAN_PROGRESS, handler)
+    }
   },
-  onRegistryFixProgress: (callback: (data: { current: number; total: number; currentEntry: string }) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: { current: number; total: number; currentEntry: string }) => callback(data)
+  onRegistryFixProgress: (
+    callback: (data: { current: number; total: number; currentEntry: string }) => void
+  ) => {
+    const handler = (
+      _event: Electron.IpcRendererEvent,
+      data: { current: number; total: number; currentEntry: string }
+    ) => callback(data)
     ipcRenderer.on(IPC.REGISTRY_FIX_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.REGISTRY_FIX_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.REGISTRY_FIX_PROGRESS, handler)
+    }
   },
 
   // Game Mode
@@ -580,19 +706,27 @@ const api = {
     ipcRenderer.invoke(IPC.GAME_MODE_ACTIVATE, config),
   gameModeDeactivate: (): Promise<GameModeDeactivateResult> =>
     ipcRenderer.invoke(IPC.GAME_MODE_DEACTIVATE),
-  gameModeStatus: (): Promise<GameModeStatus> =>
-    ipcRenderer.invoke(IPC.GAME_MODE_STATUS),
+  gameModeStatus: (): Promise<GameModeStatus> => ipcRenderer.invoke(IPC.GAME_MODE_STATUS),
   gameModeDiscardPending: (): Promise<{ discarded: boolean; reason?: string }> =>
     ipcRenderer.invoke(IPC.GAME_MODE_DISCARD_PENDING),
   onGameModeProgress: (callback: (data: GameModeProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: GameModeProgress) => callback(data)
     ipcRenderer.on(IPC.GAME_MODE_PROGRESS, handler)
-    return () => { ipcRenderer.removeListener(IPC.GAME_MODE_PROGRESS, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.GAME_MODE_PROGRESS, handler)
+    }
   },
-  onGameModeAutoEvent: (callback: (data: { type: 'game-detected' | 'game-exited'; processName: string | null }) => void) => {
-    const handler = (_event: Electron.IpcRendererEvent, data: { type: 'game-detected' | 'game-exited'; processName: string | null }) => callback(data)
+  onGameModeAutoEvent: (
+    callback: (data: { type: 'game-detected' | 'game-exited'; processName: string | null }) => void
+  ) => {
+    const handler = (
+      _event: Electron.IpcRendererEvent,
+      data: { type: 'game-detected' | 'game-exited'; processName: string | null }
+    ) => callback(data)
     ipcRenderer.on(IPC.GAME_MODE_AUTO_EVENT, handler)
-    return () => { ipcRenderer.removeListener(IPC.GAME_MODE_AUTO_EVENT, handler) }
+    return () => {
+      ipcRenderer.removeListener(IPC.GAME_MODE_AUTO_EVENT, handler)
+    }
   }
 }
 

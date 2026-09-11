@@ -40,9 +40,11 @@ Get-ChildItem -Path '${dir.replace(/'/g, "''")}' -Filter '*.lnk' -Recurse -Error
     "$($_.FullName)|$($sc.TargetPath)"
   } catch { "$($_.FullName)|" }
 }`
-    const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', psUtf8(psScript),
-    ], { timeout: 30000, windowsHide: true })
+    const { stdout } = await execFileAsync(
+      'powershell.exe',
+      ['-NoProfile', '-Command', psUtf8(psScript)],
+      { timeout: 30000, windowsHide: true }
+    )
 
     const results: ShortcutInfo[] = []
     for (const line of stdout.trim().split('\n')) {
@@ -143,32 +145,61 @@ function getShortcutDirs(): { path: string; subcategory: string }[] {
     const appData = process.env.APPDATA || join(home, 'AppData', 'Roaming')
     return [
       { path: join(home, 'Desktop'), subcategory: 'Desktop Shortcuts' },
-      { path: join(appData, 'Microsoft', 'Windows', 'Start Menu', 'Programs'), subcategory: 'Start Menu Shortcuts' },
-      { path: join(appData, 'Microsoft', 'Internet Explorer', 'Quick Launch', 'User Pinned', 'TaskBar'), subcategory: 'Taskbar Shortcuts' },
-      { path: join(process.env.PROGRAMDATA || 'C:\\ProgramData', 'Microsoft', 'Windows', 'Start Menu', 'Programs'), subcategory: 'All Users Start Menu' },
-      { path: join(process.env.PUBLIC || 'C:\\Users\\Public', 'Desktop'), subcategory: 'Public Desktop Shortcuts' },
+      {
+        path: join(appData, 'Microsoft', 'Windows', 'Start Menu', 'Programs'),
+        subcategory: 'Start Menu Shortcuts'
+      },
+      {
+        path: join(
+          appData,
+          'Microsoft',
+          'Internet Explorer',
+          'Quick Launch',
+          'User Pinned',
+          'TaskBar'
+        ),
+        subcategory: 'Taskbar Shortcuts'
+      },
+      {
+        path: join(
+          process.env.PROGRAMDATA || 'C:\\ProgramData',
+          'Microsoft',
+          'Windows',
+          'Start Menu',
+          'Programs'
+        ),
+        subcategory: 'All Users Start Menu'
+      },
+      {
+        path: join(process.env.PUBLIC || 'C:\\Users\\Public', 'Desktop'),
+        subcategory: 'Public Desktop Shortcuts'
+      }
     ]
   }
 
   if (process.platform === 'darwin') {
     return [
       { path: join(home, 'Desktop'), subcategory: 'Desktop Aliases' },
-      { path: join(home, 'Applications'), subcategory: 'User Applications' },
+      { path: join(home, 'Applications'), subcategory: 'User Applications' }
     ]
   }
 
   // Linux
   return [
     { path: join(home, 'Desktop'), subcategory: 'Desktop Shortcuts' },
-    { path: join(home, '.local', 'share', 'applications'), subcategory: 'User Application Entries' },
-    { path: '/usr/share/applications', subcategory: 'System Application Entries' },
+    {
+      path: join(home, '.local', 'share', 'applications'),
+      subcategory: 'User Application Entries'
+    },
+    { path: '/usr/share/applications', subcategory: 'System Application Entries' }
   ]
 }
 
 // ── Check if a shortcut target is broken ──
 
 /** Windows Start Menu subdirectories that contain built-in OS shortcuts */
-const WIN_SYSTEM_SUBDIRS = /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
+const WIN_SYSTEM_SUBDIRS =
+  /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
 
 function isTargetBroken(info: ShortcutInfo): boolean {
   if (process.platform === 'win32') {
@@ -239,7 +270,7 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
               category,
               subcategory: dir.subcategory,
               lastModified: 0,
-              selected: true,
+              selected: true
             })
           }
         }
@@ -252,7 +283,7 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
             subcategory: dir.subcategory,
             items: brokenItems,
             totalSize,
-            itemCount: brokenItems.length,
+            itemCount: brokenItems.length
           })
         }
       } catch {
@@ -268,7 +299,7 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
         currentPath: 'Shortcut scan complete',
         progress: 100,
         itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
-        sizeFound: results.reduce((s, r) => s + r.totalSize, 0),
+        sizeFound: results.reduce((s, r) => s + r.totalSize, 0)
       })
     }
 
@@ -277,17 +308,25 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(IPC.SHORTCUT_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
     const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-        phase: 'cleaning',
-        category: CleanerType.Shortcut,
-        currentPath,
-        progress: (processed / total) * 100,
-        itemsFound: total,
-        sizeFound: cleanedSize,
-      })
+      if (win && !win.isDestroyed())
+        win.webContents.send(IPC.SCAN_PROGRESS, {
+          phase: 'cleaning',
+          category: CleanerType.Shortcut,
+          currentPath,
+          progress: (processed / total) * 100,
+          itemsFound: total,
+          sizeFound: cleanedSize
+        })
     })
   })
 }

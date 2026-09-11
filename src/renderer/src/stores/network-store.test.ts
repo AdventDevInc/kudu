@@ -26,7 +26,11 @@ describe('network-store', () => {
   })
 
   it('toggleCategory selects all items of type when some unselected', () => {
-    const items = [makeItem('a', 'dns-cache'), makeItem('b', 'dns-cache'), makeItem('c', 'wifi-profile')]
+    const items = [
+      makeItem('a', 'dns-cache'),
+      makeItem('b', 'dns-cache'),
+      makeItem('c', 'wifi-profile')
+    ]
     useNetworkStore.getState().setItems(items)
     useNetworkStore.getState().setSelectedIds(new Set(['a'])) // only 'a' selected
 

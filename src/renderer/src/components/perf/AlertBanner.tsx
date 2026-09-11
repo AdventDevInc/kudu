@@ -25,7 +25,10 @@ export const AlertBanner = memo(function AlertBanner({ snapshot, history }: Aler
 
   // Memory > 85%
   if (snapshot.memory.percent > 85) {
-    alerts.push({ id: 'mem-high', message: t('memoryHighAlert', { percent: snapshot.memory.percent.toFixed(0) }) })
+    alerts.push({
+      id: 'mem-high',
+      message: t('memoryHighAlert', { percent: snapshot.memory.percent.toFixed(0) })
+    })
   }
 
   const visible = alerts.filter((a) => !dismissed.includes(a.id))
@@ -43,7 +46,11 @@ export const AlertBanner = memo(function AlertBanner({ snapshot, history }: Aler
             className="flex items-center gap-3 rounded-xl px-4 py-3"
             style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}
           >
-            <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: '#ef4444' }} strokeWidth={2} />
+            <AlertTriangle
+              className="h-4 w-4 shrink-0"
+              style={{ color: '#ef4444' }}
+              strokeWidth={2}
+            />
             <span className="flex-1 text-[12px] font-medium" style={{ color: '#fca5a5' }}>
               {alert.message}
             </span>

@@ -3,8 +3,8 @@ import { describe, it, expect, vi } from 'vitest'
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getPath: () => '/tmp/test-kudu',
-  },
+    getPath: () => '/tmp/test-kudu'
+  }
 }))
 
 import { validateBlacklist } from './threat-blacklist-store'
@@ -15,7 +15,7 @@ describe('validateBlacklist', () => {
     updatedAt: '2025-01-01T00:00:00Z',
     domains: ['malware.example.com'],
     ips: ['1.2.3.4'],
-    cidrs: ['10.0.0.0/8'],
+    cidrs: ['10.0.0.0/8']
   }
 
   it('accepts a valid blacklist', () => {
@@ -32,7 +32,7 @@ describe('validateBlacklist', () => {
       ...validBlacklist,
       domains: [],
       ips: [],
-      cidrs: [],
+      cidrs: []
     })
     expect(result).not.toBeNull()
   })

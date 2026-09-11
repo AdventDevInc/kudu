@@ -17,7 +17,9 @@ interface DebloaterState {
   setScanning: (scanning: boolean) => void
   setFilter: (filter: FilterType) => void
   setRemoving: (removing: boolean) => void
-  setRemoveProgress: (progress: { current: number; total: number; currentApp: string; status: string } | null) => void
+  setRemoveProgress: (
+    progress: { current: number; total: number; currentApp: string; status: string } | null
+  ) => void
   setRemoveResult: (result: { removed: number; failed: number } | null) => void
   setError: (error: string | null) => void
   setHasScanned: (hasScanned: boolean) => void

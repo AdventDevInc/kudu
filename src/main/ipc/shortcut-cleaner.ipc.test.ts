@@ -13,7 +13,8 @@ interface ShortcutInfo {
 // ── isTargetBroken (replica) ──
 // Simplified replica without existsSync (tests parsing/regex logic only).
 
-const WIN_SYSTEM_SUBDIRS = /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
+const WIN_SYSTEM_SUBDIRS =
+  /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
 
 function isTargetBrokenLogic(info: ShortcutInfo, platform: string, targetExists: boolean): boolean {
   if (platform === 'win32') {
@@ -36,101 +37,179 @@ describe('isTargetBroken logic', () => {
   // ── Windows-specific ──
 
   it('does not flag shortcuts in Windows system subdirectories', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\System Tools\\cmd.lnk',
-      targetPath: null
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\System Tools\\cmd.lnk',
+          targetPath: null
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag shortcuts in Administrative Tools', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\ProgramData\\Start Menu\\Programs\\Administrative Tools\\disk.lnk',
-      targetPath: null
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\ProgramData\\Start Menu\\Programs\\Administrative Tools\\disk.lnk',
+          targetPath: null
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag shortcuts in Accessibility', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Start Menu\\Programs\\Accessibility\\magnify.lnk',
-      targetPath: null
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Start Menu\\Programs\\Accessibility\\magnify.lnk',
+          targetPath: null
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag Windows shortcuts with no resolvable target (shell namespace targets)', () => {
     // Regression: issue #169 — "File Explorer.lnk" uses a shell ID list target,
     // so WScript.Shell returns an empty TargetPath. It must not be flagged as dead.
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\File Explorer.lnk',
-      targetPath: null
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\File Explorer.lnk',
+          targetPath: null
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag taskbar shortcuts with null target', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar\\explorer.lnk',
-      targetPath: null
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Users\\User\\AppData\\Roaming\\Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar\\explorer.lnk',
+          targetPath: null
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag taskbar shortcuts with Windows drive-letter targets', () => {
     // Windows drive-letter paths like C:\... match the ^[a-z]+: protocol regex,
     // so they are treated as "special targets" and not flagged as broken.
     // The actual existsSync check in the real code handles them correctly.
-    expect(isTargetBrokenLogic({
-      path: 'C:\\User Pinned\\TaskBar\\app.lnk',
-      targetPath: 'C:\\Missing\\app.exe'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\User Pinned\\TaskBar\\app.lnk',
+          targetPath: 'C:\\Missing\\app.exe'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag shortcuts pointing to Windows system executables', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\notepad.lnk',
-      targetPath: 'C:\\Windows\\System32\\notepad.exe'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\notepad.lnk',
+          targetPath: 'C:\\Windows\\System32\\notepad.exe'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   // ── URL and special targets ──
 
   it('does not flag HTTP URL targets', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\bookmark.lnk',
-      targetPath: 'http://example.com'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\bookmark.lnk',
+          targetPath: 'http://example.com'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag HTTPS URL targets', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\secure.lnk',
-      targetPath: 'https://example.com'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\secure.lnk',
+          targetPath: 'https://example.com'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag shell: protocol targets', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\shell.lnk',
-      targetPath: 'shell:RecycleBinFolder'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\shell.lnk',
+          targetPath: 'shell:RecycleBinFolder'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag microsoft. UWP targets', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\store.lnk',
-      targetPath: 'microsoft.windowsstore:'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\store.lnk',
+          targetPath: 'microsoft.windowsstore:'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag WindowsApps targets', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\uwp.lnk',
-      targetPath: 'C:\\Program Files\\WindowsApps\\SomeApp\\app.exe'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\uwp.lnk',
+          targetPath: 'C:\\Program Files\\WindowsApps\\SomeApp\\app.exe'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag other protocol handlers (e.g. ftp:)', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\ftp.lnk',
-      targetPath: 'ftp://server.com'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\ftp.lnk',
+          targetPath: 'ftp://server.com'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   // ── Null and empty targets ──
@@ -139,17 +218,29 @@ describe('isTargetBroken logic', () => {
     // On Linux, a null target means the .desktop file had no Exec line or was
     // unreadable, which we treat as broken. On Windows, null instead means a
     // shell-namespace target that we cannot verify (handled above).
-    expect(isTargetBrokenLogic({
-      path: '/home/user/Desktop/broken.desktop',
-      targetPath: null
-    }, 'linux', false)).toBe(true)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: '/home/user/Desktop/broken.desktop',
+          targetPath: null
+        },
+        'linux',
+        false
+      )
+    ).toBe(true)
   })
 
   it('flags empty string target as broken', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\broken.lnk',
-      targetPath: '   '
-    }, 'win32', false)).toBe(true)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\broken.lnk',
+          targetPath: '   '
+        },
+        'win32',
+        false
+      )
+    ).toBe(true)
   })
 
   // ── Target exists/not ──
@@ -158,47 +249,83 @@ describe('isTargetBroken logic', () => {
     // Windows paths like C:\... match the ^[a-z]+: protocol regex,
     // so the logic short-circuits to "not broken". The real code relies on
     // existsSync to handle actual file checks for drive-letter paths.
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\app.lnk',
-      targetPath: 'C:\\Missing\\app.exe'
-    }, 'win32', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\app.lnk',
+          targetPath: 'C:\\Missing\\app.exe'
+        },
+        'win32',
+        false
+      )
+    ).toBe(false)
   })
 
   it('does not flag existing target (Windows drive letter)', () => {
-    expect(isTargetBrokenLogic({
-      path: 'C:\\Desktop\\app.lnk',
-      targetPath: 'C:\\Existing\\app.exe'
-    }, 'win32', true)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: 'C:\\Desktop\\app.lnk',
+          targetPath: 'C:\\Existing\\app.exe'
+        },
+        'win32',
+        true
+      )
+    ).toBe(false)
   })
 
   it('flags UNC-style target with missing file on Linux', () => {
-    expect(isTargetBrokenLogic({
-      path: '/home/user/Desktop/app.desktop',
-      targetPath: '/opt/missing/app'
-    }, 'linux', false)).toBe(true)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: '/home/user/Desktop/app.desktop',
+          targetPath: '/opt/missing/app'
+        },
+        'linux',
+        false
+      )
+    ).toBe(true)
   })
 
   // ── Linux-specific ──
 
   it('on Linux, does not flag non-absolute paths (resolved via PATH)', () => {
-    expect(isTargetBrokenLogic({
-      path: '/home/user/.local/share/applications/app.desktop',
-      targetPath: 'firefox'
-    }, 'linux', false)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: '/home/user/.local/share/applications/app.desktop',
+          targetPath: 'firefox'
+        },
+        'linux',
+        false
+      )
+    ).toBe(false)
   })
 
   it('on Linux, flags absolute target that does not exist', () => {
-    expect(isTargetBrokenLogic({
-      path: '/home/user/Desktop/app.desktop',
-      targetPath: '/usr/bin/nonexistent'
-    }, 'linux', false)).toBe(true)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: '/home/user/Desktop/app.desktop',
+          targetPath: '/usr/bin/nonexistent'
+        },
+        'linux',
+        false
+      )
+    ).toBe(true)
   })
 
   it('on Linux, does not flag absolute target that exists', () => {
-    expect(isTargetBrokenLogic({
-      path: '/home/user/Desktop/app.desktop',
-      targetPath: '/usr/bin/existing'
-    }, 'linux', true)).toBe(false)
+    expect(
+      isTargetBrokenLogic(
+        {
+          path: '/home/user/Desktop/app.desktop',
+          targetPath: '/usr/bin/existing'
+        },
+        'linux',
+        true
+      )
+    ).toBe(false)
   })
 })
 
@@ -281,7 +408,11 @@ describe('SHORTCUT_CLEAN input validation', () => {
 
 // ── binaryExistsInPath (replica) ──
 
-function binaryExistsInPath(binary: string, pathDirs: string[], existingFiles: Set<string>): boolean {
+function binaryExistsInPath(
+  binary: string,
+  pathDirs: string[],
+  existingFiles: Set<string>
+): boolean {
   for (const dir of pathDirs) {
     if (existingFiles.has(dir + '/' + binary)) return true
   }
@@ -290,7 +421,9 @@ function binaryExistsInPath(binary: string, pathDirs: string[], existingFiles: S
 
 describe('binaryExistsInPath', () => {
   it('returns true when binary is found in PATH', () => {
-    expect(binaryExistsInPath('firefox', ['/usr/bin', '/usr/local/bin'], new Set(['/usr/bin/firefox']))).toBe(true)
+    expect(
+      binaryExistsInPath('firefox', ['/usr/bin', '/usr/local/bin'], new Set(['/usr/bin/firefox']))
+    ).toBe(true)
   })
 
   it('returns false when binary is not found', () => {
@@ -345,7 +478,7 @@ describe('shortcut directories structure', () => {
       'Start Menu Programs',
       'Taskbar',
       'All Users Start Menu',
-      'Public Desktop',
+      'Public Desktop'
     ]
     expect(winDirs).toHaveLength(5)
   })
@@ -356,7 +489,11 @@ describe('shortcut directories structure', () => {
   })
 
   it('Linux has 3 shortcut directories', () => {
-    const linuxDirs = ['Desktop Shortcuts', 'User Application Entries', 'System Application Entries']
+    const linuxDirs = [
+      'Desktop Shortcuts',
+      'User Application Entries',
+      'System Application Entries'
+    ]
     expect(linuxDirs).toHaveLength(3)
   })
 })

@@ -66,7 +66,7 @@ export function parseRecycleBinDirectories(stdout: string): string[] {
 async function mapWithConcurrency<T>(
   values: T[],
   limit: number,
-  worker: (value: T) => Promise<void>,
+  worker: (value: T) => Promise<void>
 ): Promise<void> {
   let next = 0
   const run = async (): Promise<void> => {
@@ -86,13 +86,15 @@ async function mapWithConcurrency<T>(
  * item is not turned into an invisible orphan. Directory links are safe here:
  * fs.rm removes the link itself and does not recurse into its target.
  */
-export async function emptyRecycleBinDirectory(directory: string): Promise<FastRecycleBinCleanResult> {
+export async function emptyRecycleBinDirectory(
+  directory: string
+): Promise<FastRecycleBinCleanResult> {
   const result: FastRecycleBinCleanResult = {
     payloadsFound: 0,
     payloadsDeleted: 0,
     payloadsFailed: 0,
     orphanMetadataDeleted: 0,
-    accessDenied: false,
+    accessDenied: false
   }
 
   const entries = await readdir(directory, { withFileTypes: true })
@@ -130,11 +132,14 @@ export async function emptyRecycleBinDirectory(directory: string): Promise<FastR
     remaining
       .map((entry) => entry.name.toUpperCase())
       .filter((name) => name.startsWith('$R'))
-      .map((name) => name.slice(2)),
+      .map((name) => name.slice(2))
   )
   const orphanMetadata = remaining
     .map((entry) => entry.name)
-    .filter((name) => name.toUpperCase().startsWith('$I') && !remainingPayloads.has(name.slice(2).toUpperCase()))
+    .filter(
+      (name) =>
+        name.toUpperCase().startsWith('$I') && !remainingPayloads.has(name.slice(2).toUpperCase())
+    )
 
   await mapWithConcurrency(orphanMetadata, MAX_PARALLEL_DELETES, async (name) => {
     try {
@@ -150,40 +155,44 @@ export async function emptyRecycleBinDirectory(directory: string): Promise<FastR
 
 /** Delete the current user's bin payloads directly instead of shell-walking them serially. */
 export async function emptyRecycleBinFast(): Promise<FastRecycleBinCleanResult> {
-  const { stdout } = await execTracked('powershell.exe', [
-    '-NoProfile',
-    '-NonInteractive',
-    '-Command',
-    psUtf8(QUERY_RECYCLE_BIN_DIRECTORIES_SCRIPT),
-  ], { windowsHide: true, timeout: 15_000 })
+  const { stdout } = await execTracked(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', psUtf8(QUERY_RECYCLE_BIN_DIRECTORIES_SCRIPT)],
+    { windowsHide: true, timeout: 15_000 }
+  )
 
   const directories = parseRecycleBinDirectories(stdout)
-  const results = await Promise.all(directories.map(async (directory) => {
-    try {
-      return await emptyRecycleBinDirectory(directory)
-    } catch (err: any) {
-      return {
-        payloadsFound: 0,
-        payloadsDeleted: 0,
-        payloadsFailed: 1,
-        orphanMetadataDeleted: 0,
-        accessDenied: err?.code === 'EACCES' || err?.code === 'EPERM',
+  const results = await Promise.all(
+    directories.map(async (directory) => {
+      try {
+        return await emptyRecycleBinDirectory(directory)
+      } catch (err: any) {
+        return {
+          payloadsFound: 0,
+          payloadsDeleted: 0,
+          payloadsFailed: 1,
+          orphanMetadataDeleted: 0,
+          accessDenied: err?.code === 'EACCES' || err?.code === 'EPERM'
+        }
       }
+    })
+  )
+  return results.reduce<FastRecycleBinCleanResult>(
+    (total, current) => ({
+      payloadsFound: total.payloadsFound + current.payloadsFound,
+      payloadsDeleted: total.payloadsDeleted + current.payloadsDeleted,
+      payloadsFailed: total.payloadsFailed + current.payloadsFailed,
+      orphanMetadataDeleted: total.orphanMetadataDeleted + current.orphanMetadataDeleted,
+      accessDenied: total.accessDenied || current.accessDenied
+    }),
+    {
+      payloadsFound: 0,
+      payloadsDeleted: 0,
+      payloadsFailed: 0,
+      orphanMetadataDeleted: 0,
+      accessDenied: false
     }
-  }))
-  return results.reduce<FastRecycleBinCleanResult>((total, current) => ({
-    payloadsFound: total.payloadsFound + current.payloadsFound,
-    payloadsDeleted: total.payloadsDeleted + current.payloadsDeleted,
-    payloadsFailed: total.payloadsFailed + current.payloadsFailed,
-    orphanMetadataDeleted: total.orphanMetadataDeleted + current.orphanMetadataDeleted,
-    accessDenied: total.accessDenied || current.accessDenied,
-  }), {
-    payloadsFound: 0,
-    payloadsDeleted: 0,
-    payloadsFailed: 0,
-    orphanMetadataDeleted: 0,
-    accessDenied: false,
-  })
+  )
 }
 
 /**
@@ -192,11 +201,10 @@ export async function emptyRecycleBinFast(): Promise<FastRecycleBinCleanResult> 
  * unbounded shell walk that the fast path replaces.
  */
 export async function finalizeRecycleBinShell(timeout = 10_000): Promise<number> {
-  const { stdout } = await execTracked('powershell.exe', [
-    '-NoProfile',
-    '-NonInteractive',
-    '-Command',
-    psUtf8(EMPTY_RECYCLE_BIN_SHELL_SCRIPT),
-  ], { windowsHide: true, timeout })
+  const { stdout } = await execTracked(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', psUtf8(EMPTY_RECYCLE_BIN_SHELL_SCRIPT)],
+    { windowsHide: true, timeout }
+  )
   return Number.parseInt(stdout.trim(), 10) || 0
 }

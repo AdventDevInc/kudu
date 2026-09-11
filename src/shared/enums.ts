@@ -7,7 +7,7 @@ export enum CleanerType {
   UninstallLeftovers = 'uninstallLeftovers',
   Shortcut = 'shortcut',
   Database = 'database',
-  Environment = 'environment',
+  Environment = 'environment'
 }
 
 export enum ScanStatus {
@@ -15,5 +15,5 @@ export enum ScanStatus {
   Scanning = 'scanning',
   Complete = 'complete',
   Cleaning = 'cleaning',
-  Error = 'error',
+  Error = 'error'
 }

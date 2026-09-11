@@ -24,6 +24,6 @@ export function createWin32Provider(): PlatformProvider {
     malware: createWin32Malware(),
     browser: createWin32Browser(),
     malwarePaths: createWin32MalwarePaths(),
-    network: createWin32Network(),
+    network: createWin32Network()
   }
 }

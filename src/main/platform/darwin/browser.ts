@@ -27,7 +27,7 @@ export function createDarwinBrowser(): PlatformBrowser {
         'Waterfox',
         'Floorp',
         'Zen Browser',
-        'Safari',
+        'Safari'
       ]
 
       for (const browser of browsers) {
@@ -37,6 +37,6 @@ export function createDarwinBrowser(): PlatformBrowser {
           // Process not running — ignore (killall exits 1 when no match)
         }
       }
-    },
+    }
   }
 }

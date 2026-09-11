@@ -4,7 +4,7 @@ const execTracked = vi.hoisted(() => vi.fn())
 
 vi.mock('./exec-utf8', () => ({
   execTracked,
-  psUtf8: (script: string) => script,
+  psUtf8: (script: string) => script
 }))
 
 import { parseRecycleBinStats, queryRecycleBinStats } from './recycle-bin-stats'
@@ -13,7 +13,7 @@ describe('parseRecycleBinStats', () => {
   it('parses count and total bytes', () => {
     expect(parseRecycleBinStats('5000|10737418240\r\n')).toEqual({
       count: 5000,
-      size: 10737418240,
+      size: 10737418240
     })
   })
 

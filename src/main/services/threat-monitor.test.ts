@@ -14,15 +14,15 @@ describe('ipv4ToNumber', () => {
   })
 
   it('converts 255.255.255.255', () => {
-    expect(ipv4ToNumber('255.255.255.255')).toBe(0xFFFFFFFF)
+    expect(ipv4ToNumber('255.255.255.255')).toBe(0xffffffff)
   })
 
   it('converts 192.168.1.1', () => {
-    expect(ipv4ToNumber('192.168.1.1')).toBe((192 << 24 | 168 << 16 | 1 << 8 | 1) >>> 0)
+    expect(ipv4ToNumber('192.168.1.1')).toBe(((192 << 24) | (168 << 16) | (1 << 8) | 1) >>> 0)
   })
 
   it('converts 10.0.0.1', () => {
-    expect(ipv4ToNumber('10.0.0.1')).toBe((10 << 24 | 1) >>> 0)
+    expect(ipv4ToNumber('10.0.0.1')).toBe(((10 << 24) | 1) >>> 0)
   })
 
   it('returns null for invalid octet > 255', () => {
@@ -55,7 +55,7 @@ describe('ipv4ToNumber', () => {
 describe('ipv6ToBigInt', () => {
   it('converts full address', () => {
     expect(ipv6ToBigInt('2001:0db8:0000:0000:0000:0000:0000:0001')).toBe(
-      0x20010db8000000000000000000000001n,
+      0x20010db8000000000000000000000001n
     )
   })
 
@@ -75,7 +75,7 @@ describe('ipv6ToBigInt', () => {
     const result = ipv6ToBigInt('::ffff:192.168.1.1')
     expect(result).not.toBeNull()
     // 0xffff00000000 | 192.168.1.1 as number
-    const v4 = (192 << 24 | 168 << 16 | 1 << 8 | 1) >>> 0
+    const v4 = ((192 << 24) | (168 << 16) | (1 << 8) | 1) >>> 0
     expect(result).toBe(BigInt('0xffff00000000') | BigInt(v4))
   })
 
@@ -141,7 +141,7 @@ describe('parseCidr', () => {
   it('handles /32 prefix (single host)', () => {
     const result = parseCidr('192.168.1.1/32')
     expect(result).not.toBeNull()
-    expect(result!.mask).toBe(0xFFFFFFFF)
+    expect(result!.mask).toBe(0xffffffff)
   })
 })
 

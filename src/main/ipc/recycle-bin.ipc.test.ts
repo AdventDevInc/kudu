@@ -29,7 +29,10 @@ describe('recycle bin scan output parsing', () => {
   })
 
   it('handles large numbers', () => {
-    expect(parseRecycleBinScanOutput('5000|10737418240')).toEqual({ count: 5000, size: 10737418240 })
+    expect(parseRecycleBinScanOutput('5000|10737418240')).toEqual({
+      count: 5000,
+      size: 10737418240
+    })
   })
 })
 
@@ -49,15 +52,17 @@ describe('recycle bin scan result structure', () => {
     const result = {
       category: 'recycleBin',
       subcategory: 'Recycle Bin',
-      items: [{
-        id: 'test-uuid',
-        path: 'Recycle Bin',
-        size,
-        category: 'recycleBin',
-        subcategory: 'Recycle Bin',
-        lastModified: Date.now(),
-        selected: true
-      }],
+      items: [
+        {
+          id: 'test-uuid',
+          path: 'Recycle Bin',
+          size,
+          category: 'recycleBin',
+          subcategory: 'Recycle Bin',
+          lastModified: Date.now(),
+          selected: true
+        }
+      ],
       totalSize: size,
       itemCount: count
     }
@@ -80,9 +85,16 @@ describe('recycle bin clean result structure', () => {
     const remainingStdout = '0'
     const remaining = parseInt(remainingStdout.trim()) || 0
 
-    const result = remaining === 0
-      ? { totalCleaned: sizeBeforeClean, filesDeleted: countBeforeClean, filesSkipped: 0, errors: [], needsElevation: false }
-      : null
+    const result =
+      remaining === 0
+        ? {
+            totalCleaned: sizeBeforeClean,
+            filesDeleted: countBeforeClean,
+            filesSkipped: 0,
+            errors: [],
+            needsElevation: false
+          }
+        : null
 
     expect(result).toEqual({
       totalCleaned: 5000,
@@ -103,7 +115,12 @@ describe('recycle bin clean result structure', () => {
       totalCleaned: Math.max(0, sizeBeforeClean - remainingSize),
       filesDeleted: Math.max(0, countBeforeClean - remaining),
       filesSkipped: remaining,
-      errors: [{ path: 'Recycle Bin', reason: `${remaining} item(s) could not be removed (may be in use or protected)` }],
+      errors: [
+        {
+          path: 'Recycle Bin',
+          reason: `${remaining} item(s) could not be removed (may be in use or protected)`
+        }
+      ],
       needsElevation: false
     }
 

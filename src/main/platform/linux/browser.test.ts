@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockExecFile = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: (...args: any[]) => mockExecFile(...args),
+  execFile: (...args: any[]) => mockExecFile(...args)
 }))
 vi.mock('util', () => ({
-  promisify: () => mockExecFile,
+  promisify: () => mockExecFile
 }))
 
 const { createLinuxBrowser } = await import('./browser')

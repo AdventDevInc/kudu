@@ -29,6 +29,6 @@ export function createWin32Startup(): PlatformStartup {
     async getBootTrace(): Promise<StartupBootTrace> {
       const { getBootTrace } = require('../../ipc/startup-manager.ipc')
       return getBootTrace()
-    },
+    }
   }
 }

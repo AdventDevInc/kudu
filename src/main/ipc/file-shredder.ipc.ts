@@ -4,11 +4,7 @@ import { constants as fsConstants } from 'fs'
 import { join, isAbsolute, basename, resolve, normalize } from 'path'
 import { randomBytes } from 'crypto'
 import { IPC } from '../../shared/channels'
-import type {
-  ShredderEntry,
-  ShredderProgress,
-  ShredderResult
-} from '../../shared/types'
+import type { ShredderEntry, ShredderProgress, ShredderResult } from '../../shared/types'
 import type { WindowGetter } from './index'
 import { showOpenDialog } from './open-dialog'
 
@@ -17,19 +13,66 @@ let cancelled = false
 // ── Safety: paths we must never shred ──
 
 const PROTECTED_WIN32 = [
-  'windows', 'system32', 'syswow64', 'winsxs', 'program files', 'program files (x86)',
-  'programdata', 'recovery', 'boot', '$recycle.bin', 'system volume information',
-  'perflogs', 'msocache', 'config.msi', 'drivers', 'inf', 'logs',
+  'windows',
+  'system32',
+  'syswow64',
+  'winsxs',
+  'program files',
+  'program files (x86)',
+  'programdata',
+  'recovery',
+  'boot',
+  '$recycle.bin',
+  'system volume information',
+  'perflogs',
+  'msocache',
+  'config.msi',
+  'drivers',
+  'inf',
+  'logs'
 ]
 const PROTECTED_UNIX = [
-  'bin', 'sbin', 'usr', 'etc', 'var', 'lib', 'lib64', 'opt', 'boot', 'dev',
-  'proc', 'sys', 'run', 'tmp', 'snap', 'root', 'lost+found',
-  'system', 'library', 'applications', 'cores', 'private', 'volumes',
+  'bin',
+  'sbin',
+  'usr',
+  'etc',
+  'var',
+  'lib',
+  'lib64',
+  'opt',
+  'boot',
+  'dev',
+  'proc',
+  'sys',
+  'run',
+  'tmp',
+  'snap',
+  'root',
+  'lost+found',
+  'system',
+  'library',
+  'applications',
+  'cores',
+  'private',
+  'volumes'
 ]
 const PROTECTED_GENERIC = [
-  '.git', '.svn', '.hg', 'node_modules', '.npm', '.cache', '.local',
-  '__pycache__', '.venv', '.env', '.ssh', '.gnupg', '.config',
-  'appdata', '.android', '.gradle',
+  '.git',
+  '.svn',
+  '.hg',
+  'node_modules',
+  '.npm',
+  '.cache',
+  '.local',
+  '__pycache__',
+  '.venv',
+  '.env',
+  '.ssh',
+  '.gnupg',
+  '.config',
+  'appdata',
+  '.android',
+  '.gradle'
 ]
 
 function isProtectedPath(targetPath: string): boolean {
@@ -48,15 +91,26 @@ function isProtectedPath(targetPath: string): boolean {
   if (isRootLevel) return true
 
   // Check against protected name lists
-  const protectedNames = process.platform === 'win32'
-    ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
-    : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
+  const protectedNames =
+    process.platform === 'win32'
+      ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
+      : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
   if (protectedNames.includes(name)) return true
 
   // Never shred user profile root folders
-  const userProfileDirs = ['desktop', 'documents', 'downloads', 'pictures', 'videos', 'music', 'onedrive']
+  const userProfileDirs = [
+    'desktop',
+    'documents',
+    'downloads',
+    'pictures',
+    'videos',
+    'music',
+    'onedrive'
+  ]
   if (userProfileDirs.includes(name)) {
-    const home = (process.env.HOME || process.env.USERPROFILE || '').toLowerCase().replace(/\\/g, '/')
+    const home = (process.env.HOME || process.env.USERPROFILE || '')
+      .toLowerCase()
+      .replace(/\\/g, '/')
     if (home) {
       const parent = pathLower.substring(0, pathLower.lastIndexOf('/'))
       if (parent === home || parent === home + '/') return true
@@ -238,7 +292,9 @@ async function getEntrySize(entryPath: string, depth: number = 0): Promise<numbe
       }
       return total
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
   return 0
 }
 
@@ -261,7 +317,9 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
           size: s.size,
           isDirectory: false
         })
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
     return entries
   })
@@ -269,7 +327,9 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.SHREDDER_SELECT_FOLDERS, async () => {
     const win = getWindow()
     if (!win) return []
-    const folderOpts: Electron.OpenDialogOptions = { properties: ['openDirectory', 'multiSelections'] }
+    const folderOpts: Electron.OpenDialogOptions = {
+      properties: ['openDirectory', 'multiSelections']
+    }
     const result = await showOpenDialog(win, folderOpts)
     if (result.canceled || !result.filePaths.length) return []
 
@@ -283,7 +343,9 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
           size,
           isDirectory: true
         })
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
     return entries
   })
@@ -298,7 +360,14 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
     cancelled = false
     const startTime = Date.now()
     const win = getWindow()
-    const emptyResult: ShredderResult = { shredded: 0, failed: 0, bytesShredded: 0, duration: 0, errors: [], cancelled: false }
+    const emptyResult: ShredderResult = {
+      shredded: 0,
+      failed: 0,
+      bytesShredded: 0,
+      duration: 0,
+      errors: [],
+      cancelled: false
+    }
 
     if (!Array.isArray(paths)) return emptyResult
     const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
@@ -334,7 +403,9 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
           allFiles.push(p)
           identities.set(p, identity)
         }
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
 
     // Deduplicate — overlapping selections (parent + child folder, or
@@ -412,9 +483,7 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
       totalFiles: uniqueFiles.length,
       bytesShredded,
       totalBytes,
-      progress: wasCancelled
-        ? (totalBytes > 0 ? (bytesShredded / totalBytes) * 100 : 0)
-        : 100
+      progress: wasCancelled ? (totalBytes > 0 ? (bytesShredded / totalBytes) * 100 : 0) : 100
     })
 
     return {

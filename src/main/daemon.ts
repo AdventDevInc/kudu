@@ -87,10 +87,15 @@ export async function runDaemon(): Promise<void> {
   process.on('SIGINT', shutdown)
 
   // ─── Heartbeat log every 5 minutes ──────────────────────────
-  setInterval(() => {
-    const s = cloudAgent.getStatus()
-    log(`Heartbeat — status: ${s.status}, last telemetry: ${s.lastTelemetryAt || 'never'}, last command: ${s.lastCommandAt || 'never'}`)
-  }, 5 * 60 * 1000)
+  setInterval(
+    () => {
+      const s = cloudAgent.getStatus()
+      log(
+        `Heartbeat — status: ${s.status}, last telemetry: ${s.lastTelemetryAt || 'never'}, last command: ${s.lastCommandAt || 'never'}`
+      )
+    },
+    5 * 60 * 1000
+  )
 
   log('Daemon running. Press Ctrl+C to stop.')
 }

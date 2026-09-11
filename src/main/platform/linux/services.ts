@@ -1,7 +1,11 @@
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import type { PlatformServices } from '../types'
-import type { ServiceScanResult, ServiceApplyResult, ServiceScanProgress } from '../../../shared/types'
+import type {
+  ServiceScanResult,
+  ServiceApplyResult,
+  ServiceScanProgress
+} from '../../../shared/types'
 
 const execFileAsync = promisify(execFile)
 
@@ -9,9 +13,11 @@ export function createLinuxServices(): PlatformServices {
   return {
     async scan(onProgress?: (data: ServiceScanProgress) => void): Promise<ServiceScanResult> {
       try {
-        const { stdout } = await execFileAsync('/usr/bin/systemctl', [
-          'list-units', '--type=service', '--no-pager', '--plain', '--all',
-        ], { timeout: 15_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/systemctl',
+          ['list-units', '--type=service', '--no-pager', '--plain', '--all'],
+          { timeout: 15_000 }
+        )
 
         const lines = stdout.trim().split('\n').slice(1) // skip header
         const services: ServiceScanResult['services'] = []
@@ -41,7 +47,7 @@ export function createLinuxServices(): PlatformServices {
             dependsOn: [],
             dependents: [],
             selected: false,
-            originalStartType: 'Manual',
+            originalStartType: 'Manual'
           })
 
           if (onProgress) {
@@ -49,7 +55,7 @@ export function createLinuxServices(): PlatformServices {
               phase: 'enumerating',
               current: i,
               total: lines.length,
-              currentService: unit,
+              currentService: unit
             })
           }
         }
@@ -59,14 +65,22 @@ export function createLinuxServices(): PlatformServices {
           totalCount: services.length,
           runningCount: running,
           disabledCount: disabled,
-          safeToDisableCount: 0,
+          safeToDisableCount: 0
         }
       } catch {
-        return { services: [], totalCount: 0, runningCount: 0, disabledCount: 0, safeToDisableCount: 0 }
+        return {
+          services: [],
+          totalCount: 0,
+          runningCount: 0,
+          disabledCount: 0,
+          safeToDisableCount: 0
+        }
       }
     },
 
-    async applyChanges(changes: Array<{ name: string; targetStartType: string }>): Promise<ServiceApplyResult> {
+    async applyChanges(
+      changes: Array<{ name: string; targetStartType: string }>
+    ): Promise<ServiceApplyResult> {
       const errors: ServiceApplyResult['errors'] = []
       let succeeded = 0
 
@@ -81,6 +95,6 @@ export function createLinuxServices(): PlatformServices {
       }
 
       return { succeeded, failed: errors.length, errors }
-    },
+    }
   }
 }

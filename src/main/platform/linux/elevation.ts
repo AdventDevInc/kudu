@@ -11,7 +11,7 @@ import type { PlatformElevation } from '../types'
 export function getLinuxRelaunchExecutable(
   exePath: string,
   appImagePath = process.env.APPIMAGE,
-  pathExists: (path: string) => boolean = existsSync,
+  pathExists: (path: string) => boolean = existsSync
 ): string {
   if (appImagePath && isAbsolute(appImagePath) && pathExists(appImagePath)) {
     return appImagePath
@@ -25,7 +25,7 @@ const ELEVATION_ENV_KEYS = [
   'WAYLAND_DISPLAY',
   'XDG_RUNTIME_DIR',
   'HOME',
-  'DBUS_SESSION_BUS_ADDRESS',
+  'DBUS_SESSION_BUS_ADDRESS'
 ] as const
 
 function shellQuote(value: string): string {
@@ -41,7 +41,7 @@ export function buildLinuxElevationCommand(
   executable: string,
   userDataDir: string,
   environment: NodeJS.ProcessEnv = process.env,
-  parentPid = process.pid,
+  parentPid = process.pid
 ): string {
   const parts: string[] = []
   for (const key of ELEVATION_ENV_KEYS) {
@@ -56,6 +56,6 @@ export function createLinuxElevation(): PlatformElevation {
   return {
     isAdmin(): boolean {
       return process.getuid?.() === 0
-    },
+    }
   }
 }

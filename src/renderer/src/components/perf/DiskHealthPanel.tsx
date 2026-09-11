@@ -1,5 +1,13 @@
 import { useTranslation } from 'react-i18next'
-import { HardDrive, Thermometer, AlertTriangle, CheckCircle, XCircle, HelpCircle, ShieldAlert } from 'lucide-react'
+import {
+  HardDrive,
+  Thermometer,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  HelpCircle,
+  ShieldAlert
+} from 'lucide-react'
 import type { DiskSmartInfo } from '@shared/types'
 import { formatBytes } from '@/lib/utils'
 
@@ -83,16 +91,26 @@ function DiskCard({ disk }: { disk: DiskSmartInfo }) {
       </div>
 
       {/* Error stats (only show if any data available) */}
-      {(disk.readErrors !== null || disk.writeErrors !== null || disk.reallocatedSectors !== null) && (
+      {(disk.readErrors !== null ||
+        disk.writeErrors !== null ||
+        disk.reallocatedSectors !== null) && (
         <div
           className="grid grid-cols-3 gap-3 rounded-xl p-3"
           style={{ background: 'var(--bg-subtle)' }}
         >
           {disk.readErrors !== null && (
-            <StatItem label={t('readErrors')} value={String(disk.readErrors)} warn={disk.readErrors > 0} />
+            <StatItem
+              label={t('readErrors')}
+              value={String(disk.readErrors)}
+              warn={disk.readErrors > 0}
+            />
           )}
           {disk.writeErrors !== null && (
-            <StatItem label={t('writeErrors')} value={String(disk.writeErrors)} warn={disk.writeErrors > 0} />
+            <StatItem
+              label={t('writeErrors')}
+              value={String(disk.writeErrors)}
+              warn={disk.writeErrors > 0}
+            />
           )}
           {disk.reallocatedSectors !== null && (
             <StatItem
@@ -157,7 +175,10 @@ export function DiskHealthPanel({ disks }: DiskHealthPanelProps) {
       <div className="mb-3 flex items-center gap-2">
         <h3 className="text-[13px] font-semibold text-zinc-400">{t('diskHealthTitle')}</h3>
         {!hasDetailedData && (
-          <div className="flex items-center gap-1 rounded-md px-2 py-0.5" style={{ background: 'var(--accent-muted-bg)' }}>
+          <div
+            className="flex items-center gap-1 rounded-md px-2 py-0.5"
+            style={{ background: 'var(--accent-muted-bg)' }}
+          >
             <ShieldAlert className="h-3 w-3" style={{ color: '#92700c' }} />
             <span className="text-[10px] font-medium" style={{ color: '#92700c' }}>
               {t('diskHealthAdminHint')}

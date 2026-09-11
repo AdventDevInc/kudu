@@ -45,12 +45,7 @@ function computeStats(): AppStats {
   const recentActivity = entries.slice(0, 20).map((e) => ({
     id: e.id,
     type: (activityTypeMap[e.type] || 'scan') as
-      | 'clean'
-      | 'registry'
-      | 'startup'
-      | 'scan'
-      | 'drivers'
-      | 'network',
+      'clean' | 'registry' | 'startup' | 'scan' | 'drivers' | 'network',
     message:
       `${typeLabel[e.type] || e.type}: ${e.totalItemsCleaned} items` +
       (e.totalSpaceSaved > 0 ? ` (${formatBytes(e.totalSpaceSaved)})` : ''),

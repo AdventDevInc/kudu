@@ -1,7 +1,11 @@
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import type { PlatformServices } from '../types'
-import type { ServiceScanResult, ServiceApplyResult, ServiceScanProgress } from '../../../shared/types'
+import type {
+  ServiceScanResult,
+  ServiceApplyResult,
+  ServiceScanProgress
+} from '../../../shared/types'
 
 const execFileAsync = promisify(execFile)
 
@@ -40,7 +44,7 @@ export function createDarwinServices(): PlatformServices {
             dependsOn: [],
             dependents: [],
             selected: false,
-            originalStartType: 'Manual',
+            originalStartType: 'Manual'
           })
 
           if (onProgress) {
@@ -48,7 +52,7 @@ export function createDarwinServices(): PlatformServices {
               phase: 'enumerating',
               current: i,
               total: lines.length,
-              currentService: label,
+              currentService: label
             })
           }
         }
@@ -58,23 +62,39 @@ export function createDarwinServices(): PlatformServices {
           totalCount: services.length,
           runningCount: running,
           disabledCount: disabled,
-          safeToDisableCount: services.filter(s => s.safety === 'safe').length,
+          safeToDisableCount: services.filter((s) => s.safety === 'safe').length
         }
       } catch {
-        return { services: [], totalCount: 0, runningCount: 0, disabledCount: 0, safeToDisableCount: 0 }
+        return {
+          services: [],
+          totalCount: 0,
+          runningCount: 0,
+          disabledCount: 0,
+          safeToDisableCount: 0
+        }
       }
     },
 
-    async applyChanges(changes: Array<{ name: string; targetStartType: string }>): Promise<ServiceApplyResult> {
+    async applyChanges(
+      changes: Array<{ name: string; targetStartType: string }>
+    ): Promise<ServiceApplyResult> {
       const errors: ServiceApplyResult['errors'] = []
       let succeeded = 0
 
       for (const change of changes) {
         try {
           if (change.targetStartType === 'Disabled') {
-            await execFileAsync('/bin/launchctl', ['disable', `gui/${process.getuid?.() ?? 501}/${change.name}`], { timeout: 10_000 })
+            await execFileAsync(
+              '/bin/launchctl',
+              ['disable', `gui/${process.getuid?.() ?? 501}/${change.name}`],
+              { timeout: 10_000 }
+            )
           } else {
-            await execFileAsync('/bin/launchctl', ['enable', `gui/${process.getuid?.() ?? 501}/${change.name}`], { timeout: 10_000 })
+            await execFileAsync(
+              '/bin/launchctl',
+              ['enable', `gui/${process.getuid?.() ?? 501}/${change.name}`],
+              { timeout: 10_000 }
+            )
           }
           succeeded++
         } catch (err: any) {
@@ -83,6 +103,6 @@ export function createDarwinServices(): PlatformServices {
       }
 
       return { succeeded, failed: errors.length, errors }
-    },
+    }
   }
 }

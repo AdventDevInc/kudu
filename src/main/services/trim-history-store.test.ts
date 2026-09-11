@@ -8,8 +8,8 @@ let testDir: string
 vi.mock('electron', () => ({
   app: {
     isPackaged: true,
-    getPath: () => testDir,
-  },
+    getPath: () => testDir
+  }
 }))
 
 import {
@@ -17,7 +17,7 @@ import {
   getLastTrimAt,
   setLastTrimAt,
   isThrottled,
-  _resetTrimHistoryPathCache,
+  _resetTrimHistoryPathCache
 } from './trim-history-store'
 
 describe('trim-history-store', () => {

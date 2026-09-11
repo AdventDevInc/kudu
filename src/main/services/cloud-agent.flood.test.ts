@@ -25,19 +25,26 @@ function newState(overrides: Partial<GateState> = {}): GateState {
     commandRunning: false,
     lastCommandFinishedAt: 0,
     lastParallelStartAt: new Map(),
-    ...overrides,
+    ...overrides
   }
 }
 
 /** Returns the rejection reason, or null if the command is admitted. */
-function admit(state: GateState, type: string, isParallelSafe: boolean, now: number): string | null {
+function admit(
+  state: GateState,
+  type: string,
+  isParallelSafe: boolean,
+  now: number
+): string | null {
   if (!isParallelSafe && state.commandRunning) return 'A mutating command is already running'
-  if (!isParallelSafe && state.runningCommands > 0) return 'Commands are still running — try again shortly'
+  if (!isParallelSafe && state.runningCommands > 0)
+    return 'Commands are still running — try again shortly'
   if (isParallelSafe && state.runningCommands >= MAX_PARALLEL_COMMANDS) {
     return 'Too many commands running — try again shortly'
   }
   if (!isParallelSafe) {
-    if (now - state.lastCommandFinishedAt < MUTATING_MIN_SPACING_MS) return 'Rate limited — try again shortly'
+    if (now - state.lastCommandFinishedAt < MUTATING_MIN_SPACING_MS)
+      return 'Rate limited — try again shortly'
   } else {
     const lastStart = state.lastParallelStartAt.get(type) ?? 0
     if (now - lastStart < PARALLEL_COMMAND_MIN_SPACING_MS) return 'Rate limited — try again shortly'
@@ -113,8 +120,12 @@ interface Slots {
 function slots(): Slots {
   const s = {
     running: 0,
-    release() { s.running = Math.max(0, s.running - 1) },
-    onTimeout() { /* reports the failure; deliberately does not release */ },
+    release() {
+      s.running = Math.max(0, s.running - 1)
+    },
+    onTimeout() {
+      /* reports the failure; deliberately does not release */
+    }
   }
   return s
 }
@@ -139,7 +150,7 @@ describe('command slot accounting', () => {
     const s = slots()
     s.running += 2
     s.onTimeout() // command A times out, still running
-    s.release()   // command B settles
+    s.release() // command B settles
     expect(s.running).toBe(1)
   })
 

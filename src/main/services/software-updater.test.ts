@@ -24,7 +24,7 @@ import {
   isValidAppIdForSource,
   classifyScoopUpdate,
   groupWindowsUpdateItems,
-  BREW_PATH_CANDIDATES,
+  BREW_PATH_CANDIDATES
 } from './software-updater'
 
 // ─── cleanOutput ────────────────────────────────────────────
@@ -118,7 +118,7 @@ describe('parseWingetUpgradeOutput', () => {
       '----------------------------------------------------------------------------------------',
       'Google Chrome            Google.Chrome                   120.0.1     121.0.0     winget',
       'Visual Studio Code       Microsoft.VisualStudioCode      1.85.0      1.86.0      winget',
-      '2 upgrades available.',
+      '2 upgrades available.'
     ].join('\n')
 
     const apps = parseWingetUpgradeOutput(output)
@@ -142,7 +142,7 @@ describe('parseWingetUpgradeOutput', () => {
     const output = [
       'Name    Id           Version     Available   Source',
       '------------------------------------------------------',
-      'App     Some.App     > 1.0.0     > 2.0.0     winget',
+      'App     Some.App     > 1.0.0     > 2.0.0     winget'
     ].join('\n')
 
     const apps = parseWingetUpgradeOutput(output)
@@ -155,7 +155,7 @@ describe('parseWingetUpgradeOutput', () => {
     const output = [
       'Name    Id           Version        Available      Source',
       '------------------------------------------------------------',
-      'App     Some.App     < 2.0.0        3.0.0          winget',
+      'App     Some.App     < 2.0.0        3.0.0          winget'
     ].join('\n')
 
     const apps = parseWingetUpgradeOutput(output)
@@ -168,7 +168,7 @@ describe('parseWingetUpgradeOutput', () => {
     const output = [
       'Name              Id                          Version          Available        Source',
       '-----------------------------------------------------------------------------------------',
-      'Driver Booster 13 IObit.DriverBooster         < 13.2.0.184     13.2.0.184       winget',
+      'Driver Booster 13 IObit.DriverBooster         < 13.2.0.184     13.2.0.184       winget'
     ].join('\n')
 
     const apps = parseWingetUpgradeOutput(output)
@@ -179,7 +179,7 @@ describe('parseWingetUpgradeOutput', () => {
     const output = [
       'Name                Id                     Version     Available   Source',
       '--------------------------------------------------------------------------',
-      'HandBrake 1.11.0    fr.handbrake.ghb       1.11.0      1.11.1      winget',
+      'HandBrake 1.11.0    fr.handbrake.ghb       1.11.0      1.11.1      winget'
     ].join('\n')
 
     const apps = parseWingetUpgradeOutput(output)
@@ -198,7 +198,7 @@ describe('parseWingetListOutput', () => {
       'Name              Id                    Version    Available  Source',
       '---------------------------------------------------------------------',
       'Google Chrome     Google.Chrome         121.0.0               winget',
-      'Node.js           OpenJS.NodeJS         20.10.0               winget',
+      'Node.js           OpenJS.NodeJS         20.10.0               winget'
     ].join('\n')
 
     const apps = parseWingetListOutput(output)
@@ -211,7 +211,7 @@ describe('parseWingetListOutput', () => {
     const output = [
       'Name     Id              Version  Source',
       '------------------------------------------',
-      'Legacy   ARP\\LegacyApp   1.0.0    ',
+      'Legacy   ARP\\LegacyApp   1.0.0    '
     ].join('\n')
 
     expect(parseWingetListOutput(output)).toEqual([])
@@ -221,7 +221,7 @@ describe('parseWingetListOutput', () => {
     const output = [
       'Name     Id          Version  Source',
       '--------------------------------------',
-      'App      Some.App    Unknown  winget',
+      'App      Some.App    Unknown  winget'
     ].join('\n')
 
     expect(parseWingetListOutput(output)).toEqual([])
@@ -233,12 +233,10 @@ describe('parseWingetListOutput', () => {
 describe('parseBrewOutdatedJson', () => {
   it('parses formulae and casks', () => {
     const json = JSON.stringify({
-      formulae: [
-        { name: 'curl', installed_versions: ['7.87.0'], current_version: '7.88.0' },
-      ],
+      formulae: [{ name: 'curl', installed_versions: ['7.87.0'], current_version: '7.88.0' }],
       casks: [
-        { name: 'firefox', token: 'firefox', installed_versions: '120.0', current_version: '121.0' },
-      ],
+        { name: 'firefox', token: 'firefox', installed_versions: '120.0', current_version: '121.0' }
+      ]
     })
 
     const apps = parseBrewOutdatedJson(json)
@@ -268,11 +266,9 @@ describe('parseBrewInstalledJson', () => {
   it('parses formulae and casks', () => {
     const json = JSON.stringify({
       formulae: [
-        { name: 'curl', installed: [{ version: '7.88.0' }], versions: { stable: '7.88.0' } },
+        { name: 'curl', installed: [{ version: '7.88.0' }], versions: { stable: '7.88.0' } }
       ],
-      casks: [
-        { token: 'firefox', installed: '121.0', version: '121.0' },
-      ],
+      casks: [{ token: 'firefox', installed: '121.0', version: '121.0' }]
     })
 
     const apps = parseBrewInstalledJson(json)
@@ -285,7 +281,7 @@ describe('parseBrewInstalledJson', () => {
   it('skips entries with empty version', () => {
     const json = JSON.stringify({
       formulae: [{ name: 'empty', installed: [], versions: {} }],
-      casks: [],
+      casks: []
     })
     expect(parseBrewInstalledJson(json)).toEqual([])
   })
@@ -320,7 +316,7 @@ describe('parseAptUpgradable', () => {
     const output = [
       'Listing... Done',
       'curl/jammy-updates 7.81.0-1ubuntu1.16 amd64 [upgradable from: 7.81.0-1ubuntu1.15]',
-      'git/jammy-updates 1:2.34.1-1ubuntu1.11 amd64 [upgradable from: 1:2.34.1-1ubuntu1.10]',
+      'git/jammy-updates 1:2.34.1-1ubuntu1.11 amd64 [upgradable from: 1:2.34.1-1ubuntu1.10]'
     ].join('\n')
 
     const apps = parseAptUpgradable(output)
@@ -347,7 +343,12 @@ describe('parseDpkgInstalled', () => {
     const output = 'curl\t7.81.0-1ubuntu1.15\ngit\t1:2.34.1-1ubuntu1.10\n'
     const apps = parseDpkgInstalled(output)
     expect(apps).toHaveLength(2)
-    expect(apps[0]).toEqual({ id: 'curl', name: 'curl', version: '7.81.0-1ubuntu1.15', source: 'apt' })
+    expect(apps[0]).toEqual({
+      id: 'curl',
+      name: 'curl',
+      version: '7.81.0-1ubuntu1.15',
+      source: 'apt'
+    })
   })
 
   it('returns empty for empty input', () => {
@@ -362,7 +363,7 @@ describe('parseDnfCheckUpdate', () => {
     const output = [
       'Last metadata expiration check: 0:30:00 ago.',
       'curl.x86_64                    7.76.1-23.el9           baseos',
-      'git.x86_64                     2.43.0-1.el9            appstream',
+      'git.x86_64                     2.43.0-1.el9            appstream'
     ].join('\n')
 
     const apps = parseDnfCheckUpdate(output)
@@ -412,7 +413,7 @@ describe('parseScoopStatus', () => {
       'Name  Installed Version Latest Version Missing Dependencies Info',
       '----  ----------------- -------------- -------------------- ----',
       '7zip  23.01             24.07',
-      'git   2.44.0            2.45.0',
+      'git   2.44.0            2.45.0'
     ].join('\n')
 
     const apps = parseScoopStatus(output)
@@ -423,7 +424,7 @@ describe('parseScoopStatus', () => {
       currentVersion: '23.01',
       availableVersion: '24.07',
       source: 'scoop',
-      selected: true,
+      selected: true
     })
     expect(apps[1].id).toBe('git')
     expect(apps[1].availableVersion).toBe('2.45.0')
@@ -433,7 +434,7 @@ describe('parseScoopStatus', () => {
     const output = [
       'Name  Installed Version Latest Version Missing Dependencies Info',
       '----  ----------------- -------------- -------------------- ----',
-      'nodejs 18.0.0           20.0.0         python               Held',
+      'nodejs 18.0.0           20.0.0         python               Held'
     ].join('\n')
 
     const apps = parseScoopStatus(output)
@@ -453,7 +454,7 @@ describe('parseScoopStatus', () => {
     const output = [
       'Name  Installed Version Latest Version',
       '----  ----------------- --------------',
-      '7zip  24.07             24.07',
+      '7zip  24.07             24.07'
     ].join('\n')
     expect(parseScoopStatus(output)).toEqual([])
   })
@@ -466,8 +467,8 @@ describe('parseScoopExport', () => {
     const json = JSON.stringify({
       apps: [
         { Source: 'main', Name: '7zip', Version: '24.07' },
-        { Source: 'main', Name: 'git', Version: '2.45.0' },
-      ],
+        { Source: 'main', Name: 'git', Version: '2.45.0' }
+      ]
     })
     const apps = parseScoopExport(json)
     expect(apps).toHaveLength(2)
@@ -494,15 +495,23 @@ describe('classifyScoopUpdate', () => {
   })
 
   it('treats "is already installed" as success', () => {
-    expect(classifyScoopUpdate("'7zip' (24.07) is already installed.", false)).toEqual({ success: true })
+    expect(classifyScoopUpdate("'7zip' (24.07) is already installed.", false)).toEqual({
+      success: true
+    })
   })
 
   it('assumes success only when the exit is clean and output is ambiguous', () => {
-    expect(classifyScoopUpdate('Updating scoop...\nChecking repo...', false)).toEqual({ success: true })
+    expect(classifyScoopUpdate('Updating scoop...\nChecking repo...', false)).toEqual({
+      success: true
+    })
   })
 
   it('treats a nonzero exit with ambiguous output as failure (does not mask it)', () => {
-    const res = classifyScoopUpdate('Updating scoop...\nChecking repo...', true, 'network unreachable')
+    const res = classifyScoopUpdate(
+      'Updating scoop...\nChecking repo...',
+      true,
+      'network unreachable'
+    )
     expect(res.success).toBe(false)
     expect(res.error).toBe('network unreachable')
   })
@@ -533,7 +542,7 @@ describe('groupWindowsUpdateItems', () => {
     const groups = groupWindowsUpdateItems([
       { id: 'git', source: 'choco' },
       { id: 'git', source: 'scoop' },
-      { id: 'vscode', source: 'winget' },
+      { id: 'vscode', source: 'winget' }
     ])
     expect(groups.get('choco')).toEqual([{ id: 'git', source: 'choco' }])
     expect(groups.get('scoop')).toEqual([{ id: 'git', source: 'scoop' }])
@@ -560,7 +569,7 @@ describe('parseNpmOutdated', () => {
   it('parses npm outdated -g --json output', () => {
     const json = JSON.stringify({
       typescript: { current: '5.3.0', wanted: '5.4.0', latest: '5.5.0' },
-      eslint: { current: '8.0.0', wanted: '8.0.0', latest: '9.0.0' },
+      eslint: { current: '8.0.0', wanted: '8.0.0', latest: '9.0.0' }
     })
     const apps = parseNpmOutdated(json)
     expect(apps).toHaveLength(2)
@@ -569,7 +578,7 @@ describe('parseNpmOutdated', () => {
       currentVersion: '5.3.0',
       availableVersion: '5.5.0',
       source: 'npm',
-      severity: 'minor',
+      severity: 'minor'
     })
     expect(apps[1].severity).toBe('major')
   })
@@ -592,8 +601,8 @@ describe('parseNpmListGlobal', () => {
     const json = JSON.stringify({
       dependencies: {
         npm: { version: '10.5.0' },
-        typescript: { version: '5.5.0' },
-      },
+        typescript: { version: '5.5.0' }
+      }
     })
     const apps = parseNpmListGlobal(json)
     expect(apps).toHaveLength(2)
@@ -688,7 +697,7 @@ describe('parseChocoOutdatedOutput', () => {
   it('parses standard pipe-delimited output', () => {
     const stdout = [
       'googlechrome|125.0.6422.76|126.0.6478.57|false',
-      '7zip|24.06|24.07|false',
+      '7zip|24.06|24.07|false'
     ].join('\n')
     const apps = parseChocoOutdatedOutput(stdout)
     expect(apps).toHaveLength(2)
@@ -698,12 +707,12 @@ describe('parseChocoOutdatedOutput', () => {
       currentVersion: '125.0.6422.76',
       availableVersion: '126.0.6478.57',
       source: 'choco',
-      selected: true,
+      selected: true
     })
     expect(apps[1]).toMatchObject({
       id: '7zip',
       currentVersion: '24.06',
-      availableVersion: '24.07',
+      availableVersion: '24.07'
     })
   })
 
@@ -741,18 +750,14 @@ describe('parseChocoOutdatedOutput', () => {
 
 describe('parseChocoListOutput', () => {
   it('parses standard pipe-delimited output', () => {
-    const stdout = [
-      'googlechrome|126.0.6478.57',
-      '7zip|24.07',
-      'firefox|131.0',
-    ].join('\n')
+    const stdout = ['googlechrome|126.0.6478.57', '7zip|24.07', 'firefox|131.0'].join('\n')
     const apps = parseChocoListOutput(stdout)
     expect(apps).toHaveLength(3)
     expect(apps[0]).toMatchObject({
       id: 'googlechrome',
       name: 'googlechrome',
       version: '126.0.6478.57',
-      source: 'choco',
+      source: 'choco'
     })
   })
 

@@ -8,9 +8,7 @@
 
 // ─── Sysctl config editing ─────────────────────────────────
 
-const SYSCTL_HEADER = [
-  '# Kudu system hardening — managed automatically',
-]
+const SYSCTL_HEADER = ['# Kudu system hardening — managed automatically']
 
 /**
  * Update sysctl config file contents by setting `param` to `value`.
@@ -24,7 +22,7 @@ export function updateSysctlConfig(
   param: string,
   value: string,
   separator: string,
-  headerExtra: string,
+  headerExtra: string
 ): string {
   const lines = existing.split('\n')
   // Strip trailing blank lines to prevent accumulation
@@ -74,11 +72,7 @@ export function removeSysctlConfigParam(existing: string, param: string): string
  * - Preserves lines that already match the exact canonical value (idempotent)
  * - Appends the canonical line if no matching uncommented line exists
  */
-export function updateSshdConfig(
-  content: string,
-  directive: string,
-  value: string,
-): string {
+export function updateSshdConfig(content: string, directive: string, value: string): string {
   const canonicalLine = `${directive} ${value}`
   const pattern = new RegExp(`^(\\s*#?\\s*${directive}\\s.*)$`, 'gm')
 

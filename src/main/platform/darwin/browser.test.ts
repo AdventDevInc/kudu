@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const execFileMock = vi.fn()
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 vi.mock('util', () => ({
-  promisify: (fn: any) => fn,
+  promisify: (fn: any) => fn
 }))
 
 const { createDarwinBrowser } = await import('./browser')

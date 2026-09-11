@@ -10,11 +10,17 @@ import { lookup } from 'dns/promises'
 import PusherImport from 'pusher-js'
 // pusher-js v8.5+ exports the constructor as a named export (`module.exports.Pusher`),
 // while older versions exported it as default. Pick whichever the installed version provides.
-const Pusher = ((PusherImport as unknown as { Pusher?: typeof PusherImport }).Pusher
-  ?? PusherImport) as typeof PusherImport
+const Pusher = ((PusherImport as unknown as { Pusher?: typeof PusherImport }).Pusher ??
+  PusherImport) as typeof PusherImport
 type Pusher = PusherImport
 import { getSettings, setSettings, getMachineId } from './settings-store'
-import { scanAppRule, scanDirectory, scanMultipleDirectories, resolveChildSubdirs, cleanItems } from './file-utils'
+import {
+  scanAppRule,
+  scanDirectory,
+  scanMultipleDirectories,
+  resolveChildSubdirs,
+  cleanItems
+} from './file-utils'
 import { cacheItems, clearCachedCategory } from './scan-cache'
 import { BROWSER_CACHE_RECENCY, chromiumBrowsers, chromiumCacheTargets } from './chromium-cache'
 import { queryRecycleBinStats } from './recycle-bin-stats'
@@ -27,7 +33,10 @@ import { scanPrivacy } from '../ipc/privacy-shield.ipc'
 import { scanServices } from '../ipc/service-manager.ipc'
 import { scanDriverUpdates, installDriverUpdates, cleanDrivers } from '../ipc/driver-manager.ipc'
 import { scanNetwork } from '../ipc/network-cleanup.ipc'
-import { listStartupItems as listStartupItemsWin32, toggleStartupItem as toggleStartupItemWin32 } from '../ipc/startup-manager.ipc'
+import {
+  listStartupItems as listStartupItemsWin32,
+  toggleStartupItem as toggleStartupItemWin32
+} from '../ipc/startup-manager.ipc'
 import { applyPrivacySettings } from '../ipc/privacy-shield.ipc'
 import { scanBloatware, removeBloatware } from '../ipc/debloater.ipc'
 import { applyServiceChanges } from '../ipc/service-manager.ipc'
@@ -43,7 +52,7 @@ import type {
   TelemetrySnapshot,
   ThreatSnapshot,
   HealthReport,
-  AllowedScanType,
+  AllowedScanType
 } from './cloud-agent-types'
 import type { ScanResult, CloudActionEntry, StartupSafetyResult } from '../../shared/types'
 import { addCloudHistoryEntry } from './cloud-history-store'
@@ -89,7 +98,9 @@ class CloudHttpError extends Error {
       const parsed = JSON.parse(bodyText) as { error?: unknown; message?: unknown }
       if (typeof parsed?.error === 'string') return parsed.error
       if (typeof parsed?.message === 'string') return parsed.message
-    } catch { /* body wasn't JSON */ }
+    } catch {
+      /* body wasn't JSON */
+    }
     return null
   }
 }
@@ -107,7 +118,7 @@ const LONG_RUNNING_COMMANDS = new Set([
   'windows-update-install',
   'driver-update-install',
   'run-sfc',
-  'run-dism',
+  'run-dism'
 ])
 const HEALTH_REPORT_INTERVAL_MS = 30 * 60 * 1000 // 30 minutes
 
@@ -138,13 +149,19 @@ async function assertPublicResolution(urlStr: string): Promise<void> {
   try {
     const { address } = await lookup(host)
     if (
-      address === '127.0.0.1' || address === '::1' || address === '0.0.0.0' ||
-      address.startsWith('10.') || address.startsWith('192.168.') ||
+      address === '127.0.0.1' ||
+      address === '::1' ||
+      address === '0.0.0.0' ||
+      address.startsWith('10.') ||
+      address.startsWith('192.168.') ||
       address.startsWith('169.254.') ||
       /^172\.(1[6-9]|2\d|3[01])\./.test(address) ||
-      address.startsWith('fc') || address.startsWith('fd') ||
-      address.startsWith('fe8') || address.startsWith('fe9') ||
-      address.startsWith('fea') || address.startsWith('feb')
+      address.startsWith('fc') ||
+      address.startsWith('fd') ||
+      address.startsWith('fe8') ||
+      address.startsWith('fe9') ||
+      address.startsWith('fea') ||
+      address.startsWith('feb')
     ) {
       throw new Error(`DNS rebinding blocked: ${host} resolved to private address ${address}`)
     }
@@ -158,8 +175,14 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
     promise.then(
-      (v) => { clearTimeout(timer); resolve(v) },
-      (e) => { clearTimeout(timer); reject(e) },
+      (v) => {
+        clearTimeout(timer)
+        resolve(v)
+      },
+      (e) => {
+        clearTimeout(timer)
+        reject(e)
+      }
     )
   })
 }
@@ -177,7 +200,9 @@ function sanitizeOsRelease(release: string | undefined, platform = process.platf
       const content = readFileSync('/etc/os-release', 'utf8')
       const match = content.match(/^VERSION_ID="?([^"\n]+)/m)
       if (match) return match[1]
-    } catch { /* file missing — e.g. minimal container */ }
+    } catch {
+      /* file missing — e.g. minimal container */
+    }
   }
   return release ?? ''
 }
@@ -223,27 +248,33 @@ class CloudAgentService {
     const bl = loadBlacklist()
     return {
       status: this.status,
-      maskedApiKey: key ? (key.length > 8 ? `${key.slice(0, 4)}...${key.slice(-4)}` : '****') : null,
+      maskedApiKey: key
+        ? key.length > 8
+          ? `${key.slice(0, 4)}...${key.slice(-4)}`
+          : '****'
+        : null,
       deviceId: this.deviceId || getMachineId() || null,
       linkedAt: this.linkedAt,
       lastTelemetryAt: this.lastTelemetryAt,
       lastHealthReportAt: this.lastHealthReportAt,
       lastCommandAt: this.lastCommandAt,
       error: this.error,
-      threatBlacklist: bl ? {
-        version: bl.version,
-        updatedAt: bl.updatedAt,
-        domains: bl.domains.length,
-        ips: bl.ips.length,
-        cidrs: bl.cidrs.length,
-      } : null,
+      threatBlacklist: bl
+        ? {
+            version: bl.version,
+            updatedAt: bl.updatedAt,
+            domains: bl.domains.length,
+            ips: bl.ips.length,
+            cidrs: bl.cidrs.length
+          }
+        : null
     }
   }
 
   async getVulnerabilities(
     page?: number,
     severity?: string,
-    search?: string,
+    search?: string
   ): Promise<import('../../shared/types').CvePageResult> {
     if (this.status !== 'connected') throw new Error('Cloud agent not connected')
     const params = new URLSearchParams()
@@ -259,10 +290,13 @@ class CloudAgentService {
     const validSeverities = new Set(['critical', 'high', 'medium', 'low', 'none'])
     const rawItems = Array.isArray(raw.data) ? raw.data : []
     const vulnerabilities = rawItems
-      .filter((item: unknown): item is Record<string, unknown> =>
-        item !== null && typeof item === 'object' && !Array.isArray(item) &&
-        typeof (item as Record<string, unknown>).cve_id === 'string' &&
-        typeof (item as Record<string, unknown>).app_name === 'string'
+      .filter(
+        (item: unknown): item is Record<string, unknown> =>
+          item !== null &&
+          typeof item === 'object' &&
+          !Array.isArray(item) &&
+          typeof (item as Record<string, unknown>).cve_id === 'string' &&
+          typeof (item as Record<string, unknown>).app_name === 'string'
       )
       .map((item) => {
         const cvss = item.cvss_score != null ? parseFloat(String(item.cvss_score)) : NaN
@@ -270,13 +304,16 @@ class CloudAgentService {
           id: typeof item.id === 'number' ? item.id : 0,
           cveId: String(item.cve_id),
           appName: String(item.app_name),
-          installedVersion: typeof item.installed_version === 'string' ? item.installed_version : '',
-          severity: (typeof item.severity === 'string' && validSeverities.has(item.severity) ? item.severity : 'none') as import('../../shared/types').CveSeverity,
+          installedVersion:
+            typeof item.installed_version === 'string' ? item.installed_version : '',
+          severity: (typeof item.severity === 'string' && validSeverities.has(item.severity)
+            ? item.severity
+            : 'none') as import('../../shared/types').CveSeverity,
           cvssScore: !isNaN(cvss) ? cvss : null,
           fixedIn: typeof item.fixed_in === 'string' ? item.fixed_in : null,
           description: typeof item.description === 'string' ? item.description : null,
           firstDetectedAt: typeof item.first_detected_at === 'string' ? item.first_detected_at : '',
-          lastScannedAt: typeof item.last_scanned_at === 'string' ? item.last_scanned_at : '',
+          lastScannedAt: typeof item.last_scanned_at === 'string' ? item.last_scanned_at : ''
         }
       })
 
@@ -296,7 +333,7 @@ class CloudAgentService {
       summary,
       total: clean.length,
       nextPageUrl: typeof raw.next_page_url === 'string' ? raw.next_page_url : null,
-      librarySize: typeof raw.library_size === 'number' ? raw.library_size : 0,
+      librarySize: typeof raw.library_size === 'number' ? raw.library_size : 0
     }
   }
 
@@ -309,7 +346,9 @@ class CloudAgentService {
     return this.parseBreachMonitorResponse(raw)
   }
 
-  async addBreachMonitorEmails(emails: string[]): Promise<import('../../shared/types').BreachMonitorResult> {
+  async addBreachMonitorEmails(
+    emails: string[]
+  ): Promise<import('../../shared/types').BreachMonitorResult> {
     if (this.status !== 'connected') throw new Error('Cloud agent not connected')
     const path = `/devices/${encodeURIComponent(this.deviceId)}/breach-monitor`
     const raw = (await this.postApi(path, { emails })) as Record<string, unknown>
@@ -322,29 +361,39 @@ class CloudAgentService {
     await this.deleteApi(path)
   }
 
-  async acknowledgeBreaches(breachIds: string[]): Promise<import('../../shared/types').BreachAcknowledgeResult> {
+  async acknowledgeBreaches(
+    breachIds: string[]
+  ): Promise<import('../../shared/types').BreachAcknowledgeResult> {
     if (this.status !== 'connected') throw new Error('Cloud agent not connected')
     const path = `/devices/${encodeURIComponent(this.deviceId)}/breach-monitor/acknowledge`
     const raw = (await this.patchApi(path, { breach_ids: breachIds })) as Record<string, unknown>
     return {
       status: typeof raw.status === 'string' ? raw.status : 'ok',
-      acknowledged: typeof raw.acknowledged === 'number' ? raw.acknowledged : 0,
+      acknowledged: typeof raw.acknowledged === 'number' ? raw.acknowledged : 0
     }
   }
 
-  private parseBreachMonitorResponse(raw: Record<string, unknown>): import('../../shared/types').BreachMonitorResult {
+  private parseBreachMonitorResponse(
+    raw: Record<string, unknown>
+  ): import('../../shared/types').BreachMonitorResult {
     const rawEmails = Array.isArray(raw.emails) ? raw.emails : []
     const emails = rawEmails
-      .filter((item: unknown): item is Record<string, unknown> =>
-        item !== null && typeof item === 'object' && !Array.isArray(item) &&
-        typeof (item as Record<string, unknown>).email === 'string'
+      .filter(
+        (item: unknown): item is Record<string, unknown> =>
+          item !== null &&
+          typeof item === 'object' &&
+          !Array.isArray(item) &&
+          typeof (item as Record<string, unknown>).email === 'string'
       )
       .map((item) => {
         const rawBreaches = Array.isArray(item.breaches) ? item.breaches : []
         const breaches = rawBreaches
-          .filter((b: unknown): b is Record<string, unknown> =>
-            b !== null && typeof b === 'object' && !Array.isArray(b) &&
-            typeof (b as Record<string, unknown>).name === 'string'
+          .filter(
+            (b: unknown): b is Record<string, unknown> =>
+              b !== null &&
+              typeof b === 'object' &&
+              !Array.isArray(b) &&
+              typeof (b as Record<string, unknown>).name === 'string'
           )
           .map((b) => ({
             name: String(b.name),
@@ -357,22 +406,23 @@ class CloudAgentService {
             pwnCount: typeof b.pwn_count === 'number' ? b.pwn_count : 0,
             isVerified: typeof b.is_verified === 'boolean' ? b.is_verified : false,
             isSensitive: typeof b.is_sensitive === 'boolean' ? b.is_sensitive : false,
-            acknowledgedAt: typeof b.acknowledged_at === 'string' ? b.acknowledged_at : null,
+            acknowledgedAt: typeof b.acknowledged_at === 'string' ? b.acknowledged_at : null
           }))
 
         return {
           email: String(item.email),
           lastCheckedAt: typeof item.last_checked_at === 'string' ? item.last_checked_at : null,
           fresh: typeof item.fresh === 'boolean' ? item.fresh : false,
-          monitoringPaused: typeof item.monitoring_paused === 'boolean' ? item.monitoring_paused : false,
-          breaches,
+          monitoringPaused:
+            typeof item.monitoring_paused === 'boolean' ? item.monitoring_paused : false,
+          breaches
         }
       })
 
     return {
       emails,
       limit: typeof raw.limit === 'number' ? raw.limit : 0,
-      usage: typeof raw.usage === 'number' ? raw.usage : emails.length,
+      usage: typeof raw.usage === 'number' ? raw.usage : emails.length
     }
   }
 
@@ -408,7 +458,7 @@ class CloudAgentService {
         appVersion: app.getVersion(),
         hostname: hostname(),
         os: osInfo.distro,
-        isServer: await getPlatform().security.isServer(),
+        isServer: await getPlatform().security.isServer()
       })
 
       setSettings({ cloud: { ...settings.cloud, apiKey } })
@@ -427,9 +477,8 @@ class CloudAgentService {
       cloudLog('ERROR', `Link failed: ${msg}`)
       // Prefer a clean, user-facing message for terminal failures
       // (no subscription, bad key) over the raw "HTTP 402: ..." string.
-      const friendly = err instanceof CloudHttpError && err.isTerminal
-        ? this.formatTerminalError(err)
-        : msg
+      const friendly =
+        err instanceof CloudHttpError && err.isTerminal ? this.formatTerminalError(err) : msg
       this.error = friendly.slice(0, 200)
       this.status = 'error'
       return { success: false, error: friendly }
@@ -453,11 +502,26 @@ class CloudAgentService {
     this.clearReconnectTimer()
     this.reconnectAttempts = 0
     this.lastErrorReason = null
-    if (this.channel) { this.channel.unbind_all(); this.channel = null }
-    if (this.pusher) { this.pusher.disconnect(); this.pusher = null }
-    if (this.telemetryTimer) { clearInterval(this.telemetryTimer); this.telemetryTimer = null }
-    if (this.healthReportTimer) { clearInterval(this.healthReportTimer); this.healthReportTimer = null }
-    if (this.healthReportInitTimer) { clearTimeout(this.healthReportInitTimer); this.healthReportInitTimer = null }
+    if (this.channel) {
+      this.channel.unbind_all()
+      this.channel = null
+    }
+    if (this.pusher) {
+      this.pusher.disconnect()
+      this.pusher = null
+    }
+    if (this.telemetryTimer) {
+      clearInterval(this.telemetryTimer)
+      this.telemetryTimer = null
+    }
+    if (this.healthReportTimer) {
+      clearInterval(this.healthReportTimer)
+      this.healthReportTimer = null
+    }
+    if (this.healthReportInitTimer) {
+      clearTimeout(this.healthReportInitTimer)
+      this.healthReportInitTimer = null
+    }
     this.stopThreatMonitor()
     await this.start()
   }
@@ -488,7 +552,7 @@ class CloudAgentService {
         appVersion: app.getVersion(),
         hostname: hostname(),
         os: osInfo.distro,
-        isServer: await getPlatform().security.isServer(),
+        isServer: await getPlatform().security.isServer()
       })
       this.connect()
       this.reconnectAttempts = 0
@@ -622,9 +686,9 @@ class CloudAgentService {
           transport: 'ajax',
           headers: {
             Authorization: `Bearer ${this.apiKey}`,
-            'X-Device-Id': this.deviceId,
-          },
-        },
+            'X-Device-Id': this.deviceId
+          }
+        }
       })
 
       this.pusher.connection.bind('connected', () => {
@@ -637,14 +701,19 @@ class CloudAgentService {
       })
 
       this.pusher.connection.bind('error', (err: unknown) => {
-        const msg = err instanceof Error ? err.message : typeof err === 'object' && err !== null && 'error' in err
-          ? String((err as { error: { data?: { message?: string } } }).error?.data?.message || 'Connection error')
-          : 'Connection error'
+        const msg =
+          err instanceof Error
+            ? err.message
+            : typeof err === 'object' && err !== null && 'error' in err
+              ? String(
+                  (err as { error: { data?: { message?: string } } }).error?.data?.message ||
+                    'Connection error'
+                )
+              : 'Connection error'
         cloudLog('ERROR', `Reverb error: ${msg}`)
         // Surface the error so the UI can show it — onDisconnected will handle reconnect
         this.error = msg.slice(0, 200)
       })
-
     } catch (err) {
       this.error = err instanceof Error ? err.message : 'Pusher creation failed'
       this.status = 'disconnected'
@@ -683,12 +752,14 @@ class CloudAgentService {
     })
 
     this.channel.bind('pusher:subscription_error', (err: unknown) => {
-      const statusCode = typeof err === 'object' && err !== null && 'status' in err
-        ? (err as Record<string, unknown>).status
-        : null
-      const msg = typeof err === 'object' && err !== null && 'error' in err
-        ? String((err as Record<string, unknown>).error)
-        : 'Channel subscription failed'
+      const statusCode =
+        typeof err === 'object' && err !== null && 'status' in err
+          ? (err as Record<string, unknown>).status
+          : null
+      const msg =
+        typeof err === 'object' && err !== null && 'error' in err
+          ? String((err as Record<string, unknown>).error)
+          : 'Channel subscription failed'
       this.error = msg.slice(0, 200)
       cloudLog('ERROR', `Channel auth failed (status ${statusCode}): ${this.error}`)
 
@@ -775,7 +846,7 @@ class CloudAgentService {
     try {
       res = await fetch(`${this.serverUrl}/api/connect`, {
         headers: { Authorization: `Bearer ${this.apiKey}` },
-        signal: controller.signal,
+        signal: controller.signal
       })
     } finally {
       clearTimeout(timeout)
@@ -785,13 +856,19 @@ class CloudAgentService {
       cloudLog('ERROR', `Discovery failed: HTTP ${res.status}`, text.slice(0, 300))
       throw new CloudHttpError(res.status, text)
     }
-    const data = await res.json() as ConnectConfig
+    const data = (await res.json()) as ConnectConfig
     if (!data?.ws?.host || !data?.ws?.key || !data?.api || !data?.broadcasting) {
       cloudLog('ERROR', 'Discovery response missing required fields', data)
       throw new Error('Invalid discovery response')
     }
     this.connectConfig = data
-    cloudLog('INFO', 'Discovery complete', { wsHost: data.ws.host, wsPort: data.ws.port, tls: data.ws.tls, api: data.api, broadcasting: data.broadcasting })
+    cloudLog('INFO', 'Discovery complete', {
+      wsHost: data.ws.host,
+      wsPort: data.ws.port,
+      tls: data.ws.tls,
+      api: data.api,
+      broadcasting: data.broadcasting
+    })
   }
 
   private async postApi(path: string, body: unknown): Promise<unknown> {
@@ -807,10 +884,10 @@ class CloudAgentService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`
         },
         body: JSON.stringify(body),
-        signal: controller.signal,
+        signal: controller.signal
       })
     } finally {
       clearTimeout(timeout)
@@ -843,9 +920,9 @@ class CloudAgentService {
         method: 'GET',
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`
         },
-        signal: controller.signal,
+        signal: controller.signal
       })
     } finally {
       clearTimeout(timeout)
@@ -880,9 +957,9 @@ class CloudAgentService {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`
         },
-        signal: controller.signal,
+        signal: controller.signal
       })
     } finally {
       clearTimeout(timeout)
@@ -915,10 +992,10 @@ class CloudAgentService {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`
         },
         body: JSON.stringify(body),
-        signal: controller.signal,
+        signal: controller.signal
       })
     } finally {
       clearTimeout(timeout)
@@ -945,17 +1022,28 @@ class CloudAgentService {
    */
   private needsPayloadFetch(cmd: CloudCommand): boolean {
     switch (cmd.type) {
-      case 'clean':              return !cmd.itemIds
-      case 'software-update-run': return !cmd.appIds
-      case 'driver-update-install': return !cmd.updateIds
-      case 'driver-clean':       return !cmd.publishedNames
-      case 'privacy-apply':      return !cmd.settingIds
-      case 'debloater-remove':   return !cmd.packageNames
-      case 'service-apply':      return !cmd.changes
-      case 'malware-quarantine': return !cmd.paths
-      case 'malware-delete':     return !cmd.paths
-      case 'registry-fix':       return !cmd.entryIds
-      default:                   return false
+      case 'clean':
+        return !cmd.itemIds
+      case 'software-update-run':
+        return !cmd.appIds
+      case 'driver-update-install':
+        return !cmd.updateIds
+      case 'driver-clean':
+        return !cmd.publishedNames
+      case 'privacy-apply':
+        return !cmd.settingIds
+      case 'debloater-remove':
+        return !cmd.packageNames
+      case 'service-apply':
+        return !cmd.changes
+      case 'malware-quarantine':
+        return !cmd.paths
+      case 'malware-delete':
+        return !cmd.paths
+      case 'registry-fix':
+        return !cmd.entryIds
+      default:
+        return false
     }
   }
 
@@ -968,9 +1056,9 @@ class CloudAgentService {
     }
 
     cloudLog('DEBUG', `Fetching full payload for ${cmd.type} requestId=${cmd.requestId}`)
-    const raw = await this.getApi(
-      `/devices/${encodeURIComponent(this.deviceId)}/commands/${encodeURIComponent(cmd.requestId)}`,
-    ) as Record<string, unknown>
+    const raw = (await this.getApi(
+      `/devices/${encodeURIComponent(this.deviceId)}/commands/${encodeURIComponent(cmd.requestId)}`
+    )) as Record<string, unknown>
 
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
       throw new Error('Server returned invalid command payload')
@@ -981,7 +1069,7 @@ class CloudAgentService {
     // Unwrap `data` envelope if the API returns { data: { ... } }
     const full: Record<string, unknown> =
       'data' in raw && raw.data && typeof raw.data === 'object' && !Array.isArray(raw.data)
-        ? raw.data as Record<string, unknown>
+        ? (raw.data as Record<string, unknown>)
         : raw
 
     // Merge fetched data into the command, but never allow the server
@@ -1009,23 +1097,28 @@ class CloudAgentService {
     await this.postApi(`/devices/${this.deviceId}/telemetry`, {
       timestamp: Date.now(),
       snapshot,
-      ...(disabled.length > 0 ? { disabledCapabilities: disabled } : {}),
+      ...(disabled.length > 0 ? { disabledCapabilities: disabled } : {})
     })
   }
 
   private async postHealthReport(report: HealthReport): Promise<void> {
     await this.postApi(`/devices/${this.deviceId}/health-report`, {
       timestamp: Date.now(),
-      report,
+      report
     })
   }
 
-  private async postCommandResult(requestId: string, success: boolean, data?: unknown, error?: string): Promise<void> {
+  private async postCommandResult(
+    requestId: string,
+    success: boolean,
+    data?: unknown,
+    error?: string
+  ): Promise<void> {
     await this.postApi(`/devices/${this.deviceId}/command-result`, {
       requestId,
       success,
       data,
-      error,
+      error
     })
   }
 
@@ -1038,7 +1131,8 @@ class CloudAgentService {
     const cmd = raw as CloudCommand
 
     if (!('type' in cmd) || !CloudAgentService.ALLOWED_COMMAND_TYPES.has(cmd.type)) return
-    if (!('requestId' in cmd) || typeof cmd.requestId !== 'string' || cmd.requestId.length > 200) return
+    if (!('requestId' in cmd) || typeof cmd.requestId !== 'string' || cmd.requestId.length > 200)
+      return
 
     // Deduplicate — Pusher reconnects can re-deliver the same event.
     // Uses a time-based TTL (10 minutes) so entries expire naturally and
@@ -1102,26 +1196,47 @@ class CloudAgentService {
       if (this.status !== 'connected') return
       const elapsed = Date.now() - this.lastTelemetrySuccessAt
       if (elapsed > WATCHDOG_STALE_MS) {
-        cloudLog('ERROR', `Watchdog: no successful telemetry for ${Math.round(elapsed / 1000)}s — forcing reconnect`)
+        cloudLog(
+          'ERROR',
+          `Watchdog: no successful telemetry for ${Math.round(elapsed / 1000)}s — forcing reconnect`
+        )
         this.forceReconnect()
       }
     }, WATCHDOG_INTERVAL)
   }
 
   private stopWatchdog(): void {
-    if (this.watchdogTimer) { clearInterval(this.watchdogTimer); this.watchdogTimer = null }
+    if (this.watchdogTimer) {
+      clearInterval(this.watchdogTimer)
+      this.watchdogTimer = null
+    }
   }
 
   private forceReconnect(): void {
     // Stop everything and reconnect from scratch
     this.stopWatchdog()
-    if (this.telemetryTimer) { clearInterval(this.telemetryTimer); this.telemetryTimer = null }
-    if (this.healthReportTimer) { clearInterval(this.healthReportTimer); this.healthReportTimer = null }
-    if (this.healthReportInitTimer) { clearTimeout(this.healthReportInitTimer); this.healthReportInitTimer = null }
+    if (this.telemetryTimer) {
+      clearInterval(this.telemetryTimer)
+      this.telemetryTimer = null
+    }
+    if (this.healthReportTimer) {
+      clearInterval(this.healthReportTimer)
+      this.healthReportTimer = null
+    }
+    if (this.healthReportInitTimer) {
+      clearTimeout(this.healthReportInitTimer)
+      this.healthReportInitTimer = null
+    }
     this.stopThreatMonitor()
 
-    if (this.channel) { this.channel.unbind_all(); this.channel = null }
-    if (this.pusher) { this.pusher.disconnect(); this.pusher = null }
+    if (this.channel) {
+      this.channel.unbind_all()
+      this.channel = null
+    }
+    if (this.pusher) {
+      this.pusher.disconnect()
+      this.pusher = null
+    }
 
     this.status = 'disconnected'
     this.error = 'Telemetry stalled — reconnecting'
@@ -1145,12 +1260,7 @@ class CloudAgentService {
       // run every 5th tick and use cached values in between
       const refreshSlow = this.telemetryTick % 5 === 1 || !this.cachedNetStats
 
-      const fastCalls = Promise.all([
-        si.currentLoad(),
-        si.mem(),
-        si.disksIO(),
-        si.time(),
-      ])
+      const fastCalls = Promise.all([si.currentLoad(), si.mem(), si.disksIO(), si.time()])
       const slowCalls = refreshSlow
         ? Promise.all([si.networkStats(), si.fsSize()])
         : Promise.resolve(null)
@@ -1158,7 +1268,7 @@ class CloudAgentService {
       const [fastResults, slowResults] = await withTimeout(
         Promise.all([fastCalls, slowCalls]),
         30_000,
-        'Telemetry si gather',
+        'Telemetry si gather'
       )
 
       const [load, mem, diskIO, time] = fastResults
@@ -1184,8 +1294,8 @@ class CloudAgentService {
           size: d.size,
           used: d.used,
           available: d.available,
-          mount: d.mount,
-        })),
+          mount: d.mount
+        }))
       }
 
       // Include disk health every 30th tick (~30 minutes at default interval)
@@ -1195,7 +1305,7 @@ class CloudAgentService {
           snapshot.diskHealth = disks.map((d) => ({
             device: d.name,
             healthStatus: d.smartStatus || 'Unknown',
-            temperature: d.temperature ?? null,
+            temperature: d.temperature ?? null
           }))
         } catch {
           // Disk health is optional
@@ -1208,12 +1318,12 @@ class CloudAgentService {
           const data = await si.processes()
           // Sort by CPU + memory, take top 20 — only send name and resource usage, no PIDs/users/paths
           const sorted = data.list
-            .sort((a, b) => (b.cpu + b.memRss) - (a.cpu + a.memRss))
+            .sort((a, b) => b.cpu + b.memRss - (a.cpu + a.memRss))
             .slice(0, 20)
           snapshot.topProcesses = sorted.map((p) => ({
             name: p.name,
             cpuPercent: Math.round(p.cpu * 100) / 100,
-            memPercent: mem.total > 0 ? Math.round((p.memRss / mem.total) * 10000) / 100 : 0,
+            memPercent: mem.total > 0 ? Math.round((p.memRss / mem.total) * 10000) / 100 : 0
           }))
         } catch {
           // Process list is optional
@@ -1230,7 +1340,10 @@ class CloudAgentService {
       threatMonitor.clearAccumulated()
       this.lastTelemetryAt = new Date().toISOString()
       this.lastTelemetrySuccessAt = Date.now()
-      cloudLog('DEBUG', `Telemetry sent (tick ${this.telemetryTick}, cpu=${snapshot.cpu.toFixed(1)}%, mem=${snapshot.memoryPercent.toFixed(1)}%)`)
+      cloudLog(
+        'DEBUG',
+        `Telemetry sent (tick ${this.telemetryTick}, cpu=${snapshot.cpu.toFixed(1)}%, mem=${snapshot.memoryPercent.toFixed(1)}%)`
+      )
     } catch (err) {
       cloudLog('ERROR', `Telemetry failed: ${err}`)
     }
@@ -1242,15 +1355,21 @@ class CloudAgentService {
     if (this.healthReportTimer) return
 
     // Clear any stale init timer from a previous connection cycle
-    if (this.healthReportInitTimer) { clearTimeout(this.healthReportInitTimer); this.healthReportInitTimer = null }
+    if (this.healthReportInitTimer) {
+      clearTimeout(this.healthReportInitTimer)
+      this.healthReportInitTimer = null
+    }
 
     // First health report after 2 minutes (let app settle)
-    this.healthReportInitTimer = setTimeout(() => {
-      this.healthReportInitTimer = null
-      if (this.status === 'connected') {
-        this.collectAndSendHealthReport()
-      }
-    }, 2 * 60 * 1000)
+    this.healthReportInitTimer = setTimeout(
+      () => {
+        this.healthReportInitTimer = null
+        if (this.status === 'connected') {
+          this.collectAndSendHealthReport()
+        }
+      },
+      2 * 60 * 1000
+    )
 
     this.healthReportTimer = setInterval(() => {
       if (this.status === 'connected') {
@@ -1274,27 +1393,55 @@ class CloudAgentService {
         privacy: { score: 0, total: 0, protected: 0, byCategory: {} },
         securityPosture: {
           antivirus: { products: [], primary: null },
-          firewall: { enabled: false, products: [], windowsProfiles: { domain: false, private: false, public: false } },
+          firewall: {
+            enabled: false,
+            products: [],
+            windowsProfiles: { domain: false, private: false, public: false }
+          },
           bitlocker: { volumes: [] },
           windowsUpdate: { recentPatches: [], lastPatchDate: null, daysSinceLastPatch: null },
-          screenLock: { screenSaverEnabled: false, lockOnResume: false, timeoutSec: null, inactivityLockSec: null },
-          passwordPolicy: { minLength: 0, maxAgeDays: 0, minAgeDays: 0, historyCount: 0, complexityRequired: false, lockoutThreshold: 0, lockoutDurationMin: 0, lockoutObservationMin: 0, windowsHello: { enrolled: false, faceEnabled: false, fingerprintEnabled: false, pinEnabled: false } },
+          screenLock: {
+            screenSaverEnabled: false,
+            lockOnResume: false,
+            timeoutSec: null,
+            inactivityLockSec: null
+          },
+          passwordPolicy: {
+            minLength: 0,
+            maxAgeDays: 0,
+            minAgeDays: 0,
+            historyCount: 0,
+            complexityRequired: false,
+            lockoutThreshold: 0,
+            lockoutDurationMin: 0,
+            lockoutObservationMin: 0,
+            windowsHello: {
+              enrolled: false,
+              faceEnabled: false,
+              fingerprintEnabled: false,
+              pinEnabled: false
+            }
+          },
           sshHardening: null,
           fail2ban: null,
           listeningPorts: null,
           auditd: null,
           suidSgidBinaries: null,
-          firewallStatus: null,
-        },
+          firewallStatus: null
+        }
       }
 
       const SCAN_TIMEOUT = 60_000
 
-      const [r0, r1, r2] = await withTimeout(Promise.allSettled([
-        this.collectServiceHealth(),
-        this.collectPrivacyHealth(),
-        this.collectSecurityPosture(),
-      ]), SCAN_TIMEOUT, 'Health report')
+      const [r0, r1, r2] = await withTimeout(
+        Promise.allSettled([
+          this.collectServiceHealth(),
+          this.collectPrivacyHealth(),
+          this.collectSecurityPosture()
+        ]),
+        SCAN_TIMEOUT,
+        'Health report'
+      )
       if (r0.status === 'fulfilled') report.services = r0.value
       if (r1.status === 'fulfilled') report.privacy = r1.value
       if (r2.status === 'fulfilled') report.securityPosture = r2.value
@@ -1324,7 +1471,7 @@ class CloudAgentService {
       totalRunning: result.runningCount,
       totalDisabled: result.disabledCount,
       safeToDisable: result.safeToDisableCount,
-      byCategory,
+      byCategory
     }
   }
 
@@ -1342,7 +1489,7 @@ class CloudAgentService {
       score: result.score,
       total: result.total,
       protected: result.protected,
-      byCategory,
+      byCategory
     }
   }
 
@@ -1362,30 +1509,65 @@ class CloudAgentService {
       security.collectListeningPorts(),
       security.collectAuditd(),
       security.collectSuidSgidBinaries(),
-      security.collectLinuxFirewallStatus(),
+      security.collectLinuxFirewallStatus()
     ])
 
     return {
       antivirus: av.status === 'fulfilled' ? av.value : { products: [], primary: null },
-      firewall: fw.status === 'fulfilled' ? fw.value : { enabled: false, products: [], windowsProfiles: { domain: false, private: false, public: false } },
+      firewall:
+        fw.status === 'fulfilled'
+          ? fw.value
+          : {
+              enabled: false,
+              products: [],
+              windowsProfiles: { domain: false, private: false, public: false }
+            },
       bitlocker: bl.status === 'fulfilled' ? bl.value : { volumes: [] },
-      windowsUpdate: wu.status === 'fulfilled' ? wu.value : { recentPatches: [], lastPatchDate: null, daysSinceLastPatch: null },
-      screenLock: sl.status === 'fulfilled' ? sl.value : { screenSaverEnabled: false, lockOnResume: false, timeoutSec: null, inactivityLockSec: null },
-      passwordPolicy: pp.status === 'fulfilled' ? pp.value : { minLength: 0, maxAgeDays: 0, minAgeDays: 0, historyCount: 0, complexityRequired: false, lockoutThreshold: 0, lockoutDurationMin: 0, lockoutObservationMin: 0, windowsHello: { enrolled: false, faceEnabled: false, fingerprintEnabled: false, pinEnabled: false } },
+      windowsUpdate:
+        wu.status === 'fulfilled'
+          ? wu.value
+          : { recentPatches: [], lastPatchDate: null, daysSinceLastPatch: null },
+      screenLock:
+        sl.status === 'fulfilled'
+          ? sl.value
+          : {
+              screenSaverEnabled: false,
+              lockOnResume: false,
+              timeoutSec: null,
+              inactivityLockSec: null
+            },
+      passwordPolicy:
+        pp.status === 'fulfilled'
+          ? pp.value
+          : {
+              minLength: 0,
+              maxAgeDays: 0,
+              minAgeDays: 0,
+              historyCount: 0,
+              complexityRequired: false,
+              lockoutThreshold: 0,
+              lockoutDurationMin: 0,
+              lockoutObservationMin: 0,
+              windowsHello: {
+                enrolled: false,
+                faceEnabled: false,
+                fingerprintEnabled: false,
+                pinEnabled: false
+              }
+            },
       sshHardening: ssh.status === 'fulfilled' ? ssh.value : null,
       fail2ban: f2b.status === 'fulfilled' ? f2b.value : null,
       listeningPorts: ports.status === 'fulfilled' ? ports.value : null,
       auditd: audit.status === 'fulfilled' ? audit.value : null,
       suidSgidBinaries: suid.status === 'fulfilled' ? suid.value : null,
-      firewallStatus: lfw.status === 'fulfilled' ? lfw.value : null,
+      firewallStatus: lfw.status === 'fulfilled' ? lfw.value : null
     }
   }
-
 
   // ─── Threat Monitor ─────────────────────────────────
 
   private static readonly THREAT_ALERT_COOLDOWN_MS = 60_000 // min 60s between alert POSTs
-  private static readonly THREAT_ALERT_MAX_PER_HOUR = 30    // hard cap per hour
+  private static readonly THREAT_ALERT_MAX_PER_HOUR = 30 // hard cap per hour
   private threatAlertLastSentAt = 0
   private threatAlertPending: ThreatSnapshot | null = null
   private threatAlertCooldownTimer: ReturnType<typeof setTimeout> | null = null
@@ -1412,12 +1594,13 @@ class CloudAgentService {
         const connCount = snapshot.flaggedConnections.length
         const dnsCount = snapshot.flaggedDns.length
         const parts: string[] = []
-        if (connCount > 0) parts.push(`${connCount} suspicious connection${connCount > 1 ? 's' : ''}`)
+        if (connCount > 0)
+          parts.push(`${connCount} suspicious connection${connCount > 1 ? 's' : ''}`)
         if (dnsCount > 0) parts.push(`${dnsCount} suspicious DNS entr${dnsCount > 1 ? 'ies' : 'y'}`)
         new Notification({
           title: 'Kudu - Threat Detected',
           body: `Detected ${parts.join(' and ')}.`,
-          silent: false,
+          silent: false
         }).show()
       }
 
@@ -1450,13 +1633,13 @@ class CloudAgentService {
       const url = `${this.connectConfig.api}/devices/${this.deviceId}/threat-blacklist-url`
       cloudLog('DEBUG', `Fetching initial blacklist URL from ${url}`)
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
+        headers: { Authorization: `Bearer ${this.apiKey}` }
       })
       if (!res.ok) {
         cloudLog('DEBUG', `No blacklist URL available (HTTP ${res.status})`)
         return
       }
-      const data = await res.json() as { url?: string }
+      const data = (await res.json()) as { url?: string }
       if (!data?.url || typeof data.url !== 'string') {
         cloudLog('DEBUG', 'No blacklist URL in response')
         return
@@ -1470,7 +1653,10 @@ class CloudAgentService {
         if (win && !win.isDestroyed()) {
           win.webContents.send(IPC.THREAT_MONITOR_UPDATED, null)
         }
-        cloudLog('INFO', `Initial blacklist loaded (${result.stats!.domains} domains, ${result.stats!.ips} IPs, ${result.stats!.cidrs} CIDRs)`)
+        cloudLog(
+          'INFO',
+          `Initial blacklist loaded (${result.stats!.domains} domains, ${result.stats!.ips} IPs, ${result.stats!.cidrs} CIDRs)`
+        )
       } else {
         cloudLog('ERROR', `Initial blacklist download failed: ${result.error}`)
       }
@@ -1485,7 +1671,9 @@ class CloudAgentService {
   private queueThreatAlert(snapshot: ThreatSnapshot): void {
     // Merge new items into any pending batch
     if (this.threatAlertPending) {
-      if (this.threatAlertPending.flaggedConnections.length < CloudAgentService.THREAT_PENDING_MAX) {
+      if (
+        this.threatAlertPending.flaggedConnections.length < CloudAgentService.THREAT_PENDING_MAX
+      ) {
         this.threatAlertPending.flaggedConnections.push(...snapshot.flaggedConnections)
       }
       if (this.threatAlertPending.flaggedDns.length < CloudAgentService.THREAT_PENDING_MAX) {
@@ -1498,7 +1686,7 @@ class CloudAgentService {
       this.threatAlertPending = {
         ...snapshot,
         flaggedConnections: [...snapshot.flaggedConnections],
-        flaggedDns: [...snapshot.flaggedDns],
+        flaggedDns: [...snapshot.flaggedDns]
       }
     }
 
@@ -1530,7 +1718,10 @@ class CloudAgentService {
       this.threatAlertHourlyResetAt = now + 3_600_000
     }
     if (this.threatAlertHourlyCount >= CloudAgentService.THREAT_ALERT_MAX_PER_HOUR) {
-      cloudLog('DEBUG', `Threat alert suppressed (hourly cap ${CloudAgentService.THREAT_ALERT_MAX_PER_HOUR} reached)`)
+      cloudLog(
+        'DEBUG',
+        `Threat alert suppressed (hourly cap ${CloudAgentService.THREAT_ALERT_MAX_PER_HOUR} reached)`
+      )
       return
     }
 
@@ -1545,16 +1736,22 @@ class CloudAgentService {
   private stopThreatMonitor(): void {
     threatMonitor.setThreatCallback(null)
     threatMonitor.stop()
-    if (this.threatAlertCooldownTimer) { clearTimeout(this.threatAlertCooldownTimer); this.threatAlertCooldownTimer = null }
+    if (this.threatAlertCooldownTimer) {
+      clearTimeout(this.threatAlertCooldownTimer)
+      this.threatAlertCooldownTimer = null
+    }
     this.threatAlertPending = null
   }
 
   private async postThreatAlert(snapshot: ThreatSnapshot): Promise<void> {
     await this.postApi(`/devices/${this.deviceId}/threat-alert`, {
       timestamp: Date.now(),
-      snapshot,
+      snapshot
     })
-    cloudLog('INFO', `Threat alert sent (${snapshot.flaggedConnections.length} connections, ${snapshot.flaggedDns.length} DNS)`)
+    cloudLog(
+      'INFO',
+      `Threat alert sent (${snapshot.flaggedConnections.length} connections, ${snapshot.flaggedDns.length} DNS)`
+    )
   }
 
   // ─── Command Execution ────────────────────────────────
@@ -1565,7 +1762,8 @@ class CloudAgentService {
     switch (type) {
       case 'shutdown':
       case 'restart':
-        if (s.allowRemotePower === false) return 'Disabled by user: remote power control is turned off'
+        if (s.allowRemotePower === false)
+          return 'Disabled by user: remote power control is turned off'
         break
       case 'clean':
       case 'malware-quarantine':
@@ -1580,39 +1778,77 @@ class CloudAgentService {
       case 'driver-update-install':
       case 'run-sfc':
       case 'run-dism':
-        if (s.allowRemoteInstalls === false) return 'Disabled by user: remote installs are turned off'
+        if (s.allowRemoteInstalls === false)
+          return 'Disabled by user: remote installs are turned off'
         break
       case 'startup-toggle':
       case 'privacy-apply':
       case 'service-apply':
-        if (s.allowRemoteConfig === false) return 'Disabled by user: remote config changes are turned off'
+        if (s.allowRemoteConfig === false)
+          return 'Disabled by user: remote config changes are turned off'
         break
     }
     return null
   }
 
   private static readonly ALLOWED_COMMAND_TYPES: ReadonlySet<string> = new Set([
-    'scan', 'clean', 'software-update-check', 'software-update-run',
-    'get-status', 'get-system-info', 'get-health-report',
-    'shutdown', 'restart', 'windows-update-check', 'windows-update-install',
-    'run-sfc', 'run-dism', 'get-network-config', 'get-event-log', 'get-installed-apps',
-    'driver-update-scan', 'driver-update-install', 'driver-clean',
-    'startup-list', 'startup-toggle', 'disk-health',
-    'privacy-scan', 'privacy-apply', 'debloater-scan', 'debloater-remove',
-    'service-scan', 'service-apply',
-    'malware-quarantine', 'malware-delete', 'registry-scan', 'registry-fix',
-    'update-threat-blacklist', 'update-yara-rules', 'get-threat-status',
-    'cve-scan',
+    'scan',
+    'clean',
+    'software-update-check',
+    'software-update-run',
+    'get-status',
+    'get-system-info',
+    'get-health-report',
+    'shutdown',
+    'restart',
+    'windows-update-check',
+    'windows-update-install',
+    'run-sfc',
+    'run-dism',
+    'get-network-config',
+    'get-event-log',
+    'get-installed-apps',
+    'driver-update-scan',
+    'driver-update-install',
+    'driver-clean',
+    'startup-list',
+    'startup-toggle',
+    'disk-health',
+    'privacy-scan',
+    'privacy-apply',
+    'debloater-scan',
+    'debloater-remove',
+    'service-scan',
+    'service-apply',
+    'malware-quarantine',
+    'malware-delete',
+    'registry-scan',
+    'registry-fix',
+    'update-threat-blacklist',
+    'update-yara-rules',
+    'get-threat-status',
+    'cve-scan'
   ])
 
   /** Commands that only read data and can safely run in parallel */
   private static readonly PARALLEL_SAFE: ReadonlySet<string> = new Set([
-    'scan', 'get-status', 'get-system-info', 'get-health-report',
-    'get-network-config', 'get-event-log', 'get-installed-apps',
-    'software-update-check', 'windows-update-check',
-    'driver-update-scan', 'startup-list', 'disk-health',
-    'privacy-scan', 'debloater-scan', 'service-scan', 'registry-scan',
-    'get-threat-status',
+    'scan',
+    'get-status',
+    'get-system-info',
+    'get-health-report',
+    'get-network-config',
+    'get-event-log',
+    'get-installed-apps',
+    'software-update-check',
+    'windows-update-check',
+    'driver-update-scan',
+    'startup-list',
+    'disk-health',
+    'privacy-scan',
+    'debloater-scan',
+    'service-scan',
+    'registry-scan',
+    'get-threat-status'
   ])
 
   private async executeCommand(cmd: CloudCommand): Promise<void> {
@@ -1621,7 +1857,12 @@ class CloudAgentService {
     // Mutating commands need exclusive access
     if (!isParallelSafe && this.commandRunning) {
       if ('requestId' in cmd) {
-        this.postCommandResult(cmd.requestId, false, undefined, 'A mutating command is already running').catch(() => {})
+        this.postCommandResult(
+          cmd.requestId,
+          false,
+          undefined,
+          'A mutating command is already running'
+        ).catch(() => {})
       }
       return
     }
@@ -1629,7 +1870,12 @@ class CloudAgentService {
     // Block mutating commands while any parallel commands are still running
     if (!isParallelSafe && this.runningCommands > 0) {
       if ('requestId' in cmd) {
-        this.postCommandResult(cmd.requestId, false, undefined, 'Commands are still running — try again shortly').catch(() => {})
+        this.postCommandResult(
+          cmd.requestId,
+          false,
+          undefined,
+          'Commands are still running — try again shortly'
+        ).catch(() => {})
       }
       return
     }
@@ -1640,7 +1886,12 @@ class CloudAgentService {
     // commands, whether hostile or just a dashboard retrying too eagerly.
     if (isParallelSafe && this.runningCommands >= MAX_PARALLEL_COMMANDS) {
       if ('requestId' in cmd) {
-        this.postCommandResult(cmd.requestId, false, undefined, 'Too many commands running — try again shortly').catch(() => {})
+        this.postCommandResult(
+          cmd.requestId,
+          false,
+          undefined,
+          'Too many commands running — try again shortly'
+        ).catch(() => {})
       }
       return
     }
@@ -1650,7 +1901,12 @@ class CloudAgentService {
       const elapsed = Date.now() - this.lastCommandFinishedAt
       if (elapsed < 500) {
         if ('requestId' in cmd) {
-          this.postCommandResult(cmd.requestId, false, undefined, 'Rate limited — try again shortly').catch(() => {})
+          this.postCommandResult(
+            cmd.requestId,
+            false,
+            undefined,
+            'Rate limited — try again shortly'
+          ).catch(() => {})
         }
         return
       }
@@ -1661,7 +1917,12 @@ class CloudAgentService {
       const lastStart = this.lastParallelStartAt.get(cmd.type) ?? 0
       if (Date.now() - lastStart < PARALLEL_COMMAND_MIN_SPACING_MS) {
         if ('requestId' in cmd) {
-          this.postCommandResult(cmd.requestId, false, undefined, 'Rate limited — try again shortly').catch(() => {})
+          this.postCommandResult(
+            cmd.requestId,
+            false,
+            undefined,
+            'Rate limited — try again shortly'
+          ).catch(() => {})
         }
         return
       }
@@ -1673,19 +1934,24 @@ class CloudAgentService {
     let timedOut = false
     const startedAt = Date.now()
 
-    const timeout = setTimeout(() => {
-      timedOut = true
-      // Release the mutating exclusive lock so a slow command can't wedge the
-      // queue, but keep holding the concurrency slot. Timing out only gives up
-      // waiting for the result — it does not stop the work, which is still
-      // consuming the device. Freeing the slot here would let a new batch in
-      // after every timeout and let real concurrency drift past the ceiling.
-      if (!isParallelSafe) this.commandRunning = false
-      if ('requestId' in cmd) {
-        this.postCommandResult(cmd.requestId, false, undefined, 'Command timed out').catch(() => {})
-      }
-      this.logCloudAction(cmd, startedAt, false, 'Command timed out')
-    }, LONG_RUNNING_COMMANDS.has(cmd.type) ? LONG_COMMAND_TIMEOUT_MS : COMMAND_TIMEOUT_MS)
+    const timeout = setTimeout(
+      () => {
+        timedOut = true
+        // Release the mutating exclusive lock so a slow command can't wedge the
+        // queue, but keep holding the concurrency slot. Timing out only gives up
+        // waiting for the result — it does not stop the work, which is still
+        // consuming the device. Freeing the slot here would let a new batch in
+        // after every timeout and let real concurrency drift past the ceiling.
+        if (!isParallelSafe) this.commandRunning = false
+        if ('requestId' in cmd) {
+          this.postCommandResult(cmd.requestId, false, undefined, 'Command timed out').catch(
+            () => {}
+          )
+        }
+        this.logCloudAction(cmd, startedAt, false, 'Command timed out')
+      },
+      LONG_RUNNING_COMMANDS.has(cmd.type) ? LONG_COMMAND_TIMEOUT_MS : COMMAND_TIMEOUT_MS
+    )
 
     try {
       // Check user permission settings for restricted command categories
@@ -1743,7 +2009,12 @@ class CloudAgentService {
         case 'run-sfc':
         case 'run-dism':
           if (process.platform === 'darwin') {
-            await this.postCommandResult(cmd.requestId, false, undefined, 'Not supported on this platform')
+            await this.postCommandResult(
+              cmd.requestId,
+              false,
+              undefined,
+              'Not supported on this platform'
+            )
             break
           }
           if (cmd.type === 'run-sfc') await this.handleRunSfc(cmd.requestId)
@@ -1766,18 +2037,31 @@ class CloudAgentService {
         case 'driver-update-install':
         case 'driver-clean':
           if (process.platform !== 'win32') {
-            await this.postCommandResult(cmd.requestId, false, undefined, 'Not supported on this platform')
+            await this.postCommandResult(
+              cmd.requestId,
+              false,
+              undefined,
+              'Not supported on this platform'
+            )
             break
           }
           if (cmd.type === 'driver-update-scan') await this.handleDriverUpdateScan(cmd.requestId)
-          else if (cmd.type === 'driver-update-install') await this.handleDriverUpdateInstall(cmd.requestId, cmd.updateIds!)
+          else if (cmd.type === 'driver-update-install')
+            await this.handleDriverUpdateInstall(cmd.requestId, cmd.updateIds!)
           else await this.handleDriverClean(cmd.requestId, cmd.publishedNames!)
           break
         case 'startup-list':
           await this.handleStartupList(cmd.requestId)
           break
         case 'startup-toggle':
-          await this.handleStartupToggle(cmd.requestId, cmd.name, cmd.location, cmd.command, cmd.source, cmd.enabled)
+          await this.handleStartupToggle(
+            cmd.requestId,
+            cmd.name,
+            cmd.location,
+            cmd.command,
+            cmd.source,
+            cmd.enabled
+          )
           break
         case 'disk-health':
           await this.handleDiskHealth(cmd.requestId)
@@ -1791,7 +2075,12 @@ class CloudAgentService {
         case 'debloater-scan':
         case 'debloater-remove':
           if (process.platform !== 'win32') {
-            await this.postCommandResult(cmd.requestId, false, undefined, 'Not supported on this platform')
+            await this.postCommandResult(
+              cmd.requestId,
+              false,
+              undefined,
+              'Not supported on this platform'
+            )
             break
           }
           if (cmd.type === 'debloater-scan') await this.handleDebloaterScan(cmd.requestId)
@@ -1812,7 +2101,12 @@ class CloudAgentService {
         case 'registry-scan':
         case 'registry-fix':
           if (process.platform !== 'win32') {
-            await this.postCommandResult(cmd.requestId, false, undefined, 'Not supported on this platform')
+            await this.postCommandResult(
+              cmd.requestId,
+              false,
+              undefined,
+              'Not supported on this platform'
+            )
             break
           }
           if (cmd.type === 'registry-scan') await this.handleRegistryScan(cmd.requestId)
@@ -1855,7 +2149,12 @@ class CloudAgentService {
     }
   }
 
-  private logCloudAction(cmd: CloudCommand, startedAt: number, success: boolean, error?: string): void {
+  private logCloudAction(
+    cmd: CloudCommand,
+    startedAt: number,
+    success: boolean,
+    error?: string
+  ): void {
     try {
       const entry: CloudActionEntry = {
         id: `cloud-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -1865,7 +2164,7 @@ class CloudAgentService {
         duration: Date.now() - startedAt,
         success,
         error,
-        summary: this.getCommandSummary(cmd),
+        summary: this.getCommandSummary(cmd)
       }
       addCloudHistoryEntry(entry)
     } catch {
@@ -1875,44 +2174,82 @@ class CloudAgentService {
 
   private getCommandSummary(cmd: CloudCommand): string {
     switch (cmd.type) {
-      case 'scan': return `Scan: ${cmd.scanType}`
-      case 'clean': return `Clean: ${cmd.itemIds?.length ?? 0} items`
-      case 'software-update-check': return 'Check software updates'
-      case 'software-update-run': return `Update ${cmd.appIds?.length ?? 0} apps`
-      case 'get-status': return 'Get device status'
-      case 'get-system-info': return 'Get system info'
-      case 'get-health-report': return 'Generate health report'
-      case 'ping': return 'Ping'
-      case 'shutdown': return `Shutdown${cmd.delaySec ? ` (${cmd.delaySec}s delay)` : ''}`
-      case 'restart': return `Restart${cmd.delaySec ? ` (${cmd.delaySec}s delay)` : ''}`
-      case 'windows-update-check': return 'Check Windows updates'
-      case 'windows-update-install': return 'Install Windows updates'
-      case 'run-sfc': return process.platform === 'linux' ? 'Clean package cache' : 'Run System File Checker'
-      case 'run-dism': return process.platform === 'linux' ? 'Remove orphaned packages' : 'Run DISM repair'
-      case 'get-network-config': return 'Get network config'
-      case 'get-event-log': return `Get event log: ${cmd.logName ?? 'System'}`
-      case 'get-installed-apps': return 'Get installed apps'
-      case 'driver-update-scan': return 'Scan driver updates'
-      case 'driver-update-install': return `Install ${cmd.updateIds?.length ?? 0} driver updates`
-      case 'driver-clean': return `Clean ${cmd.publishedNames?.length ?? 0} drivers`
-      case 'startup-list': return 'List startup items'
-      case 'startup-toggle': return `Toggle startup: ${cmd.name}`
-      case 'disk-health': return 'Check disk health'
-      case 'privacy-scan': return 'Privacy scan'
-      case 'privacy-apply': return `Apply ${cmd.settingIds?.length ?? 0} privacy settings`
-      case 'debloater-scan': return 'Debloater scan'
-      case 'debloater-remove': return `Remove ${cmd.packageNames?.length ?? 0} packages`
-      case 'service-scan': return 'Service scan'
-      case 'service-apply': return `Apply ${cmd.changes?.length ?? 0} service changes`
-      case 'malware-quarantine': return `Quarantine ${cmd.paths?.length ?? 0} threats`
-      case 'malware-delete': return `Delete ${cmd.paths?.length ?? 0} threats`
-      case 'registry-scan': return 'Registry scan'
-      case 'registry-fix': return `Fix ${cmd.entryIds?.length ?? 0} registry entries`
-      case 'update-threat-blacklist': return 'Update threat blacklist'
-      case 'update-yara-rules': return 'Update YARA rules'
-      case 'get-threat-status': return 'Get threat status'
-      case 'cve-scan': return 'CVE vulnerability scan'
-      default: return (cmd as CloudCommand).type
+      case 'scan':
+        return `Scan: ${cmd.scanType}`
+      case 'clean':
+        return `Clean: ${cmd.itemIds?.length ?? 0} items`
+      case 'software-update-check':
+        return 'Check software updates'
+      case 'software-update-run':
+        return `Update ${cmd.appIds?.length ?? 0} apps`
+      case 'get-status':
+        return 'Get device status'
+      case 'get-system-info':
+        return 'Get system info'
+      case 'get-health-report':
+        return 'Generate health report'
+      case 'ping':
+        return 'Ping'
+      case 'shutdown':
+        return `Shutdown${cmd.delaySec ? ` (${cmd.delaySec}s delay)` : ''}`
+      case 'restart':
+        return `Restart${cmd.delaySec ? ` (${cmd.delaySec}s delay)` : ''}`
+      case 'windows-update-check':
+        return 'Check Windows updates'
+      case 'windows-update-install':
+        return 'Install Windows updates'
+      case 'run-sfc':
+        return process.platform === 'linux' ? 'Clean package cache' : 'Run System File Checker'
+      case 'run-dism':
+        return process.platform === 'linux' ? 'Remove orphaned packages' : 'Run DISM repair'
+      case 'get-network-config':
+        return 'Get network config'
+      case 'get-event-log':
+        return `Get event log: ${cmd.logName ?? 'System'}`
+      case 'get-installed-apps':
+        return 'Get installed apps'
+      case 'driver-update-scan':
+        return 'Scan driver updates'
+      case 'driver-update-install':
+        return `Install ${cmd.updateIds?.length ?? 0} driver updates`
+      case 'driver-clean':
+        return `Clean ${cmd.publishedNames?.length ?? 0} drivers`
+      case 'startup-list':
+        return 'List startup items'
+      case 'startup-toggle':
+        return `Toggle startup: ${cmd.name}`
+      case 'disk-health':
+        return 'Check disk health'
+      case 'privacy-scan':
+        return 'Privacy scan'
+      case 'privacy-apply':
+        return `Apply ${cmd.settingIds?.length ?? 0} privacy settings`
+      case 'debloater-scan':
+        return 'Debloater scan'
+      case 'debloater-remove':
+        return `Remove ${cmd.packageNames?.length ?? 0} packages`
+      case 'service-scan':
+        return 'Service scan'
+      case 'service-apply':
+        return `Apply ${cmd.changes?.length ?? 0} service changes`
+      case 'malware-quarantine':
+        return `Quarantine ${cmd.paths?.length ?? 0} threats`
+      case 'malware-delete':
+        return `Delete ${cmd.paths?.length ?? 0} threats`
+      case 'registry-scan':
+        return 'Registry scan'
+      case 'registry-fix':
+        return `Fix ${cmd.entryIds?.length ?? 0} registry entries`
+      case 'update-threat-blacklist':
+        return 'Update threat blacklist'
+      case 'update-yara-rules':
+        return 'Update YARA rules'
+      case 'get-threat-status':
+        return 'Get threat status'
+      case 'cve-scan':
+        return 'CVE vulnerability scan'
+      default:
+        return (cmd as CloudCommand).type
     }
   }
 
@@ -1920,9 +2257,16 @@ class CloudAgentService {
 
   private async handleScan(requestId: string, scanType: AllowedScanType): Promise<void> {
     const validScanTypes = new Set<string>([
-      'system', 'browser', 'app', 'gaming', 'registry',
-      'malware', 'network', 'recycle-bin', 'uninstall-leftovers',
-      'database',
+      'system',
+      'browser',
+      'app',
+      'gaming',
+      'registry',
+      'malware',
+      'network',
+      'recycle-bin',
+      'uninstall-leftovers',
+      'database'
     ])
     if (typeof scanType !== 'string' || !validScanTypes.has(scanType)) {
       await this.postCommandResult(requestId, false, undefined, 'Invalid scan type')
@@ -1942,12 +2286,22 @@ class CloudAgentService {
               continue // Native maintenance requires an explicit local selection.
             } else if (t.childSubdir) {
               const childPaths = await resolveChildSubdirs([t.path], t.childSubdir)
-              r = await scanMultipleDirectories(childPaths, CleanerType.System, t.subcategory, recency)
+              r = await scanMultipleDirectories(
+                childPaths,
+                CleanerType.System,
+                t.subcategory,
+                recency
+              )
             } else {
               r = await scanDirectory(t.path, CleanerType.System, t.subcategory, recency)
             }
-            if (r.items.length > 0) { cacheItems(r.items); results.push(r) }
-          } catch { /* skip */ }
+            if (r.items.length > 0) {
+              cacheItems(r.items)
+              results.push(r)
+            }
+          } catch {
+            /* skip */
+          }
         }
         // Strip local file paths — only send IDs, sizes, and categories to cloud
         await this.postCommandResult(requestId, true, {
@@ -1957,10 +2311,15 @@ class CloudAgentService {
             subcategory: r.subcategory,
             totalSize: r.totalSize,
             itemCount: r.itemCount,
-            items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
+            items: r.items.map((i) => ({
+              id: i.id,
+              size: i.size,
+              category: i.category,
+              subcategory: i.subcategory
+            }))
           })),
           totalSize: results.reduce((s, r) => s + r.totalSize, 0),
-          totalItems: results.reduce((s, r) => s + r.itemCount, 0),
+          totalItems: results.reduce((s, r) => s + r.itemCount, 0)
         })
         return
       }
@@ -1976,8 +2335,13 @@ class CloudAgentService {
           for (const target of await chromiumCacheTargets(browser)) {
             try {
               const r = await scanDirectory(target.path, browserCategory, target.label, recency)
-              if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
-            } catch { /* skip */ }
+              if (r.items.length > 0) {
+                cacheItems(r.items)
+                browserResults.push(r)
+              }
+            } catch {
+              /* skip */
+            }
           }
         }
 
@@ -1989,19 +2353,29 @@ class CloudAgentService {
               if (dir.isDirectory()) {
                 const cachePath = join(browserPaths.firefox.cache, dir.name, 'cache2', 'entries')
                 if (existsSync(cachePath)) {
-                  const r = await scanDirectory(cachePath, browserCategory, `Firefox - ${dir.name} Cache`, recency)
-                  if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
+                  const r = await scanDirectory(
+                    cachePath,
+                    browserCategory,
+                    `Firefox - ${dir.name} Cache`,
+                    recency
+                  )
+                  if (r.items.length > 0) {
+                    cacheItems(r.items)
+                    browserResults.push(r)
+                  }
                 }
               }
             }
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
 
         // Firefox forks — Zen is excluded here because it's already covered by the app scanner (zen-browser in apps.json)
         const firefoxForks = [
           { label: 'LibreWolf', ...browserPaths.librewolf },
           { label: 'Waterfox', ...browserPaths.waterfox },
-          { label: 'Floorp', ...browserPaths.floorp },
+          { label: 'Floorp', ...browserPaths.floorp }
         ]
         for (const fork of firefoxForks) {
           if (!fork.cache || !existsSync(fork.cache)) continue
@@ -2011,20 +2385,40 @@ class CloudAgentService {
               if (dir.isDirectory()) {
                 const cachePath = join(fork.cache, dir.name, 'cache2')
                 if (existsSync(cachePath)) {
-                  const r = await scanDirectory(cachePath, browserCategory, `${fork.label} - ${dir.name} Cache`, recency)
-                  if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
+                  const r = await scanDirectory(
+                    cachePath,
+                    browserCategory,
+                    `${fork.label} - ${dir.name} Cache`,
+                    recency
+                  )
+                  if (r.items.length > 0) {
+                    cacheItems(r.items)
+                    browserResults.push(r)
+                  }
                 }
               }
             }
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
 
         // Safari (macOS only) — cache directory only, never cookies/history/bookmarks
         if (browserPaths.safari && existsSync(browserPaths.safari.cache)) {
           try {
-            const r = await scanDirectory(browserPaths.safari.cache, browserCategory, 'Safari - Cache', recency)
-            if (r.items.length > 0) { cacheItems(r.items); browserResults.push(r) }
-          } catch { /* skip */ }
+            const r = await scanDirectory(
+              browserPaths.safari.cache,
+              browserCategory,
+              'Safari - Cache',
+              recency
+            )
+            if (r.items.length > 0) {
+              cacheItems(r.items)
+              browserResults.push(r)
+            }
+          } catch {
+            /* skip */
+          }
         }
 
         await this.postCommandResult(requestId, true, {
@@ -2034,10 +2428,15 @@ class CloudAgentService {
             subcategory: r.subcategory,
             totalSize: r.totalSize,
             itemCount: r.itemCount,
-            items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
+            items: r.items.map((i) => ({
+              id: i.id,
+              size: i.size,
+              category: i.category,
+              subcategory: i.subcategory
+            }))
           })),
           totalSize: browserResults.reduce((s, r) => s + r.totalSize, 0),
-          totalItems: browserResults.reduce((s, r) => s + r.itemCount, 0),
+          totalItems: browserResults.reduce((s, r) => s + r.itemCount, 0)
         })
         return
       }
@@ -2050,8 +2449,13 @@ class CloudAgentService {
           if (appDef.cleanupAction || appDef.cacheReset) continue
           try {
             const r = await scanAppRule(appDef, appCategory)
-            if (r.items.length > 0) { cacheItems(r.items); appResults.push(r) }
-          } catch { /* skip */ }
+            if (r.items.length > 0) {
+              cacheItems(r.items)
+              appResults.push(r)
+            }
+          } catch {
+            /* skip */
+          }
         }
         await this.postCommandResult(requestId, true, {
           scanType,
@@ -2060,10 +2464,15 @@ class CloudAgentService {
             subcategory: r.subcategory,
             totalSize: r.totalSize,
             itemCount: r.itemCount,
-            items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
+            items: r.items.map((i) => ({
+              id: i.id,
+              size: i.size,
+              category: i.category,
+              subcategory: i.subcategory
+            }))
           })),
           totalSize: appResults.reduce((s, r) => s + r.totalSize, 0),
-          totalItems: appResults.reduce((s, r) => s + r.itemCount, 0),
+          totalItems: appResults.reduce((s, r) => s + r.itemCount, 0)
         })
         return
       }
@@ -2076,17 +2485,33 @@ class CloudAgentService {
         for (const launcher of getPlatform().paths.gamingPaths()) {
           if (launcher.cacheReset) continue
           try {
-            const r = await scanAppRule(launcher, gamingCategory, { directoryItems: true, group: 'Launcher Caches' })
-            if (r.items.length > 0) { cacheItems(r.items); gamingResults.push(r) }
-          } catch { /* skip */ }
+            const r = await scanAppRule(launcher, gamingCategory, {
+              directoryItems: true,
+              group: 'Launcher Caches'
+            })
+            if (r.items.length > 0) {
+              cacheItems(r.items)
+              gamingResults.push(r)
+            }
+          } catch {
+            /* skip */
+          }
         }
 
         for (const gpu of getPlatform().paths.gpuCachePaths()) {
           if (gpu.cacheReset) continue
           try {
-            const r = await scanAppRule(gpu, gamingCategory, { directoryItems: true, group: 'GPU Shader Caches' })
-            if (r.items.length > 0) { cacheItems(r.items); gamingResults.push(r) }
-          } catch { /* skip */ }
+            const r = await scanAppRule(gpu, gamingCategory, {
+              directoryItems: true,
+              group: 'GPU Shader Caches'
+            })
+            if (r.items.length > 0) {
+              cacheItems(r.items)
+              gamingResults.push(r)
+            }
+          } catch {
+            /* skip */
+          }
         }
 
         await this.postCommandResult(requestId, true, {
@@ -2097,10 +2522,15 @@ class CloudAgentService {
             group: r.group,
             totalSize: r.totalSize,
             itemCount: r.itemCount,
-            items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
+            items: r.items.map((i) => ({
+              id: i.id,
+              size: i.size,
+              category: i.category,
+              subcategory: i.subcategory
+            }))
           })),
           totalSize: gamingResults.reduce((s, r) => s + r.totalSize, 0),
-          totalItems: gamingResults.reduce((s, r) => s + r.itemCount, 0),
+          totalItems: gamingResults.reduce((s, r) => s + r.itemCount, 0)
         })
         return
       }
@@ -2111,7 +2541,12 @@ class CloudAgentService {
         if (trashPath) {
           // macOS / Linux
           if (!existsSync(trashPath)) {
-            await this.postCommandResult(requestId, true, { scanType, results: [], totalSize: 0, totalItems: 0 })
+            await this.postCommandResult(requestId, true, {
+              scanType,
+              results: [],
+              totalSize: 0,
+              totalItems: 0
+            })
             return
           }
           try {
@@ -2119,18 +2554,33 @@ class CloudAgentService {
             if (r.items.length > 0) cacheItems(r.items)
             await this.postCommandResult(requestId, true, {
               scanType,
-              results: r.items.length > 0 ? [{
-                category: r.category,
-                subcategory: r.subcategory,
-                totalSize: r.totalSize,
-                itemCount: r.itemCount,
-                items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
-              }] : [],
+              results:
+                r.items.length > 0
+                  ? [
+                      {
+                        category: r.category,
+                        subcategory: r.subcategory,
+                        totalSize: r.totalSize,
+                        itemCount: r.itemCount,
+                        items: r.items.map((i) => ({
+                          id: i.id,
+                          size: i.size,
+                          category: i.category,
+                          subcategory: i.subcategory
+                        }))
+                      }
+                    ]
+                  : [],
               totalSize: r.totalSize,
-              totalItems: r.itemCount,
+              totalItems: r.itemCount
             })
           } catch {
-            await this.postCommandResult(requestId, true, { scanType, results: [], totalSize: 0, totalItems: 0 })
+            await this.postCommandResult(requestId, true, {
+              scanType,
+              results: [],
+              totalSize: 0,
+              totalItems: 0
+            })
           }
           return
         }
@@ -2140,10 +2590,15 @@ class CloudAgentService {
           await this.postCommandResult(requestId, true, {
             scanType,
             totalSize: size,
-            totalItems: count,
+            totalItems: count
           })
         } catch {
-          await this.postCommandResult(requestId, true, { scanType, results: [], totalSize: 0, totalItems: 0 })
+          await this.postCommandResult(requestId, true, {
+            scanType,
+            results: [],
+            totalSize: 0,
+            totalItems: 0
+          })
         }
         return
       }
@@ -2158,17 +2613,27 @@ class CloudAgentService {
             subcategory: r.subcategory,
             totalSize: r.totalSize,
             itemCount: r.itemCount,
-            items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
+            items: r.items.map((i) => ({
+              id: i.id,
+              size: i.size,
+              category: i.category,
+              subcategory: i.subcategory
+            }))
           })),
           totalSize: leftoverResults.reduce((s, r) => s + r.totalSize, 0),
-          totalItems: leftoverResults.reduce((s, r) => s + r.itemCount, 0),
+          totalItems: leftoverResults.reduce((s, r) => s + r.itemCount, 0)
         })
         return
       }
 
       case 'registry': {
         if (process.platform !== 'win32') {
-          await this.postCommandResult(requestId, false, undefined, 'Not supported on this platform')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Not supported on this platform'
+          )
           return
         }
         const entries = await scanRegistry()
@@ -2176,7 +2641,7 @@ class CloudAgentService {
         await this.postCommandResult(requestId, true, {
           scanType,
           entries: entries.map((e) => ({ id: e.id, type: e.type, risk: e.risk })),
-          totalIssues: entries.length,
+          totalIssues: entries.length
         })
         return
       }
@@ -2193,15 +2658,20 @@ class CloudAgentService {
             fileName: t.fileName,
             detectionName: t.detectionName,
             severity: t.severity,
-            source: t.source,
-          })),
+            source: t.source
+          }))
         })
         return
       }
 
       case 'network': {
         if (process.platform !== 'win32') {
-          await this.postCommandResult(requestId, false, undefined, 'Not supported on this platform')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Not supported on this platform'
+          )
           return
         }
         const items = await scanNetwork()
@@ -2209,7 +2679,7 @@ class CloudAgentService {
         await this.postCommandResult(requestId, true, {
           scanType,
           items: items.map((i) => ({ id: i.id, type: i.type })),
-          totalItems: items.length,
+          totalItems: items.length
         })
         return
       }
@@ -2232,8 +2702,13 @@ class CloudAgentService {
                 for (const entry of entries) {
                   if (!entry.isDirectory()) continue
                   for (const pattern of target.profilePattern) {
-                    const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')
-                    if (new RegExp('^' + escaped + '$').test(entry.name)) { dirs.push(join(target.basePath, entry.name)); break }
+                    const escaped = pattern
+                      .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+                      .replace(/\*/g, '.*')
+                    if (new RegExp('^' + escaped + '$').test(entry.name)) {
+                      dirs.push(join(target.basePath, entry.name))
+                      break
+                    }
                   }
                 }
               } else {
@@ -2260,30 +2735,49 @@ class CloudAgentService {
                   const buf = Buffer.alloc(16)
                   readSync(fd, buf, 0, 16, 0)
                   isSqlite = buf.toString('utf8', 0, 16) === 'SQLite format 3\0'
-                } catch { /* skip */ }
-                finally { if (fd !== undefined) closeSync(fd) }
+                } catch {
+                  /* skip */
+                } finally {
+                  if (fd !== undefined) closeSync(fd)
+                }
                 if (!isSqlite) continue
 
                 const fileStat = statSync(dbPath)
                 if (fileStat.size === 0) continue
                 let walSize = 0
-                try { walSize = statSync(dbPath + '-wal').size } catch { /* no WAL */ }
+                try {
+                  walSize = statSync(dbPath + '-wal').size
+                } catch {
+                  /* no WAL */
+                }
                 const wastedBytes = walSize + Math.floor(fileStat.size * 0.1)
                 if (wastedBytes < 4096) continue
 
                 items.push({
-                  id: randomUUID(), path: dbPath, size: wastedBytes,
-                  category: dbCategory, subcategory: target.label,
-                  lastModified: fileStat.mtimeMs, selected: true,
+                  id: randomUUID(),
+                  path: dbPath,
+                  size: wastedBytes,
+                  category: dbCategory,
+                  subcategory: target.label,
+                  lastModified: fileStat.mtimeMs,
+                  selected: true
                 })
               }
             }
 
             if (items.length > 0) {
               cacheItems(items)
-              dbResults.push({ category: dbCategory, subcategory: target.label, items, totalSize: items.reduce((s, i) => s + i.size, 0), itemCount: items.length })
+              dbResults.push({
+                category: dbCategory,
+                subcategory: target.label,
+                items,
+                totalSize: items.reduce((s, i) => s + i.size, 0),
+                itemCount: items.length
+              })
             }
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
 
         await this.postCommandResult(requestId, true, {
@@ -2293,16 +2787,26 @@ class CloudAgentService {
             subcategory: r.subcategory,
             totalSize: r.totalSize,
             itemCount: r.itemCount,
-            items: r.items.map((i) => ({ id: i.id, size: i.size, category: i.category, subcategory: i.subcategory })),
+            items: r.items.map((i) => ({
+              id: i.id,
+              size: i.size,
+              category: i.category,
+              subcategory: i.subcategory
+            }))
           })),
           totalSize: dbResults.reduce((s, r) => s + r.totalSize, 0),
-          totalItems: dbResults.reduce((s, r) => s + r.itemCount, 0),
+          totalItems: dbResults.reduce((s, r) => s + r.itemCount, 0)
         })
         return
       }
 
       default:
-        await this.postCommandResult(requestId, false, undefined, 'Scan type not yet supported via cloud')
+        await this.postCommandResult(
+          requestId,
+          false,
+          undefined,
+          'Scan type not yet supported via cloud'
+        )
         return
     }
   }
@@ -2329,9 +2833,24 @@ class CloudAgentService {
 
     // Tagged 'cloud' so a remote clean overlapping a manual one can't have its
     // deletions attributed to that run's Scan History entry.
-    const fileResult = fileIds.length > 0 ? await cleanItems(fileIds, undefined, 'cloud') : { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
+    const fileResult =
+      fileIds.length > 0
+        ? await cleanItems(fileIds, undefined, 'cloud')
+        : {
+            totalCleaned: 0,
+            filesDeleted: 0,
+            filesSkipped: 0,
+            errors: [] as { path: string; reason: string }[],
+            needsElevation: false
+          }
 
-    const dbResult = { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [] as { path: string; reason: string }[], needsElevation: false }
+    const dbResult = {
+      totalCleaned: 0,
+      filesDeleted: 0,
+      filesSkipped: 0,
+      errors: [] as { path: string; reason: string }[],
+      needsElevation: false
+    }
     if (dbIds.length > 0) {
       const Database = (await import('better-sqlite3')).default
       for (const id of dbIds) {
@@ -2340,17 +2859,29 @@ class CloudAgentService {
         try {
           const sizeBefore = statSync(item.path).size
           let walSizeBefore = 0
-          try { walSizeBefore = statSync(item.path + '-wal').size } catch { /* no WAL */ }
+          try {
+            walSizeBefore = statSync(item.path + '-wal').size
+          } catch {
+            /* no WAL */
+          }
           const db = new Database(item.path, { fileMustExist: true })
           try {
-            const journalMode = (db.pragma('journal_mode', { simple: true }) as string).toLowerCase()
+            const journalMode = (
+              db.pragma('journal_mode', { simple: true }) as string
+            ).toLowerCase()
             db.exec('VACUUM')
             if (journalMode === 'wal') db.pragma('journal_mode = WAL')
-          } finally { db.close() }
+          } finally {
+            db.close()
+          }
           const sizeAfter = statSync(item.path).size
           let walSizeAfter = 0
-          try { walSizeAfter = statSync(item.path + '-wal').size } catch { /* no WAL */ }
-          const reclaimed = (sizeBefore + walSizeBefore) - (sizeAfter + walSizeAfter)
+          try {
+            walSizeAfter = statSync(item.path + '-wal').size
+          } catch {
+            /* no WAL */
+          }
+          const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
           if (reclaimed > 0) dbResult.totalCleaned += reclaimed
           dbResult.filesDeleted++
         } catch (err: unknown) {
@@ -2362,7 +2893,10 @@ class CloudAgentService {
             dbResult.errors.push({ path: item.path, reason: 'permission-denied' })
             dbResult.needsElevation = true
           } else {
-            dbResult.errors.push({ path: item.path, reason: (err as Error).message || 'unknown error' })
+            dbResult.errors.push({
+              path: item.path,
+              reason: (err as Error).message || 'unknown error'
+            })
           }
         }
       }
@@ -2374,7 +2908,7 @@ class CloudAgentService {
       filesDeleted: fileResult.filesDeleted + dbResult.filesDeleted,
       filesSkipped: fileResult.filesSkipped + dbResult.filesSkipped,
       errorCount: fileResult.errors.length + dbResult.errors.length,
-      needsElevation: fileResult.needsElevation || dbResult.needsElevation,
+      needsElevation: fileResult.needsElevation || dbResult.needsElevation
     })
   }
 
@@ -2387,14 +2921,14 @@ class CloudAgentService {
         name: a.name,
         currentVersion: a.currentVersion,
         availableVersion: a.availableVersion,
-        severity: a.severity,
+        severity: a.severity
       })),
       totalCount: result.totalCount,
       majorCount: result.majorCount,
       minorCount: result.minorCount,
       patchCount: result.patchCount,
       packageManagerAvailable: result.packageManagerAvailable,
-      packageManagerName: result.packageManagerName,
+      packageManagerName: result.packageManagerName
     })
   }
 
@@ -2433,7 +2967,7 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
-      errors: result.errors.map((e) => ({ appId: e.appId, name: e.name })),
+      errors: result.errors.map((e) => ({ appId: e.appId, name: e.name }))
     })
   }
 
@@ -2444,7 +2978,7 @@ class CloudAgentService {
       si.disksIO(),
       si.networkStats(),
       si.time(),
-      si.fsSize(),
+      si.fsSize()
     ])
 
     await this.postCommandResult(requestId, true, {
@@ -2458,8 +2992,12 @@ class CloudAgentService {
       networkTxBps: netStats.reduce((s, n) => s + n.tx_sec, 0),
       uptime: time.uptime ?? 0,
       disks: fsSize.map((d) => ({
-        fs: d.fs, size: d.size, used: d.used, available: d.available, mount: d.mount,
-      })),
+        fs: d.fs,
+        size: d.size,
+        used: d.used,
+        available: d.available,
+        mount: d.mount
+      }))
     })
   }
 
@@ -2468,14 +3006,22 @@ class CloudAgentService {
       si.cpu(),
       si.osInfo(),
       si.mem(),
-      si.diskLayout(),
+      si.diskLayout()
     ])
 
     await this.postCommandResult(requestId, true, {
-      cpu: { model: `${cpu.manufacturer} ${cpu.brand}`, cores: cpu.physicalCores, threads: cpu.cores },
-      os: { distro: osInfo.distro, release: sanitizeOsRelease(osInfo.release), hostname: osInfo.hostname },
+      cpu: {
+        model: `${cpu.manufacturer} ${cpu.brand}`,
+        cores: cpu.physicalCores,
+        threads: cpu.cores
+      },
+      os: {
+        distro: osInfo.distro,
+        release: sanitizeOsRelease(osInfo.release),
+        hostname: osInfo.hostname
+      },
       memory: { total: mem.total, available: mem.available },
-      disks: disks.map((d) => ({ name: d.name, size: d.size, type: d.type })),
+      disks: disks.map((d) => ({ name: d.name, size: d.size, type: d.type }))
     })
   }
 
@@ -2505,7 +3051,7 @@ class CloudAgentService {
     }
     await this.postCommandResult(requestId, true, {
       updates,
-      totalCount: updates.length,
+      totalCount: updates.length
     })
   }
 
@@ -2546,7 +3092,7 @@ class CloudAgentService {
     const [interfaces, defaultGw, dnsServers] = await Promise.all([
       si.networkInterfaces(),
       si.networkGatewayDefault(),
-      getPlatform().commands.getDnsServers(),
+      getPlatform().commands.getDnsServers()
     ])
 
     const ifaces = (Array.isArray(interfaces) ? interfaces : [interfaces])
@@ -2567,20 +3113,24 @@ class CloudAgentService {
           mac: i.mac,
           speed: i.speed,
           operstate,
-          dhcp: i.dhcp,
+          dhcp: i.dhcp
         }
       })
 
     await this.postCommandResult(requestId, true, {
       interfaces: ifaces,
       defaultGateway: defaultGw,
-      dns: dnsServers,
+      dns: dnsServers
     })
   }
 
   // ─── Event Log ───────────────────────────────────────
 
-  private async handleGetEventLog(requestId: string, logName?: string, maxEntries?: number): Promise<void> {
+  private async handleGetEventLog(
+    requestId: string,
+    logName?: string,
+    maxEntries?: number
+  ): Promise<void> {
     const allowedLogs = new Set(['System', 'Application', 'Security'])
     const log = allowedLogs.has(logName ?? '') ? logName! : 'System'
     const max = Math.max(1, Math.min(typeof maxEntries === 'number' ? maxEntries : 50, 200))
@@ -2589,7 +3139,7 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       logName: log,
       entries,
-      totalReturned: entries.length,
+      totalReturned: entries.length
     })
   }
 
@@ -2602,7 +3152,7 @@ class CloudAgentService {
     const apps = await getPlatform().commands.getInstalledApps()
     await this.postCommandResult(requestId, true, {
       apps,
-      totalCount: apps.length,
+      totalCount: apps.length
     })
   }
   // ─── Phase 1: Fleet Essentials ──────────────────────
@@ -2619,9 +3169,9 @@ class CloudAgentService {
         currentVersion: u.currentVersion,
         availableVersion: u.availableVersion,
         provider: u.provider,
-        downloadSize: u.downloadSize,
+        downloadSize: u.downloadSize
       })),
-      totalAvailable: result.totalAvailable,
+      totalAvailable: result.totalAvailable
     })
   }
 
@@ -2640,12 +3190,19 @@ class CloudAgentService {
       installed: result.installed,
       failed: result.failed,
       rebootRequired: result.rebootRequired,
-      errors: result.errors.map((e) => ({ deviceName: e.deviceName, reason: e.reason.slice(0, 200) })),
+      errors: result.errors.map((e) => ({
+        deviceName: e.deviceName,
+        reason: e.reason.slice(0, 200)
+      }))
     })
   }
 
   private async handleDriverClean(requestId: string, publishedNames: string[]): Promise<void> {
-    if (!Array.isArray(publishedNames) || publishedNames.length === 0 || publishedNames.length > 100) {
+    if (
+      !Array.isArray(publishedNames) ||
+      publishedNames.length === 0 ||
+      publishedNames.length > 100
+    ) {
       await this.postCommandResult(requestId, false, undefined, 'Invalid publishedNames')
       return
     }
@@ -2659,16 +3216,20 @@ class CloudAgentService {
       removed: result.removed,
       failed: result.failed,
       spaceRecovered: result.spaceRecovered,
-      errors: result.errors.map((e) => ({ publishedName: e.publishedName, reason: e.reason.slice(0, 200) })),
+      errors: result.errors.map((e) => ({
+        publishedName: e.publishedName,
+        reason: e.reason.slice(0, 200)
+      }))
     })
   }
 
   private async handleStartupList(requestId: string): Promise<void> {
     // Windows uses the rich startup-manager.ipc (registry, Task Scheduler, etc.)
     // Other platforms use the platform abstraction (XDG autostart, systemd, launchd, etc.)
-    const items = process.platform === 'win32'
-      ? await listStartupItemsWin32()
-      : await getPlatform().startup.listItems()
+    const items =
+      process.platform === 'win32'
+        ? await listStartupItemsWin32()
+        : await getPlatform().startup.listItems()
     await this.postCommandResult(requestId, true, {
       items: items.map((i) => ({
         id: i.id,
@@ -2679,17 +3240,27 @@ class CloudAgentService {
         source: i.source,
         enabled: i.enabled,
         publisher: i.publisher,
-        impact: i.impact,
+        impact: i.impact
       })),
       totalCount: items.length,
-      enabledCount: items.filter((i) => i.enabled).length,
+      enabledCount: items.filter((i) => i.enabled).length
     })
   }
 
   private async handleStartupToggle(
-    requestId: string, name: string, location: string, command: string, source: string, enabled: boolean
+    requestId: string,
+    name: string,
+    location: string,
+    command: string,
+    source: string,
+    enabled: boolean
   ): Promise<void> {
-    if (typeof name !== 'string' || typeof location !== 'string' || typeof command !== 'string' || typeof source !== 'string') {
+    if (
+      typeof name !== 'string' ||
+      typeof location !== 'string' ||
+      typeof command !== 'string' ||
+      typeof source !== 'string'
+    ) {
       await this.postCommandResult(requestId, false, undefined, 'Invalid parameters')
       return
     }
@@ -2698,9 +3269,16 @@ class CloudAgentService {
       return
     }
     const validSources = new Set([
-      'registry-hkcu', 'registry-hklm', 'startup-folder', 'task-scheduler',
-      'launch-agent-user', 'launch-agent-global', 'login-item',
-      'systemd-user', 'autostart-desktop', 'cron',
+      'registry-hkcu',
+      'registry-hklm',
+      'startup-folder',
+      'task-scheduler',
+      'launch-agent-user',
+      'launch-agent-global',
+      'login-item',
+      'systemd-user',
+      'autostart-desktop',
+      'cron'
     ])
     if (!validSources.has(source)) {
       await this.postCommandResult(requestId, false, undefined, 'Invalid source')
@@ -2712,14 +3290,25 @@ class CloudAgentService {
     // inject arbitrary autorun commands.  Disabling only deletes an existing
     // entry — safe even with untrusted parameters.
     if (enabled) {
-      await this.postCommandResult(requestId, false, undefined, 'Remote enable of startup items is not permitted — only disable is allowed via cloud')
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        'Remote enable of startup items is not permitted — only disable is allowed via cloud'
+      )
       return
     }
     cloudLog('INFO', `Startup toggle: ${name} → disabled`)
-    const success = process.platform === 'win32'
-      ? await toggleStartupItemWin32(name, location, command, source as any, enabled)
-      : await getPlatform().startup.toggleItem(name, location, command, source as any, enabled)
-    await this.postCommandResult(requestId, success, { name, enabled }, success ? undefined : 'Failed to toggle startup item')
+    const success =
+      process.platform === 'win32'
+        ? await toggleStartupItemWin32(name, location, command, source as any, enabled)
+        : await getPlatform().startup.toggleItem(name, location, command, source as any, enabled)
+    await this.postCommandResult(
+      requestId,
+      success,
+      { name, enabled },
+      success ? undefined : 'Failed to toggle startup item'
+    )
     if (success) this.syncStartupSafety().catch(() => {})
   }
 
@@ -2729,34 +3318,40 @@ class CloudAgentService {
 
   private async submitStartupPrograms(): Promise<StartupSafetyResult> {
     if (!this.startupItems) {
-      this.startupItems = process.platform === 'win32'
-        ? await listStartupItemsWin32()
-        : await getPlatform().startup.listItems()
+      this.startupItems =
+        process.platform === 'win32'
+          ? await listStartupItemsWin32()
+          : await getPlatform().startup.listItems()
     }
-    const raw = (await this.postApi(`/devices/${encodeURIComponent(this.deviceId)}/startup-programs`, {
-      items: this.startupItems.map((i) => ({
-        name: i.name,
-        displayName: i.displayName,
-        command: i.command,
-        location: i.location,
-        source: i.source,
-        enabled: i.enabled,
-        publisher: i.publisher,
-        impact: i.impact,
-      })),
-    })) as Record<string, unknown> | null
+    const raw = (await this.postApi(
+      `/devices/${encodeURIComponent(this.deviceId)}/startup-programs`,
+      {
+        items: this.startupItems.map((i) => ({
+          name: i.name,
+          displayName: i.displayName,
+          command: i.command,
+          location: i.location,
+          source: i.source,
+          enabled: i.enabled,
+          publisher: i.publisher,
+          impact: i.impact
+        }))
+      }
+    )) as Record<string, unknown> | null
     const rawItems = Array.isArray(raw?.ratings) ? raw!.ratings : []
     const ratings = rawItems
-      .filter((item: unknown): item is Record<string, unknown> =>
-        item !== null && typeof item === 'object' &&
-        typeof (item as Record<string, unknown>).name === 'string' &&
-        typeof (item as Record<string, unknown>).safety_score === 'number'
+      .filter(
+        (item: unknown): item is Record<string, unknown> =>
+          item !== null &&
+          typeof item === 'object' &&
+          typeof (item as Record<string, unknown>).name === 'string' &&
+          typeof (item as Record<string, unknown>).safety_score === 'number'
       )
       .map((item) => ({
         name: String(item.name),
         safetyScore: Math.max(1, Math.min(10, Math.round(Number(item.safety_score)))),
         description: typeof item.description === 'string' ? item.description.slice(0, 500) : '',
-        analyzedAt: typeof item.analyzed_at === 'string' ? item.analyzed_at : '',
+        analyzedAt: typeof item.analyzed_at === 'string' ? item.analyzed_at : ''
       }))
     const pending = typeof raw?.pending === 'number' ? raw.pending : 0
     return { ratings, pending }
@@ -2798,34 +3393,45 @@ class CloudAgentService {
     if (!this.cachedInstalledPrograms) {
       this.cachedInstalledPrograms = await getInstalledProgramsFull()
     }
-    const raw = (await this.postApi(`/devices/${encodeURIComponent(this.deviceId)}/installed-programs`, {
-      items: this.cachedInstalledPrograms.map((p) => ({
-        name: p.displayName,
-        displayName: p.displayName,
-        publisher: p.publisher,
-        version: p.displayVersion,
-        installDate: p.installDate,
-        estimatedSize: p.estimatedSize,
-        installLocation: p.installLocation,
-        isSystemComponent: p.isSystemComponent,
-      })),
-    })) as Record<string, unknown> | null
-    cloudLog('DEBUG', `installed-programs response: pending=${raw?.pending}, ratings=${Array.isArray(raw?.ratings) ? raw!.ratings.length : 'none'}, keys=${raw ? Object.keys(raw).join(',') : 'null'}`)
+    const raw = (await this.postApi(
+      `/devices/${encodeURIComponent(this.deviceId)}/installed-programs`,
+      {
+        items: this.cachedInstalledPrograms.map((p) => ({
+          name: p.displayName,
+          displayName: p.displayName,
+          publisher: p.publisher,
+          version: p.displayVersion,
+          installDate: p.installDate,
+          estimatedSize: p.estimatedSize,
+          installLocation: p.installLocation,
+          isSystemComponent: p.isSystemComponent
+        }))
+      }
+    )) as Record<string, unknown> | null
+    cloudLog(
+      'DEBUG',
+      `installed-programs response: pending=${raw?.pending}, ratings=${Array.isArray(raw?.ratings) ? raw!.ratings.length : 'none'}, keys=${raw ? Object.keys(raw).join(',') : 'null'}`
+    )
     const rawItems = Array.isArray(raw?.ratings) ? raw!.ratings : []
     if (rawItems.length > 0) {
-      cloudLog('DEBUG', `installed-programs first rating sample: ${JSON.stringify(rawItems[0]).slice(0, 200)}`)
+      cloudLog(
+        'DEBUG',
+        `installed-programs first rating sample: ${JSON.stringify(rawItems[0]).slice(0, 200)}`
+      )
     }
     const ratings = rawItems
-      .filter((item: unknown): item is Record<string, unknown> =>
-        item !== null && typeof item === 'object' &&
-        typeof (item as Record<string, unknown>).name === 'string' &&
-        typeof (item as Record<string, unknown>).safety_score === 'number'
+      .filter(
+        (item: unknown): item is Record<string, unknown> =>
+          item !== null &&
+          typeof item === 'object' &&
+          typeof (item as Record<string, unknown>).name === 'string' &&
+          typeof (item as Record<string, unknown>).safety_score === 'number'
       )
       .map((item) => ({
         name: String(item.name),
         safetyScore: Math.max(1, Math.min(10, Math.round(Number(item.safety_score)))),
         description: typeof item.description === 'string' ? item.description.slice(0, 500) : '',
-        analyzedAt: typeof item.analyzed_at === 'string' ? item.analyzed_at : '',
+        analyzedAt: typeof item.analyzed_at === 'string' ? item.analyzed_at : ''
       }))
     const pending = typeof raw?.pending === 'number' ? raw.pending : 0
     cloudLog('DEBUG', `installed-programs parsed: ${ratings.length} ratings, ${pending} pending`)
@@ -2876,8 +3482,8 @@ class CloudAgentService {
         temperature: d.temperature,
         powerOnHours: d.powerOnHours,
         powerCycles: null,
-        wearLevel: d.remainingLife != null ? 100 - d.remainingLife : null,
-      })),
+        wearLevel: d.remainingLife != null ? 100 - d.remainingLife : null
+      }))
     })
   }
 
@@ -2894,11 +3500,11 @@ class CloudAgentService {
         description: s.description,
         enabled: s.enabled,
         requiresAdmin: s.requiresAdmin,
-        ...(s.dependsOn ? { dependsOn: s.dependsOn } : {}),
+        ...(s.dependsOn ? { dependsOn: s.dependsOn } : {})
       })),
       score: result.score,
       total: result.total,
-      protected: result.protected,
+      protected: result.protected
     })
   }
 
@@ -2916,7 +3522,11 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
-      errors: result.errors.map((e) => ({ id: e.id, label: e.label, reason: e.reason.slice(0, 200) })),
+      errors: result.errors.map((e) => ({
+        id: e.id,
+        label: e.label,
+        reason: e.reason.slice(0, 200)
+      }))
     })
   }
 
@@ -2930,9 +3540,9 @@ class CloudAgentService {
         publisher: a.publisher,
         category: a.category,
         description: a.description,
-        size: a.size,
+        size: a.size
       })),
-      totalCount: apps.length,
+      totalCount: apps.length
     })
   }
 
@@ -2949,7 +3559,7 @@ class CloudAgentService {
     const result = await removeBloatware(packageNames)
     await this.postCommandResult(requestId, true, {
       removed: result.removed,
-      failed: result.failed,
+      failed: result.failed
     })
   }
 
@@ -2965,23 +3575,33 @@ class CloudAgentService {
         startType: s.startType,
         safety: s.safety,
         category: s.category,
-        isMicrosoft: s.isMicrosoft,
+        isMicrosoft: s.isMicrosoft
       })),
       totalCount: result.totalCount,
       runningCount: result.runningCount,
       disabledCount: result.disabledCount,
-      safeToDisableCount: result.safeToDisableCount,
+      safeToDisableCount: result.safeToDisableCount
     })
   }
 
-  private async handleServiceApply(requestId: string, changes: Array<{ name: string; targetStartType: string }>): Promise<void> {
+  private async handleServiceApply(
+    requestId: string,
+    changes: Array<{ name: string; targetStartType: string }>
+  ): Promise<void> {
     if (!Array.isArray(changes) || changes.length === 0 || changes.length > 50) {
       await this.postCommandResult(requestId, false, undefined, 'Invalid changes')
       return
     }
     const validStartTypes = new Set(['Disabled', 'Manual', 'Automatic'])
-    if (changes.some((c) => typeof c.name !== 'string' || !validStartTypes.has(c.targetStartType))) {
-      await this.postCommandResult(requestId, false, undefined, 'Invalid changes — targetStartType must be Disabled, Manual or Automatic')
+    if (
+      changes.some((c) => typeof c.name !== 'string' || !validStartTypes.has(c.targetStartType))
+    ) {
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        'Invalid changes — targetStartType must be Disabled, Manual or Automatic'
+      )
       return
     }
     // Validate service names against safe character set
@@ -2994,7 +3614,11 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
-      errors: result.errors.map((e) => ({ name: e.name, displayName: e.displayName, reason: e.reason.slice(0, 200) })),
+      errors: result.errors.map((e) => ({
+        name: e.name,
+        displayName: e.displayName,
+        reason: e.reason.slice(0, 200)
+      }))
     })
   }
 
@@ -3010,7 +3634,12 @@ class CloudAgentService {
       return
     }
     if (!paths.every((p) => isAllowedMalwarePath(p))) {
-      await this.postCommandResult(requestId, false, undefined, 'One or more paths are outside allowed directories')
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        'One or more paths are outside allowed directories'
+      )
       return
     }
     cloudLog('INFO', `Quarantining ${paths.length} files`)
@@ -3018,7 +3647,7 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
-      errors: result.errors.map((e) => ({ path: e.path, reason: e.reason.slice(0, 200) })),
+      errors: result.errors.map((e) => ({ path: e.path, reason: e.reason.slice(0, 200) }))
     })
   }
 
@@ -3032,7 +3661,12 @@ class CloudAgentService {
       return
     }
     if (!paths.every((p) => isAllowedMalwarePath(p))) {
-      await this.postCommandResult(requestId, false, undefined, 'One or more paths are outside allowed directories')
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        'One or more paths are outside allowed directories'
+      )
       return
     }
     cloudLog('INFO', `Deleting ${paths.length} malware files`)
@@ -3042,7 +3676,7 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       succeeded: result.succeeded,
       failed: result.failed,
-      errors: result.errors.map((e) => ({ path: e.path, reason: e.reason.slice(0, 200) })),
+      errors: result.errors.map((e) => ({ path: e.path, reason: e.reason.slice(0, 200) }))
     })
   }
 
@@ -3058,11 +3692,17 @@ class CloudAgentService {
         id: e.id,
         type: e.type,
         issue: e.issue,
-        risk: e.risk,
+        risk: e.risk
       })),
       totalCount: entries.length,
-      byType: entries.reduce<Record<string, number>>((acc, e) => { acc[e.type] = (acc[e.type] || 0) + 1; return acc }, {}),
-      byRisk: entries.reduce<Record<string, number>>((acc, e) => { acc[e.risk] = (acc[e.risk] || 0) + 1; return acc }, {}),
+      byType: entries.reduce<Record<string, number>>((acc, e) => {
+        acc[e.type] = (acc[e.type] || 0) + 1
+        return acc
+      }, {}),
+      byRisk: entries.reduce<Record<string, number>>((acc, e) => {
+        acc[e.risk] = (acc[e.risk] || 0) + 1
+        return acc
+      }, {})
     })
   }
 
@@ -3077,7 +3717,12 @@ class CloudAgentService {
       .filter((e): e is import('../../shared/types').RegistryEntry => !!e)
 
     if (entriesToFix.length === 0) {
-      await this.postCommandResult(requestId, false, undefined, 'No matching entries found — run registry-scan first')
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        'No matching entries found — run registry-scan first'
+      )
       return
     }
     cloudLog('INFO', `Fixing ${entriesToFix.length} registry entries`)
@@ -3085,7 +3730,10 @@ class CloudAgentService {
     await this.postCommandResult(requestId, true, {
       fixed: result.fixed,
       failed: result.failed,
-      failures: result.failures.map((f) => ({ issue: f.issue.slice(0, 200), reason: f.reason.slice(0, 200) })),
+      failures: result.failures.map((f) => ({
+        issue: f.issue.slice(0, 200),
+        reason: f.reason.slice(0, 200)
+      }))
     })
   }
   // ─── Threat Blacklist ───────────────────────────────
@@ -3106,36 +3754,86 @@ class CloudAgentService {
       if (app.isPackaged) {
         const host = parsed.hostname.toLowerCase()
         if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host === '::1') {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         if (host.startsWith('10.') || host.startsWith('192.168.') || host.startsWith('169.254.')) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         if (host === '0.0.0.0') {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         const bare = host.replace(/^\[|\]$/g, '')
         if (bare.startsWith('fc') || bare.startsWith('fd')) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
-        if (bare.startsWith('fe8') || bare.startsWith('fe9') || bare.startsWith('fea') || bare.startsWith('feb')) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+        if (
+          bare.startsWith('fe8') ||
+          bare.startsWith('fe9') ||
+          bare.startsWith('fea') ||
+          bare.startsWith('feb')
+        ) {
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
-        if (bare.startsWith('::ffff:127.') || bare.startsWith('::ffff:10.') || bare.startsWith('::ffff:192.168.') || bare.startsWith('::ffff:169.254.')) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+        if (
+          bare.startsWith('::ffff:127.') ||
+          bare.startsWith('::ffff:10.') ||
+          bare.startsWith('::ffff:192.168.') ||
+          bare.startsWith('::ffff:169.254.')
+        ) {
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         if (/^::ffff:172\.(1[6-9]|2\d|3[01])\./.test(bare)) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
       }
@@ -3148,7 +3846,12 @@ class CloudAgentService {
     try {
       await assertPublicResolution(url)
     } catch (err) {
-      await this.postCommandResult(requestId, false, undefined, err instanceof Error ? err.message : 'DNS rebinding check failed')
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        err instanceof Error ? err.message : 'DNS rebinding check failed'
+      )
       return
     }
 
@@ -3165,7 +3868,7 @@ class CloudAgentService {
       await this.postCommandResult(requestId, true, {
         domains: result.stats!.domains,
         ips: result.stats!.ips,
-        cidrs: result.stats!.cidrs,
+        cidrs: result.stats!.cidrs
       })
     } else {
       await this.postCommandResult(requestId, false, undefined, result.error!.slice(0, 200))
@@ -3196,25 +3899,54 @@ class CloudAgentService {
         const host = parsed.hostname.toLowerCase()
         // IPv4 loopback and private ranges
         if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         if (host.startsWith('10.') || host.startsWith('192.168.') || host.startsWith('169.254.')) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
         // IPv6 loopback, private, and link-local ranges
         const bare = host.replace(/^\[|\]$/g, '')
-        if (bare === '::1' || bare.startsWith('fc') || bare.startsWith('fd')
-          || bare.startsWith('fe8') || bare.startsWith('fe9') || bare.startsWith('fea') || bare.startsWith('feb')
-          || bare.startsWith('::ffff:127.') || bare.startsWith('::ffff:10.')
-          || bare.startsWith('::ffff:192.168.') || bare.startsWith('::ffff:169.254.')
-          || /^::ffff:172\.(1[6-9]|2\d|3[01])\./.test(bare)) {
-          await this.postCommandResult(requestId, false, undefined, 'Private/loopback URLs not allowed')
+        if (
+          bare === '::1' ||
+          bare.startsWith('fc') ||
+          bare.startsWith('fd') ||
+          bare.startsWith('fe8') ||
+          bare.startsWith('fe9') ||
+          bare.startsWith('fea') ||
+          bare.startsWith('feb') ||
+          bare.startsWith('::ffff:127.') ||
+          bare.startsWith('::ffff:10.') ||
+          bare.startsWith('::ffff:192.168.') ||
+          bare.startsWith('::ffff:169.254.') ||
+          /^::ffff:172\.(1[6-9]|2\d|3[01])\./.test(bare)
+        ) {
+          await this.postCommandResult(
+            requestId,
+            false,
+            undefined,
+            'Private/loopback URLs not allowed'
+          )
           return
         }
       }
@@ -3226,7 +3958,12 @@ class CloudAgentService {
     try {
       await assertPublicResolution(url)
     } catch (err) {
-      await this.postCommandResult(requestId, false, undefined, err instanceof Error ? err.message : 'DNS rebinding check failed')
+      await this.postCommandResult(
+        requestId,
+        false,
+        undefined,
+        err instanceof Error ? err.message : 'DNS rebinding check failed'
+      )
       return
     }
 
@@ -3236,10 +3973,16 @@ class CloudAgentService {
     if (result.success) {
       // Reset engine so it re-initializes with new rules on next scan
       resetYaraEngine()
-      await this.postCommandResult(requestId, true, result.stats ? {
-        rulesCount: result.stats.rulesCount,
-        version: result.stats.version,
-      } : { message: 'Already up to date' })
+      await this.postCommandResult(
+        requestId,
+        true,
+        result.stats
+          ? {
+              rulesCount: result.stats.rulesCount,
+              version: result.stats.version
+            }
+          : { message: 'Already up to date' }
+      )
     } else {
       await this.postCommandResult(requestId, false, undefined, result.error!.slice(0, 200))
     }
@@ -3255,7 +3998,7 @@ class CloudAgentService {
         flaggedDns: [],
         blacklistVersion: null,
         lastConnectionScanAt: null,
-        lastDnsScanAt: null,
+        lastDnsScanAt: null
       })
       return
     }
@@ -3266,7 +4009,7 @@ class CloudAgentService {
       flaggedDns: snapshot.flaggedDns,
       blacklistVersion: snapshot.blacklistVersion,
       lastConnectionScanAt: snapshot.lastConnectionScanAt,
-      lastDnsScanAt: snapshot.lastDnsScanAt,
+      lastDnsScanAt: snapshot.lastDnsScanAt
     })
   }
 
@@ -3280,7 +4023,7 @@ class CloudAgentService {
     await this.postApi(`/devices/${encodeURIComponent(this.deviceId)}/command-result`, {
       requestId: `${requestId}-apps`,
       success: true,
-      data: { apps, totalCount: apps.length },
+      data: { apps, totalCount: apps.length }
     })
 
     // Step 2: Brief pause for server-side CVE matching
@@ -3300,7 +4043,7 @@ class CloudAgentService {
       vulnerabilities: result.vulnerabilities.length,
       summary: result.summary,
       total: result.total,
-      librarySize: result.librarySize,
+      librarySize: result.librarySize
     })
   }
 }

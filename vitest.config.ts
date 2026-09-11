@@ -13,12 +13,12 @@ export default defineConfig({
     reporters: process.env.CI
       ? ['dot', ['junit', { outputFile: 'test-results/junit.xml' }]]
       : ['verbose'],
-    pool: 'threads',
+    pool: 'threads'
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src/renderer/src'),
-      '@shared': resolve(__dirname, 'src/shared'),
-    },
-  },
+      '@shared': resolve(__dirname, 'src/shared')
+    }
+  }
 })

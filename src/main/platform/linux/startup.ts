@@ -39,18 +39,24 @@ export function createLinuxStartup(): PlatformStartup {
                 source: 'autostart-desktop',
                 enabled: !isDisabled,
                 publisher: parseDesktopField(content, 'Comment') || '',
-                impact: 'low',
+                impact: 'low'
               })
-            } catch { /* skip */ }
+            } catch {
+              /* skip */
+            }
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
 
       // Systemd user services
       try {
-        const { stdout } = await execFileAsync('/usr/bin/systemctl', [
-          '--user', 'list-unit-files', '--type=service', '--no-pager', '--plain',
-        ], { timeout: 10_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/systemctl',
+          ['--user', 'list-unit-files', '--type=service', '--no-pager', '--plain'],
+          { timeout: 10_000 }
+        )
 
         for (const line of stdout.split('\n').slice(1)) {
           const parts = line.trim().split(/\s+/)
@@ -67,10 +73,12 @@ export function createLinuxStartup(): PlatformStartup {
             source: 'systemd-user',
             enabled: state === 'enabled',
             publisher: '',
-            impact: 'low',
+            impact: 'low'
           })
         }
-      } catch { /* systemd not available */ }
+      } catch {
+        /* systemd not available */
+      }
 
       // @reboot cron entries
       try {
@@ -87,11 +95,13 @@ export function createLinuxStartup(): PlatformStartup {
               source: 'cron',
               enabled: true,
               publisher: '',
-              impact: 'low',
+              impact: 'low'
             })
           }
         }
-      } catch { /* no crontab */ }
+      } catch {
+        /* no crontab */
+      }
 
       return items
     },
@@ -101,7 +111,7 @@ export function createLinuxStartup(): PlatformStartup {
       location: string,
       _command: string,
       source: StartupItem['source'],
-      enabled: boolean,
+      enabled: boolean
     ): Promise<boolean> {
       try {
         if (source === 'autostart-desktop') {
@@ -139,9 +149,9 @@ export function createLinuxStartup(): PlatformStartup {
         mainPathMs: 0,
         startupAppsMs: 0,
         lastBootDate: null,
-        entries: [],
+        entries: []
       }
-    },
+    }
   }
 }
 

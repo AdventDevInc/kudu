@@ -27,7 +27,11 @@ export function ScanProgress({
     >
       <div className="mb-3 flex items-center justify-between" aria-live="polite">
         <div className="flex items-center gap-2.5">
-          <Loader2 className="h-4 w-4 animate-spin" style={{ color: 'var(--accent)' }} aria-hidden="true" />
+          <Loader2
+            className="h-4 w-4 animate-spin"
+            style={{ color: 'var(--accent)' }}
+            aria-hidden="true"
+          />
           <span className="text-[13px] font-medium text-zinc-200">
             {status === 'scanning' ? t('scanning') : t('cleaning')}
           </span>
@@ -64,11 +68,14 @@ export function ScanProgress({
 
       <div className="flex items-center gap-4 text-[12px]" style={{ color: 'var(--text-muted)' }}>
         <span>
-          {t('foundLabel')} <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span> {t('itemsUnit')}
+          {t('foundLabel')}{' '}
+          <span className="font-medium text-zinc-300">{formatNumber(itemsFound)}</span>{' '}
+          {t('itemsUnit')}
         </span>
         <span style={{ color: 'var(--text-faint)' }}>|</span>
         <span>
-          {t('sizeLabel')} <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
+          {t('sizeLabel')}{' '}
+          <span className="font-medium text-zinc-300">{formatBytes(sizeFound)}</span>
         </span>
       </div>
     </div>

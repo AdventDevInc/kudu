@@ -10,9 +10,9 @@ describe('updateSysctlConfig', () => {
     const result = updateSysctlConfig('', 'kernel.sysrq', '0', ' = ', header)
     expect(result).toBe(
       '# Kudu system hardening — managed automatically\n' +
-      `${header}\n` +
-      '\n' +
-      'kernel.sysrq = 0\n',
+        `${header}\n` +
+        '\n' +
+        'kernel.sysrq = 0\n'
     )
   })
 
@@ -96,12 +96,7 @@ describe('updateSysctlConfig', () => {
 
 describe('removeSysctlConfigParam', () => {
   it('removes the matching param line and keeps others', () => {
-    const existing = [
-      '# header',
-      'kernel.sysrq = 0',
-      'net.ipv4.ip_forward = 0',
-      '',
-    ].join('\n')
+    const existing = ['# header', 'kernel.sysrq = 0', 'net.ipv4.ip_forward = 0', ''].join('\n')
     const result = removeSysctlConfigParam(existing, 'kernel.sysrq')
     expect(result).not.toContain('kernel.sysrq')
     expect(result).toContain('net.ipv4.ip_forward = 0')
@@ -156,9 +151,7 @@ describe('updateSshdConfig', () => {
   })
 
   it('comments out multiple active occurrences', () => {
-    const content =
-      'PermitRootLogin yes\n' +
-      'PermitRootLogin without-password\n'
+    const content = 'PermitRootLogin yes\n' + 'PermitRootLogin without-password\n'
     const result = updateSshdConfig(content, 'PermitRootLogin', 'no')
     expect(result).toContain('# PermitRootLogin yes')
     expect(result).toContain('# PermitRootLogin without-password')
@@ -181,9 +174,7 @@ describe('updateSshdConfig', () => {
   })
 
   it('handles mixed commented and active lines', () => {
-    const content =
-      '# PermitRootLogin prohibit-password\n' +
-      'PermitRootLogin yes\n'
+    const content = '# PermitRootLogin prohibit-password\n' + 'PermitRootLogin yes\n'
     const result = updateSshdConfig(content, 'PermitRootLogin', 'no')
     // Comment stays as comment
     expect(result).toContain('# PermitRootLogin prohibit-password')
@@ -208,10 +199,7 @@ describe('updateSshdConfig', () => {
   })
 
   it('preserves unrelated directives', () => {
-    const content =
-      'Port 22\n' +
-      'PermitRootLogin yes\n' +
-      'AllowUsers admin\n'
+    const content = 'Port 22\n' + 'PermitRootLogin yes\n' + 'AllowUsers admin\n'
     const result = updateSshdConfig(content, 'PermitRootLogin', 'no')
     expect(result).toContain('Port 22')
     expect(result).toContain('AllowUsers admin')

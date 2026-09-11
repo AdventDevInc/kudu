@@ -392,7 +392,7 @@ export const SERVICE_SAFETY_KB: Record<string, ServiceSafetyEntry> = {
     safety: 'unsafe',
     category: 'network',
     note: 'Network List Service — required for network management'
-  },
+  }
 }
 
 /**

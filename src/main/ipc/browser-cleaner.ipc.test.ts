@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockHandle = vi.fn()
 const mockSend = vi.fn()
 vi.mock('electron', () => ({
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const mockExistsSync = vi.fn()
@@ -18,18 +18,18 @@ const mockScanDirectory = vi.fn()
 const mockCleanItems = vi.fn()
 vi.mock('../services/file-utils', () => ({
   scanDirectory: (...args: unknown[]) => mockScanDirectory(...args),
-  cleanItems: (...args: unknown[]) => mockCleanItems(...args),
+  cleanItems: (...args: unknown[]) => mockCleanItems(...args)
 }))
 
 const mockCacheItems = vi.fn()
 vi.mock('../services/scan-cache', () => ({
   cacheItems: (...args: unknown[]) => mockCacheItems(...args),
-  clearCachedCategory: vi.fn(),
+  clearCachedCategory: vi.fn()
 }))
 
 const mockGetSettings = vi.fn()
 vi.mock('../services/settings-store', () => ({
-  getSettings: () => mockGetSettings(),
+  getSettings: () => mockGetSettings()
 }))
 
 const mockCloseBrowsers = vi.fn()
@@ -37,17 +37,18 @@ const mockBrowserPaths = vi.fn()
 vi.mock('../platform', () => ({
   getPlatform: () => ({
     paths: { browserPaths: () => mockBrowserPaths() },
-    browser: { closeBrowsers: () => mockCloseBrowsers() },
-  }),
+    browser: { closeBrowsers: () => mockCloseBrowsers() }
+  })
 }))
 
 vi.mock('../services/ipc-validation', () => ({
   validateStringArray: (input: unknown, maxItems = 10_000, maxItemLength = 1024) => {
     if (!Array.isArray(input)) return null
     if (input.length > maxItems) return null
-    if (!input.every((v: unknown) => typeof v === 'string' && v.length <= maxItemLength)) return null
+    if (!input.every((v: unknown) => typeof v === 'string' && v.length <= maxItemLength))
+      return null
     return input as string[]
-  },
+  }
 }))
 
 import { join } from 'path'
@@ -65,7 +66,7 @@ const PROFILE_CACHES = [
   { dir: 'Cache', label: 'Cache' },
   { dir: 'Code Cache', label: 'Code Cache' },
   { dir: 'GPUCache', label: 'GPU Cache' },
-  { dir: 'Service Worker', label: 'Service Worker Cache' },
+  { dir: 'Service Worker', label: 'Service Worker Cache' }
 ]
 const SHARED_CACHES = [{ dir: 'GrShaderCache', label: 'Skia Shader Cache' }]
 
@@ -92,7 +93,7 @@ function makeBrowserPaths() {
     librewolf: { cache: '' },
     waterfox: { cache: '' },
     floorp: { cache: '' },
-    safari: null,
+    safari: null
   }
 }
 
@@ -141,9 +142,7 @@ describe('BROWSER_SCAN handler', () => {
     })
     mockReaddir.mockImplementation((p: string) => {
       if (p === chromeBase) {
-        return Promise.resolve([
-          { isDirectory: () => true, name: 'Profile 1' },
-        ])
+        return Promise.resolve([{ isDirectory: () => true, name: 'Profile 1' }])
       }
       return Promise.resolve([])
     })
@@ -152,7 +151,7 @@ describe('BROWSER_SCAN handler', () => {
       subcategory: 'test',
       items: [{ id: '1', path: '/test', size: 100 }],
       totalSize: 100,
-      itemCount: 1,
+      itemCount: 1
     })
 
     const win = mockWindow()
@@ -171,7 +170,13 @@ describe('BROWSER_SCAN handler', () => {
   it('scans browser caches with directories judged by their contents', async () => {
     mockExistsSync.mockReturnValue(true)
     mockReaddir.mockResolvedValue([])
-    mockScanDirectory.mockResolvedValue({ category: 'browser', subcategory: 'test', items: [], totalSize: 0, itemCount: 0 })
+    mockScanDirectory.mockResolvedValue({
+      category: 'browser',
+      subcategory: 'test',
+      items: [],
+      totalSize: 0,
+      itemCount: 0
+    })
 
     registerBrowserCleanerIpc(() => mockWindow() as any)
     await getHandler('cleaner:browser:scan')()
@@ -184,21 +189,26 @@ describe('BROWSER_SCAN handler', () => {
 
   it('scans the shared caches that sit beside the profiles', async () => {
     const chromeBase = '/home/user/.config/google-chrome'
-    mockExistsSync.mockImplementation((p: string) => p === chromeBase || p.startsWith(join(chromeBase, 'GrShaderCache')))
+    mockExistsSync.mockImplementation(
+      (p: string) => p === chromeBase || p.startsWith(join(chromeBase, 'GrShaderCache'))
+    )
     mockReaddir.mockResolvedValue([])
     mockScanDirectory.mockResolvedValue({
       category: 'browser',
       subcategory: 'Chrome - Skia Shader Cache',
       items: [{ id: '1', path: '/test', size: 100 }],
       totalSize: 100,
-      itemCount: 1,
+      itemCount: 1
     })
 
     registerBrowserCleanerIpc(() => mockWindow() as any)
     await getHandler('cleaner:browser:scan')()
 
     expect(mockScanDirectory).toHaveBeenCalledWith(
-      join(chromeBase, 'GrShaderCache'), 'browser', 'Chrome - Skia Shader Cache', { deepRecencyCheck: true }
+      join(chromeBase, 'GrShaderCache'),
+      'browser',
+      'Chrome - Skia Shader Cache',
+      { deepRecencyCheck: true }
     )
   })
 
@@ -216,7 +226,7 @@ describe('BROWSER_SCAN handler', () => {
       subcategory: 'Opera - Cache',
       items: [{ id: '1', path: '/test', size: 50 }],
       totalSize: 50,
-      itemCount: 1,
+      itemCount: 1
     })
     mockReaddir.mockResolvedValue([])
 
@@ -248,7 +258,7 @@ describe('BROWSER_SCAN handler', () => {
       subcategory: 'Firefox - abc123.default Cache',
       items: [{ id: '1', path: '/test', size: 200 }],
       totalSize: 200,
-      itemCount: 1,
+      itemCount: 1
     })
 
     registerBrowserCleanerIpc(() => mockWindow() as any)
@@ -266,7 +276,7 @@ describe('BROWSER_SCAN handler', () => {
       subcategory: 'test',
       items: [],
       totalSize: 0,
-      itemCount: 0,
+      itemCount: 0
     })
 
     registerBrowserCleanerIpc(() => mockWindow() as any)
@@ -282,11 +292,14 @@ describe('BROWSER_SCAN handler', () => {
     const handler = getHandler('cleaner:browser:scan')
     await handler()
 
-    expect(mockSend).toHaveBeenCalledWith('scan:progress', expect.objectContaining({
-      phase: 'scanning',
-      category: 'browser',
-      progress: 100,
-    }))
+    expect(mockSend).toHaveBeenCalledWith(
+      'scan:progress',
+      expect.objectContaining({
+        phase: 'scanning',
+        category: 'browser',
+        progress: 100
+      })
+    )
   })
 
   it('does not send progress when window is null', async () => {
@@ -328,7 +341,7 @@ describe('BROWSER_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
   })
 
@@ -341,7 +354,7 @@ describe('BROWSER_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
   })
 
@@ -352,7 +365,7 @@ describe('BROWSER_CLEAN handler', () => {
       filesDeleted: 5,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
 
     registerBrowserCleanerIpc(() => null)
@@ -370,7 +383,7 @@ describe('BROWSER_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
     const itemIds = Array.from({ length: 10_001 }, (_, index) => `id-${index}`)
 
@@ -389,7 +402,7 @@ describe('BROWSER_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
 
     registerBrowserCleanerIpc(() => null)
@@ -406,7 +419,7 @@ describe('BROWSER_CLEAN handler', () => {
       filesDeleted: 0,
       filesSkipped: 0,
       errors: [],
-      needsElevation: false,
+      needsElevation: false
     })
 
     registerBrowserCleanerIpc(() => null)

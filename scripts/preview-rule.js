@@ -25,7 +25,7 @@ function resolveVars() {
       PROGRAMDATA: process.env.ProgramData || 'C:\\ProgramData',
       PROGRAMFILES: process.env.ProgramFiles || 'C:\\Program Files',
       PROGRAMFILES_X86: process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
-      TMPDIR: tmp,
+      TMPDIR: tmp
     }
   }
   if (currentPlatform === 'darwin') {
@@ -34,7 +34,7 @@ function resolveVars() {
       LIBRARY: path.join(home, 'Library'),
       CACHES: path.join(home, 'Library', 'Caches'),
       APP_SUPPORT: path.join(home, 'Library', 'Application Support'),
-      TMPDIR: tmp,
+      TMPDIR: tmp
     }
   }
   return {
@@ -42,7 +42,7 @@ function resolveVars() {
     CONFIG: process.env.XDG_CONFIG_HOME || path.join(home, '.config'),
     CACHE: process.env.XDG_CACHE_HOME || path.join(home, '.cache'),
     LOCAL_SHARE: process.env.XDG_DATA_HOME || path.join(home, '.local', 'share'),
-    TMPDIR: tmp,
+    TMPDIR: tmp
   }
 }
 
@@ -77,9 +77,13 @@ function getDirStats(dir, minAgeDays) {
           } else if (stat.isDirectory()) {
             walk(full)
           }
-        } catch { /* skip inaccessible */ }
+        } catch {
+          /* skip inaccessible */
+        }
       }
-    } catch { /* skip */ }
+    } catch {
+      /* skip */
+    }
   }
 
   walk(dir)
@@ -97,7 +101,10 @@ function expandFileMatches(basePath, match) {
   if (suffix) {
     try {
       candidateDirs = readdirSync(basePath, { withFileTypes: true })
-        .filter((entry) => entry.isDirectory() && !entry.isSymbolicLink() && normalize(entry.name).endsWith(suffix))
+        .filter(
+          (entry) =>
+            entry.isDirectory() && !entry.isSymbolicLink() && normalize(entry.name).endsWith(suffix)
+        )
         .map((entry) => path.join(basePath, entry.name))
     } catch {
       return []
@@ -107,7 +114,11 @@ function expandFileMatches(basePath, match) {
   const matches = []
   for (const candidateDir of candidateDirs) {
     let entries
-    try { entries = readdirSync(candidateDir, { withFileTypes: true }) } catch { continue }
+    try {
+      entries = readdirSync(candidateDir, { withFileTypes: true })
+    } catch {
+      continue
+    }
     if (entries.some((entry) => blockers.has(normalize(entry.name)))) continue
 
     for (const entry of entries) {
@@ -116,7 +127,9 @@ function expandFileMatches(basePath, match) {
       try {
         const stats = statSync(filePath)
         if (stats.mtimeMs <= cutoff) matches.push(filePath)
-      } catch { /* skip files that change during preview */ }
+      } catch {
+        /* skip files that change during preview */
+      }
     }
   }
   return matches
@@ -125,9 +138,19 @@ function expandFileMatches(basePath, match) {
 const MAX_RECURSIVE_RULE_DIRECTORIES = 100000
 
 function parseAnchorPath(pattern, anchor, normalize) {
-  const validName = (name) => typeof name === 'string' && name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
+  const validName = (name) =>
+    typeof name === 'string' &&
+    name.length > 0 &&
+    name !== '.' &&
+    name !== '..' &&
+    !name.includes('/') &&
+    !name.includes('\\')
   const segments = pattern.split('/')
-  if (segments.some((segment) => segment !== '*' && !validName(segment)) || normalize(segments.at(-1) || '') !== anchor) return null
+  if (
+    segments.some((segment) => segment !== '*' && !validName(segment)) ||
+    normalize(segments.at(-1) || '') !== anchor
+  )
+    return null
   return segments
 }
 
@@ -145,7 +168,11 @@ function expandAnchorPaths(basePath, patterns, budget) {
 
         if (segment === '*') {
           let children
-          try { children = readdirSync(candidate, { withFileTypes: true }) } catch { continue }
+          try {
+            children = readdirSync(candidate, { withFileTypes: true })
+          } catch {
+            continue
+          }
           for (const child of children) {
             if (!child.isDirectory() || child.isSymbolicLink()) continue
             next.add(path.join(candidate, child.name))
@@ -156,7 +183,9 @@ function expandAnchorPaths(basePath, patterns, budget) {
           try {
             const stats = lstatSync(exactPath)
             if (stats.isDirectory() && !stats.isSymbolicLink()) next.add(exactPath)
-          } catch { /* skip missing or inaccessible candidates */ }
+          } catch {
+            /* skip missing or inaccessible candidates */
+          }
         }
       }
       candidates = next
@@ -171,8 +200,21 @@ function expandAnchorPaths(basePath, patterns, budget) {
 }
 
 function expandRecursiveMatches(basePath, match) {
-  const validName = (name) => typeof name === 'string' && name.length > 0 && name !== '.' && name !== '..' && !name.includes('/') && !name.includes('\\')
-  if (!match || !validName(match.anchor) || !Array.isArray(match.targets) || match.targets.some((target) => !validName(target)) || (match.excludedAncestors || []).some((ancestor) => !validName(ancestor))) return []
+  const validName = (name) =>
+    typeof name === 'string' &&
+    name.length > 0 &&
+    name !== '.' &&
+    name !== '..' &&
+    !name.includes('/') &&
+    !name.includes('\\')
+  if (
+    !match ||
+    !validName(match.anchor) ||
+    !Array.isArray(match.targets) ||
+    match.targets.some((target) => !validName(target)) ||
+    (match.excludedAncestors || []).some((ancestor) => !validName(ancestor))
+  )
+    return []
 
   const normalize = currentPlatform === 'win32' ? (name) => name.toLowerCase() : (name) => name
   const anchor = normalize(match.anchor)
@@ -181,19 +223,33 @@ function expandRecursiveMatches(basePath, match) {
   const maxDepth = Math.min(32, Math.max(1, match.maxDepth || 12))
   const resolved = new Set()
   const budget = { visited: 0 }
-  const anchorPaths = match.anchorPaths?.map((pattern) => parseAnchorPath(pattern, anchor, normalize))
+  const anchorPaths = match.anchorPaths?.map((pattern) =>
+    parseAnchorPath(pattern, anchor, normalize)
+  )
   if (anchorPaths?.some((pattern) => pattern === null)) return []
   const roots = anchorPaths
-    ? expandAnchorPaths(basePath, anchorPaths.filter((pattern) => pattern !== null), budget).map((rootPath) => ({ path: rootPath, belowAnchor: true }))
+    ? expandAnchorPaths(
+        basePath,
+        anchorPaths.filter((pattern) => pattern !== null),
+        budget
+      ).map((rootPath) => ({ path: rootPath, belowAnchor: true }))
     : [{ path: basePath, belowAnchor: normalize(path.basename(basePath)) === anchor }]
 
   for (const root of roots) {
     const queue = [{ path: root.path, depth: 0, belowAnchor: root.belowAnchor }]
-    for (let index = 0; index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES; index++) {
+    for (
+      let index = 0;
+      index < queue.length && budget.visited < MAX_RECURSIVE_RULE_DIRECTORIES;
+      index++
+    ) {
       const current = queue[index]
       budget.visited++
       let children
-      try { children = readdirSync(current.path, { withFileTypes: true }) } catch { continue }
+      try {
+        children = readdirSync(current.path, { withFileTypes: true })
+      } catch {
+        continue
+      }
 
       for (const child of children) {
         if (!child.isDirectory() || child.isSymbolicLink()) continue
@@ -207,7 +263,8 @@ function expandRecursiveMatches(basePath, match) {
           resolved.add(fullPath)
           continue
         }
-        if (current.depth + 1 < maxDepth) queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
+        if (current.depth + 1 < maxDepth)
+          queue.push({ path: fullPath, depth: current.depth + 1, belowAnchor })
       }
     }
   }
@@ -257,7 +314,10 @@ function main() {
 
   if (!targetId || targetId === '--list') {
     console.log(`\n📋 Available rule IDs for ${currentPlatform}:\n`)
-    const maxName = Math.max.apply(null, apps.map((a) => a.name.length))
+    const maxName = Math.max.apply(
+      null,
+      apps.map((a) => a.name.length)
+    )
     for (const app of apps) {
       console.log(`  ${app.id.padEnd(25)} ${app.name.padEnd(maxName + 2)} (${app._source})`)
     }
@@ -279,14 +339,22 @@ function main() {
   if (app.minAgeDays) console.log(`  minAgeDays: ${app.minAgeDays}`)
   if (app.childSubdir) console.log(`  childSubdir: ${app.childSubdir}`)
   if (app.recursiveMatch) {
-    console.log(`  recursiveMatch: ${app.recursiveMatch.anchor}/**/{${app.recursiveMatch.targets.join(', ')}}`)
-    if (app.recursiveMatch.anchorPaths) console.log(`  anchorPaths: ${app.recursiveMatch.anchorPaths.join(', ')}`)
-    if (app.recursiveMatch.excludedAncestors) console.log(`  excludedAncestors: ${app.recursiveMatch.excludedAncestors.join(', ')}`)
+    console.log(
+      `  recursiveMatch: ${app.recursiveMatch.anchor}/**/{${app.recursiveMatch.targets.join(', ')}}`
+    )
+    if (app.recursiveMatch.anchorPaths)
+      console.log(`  anchorPaths: ${app.recursiveMatch.anchorPaths.join(', ')}`)
+    if (app.recursiveMatch.excludedAncestors)
+      console.log(`  excludedAncestors: ${app.recursiveMatch.excludedAncestors.join(', ')}`)
   }
   if (app.fileMatch) {
-    console.log(`  fileMatch: ${app.fileMatch.names.join(', ')} (at least ${app.fileMatch.minAgeDays} days old)`)
-    if (app.fileMatch.childDirSuffix) console.log(`  childDirSuffix: ${app.fileMatch.childDirSuffix}`)
-    if (app.fileMatch.skipIfChildExists) console.log(`  skipIfChildExists: ${app.fileMatch.skipIfChildExists.join(', ')}`)
+    console.log(
+      `  fileMatch: ${app.fileMatch.names.join(', ')} (at least ${app.fileMatch.minAgeDays} days old)`
+    )
+    if (app.fileMatch.childDirSuffix)
+      console.log(`  childDirSuffix: ${app.fileMatch.childDirSuffix}`)
+    if (app.fileMatch.skipIfChildExists)
+      console.log(`  skipIfChildExists: ${app.fileMatch.skipIfChildExists.join(', ')}`)
   }
   if (app.description) console.log(`  Description: ${app.description}`)
   console.log()
@@ -339,12 +407,18 @@ function main() {
           try {
             const s = statSync(childFull)
             const type = s.isDirectory() ? '📂' : '📄'
-            console.log(`        ${type} ${child}  (${formatSize(s.isDirectory() ? getDirStats(childFull, app.minAgeDays).totalSize : s.size)})`)
-          } catch { /* skip */ }
+            console.log(
+              `        ${type} ${child}  (${formatSize(s.isDirectory() ? getDirStats(childFull, app.minAgeDays).totalSize : s.size)})`
+            )
+          } catch {
+            /* skip */
+          }
         }
         const total = readdirSync(resolved).length
         if (total > 10) console.log(`        ... and ${total - 10} more`)
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     } else {
       grandTotal += stat.size
       grandFiles++

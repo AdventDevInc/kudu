@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 const mockShowOpenDialog = vi.fn()
 vi.mock('electron', () => ({
-  dialog: { showOpenDialog: (...args: unknown[]) => mockShowOpenDialog(...args) },
+  dialog: { showOpenDialog: (...args: unknown[]) => mockShowOpenDialog(...args) }
 }))
 
 const { showOpenDialog } = await import('./open-dialog')

@@ -7,8 +7,8 @@ const onMock = vi.fn()
 vi.mock('electron', () => ({
   app: { isPackaged: true },
   BrowserWindow: {
-    getAllWindows: () => [{ isDestroyed: () => false, webContents: { send } }],
-  },
+    getAllWindows: () => [{ isDestroyed: () => false, webContents: { send } }]
+  }
 }))
 
 vi.mock('electron-updater', () => ({
@@ -18,20 +18,20 @@ vi.mock('electron-updater', () => ({
     on: onMock,
     checkForUpdates: checkForUpdatesMock,
     downloadUpdate: vi.fn(),
-    quitAndInstall: vi.fn(),
-  },
+    quitAndInstall: vi.fn()
+  }
 }))
 
 vi.mock('./settings-store', () => ({
   getSettings: () => ({
     autoUpdate: false,
     autoRestart: false,
-    updateCheckIntervalHours: 0,
-  }),
+    updateCheckIntervalHours: 0
+  })
 }))
 
 vi.mock('./appimage-launchers', () => ({
-  retargetAppImageLaunchers: vi.fn().mockReturnValue(0),
+  retargetAppImageLaunchers: vi.fn().mockReturnValue(0)
 }))
 
 describe('checkForUpdates UX', () => {
@@ -50,7 +50,7 @@ describe('checkForUpdates UX', () => {
     expect(checkForUpdatesMock).not.toHaveBeenCalled()
     expect(send).toHaveBeenCalledWith(
       'updater:status',
-      expect.objectContaining({ state: 'error', error: expect.stringMatching(/AppImage/i) }),
+      expect.objectContaining({ state: 'error', error: expect.stringMatching(/AppImage/i) })
     )
   })
 

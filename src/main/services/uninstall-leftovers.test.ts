@@ -135,28 +135,32 @@ function matchesInstalledProgram(folderName: string, tokens: Set<string>): boole
 describe('buildMatchTokens', () => {
   it('extracts display name as a token', () => {
     const tokens = buildMatchTokens([
-      { displayName: 'Discord', publisher: 'Discord Inc', installLocation: 'C:\\Users\\Test\\AppData\\Local\\Discord' },
+      {
+        displayName: 'Discord',
+        publisher: 'Discord Inc',
+        installLocation: 'C:\\Users\\Test\\AppData\\Local\\Discord'
+      }
     ])
     expect(tokens.has('discord')).toBe(true)
   })
 
   it('extracts first word of display name', () => {
     const tokens = buildMatchTokens([
-      { displayName: 'Visual Studio Code 1.85', publisher: 'Microsoft', installLocation: '' },
+      { displayName: 'Visual Studio Code 1.85', publisher: 'Microsoft', installLocation: '' }
     ])
     expect(tokens.has('visual')).toBe(true)
   })
 
   it('strips trailing version numbers', () => {
     const tokens = buildMatchTokens([
-      { displayName: 'Visual Studio Code 1.85', publisher: '', installLocation: '' },
+      { displayName: 'Visual Studio Code 1.85', publisher: '', installLocation: '' }
     ])
     expect(tokens.has('visual studio code')).toBe(true)
   })
 
   it('extracts publisher tokens', () => {
     const tokens = buildMatchTokens([
-      { displayName: 'Foo', publisher: 'Acme Corporation', installLocation: '' },
+      { displayName: 'Foo', publisher: 'Acme Corporation', installLocation: '' }
     ])
     expect(tokens.has('acme corporation')).toBe(true)
     expect(tokens.has('acme')).toBe(true)
@@ -164,7 +168,7 @@ describe('buildMatchTokens', () => {
 
   it('extracts install folder name', () => {
     const tokens = buildMatchTokens([
-      { displayName: 'Foo', publisher: '', installLocation: 'C:\\Program Files\\SuperApp' },
+      { displayName: 'Foo', publisher: '', installLocation: 'C:\\Program Files\\SuperApp' }
     ])
     expect(tokens.has('superapp')).toBe(true)
   })
@@ -172,9 +176,21 @@ describe('buildMatchTokens', () => {
 
 describe('matchesInstalledProgram', () => {
   const programs: InstalledProgram[] = [
-    { displayName: 'Discord', publisher: 'Discord Inc', installLocation: 'C:\\Users\\Test\\AppData\\Local\\Discord' },
-    { displayName: 'Visual Studio Code 1.85', publisher: 'Microsoft Corporation', installLocation: 'C:\\Program Files\\Microsoft VS Code' },
-    { displayName: 'Steam', publisher: 'Valve Corporation', installLocation: 'C:\\Program Files (x86)\\Steam' },
+    {
+      displayName: 'Discord',
+      publisher: 'Discord Inc',
+      installLocation: 'C:\\Users\\Test\\AppData\\Local\\Discord'
+    },
+    {
+      displayName: 'Visual Studio Code 1.85',
+      publisher: 'Microsoft Corporation',
+      installLocation: 'C:\\Program Files\\Microsoft VS Code'
+    },
+    {
+      displayName: 'Steam',
+      publisher: 'Valve Corporation',
+      installLocation: 'C:\\Program Files (x86)\\Steam'
+    }
   ]
   const tokens = buildMatchTokens(programs)
 

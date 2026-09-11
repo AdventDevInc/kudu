@@ -13,7 +13,11 @@ export function ErrorAlert({ message, onDismiss, className = '' }: ErrorAlertPro
       className={`flex items-center gap-3 rounded-2xl px-5 py-4 ${className}`}
       style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)' }}
     >
-      <AlertTriangle className="h-5 w-5 shrink-0 text-red-500" strokeWidth={1.8} aria-hidden="true" />
+      <AlertTriangle
+        className="h-5 w-5 shrink-0 text-red-500"
+        strokeWidth={1.8}
+        aria-hidden="true"
+      />
       <p className="flex-1 text-[13px] text-red-400">{message}</p>
       {onDismiss && (
         <button

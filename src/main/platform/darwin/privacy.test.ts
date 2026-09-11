@@ -2,21 +2,21 @@ import { describe, it, expect, vi } from 'vitest'
 
 const execFileMock = vi.fn()
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 vi.mock('util', () => ({
-  promisify: (fn: any) => fn,
+  promisify: (fn: any) => fn
 }))
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(),
-  writeFile: vi.fn(),
+  writeFile: vi.fn()
 }))
 vi.mock('os', () => ({
   tmpdir: () => '/tmp',
-  homedir: () => '/Users/TestUser',
+  homedir: () => '/Users/TestUser'
 }))
 vi.mock('crypto', () => ({
-  randomUUID: () => 'test-uuid',
+  randomUUID: () => 'test-uuid'
 }))
 
 const { createDarwinPrivacy } = await import('./privacy')

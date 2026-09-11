@@ -28,7 +28,9 @@ function broadcast(s: UpdateStatus): void {
     // the actual renderer crash.
     try {
       win.webContents.send(IPC.UPDATER_STATUS, s)
-    } catch { /* renderer gone — nothing to deliver to */ }
+    } catch {
+      /* renderer gone — nothing to deliver to */
+    }
   }
 }
 
@@ -88,14 +90,18 @@ export function initAutoUpdater(opts: InitOptions = {}): void {
   autoUpdater.on('update-downloaded', (info) => {
     broadcast({ state: 'downloaded', version: info.version })
     if (daemonMode) {
-      process.stdout.write(`[${new Date().toISOString()}] [updater] Installing v${info.version} and restarting...\n`)
+      process.stdout.write(
+        `[${new Date().toISOString()}] [updater] Installing v${info.version} and restarting...\n`
+      )
       autoUpdater.quitAndInstall(true, true)
       return
     }
     // GUI mode: auto-restart if the user opted in
     const current = getSettings()
     if (current.autoRestart) {
-      console.log(`Auto-updater: auto-restart enabled, installing v${info.version} and restarting...`)
+      console.log(
+        `Auto-updater: auto-restart enabled, installing v${info.version} and restarting...`
+      )
       autoUpdater.quitAndInstall(true, true)
     }
   })
@@ -152,10 +158,13 @@ export function checkForUpdates(): Promise<void> {
     broadcast({ state: 'error', error: skipReason() })
     return Promise.resolve()
   }
-  return autoUpdater.checkForUpdates().then(() => {}).catch((err: unknown) => {
-    const message = err instanceof Error ? err.message : String(err)
-    broadcast({ state: 'error', error: message || 'Update check failed' })
-  })
+  return autoUpdater
+    .checkForUpdates()
+    .then(() => {})
+    .catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err)
+      broadcast({ state: 'error', error: message || 'Update check failed' })
+    })
 }
 
 export function downloadUpdate(): Promise<void> {
@@ -163,10 +172,13 @@ export function downloadUpdate(): Promise<void> {
     broadcast({ state: 'error', error: skipReason() })
     return Promise.resolve()
   }
-  return autoUpdater.downloadUpdate().then(() => {}).catch((err: unknown) => {
-    const message = err instanceof Error ? err.message : String(err)
-    broadcast({ state: 'error', error: message || 'Update download failed' })
-  })
+  return autoUpdater
+    .downloadUpdate()
+    .then(() => {})
+    .catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err)
+      broadcast({ state: 'error', error: message || 'Update download failed' })
+    })
 }
 
 export function installUpdate(): void {

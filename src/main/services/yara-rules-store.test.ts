@@ -22,11 +22,15 @@ function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return null
 
   const obj = raw as Record<string, unknown>
-  if (typeof obj.version !== 'string' || obj.version.length === 0 || obj.version.length > 100) return null
-  if (typeof obj.updatedAt !== 'string' || obj.updatedAt.length === 0 || obj.updatedAt.length > 100) return null
-  if (typeof obj.sha256 !== 'string' || obj.sha256.length === 0 || obj.sha256.length > 128) return null
+  if (typeof obj.version !== 'string' || obj.version.length === 0 || obj.version.length > 100)
+    return null
+  if (typeof obj.updatedAt !== 'string' || obj.updatedAt.length === 0 || obj.updatedAt.length > 100)
+    return null
+  if (typeof obj.sha256 !== 'string' || obj.sha256.length === 0 || obj.sha256.length > 128)
+    return null
 
-  if (!Array.isArray(obj.rules) || obj.rules.length === 0 || obj.rules.length > MAX_RULE_COUNT) return null
+  if (!Array.isArray(obj.rules) || obj.rules.length === 0 || obj.rules.length > MAX_RULE_COUNT)
+    return null
 
   const rules: YaraRuleFile[] = []
   for (const item of obj.rules) {
@@ -35,7 +39,12 @@ function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
     if (typeof entry.filename !== 'string' || !entry.filename.endsWith('.yar')) return null
     if (typeof entry.content !== 'string' || entry.content.length === 0) return null
     if (entry.content.length > MAX_RULE_CONTENT_BYTES) return null
-    if (entry.filename.includes('/') || entry.filename.includes('\\') || entry.filename.includes('..')) return null
+    if (
+      entry.filename.includes('/') ||
+      entry.filename.includes('\\') ||
+      entry.filename.includes('..')
+    )
+      return null
     rules.push({ filename: entry.filename, content: entry.content })
   }
 
@@ -43,13 +52,13 @@ function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
     version: obj.version,
     updatedAt: obj.updatedAt,
     sha256: obj.sha256,
-    rules,
+    rules
   }
 }
 
 function computeBundleHash(rules: YaraRuleFile[]): string {
   const sorted = [...rules].sort((a, b) => a.filename.localeCompare(b.filename))
-  const combined = sorted.map(r => r.content).join('')
+  const combined = sorted.map((r) => r.content).join('')
   return createHash('sha256').update(combined).digest('hex')
 }
 
@@ -60,9 +69,7 @@ describe('validateRuleBundle', () => {
     version: '1.0.0',
     updatedAt: '2026-03-28T12:00:00Z',
     sha256: 'abc123',
-    rules: [
-      { filename: 'miners.yar', content: 'rule Test { condition: true }' },
-    ],
+    rules: [{ filename: 'miners.yar', content: 'rule Test { condition: true }' }]
   }
 
   it('accepts a valid bundle', () => {
@@ -119,46 +126,60 @@ describe('validateRuleBundle', () => {
   })
 
   it('rejects rules without .yar extension', () => {
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: 'test.txt', content: 'rule Test { condition: true }' }],
-    })).toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: 'test.txt', content: 'rule Test { condition: true }' }]
+      })
+    ).toBeNull()
   })
 
   it('rejects rules with empty content', () => {
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: 'test.yar', content: '' }],
-    })).toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: 'test.yar', content: '' }]
+      })
+    ).toBeNull()
   })
 
   it('rejects path traversal in filename', () => {
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: '../evil.yar', content: 'rule X { condition: true }' }],
-    })).toBeNull()
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: 'sub/test.yar', content: 'rule X { condition: true }' }],
-    })).toBeNull()
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: 'sub\\test.yar', content: 'rule X { condition: true }' }],
-    })).toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: '../evil.yar', content: 'rule X { condition: true }' }]
+      })
+    ).toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: 'sub/test.yar', content: 'rule X { condition: true }' }]
+      })
+    ).toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: 'sub\\test.yar', content: 'rule X { condition: true }' }]
+      })
+    ).toBeNull()
   })
 
   it('rejects rules exceeding content size limit', () => {
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: 'big.yar', content: 'x'.repeat(MAX_RULE_CONTENT_BYTES + 1) }],
-    })).toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: 'big.yar', content: 'x'.repeat(MAX_RULE_CONTENT_BYTES + 1) }]
+      })
+    ).toBeNull()
   })
 
   it('accepts rules at the content size limit', () => {
-    expect(validateRuleBundle({
-      ...validBundle,
-      rules: [{ filename: 'big.yar', content: 'x'.repeat(MAX_RULE_CONTENT_BYTES) }],
-    })).not.toBeNull()
+    expect(
+      validateRuleBundle({
+        ...validBundle,
+        rules: [{ filename: 'big.yar', content: 'x'.repeat(MAX_RULE_CONTENT_BYTES) }]
+      })
+    ).not.toBeNull()
   })
 })
 
@@ -168,7 +189,7 @@ describe('computeBundleHash', () => {
   it('produces consistent hashes for the same content', () => {
     const rules: YaraRuleFile[] = [
       { filename: 'a.yar', content: 'rule A { condition: true }' },
-      { filename: 'b.yar', content: 'rule B { condition: true }' },
+      { filename: 'b.yar', content: 'rule B { condition: true }' }
     ]
     expect(computeBundleHash(rules)).toBe(computeBundleHash(rules))
   })
@@ -176,28 +197,24 @@ describe('computeBundleHash', () => {
   it('sorts by filename before hashing (order-independent)', () => {
     const rules1: YaraRuleFile[] = [
       { filename: 'b.yar', content: 'rule B { condition: true }' },
-      { filename: 'a.yar', content: 'rule A { condition: true }' },
+      { filename: 'a.yar', content: 'rule A { condition: true }' }
     ]
     const rules2: YaraRuleFile[] = [
       { filename: 'a.yar', content: 'rule A { condition: true }' },
-      { filename: 'b.yar', content: 'rule B { condition: true }' },
+      { filename: 'b.yar', content: 'rule B { condition: true }' }
     ]
     expect(computeBundleHash(rules1)).toBe(computeBundleHash(rules2))
   })
 
   it('produces different hashes for different content', () => {
-    const rules1: YaraRuleFile[] = [
-      { filename: 'a.yar', content: 'rule A { condition: true }' },
-    ]
-    const rules2: YaraRuleFile[] = [
-      { filename: 'a.yar', content: 'rule B { condition: false }' },
-    ]
+    const rules1: YaraRuleFile[] = [{ filename: 'a.yar', content: 'rule A { condition: true }' }]
+    const rules2: YaraRuleFile[] = [{ filename: 'a.yar', content: 'rule B { condition: false }' }]
     expect(computeBundleHash(rules1)).not.toBe(computeBundleHash(rules2))
   })
 
   it('returns a valid SHA-256 hex string', () => {
     const rules: YaraRuleFile[] = [
-      { filename: 'test.yar', content: 'rule Test { condition: true }' },
+      { filename: 'test.yar', content: 'rule Test { condition: true }' }
     ]
     const hash = computeBundleHash(rules)
     expect(hash).toMatch(/^[0-9a-f]{64}$/)
@@ -209,14 +226,14 @@ describe('computeBundleHash', () => {
 describe('bundle integrity verification', () => {
   it('validates correctly when sha256 matches computed hash', () => {
     const rules: YaraRuleFile[] = [
-      { filename: 'test.yar', content: 'rule Test { condition: true }' },
+      { filename: 'test.yar', content: 'rule Test { condition: true }' }
     ]
     const sha256 = computeBundleHash(rules)
     const bundle = validateRuleBundle({
       version: '1.0.0',
       updatedAt: '2026-03-28T12:00:00Z',
       sha256,
-      rules,
+      rules
     })
     expect(bundle).not.toBeNull()
     expect(computeBundleHash(bundle!.rules)).toBe(sha256)
@@ -224,12 +241,12 @@ describe('bundle integrity verification', () => {
 
   it('detects tampered content via hash mismatch', () => {
     const rules: YaraRuleFile[] = [
-      { filename: 'test.yar', content: 'rule Test { condition: true }' },
+      { filename: 'test.yar', content: 'rule Test { condition: true }' }
     ]
     const sha256 = computeBundleHash(rules)
     // Tamper with the content
     const tamperedRules: YaraRuleFile[] = [
-      { filename: 'test.yar', content: 'rule Malicious { condition: true }' },
+      { filename: 'test.yar', content: 'rule Malicious { condition: true }' }
     ]
     expect(computeBundleHash(tamperedRules)).not.toBe(sha256)
   })
@@ -242,20 +259,29 @@ describe('metadata validation', () => {
     if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return false
     const obj = raw as Record<string, unknown>
     return (
-      typeof obj.version === 'string' && obj.version.length > 0 && obj.version.length <= 100 &&
-      typeof obj.updatedAt === 'string' && obj.updatedAt.length > 0 && obj.updatedAt.length <= 100 &&
-      typeof obj.rulesCount === 'number' && obj.rulesCount >= 0 &&
-      typeof obj.sha256 === 'string' && obj.sha256.length > 0 && obj.sha256.length <= 128
+      typeof obj.version === 'string' &&
+      obj.version.length > 0 &&
+      obj.version.length <= 100 &&
+      typeof obj.updatedAt === 'string' &&
+      obj.updatedAt.length > 0 &&
+      obj.updatedAt.length <= 100 &&
+      typeof obj.rulesCount === 'number' &&
+      obj.rulesCount >= 0 &&
+      typeof obj.sha256 === 'string' &&
+      obj.sha256.length > 0 &&
+      obj.sha256.length <= 128
     )
   }
 
   it('accepts valid metadata', () => {
-    expect(validateMetadata({
-      version: '1.0.0',
-      updatedAt: '2026-03-28T12:00:00Z',
-      rulesCount: 50,
-      sha256: 'abc123',
-    })).toBe(true)
+    expect(
+      validateMetadata({
+        version: '1.0.0',
+        updatedAt: '2026-03-28T12:00:00Z',
+        rulesCount: 50,
+        sha256: 'abc123'
+      })
+    ).toBe(true)
   })
 
   it('rejects null', () => {
@@ -263,37 +289,45 @@ describe('metadata validation', () => {
   })
 
   it('rejects missing version', () => {
-    expect(validateMetadata({
-      updatedAt: '2026-03-28T12:00:00Z',
-      rulesCount: 50,
-      sha256: 'abc123',
-    })).toBe(false)
+    expect(
+      validateMetadata({
+        updatedAt: '2026-03-28T12:00:00Z',
+        rulesCount: 50,
+        sha256: 'abc123'
+      })
+    ).toBe(false)
   })
 
   it('rejects empty version', () => {
-    expect(validateMetadata({
-      version: '',
-      updatedAt: '2026-03-28T12:00:00Z',
-      rulesCount: 50,
-      sha256: 'abc123',
-    })).toBe(false)
+    expect(
+      validateMetadata({
+        version: '',
+        updatedAt: '2026-03-28T12:00:00Z',
+        rulesCount: 50,
+        sha256: 'abc123'
+      })
+    ).toBe(false)
   })
 
   it('rejects negative rulesCount', () => {
-    expect(validateMetadata({
-      version: '1.0.0',
-      updatedAt: '2026-03-28T12:00:00Z',
-      rulesCount: -1,
-      sha256: 'abc123',
-    })).toBe(false)
+    expect(
+      validateMetadata({
+        version: '1.0.0',
+        updatedAt: '2026-03-28T12:00:00Z',
+        rulesCount: -1,
+        sha256: 'abc123'
+      })
+    ).toBe(false)
   })
 
   it('rejects non-number rulesCount', () => {
-    expect(validateMetadata({
-      version: '1.0.0',
-      updatedAt: '2026-03-28T12:00:00Z',
-      rulesCount: '50',
-      sha256: 'abc123',
-    })).toBe(false)
+    expect(
+      validateMetadata({
+        version: '1.0.0',
+        updatedAt: '2026-03-28T12:00:00Z',
+        rulesCount: '50',
+        sha256: 'abc123'
+      })
+    ).toBe(false)
   })
 })

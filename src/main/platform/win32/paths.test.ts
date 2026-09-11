@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Stub os.homedir before importing the module under test
-vi.mock('os', () => ({ homedir: () => 'C:\\Users\\TestUser', tmpdir: () => 'C:\\Users\\TestUser\\AppData\\Local\\Temp' }))
+vi.mock('os', () => ({
+  homedir: () => 'C:\\Users\\TestUser',
+  tmpdir: () => 'C:\\Users\\TestUser\\AppData\\Local\\Temp'
+}))
 
 // Set deterministic env vars before import
 process.env.LOCALAPPDATA = 'C:\\Users\\TestUser\\AppData\\Local'
@@ -58,11 +61,13 @@ describe('win32 paths', () => {
 
     it('includes administrator-only Update Orchestrator logs', () => {
       const usoLogs = targets.find((t) => t.subcategory === 'Update Orchestrator Logs')
-      expect(usoLogs).toEqual(expect.objectContaining({
-        path: 'C:\\ProgramData\\USOShared\\Logs',
-        needsAdmin: true,
-        deepRecencyCheck: true,
-      }))
+      expect(usoLogs).toEqual(
+        expect.objectContaining({
+          path: 'C:\\ProgramData\\USOShared\\Logs',
+          needsAdmin: true,
+          deepRecencyCheck: true
+        })
+      )
     })
 
     it('includes Previous Windows Installation (Windows.old)', () => {
@@ -84,7 +89,7 @@ describe('win32 paths', () => {
     it('includes the full memory dump file', () => {
       const targets = paths.singleFileCleanTargets()
       expect(targets.length).toBeGreaterThanOrEqual(1)
-      const dumpTarget = targets.find(t => t.path.includes('MEMORY.DMP'))
+      const dumpTarget = targets.find((t) => t.path.includes('MEMORY.DMP'))
       expect(dumpTarget).toBeDefined()
       expect(dumpTarget!.subcategory).toBe('Full Memory Dump')
     })
@@ -128,7 +133,14 @@ describe('win32 paths', () => {
     })
 
     it('Chromium browsers have consistent cache dir names', () => {
-      const chromiumBrowsers = [browsers.chrome, browsers.edge, browsers.brave, browsers.vivaldi, browsers.arc, browsers.chromium]
+      const chromiumBrowsers = [
+        browsers.chrome,
+        browsers.edge,
+        browsers.brave,
+        browsers.vivaldi,
+        browsers.arc,
+        browsers.chromium
+      ]
       for (const b of chromiumBrowsers) {
         const profile = b.profileCaches.map((c) => c.dir)
         expect(profile).toContain('Cache\\Cache_Data')
@@ -138,13 +150,20 @@ describe('win32 paths', () => {
         expect(profile).toContain('Shared Dictionary\\cache')
         // Shader and CRX caches sit beside the profiles, not inside them (issue #265)
         expect(b.sharedCaches.map((c) => c.dir)).toEqual(
-          expect.arrayContaining(['component_crx_cache', 'extensions_crx_cache', 'GrShaderCache', 'ShaderCache'])
+          expect.arrayContaining([
+            'component_crx_cache',
+            'extensions_crx_cache',
+            'GrShaderCache',
+            'ShaderCache'
+          ])
         )
       }
     })
 
     it('every cache dir carries a distinct display label', () => {
-      const labels = [...browsers.chrome.profileCaches, ...browsers.chrome.sharedCaches].map((c) => c.label)
+      const labels = [...browsers.chrome.profileCaches, ...browsers.chrome.sharedCaches].map(
+        (c) => c.label
+      )
       expect(new Set(labels).size).toBe(labels.length)
     })
 
@@ -181,13 +200,35 @@ describe('win32 paths', () => {
       expect(ids).toContain('discord')
       expect(ids).toContain('vscode')
       expect(ids).toContain('npm')
-      expect(ids).toEqual(expect.arrayContaining(['electron', 'ffmpeg-static', 'google-drive', 'kudu', 'webview2', 'zed']))
-      expect(ids).toEqual(expect.arrayContaining([
-        'spotify-store-browser', 'nvidia-app', 'cursor-partitions', 'jetbrains-logs',
-        'ea-desktop-logs', 'edge-update-logs', 'firefox-crash-history', 'chocolatey-logs',
-        'bramblewatch', 'hearthglen', 't3-code', 'buzz-node-cache', 'upscayl',
-        'todesktop-builder', 'electron-updater-artifacts',
-      ]))
+      expect(ids).toEqual(
+        expect.arrayContaining([
+          'electron',
+          'ffmpeg-static',
+          'google-drive',
+          'kudu',
+          'webview2',
+          'zed'
+        ])
+      )
+      expect(ids).toEqual(
+        expect.arrayContaining([
+          'spotify-store-browser',
+          'nvidia-app',
+          'cursor-partitions',
+          'jetbrains-logs',
+          'ea-desktop-logs',
+          'edge-update-logs',
+          'firefox-crash-history',
+          'chocolatey-logs',
+          'bramblewatch',
+          'hearthglen',
+          't3-code',
+          'buzz-node-cache',
+          'upscayl',
+          'todesktop-builder',
+          'electron-updater-artifacts'
+        ])
+      )
     })
 
     it('constrains recursive WebView2 matching to cache directory names', () => {
@@ -206,11 +247,21 @@ describe('win32 paths', () => {
           'TeamViewer/EdgeBrowserControl/*/*/*/EBWebView',
           'Zoom/data/WebviewCacheX64/*/EBWebView',
           'Google/DriveFS/webview2_user_data/*/EBWebView',
-          'Microsoft/Office/*/Wef/webview2/*/*/EBWebView',
+          'Microsoft/Office/*/Wef/webview2/*/*/EBWebView'
         ],
         targets: ['Cache', 'Code Cache', 'GPUCache', 'DawnGraphiteCache', 'DawnWebGPUCache'],
-        excludedAncestors: ['File System', 'IndexedDB', 'Local Storage', 'Network', 'Service Worker', 'Session Storage', 'WebStorage', 'blob_storage', 'databases'],
-        maxDepth: 12,
+        excludedAncestors: [
+          'File System',
+          'IndexedDB',
+          'Local Storage',
+          'Network',
+          'Service Worker',
+          'Session Storage',
+          'WebStorage',
+          'blob_storage',
+          'databases'
+        ],
+        maxDepth: 12
       })
     })
 
@@ -220,7 +271,7 @@ describe('win32 paths', () => {
         names: ['installer.exe', 'current.blockmap'],
         childDirSuffix: '-updater',
         minAgeDays: 14,
-        skipIfChildExists: ['pending'],
+        skipIfChildExists: ['pending']
       })
       expect(updater?.paths).toHaveLength(1)
     })
@@ -249,7 +300,7 @@ describe('win32 paths', () => {
   })
 
   describe('malwareScanDirs', () => {
-    const dirs = paths.malwareScanDirs().map(d => d.path)
+    const dirs = paths.malwareScanDirs().map((d) => d.path)
 
     it('includes user Downloads and Desktop', () => {
       expect(dirs.some((d) => d.includes('Downloads'))).toBe(true)

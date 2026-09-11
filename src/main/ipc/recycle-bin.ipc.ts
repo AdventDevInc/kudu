@@ -10,7 +10,9 @@ import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { queryRecycleBinStats } from '../services/recycle-bin-stats'
 import { emptyRecycleBinFast, finalizeRecycleBinShell } from '../services/recycle-bin-cleaner'
 import {
-  isDeletionLoggingEnabled, listRecycleBinContents, recordEmptiedRecycleBin
+  isDeletionLoggingEnabled,
+  listRecycleBinContents,
+  recordEmptiedRecycleBin
 } from '../services/recycle-bin-log'
 
 // Windows: track last scanned size (virtual items have no real path)
@@ -52,21 +54,25 @@ export function registerRecycleBinIpc(): void {
 
       if (count === 0) return []
 
-      return [{
-        category: CleanerType.RecycleBin,
-        subcategory: 'Recycle Bin',
-        items: [{
-          id: randomUUID(),
-          path: 'Recycle Bin',
-          size,
+      return [
+        {
           category: CleanerType.RecycleBin,
           subcategory: 'Recycle Bin',
-          lastModified: Date.now(),
-          selected: true
-        }],
-        totalSize: size,
-        itemCount: count
-      }]
+          items: [
+            {
+              id: randomUUID(),
+              path: 'Recycle Bin',
+              size,
+              category: CleanerType.RecycleBin,
+              subcategory: 'Recycle Bin',
+              lastModified: Date.now(),
+              selected: true
+            }
+          ],
+          totalSize: size,
+          itemCount: count
+        }
+      ]
     } catch {
       return []
     }
@@ -82,7 +88,13 @@ export function registerRecycleBinIpc(): void {
         lastScannedItemIds = []
         return result
       } catch (err: any) {
-        return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [{ path: 'Trash', reason: err.message }], needsElevation: false }
+        return {
+          totalCleaned: 0,
+          filesDeleted: 0,
+          filesSkipped: 0,
+          errors: [{ path: 'Trash', reason: err.message }],
+          needsElevation: false
+        }
       }
     }
 
@@ -116,7 +128,11 @@ export function registerRecycleBinIpc(): void {
       if (remaining === 0) {
         // With no payloads left this is a quick no-op that refreshes Windows'
         // shell state/icon. Never fail an otherwise successful clean on it.
-        try { await finalizeRecycleBinShell() } catch { /* shell refresh is best-effort */ }
+        try {
+          await finalizeRecycleBinShell()
+        } catch {
+          /* shell refresh is best-effort */
+        }
       }
 
       if (logDeletions) await recordEmptiedRecycleBin(binContents, 'local')
@@ -133,12 +149,23 @@ export function registerRecycleBinIpc(): void {
           totalCleaned,
           filesDeleted,
           filesSkipped: remaining,
-          errors: [{ path: 'Recycle Bin', reason: `${remaining} item(s) could not be removed (may be in use or protected)` }],
+          errors: [
+            {
+              path: 'Recycle Bin',
+              reason: `${remaining} item(s) could not be removed (may be in use or protected)`
+            }
+          ],
           needsElevation: accessDenied
         }
       }
     } catch (err: any) {
-      return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [{ path: 'Recycle Bin', reason: err.message }], needsElevation: false }
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [{ path: 'Recycle Bin', reason: err.message }],
+        needsElevation: false
+      }
     }
   })
 }

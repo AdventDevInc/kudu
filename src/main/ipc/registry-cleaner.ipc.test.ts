@@ -81,7 +81,10 @@ describe('parseCSVLine', () => {
 
   it('handles mixed quoted and unquoted fields', () => {
     expect(parseCSVLine('"HOST",\\Task,Next,"C:\\path\\to file.exe"')).toEqual([
-      'HOST', '\\Task', 'Next', 'C:\\path\\to file.exe'
+      'HOST',
+      '\\Task',
+      'Next',
+      'C:\\path\\to file.exe'
     ])
   })
 })
@@ -159,9 +162,15 @@ function expandEnvVars(path: string): string {
   return path
     .replace(/%SystemRoot%/gi, process.env.WINDIR || 'C:\\Windows')
     .replace(/%ProgramFiles%/gi, process.env.PROGRAMFILES || 'C:\\Program Files')
-    .replace(/%ProgramFiles\(x86\)%/gi, process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)')
+    .replace(
+      /%ProgramFiles\(x86\)%/gi,
+      process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)'
+    )
     .replace(/%ProgramData%/gi, process.env.PROGRAMDATA || 'C:\\ProgramData')
-    .replace(/%CommonProgramFiles%/gi, process.env.COMMONPROGRAMFILES || 'C:\\Program Files\\Common Files')
+    .replace(
+      /%CommonProgramFiles%/gi,
+      process.env.COMMONPROGRAMFILES || 'C:\\Program Files\\Common Files'
+    )
     .replace(/%USERPROFILE%/gi, process.env.USERPROFILE || '')
     .replace(/%LOCALAPPDATA%/gi, process.env.LOCALAPPDATA || '')
     .replace(/%APPDATA%/gi, process.env.APPDATA || '')
@@ -243,8 +252,9 @@ describe('extractExePath parsing', () => {
   })
 
   it('extracts path from quoted string', () => {
-    expect(extractExePathParsing('"C:\\Program Files\\App\\svc.exe" --config foo.toml'))
-      .toBe('C:\\Program Files\\App\\svc.exe')
+    expect(extractExePathParsing('"C:\\Program Files\\App\\svc.exe" --config foo.toml')).toBe(
+      'C:\\Program Files\\App\\svc.exe'
+    )
   })
 
   it('returns full string when no spaces', () => {
@@ -252,8 +262,9 @@ describe('extractExePath parsing', () => {
   })
 
   it('finds exe extension in unquoted string with arguments', () => {
-    expect(extractExePathParsing('C:\\Program Files\\App\\svc.exe -k netsvcs'))
-      .toBe('C:\\Program Files\\App\\svc.exe')
+    expect(extractExePathParsing('C:\\Program Files\\App\\svc.exe -k netsvcs')).toBe(
+      'C:\\Program Files\\App\\svc.exe'
+    )
   })
 
   it('handles rundll32 style commands', () => {
@@ -262,13 +273,11 @@ describe('extractExePath parsing', () => {
   })
 
   it('finds .dll extension paths', () => {
-    expect(extractExePathParsing('C:\\path\\to\\helper.dll arg1'))
-      .toBe('C:\\path\\to\\helper.dll')
+    expect(extractExePathParsing('C:\\path\\to\\helper.dll arg1')).toBe('C:\\path\\to\\helper.dll')
   })
 
   it('finds .sys extension paths', () => {
-    expect(extractExePathParsing('C:\\drivers\\my.sys option'))
-      .toBe('C:\\drivers\\my.sys')
+    expect(extractExePathParsing('C:\\drivers\\my.sys option')).toBe('C:\\drivers\\my.sys')
   })
 
   it('returns first token for no-extension unquoted commands', () => {
@@ -377,7 +386,17 @@ describe('registry entry fix operations', () => {
 // ── Risk levels and entry types ──
 
 describe('registry entry classification', () => {
-  const validTypes = ['invalid', 'broken', 'obsolete', 'orphaned', 'vulnerability', 'performance', 'network', 'service', 'task']
+  const validTypes = [
+    'invalid',
+    'broken',
+    'obsolete',
+    'orphaned',
+    'vulnerability',
+    'performance',
+    'network',
+    'service',
+    'task'
+  ]
   const validRisks = ['low', 'medium', 'high']
 
   it('all entry types are known', () => {
@@ -391,12 +410,12 @@ describe('registry entry classification', () => {
   it('vulnerability entries use high risk', () => {
     // Matches the pattern from the source: UAC, Defender, SMBv1, firewall disabled, RDP without NLA
     const vulnerabilityRisks = ['high', 'high', 'high', 'high', 'high']
-    vulnerabilityRisks.forEach(r => expect(validRisks).toContain(r))
+    vulnerabilityRisks.forEach((r) => expect(validRisks).toContain(r))
   })
 
   it('orphaned entries typically use low or medium risk', () => {
     const orphanedRisks = ['low', 'medium']
-    orphanedRisks.forEach(r => expect(validRisks).toContain(r))
+    orphanedRisks.forEach((r) => expect(validRisks).toContain(r))
   })
 })
 
@@ -459,7 +478,11 @@ interface FixActionLite {
   op: 'delete-value' | 'delete-key' | 'set-value' | 'disable-task' | 'delete-task'
   key?: string
 }
-interface EntryLite { keyPath: string; valueName?: string; fix?: FixActionLite }
+interface EntryLite {
+  keyPath: string
+  valueName?: string
+  fix?: FixActionLite
+}
 
 function collectBackupTargets(entries: EntryLite[]): { keys: string[]; tasks: string[] } {
   const keys = new Set<string>()
@@ -493,7 +516,7 @@ describe('collectBackupTargets', () => {
 
   it('captures the parent key for delete-value', () => {
     const { keys, tasks } = collectBackupTargets([
-      { keyPath: 'HKLM\\SOFTWARE\\App', fix: { op: 'delete-value' } },
+      { keyPath: 'HKLM\\SOFTWARE\\App', fix: { op: 'delete-value' } }
     ])
     expect(keys).toEqual(['HKLM\\SOFTWARE\\App'])
     expect(tasks).toEqual([])
@@ -501,21 +524,21 @@ describe('collectBackupTargets', () => {
 
   it('captures the key itself for delete-key', () => {
     const { keys } = collectBackupTargets([
-      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-key' } },
+      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-key' } }
     ])
     expect(keys).toEqual(['HKCR\\CLSID\\{abc}'])
   })
 
   it('captures the key for set-value', () => {
     const { keys } = collectBackupTargets([
-      { keyPath: 'HKLM\\SOFTWARE\\App', fix: { op: 'set-value' } },
+      { keyPath: 'HKLM\\SOFTWARE\\App', fix: { op: 'set-value' } }
     ])
     expect(keys).toEqual(['HKLM\\SOFTWARE\\App'])
   })
 
   it('prefers fix.key over keyPath when both present', () => {
     const { keys } = collectBackupTargets([
-      { keyPath: 'HKCR\\old', fix: { op: 'delete-key', key: 'HKCR\\CLSID\\{abc}' } },
+      { keyPath: 'HKCR\\old', fix: { op: 'delete-key', key: 'HKCR\\CLSID\\{abc}' } }
     ])
     expect(keys).toEqual(['HKCR\\CLSID\\{abc}'])
   })
@@ -524,7 +547,7 @@ describe('collectBackupTargets', () => {
     const { keys } = collectBackupTargets([
       { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-value' } },
       { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-value' } },
-      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'set-value' } },
+      { keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'set-value' } }
     ])
     expect(keys).toEqual(['HKCR\\CLSID\\{abc}'])
   })
@@ -532,7 +555,7 @@ describe('collectBackupTargets', () => {
   it('routes task ops to tasks, not keys', () => {
     const { keys, tasks } = collectBackupTargets([
       { keyPath: '\\Microsoft\\Foo', fix: { op: 'disable-task' } },
-      { keyPath: '\\Microsoft\\Bar', fix: { op: 'delete-task' } },
+      { keyPath: '\\Microsoft\\Bar', fix: { op: 'delete-task' } }
     ])
     expect(keys).toEqual([])
     expect(tasks).toEqual(['\\Microsoft\\Foo', '\\Microsoft\\Bar'])
@@ -542,7 +565,7 @@ describe('collectBackupTargets', () => {
     const { keys, tasks } = collectBackupTargets([
       { keyPath: 'HKLM\\SOFTWARE\\A', fix: { op: 'delete-value' } },
       { keyPath: '\\MyTask', fix: { op: 'disable-task' } },
-      { keyPath: 'HKCR\\CLSID\\{x}', fix: { op: 'delete-key' } },
+      { keyPath: 'HKCR\\CLSID\\{x}', fix: { op: 'delete-key' } }
     ])
     expect(keys.sort()).toEqual(['HKCR\\CLSID\\{x}', 'HKLM\\SOFTWARE\\A'])
     expect(tasks).toEqual(['\\MyTask'])
@@ -550,9 +573,7 @@ describe('collectBackupTargets', () => {
 
   it('drops entries whose resolved key would be empty', () => {
     // keyPath is empty and no fix.key override — nothing to back up
-    const { keys } = collectBackupTargets([
-      { keyPath: '', fix: { op: 'delete-value' } },
-    ])
+    const { keys } = collectBackupTargets([{ keyPath: '', fix: { op: 'delete-value' } }])
     expect(keys).toEqual([])
   })
 })
@@ -567,7 +588,8 @@ function stripRegHeader(content: string): string {
 
 describe('stripRegHeader', () => {
   it('strips the standard CRLF header', () => {
-    const input = 'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_LOCAL_MACHINE\\Foo]\r\n"a"="b"\r\n'
+    const input =
+      'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_LOCAL_MACHINE\\Foo]\r\n"a"="b"\r\n'
     expect(stripRegHeader(input)).toBe('[HKEY_LOCAL_MACHINE\\Foo]\r\n"a"="b"\r\n')
   })
 
@@ -588,11 +610,12 @@ describe('stripRegHeader', () => {
   it('produces a valid concatenated reg file when bodies are joined under a single header', () => {
     const a = 'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_X\\A]\r\n"v"="1"\r\n\r\n'
     const b = 'Windows Registry Editor Version 5.00\r\n\r\n[HKEY_X\\B]\r\n"v"="2"\r\n\r\n'
-    const combined = 'Windows Registry Editor Version 5.00\r\n\r\n' + stripRegHeader(a) + stripRegHeader(b)
+    const combined =
+      'Windows Registry Editor Version 5.00\r\n\r\n' + stripRegHeader(a) + stripRegHeader(b)
     expect(combined).toBe(
       'Windows Registry Editor Version 5.00\r\n\r\n' +
-      '[HKEY_X\\A]\r\n"v"="1"\r\n\r\n' +
-      '[HKEY_X\\B]\r\n"v"="2"\r\n\r\n'
+        '[HKEY_X\\A]\r\n"v"="1"\r\n\r\n' +
+        '[HKEY_X\\B]\r\n"v"="2"\r\n\r\n'
     )
   })
 })

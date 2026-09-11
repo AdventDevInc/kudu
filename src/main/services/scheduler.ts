@@ -161,13 +161,16 @@ function triggerScheduleEntry(mainWindow: BrowserWindow | null, entry: ScheduleE
 
   // Safety timeout — if the renderer never responds (crash, reload, etc.),
   // auto-clear so the schedule isn't stuck forever
-  inFlightTimers.set(entry.id, setTimeout(() => {
-    if (inFlight.has(entry.id)) {
-      logInfo(`Schedule "${entry.name}" timed out — clearing inFlight`)
-      inFlight.delete(entry.id)
-      inFlightTimers.delete(entry.id)
-    }
-  }, IN_FLIGHT_TIMEOUT_MS))
+  inFlightTimers.set(
+    entry.id,
+    setTimeout(() => {
+      if (inFlight.has(entry.id)) {
+        logInfo(`Schedule "${entry.name}" timed out — clearing inFlight`)
+        inFlight.delete(entry.id)
+        inFlightTimers.delete(entry.id)
+      }
+    }, IN_FLIGHT_TIMEOUT_MS)
+  )
 
   mainWindow.webContents.send(IPC.SCHEDULE_RUN_TRIGGER, {
     scheduleId: entry.id,

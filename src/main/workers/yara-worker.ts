@@ -21,12 +21,13 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
       const result = await engine.loadRules(
         request.ruleFilePaths ?? [],
         request.extraSources ?? [],
-        (loaded, total) => parentPort!.postMessage({
-          type: 'progress',
-          id: request.id,
-          loaded,
-          total,
-        }),
+        (loaded, total) =>
+          parentPort!.postMessage({
+            type: 'progress',
+            id: request.id,
+            loaded,
+            total
+          })
       )
       parentPort!.postMessage({ type: 'result', id: request.id, result })
       return
@@ -44,12 +45,13 @@ async function handleRequest(request: WorkerRequest): Promise<void> {
     parentPort!.postMessage({
       type: 'error',
       id: request.id,
-      error: error instanceof Error ? error.message : String(error),
+      error: error instanceof Error ? error.message : String(error)
     })
   }
 }
 
-engine.initialize()
+engine
+  .initialize()
   .then(() => {
     parentPort!.on('message', (request: WorkerRequest) => {
       void handleRequest(request)
@@ -59,6 +61,6 @@ engine.initialize()
   .catch((error) => {
     parentPort!.postMessage({
       type: 'startup-error',
-      error: error instanceof Error ? error.message : String(error),
+      error: error instanceof Error ? error.message : String(error)
     })
   })

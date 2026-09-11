@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildLinuxElevationCommand,
   createLinuxElevation,
-  getLinuxRelaunchExecutable,
+  getLinuxRelaunchExecutable
 } from './elevation'
 
 describe('linux elevation', () => {
@@ -28,24 +28,22 @@ describe('linux elevation', () => {
       const exePath = '/tmp/.mount_Kudu123/kudu'
       const appImagePath = '/home/user/Applications/Kudu.AppImage'
 
-      expect(getLinuxRelaunchExecutable(exePath, appImagePath, () => true))
-        .toBe(appImagePath)
+      expect(getLinuxRelaunchExecutable(exePath, appImagePath, () => true)).toBe(appImagePath)
     })
 
     it('falls back to the executable for non-AppImage installs', () => {
       const exePath = '/usr/bin/kudu'
 
-      expect(getLinuxRelaunchExecutable(exePath, undefined, () => true))
-        .toBe(exePath)
+      expect(getLinuxRelaunchExecutable(exePath, undefined, () => true)).toBe(exePath)
     })
 
     it('ignores stale or non-absolute APPIMAGE values', () => {
       const exePath = '/usr/bin/kudu'
 
-      expect(getLinuxRelaunchExecutable(exePath, '/missing/Kudu.AppImage', () => false))
-        .toBe(exePath)
-      expect(getLinuxRelaunchExecutable(exePath, 'Kudu.AppImage', () => true))
-        .toBe(exePath)
+      expect(getLinuxRelaunchExecutable(exePath, '/missing/Kudu.AppImage', () => false)).toBe(
+        exePath
+      )
+      expect(getLinuxRelaunchExecutable(exePath, 'Kudu.AppImage', () => true)).toBe(exePath)
     })
   })
 
@@ -55,7 +53,7 @@ describe('linux elevation', () => {
         '/home/user/Kudu.AppImage',
         '/home/user/.config/Kudu',
         { DISPLAY: ':0', HOME: '/home/user' },
-        1234,
+        1234
       )
 
       expect(command).toContain('while kill -0 1234 2>/dev/null; do sleep 0.05; done;')
@@ -71,7 +69,7 @@ describe('linux elevation', () => {
         "/home/user/Kudu's AppImage",
         "/home/user/Kudu's data",
         { DISPLAY: ":0'unsafe" },
-        42,
+        42
       )
 
       expect(command).toContain("DISPLAY=':0'\\''unsafe'")

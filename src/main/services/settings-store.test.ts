@@ -4,8 +4,8 @@ import { describe, it, expect, vi } from 'vitest'
 vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getPath: () => '/tmp/test-kudu',
-  },
+    getPath: () => '/tmp/test-kudu'
+  }
 }))
 
 import { deepMerge } from './settings-store'
@@ -56,16 +56,16 @@ describe('deepMerge', () => {
       level1: {
         level2: {
           a: 1,
-          b: 2,
-        },
-      },
+          b: 2
+        }
+      }
     }
     const source = {
       level1: {
         level2: {
-          b: 99,
-        },
-      },
+          b: 99
+        }
+      }
     }
     const result = deepMerge(target, source as any)
     expect(result.level1.level2.a).toBe(1)
@@ -78,20 +78,20 @@ describe('deepMerge', () => {
       showNotificationOnComplete: true,
       cleaner: {
         skipRecentMinutes: 60,
-        secureDelete: false,
+        secureDelete: false
       },
       exclusions: [] as string[],
       schedule: {
         enabled: false,
         frequency: 'weekly',
         day: 1,
-        hour: 9,
-      },
+        hour: 9
+      }
     }
     const partial = {
       minimizeToTray: true,
       cleaner: { secureDelete: true },
-      schedule: { enabled: true, hour: 14 },
+      schedule: { enabled: true, hour: 14 }
     }
 
     const result = deepMerge(defaults, partial as any)

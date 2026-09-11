@@ -16,7 +16,7 @@ import {
   XCircle,
   Filter,
   EyeOff,
-  Eye,
+  Eye
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -27,14 +27,19 @@ import { useUpdaterStore, severityOrder, appKey } from '@/stores/updater-store'
 import { useHistoryStore } from '@/stores/history-store'
 import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
-import type { UpdateProgress, UpdatableApp, UpToDateApp, WindowsPackageManager } from '@shared/types'
+import type {
+  UpdateProgress,
+  UpdatableApp,
+  UpToDateApp,
+  WindowsPackageManager
+} from '@shared/types'
 
 /** Windows managers Kudu can aggregate, with their display labels. */
 const WINDOWS_MANAGER_OPTIONS: { id: WindowsPackageManager; label: string }[] = [
   { id: 'winget', label: 'winget' },
   { id: 'choco', label: 'Chocolatey' },
   { id: 'scoop', label: 'Scoop' },
-  { id: 'npm', label: 'npm' },
+  { id: 'npm', label: 'npm' }
 ]
 const DEFAULT_WINDOWS_MANAGERS: WindowsPackageManager[] = ['winget', 'choco', 'scoop', 'npm']
 
@@ -43,39 +48,39 @@ const SEVERITY_STYLES_BASE = {
     bg: 'rgba(239,68,68,0.08)',
     border: 'rgba(239,68,68,0.18)',
     text: '#f87171',
-    labelKey: 'softwareUpdater.severityMajor',
+    labelKey: 'softwareUpdater.severityMajor'
   },
   minor: {
     bg: 'rgba(245,158,11,0.08)',
     border: 'rgba(245,158,11,0.18)',
     text: '#fbbf24',
-    labelKey: 'softwareUpdater.severityMinor',
+    labelKey: 'softwareUpdater.severityMinor'
   },
   patch: {
     bg: 'rgba(34,197,94,0.08)',
     border: 'rgba(34,197,94,0.18)',
     text: '#4ade80',
-    labelKey: 'softwareUpdater.severityPatch',
+    labelKey: 'softwareUpdater.severityPatch'
   },
   unknown: {
     bg: 'rgba(113,113,122,0.08)',
     border: 'rgba(113,113,122,0.18)',
     text: '#a1a1aa',
-    labelKey: 'softwareUpdater.severityUpdate',
-  },
+    labelKey: 'softwareUpdater.severityUpdate'
+  }
 }
 
 const SORT_LABEL_KEYS: Record<string, string> = {
   name: 'softwareUpdater.sortName',
   severity: 'softwareUpdater.sortSeverity',
-  source: 'softwareUpdater.sortSource',
+  source: 'softwareUpdater.sortSource'
 }
 
 const FILTER_LABEL_KEYS: Record<string, string> = {
   all: 'softwareUpdater.filterAll',
   major: 'softwareUpdater.filterMajor',
   minor: 'softwareUpdater.filterMinor',
-  patch: 'softwareUpdater.filterPatch',
+  patch: 'softwareUpdater.filterPatch'
 }
 
 export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
@@ -122,14 +127,18 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
 
   // Load persisted ignore list from settings, then auto-scan on first visit
   useEffect(() => {
-    window.kudu.settingsGet().then((settings) => {
-      if (settings.ignoredSoftwareUpdates?.length) {
-        useUpdaterStore.getState().loadIgnoredIds(settings.ignoredSoftwareUpdates)
-      }
-    }).catch(() => {}).finally(() => {
-      const s = useUpdaterStore.getState()
-      if (!s.hasChecked && !s.loading) handleCheck()
-    })
+    window.kudu
+      .settingsGet()
+      .then((settings) => {
+        if (settings.ignoredSoftwareUpdates?.length) {
+          useUpdaterStore.getState().loadIgnoredIds(settings.ignoredSoftwareUpdates)
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        const s = useUpdaterStore.getState()
+        if (!s.hasChecked && !s.loading) handleCheck()
+      })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close menus on outside click
@@ -168,10 +177,18 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
 
       // Use the visible (non-ignored) count for the toast
       const visibleCount = useUpdaterStore.getState().apps.length
-      if (result.packageManagerAvailable && visibleCount === 0 && useUpdaterStore.getState().ignoredApps.length === 0) {
+      if (
+        result.packageManagerAvailable &&
+        visibleCount === 0 &&
+        useUpdaterStore.getState().ignoredApps.length === 0
+      ) {
         toast.success(t('softwareUpdater.toastAllUpToDate'))
       } else if (visibleCount > 0) {
-        toast.info(visibleCount !== 1 ? t('softwareUpdater.toastUpdatesFoundPlural', { count: visibleCount }) : t('softwareUpdater.toastUpdatesFound', { count: visibleCount }))
+        toast.info(
+          visibleCount !== 1
+            ? t('softwareUpdater.toastUpdatesFoundPlural', { count: visibleCount })
+            : t('softwareUpdater.toastUpdatesFound', { count: visibleCount })
+        )
       }
     } catch (err) {
       console.error('Update check failed:', err)
@@ -182,79 +199,84 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   }, [])
 
   // ─── Run updates ────────────────────────────────────────────
-  const handleUpdate = useCallback(
-    async (appsToUpdate: UpdatableApp[]) => {
-      if (appsToUpdate.length === 0) return
-      const store = useUpdaterStore.getState()
-      store.setUpdating(true)
-      store.setUpdateResult(null)
-      store.setError(null)
-      store.setProgress(null)
+  const handleUpdate = useCallback(async (appsToUpdate: UpdatableApp[]) => {
+    if (appsToUpdate.length === 0) return
+    const store = useUpdaterStore.getState()
+    store.setUpdating(true)
+    store.setUpdateResult(null)
+    store.setError(null)
+    store.setProgress(null)
 
-      const startTime = Date.now()
-      const items = appsToUpdate.map((a) => ({ id: a.id, source: a.source }))
+    const startTime = Date.now()
+    const items = appsToUpdate.map((a) => ({ id: a.id, source: a.source }))
 
-      try {
-        const result = await window.kudu.softwareUpdateRun(items)
-        const s = useUpdaterStore.getState()
-        s.setUpdateResult(result)
-        s.setProgress(null)
+    try {
+      const result = await window.kudu.softwareUpdateRun(items)
+      const s = useUpdaterStore.getState()
+      s.setUpdateResult(result)
+      s.setProgress(null)
 
-        if (result.succeeded > 0) {
-          // Remove successfully updated apps from the list (by composite key).
-          // Match failures by source+id when the manager reported a source, so
-          // a failed choco/git doesn't also strip a succeeded scoop/git.
-          const failedKeys = new Set(
-            result.errors.map((e) => (e.source ? appKey({ id: e.appId, source: e.source }) : e.appId)),
-          )
-          const succeededKeys = appsToUpdate
-            .filter((a) => !failedKeys.has(appKey(a)) && !failedKeys.has(a.id))
-            .map(appKey)
-          s.removeApps(succeededKeys)
-          toast.success(
-            result.succeeded !== 1 ? t('softwareUpdater.toastUpdateSuccessPlural', { count: result.succeeded }) : t('softwareUpdater.toastUpdateSuccess', { count: result.succeeded }),
-          )
-        }
-        if (result.failed > 0) {
-          toast.error(
-            result.failed !== 1 ? t('softwareUpdater.toastUpdateFailedPlural', { count: result.failed }) : t('softwareUpdater.toastUpdateFailed', { count: result.failed }),
-          )
-        }
-
-        // Log to history
-        const bySeverity: Record<string, { found: number; updated: number }> = {}
-        const failedKeysForHistory = new Set(
-          result.errors.map((e) => (e.source ? appKey({ id: e.appId, source: e.source }) : e.appId)),
+      if (result.succeeded > 0) {
+        // Remove successfully updated apps from the list (by composite key).
+        // Match failures by source+id when the manager reported a source, so
+        // a failed choco/git doesn't also strip a succeeded scoop/git.
+        const failedKeys = new Set(
+          result.errors.map((e) => (e.source ? appKey({ id: e.appId, source: e.source }) : e.appId))
         )
-        for (const app of appsToUpdate) {
-          const sev = app.severity
-          if (!bySeverity[sev]) bySeverity[sev] = { found: 0, updated: 0 }
-          bySeverity[sev].found++
-          if (!failedKeysForHistory.has(appKey(app)) && !failedKeysForHistory.has(app.id)) bySeverity[sev].updated++
-        }
-        await useHistoryStore.getState().addEntry({
-          id: Date.now().toString(),
-          type: 'software-update',
-          timestamp: new Date().toISOString(),
-          duration: Date.now() - startTime,
-          totalItemsFound: appsToUpdate.length,
-          totalItemsCleaned: result.succeeded,
-          totalItemsSkipped: 0,
-          totalSpaceSaved: 0,
-          categories: Object.entries(bySeverity).map(([name, d]) => ({
-            name: `${name} updates`, itemsFound: d.found, itemsCleaned: d.updated, spaceSaved: 0
-          })),
-          errorCount: result.failed
-        })
-      } catch (err) {
-        console.error('Update failed:', err)
-        useUpdaterStore.getState().setError(t('softwareUpdater.errorUpdateFailed'))
-      } finally {
-        useUpdaterStore.getState().setUpdating(false)
+        const succeededKeys = appsToUpdate
+          .filter((a) => !failedKeys.has(appKey(a)) && !failedKeys.has(a.id))
+          .map(appKey)
+        s.removeApps(succeededKeys)
+        toast.success(
+          result.succeeded !== 1
+            ? t('softwareUpdater.toastUpdateSuccessPlural', { count: result.succeeded })
+            : t('softwareUpdater.toastUpdateSuccess', { count: result.succeeded })
+        )
       }
-    },
-    [],
-  )
+      if (result.failed > 0) {
+        toast.error(
+          result.failed !== 1
+            ? t('softwareUpdater.toastUpdateFailedPlural', { count: result.failed })
+            : t('softwareUpdater.toastUpdateFailed', { count: result.failed })
+        )
+      }
+
+      // Log to history
+      const bySeverity: Record<string, { found: number; updated: number }> = {}
+      const failedKeysForHistory = new Set(
+        result.errors.map((e) => (e.source ? appKey({ id: e.appId, source: e.source }) : e.appId))
+      )
+      for (const app of appsToUpdate) {
+        const sev = app.severity
+        if (!bySeverity[sev]) bySeverity[sev] = { found: 0, updated: 0 }
+        bySeverity[sev].found++
+        if (!failedKeysForHistory.has(appKey(app)) && !failedKeysForHistory.has(app.id))
+          bySeverity[sev].updated++
+      }
+      await useHistoryStore.getState().addEntry({
+        id: Date.now().toString(),
+        type: 'software-update',
+        timestamp: new Date().toISOString(),
+        duration: Date.now() - startTime,
+        totalItemsFound: appsToUpdate.length,
+        totalItemsCleaned: result.succeeded,
+        totalItemsSkipped: 0,
+        totalSpaceSaved: 0,
+        categories: Object.entries(bySeverity).map(([name, d]) => ({
+          name: `${name} updates`,
+          itemsFound: d.found,
+          itemsCleaned: d.updated,
+          spaceSaved: 0
+        })),
+        errorCount: result.failed
+      })
+    } catch (err) {
+      console.error('Update failed:', err)
+      useUpdaterStore.getState().setError(t('softwareUpdater.errorUpdateFailed'))
+    } finally {
+      useUpdaterStore.getState().setUpdating(false)
+    }
+  }, [])
 
   const handleUpdateSelected = useCallback(() => {
     const selectedApps = useUpdaterStore.getState().apps.filter((a) => a.selected)
@@ -264,7 +286,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   // ─── Toggle a Windows manager on/off (aggregation) ──────────
   const handleToggleManager = useCallback(
     async (manager: WindowsPackageManager) => {
-      const current = useSettingsStore.getState().settings.windowsPackageManagers ?? DEFAULT_WINDOWS_MANAGERS
+      const current =
+        useSettingsStore.getState().settings.windowsPackageManagers ?? DEFAULT_WINDOWS_MANAGERS
       const next = current.includes(manager)
         ? current.filter((m) => m !== manager)
         : [...current, manager]
@@ -274,7 +297,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       await window.kudu.settingsSet({ windowsPackageManagers: next })
       handleCheck()
     },
-    [handleCheck],
+    [handleCheck]
   )
 
   // ─── Filtered & sorted list ─────────────────────────────────
@@ -287,9 +310,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
-      list = list.filter(
-        (a) => a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q),
-      )
+      list = list.filter((a) => a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q))
     }
 
     const dir = sortDirection === 'asc' ? 1 : -1
@@ -330,7 +351,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
           style={{
             background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            color: 'var(--text-on-accent)',
+            color: 'var(--text-on-accent)'
           }}
         >
           {loading ? (
@@ -338,7 +359,11 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           ) : (
             <RefreshCw className="h-4 w-4" strokeWidth={2} />
           )}
-          {loading ? t('softwareUpdater.checkingButton') : hasChecked ? t('softwareUpdater.recheckButton') : t('softwareUpdater.checkForUpdatesButton')}
+          {loading
+            ? t('softwareUpdater.checkingButton')
+            : hasChecked
+              ? t('softwareUpdater.recheckButton')
+              : t('softwareUpdater.checkForUpdatesButton')}
         </button>
 
         {/* Package manager toggles (Windows only) — aggregate across managers */}
@@ -370,7 +395,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                     background: enabled ? 'var(--accent-muted-bg)' : 'transparent',
                     color: enabled ? 'var(--accent)' : 'var(--text-muted)',
                     border: `1px solid ${enabled ? 'var(--accent-muted-border, transparent)' : 'transparent'}`,
-                    opacity: notInstalled ? 0.5 : 1,
+                    opacity: notInstalled ? 0.5 : 1
                   }}
                 >
                   {enabled ? (
@@ -392,7 +417,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             className="flex items-center gap-2 rounded-xl px-4 py-2.5"
             style={{
               background: 'var(--bg-subtle)',
-              border: '1px solid var(--border-medium)',
+              border: '1px solid var(--border-medium)'
             }}
           >
             <Search className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
@@ -414,7 +439,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-all"
               style={{
                 background: 'var(--bg-subtle)',
-                border: '1px solid var(--border-medium)',
+                border: '1px solid var(--border-medium)'
               }}
             >
               <Filter className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -427,7 +452,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 style={{
                   background: '#1e1e22',
                   border: '1px solid var(--border-strong)',
-                  minWidth: 120,
+                  minWidth: 120
                 }}
               >
                 {Object.entries(FILTER_LABEL_KEYS).map(([key, labelKey]) => (
@@ -458,7 +483,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-400 transition-all"
               style={{
                 background: 'var(--bg-subtle)',
-                border: '1px solid var(--border-medium)',
+                border: '1px solid var(--border-medium)'
               }}
             >
               <ArrowUpDown className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -471,7 +496,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                 style={{
                   background: '#1e1e22',
                   border: '1px solid var(--border-strong)',
-                  minWidth: 140,
+                  minWidth: 140
                 }}
               >
                 {Object.entries(SORT_LABEL_KEYS).map(([field, labelKey]) => (
@@ -492,7 +517,9 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                     {t(labelKey)}
                     {sortField === field && (
                       <span className="ml-auto text-amber-400 text-[10px]">
-                        {sortDirection === 'asc' ? t('softwareUpdater.sortAsc') : t('softwareUpdater.sortDesc')}
+                        {sortDirection === 'asc'
+                          ? t('softwareUpdater.sortAsc')
+                          : t('softwareUpdater.sortDesc')}
                       </span>
                     )}
                   </button>
@@ -509,41 +536,71 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           className="mb-5 flex items-center gap-3 rounded-2xl px-5 py-4"
           style={{
             background: 'rgba(239,68,68,0.04)',
-            border: '1px solid rgba(239,68,68,0.1)',
+            border: '1px solid rgba(239,68,68,0.1)'
           }}
         >
           <AlertTriangle className="h-5 w-5 shrink-0 text-red-400" strokeWidth={1.8} />
           <p className="text-[12px] text-zinc-400">
             {platform === 'win32' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.noWindowsManager')}</span> — {t('softwareUpdater.packageManagerNotFound.windowsManagerHint')}
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.noWindowsManager')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.windowsManagerHint')}
               </>
             ) : packageManagerName === 'brew' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.brewNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.brewRequired')}{' '}
-                <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.brewSite')}</span>.
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.brewNotFound')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.brewRequired')}{' '}
+                <span className="text-zinc-300">
+                  {t('softwareUpdater.packageManagerNotFound.brewSite')}
+                </span>
+                .
               </>
             ) : packageManagerName === 'winget' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.wingetNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.wingetRequired')}{' '}
-                <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.wingetStore')}</span> {t('softwareUpdater.packageManagerNotFound.wingetSearchTerm')}
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.wingetNotFound')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.wingetRequired')}{' '}
+                <span className="text-zinc-300">
+                  {t('softwareUpdater.packageManagerNotFound.wingetStore')}
+                </span>{' '}
+                {t('softwareUpdater.packageManagerNotFound.wingetSearchTerm')}
               </>
             ) : packageManagerName === 'choco' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.chocoNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.chocoRequired')}{' '}
-                <span className="text-zinc-300">{t('softwareUpdater.packageManagerNotFound.chocoSite')}</span>.
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.chocoNotFound')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.chocoRequired')}{' '}
+                <span className="text-zinc-300">
+                  {t('softwareUpdater.packageManagerNotFound.chocoSite')}
+                </span>
+                .
               </>
             ) : packageManagerName === 'apt' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.aptNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.aptRequired')}
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.aptNotFound')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.aptRequired')}
               </>
             ) : packageManagerName === 'dnf' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.dnfNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.dnfRequired')}
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.dnfNotFound')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.dnfRequired')}
               </>
             ) : packageManagerName === 'pacman' ? (
               <>
-                <span className="font-semibold text-red-400">{t('softwareUpdater.packageManagerNotFound.pacmanNotFound')}</span> — {t('softwareUpdater.packageManagerNotFound.pacmanRequired')}
+                <span className="font-semibold text-red-400">
+                  {t('softwareUpdater.packageManagerNotFound.pacmanNotFound')}
+                </span>{' '}
+                — {t('softwareUpdater.packageManagerNotFound.pacmanRequired')}
               </>
             ) : (
               <span className="font-semibold text-red-400">
@@ -566,10 +623,30 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       {/* Stat cards */}
       {hasChecked && packageManagerAvailable && apps.length > 0 && (
         <div className="grid grid-cols-4 gap-3 mb-5">
-          <StatCard icon={Package} label={t('softwareUpdater.statOutdatedApps')} value={apps.length} variant="accent" />
-          <StatCard icon={AlertTriangle} label={t('softwareUpdater.statMajorUpdates')} value={majorCount} variant="danger" />
-          <StatCard icon={AlertTriangle} label={t('softwareUpdater.statMinorUpdates')} value={minorCount} variant="default" />
-          <StatCard icon={CheckCircle2} label={t('softwareUpdater.statPatches')} value={patchCount} variant="success" />
+          <StatCard
+            icon={Package}
+            label={t('softwareUpdater.statOutdatedApps')}
+            value={apps.length}
+            variant="accent"
+          />
+          <StatCard
+            icon={AlertTriangle}
+            label={t('softwareUpdater.statMajorUpdates')}
+            value={majorCount}
+            variant="danger"
+          />
+          <StatCard
+            icon={AlertTriangle}
+            label={t('softwareUpdater.statMinorUpdates')}
+            value={minorCount}
+            variant="default"
+          />
+          <StatCard
+            icon={CheckCircle2}
+            label={t('softwareUpdater.statPatches')}
+            value={patchCount}
+            variant="success"
+          />
         </div>
       )}
 
@@ -579,14 +656,18 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           className="mb-5 rounded-2xl p-4"
           style={{
             background: 'rgba(245,158,11,0.04)',
-            border: '1px solid var(--accent-muted-bg)',
+            border: '1px solid var(--accent-muted-bg)'
           }}
         >
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-amber-400" strokeWidth={2} />
               <span className="text-[13px] font-medium text-zinc-200">
-                {t('softwareUpdater.updatingProgress', { app: progress.currentApp, current: progress.current, total: progress.total })}
+                {t('softwareUpdater.updatingProgress', {
+                  app: progress.currentApp,
+                  current: progress.current,
+                  total: progress.total
+                })}
               </span>
             </div>
             <span className="text-[12px] font-mono" style={{ color: 'var(--text-muted)' }}>
@@ -601,7 +682,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               className="h-full rounded-full transition-all duration-300"
               style={{
                 width: `${progress.percent}%`,
-                background: 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)',
+                background: 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)'
               }}
             />
           </div>
@@ -618,11 +699,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         <div
           className="mb-5 flex items-center gap-3 rounded-2xl p-4"
           style={{
-            background:
-              updateResult.failed === 0
-                ? 'rgba(34,197,94,0.06)'
-                : 'rgba(239,68,68,0.06)',
-            border: `1px solid ${updateResult.failed === 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'}`,
+            background: updateResult.failed === 0 ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)',
+            border: `1px solid ${updateResult.failed === 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'}`
           }}
         >
           {updateResult.failed === 0 ? (
@@ -633,7 +711,11 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
           <div className="text-[13px] text-zinc-200">
             {updateResult.succeeded > 0 && (
               <span className="text-green-400">
-                {updateResult.succeeded !== 1 ? t('softwareUpdater.updateResultAppsUpdatedPlural', { count: updateResult.succeeded }) : t('softwareUpdater.updateResultAppsUpdated', { count: updateResult.succeeded })}
+                {updateResult.succeeded !== 1
+                  ? t('softwareUpdater.updateResultAppsUpdatedPlural', {
+                      count: updateResult.succeeded
+                    })
+                  : t('softwareUpdater.updateResultAppsUpdated', { count: updateResult.succeeded })}
               </span>
             )}
             {updateResult.succeeded > 0 && updateResult.failed > 0 && <span> — </span>}
@@ -645,7 +727,9 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             {updateResult.errors.length > 0 && (
               <div className="mt-2">
                 {updateResult.errors.map((e) => {
-                  const isInstallerChange = e.reason.toLowerCase().includes('installer type changed')
+                  const isInstallerChange = e.reason
+                    .toLowerCase()
+                    .includes('installer type changed')
                   return (
                     <div key={e.appId} className="mt-1.5">
                       <span style={{ color: 'var(--text-muted)' }} className="text-[12px]">
@@ -654,9 +738,13 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                       {isInstallerChange && packageManagerName && (
                         <div
                           className="mt-1.5 rounded-lg px-3 py-2 font-mono text-[11px] text-zinc-300 select-all cursor-text"
-                          style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-medium)' }}
+                          style={{
+                            background: 'rgba(0,0,0,0.3)',
+                            border: '1px solid var(--border-medium)'
+                          }}
                         >
-                          {packageManagerName} uninstall {e.appId}<br />
+                          {packageManagerName} uninstall {e.appId}
+                          <br />
                           {packageManagerName} install {e.appId}
                         </div>
                       )}
@@ -684,11 +772,15 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               className="flex h-4 w-4 items-center justify-center rounded"
               style={{
                 background: allSelected ? 'var(--accent)' : 'var(--bg-hover-2)',
-                border: allSelected ? 'none' : '1px solid var(--border-stronger)',
+                border: allSelected ? 'none' : '1px solid var(--border-stronger)'
               }}
             >
               {allSelected && (
-                <CheckCircle2 className="h-3 w-3" style={{ color: 'var(--text-on-accent)' }} strokeWidth={3} />
+                <CheckCircle2
+                  className="h-3 w-3"
+                  style={{ color: 'var(--text-on-accent)' }}
+                  strokeWidth={3}
+                />
               )}
             </div>
             {allSelected ? t('softwareUpdater.deselectAll') : t('softwareUpdater.selectAll')}
@@ -712,8 +804,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
                   ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
                   : 'var(--bg-hover)',
               color: selectedCount > 0 ? '#052e16' : 'var(--text-muted)',
-              border:
-                selectedCount > 0 ? 'none' : '1px solid var(--border-medium)',
+              border: selectedCount > 0 ? 'none' : '1px solid var(--border-medium)'
             }}
           >
             <Download className="h-4 w-4" strokeWidth={2} />
@@ -735,7 +826,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                color: 'var(--text-on-accent)',
+                color: 'var(--text-on-accent)'
               }}
             >
               <RefreshCw className="h-4 w-4" strokeWidth={2} />
@@ -757,13 +848,17 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* All up to date */}
-      {hasChecked && !loading && apps.length === 0 && ignoredApps.length === 0 && packageManagerAvailable && (
-        <EmptyState
-          icon={Sparkles}
-          title={t('softwareUpdater.allUpToDateTitle')}
-          description={t('softwareUpdater.allUpToDateDescription')}
-        />
-      )}
+      {hasChecked &&
+        !loading &&
+        apps.length === 0 &&
+        ignoredApps.length === 0 &&
+        packageManagerAvailable && (
+          <EmptyState
+            icon={Sparkles}
+            title={t('softwareUpdater.allUpToDateTitle')}
+            description={t('softwareUpdater.allUpToDateDescription')}
+          />
+        )}
 
       {/* No results from filter/search */}
       {hasChecked && !loading && filteredApps.length === 0 && apps.length > 0 && (
@@ -855,7 +950,7 @@ function AppRow({
   updating,
   onToggle,
   onUpdate,
-  onIgnore,
+  onIgnore
 }: {
   app: UpdatableApp
   updating: boolean
@@ -872,26 +967,26 @@ function AppRow({
       className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors"
       style={{
         background: app.selected ? 'rgba(245,158,11,0.03)' : 'var(--bg-subtle)',
-        border: `1px solid ${app.selected ? 'rgba(245,158,11,0.1)' : 'var(--border-subtle)'}`,
+        border: `1px solid ${app.selected ? 'rgba(245,158,11,0.1)' : 'var(--border-subtle)'}`
       }}
     >
       {/* Checkbox */}
-      <button
-        onClick={onToggle}
-        disabled={updating}
-        className="shrink-0 disabled:opacity-40"
-      >
+      <button onClick={onToggle} disabled={updating} className="shrink-0 disabled:opacity-40">
         <div
           className="flex h-4.5 w-4.5 items-center justify-center rounded"
           style={{
             background: app.selected ? 'var(--accent)' : 'var(--bg-hover-2)',
             border: app.selected ? 'none' : '1px solid var(--border-stronger)',
             width: 18,
-            height: 18,
+            height: 18
           }}
         >
           {app.selected && (
-            <CheckCircle2 className="h-3 w-3" style={{ color: 'var(--text-on-accent)' }} strokeWidth={3} />
+            <CheckCircle2
+              className="h-3 w-3"
+              style={{ color: 'var(--text-on-accent)' }}
+              strokeWidth={3}
+            />
           )}
         </div>
       </button>
@@ -913,7 +1008,7 @@ function AppRow({
             style={{
               background: severity.bg,
               border: `1px solid ${severity.border}`,
-              color: severity.text,
+              color: severity.text
             }}
           >
             {severity.label}
@@ -975,7 +1070,7 @@ function IgnoredRow({ app, onUnignore }: { app: UpdatableApp; onUnignore: () => 
       style={{
         background: 'var(--bg-subtle)',
         border: '1px solid var(--border-subtle)',
-        opacity: 0.7,
+        opacity: 0.7
       }}
     >
       <div
@@ -1016,7 +1111,7 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
       className="flex items-center gap-4 rounded-xl px-5 py-3"
       style={{
         background: 'var(--bg-subtle)',
-        border: '1px solid var(--border-subtle)',
+        border: '1px solid var(--border-subtle)'
       }}
     >
       <div
@@ -1034,7 +1129,11 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
       <span className="text-[11px] font-mono text-zinc-600 shrink-0">{app.version}</span>
       <span
         className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-medium"
-        style={{ background: 'rgba(34,197,94,0.06)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.1)' }}
+        style={{
+          background: 'rgba(34,197,94,0.06)',
+          color: '#4ade80',
+          border: '1px solid rgba(34,197,94,0.1)'
+        }}
       >
         {t('softwareUpdater.latestBadge')}
       </span>

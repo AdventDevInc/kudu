@@ -19,7 +19,9 @@ export function EmptyState({ icon: Icon, title, description, action, className }
       >
         <Icon className="h-7 w-7" style={{ color: 'var(--text-faint)' }} strokeWidth={1.5} />
       </div>
-      <h3 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+      <h3 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+        {title}
+      </h3>
       <p className="mt-1.5 max-w-sm text-center text-[13px]" style={{ color: 'var(--text-muted)' }}>
         {description}
       </p>

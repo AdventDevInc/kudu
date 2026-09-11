@@ -23,7 +23,7 @@ const initial = {
   usage: 0,
   status: 'idle' as const,
   error: null as string | null,
-  addingEmail: false,
+  addingEmail: false
 }
 
 export const useBreachStore = create<BreachState>((set, get) => ({
@@ -37,7 +37,7 @@ export const useBreachStore = create<BreachState>((set, get) => ({
         emails: result.emails,
         limit: result.limit,
         usage: result.usage,
-        status: 'done',
+        status: 'done'
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to fetch breach data'
@@ -61,7 +61,13 @@ export const useBreachStore = create<BreachState>((set, get) => ({
     // Add succeeded — refresh is best-effort
     try {
       const result = await window.kudu.breachMonitorFetch()
-      set({ emails: result.emails, limit: result.limit, usage: result.usage, addingEmail: false, error: null })
+      set({
+        emails: result.emails,
+        limit: result.limit,
+        usage: result.usage,
+        addingEmail: false,
+        error: null
+      })
     } catch {
       set({ addingEmail: false })
     }
@@ -81,7 +87,9 @@ export const useBreachStore = create<BreachState>((set, get) => ({
     try {
       const result = await window.kudu.breachMonitorFetch()
       set({ emails: result.emails, limit: result.limit, usage: result.usage })
-    } catch { /* keep optimistic removal */ }
+    } catch {
+      /* keep optimistic removal */
+    }
   },
 
   acknowledgeBreaches: async (breachIds: string[]) => {
@@ -97,12 +105,12 @@ export const useBreachStore = create<BreachState>((set, get) => ({
         ...em,
         breaches: em.breaches.map((b) =>
           idSet.has(b.name) && !b.acknowledgedAt ? { ...b, acknowledgedAt: now } : b
-        ),
-      })),
+        )
+      }))
     })
   },
 
-  reset: () => set(initial),
+  reset: () => set(initial)
 }))
 
 // Eagerly fetch breach data on startup if cloud-connected,

@@ -15,11 +15,14 @@ interface ScheduleRunPayload {
 }
 
 // Map task types to scan/clean functions
-const CLEANER_TASKS: Record<string, {
-  label: string
-  scan: () => Promise<ScanResult[]>
-  clean: (ids: string[]) => Promise<any>
-}> = {
+const CLEANER_TASKS: Record<
+  string,
+  {
+    label: string
+    scan: () => Promise<ScanResult[]>
+    clean: (ids: string[]) => Promise<any>
+  }
+> = {
   'cleaner:system': {
     label: 'System',
     scan: () => window.kudu.systemScan(),
@@ -195,11 +198,15 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
 
     // Pick the most representative history type based on tasks that actually ran
     const hasCleanerTasks = payload.tasks.some((t) => t.startsWith('cleaner:'))
-    const historyType = hasCleanerTasks ? 'cleaner'
-      : payload.tasks.includes('registry') ? 'registry'
-      : payload.tasks.includes('drivers') ? 'drivers'
-      : payload.tasks.includes('software-update') ? 'software-update'
-      : 'cleaner'
+    const historyType = hasCleanerTasks
+      ? 'cleaner'
+      : payload.tasks.includes('registry')
+        ? 'registry'
+        : payload.tasks.includes('drivers')
+          ? 'drivers'
+          : payload.tasks.includes('software-update')
+            ? 'software-update'
+            : 'cleaner'
 
     // Log to history
     await useHistoryStore.getState().addEntry({
@@ -240,7 +247,9 @@ async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
     status = 'failed'
     window.kudu.scheduleRunComplete?.(payload.scheduleId, status)
     refreshSettings()
-    toast.error(`"${payload.scheduleName}" failed`, { description: 'An error occurred during the scheduled task.' })
+    toast.error(`"${payload.scheduleName}" failed`, {
+      description: 'An error occurred during the scheduled task.'
+    })
   }
 }
 
@@ -273,7 +282,9 @@ export function useScheduledScan(): void {
           const idle = await waitForIdle()
           if (!idle) {
             window.kudu.scheduleRunComplete?.(next.scheduleId, 'failed')
-            toast.warning(`"${next.scheduleName}" skipped`, { description: 'Timed out waiting for manual scan to finish.' })
+            toast.warning(`"${next.scheduleName}" skipped`, {
+              description: 'Timed out waiting for manual scan to finish.'
+            })
             continue
           }
           await runSchedule(next)
@@ -293,6 +304,8 @@ export function useScheduledScan(): void {
       }
     })
 
-    return () => { unsubscribe() }
+    return () => {
+      unsubscribe()
+    }
   }, [])
 }

@@ -83,7 +83,9 @@ if (expectedEntries.length > 0 && !wroteEntries) {
 if (expectedEntries.length === 0) {
   console.log(`Changelog updated (no user-facing commits since ${previousTag})`)
 } else {
-  console.log(`Changelog updated (${expectedEntries.length} entr${expectedEntries.length === 1 ? 'y' : 'ies'})`)
+  console.log(
+    `Changelog updated (${expectedEntries.length} entr${expectedEntries.length === 1 ? 'y' : 'ies'})`
+  )
 }
 
 // 3. Commit and tag

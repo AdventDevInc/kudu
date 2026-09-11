@@ -7,7 +7,14 @@ import { IPC } from '../../shared/channels'
 import { isAdmin } from '../services/elevation'
 import { getLastTrimAt, setLastTrimAt, isThrottled } from '../services/trim-history-store'
 import { psUtf8 } from '../services/exec-utf8'
-import type { TrimDriveInfo, TrimRunResult, TrimProgress, TrimMediaType, TrimSupport, TrimStatus } from '../../shared/types'
+import type {
+  TrimDriveInfo,
+  TrimRunResult,
+  TrimProgress,
+  TrimMediaType,
+  TrimSupport,
+  TrimStatus
+} from '../../shared/types'
 import type { WindowGetter } from './index'
 
 const execFileAsync = promisify(execFile)
@@ -21,9 +28,15 @@ const RECOMMEND_DISCARD_BYTES = 1024 * 1024 * 1024 // 1 GiB
 
 // ── Status heuristic ──
 
-function computeStatus(drive: Partial<TrimDriveInfo>, now = Date.now()): { status: TrimStatus; reason: string } {
+function computeStatus(
+  drive: Partial<TrimDriveInfo>,
+  now = Date.now()
+): { status: TrimStatus; reason: string } {
   if (drive.trimSupport === 'macos-managed') {
-    return { status: 'not-applicable', reason: 'Managed by macOS — TRIM runs automatically on Apple SSDs.' }
+    return {
+      status: 'not-applicable',
+      reason: 'Managed by macOS — TRIM runs automatically on Apple SSDs.'
+    }
   }
   if (drive.mediaType === 'HDD') {
     return { status: 'not-applicable', reason: 'HDDs do not benefit from TRIM.' }
@@ -39,7 +52,10 @@ function computeStatus(drive: Partial<TrimDriveInfo>, now = Date.now()): { statu
   }
   if (drive.lastTrimAt && now - drive.lastTrimAt < SEVEN_DAYS) {
     const days = Math.max(1, Math.round((now - drive.lastTrimAt) / (24 * 60 * 60 * 1000)))
-    return { status: 'recently-trimmed', reason: `Trimmed ${days} day${days === 1 ? '' : 's'} ago — no action needed.` }
+    return {
+      status: 'recently-trimmed',
+      reason: `Trimmed ${days} day${days === 1 ? '' : 's'} ago — no action needed.`
+    }
   }
   if (drive.estimatedDiscardBytes && drive.estimatedDiscardBytes > RECOMMEND_DISCARD_BYTES) {
     const gb = (drive.estimatedDiscardBytes / (1024 * 1024 * 1024)).toFixed(1)
@@ -49,7 +65,10 @@ function computeStatus(drive: Partial<TrimDriveInfo>, now = Date.now()): { statu
     return { status: 'recommended', reason: 'Last TRIM was over 30 days ago.' }
   }
   if (!drive.lastTrimAt) {
-    return { status: 'unknown', reason: 'No TRIM history recorded — the OS may already be handling it on a schedule.' }
+    return {
+      status: 'unknown',
+      reason: 'No TRIM history recorded — the OS may already be handling it on a schedule.'
+    }
   }
   return { status: 'ok', reason: 'Healthy — last TRIM is recent enough.' }
 }
@@ -59,7 +78,7 @@ function computeStatus(drive: Partial<TrimDriveInfo>, now = Date.now()): { statu
 interface WinPhysicalDisk {
   DeviceId?: string | number
   Number?: number
-  MediaType?: number | string  // PowerShell may return enum int (3=HDD, 4=SSD, 5=SCM, 0=Unspecified) or string
+  MediaType?: number | string // PowerShell may return enum int (3=HDD, 4=SSD, 5=SCM, 0=Unspecified) or string
   BusType?: number | string
   FriendlyName?: string
 }
@@ -71,11 +90,14 @@ interface WinVolume {
   Size?: number
   Free?: number
   DiskNumber?: number
-  DriveType?: number | string  // 1=Removable, 2=Fixed, 3=Network on Get-Volume
+  DriveType?: number | string // 1=Removable, 2=Fixed, 3=Network on Get-Volume
   BitLockerStatus?: string | null
 }
 
-function mapMediaType(mediaType: WinPhysicalDisk['MediaType'], busType: WinPhysicalDisk['BusType']): TrimMediaType {
+function mapMediaType(
+  mediaType: WinPhysicalDisk['MediaType'],
+  busType: WinPhysicalDisk['BusType']
+): TrimMediaType {
   // Get-PhysicalDisk MediaType: 3=HDD, 4=SSD, 5=SCM, 0=Unspecified
   // Some systems return strings; handle both shapes.
   const m = String(mediaType ?? '').toLowerCase()
@@ -89,10 +111,23 @@ function mapMediaType(mediaType: WinPhysicalDisk['MediaType'], busType: WinPhysi
 function mapBusType(busType: WinPhysicalDisk['BusType']): string | undefined {
   if (busType == null) return undefined
   const map: Record<string, string> = {
-    '1': 'SCSI', '2': 'ATAPI', '3': 'ATA', '4': '1394', '5': 'SSA', '6': 'Fibre',
-    '7': 'USB', '8': 'RAID', '9': 'iSCSI', '10': 'SAS', '11': 'SATA', '12': 'SD',
-    '13': 'MMC', '15': 'FileBackedVirtual', '16': 'StorageSpaces', '17': 'NVMe',
-    '18': 'MicroSSD',
+    '1': 'SCSI',
+    '2': 'ATAPI',
+    '3': 'ATA',
+    '4': '1394',
+    '5': 'SSA',
+    '6': 'Fibre',
+    '7': 'USB',
+    '8': 'RAID',
+    '9': 'iSCSI',
+    '10': 'SAS',
+    '11': 'SATA',
+    '12': 'SD',
+    '13': 'MMC',
+    '15': 'FileBackedVirtual',
+    '16': 'StorageSpaces',
+    '17': 'NVMe',
+    '18': 'MicroSSD'
   }
   const s = String(busType)
   return map[s] ?? s
@@ -127,11 +162,14 @@ Get-Partition | ForEach-Object {
 }
 @{ disks = $disks; volumes = $volumes } | ConvertTo-Json -Depth 4 -Compress
 `
-  const { stdout } = await execFileAsync('powershell.exe', [
-    '-NoProfile', '-Command', psUtf8(script)
-  ], { timeout: 15000, windowsHide: true, maxBuffer: 4 * 1024 * 1024 })
+  const { stdout } = await execFileAsync(
+    'powershell.exe',
+    ['-NoProfile', '-Command', psUtf8(script)],
+    { timeout: 15000, windowsHide: true, maxBuffer: 4 * 1024 * 1024 }
+  )
 
-  let parsed: { disks?: WinPhysicalDisk[] | WinPhysicalDisk; volumes?: WinVolume[] | WinVolume } = {}
+  let parsed: { disks?: WinPhysicalDisk[] | WinPhysicalDisk; volumes?: WinVolume[] | WinVolume } =
+    {}
   try {
     parsed = JSON.parse(stdout)
   } catch {
@@ -139,7 +177,11 @@ Get-Partition | ForEach-Object {
   }
 
   const disks = Array.isArray(parsed.disks) ? parsed.disks : parsed.disks ? [parsed.disks] : []
-  const volumes = Array.isArray(parsed.volumes) ? parsed.volumes : parsed.volumes ? [parsed.volumes] : []
+  const volumes = Array.isArray(parsed.volumes)
+    ? parsed.volumes
+    : parsed.volumes
+      ? [parsed.volumes]
+      : []
   const diskByNumber = new Map<number, WinPhysicalDisk>()
   for (const d of disks) {
     const num = typeof d.Number === 'number' ? d.Number : Number(d.DeviceId)
@@ -169,7 +211,7 @@ Get-Partition | ForEach-Object {
       mediaType,
       isRemovable,
       trimSupport: 'supported',
-      lastTrimAt,
+      lastTrimAt
     }
     const { status, reason } = computeStatus(partial, now)
 
@@ -187,7 +229,7 @@ Get-Partition | ForEach-Object {
       trimSupport: 'supported',
       status,
       statusReason: reason,
-      lastTrimAt,
+      lastTrimAt
     })
   }
   return result
@@ -214,12 +256,22 @@ $events = Get-WinEvent -LogName 'Microsoft-Windows-Defrag/Operational' -MaxEvent
 $events | ConvertTo-Json -Depth 2 -Compress
 `
   try {
-    const { stdout } = await execFileAsync('powershell.exe', [
-      '-NoProfile', '-Command', psUtf8(script)
-    ], { timeout: 8000, windowsHide: true, maxBuffer: 1024 * 1024 })
-    if (!stdout.trim()) { _winLastTrimCache = {}; return }
+    const { stdout } = await execFileAsync(
+      'powershell.exe',
+      ['-NoProfile', '-Command', psUtf8(script)],
+      { timeout: 8000, windowsHide: true, maxBuffer: 1024 * 1024 }
+    )
+    if (!stdout.trim()) {
+      _winLastTrimCache = {}
+      return
+    }
     const data: Array<{ When: string; Msg: string }> = (() => {
-      try { const j = JSON.parse(stdout); return Array.isArray(j) ? j : [j] } catch { return [] }
+      try {
+        const j = JSON.parse(stdout)
+        return Array.isArray(j) ? j : [j]
+      } catch {
+        return []
+      }
     })()
     const out: Record<string, number> = {}
     for (const ev of data) {
@@ -244,18 +296,33 @@ async function runTrimWindows(letter: string, getWindow: WindowGetter): Promise<
   }
   return new Promise((resolve) => {
     const psCmd = `Optimize-Volume -DriveLetter ${id} -ReTrim -Verbose`
-    const child = spawn('cmd', ['/c', `chcp 65001 >nul & powershell.exe -NoProfile -Command "${psCmd}"`], { windowsHide: true })
+    const child = spawn(
+      'cmd',
+      ['/c', `chcp 65001 >nul & powershell.exe -NoProfile -Command "${psCmd}"`],
+      { windowsHide: true }
+    )
     let log = ''
     const out = new StringDecoder('utf-8')
     const err = new StringDecoder('utf-8')
 
-    sendProgress(getWindow, { driveId: id, phase: 'starting', percent: -1, message: `Starting TRIM on ${id}:...` })
+    sendProgress(getWindow, {
+      driveId: id,
+      phase: 'starting',
+      percent: -1,
+      message: `Starting TRIM on ${id}:...`
+    })
 
     child.stdout?.on('data', (chunk: Buffer) => {
       const text = out.write(chunk)
       log += text
       const line = text.trim()
-      if (line) sendProgress(getWindow, { driveId: id, phase: 'running', percent: -1, message: line.split('\n').pop() || line })
+      if (line)
+        sendProgress(getWindow, {
+          driveId: id,
+          phase: 'running',
+          percent: -1,
+          message: line.split('\n').pop() || line
+        })
     })
     child.stderr?.on('data', (chunk: Buffer) => {
       // Optimize-Volume writes -Verbose output to stderr in PS
@@ -263,14 +330,20 @@ async function runTrimWindows(letter: string, getWindow: WindowGetter): Promise<
       log += text
       for (const raw of text.split('\n')) {
         const line = raw.replace(/^VERBOSE:\s*/, '').trim()
-        if (line) sendProgress(getWindow, { driveId: id, phase: 'running', percent: -1, message: line })
+        if (line)
+          sendProgress(getWindow, { driveId: id, phase: 'running', percent: -1, message: line })
       }
     })
     child.on('error', (e) => {
       sendProgress(getWindow, { driveId: id, phase: 'failed', percent: -1, message: e.message })
       resolve({
-        driveId: id, success: false, durationMs: Date.now() - start, exitCode: null,
-        summary: `Failed to start Optimize-Volume: ${e.message}`, log, timestamp: Date.now(),
+        driveId: id,
+        success: false,
+        durationMs: Date.now() - start,
+        exitCode: null,
+        summary: `Failed to start Optimize-Volume: ${e.message}`,
+        log,
+        timestamp: Date.now()
       })
     })
     child.on('close', (code) => {
@@ -278,11 +351,21 @@ async function runTrimWindows(letter: string, getWindow: WindowGetter): Promise<
       const summary = success
         ? `TRIM completed successfully on ${id}:.`
         : `Optimize-Volume exited with code ${code}.`
-      sendProgress(getWindow, { driveId: id, phase: success ? 'done' : 'failed', percent: 100, message: summary })
+      sendProgress(getWindow, {
+        driveId: id,
+        phase: success ? 'done' : 'failed',
+        percent: 100,
+        message: summary
+      })
       if (success) setLastTrimAt(id)
       resolve({
-        driveId: id, success, durationMs: Date.now() - start, exitCode: code,
-        summary, log, timestamp: Date.now(),
+        driveId: id,
+        success,
+        durationMs: Date.now() - start,
+        exitCode: code,
+        summary,
+        log,
+        timestamp: Date.now()
       })
     })
   })
@@ -311,9 +394,27 @@ interface FindmntEntry {
 }
 
 const FSTYPE_SKIP = new Set([
-  'tmpfs', 'devtmpfs', 'squashfs', 'overlay', 'proc', 'sysfs', 'cgroup', 'cgroup2',
-  'autofs', 'mqueue', 'pstore', 'tracefs', 'debugfs', 'configfs', 'fusectl',
-  'binfmt_misc', 'rpc_pipefs', 'hugetlbfs', 'efivarfs', 'bpf', 'securityfs',
+  'tmpfs',
+  'devtmpfs',
+  'squashfs',
+  'overlay',
+  'proc',
+  'sysfs',
+  'cgroup',
+  'cgroup2',
+  'autofs',
+  'mqueue',
+  'pstore',
+  'tracefs',
+  'debugfs',
+  'configfs',
+  'fusectl',
+  'binfmt_misc',
+  'rpc_pipefs',
+  'hugetlbfs',
+  'efivarfs',
+  'bpf',
+  'securityfs'
 ])
 const FSTYPE_NETWORK_PREFIXES = ['nfs', 'cifs', 'smb']
 const FSTYPE_NETWORK_FUSE = new Set(['fuse.sshfs', 'fuse.s3fs', 'fuse.gvfsd-fuse'])
@@ -385,7 +486,7 @@ function decodeProcMountsField(s: string): string {
  * /proc/mounts has the same data minus byte sizes, which we surface as 0.
  */
 export async function readProcMounts(text?: string): Promise<FindmntEntry[]> {
-  const raw = text ?? await readFile('/proc/mounts', 'utf-8').catch(() => '')
+  const raw = text ?? (await readFile('/proc/mounts', 'utf-8').catch(() => ''))
   const out: FindmntEntry[] = []
   for (const line of raw.split('\n')) {
     if (!line.trim()) continue
@@ -403,13 +504,21 @@ async function listDrivesLinux(): Promise<TrimDriveInfo[]> {
   let lsblkData: { blockdevices?: LsblkDevice[] } = {}
   let mounts: FindmntEntry[] = []
   try {
-    const { stdout } = await execFileAsync('lsblk', ['-b', '-J', '-o', 'NAME,ROTA,TRAN,TYPE,SIZE,MODEL,FSTYPE'], { timeout: 8000 })
+    const { stdout } = await execFileAsync(
+      'lsblk',
+      ['-b', '-J', '-o', 'NAME,ROTA,TRAN,TYPE,SIZE,MODEL,FSTYPE'],
+      { timeout: 8000 }
+    )
     lsblkData = JSON.parse(stdout)
   } catch {
     return []
   }
   try {
-    const { stdout } = await execFileAsync('findmnt', ['-J', '-b', '-o', 'SOURCE,TARGET,FSTYPE,SIZE,AVAIL,USED'], { timeout: 8000 })
+    const { stdout } = await execFileAsync(
+      'findmnt',
+      ['-J', '-b', '-o', 'SOURCE,TARGET,FSTYPE,SIZE,AVAIL,USED'],
+      { timeout: 8000 }
+    )
     const findmntData: { filesystems?: FindmntEntry[] } = JSON.parse(stdout)
     mounts = findmntData.filesystems ?? []
   } catch {
@@ -450,7 +559,10 @@ async function listDrivesLinux(): Promise<TrimDriveInfo[]> {
     const freeSpace = Number(m.avail) || 0
 
     const partial: Partial<TrimDriveInfo> = {
-      mediaType, isRemovable, trimSupport: 'supported', lastTrimAt,
+      mediaType,
+      isRemovable,
+      trimSupport: 'supported',
+      lastTrimAt
     }
     const { status, reason } = computeStatus(partial, now)
 
@@ -468,7 +580,7 @@ async function listDrivesLinux(): Promise<TrimDriveInfo[]> {
       trimSupport: 'supported',
       status,
       statusReason: reason,
-      lastTrimAt,
+      lastTrimAt
     })
   }
   return result
@@ -485,19 +597,39 @@ async function runTrimLinux(mountPoint: string, getWindow: WindowGetter): Promis
     let log = ''
     const out = new StringDecoder('utf-8')
     const err = new StringDecoder('utf-8')
-    sendProgress(getWindow, { driveId: id, phase: 'starting', percent: -1, message: `Starting TRIM on ${id}...` })
+    sendProgress(getWindow, {
+      driveId: id,
+      phase: 'starting',
+      percent: -1,
+      message: `Starting TRIM on ${id}...`
+    })
 
     child.stdout?.on('data', (c: Buffer) => {
-      const text = out.write(c); log += text
+      const text = out.write(c)
+      log += text
       const line = text.trim()
-      if (line) sendProgress(getWindow, { driveId: id, phase: 'running', percent: -1, message: line.split('\n').pop() || line })
+      if (line)
+        sendProgress(getWindow, {
+          driveId: id,
+          phase: 'running',
+          percent: -1,
+          message: line.split('\n').pop() || line
+        })
     })
     child.stderr?.on('data', (c: Buffer) => {
-      const text = err.write(c); log += text
+      const text = err.write(c)
+      log += text
     })
     child.on('error', (e) => {
-      resolve({ driveId: id, success: false, durationMs: Date.now() - start, exitCode: null,
-        summary: `Failed to start fstrim: ${e.message}`, log, timestamp: Date.now() })
+      resolve({
+        driveId: id,
+        success: false,
+        durationMs: Date.now() - start,
+        exitCode: null,
+        summary: `Failed to start fstrim: ${e.message}`,
+        log,
+        timestamp: Date.now()
+      })
     })
     child.on('close', (code) => {
       const needsAdmin = log.toLowerCase().includes('operation not permitted')
@@ -512,12 +644,23 @@ async function runTrimLinux(mountPoint: string, getWindow: WindowGetter): Promis
         : needsAdmin
           ? 'fstrim requires root privileges.'
           : `fstrim exited with code ${code}.`
-      sendProgress(getWindow, { driveId: id, phase: success ? 'done' : 'failed', percent: 100, message: summary })
+      sendProgress(getWindow, {
+        driveId: id,
+        phase: success ? 'done' : 'failed',
+        percent: 100,
+        message: summary
+      })
       if (success) setLastTrimAt(id)
       resolve({
-        driveId: id, success, durationMs: Date.now() - start, exitCode: code,
-        bytesDiscarded, needsAdmin: !success && needsAdmin ? true : undefined,
-        summary, log, timestamp: Date.now(),
+        driveId: id,
+        success,
+        durationMs: Date.now() - start,
+        exitCode: code,
+        bytesDiscarded,
+        needsAdmin: !success && needsAdmin ? true : undefined,
+        summary,
+        log,
+        timestamp: Date.now()
       })
     })
   })
@@ -553,7 +696,7 @@ async function listDrivesMac(): Promise<TrimDriveInfo[]> {
         trimSupport: 'macos-managed',
         status: 'not-applicable',
         statusReason: 'Managed by macOS — TRIM runs automatically on Apple SSDs.',
-        lastTrimAt: null,
+        lastTrimAt: null
       })
     }
     return rows
@@ -573,8 +716,13 @@ function sendProgress(getWindow: WindowGetter, data: TrimProgress): void {
 
 function failResult(driveId: string, start: number, summary: string): TrimRunResult {
   return {
-    driveId, success: false, durationMs: Date.now() - start, exitCode: null,
-    summary, log: '', timestamp: Date.now(),
+    driveId,
+    success: false,
+    durationMs: Date.now() - start,
+    exitCode: null,
+    summary,
+    log: '',
+    timestamp: Date.now()
   }
 }
 
@@ -594,15 +742,23 @@ export async function listTrimDrives(): Promise<TrimDriveInfo[]> {
   return []
 }
 
-export async function runTrimForDrive(driveId: string, getWindow: WindowGetter, drives: TrimDriveInfo[]): Promise<TrimRunResult> {
+export async function runTrimForDrive(
+  driveId: string,
+  getWindow: WindowGetter,
+  drives: TrimDriveInfo[]
+): Promise<TrimRunResult> {
   const start = Date.now()
 
   // macOS hard-stop: never spawn anything.
   if (process.platform === 'darwin') {
     return {
-      driveId, success: false, durationMs: 0, exitCode: null,
+      driveId,
+      success: false,
+      durationMs: 0,
+      exitCode: null,
       summary: 'TRIM is managed by macOS automatically — no action needed.',
-      log: '', timestamp: Date.now(),
+      log: '',
+      timestamp: Date.now()
     }
   }
 
@@ -621,16 +777,26 @@ export async function runTrimForDrive(driveId: string, getWindow: WindowGetter, 
   }
   if (isThrottled(driveId)) {
     return {
-      driveId, success: false, throttled: true, durationMs: 0, exitCode: null,
+      driveId,
+      success: false,
+      throttled: true,
+      durationMs: 0,
+      exitCode: null,
       summary: 'Throttled — this drive was trimmed less than 24 hours ago.',
-      log: '', timestamp: Date.now(),
+      log: '',
+      timestamp: Date.now()
     }
   }
   if (!isAdmin()) {
     return {
-      driveId, success: false, needsAdmin: true, durationMs: 0, exitCode: null,
+      driveId,
+      success: false,
+      needsAdmin: true,
+      durationMs: 0,
+      exitCode: null,
       summary: 'Administrator privileges are required to run TRIM.',
-      log: '', timestamp: Date.now(),
+      log: '',
+      timestamp: Date.now()
     }
   }
 
@@ -652,14 +818,20 @@ export function registerDiskTrimIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(IPC.DISK_TRIM_RUN, async (_event, driveIds: unknown): Promise<TrimRunResult[]> => {
     if (!Array.isArray(driveIds)) return []
-    const ids = driveIds.filter((x): x is string => typeof x === 'string' && x.length > 0 && x.length < 256)
+    const ids = driveIds.filter(
+      (x): x is string => typeof x === 'string' && x.length > 0 && x.length < 256
+    )
     if (ids.length === 0) return []
 
     if (runningBatch) {
       return ids.map((id) => ({
-        driveId: id, success: false, durationMs: 0, exitCode: null,
+        driveId: id,
+        success: false,
+        durationMs: 0,
+        exitCode: null,
         summary: 'Another TRIM batch is already running.',
-        log: '', timestamp: Date.now(),
+        log: '',
+        timestamp: Date.now()
       }))
     }
     runningBatch = true

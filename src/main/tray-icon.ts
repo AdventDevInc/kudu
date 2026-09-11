@@ -9,7 +9,7 @@ export const WINDOWS_TRAY_ICON_REPRESENTATIONS = [
   { size: 32, scaleFactor: 2 },
   { size: 36, scaleFactor: 2.25 },
   { size: 40, scaleFactor: 2.5 },
-  { size: 48, scaleFactor: 3 },
+  { size: 48, scaleFactor: 3 }
 ] as const
 
 interface TrayNativeImage {
@@ -28,7 +28,7 @@ interface NativeImageFactory<T extends TrayNativeImage> {
 export function createWindowsTrayIcon<T extends TrayNativeImage>(
   nativeImageFactory: NativeImageFactory<T>,
   iconsDir: string,
-  readIcon: (path: string) => Buffer = readFileSync,
+  readIcon: (path: string) => Buffer = readFileSync
 ): T {
   const trayIcon = nativeImageFactory.createEmpty()
 
@@ -37,7 +37,7 @@ export function createWindowsTrayIcon<T extends TrayNativeImage>(
       scaleFactor,
       width: size,
       height: size,
-      buffer: readIcon(join(iconsDir, `${size}x${size}.png`)),
+      buffer: readIcon(join(iconsDir, `${size}x${size}.png`))
     })
   }
 

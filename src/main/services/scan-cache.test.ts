@@ -1,7 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
-  cacheItems, getCachedItem, getCachedItems, clearCache,
-  clearCachedCategory, removeCachedItems
+  cacheItems,
+  getCachedItem,
+  getCachedItems,
+  clearCache,
+  clearCachedCategory,
+  removeCachedItems
 } from './scan-cache'
 import type { ScanItem } from '../../shared/types'
 
@@ -13,7 +17,7 @@ function makeItem(id: string): ScanItem {
     category: 'system',
     subcategory: 'temp',
     lastModified: Date.now(),
-    selected: true,
+    selected: true
   }
 }
 
@@ -73,10 +77,7 @@ describe('scan-cache', () => {
   })
 
   it('clears only the requested category before a replacement scan', () => {
-    cacheItems([
-      makeItem('system-old'),
-      { ...makeItem('browser-old'), category: 'browser' },
-    ])
+    cacheItems([makeItem('system-old'), { ...makeItem('browser-old'), category: 'browser' }])
 
     clearCachedCategory('system')
 

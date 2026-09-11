@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const execFileMock = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 
 vi.mock('util', () => ({
-  promisify: () => execFileMock,
+  promisify: () => execFileMock
 }))
 
 const { createWin32Security } = await import('./security')
@@ -28,10 +28,8 @@ describe('win32 security', () => {
   describe('collectAntivirusStatus', () => {
     it('parses antivirus products from WMI output', async () => {
       execFileMock.mockResolvedValue({
-        stdout: JSON.stringify([
-          { displayName: 'Windows Defender', productState: 397568 },
-        ]),
-        stderr: '',
+        stdout: JSON.stringify([{ displayName: 'Windows Defender', productState: 397568 }]),
+        stderr: ''
       })
 
       const result = await security.collectAntivirusStatus()
@@ -42,7 +40,7 @@ describe('win32 security', () => {
     it('handles single-object output', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ displayName: 'Norton', productState: 397568 }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectAntivirusStatus()
@@ -57,9 +55,9 @@ describe('win32 security', () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify([
           { displayName: 'Windows Defender', productState: enabledState },
-          { displayName: 'Kaspersky', productState: enabledState },
+          { displayName: 'Kaspersky', productState: enabledState }
         ]),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectAntivirusStatus()
@@ -69,10 +67,8 @@ describe('win32 security', () => {
     it('falls back to Windows Defender as primary when no third-party AV', async () => {
       const enabledState = (6 << 12) | (0 << 8) | (0 << 4)
       execFileMock.mockResolvedValue({
-        stdout: JSON.stringify([
-          { displayName: 'Windows Defender', productState: enabledState },
-        ]),
-        stderr: '',
+        stdout: JSON.stringify([{ displayName: 'Windows Defender', productState: enabledState }]),
+        stderr: ''
       })
 
       const result = await security.collectAntivirusStatus()
@@ -82,7 +78,7 @@ describe('win32 security', () => {
     it('defaults displayName to Unknown when missing', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ displayName: null, productState: 397568 }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectAntivirusStatus()
@@ -95,16 +91,16 @@ describe('win32 security', () => {
       // collectFirewallStatus uses Promise.allSettled with two execFile calls
       execFileMock
         .mockResolvedValueOnce({
-          stdout: JSON.stringify([{ displayName: 'Windows Firewall', productState: (6 << 12) }]),
-          stderr: '',
+          stdout: JSON.stringify([{ displayName: 'Windows Firewall', productState: 6 << 12 }]),
+          stderr: ''
         })
         .mockResolvedValueOnce({
           stdout: JSON.stringify([
             { Name: 'Domain', Enabled: true },
             { Name: 'Private', Enabled: true },
-            { Name: 'Public', Enabled: true },
+            { Name: 'Public', Enabled: true }
           ]),
-          stderr: '',
+          stderr: ''
         })
 
       const result = await security.collectFirewallStatus()
@@ -122,32 +118,28 @@ describe('win32 security', () => {
     })
 
     it('detects enabled when only Windows profiles are all on', async () => {
-      execFileMock
-        .mockRejectedValueOnce(new Error('no SecurityCenter2'))
-        .mockResolvedValueOnce({
-          stdout: JSON.stringify([
-            { Name: 'Domain', Enabled: 1 },
-            { Name: 'Private', Enabled: 1 },
-            { Name: 'Public', Enabled: 1 },
-          ]),
-          stderr: '',
-        })
+      execFileMock.mockRejectedValueOnce(new Error('no SecurityCenter2')).mockResolvedValueOnce({
+        stdout: JSON.stringify([
+          { Name: 'Domain', Enabled: 1 },
+          { Name: 'Private', Enabled: 1 },
+          { Name: 'Public', Enabled: 1 }
+        ]),
+        stderr: ''
+      })
 
       const result = await security.collectFirewallStatus()
       expect(result.enabled).toBe(true)
     })
 
     it('reports disabled when only some Windows profiles are on', async () => {
-      execFileMock
-        .mockRejectedValueOnce(new Error('no SecurityCenter2'))
-        .mockResolvedValueOnce({
-          stdout: JSON.stringify([
-            { Name: 'Domain', Enabled: true },
-            { Name: 'Private', Enabled: false },
-            { Name: 'Public', Enabled: true },
-          ]),
-          stderr: '',
-        })
+      execFileMock.mockRejectedValueOnce(new Error('no SecurityCenter2')).mockResolvedValueOnce({
+        stdout: JSON.stringify([
+          { Name: 'Domain', Enabled: true },
+          { Name: 'Private', Enabled: false },
+          { Name: 'Public', Enabled: true }
+        ]),
+        stderr: ''
+      })
 
       const result = await security.collectFirewallStatus()
       expect(result.windowsProfiles.private).toBe(false)
@@ -161,21 +153,29 @@ describe('win32 security', () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify([
           { MountPoint: 'C:', VolumeStatus: 1, ProtectionStatus: 1 },
-          { MountPoint: 'D:', VolumeStatus: 0, ProtectionStatus: 0 },
+          { MountPoint: 'D:', VolumeStatus: 0, ProtectionStatus: 0 }
         ]),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectDiskEncryptionStatus()
       expect(result.volumes).toHaveLength(2)
-      expect(result.volumes[0]).toEqual({ mount: 'C:', status: 'FullyEncrypted', protectionOn: true })
-      expect(result.volumes[1]).toEqual({ mount: 'D:', status: 'FullyDecrypted', protectionOn: false })
+      expect(result.volumes[0]).toEqual({
+        mount: 'C:',
+        status: 'FullyEncrypted',
+        protectionOn: true
+      })
+      expect(result.volumes[1]).toEqual({
+        mount: 'D:',
+        status: 'FullyDecrypted',
+        protectionOn: false
+      })
     })
 
     it('handles unknown volume status codes', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ MountPoint: 'E:', VolumeStatus: 99, ProtectionStatus: 0 }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectDiskEncryptionStatus()
@@ -194,9 +194,9 @@ describe('win32 security', () => {
       const recentDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify([
-          { HotFixID: 'KB5001234', InstalledOn: recentDate, Description: 'Security Update' },
+          { HotFixID: 'KB5001234', InstalledOn: recentDate, Description: 'Security Update' }
         ]),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectUpdateStatus()
@@ -211,9 +211,9 @@ describe('win32 security', () => {
         stdout: JSON.stringify([
           { HotFixID: 'KB5001234', InstalledOn: '2024-01-01', Description: 'Update' },
           { HotFixID: null, InstalledOn: '2024-01-01', Description: 'Bad' },
-          { HotFixID: 'KB5001235', InstalledOn: null, Description: 'Bad' },
+          { HotFixID: 'KB5001235', InstalledOn: null, Description: 'Bad' }
         ]),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectUpdateStatus()
@@ -225,9 +225,9 @@ describe('win32 security', () => {
         stdout: JSON.stringify({
           HotFixID: 'KB5001234',
           InstalledOn: ['2024-06-15T12:00:00Z', '2024-05-10T12:00:00Z'],
-          Description: 'Security Update',
+          Description: 'Security Update'
         }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectUpdateStatus()
@@ -237,7 +237,7 @@ describe('win32 security', () => {
     it('returns null values when no patches exist', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify([]),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectUpdateStatus()
@@ -254,9 +254,9 @@ describe('win32 security', () => {
           ssActive: '1',
           ssSecure: '1',
           ssTimeout: '600',
-          gpoTimeout: 300,
+          gpoTimeout: 300
         }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectScreenLockStatus()
@@ -264,14 +264,14 @@ describe('win32 security', () => {
         screenSaverEnabled: true,
         lockOnResume: true,
         timeoutSec: 600,
-        inactivityLockSec: 300,
+        inactivityLockSec: 300
       })
     })
 
     it('handles numeric ssActive and ssSecure values', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ ssActive: 1, ssSecure: 1, ssTimeout: '300', gpoTimeout: null }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectScreenLockStatus()
@@ -283,7 +283,7 @@ describe('win32 security', () => {
     it('handles disabled screen saver', async () => {
       execFileMock.mockResolvedValue({
         stdout: JSON.stringify({ ssActive: '0', ssSecure: '0', ssTimeout: null, gpoTimeout: 0 }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectScreenLockStatus()
@@ -309,9 +309,9 @@ describe('win32 security', () => {
           helloEnrolled: true,
           helloFace: true,
           helloFinger: false,
-          helloPin: true,
+          helloPin: true
         }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectPasswordPolicy()
@@ -328,8 +328,8 @@ describe('win32 security', () => {
           enrolled: true,
           faceEnabled: true,
           fingerprintEnabled: false,
-          pinEnabled: true,
-        },
+          pinEnabled: true
+        }
       })
     })
 
@@ -347,9 +347,9 @@ describe('win32 security', () => {
           helloEnrolled: null,
           helloFace: null,
           helloFinger: null,
-          helloPin: null,
+          helloPin: null
         }),
-        stderr: '',
+        stderr: ''
       })
 
       const result = await security.collectPasswordPolicy()

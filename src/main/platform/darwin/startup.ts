@@ -52,11 +52,15 @@ export function createDarwinStartup(): PlatformStartup {
                 source: 'launch-agent-user',
                 enabled: !isDisabled,
                 publisher: extractPublisher(label),
-                impact: 'low',
+                impact: 'low'
               })
-            } catch { /* skip unparseable plists */ }
+            } catch {
+              /* skip unparseable plists */
+            }
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
 
       // Global Launch Agents
@@ -80,18 +84,24 @@ export function createDarwinStartup(): PlatformStartup {
                 source: 'launch-agent-global',
                 enabled: !isDisabled,
                 publisher: extractPublisher(label),
-                impact: 'low',
+                impact: 'low'
               })
-            } catch { /* skip */ }
+            } catch {
+              /* skip */
+            }
           }
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
 
       // Login Items via osascript
       try {
-        const { stdout } = await execFileAsync('/usr/bin/osascript', [
-          '-e', 'tell application "System Events" to get the name of every login item',
-        ], { timeout: 10_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/osascript',
+          ['-e', 'tell application "System Events" to get the name of every login item'],
+          { timeout: 10_000 }
+        )
 
         const loginItems = stdout.trim().split(', ').filter(Boolean)
         for (const name of loginItems) {
@@ -104,10 +114,12 @@ export function createDarwinStartup(): PlatformStartup {
             source: 'login-item',
             enabled: true,
             publisher: '',
-            impact: 'medium',
+            impact: 'medium'
           })
         }
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
 
       return items
     },
@@ -117,17 +129,17 @@ export function createDarwinStartup(): PlatformStartup {
       location: string,
       _command: string,
       source: StartupItem['source'],
-      enabled: boolean,
+      enabled: boolean
     ): Promise<boolean> {
       try {
         if (source === 'launch-agent-user' || source === 'launch-agent-global') {
           // Validate location is within a known LaunchAgents directory
           const allowedDirs = [
             join(HOME, 'Library', 'LaunchAgents'),
-            resolve('/Library/LaunchAgents'),
+            resolve('/Library/LaunchAgents')
           ]
           const resolved = resolve(normalize(location))
-          if (!allowedDirs.some(dir => resolved.startsWith(dir + sep))) {
+          if (!allowedDirs.some((dir) => resolved.startsWith(dir + sep))) {
             return false
           }
           if (enabled) {
@@ -139,13 +151,13 @@ export function createDarwinStartup(): PlatformStartup {
         }
         if (source === 'login-item') {
           if (enabled) {
-            await execFileAsync('/usr/bin/osascript', [
-              '-e', MAKE_LOGIN_ITEM_SCRIPT, name,
-            ], { timeout: 10_000 })
+            await execFileAsync('/usr/bin/osascript', ['-e', MAKE_LOGIN_ITEM_SCRIPT, name], {
+              timeout: 10_000
+            })
           } else {
-            await execFileAsync('/usr/bin/osascript', [
-              '-e', DELETE_LOGIN_ITEM_SCRIPT, name,
-            ], { timeout: 10_000 })
+            await execFileAsync('/usr/bin/osascript', ['-e', DELETE_LOGIN_ITEM_SCRIPT, name], {
+              timeout: 10_000
+            })
           }
           return true
         }
@@ -158,29 +170,31 @@ export function createDarwinStartup(): PlatformStartup {
     async deleteItem(
       name: string,
       location: string,
-      source: StartupItem['source'],
+      source: StartupItem['source']
     ): Promise<boolean> {
       try {
         if (source === 'launch-agent-user' || source === 'launch-agent-global') {
           const allowedDirs = [
             join(HOME, 'Library', 'LaunchAgents'),
-            resolve('/Library/LaunchAgents'),
+            resolve('/Library/LaunchAgents')
           ]
           const resolved = resolve(normalize(location))
-          if (!allowedDirs.some(dir => resolved.startsWith(dir + sep))) {
+          if (!allowedDirs.some((dir) => resolved.startsWith(dir + sep))) {
             return false
           }
           // Unload first, then delete the plist file
           try {
             await execFileAsync('/bin/launchctl', ['unload', location], { timeout: 10_000 })
-          } catch { /* may already be unloaded */ }
+          } catch {
+            /* may already be unloaded */
+          }
           await unlink(location)
           return true
         }
         if (source === 'login-item') {
-          await execFileAsync('/usr/bin/osascript', [
-            '-e', DELETE_LOGIN_ITEM_SCRIPT, name,
-          ], { timeout: 10_000 })
+          await execFileAsync('/usr/bin/osascript', ['-e', DELETE_LOGIN_ITEM_SCRIPT, name], {
+            timeout: 10_000
+          })
           return true
         }
         return false
@@ -197,9 +211,9 @@ export function createDarwinStartup(): PlatformStartup {
         mainPathMs: 0,
         startupAppsMs: 0,
         lastBootDate: null,
-        entries: [],
+        entries: []
       }
-    },
+    }
   }
 }
 
@@ -223,15 +237,15 @@ async function parsePlistLabel(path: string): Promise<{
   program?: string
   programArguments?: string[]
 }> {
-  const { stdout } = await execFileAsync('/usr/bin/plutil', [
-    '-convert', 'json', '-o', '-', path,
-  ], { timeout: 5_000 })
+  const { stdout } = await execFileAsync('/usr/bin/plutil', ['-convert', 'json', '-o', '-', path], {
+    timeout: 5_000
+  })
 
   const data = JSON.parse(stdout)
   return {
     label: data.Label,
     disabled: data.Disabled === true,
     program: data.Program,
-    programArguments: data.ProgramArguments,
+    programArguments: data.ProgramArguments
   }
 }

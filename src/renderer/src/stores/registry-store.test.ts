@@ -11,7 +11,7 @@ function makeEntry(overrides: Partial<RegistryEntry> = {}): RegistryEntry {
     issue: 'Broken file association',
     risk: 'low' as const,
     selected: false,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -37,10 +37,12 @@ describe('registry-store', () => {
   })
 
   it('toggleEntry flips selected on specific entry', () => {
-    useRegistryStore.getState().setEntries([
-      makeEntry({ id: '1', selected: false }),
-      makeEntry({ id: '2', selected: false }),
-    ])
+    useRegistryStore
+      .getState()
+      .setEntries([
+        makeEntry({ id: '1', selected: false }),
+        makeEntry({ id: '2', selected: false })
+      ])
 
     useRegistryStore.getState().toggleEntry('1')
     const entries = useRegistryStore.getState().entries
@@ -55,11 +57,13 @@ describe('registry-store', () => {
   })
 
   it('toggleCardAll selects all entries of given types when not all selected', () => {
-    useRegistryStore.getState().setEntries([
-      makeEntry({ id: '1', type: 'broken', selected: false }),
-      makeEntry({ id: '2', type: 'broken', selected: true }),
-      makeEntry({ id: '3', type: 'invalid', selected: false }),
-    ])
+    useRegistryStore
+      .getState()
+      .setEntries([
+        makeEntry({ id: '1', type: 'broken', selected: false }),
+        makeEntry({ id: '2', type: 'broken', selected: true }),
+        makeEntry({ id: '3', type: 'invalid', selected: false })
+      ])
 
     useRegistryStore.getState().toggleCardAll(['broken'])
 
@@ -70,10 +74,12 @@ describe('registry-store', () => {
   })
 
   it('toggleCardAll deselects all when all are already selected', () => {
-    useRegistryStore.getState().setEntries([
-      makeEntry({ id: '1', type: 'broken', selected: true }),
-      makeEntry({ id: '2', type: 'broken', selected: true }),
-    ])
+    useRegistryStore
+      .getState()
+      .setEntries([
+        makeEntry({ id: '1', type: 'broken', selected: true }),
+        makeEntry({ id: '2', type: 'broken', selected: true })
+      ])
 
     useRegistryStore.getState().toggleCardAll(['broken'])
 
@@ -83,11 +89,13 @@ describe('registry-store', () => {
   })
 
   it('toggleCardAll works with multiple types', () => {
-    useRegistryStore.getState().setEntries([
-      makeEntry({ id: '1', type: 'broken', selected: false }),
-      makeEntry({ id: '2', type: 'invalid', selected: false }),
-      makeEntry({ id: '3', type: 'orphaned', selected: false }),
-    ])
+    useRegistryStore
+      .getState()
+      .setEntries([
+        makeEntry({ id: '1', type: 'broken', selected: false }),
+        makeEntry({ id: '2', type: 'invalid', selected: false }),
+        makeEntry({ id: '3', type: 'orphaned', selected: false })
+      ])
 
     useRegistryStore.getState().toggleCardAll(['broken', 'invalid'])
 
@@ -112,8 +120,14 @@ describe('registry-store', () => {
   })
 
   it('setFixProgress tracks fix progress', () => {
-    useRegistryStore.getState().setFixProgress({ current: 3, total: 10, currentEntry: 'HKCR\\.xyz' })
-    expect(useRegistryStore.getState().fixProgress).toEqual({ current: 3, total: 10, currentEntry: 'HKCR\\.xyz' })
+    useRegistryStore
+      .getState()
+      .setFixProgress({ current: 3, total: 10, currentEntry: 'HKCR\\.xyz' })
+    expect(useRegistryStore.getState().fixProgress).toEqual({
+      current: 3,
+      total: 10,
+      currentEntry: 'HKCR\\.xyz'
+    })
   })
 
   it('reset clears all state', () => {

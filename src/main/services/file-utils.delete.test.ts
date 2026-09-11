@@ -14,7 +14,7 @@ const state = vi.hoisted(() => ({
   trackConcurrency: false,
   activeDeletes: 0,
   maxActiveDeletes: 0,
-  items: [] as ScanItem[],
+  items: [] as ScanItem[]
 }))
 
 vi.mock('fs/promises', async (importOriginal) => {
@@ -22,7 +22,8 @@ vi.mock('fs/promises', async (importOriginal) => {
   return {
     ...actual,
     lstat: async (...args: Parameters<typeof actual.lstat>) => {
-      if (String(args[0]) === state.statFailurePath) throw Object.assign(new Error('access denied'), { code: 'EACCES' })
+      if (String(args[0]) === state.statFailurePath)
+        throw Object.assign(new Error('access denied'), { code: 'EACCES' })
       return actual.lstat(...args)
     },
     rm: async (...args: Parameters<typeof actual.rm>) => {
@@ -44,30 +45,33 @@ vi.mock('fs/promises', async (importOriginal) => {
       } finally {
         state.activeDeletes--
       }
-    },
+    }
   }
 })
 
 vi.mock('./settings-store', () => ({
   getSettings: () => ({
     cleaner: { secureDelete: false, skipRecentMinutes: 60, keepDeletionLog: false },
-    exclusions: [],
-  }),
+    exclusions: []
+  })
 }))
 
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => state.items,
-  removeCachedItems: (ids: string[]) => { state.consumed.push(...ids) },
+  removeCachedItems: (ids: string[]) => {
+    state.consumed.push(...ids)
+  }
 }))
 
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 
 vi.mock('./delete-failure-probe', () => ({
-  probeWindowsDeleteFailures: async (paths: string[]) => new Map(
-    paths
-      .filter((path) => state.permissionPaths.has(path))
-      .map((path) => [path.toLowerCase(), 'permission-denied'])
-  ),
+  probeWindowsDeleteFailures: async (paths: string[]) =>
+    new Map(
+      paths
+        .filter((path) => state.permissionPaths.has(path))
+        .map((path) => [path.toLowerCase(), 'permission-denied'])
+    )
 }))
 
 import { cleanItems, safeDelete } from './file-utils'
@@ -117,11 +121,26 @@ describe('granular directory deletion fallback', () => {
 
   it('reports lookup permission failures without consuming the retryable scan item', async () => {
     const { removable } = createTree()
-    state.items = [{ id: 'retry', path: removable, size: 5, category: 'system', subcategory: 'Temp', lastModified: 0, selected: true }]
+    state.items = [
+      {
+        id: 'retry',
+        path: removable,
+        size: 5,
+        category: 'system',
+        subcategory: 'Temp',
+        lastModified: 0,
+        selected: true
+      }
+    ]
     state.statFailurePath = removable
     const progress = vi.fn()
     const result = await cleanItems(['retry'], progress)
-    expect(result).toMatchObject({ totalCleaned: 0, filesSkipped: 1, needsElevation: true, errors: [{ path: removable, reason: 'permission-denied' }] })
+    expect(result).toMatchObject({
+      totalCleaned: 0,
+      filesSkipped: 1,
+      needsElevation: true,
+      errors: [{ path: removable, reason: 'permission-denied' }]
+    })
     expect(state.consumed).toEqual([])
     expect(existsSync(removable)).toBe(true)
     expect(progress).toHaveBeenLastCalledWith(1, 1, removable, 0)
@@ -135,15 +154,17 @@ describe('granular directory deletion fallback', () => {
     state.rootPath = root
     state.rootFailuresRemaining = process.platform === 'win32' ? 2 : 1
     state.lockedPath = locked
-    state.items = [{
-      id: 'abandoned-app',
-      path: root,
-      size: 12,
-      category: 'system',
-      subcategory: 'User Temp Files',
-      lastModified: 0,
-      selected: true,
-    }]
+    state.items = [
+      {
+        id: 'abandoned-app',
+        path: root,
+        size: 12,
+        category: 'system',
+        subcategory: 'User Temp Files',
+        lastModified: 0,
+        selected: true
+      }
+    ]
 
     const result = await cleanItems(['abandoned-app'])
 
@@ -163,15 +184,17 @@ describe('granular directory deletion fallback', () => {
     state.rootFailuresRemaining = process.platform === 'win32' ? 2 : 1
     state.lockedPath = locked
     state.permissionPaths.add(locked)
-    state.items = [{
-      id: 'abandoned-app',
-      path: root,
-      size: 12,
-      category: 'system',
-      subcategory: 'Protected Cache',
-      lastModified: 0,
-      selected: true,
-    }]
+    state.items = [
+      {
+        id: 'abandoned-app',
+        path: root,
+        size: 12,
+        category: 'system',
+        subcategory: 'Protected Cache',
+        lastModified: 0,
+        selected: true
+      }
+    ]
 
     const result = await cleanItems(['abandoned-app'])
 
@@ -191,7 +214,7 @@ describe('granular directory deletion fallback', () => {
         category: 'browser',
         subcategory: 'Browser Cache',
         lastModified: 0,
-        selected: true,
+        selected: true
       }
     })
 

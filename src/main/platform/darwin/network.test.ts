@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const execFileMock = vi.fn()
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 vi.mock('util', () => ({
-  promisify: (fn: any) => fn,
+  promisify: (fn: any) => fn
 }))
 
 const { createDarwinNetwork } = await import('./network')
@@ -20,10 +20,7 @@ describe('darwin network', () => {
   describe('getEstablishedConnections', () => {
     it('parses lsof output for IPv4 connections', async () => {
       execFileMock.mockResolvedValue({
-        stdout: [
-          'p1234',
-          'n10.0.0.5:45678->93.184.216.34:443',
-        ].join('\n'),
+        stdout: ['p1234', 'n10.0.0.5:45678->93.184.216.34:443'].join('\n')
       })
 
       const conns = await network.getEstablishedConnections()
@@ -32,16 +29,13 @@ describe('darwin network', () => {
         remoteAddress: '93.184.216.34',
         remotePort: 443,
         localPort: 45678,
-        pid: 1234,
+        pid: 1234
       })
     })
 
     it('parses IPv6 connections', async () => {
       execFileMock.mockResolvedValue({
-        stdout: [
-          'p5678',
-          'n[::ffff:10.0.0.1]:8080->[2607:f8b0:4004:800::200e]:443',
-        ].join('\n'),
+        stdout: ['p5678', 'n[::ffff:10.0.0.1]:8080->[2607:f8b0:4004:800::200e]:443'].join('\n')
       })
 
       const conns = await network.getEstablishedConnections()
@@ -54,11 +48,9 @@ describe('darwin network', () => {
 
     it('filters out loopback connections', async () => {
       execFileMock.mockResolvedValue({
-        stdout: [
-          'p100',
-          'n10.0.0.1:1234->127.0.0.1:5678',
-          'n10.0.0.1:1235->93.184.216.34:80',
-        ].join('\n'),
+        stdout: ['p100', 'n10.0.0.1:1234->127.0.0.1:5678', 'n10.0.0.1:1235->93.184.216.34:80'].join(
+          '\n'
+        )
       })
 
       const conns = await network.getEstablishedConnections()
@@ -68,7 +60,7 @@ describe('darwin network', () => {
 
     it('filters out ::1 loopback', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'p100\nn[::1]:1234->[::1]:5678\n',
+        stdout: 'p100\nn[::1]:1234->[::1]:5678\n'
       })
 
       const conns = await network.getEstablishedConnections()
@@ -77,7 +69,7 @@ describe('darwin network', () => {
 
     it('skips lines without arrow separator', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'p100\nn*:8080\n',
+        stdout: 'p100\nn*:8080\n'
       })
 
       const conns = await network.getEstablishedConnections()
@@ -92,12 +84,9 @@ describe('darwin network', () => {
 
     it('associates pid with subsequent connection lines', async () => {
       execFileMock.mockResolvedValue({
-        stdout: [
-          'p111',
-          'n10.0.0.1:1000->8.8.8.8:53',
-          'p222',
-          'n10.0.0.1:2000->1.1.1.1:443',
-        ].join('\n'),
+        stdout: ['p111', 'n10.0.0.1:1000->8.8.8.8:53', 'p222', 'n10.0.0.1:2000->1.1.1.1:443'].join(
+          '\n'
+        )
       })
 
       const conns = await network.getEstablishedConnections()
@@ -108,7 +97,7 @@ describe('darwin network', () => {
 
     it('handles empty lines gracefully', async () => {
       execFileMock.mockResolvedValue({
-        stdout: '\np100\n\nn10.0.0.1:80->8.8.4.4:443\n\n',
+        stdout: '\np100\n\nn10.0.0.1:80->8.8.4.4:443\n\n'
       })
 
       const conns = await network.getEstablishedConnections()
@@ -119,7 +108,7 @@ describe('darwin network', () => {
   describe('getListeningPorts', () => {
     it('parses listening port numbers from lsof output', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'n*:8080\nn*:3000\nn[::]:443\n',
+        stdout: 'n*:8080\nn*:3000\nn[::]:443\n'
       })
 
       const ports = await network.getListeningPorts()
@@ -130,7 +119,7 @@ describe('darwin network', () => {
 
     it('skips non-n lines', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'p1234\nn*:8080\nfoo\n',
+        stdout: 'p1234\nn*:8080\nfoo\n'
       })
 
       const ports = await network.getListeningPorts()
@@ -145,7 +134,7 @@ describe('darwin network', () => {
 
     it('skips invalid port numbers', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'n*:abc\nn*:8080\n',
+        stdout: 'n*:abc\nn*:8080\n'
       })
 
       const ports = await network.getListeningPorts()
@@ -166,10 +155,14 @@ describe('darwin network', () => {
       const result = await network.flushDnsCache()
       expect(result).toBe(true)
       expect(execFileMock).toHaveBeenCalledWith(
-        '/usr/bin/dscacheutil', ['-flushcache'], expect.any(Object),
+        '/usr/bin/dscacheutil',
+        ['-flushcache'],
+        expect.any(Object)
       )
       expect(execFileMock).toHaveBeenCalledWith(
-        '/usr/bin/killall', ['-HUP', 'mDNSResponder'], expect.any(Object),
+        '/usr/bin/killall',
+        ['-HUP', 'mDNSResponder'],
+        expect.any(Object)
       )
     })
 
@@ -181,7 +174,7 @@ describe('darwin network', () => {
 
     it('succeeds even if killall mDNSResponder fails', async () => {
       execFileMock
-        .mockResolvedValueOnce({ stdout: '' })     // dscacheutil
+        .mockResolvedValueOnce({ stdout: '' }) // dscacheutil
         .mockRejectedValueOnce(new Error('no match')) // killall
 
       const result = await network.flushDnsCache()
@@ -196,8 +189,8 @@ describe('darwin network', () => {
           'Preferred networks on en0:',
           '\tHomeNetwork',
           '\tOfficeWiFi',
-          '\tCoffeeShop',
-        ].join('\n'),
+          '\tCoffeeShop'
+        ].join('\n')
       })
 
       const profiles = await network.getWifiProfiles()
@@ -210,7 +203,7 @@ describe('darwin network', () => {
 
     it('skips the header line', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'Preferred networks on en0:\n\tMyNetwork\n',
+        stdout: 'Preferred networks on en0:\n\tMyNetwork\n'
       })
 
       const profiles = await network.getWifiProfiles()
@@ -220,7 +213,7 @@ describe('darwin network', () => {
 
     it('skips empty lines', async () => {
       execFileMock.mockResolvedValue({
-        stdout: 'Preferred networks on en0:\n\tMyNetwork\n\n\n',
+        stdout: 'Preferred networks on en0:\n\tMyNetwork\n\n\n'
       })
 
       const profiles = await network.getWifiProfiles()
@@ -242,7 +235,7 @@ describe('darwin network', () => {
       expect(execFileMock).toHaveBeenCalledWith(
         '/usr/sbin/networksetup',
         ['-removepreferredwirelessnetwork', 'en0', 'CoffeeShop'],
-        expect.any(Object),
+        expect.any(Object)
       )
     })
 
@@ -258,9 +251,7 @@ describe('darwin network', () => {
       execFileMock.mockResolvedValue({ stdout: '' })
       const result = await network.clearArpCache()
       expect(result).toBe(true)
-      expect(execFileMock).toHaveBeenCalledWith(
-        '/usr/sbin/arp', ['-a', '-d'], expect.any(Object),
-      )
+      expect(execFileMock).toHaveBeenCalledWith('/usr/sbin/arp', ['-a', '-d'], expect.any(Object))
     })
 
     it('returns false on failure', async () => {

@@ -4,7 +4,7 @@ import { join } from 'path'
 
 const mockHandle = vi.fn()
 vi.mock('electron', () => ({
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const mockScanDirectory = vi.fn()
@@ -14,20 +14,20 @@ vi.mock('../services/file-utils', () => ({
   scanFile: vi.fn(),
   scanMultipleDirectories: (...args: unknown[]) => mockScanMultipleDirectories(...args),
   resolveChildSubdirs: vi.fn(),
-  cleanItems: vi.fn(),
+  cleanItems: vi.fn()
 }))
 
 vi.mock('../services/scan-cache', () => ({
   cacheItems: vi.fn(),
-  clearCachedCategory: vi.fn(),
+  clearCachedCategory: vi.fn()
 }))
 
 vi.mock('../services/elevation', () => ({ isAdmin: () => true }))
 vi.mock('../services/settings-store', () => ({
-  getSettings: () => ({ cleaner: { skipRecentMinutes: 30 } }),
+  getSettings: () => ({ cleaner: { skipRecentMinutes: 30 } })
 }))
 vi.mock('../services/ipc-validation', () => ({
-  validateStringArray: (input: unknown) => Array.isArray(input) ? input : null,
+  validateStringArray: (input: unknown) => (Array.isArray(input) ? input : null)
 }))
 
 const configuredUserTempPath = join(tmpdir(), '..', 'configured-user-temp')
@@ -39,12 +39,16 @@ vi.mock('../platform', () => ({
       systemCleanTargets: () => [
         { path: configuredUserTempPath, subcategory: 'User Temp Files', deepRecencyCheck: true },
         { path: ordinaryPath, subcategory: 'Ordinary Cache' },
-        { path: updateOrchestratorPath, subcategory: 'Update Orchestrator Logs', deepRecencyCheck: true },
+        {
+          path: updateOrchestratorPath,
+          subcategory: 'Update Orchestrator Logs',
+          deepRecencyCheck: true
+        }
       ],
       protectedEventLogs: () => [],
-      singleFileCleanTargets: () => [],
-    },
-  }),
+      singleFileCleanTargets: () => []
+    }
+  })
 }))
 
 import { registerSystemCleanerIpc } from './system-cleaner.ipc'
@@ -59,7 +63,11 @@ describe('system temp scanning', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockScanDirectory.mockResolvedValue({
-      category: 'system', subcategory: 'test', items: [], totalSize: 0, itemCount: 0,
+      category: 'system',
+      subcategory: 'test',
+      items: [],
+      totalSize: 0,
+      itemCount: 0
     })
   })
 
@@ -72,21 +80,18 @@ describe('system temp scanning', () => {
       configuredUserTempPath,
       'system',
       'User Temp Files',
-      { skipRecentMinutes: 30, deepRecencyCheck: true },
+      { skipRecentMinutes: 30, deepRecencyCheck: true }
     )
-    expect(mockScanDirectory).toHaveBeenNthCalledWith(
-      2,
-      ordinaryPath,
-      'system',
-      'Ordinary Cache',
-      { skipRecentMinutes: 30, deepRecencyCheck: false },
-    )
+    expect(mockScanDirectory).toHaveBeenNthCalledWith(2, ordinaryPath, 'system', 'Ordinary Cache', {
+      skipRecentMinutes: 30,
+      deepRecencyCheck: false
+    })
     expect(mockScanDirectory).toHaveBeenNthCalledWith(
       3,
       updateOrchestratorPath,
       'system',
       'Update Orchestrator Logs',
-      { skipRecentMinutes: 30, deepRecencyCheck: true },
+      { skipRecentMinutes: 30, deepRecencyCheck: true }
     )
     expect(mockScanMultipleDirectories).not.toHaveBeenCalled()
   })

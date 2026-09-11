@@ -57,7 +57,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.85)' }}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.85)' }}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -67,7 +70,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       >
         <AnimatePresence mode="wait">
           {step === 0 && <LanguageStep key="language" onNext={() => setStep(1)} />}
-          {step === 1 && <WelcomeStep key="welcome" onBack={() => setStep(0)} onNext={() => setStep(2)} />}
+          {step === 1 && (
+            <WelcomeStep key="welcome" onBack={() => setStep(0)} onNext={() => setStep(2)} />
+          )}
           {step === 2 && (
             <SettingsStep
               key="settings"
@@ -148,12 +153,21 @@ function LanguageStep({ onNext }: { onNext: () => void }) {
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] transition-colors"
               style={{
                 background: selected === lang.code ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
-                border: selected === lang.code ? '1px solid var(--accent-muted-border)' : '1px solid transparent',
+                border:
+                  selected === lang.code
+                    ? '1px solid var(--accent-muted-border)'
+                    : '1px solid transparent',
                 color: selected === lang.code ? 'var(--accent)' : 'var(--text-secondary)'
               }}
             >
               <span className="font-medium">{lang.nativeName}</span>
-              {selected === lang.code && <Check className="ml-auto h-3.5 w-3.5 shrink-0" style={{ color: 'var(--accent)' }} strokeWidth={2.5} />}
+              {selected === lang.code && (
+                <Check
+                  className="ml-auto h-3.5 w-3.5 shrink-0"
+                  style={{ color: 'var(--accent)' }}
+                  strokeWidth={2.5}
+                />
+              )}
             </button>
           ))}
         </div>
@@ -211,7 +225,10 @@ function WelcomeStep({ onBack, onNext }: { onBack: () => void; onNext: () => voi
 function Feature({ icon: Icon, label }: { icon: typeof Sparkles; label: string }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: 'var(--accent-muted-bg)' }}>
+      <div
+        className="flex h-10 w-10 items-center justify-center rounded-xl"
+        style={{ background: 'var(--accent-muted-bg)' }}
+      >
         <Icon className="h-4.5 w-4.5" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
       </div>
       <span className="text-[11px] font-medium text-zinc-500">{label}</span>
@@ -237,9 +254,7 @@ function SettingsStep({
     <StepWrapper>
       <div>
         <h2 className="mb-1 text-[18px] font-bold text-zinc-100">{t('recommendedSetupTitle')}</h2>
-        <p className="mb-6 text-[13px] text-zinc-500">
-          {t('recommendedSetupDescription')}
-        </p>
+        <p className="mb-6 text-[13px] text-zinc-500">{t('recommendedSetupDescription')}</p>
 
         <div className="space-y-1">
           <SettingRow
@@ -307,7 +322,9 @@ function SettingRow({
     >
       <div className="mr-4">
         <p className="text-[13px] font-medium text-zinc-300">{label}</p>
-        <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>{desc}</p>
+        <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+          {desc}
+        </p>
       </div>
       <Toggle checked={checked} onChange={onChange} />
     </div>
@@ -348,9 +365,7 @@ function FinishStep({
           <Check className="h-8 w-8" style={{ color: '#22c55e' }} strokeWidth={1.8} />
         </div>
         <h2 className="mb-2 text-[18px] font-bold text-zinc-100">{t('allSetTitle')}</h2>
-        <p className="mb-1 text-[13px] leading-relaxed text-zinc-400">
-          {t('allSetDescription')}
-        </p>
+        <p className="mb-1 text-[13px] leading-relaxed text-zinc-400">{t('allSetDescription')}</p>
         {scheduledClean && (
           <p className="text-[12px]" style={{ color: 'var(--accent)' }}>
             {t('firstScanScheduled')}

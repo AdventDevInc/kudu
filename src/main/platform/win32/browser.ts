@@ -8,10 +8,23 @@ export function createWin32Browser(): PlatformBrowser {
   return {
     async closeBrowsers(): Promise<void> {
       const browserProcesses = [
-        'chrome.exe', 'msedge.exe', 'brave.exe', 'vivaldi.exe',
-        'opera.exe', 'firefox.exe', 'arc.exe', 'chromium.exe',
-        'thorium.exe', 'supermium.exe', 'helium.exe', 'cromite.exe',
-        'CatsXP.exe', 'librewolf.exe', 'waterfox.exe', 'floorp.exe', 'zen.exe',
+        'chrome.exe',
+        'msedge.exe',
+        'brave.exe',
+        'vivaldi.exe',
+        'opera.exe',
+        'firefox.exe',
+        'arc.exe',
+        'chromium.exe',
+        'thorium.exe',
+        'supermium.exe',
+        'helium.exe',
+        'cromite.exe',
+        'CatsXP.exe',
+        'librewolf.exe',
+        'waterfox.exe',
+        'floorp.exe',
+        'zen.exe'
       ]
       for (const proc of browserProcesses) {
         try {
@@ -20,6 +33,6 @@ export function createWin32Browser(): PlatformBrowser {
           // Process not running, ignore
         }
       }
-    },
+    }
   }
 }

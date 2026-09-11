@@ -3,11 +3,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const execFileMock = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: execFileMock,
+  execFile: execFileMock
 }))
 
 vi.mock('util', () => ({
-  promisify: () => execFileMock,
+  promisify: () => execFileMock
 }))
 
 const { parseGpuRestartPayload, restartGpuDrivers } = await import('./gpu-restart')
@@ -26,12 +26,12 @@ describe('parseGpuRestartPayload', () => {
       parseGpuRestartPayload(
         JSON.stringify([
           { Name: 'Intel UHD', InstanceId: 'PCI\\VEN_8086' },
-          { Name: 'NVIDIA', InstanceId: 'PCI\\VEN_10DE' },
+          { Name: 'NVIDIA', InstanceId: 'PCI\\VEN_10DE' }
         ])
       )
     ).toEqual([
       { name: 'Intel UHD', instanceId: 'PCI\\VEN_8086' },
-      { name: 'NVIDIA', instanceId: 'PCI\\VEN_10DE' },
+      { name: 'NVIDIA', instanceId: 'PCI\\VEN_10DE' }
     ])
   })
 
@@ -49,7 +49,7 @@ describe('restartGpuDrivers', () => {
   it('returns restarted devices from PowerShell', async () => {
     execFileMock.mockResolvedValue({
       stdout: JSON.stringify([{ Name: 'Basic Display', InstanceId: 'ROOT\\DISPLAY' }]),
-      stderr: '',
+      stderr: ''
     })
     const result = await restartGpuDrivers()
     expect(result.ok).toBe(true)
@@ -71,7 +71,9 @@ describe('restartGpuDrivers script safety', () => {
     execFileMock.mockResolvedValue({ stdout: '[]', stderr: '' })
     await restartGpuDrivers()
     const script = execFileMock.mock.calls[0][1][3] as string
-    expect(script).toMatch(/try\s*\{[\s\S]*Disable-PnpDevice[\s\S]*\}\s*finally\s*\{[\s\S]*Enable-PnpDevice/)
+    expect(script).toMatch(
+      /try\s*\{[\s\S]*Disable-PnpDevice[\s\S]*\}\s*finally\s*\{[\s\S]*Enable-PnpDevice/
+    )
     expect(script.indexOf('Disable-PnpDevice')).toBeLessThan(script.indexOf('finally'))
   })
 })

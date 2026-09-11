@@ -6,19 +6,66 @@ import { describe, it, expect } from 'vitest'
 // ── Protected folder lists (replica) ──
 
 const PROTECTED_WIN32 = [
-  'windows', 'system32', 'syswow64', 'winsxs', 'program files', 'program files (x86)',
-  'programdata', 'recovery', 'boot', '$recycle.bin', 'system volume information',
-  'perflogs', 'msocache', 'config.msi', 'drivers', 'inf', 'logs',
+  'windows',
+  'system32',
+  'syswow64',
+  'winsxs',
+  'program files',
+  'program files (x86)',
+  'programdata',
+  'recovery',
+  'boot',
+  '$recycle.bin',
+  'system volume information',
+  'perflogs',
+  'msocache',
+  'config.msi',
+  'drivers',
+  'inf',
+  'logs'
 ]
 const PROTECTED_UNIX = [
-  'bin', 'sbin', 'usr', 'etc', 'var', 'lib', 'lib64', 'opt', 'boot', 'dev',
-  'proc', 'sys', 'run', 'tmp', 'snap', 'root', 'lost+found',
-  'system', 'library', 'applications', 'cores', 'private', 'volumes',
+  'bin',
+  'sbin',
+  'usr',
+  'etc',
+  'var',
+  'lib',
+  'lib64',
+  'opt',
+  'boot',
+  'dev',
+  'proc',
+  'sys',
+  'run',
+  'tmp',
+  'snap',
+  'root',
+  'lost+found',
+  'system',
+  'library',
+  'applications',
+  'cores',
+  'private',
+  'volumes'
 ]
 const PROTECTED_GENERIC = [
-  '.git', '.svn', '.hg', 'node_modules', '.npm', '.cache', '.local',
-  '__pycache__', '.venv', '.env', '.ssh', '.gnupg', '.config',
-  'appdata', '.android', '.gradle',
+  '.git',
+  '.svn',
+  '.hg',
+  'node_modules',
+  '.npm',
+  '.cache',
+  '.local',
+  '__pycache__',
+  '.venv',
+  '.env',
+  '.ssh',
+  '.gnupg',
+  '.config',
+  'appdata',
+  '.android',
+  '.gradle'
 ]
 
 // ── isProtectedFolder (replica) ──
@@ -39,13 +86,22 @@ function isProtectedFolder(folderPath: string, platform: string, home: string): 
 
   if (isRootLevel) return true
 
-  const protectedNames = platform === 'win32'
-    ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
-    : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
+  const protectedNames =
+    platform === 'win32'
+      ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
+      : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
 
   if (protectedNames.includes(name)) return true
 
-  const userProfileDirs = ['desktop', 'documents', 'downloads', 'pictures', 'videos', 'music', 'onedrive']
+  const userProfileDirs = [
+    'desktop',
+    'documents',
+    'downloads',
+    'pictures',
+    'videos',
+    'music',
+    'onedrive'
+  ]
   if (userProfileDirs.includes(name)) {
     const homeLower = home.toLowerCase().replace(/\\/g, '/')
     if (homeLower) {
@@ -81,8 +137,12 @@ describe('isProtectedFolder', () => {
   // ── Named protected folders ──
 
   it('protects Windows system folders by name', () => {
-    expect(isProtectedFolder('C:\\Users\\User\\projects\\system32', 'win32', 'C:\\Users\\User')).toBe(true)
-    expect(isProtectedFolder('C:\\Users\\User\\projects\\windows', 'win32', 'C:\\Users\\User')).toBe(true)
+    expect(
+      isProtectedFolder('C:\\Users\\User\\projects\\system32', 'win32', 'C:\\Users\\User')
+    ).toBe(true)
+    expect(
+      isProtectedFolder('C:\\Users\\User\\projects\\windows', 'win32', 'C:\\Users\\User')
+    ).toBe(true)
     expect(isProtectedFolder('D:\\data\\$recycle.bin', 'win32', 'C:\\Users\\User')).toBe(true)
     expect(isProtectedFolder('C:\\some\\programdata', 'win32', 'C:\\Users\\User')).toBe(true)
   })
@@ -116,18 +176,24 @@ describe('isProtectedFolder', () => {
   it('does not protect "Desktop" when not directly under home', () => {
     // "Desktop" under some other path should not be protected by the user-profile rule
     // (but it won't be protected by name alone since "desktop" isn't in the protected lists)
-    expect(isProtectedFolder('C:\\OtherPath\\subdir\\Desktop', 'win32', 'C:\\Users\\User')).toBe(false)
+    expect(isProtectedFolder('C:\\OtherPath\\subdir\\Desktop', 'win32', 'C:\\Users\\User')).toBe(
+      false
+    )
   })
 
   // ── Non-protected folders ──
 
   it('does not protect arbitrary deep folders', () => {
-    expect(isProtectedFolder('C:\\Users\\User\\projects\\myapp\\empty', 'win32', 'C:\\Users\\User')).toBe(false)
+    expect(
+      isProtectedFolder('C:\\Users\\User\\projects\\myapp\\empty', 'win32', 'C:\\Users\\User')
+    ).toBe(false)
     expect(isProtectedFolder('/home/user/projects/myapp/empty', 'linux', '/home/user')).toBe(false)
   })
 
   it('does not protect user-created folders with normal names', () => {
-    expect(isProtectedFolder('C:\\Users\\User\\projects\\build', 'win32', 'C:\\Users\\User')).toBe(false)
+    expect(isProtectedFolder('C:\\Users\\User\\projects\\build', 'win32', 'C:\\Users\\User')).toBe(
+      false
+    )
     expect(isProtectedFolder('/home/user/projects/dist', 'linux', '/home/user')).toBe(false)
   })
 })
@@ -135,7 +201,9 @@ describe('isProtectedFolder', () => {
 // ── Scan options validation (mirrors EMPTY_FOLDERS_SCAN handler) ──
 
 describe('empty folder scan options validation', () => {
-  function validateOptions(options: unknown): { directory: string; maxDepth: number; excludePatterns: string[] } | null {
+  function validateOptions(
+    options: unknown
+  ): { directory: string; maxDepth: number; excludePatterns: string[] } | null {
     if (!options || typeof options !== 'object') return null
     const opts = options as Record<string, unknown>
 
@@ -154,8 +222,16 @@ describe('empty folder scan options validation', () => {
   }
 
   it('accepts valid options', () => {
-    const result = validateOptions({ directory: '/home/user/projects', maxDepth: 10, excludePatterns: ['build'] })
-    expect(result).toEqual({ directory: '/home/user/projects', maxDepth: 10, excludePatterns: ['build'] })
+    const result = validateOptions({
+      directory: '/home/user/projects',
+      maxDepth: 10,
+      excludePatterns: ['build']
+    })
+    expect(result).toEqual({
+      directory: '/home/user/projects',
+      maxDepth: 10,
+      excludePatterns: ['build']
+    })
   })
 
   it('accepts Windows-style absolute path', () => {
@@ -190,7 +266,9 @@ describe('empty folder scan options validation', () => {
   it('defaults maxDepth to 20 if invalid', () => {
     expect(validateOptions({ directory: '/home/user', maxDepth: -5 })!.maxDepth).toBe(20)
     expect(validateOptions({ directory: '/home/user', maxDepth: 0 })!.maxDepth).toBe(20)
-    expect(validateOptions({ directory: '/home/user', maxDepth: 'not a number' })!.maxDepth).toBe(20)
+    expect(validateOptions({ directory: '/home/user', maxDepth: 'not a number' })!.maxDepth).toBe(
+      20
+    )
   })
 
   it('defaults excludePatterns to empty array if not provided', () => {
@@ -199,7 +277,10 @@ describe('empty folder scan options validation', () => {
   })
 
   it('filters non-string items from excludePatterns', () => {
-    const result = validateOptions({ directory: '/home/user', excludePatterns: ['valid', 42, null, 'also-valid'] })
+    const result = validateOptions({
+      directory: '/home/user',
+      excludePatterns: ['valid', 42, null, 'also-valid']
+    })
     expect(result!.excludePatterns).toEqual(['valid', 'also-valid'])
   })
 })
@@ -209,7 +290,9 @@ describe('empty folder scan options validation', () => {
 describe('empty folder delete path validation', () => {
   it('filters non-string paths', () => {
     const paths = ['C:\\valid', 42, null, '/also/valid'] as any[]
-    const safePaths = paths.filter((p): p is string => typeof p === 'string' && (p.startsWith('/') || /^[A-Za-z]:[\\/]/.test(p)))
+    const safePaths = paths.filter(
+      (p): p is string => typeof p === 'string' && (p.startsWith('/') || /^[A-Za-z]:[\\/]/.test(p))
+    )
     expect(safePaths).toEqual(['C:\\valid', '/also/valid'])
   })
 
@@ -221,9 +304,7 @@ describe('empty folder delete path validation', () => {
 
   it('returns empty result for non-array input', () => {
     const paths = 'not an array' as any
-    const result = !Array.isArray(paths)
-      ? { deleted: 0, failed: 0, errors: [] }
-      : null
+    const result = !Array.isArray(paths) ? { deleted: 0, failed: 0, errors: [] } : null
     expect(result).toEqual({ deleted: 0, failed: 0, errors: [] })
   })
 })
@@ -254,12 +335,7 @@ describe('delete mode validation', () => {
 
 describe('path sorting for deletion', () => {
   it('sorts deepest paths first', () => {
-    const paths = [
-      '/home/user/a',
-      '/home/user/a/b/c/d',
-      '/home/user/a/b',
-      '/home/user/a/b/c'
-    ]
+    const paths = ['/home/user/a', '/home/user/a/b/c/d', '/home/user/a/b', '/home/user/a/b/c']
     paths.sort((a, b) => b.split(/[\\/]/).length - a.split(/[\\/]/).length)
     expect(paths[0]).toBe('/home/user/a/b/c/d')
     expect(paths[1]).toBe('/home/user/a/b/c')
@@ -268,11 +344,7 @@ describe('path sorting for deletion', () => {
   })
 
   it('handles Windows-style paths', () => {
-    const paths = [
-      'C:\\Users\\User',
-      'C:\\Users\\User\\a\\b\\c',
-      'C:\\Users\\User\\a'
-    ]
+    const paths = ['C:\\Users\\User', 'C:\\Users\\User\\a\\b\\c', 'C:\\Users\\User\\a']
     paths.sort((a, b) => b.split(/[\\/]/).length - a.split(/[\\/]/).length)
     expect(paths[0]).toBe('C:\\Users\\User\\a\\b\\c')
     expect(paths[2]).toBe('C:\\Users\\User')
@@ -286,7 +358,7 @@ describe('empty folder entry sorting', () => {
     const entries = [
       { path: '/a', name: 'a', depth: 1 },
       { path: '/a/b/c', name: 'c', depth: 3 },
-      { path: '/a/b', name: 'b', depth: 2 },
+      { path: '/a/b', name: 'b', depth: 2 }
     ]
     entries.sort((a, b) => b.depth - a.depth)
     expect(entries[0].depth).toBe(3)
@@ -325,25 +397,33 @@ describe('delete result structure', () => {
 describe('open location validation', () => {
   it('rejects non-string input', () => {
     const folderPath: unknown = 42
-    const valid = typeof folderPath === 'string' && (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
+    const valid =
+      typeof folderPath === 'string' &&
+      (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
     expect(valid).toBe(false)
   })
 
   it('rejects relative paths', () => {
     const folderPath = 'relative/path'
-    const valid = typeof folderPath === 'string' && (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
+    const valid =
+      typeof folderPath === 'string' &&
+      (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
     expect(valid).toBe(false)
   })
 
   it('accepts absolute Unix path', () => {
     const folderPath = '/home/user/folder'
-    const valid = typeof folderPath === 'string' && (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
+    const valid =
+      typeof folderPath === 'string' &&
+      (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
     expect(valid).toBe(true)
   })
 
   it('accepts absolute Windows path', () => {
     const folderPath = 'C:\\Users\\User\\folder'
-    const valid = typeof folderPath === 'string' && (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
+    const valid =
+      typeof folderPath === 'string' &&
+      (folderPath.startsWith('/') || /^[A-Za-z]:[\\/]/.test(folderPath))
     expect(valid).toBe(true)
   })
 })
@@ -381,7 +461,9 @@ describe('findEmptyFolders boundary conditions', () => {
     const excludePatterns = ['build', 'dist', 'Node_Modules']
     const entryName = 'build'
     const entryNameLower = entryName.toLowerCase()
-    const excluded = excludePatterns.some((p) => entryName === p || entryNameLower === p.toLowerCase())
+    const excluded = excludePatterns.some(
+      (p) => entryName === p || entryNameLower === p.toLowerCase()
+    )
     expect(excluded).toBe(true)
   })
 
@@ -389,7 +471,9 @@ describe('findEmptyFolders boundary conditions', () => {
     const excludePatterns = ['BUILD']
     const entryName = 'build'
     const entryNameLower = entryName.toLowerCase()
-    const excluded = excludePatterns.some((p) => entryName === p || entryNameLower === p.toLowerCase())
+    const excluded = excludePatterns.some(
+      (p) => entryName === p || entryNameLower === p.toLowerCase()
+    )
     expect(excluded).toBe(true)
   })
 })

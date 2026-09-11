@@ -24,6 +24,6 @@ export function createDarwinProvider(): PlatformProvider {
     malware: createDarwinMalware(),
     browser: createDarwinBrowser(),
     malwarePaths: createDarwinMalwarePaths(),
-    network: createDarwinNetwork(),
+    network: createDarwinNetwork()
   }
 }

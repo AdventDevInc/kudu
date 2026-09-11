@@ -8,8 +8,8 @@ vi.mock('electron', () => ({
   ipcMain: {
     handle: vi.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
       handleMap.set(channel, handler)
-    }),
-  },
+    })
+  }
 }))
 
 vi.mock('../../shared/channels', () => ({
@@ -18,8 +18,8 @@ vi.mock('../../shared/channels', () => ({
     CLOUD_UNLINK: 'cloud:unlink',
     CLOUD_GET_STATUS: 'cloud:get-status',
     CLOUD_RECONNECT: 'cloud:reconnect',
-    THREAT_MONITOR_GET_SNAPSHOT: 'threat-monitor:get-snapshot',
-  },
+    THREAT_MONITOR_GET_SNAPSHOT: 'threat-monitor:get-snapshot'
+  }
 }))
 
 vi.mock('../services/cloud-agent', () => ({
@@ -27,14 +27,14 @@ vi.mock('../services/cloud-agent', () => ({
     link: vi.fn(),
     unlink: vi.fn(),
     getStatus: vi.fn(),
-    reconnect: vi.fn(),
-  },
+    reconnect: vi.fn()
+  }
 }))
 
 vi.mock('../services/threat-monitor', () => ({
   threatMonitor: {
-    getThreatSnapshot: vi.fn(),
-  },
+    getThreatSnapshot: vi.fn()
+  }
 }))
 
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
@@ -254,7 +254,7 @@ describe('cloud-agent IPC', () => {
         flaggedDns: [],
         blacklistVersion: '2025-01-01',
         lastConnectionScanAt: '2025-01-01T12:00:00Z',
-        lastDnsScanAt: '2025-01-01T12:00:00Z',
+        lastDnsScanAt: '2025-01-01T12:00:00Z'
       }
       mockThreatMonitor.getThreatSnapshot.mockReturnValue(snapshot)
 
@@ -271,7 +271,7 @@ describe('cloud-agent IPC', () => {
         flaggedDns: [],
         blacklistVersion: null,
         lastConnectionScanAt: null,
-        lastDnsScanAt: null,
+        lastDnsScanAt: null
       }
       mockThreatMonitor.getThreatSnapshot.mockReturnValue(snapshot)
 

@@ -11,7 +11,7 @@ import type {
   PrivacyApplyResult,
   ServiceScanResult,
   ServiceApplyResult,
-  ServiceScanProgress,
+  ServiceScanProgress
 } from '../../shared/types'
 import type { HealthReport } from '../services/cloud-agent-types'
 
@@ -318,7 +318,7 @@ export interface PrivacySettingDef {
   label: string
   description: string
   requiresAdmin: boolean
-  dependsOn?: string        // ID of a setting that must be enabled first
+  dependsOn?: string // ID of a setting that must be enabled first
   check: () => Promise<boolean>
   apply: () => Promise<void>
   revert?: () => Promise<void>
@@ -333,7 +333,9 @@ export interface PlatformPrivacy {
 
 export interface PlatformServices {
   scan(onProgress?: (data: ServiceScanProgress) => void): Promise<ServiceScanResult>
-  applyChanges(changes: Array<{ name: string; targetStartType: string }>): Promise<ServiceApplyResult>
+  applyChanges(
+    changes: Array<{ name: string; targetStartType: string }>
+  ): Promise<ServiceApplyResult>
 }
 
 // ─── Malware ────────────────────────────────────────────────

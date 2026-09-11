@@ -7,13 +7,13 @@ import { describe, it, expect } from 'vitest'
 
 const mockPrivacySettings = [
   { id: 'telemetry', name: 'Telemetry', category: 'Privacy' },
-  { id: 'advertising', name: 'Advertising ID', category: 'Privacy' },
+  { id: 'advertising', name: 'Advertising ID', category: 'Privacy' }
 ]
 
 const MOCK_KEY = '/mock/privacy-shield.ipc'
 
 // Hook Node's module resolution to intercept the require call
- 
+
 const NativeModule = require('module')
 const origResolve = NativeModule._resolveFilename
 NativeModule._resolveFilename = function (request: string, parent: any, ...args: any[]) {
@@ -31,7 +31,7 @@ require.cache[MOCK_KEY] = {
   children: [],
   paths: [],
   exports: { PRIVACY_SETTINGS: mockPrivacySettings },
-  path: '/mock',
+  path: '/mock'
 } as any
 
 const { createWin32Privacy } = await import('./privacy')

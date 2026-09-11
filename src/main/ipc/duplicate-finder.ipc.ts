@@ -150,9 +150,7 @@ async function processBatch<T, R>(
   for (let i = 0; i < items.length; i += batchSize) {
     if (cancelled) break
     const batch = items.slice(i, i + batchSize)
-    const batchResults = await Promise.all(
-      batch.map((item) => fn(item).catch(() => null))
-    )
+    const batchResults = await Promise.all(batch.map((item) => fn(item).catch(() => null)))
     results.push(...batchResults)
   }
   return results
@@ -285,109 +283,144 @@ export function registerDuplicateFinderIpc(getWindow: WindowGetter): void {
   })
 
   // Scan
-  ipcMain.handle(IPC.DUPLICATES_SCAN, async (_event, options: unknown): Promise<DuplicateScanResult> => {
-    cancelled = false
-    const startTime = Date.now()
-    const win = getWindow()
-    const emptyResult: DuplicateScanResult = { groups: [], totalDuplicates: 0, totalReclaimable: 0, totalFilesScanned: 0, duration: 0, cancelled: false }
+  ipcMain.handle(
+    IPC.DUPLICATES_SCAN,
+    async (_event, options: unknown): Promise<DuplicateScanResult> => {
+      cancelled = false
+      const startTime = Date.now()
+      const win = getWindow()
+      const emptyResult: DuplicateScanResult = {
+        groups: [],
+        totalDuplicates: 0,
+        totalReclaimable: 0,
+        totalFilesScanned: 0,
+        duration: 0,
+        cancelled: false
+      }
 
-    if (!options || typeof options !== 'object') return emptyResult
-    const opts = options as Record<string, unknown>
+      if (!options || typeof options !== 'object') return emptyResult
+      const opts = options as Record<string, unknown>
 
-    // Validate options
-    const dir = typeof opts.directory === 'string' ? opts.directory : ''
-    const safeOptions: DuplicateScanOptions = {
-      directory: isAbsolute(dir) ? dir : '',
-      minFileSize: typeof opts.minFileSize === 'number' && opts.minFileSize >= 0 ? opts.minFileSize : 1_048_576,
-      maxFileSize: typeof opts.maxFileSize === 'number' && opts.maxFileSize > 0 ? opts.maxFileSize : null,
-      excludePatterns: Array.isArray(opts.excludePatterns) ? (opts.excludePatterns as unknown[]).filter((p): p is string => typeof p === 'string') : [],
-      extensionFilter: Array.isArray(opts.extensionFilter) ? (opts.extensionFilter as unknown[]).filter((e): e is string => typeof e === 'string') : [],
-      maxDepth: typeof opts.maxDepth === 'number' && opts.maxDepth > 0 ? opts.maxDepth : 20
-    }
+      // Validate options
+      const dir = typeof opts.directory === 'string' ? opts.directory : ''
+      const safeOptions: DuplicateScanOptions = {
+        directory: isAbsolute(dir) ? dir : '',
+        minFileSize:
+          typeof opts.minFileSize === 'number' && opts.minFileSize >= 0
+            ? opts.minFileSize
+            : 1_048_576,
+        maxFileSize:
+          typeof opts.maxFileSize === 'number' && opts.maxFileSize > 0 ? opts.maxFileSize : null,
+        excludePatterns: Array.isArray(opts.excludePatterns)
+          ? (opts.excludePatterns as unknown[]).filter((p): p is string => typeof p === 'string')
+          : [],
+        extensionFilter: Array.isArray(opts.extensionFilter)
+          ? (opts.extensionFilter as unknown[]).filter((e): e is string => typeof e === 'string')
+          : [],
+        maxDepth: typeof opts.maxDepth === 'number' && opts.maxDepth > 0 ? opts.maxDepth : 20
+      }
 
-    if (!safeOptions.directory) return emptyResult
+      if (!safeOptions.directory) return emptyResult
 
-    // Phase 1: Walk
-    const files: DuplicateFile[] = []
-    const lastReport = { time: Date.now() }
-    await walkDirectory(safeOptions.directory, safeOptions, 0, files, win, lastReport)
+      // Phase 1: Walk
+      const files: DuplicateFile[] = []
+      const lastReport = { time: Date.now() }
+      await walkDirectory(safeOptions.directory, safeOptions, 0, files, win, lastReport)
 
-    if (cancelled) {
-      return { groups: [], totalDuplicates: 0, totalReclaimable: 0, totalFilesScanned: files.length, duration: Date.now() - startTime, cancelled: true }
-    }
-
-    // Phase 2: Group by size
-    sendProgress(win, {
-      phase: 'grouping',
-      currentPath: '',
-      filesScanned: files.length,
-      duplicatesFound: 0,
-      reclaimableSpace: 0,
-      progress: 0
-    })
-
-    const sizeGroups = groupBySize(files)
-
-    if (cancelled || sizeGroups.size === 0) {
-      return { groups: [], totalDuplicates: 0, totalReclaimable: 0, totalFilesScanned: files.length, duration: Date.now() - startTime, cancelled }
-    }
-
-    // Phase 3: Hash
-    const groups = await findDuplicates(sizeGroups, win)
-
-    const totalDuplicates = groups.reduce((sum, g) => sum + g.files.length - 1, 0)
-    const totalReclaimable = groups.reduce((sum, g) => sum + g.reclaimableSpace, 0)
-
-    sendProgress(win, {
-      phase: 'complete',
-      currentPath: '',
-      filesScanned: files.length,
-      duplicatesFound: totalDuplicates,
-      reclaimableSpace: totalReclaimable,
-      progress: 100
-    })
-
-    return {
-      groups,
-      totalDuplicates,
-      totalReclaimable,
-      totalFilesScanned: files.length,
-      duration: Date.now() - startTime,
-      cancelled
-    }
-  })
-
-  // Delete
-  ipcMain.handle(IPC.DUPLICATES_DELETE, async (_event, paths: unknown, mode: unknown): Promise<DuplicateDeleteResult> => {
-    if (!Array.isArray(paths)) return { deleted: 0, failed: 0, spaceRecovered: 0, errors: [] }
-    const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
-    const deleteMode: DuplicateDeleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
-
-    let deleted = 0
-    let failed = 0
-    let spaceRecovered = 0
-    const errors: { path: string; reason: string }[] = []
-
-    for (const filePath of safePaths) {
-      try {
-        const s = await stat(filePath)
-        const fileSize = s.size
-
-        if (deleteMode === 'recycle') {
-          await shell.trashItem(filePath)
-        } else {
-          await rm(filePath, { force: true })
+      if (cancelled) {
+        return {
+          groups: [],
+          totalDuplicates: 0,
+          totalReclaimable: 0,
+          totalFilesScanned: files.length,
+          duration: Date.now() - startTime,
+          cancelled: true
         }
-        deleted++
-        spaceRecovered += fileSize
-      } catch (err: any) {
-        failed++
-        errors.push({ path: filePath, reason: err?.message || 'Unknown error' })
+      }
+
+      // Phase 2: Group by size
+      sendProgress(win, {
+        phase: 'grouping',
+        currentPath: '',
+        filesScanned: files.length,
+        duplicatesFound: 0,
+        reclaimableSpace: 0,
+        progress: 0
+      })
+
+      const sizeGroups = groupBySize(files)
+
+      if (cancelled || sizeGroups.size === 0) {
+        return {
+          groups: [],
+          totalDuplicates: 0,
+          totalReclaimable: 0,
+          totalFilesScanned: files.length,
+          duration: Date.now() - startTime,
+          cancelled
+        }
+      }
+
+      // Phase 3: Hash
+      const groups = await findDuplicates(sizeGroups, win)
+
+      const totalDuplicates = groups.reduce((sum, g) => sum + g.files.length - 1, 0)
+      const totalReclaimable = groups.reduce((sum, g) => sum + g.reclaimableSpace, 0)
+
+      sendProgress(win, {
+        phase: 'complete',
+        currentPath: '',
+        filesScanned: files.length,
+        duplicatesFound: totalDuplicates,
+        reclaimableSpace: totalReclaimable,
+        progress: 100
+      })
+
+      return {
+        groups,
+        totalDuplicates,
+        totalReclaimable,
+        totalFilesScanned: files.length,
+        duration: Date.now() - startTime,
+        cancelled
       }
     }
+  )
 
-    return { deleted, failed, spaceRecovered, errors }
-  })
+  // Delete
+  ipcMain.handle(
+    IPC.DUPLICATES_DELETE,
+    async (_event, paths: unknown, mode: unknown): Promise<DuplicateDeleteResult> => {
+      if (!Array.isArray(paths)) return { deleted: 0, failed: 0, spaceRecovered: 0, errors: [] }
+      const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
+      const deleteMode: DuplicateDeleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
+
+      let deleted = 0
+      let failed = 0
+      let spaceRecovered = 0
+      const errors: { path: string; reason: string }[] = []
+
+      for (const filePath of safePaths) {
+        try {
+          const s = await stat(filePath)
+          const fileSize = s.size
+
+          if (deleteMode === 'recycle') {
+            await shell.trashItem(filePath)
+          } else {
+            await rm(filePath, { force: true })
+          }
+          deleted++
+          spaceRecovered += fileSize
+        } catch (err: any) {
+          failed++
+          errors.push({ path: filePath, reason: err?.message || 'Unknown error' })
+        }
+      }
+
+      return { deleted, failed, spaceRecovered, errors }
+    }
+  )
 
   // Open file location in system file manager
   ipcMain.handle(IPC.DUPLICATES_OPEN_LOCATION, (_event, filePath: unknown) => {

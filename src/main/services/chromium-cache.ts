@@ -31,7 +31,7 @@ const BROWSERS: Array<{ key: string; label: string; hasProfiles: boolean }> = [
   { key: 'supermium', label: 'Supermium', hasProfiles: true },
   { key: 'helium', label: 'Helium', hasProfiles: true },
   { key: 'cromite', label: 'Cromite', hasProfiles: true },
-  { key: 'catsxp', label: 'CatsXP', hasProfiles: true },
+  { key: 'catsxp', label: 'CatsXP', hasProfiles: true }
 ]
 
 /**

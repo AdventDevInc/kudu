@@ -1,4 +1,13 @@
-import { readFileSync, writeFileSync, renameSync, unlinkSync, rmSync, existsSync, mkdirSync, readdirSync } from 'fs'
+import {
+  readFileSync,
+  writeFileSync,
+  renameSync,
+  unlinkSync,
+  rmSync,
+  existsSync,
+  mkdirSync,
+  readdirSync
+} from 'fs'
 import { join } from 'path'
 import { createHash } from 'crypto'
 import { app } from 'electron'
@@ -39,9 +48,7 @@ let _dataDir: string | null = null
 
 function getDataDir(): string {
   if (!_dataDir) {
-    _dataDir = app.isPackaged
-      ? app.getPath('userData')
-      : join(app.getPath('userData'), 'Kudu-Dev')
+    _dataDir = app.isPackaged ? app.getPath('userData') : join(app.getPath('userData'), 'Kudu-Dev')
   }
   return _dataDir
 }
@@ -59,9 +66,9 @@ function listYarFiles(dir: string): string[] {
   try {
     if (!existsSync(dir)) return []
     return readdirSync(dir)
-      .filter(f => f.endsWith('.yar'))
+      .filter((f) => f.endsWith('.yar'))
       .sort()
-      .map(f => join(dir, f))
+      .map((f) => join(dir, f))
   } catch {
     return []
   }
@@ -99,10 +106,17 @@ function validateMetadata(raw: unknown): boolean {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return false
   const obj = raw as Record<string, unknown>
   return (
-    typeof obj.version === 'string' && obj.version.length > 0 && obj.version.length <= 100 &&
-    typeof obj.updatedAt === 'string' && obj.updatedAt.length > 0 && obj.updatedAt.length <= 100 &&
-    typeof obj.rulesCount === 'number' && obj.rulesCount >= 0 &&
-    typeof obj.sha256 === 'string' && obj.sha256.length > 0 && obj.sha256.length <= 128
+    typeof obj.version === 'string' &&
+    obj.version.length > 0 &&
+    obj.version.length <= 100 &&
+    typeof obj.updatedAt === 'string' &&
+    obj.updatedAt.length > 0 &&
+    obj.updatedAt.length <= 100 &&
+    typeof obj.rulesCount === 'number' &&
+    obj.rulesCount >= 0 &&
+    typeof obj.sha256 === 'string' &&
+    obj.sha256.length > 0 &&
+    obj.sha256.length <= 128
   )
 }
 
@@ -112,11 +126,15 @@ export function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return null
 
   const obj = raw as Record<string, unknown>
-  if (typeof obj.version !== 'string' || obj.version.length === 0 || obj.version.length > 100) return null
-  if (typeof obj.updatedAt !== 'string' || obj.updatedAt.length === 0 || obj.updatedAt.length > 100) return null
-  if (typeof obj.sha256 !== 'string' || obj.sha256.length === 0 || obj.sha256.length > 128) return null
+  if (typeof obj.version !== 'string' || obj.version.length === 0 || obj.version.length > 100)
+    return null
+  if (typeof obj.updatedAt !== 'string' || obj.updatedAt.length === 0 || obj.updatedAt.length > 100)
+    return null
+  if (typeof obj.sha256 !== 'string' || obj.sha256.length === 0 || obj.sha256.length > 128)
+    return null
 
-  if (!Array.isArray(obj.rules) || obj.rules.length === 0 || obj.rules.length > MAX_RULE_COUNT) return null
+  if (!Array.isArray(obj.rules) || obj.rules.length === 0 || obj.rules.length > MAX_RULE_COUNT)
+    return null
 
   const rules: YaraRuleFile[] = []
   for (const item of obj.rules) {
@@ -125,7 +143,12 @@ export function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
     if (typeof entry.filename !== 'string' || !entry.filename.endsWith('.yar')) return null
     if (typeof entry.content !== 'string' || entry.content.length === 0) return null
     if (entry.content.length > MAX_RULE_CONTENT_BYTES) return null
-    if (entry.filename.includes('/') || entry.filename.includes('\\') || entry.filename.includes('..')) return null
+    if (
+      entry.filename.includes('/') ||
+      entry.filename.includes('\\') ||
+      entry.filename.includes('..')
+    )
+      return null
     rules.push({ filename: entry.filename, content: entry.content })
   }
 
@@ -133,7 +156,7 @@ export function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
     version: obj.version,
     updatedAt: obj.updatedAt,
     sha256: obj.sha256,
-    rules,
+    rules
   }
 }
 
@@ -143,8 +166,10 @@ export function validateRuleBundle(raw: unknown): YaraRuleBundle | null {
  */
 export function computeBundleHash(rules: YaraRuleFile[]): string {
   // Use plain < > comparison (not localeCompare) for deterministic cross-platform sorting
-  const sorted = [...rules].sort((a, b) => a.filename < b.filename ? -1 : a.filename > b.filename ? 1 : 0)
-  const combined = sorted.map(r => r.content).join('')
+  const sorted = [...rules].sort((a, b) =>
+    a.filename < b.filename ? -1 : a.filename > b.filename ? 1 : 0
+  )
+  const combined = sorted.map((r) => r.content).join('')
   return createHash('sha256').update(combined).digest('hex')
 }
 
@@ -166,7 +191,7 @@ export async function fetchAndCacheRules(url: string): Promise<{
     let text: string
     try {
       const meta = getRulesMetadata()
-      const headers: Record<string, string> = { 'Accept': 'application/json' }
+      const headers: Record<string, string> = { Accept: 'application/json' }
       if (meta) headers['X-Kudu-Rules-Version'] = meta.version
 
       // Disable redirects to prevent SSRF bypass (a public URL could 30x to loopback)
@@ -211,7 +236,12 @@ export async function fetchAndCacheRules(url: string): Promise<{
     const computedHash = computeBundleHash(bundle.rules)
     if (computedHash !== bundle.sha256) {
       console.warn(`[yara] SHA-256 mismatch — server: ${bundle.sha256}, computed: ${computedHash}`)
-      console.warn(`[yara] Rule files (sorted): ${[...bundle.rules].sort((a, b) => a.filename.localeCompare(b.filename)).map(r => `${r.filename}(${r.content.length})`).join(', ')}`)
+      console.warn(
+        `[yara] Rule files (sorted): ${[...bundle.rules]
+          .sort((a, b) => a.filename.localeCompare(b.filename))
+          .map((r) => `${r.filename}(${r.content.length})`)
+          .join(', ')}`
+      )
       return { success: false, error: 'Integrity check failed: SHA-256 mismatch' }
     }
 
@@ -227,12 +257,20 @@ export async function fetchAndCacheRules(url: string): Promise<{
       for (const rule of bundle.rules) {
         writeFileSync(join(stageDir, rule.filename), rule.content, 'utf-8')
       }
-      writeFileSync(join(stageDir, 'metadata.json'), JSON.stringify({
-        version: bundle.version,
-        updatedAt: bundle.updatedAt,
-        rulesCount: bundle.rules.length,
-        sha256: bundle.sha256,
-      }, null, 2), 'utf-8')
+      writeFileSync(
+        join(stageDir, 'metadata.json'),
+        JSON.stringify(
+          {
+            version: bundle.version,
+            updatedAt: bundle.updatedAt,
+            rulesCount: bundle.rules.length,
+            sha256: bundle.sha256
+          },
+          null,
+          2
+        ),
+        'utf-8'
+      )
 
       // Swap: remove old cache dir, rename staging into place
       const oldDir = `${dir}.old-${Date.now()}`
@@ -242,13 +280,17 @@ export async function fetchAndCacheRules(url: string): Promise<{
       if (existsSync(oldDir)) rmSync(oldDir, { recursive: true, force: true })
     } catch (err) {
       // Clean up staging dir on failure
-      try { rmSync(stageDir, { recursive: true, force: true }) } catch { /* best effort */ }
+      try {
+        rmSync(stageDir, { recursive: true, force: true })
+      } catch {
+        /* best effort */
+      }
       throw err
     }
 
     return {
       success: true,
-      stats: { rulesCount: bundle.rules.length, version: bundle.version },
+      stats: { rulesCount: bundle.rules.length, version: bundle.version }
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
@@ -270,7 +312,7 @@ let _onRulesUpdated: (() => void) | null = null
 export function startPeriodicRuleChecks(
   serverUrl: string,
   onUpdated: () => void,
-  intervalMs: number = DEFAULT_CHECK_INTERVAL_MS,
+  intervalMs: number = DEFAULT_CHECK_INTERVAL_MS
 ): void {
   stopPeriodicRuleChecks()
   _onRulesUpdated = onUpdated
@@ -279,7 +321,9 @@ export function startPeriodicRuleChecks(
     try {
       const result = await fetchAndCacheRules(`${serverUrl}${RULES_ENDPOINT}`)
       if (result.success && result.stats) {
-        console.log(`[yara] Updated rules to v${result.stats.version} (${result.stats.rulesCount} rules)`)
+        console.log(
+          `[yara] Updated rules to v${result.stats.version} (${result.stats.rulesCount} rules)`
+        )
         _onRulesUpdated?.()
       }
     } catch (err) {

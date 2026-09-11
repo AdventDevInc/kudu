@@ -36,7 +36,11 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
   const offset = circumference - (animatedScore / 100) * circumference
 
   return (
-    <div className={cn('relative inline-flex items-center justify-center', className)} role="img" aria-label={`${t('health')}: ${Math.round(score)} / 100`}>
+    <div
+      className={cn('relative inline-flex items-center justify-center', className)}
+      role="img"
+      aria-label={`${t('health')}: ${Math.round(score)} / 100`}
+    >
       {/* Outer glow */}
       <div
         className="absolute rounded-full opacity-20 blur-3xl"
@@ -89,7 +93,10 @@ export function HealthScore({ score, size = 'md', className }: HealthScoreProps)
           {Math.round(animatedScore)}
         </span>
         {size !== 'sm' && (
-          <span className={cn(config.labelSize, 'font-medium uppercase tracking-widest')} style={{ color: 'var(--text-muted)' }}>
+          <span
+            className={cn(config.labelSize, 'font-medium uppercase tracking-widest')}
+            style={{ color: 'var(--text-muted)' }}
+          >
             {t('health')}
           </span>
         )}

@@ -16,7 +16,13 @@ const rangeSeconds = { '60s': 60, '5m': 300, '15m': 900 }
 // Cap the number of data points rendered to avoid Recharts SVG thrashing
 const MAX_CHART_POINTS = 120
 
-export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRange, dataKey, label, color }: TimeSeriesChartProps) {
+export const TimeSeriesChart = memo(function TimeSeriesChart({
+  history,
+  timeRange,
+  dataKey,
+  label,
+  color
+}: TimeSeriesChartProps) {
   const { t } = useTranslation('performance')
   const data = useMemo(() => {
     const count = rangeSeconds[timeRange]
@@ -67,10 +73,7 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
             )}
           </defs>
           <XAxis dataKey="t" hide />
-          <YAxis
-            hide
-            domain={isDisk ? ['auto', 'auto'] : [0, 100]}
-          />
+          <YAxis hide domain={isDisk ? ['auto', 'auto'] : [0, 100]} />
           <Tooltip
             contentStyle={{
               background: '#1e1e24',
@@ -81,7 +84,9 @@ export const TimeSeriesChart = memo(function TimeSeriesChart({ history, timeRang
             }}
             labelFormatter={() => ''}
             formatter={(val) =>
-              isDisk ? [`${Number(val).toFixed(1)} ${t('chartDiskUnit')}`] : [`${Number(val).toFixed(1)}${t('chartPercentUnit')}`]
+              isDisk
+                ? [`${Number(val).toFixed(1)} ${t('chartDiskUnit')}`]
+                : [`${Number(val).toFixed(1)}${t('chartPercentUnit')}`]
             }
           />
           {isDisk ? (

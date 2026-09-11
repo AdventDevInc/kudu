@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 // ── Mocks ──
 
 vi.mock('electron', () => ({
-  ipcMain: { handle: vi.fn() },
+  ipcMain: { handle: vi.fn() }
 }))
 
 const mockSpawnTrackedLines = vi.fn()
 vi.mock('../services/exec-utf8', () => ({
   psUtf8: (cmd: string) => cmd,
-  spawnTrackedLines: (...args: unknown[]) => mockSpawnTrackedLines(...args),
+  spawnTrackedLines: (...args: unknown[]) => mockSpawnTrackedLines(...args)
 }))
 
 import { scanFirewallRules } from './firewall-audit.ipc'
@@ -32,7 +32,11 @@ function stubScan(
   mockSpawnTrackedLines.mockImplementation(
     async (_file: string, _args: string[], onLine: (line: string) => void) => {
       for (const l of lines) onLine(l)
-      return { stderr: outcome.stderr ?? '', code: outcome.code ?? 0, timedOut: outcome.timedOut ?? false }
+      return {
+        stderr: outcome.stderr ?? '',
+        code: outcome.code ?? 0,
+        timedOut: outcome.timedOut ?? false
+      }
     }
   )
 }
@@ -99,7 +103,11 @@ describe('scanFirewallRules', () => {
     const classifying = seen.filter((p) => p.phase === 'classifying')
     expect(classifying).toHaveLength(2)
     expect(classifying[0]).toMatchObject({ current: 1, total: 2, currentRule: 'My App (In)' })
-    expect(classifying[1]).toMatchObject({ current: 2, total: 2, currentRule: 'Core Networking (In)' })
+    expect(classifying[1]).toMatchObject({
+      current: 2,
+      total: 2,
+      currentRule: 'Core Networking (In)'
+    })
     expect(parsedAt).toEqual([0, 1, 2])
   })
 

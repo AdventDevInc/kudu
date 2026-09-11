@@ -54,11 +54,15 @@ const defaultSettings: KuduSettings = {
   windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'],
   gameMode: {
     enabledOptimizations: [
-      'svc-wsearch', 'svc-sysmain',
+      'svc-wsearch',
+      'svc-sysmain',
       'proc-kill-updaters',
       'mem-clear-standby',
-      'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
-      'sys-disable-game-bar', 'sys-disable-fse-opt',
+      'sys-focus-assist',
+      'sys-power-plan',
+      'sys-prevent-sleep',
+      'sys-disable-game-bar',
+      'sys-disable-fse-opt',
       'net-flush-dns'
     ],
     customProcessKillList: [],
@@ -91,9 +95,12 @@ export const useSettingsStore = create<SettingsState>((set) => ({
 
 /** Re-fetch settings from main process into the store */
 export function refreshSettings(): void {
-  window.kudu?.settingsGet?.().then((settings) => {
-    useSettingsStore.getState().setSettings(settings)
-  }).catch(() => {})
+  window.kudu
+    ?.settingsGet?.()
+    .then((settings) => {
+      useSettingsStore.getState().setSettings(settings)
+    })
+    .catch(() => {})
 }
 
 // Hydrate settings eagerly so pages that depend on them (e.g. ThreatMonitorPage)

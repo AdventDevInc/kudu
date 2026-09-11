@@ -7,7 +7,13 @@ vi.mock('child_process', () => ({ execFile: (...args: unknown[]) => mockExecFile
 // Mock elevation
 vi.mock('./elevation', () => ({ isAdmin: vi.fn() }))
 
-import { createRestorePoint, buildRestorePointScript, classifyRestorePointError, PROTECTION_SENTINEL, PROTECTION_DISABLED_ERROR } from './restore-point'
+import {
+  createRestorePoint,
+  buildRestorePointScript,
+  classifyRestorePointError,
+  PROTECTION_SENTINEL,
+  PROTECTION_DISABLED_ERROR
+} from './restore-point'
 import { isAdmin } from './elevation'
 
 const mockedIsAdmin = vi.mocked(isAdmin)
@@ -26,9 +32,11 @@ describe('createRestorePoint', () => {
 
   it('calls powershell with correct arguments when admin', async () => {
     mockedIsAdmin.mockReturnValue(true)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, '', '')
+      }
+    )
 
     const result = await createRestorePoint('Before Cleanup')
     expect(result.success).toBe(true)
@@ -50,9 +58,11 @@ describe('createRestorePoint', () => {
 
   it('escapes single quotes in description', async () => {
     mockedIsAdmin.mockReturnValue(true)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, '', '')
+      }
+    )
 
     await createRestorePoint("Kudu's cleanup")
     const script = mockExecFile.mock.calls[0][1][3]
@@ -62,9 +72,15 @@ describe('createRestorePoint', () => {
 
   it('returns friendly error when Windows throttles (24h limit)', async () => {
     mockedIsAdmin.mockReturnValue(true)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error('fail'), '', 'A restore point cannot be created because one was already created within the past 1440 minutes.')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(
+          new Error('fail'),
+          '',
+          'A restore point cannot be created because one was already created within the past 1440 minutes.'
+        )
+      }
+    )
 
     const result = await createRestorePoint('Test')
     expect(result.success).toBe(false)
@@ -73,9 +89,11 @@ describe('createRestorePoint', () => {
 
   it('returns friendly error on frequency keyword', async () => {
     mockedIsAdmin.mockReturnValue(true)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error('fail'), '', 'The frequency of restore point creation is limited.')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(new Error('fail'), '', 'The frequency of restore point creation is limited.')
+      }
+    )
 
     const result = await createRestorePoint('Test')
     expect(result.success).toBe(false)
@@ -84,9 +102,11 @@ describe('createRestorePoint', () => {
 
   it('returns generic error for other failures', async () => {
     mockedIsAdmin.mockReturnValue(true)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error('System Protection is turned off'), '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(new Error('System Protection is turned off'), '', '')
+      }
+    )
 
     const result = await createRestorePoint('Test')
     expect(result.success).toBe(false)
@@ -96,9 +116,11 @@ describe('createRestorePoint', () => {
   it('truncates long error messages to 500 chars', async () => {
     mockedIsAdmin.mockReturnValue(true)
     const longError = 'x'.repeat(1000)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error(longError), '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(new Error(longError), '', '')
+      }
+    )
 
     const result = await createRestorePoint('Test')
     expect(result.success).toBe(false)

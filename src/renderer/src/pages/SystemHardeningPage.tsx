@@ -18,8 +18,18 @@ interface TabDef {
 
 const tabs: TabDef[] = [
   { id: 'privacy', labelKey: 'tabs.privacy', icon: Eye, descriptionKey: 'tabs.privacyDescription' },
-  { id: 'bloatware', labelKey: 'tabs.bloatware', icon: PackageMinus, descriptionKey: 'tabs.bloatwareDescription' },
-  { id: 'services', labelKey: 'tabs.services', icon: Server, descriptionKey: 'tabs.servicesDescription' }
+  {
+    id: 'bloatware',
+    labelKey: 'tabs.bloatware',
+    icon: PackageMinus,
+    descriptionKey: 'tabs.bloatwareDescription'
+  },
+  {
+    id: 'services',
+    labelKey: 'tabs.services',
+    icon: Server,
+    descriptionKey: 'tabs.servicesDescription'
+  }
 ]
 
 export function SystemHardeningPage() {
@@ -27,11 +37,12 @@ export function SystemHardeningPage() {
   const { features, platform } = usePlatform()
   const [activeTab, setActiveTab] = useState('privacy')
 
-  const visibleTabs = useMemo(() =>
-    tabs.filter((tab) => {
-      if (tab.id === 'bloatware' && !features.debloater) return false
-      return true
-    }),
+  const visibleTabs = useMemo(
+    () =>
+      tabs.filter((tab) => {
+        if (tab.id === 'bloatware' && !features.debloater) return false
+        return true
+      }),
     [features.debloater]
   )
 
@@ -39,9 +50,7 @@ export function SystemHardeningPage() {
     <div className="animate-fade-in">
       <PageHeader
         title={t('pageTitle')}
-        description={platform === 'win32'
-          ? t('descriptionWindows')
-          : t('descriptionOther')}
+        description={platform === 'win32' ? t('descriptionWindows') : t('descriptionOther')}
       />
 
       {/* Tab bar */}
@@ -64,7 +73,10 @@ export function SystemHardeningPage() {
             >
               <TabIcon className="h-4 w-4 shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
               <span>{t(tab.labelKey)}</span>
-              <span className="hidden text-[11px] sm:inline" style={{ color: isActive ? 'var(--text-dim)' : 'var(--text-muted)' }}>
+              <span
+                className="hidden text-[11px] sm:inline"
+                style={{ color: isActive ? 'var(--text-dim)' : 'var(--text-muted)' }}
+              >
                 {t(tab.descriptionKey)}
               </span>
             </button>

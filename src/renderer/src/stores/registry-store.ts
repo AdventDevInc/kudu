@@ -23,7 +23,9 @@ interface RegistryState {
   setScanning: (scanning: boolean) => void
   setScanned: (scanned: boolean) => void
   setFixing: (fixing: boolean) => void
-  setFixProgress: (progress: { current: number; total: number; currentEntry: string } | null) => void
+  setFixProgress: (
+    progress: { current: number; total: number; currentEntry: string } | null
+  ) => void
   toggleCardExpand: (cardIndex: number) => void
   setFixResult: (result: FixResult | null) => void
   setShowFailures: (show: boolean) => void
@@ -89,9 +91,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => ({
     const allSelected = cardEntries.length > 0 && cardEntries.every((e) => e.selected)
     const selectedNow = !allSelected
     set((s) => ({
-      entries: s.entries.map((e) =>
-        types.includes(e.type) ? { ...e, selected: selectedNow } : e
-      )
+      entries: s.entries.map((e) => (types.includes(e.type) ? { ...e, selected: selectedNow } : e))
     }))
     persistTweakChoice(cardEntries, selectedNow)
   },

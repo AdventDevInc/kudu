@@ -15,7 +15,7 @@ vi.mock('child_process', () => {
       mockExecFile(...args, (err: Error | null, stdout: string, stderr: string) => {
         if (err) {
           // Match Node's behavior: error object gets stdout/stderr properties
-          (err as any).stdout = stdout
+          ;(err as any).stdout = stdout
           ;(err as any).stderr = stderr
           reject(err)
         } else {
@@ -26,7 +26,7 @@ vi.mock('child_process', () => {
   }
   return {
     execFile: execFileFn,
-    spawn: (...args: unknown[]) => mockSpawn(...args),
+    spawn: (...args: unknown[]) => mockSpawn(...args)
   }
 })
 
@@ -35,7 +35,7 @@ vi.mock('./exec-utf8', () => ({
     return new Promise<{ stdout: string; stderr: string }>((resolve, reject) => {
       mockExecFile(tool, args, opts, (err: Error | null, stdout: string, stderr: string) => {
         if (err) {
-          (err as any).stdout = stdout
+          ;(err as any).stdout = stdout
           ;(err as any).stderr = stderr
           reject(err)
         } else {
@@ -44,28 +44,30 @@ vi.mock('./exec-utf8', () => ({
       })
     })
   },
-  psUtf8: (cmd: string) => cmd,
+  psUtf8: (cmd: string) => cmd
 }))
 
 const mockReaddir = vi.fn()
 const mockStat = vi.fn()
 vi.mock('fs/promises', () => ({
   readdir: (...args: unknown[]) => mockReaddir(...args),
-  stat: (...args: unknown[]) => mockStat(...args),
+  stat: (...args: unknown[]) => mockStat(...args)
 }))
 
 const mockGetDirectorySize = vi.fn().mockResolvedValue(0)
-vi.mock('./file-utils', () => ({ getDirectorySize: (...args: unknown[]) => mockGetDirectorySize(...args) }))
+vi.mock('./file-utils', () => ({
+  getDirectorySize: (...args: unknown[]) => mockGetDirectorySize(...args)
+}))
 
 const mockGetPlatform = vi.fn().mockReturnValue({
   paths: { uninstallLeftoverDirs: () => [] },
-  commands: { getInstalledApps: vi.fn().mockResolvedValue([]) },
+  commands: { getInstalledApps: vi.fn().mockResolvedValue([]) }
 })
 vi.mock('../platform', () => ({ getPlatform: () => mockGetPlatform() }))
 
 vi.mock('../constants/uninstall-safelist', () => ({
   SAFE_FOLDER_NAMES: new Set(['windows', 'program files', 'system32', 'microsoft']),
-  SAFE_PREFIXES: ['microsoft.', 'windows.'],
+  SAFE_PREFIXES: ['microsoft.', 'windows.']
 }))
 
 import {
@@ -79,7 +81,7 @@ import {
   runUninstaller,
   verifyUninstall,
   scanLeftoversForProgram,
-  getInstalledProgramsFull,
+  getInstalledProgramsFull
 } from './program-uninstaller'
 import type { InstalledProgram } from '../../shared/types'
 
@@ -99,7 +101,7 @@ function makeProgram(overrides: Partial<InstalledProgram> = {}): InstalledProgra
     isSystemComponent: false,
     isWindowsInstaller: false,
     lastUsed: -1,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -107,7 +109,8 @@ function makeProgram(overrides: Partial<InstalledProgram> = {}): InstalledProgra
 
 describe('parseRegValue', () => {
   it('extracts a REG_SZ value', () => {
-    const block = '    DisplayName    REG_SZ    Google Chrome\r\n    Publisher    REG_SZ    Google LLC'
+    const block =
+      '    DisplayName    REG_SZ    Google Chrome\r\n    Publisher    REG_SZ    Google LLC'
     expect(parseRegValue(block, 'DisplayName')).toBe('Google Chrome')
     expect(parseRegValue(block, 'Publisher')).toBe('Google LLC')
   })
@@ -117,7 +120,8 @@ describe('parseRegValue', () => {
   })
 
   it('does not match substrings (UninstallString vs QuietUninstallString)', () => {
-    const block = '    QuietUninstallString    REG_SZ    "C:\\quiet.exe"\r\n    UninstallString    REG_SZ    "C:\\uninstall.exe"'
+    const block =
+      '    QuietUninstallString    REG_SZ    "C:\\quiet.exe"\r\n    UninstallString    REG_SZ    "C:\\uninstall.exe"'
     expect(parseRegValue(block, 'UninstallString')).toBe('"C:\\uninstall.exe"')
   })
 })
@@ -136,7 +140,7 @@ describe('parseRegDword', () => {
 
   it('handles large hex values', () => {
     const block = '    EstimatedSize    REG_DWORD    0x1A2B3'
-    expect(parseRegDword(block, 'EstimatedSize')).toBe(0x1A2B3)
+    expect(parseRegDword(block, 'EstimatedSize')).toBe(0x1a2b3)
   })
 })
 
@@ -144,8 +148,11 @@ describe('parseRegDword', () => {
 
 describe('extractRegistryKey', () => {
   it('extracts the registry key from a block', () => {
-    const block = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome\r\n    DisplayName    REG_SZ    Chrome'
-    expect(extractRegistryKey(block)).toBe('HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome')
+    const block =
+      'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome\r\n    DisplayName    REG_SZ    Chrome'
+    expect(extractRegistryKey(block)).toBe(
+      'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Chrome'
+    )
   })
 
   it('returns empty for no HK line', () => {
@@ -163,7 +170,7 @@ describe('splitArgs', () => {
   it('preserves quoted strings with spaces', () => {
     expect(splitArgs('/DIR="C:\\Program Files\\App" /silent')).toEqual([
       '/DIR="C:\\Program Files\\App"',
-      '/silent',
+      '/silent'
     ])
   })
 
@@ -182,7 +189,7 @@ describe('parseUninstallCommand', () => {
   it('parses MSI uninstall with GUID', () => {
     const p = makeProgram({
       isWindowsInstaller: true,
-      uninstallString: 'MsiExec.exe /I{12345678-1234-1234-1234-123456789012}',
+      uninstallString: 'MsiExec.exe /I{12345678-1234-1234-1234-123456789012}'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('msiexec')
@@ -191,7 +198,7 @@ describe('parseUninstallCommand', () => {
 
   it('parses quoted path uninstaller', () => {
     const p = makeProgram({
-      uninstallString: '"C:\\Program Files\\App\\uninstall.exe" /silent',
+      uninstallString: '"C:\\Program Files\\App\\uninstall.exe" /silent'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\Program Files\\App\\uninstall.exe')
@@ -200,7 +207,7 @@ describe('parseUninstallCommand', () => {
 
   it('parses unquoted exe path', () => {
     const p = makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe /quiet',
+      uninstallString: 'C:\\App\\uninstall.exe /quiet'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\App\\uninstall.exe')
@@ -262,7 +269,7 @@ describe('folderMatchesProgram', () => {
   it('matches by install location basename', () => {
     const p = makeProgram({
       displayName: 'Some App',
-      installLocation: 'C:\\Program Files\\discord',
+      installLocation: 'C:\\Program Files\\discord'
     })
     expect(folderMatchesProgram('discord', p)).toBe(true)
   })
@@ -293,7 +300,9 @@ describe('parseRegValue (extended)', () => {
 
   it('handles values with special characters', () => {
     const block = '    InstallLocation    REG_SZ    C:\\Program Files (x86)\\App & Tools\\v2.0'
-    expect(parseRegValue(block, 'InstallLocation')).toBe('C:\\Program Files (x86)\\App & Tools\\v2.0')
+    expect(parseRegValue(block, 'InstallLocation')).toBe(
+      'C:\\Program Files (x86)\\App & Tools\\v2.0'
+    )
   })
 
   it('returns empty for empty block', () => {
@@ -311,7 +320,7 @@ describe('parseRegDword (extended)', () => {
 
   it('handles case-insensitive hex digits', () => {
     const block = '    EstimatedSize    REG_DWORD    0xABCDEF'
-    expect(parseRegDword(block, 'EstimatedSize')).toBe(0xABCDEF)
+    expect(parseRegDword(block, 'EstimatedSize')).toBe(0xabcdef)
   })
 
   it('returns 0 for empty block', () => {
@@ -323,8 +332,11 @@ describe('parseRegDword (extended)', () => {
 
 describe('extractRegistryKey (extended)', () => {
   it('extracts HKCU key', () => {
-    const block = 'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MyApp\r\n    DisplayName    REG_SZ    MyApp'
-    expect(extractRegistryKey(block)).toBe('HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MyApp')
+    const block =
+      'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MyApp\r\n    DisplayName    REG_SZ    MyApp'
+    expect(extractRegistryKey(block)).toBe(
+      'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MyApp'
+    )
   })
 
   it('handles leading whitespace before HK line', () => {
@@ -372,7 +384,7 @@ describe('parseUninstallCommand (extended)', () => {
   it('detects msiexec in string even without isWindowsInstaller flag', () => {
     const p = makeProgram({
       isWindowsInstaller: false,
-      uninstallString: 'msiexec /x{AABBCCDD-1122-3344-5566-778899AABBCC}',
+      uninstallString: 'msiexec /x{AABBCCDD-1122-3344-5566-778899AABBCC}'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('msiexec')
@@ -382,7 +394,7 @@ describe('parseUninstallCommand (extended)', () => {
   it('handles MsiExec.exe with /I flag (converts to /x)', () => {
     const p = makeProgram({
       isWindowsInstaller: true,
-      uninstallString: 'MsiExec.exe /I{11111111-2222-3333-4444-555555555555}',
+      uninstallString: 'MsiExec.exe /I{11111111-2222-3333-4444-555555555555}'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('msiexec')
@@ -391,7 +403,7 @@ describe('parseUninstallCommand (extended)', () => {
 
   it('handles quoted path with no args', () => {
     const p = makeProgram({
-      uninstallString: '"C:\\Program Files\\App\\uninstall.exe"',
+      uninstallString: '"C:\\Program Files\\App\\uninstall.exe"'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\Program Files\\App\\uninstall.exe')
@@ -400,7 +412,7 @@ describe('parseUninstallCommand (extended)', () => {
 
   it('handles quoted path with multiple args', () => {
     const p = makeProgram({
-      uninstallString: '"C:\\App\\uninst.exe" /silent /norestart /log="C:\\temp\\log.txt"',
+      uninstallString: '"C:\\App\\uninst.exe" /silent /norestart /log="C:\\temp\\log.txt"'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\App\\uninst.exe')
@@ -409,7 +421,7 @@ describe('parseUninstallCommand (extended)', () => {
 
   it('handles unquoted exe path with no args', () => {
     const p = makeProgram({
-      uninstallString: 'C:\\simple\\uninstall.exe',
+      uninstallString: 'C:\\simple\\uninstall.exe'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\simple\\uninstall.exe')
@@ -418,7 +430,7 @@ describe('parseUninstallCommand (extended)', () => {
 
   it('trims whitespace from uninstall string', () => {
     const p = makeProgram({
-      uninstallString: '  C:\\App\\uninstall.exe /quiet  ',
+      uninstallString: '  C:\\App\\uninstall.exe /quiet  '
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\App\\uninstall.exe')
@@ -427,7 +439,7 @@ describe('parseUninstallCommand (extended)', () => {
 
   it('handles special characters in paths', () => {
     const p = makeProgram({
-      uninstallString: '"C:\\Program Files (x86)\\My App [v2]\\uninstall.exe" /S',
+      uninstallString: '"C:\\Program Files (x86)\\My App [v2]\\uninstall.exe" /S'
     })
     const result = parseUninstallCommand(p)
     expect(result.command).toBe('C:\\Program Files (x86)\\My App [v2]\\uninstall.exe')
@@ -437,7 +449,7 @@ describe('parseUninstallCommand (extended)', () => {
   it('falls back for MSI without valid GUID', () => {
     const p = makeProgram({
       isWindowsInstaller: true,
-      uninstallString: '"C:\\App\\uninstall.exe" /quiet',
+      uninstallString: '"C:\\App\\uninstall.exe" /quiet'
     })
     // No GUID match, so falls through to quoted path parsing
     const result = parseUninstallCommand(p)
@@ -462,9 +474,11 @@ describe('runUninstaller', () => {
     const child = new EventEmitter()
     mockSpawn.mockReturnValue(child)
 
-    const promise = runUninstaller(makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe /silent',
-    }))
+    const promise = runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\App\\uninstall.exe /silent'
+      })
+    )
 
     child.emit('close', 0)
     const result = await promise
@@ -475,9 +489,11 @@ describe('runUninstaller', () => {
     const child = new EventEmitter()
     mockSpawn.mockReturnValue(child)
 
-    const promise = runUninstaller(makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe',
-    }))
+    const promise = runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\App\\uninstall.exe'
+      })
+    )
 
     child.emit('close', 1)
     const result = await promise
@@ -488,9 +504,11 @@ describe('runUninstaller', () => {
     const child = new EventEmitter()
     mockSpawn.mockReturnValue(child)
 
-    const promise = runUninstaller(makeProgram({
-      uninstallString: 'C:\\nonexistent\\uninstall.exe',
-    }))
+    const promise = runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\nonexistent\\uninstall.exe'
+      })
+    )
 
     child.emit('error', new Error('ENOENT'))
     const result = await promise
@@ -498,11 +516,15 @@ describe('runUninstaller', () => {
   })
 
   it('resolves with null if spawn itself throws', async () => {
-    mockSpawn.mockImplementation(() => { throw new Error('spawn failed') })
+    mockSpawn.mockImplementation(() => {
+      throw new Error('spawn failed')
+    })
 
-    const result = await runUninstaller(makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe',
-    }))
+    const result = await runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\App\\uninstall.exe'
+      })
+    )
 
     expect(result).toBeNull()
   })
@@ -512,9 +534,11 @@ describe('runUninstaller', () => {
     ;(child as any).kill = vi.fn()
     mockSpawn.mockReturnValue(child)
 
-    const promise = runUninstaller(makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe',
-    }))
+    const promise = runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\App\\uninstall.exe'
+      })
+    )
 
     // Advance past the 10-minute timeout
     vi.advanceTimersByTime(10 * 60 * 1000)
@@ -529,9 +553,11 @@ describe('runUninstaller', () => {
     ;(child as any).kill = vi.fn()
     mockSpawn.mockReturnValue(child)
 
-    const promise = runUninstaller(makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe',
-    }))
+    const promise = runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\App\\uninstall.exe'
+      })
+    )
 
     child.emit('close', 0)
     // Advance time — kill should NOT be called since process exited normally
@@ -546,9 +572,11 @@ describe('runUninstaller', () => {
     const child = new EventEmitter()
     mockSpawn.mockReturnValue(child)
 
-    runUninstaller(makeProgram({
-      uninstallString: '"C:\\App\\uninstall.exe" /S',
-    }))
+    runUninstaller(
+      makeProgram({
+        uninstallString: '"C:\\App\\uninstall.exe" /S'
+      })
+    )
 
     expect(mockSpawn).toHaveBeenCalledWith(
       'C:\\App\\uninstall.exe',
@@ -556,8 +584,8 @@ describe('runUninstaller', () => {
       expect.objectContaining({
         detached: false,
         stdio: 'ignore',
-        windowsHide: false,
-      }),
+        windowsHide: false
+      })
     )
 
     child.emit('close', 0)
@@ -567,15 +595,17 @@ describe('runUninstaller', () => {
     const child = new EventEmitter()
     mockSpawn.mockReturnValue(child)
 
-    runUninstaller(makeProgram({
-      isWindowsInstaller: true,
-      uninstallString: 'MsiExec.exe /I{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}',
-    }))
+    runUninstaller(
+      makeProgram({
+        isWindowsInstaller: true,
+        uninstallString: 'MsiExec.exe /I{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}'
+      })
+    )
 
     expect(mockSpawn).toHaveBeenCalledWith(
       'msiexec',
       ['/x', '{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE}'],
-      expect.any(Object),
+      expect.any(Object)
     )
 
     child.emit('close', 0)
@@ -583,12 +613,16 @@ describe('runUninstaller', () => {
 
   it('handles kill failure gracefully on timeout', async () => {
     const child = new EventEmitter()
-    ;(child as any).kill = vi.fn(() => { throw new Error('already dead') })
+    ;(child as any).kill = vi.fn(() => {
+      throw new Error('already dead')
+    })
     mockSpawn.mockReturnValue(child)
 
-    const promise = runUninstaller(makeProgram({
-      uninstallString: 'C:\\App\\uninstall.exe',
-    }))
+    const promise = runUninstaller(
+      makeProgram({
+        uninstallString: 'C:\\App\\uninstall.exe'
+      })
+    )
 
     vi.advanceTimersByTime(10 * 60 * 1000)
 
@@ -606,27 +640,33 @@ describe('verifyUninstall', () => {
 
   it('returns true when registry key no longer exists', async () => {
     // execFile is used via promisify, so mock needs callback style
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error('ERROR: The system was unable to find the specified registry key'), '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(new Error('ERROR: The system was unable to find the specified registry key'), '', '')
+      }
+    )
 
     const result = await verifyUninstall('HKLM\\SOFTWARE\\Uninstall\\App')
     expect(result).toBe(true)
   })
 
   it('returns false when registry key still exists', async () => {
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, 'HKLM\\SOFTWARE\\Uninstall\\App\r\n    DisplayName    REG_SZ    App', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, 'HKLM\\SOFTWARE\\Uninstall\\App\r\n    DisplayName    REG_SZ    App', '')
+      }
+    )
 
     const result = await verifyUninstall('HKLM\\SOFTWARE\\Uninstall\\App')
     expect(result).toBe(false)
   })
 
   it('calls reg query with correct arguments', async () => {
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error('not found'), '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(new Error('not found'), '', '')
+      }
+    )
 
     await verifyUninstall('HKCU\\SOFTWARE\\Uninstall\\TestApp')
 
@@ -634,14 +674,16 @@ describe('verifyUninstall', () => {
       'reg',
       ['query', 'HKCU\\SOFTWARE\\Uninstall\\TestApp'],
       expect.objectContaining({ timeout: 5000 }),
-      expect.any(Function),
+      expect.any(Function)
     )
   })
 
   it('returns true on timeout (treats as uninstalled)', async () => {
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(new Error('Command timed out'), '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(new Error('Command timed out'), '', '')
+      }
+    )
 
     const result = await verifyUninstall('HKLM\\SOFTWARE\\Uninstall\\App')
     expect(result).toBe(true)
@@ -655,7 +697,7 @@ describe('scanLeftoversForProgram', () => {
     vi.clearAllMocks()
     mockGetPlatform.mockReturnValue({
       paths: { uninstallLeftoverDirs: () => [] },
-      commands: { getInstalledApps: vi.fn().mockResolvedValue([]) },
+      commands: { getInstalledApps: vi.fn().mockResolvedValue([]) }
     })
     mockGetDirectorySize.mockResolvedValue(0)
   })
@@ -672,7 +714,7 @@ describe('scanLeftoversForProgram', () => {
 
     const p = makeProgram({
       displayName: 'TestApp',
-      installLocation: 'C:\\Program Files\\TestApp',
+      installLocation: 'C:\\Program Files\\TestApp'
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -688,7 +730,7 @@ describe('scanLeftoversForProgram', () => {
     mockStat.mockRejectedValue(new Error('ENOENT'))
 
     const p = makeProgram({
-      installLocation: 'C:\\Program Files\\DeletedApp',
+      installLocation: 'C:\\Program Files\\DeletedApp'
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -700,7 +742,7 @@ describe('scanLeftoversForProgram', () => {
     mockGetDirectorySize.mockResolvedValue(5000)
 
     const p = makeProgram({
-      installLocation: '/mnt/c/Windows',
+      installLocation: '/mnt/c/Windows'
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -712,7 +754,7 @@ describe('scanLeftoversForProgram', () => {
     mockGetDirectorySize.mockResolvedValue(512)
 
     const p = makeProgram({
-      installLocation: 'C:\\Program Files\\SmallApp',
+      installLocation: 'C:\\Program Files\\SmallApp'
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -723,7 +765,7 @@ describe('scanLeftoversForProgram', () => {
     mockStat.mockResolvedValue({ isDirectory: () => false, mtimeMs: 1000 })
 
     const p = makeProgram({
-      installLocation: 'C:\\somefile.txt',
+      installLocation: 'C:\\somefile.txt'
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -734,9 +776,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData Roaming', path: 'C:\\Users\\User\\AppData\\Roaming' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData Roaming', path: 'C:\\Users\\User\\AppData\\Roaming' }
+        ]
+      }
     })
 
     // readdir returns entries in the leftover dir
@@ -753,7 +795,7 @@ describe('scanLeftoversForProgram', () => {
 
     const p = makeProgram({
       displayName: 'TestApp',
-      installLocation: '',
+      installLocation: ''
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -768,9 +810,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['UnrelatedFolder'])
@@ -787,9 +829,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['Microsoft'])
@@ -806,9 +848,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['TestApp'])
@@ -824,9 +866,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['TestApp.log'])
@@ -843,14 +885,12 @@ describe('scanLeftoversForProgram', () => {
       paths: {
         uninstallLeftoverDirs: () => [
           { id: 'bad', name: 'Bad Dir', path: 'C:\\nonexistent' },
-          { id: 'good', name: 'Good Dir', path: 'C:\\good' },
-        ],
-      },
+          { id: 'good', name: 'Good Dir', path: 'C:\\good' }
+        ]
+      }
     })
 
-    mockReaddir
-      .mockRejectedValueOnce(new Error('ENOENT'))
-      .mockResolvedValueOnce(['TestApp'])
+    mockReaddir.mockRejectedValueOnce(new Error('ENOENT')).mockResolvedValueOnce(['TestApp'])
     mockStat.mockResolvedValue({ isDirectory: () => true, mtimeMs: 1000 })
     mockGetDirectorySize.mockResolvedValue(2048)
 
@@ -864,9 +904,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['TestApp'])
@@ -883,9 +923,9 @@ describe('scanLeftoversForProgram', () => {
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' },
-        ],
-      },
+          { id: 'appdata', name: 'AppData', path: 'C:\\Users\\User\\AppData' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['TestApp'])
@@ -902,23 +942,25 @@ describe('scanLeftoversForProgram', () => {
     mockStat.mockResolvedValue({ isDirectory: () => true, mtimeMs: 1000 })
     mockGetDirectorySize.mockResolvedValue(4096)
     // Mock execFile for hasRunningProcesses (PowerShell call)
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, '', '')
+      }
+    )
 
     mockGetPlatform.mockReturnValue({
       paths: {
         uninstallLeftoverDirs: () => [
-          { id: 'programfiles', name: 'Program Files', path: '/opt/programs' },
-        ],
-      },
+          { id: 'programfiles', name: 'Program Files', path: '/opt/programs' }
+        ]
+      }
     })
 
     mockReaddir.mockResolvedValue(['TestApp'])
 
     const p = makeProgram({
       displayName: 'TestApp',
-      installLocation: join('/opt/programs', 'TestApp'),
+      installLocation: join('/opt/programs', 'TestApp')
     })
 
     const result = await scanLeftoversForProgram(p)
@@ -1007,7 +1049,7 @@ describe('folderMatchesProgram (extended)', () => {
   it('uses install location basename for matching', () => {
     const p = makeProgram({
       displayName: 'Some App',
-      installLocation: '/opt/programs/vscode',
+      installLocation: '/opt/programs/vscode'
     })
     // installLocation basename "vscode" should match
     expect(folderMatchesProgram('vscode-data', p)).toBe(true)
@@ -1032,9 +1074,11 @@ describe('getInstalledProgramsFull', () => {
   it('queries all three registry keys on win32', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' })
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, '', '')
+      }
+    )
 
     await getInstalledProgramsFull()
 
@@ -1059,9 +1103,11 @@ describe('getInstalledProgramsFull', () => {
       '    InstallLocation    REG_SZ    C:\\App\\\r\n' +
       '\r\n'
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, registryBlock, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, registryBlock, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(1)
@@ -1083,9 +1129,11 @@ describe('getInstalledProgramsFull', () => {
       '    UninstallString    REG_SZ    C:\\uninstall.exe\r\n' +
       '\r\n'
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, block, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, block, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(0)
@@ -1099,9 +1147,11 @@ describe('getInstalledProgramsFull', () => {
       '    DisplayName    REG_SZ    Some App\r\n' +
       '\r\n'
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, block, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, block, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(0)
@@ -1117,9 +1167,11 @@ describe('getInstalledProgramsFull', () => {
       '    SystemComponent    REG_DWORD    0x1\r\n' +
       '\r\n'
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, block, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, block, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(0)
@@ -1143,12 +1195,14 @@ describe('getInstalledProgramsFull', () => {
       '\r\n'
 
     let callNum = 0
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      callNum++
-      if (callNum === 1) cb(null, block1, '')
-      else if (callNum === 2) cb(null, block2, '')
-      else cb(null, '', '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        callNum++
+        if (callNum === 1) cb(null, block1, '')
+        else if (callNum === 2) cb(null, block2, '')
+        else cb(null, '', '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(1)
@@ -1165,11 +1219,13 @@ describe('getInstalledProgramsFull', () => {
       '\r\n'
 
     let callNum = 0
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      callNum++
-      if (callNum <= 2) cb(new Error('Access denied'), '', '')
-      else cb(null, validBlock, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        callNum++
+        if (callNum <= 2) cb(new Error('Access denied'), '', '')
+        else cb(null, validBlock, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(1)
@@ -1191,9 +1247,11 @@ describe('getInstalledProgramsFull', () => {
       '    UninstallString    REG_SZ    C:\\a.exe\r\n' +
       '\r\n'
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, blocks, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, blocks, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs[0].displayName).toBe('Apple App')
@@ -1211,9 +1269,11 @@ describe('getInstalledProgramsFull', () => {
       '    WindowsInstaller    REG_DWORD    0x1\r\n' +
       '\r\n'
 
-    mockExecFile.mockImplementation((_cmd: string, _args: string[], _opts: object, cb: Function) => {
-      cb(null, block, '')
-    })
+    mockExecFile.mockImplementation(
+      (_cmd: string, _args: string[], _opts: object, cb: Function) => {
+        cb(null, block, '')
+      }
+    )
 
     const programs = await getInstalledProgramsFull()
     expect(programs).toHaveLength(1)
@@ -1224,13 +1284,19 @@ describe('getInstalledProgramsFull', () => {
     Object.defineProperty(process, 'platform', { value: 'linux' })
 
     const mockApps = [
-      { name: 'Firefox', publisher: 'Mozilla', version: '120.0', installDate: '2024-01-01', sizeKb: 500 },
-      { name: 'Chrome', publisher: 'Google', version: '119.0', installDate: '', sizeKb: 0 },
+      {
+        name: 'Firefox',
+        publisher: 'Mozilla',
+        version: '120.0',
+        installDate: '2024-01-01',
+        sizeKb: 500
+      },
+      { name: 'Chrome', publisher: 'Google', version: '119.0', installDate: '', sizeKb: 0 }
     ]
 
     mockGetPlatform.mockReturnValue({
       commands: { getInstalledApps: vi.fn().mockResolvedValue(mockApps) },
-      paths: { uninstallLeftoverDirs: () => [] },
+      paths: { uninstallLeftoverDirs: () => [] }
     })
 
     const programs = await getInstalledProgramsFull()

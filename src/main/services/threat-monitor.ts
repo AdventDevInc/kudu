@@ -1,7 +1,12 @@
 import { getPlatform } from '../platform'
 import { loadBlacklist } from './threat-blacklist-store'
 import { logInfo, logError } from './logger'
-import type { ThreatBlacklist, FlaggedConnection, FlaggedDnsEntry, ThreatSnapshot } from './cloud-agent-types'
+import type {
+  ThreatBlacklist,
+  FlaggedConnection,
+  FlaggedDnsEntry,
+  ThreatSnapshot
+} from './cloud-agent-types'
 
 const CONNECTION_INTERVAL_MS = 30_000
 const DNS_INTERVAL_MS = 60_000
@@ -107,7 +112,7 @@ export function ipMatchesCidr(ip: string, cidr: ParsedCidr): boolean {
   } else {
     const v4 = ipv4ToNumber(ip)
     if (v4 === null) return false
-    return ((v4 & (cidr.mask as number)) >>> 0) === (cidr.address as number)
+    return (v4 & (cidr.mask as number)) >>> 0 === (cidr.address as number)
   }
 }
 
@@ -180,8 +185,14 @@ class ThreatMonitorService {
 
   stop(): void {
     this.stopped = true
-    if (this.connectionTimer) { clearInterval(this.connectionTimer); this.connectionTimer = null }
-    if (this.dnsTimer) { clearInterval(this.dnsTimer); this.dnsTimer = null }
+    if (this.connectionTimer) {
+      clearInterval(this.connectionTimer)
+      this.connectionTimer = null
+    }
+    if (this.dnsTimer) {
+      clearInterval(this.dnsTimer)
+      this.dnsTimer = null
+    }
     this.flaggedConnections = []
     this.flaggedDns = []
     this.seenConnections.clear()
@@ -193,8 +204,14 @@ class ThreatMonitorService {
   async reloadBlacklist(): Promise<void> {
     const wasRunning = this.connectionTimer !== null
     if (wasRunning) {
-      if (this.connectionTimer) { clearInterval(this.connectionTimer); this.connectionTimer = null }
-      if (this.dnsTimer) { clearInterval(this.dnsTimer); this.dnsTimer = null }
+      if (this.connectionTimer) {
+        clearInterval(this.connectionTimer)
+        this.connectionTimer = null
+      }
+      if (this.dnsTimer) {
+        clearInterval(this.dnsTimer)
+        this.dnsTimer = null
+      }
     }
 
     this.loadAndBuildLookups()
@@ -206,7 +223,9 @@ class ThreatMonitorService {
     this.flaggedDns = []
 
     if (this.blacklist) {
-      logInfo(`Threat monitor: blacklist reloaded v${this.blacklist.version} (${this.blacklist.domains.length} domains, ${this.blacklist.ips.length} IPs, ${this.blacklist.cidrs.length} CIDRs)`)
+      logInfo(
+        `Threat monitor: blacklist reloaded v${this.blacklist.version} (${this.blacklist.domains.length} domains, ${this.blacklist.ips.length} IPs, ${this.blacklist.cidrs.length} CIDRs)`
+      )
       // Restart scanning immediately with the previous isServerMode value.
       // This avoids a blind window while isServer() re-probes.
       this.startTimers()
@@ -225,7 +244,7 @@ class ThreatMonitorService {
       flaggedDns: [...this.flaggedDns],
       blacklistVersion: this.blacklist.version,
       lastConnectionScanAt: this.lastConnectionScanAt,
-      lastDnsScanAt: this.lastDnsScanAt,
+      lastDnsScanAt: this.lastDnsScanAt
     }
   }
 
@@ -259,8 +278,14 @@ class ThreatMonitorService {
 
   private startTimers(): void {
     // Prevent duplicate timers if called during reconnect/reload
-    if (this.connectionTimer) { clearInterval(this.connectionTimer); this.connectionTimer = null }
-    if (this.dnsTimer) { clearInterval(this.dnsTimer); this.dnsTimer = null }
+    if (this.connectionTimer) {
+      clearInterval(this.connectionTimer)
+      this.connectionTimer = null
+    }
+    if (this.dnsTimer) {
+      clearInterval(this.dnsTimer)
+      this.dnsTimer = null
+    }
 
     // Run first scans immediately
     this.scanConnections()
@@ -277,7 +302,7 @@ class ThreatMonitorService {
       const platform = getPlatform()
       const [connections, listeningPortsArr] = await Promise.all([
         platform.network.getEstablishedConnections(),
-        this.isServerMode ? platform.network.getListeningPorts() : null,
+        this.isServerMode ? platform.network.getListeningPorts() : null
       ])
       this.lastConnectionScanAt = new Date().toISOString()
       const newFlags: FlaggedConnection[] = []
@@ -310,7 +335,7 @@ class ThreatMonitorService {
             pid: conn.pid,
             matchedRule: match.rule,
             matchType: match.type,
-            detectedAt: new Date().toISOString(),
+            detectedAt: new Date().toISOString()
           })
         }
       }
@@ -350,7 +375,7 @@ class ThreatMonitorService {
             domain: entry.domain,
             resolvedAddress: entry.resolvedAddress,
             matchedRule: domain,
-            detectedAt: new Date().toISOString(),
+            detectedAt: new Date().toISOString()
           })
           continue
         }
@@ -364,7 +389,7 @@ class ThreatMonitorService {
               domain: entry.domain,
               resolvedAddress: entry.resolvedAddress,
               matchedRule: match.rule,
-              detectedAt: new Date().toISOString(),
+              detectedAt: new Date().toISOString()
             })
           }
         }
@@ -390,7 +415,7 @@ class ThreatMonitorService {
         flaggedDns: newDns,
         blacklistVersion: this.blacklist.version,
         lastConnectionScanAt: this.lastConnectionScanAt,
-        lastDnsScanAt: this.lastDnsScanAt,
+        lastDnsScanAt: this.lastDnsScanAt
       })
     } catch {
       // Never let callback errors break the monitor

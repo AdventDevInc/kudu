@@ -7,16 +7,16 @@ const mockMkdir = vi.fn()
 const mockUnlink = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: (...args: any[]) => mockExecFile(...args),
+  execFile: (...args: any[]) => mockExecFile(...args)
 }))
 vi.mock('util', () => ({
-  promisify: () => mockExecFile,
+  promisify: () => mockExecFile
 }))
 vi.mock('fs/promises', () => ({
   readFile: (...args: any[]) => mockReadFile(...args),
   writeFile: (...args: any[]) => mockWriteFile(...args),
   mkdir: (...args: any[]) => mockMkdir(...args),
-  unlink: (...args: any[]) => mockUnlink(...args),
+  unlink: (...args: any[]) => mockUnlink(...args)
 }))
 
 const { createLinuxPrivacy } = await import('./privacy')
@@ -38,7 +38,9 @@ describe('linux privacy', () => {
 
       // All settings should be from sysctl or access categories
       const categories = new Set(settings.map((s) => s.category))
-      expect(categories.has('kernel') || categories.has('network') || categories.has('access')).toBe(true)
+      expect(
+        categories.has('kernel') || categories.has('network') || categories.has('access')
+      ).toBe(true)
       expect(categories.has('telemetry')).toBe(false)
       expect(categories.has('services')).toBe(false)
     })
@@ -266,8 +268,9 @@ describe('linux privacy', () => {
       const result = await aslr.check()
       expect(result).toBe(true)
       expect(mockExecFile).toHaveBeenCalledWith(
-        '/usr/sbin/sysctl', ['-n', 'kernel.randomize_va_space'],
-        { timeout: 5_000 },
+        '/usr/sbin/sysctl',
+        ['-n', 'kernel.randomize_va_space'],
+        { timeout: 5_000 }
       )
     })
 

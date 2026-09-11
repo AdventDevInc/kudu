@@ -64,12 +64,19 @@ export function FileShredderPage() {
           // Return to idle so the user can see remaining entries and retry
           store.setStatus('idle')
           if (result.shredded > 0) {
-            toast.success(t('shredCancelled', { count: result.shredded, size: formatBytes(result.bytesShredded) }))
+            toast.success(
+              t('shredCancelled', {
+                count: result.shredded,
+                size: formatBytes(result.bytesShredded)
+              })
+            )
           }
         } else {
           store.setStatus('complete')
           if (result.shredded > 0) {
-            toast.success(t('shredSuccess', { count: result.shredded, size: formatBytes(result.bytesShredded) }))
+            toast.success(
+              t('shredSuccess', { count: result.shredded, size: formatBytes(result.bytesShredded) })
+            )
           }
         }
         if (result.failed > 0) {
@@ -96,7 +103,11 @@ export function FileShredderPage() {
             onClick={handleAddFiles}
             disabled={store.status === 'shredding'}
             className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
-            style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+            style={{
+              background: 'var(--bg-hover)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-medium)'
+            }}
           >
             <FilePlus2 className="h-4 w-4" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
             {t('addFiles')}
@@ -106,7 +117,11 @@ export function FileShredderPage() {
             onClick={handleAddFolders}
             disabled={store.status === 'shredding'}
             className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
-            style={{ background: 'var(--bg-hover)', color: 'var(--text-primary)', border: '1px solid var(--border-medium)' }}
+            style={{
+              background: 'var(--bg-hover)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-medium)'
+            }}
           >
             <FolderPlus className="h-4 w-4" style={{ color: 'var(--accent)' }} strokeWidth={1.8} />
             {t('addFolders')}
@@ -130,7 +145,9 @@ export function FileShredderPage() {
                 style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444' }}
               >
                 <ShieldAlert className="h-4 w-4" strokeWidth={2} />
-                {store.entries.length === 1 ? t('shredButtonSingle') : t('shredButton', { count: store.entries.length })}
+                {store.entries.length === 1
+                  ? t('shredButtonSingle')
+                  : t('shredButton', { count: store.entries.length })}
               </button>
             </>
           )}
@@ -158,10 +175,16 @@ export function FileShredderPage() {
           style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="mb-3 flex items-center gap-3">
-            <div className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: 'var(--bg-hover-2)' }}>
+            <div
+              className="h-2 flex-1 overflow-hidden rounded-full"
+              style={{ background: 'var(--bg-hover-2)' }}
+            >
               <div
                 className="h-full rounded-full transition-all duration-300"
-                style={{ background: '#ef4444', width: `${Math.min(100, store.progress.progress)}%` }}
+                style={{
+                  background: '#ef4444',
+                  width: `${Math.min(100, store.progress.progress)}%`
+                }}
               />
             </div>
             <span className="text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
@@ -170,13 +193,23 @@ export function FileShredderPage() {
           </div>
           <p className="text-[13px] font-medium text-white">{t('shredding')}</p>
           {store.progress.currentPath && (
-            <p className="mt-1 truncate text-[12px]" style={{ color: 'var(--text-muted)' }} title={store.progress.currentPath}>
+            <p
+              className="mt-1 truncate text-[12px]"
+              style={{ color: 'var(--text-muted)' }}
+              title={store.progress.currentPath}
+            >
               {store.progress.currentPath}
             </p>
           )}
           <div className="mt-3 flex gap-6">
-            <StatMini label={t('filesShredded')} value={`${store.progress.filesShredded} / ${store.progress.totalFiles}`} />
-            <StatMini label={t('bytesShredded')} value={formatBytes(store.progress.bytesShredded)} />
+            <StatMini
+              label={t('filesShredded')}
+              value={`${store.progress.filesShredded} / ${store.progress.totalFiles}`}
+            />
+            <StatMini
+              label={t('bytesShredded')}
+              value={formatBytes(store.progress.bytesShredded)}
+            />
           </div>
         </div>
       )}
@@ -186,7 +219,11 @@ export function FileShredderPage() {
         <>
           <div className="mb-5 grid grid-cols-4 gap-3">
             <StatCard label={t('filesShredded')} value={store.result.shredded.toLocaleString()} />
-            <StatCard label={t('bytesShredded')} value={formatBytes(store.result.bytesShredded)} accent />
+            <StatCard
+              label={t('bytesShredded')}
+              value={formatBytes(store.result.bytesShredded)}
+              accent
+            />
             <StatCard label={t('duration')} value={formatDuration(store.result.duration)} />
             <StatCard label={t('failed')} value={store.result.failed.toLocaleString()} />
           </div>
@@ -226,9 +263,17 @@ export function FileShredderPage() {
                 style={idx > 0 ? { borderTop: '1px solid var(--bg-subtle)' } : undefined}
               >
                 {entry.isDirectory ? (
-                  <Folder className="h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} strokeWidth={1.5} />
+                  <Folder
+                    className="h-4 w-4 shrink-0"
+                    style={{ color: 'var(--accent)' }}
+                    strokeWidth={1.5}
+                  />
                 ) : (
-                  <File className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} strokeWidth={1.5} />
+                  <File
+                    className="h-4 w-4 shrink-0"
+                    style={{ color: 'var(--text-muted)' }}
+                    strokeWidth={1.5}
+                  />
                 )}
                 <span
                   className="min-w-0 flex-1 truncate text-[12.5px]"
@@ -237,10 +282,16 @@ export function FileShredderPage() {
                 >
                   {entry.path}
                 </span>
-                <span className="shrink-0 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                <span
+                  className="shrink-0 text-[11px] font-medium"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   {entry.isDirectory ? t('folder') : t('file')}
                 </span>
-                <span className="shrink-0 text-[12px] font-semibold" style={{ color: 'var(--accent)' }}>
+                <span
+                  className="shrink-0 text-[12px] font-semibold"
+                  style={{ color: 'var(--accent)' }}
+                >
                   {formatBytes(entry.size)}
                 </span>
                 <button
@@ -274,9 +325,16 @@ export function FileShredderPage() {
         onConfirm={handleShred}
         onCancel={() => setShowConfirm(false)}
         title={t('confirmTitle')}
-        description={t('confirmDesc', { count: store.entries.length, size: formatBytes(totalSize) })}
+        description={t('confirmDesc', {
+          count: store.entries.length,
+          size: formatBytes(totalSize)
+        })}
         variant="danger"
-        confirmLabel={store.entries.length === 1 ? t('shredButtonSingle') : t('shredButton', { count: store.entries.length })}
+        confirmLabel={
+          store.entries.length === 1
+            ? t('shredButtonSingle')
+            : t('shredButton', { count: store.entries.length })
+        }
       />
     </div>
   )
@@ -288,8 +346,15 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
       className="rounded-xl px-4 py-3"
       style={{ background: 'var(--card-bg)', border: '1px solid var(--border-subtle)' }}
     >
-      <div className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>{label}</div>
-      <div className="mt-1 text-[18px] font-bold" style={{ color: accent ? '#ef4444' : 'var(--text-primary)' }}>{value}</div>
+      <div className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+        {label}
+      </div>
+      <div
+        className="mt-1 text-[18px] font-bold"
+        style={{ color: accent ? '#ef4444' : 'var(--text-primary)' }}
+      >
+        {value}
+      </div>
     </div>
   )
 }
@@ -297,7 +362,9 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
 function StatMini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{label}: </span>
+      <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+        {label}:{' '}
+      </span>
       <span className="text-[12px] font-medium text-white">{value}</span>
     </div>
   )
@@ -306,9 +373,15 @@ function StatMini({ label, value }: { label: string; value: string }) {
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="utility-empty-stage utility-empty-stage-danger flex flex-1 flex-col items-center justify-center py-20 text-center">
-      <ShieldAlert className="mb-4 h-12 w-12" style={{ color: 'var(--text-faint)' }} strokeWidth={1.2} />
+      <ShieldAlert
+        className="mb-4 h-12 w-12"
+        style={{ color: 'var(--text-faint)' }}
+        strokeWidth={1.2}
+      />
       <h3 className="text-[15px] font-semibold text-white">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-muted)' }}>{description}</p>
+      <p className="mt-1.5 max-w-sm text-[13px]" style={{ color: 'var(--text-muted)' }}>
+        {description}
+      </p>
     </div>
   )
 }

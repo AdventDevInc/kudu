@@ -6,14 +6,7 @@ import { createWindowsTrayIcon, WINDOWS_TRAY_ICON_REPRESENTATIONS } from './tray
 describe('Windows tray icon', () => {
   it('covers every supported Windows scale factor without resampling gaps', () => {
     expect(WINDOWS_TRAY_ICON_REPRESENTATIONS.map(({ scaleFactor }) => scaleFactor)).toEqual([
-      1,
-      1.25,
-      1.5,
-      1.75,
-      2,
-      2.25,
-      2.5,
-      3,
+      1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3
     ])
   })
 
@@ -34,11 +27,7 @@ describe('Windows tray icon', () => {
     const readIcon = vi.fn((path: string) => Buffer.from(path))
     const trayIcon = { addRepresentation }
 
-    const result = createWindowsTrayIcon(
-      { createEmpty: () => trayIcon },
-      'tray-icons',
-      readIcon,
-    )
+    const result = createWindowsTrayIcon({ createEmpty: () => trayIcon }, 'tray-icons', readIcon)
 
     expect(result).toBe(trayIcon)
     expect(addRepresentation).toHaveBeenCalledTimes(WINDOWS_TRAY_ICON_REPRESENTATIONS.length)
@@ -50,7 +39,7 @@ describe('Windows tray icon', () => {
         scaleFactor,
         width: size,
         height: size,
-        buffer: Buffer.from(path),
+        buffer: Buffer.from(path)
       })
     }
   })

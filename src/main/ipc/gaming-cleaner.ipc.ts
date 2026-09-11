@@ -23,7 +23,7 @@ export function registerGamingCleanerIpc(getWindow: WindowGetter): void {
       try {
         const result = await scanAppRule(launcher, category, {
           directoryItems: true,
-          group: 'Launcher Caches',
+          group: 'Launcher Caches'
         })
         if (result.items.length > 0) {
           cacheItems(result.items)
@@ -39,7 +39,7 @@ export function registerGamingCleanerIpc(getWindow: WindowGetter): void {
       try {
         const result = await scanAppRule(gpu, category, {
           directoryItems: true,
-          group: 'GPU Shader Caches',
+          group: 'GPU Shader Caches'
         })
         if (result.items.length > 0) {
           cacheItems(result.items)
@@ -69,31 +69,40 @@ export function registerGamingCleanerIpc(getWindow: WindowGetter): void {
     }
 
     const win = getWindow()
-    if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-      phase: 'scanning',
-      category,
-      currentPath: 'Gaming scan complete',
-      progress: 100,
-      itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
-      sizeFound: results.reduce((s, r) => s + r.totalSize, 0),
-    })
+    if (win && !win.isDestroyed())
+      win.webContents.send(IPC.SCAN_PROGRESS, {
+        phase: 'scanning',
+        category,
+        currentPath: 'Gaming scan complete',
+        progress: 100,
+        itemsFound: results.reduce((s, r) => s + r.itemCount, 0),
+        sizeFound: results.reduce((s, r) => s + r.totalSize, 0)
+      })
 
     return results
   })
 
   ipcMain.handle(IPC.GAMING_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
     const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid) return { totalCleaned: 0, filesDeleted: 0, filesSkipped: 0, errors: [], needsElevation: false }
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
-      if (win && !win.isDestroyed()) win.webContents.send(IPC.SCAN_PROGRESS, {
-        phase: 'cleaning',
-        category: CleanerType.Gaming,
-        currentPath,
-        progress: (processed / total) * 100,
-        itemsFound: total,
-        sizeFound: cleanedSize,
-      })
+      if (win && !win.isDestroyed())
+        win.webContents.send(IPC.SCAN_PROGRESS, {
+          phase: 'cleaning',
+          category: CleanerType.Gaming,
+          currentPath,
+          progress: (processed / total) * 100,
+          itemsFound: total,
+          sizeFound: cleanedSize
+        })
     })
   })
 }
@@ -183,18 +192,20 @@ async function scanSteamShaderCaches(category: string): Promise<ScanResult[]> {
             category,
             subcategory,
             group: 'Optional cache resets — next launch may be slower',
-            items: [{
-              id: randomUUID(),
-              path: cacheDir,
-              size,
-              category,
-              subcategory,
-              lastModified: Date.now(),
-              cacheReset: true,
-              selected: false,
-            }],
+            items: [
+              {
+                id: randomUUID(),
+                path: cacheDir,
+                size,
+                category,
+                subcategory,
+                lastModified: Date.now(),
+                cacheReset: true,
+                selected: false
+              }
+            ],
             totalSize: size,
-            itemCount: 1,
+            itemCount: 1
           })
         } catch {
           // Skip
@@ -237,9 +248,7 @@ async function scanSteamRedistributables(category: string): Promise<ScanResult[]
 
           try {
             const stats = await stat(redistPath)
-            const size = stats.isDirectory()
-              ? await getDirectorySize(redistPath)
-              : stats.size
+            const size = stats.isDirectory() ? await getDirectorySize(redistPath) : stats.size
 
             if (size < 1024) continue
 
@@ -250,7 +259,7 @@ async function scanSteamRedistributables(category: string): Promise<ScanResult[]
               category,
               subcategory,
               lastModified: stats.mtimeMs,
-              selected: true,
+              selected: true
             })
             gameSize += size
           } catch {
@@ -267,13 +276,11 @@ async function scanSteamRedistributables(category: string): Promise<ScanResult[]
               const redistPath = join(gameDir, sub.name, pattern)
               if (!existsSync(redistPath)) continue
               // Avoid duplicates
-              if (gameItems.some(i => i.path === redistPath)) continue
+              if (gameItems.some((i) => i.path === redistPath)) continue
 
               try {
                 const stats = await stat(redistPath)
-                const size = stats.isDirectory()
-                  ? await getDirectorySize(redistPath)
-                  : stats.size
+                const size = stats.isDirectory() ? await getDirectorySize(redistPath) : stats.size
 
                 if (size < 1024) continue
 
@@ -284,7 +291,7 @@ async function scanSteamRedistributables(category: string): Promise<ScanResult[]
                   category,
                   subcategory,
                   lastModified: stats.mtimeMs,
-                  selected: true,
+                  selected: true
                 })
                 gameSize += size
               } catch {
@@ -303,7 +310,7 @@ async function scanSteamRedistributables(category: string): Promise<ScanResult[]
             group: 'Redistributables',
             items: gameItems,
             totalSize: gameSize,
-            itemCount: gameItems.length,
+            itemCount: gameItems.length
           })
         }
       }

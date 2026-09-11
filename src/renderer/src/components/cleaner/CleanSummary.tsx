@@ -76,9 +76,14 @@ function MetricCard({
       </div>
       <div className="flex items-baseline gap-1.5">
         <p className="font-mono text-[22px] font-bold tracking-tight text-white">
-          {displayValue ?? (unit ? animated.toFixed(decimals) : Math.round(animated).toLocaleString())}
+          {displayValue ??
+            (unit ? animated.toFixed(decimals) : Math.round(animated).toLocaleString())}
         </p>
-        {unit && <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{unit}</span>}
+        {unit && (
+          <span className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
+            {unit}
+          </span>
+        )}
       </div>
       <p className="mt-0.5 text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
         {label}
@@ -117,7 +122,10 @@ function CategoryBar({
         <Icon className="h-3.5 w-3.5" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
       </div>
       <span className="w-28 shrink-0 truncate text-[12px] font-medium text-zinc-300">{name}</span>
-      <div className="relative flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-hover)' }}>
+      <div
+        className="relative flex-1 h-2 rounded-full overflow-hidden"
+        style={{ background: 'var(--bg-hover)' }}
+      >
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
@@ -126,7 +134,10 @@ function CategoryBar({
           style={{ background: 'linear-gradient(90deg, #f59e0b, #d97706)' }}
         />
       </div>
-      <span className="w-16 shrink-0 text-right text-[11px] font-mono" style={{ color: 'var(--text-secondary)' }}>
+      <span
+        className="w-16 shrink-0 text-right text-[11px] font-mono"
+        style={{ color: 'var(--text-secondary)' }}
+      >
         {formatBytes(space, 1)}
       </span>
     </motion.div>
@@ -154,7 +165,9 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
       {/* Green accent line */}
       <div
         className="h-[2px]"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(34,197,94,0.5), transparent)' }}
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(34,197,94,0.5), transparent)'
+        }}
       />
 
       <div className="p-5">
@@ -218,7 +231,10 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
           >
-            <p className="mb-3 text-[11px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            <p
+              className="mb-3 text-[11px] font-medium uppercase tracking-wider"
+              style={{ color: 'var(--text-muted)' }}
+            >
               {t('summaryBreakdown')}
             </p>
             <div className="space-y-2.5">
@@ -255,7 +271,10 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
         {summary.needsElevation && (
           <div
             className="mt-4 flex items-center gap-3 rounded-xl px-3 py-2.5"
-            style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
+            style={{
+              background: 'var(--accent-muted-bg)',
+              border: '1px solid var(--accent-muted-border)'
+            }}
           >
             <ShieldAlert className="h-4 w-4 shrink-0 text-amber-400" strokeWidth={1.8} />
             <p className="flex-1 text-[12px]" style={{ color: 'var(--text-muted)' }}>
@@ -276,14 +295,22 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
         {/* Error details */}
         {summary.errors.length > 0 && (
           <details className="mt-3">
-            <summary className="flex items-center gap-1 text-[11px] cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
+            <summary
+              className="flex items-center gap-1 text-[11px] cursor-pointer"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               <ChevronDown className="h-3 w-3" strokeWidth={2} />
               {t('itemsCouldntBeDeleted', { count: summary.errors.length })}
             </summary>
             <div className="mt-1.5 max-h-32 overflow-y-auto space-y-0.5 ml-4">
               {summary.errors.slice(0, 20).map((err, i) => (
-                <p key={i} className="text-[11px] font-mono truncate" style={{ color: 'var(--text-muted)' }}>
-                  {err.path.split(/[/\\]/).slice(-3).join('/')} — {err.reason === 'permission-denied' ? t('permissionDenied') : err.reason}
+                <p
+                  key={i}
+                  className="text-[11px] font-mono truncate"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {err.path.split(/[/\\]/).slice(-3).join('/')} —{' '}
+                  {err.reason === 'permission-denied' ? t('permissionDenied') : err.reason}
                 </p>
               ))}
               {summary.errors.length > 20 && (

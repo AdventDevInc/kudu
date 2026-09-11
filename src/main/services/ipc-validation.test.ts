@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { validateSettingsPartial, validateHistoryEntry, validateDeletionQuery } from './ipc-validation'
+import {
+  validateSettingsPartial,
+  validateHistoryEntry,
+  validateDeletionQuery
+} from './ipc-validation'
 
 describe('validateSettingsPartial', () => {
   it('accepts valid boolean settings', () => {
@@ -57,7 +61,7 @@ describe('validateSettingsPartial', () => {
 
   it('accepts softwareUpdaterNotifications boolean', () => {
     expect(validateSettingsPartial({ softwareUpdaterNotifications: false })).toEqual({
-      softwareUpdaterNotifications: false,
+      softwareUpdaterNotifications: false
     })
   })
 
@@ -67,7 +71,7 @@ describe('validateSettingsPartial', () => {
 
   it('accepts preferElevatedLaunch boolean', () => {
     expect(validateSettingsPartial({ preferElevatedLaunch: true })).toEqual({
-      preferElevatedLaunch: true,
+      preferElevatedLaunch: true
     })
   })
 
@@ -169,7 +173,8 @@ describe('validateSettingsPartial', () => {
 
   it('accepts a valid backupPath', () => {
     // path.isAbsolute is platform-aware, so use a path absolute on the current OS.
-    const backupPath = process.platform === 'win32' ? 'C:\\Users\\dave\\Backups' : '/Users/dave/Backups'
+    const backupPath =
+      process.platform === 'win32' ? 'C:\\Users\\dave\\Backups' : '/Users/dave/Backups'
     const input = { backupPath }
     expect(validateSettingsPartial(input)).toEqual(input)
   })
@@ -207,8 +212,12 @@ describe('validateSettingsPartial', () => {
   })
 
   it('accepts valid windowsPackageManager values', () => {
-    expect(validateSettingsPartial({ windowsPackageManager: 'winget' })).toEqual({ windowsPackageManager: 'winget' })
-    expect(validateSettingsPartial({ windowsPackageManager: 'choco' })).toEqual({ windowsPackageManager: 'choco' })
+    expect(validateSettingsPartial({ windowsPackageManager: 'winget' })).toEqual({
+      windowsPackageManager: 'winget'
+    })
+    expect(validateSettingsPartial({ windowsPackageManager: 'choco' })).toEqual({
+      windowsPackageManager: 'choco'
+    })
   })
 
   it('rejects invalid windowsPackageManager values', () => {
@@ -218,19 +227,26 @@ describe('validateSettingsPartial', () => {
   })
 
   it('accepts valid windowsPackageManagers arrays', () => {
-    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'scoop'] }))
-      .toEqual({ windowsPackageManagers: ['winget', 'scoop'] })
-    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] }))
-      .toEqual({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] })
-    expect(validateSettingsPartial({ windowsPackageManagers: [] }))
-      .toEqual({ windowsPackageManagers: [] })
+    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'scoop'] })).toEqual({
+      windowsPackageManagers: ['winget', 'scoop']
+    })
+    expect(
+      validateSettingsPartial({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] })
+    ).toEqual({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm'] })
+    expect(validateSettingsPartial({ windowsPackageManagers: [] })).toEqual({
+      windowsPackageManagers: []
+    })
   })
 
   it('rejects invalid windowsPackageManagers arrays', () => {
     expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'brew'] })).toBeNull()
     expect(validateSettingsPartial({ windowsPackageManagers: 'winget' })).toBeNull()
     expect(validateSettingsPartial({ windowsPackageManagers: [123] })).toBeNull()
-    expect(validateSettingsPartial({ windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm', 'winget'] })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        windowsPackageManagers: ['winget', 'choco', 'scoop', 'npm', 'winget']
+      })
+    ).toBeNull()
   })
 
   it('accepts empty object', () => {
@@ -239,31 +255,47 @@ describe('validateSettingsPartial', () => {
 
   it('accepts valid schedules array', () => {
     const input = {
-      schedules: [{
-        id: 'abc-123',
-        name: 'Weekly Clean',
-        enabled: true,
-        frequency: 'weekly',
-        day: 1,
-        hour: 9,
-        minute: 0,
-        tasks: ['cleaner:system', 'cleaner:browsers'],
-        autoApply: false,
-        lastRunAt: null,
-        lastRunStatus: 'never',
-        createdAt: '2025-01-01T00:00:00Z'
-      }]
+      schedules: [
+        {
+          id: 'abc-123',
+          name: 'Weekly Clean',
+          enabled: true,
+          frequency: 'weekly',
+          day: 1,
+          hour: 9,
+          minute: 0,
+          tasks: ['cleaner:system', 'cleaner:browsers'],
+          autoApply: false,
+          lastRunAt: null,
+          lastRunStatus: 'never',
+          createdAt: '2025-01-01T00:00:00Z'
+        }
+      ]
     }
     expect(validateSettingsPartial(input)).toEqual(input)
   })
 
   it('rejects schedules with invalid task types', () => {
-    expect(validateSettingsPartial({
-      schedules: [{
-        id: 'x', name: 'X', enabled: true, frequency: 'daily', day: 0, hour: 9, minute: 0,
-        tasks: ['badtask'], autoApply: false, lastRunAt: null, lastRunStatus: 'never', createdAt: '2025-01-01T00:00:00Z'
-      }]
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        schedules: [
+          {
+            id: 'x',
+            name: 'X',
+            enabled: true,
+            frequency: 'daily',
+            day: 0,
+            hour: 9,
+            minute: 0,
+            tasks: ['badtask'],
+            autoApply: false,
+            lastRunAt: null,
+            lastRunStatus: 'never',
+            createdAt: '2025-01-01T00:00:00Z'
+          }
+        ]
+      })
+    ).toBeNull()
   })
 
   it('rejects non-array schedules', () => {
@@ -272,16 +304,28 @@ describe('validateSettingsPartial', () => {
 
   it('rejects too many schedules', () => {
     const schedules = Array.from({ length: 11 }, (_, i) => ({
-      id: `id-${i}`, name: `S${i}`, enabled: true, frequency: 'daily', day: 0, hour: 9, minute: 0,
-      tasks: ['cleaner:system'], autoApply: false, lastRunAt: null, lastRunStatus: 'never', createdAt: '2025-01-01T00:00:00Z'
+      id: `id-${i}`,
+      name: `S${i}`,
+      enabled: true,
+      frequency: 'daily',
+      day: 0,
+      hour: 9,
+      minute: 0,
+      tasks: ['cleaner:system'],
+      autoApply: false,
+      lastRunAt: null,
+      lastRunStatus: 'never',
+      createdAt: '2025-01-01T00:00:00Z'
     }))
     expect(validateSettingsPartial({ schedules })).toBeNull()
   })
 
   it('rejects schedule entry with missing fields', () => {
-    expect(validateSettingsPartial({
-      schedules: [{ id: 'x', name: 'X' }]
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        schedules: [{ id: 'x', name: 'X' }]
+      })
+    ).toBeNull()
   })
 
   // ── gameMode validation ──────────────────────────
@@ -302,65 +346,85 @@ describe('validateSettingsPartial', () => {
   })
 
   it('rejects gameMode with invalid optimization IDs', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: ['invalid-id'], customProcessKillList: [] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: ['invalid-id'], customProcessKillList: [] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with non-array enabledOptimizations', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: 'svc-wsearch', customProcessKillList: [] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: 'svc-wsearch', customProcessKillList: [] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with too many optimizations', () => {
     const enabledOptimizations = Array.from({ length: 31 }, () => 'svc-wsearch')
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations, customProcessKillList: [] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations, customProcessKillList: [] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with non-string process names', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList: [123] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList: [123] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with empty process name strings', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList: [''] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList: [''] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with path traversal in process names', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList: ['..\\..\\evil.exe'] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList: ['..\\..\\evil.exe'] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with special characters in process names', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList: ['evil;rm -rf /'] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList: ['evil;rm -rf /'] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with too many custom processes', () => {
     const customProcessKillList = Array.from({ length: 51 }, (_, i) => `proc${i}.exe`)
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with overly long process names', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList: ['x'.repeat(101)] }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList: ['x'.repeat(101)] }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode with unknown keys', () => {
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: [], customProcessKillList: [], extraField: true }
-    })).toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: [], customProcessKillList: [], extraField: true }
+      })
+    ).toBeNull()
   })
 
   it('rejects gameMode as non-object', () => {
@@ -370,35 +434,55 @@ describe('validateSettingsPartial', () => {
 
   it('accepts all valid optimization IDs', () => {
     const allIds = [
-      'svc-wsearch', 'svc-sysmain', 'svc-wuauserv', 'svc-spooler', 'svc-diagtrack',
-      'proc-kill-browsers', 'proc-kill-chat', 'proc-kill-updaters', 'proc-kill-custom',
+      'svc-wsearch',
+      'svc-sysmain',
+      'svc-wuauserv',
+      'svc-spooler',
+      'svc-diagtrack',
+      'proc-kill-browsers',
+      'proc-kill-chat',
+      'proc-kill-updaters',
+      'proc-kill-custom',
       'mem-clear-standby',
-      'sys-focus-assist', 'sys-power-plan', 'sys-prevent-sleep',
-      'sys-disable-game-bar', 'sys-disable-fse-opt', 'sys-disable-transparency',
-      'net-flush-dns', 'net-disable-nagle'
+      'sys-focus-assist',
+      'sys-power-plan',
+      'sys-prevent-sleep',
+      'sys-disable-game-bar',
+      'sys-disable-fse-opt',
+      'sys-disable-transparency',
+      'net-flush-dns',
+      'net-disable-nagle'
     ]
-    expect(validateSettingsPartial({
-      gameMode: { enabledOptimizations: allIds, customProcessKillList: [] }
-    })).not.toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: { enabledOptimizations: allIds, customProcessKillList: [] }
+      })
+    ).not.toBeNull()
   })
 
   it('accepts process names with dots, hyphens, underscores, and spaces', () => {
-    expect(validateSettingsPartial({
-      gameMode: {
-        enabledOptimizations: [],
-        customProcessKillList: ['my-app.exe', 'My App_v2.exe', 'test 123']
-      }
-    })).not.toBeNull()
+    expect(
+      validateSettingsPartial({
+        gameMode: {
+          enabledOptimizations: [],
+          customProcessKillList: ['my-app.exe', 'My App_v2.exe', 'test 123']
+        }
+      })
+    ).not.toBeNull()
   })
 
   // registryIgnoredTweaks — persisted "ignore this tweak" signatures (issue #172)
   it('accepts a registryIgnoredTweaks array of signature strings', () => {
-    const input = { registryIgnoredTweaks: ['hklm\\system\\currentcontrolset\\services\\sysmain|start'] }
+    const input = {
+      registryIgnoredTweaks: ['hklm\\system\\currentcontrolset\\services\\sysmain|start']
+    }
     expect(validateSettingsPartial(input)).toEqual(input)
   })
 
   it('accepts an empty registryIgnoredTweaks array', () => {
-    expect(validateSettingsPartial({ registryIgnoredTweaks: [] })).toEqual({ registryIgnoredTweaks: [] })
+    expect(validateSettingsPartial({ registryIgnoredTweaks: [] })).toEqual({
+      registryIgnoredTweaks: []
+    })
   })
 
   it('rejects registryIgnoredTweaks that is not an array', () => {
@@ -426,7 +510,7 @@ describe('validateHistoryEntry', () => {
     totalItemsSkipped: 10,
     totalSpaceSaved: 1048576,
     errorCount: 0,
-    categories: [{ name: 'Temp Files', itemsFound: 50, itemsCleaned: 45, spaceSaved: 524288 }],
+    categories: [{ name: 'Temp Files', itemsFound: 50, itemsCleaned: 45, spaceSaved: 524288 }]
   }
 
   it('accepts a valid history entry', () => {
@@ -468,7 +552,7 @@ describe('validateHistoryEntry', () => {
       name: `cat-${i}`,
       itemsFound: 1,
       itemsCleaned: 1,
-      spaceSaved: 100,
+      spaceSaved: 100
     }))
     expect(validateHistoryEntry({ ...validEntry, categories })).toBeNull()
   })

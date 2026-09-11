@@ -76,7 +76,7 @@ export function parseRecycleBinStats(stdout: string): RecycleBinStats {
   const size = Number.parseInt(sizeText, 10)
   return {
     count: Number.isFinite(count) && count > 0 ? count : 0,
-    size: Number.isFinite(size) && size > 0 ? size : 0,
+    size: Number.isFinite(size) && size > 0 ? size : 0
   }
 }
 
@@ -88,11 +88,10 @@ export function parseRecycleBinStats(stdout: string): RecycleBinStats {
  * payloads without metadata remain visible with their non-recursive size.
  */
 export async function queryRecycleBinStats(): Promise<RecycleBinStats> {
-  const { stdout } = await execTracked('powershell.exe', [
-    '-NoProfile',
-    '-NonInteractive',
-    '-Command',
-    psUtf8(QUERY_RECYCLE_BIN_SCRIPT),
-  ], { windowsHide: true, timeout: 15_000 })
+  const { stdout } = await execTracked(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-Command', psUtf8(QUERY_RECYCLE_BIN_SCRIPT)],
+    { windowsHide: true, timeout: 15_000 }
+  )
   return parseRecycleBinStats(stdout)
 }

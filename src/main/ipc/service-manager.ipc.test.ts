@@ -171,22 +171,27 @@ describe('service name validation', () => {
 describe('applyServiceChanges input validation', () => {
   it('returns empty result for empty changes array', () => {
     const changes: { name: string; targetStartType: string }[] = []
-    const result = !Array.isArray(changes) || changes.length === 0
-      ? { succeeded: 0, failed: 0, errors: [] }
-      : null
+    const result =
+      !Array.isArray(changes) || changes.length === 0
+        ? { succeeded: 0, failed: 0, errors: [] }
+        : null
     expect(result).toEqual({ succeeded: 0, failed: 0, errors: [] })
   })
 
   it('returns empty result for non-array input', () => {
     const changes = 'not an array' as any
-    const result = !Array.isArray(changes) || changes.length === 0
-      ? { succeeded: 0, failed: 0, errors: [] }
-      : null
+    const result =
+      !Array.isArray(changes) || changes.length === 0
+        ? { succeeded: 0, failed: 0, errors: [] }
+        : null
     expect(result).toEqual({ succeeded: 0, failed: 0, errors: [] })
   })
 
   it('rejects invalid service name in changes', () => {
-    const changes = [{ name: 'valid', targetStartType: 'Manual' }, { name: 'inv@lid!', targetStartType: 'Disabled' }]
+    const changes = [
+      { name: 'valid', targetStartType: 'Manual' },
+      { name: 'inv@lid!', targetStartType: 'Disabled' }
+    ]
     let error: string | null = null
     for (const c of changes) {
       if (typeof c.name !== 'string' || typeof c.targetStartType !== 'string') {
@@ -240,7 +245,12 @@ describe('service scan stdout parsing', () => {
     const lines = stdout.split('\n').filter((l) => l.startsWith('SVC|'))
     expect(lines).toHaveLength(3) // includes incomplete
 
-    const services: { name: string; displayName: string; status: ServiceStatus; startType: ServiceStartType }[] = []
+    const services: {
+      name: string
+      displayName: string
+      status: ServiceStatus
+      startType: ServiceStartType
+    }[] = []
     for (const line of lines) {
       const parts = line.trim().split('|')
       if (parts.length < 7) continue
@@ -268,11 +278,7 @@ describe('service scan stdout parsing', () => {
   })
 
   it('parses dependency output lines', () => {
-    const depOut = [
-      'DEP|WSearch|RpcSs,RPCSS|SearchUI',
-      'DEP|Spooler||',
-      'Other line'
-    ].join('\n')
+    const depOut = ['DEP|WSearch|RpcSs,RPCSS|SearchUI', 'DEP|Spooler||', 'Other line'].join('\n')
 
     const depMap: Record<string, { dependsOn: string[]; dependents: string[] }> = {}
     for (const line of depOut.split('\n').filter((l) => l.startsWith('DEP|'))) {
@@ -359,7 +365,7 @@ describe('scan result statistics', () => {
       { status: 'Running', startType: 'Manual', safety: 'caution' },
       { status: 'Stopped', startType: 'Disabled', safety: 'safe' },
       { status: 'Stopped', startType: 'Manual', safety: 'safe' },
-      { status: 'Running', startType: 'Automatic', safety: 'unsafe' },
+      { status: 'Running', startType: 'Automatic', safety: 'unsafe' }
     ]
 
     const runningCount = services.filter((s) => s.status === 'Running').length

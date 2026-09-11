@@ -11,7 +11,7 @@ const ADMIN_TOKEN_CHECK = [
   '$principal = [Security.Principal.WindowsPrincipal]::new($identity)',
   '$isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
   'if ($isAdmin) { exit 0 }',
-  'exit 1',
+  'exit 1'
 ].join('; ')
 
 export function createWin32Elevation(): PlatformElevation {
@@ -31,6 +31,6 @@ export function createWin32Elevation(): PlatformElevation {
       }
 
       return _isAdmin
-    },
+    }
   }
 }

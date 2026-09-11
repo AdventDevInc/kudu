@@ -50,13 +50,17 @@ describe('service-store', () => {
     })
 
     it('toggles a disabled service so it can be re-enabled', () => {
-      useServiceStore.getState().setServices([makeService('seclogon', 'caution', 'Disabled', 'Stopped')])
+      useServiceStore
+        .getState()
+        .setServices([makeService('seclogon', 'caution', 'Disabled', 'Stopped')])
       useServiceStore.getState().toggleService('seclogon')
       expect(useServiceStore.getState().services[0].selected).toBe(true)
     })
 
     it('toggles an unsafe service that is already disabled', () => {
-      useServiceStore.getState().setServices([makeService('RpcSs', 'unsafe', 'Disabled', 'Stopped')])
+      useServiceStore
+        .getState()
+        .setServices([makeService('RpcSs', 'unsafe', 'Disabled', 'Stopped')])
       useServiceStore.getState().toggleService('RpcSs')
       expect(useServiceStore.getState().services[0].selected).toBe(true)
     })
@@ -64,27 +68,31 @@ describe('service-store', () => {
 
   describe('selectRecommended', () => {
     it('selects only safe, non-disabled services', () => {
-      useServiceStore.getState().setServices([
-        makeService('DiagTrack', 'safe', 'Automatic'),
-        makeService('Fax', 'safe', 'Disabled'),
-        makeService('WSearch', 'caution', 'Automatic'),
-        makeService('RpcSs', 'unsafe', 'Automatic')
-      ])
+      useServiceStore
+        .getState()
+        .setServices([
+          makeService('DiagTrack', 'safe', 'Automatic'),
+          makeService('Fax', 'safe', 'Disabled'),
+          makeService('WSearch', 'caution', 'Automatic'),
+          makeService('RpcSs', 'unsafe', 'Automatic')
+        ])
       useServiceStore.getState().selectRecommended()
       const services = useServiceStore.getState().services
-      expect(services[0].selected).toBe(true)   // safe + not disabled
-      expect(services[1].selected).toBe(false)   // safe but already disabled
-      expect(services[2].selected).toBe(false)   // caution
-      expect(services[3].selected).toBe(false)   // unsafe
+      expect(services[0].selected).toBe(true) // safe + not disabled
+      expect(services[1].selected).toBe(false) // safe but already disabled
+      expect(services[2].selected).toBe(false) // caution
+      expect(services[3].selected).toBe(false) // unsafe
     })
   })
 
   describe('deselectAll', () => {
     it('deselects all services', () => {
-      useServiceStore.getState().setServices([
-        makeService('a', 'safe', 'Automatic', 'Running', true),
-        makeService('b', 'caution', 'Manual', 'Stopped', true)
-      ])
+      useServiceStore
+        .getState()
+        .setServices([
+          makeService('a', 'safe', 'Automatic', 'Running', true),
+          makeService('b', 'caution', 'Manual', 'Stopped', true)
+        ])
       useServiceStore.getState().deselectAll()
       expect(useServiceStore.getState().services.every((s) => !s.selected)).toBe(true)
     })

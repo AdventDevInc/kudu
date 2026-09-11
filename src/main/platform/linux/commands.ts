@@ -1,7 +1,16 @@
 import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { readFile } from 'fs/promises'
-import type { PlatformCommands, EventLogEntry, InstalledApp, OsUpdateInfo, OsUpdateInstallResult, SfcResult, DismResult, DnsEntry } from '../types'
+import type {
+  PlatformCommands,
+  EventLogEntry,
+  InstalledApp,
+  OsUpdateInfo,
+  OsUpdateInstallResult,
+  SfcResult,
+  DismResult,
+  DnsEntry
+} from '../types'
 
 const execFileAsync = promisify(execFile)
 
@@ -10,14 +19,16 @@ async function detectPackageManager(): Promise<'apt' | 'dnf' | 'pacman' | null> 
   const candidates: Array<{ name: 'apt' | 'dnf' | 'pacman'; paths: string[] }> = [
     { name: 'apt', paths: ['/usr/bin/apt', '/bin/apt'] },
     { name: 'dnf', paths: ['/usr/bin/dnf', '/bin/dnf'] },
-    { name: 'pacman', paths: ['/usr/bin/pacman', '/bin/pacman'] },
+    { name: 'pacman', paths: ['/usr/bin/pacman', '/bin/pacman'] }
   ]
   for (const { name, paths } of candidates) {
     for (const path of paths) {
       try {
         await execFileAsync(path, ['--version'], { timeout: 3_000 })
         return name
-      } catch { /* not found or failed */ }
+      } catch {
+        /* not found or failed */
+      }
     }
   }
   return null
@@ -55,7 +66,9 @@ export function createLinuxCommands(): PlatformCommands {
           }
         }
         if (entries.length > 0) return entries
-      } catch { /* fallback to resolv.conf */ }
+      } catch {
+        /* fallback to resolv.conf */
+      }
 
       // Parse /etc/resolv.conf
       try {
@@ -66,16 +79,20 @@ export function createLinuxCommands(): PlatformCommands {
           if (match) servers.push(match[1].trim())
         }
         if (servers.length > 0) return [{ iface: 'system', servers }]
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
 
       return []
     },
 
     async getEventLog(_logName: string, maxEntries: number): Promise<EventLogEntry[]> {
       try {
-        const { stdout } = await execFileAsync('/usr/bin/journalctl', [
-          '--no-pager', '-n', String(maxEntries), '--output', 'json',
-        ], { timeout: 30_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/journalctl',
+          ['--no-pager', '-n', String(maxEntries), '--output', 'json'],
+          { timeout: 30_000 }
+        )
 
         const entries: EventLogEntry[] = []
         for (const line of stdout.split('\n')) {
@@ -89,9 +106,11 @@ export function createLinuxCommands(): PlatformCommands {
               eventId: 0,
               level: priorityToLevel(entry.PRIORITY),
               provider: entry.SYSLOG_IDENTIFIER ?? entry._COMM ?? '',
-              message: (entry.MESSAGE ?? '').slice(0, 200),
+              message: (entry.MESSAGE ?? '').slice(0, 200)
             })
-          } catch { /* skip unparseable lines */ }
+          } catch {
+            /* skip unparseable lines */
+          }
         }
         return entries
       } catch {
@@ -105,32 +124,64 @@ export function createLinuxCommands(): PlatformCommands {
 
       try {
         if (pm === 'apt') {
-          const { stdout } = await execFileAsync('/usr/bin/dpkg-query', [
-            '-W', '-f', '${Package}\t${Version}\t${Installed-Size}\n',
-          ], { timeout: 30_000 })
+          const { stdout } = await execFileAsync(
+            '/usr/bin/dpkg-query',
+            ['-W', '-f', '${Package}\t${Version}\t${Installed-Size}\n'],
+            { timeout: 30_000 }
+          )
 
-          return stdout.trim().split('\n').filter(Boolean).map((line) => {
-            const [name, version, sizeStr] = line.split('\t')
-            return { name, version: version ?? '', publisher: '', installDate: '', sizeKb: parseInt(sizeStr, 10) || 0 }
-          })
+          return stdout
+            .trim()
+            .split('\n')
+            .filter(Boolean)
+            .map((line) => {
+              const [name, version, sizeStr] = line.split('\t')
+              return {
+                name,
+                version: version ?? '',
+                publisher: '',
+                installDate: '',
+                sizeKb: parseInt(sizeStr, 10) || 0
+              }
+            })
         }
 
         if (pm === 'dnf') {
-          const { stdout } = await execFileAsync('/usr/bin/rpm', ['-qa', '--queryformat', '%{NAME}\t%{VERSION}-%{RELEASE}\t%{SIZE}\n'], { timeout: 30_000 })
-          return stdout.trim().split('\n').filter(Boolean).map((line) => {
-            const [name, version, sizeStr] = line.split('\t')
-            return { name, version: version ?? '', publisher: '', installDate: '', sizeKb: Math.round((parseInt(sizeStr, 10) || 0) / 1024) }
-          })
+          const { stdout } = await execFileAsync(
+            '/usr/bin/rpm',
+            ['-qa', '--queryformat', '%{NAME}\t%{VERSION}-%{RELEASE}\t%{SIZE}\n'],
+            { timeout: 30_000 }
+          )
+          return stdout
+            .trim()
+            .split('\n')
+            .filter(Boolean)
+            .map((line) => {
+              const [name, version, sizeStr] = line.split('\t')
+              return {
+                name,
+                version: version ?? '',
+                publisher: '',
+                installDate: '',
+                sizeKb: Math.round((parseInt(sizeStr, 10) || 0) / 1024)
+              }
+            })
         }
 
         if (pm === 'pacman') {
           const { stdout } = await execFileAsync('/usr/bin/pacman', ['-Q'], { timeout: 30_000 })
-          return stdout.trim().split('\n').filter(Boolean).map((line) => {
-            const [name, version] = line.split(' ')
-            return { name, version: version ?? '', publisher: '', installDate: '', sizeKb: 0 }
-          })
+          return stdout
+            .trim()
+            .split('\n')
+            .filter(Boolean)
+            .map((line) => {
+              const [name, version] = line.split(' ')
+              return { name, version: version ?? '', publisher: '', installDate: '', sizeKb: 0 }
+            })
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
 
       return []
     },
@@ -144,18 +195,27 @@ export function createLinuxCommands(): PlatformCommands {
           // apt-get update requires root; skip refresh if non-root and use stale cache
           try {
             await execFileAsync('/usr/bin/apt-get', ['update', '-qq'], { timeout: 60_000 })
-          } catch { /* non-root: use existing package cache */ }
-          const { stdout } = await execFileAsync('/usr/bin/apt', ['list', '--upgradable'], { timeout: 30_000 })
-          return stdout.trim().split('\n').slice(1).filter(Boolean).map((line) => {
-            const match = line.match(/^(\S+)\/\S+\s+(\S+)/)
-            return {
-              title: match?.[1] ?? line,
-              kb: '',
-              severity: 'Unspecified',
-              sizeBytes: 0,
-              downloaded: false,
-            }
+          } catch {
+            /* non-root: use existing package cache */
+          }
+          const { stdout } = await execFileAsync('/usr/bin/apt', ['list', '--upgradable'], {
+            timeout: 30_000
           })
+          return stdout
+            .trim()
+            .split('\n')
+            .slice(1)
+            .filter(Boolean)
+            .map((line) => {
+              const match = line.match(/^(\S+)\/\S+\s+(\S+)/)
+              return {
+                title: match?.[1] ?? line,
+                kb: '',
+                severity: 'Unspecified',
+                sizeBytes: 0,
+                downloaded: false
+              }
+            })
         }
 
         if (pm === 'dnf') {
@@ -163,32 +223,43 @@ export function createLinuxCommands(): PlatformCommands {
           // The error object from child_process includes stdout/stderr as properties.
           let dnfOutput = ''
           try {
-            const result = await execFileAsync('/usr/bin/dnf', ['check-update', '-q'], { timeout: 60_000 })
+            const result = await execFileAsync('/usr/bin/dnf', ['check-update', '-q'], {
+              timeout: 60_000
+            })
             dnfOutput = result.stdout
           } catch (err: any) {
             dnfOutput = err?.stdout ?? ''
           }
-          const lines = dnfOutput.trim().split('\n').filter((l: string) => l.trim() && !l.startsWith('Last'))
+          const lines = dnfOutput
+            .trim()
+            .split('\n')
+            .filter((l: string) => l.trim() && !l.startsWith('Last'))
           return lines.map((line) => ({
             title: line.split(/\s+/)[0] ?? line,
             kb: '',
             severity: 'Unspecified',
             sizeBytes: 0,
-            downloaded: false,
+            downloaded: false
           }))
         }
 
         if (pm === 'pacman') {
           const { stdout } = await execFileAsync('/usr/bin/pacman', ['-Qu'], { timeout: 30_000 })
-          return stdout.trim().split('\n').filter(Boolean).map((line) => ({
-            title: line.split(' ')[0] ?? line,
-            kb: '',
-            severity: 'Unspecified',
-            sizeBytes: 0,
-            downloaded: false,
-          }))
+          return stdout
+            .trim()
+            .split('\n')
+            .filter(Boolean)
+            .map((line) => ({
+              title: line.split(' ')[0] ?? line,
+              kb: '',
+              severity: 'Unspecified',
+              sizeBytes: 0,
+              downloaded: false
+            }))
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
 
       return []
     },
@@ -256,21 +327,25 @@ export function createLinuxCommands(): PlatformCommands {
         if (pm === 'pacman') {
           let orphans: string[] = []
           try {
-            const { stdout } = await execFileAsync('/usr/bin/pacman', ['-Qdtq'], { timeout: 10_000 })
+            const { stdout } = await execFileAsync('/usr/bin/pacman', ['-Qdtq'], {
+              timeout: 10_000
+            })
             orphans = stdout.trim().split('\n').filter(Boolean)
           } catch {
             // pacman -Qdtq exits non-zero when no orphans exist
             return { exitCode: 0, status: 'clean' }
           }
           if (orphans.length === 0) return { exitCode: 0, status: 'clean' }
-          await execFileAsync('/usr/bin/pacman', ['-Rns', '--noconfirm', ...orphans], { timeout: 120_000 })
+          await execFileAsync('/usr/bin/pacman', ['-Rns', '--noconfirm', ...orphans], {
+            timeout: 120_000
+          })
           return { exitCode: 0, status: 'success' }
         }
       } catch {
         return { exitCode: -1, status: 'failed' }
       }
       return null
-    },
+    }
   }
 }
 

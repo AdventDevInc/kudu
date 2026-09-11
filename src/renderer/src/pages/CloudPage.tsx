@@ -17,7 +17,7 @@ import {
   Unlink,
   Check,
   Crown,
-  type LucideIcon,
+  type LucideIcon
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -37,11 +37,16 @@ function isSubscriptionError(error: string | null | undefined): boolean {
 
 function cloudStatusLabel(t: (key: string) => string, status?: string | null): string {
   switch (status) {
-    case 'connected': return t('statusConnected')
-    case 'connecting': return t('connecting')
-    case 'disconnected': return t('statusDisconnected')
-    case 'error': return t('statusError')
-    default: return status ?? t('statusLoading')
+    case 'connected':
+      return t('statusConnected')
+    case 'connecting':
+      return t('connecting')
+    case 'disconnected':
+      return t('statusDisconnected')
+    case 'error':
+      return t('statusError')
+    default:
+      return status ?? t('statusLoading')
   }
 }
 
@@ -51,26 +56,56 @@ export function CloudPage() {
   const { settings, updateSettings, setSettings } = useSettingsStore()
 
   const [cloudStatus, setCloudStatus] = useState<{
-    status: string; maskedApiKey: string | null; deviceId: string | null
-    linkedAt: string | null; lastTelemetryAt: string | null; lastHealthReportAt: string | null; error: string | null
-    threatBlacklist: { version: string; updatedAt: string; domains: number; ips: number; cidrs: number } | null
+    status: string
+    maskedApiKey: string | null
+    deviceId: string | null
+    linkedAt: string | null
+    lastTelemetryAt: string | null
+    lastHealthReportAt: string | null
+    error: string | null
+    threatBlacklist: {
+      version: string
+      updatedAt: string
+      domains: number
+      ips: number
+      cidrs: number
+    } | null
   } | null>(null)
   const [cloudApiKey, setCloudApiKey] = useState('')
   const [cloudLinking, setCloudLinking] = useState(false)
   const [cloudUnlinking, setCloudUnlinking] = useState(false)
   const [cloudReconnecting, setCloudReconnecting] = useState(false)
-  const [cveSummary, setCveSummary] = useState<{ total: number; critical: number; high: number; medium: number; low: number; librarySize: number } | null>(null)
+  const [cveSummary, setCveSummary] = useState<{
+    total: number
+    critical: number
+    high: number
+    medium: number
+    low: number
+    librarySize: number
+  } | null>(null)
 
   const isLinked = !!settings.cloud.apiKey
 
   const refreshCloudStatus = useCallback(() => {
-    window.kudu?.cloudGetStatus?.().then(setCloudStatus).catch(() => {})
+    window.kudu
+      ?.cloudGetStatus?.()
+      .then(setCloudStatus)
+      .catch(() => {})
   }, [])
 
-  useEffect(() => { window.kudu?.settingsGet?.().then(setSettings).catch(() => {}) }, [])
+  useEffect(() => {
+    window.kudu
+      ?.settingsGet?.()
+      .then(setSettings)
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
-    if (!isLinked) { setCloudStatus(null); setCveSummary(null); return }
+    if (!isLinked) {
+      setCloudStatus(null)
+      setCveSummary(null)
+      return
+    }
     refreshCloudStatus()
     const timer = setInterval(refreshCloudStatus, 5000)
     return () => clearInterval(timer)
@@ -78,7 +113,8 @@ export function CloudPage() {
 
   useEffect(() => {
     if (cloudStatus?.status !== 'connected') return
-    window.kudu?.cveFetch?.({ page: 1 })
+    window.kudu
+      ?.cveFetch?.({ page: 1 })
       .then((r) => setCveSummary({ total: r.total, librarySize: r.librarySize, ...r.summary }))
       .catch(() => {})
   }, [cloudStatus?.status])
@@ -94,7 +130,9 @@ export function CloudPage() {
         const fresh = await window.kudu?.settingsGet?.()
         if (fresh) setSettings(fresh)
       } else {
-        toast.error(t('linkFailedToast'), { description: result?.error || t('linkFailedDefaultDesc') })
+        toast.error(t('linkFailedToast'), {
+          description: result?.error || t('linkFailedDefaultDesc')
+        })
       }
     } catch {
       toast.error(t('linkFailedToast'), { description: t('linkFailedConnectionDesc') })
@@ -131,8 +169,11 @@ export function CloudPage() {
     window.kudu?.settingsSet?.(partial).catch(() => {})
   }
 
-  const selectStyle = "rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none"
-  const selectBorder = { background: 'var(--bg-subtle-2)', border: '1px solid var(--border-medium)' }
+  const selectStyle = 'rounded-lg px-3 py-1.5 text-[13px] text-zinc-400 outline-none'
+  const selectBorder = {
+    background: 'var(--bg-subtle-2)',
+    border: '1px solid var(--border-medium)'
+  }
 
   if (isLinked) {
     return (
@@ -190,26 +231,41 @@ export function CloudPage() {
       <div
         className="relative overflow-hidden rounded-2xl p-8 mb-8"
         style={{
-          background: 'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.02) 50%, rgba(59,130,246,0.06) 100%)',
-          border: '1px solid var(--accent-muted-border)',
+          background:
+            'linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.02) 50%, rgba(59,130,246,0.06) 100%)',
+          border: '1px solid var(--accent-muted-border)'
         }}
       >
-        <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }} />
-        <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full opacity-[0.05]" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)' }} />
+        <div
+          className="absolute -right-12 -top-12 h-48 w-48 rounded-full opacity-[0.07]"
+          style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }}
+        />
+        <div
+          className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full opacity-[0.05]"
+          style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)' }}
+        />
         <div className="relative">
           <div className="flex items-center gap-3 mb-4">
             <div
               className="flex h-12 w-12 items-center justify-center rounded-2xl"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 0 24px rgba(245,158,11,0.25)' }}
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                boxShadow: '0 0 24px rgba(245,158,11,0.25)'
+              }}
             >
               <Cloud className="h-6 w-6 text-black" strokeWidth={2} />
             </div>
             <div>
               <h2 className="text-[18px] font-bold text-white">{t('heroTitle')}</h2>
-              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>{t('heroSubtitle')}</p>
+              <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                {t('heroSubtitle')}
+              </p>
             </div>
           </div>
-          <p className="text-[13px] leading-relaxed max-w-xl mb-5" style={{ color: 'var(--text-secondary)' }}>
+          <p
+            className="text-[13px] leading-relaxed max-w-xl mb-5"
+            style={{ color: 'var(--text-secondary)' }}
+          >
             {t('heroDescription')}
           </p>
           <button
@@ -220,8 +276,15 @@ export function CloudPage() {
             <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
             {t('signUpFree')}
           </button>
-          <p className="text-[11px] mt-2" style={{ color: 'var(--text-dim)' }}>{t('signUpOpensBrowser')}</p>
-          <p className="text-[11px] mt-1 max-w-xl leading-relaxed" style={{ color: 'var(--text-ghost)' }}>{t('signUpBlankPageHelp')}</p>
+          <p className="text-[11px] mt-2" style={{ color: 'var(--text-dim)' }}>
+            {t('signUpOpensBrowser')}
+          </p>
+          <p
+            className="text-[11px] mt-1 max-w-xl leading-relaxed"
+            style={{ color: 'var(--text-ghost)' }}
+          >
+            {t('signUpBlankPageHelp')}
+          </p>
         </div>
       </div>
 
@@ -300,7 +363,11 @@ export function CloudPage() {
       {/* Upgrade callout */}
       <div
         className="rounded-2xl p-5 mb-10 flex items-start gap-4"
-        style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(139,92,246,0.06) 100%)', border: '1px solid rgba(59,130,246,0.12)' }}
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(139,92,246,0.06) 100%)',
+          border: '1px solid rgba(59,130,246,0.12)'
+        }}
       >
         <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl mt-0.5"
@@ -309,7 +376,9 @@ export function CloudPage() {
           <Crown className="h-[18px] w-[18px] text-blue-400" strokeWidth={1.8} />
         </div>
         <div>
-          <h4 className="text-[13px] font-semibold text-zinc-200 mb-1">{t('upgradeCalloutTitle')}</h4>
+          <h4 className="text-[13px] font-semibold text-zinc-200 mb-1">
+            {t('upgradeCalloutTitle')}
+          </h4>
           <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
             {t('upgradeCalloutDesc')}
           </p>
@@ -329,7 +398,7 @@ export function CloudPage() {
             t('planBasicFeature3'),
             t('planBasicFeature4'),
             t('planBasicFeature5'),
-            t('planBasicFeature6'),
+            t('planBasicFeature6')
           ]}
           highlight={false}
           badge={t('planPopularBadge')}
@@ -345,7 +414,7 @@ export function CloudPage() {
             t('planProFeature4'),
             t('planProFeature5'),
             t('planProFeature6'),
-            t('planProFeature7'),
+            t('planProFeature7')
           ]}
           highlight
         />
@@ -357,7 +426,9 @@ export function CloudPage() {
         style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
       >
         <h3 className="text-[15px] font-semibold text-white mb-1">{t('connectTitle')}</h3>
-        <p className="text-[12px] mb-5" style={{ color: 'var(--text-muted)' }}>{t('connectDescription')}</p>
+        <p className="text-[12px] mb-5" style={{ color: 'var(--text-muted)' }}>
+          {t('connectDescription')}
+        </p>
 
         <div className="flex flex-col gap-1 mb-4">
           <button
@@ -368,11 +439,20 @@ export function CloudPage() {
             <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.8} />
             {t('signUpFree')}
           </button>
-          <p className="text-[11px]" style={{ color: 'var(--text-dim)' }}>{t('signUpOpensBrowser')}</p>
-          <p className="text-[11px] max-w-xl leading-relaxed" style={{ color: 'var(--text-ghost)' }}>{t('signUpBlankPageHelp')}</p>
+          <p className="text-[11px]" style={{ color: 'var(--text-dim)' }}>
+            {t('signUpOpensBrowser')}
+          </p>
+          <p
+            className="text-[11px] max-w-xl leading-relaxed"
+            style={{ color: 'var(--text-ghost)' }}
+          >
+            {t('signUpBlankPageHelp')}
+          </p>
         </div>
 
-        <p className="text-[13px] mb-3" style={{ color: 'var(--text-muted)' }}>{t('alreadyHaveAccount')}</p>
+        <p className="text-[13px] mb-3" style={{ color: 'var(--text-muted)' }}>
+          {t('alreadyHaveAccount')}
+        </p>
         <div className="flex items-center gap-2.5">
           <input
             type="text"
@@ -394,7 +474,9 @@ export function CloudPage() {
           </button>
         </div>
         <p className="mt-3 text-[11px]" style={{ color: 'var(--text-dim)' }}>
-          {t('telemetryDisclaimer', { registryExtra: features.registry ? t('telemetryRegistryExtra') : '' })}
+          {t('telemetryDisclaimer', {
+            registryExtra: features.registry ? t('telemetryRegistryExtra') : ''
+          })}
         </p>
       </div>
     </div>
@@ -406,18 +488,45 @@ export function CloudPage() {
 function SectionHeading({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="mb-4">
-      <h3 className="text-[11px] font-medium uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{title}</h3>
-      <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-dim)' }}>{subtitle}</p>
+      <h3
+        className="text-[11px] font-medium uppercase tracking-widest"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {title}
+      </h3>
+      <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-dim)' }}>
+        {subtitle}
+      </p>
     </div>
   )
 }
 
 const TIER_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  basic: { bg: 'color-mix(in srgb, var(--info), transparent 89%)', border: 'color-mix(in srgb, var(--info), transparent 72%)', text: 'var(--info)' },
-  pro:   { bg: 'color-mix(in srgb, var(--warning), transparent 89%)', border: 'color-mix(in srgb, var(--warning), transparent 72%)', text: 'var(--warning)' },
+  basic: {
+    bg: 'color-mix(in srgb, var(--info), transparent 89%)',
+    border: 'color-mix(in srgb, var(--info), transparent 72%)',
+    text: 'var(--info)'
+  },
+  pro: {
+    bg: 'color-mix(in srgb, var(--warning), transparent 89%)',
+    border: 'color-mix(in srgb, var(--warning), transparent 72%)',
+    text: 'var(--warning)'
+  }
 }
 
-function FeatureCard({ icon: Icon, title, description, color, tier }: { icon: LucideIcon; title: string; description: string; color: string; tier?: 'basic' | 'pro' }) {
+function FeatureCard({
+  icon: Icon,
+  title,
+  description,
+  color,
+  tier
+}: {
+  icon: LucideIcon
+  title: string
+  description: string
+  color: string
+  tier?: 'basic' | 'pro'
+}) {
   const { t } = useTranslation('cloud')
   const tierStyle = tier ? TIER_COLORS[tier] : null
   return (
@@ -436,7 +545,11 @@ function FeatureCard({ icon: Icon, title, description, color, tier }: { icon: Lu
       {tierStyle && (
         <div
           className="absolute top-3.5 right-3.5 rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
-          style={{ background: tierStyle.bg, border: `1px solid ${tierStyle.border}`, color: tierStyle.text }}
+          style={{
+            background: tierStyle.bg,
+            border: `1px solid ${tierStyle.border}`,
+            color: tierStyle.text
+          }}
         >
           {tier === 'pro' ? t('planProName') : t('planBasicName')}
         </div>
@@ -448,13 +561,27 @@ function FeatureCard({ icon: Icon, title, description, color, tier }: { icon: Lu
         <Icon className="h-[18px] w-[18px]" style={{ color }} strokeWidth={1.8} />
       </div>
       <h4 className="text-[13px] font-semibold text-zinc-200 mb-1">{title}</h4>
-      <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>{description}</p>
+      <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+        {description}
+      </p>
     </div>
   )
 }
 
-function PlanCard({ name, price, period, features, highlight, badge }: {
-  name: string; price: string; period: string; features: string[]; highlight: boolean; badge?: string
+function PlanCard({
+  name,
+  price,
+  period,
+  features,
+  highlight,
+  badge
+}: {
+  name: string
+  price: string
+  period: string
+  features: string[]
+  highlight: boolean
+  badge?: string
 }) {
   return (
     <div
@@ -465,7 +592,7 @@ function PlanCard({ name, price, period, features, highlight, badge }: {
           : 'var(--card-bg)',
         border: highlight
           ? '1px solid var(--accent-muted-border)'
-          : '1px solid var(--border-default)',
+          : '1px solid var(--border-default)'
       }}
     >
       {badge && (
@@ -477,7 +604,8 @@ function PlanCard({ name, price, period, features, highlight, badge }: {
         </div>
       )}
       {highlight && (
-        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+        <div
+          className="absolute -top-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider"
           style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: '#000' }}
         >
           <Crown className="h-3 w-3" strokeWidth={2.5} />
@@ -485,17 +613,27 @@ function PlanCard({ name, price, period, features, highlight, badge }: {
         </div>
       )}
       <div className="mb-4 mt-1">
-        <p className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>{name}</p>
+        <p className="text-[12px] font-medium" style={{ color: 'var(--text-muted)' }}>
+          {name}
+        </p>
         <div className="flex items-baseline gap-1 mt-1">
           <span className="text-[22px] font-bold text-white">{price}</span>
-          <span className="text-[11px]" style={{ color: 'var(--text-dim)' }}>{period}</span>
+          <span className="text-[11px]" style={{ color: 'var(--text-dim)' }}>
+            {period}
+          </span>
         </div>
       </div>
       <div className="space-y-2.5 flex-1">
         {features.map((f, i) => (
           <div key={i} className="flex items-start gap-2">
-            <Check className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color: highlight ? '#f59e0b' : '#22c55e' }} strokeWidth={2.5} />
-            <span className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</span>
+            <Check
+              className="h-3.5 w-3.5 mt-0.5 shrink-0"
+              style={{ color: highlight ? '#f59e0b' : '#22c55e' }}
+              strokeWidth={2.5}
+            />
+            <span className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+              {f}
+            </span>
           </div>
         ))}
       </div>
@@ -505,15 +643,47 @@ function PlanCard({ name, price, period, features, highlight, badge }: {
 
 /* ── Linked settings (moved from SettingsPage) ────────────── */
 
-function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconnecting, cloudUnlinking, features, platform, selectStyle, selectBorder, onReconnect, onUnlink, onSave }: {
+function LinkedCloudSettings({
+  t,
+  settings,
+  cloudStatus,
+  cveSummary,
+  cloudReconnecting,
+  cloudUnlinking,
+  features,
+  platform,
+  selectStyle,
+  selectBorder,
+  onReconnect,
+  onUnlink,
+  onSave
+}: {
   t: (key: string, opts?: Record<string, unknown>) => string
   settings: KuduSettings
   cloudStatus: {
-    status: string; maskedApiKey: string | null; deviceId: string | null
-    linkedAt: string | null; lastTelemetryAt: string | null; lastHealthReportAt: string | null; error: string | null
-    threatBlacklist: { version: string; updatedAt: string; domains: number; ips: number; cidrs: number } | null
+    status: string
+    maskedApiKey: string | null
+    deviceId: string | null
+    linkedAt: string | null
+    lastTelemetryAt: string | null
+    lastHealthReportAt: string | null
+    error: string | null
+    threatBlacklist: {
+      version: string
+      updatedAt: string
+      domains: number
+      ips: number
+      cidrs: number
+    } | null
   } | null
-  cveSummary: { total: number; critical: number; high: number; medium: number; low: number; librarySize: number } | null
+  cveSummary: {
+    total: number
+    critical: number
+    high: number
+    medium: number
+    low: number
+    librarySize: number
+  } | null
   cloudReconnecting: boolean
   cloudUnlinking: boolean
   features: { registry: boolean; [k: string]: unknown }
@@ -531,14 +701,24 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
       {subscriptionRequired && (
         <div
           className="mb-7 flex items-start gap-4 rounded-2xl p-5"
-          style={{ background: 'var(--accent-muted-bg)', border: '1px solid var(--accent-muted-border)' }}
+          style={{
+            background: 'var(--accent-muted-bg)',
+            border: '1px solid var(--accent-muted-border)'
+          }}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl" style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}>
+          <div
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+          >
             <Crown className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-[13px] font-semibold text-zinc-200">{t('subscriptionRequiredTitle')}</h3>
-            <p className="mt-1 text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>{t('subscriptionRequiredDesc')}</p>
+            <h3 className="text-[13px] font-semibold text-zinc-200">
+              {t('subscriptionRequiredTitle')}
+            </h3>
+            <p className="mt-1 text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+              {t('subscriptionRequiredDesc')}
+            </p>
           </div>
           <button
             type="button"
@@ -555,29 +735,44 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
         <Row label={t('statusLabel')}>
           <div className="flex items-center gap-2">
             <div
-              className={cn('h-2.5 w-2.5 rounded-full', cloudStatus?.status === 'connecting' && 'animate-pulse')}
+              className={cn(
+                'h-2.5 w-2.5 rounded-full',
+                cloudStatus?.status === 'connecting' && 'animate-pulse'
+              )}
               style={{
                 background:
-                  cloudStatus?.status === 'connected' ? '#22c55e' :
-                  cloudStatus?.status === 'connecting' ? '#f59e0b' :
-                  cloudStatus?.status === 'disconnected' ? '#f59e0b' :
-                  cloudStatus?.status === 'error' ? '#ef4444' : '#71717a'
+                  cloudStatus?.status === 'connected'
+                    ? '#22c55e'
+                    : cloudStatus?.status === 'connecting'
+                      ? '#f59e0b'
+                      : cloudStatus?.status === 'disconnected'
+                        ? '#f59e0b'
+                        : cloudStatus?.status === 'error'
+                          ? '#ef4444'
+                          : '#71717a'
               }}
             />
             <span className="text-[13px] text-zinc-400">
               {cloudStatusLabel(t, cloudStatus?.status)}
             </span>
-            {!subscriptionRequired && (cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
-              <button
-                onClick={onReconnect}
-                disabled={cloudReconnecting}
-                className="ml-1 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white"
-                style={{ background: 'var(--bg-hover-2)', border: '1px solid var(--border-strong)' }}
-              >
-                <RefreshCw className={cn('h-3 w-3', cloudReconnecting && 'animate-spin')} strokeWidth={2} />
-                {cloudReconnecting ? t('connecting') : t('reconnect')}
-              </button>
-            )}
+            {!subscriptionRequired &&
+              (cloudStatus?.status === 'disconnected' || cloudStatus?.status === 'error') && (
+                <button
+                  onClick={onReconnect}
+                  disabled={cloudReconnecting}
+                  className="ml-1 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-zinc-300 transition-colors hover:text-white"
+                  style={{
+                    background: 'var(--bg-hover-2)',
+                    border: '1px solid var(--border-strong)'
+                  }}
+                >
+                  <RefreshCw
+                    className={cn('h-3 w-3', cloudReconnecting && 'animate-spin')}
+                    strokeWidth={2}
+                  />
+                  {cloudReconnecting ? t('connecting') : t('reconnect')}
+                </button>
+              )}
           </div>
         </Row>
         {cloudStatus?.error && !subscriptionRequired && (
@@ -590,7 +785,14 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
             </span>
           </div>
         )}
-        <Row label={t('deviceIdLabel')} desc={cloudStatus?.maskedApiKey ? t('deviceIdKeyDesc', { maskedApiKey: cloudStatus.maskedApiKey }) : undefined}>
+        <Row
+          label={t('deviceIdLabel')}
+          desc={
+            cloudStatus?.maskedApiKey
+              ? t('deviceIdKeyDesc', { maskedApiKey: cloudStatus.maskedApiKey })
+              : undefined
+          }
+        >
           <span className="font-mono text-[12px] text-zinc-500">
             {cloudStatus?.deviceId?.slice(0, 8) ?? '—'}
           </span>
@@ -603,7 +805,13 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
           </Row>
         )}
         {cloudStatus?.lastHealthReportAt && (
-          <Row label={t('lastHealthReportLabel')} desc={features.registry ? t('lastHealthReportDescWindows') : t('lastHealthReportDescOther')} last>
+          <Row
+            label={t('lastHealthReportLabel')}
+            desc={
+              features.registry ? t('lastHealthReportDescWindows') : t('lastHealthReportDescOther')
+            }
+            last
+          >
             <span className="text-[12px] text-zinc-500">
               {new Date(cloudStatus.lastHealthReportAt).toLocaleTimeString()}
             </span>
@@ -613,47 +821,117 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
 
       <Section title={t('sectionMonitoring')}>
         <Row label={t('shareDiskHealthLabel')} desc={t('shareDiskHealthDesc')}>
-          <Toggle checked={settings.cloud.shareDiskHealth} onChange={(v) => onSave({ cloud: { ...settings.cloud, shareDiskHealth: v } })} />
+          <Toggle
+            checked={settings.cloud.shareDiskHealth}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, shareDiskHealth: v } })}
+          />
         </Row>
         <Row label={t('shareProcessListLabel')} desc={t('shareProcessListDesc')}>
-          <Toggle checked={settings.cloud.shareProcessList} onChange={(v) => onSave({ cloud: { ...settings.cloud, shareProcessList: v } })} />
+          <Toggle
+            checked={settings.cloud.shareProcessList}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, shareProcessList: v } })}
+          />
         </Row>
         <Row label={t('threatMonitorLabel')} desc={t('threatMonitorDesc')}>
-          <Toggle checked={settings.cloud.shareThreatMonitor} onChange={(v) => onSave({ cloud: { ...settings.cloud, shareThreatMonitor: v } })} />
+          <Toggle
+            checked={settings.cloud.shareThreatMonitor}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, shareThreatMonitor: v } })}
+          />
         </Row>
-        <Row label={t('threatListLabel')} desc={cloudStatus?.threatBlacklist ? t('threatListDescLoaded', { version: cloudStatus.threatBlacklist.version, updatedDate: new Date(cloudStatus.threatBlacklist.updatedAt).toLocaleDateString() }) : t('threatListDescWaiting')}>
+        <Row
+          label={t('threatListLabel')}
+          desc={
+            cloudStatus?.threatBlacklist
+              ? t('threatListDescLoaded', {
+                  version: cloudStatus.threatBlacklist.version,
+                  updatedDate: new Date(cloudStatus.threatBlacklist.updatedAt).toLocaleDateString()
+                })
+              : t('threatListDescWaiting')
+          }
+        >
           {cloudStatus?.threatBlacklist ? (
             <span className="text-[11px] tabular-nums" style={{ color: 'var(--text-ghost-2)' }}>
-              {t('threatListRules', { totalRules: (cloudStatus.threatBlacklist.domains + cloudStatus.threatBlacklist.ips + cloudStatus.threatBlacklist.cidrs).toLocaleString() })}
-              <span style={{ color: 'var(--text-ghost)' }}> {t('threatListBreakdown', { domains: cloudStatus.threatBlacklist.domains.toLocaleString(), ips: cloudStatus.threatBlacklist.ips.toLocaleString(), cidrs: cloudStatus.threatBlacklist.cidrs.toLocaleString() })}</span>
+              {t('threatListRules', {
+                totalRules: (
+                  cloudStatus.threatBlacklist.domains +
+                  cloudStatus.threatBlacklist.ips +
+                  cloudStatus.threatBlacklist.cidrs
+                ).toLocaleString()
+              })}
+              <span style={{ color: 'var(--text-ghost)' }}>
+                {' '}
+                {t('threatListBreakdown', {
+                  domains: cloudStatus.threatBlacklist.domains.toLocaleString(),
+                  ips: cloudStatus.threatBlacklist.ips.toLocaleString(),
+                  cidrs: cloudStatus.threatBlacklist.cidrs.toLocaleString()
+                })}
+              </span>
             </span>
           ) : (
-            <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{t('threatListNotLoaded')}</span>
+            <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>
+              {t('threatListNotLoaded')}
+            </span>
           )}
         </Row>
-        <Row label={t('cveMonitorLabel')} desc={cveSummary && cveSummary.total > 0 ? t('cveDescLoaded', { findings: cveSummary.total, critical: cveSummary.critical, high: cveSummary.high, medium: cveSummary.medium, low: cveSummary.low }) : t('cveMonitorDesc')} last>
+        <Row
+          label={t('cveMonitorLabel')}
+          desc={
+            cveSummary && cveSummary.total > 0
+              ? t('cveDescLoaded', {
+                  findings: cveSummary.total,
+                  critical: cveSummary.critical,
+                  high: cveSummary.high,
+                  medium: cveSummary.medium,
+                  low: cveSummary.low
+                })
+              : t('cveMonitorDesc')
+          }
+          last
+        >
           {cveSummary && cveSummary.librarySize > 0 ? (
             <span className="text-[11px] tabular-nums" style={{ color: 'var(--text-ghost-2)' }}>
               {t('cveLibrarySize', { count: cveSummary.librarySize.toLocaleString() })}
             </span>
           ) : (
-            <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>{cveSummary ? t('cveNoFindings') : t('cveNotScanned')}</span>
+            <span className="text-[11px]" style={{ color: 'var(--text-ghost)' }}>
+              {cveSummary ? t('cveNoFindings') : t('cveNotScanned')}
+            </span>
           )}
         </Row>
       </Section>
 
       <Section title={t('sectionRemoteControl')}>
         <Row label={t('remotePowerLabel')} desc={t('remotePowerDesc')}>
-          <Toggle checked={settings.cloud.allowRemotePower} onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemotePower: v } })} />
+          <Toggle
+            checked={settings.cloud.allowRemotePower}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemotePower: v } })}
+          />
         </Row>
-        <Row label={t('remoteCleanupLabel')} desc={features.registry ? t('remoteCleanupDescWindows') : t('remoteCleanupDescOther')}>
-          <Toggle checked={settings.cloud.allowRemoteCleanup} onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemoteCleanup: v } })} />
+        <Row
+          label={t('remoteCleanupLabel')}
+          desc={features.registry ? t('remoteCleanupDescWindows') : t('remoteCleanupDescOther')}
+        >
+          <Toggle
+            checked={settings.cloud.allowRemoteCleanup}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemoteCleanup: v } })}
+          />
         </Row>
-        <Row label={t('remoteInstallsLabel')} desc={platform === 'win32' ? t('remoteInstallsDescWindows') : t('remoteInstallsDescOther')}>
-          <Toggle checked={settings.cloud.allowRemoteInstalls} onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemoteInstalls: v } })} />
+        <Row
+          label={t('remoteInstallsLabel')}
+          desc={
+            platform === 'win32' ? t('remoteInstallsDescWindows') : t('remoteInstallsDescOther')
+          }
+        >
+          <Toggle
+            checked={settings.cloud.allowRemoteInstalls}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemoteInstalls: v } })}
+          />
         </Row>
         <Row label={t('remoteConfigLabel')} desc={t('remoteConfigDesc')} last>
-          <Toggle checked={settings.cloud.allowRemoteConfig} onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemoteConfig: v } })} />
+          <Toggle
+            checked={settings.cloud.allowRemoteConfig}
+            onChange={(v) => onSave({ cloud: { ...settings.cloud, allowRemoteConfig: v } })}
+          />
         </Row>
       </Section>
 
@@ -661,8 +939,11 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
         <Row label={t('telemetryIntervalLabel')} desc={t('telemetryIntervalDesc')} last>
           <select
             value={settings.cloud.telemetryIntervalSec}
-            onChange={(e) => onSave({ cloud: { ...settings.cloud, telemetryIntervalSec: Number(e.target.value) } })}
-            className={selectStyle} style={selectBorder}
+            onChange={(e) =>
+              onSave({ cloud: { ...settings.cloud, telemetryIntervalSec: Number(e.target.value) } })
+            }
+            className={selectStyle}
+            style={selectBorder}
           >
             <option value={30}>{t('telemetryInterval30s')}</option>
             <option value={60}>{t('telemetryInterval1m')}</option>
@@ -692,19 +973,45 @@ function LinkedCloudSettings({ t, settings, cloudStatus, cveSummary, cloudReconn
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-7">
-      <h3 className="mb-3 text-[11px] font-medium uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>{title}</h3>
-      <div className="rounded-2xl p-5" style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>{children}</div>
+      <h3
+        className="mb-3 text-[11px] font-medium uppercase tracking-widest"
+        style={{ color: 'var(--text-muted)' }}
+      >
+        {title}
+      </h3>
+      <div
+        className="rounded-2xl p-5"
+        style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
+      >
+        {children}
+      </div>
     </div>
   )
 }
 
-function Row({ label, desc, children, last }: { label: string; desc?: string; children: React.ReactNode; last?: boolean }) {
+function Row({
+  label,
+  desc,
+  children,
+  last
+}: {
+  label: string
+  desc?: string
+  children: React.ReactNode
+  last?: boolean
+}) {
   return (
-    <div className={cn('flex items-center justify-between py-3.5', !last && 'border-b')}
-      style={!last ? { borderColor: 'var(--border-subtle)' } : undefined}>
+    <div
+      className={cn('flex items-center justify-between py-3.5', !last && 'border-b')}
+      style={!last ? { borderColor: 'var(--border-subtle)' } : undefined}
+    >
       <div>
         <p className="text-[13px] font-medium text-zinc-300">{label}</p>
-        {desc && <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>{desc}</p>}
+        {desc && (
+          <p className="mt-0.5 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+            {desc}
+          </p>
+        )}
       </div>
       {children}
     </div>
@@ -713,13 +1020,17 @@ function Row({ label, desc, children, last }: { label: string; desc?: string; ch
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button onClick={() => onChange(!checked)}
+    <button
+      onClick={() => onChange(!checked)}
       className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
-      style={{ background: checked ? 'var(--accent)' : 'var(--bg-active)' }}>
-      <div className={cn(
-        'absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
-        checked ? 'translate-x-[22px]' : 'translate-x-[3px]'
-      )} />
+      style={{ background: checked ? 'var(--accent)' : 'var(--bg-active)' }}
+    >
+      <div
+        className={cn(
+          'absolute top-[3px] h-5 w-5 rounded-full bg-white shadow-sm transition-transform',
+          checked ? 'translate-x-[22px]' : 'translate-x-[3px]'
+        )}
+      />
     </button>
   )
 }

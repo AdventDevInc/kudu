@@ -13,7 +13,7 @@ function makeItem(overrides: Partial<StartupItem> = {}): StartupItem {
     command: 'C:\\App\\test.exe',
     impact: 'high',
     publisher: 'Test Inc',
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -38,10 +38,9 @@ describe('startup-store', () => {
   })
 
   it('updateItem updates a specific item by id', () => {
-    useStartupStore.getState().setItems([
-      makeItem({ id: '1', enabled: true }),
-      makeItem({ id: '2', enabled: true }),
-    ])
+    useStartupStore
+      .getState()
+      .setItems([makeItem({ id: '1', enabled: true }), makeItem({ id: '2', enabled: true })])
 
     useStartupStore.getState().updateItem('1', { enabled: false })
 
@@ -51,11 +50,9 @@ describe('startup-store', () => {
   })
 
   it('removeItem removes the item with given id', () => {
-    useStartupStore.getState().setItems([
-      makeItem({ id: '1' }),
-      makeItem({ id: '2' }),
-      makeItem({ id: '3' }),
-    ])
+    useStartupStore
+      .getState()
+      .setItems([makeItem({ id: '1' }), makeItem({ id: '2' }), makeItem({ id: '3' })])
 
     useStartupStore.getState().removeItem('2')
     const ids = useStartupStore.getState().items.map((i) => i.id)

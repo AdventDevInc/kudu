@@ -39,17 +39,37 @@ import { registerCveScannerIpc } from './cve-scanner.ipc'
 import { registerBreachMonitorIpc } from './breach-monitor.ipc'
 import { registerStartupSafetyIpc } from './startup-safety.ipc'
 import { registerProgramSafetyIpc } from './program-safety.ipc'
-import { getSettings, setSettings, flushSettings, getOnboardingComplete, setOnboardingComplete } from '../services/settings-store'
+import {
+  getSettings,
+  setSettings,
+  flushSettings,
+  getOnboardingComplete,
+  setOnboardingComplete
+} from '../services/settings-store'
 import { getBackupDir } from '../services/backup-dir'
 import { isAdmin } from '../services/elevation'
 import { getHistory, addHistoryEntry, clearHistory } from '../services/history-store'
 import { getCloudHistory, clearCloudHistory } from '../services/cloud-history-store'
 import {
-  queryDeletions, queryAllDeletions, clearDeletionLog, getDeletionLogPath
+  queryDeletions,
+  queryAllDeletions,
+  clearDeletionLog,
+  getDeletionLogPath
 } from '../services/deletion-log-store'
-import { validateSettingsPartial, validateHistoryEntry, validateDeletionQuery } from '../services/ipc-validation'
+import {
+  validateSettingsPartial,
+  validateHistoryEntry,
+  validateDeletionQuery
+} from '../services/ipc-validation'
 import { createRestorePoint } from '../services/restore-point'
-import { checkForUpdates, downloadUpdate, installUpdate, getUpdateStatus, setAutoDownload, updateCheckInterval } from '../services/auto-updater'
+import {
+  checkForUpdates,
+  downloadUpdate,
+  installUpdate,
+  getUpdateStatus,
+  setAutoDownload,
+  updateCheckInterval
+} from '../services/auto-updater'
 import { buildLinuxElevationCommand, getLinuxRelaunchExecutable } from '../platform/linux/elevation'
 import { findCleanerBlockers } from '../services/cleaner-blockers'
 
@@ -116,8 +136,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       bootTrace: isWin,
       gameMode: isWin,
       firewallAudit: isWin,
-      contextMenu: isWin,
-    },
+      contextMenu: isWin
+    }
   }))
 
   // Settings — validate shape before persisting
@@ -150,7 +170,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     const opts: Electron.OpenDialogOptions = {
       title: 'Choose Kudu backup folder',
       properties: ['openDirectory', 'createDirectory'],
-      defaultPath: getBackupDir(),
+      defaultPath: getBackupDir()
     }
     const result = await showOpenDialog(win, opts)
     if (result.canceled || !result.filePaths.length) return null
@@ -160,7 +180,11 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   // Settings — reveal the active backup folder in the OS file manager
   ipcMain.handle(IPC.SETTINGS_OPEN_BACKUP_DIR, async () => {
     const dir = getBackupDir()
-    try { mkdirSync(dir, { recursive: true }) } catch { /* skip */ }
+    try {
+      mkdirSync(dir, { recursive: true })
+    } catch {
+      /* skip */
+    }
     await shell.openPath(dir)
     return dir
   })
@@ -186,14 +210,17 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
       // declines UAC, then returns.  If the user declines, PowerShell exits
       // with an error and we don't quit.
       const psScript = `Start-Process -FilePath '${exePath.replace(/'/g, "''")}' -Verb RunAs`
-      execFile('powershell.exe', [
-        '-NoProfile', '-Command', psUtf8(psScript),
-      ], { windowsHide: true }, (err) => {
-        if (!err) {
-          app.releaseSingleInstanceLock()
-          app.exit(0)
+      execFile(
+        'powershell.exe',
+        ['-NoProfile', '-Command', psUtf8(psScript)],
+        { windowsHide: true },
+        (err) => {
+          if (!err) {
+            app.releaseSingleInstanceLock()
+            app.exit(0)
+          }
         }
-      })
+      )
     } else if (process.platform === 'linux') {
       // pkexec strips the environment for security.  We forward display
       // variables (for GUI) and HOME (so Chromium resolves cache/config
@@ -256,25 +283,33 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.DELETION_LOG_EXPORT, async (_event, query) => {
     const validated = validateDeletionQuery(query)
     if (!validated) return null
-    const records = queryAllDeletions({ from: validated.from, to: validated.to, origin: validated.origin })
+    const records = queryAllDeletions({
+      from: validated.from,
+      to: validated.to,
+      origin: validated.origin
+    })
     if (records.length === 0) return null
 
     const win = getWindow()
     const opts: Electron.SaveDialogOptions = {
       title: 'Export deleted files',
       defaultPath: 'kudu-deleted-files.csv',
-      filters: [{ name: 'CSV', extensions: ['csv'] }],
+      filters: [{ name: 'CSV', extensions: ['csv'] }]
     }
-    const result = process.platform === 'darwin' || !win
-      ? await dialog.showSaveDialog(opts)
-      : await dialog.showSaveDialog(win, opts)
+    const result =
+      process.platform === 'darwin' || !win
+        ? await dialog.showSaveDialog(opts)
+        : await dialog.showSaveDialog(win, opts)
     if (result.canceled || !result.filePath) return null
 
     const escape = (v: string): string => `"${v.replace(/"/g, '""')}"`
-    const csv = [
-      'Deleted At,Category,Size (bytes),Path',
-      ...records.map((r) => [escape(r.ts), escape(r.category), String(r.size), escape(r.path)].join(',')),
-    ].join('\r\n') + '\r\n'
+    const csv =
+      [
+        'Deleted At,Category,Size (bytes),Path',
+        ...records.map((r) =>
+          [escape(r.ts), escape(r.category), String(r.size), escape(r.path)].join(',')
+        )
+      ].join('\r\n') + '\r\n'
     try {
       writeFileSync(result.filePath, csv, 'utf-8')
       return result.filePath
@@ -303,6 +338,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   // Auto-updater
   ipcMain.handle(IPC.UPDATER_CHECK, () => checkForUpdates())
   ipcMain.handle(IPC.UPDATER_DOWNLOAD, () => downloadUpdate())
-  ipcMain.handle(IPC.UPDATER_INSTALL, () => { installUpdate() })
+  ipcMain.handle(IPC.UPDATER_INSTALL, () => {
+    installUpdate()
+  })
   ipcMain.handle(IPC.UPDATER_GET_STATUS, () => getUpdateStatus())
 }

@@ -106,7 +106,13 @@ export interface CloudActionEntry {
   summary?: string
 }
 
-export type ManagedCleanupAction = 'uv-prune' | 'pnpm-prune' | 'windows-components' | 'delivery-optimization' | 'docker-build-prune' | 'journal-vacuum'
+export type ManagedCleanupAction =
+  | 'uv-prune'
+  | 'pnpm-prune'
+  | 'windows-components'
+  | 'delivery-optimization'
+  | 'docker-build-prune'
+  | 'journal-vacuum'
 
 export interface DockerCleanupTarget {
   context: string
@@ -172,15 +178,25 @@ export interface ProgressData {
 
 export interface RegistryFixAction {
   op: 'delete-value' | 'delete-key' | 'set-value' | 'disable-task' | 'delete-task'
-  key?: string        // full registry key (overrides keyPath if abbreviated)
-  value?: string      // value name (overrides valueName if different)
-  regType?: string    // REG_DWORD, REG_SZ
-  data?: string       // value data to set
+  key?: string // full registry key (overrides keyPath if abbreviated)
+  value?: string // value name (overrides valueName if different)
+  regType?: string // REG_DWORD, REG_SZ
+  data?: string // value data to set
 }
 
 export interface RegistryEntry {
   id: string
-  type: 'obsolete' | 'invalid' | 'orphaned' | 'broken' | 'vulnerability' | 'privacy' | 'performance' | 'network' | 'service' | 'task'
+  type:
+    | 'obsolete'
+    | 'invalid'
+    | 'orphaned'
+    | 'broken'
+    | 'vulnerability'
+    | 'privacy'
+    | 'performance'
+    | 'network'
+    | 'service'
+    | 'task'
   keyPath: string
   valueName: string
   issue: string
@@ -195,9 +211,17 @@ export interface StartupItem {
   displayName: string
   command: string
   location: string
-  source: 'registry-hkcu' | 'registry-hklm' | 'startup-folder' | 'task-scheduler'
-    | 'launch-agent-user' | 'launch-agent-global' | 'login-item'
-    | 'systemd-user' | 'autostart-desktop' | 'cron'
+  source:
+    | 'registry-hkcu'
+    | 'registry-hklm'
+    | 'startup-folder'
+    | 'task-scheduler'
+    | 'launch-agent-user'
+    | 'launch-agent-global'
+    | 'login-item'
+    | 'systemd-user'
+    | 'autostart-desktop'
+    | 'cron'
   enabled: boolean
   publisher: string
   impact: 'high' | 'medium' | 'low' | 'none'
@@ -447,20 +471,31 @@ export interface YaraRulesInfo {
 // ─── Privacy Shield ──────────────────────────────────────────
 export interface PrivacySetting {
   id: string
-  category: 'telemetry' | 'ads' | 'search' | 'services' | 'tasks' | 'sync' | 'kernel' | 'network' | 'access' | 'ai' | 'browser'
+  category:
+    | 'telemetry'
+    | 'ads'
+    | 'search'
+    | 'services'
+    | 'tasks'
+    | 'sync'
+    | 'kernel'
+    | 'network'
+    | 'access'
+    | 'ai'
+    | 'browser'
   label: string
   description: string
-  enabled: boolean          // true = privacy-friendly (tracking disabled)
-  reversible: boolean       // true = can be reverted to Windows default
+  enabled: boolean // true = privacy-friendly (tracking disabled)
+  reversible: boolean // true = can be reverted to Windows default
   requiresAdmin: boolean
-  dependsOn?: string        // ID of a setting that must be enabled first
+  dependsOn?: string // ID of a setting that must be enabled first
 }
 
 export interface PrivacyShieldState {
   settings: PrivacySetting[]
-  score: number             // 0-100 privacy score
-  total: number             // total settings count
-  protected: number         // settings already privacy-friendly
+  score: number // 0-100 privacy score
+  total: number // total settings count
+  protected: number // settings already privacy-friendly
 }
 
 export interface PrivacyScanProgress {
@@ -479,16 +514,16 @@ export interface PrivacyApplyResult {
 // ─── Driver Manager ─────────────────────────────────────────
 export interface DriverPackage {
   id: string
-  publishedName: string       // e.g. "oem42.inf"
-  originalName: string        // e.g. "nvlddmkm.inf"
+  publishedName: string // e.g. "oem42.inf"
+  originalName: string // e.g. "nvlddmkm.inf"
   provider: string
-  className: string           // e.g. "Display adapters"
+  className: string // e.g. "Display adapters"
   version: string
   date: string
   signer: string
-  folderPath: string          // full path in FileRepository
-  size: number                // bytes
-  isCurrent: boolean          // true = actively bound to hardware
+  folderPath: string // full path in FileRepository
+  size: number // bytes
+  isCurrent: boolean // true = actively bound to hardware
   selected: boolean
 }
 
@@ -515,7 +550,7 @@ export interface DriverScanProgress {
 
 export interface DriverUpdate {
   id: string
-  updateId: string            // Windows Update Identity.UpdateID (used for install matching)
+  updateId: string // Windows Update Identity.UpdateID (used for install matching)
   deviceName: string
   deviceId: string
   className: string
@@ -524,8 +559,8 @@ export interface DriverUpdate {
   availableVersion: string
   availableDate: string
   provider: string
-  updateTitle: string       // Windows Update title string
-  downloadSize: string      // human-readable size from WU
+  updateTitle: string // Windows Update title string
+  downloadSize: string // human-readable size from WU
   selected: boolean
 }
 
@@ -636,7 +671,8 @@ export interface SmartAttribute {
 
 // ─── Auto-Updater ────────────────────────────────────────────
 export interface UpdateStatus {
-  state: 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error'
+  state:
+    'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'downloaded' | 'error'
   version?: string
   progress?: number
   error?: string
@@ -657,7 +693,7 @@ export interface InstalledProgram {
   registryKey: string
   isSystemComponent: boolean
   isWindowsInstaller: boolean
-  lastUsed: number              // timestamp ms, 0 = unknown/never seen in Prefetch
+  lastUsed: number // timestamp ms, 0 = unknown/never seen in Prefetch
 }
 
 export interface UninstallerListResult {
@@ -853,7 +889,11 @@ export interface GameModeSnapshot {
   originalPowerPlanGuid: string | null
   originalFocusAssistState: number | null
   powerSaveBlockerId: number | null
-  nagleInterfaces: Array<{ path: string; originalTcpNoDelay: number | null; originalTcpAckFrequency: number | null }>
+  nagleInterfaces: Array<{
+    path: string
+    originalTcpNoDelay: number | null
+    originalTcpAckFrequency: number | null
+  }>
   registryTweaks: Array<{ path: string; name: string; originalValue: number | null }>
   // Why the last deactivation left items behind. Persisted so the cleanup
   // banner can name the offending step after an app restart.
@@ -892,20 +932,10 @@ export interface GameModeStatus {
 
 // ─── Service Manager ────────────────────────────────────────
 export type ServiceStatus =
-  | 'Running'
-  | 'Stopped'
-  | 'StartPending'
-  | 'StopPending'
-  | 'Paused'
-  | 'Unknown'
+  'Running' | 'Stopped' | 'StartPending' | 'StopPending' | 'Paused' | 'Unknown'
 
 export type ServiceStartType =
-  | 'Automatic'
-  | 'AutomaticDelayed'
-  | 'Manual'
-  | 'Disabled'
-  | 'Boot'
-  | 'System'
+  'Automatic' | 'AutomaticDelayed' | 'Manual' | 'Disabled' | 'Boot' | 'System'
 
 export type ServiceSafety = 'safe' | 'caution' | 'unsafe'
 
@@ -1029,14 +1059,7 @@ export type WindowsPackageManager = 'winget' | 'choco' | 'scoop' | 'npm'
 
 /** All package-manager names Kudu can report, across every platform. */
 export type PackageManagerName =
-  | 'winget'
-  | 'choco'
-  | 'scoop'
-  | 'npm'
-  | 'brew'
-  | 'apt'
-  | 'dnf'
-  | 'pacman'
+  'winget' | 'choco' | 'scoop' | 'npm' | 'brew' | 'apt' | 'dnf' | 'pacman'
 
 /** Per-manager status returned by an aggregated update check. */
 export interface PackageManagerStatus {
@@ -1135,12 +1158,7 @@ export interface DiskRepairResult {
 export type TrimMediaType = 'SSD' | 'NVMe' | 'HDD' | 'Unknown'
 export type TrimSupport = 'supported' | 'disabled' | 'unsupported' | 'macos-managed'
 export type TrimStatus =
-  | 'recently-trimmed'
-  | 'ok'
-  | 'recommended'
-  | 'not-applicable'
-  | 'disabled'
-  | 'unknown'
+  'recently-trimmed' | 'ok' | 'recommended' | 'not-applicable' | 'disabled' | 'unknown'
 
 /**
  * One row in the Disk Maintenance UI.

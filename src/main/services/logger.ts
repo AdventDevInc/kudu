@@ -18,14 +18,26 @@ let _logDir: string | null = null
 function logDir(): string {
   if (!_logDir) {
     _logDir = join(app.getPath('userData'), 'logs')
-    try { mkdirSync(_logDir, { recursive: true }) } catch { /* ignore */ }
+    try {
+      mkdirSync(_logDir, { recursive: true })
+    } catch {
+      /* ignore */
+    }
   }
   return _logDir
 }
-function logFile(): string { return join(logDir(), 'kudu.log') }
-function logFileOld(): string { return join(logDir(), 'kudu.old.log') }
-function cloudLogFile(): string { return join(logDir(), 'cloud-agent.log') }
-function cloudLogFileOld(): string { return join(logDir(), 'cloud-agent.old.log') }
+function logFile(): string {
+  return join(logDir(), 'kudu.log')
+}
+function logFileOld(): string {
+  return join(logDir(), 'kudu.old.log')
+}
+function cloudLogFile(): string {
+  return join(logDir(), 'cloud-agent.log')
+}
+function cloudLogFileOld(): string {
+  return join(logDir(), 'cloud-agent.old.log')
+}
 
 const lastRotationCheck = new Map<string, number>()
 
@@ -38,7 +50,11 @@ function rotateIfNeeded(file: string, oldFile: string): void {
   try {
     const stats = statSync(file)
     if (stats.size > MAX_LOG_SIZE) {
-      try { unlinkSync(oldFile) } catch { /* ignore */ }
+      try {
+        unlinkSync(oldFile)
+      } catch {
+        /* ignore */
+      }
       renameSync(file, oldFile)
     }
   } catch {

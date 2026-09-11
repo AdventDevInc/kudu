@@ -42,13 +42,17 @@ export function isDeletionLoggingEnabled(): boolean {
  */
 export async function listRecycleBinContents(): Promise<RecycleBinEntry[]> {
   try {
-    const { stdout } = await execFileAsync('powershell.exe', psArgs(
-      `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); ` +
-      `$out = @(); foreach ($i in $rb.Items()) { ` +
-      `$origin = $rb.GetDetailsOf($i, 1); ` +
-      `$out += [PSCustomObject]@{ name = $i.Name; origin = $origin; size = $i.Size } }; ` +
-      `ConvertTo-Json -InputObject @($out) -Compress`
-    ), { windowsHide: true, maxBuffer: 32 * 1024 * 1024 })
+    const { stdout } = await execFileAsync(
+      'powershell.exe',
+      psArgs(
+        `$shell = New-Object -ComObject Shell.Application; $rb = $shell.NameSpace(0x0a); ` +
+          `$out = @(); foreach ($i in $rb.Items()) { ` +
+          `$origin = $rb.GetDetailsOf($i, 1); ` +
+          `$out += [PSCustomObject]@{ name = $i.Name; origin = $origin; size = $i.Size } }; ` +
+          `ConvertTo-Json -InputObject @($out) -Compress`
+      ),
+      { windowsHide: true, maxBuffer: 32 * 1024 * 1024 }
+    )
 
     const parsed = JSON.parse(stdout.trim() || '[]')
     const rows = Array.isArray(parsed) ? parsed : [parsed]
@@ -58,7 +62,7 @@ export async function listRecycleBinContents(): Promise<RecycleBinEntry[]> {
         // GetDetailsOf(item, 1) is the original folder. Fall back to the bare
         // name when Windows won't say where the file came from.
         path: typeof r.origin === 'string' && r.origin.length > 0 ? join(r.origin, r.name) : r.name,
-        size: typeof r.size === 'number' ? r.size : 0,
+        size: typeof r.size === 'number' ? r.size : 0
       }))
   } catch {
     return []
@@ -83,11 +87,13 @@ export async function recordEmptiedRecycleBin(
   if (emptied.length === 0) return
 
   const ts = new Date().toISOString()
-  recordDeletions(emptied.map<DeletedFileRecord>((entry) => ({
-    ts,
-    path: entry.path,
-    size: entry.size,
-    category: 'Recycle Bin',
-    origin,
-  })))
+  recordDeletions(
+    emptied.map<DeletedFileRecord>((entry) => ({
+      ts,
+      path: entry.path,
+      size: entry.size,
+      category: 'Recycle Bin',
+      origin
+    }))
+  )
 }

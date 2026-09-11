@@ -24,7 +24,7 @@ export const PERSISTENT_TWEAK_TYPES: ReadonlySet<RegistryEntry['type']> = new Se
   'performance',
   'network',
   'service',
-  'task',
+  'task'
 ])
 
 /** Whether a scan entry's de-selection should be remembered across restarts. */

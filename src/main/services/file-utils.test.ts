@@ -5,14 +5,14 @@ import { deleteFailureReason, isExcluded } from './file-utils'
 vi.mock('./settings-store', () => ({
   getSettings: () => ({
     cleaner: { secureDelete: false, skipRecentMinutes: 60 },
-    exclusions: [],
-  }),
+    exclusions: []
+  })
 }))
 
 // Mock scan-cache
 vi.mock('./scan-cache', () => ({
   getCachedItems: () => [],
-  removeCachedItems: () => {},
+  removeCachedItems: () => {}
 }))
 
 describe('isExcluded', () => {

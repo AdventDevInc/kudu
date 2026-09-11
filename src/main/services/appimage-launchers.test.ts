@@ -12,7 +12,7 @@ describe('rewriteDesktopExec', () => {
       `Exec=${oldPath}`,
       `TryExec=${oldPath}`,
       'Type=Application',
-      '',
+      ''
     ].join('\n')
     const next = rewriteDesktopExec(desktop, oldPath, newPath)
     expect(next).toContain(`Exec=${newPath}`)

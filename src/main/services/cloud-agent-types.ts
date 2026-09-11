@@ -63,7 +63,15 @@ export type CloudCommand =
   | { type: 'driver-update-install'; requestId: string; updateIds?: string[] }
   | { type: 'driver-clean'; requestId: string; publishedNames?: string[] }
   | { type: 'startup-list'; requestId: string }
-  | { type: 'startup-toggle'; requestId: string; name: string; location: string; command: string; source: string; enabled: boolean }
+  | {
+      type: 'startup-toggle'
+      requestId: string
+      name: string
+      location: string
+      command: string
+      source: string
+      enabled: boolean
+    }
   | { type: 'disk-health'; requestId: string }
   // Phase 2: Compliance & security
   | { type: 'privacy-scan'; requestId: string }
@@ -71,7 +79,11 @@ export type CloudCommand =
   | { type: 'debloater-scan'; requestId: string }
   | { type: 'debloater-remove'; requestId: string; packageNames?: string[] }
   | { type: 'service-scan'; requestId: string }
-  | { type: 'service-apply'; requestId: string; changes?: Array<{ name: string; targetStartType: string }> }
+  | {
+      type: 'service-apply'
+      requestId: string
+      changes?: Array<{ name: string; targetStartType: string }>
+    }
   // Phase 3: Maintenance
   | { type: 'malware-quarantine'; requestId: string; paths?: string[] }
   | { type: 'malware-delete'; requestId: string; paths?: string[] }
@@ -157,7 +169,7 @@ export interface HealthReport {
         realTimeProtection: boolean
         signatureUpToDate: boolean
       }>
-      primary: string | null            // name of the active AV product
+      primary: string | null // name of the active AV product
     }
     firewall: {
       enabled: boolean
@@ -167,7 +179,12 @@ export interface HealthReport {
     bitlocker: {
       volumes: Array<{
         mount: string
-        status: 'FullyEncrypted' | 'EncryptionInProgress' | 'DecryptionInProgress' | 'FullyDecrypted' | 'Unknown'
+        status:
+          | 'FullyEncrypted'
+          | 'EncryptionInProgress'
+          | 'DecryptionInProgress'
+          | 'FullyDecrypted'
+          | 'Unknown'
         protectionOn: boolean
       }>
     }
@@ -177,75 +194,75 @@ export interface HealthReport {
         installedOn: string
         description: string
       }>
-      lastPatchDate: string | null       // ISO date of most recent patch
+      lastPatchDate: string | null // ISO date of most recent patch
       daysSinceLastPatch: number | null
     }
     screenLock: {
       screenSaverEnabled: boolean
-      lockOnResume: boolean              // requires password after screensaver
-      timeoutSec: number | null          // screensaver timeout in seconds
-      inactivityLockSec: number | null   // GPO/policy inactivity lock (separate from screensaver)
+      lockOnResume: boolean // requires password after screensaver
+      timeoutSec: number | null // screensaver timeout in seconds
+      inactivityLockSec: number | null // GPO/policy inactivity lock (separate from screensaver)
     }
     passwordPolicy: {
       minLength: number
-      maxAgeDays: number                 // 0 = never expires
+      maxAgeDays: number // 0 = never expires
       minAgeDays: number
-      historyCount: number               // 0 = no history enforced
-      complexityRequired: boolean        // whether GPO complexity is enabled
-      lockoutThreshold: number           // 0 = no lockout
+      historyCount: number // 0 = no history enforced
+      complexityRequired: boolean // whether GPO complexity is enabled
+      lockoutThreshold: number // 0 = no lockout
       lockoutDurationMin: number
       lockoutObservationMin: number
       windowsHello: {
-        enrolled: boolean                // user has NGC credentials set up
-        faceEnabled: boolean             // Windows Hello Face provider active
-        fingerprintEnabled: boolean      // Windows Hello Fingerprint provider active
-        pinEnabled: boolean              // Windows Hello PIN provider active
+        enrolled: boolean // user has NGC credentials set up
+        faceEnabled: boolean // Windows Hello Face provider active
+        fingerprintEnabled: boolean // Windows Hello Fingerprint provider active
+        pinEnabled: boolean // Windows Hello PIN provider active
       }
     }
     sshHardening: {
-      isServer: boolean                  // true if system appears to be a server (no GUI)
-      sshdInstalled: boolean             // whether sshd is present
-      passwordAuthDisabled: boolean      // PasswordAuthentication no
-      rootLoginDisabled: boolean         // PermitRootLogin no or prohibit-password
-      pubkeyAuthEnabled: boolean         // PubkeyAuthentication yes
-      emptyPasswordsDisabled: boolean    // PermitEmptyPasswords no
-      protocol2Only: boolean             // Protocol 2 (legacy check, modern sshd defaults to 2)
-    } | null                             // null when not applicable (e.g. Windows desktop)
+      isServer: boolean // true if system appears to be a server (no GUI)
+      sshdInstalled: boolean // whether sshd is present
+      passwordAuthDisabled: boolean // PasswordAuthentication no
+      rootLoginDisabled: boolean // PermitRootLogin no or prohibit-password
+      pubkeyAuthEnabled: boolean // PubkeyAuthentication yes
+      emptyPasswordsDisabled: boolean // PermitEmptyPasswords no
+      protocol2Only: boolean // Protocol 2 (legacy check, modern sshd defaults to 2)
+    } | null // null when not applicable (e.g. Windows desktop)
 
     // ─── Server-only checks (null on desktops / non-Linux) ───
     fail2ban: {
       installed: boolean
-      active: boolean                    // systemd service is running
-      jails: string[]                    // active jail names (e.g. ["sshd", "apache-auth"])
-      totalBannedIps: number             // sum of currently banned IPs across all jails
+      active: boolean // systemd service is running
+      jails: string[] // active jail names (e.g. ["sshd", "apache-auth"])
+      totalBannedIps: number // sum of currently banned IPs across all jails
     } | null
 
     listeningPorts: Array<{
-      address: string                    // bind address (e.g. "0.0.0.0", "::", "127.0.0.1")
+      address: string // bind address (e.g. "0.0.0.0", "::", "127.0.0.1")
       port: number
       protocol: 'tcp' | 'udp'
       pid: number | null
-      process: string | null             // process name (e.g. "sshd", "nginx")
+      process: string | null // process name (e.g. "sshd", "nginx")
     }> | null
 
     auditd: {
       installed: boolean
-      active: boolean                    // systemd service is running
-      ruleCount: number                  // number of active audit rules
+      active: boolean // systemd service is running
+      ruleCount: number // number of active audit rules
     } | null
 
     suidSgidBinaries: Array<{
       path: string
       suid: boolean
       sgid: boolean
-      owner: string                      // file owner (e.g. "root")
+      owner: string // file owner (e.g. "root")
     }> | null
 
     firewallStatus: {
       tool: 'ufw' | 'nftables' | 'iptables' | 'firewalld' | 'none'
       active: boolean
       allowedPorts: number[]
-      rawRules: string                   // truncated to 3000 chars
-    } | null                             // null on Windows/macOS
+      rawRules: string // truncated to 3000 chars
+    } | null // null on Windows/macOS
   }
 }

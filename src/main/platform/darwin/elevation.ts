@@ -4,6 +4,6 @@ export function createDarwinElevation(): PlatformElevation {
   return {
     isAdmin(): boolean {
       return process.getuid?.() === 0
-    },
+    }
   }
 }

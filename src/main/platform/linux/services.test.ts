@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const mockExecFile = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFile: (...args: any[]) => mockExecFile(...args),
+  execFile: (...args: any[]) => mockExecFile(...args)
 }))
 vi.mock('util', () => ({
-  promisify: () => mockExecFile,
+  promisify: () => mockExecFile
 }))
 
 const { createLinuxServices } = await import('./services')
@@ -25,7 +25,7 @@ describe('linux services', () => {
         'ssh.service              loaded active   running OpenBSD Secure Shell server',
         'cron.service             loaded active   running Regular background program processing daemon',
         'bluetooth.service        loaded inactive dead    Bluetooth service',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -41,7 +41,7 @@ describe('linux services', () => {
       const stdout = [
         'UNIT                     LOAD   ACTIVE   SUB     DESCRIPTION',
         'ssh.service              loaded active   running OpenBSD Secure Shell server',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -56,7 +56,7 @@ describe('linux services', () => {
         'UNIT                        LOAD       ACTIVE   SUB  DESCRIPTION',
         'missing.service             not-found  inactive dead missing.service',
         'ssh.service                 loaded     active   running OpenBSD Secure Shell server',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -71,7 +71,7 @@ describe('linux services', () => {
         'UNIT     LOAD   ACTIVE   SUB     DESCRIPTION',
         'ssh.service loaded active running OpenBSD Secure Shell server',
         'bad line',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -96,7 +96,7 @@ describe('linux services', () => {
         'UNIT                     LOAD   ACTIVE   SUB     DESCRIPTION',
         'ssh.service              loaded active   running OpenBSD Secure Shell server',
         'cron.service             loaded active   running Regular background program processing daemon',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -112,7 +112,7 @@ describe('linux services', () => {
       const stdout = [
         'UNIT                     LOAD   ACTIVE   SUB     DESCRIPTION',
         'ssh.service              loaded active   running OpenBSD Secure Shell server',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -131,7 +131,7 @@ describe('linux services', () => {
       const stdout = [
         'UNIT                     LOAD   ACTIVE   SUB     DESCRIPTION',
         'bluetooth.service        loaded inactive dead    Bluetooth service',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -144,7 +144,7 @@ describe('linux services', () => {
       const stdout = [
         'UNIT                     LOAD   ACTIVE   SUB     DESCRIPTION',
         'ssh.service              loaded active   running OpenBSD Secure Shell server',
-        '',
+        ''
       ].join('\n')
       mockExecFile.mockResolvedValueOnce({ stdout, stderr: '' })
 
@@ -159,12 +159,12 @@ describe('linux services', () => {
       mockExecFile.mockResolvedValueOnce({ stdout: '', stderr: '' })
 
       const result = await services.applyChanges([
-        { name: 'bluetooth', targetStartType: 'Disabled' },
+        { name: 'bluetooth', targetStartType: 'Disabled' }
       ])
 
-      expect(mockExecFile).toHaveBeenCalledWith(
-        '/usr/bin/systemctl', ['disable', 'bluetooth'], { timeout: 10_000 },
-      )
+      expect(mockExecFile).toHaveBeenCalledWith('/usr/bin/systemctl', ['disable', 'bluetooth'], {
+        timeout: 10_000
+      })
       expect(result.succeeded).toBe(1)
       expect(result.failed).toBe(0)
     })
@@ -173,12 +173,12 @@ describe('linux services', () => {
       mockExecFile.mockResolvedValueOnce({ stdout: '', stderr: '' })
 
       const result = await services.applyChanges([
-        { name: 'bluetooth', targetStartType: 'Automatic' },
+        { name: 'bluetooth', targetStartType: 'Automatic' }
       ])
 
-      expect(mockExecFile).toHaveBeenCalledWith(
-        '/usr/bin/systemctl', ['enable', 'bluetooth'], { timeout: 10_000 },
-      )
+      expect(mockExecFile).toHaveBeenCalledWith('/usr/bin/systemctl', ['enable', 'bluetooth'], {
+        timeout: 10_000
+      })
       expect(result.succeeded).toBe(1)
     })
 
@@ -186,7 +186,7 @@ describe('linux services', () => {
       mockExecFile.mockRejectedValueOnce(new Error('Permission denied'))
 
       const result = await services.applyChanges([
-        { name: 'bluetooth', targetStartType: 'Disabled' },
+        { name: 'bluetooth', targetStartType: 'Disabled' }
       ])
 
       expect(result.succeeded).toBe(0)
@@ -204,7 +204,7 @@ describe('linux services', () => {
       const result = await services.applyChanges([
         { name: 'svc1', targetStartType: 'Disabled' },
         { name: 'svc2', targetStartType: 'Disabled' },
-        { name: 'svc3', targetStartType: 'Automatic' },
+        { name: 'svc3', targetStartType: 'Automatic' }
       ])
 
       expect(result.succeeded).toBe(2)

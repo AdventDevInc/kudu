@@ -6,29 +6,31 @@ const mockHandle = vi.fn()
 const mockSend = vi.fn()
 vi.mock('electron', () => ({
   BrowserWindow: vi.fn(),
-  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
+  ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) }
 }))
 
 const mockExecFile = vi.fn()
 const mockSpawn = vi.fn()
 vi.mock('child_process', () => ({
   execFile: (...args: unknown[]) => mockExecFile(...args),
-  spawn: (...args: unknown[]) => mockSpawn(...args),
+  spawn: (...args: unknown[]) => mockSpawn(...args)
 }))
 
 vi.mock('util', () => ({
-  promisify: (fn: unknown) => (...args: unknown[]) =>
-    new Promise((resolve, reject) => {
-      ;(fn as Function)(...args, (err: Error | null, stdout: string, stderr: string) => {
-        if (err) reject(err)
-        else resolve({ stdout, stderr })
+  promisify:
+    (fn: unknown) =>
+    (...args: unknown[]) =>
+      new Promise((resolve, reject) => {
+        ;(fn as Function)(...args, (err: Error | null, stdout: string, stderr: string) => {
+          if (err) reject(err)
+          else resolve({ stdout, stderr })
+        })
       })
-    }),
 }))
 
 const mockIsAdmin = vi.fn()
 vi.mock('../services/elevation', () => ({
-  isAdmin: () => mockIsAdmin(),
+  isAdmin: () => mockIsAdmin()
 }))
 
 const mockGetLastTrimAt = vi.fn()
@@ -37,14 +39,19 @@ const mockIsThrottled = vi.fn()
 vi.mock('../services/trim-history-store', () => ({
   getLastTrimAt: (id: string) => mockGetLastTrimAt(id),
   setLastTrimAt: (id: string, when?: number) => mockSetLastTrimAt(id, when),
-  isThrottled: (id: string, now?: number) => mockIsThrottled(id, now),
+  isThrottled: (id: string, now?: number) => mockIsThrottled(id, now)
 }))
 
 vi.mock('../services/exec-utf8', () => ({
-  psUtf8: (s: string) => s,
+  psUtf8: (s: string) => s
 }))
 
-import { registerDiskTrimIpc, runTrimForDrive, readProcMounts, deviceBaseName } from './disk-trim.ipc'
+import {
+  registerDiskTrimIpc,
+  runTrimForDrive,
+  readProcMounts,
+  deviceBaseName
+} from './disk-trim.ipc'
 import type { TrimDriveInfo } from '../../shared/types'
 import { EventEmitter } from 'events'
 
@@ -123,21 +130,33 @@ describe('runTrimForDrive — safety rails', () => {
     expect(result.success).toBe(false)
     expect(mockSpawn).not.toHaveBeenCalled()
     // Defense in depth: ensure we never invoked trimforce regardless of args.
-    const trimforceCalled = mockSpawn.mock.calls.some((c) =>
-      c.some((a) => typeof a === 'string' && a.toLowerCase().includes('trimforce')) ||
-      (Array.isArray(c[1]) && c[1].some((a: unknown) => typeof a === 'string' && a.toLowerCase().includes('trimforce')))
+    const trimforceCalled = mockSpawn.mock.calls.some(
+      (c) =>
+        c.some((a) => typeof a === 'string' && a.toLowerCase().includes('trimforce')) ||
+        (Array.isArray(c[1]) &&
+          c[1].some((a: unknown) => typeof a === 'string' && a.toLowerCase().includes('trimforce')))
     )
     expect(trimforceCalled).toBe(false)
   })
 
   it('rejects HDD with success:false and never spawns', async () => {
     setPlatform('linux')
-    const drives: TrimDriveInfo[] = [{
-      id: '/data', mountPoint: '/data', label: 'Data', totalSize: 0, freeSpace: 0,
-      mediaType: 'HDD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'not-applicable',
-      statusReason: 'HDD', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/data',
+        mountPoint: '/data',
+        label: 'Data',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'HDD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'not-applicable',
+        statusReason: 'HDD',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('/data', getWindow, drives)
     expect(result.success).toBe(false)
     expect(result.summary).toMatch(/HDD/i)
@@ -146,12 +165,22 @@ describe('runTrimForDrive — safety rails', () => {
 
   it('rejects removable drives with success:false and never spawns', async () => {
     setPlatform('linux')
-    const drives: TrimDriveInfo[] = [{
-      id: '/media/usb', mountPoint: '/media/usb', label: 'USB', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: true, isEncrypted: false,
-      trimSupport: 'supported', status: 'not-applicable',
-      statusReason: 'Removable', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/media/usb',
+        mountPoint: '/media/usb',
+        label: 'USB',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: true,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'not-applicable',
+        statusReason: 'Removable',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('/media/usb', getWindow, drives)
     expect(result.success).toBe(false)
     expect(result.summary).toMatch(/removable/i)
@@ -161,12 +190,22 @@ describe('runTrimForDrive — safety rails', () => {
   it('throttle: returns throttled:true when isThrottled is true; never spawns', async () => {
     setPlatform('linux')
     mockIsThrottled.mockReturnValue(true)
-    const drives: TrimDriveInfo[] = [{
-      id: '/', mountPoint: '/', label: 'Root', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'recently-trimmed',
-      statusReason: '', lastTrimAt: Date.now() - 1000,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/',
+        mountPoint: '/',
+        label: 'Root',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'recently-trimmed',
+        statusReason: '',
+        lastTrimAt: Date.now() - 1000
+      }
+    ]
     const result = await runTrimForDrive('/', getWindow, drives)
     expect(result.throttled).toBe(true)
     expect(result.success).toBe(false)
@@ -176,11 +215,22 @@ describe('runTrimForDrive — safety rails', () => {
   it('elevation: returns needsAdmin:true when isAdmin is false; never spawns', async () => {
     setPlatform('linux')
     mockIsAdmin.mockReturnValue(false)
-    const drives: TrimDriveInfo[] = [{
-      id: '/', mountPoint: '/', label: 'Root', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'ok', statusReason: '', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/',
+        mountPoint: '/',
+        label: 'Root',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'ok',
+        statusReason: '',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('/', getWindow, drives)
     expect(result.needsAdmin).toBe(true)
     expect(result.success).toBe(false)
@@ -192,11 +242,22 @@ describe('runTrimForDrive — safety rails', () => {
     mockSpawn.mockImplementation(() =>
       makeFakeChild({ stdout: '/: 1234567 bytes were trimmed\n', exitCode: 0 })
     )
-    const drives: TrimDriveInfo[] = [{
-      id: '/', mountPoint: '/', label: 'Root', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'ok', statusReason: '', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/',
+        mountPoint: '/',
+        label: 'Root',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'ok',
+        statusReason: '',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('/', getWindow, drives)
     expect(result.success).toBe(true)
     expect(result.bytesDiscarded).toBe(1234567)
@@ -209,14 +270,25 @@ describe('runTrimForDrive — safety rails', () => {
     mockSpawn.mockImplementation(() =>
       makeFakeChild({
         stderr: 'fstrim: /: FITRIM ioctl failed: Operation not permitted\n',
-        exitCode: 1,
+        exitCode: 1
       })
     )
-    const drives: TrimDriveInfo[] = [{
-      id: '/', mountPoint: '/', label: 'Root', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'ok', statusReason: '', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/',
+        mountPoint: '/',
+        label: 'Root',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'ok',
+        statusReason: '',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('/', getWindow, drives)
     expect(result.success).toBe(false)
     expect(result.needsAdmin).toBe(true)
@@ -225,11 +297,22 @@ describe('runTrimForDrive — safety rails', () => {
 
   it('Windows: invalid drive letter is rejected before spawn', async () => {
     setPlatform('win32')
-    const drives: TrimDriveInfo[] = [{
-      id: 'CC', letter: 'CC', label: 'Bad', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'ok', statusReason: '', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: 'CC',
+        letter: 'CC',
+        label: 'Bad',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'ok',
+        statusReason: '',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('CC', getWindow, drives)
     expect(result.success).toBe(false)
     expect(result.summary).toMatch(/Invalid drive letter/i)
@@ -241,11 +324,22 @@ describe('runTrimForDrive — safety rails', () => {
     mockSpawn.mockImplementation(() =>
       makeFakeChild({ stderr: 'VERBOSE: Retrim succeeded\n', exitCode: 0 })
     )
-    const drives: TrimDriveInfo[] = [{
-      id: 'C', letter: 'C', label: 'C:', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'supported', status: 'ok', statusReason: '', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: 'C',
+        letter: 'C',
+        label: 'C:',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'supported',
+        status: 'ok',
+        statusReason: '',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('C', getWindow, drives)
     expect(result.success).toBe(true)
     expect(mockSetLastTrimAt).toHaveBeenCalledWith('C', undefined)
@@ -267,12 +361,22 @@ describe('runTrimForDrive — safety rails', () => {
 
   it('respects trimSupport=unsupported (e.g. filesystem rejects DISCARD)', async () => {
     setPlatform('linux')
-    const drives: TrimDriveInfo[] = [{
-      id: '/legacy', mountPoint: '/legacy', label: 'legacy', totalSize: 0, freeSpace: 0,
-      mediaType: 'SSD', isRemovable: false, isEncrypted: false,
-      trimSupport: 'unsupported', status: 'disabled',
-      statusReason: 'Unsupported FS', lastTrimAt: null,
-    }]
+    const drives: TrimDriveInfo[] = [
+      {
+        id: '/legacy',
+        mountPoint: '/legacy',
+        label: 'legacy',
+        totalSize: 0,
+        freeSpace: 0,
+        mediaType: 'SSD',
+        isRemovable: false,
+        isEncrypted: false,
+        trimSupport: 'unsupported',
+        status: 'disabled',
+        statusReason: 'Unsupported FS',
+        lastTrimAt: null
+      }
+    ]
     const result = await runTrimForDrive('/legacy', getWindow, drives)
     expect(result.success).toBe(false)
     expect(mockSpawn).not.toHaveBeenCalled()
@@ -307,11 +411,12 @@ describe('deviceBaseName — Linux device-name normalization', () => {
 
 describe('readProcMounts — Linux /proc/mounts fallback', () => {
   it('parses standard mount lines', async () => {
-    const text = [
-      '/dev/sda1 / ext4 rw,relatime 0 0',
-      '/dev/nvme0n1p2 /home btrfs rw,ssd 0 0',
-      'tmpfs /run tmpfs rw,nosuid 0 0',
-    ].join('\n') + '\n'
+    const text =
+      [
+        '/dev/sda1 / ext4 rw,relatime 0 0',
+        '/dev/nvme0n1p2 /home btrfs rw,ssd 0 0',
+        'tmpfs /run tmpfs rw,nosuid 0 0'
+      ].join('\n') + '\n'
     const result = await readProcMounts(text)
     expect(result).toHaveLength(3)
     expect(result[0]).toMatchObject({ source: '/dev/sda1', target: '/', fstype: 'ext4' })
@@ -376,4 +481,3 @@ describe('DISK_TRIM_RUN handler — input validation & mutex', () => {
     expect((results as unknown[]).length).toBe(1)
   })
 })
-

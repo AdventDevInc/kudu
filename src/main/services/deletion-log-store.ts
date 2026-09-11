@@ -1,4 +1,13 @@
-import { appendFileSync, readFileSync, writeFileSync, mkdirSync, existsSync, statSync, renameSync, unlinkSync } from 'fs'
+import {
+  appendFileSync,
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  existsSync,
+  statSync,
+  renameSync,
+  unlinkSync
+} from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
 import type { DeletedFileRecord, DeletionOrigin } from '../../shared/types'
@@ -25,9 +34,7 @@ let _oldLogPath: string | null = null
 
 function getDataDir(): string {
   if (!_dataDir) {
-    _dataDir = app.isPackaged
-      ? app.getPath('userData')
-      : join(app.getPath('userData'), 'Kudu-Dev')
+    _dataDir = app.isPackaged ? app.getPath('userData') : join(app.getPath('userData'), 'Kudu-Dev')
   }
   return _dataDir
 }
@@ -58,7 +65,11 @@ function rotateIfNeeded(): void {
   try {
     const stats = statSync(getDeletionLogPath())
     if (stats.size <= MAX_LOG_SIZE) return
-    try { unlinkSync(getOldLogPath()) } catch { /* no previous rotation */ }
+    try {
+      unlinkSync(getOldLogPath())
+    } catch {
+      /* no previous rotation */
+    }
     renameSync(getDeletionLogPath(), getOldLogPath())
   } catch {
     // No log file yet — nothing to rotate.
@@ -87,8 +98,10 @@ function parseLines(raw: string, out: DeletedFileRecord[]): void {
     try {
       const parsed = JSON.parse(line)
       if (
-        parsed && typeof parsed === 'object' &&
-        typeof parsed.ts === 'string' && typeof parsed.path === 'string'
+        parsed &&
+        typeof parsed === 'object' &&
+        typeof parsed.ts === 'string' &&
+        typeof parsed.path === 'string'
       ) {
         const record: DeletedFileRecord = {
           ts: parsed.ts,
@@ -96,7 +109,7 @@ function parseLines(raw: string, out: DeletedFileRecord[]): void {
           size: typeof parsed.size === 'number' ? parsed.size : 0,
           category: typeof parsed.category === 'string' ? parsed.category : '',
           // Records predating origin tracking came from the local UI.
-          origin: parsed.origin === 'cloud' || parsed.origin === 'cli' ? parsed.origin : 'local',
+          origin: parsed.origin === 'cloud' || parsed.origin === 'cli' ? parsed.origin : 'local'
         }
         if (typeof parsed.truncated === 'number' && parsed.truncated > 0) {
           record.truncated = parsed.truncated
@@ -134,7 +147,9 @@ export interface DeletionQuery {
 }
 
 /** Every record in a window, newest first and unpaged — also used for CSV export. */
-export function queryAllDeletions(query: Omit<DeletionQuery, 'offset' | 'limit'> = {}): DeletedFileRecord[] {
+export function queryAllDeletions(
+  query: Omit<DeletionQuery, 'offset' | 'limit'> = {}
+): DeletedFileRecord[] {
   const fromMs = query.from ? Date.parse(query.from) : NaN
   const toMs = query.to ? Date.parse(query.to) : NaN
 
@@ -157,9 +172,15 @@ export function queryAllDeletions(query: Omit<DeletionQuery, 'offset' | 'limit'>
  * Read the records falling inside a time window, newest first.
  * `total` is the full match count so the caller can page through it.
  */
-export function queryDeletions(query: DeletionQuery = {}): { records: DeletedFileRecord[]; total: number } {
+export function queryDeletions(query: DeletionQuery = {}): {
+  records: DeletedFileRecord[]
+  total: number
+} {
   const offset = Math.max(0, Math.floor(query.offset ?? 0))
-  const limit = Math.min(MAX_QUERY_LIMIT, Math.max(1, Math.floor(query.limit ?? DEFAULT_QUERY_LIMIT)))
+  const limit = Math.min(
+    MAX_QUERY_LIMIT,
+    Math.max(1, Math.floor(query.limit ?? DEFAULT_QUERY_LIMIT))
+  )
   const matched = queryAllDeletions(query)
   return { records: matched.slice(offset, offset + limit), total: matched.length }
 }
@@ -168,7 +189,11 @@ export function clearDeletionLog(): void {
   try {
     ensureDir()
     writeFileSync(getDeletionLogPath(), '', 'utf-8')
-    try { unlinkSync(getOldLogPath()) } catch { /* nothing rotated */ }
+    try {
+      unlinkSync(getOldLogPath())
+    } catch {
+      /* nothing rotated */
+    }
   } catch {
     // Ignore
   }

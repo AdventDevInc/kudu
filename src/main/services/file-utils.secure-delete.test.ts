@@ -3,7 +3,9 @@ import { mkdtemp, mkdir, writeFile, readFile, symlink, link, rm, lstat } from 'f
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-vi.mock('./settings-store', () => ({ getSettings: () => ({ cleaner: { secureDelete: true }, exclusions: [] }) }))
+vi.mock('./settings-store', () => ({
+  getSettings: () => ({ cleaner: { secureDelete: true }, exclusions: [] })
+}))
 vi.mock('./scan-cache', () => ({ getCachedItems: () => [], removeCachedItems: () => {} }))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 import { safeDelete } from './file-utils'
@@ -20,7 +22,9 @@ async function fixture() {
   await writeFile(keep, 'preserve')
   return { root, cache, outside, keep }
 }
-afterEach(async () => { for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true }) })
+afterEach(async () => {
+  for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true })
+})
 
 describe('secure deletion link boundaries', () => {
   it('preserves files behind a nested directory junction', async () => {

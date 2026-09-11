@@ -25,9 +25,9 @@ export function createDarwinPrivacy(): PlatformPrivacy {
         ...DARWIN_BROWSER_SETTINGS,
         ...DARWIN_KERNEL_SETTINGS,
         ...DARWIN_NETWORK_SETTINGS,
-        ...DARWIN_ACCESS_SETTINGS,
+        ...DARWIN_ACCESS_SETTINGS
       ]
-    },
+    }
   }
 }
 
@@ -43,7 +43,8 @@ function shellEscape(arg: string): string {
 // Custom prompt shown in the macOS authentication dialog. Without this,
 // macOS falls back to "osascript wants to make changes", which looks
 // suspicious to non-technical users who don't recognize the binary name.
-const ELEVATION_PROMPT = 'Kudu needs your administrator password to apply system hardening settings.'
+const ELEVATION_PROMPT =
+  'Kudu needs your administrator password to apply system hardening settings.'
 
 async function elevatedExec(cmd: string, args: string[]): Promise<string> {
   if (isRoot()) {
@@ -88,15 +89,29 @@ async function elevatedWriteFile(filePath: string, content: string): Promise<voi
 // ─── defaults helpers ───────────────────────────────────────
 
 async function defaultsRead(domain: string, key: string): Promise<string> {
-  const { stdout } = await execFileAsync('/usr/bin/defaults', ['read', domain, key], { timeout: 5_000 })
+  const { stdout } = await execFileAsync('/usr/bin/defaults', ['read', domain, key], {
+    timeout: 5_000
+  })
   return stdout.trim()
 }
 
-async function defaultsWrite(domain: string, key: string, type: string, value: string): Promise<void> {
-  await execFileAsync('/usr/bin/defaults', ['write', domain, key, `-${type}`, value], { timeout: 5_000 })
+async function defaultsWrite(
+  domain: string,
+  key: string,
+  type: string,
+  value: string
+): Promise<void> {
+  await execFileAsync('/usr/bin/defaults', ['write', domain, key, `-${type}`, value], {
+    timeout: 5_000
+  })
 }
 
-async function elevatedDefaultsWrite(domain: string, key: string, type: string, value: string): Promise<void> {
+async function elevatedDefaultsWrite(
+  domain: string,
+  key: string,
+  type: string,
+  value: string
+): Promise<void> {
   await elevatedExec('/usr/bin/defaults', ['write', domain, key, `-${type}`, value])
 }
 
@@ -153,11 +168,16 @@ async function sysctlApply(param: string, value: string): Promise<void> {
   let existing = ''
   try {
     existing = await readFile(SYSCTL_CONF, 'utf8')
-  } catch { /* file doesn't exist yet */ }
+  } catch {
+    /* file doesn't exist yet */
+  }
 
   const updated = updateSysctlConfig(
-    existing, param, value, '=',
-    '# Delete this file and reboot to revert all changes',
+    existing,
+    param,
+    value,
+    '=',
+    '# Delete this file and reboot to revert all changes'
   )
 
   await elevatedWriteFile(SYSCTL_CONF, updated)
@@ -169,9 +189,15 @@ async function sysctlApply(param: string, value: string): Promise<void> {
 
 async function isBrowserInstalled(bundleId: string): Promise<boolean> {
   try {
-    const { stdout } = await execFileAsync('/usr/bin/mdfind', [`kMDItemCFBundleIdentifier == "${bundleId}"`], { timeout: 5_000 })
+    const { stdout } = await execFileAsync(
+      '/usr/bin/mdfind',
+      [`kMDItemCFBundleIdentifier == "${bundleId}"`],
+      { timeout: 5_000 }
+    )
     return stdout.trim().length > 0
-  } catch { return false }
+  } catch {
+    return false
+  }
 }
 
 // ─── SSH config helper (macOS) ──────────────────────────────
@@ -197,13 +223,23 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       try {
-        const val = await defaultsRead('/Library/Application Support/CrashReporter/DiagnosticMessagesHistory', 'AutoSubmit')
+        const val = await defaultsRead(
+          '/Library/Application Support/CrashReporter/DiagnosticMessagesHistory',
+          'AutoSubmit'
+        )
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
-      await elevatedDefaultsWrite('/Library/Application Support/CrashReporter/DiagnosticMessagesHistory', 'AutoSubmit', 'bool', 'false')
-    },
+      await elevatedDefaultsWrite(
+        '/Library/Application Support/CrashReporter/DiagnosticMessagesHistory',
+        'AutoSubmit',
+        'bool',
+        'false'
+      )
+    }
   },
   {
     id: 'macos-siri-analytics',
@@ -213,13 +249,23 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: false,
     async check() {
       try {
-        const val = await defaultsRead('com.apple.assistant.support', 'Siri Data Sharing Opt-In Status')
+        const val = await defaultsRead(
+          'com.apple.assistant.support',
+          'Siri Data Sharing Opt-In Status'
+        )
         return val === '2' // 2 = opted out
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
-      await defaultsWrite('com.apple.assistant.support', 'Siri Data Sharing Opt-In Status', 'int', '2')
-    },
+      await defaultsWrite(
+        'com.apple.assistant.support',
+        'Siri Data Sharing Opt-In Status',
+        'int',
+        '2'
+      )
+    }
   },
   {
     id: 'macos-health-data-sharing',
@@ -238,23 +284,26 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await defaultsWrite('com.apple.HealthKit', 'ResearchDataSharingEnabled', 'bool', 'false')
-    },
+    }
   },
   {
     id: 'macos-airdrop-discoverability',
     category: 'services',
     label: 'AirDrop Discoverability',
-    description: 'Set AirDrop to "No One" — you will not be able to receive files via AirDrop until re-enabled in System Settings',
+    description:
+      'Set AirDrop to "No One" — you will not be able to receive files via AirDrop until re-enabled in System Settings',
     requiresAdmin: false,
     async check() {
       try {
         const val = await defaultsRead('com.apple.sharingd', 'DiscoverableMode')
         return val === 'Off'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.sharingd', 'DiscoverableMode', 'string', 'Off')
-    },
+    }
   },
   {
     id: 'macos-crash-reporter',
@@ -266,12 +315,14 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.CrashReporter', 'DialogType')
         return val === 'none'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.CrashReporter', 'DialogType', 'string', 'none')
-    },
-  },
+    }
+  }
 ]
 
 // ─── Ads & Suggestions ──────────────────────────────────────
@@ -287,11 +338,13 @@ const DARWIN_ADS_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.AdLib', 'allowApplePersonalizedAdvertising')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.AdLib', 'allowApplePersonalizedAdvertising', 'bool', 'false')
-    },
+    }
   },
   {
     id: 'macos-siri-suggestions-appstore',
@@ -303,12 +356,14 @@ const DARWIN_ADS_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.AppStore', 'SiriSuggestionsEnabled')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.AppStore', 'SiriSuggestionsEnabled', 'bool', 'false')
-    },
-  },
+    }
+  }
 ]
 
 // ─── Search ─────────────────────────────────────────────────
@@ -324,11 +379,13 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.Safari', 'UniversalSearchEnabled')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.Safari', 'UniversalSearchEnabled', 'bool', 'false')
-    },
+    }
   },
   {
     id: 'macos-spotlight-suggestions',
@@ -340,11 +397,13 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.lookup.shared', 'LookupSuggestionsDisabled')
         return val === '1'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.lookup.shared', 'LookupSuggestionsDisabled', 'bool', 'true')
-    },
+    }
   },
   {
     id: 'macos-safari-preload-top-hit',
@@ -356,12 +415,14 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.Safari', 'PreloadTopHit')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.Safari', 'PreloadTopHit', 'bool', 'false')
-    },
-  },
+    }
+  }
 ]
 
 // ─── Sync & Cloud ───────────────────────────────────────────
@@ -371,17 +432,40 @@ const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
     id: 'macos-handoff',
     category: 'sync',
     label: 'Handoff',
-    description: 'Disable Handoff and Universal Clipboard — you will no longer be able to continue activities or copy/paste between Apple devices',
+    description:
+      'Disable Handoff and Universal Clipboard — you will no longer be able to continue activities or copy/paste between Apple devices',
     requiresAdmin: false,
     async check() {
       try {
-        const { stdout } = await execFileAsync('/usr/bin/defaults', ['-currentHost', 'read', 'com.apple.coreservices.useractivityd', 'ActivityReceivingAllowed'], { timeout: 5_000 })
+        const { stdout } = await execFileAsync(
+          '/usr/bin/defaults',
+          [
+            '-currentHost',
+            'read',
+            'com.apple.coreservices.useractivityd',
+            'ActivityReceivingAllowed'
+          ],
+          { timeout: 5_000 }
+        )
         return stdout.trim() === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
-      await execFileAsync('/usr/bin/defaults', ['-currentHost', 'write', 'com.apple.coreservices.useractivityd', 'ActivityReceivingAllowed', '-bool', 'false'], { timeout: 5_000 })
-    },
+      await execFileAsync(
+        '/usr/bin/defaults',
+        [
+          '-currentHost',
+          'write',
+          'com.apple.coreservices.useractivityd',
+          'ActivityReceivingAllowed',
+          '-bool',
+          'false'
+        ],
+        { timeout: 5_000 }
+      )
+    }
   },
   {
     id: 'macos-icloud-analytics',
@@ -400,24 +484,27 @@ const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
     },
     async apply() {
       await defaultsWrite('com.apple.iCloud.Diagnostics', 'iCloudAnalyticsEnabled', 'bool', 'false')
-    },
+    }
   },
   {
     id: 'macos-safari-cloud-tabs',
     category: 'sync',
     label: 'Safari iCloud Tabs',
-    description: 'Disable Safari iCloud tab syncing — you will no longer see tabs open on your other Apple devices',
+    description:
+      'Disable Safari iCloud tab syncing — you will no longer see tabs open on your other Apple devices',
     requiresAdmin: false,
     async check() {
       try {
         const val = await defaultsRead('com.apple.Safari', 'CloudTabsEnabled')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.Safari', 'CloudTabsEnabled', 'bool', 'false')
-    },
-  },
+    }
+  }
 ]
 
 // ─── AI Features ────────────────────────────────────────────
@@ -427,17 +514,20 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
     id: 'macos-siri-enabled',
     category: 'ai',
     label: 'Siri',
-    description: 'Disable Siri entirely — Hey Siri, voice commands, and Siri Shortcuts will stop working',
+    description:
+      'Disable Siri entirely — Hey Siri, voice commands, and Siri Shortcuts will stop working',
     requiresAdmin: false,
     async check() {
       try {
         const val = await defaultsRead('com.apple.assistant.support', 'Assistant Enabled')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.assistant.support', 'Assistant Enabled', 'bool', 'false')
-    },
+    }
   },
   {
     id: 'macos-siri-dictation',
@@ -447,13 +537,23 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: false,
     async check() {
       try {
-        const val = await defaultsRead('com.apple.speech.recognition.AppleSpeechRecognition.prefs', 'DictationIMMEnabled')
+        const val = await defaultsRead(
+          'com.apple.speech.recognition.AppleSpeechRecognition.prefs',
+          'DictationIMMEnabled'
+        )
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
-      await defaultsWrite('com.apple.speech.recognition.AppleSpeechRecognition.prefs', 'DictationIMMEnabled', 'bool', 'false')
-    },
+      await defaultsWrite(
+        'com.apple.speech.recognition.AppleSpeechRecognition.prefs',
+        'DictationIMMEnabled',
+        'bool',
+        'false'
+      )
+    }
   },
   {
     id: 'macos-apple-intelligence',
@@ -471,9 +571,14 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
       }
     },
     async apply() {
-      await defaultsWrite('com.apple.assistant.support', 'Apple Intelligence Enabled', 'bool', 'false')
-    },
-  },
+      await defaultsWrite(
+        'com.apple.assistant.support',
+        'Apple Intelligence Enabled',
+        'bool',
+        'false'
+      )
+    }
+  }
 ]
 
 // ─── Browser Telemetry ──────────────────────────────────────
@@ -493,11 +598,13 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('com.apple.Safari', 'SendDoNotTrackHTTPHeader')
         return val === '1'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await defaultsWrite('com.apple.Safari', 'SendDoNotTrackHTTPHeader', 'bool', 'true')
-    },
+    }
   },
   {
     id: 'macos-chrome-metrics',
@@ -506,18 +613,32 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     description: 'Stop Chrome from sending usage metrics to Google',
     requiresAdmin: true,
     async check() {
-      if (!await isBrowserInstalled(CHROME_BUNDLE_ID)) return true
+      if (!(await isBrowserInstalled(CHROME_BUNDLE_ID))) return true
       try {
-        const val = await defaultsRead(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled')
+        const val = await defaultsRead(
+          `${MANAGED_PREFS}/com.google.Chrome`,
+          'MetricsReportingEnabled'
+        )
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await elevatedBatch([
         { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
-        { cmd: '/usr/bin/defaults', args: ['write', `${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled', '-bool', 'false'] },
+        {
+          cmd: '/usr/bin/defaults',
+          args: [
+            'write',
+            `${MANAGED_PREFS}/com.google.Chrome`,
+            'MetricsReportingEnabled',
+            '-bool',
+            'false'
+          ]
+        }
       ])
-    },
+    }
   },
   {
     id: 'macos-chrome-safe-browsing',
@@ -526,18 +647,32 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     description: 'Stop Chrome from sending extended URL and download reports to Google',
     requiresAdmin: true,
     async check() {
-      if (!await isBrowserInstalled(CHROME_BUNDLE_ID)) return true
+      if (!(await isBrowserInstalled(CHROME_BUNDLE_ID))) return true
       try {
-        const val = await defaultsRead(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled')
+        const val = await defaultsRead(
+          `${MANAGED_PREFS}/com.google.Chrome`,
+          'SafeBrowsingExtendedReportingEnabled'
+        )
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await elevatedBatch([
         { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
-        { cmd: '/usr/bin/defaults', args: ['write', `${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled', '-bool', 'false'] },
+        {
+          cmd: '/usr/bin/defaults',
+          args: [
+            'write',
+            `${MANAGED_PREFS}/com.google.Chrome`,
+            'SafeBrowsingExtendedReportingEnabled',
+            '-bool',
+            'false'
+          ]
+        }
       ])
-    },
+    }
   },
   {
     id: 'macos-firefox-telemetry',
@@ -546,19 +681,30 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     description: 'Disable Firefox telemetry data collection and upload to Mozilla',
     requiresAdmin: true,
     async check() {
-      if (!await isBrowserInstalled(FIREFOX_BUNDLE_ID)) return true
+      if (!(await isBrowserInstalled(FIREFOX_BUNDLE_ID))) return true
       try {
         const val = await defaultsRead(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry')
         return val === '1'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await elevatedBatch([
         { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
-        { cmd: '/usr/bin/defaults', args: ['write', `${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry', '-bool', 'true'] },
+        {
+          cmd: '/usr/bin/defaults',
+          args: [
+            'write',
+            `${MANAGED_PREFS}/org.mozilla.firefox`,
+            'DisableTelemetry',
+            '-bool',
+            'true'
+          ]
+        }
       ])
-    },
-  },
+    }
+  }
 ]
 
 // ─── Kernel / System Hardening ──────────────────────────────
@@ -572,14 +718,18 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       try {
-        const { stdout, stderr } = await execFileAsync('/usr/sbin/spctl', ['--status'], { timeout: 5_000 })
+        const { stdout, stderr } = await execFileAsync('/usr/sbin/spctl', ['--status'], {
+          timeout: 5_000
+        })
         const out = (stdout + stderr).trim()
         return out.includes('assessments enabled')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await elevatedExec('/usr/sbin/spctl', ['--master-enable'])
-    },
+    }
   },
   {
     id: 'macos-remote-apple-events',
@@ -591,11 +741,13 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
       try {
         const out = await systemsetupGet('-getremoteappleevents')
         return out.toLowerCase().includes('off')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await systemsetupSet('-setremoteappleevents', 'off')
-    },
+    }
   },
   {
     id: 'macos-wake-on-network',
@@ -607,11 +759,13 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
       try {
         const out = await systemsetupGet('-getwakeonnetworkaccess')
         return out.toLowerCase().includes('off')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await systemsetupSet('-setwakeonnetworkaccess', 'off')
-    },
+    }
   },
   {
     id: 'macos-guest-account',
@@ -623,11 +777,18 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
       try {
         const val = await defaultsRead('/Library/Preferences/com.apple.loginwindow', 'GuestEnabled')
         return val === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
-      await elevatedDefaultsWrite('/Library/Preferences/com.apple.loginwindow', 'GuestEnabled', 'bool', 'false')
-    },
+      await elevatedDefaultsWrite(
+        '/Library/Preferences/com.apple.loginwindow',
+        'GuestEnabled',
+        'bool',
+        'false'
+      )
+    }
   },
   {
     id: 'macos-auto-login',
@@ -637,7 +798,10 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       try {
-        const val = await defaultsRead('/Library/Preferences/com.apple.loginwindow', 'autoLoginUser')
+        const val = await defaultsRead(
+          '/Library/Preferences/com.apple.loginwindow',
+          'autoLoginUser'
+        )
         // If the key exists and has a value, auto-login is enabled
         return !val || val.length === 0
       } catch {
@@ -646,9 +810,12 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
       }
     },
     async apply() {
-      await elevatedDefaultsDelete('/Library/Preferences/com.apple.loginwindow', 'autoLoginUser').catch(() => {})
-    },
-  },
+      await elevatedDefaultsDelete(
+        '/Library/Preferences/com.apple.loginwindow',
+        'autoLoginUser'
+      ).catch(() => {})
+    }
+  }
 ]
 
 // ─── Network Hardening ──────────────────────────────────────
@@ -664,11 +831,13 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
       try {
         const out = await socketfilterfwGet('--getglobalstate')
         return out.toLowerCase().includes('enabled')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await socketfilterfwSet('--setglobalstate', 'on')
-    },
+    }
   },
   {
     id: 'macos-stealth-mode',
@@ -681,12 +850,14 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
       try {
         const out = await socketfilterfwGet('--getstealthmode')
         return out.toLowerCase().includes('enabled')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await socketfilterfwSet('--setstealthmode', 'on')
       await restartAlf()
-    },
+    }
   },
   {
     id: 'macos-ip-forwarding',
@@ -697,11 +868,13 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     async check() {
       try {
         return (await sysctlGet('net.inet.ip.forwarding')) === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await sysctlApply('net.inet.ip.forwarding', '0')
-    },
+    }
   },
   {
     id: 'macos-block-signed-auto',
@@ -715,15 +888,17 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
         const out = await socketfilterfwGet('--getallowsigned')
         // Output has two lines (built-in + download). Hardened = neither says "enabled"
         return !out.toLowerCase().includes('enabled')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       // Must disable both built-in and downloaded signed app auto-allow
       await socketfilterfwSet('--setallowsignedapp', 'off')
       await socketfilterfwSet('--setallowsigned', 'off')
       await restartAlf()
-    },
-  },
+    }
+  }
 ]
 
 // ─── Access Control ─────────────────────────────────────────
@@ -733,17 +908,20 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     id: 'macos-remote-login',
     category: 'access',
     label: 'Disable Remote Login (SSH)',
-    description: 'Disable the SSH server entirely. If you need SSH access, leave this off and harden SSH settings instead',
+    description:
+      'Disable the SSH server entirely. If you need SSH access, leave this off and harden SSH settings instead',
     requiresAdmin: true,
     async check() {
       try {
         const out = await systemsetupGet('-getremotelogin')
         return out.toLowerCase().includes('off')
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await elevatedExec('/usr/sbin/systemsetup', ['-f', '-setremotelogin', 'off'])
-    },
+    }
   },
   {
     id: 'macos-ssh-root-login',
@@ -755,27 +933,32 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
       try {
         const content = await readFile('/etc/ssh/sshd_config', 'utf8')
         return /^\s*PermitRootLogin\s+no\s*$/m.test(content)
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await applySshdDirective('PermitRootLogin', 'no')
-    },
+    }
   },
   {
     id: 'macos-ssh-password-auth',
     category: 'access',
     label: 'Disable SSH Password Authentication',
-    description: 'Require key-based SSH authentication only. WARNING: ensure SSH keys are configured before enabling or you may be locked out',
+    description:
+      'Require key-based SSH authentication only. WARNING: ensure SSH keys are configured before enabling or you may be locked out',
     requiresAdmin: true,
     async check() {
       try {
         const content = await readFile('/etc/ssh/sshd_config', 'utf8')
         return /^\s*PasswordAuthentication\s+no\s*$/m.test(content)
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await applySshdDirective('PasswordAuthentication', 'no')
-    },
+    }
   },
   {
     id: 'macos-core-dumps',
@@ -786,10 +969,12 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     async check() {
       try {
         return (await sysctlGet('kern.coredump')) === '0'
-      } catch { return false }
+      } catch {
+        return false
+      }
     },
     async apply() {
       await sysctlApply('kern.coredump', '0')
-    },
-  },
+    }
+  }
 ]

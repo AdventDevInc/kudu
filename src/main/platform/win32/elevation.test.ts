@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const execFileSyncMock = vi.fn()
 
 vi.mock('child_process', () => ({
-  execFileSync: execFileSyncMock,
+  execFileSync: execFileSyncMock
 }))
 
 describe('win32 elevation', () => {
@@ -30,7 +30,9 @@ describe('win32 elevation', () => {
   })
 
   it('returns false when the inherited process token is not elevated', async () => {
-    execFileSyncMock.mockImplementation(() => { throw new Error('Access denied') })
+    execFileSyncMock.mockImplementation(() => {
+      throw new Error('Access denied')
+    })
 
     const { createWin32Elevation } = await import('./elevation')
     const elevation = createWin32Elevation()
@@ -45,9 +47,7 @@ describe('win32 elevation', () => {
     const { createWin32Elevation } = await import('./elevation')
     createWin32Elevation().isAdmin()
 
-    expect(execFileSyncMock).not.toHaveBeenCalledWith(
-      'net', ['session'], expect.anything()
-    )
+    expect(execFileSyncMock).not.toHaveBeenCalledWith('net', ['session'], expect.anything())
   })
 
   it('caches the result after first call', async () => {

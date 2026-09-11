@@ -10,7 +10,7 @@ vi.mock('electron', () => ({
   BrowserWindow: vi.fn(),
   dialog: { showOpenDialog: (...args: unknown[]) => mockShowOpenDialog(...args) },
   ipcMain: { handle: (...args: unknown[]) => mockHandle(...args) },
-  shell: { showItemInFolder: (...args: unknown[]) => mockShowItemInFolder(...args) },
+  shell: { showItemInFolder: (...args: unknown[]) => mockShowItemInFolder(...args) }
 }))
 
 const mockReaddir = vi.fn()
@@ -25,11 +25,11 @@ vi.mock('fs/promises', () => ({
   stat: (...args: unknown[]) => mockStat(...args),
   lstat: (...args: unknown[]) => mockLstat(...args),
   open: (...args: unknown[]) => mockOpen(...args),
-  rm: (...args: unknown[]) => mockRm(...args),
+  rm: (...args: unknown[]) => mockRm(...args)
 }))
 
 vi.mock('crypto', () => ({
-  randomBytes: (len: number) => Buffer.alloc(len, 0xAA),
+  randomBytes: (len: number) => Buffer.alloc(len, 0xaa)
 }))
 
 import { registerFileShredderIpc } from './file-shredder.ipc'
@@ -51,17 +51,23 @@ function mockWindow() {
  * numeric stats, and shredFile, which asks for bigint stats so it can compare
  * the file's identity against the handle it later opens.
  */
-function lstatStub(opts: {
-  isSymlink?: boolean
-  isFile?: boolean
-  isDir?: boolean
-  size?: number
-  ino?: number
-  dev?: number
-} = {}) {
+function lstatStub(
+  opts: {
+    isSymlink?: boolean
+    isFile?: boolean
+    isDir?: boolean
+    size?: number
+    ino?: number
+    dev?: number
+  } = {}
+) {
   const { isSymlink = false, isFile = true, isDir = false, size = 100, ino = 1, dev = 1 } = opts
   return (_path?: unknown, statOpts?: { bigint?: boolean }) => {
-    const shape = { isSymbolicLink: () => isSymlink, isFile: () => isFile, isDirectory: () => isDir }
+    const shape = {
+      isSymbolicLink: () => isSymlink,
+      isFile: () => isFile,
+      isDirectory: () => isDir
+    }
     return Promise.resolve(
       statOpts?.bigint
         ? { ...shape, size: BigInt(size), ino: BigInt(ino), dev: BigInt(dev) }
@@ -81,8 +87,8 @@ function fhStub(opts: { size?: number; ino?: number; dev?: number; isFile?: bool
       isFile: () => isFile,
       size: BigInt(size),
       ino: BigInt(ino),
-      dev: BigInt(dev),
-    }),
+      dev: BigInt(dev)
+    })
   }
 }
 
@@ -135,7 +141,7 @@ describe('SHREDDER_SELECT_FILES handler', () => {
   it('returns file entries with size information', async () => {
     mockShowOpenDialog.mockResolvedValue({
       canceled: false,
-      filePaths: ['/home/user/secret.txt', '/home/user/data.bin'],
+      filePaths: ['/home/user/secret.txt', '/home/user/data.bin']
     })
     mockStat.mockImplementation((p: string) => {
       if (p === '/home/user/secret.txt') return Promise.resolve({ size: 1024 })
@@ -148,18 +154,20 @@ describe('SHREDDER_SELECT_FILES handler', () => {
     const result = await handler()
 
     expect(result).toHaveLength(2)
-    expect(result[0]).toEqual(expect.objectContaining({
-      path: '/home/user/secret.txt',
-      size: 1024,
-      isDirectory: false,
-    }))
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        path: '/home/user/secret.txt',
+        size: 1024,
+        isDirectory: false
+      })
+    )
     expect(result[0].name).toBe('secret.txt')
   })
 
   it('skips files that fail stat', async () => {
     mockShowOpenDialog.mockResolvedValue({
       canceled: false,
-      filePaths: ['/home/user/gone.txt', '/home/user/exists.txt'],
+      filePaths: ['/home/user/gone.txt', '/home/user/exists.txt']
     })
     mockStat.mockImplementation((p: string) => {
       if (p === '/home/user/gone.txt') return Promise.reject(new Error('ENOENT'))
@@ -197,12 +205,12 @@ describe('SHREDDER_SELECT_FOLDERS handler', () => {
   it('returns folder entries with calculated size', async () => {
     mockShowOpenDialog.mockResolvedValue({
       canceled: false,
-      filePaths: ['/home/user/secret-folder'],
+      filePaths: ['/home/user/secret-folder']
     })
     // getEntrySize calls lstat, readdir, stat
     mockLstat.mockImplementation(lstatStub({ isFile: false, isDir: true, size: 0 }))
     mockReaddir.mockResolvedValue([
-      { isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, name: 'a.txt' },
+      { isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, name: 'a.txt' }
     ])
     mockStat.mockResolvedValue({ isDirectory: () => false, size: 5000 })
 
@@ -237,12 +245,14 @@ describe('SHREDDER_SHRED handler', () => {
     registerFileShredderIpc(() => null)
     const handler = getHandler('shredder:shred')
     const result = await handler({}, 'not-an-array')
-    expect(result).toEqual(expect.objectContaining({
-      shredded: 0,
-      failed: 0,
-      bytesShredded: 0,
-      cancelled: false,
-    }))
+    expect(result).toEqual(
+      expect.objectContaining({
+        shredded: 0,
+        failed: 0,
+        bytesShredded: 0,
+        cancelled: false
+      })
+    )
   })
 
   it('returns empty result for empty array', async () => {
@@ -339,7 +349,12 @@ describe('SHREDDER_SHRED handler', () => {
     mockReaddir.mockImplementation((p: string) => {
       if (typeof p === 'string' && p.includes('mydir')) {
         return Promise.resolve([
-          { isSymbolicLink: () => false, isFile: () => true, isDirectory: () => false, name: 'inner.txt' },
+          {
+            isSymbolicLink: () => false,
+            isFile: () => true,
+            isDirectory: () => false,
+            name: 'inner.txt'
+          }
         ])
       }
       return Promise.resolve([])
@@ -370,9 +385,12 @@ describe('SHREDDER_SHRED handler', () => {
     const handler = getHandler('shredder:shred')
     await handler({}, ['/home/user/temp/file.txt'])
 
-    expect(mockSend).toHaveBeenCalledWith('shredder:progress', expect.objectContaining({
-      progress: 100,
-    }))
+    expect(mockSend).toHaveBeenCalledWith(
+      'shredder:progress',
+      expect.objectContaining({
+        progress: 100
+      })
+    )
   })
 })
 
@@ -418,21 +436,27 @@ describe('protected path safety', () => {
     registerFileShredderIpc(() => null)
     const handler = getHandler('shredder:shred')
     const result = await handler({}, ['/home/user/project/.git'])
-    expect(result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))).toBe(true)
+    expect(
+      result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))
+    ).toBe(true)
   })
 
   it('blocks .ssh directories', async () => {
     registerFileShredderIpc(() => null)
     const handler = getHandler('shredder:shred')
     const result = await handler({}, ['/home/user/.ssh'])
-    expect(result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))).toBe(true)
+    expect(
+      result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))
+    ).toBe(true)
   })
 
   it('blocks node_modules directories', async () => {
     registerFileShredderIpc(() => null)
     const handler = getHandler('shredder:shred')
     const result = await handler({}, ['/home/user/project/node_modules'])
-    expect(result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))).toBe(true)
+    expect(
+      result.errors.some((e: { path: string; reason: string }) => e.reason.includes('Protected'))
+    ).toBe(true)
   })
 })
 
