@@ -93,10 +93,13 @@ kudu --cli programs list --json 2>/dev/null     # discard progress entirely
 ## Repair (Windows)
 
 ```bash
-kudu --cli repair gpu-restart   # soft-restart display adapters (admin required)
+kudu --cli repair gpu-restart             # soft-restart display adapters (admin required)
+kudu --cli repair winre-status            # Enabled / Disabled / Unknown (admin required)
+kudu --cli repair winre-status --verbose  # include location + BCD id
+kudu --cli repair winre-status --json
 ```
 
-Uses Disable/Enable-PnpDevice on class `Display` — not key injection of Win+Ctrl+Shift+B.
+`gpu-restart` uses Disable/Enable-PnpDevice on class `Display` — not key injection of Win+Ctrl+Shift+B.
 
 ## Prometheus Metrics
 
