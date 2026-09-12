@@ -4,7 +4,7 @@ import { flushCliOutput } from './services/cli-output'
 import { app } from 'electron'
 import { existsSync } from 'fs'
 import { readdir } from 'fs/promises'
-import { join } from 'path'
+import { join, win32 } from 'path'
 import {
   scanDirectory,
   scanFile,
@@ -751,7 +751,8 @@ Performance Monitor:
 
 Uninstall Leftovers:
   leftovers scan             Scan for uninstall leftovers
-  leftovers clean            Clean found leftovers
+  leftovers clean --path <path> [--path <path> ...]
+                             Clean only explicitly reviewed leftover paths
 
 CVE Scanner:
   cve list                   List known CVE vulnerabilities (requires cloud agent)
@@ -1398,8 +1399,31 @@ async function handlePerf(args: string[], ctx: CliContext): Promise<number | voi
   }
 }
 
-async function handleLeftovers(args: string[], ctx: CliContext): Promise<number | void> {
+export async function handleLeftovers(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
+  const selectedPaths = new Set<string>()
+  const usage = 'kudu --cli leftovers scan | leftovers clean --path <path> [--path <path> ...]'
+  if (sub === 'clean') {
+    for (let i = 1; i < args.length; i += 2) {
+      if (args[i] !== '--path' || !args[i + 1] || !win32.isAbsolute(args[i + 1])) {
+        cliUsage(ctx, usage)
+        return ExitCode.INVALID_ARGS
+      }
+      selectedPaths.add(
+        win32
+          .normalize(args[i + 1])
+          .replace(/[\\/]+$/, '')
+          .toLowerCase()
+      )
+    }
+    if (selectedPaths.size === 0) {
+      cliUsage(ctx, usage)
+      return ExitCode.INVALID_ARGS
+    }
+  } else if (sub !== 'scan' || args.length !== 1) {
+    cliUsage(ctx, usage)
+    return ExitCode.INVALID_ARGS
+  }
   const { scanForLeftovers } = await import('./services/uninstall-leftovers')
 
   if (sub === 'scan' || sub === 'clean') {
@@ -1415,12 +1439,28 @@ async function handleLeftovers(args: string[], ctx: CliContext): Promise<number 
         cliLog(ctx, `  ${r.subcategory}: ${r.itemCount} items, ${formatBytes(r.totalSize)}`)
     }
     if (sub === 'clean') {
-      if (totalItems === 0) {
-        cliOut(ctx, ctx.json ? { message: 'No leftovers found' } : 'No leftovers found.')
-        return ExitCode.NOTHING_FOUND
+      const items = results
+        .flatMap((r) => r.items)
+        .filter((item) =>
+          selectedPaths.has(
+            win32
+              .normalize(item.path)
+              .replace(/[\\/]+$/, '')
+              .toLowerCase()
+          )
+        )
+      // Reject the whole request when any path is no longer eligible. Never
+      // turn a typo, wildcard or stale review into a different deletion.
+      if (items.length !== selectedPaths.size) {
+        cliOut(ctx, {
+          error:
+            'Selected paths are not present in the current safe leftover scan. Run leftovers scan --json and review the paths again.'
+        })
+        return ExitCode.INVALID_ARGS
       }
-      cliLog(ctx, `Cleaning ${totalItems} items (${formatBytes(totalSize)})...`)
-      const itemIds = results.flatMap((r) => r.items.map((i) => i.id))
+      cliLog(ctx, `Cleaning ${items.length} reviewed items...`)
+      cacheItems(items)
+      const itemIds = items.map((i) => i.id)
       const cleanResult = await cleanItems(itemIds, undefined, 'cli')
       cliOut(ctx, cleanResult)
       return exitCodeForCleanResult(cleanResult)

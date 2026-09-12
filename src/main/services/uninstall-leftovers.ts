@@ -1,18 +1,16 @@
-import { readdir, stat } from 'fs/promises'
-import { join, basename } from 'path'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
+﻿import { lstat, readdir, readFile, writeFile, mkdir, rename } from 'fs/promises'
+import { join, win32 } from 'path'
 import { randomUUID } from 'crypto'
+import { app } from 'electron'
 import { IPC } from '../../shared/channels'
 import type { WindowGetter } from '../ipc/index'
 import { CleanerType } from '../../shared/enums'
 import { getPlatform } from '../platform'
 import { SAFE_FOLDER_NAMES, SAFE_PREFIXES } from '../constants/uninstall-safelist'
-import { psUtf8, execNativeUtf8 } from './exec-utf8'
-import { getDirectorySize } from './file-utils'
+import { psUtf8, execTracked } from './exec-utf8'
+import { CooperativeScheduler } from './cooperative-scheduler'
+import { MAX_RECENCY_DEPTH } from './file-utils'
 import type { ScanItem, ScanResult } from '../../shared/types'
-
-const execFileAsync = promisify(execFile)
 
 interface InstalledProgram {
   displayName: string
@@ -20,364 +18,316 @@ interface InstalledProgram {
   installLocation: string
 }
 
-/**
- * Query the Windows Registry for all currently installed programs.
- * Reads from HKLM (64-bit), HKLM WOW6432Node (32-bit), and HKCU.
- */
-async function getInstalledPrograms(): Promise<InstalledProgram[]> {
-  const keys = [
-    'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-    'HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-    'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
-  ]
-
-  const programs: InstalledProgram[] = []
-
-  for (const key of keys) {
-    try {
-      const { stdout } = await execNativeUtf8('reg', ['query', key, '/s'], {
-        timeout: 20000,
-        maxBuffer: 10 * 1024 * 1024
-      })
-
-      // Split into registry key blocks
-      const blocks = stdout.split(/\r?\n\r?\n/)
-      for (const block of blocks) {
-        const displayNameMatch = block.match(/DisplayName\s+REG_SZ\s+(.+)/i)
-        if (!displayNameMatch) continue
-
-        const displayName = displayNameMatch[1].trim()
-        const publisherMatch = block.match(/Publisher\s+REG_SZ\s+(.+)/i)
-        const installLocMatch = block.match(/InstallLocation\s+REG_SZ\s+(.+)/i)
-
-        programs.push({
-          displayName,
-          publisher: publisherMatch ? publisherMatch[1].trim() : '',
-          installLocation: installLocMatch ? installLocMatch[1].trim().replace(/\\$/, '') : ''
-        })
-      }
-    } catch {
-      // Registry key may not exist or access denied — skip
+// Missing registry entries alone do not establish that an arbitrary folder is
+// orphaned. Remember owners actually observed installed on this machine.
+function parsePrograms(value: unknown): InstalledProgram[] {
+  if (!Array.isArray(value)) throw new Error('Invalid installed-program inventory')
+  return value.map((p: unknown) => {
+    if (!p || typeof p !== 'object') throw new Error('Invalid installed-program entry')
+    const entry = p as Record<string, unknown>
+    for (const key of ['displayName', 'publisher', 'installLocation']) {
+      if (typeof entry[key] !== 'string') throw new Error('Incomplete installed-program entry')
     }
-  }
+    return entry as unknown as InstalledProgram
+  })
+}
 
+async function getInstalledPrograms(): Promise<InstalledProgram[]> {
+  // Test-Path distinguishes an absent optional hive from a failed query. Any
+  // access/PowerShell/JSON failure aborts the scan, never an empty inventory.
+  const script = `
+    $ErrorActionPreference = 'Stop'
+    $keys = @(
+      'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+      'HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+      'HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+      'HKCU:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
+    )
+    $programs = @(foreach ($key in $keys) {
+      if (Test-Path -LiteralPath $key) {
+        Get-ChildItem -LiteralPath $key | ForEach-Object {
+          $p = Get-ItemProperty -LiteralPath $_.PSPath
+          if ($p.DisplayName) {
+            [PSCustomObject]@{
+              displayName = [string]$p.DisplayName
+              publisher = [string]$p.Publisher
+              installLocation = [string]$p.InstallLocation
+            }
+          }
+        }
+      }
+    })
+    ConvertTo-Json -InputObject $programs -Compress
+  `
+  const { stdout } = await execTracked(
+    'powershell',
+    ['-NoProfile', '-NoLogo', '-Command', psUtf8(script)],
+    {
+      timeout: 30000,
+      windowsHide: true
+    }
+  )
+  const programs = parsePrograms(JSON.parse(stdout))
+  if (programs.length === 0)
+    throw new Error('Installed-program inventory is empty; refusing leftover scan')
   return programs
 }
 
-/**
- * Build a set of normalized tokens from installed programs for matching.
- * These tokens represent folder names we'd expect to see for installed software.
- */
-function buildMatchTokens(programs: InstalledProgram[]): Set<string> {
+function normalizeName(name: string): string {
+  return name.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')
+}
+
+export function buildMatchTokens(programs: InstalledProgram[]): Set<string> {
   const tokens = new Set<string>()
-
-  for (const prog of programs) {
-    const name = prog.displayName.toLowerCase().trim()
-    if (name.length >= 2) {
-      tokens.add(name)
-
-      // Add first word if it's substantial (e.g., "Discord" from "Discord Inc")
-      const firstWord = name.split(/[\s\-_.()]+/)[0]
-      if (firstWord && firstWord.length >= 3) {
-        tokens.add(firstWord)
-      }
-
-      // Add name without version numbers (e.g., "Visual Studio Code" from "Visual Studio Code 1.85")
-      const withoutVersion = name.replace(/\s+[\d.]+\s*$/, '').trim()
-      if (withoutVersion.length >= 3 && withoutVersion !== name) {
-        tokens.add(withoutVersion)
-      }
-    }
-
-    // Publisher name
-    const publisher = prog.publisher.toLowerCase().trim()
-    if (publisher.length >= 3) {
-      tokens.add(publisher)
-      // First word of publisher
-      const pubFirst = publisher.split(/[\s\-_.()]+/)[0]
-      if (pubFirst && pubFirst.length >= 3) {
-        tokens.add(pubFirst)
-      }
-    }
-
-    // Folder name from install location
-    if (prog.installLocation) {
-      const folder = basename(prog.installLocation).toLowerCase()
-      if (folder.length >= 2) {
-        tokens.add(folder)
-      }
-      // Also add parent folder for paths like "C:\Program Files\Company\App"
-      const parent = basename(join(prog.installLocation, '..'))?.toLowerCase()
-      if (parent && parent.length >= 3) {
-        tokens.add(parent)
-      }
+  for (const p of programs) {
+    for (const name of [
+      p.displayName,
+      p.publisher,
+      win32.basename(p.installLocation.replace(/[\\/]+$/, ''))
+    ]) {
+      if (name.length >= 2) tokens.add(normalizeName(name))
+      const first = name.split(/[\s\-_.()]+/)[0]
+      if (first.length >= 3) tokens.add(normalizeName(first))
+      const versionless = name.replace(/\s+[\d.]+\s*$/, '').trim()
+      if (versionless.length >= 3) tokens.add(normalizeName(versionless))
     }
   }
-
   return tokens
 }
 
-/**
- * Conservative fuzzy matching — returns true if the folder likely belongs
- * to an installed program (meaning: do NOT flag it as a leftover).
- */
-function matchesInstalledProgram(folderName: string, tokens: Set<string>): boolean {
-  const lower = folderName.toLowerCase()
-
-  // Exact match
-  if (tokens.has(lower)) return true
-
-  // Check if any token contains the folder name or vice versa (min 4 char overlap)
-  for (const token of tokens) {
-    // Folder name is within a token (e.g., folder "discord" in token "discord inc")
-    if (token.length >= 4 && lower.length >= 4) {
-      if (token.includes(lower) || lower.includes(token)) return true
-    }
-
-    // Starts with or ends with (e.g., folder "steamcmd" starts with token "steam")
-    if (token.length >= 4) {
-      if (lower.startsWith(token) || lower.endsWith(token)) return true
-    }
-    if (lower.length >= 4) {
-      if (token.startsWith(lower) || token.endsWith(lower)) return true
-    }
-  }
-
-  return false
-}
-
-/**
- * Check if a folder (or its immediate children) was modified recently.
- */
-async function isRecentlyModified(dirPath: string, thresholdDays: number): Promise<boolean> {
-  const cutoff = Date.now() - thresholdDays * 24 * 60 * 60 * 1000
-
-  try {
-    // Check the directory itself
-    const dirStat = await stat(dirPath)
-    if (dirStat.mtimeMs > cutoff) return true
-
-    // Sample immediate children
-    const entries = await readdir(dirPath, { withFileTypes: true })
-    const sample = entries.slice(0, 20) // Check first 20 entries for speed
-    for (const entry of sample) {
-      try {
-        const childStat = await stat(join(dirPath, entry.name))
-        if (childStat.mtimeMs > cutoff) return true
-      } catch {
-        // Skip inaccessible
-      }
-    }
-  } catch {
-    // If we can't stat it, assume it's recent (err on side of caution)
-    return true
-  }
-
-  return false
-}
-
-/**
- * Check if any running process has executables inside the given folder.
- * Uses a single PowerShell call with a short timeout.
- */
-async function hasRunningProcesses(folderPaths: string[]): Promise<Set<string>> {
-  const running = new Set<string>()
-  if (folderPaths.length === 0) return running
-
-  try {
-    // Get all running process paths in one call
-    const procScript =
-      'Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique'
-    const { stdout } = await execFileAsync(
-      'powershell',
-      ['-NoProfile', '-NoLogo', '-Command', psUtf8(procScript)],
-      { timeout: 10000, windowsHide: true }
+export function matchesInstalledProgram(folderName: string, tokens: Set<string>): boolean {
+  const name = normalizeName(folderName)
+  return (
+    tokens.has(name) ||
+    [...tokens].some(
+      (t) => t.length >= 4 && name.length >= 4 && (name.includes(t) || t.includes(name))
     )
-
-    const processPaths = stdout
-      .split(/\r?\n/)
-      .map((p) => p.trim().toLowerCase())
-      .filter(Boolean)
-
-    for (const folderPath of folderPaths) {
-      const folderLower = folderPath.toLowerCase().replace(/\//g, '\\')
-      for (const procPath of processPaths) {
-        if (procPath.startsWith(folderLower + '\\')) {
-          running.add(folderPath)
-          break
-        }
-      }
-    }
-  } catch {
-    // If PowerShell fails, mark nothing as running (we have other safety layers)
-  }
-
-  return running
+  )
 }
 
-/**
- * Check if a folder name is safe based on the safelist.
- */
-function isSafeFolder(folderName: string): boolean {
+export function isSafeFolder(folderName: string): boolean {
   const lower = folderName.toLowerCase()
-
-  // Exact match in safelist
-  if (SAFE_FOLDER_NAMES.has(lower)) return true
-
-  // Prefix match
-  for (const prefix of SAFE_PREFIXES) {
-    if (lower.startsWith(prefix)) return true
-  }
-
-  // Skip hidden folders (starting with .)
-  if (lower.startsWith('.')) return true
-
-  // Skip GUID-style folders {xxxxxxxx-xxxx-...}
-  if (/^\{[0-9a-f-]+\}$/i.test(folderName)) return true
-
-  return false
+  return (
+    SAFE_FOLDER_NAMES.has(lower) ||
+    SAFE_PREFIXES.some((p) => lower.startsWith(p)) ||
+    lower.startsWith('.') ||
+    /^\{[0-9a-f-]+\}$/i.test(folderName)
+  )
 }
 
-/**
- * Main scan function: finds potential uninstall leftovers.
- * Uses 5 safety layers:
- *   1. Comprehensive safelist
- *   2. Registry cross-reference with fuzzy matching
- *   3. Recency check (skip folders modified within last 30 days)
- *   4. Running process check
- *   5. Minimum size threshold
- */
-export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanResult[]> {
-  const results: ScanResult[] = []
-  const category = CleanerType.UninstallLeftovers
+function ownerIdentity(program: InstalledProgram): string {
+  return JSON.stringify([
+    normalizeName(program.displayName.replace(/\s+[\d.]+\s*$/, '')),
+    normalizeName(program.publisher),
+    win32
+      .normalize(program.installLocation)
+      .replace(/[\\/]+$/, '')
+      .toLowerCase()
+  ])
+}
 
-  const safeSend = (channel: string, data: object) => {
-    const win = getWindow()
-    if (win && !win.isDestroyed()) win.webContents.send(channel, data)
+async function readPreviousOwners(programs: InstalledProgram[]): Promise<InstalledProgram[]> {
+  const dir = app.isPackaged ? app.getPath('userData') : join(app.getPath('userData'), 'Kudu-Dev')
+  const path = join(dir, 'leftover-owners.json')
+  let previous: InstalledProgram[] = []
+  try {
+    previous = parsePrograms(JSON.parse(await readFile(path, 'utf8')))
+  } catch {
+    // No usable history means no proven owners this time.
   }
+  const owners = new Map(previous.map((p) => [ownerIdentity(p), p]))
+  const previousOwners = [...owners.values()]
+  for (const p of programs) owners.set(ownerIdentity(p), p)
+  await mkdir(dir, { recursive: true })
+  const temp = path + '.' + randomUUID() + '.tmp'
+  await writeFile(temp, JSON.stringify([...owners.values()].slice(-20000)), 'utf8')
+  await rename(temp, path)
+  return previousOwners
+}
 
-  // Step 1: Get installed programs from registry
-  safeSend(IPC.SCAN_PROGRESS, {
-    phase: 'scanning',
-    category,
-    currentPath: 'Querying installed programs...',
-    progress: 5,
-    itemsFound: 0,
-    sizeFound: 0
-  })
+async function isAbsent(path: string): Promise<boolean> {
+  if (!win32.isAbsolute(path)) return false
+  try {
+    await lstat(path)
+    return false
+  } catch (err) {
+    return (err as NodeJS.ErrnoException).code === 'ENOENT'
+  }
+}
 
+// Only disposable children are eligible, never a whole profile, publisher or
+// install directory. Even inside a cache, recognizable saves are protected.
+const DISPOSABLE_DIRS = new Set(['cache', 'caches', 'code cache', 'gpucache', 'logs'])
+const SAVE_FILE = /\.(?:sl2|lsv|lsf|save|sav|dat|bak)$/i
+const MAX_ENTRIES = 10000
+
+async function inspectDisposableTree(path: string, cutoff: number): Promise<number | null> {
+  let remaining = MAX_ENTRIES
+  const scheduler = new CooperativeScheduler()
+  async function walk(current: string, depth: number): Promise<number | null> {
+    await scheduler.yieldIfNeeded()
+    if (--remaining < 0) return null
+    const info = await lstat(current)
+    if (info.isSymbolicLink() || info.mtimeMs > cutoff) return null
+    if (info.isFile()) return SAVE_FILE.test(current) ? null : info.size
+    // Match cleanItems: eight nested directory levels, with files allowed
+    // directly inside the deepest inspected directory.
+    if (!info.isDirectory() || depth > MAX_RECENCY_DEPTH) return null
+    let size = 0
+    for (const entry of await readdir(current)) {
+      const childSize = await walk(join(current, entry), depth + 1)
+      if (childSize === null) return null
+      size += childSize
+    }
+    return size
+  }
+  try {
+    return await walk(path, 0)
+  } catch {
+    return null
+  }
+}
+
+export async function scanForLeftovers(getWindow: WindowGetter): Promise<ScanResult[]> {
+  if (process.platform !== 'win32') {
+    throw new Error(
+      'Standalone leftover scanning requires Windows installed-program ownership data'
+    )
+  }
+  const category = CleanerType.UninstallLeftovers
+  const send = (progress: number, currentPath: string, itemsFound = 0, sizeFound = 0) => {
+    const win = getWindow()
+    if (win && !win.isDestroyed())
+      win.webContents.send(IPC.SCAN_PROGRESS, {
+        phase: 'scanning',
+        category,
+        progress,
+        currentPath,
+        itemsFound,
+        sizeFound
+      })
+  }
+  send(5, 'Checking installed programs and running processes...')
   const programs = await getInstalledPrograms()
-  const matchTokens = buildMatchTokens(programs)
-
-  // Step 2: Scan each target directory
-  const leftoverDirs = getPlatform().paths.uninstallLeftoverDirs()
-  const totalDirs = leftoverDirs.length
-  let totalItemsFound = 0
-  let totalSizeFound = 0
-
-  for (let dirIdx = 0; dirIdx < totalDirs; dirIdx++) {
-    const target = leftoverDirs[dirIdx]
+  const { stdout } = await execTracked(
+    'powershell',
+    [
+      '-NoProfile',
+      '-NoLogo',
+      '-Command',
+      psUtf8(
+        "$ErrorActionPreference = 'Stop'; Get-Process | Where-Object { $_.Path } | Select-Object -ExpandProperty Path -Unique"
+      )
+    ],
+    { timeout: 10000, windowsHide: true }
+  )
+  const processPaths = stdout
+    .split(/\r?\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+  if (!processPaths.length)
+    throw new Error('Running-process inventory is empty; refusing leftover scan')
+  const tokens = buildMatchTokens(programs)
+  for (const path of processPaths) {
+    for (const part of path.split(/[\\/]/).slice(0, -1)) tokens.add(normalizeName(part))
+    tokens.add(normalizeName(win32.basename(path, win32.extname(path))))
+  }
+  const targets = getPlatform().paths.uninstallLeftoverDirs()
+  // An installed/portable app may have no uninstall entry. Protect names seen
+  // in either Program Files root, including data directories elsewhere.
+  for (const target of targets.filter((t) => t.id.startsWith('programfiles'))) {
+    try {
+      if ((await lstat(target.path)).isSymbolicLink()) {
+        throw new Error('Cannot verify installed applications through a linked Program Files root')
+      }
+      for (const entry of await readdir(target.path, { withFileTypes: true })) {
+        if (entry.isDirectory() || entry.isSymbolicLink()) tokens.add(normalizeName(entry.name))
+      }
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err
+    }
+  }
+  const previous = await readPreviousOwners(programs)
+  const absentOwners: InstalledProgram[] = []
+  for (const owner of previous) {
+    if (matchesInstalledProgram(owner.displayName, tokens)) continue
+    if (await isAbsent(owner.installLocation)) absentOwners.push(owner)
+  }
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000
+  const results: ScanResult[] = []
+  for (const target of targets.filter((t) => !t.id.startsWith('programfiles'))) {
     const items: ScanItem[] = []
-
-    safeSend(IPC.SCAN_PROGRESS, {
-      phase: 'scanning',
-      category,
-      currentPath: `Scanning ${target.name}...`,
-      progress: 10 + Math.round((dirIdx / totalDirs) * 70),
-      itemsFound: totalItemsFound,
-      sizeFound: totalSizeFound
-    })
-
-    // Read top-level folders
     let entries: import('fs').Dirent<string>[]
     try {
-      entries = await readdir(target.path, { withFileTypes: true, encoding: 'utf-8' })
+      if ((await lstat(target.path)).isSymbolicLink()) continue
+      entries = await readdir(target.path, { withFileTypes: true })
     } catch {
-      continue // Directory doesn't exist or access denied
+      continue
     }
-
-    // Collect candidate folders (pass safelist + registry checks first)
-    const candidates: { name: string; fullPath: string }[] = []
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue
-
-      const folderName = entry.name
-      const fullPath = join(target.path, folderName)
-
-      // Safety layer 1: Safelist
-      if (isSafeFolder(folderName)) continue
-
-      // Safety layer 2: Registry cross-reference
-      if (matchesInstalledProgram(folderName, matchTokens)) continue
-
-      candidates.push({ name: folderName, fullPath })
-    }
-
-    if (candidates.length === 0) continue
-
-    // Safety layer 4: Batch running process check
-    const runningFolders = await hasRunningProcesses(candidates.map((c) => c.fullPath))
-
-    for (const candidate of candidates) {
-      // Skip folders with running processes
-      if (runningFolders.has(candidate.fullPath)) continue
-
-      // Safety layer 3: Recency check — skip if modified within 30 days
-      const recent = await isRecentlyModified(candidate.fullPath, 30)
-      if (recent) continue
-
-      // Safety layer 5: Minimum size (skip near-empty folders, not worth flagging)
-      let size: number
+      if (
+        !entry.isDirectory() ||
+        entry.isSymbolicLink() ||
+        isSafeFolder(entry.name) ||
+        matchesInstalledProgram(entry.name, tokens)
+      )
+        continue
+      // Positive ownership uses exact names, not the broad protective matcher.
+      const name = normalizeName(entry.name)
+      const owners = absentOwners.filter((p) =>
+        [
+          p.displayName.replace(/\s+[\d.]+\s*$/, ''),
+          win32.basename(p.installLocation.replace(/[\\/]+$/, ''))
+        ].some((n) => normalizeName(n) === name)
+      )
+      if (owners.length !== 1) continue
+      const parent = join(target.path, entry.name)
+      let children: import('fs').Dirent<string>[]
       try {
-        size = await getDirectorySize(candidate.fullPath, 2)
+        const info = await lstat(parent)
+        if (info.isSymbolicLink() || !info.isDirectory()) continue
+        children = await readdir(parent, { withFileTypes: true })
       } catch {
         continue
       }
-      if (size < 1024) continue // Less than 1 KB
-
-      let folderStat: Awaited<ReturnType<typeof stat>>
-      try {
-        folderStat = await stat(candidate.fullPath)
-      } catch {
-        continue
+      for (const child of children) {
+        if (
+          !child.isDirectory() ||
+          child.isSymbolicLink() ||
+          !DISPOSABLE_DIRS.has(child.name.toLowerCase())
+        )
+          continue
+        const path = join(parent, child.name)
+        const size = await inspectDisposableTree(path, cutoff)
+        if (size === null || size < 1024) continue
+        items.push({
+          id: randomUUID(),
+          path,
+          size,
+          category,
+          subcategory: target.name,
+          lastModified: (await lstat(path)).mtimeMs,
+          recencyCutoff: cutoff,
+          selected: false
+        })
       }
-
-      items.push({
-        id: randomUUID(),
-        path: candidate.fullPath,
-        size,
-        category,
-        subcategory: target.name,
-        lastModified: folderStat.mtimeMs,
-        selected: false // NEVER auto-select leftovers
-      })
-
-      totalItemsFound++
-      totalSizeFound += size
-
-      // Cap at 100 items per directory to avoid overwhelming results
+      send(50, parent, results.reduce((n, r) => n + r.itemCount, 0) + items.length)
       if (items.length >= 100) break
     }
-
-    if (items.length > 0) {
+    if (items.length)
       results.push({
         category,
         subcategory: target.name,
         items,
-        totalSize: items.reduce((s, i) => s + i.size, 0),
+        totalSize: items.reduce((n, i) => n + i.size, 0),
         itemCount: items.length
       })
-    }
   }
-
-  safeSend(IPC.SCAN_PROGRESS, {
-    phase: 'scanning',
-    category,
-    currentPath: 'Leftover scan complete',
-    progress: 100,
-    itemsFound: totalItemsFound,
-    sizeFound: totalSizeFound
-  })
-
+  send(
+    100,
+    'Leftover scan complete',
+    results.reduce((n, r) => n + r.itemCount, 0),
+    results.reduce((n, r) => n + r.totalSize, 0)
+  )
   return results
 }

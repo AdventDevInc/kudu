@@ -1,24 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-// We test the pure functions replicated from uninstall-leftovers.ts since they
-// are not exported. These are safety-critical — they decide what gets flagged
-// for deletion vs what is protected.
-
-import { SAFE_FOLDER_NAMES, SAFE_PREFIXES } from '../constants/uninstall-safelist'
-
-// ─── isSafeFolder (replica) ──────────────────────────────────────
-
-function isSafeFolder(folderName: string): boolean {
-  const lower = folderName.toLowerCase()
-  if (SAFE_FOLDER_NAMES.has(lower)) return true
-  for (const prefix of SAFE_PREFIXES) {
-    if (lower.startsWith(prefix)) return true
-  }
-  if (lower.startsWith('.')) return true
-  if (/^\{[0-9a-f-]+\}$/i.test(folderName)) return true
-  return false
-}
-
+import { isSafeFolder, buildMatchTokens, matchesInstalledProgram } from './uninstall-leftovers'
 describe('isSafeFolder', () => {
   it('protects Windows core folders', () => {
     expect(isSafeFolder('Microsoft')).toBe(true)
@@ -90,48 +72,6 @@ interface InstalledProgram {
   installLocation: string
 }
 
-function buildMatchTokens(programs: InstalledProgram[]): Set<string> {
-  const tokens = new Set<string>()
-  for (const prog of programs) {
-    const name = prog.displayName.toLowerCase().trim()
-    if (name.length >= 2) {
-      tokens.add(name)
-      const firstWord = name.split(/[\s\-_.()]+/)[0]
-      if (firstWord && firstWord.length >= 3) tokens.add(firstWord)
-      const withoutVersion = name.replace(/\s+[\d.]+\s*$/, '').trim()
-      if (withoutVersion.length >= 3 && withoutVersion !== name) tokens.add(withoutVersion)
-    }
-    const publisher = prog.publisher.toLowerCase().trim()
-    if (publisher.length >= 3) {
-      tokens.add(publisher)
-      const pubFirst = publisher.split(/[\s\-_.()]+/)[0]
-      if (pubFirst && pubFirst.length >= 3) tokens.add(pubFirst)
-    }
-    if (prog.installLocation) {
-      const folder = prog.installLocation.split(/[/\\]/).pop()?.toLowerCase() || ''
-      if (folder.length >= 2) tokens.add(folder)
-    }
-  }
-  return tokens
-}
-
-function matchesInstalledProgram(folderName: string, tokens: Set<string>): boolean {
-  const lower = folderName.toLowerCase()
-  if (tokens.has(lower)) return true
-  for (const token of tokens) {
-    if (token.length >= 4 && lower.length >= 4) {
-      if (token.includes(lower) || lower.includes(token)) return true
-    }
-    if (token.length >= 4) {
-      if (lower.startsWith(token) || lower.endsWith(token)) return true
-    }
-    if (lower.length >= 4) {
-      if (token.startsWith(lower) || token.endsWith(lower)) return true
-    }
-  }
-  return false
-}
-
 describe('buildMatchTokens', () => {
   it('extracts display name as a token', () => {
     const tokens = buildMatchTokens([
@@ -155,14 +95,14 @@ describe('buildMatchTokens', () => {
     const tokens = buildMatchTokens([
       { displayName: 'Visual Studio Code 1.85', publisher: '', installLocation: '' }
     ])
-    expect(tokens.has('visual studio code')).toBe(true)
+    expect(tokens.has('visualstudiocode')).toBe(true)
   })
 
   it('extracts publisher tokens', () => {
     const tokens = buildMatchTokens([
       { displayName: 'Foo', publisher: 'Acme Corporation', installLocation: '' }
     ])
-    expect(tokens.has('acme corporation')).toBe(true)
+    expect(tokens.has('acmecorporation')).toBe(true)
     expect(tokens.has('acme')).toBe(true)
   })
 
