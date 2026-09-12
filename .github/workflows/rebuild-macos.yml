@@ -76,6 +76,8 @@ jobs:
       - name: Build, sign, notarize, and upload macOS
         env:
           GH_TOKEN: ${{ github.token }}
+          # Recovery intentionally uploads to a release older than two hours.
+          EP_GH_IGNORE_TIME: 'true'
           CSC_LINK: ${{ secrets.MAC_CERTIFICATE_P12 }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
