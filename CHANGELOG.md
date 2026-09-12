@@ -1,3 +1,25 @@
+# [2.9.0](https://github.com/adventdevinc/kudu/compare/v2.8.0...v2.9.0) (2026-09-12)
+
+
+### Bug Fixes
+
+* **build:** repair macOS signing and enable release recovery ([#422](https://github.com/adventdevinc/kudu/issues/422)) ([672c310](https://github.com/adventdevinc/kudu/commit/672c3109161b377d8330b7b9ba22ea2cd9f0ae07))
+* **build:** ship Linux arm64 AppImage and deb on release ([#397](https://github.com/adventdevinc/kudu/issues/397)) ([c3167f6](https://github.com/adventdevinc/kudu/commit/c3167f62d7bd618edd50cd7a4b1c51bdee1cb5a9)), closes [#404](https://github.com/adventdevinc/kudu/issues/404)
+* **ci:** allow macOS recovery uploads to existing releases ([#425](https://github.com/adventdevinc/kudu/issues/425)) ([bddc9d2](https://github.com/adventdevinc/kudu/commit/bddc9d2ef32dc41fb42b3f464274ae6a916ae2e4))
+* **cli:** report failed operations through the exit code ([#409](https://github.com/adventdevinc/kudu/issues/409)) ([2235920](https://github.com/adventdevinc/kudu/commit/2235920e1d7b2930eb22a6dc4f038f18f6601bbc))
+* **linux:** keep AppImage updates on a stable filename ([#404](https://github.com/adventdevinc/kudu/issues/404)) ([a60afbc](https://github.com/adventdevinc/kudu/commit/a60afbcf8f455ded2cc0b59a5dfffbfdb8f6df59)), closes [#401](https://github.com/adventdevinc/kudu/issues/401)
+* **malware:** avoid Tor Browser and Thunderbird heuristic false positives ([#424](https://github.com/adventdevinc/kudu/issues/424)) ([ad355db](https://github.com/adventdevinc/kudu/commit/ad355db06d29de4d0ddafcc75ea417844c55ad29))
+* **malware:** stop pre-selecting advisory YARA hits for deletion ([#411](https://github.com/adventdevinc/kudu/issues/411)) ([7462f0c](https://github.com/adventdevinc/kudu/commit/7462f0c1865f559250731dc50f9c7bbc4bf515cc))
+* **restore-point:** say when System Protection is off instead of relaying a localised error ([#410](https://github.com/adventdevinc/kudu/issues/410)) ([7582112](https://github.com/adventdevinc/kudu/commit/7582112e3ccdf2082724dbbb8097558884e7e400))
+* **startup:** stop attributing boot-trace entries to HKCU Run ([#412](https://github.com/adventdevinc/kudu/issues/412)) ([a7c6b88](https://github.com/adventdevinc/kudu/commit/a7c6b88a0d7ebf00280438ad6d91d96d7776c18d))
+
+
+### Features
+
+* **cli:** add repair gpu-restart for display adapters ([#400](https://github.com/adventdevinc/kudu/issues/400)) ([343b148](https://github.com/adventdevinc/kudu/commit/343b148fa4e2cf1ccf9da30871b489aa896350e4)), closes [#394](https://github.com/adventdevinc/kudu/issues/394)
+* **cli:** add repair winre-status for Windows RE ([#399](https://github.com/adventdevinc/kudu/issues/399)) ([ee22991](https://github.com/adventdevinc/kudu/commit/ee2299116fdc0be643910d0b02715f11574e6a76)), closes [#395](https://github.com/adventdevinc/kudu/issues/395)
+* **i18n:** default to the OS language on a fresh install ([#407](https://github.com/adventdevinc/kudu/issues/407)) ([4e804f8](https://github.com/adventdevinc/kudu/commit/4e804f8c5a705e4e656d20bd1b3eba9b2ce75286))
+* **settings:** opt-in prefer elevated launch ([#398](https://github.com/adventdevinc/kudu/issues/398)) ([c230a4e](https://github.com/adventdevinc/kudu/commit/c230a4ed74e7485392a3a525df8fc5454e610874)), closes [#390](https://github.com/adventdevinc/kudu/issues/390)
 # [2.8.0](https://github.com/adventdevinc/kudu/compare/v2.7.0...v2.8.0) (2026-09-08)
 
 
