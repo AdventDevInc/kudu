@@ -9,6 +9,7 @@ import { getPlatform } from '../platform'
 import { SAFE_FOLDER_NAMES, SAFE_PREFIXES } from '../constants/uninstall-safelist'
 import { psUtf8, execTracked } from './exec-utf8'
 import { CooperativeScheduler } from './cooperative-scheduler'
+import { MAX_RECENCY_DEPTH } from './file-utils'
 import type { ScanItem, ScanResult } from '../../shared/types'
 
 interface InstalledProgram {
@@ -114,6 +115,17 @@ export function isSafeFolder(folderName: string): boolean {
   )
 }
 
+function ownerIdentity(program: InstalledProgram): string {
+  return JSON.stringify([
+    normalizeName(program.displayName.replace(/\s+[\d.]+\s*$/, '')),
+    normalizeName(program.publisher),
+    win32
+      .normalize(program.installLocation)
+      .replace(/[\\/]+$/, '')
+      .toLowerCase()
+  ])
+}
+
 async function readPreviousOwners(programs: InstalledProgram[]): Promise<InstalledProgram[]> {
   const dir = app.isPackaged ? app.getPath('userData') : join(app.getPath('userData'), 'Kudu-Dev')
   const path = join(dir, 'leftover-owners.json')
@@ -123,13 +135,14 @@ async function readPreviousOwners(programs: InstalledProgram[]): Promise<Install
   } catch {
     // No usable history means no proven owners this time.
   }
-  const owners = new Map(previous.map((p) => [JSON.stringify(p), p]))
-  for (const p of programs) owners.set(JSON.stringify(p), p)
+  const owners = new Map(previous.map((p) => [ownerIdentity(p), p]))
+  const previousOwners = [...owners.values()]
+  for (const p of programs) owners.set(ownerIdentity(p), p)
   await mkdir(dir, { recursive: true })
   const temp = path + '.' + randomUUID() + '.tmp'
   await writeFile(temp, JSON.stringify([...owners.values()].slice(-20000)), 'utf8')
   await rename(temp, path)
-  return previous
+  return previousOwners
 }
 
 async function isAbsent(path: string): Promise<boolean> {
@@ -147,18 +160,19 @@ async function isAbsent(path: string): Promise<boolean> {
 const DISPOSABLE_DIRS = new Set(['cache', 'caches', 'code cache', 'gpucache', 'logs'])
 const SAVE_FILE = /\.(?:sl2|lsv|lsf|save|sav|dat|bak)$/i
 const MAX_ENTRIES = 10000
-const MAX_DEPTH = 16
 
 async function inspectDisposableTree(path: string, cutoff: number): Promise<number | null> {
   let remaining = MAX_ENTRIES
   const scheduler = new CooperativeScheduler()
   async function walk(current: string, depth: number): Promise<number | null> {
     await scheduler.yieldIfNeeded()
-    if (--remaining < 0 || depth > MAX_DEPTH) return null
+    if (--remaining < 0) return null
     const info = await lstat(current)
     if (info.isSymbolicLink() || info.mtimeMs > cutoff) return null
     if (info.isFile()) return SAVE_FILE.test(current) ? null : info.size
-    if (!info.isDirectory()) return null
+    // Match cleanItems: eight nested directory levels, with files allowed
+    // directly inside the deepest inspected directory.
+    if (!info.isDirectory() || depth > MAX_RECENCY_DEPTH) return null
     let size = 0
     for (const entry of await readdir(current)) {
       const childSize = await walk(join(current, entry), depth + 1)

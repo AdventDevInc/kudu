@@ -16,6 +16,7 @@ vi.mock('../platform', () => ({
   })
 }))
 import { scanForLeftovers } from './uninstall-leftovers'
+import { MAX_RECENCY_DEPTH } from './file-utils'
 const platform = Object.getOwnPropertyDescriptor(process, 'platform')!
 const old = new Date(Date.now() - 60 * 86400000)
 let programs: { displayName: string; publisher: string; installLocation: string }[]
@@ -55,6 +56,60 @@ afterEach(async () => {
   await rm(state.root, { recursive: true, force: true })
 })
 describe('standalone leftover safety through the production scanner', () => {
+  it('retains one owner across versioned display-name updates and older duplicate snapshots', async () => {
+    const path = await cache()
+    const version1 = { ...owner('OldApp'), displayName: 'OldApp 1.0' }
+    const version2 = { ...owner('OldApp'), displayName: 'OldApp 2.0' }
+    programs.push(version1)
+    await scanForLeftovers(() => null)
+    programs[programs.length - 1] = version2
+    await scanForLeftovers(() => null)
+    const historyPath = join(state.root, 'state', 'leftover-owners.json')
+    expect(
+      JSON.parse(await readFile(historyPath, 'utf8')).filter((p: { displayName: string }) =>
+        p.displayName.startsWith('OldApp')
+      )
+    ).toEqual([version2])
+    // Migrate history already written by the initial version of this scanner.
+    await writeFile(historyPath, JSON.stringify([...programs, version1]))
+    programs.pop()
+    expect((await scanForLeftovers(() => null)).flatMap((r) => r.items.map((i) => i.path))).toEqual(
+      [path]
+    )
+  })
+
+  it('still withholds ambiguous owners with distinct publishers', async () => {
+    await cache()
+    programs.push(
+      { ...owner('OldApp'), publisher: 'Company A' },
+      { ...owner('OldApp'), publisher: 'Company B' }
+    )
+    await scanForLeftovers(() => null)
+    programs.splice(1)
+    expect(await scanForLeftovers(() => null)).toEqual([])
+  })
+
+  it.each([MAX_RECENCY_DEPTH, MAX_RECENCY_DEPTH + 1])(
+    'matches cleanup revalidation at %i nested directory levels',
+    async (depth) => {
+      const path = await cache()
+      let nested = path
+      const dirs = [path]
+      for (let i = 0; i < depth; i++) {
+        nested = join(nested, 'd')
+        await mkdir(nested)
+        dirs.push(nested)
+      }
+      const file = join(nested, 'old.bin')
+      await writeFile(file, Buffer.alloc(2048))
+      await utimes(file, old, old)
+      for (const dir of dirs) await utimes(dir, old, old)
+      await observeOwner()
+      const items = (await scanForLeftovers(() => null)).flatMap((r) => r.items)
+      expect(items.map((i) => i.path)).toEqual(depth === MAX_RECENCY_DEPTH ? [path] : [])
+    }
+  )
+
   it('never infers ownership from age or an unmatched folder name', async () => {
     await cache()
     expect(await scanForLeftovers(() => null)).toEqual([])

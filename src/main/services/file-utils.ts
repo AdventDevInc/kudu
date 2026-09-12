@@ -280,7 +280,7 @@ export async function safeDelete(filePath: string): Promise<DeleteResult> {
  */
 const MAX_LOGGED_DESCENDANTS = 100_000
 /** Bounds both the scan and deletion-time recency revalidation. */
-const MAX_RECENCY_DEPTH = 8
+export const MAX_RECENCY_DEPTH = 8
 // This also bounds the number of IDs passed through a single cleaner IPC call.
 // Keeping it aligned with that validated boundary avoids silently dropping the
 // tail of large flat caches such as Firefox cache2/entries.
