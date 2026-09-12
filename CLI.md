@@ -130,3 +130,18 @@ kudu --cli metrics-server --port 9200  # custom port
 | `5` | Nothing found (scan returned zero items) |
 | `6` | Unknown command |
 | `7` | Threats/issues found requiring attention |
+
+## Uninstall leftovers (Windows)
+
+`kudu --cli leftovers scan --json` reports old cache/log folders belonging to applications that Kudu previously observed installed. Kudu records the installed-program inventory locally when this command runs. The first scan establishes that inventory; it does not classify unknown folders as abandoned applications. Applications removed before Kudu observed them are not eligible.
+
+A later scan requires the owner to be absent from the current registry inventory and its recorded install location to be gone. Matching installed folders and running processes protect application data. Results include only explicit cache/log children older than 30 days, never entire application profiles, install directories, known save-game locations, uninstall metadata, or anti-cheat runtimes. Recognizable save files, recent contents, links, inaccessible contents, and trees exceeding the inspection bounds are excluded. Inventory failures abort the scan.
+
+Review the returned paths, then explicitly select each folder to clean:
+
+```powershell
+kudu --cli leftovers scan --json
+kudu --cli leftovers clean --path "C:\Users\YourName\AppData\Local\OldApp\Cache" --json
+```
+
+Repeat `--path` to select multiple folders. Bare `leftovers clean`, `--all`, wildcards, and paths absent from the fresh scan are rejected with exit code 2. Cleanup caches the selected scan IDs before deletion and returns the standard failure/partial-success exit codes if deletion fails. A prior scan's IDs are not valid across CLI processes; select by the exact reviewed paths instead.

@@ -32,9 +32,11 @@ vi.mock('../services/file-utils', () => ({
 }))
 
 const mockCacheItems = vi.fn()
+const mockGetCachedItems = vi.fn()
 
 vi.mock('../services/scan-cache', () => ({
-  cacheItems: (...args: unknown[]) => mockCacheItems(...args)
+  cacheItems: (...args: unknown[]) => mockCacheItems(...args),
+  getCachedItems: (...args: unknown[]) => mockGetCachedItems(...args)
 }))
 
 const mockValidateStringArray = vi.fn()
@@ -67,14 +69,14 @@ function makeScanResult(items: Partial<ScanItem>[] = []): ScanResult {
     id: `item-${i}`,
     path: `C:\\leftover${i}`,
     size: 100,
-    category: 'uninstall-leftovers',
+    category: 'uninstallLeftovers',
     subcategory: 'files',
     lastModified: Date.now(),
     selected: true,
     ...partial
   }))
   return {
-    category: 'uninstall-leftovers',
+    category: 'uninstallLeftovers',
     subcategory: 'files',
     items: fullItems,
     totalSize: fullItems.reduce((s, it) => s + it.size, 0),
@@ -88,6 +90,11 @@ describe('uninstall-leftovers IPC', () => {
   beforeEach(() => {
     handleMap.clear()
     vi.clearAllMocks()
+    const current = makeScanResult([{ id: 'id-1' }, { id: 'id-2' }])
+    mockScanForLeftovers.mockResolvedValue([current])
+    mockGetCachedItems.mockImplementation((ids: string[]) =>
+      current.items.filter((i) => ids.includes(i.id))
+    )
   })
 
   it('registers both IPC handlers', () => {
@@ -154,6 +161,41 @@ describe('uninstall-leftovers IPC', () => {
   // ── UNINSTALL_LEFTOVERS_CLEAN ──────────────────────────────
 
   describe('UNINSTALL_LEFTOVERS_CLEAN', () => {
+    it('refuses stale selections when an application is reinstalled or new user data appears', async () => {
+      mockValidateStringArray.mockReturnValue(['id-1'])
+      mockScanForLeftovers.mockResolvedValue([])
+      registerUninstallLeftoversIpc(() => makeWindow())
+      expect(await invoke('cleaner:uninstall-leftovers:clean', ['id-1'])).toMatchObject({
+        filesDeleted: 0,
+        filesSkipped: 1,
+        errors: [{ path: 'id-1', reason: 'scan-result-expired' }]
+      })
+      expect(mockCleanItems).not.toHaveBeenCalled()
+    })
+
+    it('refuses IDs cached by unrelated scanners', async () => {
+      mockValidateStringArray.mockReturnValue(['id-1'])
+      mockGetCachedItems.mockReturnValue([
+        { ...makeScanResult([{ id: 'id-1' }]).items[0], category: 'system' }
+      ])
+      registerUninstallLeftoversIpc(() => makeWindow())
+      expect(await invoke('cleaner:uninstall-leftovers:clean', ['id-1'])).toMatchObject({
+        filesDeleted: 0,
+        filesSkipped: 1
+      })
+      expect(mockCleanItems).not.toHaveBeenCalled()
+    })
+
+    it('does not clean when inventory revalidation fails', async () => {
+      mockValidateStringArray.mockReturnValue(['id-1'])
+      mockScanForLeftovers.mockRejectedValue(new Error('Inventory failed'))
+      registerUninstallLeftoversIpc(() => makeWindow())
+      await expect(invoke('cleaner:uninstall-leftovers:clean', ['id-1'])).rejects.toThrow(
+        'Inventory failed'
+      )
+      expect(mockCleanItems).not.toHaveBeenCalled()
+    })
+
     it('validates input and delegates to cleanItems', async () => {
       const ids = ['id-1', 'id-2']
       mockValidateStringArray.mockReturnValue(ids)
