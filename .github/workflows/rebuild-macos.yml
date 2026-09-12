@@ -1,0 +1,112 @@
+name: Rebuild macOS release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing latest release to repair (for example v2.8.0)
+        required: true
+        type: string
+      source_ref:
+        description: Commit with only packaging dependency fixes on top of that tag
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebuild-macos-${{ inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout recovery source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref }}
+          fetch-depth: 0
+
+      - name: Verify release and recovery scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$(node -p "'v' + require('./package.json').version")" = "$RELEASE_TAG"
+          test "$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)" = "$RELEASE_TAG"
+          git merge-base --is-ancestor "refs/tags/$RELEASE_TAG" HEAD
+          # Keep the released application intact; only packaging dependencies may change.
+          git diff --exit-code "refs/tags/$RELEASE_TAG" HEAD -- . \
+            ':!package.json' ':!package-lock.json' ':!.github/workflows/rebuild-macos.yml'
+          git show "refs/tags/$RELEASE_TAG:package.json" > "$RUNNER_TEMP/release-package.json"
+          git show "refs/tags/$RELEASE_TAG:package-lock.json" > "$RUNNER_TEMP/release-package-lock.json"
+          node <<'NODE'
+          const assert = require('node:assert/strict')
+          const path = require('node:path')
+          const released = require(path.join(process.env.RUNNER_TEMP, 'release-package.json'))
+          const recovery = require('./package.json')
+          delete released.devDependencies['electron-builder']
+          delete recovery.devDependencies['electron-builder']
+          assert.deepEqual(recovery, released, 'Only electron-builder may change in package.json')
+          const releasedLock = require(path.join(process.env.RUNNER_TEMP, 'release-package-lock.json'))
+          const recoveryLock = require('./package-lock.json')
+          const production = lock => Object.fromEntries(
+            Object.entries(lock.packages).filter(([name, pkg]) => name && !pkg.dev)
+          )
+          assert.deepEqual(production(recoveryLock), production(releasedLock), 'Production dependencies must stay unchanged')
+          NODE
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build, sign, notarize, and upload macOS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE_P12 }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          DEBUG: electron-notarize*
+        timeout-minutes: 30
+        run: |
+          npm run build
+          npx electron-builder --mac --publish always
+
+      - name: Verify macOS release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets > "$RUNNER_TEMP/release-assets.json"
+          node <<'NODE'
+          const assert = require('node:assert/strict')
+          const path = require('node:path')
+          const { assets } = require(path.join(process.env.RUNNER_TEMP, 'release-assets.json'))
+          const version = process.env.RELEASE_TAG.slice(1)
+          const expected = ['latest-mac.yml']
+          for (const arch of ['x64', 'arm64']) {
+            for (const extension of ['dmg', 'dmg.blockmap', 'zip', 'zip.blockmap']) {
+              expected.push(`Kudu-${version}-${arch}.${extension}`)
+            }
+          }
+          for (const name of expected) {
+            assert(assets.some(asset => asset.name === name && asset.size > 0), `Missing asset: ${name}`)
+          }
+          console.log(`Verified all ${expected.length} macOS release assets`)
+          NODE
