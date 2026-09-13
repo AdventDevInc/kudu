@@ -103,15 +103,13 @@ export async function measureStorageScope(
         }
         try {
           const stat = await lstat(path)
-          if (stat.isSymbolicLink() || stat.dev !== initial.dev) {
+          // Mount points are checked before branching on type: a Linux bind mount can expose a
+          // regular file (not only a directory) that still reports the root's device ID.
+          if (stat.isSymbolicLink() || stat.dev !== initial.dev || mounts.has(resolve(path))) {
             skipped++
             continue
           }
           if (stat.isDirectory()) {
-            if (mounts.has(resolve(path))) {
-              skipped++
-              continue
-            }
             if (dir.depth >= 128 || queue.length + directories >= limits.directories) {
               partial = true
               reason = 'limit'

@@ -16,25 +16,20 @@ export function parseMountInfo(text: string): Set<string> {
   return points
 }
 
-let cache: { at: number; points: Set<string> } | null = null
-
 /**
  * Mount points currently visible to this process. Linux only: on other platforms an empty
  * set is returned because device-ID comparisons already reveal their mounts. Linux bind
  * mounts keep the source filesystem's st_dev and survive realpath(), so traversals that
  * must stay inside a chosen folder need this explicit list to avoid walking into them.
  */
-export async function mountPoints(ttlMs = 5000): Promise<Set<string>> {
+export async function mountPoints(): Promise<Set<string>> {
   if (process.platform !== 'linux') return new Set()
-  if (cache && Date.now() - cache.at < ttlMs) return cache.points
-  let points = new Set<string>()
   try {
-    points = parseMountInfo(await readFile('/proc/self/mountinfo', 'utf8'))
+    return parseMountInfo(await readFile('/proc/self/mountinfo', 'utf8'))
   } catch {
     // Without mountinfo callers fall back to device checks only.
+    return new Set()
   }
-  cache = { at: Date.now(), points }
-  return points
 }
 
 export async function isMountPoint(path: string): Promise<boolean> {

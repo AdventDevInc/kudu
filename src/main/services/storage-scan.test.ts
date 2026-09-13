@@ -56,13 +56,14 @@ it('does not follow a junction or collect an excluded file', async () => {
   })
   await expect(validateStorageRoot(join(root, 'alias'))).rejects.toThrow('Linked folders')
 })
-it('skips folders that are mount points below the root', async () => {
+it('skips folders and files that are mount points below the root', async () => {
   await mkdir(join(root, 'mounted/inner'), { recursive: true })
   await writeFile(join(root, 'mounted/inner/file'), Buffer.alloc(40))
+  await writeFile(join(root, 'bound-file'), Buffer.alloc(30))
   await writeFile(join(root, 'file'), Buffer.alloc(5))
-  state.mounts = [root, join(root, 'mounted')]
+  state.mounts = [root, join(root, 'mounted'), join(root, 'bound-file')]
   const result = await capture()
-  expect(result).toMatchObject({ status: 'complete', totalBytes: 5, files: 1, skipped: 1 })
+  expect(result).toMatchObject({ status: 'complete', totalBytes: 5, files: 1, skipped: 2 })
   expect(result.rows.some((r) => r.path === 'mounted')).toBe(false)
 })
 it('reports inaccessible branches as partial rather than pretending their size is zero', async () => {
