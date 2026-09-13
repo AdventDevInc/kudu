@@ -1,10 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, readdir, readFile, rm, utimes, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, utimes, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import type { ScanItem } from '../../shared/types'
 
-const state = vi.hoisted(() => ({ root: '', logPaths: false, lockReleases: [] as string[] }))
+const state = vi.hoisted(() => ({
+  root: '',
+  logPaths: false,
+  lockReleases: [] as string[],
+  unlinkGate: null as Promise<void> | null
+}))
 vi.mock('electron', () => ({ app: { isPackaged: true, getPath: () => state.root } }))
 // Record the owner token of every lock the service releases so tests can prove a writer only
 // ever deletes the lock it acquired itself.
@@ -13,6 +18,7 @@ vi.mock('fs/promises', async (importOriginal) => {
   return {
     ...actual,
     unlink: async (path: Parameters<typeof actual.unlink>[0]) => {
+      if (state.unlinkGate && String(path).endsWith('.json')) await state.unlinkGate
       if (String(path).endsWith('receipts.lock'))
         state.lockReleases.push(await actual.readFile(path, 'utf8').catch(() => '<missing>'))
       return actual.unlink(path)
@@ -226,6 +232,32 @@ describe('receipt persistence and retry authorization', () => {
     expect(state.lockReleases).not.toContain('crashed-owner')
     expect(state.lockReleases).toHaveLength(2)
     expect(new Set(state.lockReleases).size).toBe(2)
+  })
+  it('keeps a live lock fresh while a slow task holds it so no other process reclaims it', async () => {
+    const dir = join(state.root, 'cleanup-receipts')
+    const receipt = createReceipt('local')
+    receipt.add(item, 'deleted', '', true, 50)
+    await receipt.finish()
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+    try {
+      let release!: () => void
+      state.unlinkGate = new Promise<void>((resolve) => (release = resolve))
+      const clearing = clearCleanupReceipts()
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      const lock = join(dir, 'receipts.lock')
+      const old = new Date(Date.now() - 60_000)
+      await utimes(lock, old, old)
+      await vi.advanceTimersByTimeAsync(10_000)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      expect(Date.now() - (await stat(lock)).mtimeMs).toBeLessThan(5_000)
+      release()
+      state.unlinkGate = null
+      await clearing
+    } finally {
+      state.unlinkGate = null
+      vi.useRealTimers()
+    }
+    expect(await readdir(dir)).not.toContain('receipts.lock')
   })
   it('lets only one of two concurrent reclaimers take a stale lock and keeps the other from deleting it', async () => {
     const dir = join(state.root, 'cleanup-receipts')

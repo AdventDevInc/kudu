@@ -7,6 +7,7 @@ import {
   rename,
   stat,
   unlink,
+  utimes,
   writeFile,
   statfs
 } from 'fs/promises'
@@ -46,6 +47,8 @@ const REASON_CODES = new Set([
 ])
 const LOCK_TIMEOUT_MS = 5_000
 const LOCK_STALE_MS = 30_000
+/** Live owners refresh the lock mtime well inside LOCK_STALE_MS so a slow task is never reclaimed. */
+const LOCK_HEARTBEAT_MS = 10_000
 
 /**
  * Serialize index updates across processes: the packaged GUI, the daemon, and `--cli` share one
@@ -53,7 +56,8 @@ const LOCK_STALE_MS = 30_000
  * naming its owner, so a caller only ever releases its own lock. A lock left behind by a crashed
  * process is reclaimed once it is older than LOCK_STALE_MS; the reclaim renames it first, which is
  * atomic, so of two concurrent reclaimers only one succeeds and neither can delete a lock the other
- * has just re-acquired.
+ * has just re-acquired. While a task runs, a heartbeat keeps the lock fresh so a live owner on a slow
+ * volume is not mistaken for a crashed one.
  */
 async function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
   await mkdir(directory(), { recursive: true })
@@ -82,11 +86,20 @@ async function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
       await new Promise((resolve) => setTimeout(resolve, 50))
     }
   }
+  const heartbeat = setInterval(() => {
+    void readFile(lockFile(), 'utf8')
+      .then((owner) => {
+        if (owner !== token) return
+        const now = new Date()
+        return utimes(lockFile(), now, now)
+      })
+      .catch(() => {})
+  }, LOCK_HEARTBEAT_MS)
   try {
     return await task()
   } finally {
-    // Another process may have reclaimed this lock as stale if the task outlived LOCK_STALE_MS;
-    // never delete a lock that is no longer ours.
+    clearInterval(heartbeat)
+    // Defensive: never delete a lock that is no longer ours.
     const owner = await readFile(lockFile(), 'utf8').catch(() => undefined)
     if (owner === token) await unlink(lockFile()).catch(() => {})
   }
