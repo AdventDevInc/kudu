@@ -15,9 +15,9 @@
   "recording": "Recording",
   "stop": "Stop and save",
   "start": "Start recording",
-  "sampling": "System samples: about once a second. Disk throughput: about every five seconds. Optional top-five processes: about every ten seconds. Missing measurements remain unavailable. Recording continues when you leave this page; quitting interrupts it.",
+  "sampling": "Recording continues when you leave this page. Quitting Kudu interrupts it. Some measurements may be unavailable.",
   "saved": "Saved",
-  "retention": "Up to 30 encrypted recordings, 2 MB each. Nothing is automatically uploaded or removed. Export and delete old recordings to make space.",
+  "retention": "Recordings stay encrypted on this device. Nothing is uploaded automatically. Save up to 30 recordings; export and delete old ones when you need space.",
   "empty": "No recordings yet.",
   "savedState": "Saved",
   "interrupted": "Interrupted",
@@ -81,5 +81,8 @@
   "confirmCloud": "Delete this recording and report from Kudu Cloud? Your local copy remains. An analysis already sent to the provider cannot be recalled, but its result will not be saved back to Cloud.",
   "confirmDelete": "Confirm deletion",
   "recordingElapsed": "Recording ? {{seconds}}s",
-  "operationFailed": "Something went wrong."
+  "operationFailed": "Something went wrong.",
+  "checkingAccess": "Checking Cloud access?",
+  "emptyHint": "Record while the slowdown happens. You can review the measurements before sharing them.",
+  "accessUnavailable": "Cloud access could not be checked. Check your connection and try again."
 }
