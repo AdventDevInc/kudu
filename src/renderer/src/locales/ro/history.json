@@ -30,8 +30,15 @@
       "conflict": "A fost detectată o modificare mai nouă"
     },
     "remove": "Elimină înregistrarea",
-    "removeDescription": "Eliminați această înregistrare de recuperare din istoricul local? Aceasta nu vă modifică setările și nu șterge copiile de rezervă ale registry. Kudu nu va mai putea restaura această modificare pentru dumneavoastră.",
-    "unreadable": "Această înregistrare de recuperare nu a putut fi citită. Este posibil să fi fost scrisă de un alt cont de utilizator sau să fie deteriorată pe disc."
+    "removeDescription": "Eliminați această înregistrare de recuperare din istoricul local? Aceasta nu vă modifică setările și nu șterge copiile de rezervă din registry. Kudu nu va mai putea restaura această modificare pentru dvs.",
+    "unreadable": "Această înregistrare de recuperare nu a putut fi citită. Este posibil să fi fost scrisă de un alt cont de utilizator sau să fie deteriorată pe disc.",
+    "loading": "Se încarcă istoricul de recuperare?",
+    "emptyTitle": "Istoricul dvs. de recuperare începe aici",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Manager servicii",
+      "registry": "Registry Cleaner"
+    }
   },
   "pageTitle": "Istoric scanări",
   "pageDescription": "Vizualizați rezultatele detaliate ale scanărilor și curățării anterioare",
@@ -43,8 +50,8 @@
   "emptyStateDescription": "Rulați o scanare din paginile Cleaner, Registry sau Debloater. Rezultatele vor apărea aici.",
   "confirmClearCloudTitle": "Șterge istoricul Cloud",
   "confirmClearScanTitle": "Șterge istoricul scanărilor",
-  "confirmClearCloudDescription": "Aceasta va șterge definitiv toate intrările din istoricul acțiunilor cloud. Această acțiune nu poate fi anulată.",
-  "confirmClearScanDescription": "Aceasta va șterge definitiv toate intrările din istoricul scanărilor. Această acțiune nu poate fi anulată.",
+  "confirmClearCloudDescription": "Aceasta va șterge definitiv toate înregistrările din istoricul acțiunilor cloud. Această acțiune nu poate fi anulată.",
+  "confirmClearScanDescription": "Aceasta va șterge definitiv toate înregistrările din istoricul scanărilor. Această acțiune nu poate fi anulată.",
   "confirmClearLabel": "Șterge tot",
   "typeLabels": {
     "cleaner": "Curățare sistem",
@@ -53,7 +60,7 @@
     "network": "Curățare rețea",
     "drivers": "Curățare drivere",
     "malware": "Scanare malware",
-    "privacy": "Scut de confidențialitate",
+    "privacy": "Privacy Shield",
     "startup": "Manager pornire",
     "services": "Manager servicii",
     "softwareUpdate": "Actualizare software",
@@ -67,7 +74,7 @@
     "spaceRecoveredOverTime": "Spațiu recuperat în timp",
     "needTwoScansForChart": "Sunt necesare cel puțin 2 scanări pentru graficul de tendință",
     "scanTypeDistribution": "Distribuția tipurilor de scanare",
-    "noData": "Fără date",
+    "noData": "Nu există date",
     "topCategoriesBySpace": "Categorii principale după spațiu",
     "noCategoryData": "Nu există date despre categorii",
     "weeklyActivity": "Activitate săptămânală",
@@ -88,7 +95,7 @@
     "filterStartup": "Pornire",
     "filterServices": "Servicii",
     "filterUpdates": "Actualizări",
-    "entriesCount": "{{count}} intrări",
+    "entriesCount": "{{count}} înregistrări",
     "columnType": "Tip",
     "columnDate": "Dată",
     "columnItems": "Elemente",
@@ -96,11 +103,11 @@
     "columnDuration": "Durată",
     "columnStatus": "Stare",
     "scheduledBadge": "Prog",
-    "noEntriesMatchFilter": "Nicio intrare nu corespunde acestui filtru",
+    "noEntriesMatchFilter": "Nicio înregistrare nu corespunde acestui filtru",
     "dateAt": "la"
   },
   "detail": {
-    "scheduledBadge": "Programată",
+    "scheduledBadge": "Programat",
     "statFound": "Găsite",
     "statProcessed": "Procesate",
     "statSkipped": "Omise",
@@ -117,11 +124,11 @@
       "exportCsv": "Exportă CSV",
       "openLog": "Deschide jurnalul",
       "exported": "Au fost exportate {{count}} căi",
-      "exportFailed": "Nu s-a putut exporta lista fișierelor șterse",
-      "truncatedBadge": "+{{count}} în plus",
-      "truncatedHint": "Acest folder conținea încă {{count}} intrări suplimentare peste limita de listare per folder. Acestea au fost șterse, dar nu au fost listate individual.",
+      "exportFailed": "Lista fișierelor șterse nu a putut fi exportată",
+      "truncatedBadge": "+încă {{count}}",
+      "truncatedHint": "Acest folder conținea încă {{count}} intrări peste limita de listare per folder. Acestea au fost șterse, dar nu au fost listate individual.",
       "emptyRecorded": "Nu au fost înregistrate căi de fișiere pentru această rulare.",
-      "disabledHint": "Jurnalizarea ștergerilor este dezactivată, astfel căile individuale din această rulare nu au fost înregistrate. Activați „Păstrează un jurnal al fișierelor șterse” în Setări → Preferințe de curățare pentru a le înregistra de acum înainte."
+      "disabledHint": "Jurnalizarea ștergerilor este dezactivată, astfel că căile individuale din această rulare nu au fost înregistrate. Activați „Păstrează un jurnal al fișierelor șterse” în Setări → Preferințe de curățare pentru a le înregistra de acum înainte."
     }
   },
   "cloud": {
@@ -136,11 +143,11 @@
     "columnSummary": "Rezumat",
     "columnDate": "Dată",
     "columnDuration": "Durată",
-    "completed": "Finalizată",
+    "completed": "Finalizat",
     "detailCommand": "Comandă",
     "detailStatus": "Stare",
     "detailStatusSuccess": "Succes",
-    "detailStatusFailed": "Eșuată",
+    "detailStatusFailed": "Eșuat",
     "detailDuration": "Durată",
     "detailRequestId": "ID solicitare",
     "detailSummary": "Rezumat",
@@ -153,7 +160,7 @@
     "softwareUpdateRun": "Actualizare software",
     "getStatus": "Stare",
     "getSystemInfo": "Informații sistem",
-    "getHealthReport": "Raport de sănătate",
+    "getHealthReport": "Raport de stare",
     "ping": "Ping",
     "shutdown": "Oprire",
     "restart": "Repornire",

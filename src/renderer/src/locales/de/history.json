@@ -1,6 +1,6 @@
 {
   "recovery": {
-    "title": "Wiederherstellungszentrale",
+    "title": "Wiederherstellungscenter",
     "description": "Überprüfen und wiederherstellen unterstützter Änderungen, die von Kudu vorgenommen wurden",
     "limits": "Die Wiederherstellung umfasst aufgezeichnete Windows-DWORD-Datenschutz-/Registrierungswerte, geplante Aufgaben und Dienstkonfigurationen. Das dauerhafte Löschen von Dateien kann nicht rückgängig gemacht werden. Ältere oder nicht unterstützte Änderungen verfügen möglicherweise nur über eine manuelle Sicherung. Einige wiederhergestellte Einstellungen erfordern einen Neustart.",
     "refresh": "Aktualisieren",
@@ -9,7 +9,7 @@
     "failed": "Wiederherstellung fehlgeschlagen.",
     "empty": "Auf dieser Seite sind keine aufgezeichneten Änderungen vorhanden. Neue unterstützte Änderungen werden hier angezeigt.",
     "gameMode": "Game Mode-Wiederherstellung",
-    "gameModeDescription": "Für Game Mode ist eine aktive oder ausstehende Wiederherstellungsaufnahme vorhanden.",
+    "gameModeDescription": "Für Game Mode ist ein aktiver oder ausstehender Wiederherstellungsschnappschuss vorhanden.",
     "openGameMode": "Game Mode-Wiederherstellung öffnen",
     "before": "Ursprünglicher Zustand",
     "after": "Zustand nach Kudu",
@@ -17,11 +17,11 @@
     "restore": "Ursprünglichen Zustand wiederherstellen",
     "previous": "Zurück",
     "next": "Weiter",
-    "backups": "Sicherungen der Registrierung und des Kontextmenüs",
-    "backupDescription": "Diese Sicherungsdateien enthalten keine verifizierten Informationen zum Zustand nach der Änderung. Prüfen Sie sie im Sicherungsordner, bevor Sie sie manuell wiederherstellen; beim Importieren können neuere Einstellungen überschrieben werden. Eine Sicherungsdatei ist kein Systemwiederherstellungspunkt des Betriebssystems.",
+    "backups": "Registrierungs- und Kontextmenü-Sicherungen",
+    "backupDescription": "Diese Sicherungsdateien enthalten keine verifizierten Informationen zum nachfolgenden Zustand. Prüfen Sie sie im Sicherungsordner, bevor Sie sie manuell wiederherstellen; beim Importieren können neuere Einstellungen überschrieben werden. Eine Sicherungsdatei ist kein OS-Wiederherstellungspunkt.",
     "openBackups": "Sicherungsordner öffnen",
     "confirmTitle": "Diese Änderung wiederherstellen?",
-    "confirmDescription": "Kudu prüft den aktuellen Zustand, bevor der aufgezeichnete ursprüngliche Wert wiederhergestellt wird. Neuere widersprüchliche Änderungen bleiben erhalten. Administratorrechte können erforderlich sein.",
+    "confirmDescription": "Kudu überprüft den aktuellen Zustand, bevor der aufgezeichnete ursprüngliche Wert wiederhergestellt wird. Neuere widersprüchliche Änderungen bleiben erhalten. Administratorrechte können erforderlich sein.",
     "status": {
       "pending": "Unterbrochen / ausstehend",
       "ready": "Verfügbar",
@@ -30,8 +30,15 @@
       "conflict": "Neuere Änderung erkannt"
     },
     "remove": "Eintrag entfernen",
-    "removeDescription": "Diesen Wiederherstellungseintrag aus dem lokalen Verlauf entfernen? Dadurch werden Ihre Einstellungen nicht geändert und Registrierungssicherungen nicht gelöscht. Kudu kann diese Änderung dann nicht mehr für Sie wiederherstellen.",
-    "unreadable": "Dieser Wiederherstellungseintrag konnte nicht gelesen werden. Er wurde möglicherweise von einem anderen Benutzerkonto geschrieben oder auf dem Datenträger beschädigt."
+    "removeDescription": "Diesen Wiederherstellungseintrag aus dem lokalen Verlauf entfernen? Dadurch werden Ihre Einstellungen nicht geändert und Registrierungs-Sicherungen nicht gelöscht. Kudu kann diese Änderung dann nicht mehr für Sie wiederherstellen.",
+    "unreadable": "Dieser Wiederherstellungseintrag konnte nicht gelesen werden. Er wurde möglicherweise von einem anderen Benutzerkonto geschrieben oder auf dem Datenträger beschädigt.",
+    "loading": "Wiederherstellungsverlauf wird geladen?",
+    "emptyTitle": "Ihr Wiederherstellungsverlauf beginnt hier",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Service Manager",
+      "registry": "Registry Cleaner"
+    }
   },
   "pageTitle": "Scanverlauf",
   "pageDescription": "Detaillierte Ergebnisse früherer Scans und Bereinigungen anzeigen",
@@ -48,14 +55,14 @@
   "confirmClearLabel": "Alle löschen",
   "typeLabels": {
     "cleaner": "Systembereinigung",
-    "registry": "Registry-Reparatur",
+    "registry": "Registrierung reparieren",
     "debloater": "Debloater",
     "network": "Netzwerkbereinigung",
     "drivers": "Treiberbereinigung",
     "malware": "Malware-Scan",
-    "privacy": "Datenschutzschild",
+    "privacy": "Privacy Shield",
     "startup": "Autostart-Manager",
-    "services": "Dienst-Manager",
+    "services": "Service Manager",
     "softwareUpdate": "Software-Update",
     "cveScan": "CVE-Scan"
   },
@@ -66,7 +73,7 @@
     "avgDuration": "Durchschn. Dauer",
     "spaceRecoveredOverTime": "Freigegebener Speicherplatz im Zeitverlauf",
     "needTwoScansForChart": "Mindestens 2 Scans für das Trenddiagramm erforderlich",
-    "scanTypeDistribution": "Verteilung der Scantypen",
+    "scanTypeDistribution": "Verteilung der Scan-Typen",
     "noData": "Keine Daten",
     "topCategoriesBySpace": "Top-Kategorien nach Speicherplatz",
     "noCategoryData": "Keine Kategoriedaten",
@@ -104,7 +111,7 @@
     "statFound": "Gefunden",
     "statProcessed": "Verarbeitet",
     "statSkipped": "Übersprungen",
-    "statSpaceSaved": "Gesparter Speicherplatz",
+    "statSpaceSaved": "Freigegebener Speicherplatz",
     "errorCount": "{{count}} Fehler",
     "errorCountPlural": "{{count}} Fehler",
     "categoriesLabel": "Kategorien",
@@ -121,7 +128,7 @@
       "truncatedBadge": "+{{count}} weitere",
       "truncatedHint": "Dieser Ordner enthielt {{count}} weitere Einträge über das Limit der Auflistung pro Ordner hinaus. Sie wurden gelöscht, aber nicht einzeln aufgeführt.",
       "emptyRecorded": "Für diesen Durchlauf wurden keine Dateipfade aufgezeichnet.",
-      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll gelöschter Dateien führen“, um sie ab jetzt aufzuzeichnen."
+      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll gelöschter Dateien speichern“, um sie künftig aufzuzeichnen."
     }
   },
   "cloud": {
@@ -164,22 +171,22 @@
     "getNetworkConfig": "Netzwerkkonfiguration",
     "getEventLog": "Ereignisprotokoll",
     "getInstalledApps": "App-Inventar",
-    "driverUpdateScan": "Treiberscan",
+    "driverUpdateScan": "Treiber-Scan",
     "driverUpdateInstall": "Treiberinstallation",
     "driverClean": "Treiberbereinigung",
     "startupList": "Autostart-Liste",
     "startupToggle": "Autostart umschalten",
     "diskHealth": "Datenträgerzustand",
     "privacyScan": "Datenschutz-Scan",
-    "privacyApply": "Datenschutzeinstellungen anwenden",
+    "privacyApply": "Datenschutz anwenden",
     "debloaterScan": "Debloater-Scan",
     "debloaterRemove": "Debloater entfernen",
     "serviceScan": "Dienst-Scan",
-    "serviceApply": "Dienste anwenden",
+    "serviceApply": "Dienst anwenden",
     "malwareQuarantine": "Quarantäne",
     "malwareDelete": "Malware löschen",
-    "registryScan": "Registry-Scan",
-    "registryFix": "Registry-Reparatur"
+    "registryScan": "Registrierungs-Scan",
+    "registryFix": "Registrierung reparieren"
   },
   "duration": {
     "lessThanOneSecond": "<1s",
