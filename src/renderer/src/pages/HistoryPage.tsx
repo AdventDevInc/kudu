@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
+import { CleanupReceipts } from '@/components/cleaner/CleanupReceipts'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
@@ -152,9 +154,10 @@ const PIE_COLORS = [
   '#6366f1'
 ]
 
-type ViewMode = 'overview' | 'timeline' | 'cloud'
+type ViewMode = 'overview' | 'timeline' | 'cloud' | 'receipts'
 
 export function HistoryPage() {
+  const [searchParams] = useSearchParams()
   const { t } = useTranslation('history')
   const typeConfig = useTypeConfig()
   const { features } = usePlatform()
@@ -167,7 +170,9 @@ export function HistoryPage() {
   } = useCloudHistoryStore()
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [selectedEntry, setSelectedEntry] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<ViewMode>('overview')
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    searchParams.get('view') === 'receipts' ? 'receipts' : 'overview'
+  )
   const [typeFilter, setTypeFilter] = useState<'all' | ScanHistoryEntry['type']>('all')
 
   useEffect(() => {
@@ -306,6 +311,13 @@ export function HistoryPage() {
                 {t('viewTimeline')}
               </button>
               <button
+                onClick={() => setViewMode('receipts')}
+                className="px-4 py-2 text-[12px] font-medium"
+                aria-pressed={viewMode === 'receipts'}
+              >
+                {t('receipts.title')}
+              </button>
+              <button
                 onClick={() => setViewMode('cloud')}
                 className="px-4 py-2 text-[12px] font-medium transition-colors"
                 style={{
@@ -328,7 +340,9 @@ export function HistoryPage() {
         }
       />
 
-      {viewMode === 'overview' ? (
+      {viewMode === 'receipts' ? (
+        <CleanupReceipts />
+      ) : viewMode === 'overview' ? (
         <OverviewView
           stats={stats}
           timelineData={timelineData}

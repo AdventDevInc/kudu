@@ -1,4 +1,5 @@
 import { applyCacheResetPolicy } from './cache-reset-policy'
+import { createReceipt } from './cleanup-receipts'
 import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
@@ -293,13 +294,16 @@ const MAX_PARALLEL_DELETES = 8
 export async function cleanItems(
   itemIds: unknown,
   onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void,
-  origin: DeletionOrigin = 'local'
+  origin: DeletionOrigin = 'local',
+  parentReceiptId?: string
 ): Promise<CleanResult> {
   // Validate input is a string array
   const validIds = Array.isArray(itemIds)
     ? [...new Set(itemIds.filter((v): v is string => typeof v === 'string'))]
     : []
   const items = getCachedItems(validIds)
+  const receipt = createReceipt(origin, parentReceiptId, items)
+  await receipt.measureVolumes()
   let totalCleaned = 0
   let filesDeleted = 0
   let filesSkipped = 0
@@ -317,6 +321,7 @@ export async function cleanItems(
     if (!resolvedIds.has(id)) {
       filesSkipped++
       errors.push({ path: id, reason: 'scan-result-expired' })
+      receipt.add(id, 'skipped', 'scan-result-expired')
     }
     await scheduler.yieldIfNeeded()
   }
@@ -362,6 +367,7 @@ export async function cleanItems(
 
   const processItem = async (item: ScanItem): Promise<void> => {
     if (item.cacheReset && origin === 'cloud') {
+      receipt.add(item, 'skipped', 'local-selection-required')
       filesSkipped++
       errors.push({ path: item.path, reason: 'Performance cache resets require local selection.' })
       onProgress?.(filesDeleted + filesSkipped, validIds.length, item.path, totalCleaned)
@@ -374,9 +380,16 @@ export async function cleanItems(
           ? { success: false, reason: 'Native maintenance requires local selection.' }
           : await (await import('./managed-cleanup')).runManagedCleanup(item)
       if (result.success) {
+        receipt.add(item, 'deleted', 'native-maintenance-size-unknown', true)
         filesDeleted++
         consumedIds.push(item.id)
       } else {
+        receipt.add(
+          item,
+          origin === 'cloud' ? 'skipped' : 'failed',
+          result.reason || 'native-cleanup-failed',
+          origin !== 'cloud'
+        )
         filesSkipped++
         errors.push({ path: item.path, reason: result.reason || 'Native cleanup failed.' })
       }
@@ -391,6 +404,11 @@ export async function cleanItems(
       rootInfo = await lstat(item.path)
     } catch (err: any) {
       const missing = err.code === 'ENOENT'
+      receipt.add(
+        item,
+        missing ? 'skipped' : 'failed',
+        missing ? 'not-found' : deleteFailureReason(err)
+      )
       filesSkipped++
       errors.push({ path: item.path, reason: missing ? 'not-found' : deleteFailureReason(err) })
       if (missing) consumedIds.push(item.id)
@@ -402,6 +420,7 @@ export async function cleanItems(
     }
 
     if (isExcluded(item.path, getSettings().exclusions)) {
+      receipt.add(item, 'skipped', 'excluded')
       filesSkipped++
       errors.push({ path: item.path, reason: 'excluded' })
       consumedIds.push(item.id)
@@ -419,6 +438,7 @@ export async function cleanItems(
       !rootInfo.isDirectory() &&
       deleteAccess.get(item.path.toLowerCase()) === 'permission-denied'
     ) {
+      receipt.add(item, 'failed', 'permission-denied')
       filesSkipped++
       errors.push({ path: item.path, reason: 'permission-denied' })
       if (onProgress) {
@@ -448,6 +468,7 @@ export async function cleanItems(
     // deletion so files created or updated since the scan remain protected.
     const retentionFailure = await revalidateRecencyItem(item, rootInfo)
     if (retentionFailure) {
+      receipt.add(item, 'skipped', retentionFailure)
       filesSkipped++
       errors.push({ path: item.path, reason: retentionFailure })
       consumedIds.push(item.id)
@@ -460,6 +481,7 @@ export async function cleanItems(
 
     const result = await safeDelete(item.path)
     if (result.success) {
+      receipt.add(item, 'deleted', '', true, measuredSize)
       totalCleaned += measuredSize
       filesDeleted++
       consumedIds.push(item.id)
@@ -486,6 +508,13 @@ export async function cleanItems(
       }
     } else {
       const removed = await removedCleanupEntries(measured)
+      receipt.add(
+        item,
+        'failed',
+        result.reason || result.failures?.[0]?.reason || 'partial-removal',
+        true,
+        removed.reduce((sum, entry) => sum + entry.size, 0)
+      )
       totalCleaned += removed.reduce((sum, entry) => sum + entry.size, 0)
       if (logDeletions) {
         const ts = new Date().toISOString()
@@ -555,7 +584,17 @@ export async function cleanItems(
     while (true) {
       const index = nextGroup++
       if (index >= itemGroups.length) return
-      for (const item of itemGroups[index]) await processItem(item)
+      for (const item of itemGroups[index]) {
+        try {
+          await processItem(item)
+        } catch (error: any) {
+          if (!receipt.hasOutcome(item.id)) {
+            filesSkipped++
+            receipt.add(item, 'failed', 'unexpected-error')
+          }
+          errors.push({ path: item.path, reason: error.message || 'unexpected-error' })
+        }
+      }
     }
   }
   await Promise.all(
@@ -588,7 +627,22 @@ export async function cleanItems(
   removeCachedItems(consumedIds)
 
   const needsElevation = errors.some((e) => e.reason === 'permission-denied')
-  return { totalCleaned, filesDeleted, filesSkipped, errors, needsElevation }
+  let receiptSaved = true
+  try {
+    await receipt.finish()
+  } catch {
+    // Receipt I/O must never turn a successful deletion into a reported deletion failure.
+    receiptSaved = false
+  }
+  return {
+    totalCleaned,
+    filesDeleted,
+    filesSkipped,
+    errors,
+    needsElevation,
+    receiptId: receipt.id,
+    receiptSaved
+  }
 }
 
 export interface ScanRecencyOptions {
