@@ -22,6 +22,7 @@ import { registerMalwareScannerIpc } from './malware-scanner.ipc'
 import { registerPrivacyShieldIpc } from './privacy-shield.ipc'
 import { registerUninstallLeftoversIpc } from './uninstall-leftovers.ipc'
 import { registerDriverManagerIpc } from './driver-manager.ipc'
+import { registerPerformanceDiagnosticsIpc } from './performance-diagnostics.ipc'
 import { registerPerfMonitorIpc } from './perf-monitor.ipc'
 import { registerProgramUninstallerIpc } from './program-uninstaller.ipc'
 import { registerServiceManagerIpc } from './service-manager.ipc'
@@ -101,6 +102,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerPrivacyShieldIpc(getWindow)
   registerDriverManagerIpc(getWindow)
   registerPerfMonitorIpc(getWindow)
+  registerPerformanceDiagnosticsIpc()
   registerProgramUninstallerIpc(getWindow)
   registerServiceManagerIpc(getWindow)
   registerFirewallAuditIpc(getWindow)
