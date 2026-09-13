@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   send: vi.fn(),
   claim: vi.fn(),
   working: false,
+  workDone: 0,
   fsSize: vi.fn(),
   patch: vi.fn()
 }))
@@ -31,7 +32,10 @@ vi.mock('./settings-store', () => ({
   claimScheduleOccurrence: mocks.claim
 }))
 vi.mock('./logger', () => ({ logInfo: vi.fn() }))
-vi.mock('./main-work', () => ({ hasMainWorkInFlight: () => mocks.working }))
+vi.mock('./main-work', () => ({
+  hasMainWorkInFlight: () => mocks.working,
+  mainWorkGeneration: () => mocks.workDone
+}))
 vi.mock('../ipc/game-mode.ipc', () => ({
   getGameModeStatus: () => ({ active: false, pendingRestore: false })
 }))
@@ -79,6 +83,7 @@ beforeEach(() => {
   mocks.battery = false
   mocks.idle = 1000
   mocks.working = false
+  mocks.workDone = 0
   mocks.fsSize.mockReset().mockImplementation(async () => mocks.disks)
   mocks.disks = [{ mount, size: 100, available: 10 }]
   mocks.send.mockReset()
@@ -175,6 +180,33 @@ it('keeps a Run Now request waiting until its conditions pass', async () => {
     'one',
     expect.objectContaining({ lastRunStatus: 'skipped' })
   )
+})
+it('retries a dispatched Run Now request whose first authorization is deferred', async () => {
+  // Skip policy with today's occurrence consumed: only the manual request can bring it back.
+  mocks.entries = [
+    { ...entry, missedRun: undefined, lastDueAt: new Date('2026-09-13T09:00:00').toISOString() }
+  ]
+  vi.setSystemTime(new Date('2026-09-13T12:00:00'))
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect((await runScheduleNow(() => window as any, 'one'))?.running).toBe(true)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  // The renderer was busy with a manual scan; the machine is unplugged by the time it asks.
+  mocks.battery = true
+  expect((await authorizeScheduleStep('one', payload().runId)).reason).toBe('power')
+  await completeScheduleRun('one', 'deferred', payload().runId)
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(runtimeOf('one')?.reason).toBe('power')
+  mocks.battery = false
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
+  expect(payload(1).runId).not.toBe(payload().runId)
+  // Once the run starts its first step the request is satisfied and never replays.
+  expect((await authorizeScheduleStep('one', payload(1).runId)).allowed).toBe(true)
+  await completeScheduleRun('one', 'deferred', payload(1).runId)
+  await vi.advanceTimersByTimeAsync(2 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
 })
 it('drops a waiting Run Now request when the schedule is edited, disabled or cancelled', async () => {
   const consumed = new Date('2026-09-13T09:00:00').toISOString()
@@ -273,7 +305,10 @@ it('records a failed run and keeps scheduling when the renderer goes away', asyn
     expect.objectContaining({ lastRunStatus: 'failed' })
   )
   expect(runtimeOf('one')?.reason).toBe('interrupted')
+  // Nothing proves the lost renderer's work finished, so the lock is held for the grace period.
   await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  await vi.advanceTimersByTimeAsync(10 * 60_000)
   expect(mocks.send).toHaveBeenCalledTimes(2)
   expect(payload(1).scheduleId).toBe('two')
   // A reload after completion must not touch the next run.
@@ -298,6 +333,10 @@ it('finalizes a run whose window was destroyed and evaluates against the new win
     'one',
     expect.objectContaining({ lastRunStatus: 'failed' })
   )
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  // The deletion the lost renderer requested settles: positive evidence releases the lock.
+  mocks.workDone++
+  await vi.advanceTimersByTimeAsync(60_000)
   expect(mocks.send).toHaveBeenCalledTimes(2)
   expect(payload(1).scheduleId).toBe('two')
 })
@@ -338,8 +377,43 @@ it('holds the lock for an orphaned run until its main-process work finishes', as
   await vi.advanceTimersByTimeAsync(3 * 60_000)
   expect(mocks.send).toHaveBeenCalledTimes(1)
   expect(runtimeOf('two')?.reason).toBe('busy')
+  // A completion while other work is still in flight is not enough.
+  mocks.workDone++
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
   mocks.working = false
   mocks.fsSize.mockReset().mockImplementation(async () => mocks.disks)
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
+  expect(payload(1).scheduleId).toBe('two')
+})
+it('holds an orphaned run for the grace period when no tracked work completes', async () => {
+  // The renderer reloads while a deletion it requested is still running, or before it has
+  // requested one at all: nothing is in flight, yet nothing proves the work finished.
+  mocks.entries.push({ ...entry, id: 'two' })
+  mocks.working = false
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  await authorizeScheduleStep('one', payload().runId)
+  window.webContents.emit('did-start-navigation', { isMainFrame: true, isSameDocument: false })
+  expect(runtimeOf('one')?.reason).toBe('interrupted')
+  await vi.advanceTimersByTimeAsync(9 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(runtimeOf('two')?.reason).toBe('busy')
+  await vi.advanceTimersByTimeAsync(2 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
+  expect(payload(1).scheduleId).toBe('two')
+})
+it('releases an orphaned run early once tracked work completes after the renderer is lost', async () => {
+  mocks.entries.push({ ...entry, id: 'two' })
+  mocks.working = false
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  await authorizeScheduleStep('one', payload().runId)
+  window.webContents.emit('render-process-gone', {}, { reason: 'crashed' })
+  await vi.advanceTimersByTimeAsync(2 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  mocks.workDone++
   await vi.advanceTimersByTimeAsync(60_000)
   expect(mocks.send).toHaveBeenCalledTimes(2)
   expect(payload(1).scheduleId).toBe('two')

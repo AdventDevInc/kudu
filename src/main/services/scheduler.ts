@@ -8,7 +8,7 @@ import {
 } from './settings-store'
 import { t } from '../i18n'
 import { logInfo } from './logger'
-import { hasMainWorkInFlight } from './main-work'
+import { hasMainWorkInFlight, mainWorkGeneration } from './main-work'
 import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
 
 import { randomUUID } from 'crypto'
@@ -26,9 +26,10 @@ import {
 /** A trigger the renderer never acknowledges is rolled back so the occurrence retries. */
 const ACK_TIMEOUT_MS = 15_000
 /**
- * How long an orphaned run keeps the execution lock while main-process work it requested is
- * still reported in flight (package upgrades and driver installs). Untracked operations such
- * as cleaner deletions fall back to this bound.
+ * How long an orphaned run keeps the execution lock unless the main-process work it requested
+ * (cleaner deletions, registry fixes, package upgrades, driver installs) is positively known to
+ * have finished. Work the renderer had not yet requested cannot be observed, so the lock is
+ * held for this bound whenever no tracked operation completes after the renderer is lost.
  */
 const ORPHAN_GRACE_MS = 10 * 60_000
 
@@ -100,6 +101,8 @@ interface ActiveRun {
   authorized: boolean
   /** When the acknowledged renderer was lost; the lock is held until its work is confirmed done. */
   orphanedAt: number | null
+  /** Tracked-work completions seen when the run was orphaned; a later count is positive evidence. */
+  orphanedWork: number
   /** Detaches the window listeners and the acknowledgement timer. */
   release: () => void
 }
@@ -109,7 +112,11 @@ let generation = 0
 const runtime = new Map<string, ScheduleRuntime>()
 /** Definitions whose due occurrence is waiting on a condition; a silent expiry records 'skipped'. */
 const pending = new Map<string, string>()
-/** Definitions whose Run Now request is waiting on a condition; each check retries them. */
+/**
+ * Definitions with an outstanding Run Now request. A request stays queued, and each check
+ * retries it, until the run it produced authorizes its first step; a dispatched run whose first
+ * authorization fails (or that is never acknowledged) therefore retries once conditions pass.
+ */
 const manual = new Map<string, string>()
 export function getScheduleRuntime(): ScheduleRuntime[] {
   return [...runtime.values()]
@@ -213,6 +220,8 @@ export async function authorizeScheduleStep(scheduleId: unknown, runId: unknown)
   if (!latest?.enabled) reason = 'disabled'
   else if (entry && scheduleDefinition(latest) !== scheduleDefinition(entry)) reason = 'changed'
   if (entry) state(entry, reason, !reason)
+  // The run has started work: a Run Now request behind it is satisfied and must not replay.
+  if (!reason && typeof scheduleId === 'string') manual.delete(scheduleId)
   return { allowed: !reason, reason }
 }
 /** The renderer confirms it received a trigger; unacknowledged triggers are rolled back. */
@@ -238,30 +247,43 @@ function abandonRun(runId: string, reason: ScheduleWaitingReason): void {
   const { entry } = active
   active.release()
   active = null
+  // A rolled-back trigger leaves any Run Now request queued so the next check retries it.
   if (reason === 'unavailable') restoreOccurrence(entry)
-  else
+  else {
+    manual.delete(entry.id)
     updateScheduleEntry(entry.id, { lastRunAt: new Date().toISOString(), lastRunStatus: 'failed' })
+  }
   state(entry, reason)
 }
 /**
- * The renderer driving an acknowledged run is gone, but package upgrades or driver installs it
- * requested keep running in this process. Record the failure now and hold the execution lock
- * until that work is confirmed finished (or a grace period elapses) so the next check cannot
- * start an overlapping workflow.
+ * The renderer driving an acknowledged run is gone, but cleaner deletions, registry fixes,
+ * package upgrades or driver installs it requested keep running in this process. Record the
+ * failure now and hold the execution lock until that work is positively confirmed finished (or
+ * a grace period elapses) so a reloaded renderer or the next check cannot start an overlapping
+ * workflow. The run is never replayed, so a Run Now request behind it is dropped.
  */
 function orphanRun(runId: string): void {
   if (!active || active.runId !== runId || active.orphanedAt) return
   if (!active.acked) return abandonRun(runId, 'unavailable')
   const { entry } = active
   active.orphanedAt = Date.now()
+  active.orphanedWork = mainWorkGeneration()
   active.release()
+  manual.delete(entry.id)
   updateScheduleEntry(entry.id, { lastRunAt: new Date().toISOString(), lastRunStatus: 'failed' })
   state(entry, 'interrupted')
   settleOrphanedRun()
 }
+/**
+ * Only positive evidence releases an orphaned run early: no tracked work in flight and at least
+ * one tracked operation completed since the renderer was lost. A renderer that reloads while a
+ * mutation runs leaves nothing observable until that mutation settles, and one that had not yet
+ * requested its mutation leaves nothing at all, so absence of in-flight work alone proves nothing.
+ */
 function settleOrphanedRun(): void {
   if (!active?.orphanedAt) return
-  if (hasMainWorkInFlight() && Date.now() - active.orphanedAt < ORPHAN_GRACE_MS) return
+  const finished = !hasMainWorkInFlight() && mainWorkGeneration() !== active.orphanedWork
+  if (!finished && Date.now() - active.orphanedAt < ORPHAN_GRACE_MS) return
   active = null
 }
 function windowLost(window: BrowserWindow): boolean {
@@ -319,6 +341,7 @@ async function triggerScheduleEntry(
     acked: false,
     authorized: false,
     orphanedAt: null,
+    orphanedWork: 0,
     release: () => {
       clearTimeout(ackTimer)
       if (contents.isDestroyed()) return
@@ -359,10 +382,11 @@ export async function runScheduleNow(getMainWindow: () => BrowserWindow | null, 
   }
   evaluating = true
   try {
+    // The request outlives dispatch: it is satisfied only once the run authorizes its first
+    // step, so a run deferred by that first check (or never acknowledged) retries later.
+    manual.set(id, scheduleDefinition(entry))
     await triggerScheduleEntry(getMainWindow(), entry, new Date())
-    const current = runtime.get(id)
-    if (current?.reason && !current.running) manual.set(id, scheduleDefinition(entry))
-    return current
+    return runtime.get(id)
   } finally {
     evaluating = false
   }
@@ -399,6 +423,10 @@ export async function completeScheduleRun(
   const entry = active.entry
   const reason = runtime.get(scheduleId)?.reason ?? null
   const current = getSettings().schedules.find((e) => e.id === scheduleId)
+  // A deferred run never started, so a Run Now request behind it stays queued for later
+  // checks (the calendar occurrence is only restored for a 'once' policy). Any other outcome
+  // means the run ran, or was given up, and the request must not replay.
+  if (status !== 'deferred') manual.delete(scheduleId)
   if (
     status === 'deferred' &&
     entry.missedRun === 'once' &&
@@ -460,7 +488,7 @@ async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promis
         const waiting = !!current?.reason && !current.running
         if (waiting && occurrence) pending.set(entry.id, definition)
         else pending.delete(entry.id)
-        if (!waiting) manual.delete(entry.id)
+        // A dispatched Run Now request stays queued until the run authorizes its first step.
       } else {
         state(entry, entry.enabled ? null : 'disabled')
       }

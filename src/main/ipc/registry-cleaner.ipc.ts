@@ -13,6 +13,7 @@ import {
 import { tmpdir } from 'os'
 import { execFile } from 'child_process'
 import { promisify } from 'util'
+import { trackMainWork } from '../services/main-work'
 import { join } from 'path'
 import { getBackupDir } from '../services/backup-dir'
 import { getSettings, updateRegistryIgnoredTweaks } from '../services/settings-store'
@@ -2326,14 +2327,17 @@ export function registerRegistryCleanerIpc(getWindow: WindowGetter): void {
       }
 
       try {
-        return await fixRegistryEntries(
-          entriesToFix,
-          (current, total, currentEntry) => {
-            const win = getWindow()
-            if (win && !win.isDestroyed())
-              win.webContents.send(IPC.REGISTRY_FIX_PROGRESS, { current, total, currentEntry })
-          },
-          signal
+        // Tracked so the scheduler holds its lock while a fix outlives the renderer that asked.
+        return await trackMainWork(
+          fixRegistryEntries(
+            entriesToFix,
+            (current, total, currentEntry) => {
+              const win = getWindow()
+              if (win && !win.isDestroyed())
+                win.webContents.send(IPC.REGISTRY_FIX_PROGRESS, { current, total, currentEntry })
+            },
+            signal
+          )
         )
       } catch (err: any) {
         if (signal.aborted)

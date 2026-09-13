@@ -16,6 +16,7 @@ import { getCachedItems, removeCachedItems } from './scan-cache'
 import { getSettings } from './settings-store'
 import { recordDeletions } from './deletion-log-store'
 import { CooperativeScheduler } from './cooperative-scheduler'
+import { trackMainWork } from './main-work'
 import { cleanupTreeSize, measureCleanupTree, removedCleanupEntries } from './cleanup-measurement'
 
 export interface DeleteResult {
@@ -288,9 +289,18 @@ const MAX_RECENCY_ITEMS = 250_000
 const MAX_PARALLEL_DELETES = 8
 
 /**
- * Look up cached scan items by ID, delete each one, and return a CleanResult.
+ * Look up cached scan items by ID, delete each one, and return a CleanResult. The deletion is
+ * tracked as main-process work so the scheduler can tell when a run it dispatched has
+ * finished mutating the filesystem, even if the requesting renderer is gone.
  */
-export async function cleanItems(
+export function cleanItems(
+  itemIds: unknown,
+  onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void,
+  origin: DeletionOrigin = 'local'
+): Promise<CleanResult> {
+  return trackMainWork(cleanItemsNow(itemIds, onProgress, origin))
+}
+async function cleanItemsNow(
   itemIds: unknown,
   onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void,
   origin: DeletionOrigin = 'local'
