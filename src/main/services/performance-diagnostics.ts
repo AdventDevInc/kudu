@@ -172,9 +172,10 @@ export class PerformanceDiagnostics {
       try {
         response = await diagnosticsRequest('POST', p.id, p.body, p.account)
       } catch (error) {
-        // A definitive rejection never stored the recording; release the consent lock.
-        // Ambiguous failures (timeouts) keep it so a possibly stored copy stays deletable.
-        if (error instanceof CloudRejectedError) {
+        // Only a 4xx rejection is guaranteed to have been refused before storage, so only
+        // then release the consent lock. Ambiguous failures (5xx, timeouts, network errors)
+        // keep the reference so a possibly stored copy stays refreshable and deletable.
+        if (error instanceof CloudRejectedError && error.status >= 400 && error.status < 500) {
           s.upload = null
           await this.store.save(s)
         }
@@ -219,7 +220,11 @@ export class PerformanceDiagnostics {
   }
   remove(id: string): Promise<void> {
     return this.change(async () => {
-      await this.saved(id)
+      const s = await this.saved(id)
+      // The upload reference is the only handle for the Cloud copy; keep it until that copy
+      // is confirmed gone (deleteCloud marks it via an epoch expiry) or has expired.
+      if (s.upload && (!s.cloud || new Date(s.cloud.expiresAt).getTime() > Date.now()))
+        throw new Error('Delete the Cloud copy of this recording before removing it locally.')
       await this.store.remove(id)
       if (this.preview?.id === id) this.preview = null
     })

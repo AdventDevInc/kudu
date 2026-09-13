@@ -36,6 +36,8 @@ export function PerformanceDiagnosticsPage() {
   const id = selected?.recording.recordId
   // A deleted or expired Cloud copy is marked by a past expiry; the local report stays readable.
   const cloudGone = !!selected?.cloud && new Date(selected.cloud.expiresAt).getTime() < Date.now()
+  // The upload reference is the only handle on the Cloud copy, so it must be deleted first.
+  const cloudHeld = !!selected?.upload && !cloudGone
   const refresh = useCallback(async () => {
     const s = await window.kudu.diagnosticsStatus()
     setRows(s.rows)
@@ -336,13 +338,17 @@ export function PerformanceDiagnosticsPage() {
                 </button>
                 <button
                   className={button}
-                  disabled={busy || selected.pinned}
+                  disabled={busy || selected.pinned || cloudHeld}
+                  title={cloudHeld ? t('deleteLocalBlocked') : undefined}
                   onClick={() => setConfirm('local')}
                 >
                   {t('deleteLocal')}
                 </button>
               </div>
               <p className="text-xs text-[var(--text-muted)]">{t('exportPrivacy')}</p>
+              {cloudHeld && (
+                <p className="text-xs text-[var(--text-muted)]">{t('deleteLocalBlocked')}</p>
+              )}
               <div className="grid grid-cols-3 gap-3 text-sm">
                 <div>
                   {t('cpuMean')}

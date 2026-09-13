@@ -261,6 +261,12 @@ describe('recording lifecycle and consent', () => {
     const p = await service.prepare(s.recording.recordId, true)
     await expect(service.upload(p.token)).rejects.toThrow('subscription')
     expect((await store.get(s.recording.recordId)).upload).toBeNull()
+    const unavailable = Object.assign(new Error('unavailable'), { status: 503 })
+    Object.setPrototypeOf(unavailable, CloudRejectedError.prototype)
+    cloud.request.mockRejectedValueOnce(unavailable)
+    const retry = await service.prepare(s.recording.recordId, false)
+    await expect(service.upload(retry.token)).rejects.toThrow('unavailable')
+    expect((await store.get(s.recording.recordId)).upload?.account).toBe('account-a')
     cloud.request.mockRejectedValueOnce(new Error('network'))
     const again = await service.prepare(s.recording.recordId, false)
     await expect(service.upload(again.token)).rejects.toThrow('network')
@@ -270,6 +276,26 @@ describe('recording lifecycle and consent', () => {
     expect(exposed.upload).toEqual({ consentAt: kept.upload?.consentAt, includeProcesses: false })
     cloud.request.mockResolvedValueOnce({ deleted: true })
     await service.deleteCloud(s.recording.recordId)
+  })
+  it('requires the Cloud copy to be deleted before the local recording is removed', async () => {
+    const s = session()
+    await store.save(s, true)
+    const service = new PerformanceDiagnostics(store)
+    cloud.request.mockResolvedValueOnce({
+      recordId: s.recording.recordId,
+      status: 'queued',
+      report: null,
+      errorCode: null,
+      expiresAt: '2999-01-01T00:00:00Z'
+    })
+    const p = await service.prepare(s.recording.recordId, false)
+    await service.upload(p.token)
+    await expect(service.remove(s.recording.recordId)).rejects.toThrow('Delete the Cloud copy')
+    expect(await store.list()).toHaveLength(1)
+    cloud.request.mockResolvedValueOnce({ deleted: true })
+    await service.deleteCloud(s.recording.recordId)
+    await service.remove(s.recording.recordId)
+    expect(await store.list()).toHaveLength(0)
   })
   it('saves consent before submitting and permits reading/deleting without a subscription check', async () => {
     const s = session()
