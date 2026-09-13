@@ -1,14 +1,16 @@
 import { dialog, ipcMain } from 'electron'
 import { writeFile } from 'fs/promises'
 import { IPC } from '../../shared/channels'
+import { CleanerType } from '../../shared/enums'
 import {
   clearCleanupReceipts,
   getCleanupReceipts,
   getCleanupReceipt,
   receiptRetryIds
 } from '../services/cleanup-receipts'
+import { getPlatform } from '../platform'
 import { cleanItems } from '../services/file-utils'
-import { cacheItems, getCachedItems } from '../services/scan-cache'
+import { getCachedItems } from '../services/scan-cache'
 import { getSettings } from '../services/settings-store'
 
 let retrying = false
@@ -41,16 +43,15 @@ export function registerCleanupReceiptsIpc(): void {
     if (retrying) throw new Error('A retry is already running')
     const ids = receiptRetryIds(id)
     if (!ids.length) throw new Error('Retry details expired. Run a fresh scan.')
-    const minutes = getSettings().cleaner.skipRecentMinutes
-    const cutoff = Date.now() - (Number.isFinite(minutes) ? Math.max(0, minutes) : 60) * 60_000
-    cacheItems(
-      getCachedItems(ids).map((item) => ({
-        ...item,
-        recencyCutoff: Math.max(item.recencyCutoff ?? 0, cutoff)
-      }))
-    )
     retrying = true
     try {
+      // Cached items keep their scan-time recencyCutoff so a retry honours the same
+      // since-scan and per-rule age protections as the original clean.
+      if (
+        getSettings().cleaner.closeBrowsersBeforeClean &&
+        getCachedItems(ids).some((item) => item.category === CleanerType.Browser)
+      )
+        await getPlatform().browser.closeBrowsers()
       return await cleanItems(ids, undefined, 'local', id)
     } finally {
       retrying = false

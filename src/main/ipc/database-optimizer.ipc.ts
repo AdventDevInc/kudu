@@ -146,17 +146,16 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
   })
 
   ipcMain.handle(IPC.DATABASE_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
+    const valid = validateStringArray(itemIds, 250_000, 100)
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     return recordNativeCleanup('Database optimization', async () => {
-      const valid = validateStringArray(itemIds, 250_000, 100)
-      if (!valid)
-        return {
-          totalCleaned: 0,
-          filesDeleted: 0,
-          filesSkipped: 0,
-          errors: [],
-          needsElevation: false
-        }
-
       let totalCleaned = 0
       let filesDeleted = 0
       let filesSkipped = 0

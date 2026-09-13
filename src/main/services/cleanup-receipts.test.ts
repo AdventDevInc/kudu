@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdtemp, readFile, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import type { ScanItem } from '../../shared/types'
@@ -14,7 +14,8 @@ import {
   getCleanupReceipt,
   getCleanupReceipts,
   receiptRetryIds,
-  clearCleanupReceipts
+  clearCleanupReceipts,
+  recordNativeCleanup
 } from './cleanup-receipts'
 import { cacheItems, clearCache, removeCachedItems } from './scan-cache'
 
@@ -74,15 +75,40 @@ describe('receipt persistence and retry authorization', () => {
     expect(await getCleanupReceipts()).toEqual([])
     await expect(getCleanupReceipt(a.id)).rejects.toMatchObject({ code: 'ENOENT' })
   })
-  it('preserves a corrupt index and surfaces the failure instead of overwriting history', async () => {
+  it('quarantines a corrupt index and keeps recording new receipts', async () => {
     const initial = createReceipt('local')
     initial.add(item, 'deleted')
     await initial.finish()
-    const index = join(state.root, 'cleanup-receipts', 'receipts.json')
-    await writeFile(index, '{broken')
+    const dir = join(state.root, 'cleanup-receipts')
+    await writeFile(join(dir, 'receipts.json'), '{broken')
     const next = createReceipt('local')
     next.add(item, 'deleted')
-    await expect(next.finish()).rejects.toThrow()
-    expect(await readFile(index, 'utf8')).toBe('{broken')
+    await expect(next.finish()).resolves.toBeDefined()
+    expect((await getCleanupReceipts()).map((r) => r.id)).toEqual([next.id])
+    const quarantined = (await readdir(dir)).filter((f) => /^receipts\.json\.corrupt-\d+$/.test(f))
+    expect(quarantined).toHaveLength(1)
+    expect(await readFile(join(dir, quarantined[0]), 'utf8')).toBe('{broken')
+    expect((await getCleanupReceipt(initial.id)).id).toBe(initial.id)
+  })
+  it('clears a corrupt index instead of failing forever', async () => {
+    const dir = join(state.root, 'cleanup-receipts')
+    await mkdir(dir, { recursive: true })
+    await writeFile(join(dir, 'receipts.json'), '{broken')
+    await expect(getCleanupReceipts()).rejects.toThrow()
+    await expect(clearCleanupReceipts()).resolves.toBeUndefined()
+    expect(await getCleanupReceipts()).toEqual([])
+    expect((await readdir(dir)).some((f) => f.startsWith('receipts.json.corrupt-'))).toBe(true)
+  })
+  it('records native operations with an unknown selected size', async () => {
+    const result = await recordNativeCleanup('Recycle Bin', async () => ({
+      totalCleaned: 10,
+      filesDeleted: 1,
+      filesSkipped: 0,
+      errors: [],
+      needsElevation: false
+    }))
+    expect(result.receiptSaved).toBe(true)
+    const saved = await getCleanupReceipt(result.receiptId!)
+    expect(saved.details[0]).toMatchObject({ outcome: 'deleted', selectedBytes: null })
   })
 })

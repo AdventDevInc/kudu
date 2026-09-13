@@ -18,6 +18,19 @@ const receiptFile = (id: string) => {
   return join(directory(), id + '.json')
 }
 
+/** Read the index, quarantining an unreadable one so a corrupt file cannot wedge the feature. */
+async function readIndexOrQuarantine(): Promise<CleanupReceipt[]> {
+  try {
+    const parsed = JSON.parse(await readFile(file(), 'utf8'))
+    if (!Array.isArray(parsed)) throw new Error('Invalid cleanup receipt store')
+    return parsed
+  } catch (error: any) {
+    if (error.code === 'ENOENT') return []
+    await rename(file(), file() + '.corrupt-' + Date.now())
+    return []
+  }
+}
+
 export async function getCleanupReceipt(id: string): Promise<CleanupReceipt> {
   await writes
   const receipt = JSON.parse(await readFile(receiptFile(id), 'utf8')) as CleanupReceipt
@@ -84,7 +97,8 @@ export function createReceipt(
       outcome: CleanupReceiptItem['outcome'],
       reason = '',
       attempted = false,
-      removedBytes = 0
+      removedBytes = 0,
+      selectedBytes?: number | null
     ) {
       // Persist reason codes, not exception messages which can contain private paths.
       const allowed = new Set([
@@ -121,7 +135,12 @@ export function createReceipt(
               outcome,
               reason,
               attempted,
-              selectedBytes: item.cleanupAction ? null : item.size,
+              selectedBytes:
+                selectedBytes === undefined
+                  ? item.cleanupAction
+                    ? null
+                    : item.size
+                  : selectedBytes,
               removedBytes
             }
       )
@@ -151,15 +170,8 @@ export function createReceipt(
       })
       while (retryRuns.size > 100) retryRuns.delete(retryRuns.keys().next().value!)
       const write = writes.then(async () => {
-        let existing: CleanupReceipt[] = []
-        try {
-          const parsed = JSON.parse(await readFile(file(), 'utf8'))
-          if (!Array.isArray(parsed)) throw new Error('Invalid cleanup receipt store')
-          existing = parsed
-        } catch (error: any) {
-          if (error.code !== 'ENOENT') throw error
-        }
         await mkdir(directory(), { recursive: true })
+        const existing = await readIndexOrQuarantine()
         const detailPath = receiptFile(receipt.id)
         await writeFile(detailPath + '.tmp', JSON.stringify(receipt), 'utf8')
         await rename(detailPath + '.tmp', detailPath)
@@ -193,16 +205,11 @@ export function receiptRetryIds(id: string): string[] {
 export async function clearCleanupReceipts(): Promise<void> {
   const write = writes.then(async () => {
     await mkdir(directory(), { recursive: true })
-    let entries: CleanupReceipt[] = []
-    try {
-      entries = JSON.parse(await readFile(file(), 'utf8'))
-    } catch (error: any) {
-      if (error.code !== 'ENOENT') throw error
-    }
-    for (const entry of entries)
-      await unlink(receiptFile(entry.id)).catch((error: NodeJS.ErrnoException) => {
-        if (error.code !== 'ENOENT') throw error
-      })
+    for (const entry of await readIndexOrQuarantine())
+      if (typeof entry?.id === 'string')
+        await unlink(receiptFile(entry.id)).catch((error: NodeJS.ErrnoException) => {
+          if (error.code !== 'ENOENT') throw error
+        })
     await writeFile(file() + '.tmp', '[]', 'utf8')
     await rename(file() + '.tmp', file())
     retryRuns.clear()
@@ -230,7 +237,7 @@ export async function recordNativeCleanup(
   try {
     result = await operation()
   } catch (error) {
-    receipt.add(item, 'failed', 'unexpected-error', true)
+    receipt.add(item, 'failed', 'unexpected-error', true, 0, null)
     await receipt.finish().catch(() => {})
     throw error
   }
@@ -240,7 +247,8 @@ export async function recordNativeCleanup(
     result.errors.length || result.filesSkipped ? 'failed' : 'deleted',
     result.errors.length || result.filesSkipped ? 'partial-removal' : '',
     true,
-    result.totalCleaned
+    result.totalCleaned,
+    null
   )
   let receiptSaved = true
   try {

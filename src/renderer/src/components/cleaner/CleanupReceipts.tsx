@@ -68,7 +68,7 @@ export function CleanupReceipts() {
         </button>
         <button
           className={button}
-          disabled={busy || !receipts.length}
+          disabled={busy || (!receipts.length && !error)}
           onClick={() => setClear(true)}
         >
           {t('clearButton')}

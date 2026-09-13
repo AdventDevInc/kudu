@@ -414,17 +414,16 @@ export function registerEnvironmentCleanerIpc(getWindow: WindowGetter): void {
   })
 
   ipcMain.handle(IPC.ENVIRONMENT_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
+    const valid = validateStringArray(itemIds, 250_000, 100)
+    if (!valid)
+      return {
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 0,
+        errors: [],
+        needsElevation: false
+      }
     return recordNativeCleanup('Environment cleanup', async () => {
-      const valid = validateStringArray(itemIds, 250_000, 100)
-      if (!valid)
-        return {
-          totalCleaned: 0,
-          filesDeleted: 0,
-          filesSkipped: 0,
-          errors: [],
-          needsElevation: false
-        }
-
       const isWin = process.platform === 'win32'
       let filesDeleted = 0
       let filesSkipped = 0
