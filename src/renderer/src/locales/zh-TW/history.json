@@ -1,4 +1,37 @@
 {
+  "recovery": {
+    "title": "復原中心",
+    "description": "檢視並還原 Kudu 所做的支援變更",
+    "limits": "復原涵蓋已記錄的 Windows DWORD 隱私權/登錄值、排程工作與服務設定。永久刪除的檔案無法復原。較舊或不受支援的變更可能僅有手動備份。部分已還原的設定需要重新啟動才會生效。",
+    "refresh": "重新整理",
+    "export": "匯出復原記錄",
+    "loadError": "無法讀取復原記錄。",
+    "failed": "復原失敗。",
+    "empty": "此頁面尚無已記錄的變更。新的受支援變更將顯示於此。",
+    "gameMode": "遊戲模式復原",
+    "gameModeDescription": "遊戲模式有一個作用中或待處理的復原快照。",
+    "openGameMode": "開啟遊戲模式復原",
+    "before": "原始狀態",
+    "after": "Kudu 套用後的狀態",
+    "absent": "值不存在",
+    "restore": "還原原始狀態",
+    "previous": "上一個",
+    "next": "下一個",
+    "backups": "登錄與內容功能表備份",
+    "backupDescription": "這些備份檔案不包含已驗證的變更後狀態資訊。手動還原前，請先在備份資料夾中檢查；匯入它們可能會覆寫較新的設定。備份檔案不是作業系統還原點。",
+    "openBackups": "開啟備份資料夾",
+    "confirmTitle": "要還原此變更嗎？",
+    "confirmDescription": "Kudu 會在還原已記錄的原始值之前檢查目前狀態。較新的衝突變更將會保留。可能需要系統管理員權限。",
+    "status": {
+      "pending": "已中斷 / 待處理",
+      "ready": "可用",
+      "restored": "已還原",
+      "failed": "需要注意",
+      "conflict": "偵測到較新的變更"
+    },
+    "remove": "移除已還原項目",
+    "removeDescription": "要從本機記錄中移除此已完成的復原記錄嗎？這不會變更您的設定，也不會刪除登錄備份。"
+  },
   "pageTitle": "掃描記錄",
   "pageDescription": "檢視過去掃描與清理的詳細結果",
   "viewOverview": "總覽",
@@ -40,7 +73,7 @@
     "needTwoWeeksData": "至少需要 2 週的資料",
     "recentScans": "最近掃描",
     "tooltipSpace": "空間",
-    "tooltipScans": "掃描次數"
+    "tooltipScans": "掃描"
   },
   "timeline": {
     "filterAll": "全部",
@@ -54,7 +87,7 @@
     "filterStartup": "啟動",
     "filterServices": "服務",
     "filterUpdates": "更新",
-    "entriesCount": "{{count}} 筆記錄",
+    "entriesCount": "{{count}} 筆項目",
     "columnType": "類型",
     "columnDate": "日期",
     "columnItems": "項目",
@@ -62,7 +95,7 @@
     "columnDuration": "耗時",
     "columnStatus": "狀態",
     "scheduledBadge": "排程",
-    "noEntriesMatchFilter": "沒有符合此篩選條件的記錄",
+    "noEntriesMatchFilter": "沒有符合此篩選條件的項目",
     "dateAt": "於"
   },
   "detail": {
@@ -84,10 +117,10 @@
       "openLog": "開啟記錄",
       "exported": "已匯出 {{count}} 個路徑",
       "exportFailed": "無法匯出已刪除檔案清單",
-      "truncatedBadge": "另有 +{{count}} 筆",
-      "truncatedHint": "此資料夾在每個資料夾的清單上限之外，還有 {{count}} 筆項目。這些項目已刪除，但未逐一列出。",
+      "truncatedBadge": "+另外 {{count}} 項",
+      "truncatedHint": "此資料夾在每個資料夾清單上限之外，還有另外 {{count}} 個項目。它們已被刪除，但未逐一列出。",
       "emptyRecorded": "此次執行未記錄任何檔案路徑。",
-      "disabledHint": "刪除記錄功能目前已關閉，因此未記錄此次執行的個別路徑。請在「設定 → 清理偏好設定」中啟用「保留已刪除檔案的記錄」，之後即可開始記錄。"
+      "disabledHint": "刪除記錄功能目前已關閉，因此未記錄此次執行中的個別路徑。請在「設定 → 清理偏好設定」中開啟「保留已刪除檔案記錄」，之後即可開始記錄。"
     }
   },
   "cloud": {
@@ -108,7 +141,7 @@
     "detailStatusSuccess": "成功",
     "detailStatusFailed": "失敗",
     "detailDuration": "耗時",
-    "detailRequestId": "請求 ID",
+    "detailRequestId": "要求 ID",
     "detailSummary": "摘要",
     "detailError": "錯誤"
   },

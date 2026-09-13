@@ -1,4 +1,37 @@
 {
+  "recovery": {
+    "title": "恢复中心",
+    "description": "查看并恢复 Kudu 所做的受支持更改",
+    "limits": "恢复功能涵盖已记录的 Windows DWORD 隐私/注册表值、计划任务和服务配置。永久删除的文件无法撤销。较早或不受支持的更改可能仅提供手动备份。某些已恢复的设置需要重启后生效。",
+    "refresh": "刷新",
+    "export": "导出恢复历史",
+    "loadError": "无法读取恢复历史。",
+    "failed": "恢复失败。",
+    "empty": "此页面没有已记录的更改。新的受支持更改将显示在此处。",
+    "gameMode": "游戏模式恢复",
+    "gameModeDescription": "游戏模式有一个活动或待处理的恢复快照。",
+    "openGameMode": "打开游戏模式恢复",
+    "before": "原始状态",
+    "after": "Kudu 更改后的状态",
+    "absent": "该值不存在",
+    "restore": "恢复原始状态",
+    "previous": "上一个",
+    "next": "下一个",
+    "backups": "注册表和右键菜单备份",
+    "backupDescription": "这些备份文件不包含经过验证的更改后状态信息。请先在备份文件夹中检查它们，再手动恢复；导入它们可能会覆盖较新的设置。备份文件不是操作系统还原点。",
+    "openBackups": "打开备份文件夹",
+    "confirmTitle": "恢复此更改？",
+    "confirmDescription": "Kudu 会在恢复已记录的原始值之前检查当前状态。较新的冲突更改将被保留。可能需要管理员权限。",
+    "status": {
+      "pending": "已中断 / 待处理",
+      "ready": "可用",
+      "restored": "已恢复",
+      "failed": "需要注意",
+      "conflict": "检测到较新的更改"
+    },
+    "remove": "移除已恢复条目",
+    "removeDescription": "要从本地历史记录中移除此已完成的恢复记录吗？这不会更改您的设置，也不会删除注册表备份。"
+  },
   "pageTitle": "扫描历史",
   "pageDescription": "查看过去扫描和清理的详细结果",
   "viewOverview": "概览",
@@ -7,15 +40,15 @@
   "clearButton": "清除",
   "emptyStateTitle": "暂无历史记录",
   "emptyStateDescription": "请从 Cleaner、Registry 或 Debloater 页面运行扫描。结果将显示在此处。",
-  "confirmClearCloudTitle": "清除云端历史记录",
-  "confirmClearScanTitle": "清除扫描历史记录",
+  "confirmClearCloudTitle": "清除云端历史",
+  "confirmClearScanTitle": "清除扫描历史",
   "confirmClearCloudDescription": "这将永久删除所有云端操作历史记录。此操作无法撤销。",
   "confirmClearScanDescription": "这将永久删除所有扫描历史记录。此操作无法撤销。",
   "confirmClearLabel": "全部清除",
   "typeLabels": {
     "cleaner": "系统清理",
     "registry": "注册表修复",
-    "debloater": "Debloater",
+    "debloater": "预装软件清理",
     "network": "网络清理",
     "drivers": "驱动程序清理",
     "malware": "恶意软件扫描",
@@ -27,10 +60,10 @@
   },
   "overview": {
     "totalScans": "扫描总数",
-    "spaceRecovered": "已恢复空间",
+    "spaceRecovered": "已释放空间",
     "itemsProcessed": "已处理项目",
     "avgDuration": "平均耗时",
-    "spaceRecoveredOverTime": "空间恢复趋势",
+    "spaceRecoveredOverTime": "已释放空间趋势",
     "needTwoScansForChart": "至少需要 2 次扫描才能显示趋势图",
     "scanTypeDistribution": "扫描类型分布",
     "noData": "无数据",
@@ -63,7 +96,7 @@
     "columnStatus": "状态",
     "scheduledBadge": "计划",
     "noEntriesMatchFilter": "没有符合此筛选条件的记录",
-    "dateAt": "于"
+    "dateAt": ""
   },
   "detail": {
     "scheduledBadge": "计划任务",
@@ -78,14 +111,14 @@
     "deletedFiles": {
       "title": "已删除文件",
       "loading": "正在加载…",
-      "shownCount": "已显示 {{shown}} / {{total}}",
+      "shownCount": "{{shown}} / {{total}}",
       "loadMore": "加载更多",
       "exportCsv": "导出 CSV",
       "openLog": "打开日志",
       "exported": "已导出 {{count}} 条路径",
       "exportFailed": "无法导出已删除文件列表",
       "truncatedBadge": "另有 +{{count}} 项",
-      "truncatedHint": "此文件夹中的其他 {{count}} 条记录超出了每个文件夹的列表上限。它们已被删除，但未逐项列出。",
+      "truncatedHint": "此文件夹中还有 {{count}} 条记录，超出了每个文件夹的列表上限。它们已被删除，但未逐项列出。",
       "emptyRecorded": "此次运行未记录任何文件路径。",
       "disabledHint": "删除日志记录已关闭，因此此次运行中各个路径未被记录。请在“设置 → 清理首选项”中启用“保留已删除文件日志”，以便今后记录这些路径。"
     }
@@ -138,8 +171,8 @@
     "diskHealth": "磁盘健康",
     "privacyScan": "隐私扫描",
     "privacyApply": "应用隐私设置",
-    "debloaterScan": "Debloater 扫描",
-    "debloaterRemove": "Debloater 移除",
+    "debloaterScan": "预装软件扫描",
+    "debloaterRemove": "移除预装软件",
     "serviceScan": "服务扫描",
     "serviceApply": "应用服务设置",
     "malwareQuarantine": "隔离",
@@ -148,8 +181,8 @@
     "registryFix": "注册表修复"
   },
   "duration": {
-    "lessThanOneSecond": "<1秒",
-    "seconds": "{{count}}秒",
-    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
   }
 }

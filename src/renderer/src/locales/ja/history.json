@@ -1,4 +1,37 @@
 {
+  "recovery": {
+    "title": "復元センター",
+    "description": "Kudu によって行われた対応済みの変更を確認して復元します",
+    "limits": "復元の対象は、記録された Windows の DWORD プライバシー/レジストリ値、スケジュールされたタスク、およびサービス構成です。完全に削除されたファイルは元に戻せません。古い変更または未対応の変更には、手動バックアップしかない場合があります。一部の復元された設定は再起動が必要です。",
+    "refresh": "更新",
+    "export": "復元履歴をエクスポート",
+    "loadError": "復元履歴を読み取れませんでした。",
+    "failed": "復元に失敗しました。",
+    "empty": "このページには記録された変更がありません。新しい対応済みの変更はここに表示されます。",
+    "gameMode": "ゲーム モードの復元",
+    "gameModeDescription": "ゲーム モードには有効または保留中の復元スナップショットがあります。",
+    "openGameMode": "ゲーム モードの復元を開く",
+    "before": "元の状態",
+    "after": "Kudu 適用後の状態",
+    "absent": "値は存在しませんでした",
+    "restore": "元の状態に復元",
+    "previous": "前へ",
+    "next": "次へ",
+    "backups": "レジストリとコンテキスト メニューのバックアップ",
+    "backupDescription": "これらのバックアップ ファイルには、検証済みの変更後状態の情報は含まれていません。手動で復元する前にバックアップ フォルダーで内容を確認してください。インポートすると新しい設定が上書きされる場合があります。バックアップ ファイルは OS の復元ポイントではありません。",
+    "openBackups": "バックアップ フォルダーを開く",
+    "confirmTitle": "この変更を復元しますか？",
+    "confirmDescription": "Kudu は、記録された元の値を復元する前に現在の状態を確認します。新しい競合する変更は保持されます。管理者権限が必要になる場合があります。",
+    "status": {
+      "pending": "中断 / 保留中",
+      "ready": "利用可能",
+      "restored": "復元済み",
+      "failed": "要確認",
+      "conflict": "新しい変更を検出"
+    },
+    "remove": "復元済みエントリを削除",
+    "removeDescription": "この完了済みの復元記録をローカル履歴から削除しますか？ これは設定を変更したり、レジストリ バックアップを削除したりするものではありません。"
+  },
   "pageTitle": "スキャン履歴",
   "pageDescription": "過去のスキャンとクリーンアップの詳細な結果を表示します",
   "viewOverview": "概要",
@@ -19,7 +52,7 @@
     "network": "ネットワーク クリーンアップ",
     "drivers": "ドライバー クリーンアップ",
     "malware": "マルウェア スキャン",
-    "privacy": "プライバシー保護",
+    "privacy": "プライバシー シールド",
     "startup": "スタートアップ マネージャー",
     "services": "サービス マネージャー",
     "softwareUpdate": "ソフトウェア更新",
@@ -47,13 +80,13 @@
     "filterCleaner": "Cleaner",
     "filterRegistry": "Registry",
     "filterDebloater": "Debloater",
-    "filterNetwork": "ネットワーク",
-    "filterDrivers": "ドライバー",
-    "filterMalware": "マルウェア",
-    "filterPrivacy": "プライバシー",
-    "filterStartup": "スタートアップ",
-    "filterServices": "サービス",
-    "filterUpdates": "更新",
+    "filterNetwork": "Network",
+    "filterDrivers": "Drivers",
+    "filterMalware": "Malware",
+    "filterPrivacy": "Privacy",
+    "filterStartup": "Startup",
+    "filterServices": "Services",
+    "filterUpdates": "Updates",
     "entriesCount": "{{count}} 件",
     "columnType": "種類",
     "columnDate": "日付",
@@ -61,7 +94,7 @@
     "columnSpace": "容量",
     "columnDuration": "所要時間",
     "columnStatus": "状態",
-    "scheduledBadge": "予約",
+    "scheduledBadge": "予定",
     "noEntriesMatchFilter": "このフィルターに一致するエントリはありません",
     "dateAt": ""
   },
@@ -87,7 +120,7 @@
       "truncatedBadge": "さらに +{{count}} 件",
       "truncatedHint": "このフォルダーには、フォルダーごとの一覧表示上限を超える {{count}} 件の追加エントリがありました。これらは削除されましたが、個別には一覧表示されていません。",
       "emptyRecorded": "この実行ではファイル パスは記録されませんでした。",
-      "disabledHint": "削除ログがオフになっているため、この実行での個別のパスは記録されませんでした。今後記録するには、設定 → クリーニング設定で「削除されたファイルのログを保持する」をオンにしてください。"
+      "disabledHint": "削除ログがオフのため、この実行での個別のパスは記録されませんでした。今後記録するには、設定 → クリーニング設定で「削除されたファイルのログを保持する」をオンにしてください。"
     }
   },
   "cloud": {
@@ -137,19 +170,19 @@
     "startupToggle": "スタートアップ切り替え",
     "diskHealth": "ディスクの正常性",
     "privacyScan": "プライバシー スキャン",
-    "privacyApply": "プライバシー適用",
+    "privacyApply": "プライバシーの適用",
     "debloaterScan": "Debloater スキャン",
-    "debloaterRemove": "Debloater 削除",
+    "debloaterRemove": "Debloater の削除",
     "serviceScan": "サービス スキャン",
-    "serviceApply": "サービス適用",
+    "serviceApply": "サービスの適用",
     "malwareQuarantine": "隔離",
-    "malwareDelete": "マルウェア削除",
+    "malwareDelete": "マルウェアの削除",
     "registryScan": "レジストリ スキャン",
     "registryFix": "レジストリ修復"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1秒",
+    "seconds": "{{count}}秒",
+    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
   }
 }
