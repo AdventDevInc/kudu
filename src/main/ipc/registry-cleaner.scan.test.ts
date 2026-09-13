@@ -1,3 +1,6 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { promisify } from 'util'
+
 vi.mock('../services/recovery-store', () => ({
   recordRecoveryChange: async (
     _source: unknown,
@@ -16,8 +19,6 @@ vi.mock('../services/recovery', () => ({
         ? false
         : 0
 }))
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { promisify } from 'util'
 
 // ── Mocks ───────────────────────────────────────────────────────────
 // These tests drive the real scan/fix code against realistic reg.exe

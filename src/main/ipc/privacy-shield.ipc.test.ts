@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 vi.mock('../services/recovery-store', () => ({
   recordRecoveryChange: async (
     _source: unknown,
@@ -16,7 +18,6 @@ vi.mock('../services/recovery', () => ({
         ? false
         : 0
 }))
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // ─── Mock external dependencies before importing the module ──────────
 
