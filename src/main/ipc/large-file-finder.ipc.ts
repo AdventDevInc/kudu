@@ -16,10 +16,46 @@ import { showOpenDialog } from './open-dialog'
 
 let cancelled = false
 let busy = false
-const scannedFiles = new Map<string, BigIntStats>()
+type FileIdentity = Pick<BigIntStats, 'dev' | 'ino' | 'size' | 'mtimeNs' | 'ctimeNs'>
+const scannedFiles = new Map<string, FileIdentity>()
 
 interface ScannedFile extends LargeFileEntry {
-  identity: BigIntStats
+  identity: FileIdentity
+}
+
+async function refreshHardLinkChangeTimes(deleted: FileIdentity): Promise<void> {
+  // An unknown inode cannot establish that two paths refer to the same file.
+  if (deleted.ino === 0n) return
+
+  for (const [filePath, expected] of scannedFiles) {
+    if (
+      expected.dev !== deleted.dev ||
+      expected.ino !== deleted.ino ||
+      expected.size !== deleted.size ||
+      expected.mtimeNs !== deleted.mtimeNs ||
+      expected.ctimeNs !== deleted.ctimeNs
+    )
+      continue
+
+    try {
+      const current = await lstat(filePath, { bigint: true })
+      if (
+        current.isFile() &&
+        !current.isSymbolicLink() &&
+        current.dev === expected.dev &&
+        current.ino === expected.ino &&
+        current.size === expected.size &&
+        current.mtimeNs === expected.mtimeNs
+      ) {
+        // Unlinking or moving one hard link can change the shared inode's ctime.
+        // Refresh only that field; never adopt a replacement or changed content.
+        scannedFiles.set(filePath, { ...expected, ctimeNs: current.ctimeNs })
+      }
+    } catch {
+      // Keep the old identity if a remaining link cannot be checked. A failed
+      // refresh must not turn an already successful deletion into a failure.
+    }
+  }
 }
 
 function sendProgress(win: BrowserWindow | null, data: LargeFileScanProgress): void {
@@ -236,6 +272,7 @@ export function registerLargeFileFinderIpc(getWindow: WindowGetter): void {
             scannedFiles.delete(filePath)
             deleted++
             spaceRecovered += fileSize
+            await refreshHardLinkChangeTimes(expected)
           } catch (err: any) {
             failed++
             errors.push({ path: filePath, reason: err?.message || 'Unknown error' })
