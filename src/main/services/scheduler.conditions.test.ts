@@ -418,7 +418,9 @@ it('releases an orphaned run early once tracked work completes after the rendere
   expect(mocks.send).toHaveBeenCalledTimes(2)
   expect(payload(1).scheduleId).toBe('two')
 })
-it('releases an orphaned run after the grace period even if work never reports done', async () => {
+it('keeps an orphaned run locked past the grace period while tracked work is in flight', async () => {
+  // A package upgrade or driver install can outlast the grace period; releasing under it would
+  // let the next schedule start an overlapping workflow.
   mocks.entries.push({ ...entry, id: 'two' })
   mocks.working = true
   startScheduler(() => window as any)
@@ -426,6 +428,30 @@ it('releases an orphaned run after the grace period even if work never reports d
   acknowledgeScheduleRun('one', payload().runId)
   window.webContents.emit('render-process-gone', {}, { reason: 'crashed' })
   await vi.advanceTimersByTimeAsync(9 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  await vi.advanceTimersByTimeAsync(30 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(runtimeOf('two')?.reason).toBe('busy')
+  // Once the work settles the grace period has long elapsed, so the lock is released.
+  mocks.working = false
+  mocks.workDone++
+  mocks.fsSize.mockReset().mockImplementation(async () => mocks.disks)
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
+  expect(payload(1).scheduleId).toBe('two')
+})
+it('releases an orphaned run after the grace period once nothing is in flight', async () => {
+  // Work that was in flight ends without a completion being observed (the generation was read
+  // after it settled): the deadline applies as soon as nothing can be observed.
+  mocks.entries.push({ ...entry, id: 'two' })
+  mocks.working = true
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  acknowledgeScheduleRun('one', payload().runId)
+  window.webContents.emit('render-process-gone', {}, { reason: 'crashed' })
+  await vi.advanceTimersByTimeAsync(5 * 60_000)
+  mocks.working = false
+  await vi.advanceTimersByTimeAsync(4 * 60_000)
   expect(mocks.send).toHaveBeenCalledTimes(1)
   await vi.advanceTimersByTimeAsync(2 * 60_000)
   expect(mocks.send).toHaveBeenCalledTimes(2)

@@ -7,7 +7,7 @@ export interface ScheduleConditions {
   /** Local wall-clock minutes since midnight; equal endpoints mean all day. */
   windowStart?: number
   windowEnd?: number
-  /** Only run when the home volume has less than this percent free. */
+  /** Only run when the home volume has less than this percent free (1-100); 0 or unset is off. */
   freeBelowPercent?: number
 }
 export interface ScheduleEnvironment {
@@ -55,15 +55,16 @@ export function validateScheduleConditions(value: unknown): value is ScheduleCon
     return false
   for (const key of ['acOnly', 'pauseForGameMode'])
     if (c[key] !== undefined && typeof c[key] !== 'boolean') return false
-  for (const [key, max] of [
-    ['idleMinutes', 120],
-    ['windowStart', 1439],
-    ['windowEnd', 1439],
-    ['freeBelowPercent', 100]
+  for (const [key, min, max] of [
+    ['idleMinutes', 0, 120],
+    ['windowStart', 0, 1439],
+    ['windowEnd', 0, 1439],
+    // The settings UI offers 1-100; a threshold of 0 could never be met, so it is rejected.
+    ['freeBelowPercent', 1, 100]
   ] as const)
     if (
       c[key] !== undefined &&
-      (!Number.isInteger(c[key]) || Number(c[key]) < 0 || Number(c[key]) > max)
+      (!Number.isInteger(c[key]) || Number(c[key]) < min || Number(c[key]) > max)
     )
       return false
   return (c.windowStart === undefined) === (c.windowEnd === undefined)
@@ -94,7 +95,8 @@ export function scheduleWaitingReason(
         : minute >= c.windowStart || minute < c.windowEnd
     if (!inside) return 'window'
   }
-  if (c.freeBelowPercent !== undefined) {
+  // Stored entries may predate the minimum: a zero threshold is treated as no condition.
+  if (c.freeBelowPercent) {
     if (env.freePercent === null) return 'unknown'
     if (env.freePercent >= c.freeBelowPercent) return 'disk'
   }

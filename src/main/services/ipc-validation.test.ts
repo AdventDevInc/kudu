@@ -275,6 +275,28 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial(input)).toEqual(input)
   })
 
+  it('rejects a schedule whose free-space threshold is below the UI minimum', () => {
+    const schedule = {
+      id: 'x',
+      name: 'X',
+      enabled: true,
+      frequency: 'daily',
+      day: 0,
+      hour: 9,
+      minute: 0,
+      tasks: ['cleaner:system'],
+      autoApply: false,
+      lastRunAt: null,
+      lastRunStatus: 'never',
+      createdAt: '2025-01-01T00:00:00Z'
+    }
+    expect(
+      validateSettingsPartial({ schedules: [{ ...schedule, conditions: { freeBelowPercent: 0 } }] })
+    ).toBeNull()
+    const valid = { schedules: [{ ...schedule, conditions: { freeBelowPercent: 1 } }] }
+    expect(validateSettingsPartial(valid)).toEqual(valid)
+  })
+
   it('rejects schedules with invalid task types', () => {
     expect(
       validateSettingsPartial({

@@ -169,7 +169,8 @@ async function conditionReason(entry: ScheduleEntry, betweenSteps = false) {
       }
     }
   }
-  if (conditions.freeBelowPercent !== undefined) {
+  // A zero or missing threshold means the disk condition is off.
+  if (conditions.freeBelowPercent) {
     let timeout: ReturnType<typeof setTimeout> | undefined
     try {
       const home = normalizeMount(app.getPath('home'))
@@ -275,14 +276,16 @@ function orphanRun(runId: string): void {
   settleOrphanedRun()
 }
 /**
- * Only positive evidence releases an orphaned run early: no tracked work in flight and at least
- * one tracked operation completed since the renderer was lost. A renderer that reloads while a
- * mutation runs leaves nothing observable until that mutation settles, and one that had not yet
- * requested its mutation leaves nothing at all, so absence of in-flight work alone proves nothing.
+ * Tracked work in flight always holds the lock: a package upgrade or driver install can outlast
+ * any grace period, and releasing under it would let an overlapping workflow start. Once nothing
+ * is in flight, positive evidence releases the run early (at least one tracked operation completed
+ * since the renderer was lost); otherwise the grace period applies, because a renderer that had
+ * not yet requested its mutation, or reloaded before it settled, leaves nothing observable.
  */
 function settleOrphanedRun(): void {
   if (!active?.orphanedAt) return
-  const finished = !hasMainWorkInFlight() && mainWorkGeneration() !== active.orphanedWork
+  if (hasMainWorkInFlight()) return
+  const finished = mainWorkGeneration() !== active.orphanedWork
   if (!finished && Date.now() - active.orphanedAt < ORPHAN_GRACE_MS) return
   active = null
 }

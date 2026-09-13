@@ -107,6 +107,8 @@ describe('schedule conditions', () => {
       { idleMinutes: 1.5 },
       { windowStart: 60 },
       { windowStart: 0, windowEnd: 1440 },
+      { freeBelowPercent: 0 },
+      { freeBelowPercent: 101 },
       { command: 'anything' },
       { acOnly: 'true' },
       null
@@ -115,5 +117,16 @@ describe('schedule conditions', () => {
     expect(
       validateScheduleConditions({ acOnly: true, idleMinutes: 10, windowStart: 0, windowEnd: 300 })
     ).toBe(true)
+    expect(validateScheduleConditions({ freeBelowPercent: 1 })).toBe(true)
+  })
+  it('treats a zero or missing free-space threshold as no disk condition', () => {
+    const now = new Date(2025, 0, 1, 12, 0)
+    const full = { idleSeconds: 0, onBattery: false, gameMode: false, freePercent: 100 }
+    expect(scheduleWaitingReason({ freeBelowPercent: 0 }, full, now)).toBeNull()
+    expect(scheduleWaitingReason({}, full, now)).toBeNull()
+    // Nor does an unreadable disk block a schedule that never asked about it.
+    expect(
+      scheduleWaitingReason({ freeBelowPercent: 0 }, { ...full, freePercent: null }, now)
+    ).toBeNull()
   })
 })
