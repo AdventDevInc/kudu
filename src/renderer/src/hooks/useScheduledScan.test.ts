@@ -96,3 +96,15 @@ it('reports returned cleanup failures as partial instead of success', async () =
   await runSchedule(payload)
   expect(api.scheduleRunComplete).toHaveBeenCalledWith('one', 'partial', 'run-token')
 })
+it('files history under the task that actually ran when a workflow stops early', async () => {
+  api.scheduleAuthorize
+    .mockResolvedValueOnce({ allowed: true })
+    .mockResolvedValueOnce({ allowed: true })
+    .mockResolvedValueOnce({ allowed: true })
+    .mockResolvedValue({ allowed: false, reason: 'power' })
+  await runSchedule({ ...payload, tasks: ['registry', 'cleaner:system'] })
+  expect(api.registryFix).toHaveBeenCalledTimes(1)
+  expect(api.systemScan).not.toHaveBeenCalled()
+  expect(mocks.history).toHaveBeenCalledWith(expect.objectContaining({ type: 'registry' }))
+  expect(api.scheduleRunComplete).toHaveBeenCalledWith('one', 'partial', 'run-token')
+})

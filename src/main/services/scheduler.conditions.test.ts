@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   disks: [] as { mount: string; size: number; available: number }[],
   send: vi.fn(),
   claim: vi.fn(),
+  working: false,
+  fsSize: vi.fn(),
   patch: vi.fn()
 }))
 // Home and its volume must agree with path.parse on the host platform.
@@ -29,10 +31,11 @@ vi.mock('./settings-store', () => ({
   claimScheduleOccurrence: mocks.claim
 }))
 vi.mock('./logger', () => ({ logInfo: vi.fn() }))
+vi.mock('./main-work', () => ({ hasMainWorkInFlight: () => mocks.working }))
 vi.mock('../ipc/game-mode.ipc', () => ({
   getGameModeStatus: () => ({ active: false, pendingRestore: false })
 }))
-vi.mock('systeminformation', () => ({ default: { fsSize: async () => mocks.disks } }))
+vi.mock('systeminformation', () => ({ default: { fsSize: () => mocks.fsSize() } }))
 import {
   startScheduler,
   stopScheduler,
@@ -75,6 +78,8 @@ beforeEach(() => {
   mocks.entries = [structuredClone(entry)]
   mocks.battery = false
   mocks.idle = 1000
+  mocks.working = false
+  mocks.fsSize.mockReset().mockImplementation(async () => mocks.disks)
   mocks.disks = [{ mount, size: 100, available: 10 }]
   mocks.send.mockReset()
   mocks.patch.mockReset().mockImplementation((id, patch) => {
@@ -125,6 +130,7 @@ it('gates disk space and the maintenance window at the start only', async () => 
   mocks.disks = [{ mount, size: 100, available: 10 }]
   await vi.advanceTimersByTimeAsync(60_000)
   expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect((await authorizeScheduleStep('one', payload().runId)).allowed).toBe(true)
   // The first step freed space and the window closed; later steps still run.
   mocks.disks = [{ mount, size: 100, available: 50 }]
   vi.setSystemTime(new Date('2026-09-13T10:00:00'))
@@ -313,4 +319,101 @@ it('does not dispatch when persisting the consumed occurrence fails', async () =
   startScheduler(() => window as any)
   await vi.advanceTimersByTimeAsync(5000)
   expect(mocks.send).not.toHaveBeenCalled()
+})
+it('holds the lock for an orphaned run until its main-process work finishes', async () => {
+  mocks.entries.push({ ...entry, id: 'two' })
+  mocks.working = true
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  await authorizeScheduleStep('one', payload().runId)
+  window.webContents.emit('did-start-navigation', { isMainFrame: true, isSameDocument: false })
+  expect(mocks.patch).toHaveBeenCalledWith(
+    'one',
+    expect.objectContaining({ lastRunStatus: 'failed' })
+  )
+  expect(runtimeOf('one')?.reason).toBe('interrupted')
+  // A reloaded renderer cannot resume the orphaned run.
+  expect(acknowledgeScheduleRun('one', payload().runId)).toBe(false)
+  expect((await authorizeScheduleStep('one', payload().runId)).allowed).toBe(false)
+  await vi.advanceTimersByTimeAsync(3 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(runtimeOf('two')?.reason).toBe('busy')
+  mocks.working = false
+  mocks.fsSize.mockReset().mockImplementation(async () => mocks.disks)
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
+  expect(payload(1).scheduleId).toBe('two')
+})
+it('releases an orphaned run after the grace period even if work never reports done', async () => {
+  mocks.entries.push({ ...entry, id: 'two' })
+  mocks.working = true
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  acknowledgeScheduleRun('one', payload().runId)
+  window.webContents.emit('render-process-gone', {}, { reason: 'crashed' })
+  await vi.advanceTimersByTimeAsync(9 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  await vi.advanceTimersByTimeAsync(2 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(2)
+  expect(payload(1).scheduleId).toBe('two')
+})
+it('rolls back an unacknowledged trigger whose renderer goes away', async () => {
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  window.webContents.emit('render-process-gone', {}, { reason: 'crashed' })
+  expect(mocks.patch).toHaveBeenCalledWith('one', { lastDueAt: null })
+  expect(mocks.patch).not.toHaveBeenCalledWith(
+    'one',
+    expect.objectContaining({ lastRunStatus: 'failed' })
+  )
+})
+it('applies the full condition set to the first authorization of a run', async () => {
+  mocks.entries = [
+    { ...entry, conditions: { freeBelowPercent: 20, windowStart: 9 * 60, windowEnd: 9 * 60 + 30 } }
+  ]
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  // The renderer was busy with a manual scan; by the time it asks, the window has closed.
+  vi.setSystemTime(new Date('2026-09-13T10:00:00'))
+  expect((await authorizeScheduleStep('one', payload().runId)).reason).toBe('window')
+  await completeScheduleRun('one', 'deferred', payload().runId)
+  expect(mocks.patch).toHaveBeenCalledWith('one', { lastDueAt: null })
+})
+it('does not claim an occurrence for a window lost during the condition query', async () => {
+  mocks.entries = [{ ...entry, conditions: { freeBelowPercent: 20 } }]
+  mocks.fsSize.mockImplementation(async () => {
+    window.isDestroyed = () => true
+    window.webContents.isDestroyed = () => true
+    return mocks.disks
+  })
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect(mocks.claim).not.toHaveBeenCalled()
+  expect(mocks.send).not.toHaveBeenCalled()
+  expect(runtimeOf('one')?.reason).toBe('unavailable')
+})
+it('restores the occurrence when the window is lost while the claim persists', async () => {
+  mocks.claim.mockImplementation(async (e, due) => {
+    e.lastDueAt = due
+    window.isDestroyed = () => true
+    window.webContents.isDestroyed = () => true
+    return true
+  })
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect(mocks.claim).toHaveBeenCalledTimes(1)
+  expect(mocks.send).not.toHaveBeenCalled()
+  expect(mocks.patch).toHaveBeenCalledWith('one', { lastDueAt: null })
+  expect(runtimeOf('one')?.reason).toBe('unavailable')
+  // The next check retries against a replacement window.
+  const replacement = makeWindow()
+  mocks.claim.mockImplementation(async (e, due) => {
+    e.lastDueAt = due
+    return true
+  })
+  stopScheduler()
+  startScheduler(() => replacement as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
 })

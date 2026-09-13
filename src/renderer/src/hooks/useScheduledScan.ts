@@ -66,6 +66,11 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
   const startTime = Date.now()
 
   let started = false
+  const startedTasks = new Set<string>()
+  const markStarted = (taskType: string) => {
+    started = true
+    startedTasks.add(taskType)
+  }
   const assertAllowed = async () => {
     const result = await window.kudu.scheduleAuthorize(payload.scheduleId, payload.runId)
     if (!result.allowed) throw new ScheduleConditionChanged(result.reason ?? 'unavailable')
@@ -78,15 +83,16 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
   const categoryResults: Record<string, { found: number; cleaned: number; size: number }> = {}
 
   const recordHistory = async () => {
-    // Pick the most representative history type based on tasks that actually ran
-    const hasCleanerTasks = payload.tasks.some((t) => t.startsWith('cleaner:'))
-    const historyType = hasCleanerTasks
+    // Pick the most representative history type based on tasks that actually started; a
+    // workflow stopped early must not be filed under a later task that never ran.
+    const ran = [...startedTasks]
+    const historyType = ran.some((t) => t.startsWith('cleaner:'))
       ? 'cleaner'
-      : payload.tasks.includes('registry')
+      : ran.includes('registry')
         ? 'registry'
-        : payload.tasks.includes('drivers')
+        : ran.includes('drivers')
           ? 'drivers'
-          : payload.tasks.includes('software-update')
+          : ran.includes('software-update')
             ? 'software-update'
             : 'cleaner'
 
@@ -144,7 +150,7 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
         if (!task) continue
         try {
           const scanned = await task.scan()
-          started = true
+          markStarted(taskType)
           const scope =
             payload.cleanerSubcategories?.[
               taskType as keyof NonNullable<ScheduleEntry['cleanerSubcategories']>
@@ -184,7 +190,7 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
       // ── Registry fixes ──
       if (taskType === 'registry') {
         try {
-          started = true
+          markStarted(taskType)
           const entries = await window.kudu.registryScan()
           const found = entries.length
           totalItems += found
@@ -213,7 +219,7 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
       // ── Driver updates ──
       if (taskType === 'drivers') {
         try {
-          started = true
+          markStarted(taskType)
           const result = await window.kudu.driverUpdateScan()
           const found = result.updates.length
           totalItems += found
@@ -242,7 +248,7 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
       // ── Software updates ──
       if (taskType === 'software-update') {
         try {
-          started = true
+          markStarted(taskType)
           const result = await window.kudu.softwareUpdateCheck()
           const found = result.apps.length
           totalItems += found
@@ -269,7 +275,7 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
       }
       if (taskType === 'cve-scan') {
         try {
-          started = true
+          markStarted(taskType)
           const result = await window.kudu.cveFetch()
           totalItems += result.total
           categoryResults['Vulnerabilities'] = { found: result.total, cleaned: 0, size: 0 }

@@ -8,6 +8,7 @@ import {
 } from './settings-store'
 import { t } from '../i18n'
 import { logInfo } from './logger'
+import { hasMainWorkInFlight } from './main-work'
 import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
 
 import { randomUUID } from 'crypto'
@@ -24,6 +25,12 @@ import {
 
 /** A trigger the renderer never acknowledges is rolled back so the occurrence retries. */
 const ACK_TIMEOUT_MS = 15_000
+/**
+ * How long an orphaned run keeps the execution lock while main-process work it requested is
+ * still reported in flight (package upgrades and driver installs). Untracked operations such
+ * as cleaner deletions fall back to this bound.
+ */
+const ORPHAN_GRACE_MS = 10 * 60_000
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null
 let initialCheckTimer: ReturnType<typeof setTimeout> | null = null
@@ -89,6 +96,10 @@ interface ActiveRun {
   dueAt: string
   window: BrowserWindow
   acked: boolean
+  /** Whether the renderer has authorized its first step; later steps skip the start-only gates. */
+  authorized: boolean
+  /** When the acknowledged renderer was lost; the lock is held until its work is confirmed done. */
+  orphanedAt: number | null
   /** Detaches the window listeners and the acknowledgement timer. */
   release: () => void
 }
@@ -183,17 +194,21 @@ async function conditionReason(entry: ScheduleEntry, betweenSteps = false) {
   )
 }
 export async function authorizeScheduleStep(scheduleId: unknown, runId: unknown) {
-  if (!active || active.entry.id !== scheduleId || active.runId !== runId)
+  if (!active || active.entry.id !== scheduleId || active.runId !== runId || active.orphanedAt)
     return { allowed: false, reason: 'unavailable' as const }
   active.acked = true
+  // The renderer may authorize its first step long after dispatch (e.g. once a manual scan
+  // finishes), so that check applies the full condition set; only later steps are between steps.
+  const betweenSteps = active.authorized
+  active.authorized = true
   const entry = getSettings().schedules.find((e) => e.id === scheduleId)
   let reason: ScheduleWaitingReason | null =
     !entry || !entry.enabled
       ? 'disabled'
       : scheduleDefinition(entry) !== scheduleDefinition(active.entry)
         ? 'changed'
-        : await conditionReason(entry, true)
-  if (!active || active.runId !== runId) reason = 'unavailable'
+        : await conditionReason(entry, betweenSteps)
+  if (!active || active.runId !== runId || active.orphanedAt) reason = 'unavailable'
   const latest = getSettings().schedules.find((e) => e.id === scheduleId)
   if (!latest?.enabled) reason = 'disabled'
   else if (entry && scheduleDefinition(latest) !== scheduleDefinition(entry)) reason = 'changed'
@@ -202,9 +217,16 @@ export async function authorizeScheduleStep(scheduleId: unknown, runId: unknown)
 }
 /** The renderer confirms it received a trigger; unacknowledged triggers are rolled back. */
 export function acknowledgeScheduleRun(scheduleId: unknown, runId: unknown): boolean {
-  if (!active || active.entry.id !== scheduleId || active.runId !== runId) return false
+  if (!active || active.entry.id !== scheduleId || active.runId !== runId || active.orphanedAt)
+    return false
   active.acked = true
   return true
+}
+/** Returns a claimed occurrence so the next check retries it, unless the schedule changed. */
+function restoreOccurrence(entry: ScheduleEntry): void {
+  const current = getSettings().schedules.find((e) => e.id === entry.id)
+  if (current && scheduleDefinition(current) === scheduleDefinition(entry))
+    updateScheduleEntry(entry.id, { lastDueAt: entry.lastDueAt ?? null })
 }
 /**
  * Release the execution lock for a run whose renderer can no longer report back. An
@@ -216,14 +238,31 @@ function abandonRun(runId: string, reason: ScheduleWaitingReason): void {
   const { entry } = active
   active.release()
   active = null
-  const current = getSettings().schedules.find((e) => e.id === entry.id)
-  const unchanged = current && scheduleDefinition(current) === scheduleDefinition(entry)
-  if (reason === 'unavailable') {
-    if (unchanged) updateScheduleEntry(entry.id, { lastDueAt: entry.lastDueAt ?? null })
-  } else {
+  if (reason === 'unavailable') restoreOccurrence(entry)
+  else
     updateScheduleEntry(entry.id, { lastRunAt: new Date().toISOString(), lastRunStatus: 'failed' })
-  }
   state(entry, reason)
+}
+/**
+ * The renderer driving an acknowledged run is gone, but package upgrades or driver installs it
+ * requested keep running in this process. Record the failure now and hold the execution lock
+ * until that work is confirmed finished (or a grace period elapses) so the next check cannot
+ * start an overlapping workflow.
+ */
+function orphanRun(runId: string): void {
+  if (!active || active.runId !== runId || active.orphanedAt) return
+  if (!active.acked) return abandonRun(runId, 'unavailable')
+  const { entry } = active
+  active.orphanedAt = Date.now()
+  active.release()
+  updateScheduleEntry(entry.id, { lastRunAt: new Date().toISOString(), lastRunStatus: 'failed' })
+  state(entry, 'interrupted')
+  settleOrphanedRun()
+}
+function settleOrphanedRun(): void {
+  if (!active?.orphanedAt) return
+  if (hasMainWorkInFlight() && Date.now() - active.orphanedAt < ORPHAN_GRACE_MS) return
+  active = null
 }
 function windowLost(window: BrowserWindow): boolean {
   return window.isDestroyed() || window.webContents.isDestroyed() || window.webContents.isCrashed()
@@ -249,16 +288,21 @@ async function triggerScheduleEntry(
     state(entry, reason)
     return
   }
-  if (!(await claimScheduleOccurrence(entry, due.toISOString()))) return
-  if (
-    startedGeneration !== generation ||
-    mainWindow.isDestroyed() ||
-    mainWindow.webContents.isDestroyed()
-  )
+  // The window may have gone while the condition query ran; never claim for a lost window.
+  if (windowLost(mainWindow)) {
+    state(entry, 'unavailable')
     return
+  }
+  if (!(await claimScheduleOccurrence(entry, due.toISOString()))) return
+  if (startedGeneration !== generation || windowLost(mainWindow)) {
+    // Nothing was dispatched: hand the occurrence back so it is not silently consumed.
+    restoreOccurrence(definition)
+    if (startedGeneration === generation) state(entry, 'unavailable')
+    return
+  }
   const runId = randomUUID()
   const contents = mainWindow.webContents
-  const lost = () => abandonRun(runId, 'interrupted')
+  const lost = () => orphanRun(runId)
   const navigated = (
     details: Electron.Event<Electron.WebContentsDidStartNavigationEventParams>
   ) => {
@@ -273,6 +317,8 @@ async function triggerScheduleEntry(
     dueAt: due.toISOString(),
     window: mainWindow,
     acked: false,
+    authorized: false,
+    orphanedAt: null,
     release: () => {
       clearTimeout(ackTimer)
       if (contents.isDestroyed()) return
@@ -386,8 +432,9 @@ async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promis
       }
     // Never time out a live operation and start an overlapping run. A lost renderer consumes
     // this occurrence: the run is recorded as failed and never replayed, and scheduling
-    // continues against whatever window the app has now.
-    if (active && windowLost(active.window)) abandonRun(active.runId, 'interrupted')
+    // continues against whatever window the app has now once its main-process work is done.
+    if (active && !active.orphanedAt && windowLost(active.window)) orphanRun(active.runId)
+    settleOrphanedRun()
     for (const entry of entries) {
       if (active?.entry.id === entry.id) continue
       // An occurrence blocked only by another run stays due until that run finishes.
