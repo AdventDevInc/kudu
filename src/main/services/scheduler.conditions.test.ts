@@ -10,8 +10,11 @@ const mocks = vi.hoisted(() => ({
   claim: vi.fn(),
   patch: vi.fn()
 }))
+// Home and its volume must agree with path.parse on the host platform.
+const home = process.platform === 'win32' ? 'C:\\Users\\test' : '/home/test'
+const mount = process.platform === 'win32' ? 'C:\\' : '/'
 vi.mock('electron', () => ({
-  app: { getPath: () => 'C:\\Users\\test' },
+  app: { getPath: () => home },
   BrowserWindow: class {},
   Notification: { isSupported: () => false },
   powerMonitor: { getSystemIdleTime: () => mocks.idle, isOnBatteryPower: () => mocks.battery }
@@ -68,7 +71,7 @@ beforeEach(() => {
   mocks.entries = [structuredClone(entry)]
   mocks.battery = false
   mocks.idle = 1000
-  mocks.disks = [{ mount: 'C:\\', size: 100, available: 10 }]
+  mocks.disks = [{ mount, size: 100, available: 10 }]
   mocks.send.mockReset()
   mocks.patch.mockReset().mockImplementation((id, patch) => {
     const target = mocks.entries.find((e) => e.id === id)
@@ -110,16 +113,16 @@ it('gates disk space and the maintenance window at the start only', async () => 
   mocks.entries = [
     { ...entry, conditions: { freeBelowPercent: 20, windowStart: 9 * 60, windowEnd: 9 * 60 + 30 } }
   ]
-  mocks.disks = [{ mount: 'C:\\', size: 100, available: 50 }]
+  mocks.disks = [{ mount, size: 100, available: 50 }]
   startScheduler(() => window as any)
   await vi.advanceTimersByTimeAsync(5000)
   expect(mocks.send).not.toHaveBeenCalled()
   expect(runtimeOf('one')?.reason).toBe('disk')
-  mocks.disks = [{ mount: 'C:\\', size: 100, available: 10 }]
+  mocks.disks = [{ mount, size: 100, available: 10 }]
   await vi.advanceTimersByTimeAsync(60_000)
   expect(mocks.send).toHaveBeenCalledTimes(1)
   // The first step freed space and the window closed; later steps still run.
-  mocks.disks = [{ mount: 'C:\\', size: 100, available: 50 }]
+  mocks.disks = [{ mount, size: 100, available: 50 }]
   vi.setSystemTime(new Date('2026-09-13T10:00:00'))
   expect((await authorizeScheduleStep('one', payload().runId)).allowed).toBe(true)
 })
