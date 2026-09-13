@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   CheckCircle2,
@@ -181,7 +182,11 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
             >
               <CheckCircle2 className="h-6 w-6 text-green-500" strokeWidth={1.8} />
             </motion.div>
-            <h3 className="text-[15px] font-semibold text-zinc-100">{t('summaryTitle')}</h3>
+            <h3 className="text-[15px] font-semibold text-zinc-100">
+              {summary.errors.length || summary.filesSkipped
+                ? t('history:receipts.withIssues')
+                : t('summaryTitle')}
+            </h3>
           </div>
           <motion.span
             initial={{ opacity: 0 }}
@@ -194,6 +199,9 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
           </motion.span>
         </div>
 
+        <Link to="/history?view=receipts" className="mb-4 block text-sm underline">
+          {t('history:receipts.title')}
+        </Link>
         {/* Metric cards */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           <MetricCard

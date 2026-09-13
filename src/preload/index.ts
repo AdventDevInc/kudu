@@ -108,6 +108,19 @@ const api = {
     ipcRenderer.invoke(IPC.RECOVERY_RESTORE, id),
   recoveryOpenBackups: (): Promise<void> => ipcRenderer.invoke(IPC.RECOVERY_OPEN_BACKUPS),
   recoveryExport: (): Promise<boolean> => ipcRenderer.invoke(IPC.RECOVERY_EXPORT),
+  cleanupReceiptDetails: (
+    id: string,
+    page: number
+  ): Promise<{ items: import('../shared/cleanup-receipts').CleanupReceiptItem[]; total: number }> =>
+    ipcRenderer.invoke(IPC.RECEIPTS_GET, id, page),
+  cleanupReceipts: (): Promise<
+    Array<import('../shared/cleanup-receipts').CleanupReceipt & { retryable: number }>
+  > => ipcRenderer.invoke(IPC.RECEIPTS_LIST),
+  cleanupReceiptRetry: (id: string): Promise<CleanResult> =>
+    ipcRenderer.invoke(IPC.RECEIPTS_RETRY, id),
+  cleanupReceiptExport: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.RECEIPTS_EXPORT, id),
+  cleanupReceiptsClear: (): Promise<void> => ipcRenderer.invoke(IPC.RECEIPTS_CLEAR),
   // Platform
   platformInfo: (): Promise<PlatformInfo> => ipcRenderer.invoke(IPC.PLATFORM_INFO),
 

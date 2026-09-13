@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { registerRecoveryIpc } from './recovery.ipc'
+import { registerCleanupReceiptsIpc } from './cleanup-receipts.ipc'
 import { execFile } from 'child_process'
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { dirname, isAbsolute } from 'path'
@@ -78,6 +79,7 @@ export type WindowGetter = () => BrowserWindow | null
 
 export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerRecoveryIpc()
+  registerCleanupReceiptsIpc()
   registerSystemCleanerIpc(getWindow)
   registerBrowserCleanerIpc(getWindow)
   registerAppCleanerIpc(getWindow)
