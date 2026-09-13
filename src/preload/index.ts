@@ -127,6 +127,18 @@ const api = {
     ipcRenderer.invoke(IPC.STORAGE_HISTORY_EXPORT, id),
   storageHistoryOpen: (id: string, path: string): Promise<void> =>
     ipcRenderer.invoke(IPC.STORAGE_HISTORY_OPEN, id, path),
+  cleanupReceiptDetails: (
+    page: number
+  ): Promise<{ items: import('../shared/cleanup-receipts').CleanupReceiptItem[]; total: number }> =>
+    ipcRenderer.invoke(IPC.RECEIPTS_GET, id, page),
+  cleanupReceipts: (): Promise<
+    Array<import('../shared/cleanup-receipts').CleanupReceipt & { retryable: number }>
+  > => ipcRenderer.invoke(IPC.RECEIPTS_LIST),
+  cleanupReceiptRetry: (id: string): Promise<CleanResult> =>
+    ipcRenderer.invoke(IPC.RECEIPTS_RETRY, id),
+  cleanupReceiptExport: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.RECEIPTS_EXPORT, id),
+  cleanupReceiptsClear: (): Promise<void> => ipcRenderer.invoke(IPC.RECEIPTS_CLEAR),
   // Platform
   platformInfo: (): Promise<PlatformInfo> => ipcRenderer.invoke(IPC.PLATFORM_INFO),
 

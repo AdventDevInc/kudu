@@ -8,6 +8,11 @@ export const IPC = {
   STORAGE_HISTORY_COMPARE: 'storage-history:compare',
   STORAGE_HISTORY_EXPORT: 'storage-history:export',
   STORAGE_HISTORY_OPEN: 'storage-history:open',
+  RECEIPTS_LIST: 'cleanup-receipts:list',
+  RECEIPTS_GET: 'cleanup-receipts:get',
+  RECEIPTS_RETRY: 'cleanup-receipts:retry',
+  RECEIPTS_EXPORT: 'cleanup-receipts:export',
+  RECEIPTS_CLEAR: 'cleanup-receipts:clear',
   // System cleaner
   SYSTEM_SCAN: 'cleaner:system:scan',
   SYSTEM_CLEAN: 'cleaner:system:clean',
