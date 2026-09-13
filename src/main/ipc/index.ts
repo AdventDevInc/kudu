@@ -155,7 +155,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.SETTINGS_SET, async (_event, settings) => {
     const validated = validateSettingsPartial(settings)
     if (!validated) return { success: false, error: 'Invalid settings' }
-    setSettings(validated)
+    const write = setSettings(validated)
+    if ('dashboardView' in validated) await write
     // The schedules editor reads settings back right after saving.
     if ('schedules' in validated) await flushSettings()
     if (typeof validated.autoUpdate === 'boolean') {

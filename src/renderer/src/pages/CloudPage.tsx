@@ -181,6 +181,7 @@ export function CloudPage() {
         <PageHeader
           title={t('pageTitle')}
           description={t('pageDescriptionLinked')}
+          showWorkflow={false}
           action={
             <>
               <button

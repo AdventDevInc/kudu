@@ -190,6 +190,7 @@ export function RegistryPage() {
         <PageHeader
           title={t('pageHeaderUnavailableTitle')}
           description={t('pageHeaderUnavailableDescription')}
+          showWorkflow={false}
         />
         <EmptyState
           icon={Database}

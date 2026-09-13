@@ -387,10 +387,8 @@ function runLocked(what: string, mutate: (data: StoreData) => boolean | void): P
   })
 }
 
-export function setSettings(partial: Partial<KuduSettings>): void {
-  // Fire-and-forget by contract — callers order writes with flushSettings().
-  // runLocked has already logged anything that went wrong.
-  void runLocked('settings', (data) => {
+export function setSettings(partial: Partial<KuduSettings>): Promise<void> {
+  const write = runLocked('settings', (data) => {
     const patch = { ...partial }
     if (patch.schedules)
       patch.schedules = patch.schedules.map((entry) => {
@@ -406,9 +404,12 @@ export function setSettings(partial: Partial<KuduSettings>): void {
         }
       })
     data.settings = deepMerge(data.settings, patch)
-  }).catch(() => {
+  })
+  // Existing fire-and-forget callers remain safe; awaiting callers receive the failure.
+  void write.catch(() => {
     /* logged in runLocked */
   })
+  return write
 }
 
 /**

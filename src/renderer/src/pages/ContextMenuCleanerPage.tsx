@@ -93,6 +93,7 @@ export function ContextMenuCleanerPage() {
         <PageHeader
           title={t('pageHeaderUnavailableTitle')}
           description={t('pageHeaderUnavailableDescription')}
+          showWorkflow={false}
         />
         <EmptyState
           icon={MousePointerClick}

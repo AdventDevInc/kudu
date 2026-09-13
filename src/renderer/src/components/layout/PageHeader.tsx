@@ -8,20 +8,19 @@ interface PageHeaderProps {
   description?: string
   action?: React.ReactNode
   className?: string
+  showWorkflow?: boolean
 }
 
-export function PageHeader({ title, description, action, className }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  action,
+  className,
+  showWorkflow = true
+}: PageHeaderProps) {
   const { pathname } = useLocation()
-  const { t, i18n } = useTranslation('experience')
+  const { t } = useTranslation('experience')
   const experience = pageExperiences[pathname]
-  // Keep the page's existing localized description while new experience copy is translated.
-  const hasLocalizedDescription =
-    experience &&
-    i18n.exists(`routes.${experience.key}`, {
-      ns: 'experience',
-      lng: i18n.resolvedLanguage ?? i18n.language,
-      fallbackLng: false
-    })
   const Icon = experience?.icon
   return (
     <header
@@ -39,15 +38,14 @@ export function PageHeader({ title, description, action, className }: PageHeader
           <h1>{title}</h1>
           {(description || experience) && (
             <p>
-              {experience && (hasLocalizedDescription || !description)
-                ? t(`routes.${experience.key}`, { defaultValue: description ?? '' })
-                : description}
+              {description ??
+                (experience ? t(`routes.${experience.key}`, { defaultValue: '' }) : '')}
             </p>
           )}
         </div>
         {action && <div className="page-header-actions flex items-center gap-2.5">{action}</div>}
       </div>
-      {experience?.steps && (
+      {showWorkflow && experience?.steps && (
         <ol className="pulse-workflow" aria-label={t('workflow')}>
           {experience.steps.map((step, index) => (
             <li key={step}>

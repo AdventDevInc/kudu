@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll, vi } from 'vitest'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { rmSync, existsSync, readFileSync } from 'fs'
+import { rmSync, existsSync, readFileSync, mkdirSync } from 'fs'
 import { randomUUID } from 'crypto'
 
 const TEST_DIR = join(tmpdir(), `kudu-test-${randomUUID()}`)
@@ -85,6 +85,19 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
 
     const afterRestart = getSettings()
     expect(afterRestart.gameMode.enabledOptimizations).toEqual([])
+  })
+
+  it('rejects a failed dashboard preference write and allows the next save', async () => {
+    const configPath = join(TEST_DIR, 'Kudu-Dev', 'config.json')
+    rmSync(configPath)
+    mkdirSync(configPath)
+    try {
+      await expect(setSettings({ dashboardView: 'advanced' })).rejects.toBeDefined()
+    } finally {
+      rmSync(configPath, { recursive: true, force: true })
+    }
+    await setSettings({ dashboardView: 'advanced' })
+    expect(JSON.parse(readFileSync(configPath, 'utf8')).settings.dashboardView).toBe('advanced')
   })
 
   it('defaults registryIgnoredTweaks to an empty array', () => {
