@@ -1,3 +1,4 @@
+import { startStorageHistory, stopStorageHistory } from './services/storage-history'
 import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron'
 import { execFile } from 'child_process'
 import { readFileSync } from 'fs'
@@ -637,6 +638,7 @@ function initGui(): void {
 
     // Start the scheduled scan checker
     startScheduler(() => mainWindow)
+    startStorageHistory()
 
     // Start cloud agent if linked
     if (settings.cloud.apiKey) {
@@ -742,6 +744,7 @@ function initGui(): void {
   app.on('before-quit', () => {
     isQuitting = true
     stopScheduler()
+    stopStorageHistory()
     cloudAgent.stop()
     // Kill any active child processes (reg.exe, cmd.exe, etc.) to prevent orphans
     killAllChildren()

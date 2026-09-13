@@ -1,3 +1,4 @@
+import { StorageHistoryPage } from './pages/StorageHistoryPage'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
@@ -162,6 +163,7 @@ export function App() {
             <Route path="/registry" element={<RegistryPage />} />
             <Route path="/context-menu" element={<ContextMenuCleanerPage />} />
             <Route path="/startup" element={<StartupPage />} />
+            <Route path="/storage-history" element={<StorageHistoryPage />} />
             <Route path="/disk" element={<DiskAnalyzerPage />} />
             <Route path="/duplicates" element={<DuplicateFinderPage />} />
             <Route path="/large-files" element={<LargeFileFinderPage />} />
@@ -224,6 +226,7 @@ const ROUTE_TITLES: Record<string, { key: string }> = {
   '/registry': { key: 'registry:pageTitle' },
   '/context-menu': { key: 'contextMenu:pageTitle' },
   '/startup': { key: 'startup:pageTitle' },
+  '/storage-history': { key: 'disk:storage.title' },
   '/disk': { key: 'disk:pageTitle' },
   '/duplicates': { key: 'duplicates:pageTitle' },
   '/large-files': { key: 'largeFiles:pageTitle' },
