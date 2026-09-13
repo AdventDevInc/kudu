@@ -88,7 +88,7 @@ export function StorageHistoryPage() {
   const scope = data?.scopes.find((s) => s.id === scopeId)
   const capture = data?.capture
   return (
-    <div className="feature-page space-y-5">
+    <div className="feature-page feature-layout space-y-5">
       <PageHeader title={t('storage.title')} description={t('storage.description')} />
       <p className="feature-note">{t('storage.privacy')}</p>
       <div className="flex flex-wrap gap-3 items-center">
