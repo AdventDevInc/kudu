@@ -46,10 +46,28 @@ function unseal(record: SealedEntry): RecoveryEntry {
     throw new Error('Invalid recovery record')
   return entry
 }
+let warnedUnreadable = false
+/** Unseal what can be read; corrupt or undecryptable records are reported by ID, not thrown. */
+function unsealReadable(records: SealedEntry[]) {
+  const entries: RecoveryEntry[] = []
+  const unreadable: string[] = []
+  for (const record of records) {
+    try {
+      entries.push(unseal(record))
+    } catch {
+      unreadable.push(record.id)
+    }
+  }
+  if (unreadable.length && !warnedUnreadable) {
+    warnedUnreadable = true
+    console.warn(`[recovery] ${unreadable.length} recovery record(s) could not be read`)
+  }
+  return { entries, unreadable }
+}
 export async function listRecoveryPage(offset: number) {
   await writes
   const records = await readSealed()
-  return { entries: records.slice(offset, offset + 50).map(unseal), total: records.length }
+  return { ...unsealReadable(records.slice(offset, offset + 50)), total: records.length }
 }
 export async function getRecoveryEntry(id: string) {
   await writes
@@ -60,9 +78,9 @@ export async function listRecoveryEntries(): Promise<RecoveryEntry[]> {
   await writes
   const records = await readSealed()
   const entries: RecoveryEntry[] = []
-  for (const record of records) {
-    entries.push(unseal(record))
-    if (entries.length % 10 === 0) await new Promise<void>((resolve) => setImmediate(resolve))
+  for (let i = 0; i < records.length; i += 10) {
+    entries.push(...unsealReadable(records.slice(i, i + 10)).entries)
+    await new Promise<void>((resolve) => setImmediate(resolve))
   }
   return entries
 }
@@ -76,13 +94,20 @@ function enqueue(action: () => Promise<void>): Promise<void> {
   writes = pending.catch(() => {})
   return pending
 }
-export async function removeRestoredRecoveryEntry(id: unknown): Promise<void> {
+/** Remove any entry that is not mid-change; unreadable records are removed without unsealing. */
+export async function removeRecoveryEntry(id: unknown): Promise<void> {
   if (typeof id !== 'string') throw new Error('Invalid recovery ID')
   await enqueue(async () => {
     const entries = await readSealed()
     const record = entries.find((e) => e.id === id)
-    if (!record || unseal(record).status !== 'restored')
-      throw new Error('Only restored entries can be removed')
+    if (!record) throw new Error('Recovery entry not found')
+    let status: RecoveryEntry['status'] | undefined
+    try {
+      status = unseal(record).status
+    } catch {
+      status = undefined
+    }
+    if (status === 'pending') throw new Error('Pending entries cannot be removed')
     await writeSealed(entries.filter((e) => e.id !== id))
   })
 }
@@ -100,7 +125,7 @@ async function save(entry: RecoveryEntry): Promise<void> {
     if (index >= 0) entries[index] = sealed
     else {
       if (entries.length >= 5000)
-        throw new Error('Recovery storage is full; remove restored entries first')
+        throw new Error('Recovery storage is full; remove completed entries first')
       entries.unshift(sealed)
     }
     await writeSealed(entries)
@@ -136,16 +161,28 @@ export async function recordRecoveryChange(
   await save(entry)
   try {
     await apply()
-    if (readAfter) entry.after = await readAfter()
     entry.status = 'ready'
+    // The change applied; a failed after-read keeps the predicted `after` rather than
+    // reporting the change itself as failed.
+    if (readAfter) {
+      try {
+        entry.after = await readAfter()
+      } catch (error) {
+        console.warn('[recovery] could not read state after change:', error)
+      }
+    }
   } catch (error) {
     entry.status = 'failed'
     entry.error = 'The change did not complete. Inspect its current state before restoring.'
-    throw error
-  } finally {
     entry.updatedAt = new Date().toISOString()
-    await save(entry)
+    // Never let a journal write failure mask the primary error from apply().
+    await save(entry).catch((saveError) =>
+      console.warn('[recovery] could not update journal after failed change:', saveError)
+    )
+    throw error
   }
+  entry.updatedAt = new Date().toISOString()
+  await save(entry)
 }
 export async function updateRecoveryEntry(entry: RecoveryEntry): Promise<void> {
   if (!validateRecoveryEntry(entry)) throw new Error('Invalid recovery entry')

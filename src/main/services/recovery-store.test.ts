@@ -34,7 +34,7 @@ import {
   listRecoveryPage,
   getRecoveryEntry,
   updateRecoveryEntry,
-  removeRestoredRecoveryEntry
+  removeRecoveryEntry
 } from './recovery-store'
 
 const target = { kind: 'registry-dword' as const, key: 'HKCU\\Software\\KuduTest', name: 'Enabled' }
@@ -89,16 +89,33 @@ describe('durable recovery journal', () => {
     expect(state.encryptions).toBe(104)
   })
 
-  it('allows removing only a restored record', async () => {
-    await record()
+  it('allows removing any record that is not mid-change', async () => {
+    await record(async () => {
+      const [pending] = await listRecoveryEntries()
+      await expect(removeRecoveryEntry(pending.id)).rejects.toThrow('Pending')
+    })
     const [entry] = await listRecoveryEntries()
-    await expect(removeRestoredRecoveryEntry(entry.id)).rejects.toThrow('Only restored')
-    await updateRecoveryEntry({ ...entry, status: 'restored' })
-    await removeRestoredRecoveryEntry(entry.id)
-    expect(await getRecoveryEntry(entry.id)).toBeUndefined()
+    for (const status of ['ready', 'failed', 'conflict', 'restored'] as const) {
+      await updateRecoveryEntry({ ...entry, status })
+      await removeRecoveryEntry(entry.id)
+      expect(await getRecoveryEntry(entry.id)).toBeUndefined()
+    }
+    await expect(removeRecoveryEntry(entry.id)).rejects.toThrow('not found')
   })
 
-  it('rejects tampered records instead of trusting their restore targets', async () => {
+  it('keeps the change when only the after-state read fails', async () => {
+    const apply = vi.fn()
+    await recordRecoveryChange('privacy', 'Test setting', target, null, 1, apply, async () => {
+      throw new Error('reg.exe unavailable')
+    })
+    expect(apply).toHaveBeenCalledTimes(1)
+    expect(await listRecoveryEntries()).toEqual([
+      expect.objectContaining({ status: 'ready', after: 1 })
+    ])
+  })
+
+  it('rejects tampered records without hiding the rest of the history', async () => {
+    await record()
     await record()
     const path = join(state.directory, 'recovery/changes.json')
     const entries = JSON.parse(await readFile(path, 'utf8'))
@@ -106,7 +123,15 @@ describe('durable recovery journal', () => {
     buffer[buffer.length - 1] ^= 1
     entries[0].body = buffer.toString('base64')
     await writeFile(path, JSON.stringify(entries))
-    await expect(listRecoveryEntries()).rejects.toThrow()
+    const page = await listRecoveryPage(0)
+    expect(page.total).toBe(2)
+    expect(page.entries).toEqual([expect.objectContaining({ id: entries[1].id })])
+    expect(page.unreadable).toEqual([entries[0].id])
+    expect(await listRecoveryEntries()).toHaveLength(1)
+    expect(await getRecoveryEntry(entries[1].id)).toBeDefined()
+    await expect(getRecoveryEntry(entries[0].id)).rejects.toThrow()
+    await removeRecoveryEntry(entries[0].id)
+    expect((await listRecoveryPage(0)).unreadable).toEqual([])
   })
 
   it('preserves a corrupt index and prevents mutation', async () => {

@@ -18,15 +18,22 @@ export interface RecoveryEntry {
   error?: string
 }
 
+// Service running state is volatile (stops, reboots, partial restores) and is
+// only restored on a best-effort basis, so it is excluded from the comparison.
+function comparable(value: RecoveryValue): string {
+  return JSON.stringify(
+    value && typeof value === 'object' ? { start: value.start, delayed: value.delayed } : value
+  )
+}
 export function recoveryDecision(
   current: RecoveryValue,
   before: RecoveryValue,
   after: RecoveryValue
 ) {
-  const encoded = JSON.stringify(current)
-  return encoded === JSON.stringify(before)
+  const encoded = comparable(current)
+  return encoded === comparable(before)
     ? 'already-restored'
-    : encoded === JSON.stringify(after)
+    : encoded === comparable(after)
       ? 'restore'
       : 'conflict'
 }

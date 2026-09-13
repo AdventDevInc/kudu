@@ -19,11 +19,12 @@ describe('recovery safeguards', () => {
     expect(recoveryDecision(1, null, 1)).toBe('restore')
     expect(recoveryDecision(2, null, 1)).toBe('conflict')
   })
-  it('treats changed running state or delayed start as a service conflict', () => {
+  it('treats a changed delayed start as a service conflict but not volatile running state', () => {
     const before = { start: 2, delayed: 1, running: true }
     const after = { start: 4, delayed: 1, running: false }
     expect(recoveryDecision({ ...after, delayed: 0 }, before, after)).toBe('conflict')
-    expect(recoveryDecision({ ...after, running: true }, before, after)).toBe('conflict')
+    expect(recoveryDecision({ ...after, running: true }, before, after)).toBe('restore')
+    expect(recoveryDecision({ ...before, running: false }, before, after)).toBe('already-restored')
   })
   it('rejects unsupported types and script-bearing targets', () => {
     expect(validateRecoveryEntry(entry)).toBe(true)

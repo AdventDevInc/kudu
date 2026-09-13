@@ -72,8 +72,16 @@ export function RecoveryPage() {
           </Link>
         </div>
       )}
-      {data && !data.entries.length && <p>{t('recovery.empty')}</p>}
+      {data && !data.entries.length && !data.unreadable.length && <p>{t('recovery.empty')}</p>}
       <div className="space-y-3">
+        {data?.unreadable.map((id) => (
+          <article key={id} className="rounded-xl border p-4">
+            <p className="text-sm">{t('recovery.unreadable')}</p>
+            <button className={button + ' mt-3'} disabled={busy} onClick={() => setRemove(id)}>
+              {t('recovery.remove')}
+            </button>
+          </article>
+        ))}
         {data?.entries.map((entry) => (
           <article key={entry.id} className="rounded-xl border p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -122,7 +130,7 @@ export function RecoveryPage() {
             >
               {t('recovery.restore')}
             </button>
-            {entry.status === 'restored' && (
+            {entry.status !== 'pending' && (
               <button
                 className={button + ' ml-3'}
                 disabled={busy}

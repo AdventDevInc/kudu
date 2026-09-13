@@ -97,6 +97,8 @@ const api = {
     offset = 0
   ): Promise<{
     entries: import('../shared/recovery').RecoveryEntry[]
+    /** IDs of sealed records on this page that could not be decrypted or validated */
+    unreadable: string[]
     total: number
     backups: Array<{ name: string; size: number; modifiedAt: string }>
     gameMode: import('../shared/types').GameModeStatus | null

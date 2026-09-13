@@ -6,7 +6,7 @@ import { getBackupDir } from '../services/backup-dir'
 import {
   listRecoveryEntries,
   listRecoveryPage,
-  removeRestoredRecoveryEntry
+  removeRecoveryEntry
 } from '../services/recovery-store'
 import { restoreRecoveryEntry } from '../services/recovery'
 import { getGameModeStatus } from './game-mode.ipc'
@@ -36,7 +36,7 @@ export function registerRecoveryIpc(): void {
       gameMode: process.platform === 'win32' ? getGameModeStatus() : null
     }
   })
-  ipcMain.handle(IPC.RECOVERY_REMOVE, (_event, id: unknown) => removeRestoredRecoveryEntry(id))
+  ipcMain.handle(IPC.RECOVERY_REMOVE, (_event, id: unknown) => removeRecoveryEntry(id))
   ipcMain.handle(IPC.RECOVERY_RESTORE, (_event, id: unknown) => restoreRecoveryEntry(id))
   ipcMain.handle(IPC.RECOVERY_OPEN_BACKUPS, async () => {
     const error = await shell.openPath(getBackupDir())

@@ -1,4 +1,4 @@
-import { execNativeUtf8, psUtf8 } from './exec-utf8'
+import { execNativeUtf8, execTracked, psUtf8 } from './exec-utf8'
 import { getRecoveryEntry, updateRecoveryEntry } from './recovery-store'
 import {
   recoveryDecision,
@@ -21,7 +21,7 @@ export async function readRecoveryTarget(target: RecoveryTarget): Promise<Recove
       "' -ErrorAction Stop; $s=Get-Service -Name '" +
       target.name +
       "' -ErrorAction Stop; @{start=[int]$v.Start;delayed=$v.DelayedAutoStart;running=($s.Status -eq 'Running')} | ConvertTo-Json -Compress"
-    const { stdout } = await execNativeUtf8(
+    const { stdout } = await execTracked(
       'powershell',
       ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
       { timeout: 8000, windowsHide: true }
@@ -46,6 +46,11 @@ export async function readRecoveryTarget(target: RecoveryTarget): Promise<Recove
   }
   const key = target.key
   const name = target.name
+  if (
+    !/^HK(CU|LM)\\[A-Za-z0-9_ .()\\-]{1,512}$/.test(key) ||
+    !/^[A-Za-z0-9_ .()-]{1,128}$/.test(name)
+  )
+    throw new Error('Invalid registry target')
   try {
     const { stdout } = await execNativeUtf8('reg', ['query', key, '/v', name], {
       timeout: 5000,
@@ -57,7 +62,7 @@ export async function readRecoveryTarget(target: RecoveryTarget): Promise<Recove
   } catch (error: any) {
     // reg.exe uses exit 1 for both missing data and access failures; verify via .NET.
     const script = `$ErrorActionPreference='Stop'; $p='${key.replace(/^HKLM/, 'Registry::HKEY_LOCAL_MACHINE').replace(/^HKCU/, 'Registry::HKEY_CURRENT_USER')}'; if (!(Test-Path -LiteralPath $p)) { 'MISSING' } else { $k=Get-Item -LiteralPath $p -ErrorAction Stop; if ($k.GetValueNames() -contains '${name}') { throw 'Value could not be read' } else { 'MISSING' } }`
-    const { stdout } = await execNativeUtf8(
+    const { stdout } = await execTracked(
       'powershell',
       ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
       { timeout: 8000, windowsHide: true }
@@ -85,7 +90,7 @@ export async function writeRecoveryTarget(
       3: 'demand',
       4: 'disabled'
     }
-    await execNativeUtf8('sc.exe', ['config', target.name, 'start=', modes[value.start]], {
+    await execTracked('sc.exe', ['config', target.name, 'start=', modes[value.start]], {
       timeout: 8000,
       windowsHide: true
     })
@@ -114,11 +119,10 @@ export async function writeRecoveryTarget(
       " -Name '" +
       target.name +
       "' -ErrorAction Stop }"
-    await execNativeUtf8(
-      'powershell',
-      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
-      { timeout: 15000, windowsHide: true }
-    )
+    await execTracked('powershell', ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)], {
+      timeout: 15000,
+      windowsHide: true
+    })
   } else {
     await execNativeUtf8(
       'reg',
