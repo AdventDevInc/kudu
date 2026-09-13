@@ -1,4 +1,9 @@
 export const IPC = {
+  RECOVERY_REMOVE: 'recovery:remove',
+  RECOVERY_LIST: 'recovery:list',
+  RECOVERY_RESTORE: 'recovery:restore',
+  RECOVERY_OPEN_BACKUPS: 'recovery:open-backups',
+  RECOVERY_EXPORT: 'recovery:export',
   RECEIPTS_LIST: 'cleanup-receipts:list',
   RECEIPTS_GET: 'cleanup-receipts:get',
   RECEIPTS_RETRY: 'cleanup-receipts:retry',

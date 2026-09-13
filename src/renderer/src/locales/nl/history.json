@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Herstelcentrum",
+    "description": "Controleer en herstel ondersteunde wijzigingen die door Kudu zijn aangebracht",
+    "limits": "Herstel omvat vastgelegde Windows DWORD-privacy-/registerwaarden, geplande taken en serviceconfiguratie. Permanente bestandsverwijdering kan niet ongedaan worden gemaakt. Oudere of niet-ondersteunde wijzigingen hebben mogelijk alleen een handmatige back-up. Voor sommige herstelde instellingen is een herstart vereist.",
+    "refresh": "Vernieuwen",
+    "export": "Herstelgeschiedenis exporteren",
+    "loadError": "De herstelgeschiedenis kon niet worden gelezen.",
+    "failed": "Herstel mislukt.",
+    "empty": "Geen vastgelegde wijzigingen op deze pagina. Nieuwe ondersteunde wijzigingen verschijnen hier.",
+    "gameMode": "Game Mode-herstel",
+    "gameModeDescription": "Game Mode heeft een actieve of wachtende herstelsnapshot.",
+    "openGameMode": "Game Mode-herstel openen",
+    "before": "Oorspronkelijke status",
+    "after": "Status na Kudu",
+    "absent": "Waarde bestond niet",
+    "restore": "Oorspronkelijke status herstellen",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "backups": "Register- en contextmenuback-ups",
+    "backupDescription": "Deze back-upbestanden bevatten geen geverifieerde informatie over de status achteraf. Controleer ze in de back-upmap voordat u ze handmatig herstelt; door ze te importeren kunnen nieuwere instellingen worden overschreven. Een back-upbestand is geen herstelpunt van het besturingssysteem.",
+    "openBackups": "Back-upmap openen",
+    "confirmTitle": "Deze wijziging herstellen?",
+    "confirmDescription": "Kudu controleert de huidige status voordat de vastgelegde oorspronkelijke waarde wordt hersteld. Nieuwere conflicterende wijzigingen blijven behouden. Mogelijk zijn beheerdersrechten vereist.",
+    "status": {
+      "pending": "Onderbroken / in behandeling",
+      "ready": "Beschikbaar",
+      "restored": "Hersteld",
+      "failed": "Vereist aandacht",
+      "conflict": "Nieuwere wijziging gedetecteerd"
+    },
+    "remove": "Vermelding verwijderen",
+    "removeDescription": "Deze herstelvermelding uit de lokale geschiedenis verwijderen? Dit wijzigt uw instellingen niet en verwijdert geen registerback-ups. Kudu kan deze wijziging dan niet langer voor u herstellen.",
+    "unreadable": "Deze herstelvermelding kon niet worden gelezen. Mogelijk is deze geschreven door een andere gebruikersaccount of beschadigd op de schijf.",
+    "loading": "Herstelgeschiedenis laden?",
+    "emptyTitle": "Uw herstelgeschiedenis begint hier",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Servicebeheer",
+      "registry": "Registeropschoning"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} waargenomen wijziging in vrije schijfruimte: {{size}} (ook beïnvloed door andere activiteit)",
     "selectionContext": "Gebufferde items in deze categorieën: {{found}} · Niet geselecteerd in deze bewerking: {{unselected}}",
@@ -85,7 +126,7 @@
   "timeline": {
     "filterAll": "Alles",
     "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterRegistry": "Register",
     "filterDebloater": "Debloater",
     "filterNetwork": "Netwerk",
     "filterDrivers": "Drivers",

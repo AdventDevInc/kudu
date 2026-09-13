@@ -1,3 +1,14 @@
+vi.mock('../services/recovery-store', () => ({
+  recordRecoveryChanges: async (
+    _source: unknown,
+    _changes: unknown[],
+    apply: () => Promise<(string | undefined)[]>
+  ) => apply()
+}))
+vi.mock('../services/recovery', () => ({
+  readServiceStates: async (names: string[]) =>
+    new Map(names.map((name) => [name, { start: 3, delayed: null, running: false }]))
+}))
 import { describe, it, expect } from 'vitest'
 
 // ── Test the pure helper functions from service-manager.ipc.ts ──
