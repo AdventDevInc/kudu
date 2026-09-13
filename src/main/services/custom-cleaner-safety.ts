@@ -3,6 +3,7 @@ import { lstat, realpath } from 'fs/promises'
 import type { Stats } from 'fs'
 import type { CustomCleanerRule } from '../../shared/custom-cleaners'
 import { customGlob } from '../../shared/custom-cleaners'
+import { isMountPoint } from './mount-points'
 
 export interface CustomRootPolicy {
   platform: 'win32' | 'darwin' | 'linux'
@@ -95,8 +96,9 @@ export async function customRoot(
   if (!customRootAllowed(canonical, policy))
     throw new Error('Folder aliases and junctions are not supported. Choose the real folder.')
   const info = await lstat(canonical)
-  // A folder on a different device from its parent is a mount point (/Volumes/USB, /mnt/data).
-  if (info.dev !== (await lstat(path.dirname(canonical))).dev)
+  // A folder on a different device from its parent is a mount point (/Volumes/USB, /mnt/data);
+  // Linux bind mounts keep the parent's device, so the mount table is consulted as well.
+  if (info.dev !== (await lstat(path.dirname(canonical))).dev || (await isMountPoint(canonical)))
     throw new Error('Choose a specific subfolder inside a volume, not the mounted volume itself.')
   return { path: canonical, info }
 }

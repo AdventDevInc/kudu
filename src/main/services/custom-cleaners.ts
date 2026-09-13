@@ -20,6 +20,7 @@ import {
 import type { CustomRootPolicy } from './custom-cleaner-safety'
 import { cacheItems, removeCachedItems } from './scan-cache'
 import { cleanItems, isExcluded } from './file-utils'
+import { mountPoints } from './mount-points'
 import { logError } from './logger'
 
 // Hash a fixed projection so key order and the enabled flag never change the fingerprint.
@@ -47,6 +48,8 @@ interface RunSnapshot {
   root: Awaited<ReturnType<typeof customRoot>> | null
   exclusions: string[]
   recentMinutes: number
+  /** Bind mounts share the root's device, so mount points are checked by path as well. */
+  mounts: Set<string>
 }
 interface PreviewContext {
   preview: CustomCleanerPreview
@@ -97,7 +100,13 @@ export class CustomCleaners {
             rule?.enabled && fingerprint(rule) === ctx.fingerprint
               ? await customRoot(rule.root, this.policy)
               : null
-          return { rule, root, exclusions: this.exclusions(), recentMinutes: this.recentMinutes() }
+          return {
+            rule,
+            root,
+            exclusions: this.exclusions(),
+            recentMinutes: this.recentMinutes(),
+            mounts: await mountPoints()
+          }
         })()
       }
     return ctx.run.value
@@ -105,7 +114,7 @@ export class CustomCleaners {
   private async guard(ctx: PreviewContext, item: ScanItem): Promise<string | null> {
     if (ctx.expires < Date.now() || ctx.preview.state !== 'complete')
       return 'custom-preview-expired-or-incomplete'
-    const { rule, root, exclusions, recentMinutes } = await this.snapshot(ctx)
+    const { rule, root, exclusions, recentMinutes, mounts } = await this.snapshot(ctx)
     if (!rule?.enabled || fingerprint(rule) !== ctx.fingerprint || !root)
       return 'custom-rule-disabled-or-changed'
     const oldRoot = ctx.directories.get(root.path)
@@ -130,6 +139,7 @@ export class CustomCleaners {
       )
         return 'custom-folder-changed'
       if (parent === rule.root) break
+      if (mounts.has(parent)) return 'custom-folder-changed'
     }
     return null
   }
@@ -179,6 +189,7 @@ export class CustomCleaners {
     const cutoff = Date.now() - Math.max(rule.minAgeDays * 86400000, this.recentMinutes() * 60000)
     const exclusions = this.exclusions()
     const caseInsensitive = customCaseInsensitive(rule)
+    const mounts = await mountPoints()
     const scan = async (folder: string, depth: number): Promise<void> => {
       if (controller.signal.aborted || ctx.preview.state === 'partial') return
       let directory
@@ -188,6 +199,7 @@ export class CustomCleaners {
           !info.isDirectory() ||
           info.isSymbolicLink() ||
           info.dev !== root.info.dev ||
+          mounts.has(folder) ||
           (await realpath(folder)) !== folder
         ) {
           addWarning('Aliases and other mounted volumes were skipped.')

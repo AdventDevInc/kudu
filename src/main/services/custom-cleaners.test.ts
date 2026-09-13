@@ -27,6 +27,12 @@ const settings = vi.hoisted(() => ({
   cleaner: { secureDelete: false, skipRecentMinutes: 60, keepDeletionLog: false },
   exclusions: [] as string[]
 }))
+// Simulates Linux bind mounts (same device as the root) on every platform.
+const mounts = vi.hoisted(() => new Set<string>())
+vi.mock('./mount-points', () => ({
+  mountPoints: async () => mounts,
+  isMountPoint: async (path: string) => mounts.has(path)
+}))
 vi.mock('./settings-store', () => ({ getSettings: () => settings }))
 vi.mock('./logger', () => ({ logInfo: () => {}, logError: () => {} }))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
@@ -37,6 +43,7 @@ let dir: string,
   rule: CustomCleanerRule
 beforeEach(async () => {
   clearCache()
+  mounts.clear()
   settings.exclusions = []
   settings.cleaner.secureDelete = false
   // macOS /var is itself a symlink, which customRoot rejects.
@@ -283,6 +290,27 @@ describe('preview and deletion safety', () => {
     await symlink(outside, join(root, 'sub'), process.platform === 'win32' ? 'junction' : 'dir')
     expect((await service.clean(next.token)).result.filesDeleted).toBe(0)
     expect(await readFile(join(outside, 'outside.tmp'), 'utf8')).toBe('test data')
+  })
+  it('refuses bind-mounted folders as roots, in previews and when mounted after preview', async () => {
+    await old(join(root, 'old.tmp'))
+    await old(join(root, 'mounted', 'old.tmp'))
+    mounts.add(join(root, 'mounted'))
+    const p = await service.preview(rule)
+    expect(p.state).toBe('complete')
+    expect(p.items.map((i) => i.path)).toEqual([join(root, 'old.tmp')])
+    expect(p.warnings).toContain('Aliases and other mounted volumes were skipped.')
+    await expect(service.preview({ ...rule, root: join(root, 'mounted') })).rejects.toThrow(
+      'mounted volume'
+    )
+    mounts.clear()
+    const next = await service.preview(rule)
+    expect(next.items).toHaveLength(2)
+    await service.save(next.token)
+    mounts.add(join(root, 'mounted'))
+    const result = await service.clean(next.token)
+    expect(result.result.filesDeleted).toBe(1)
+    expect(result.result.filesSkipped).toBe(1)
+    expect(await readFile(join(root, 'mounted', 'old.tmp'), 'utf8')).toBe('test data')
   })
   it('skips files which acquired another hard link after preview', async () => {
     await old(join(root, 'old.tmp'))
