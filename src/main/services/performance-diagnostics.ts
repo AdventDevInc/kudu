@@ -161,6 +161,7 @@ export class PerformanceDiagnostics {
         recording: diagnosticUpload(s.recording, p.includeProcesses)
       })
       if (fresh !== p.body) throw new Error('Recording changed. Review a new upload preview.')
+      const previous = s.upload
       s.upload = {
         consentAt: new Date().toISOString(),
         digest: p.digest,
@@ -176,7 +177,9 @@ export class PerformanceDiagnostics {
         // then release the consent lock. Ambiguous failures (5xx, timeouts, network errors)
         // keep the reference so a possibly stored copy stays refreshable and deletable.
         if (error instanceof CloudRejectedError && error.status >= 400 && error.status < 500) {
-          s.upload = null
+          // A conflict means an earlier, ambiguous submission was stored after all: keep the
+          // reference it was made under, since that is the only handle for refresh/deletion.
+          s.upload = error.status === 409 ? previous : null
           await this.store.save(s)
         }
         throw error
@@ -215,6 +218,16 @@ export class PerformanceDiagnostics {
       if (result?.deleted !== true) throw new Error('Cloud deletion was not confirmed')
       // Keep the downloaded report readable; mark the server copy as removed via expiry.
       if (s.cloud) s.cloud.expiresAt = new Date(0).toISOString()
+      // An ambiguous submission never produced a result: record a tombstone so the local
+      // recording can be removed now that the Cloud copy is confirmed gone.
+      else
+        s.cloud = {
+          recordId: id,
+          status: 'failed',
+          report: null,
+          errorCode: 'deleted',
+          expiresAt: new Date(0).toISOString()
+        }
       await this.store.save(s)
     })
   }

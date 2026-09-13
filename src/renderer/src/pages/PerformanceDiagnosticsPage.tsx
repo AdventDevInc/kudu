@@ -49,6 +49,16 @@ export function PerformanceDiagnosticsPage() {
   const cloudGone = !!selected?.cloud && new Date(selected.cloud.expiresAt).getTime() < Date.now()
   // The upload reference is the only handle on the Cloud copy, so it must be deleted first.
   const cloudHeld = !!selected?.upload && !cloudGone
+  // Adopt the Cloud/upload state from a persisted session without discarding unsaved edits.
+  const adopt = useCallback(
+    (s: DiagnosticSession) =>
+      setSelected((current) =>
+        current?.recording.recordId === s.recording.recordId
+          ? { ...s, title: current.title, notes: current.notes, pinned: current.pinned }
+          : current
+      ),
+    []
+  )
   const refresh = useCallback(async () => {
     const s = await window.kudu.diagnosticsStatus()
     setRows(s.rows)
@@ -116,12 +126,7 @@ export function PerformanceDiagnosticsPage() {
       void window.kudu
         .diagnosticsRefresh(id)
         .then((s) => {
-          if (!disposed)
-            setSelected((current) =>
-              current?.recording.recordId === id
-                ? { ...s, title: current.title, notes: current.notes, pinned: current.pinned }
-                : current
-            )
+          if (!disposed) adopt(s)
         })
         .catch((e) => {
           if (!disposed) setError(String(e))
@@ -134,7 +139,7 @@ export function PerformanceDiagnosticsPage() {
       disposed = true
       clearInterval(timer)
     }
-  }, [id, selected?.cloud])
+  }, [id, selected?.cloud, adopt])
   useEffect(() => {
     if (!id || active === id || selected?.state !== 'recording') return
     let disposed = false
@@ -466,9 +471,7 @@ export function PerformanceDiagnosticsPage() {
                         className={button}
                         disabled={busy}
                         onClick={() =>
-                          void run(async () =>
-                            setSelected(await window.kudu.diagnosticsRefresh(id!))
-                          )
+                          void run(async () => adopt(await window.kudu.diagnosticsRefresh(id!)))
                         }
                       >
                         {t('refreshReport')}
@@ -498,7 +501,7 @@ export function PerformanceDiagnosticsPage() {
                       disabled={busy}
                       onClick={() =>
                         void run(async () => {
-                          setSelected(await window.kudu.diagnosticsUpload(preview.token))
+                          adopt(await window.kudu.diagnosticsUpload(preview.token))
                           setPreview(null)
                         })
                       }
@@ -515,7 +518,9 @@ export function PerformanceDiagnosticsPage() {
                     {cloudGone
                       ? t('cloudGone')
                       : t('analysisStatus', { status: t(selected.cloud.status) })}
-                    {selected.cloud.status === 'failed' ? ` ${t('analysisFailed')}` : ''}
+                    {selected.cloud.status === 'failed' && !cloudGone
+                      ? ` ${t('analysisFailed')}`
+                      : ''}
                   </p>
                 )}
                 {report && (
