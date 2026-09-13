@@ -213,12 +213,14 @@ async function checkDailyStorage() {
       const status = getGameModeStatus()
       if (status.active || status.pendingRestore) return
     }
-    for (const scope of (await getStorageIndex()).scopes) {
-      if (scope.daily && Date.now() - Date.parse(scope.lastAttemptAt ?? '1970-01-01') >= 86400000) {
-        await captureStorageScope(scope.id)
-        break
-      }
-    }
+    // Capture only the stalest due folder per check; never-attempted folders come first, so short
+    // sessions rotate through every daily folder instead of starving those later in the list.
+    const attemptedAt = (scope: StorageScope) =>
+      scope.lastAttemptAt ? Date.parse(scope.lastAttemptAt) : Number.NEGATIVE_INFINITY
+    const due = (await getStorageIndex()).scopes
+      .filter((scope) => scope.daily && Date.now() - attemptedAt(scope) >= 86400000)
+      .sort((a, b) => attemptedAt(a) - attemptedAt(b))
+    if (due[0]) await captureStorageScope(due[0].id)
   } catch (error) {
     logError('Storage history background check failed', error)
   } finally {

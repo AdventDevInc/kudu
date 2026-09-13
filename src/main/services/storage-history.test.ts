@@ -36,7 +36,17 @@ vi.mock('./storage-history-store', () => ({
   }
 }))
 vi.mock('./logger', () => ({ logError: vi.fn() }))
-import { identifyStorageVolume, captureStorageScope, storageCaptureStatus } from './storage-history'
+vi.mock('../ipc/game-mode.ipc', () => ({
+  getGameModeStatus: () => ({ active: false, pendingRestore: false })
+}))
+import {
+  identifyStorageVolume,
+  captureStorageScope,
+  startStorageHistory,
+  stopStorageHistory,
+  storageCaptureStatus
+} from './storage-history'
+import { powerMonitor } from 'electron'
 const path = join(tmpdir(), 'tracked-folder'),
   mount = parse(path).root
 beforeEach(async () => {
@@ -135,4 +145,45 @@ it('only admits one concurrent capture', async () => {
   ])
   expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1)
   expect(mocks.measure).toHaveBeenCalledTimes(1)
+})
+it('captures the stalest due daily folder first and rotates across checks', async () => {
+  vi.useFakeTimers()
+  try {
+    Object.assign(powerMonitor, { isOnBatteryPower: () => false, getSystemIdleTime: () => 600 })
+    mocks.update.mockImplementation(async (id: string, patch: Partial<StorageScope>) => {
+      Object.assign(
+        mocks.scopes.find((s) => s.id === id)!,
+        patch
+      )
+    })
+    const daysAgo = (days: number) => new Date(Date.now() - days * 86400000).toISOString()
+    const base = mocks.scopes[0]
+    mocks.scopes = [
+      {
+        ...base,
+        id: 'aaaaaaaa-1234-1234-1234-123456789abc',
+        daily: true,
+        lastAttemptAt: daysAgo(2)
+      },
+      {
+        ...base,
+        id: 'bbbbbbbb-1234-1234-1234-123456789abc',
+        daily: true,
+        lastAttemptAt: daysAgo(5)
+      },
+      { ...base, id: 'cccccccc-1234-1234-1234-123456789abc', daily: true, lastAttemptAt: null }
+    ]
+    startStorageHistory()
+    await vi.advanceTimersByTimeAsync(600000)
+    expect(mocks.update.mock.calls[0][0]).toBe(mocks.scopes[2].id)
+    await vi.advanceTimersByTimeAsync(600000)
+    expect(mocks.update.mock.calls[1][0]).toBe(mocks.scopes[1].id)
+    await vi.advanceTimersByTimeAsync(600000)
+    expect(mocks.update.mock.calls[2][0]).toBe(mocks.scopes[0].id)
+    await vi.advanceTimersByTimeAsync(600000)
+    expect(mocks.update).toHaveBeenCalledTimes(3)
+  } finally {
+    stopStorageHistory()
+    vi.useRealTimers()
+  }
 })
