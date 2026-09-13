@@ -21,7 +21,7 @@
     "backupDescription": "Te pliki kopii zapasowej nie zawierają zweryfikowanych informacji o stanie po zmianie. Przed ręcznym przywróceniem sprawdź je w folderze kopii zapasowej; ich zaimportowanie może nadpisać nowsze ustawienia. Plik kopii zapasowej nie jest punktem przywracania systemu.",
     "openBackups": "Otwórz folder kopii zapasowej",
     "confirmTitle": "Przywrócić tę zmianę?",
-    "confirmDescription": "Kudu sprawdzi bieżący stan przed przywróceniem zapisanej wartości pierwotnej. Nowsze konfliktujące zmiany zostaną zachowane. Mogą być wymagane uprawnienia administratora.",
+    "confirmDescription": "Kudu sprawdzi bieżący stan przed przywróceniem zapisanej wartości pierwotnej. Nowsze, konfliktujące zmiany zostaną zachowane. Mogą być wymagane uprawnienia administratora.",
     "status": {
       "pending": "Przerwane / oczekujące",
       "ready": "Dostępne",
@@ -29,8 +29,9 @@
       "failed": "Wymaga uwagi",
       "conflict": "Wykryto nowszą zmianę"
     },
-    "remove": "Usuń przywrócony wpis",
-    "removeDescription": "Usunąć ten ukończony rekord odzyskiwania z historii lokalnej? Nie zmieni to ustawień ani nie usunie kopii zapasowych rejestru."
+    "remove": "Usuń wpis",
+    "removeDescription": "Usunąć ten rekord odzyskiwania z historii lokalnej? Nie zmieni to ustawień ani nie usunie kopii zapasowych rejestru. Kudu nie będzie już mogło przywrócić tej zmiany.",
+    "unreadable": "Nie można odczytać tego rekordu odzyskiwania. Mógł zostać zapisany przez inne konto użytkownika lub uszkodzony na dysku."
   },
   "pageTitle": "Historia skanowania",
   "pageDescription": "Wyświetl szczegółowe wyniki poprzednich skanowań i czyszczeń",
@@ -51,8 +52,8 @@
     "debloater": "Debloater",
     "network": "Czyszczenie sieci",
     "drivers": "Czyszczenie sterowników",
-    "malware": "Skanowanie malware",
-    "privacy": "Ochrona prywatności",
+    "malware": "Skanowanie w poszukiwaniu malware",
+    "privacy": "Osłona prywatności",
     "startup": "Menedżer uruchamiania",
     "services": "Menedżer usług",
     "softwareUpdate": "Aktualizacja oprogramowania",
@@ -95,7 +96,7 @@
     "columnDuration": "Czas trwania",
     "columnStatus": "Stan",
     "scheduledBadge": "Zaplan.",
-    "noEntriesMatchFilter": "Żadne wpisy nie pasują do tego filtra",
+    "noEntriesMatchFilter": "Brak wpisów pasujących do tego filtra",
     "dateAt": "o"
   },
   "detail": {
@@ -118,9 +119,9 @@
       "exported": "Wyeksportowano {{count}} ścieżek",
       "exportFailed": "Nie można wyeksportować listy usuniętych plików",
       "truncatedBadge": "+{{count}} więcej",
-      "truncatedHint": "Ten folder zawierał jeszcze {{count}} wpisów ponad limit listy dla folderu. Zostały usunięte, ale nie zostały wymienione osobno.",
+      "truncatedHint": "Ten folder zawierał jeszcze {{count}} wpisów ponad limit listy na folder. Zostały usunięte, ale nie zostały wymienione osobno.",
       "emptyRecorded": "Dla tego uruchomienia nie zapisano żadnych ścieżek plików.",
-      "disabledHint": "Rejestrowanie usuwania jest wyłączone, więc poszczególne ścieżki z tego uruchomienia nie zostały zapisane. Włącz opcję „Zachowuj dziennik usuniętych plików” w Ustawienia → Preferencje czyszczenia, aby od teraz je zapisywać."
+      "disabledHint": "Rejestrowanie usuwania jest wyłączone, więc pojedyncze ścieżki z tego uruchomienia nie zostały zapisane. Włącz opcję „Zachowaj dziennik usuniętych plików” w Ustawienia → Preferencje czyszczenia, aby zapisywać je od teraz."
     }
   },
   "cloud": {
@@ -128,7 +129,7 @@
     "emptyStateDescription": "Gdy polecenia zostaną odebrane z panelu chmury, pojawią się tutaj.",
     "totalCommands": "Łączna liczba poleceń",
     "succeeded": "Zakończone powodzeniem",
-    "failed": "Nieudane",
+    "failed": "Niepowodzenia",
     "avgDuration": "Śr. czas trwania",
     "columnStatus": "Stan",
     "columnCommand": "Polecenie",
@@ -162,7 +163,7 @@
     "runDism": "Naprawa DISM",
     "getNetworkConfig": "Konfiguracja sieci",
     "getEventLog": "Dziennik zdarzeń",
-    "getInstalledApps": "Lista zainstalowanych aplikacji",
+    "getInstalledApps": "Lista aplikacji",
     "driverUpdateScan": "Skanowanie sterowników",
     "driverUpdateInstall": "Instalacja sterowników",
     "driverClean": "Czyszczenie sterowników",

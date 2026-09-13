@@ -2,7 +2,7 @@
   "recovery": {
     "title": "Centro de recuperación",
     "description": "Revise y restaure los cambios compatibles realizados por Kudu",
-    "limits": "La recuperación cubre los valores DWORD de privacidad/registro de Windows registrados, las tareas programadas y la configuración de servicios. La eliminación permanente de archivos no se puede deshacer. Es posible que los cambios antiguos o no compatibles solo tengan una copia de seguridad manual. Algunas configuraciones restauradas requieren reiniciar.",
+    "limits": "La recuperación cubre los valores DWORD de privacidad/registro de Windows registrados, las tareas programadas y la configuración de servicios. La eliminación permanente de archivos no se puede deshacer. Es posible que los cambios antiguos o no compatibles solo tengan una copia de seguridad manual. Algunos ajustes restaurados requieren reiniciar.",
     "refresh": "Actualizar",
     "export": "Exportar historial de recuperación",
     "loadError": "No se pudo leer el historial de recuperación.",
@@ -18,10 +18,10 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "backups": "Copias de seguridad del registro y del menú contextual",
-    "backupDescription": "Estos archivos de copia de seguridad no contienen información verificada del estado posterior. Revíselos en la carpeta de copias de seguridad antes de restaurarlos manualmente; al importarlos, pueden sobrescribir configuraciones más recientes. Un archivo de copia de seguridad no es un punto de restauración del sistema operativo.",
+    "backupDescription": "Estos archivos de copia de seguridad no contienen información verificada del estado posterior. Revíselos en la carpeta de copias de seguridad antes de restaurarlos manualmente; importarlos puede sobrescribir ajustes más recientes. Un archivo de copia de seguridad no es un punto de restauración del sistema operativo.",
     "openBackups": "Abrir carpeta de copias de seguridad",
     "confirmTitle": "¿Restaurar este cambio?",
-    "confirmDescription": "Kudu comprobará el estado actual antes de restaurar el valor original registrado. Los cambios conflictivos más recientes se conservarán. Es posible que se requieran privilegios de administrador.",
+    "confirmDescription": "Kudu comprobará el estado actual antes de restaurar el valor original registrado. Se conservarán los cambios más recientes que entren en conflicto. Es posible que se requieran privilegios de administrador.",
     "status": {
       "pending": "Interrumpido / pendiente",
       "ready": "Disponible",
@@ -29,8 +29,9 @@
       "failed": "Requiere atención",
       "conflict": "Se detectó un cambio más reciente"
     },
-    "remove": "Eliminar entrada restaurada",
-    "removeDescription": "¿Eliminar este registro de recuperación completado del historial local? Esto no cambia su configuración ni elimina las copias de seguridad del registro."
+    "remove": "Eliminar entrada",
+    "removeDescription": "¿Eliminar este registro de recuperación del historial local? Esto no cambia su configuración ni elimina las copias de seguridad del registro. Kudu ya no podrá restaurar este cambio por usted.",
+    "unreadable": "No se pudo leer este registro de recuperación. Es posible que haya sido escrito por otra cuenta de usuario o que esté dañado en el disco."
   },
   "pageTitle": "Historial de análisis",
   "pageDescription": "Vea resultados detallados de análisis y limpiezas anteriores",
@@ -62,7 +63,7 @@
     "totalScans": "Análisis totales",
     "spaceRecovered": "Espacio recuperado",
     "itemsProcessed": "Elementos procesados",
-    "avgDuration": "Duración prom.",
+    "avgDuration": "Duración media",
     "spaceRecoveredOverTime": "Espacio recuperado a lo largo del tiempo",
     "needTwoScansForChart": "Se necesitan al menos 2 análisis para el gráfico de tendencias",
     "scanTypeDistribution": "Distribución por tipo de análisis",
@@ -129,7 +130,7 @@
     "totalCommands": "Comandos totales",
     "succeeded": "Correctos",
     "failed": "Fallidos",
-    "avgDuration": "Duración prom.",
+    "avgDuration": "Duración media",
     "columnStatus": "Estado",
     "columnCommand": "Comando",
     "columnSummary": "Resumen",

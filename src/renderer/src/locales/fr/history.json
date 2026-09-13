@@ -2,7 +2,7 @@
   "recovery": {
     "title": "Centre de récupération",
     "description": "Consultez et restaurez les modifications prises en charge effectuées par Kudu",
-    "limits": "La récupération couvre les valeurs DWORD de confidentialité/du registre Windows enregistrées, les tâches planifiées et la configuration des services. La suppression définitive de fichiers ne peut pas être annulée. Les modifications plus anciennes ou non prises en charge peuvent n’avoir qu’une sauvegarde manuelle. Certains paramètres restaurés nécessitent un redémarrage.",
+    "limits": "La récupération couvre les valeurs DWORD de confidentialité/du registre Windows enregistrées, les tâches planifiées et la configuration des services. La suppression définitive de fichiers ne peut pas être annulée. Les modifications anciennes ou non prises en charge peuvent ne disposer que d’une sauvegarde manuelle. Certains paramètres restaurés nécessitent un redémarrage.",
     "refresh": "Actualiser",
     "export": "Exporter l’historique de récupération",
     "loadError": "Impossible de lire l’historique de récupération.",
@@ -18,10 +18,10 @@
     "previous": "Précédent",
     "next": "Suivant",
     "backups": "Sauvegardes du registre et du menu contextuel",
-    "backupDescription": "Ces fichiers de sauvegarde ne contiennent pas d’informations vérifiées sur l’état après modification. Vérifiez-les dans le dossier de sauvegarde avant de les restaurer manuellement ; leur importation peut écraser des paramètres plus récents. Un fichier de sauvegarde n’est pas un point de restauration du système d’exploitation.",
+    "backupDescription": "Ces fichiers de sauvegarde ne contiennent pas d’informations vérifiées sur l’état après modification. Vérifiez-les dans le dossier de sauvegarde avant de les restaurer manuellement ; leur importation peut écraser des paramètres plus récents. Un fichier de sauvegarde n’est pas un point de restauration du système.",
     "openBackups": "Ouvrir le dossier de sauvegarde",
     "confirmTitle": "Restaurer cette modification ?",
-    "confirmDescription": "Kudu vérifiera l’état actuel avant de restaurer la valeur d’origine enregistrée. Les modifications conflictuelles plus récentes seront conservées. Des privilèges administrateur peuvent être requis.",
+    "confirmDescription": "Kudu vérifiera l’état actuel avant de restaurer la valeur d’origine enregistrée. Les modifications plus récentes en conflit seront conservées. Des privilèges d’administrateur peuvent être requis.",
     "status": {
       "pending": "Interrompu / en attente",
       "ready": "Disponible",
@@ -29,8 +29,9 @@
       "failed": "Nécessite une attention",
       "conflict": "Modification plus récente détectée"
     },
-    "remove": "Supprimer l’entrée restaurée",
-    "removeDescription": "Supprimer cet enregistrement de récupération terminé de l’historique local ? Cela ne modifie pas vos paramètres et ne supprime pas les sauvegardes du registre."
+    "remove": "Supprimer l’entrée",
+    "removeDescription": "Supprimer cet enregistrement de récupération de l’historique local ? Cela ne modifie pas vos paramètres et ne supprime pas les sauvegardes du registre. Kudu ne pourra plus restaurer cette modification pour vous.",
+    "unreadable": "Impossible de lire cet enregistrement de récupération. Il a peut-être été créé par un autre compte utilisateur ou endommagé sur le disque."
   },
   "pageTitle": "Historique des analyses",
   "pageDescription": "Consultez les résultats détaillés des analyses et nettoyages précédents",
@@ -39,7 +40,7 @@
   "viewCloud": "Cloud",
   "clearButton": "Effacer",
   "emptyStateTitle": "Aucun historique pour le moment",
-  "emptyStateDescription": "Lancez une analyse depuis les pages Cleaner, Registre ou Debloater. Les résultats apparaîtront ici.",
+  "emptyStateDescription": "Lancez une analyse depuis les pages Cleaner, Registry ou Debloater. Les résultats apparaîtront ici.",
   "confirmClearCloudTitle": "Effacer l’historique Cloud",
   "confirmClearScanTitle": "Effacer l’historique des analyses",
   "confirmClearCloudDescription": "Cela supprimera définitivement toutes les entrées de l’historique des actions cloud. Cette action est irréversible.",
@@ -54,7 +55,7 @@
     "malware": "Analyse des logiciels malveillants",
     "privacy": "Bouclier de confidentialité",
     "startup": "Gestionnaire de démarrage",
-    "services": "Gestionnaire des services",
+    "services": "Gestionnaire de services",
     "softwareUpdate": "Mise à jour des logiciels",
     "cveScan": "Analyse CVE"
   },
@@ -78,7 +79,7 @@
   "timeline": {
     "filterAll": "Tout",
     "filterCleaner": "Cleaner",
-    "filterRegistry": "Registre",
+    "filterRegistry": "Registry",
     "filterDebloater": "Debloater",
     "filterNetwork": "Réseau",
     "filterDrivers": "Pilotes",
@@ -115,12 +116,12 @@
       "loadMore": "Charger plus",
       "exportCsv": "Exporter en CSV",
       "openLog": "Ouvrir le journal",
-      "exported": "{{count}} chemins exportés",
+      "exported": "Exportation de {{count}} chemins effectuée",
       "exportFailed": "Impossible d’exporter la liste des fichiers supprimés",
       "truncatedBadge": "+{{count}} de plus",
-      "truncatedHint": "Ce dossier contenait encore {{count}} entrées au-delà de la limite de liste par dossier. Elles ont été supprimées, mais n’ont pas été répertoriées individuellement.",
+      "truncatedHint": "Ce dossier contenait encore {{count}} entrées au-delà de la limite d’affichage par dossier. Elles ont été supprimées, mais n’ont pas été listées individuellement.",
       "emptyRecorded": "Aucun chemin de fichier n’a été enregistré pour cette exécution.",
-      "disabledHint": "La journalisation des suppressions est désactivée ; les chemins individuels de cette exécution n’ont donc pas été enregistrés. Activez « Conserver un journal des fichiers supprimés » dans Paramètres → Préférences de nettoyage pour les enregistrer à partir de maintenant."
+      "disabledHint": "La journalisation des suppressions est désactivée, donc les chemins individuels de cette exécution n’ont pas été enregistrés. Activez « Conserver un journal des fichiers supprimés » dans Paramètres → Préférences de nettoyage pour les enregistrer à l’avenir."
     }
   },
   "cloud": {
@@ -135,7 +136,7 @@
     "columnSummary": "Résumé",
     "columnDate": "Date",
     "columnDuration": "Durée",
-    "completed": "Terminé",
+    "completed": "Terminée",
     "detailCommand": "Commande",
     "detailStatus": "État",
     "detailStatusSuccess": "Réussite",
@@ -170,11 +171,11 @@
     "startupToggle": "Activation/désactivation du démarrage",
     "diskHealth": "État du disque",
     "privacyScan": "Analyse de confidentialité",
-    "privacyApply": "Application de la confidentialité",
+    "privacyApply": "Appliquer la confidentialité",
     "debloaterScan": "Analyse Debloater",
     "debloaterRemove": "Suppression Debloater",
     "serviceScan": "Analyse des services",
-    "serviceApply": "Application des services",
+    "serviceApply": "Appliquer les services",
     "malwareQuarantine": "Quarantaine",
     "malwareDelete": "Suppression des logiciels malveillants",
     "registryScan": "Analyse du registre",

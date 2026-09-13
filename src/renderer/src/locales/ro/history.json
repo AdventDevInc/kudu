@@ -1,13 +1,13 @@
 {
   "recovery": {
     "title": "Centru de recuperare",
-    "description": "Revizuiți și restaurați modificările compatibile efectuate de Kudu",
-    "limits": "Recuperarea acoperă valorile Windows DWORD de confidențialitate/registry înregistrate, activitățile programate și configurația serviciilor. Ștergerea permanentă a fișierelor nu poate fi anulată. Modificările mai vechi sau neacceptate pot avea doar o copie de rezervă manuală. Unele setări restaurate necesită o repornire.",
+    "description": "Revizuiți și restaurați modificările acceptate efectuate de Kudu",
+    "limits": "Recuperarea acoperă valorile DWORD de confidențialitate/registry din Windows înregistrate, activitățile programate și configurația serviciilor. Ștergerea permanentă a fișierelor nu poate fi anulată. Modificările mai vechi sau neacceptate pot avea doar o copie de rezervă manuală. Unele setări restaurate necesită o repornire.",
     "refresh": "Reîmprospătare",
     "export": "Exportă istoricul de recuperare",
     "loadError": "Istoricul de recuperare nu a putut fi citit.",
     "failed": "Recuperarea a eșuat.",
-    "empty": "Nu există modificări înregistrate pe această pagină. Noile modificări compatibile vor apărea aici.",
+    "empty": "Nu există modificări înregistrate pe această pagină. Noile modificări acceptate vor apărea aici.",
     "gameMode": "Recuperare Game Mode",
     "gameModeDescription": "Game Mode are un instantaneu de recuperare activ sau în așteptare.",
     "openGameMode": "Deschide recuperarea Game Mode",
@@ -18,7 +18,7 @@
     "previous": "Anterior",
     "next": "Următor",
     "backups": "Copii de rezervă pentru registry și meniul contextual",
-    "backupDescription": "Aceste fișiere de rezervă nu conțin informații verificate despre starea ulterioară. Verificați-le în folderul de backup înainte de a le restaura manual; importarea lor poate suprascrie setări mai noi. Un fișier de rezervă nu este un punct de restaurare al sistemului de operare.",
+    "backupDescription": "Aceste fișiere de rezervă nu conțin informații verificate despre starea ulterioară. Verificați-le în folderul de backup înainte de restaurarea manuală; importarea lor poate suprascrie setări mai noi. Un fișier de rezervă nu este un punct de restaurare al sistemului de operare.",
     "openBackups": "Deschide folderul de backup",
     "confirmTitle": "Restaurați această modificare?",
     "confirmDescription": "Kudu va verifica starea curentă înainte de a restaura valoarea inițială înregistrată. Modificările conflictuale mai noi vor fi păstrate. Pot fi necesare privilegii de administrator.",
@@ -29,11 +29,12 @@
       "failed": "Necesită atenție",
       "conflict": "A fost detectată o modificare mai nouă"
     },
-    "remove": "Elimină intrarea restaurată",
-    "removeDescription": "Eliminați această înregistrare de recuperare finalizată din istoricul local? Aceasta nu vă modifică setările și nu șterge copiile de rezervă ale registry."
+    "remove": "Elimină înregistrarea",
+    "removeDescription": "Eliminați această înregistrare de recuperare din istoricul local? Aceasta nu vă modifică setările și nu șterge copiile de rezervă ale registry. Kudu nu va mai putea restaura această modificare pentru dumneavoastră.",
+    "unreadable": "Această înregistrare de recuperare nu a putut fi citită. Este posibil să fi fost scrisă de un alt cont de utilizator sau să fie deteriorată pe disc."
   },
   "pageTitle": "Istoric scanări",
-  "pageDescription": "Vizualizați rezultatele detaliate ale scanărilor și curățărilor anterioare",
+  "pageDescription": "Vizualizați rezultatele detaliate ale scanărilor și curățării anterioare",
   "viewOverview": "Prezentare generală",
   "viewTimeline": "Cronologie",
   "viewCloud": "Cloud",
@@ -42,8 +43,8 @@
   "emptyStateDescription": "Rulați o scanare din paginile Cleaner, Registry sau Debloater. Rezultatele vor apărea aici.",
   "confirmClearCloudTitle": "Șterge istoricul Cloud",
   "confirmClearScanTitle": "Șterge istoricul scanărilor",
-  "confirmClearCloudDescription": "Aceasta va șterge definitiv toate intrările din istoricul acțiunilor cloud. Această acțiune nu poate fi anulată.",
-  "confirmClearScanDescription": "Aceasta va șterge definitiv toate intrările din istoricul scanărilor. Această acțiune nu poate fi anulată.",
+  "confirmClearCloudDescription": "Aceasta va șterge definitiv toate înregistrările din istoricul acțiunilor cloud. Această acțiune nu poate fi anulată.",
+  "confirmClearScanDescription": "Aceasta va șterge definitiv toate înregistrările din istoricul scanărilor. Această acțiune nu poate fi anulată.",
   "confirmClearLabel": "Șterge tot",
   "typeLabels": {
     "cleaner": "Curățare sistem",
@@ -53,8 +54,8 @@
     "drivers": "Curățare drivere",
     "malware": "Scanare malware",
     "privacy": "Scut de confidențialitate",
-    "startup": "Manager pornire",
-    "services": "Manager servicii",
+    "startup": "Manager de pornire",
+    "services": "Manager de servicii",
     "softwareUpdate": "Actualizare software",
     "cveScan": "Scanare CVE"
   },
@@ -87,7 +88,7 @@
     "filterStartup": "Pornire",
     "filterServices": "Servicii",
     "filterUpdates": "Actualizări",
-    "entriesCount": "{{count}} intrări",
+    "entriesCount": "{{count}} înregistrări",
     "columnType": "Tip",
     "columnDate": "Dată",
     "columnItems": "Elemente",
@@ -95,7 +96,7 @@
     "columnDuration": "Durată",
     "columnStatus": "Stare",
     "scheduledBadge": "Prog.",
-    "noEntriesMatchFilter": "Nicio intrare nu corespunde acestui filtru",
+    "noEntriesMatchFilter": "Nicio înregistrare nu corespunde acestui filtru",
     "dateAt": "la"
   },
   "detail": {
@@ -117,10 +118,10 @@
       "openLog": "Deschide jurnalul",
       "exported": "Au fost exportate {{count}} căi",
       "exportFailed": "Lista fișierelor șterse nu a putut fi exportată",
-      "truncatedBadge": "+încă {{count}}",
+      "truncatedBadge": "+{{count}} în plus",
       "truncatedHint": "Acest folder conținea încă {{count}} intrări peste limita de listare per folder. Acestea au fost șterse, dar nu au fost listate individual.",
       "emptyRecorded": "Nu au fost înregistrate căi de fișiere pentru această rulare.",
-      "disabledHint": "Jurnalizarea ștergerilor este dezactivată, astfel că căile individuale din această rulare nu au fost înregistrate. Activați „Păstrează un jurnal al fișierelor șterse” în Setări → Preferințe de curățare pentru a le înregistra de acum înainte."
+      "disabledHint": "Jurnalizarea ștergerilor este dezactivată, astfel încât căile individuale din această rulare nu au fost înregistrate. Activați „Păstrează un jurnal al fișierelor șterse” în Setări → Preferințe de curățare pentru a le înregistra de acum înainte."
     }
   },
   "cloud": {
@@ -141,7 +142,7 @@
     "detailStatusSuccess": "Succes",
     "detailStatusFailed": "Eșuat",
     "detailDuration": "Durată",
-    "detailRequestId": "ID solicitare",
+    "detailRequestId": "ID cerere",
     "detailSummary": "Rezumat",
     "detailError": "Eroare"
   },
@@ -152,7 +153,7 @@
     "softwareUpdateRun": "Actualizare software",
     "getStatus": "Stare",
     "getSystemInfo": "Informații sistem",
-    "getHealthReport": "Raport de stare",
+    "getHealthReport": "Raport de sănătate",
     "ping": "Ping",
     "shutdown": "Oprire",
     "restart": "Repornire",
@@ -166,7 +167,7 @@
     "driverUpdateScan": "Scanare drivere",
     "driverUpdateInstall": "Instalare drivere",
     "driverClean": "Curățare drivere",
-    "startupList": "Listă pornire",
+    "startupList": "Listă de pornire",
     "startupToggle": "Comutare pornire",
     "diskHealth": "Stare disc",
     "privacyScan": "Scanare confidențialitate",

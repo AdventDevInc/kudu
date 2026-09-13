@@ -21,7 +21,7 @@
     "backupDescription": "Estes ficheiros de cópia de segurança não contêm informações verificadas do estado posterior. Inspecione-os na pasta de cópias de segurança antes de restaurar manualmente; importá-los pode substituir definições mais recentes. Um ficheiro de cópia de segurança não é um ponto de restauro do sistema operativo.",
     "openBackups": "Abrir pasta de cópias de segurança",
     "confirmTitle": "Restaurar esta alteração?",
-    "confirmDescription": "O Kudu verificará o estado atual antes de restaurar o valor original registado. Alterações mais recentes em conflito serão preservadas. Podem ser necessários privilégios de administrador.",
+    "confirmDescription": "O Kudu verificará o estado atual antes de restaurar o valor original registado. Alterações conflitantes mais recentes serão preservadas. Podem ser necessários privilégios de administrador.",
     "status": {
       "pending": "Interrompido / pendente",
       "ready": "Disponível",
@@ -29,8 +29,9 @@
       "failed": "Requer atenção",
       "conflict": "Alteração mais recente detetada"
     },
-    "remove": "Remover entrada restaurada",
-    "removeDescription": "Remover este registo de recuperação concluído do histórico local? Isto não altera as suas definições nem elimina cópias de segurança do registo."
+    "remove": "Remover entrada",
+    "removeDescription": "Remover este registo de recuperação do histórico local? Isto não altera as suas definições nem elimina cópias de segurança do registo. O Kudu deixará de poder restaurar esta alteração por si.",
+    "unreadable": "Não foi possível ler este registo de recuperação. Pode ter sido escrito por outra conta de utilizador ou estar danificado no disco."
   },
   "pageTitle": "Histórico de Análises",
   "pageDescription": "Veja resultados detalhados de análises e limpezas anteriores",
@@ -42,7 +43,7 @@
   "emptyStateDescription": "Execute uma análise nas páginas Cleaner, Registry ou Debloater. Os resultados aparecerão aqui.",
   "confirmClearCloudTitle": "Limpar Histórico da Cloud",
   "confirmClearScanTitle": "Limpar Histórico de Análises",
-  "confirmClearCloudDescription": "Isto eliminará permanentemente todas as entradas do histórico de ações na cloud. Esta ação não pode ser anulada.",
+  "confirmClearCloudDescription": "Isto eliminará permanentemente todas as entradas do histórico de ações da cloud. Esta ação não pode ser anulada.",
   "confirmClearScanDescription": "Isto eliminará permanentemente todas as entradas do histórico de análises. Esta ação não pode ser anulada.",
   "confirmClearLabel": "Limpar Tudo",
   "typeLabels": {
@@ -124,7 +125,7 @@
     }
   },
   "cloud": {
-    "emptyStateTitle": "Ainda não existem ações na cloud",
+    "emptyStateTitle": "Ainda não existem ações da cloud",
     "emptyStateDescription": "Quando forem recebidos comandos do painel da cloud, eles aparecerão aqui.",
     "totalCommands": "Total de Comandos",
     "succeeded": "Concluídos com êxito",
@@ -171,8 +172,8 @@
     "diskHealth": "Estado do Disco",
     "privacyScan": "Análise de Privacidade",
     "privacyApply": "Aplicar Privacidade",
-    "debloaterScan": "Análise Debloater",
-    "debloaterRemove": "Remover Debloater",
+    "debloaterScan": "Análise do Debloater",
+    "debloaterRemove": "Remover com Debloater",
     "serviceScan": "Análise de Serviços",
     "serviceApply": "Aplicar Serviços",
     "malwareQuarantine": "Quarentena",

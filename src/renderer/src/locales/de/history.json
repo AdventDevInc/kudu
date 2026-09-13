@@ -1,7 +1,7 @@
 {
   "recovery": {
-    "title": "Wiederherstellungscenter",
-    "description": "Überprüfen und stellen Sie unterstützte Änderungen wieder her, die von Kudu vorgenommen wurden",
+    "title": "Wiederherstellungszentrale",
+    "description": "Überprüfen und wiederherstellen unterstützter Änderungen, die von Kudu vorgenommen wurden",
     "limits": "Die Wiederherstellung umfasst aufgezeichnete Windows-DWORD-Datenschutz-/Registrierungswerte, geplante Aufgaben und Dienstkonfigurationen. Das dauerhafte Löschen von Dateien kann nicht rückgängig gemacht werden. Ältere oder nicht unterstützte Änderungen verfügen möglicherweise nur über eine manuelle Sicherung. Einige wiederhergestellte Einstellungen erfordern einen Neustart.",
     "refresh": "Aktualisieren",
     "export": "Wiederherstellungsverlauf exportieren",
@@ -18,10 +18,10 @@
     "previous": "Zurück",
     "next": "Weiter",
     "backups": "Sicherungen der Registrierung und des Kontextmenüs",
-    "backupDescription": "Diese Sicherungsdateien enthalten keine verifizierten Informationen zum Zustand nach der Änderung. Prüfen Sie sie im Sicherungsordner, bevor Sie sie manuell wiederherstellen; beim Importieren können neuere Einstellungen überschrieben werden. Eine Sicherungsdatei ist kein OS-Wiederherstellungspunkt.",
+    "backupDescription": "Diese Sicherungsdateien enthalten keine verifizierten Informationen zum Zustand nach der Änderung. Prüfen Sie sie im Sicherungsordner, bevor Sie sie manuell wiederherstellen; beim Importieren können neuere Einstellungen überschrieben werden. Eine Sicherungsdatei ist kein Systemwiederherstellungspunkt des Betriebssystems.",
     "openBackups": "Sicherungsordner öffnen",
     "confirmTitle": "Diese Änderung wiederherstellen?",
-    "confirmDescription": "Kudu überprüft den aktuellen Zustand, bevor der aufgezeichnete ursprüngliche Wert wiederhergestellt wird. Neuere widersprüchliche Änderungen bleiben erhalten. Administratorrechte können erforderlich sein.",
+    "confirmDescription": "Kudu prüft den aktuellen Zustand, bevor der aufgezeichnete ursprüngliche Wert wiederhergestellt wird. Neuere widersprüchliche Änderungen bleiben erhalten. Administratorrechte können erforderlich sein.",
     "status": {
       "pending": "Unterbrochen / ausstehend",
       "ready": "Verfügbar",
@@ -29,10 +29,11 @@
       "failed": "Erfordert Aufmerksamkeit",
       "conflict": "Neuere Änderung erkannt"
     },
-    "remove": "Wiederhergestellten Eintrag entfernen",
-    "removeDescription": "Diesen abgeschlossenen Wiederherstellungseintrag aus dem lokalen Verlauf entfernen? Dadurch werden Ihre Einstellungen nicht geändert und keine Registrierungssicherungen gelöscht."
+    "remove": "Eintrag entfernen",
+    "removeDescription": "Diesen Wiederherstellungseintrag aus dem lokalen Verlauf entfernen? Dadurch werden Ihre Einstellungen nicht geändert und Registrierungssicherungen nicht gelöscht. Kudu kann diese Änderung dann nicht mehr für Sie wiederherstellen.",
+    "unreadable": "Dieser Wiederherstellungseintrag konnte nicht gelesen werden. Er wurde möglicherweise von einem anderen Benutzerkonto geschrieben oder auf dem Datenträger beschädigt."
   },
-  "pageTitle": "Scanverlauf",
+  "pageTitle": "Scan-Verlauf",
   "pageDescription": "Detaillierte Ergebnisse früherer Scans und Bereinigungen anzeigen",
   "viewOverview": "Übersicht",
   "viewTimeline": "Zeitachse",
@@ -41,10 +42,10 @@
   "emptyStateTitle": "Noch kein Verlauf",
   "emptyStateDescription": "Führen Sie einen Scan auf den Seiten „Cleaner“, „Registrierung“ oder „Debloater“ aus. Die Ergebnisse werden hier angezeigt.",
   "confirmClearCloudTitle": "Cloud-Verlauf löschen",
-  "confirmClearScanTitle": "Scanverlauf löschen",
+  "confirmClearScanTitle": "Scan-Verlauf löschen",
   "confirmClearCloudDescription": "Dadurch werden alle Einträge im Cloud-Aktionsverlauf dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
-  "confirmClearScanDescription": "Dadurch werden alle Einträge im Scanverlauf dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
-  "confirmClearLabel": "Alle löschen",
+  "confirmClearScanDescription": "Dadurch werden alle Einträge im Scan-Verlauf dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+  "confirmClearLabel": "Alles löschen",
   "typeLabels": {
     "cleaner": "Systembereinigung",
     "registry": "Registrierungsreparatur",
@@ -64,13 +65,13 @@
     "itemsProcessed": "Verarbeitete Elemente",
     "avgDuration": "Durchschn. Dauer",
     "spaceRecoveredOverTime": "Freigegebener Speicherplatz im Zeitverlauf",
-    "needTwoScansForChart": "Für das Trenddiagramm werden mindestens 2 Scans benötigt",
+    "needTwoScansForChart": "Mindestens 2 Scans für das Trenddiagramm erforderlich",
     "scanTypeDistribution": "Verteilung der Scan-Typen",
     "noData": "Keine Daten",
     "topCategoriesBySpace": "Top-Kategorien nach Speicherplatz",
     "noCategoryData": "Keine Kategoriedaten",
     "weeklyActivity": "Wöchentliche Aktivität",
-    "needTwoWeeksData": "Es werden mindestens 2 Wochen Daten benötigt",
+    "needTwoWeeksData": "Mindestens 2 Wochen Daten erforderlich",
     "recentScans": "Letzte Scans",
     "tooltipSpace": "Speicherplatz",
     "tooltipScans": "Scans"
@@ -103,7 +104,7 @@
     "statFound": "Gefunden",
     "statProcessed": "Verarbeitet",
     "statSkipped": "Übersprungen",
-    "statSpaceSaved": "Eingesparter Speicherplatz",
+    "statSpaceSaved": "Freigegebener Speicherplatz",
     "errorCount": "{{count}} Fehler",
     "errorCountPlural": "{{count}} Fehler",
     "categoriesLabel": "Kategorien",
@@ -118,9 +119,9 @@
       "exported": "{{count}} Pfade exportiert",
       "exportFailed": "Die Liste der gelöschten Dateien konnte nicht exportiert werden",
       "truncatedBadge": "+{{count}} weitere",
-      "truncatedHint": "Dieser Ordner enthielt {{count}} weitere Einträge über das Auflistungslimit pro Ordner hinaus. Sie wurden gelöscht, aber nicht einzeln aufgeführt.",
+      "truncatedHint": "Dieser Ordner enthielt {{count}} weitere Einträge über das Limit der Auflistung pro Ordner hinaus. Sie wurden gelöscht, aber nicht einzeln aufgeführt.",
       "emptyRecorded": "Für diesen Durchlauf wurden keine Dateipfade aufgezeichnet.",
-      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll der gelöschten Dateien führen“, um sie ab jetzt aufzuzeichnen."
+      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll gelöschter Dateien speichern“, um sie ab jetzt aufzuzeichnen."
     }
   },
   "cloud": {
@@ -148,7 +149,7 @@
   "cloudCommandLabels": {
     "scan": "Scan",
     "clean": "Bereinigen",
-    "softwareUpdateCheck": "Update-Prüfung",
+    "softwareUpdateCheck": "Updateprüfung",
     "softwareUpdateRun": "Software-Update",
     "getStatus": "Status",
     "getSystemInfo": "Systeminformationen",
@@ -174,11 +175,11 @@
     "debloaterScan": "Debloater-Scan",
     "debloaterRemove": "Debloater entfernen",
     "serviceScan": "Dienst-Scan",
-    "serviceApply": "Dienst anwenden",
+    "serviceApply": "Dienste anwenden",
     "malwareQuarantine": "Quarantäne",
     "malwareDelete": "Malware löschen",
     "registryScan": "Registrierungs-Scan",
-    "registryFix": "Registrierung reparieren"
+    "registryFix": "Registrierungsreparatur"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

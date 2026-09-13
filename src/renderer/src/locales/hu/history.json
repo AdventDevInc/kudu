@@ -2,12 +2,12 @@
   "recovery": {
     "title": "Helyreállítási központ",
     "description": "A Kudu által végrehajtott támogatott módosítások áttekintése és visszaállítása",
-    "limits": "A helyreállítás a rögzített Windows DWORD adatvédelmi/beállításjegyzék-értékekre, ütemezett feladatokra és szolgáltatáskonfigurációra terjed ki. A véglegesen törölt fájlok nem állíthatók vissza. A régebbi vagy nem támogatott módosításokhoz lehet, hogy csak kézi biztonsági mentés áll rendelkezésre. Egyes visszaállított beállításokhoz újraindítás szükséges.",
+    "limits": "A helyreállítás a rögzített Windows DWORD adatvédelmi/beállításjegyzék-értékekre, ütemezett feladatokra és szolgáltatáskonfigurációkra terjed ki. A véglegesen törölt fájlok nem állíthatók vissza. A régebbi vagy nem támogatott módosításokhoz lehet, hogy csak kézi biztonsági mentés érhető el. Egyes visszaállított beállítások érvénybe lépéséhez újraindítás szükséges.",
     "refresh": "Frissítés",
     "export": "Helyreállítási előzmények exportálása",
     "loadError": "A helyreállítási előzmények nem olvashatók be.",
     "failed": "A helyreállítás sikertelen.",
-    "empty": "Ezen az oldalon nincsenek rögzített módosítások. Az új támogatott módosítások itt jelennek meg.",
+    "empty": "Ezen az oldalon nincsenek rögzített módosítások. Az új támogatott módosítások itt fognak megjelenni.",
     "gameMode": "Játékmód helyreállítása",
     "gameModeDescription": "A Játékmódhoz aktív vagy függőben lévő helyreállítási pillanatkép tartozik.",
     "openGameMode": "Játékmód helyreállításának megnyitása",
@@ -18,7 +18,7 @@
     "previous": "Előző",
     "next": "Következő",
     "backups": "Beállításjegyzék- és helyi menü biztonsági mentések",
-    "backupDescription": "Ezek a biztonsági mentési fájlok nem tartalmaznak ellenőrzött utólagos állapotinformációt. Kézi visszaállítás előtt ellenőrizze őket a biztonsági mentési mappában; importálásuk felülírhat újabb beállításokat. A biztonsági mentési fájl nem az operációs rendszer visszaállítási pontja.",
+    "backupDescription": "Ezek a biztonsági mentési fájlok nem tartalmaznak ellenőrzött utólagos állapotinformációt. Kézi visszaállítás előtt ellenőrizze őket a biztonsági mentési mappában; importálásuk felülírhat újabb beállításokat. A biztonsági mentési fájl nem azonos az operációs rendszer visszaállítási pontjával.",
     "openBackups": "Biztonsági mentési mappa megnyitása",
     "confirmTitle": "Visszaállítja ezt a módosítást?",
     "confirmDescription": "A Kudu a visszaállítás előtt ellenőrzi az aktuális állapotot, majd visszaállítja a rögzített eredeti értéket. Az újabb, ütköző módosítások megmaradnak. Rendszergazdai jogosultság szükséges lehet.",
@@ -29,8 +29,9 @@
       "failed": "Figyelmet igényel",
       "conflict": "Újabb módosítás észlelve"
     },
-    "remove": "Visszaállított bejegyzés eltávolítása",
-    "removeDescription": "Eltávolítja ezt a befejezett helyreállítási rekordot a helyi előzményekből? Ez nem módosítja a beállításokat, és nem törli a beállításjegyzék biztonsági mentéseit."
+    "remove": "Bejegyzés eltávolítása",
+    "removeDescription": "Eltávolítja ezt a helyreállítási rekordot a helyi előzményekből? Ez nem módosítja a beállításait, és nem törli a beállításjegyzék biztonsági mentéseit. A Kudu ezután már nem tudja visszaállítani ezt a módosítást.",
+    "unreadable": "Ez a helyreállítási rekord nem olvasható. Lehet, hogy egy másik felhasználói fiók hozta létre, vagy a lemezen megsérült."
   },
   "pageTitle": "Vizsgálati előzmények",
   "pageDescription": "Korábbi vizsgálatok és tisztítások részletes eredményeinek megtekintése",
@@ -38,11 +39,11 @@
   "viewTimeline": "Idővonal",
   "viewCloud": "Felhő",
   "clearButton": "Törlés",
-  "emptyStateTitle": "Még nincsenek előzmények",
-  "emptyStateDescription": "Indítson vizsgálatot a Tisztító, a Beállításjegyzék vagy a Debloater oldalon. Az eredmények itt jelennek meg.",
+  "emptyStateTitle": "Még nincs előzmény",
+  "emptyStateDescription": "Indítson vizsgálatot a Tisztító, Beállításjegyzék vagy Debloater oldalon. Az eredmények itt fognak megjelenni.",
   "confirmClearCloudTitle": "Felhőelőzmények törlése",
   "confirmClearScanTitle": "Vizsgálati előzmények törlése",
-  "confirmClearCloudDescription": "Ez véglegesen törli az összes felhőműveleti előzménybejegyzést. Ez a művelet nem vonható vissza.",
+  "confirmClearCloudDescription": "Ez véglegesen törli a felhőműveletek összes előzménybejegyzését. Ez a művelet nem vonható vissza.",
   "confirmClearScanDescription": "Ez véglegesen törli az összes vizsgálati előzménybejegyzést. Ez a művelet nem vonható vissza.",
   "confirmClearLabel": "Összes törlése",
   "typeLabels": {
@@ -118,14 +119,14 @@
       "exported": "{{count}} elérési út exportálva",
       "exportFailed": "A törölt fájlok listája nem exportálható",
       "truncatedBadge": "+{{count}} további",
-      "truncatedHint": "Ez a mappa a mappánkénti listázási korláton felül még {{count}} további bejegyzést tartalmazott. Ezek törölve lettek, de egyenként nem szerepelnek a listában.",
-      "emptyRecorded": "Ehhez a futtatáshoz nem lettek fájlútvonalak rögzítve.",
-      "disabledHint": "A törlési naplózás ki van kapcsolva, ezért a futtatás egyedi elérési útjai nem lettek rögzítve. A jövőbeni rögzítéshez kapcsolja be a „Törölt fájlok naplózásának megőrzése” lehetőséget a Beállítások → Tisztítási beállítások menüben."
+      "truncatedHint": "Ez a mappa a mappánkénti listázási korláton felül még {{count}} további bejegyzést tartalmazott. Ezek törölve lettek, de külön nem szerepelnek a listában.",
+      "emptyRecorded": "Ehhez a futtatáshoz nem lettek fájlelérési utak rögzítve.",
+      "disabledHint": "A törlési naplózás ki van kapcsolva, ezért a futtatás egyedi elérési útjai nem lettek rögzítve. Kapcsolja be a „Törölt fájlok naplózásának megőrzése” beállítást a Beállítások → Tisztítási beállítások menüben, hogy ezentúl rögzítésre kerüljenek."
     }
   },
   "cloud": {
     "emptyStateTitle": "Még nincsenek felhőműveletek",
-    "emptyStateDescription": "Amikor parancsok érkeznek a felhő irányítópultról, itt jelennek meg.",
+    "emptyStateDescription": "Amikor parancsok érkeznek a felhő irányítópultról, itt fognak megjelenni.",
     "totalCommands": "Parancsok összesen",
     "succeeded": "Sikeres",
     "failed": "Sikertelen",
@@ -151,12 +152,12 @@
     "softwareUpdateCheck": "Frissítések keresése",
     "softwareUpdateRun": "Szoftverfrissítés",
     "getStatus": "Állapot",
-    "getSystemInfo": "Rendszerinformáció",
+    "getSystemInfo": "Rendszerinformációk",
     "getHealthReport": "Állapotjelentés",
     "ping": "Ping",
     "shutdown": "Leállítás",
     "restart": "Újraindítás",
-    "windowsUpdateCheck": "Windows frissítések keresése",
+    "windowsUpdateCheck": "Windows Update keresése",
     "windowsUpdateInstall": "Windows Update",
     "runSfc": "SFC-vizsgálat",
     "runDism": "DISM-javítás",
@@ -171,8 +172,8 @@
     "diskHealth": "Lemezállapot",
     "privacyScan": "Adatvédelmi vizsgálat",
     "privacyApply": "Adatvédelmi beállítások alkalmazása",
-    "debloaterScan": "Debloater-vizsgálat",
-    "debloaterRemove": "Debloater eltávolítása",
+    "debloaterScan": "Debloater vizsgálat",
+    "debloaterRemove": "Debloater eltávolítás",
     "serviceScan": "Szolgáltatásvizsgálat",
     "serviceApply": "Szolgáltatásbeállítások alkalmazása",
     "malwareQuarantine": "Karantén",
@@ -181,8 +182,8 @@
     "registryFix": "Beállításjegyzék javítása"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1mp",
+    "seconds": "{{count}}mp",
+    "minutesAndSeconds": "{{minutes}}p {{seconds}}mp"
   }
 }

@@ -8,9 +8,9 @@
     "loadError": "Riwayat pemulihan tidak dapat dibaca.",
     "failed": "Pemulihan gagal.",
     "empty": "Tidak ada perubahan yang tercatat di halaman ini. Perubahan baru yang didukung akan muncul di sini.",
-    "gameMode": "Pemulihan Game Mode",
-    "gameModeDescription": "Game Mode memiliki snapshot pemulihan yang aktif atau tertunda.",
-    "openGameMode": "Buka pemulihan Game Mode",
+    "gameMode": "Pemulihan Mode Game",
+    "gameModeDescription": "Mode Game memiliki snapshot pemulihan yang aktif atau tertunda.",
+    "openGameMode": "Buka pemulihan Mode Game",
     "before": "Status asli",
     "after": "Status setelah Kudu",
     "absent": "Nilai tidak ada",
@@ -18,7 +18,7 @@
     "previous": "Sebelumnya",
     "next": "Berikutnya",
     "backups": "Cadangan registry dan menu konteks",
-    "backupDescription": "File cadangan ini tidak berisi informasi status setelah perubahan yang terverifikasi. Periksa file tersebut di folder cadangan sebelum memulihkan secara manual; mengimpornya dapat menimpa pengaturan yang lebih baru. File cadangan bukan titik pemulihan OS.",
+    "backupDescription": "File cadangan ini tidak berisi informasi status setelah perubahan yang terverifikasi. Periksa file tersebut di folder cadangan sebelum memulihkannya secara manual; mengimpornya dapat menimpa pengaturan yang lebih baru. File cadangan bukan titik pemulihan OS.",
     "openBackups": "Buka folder cadangan",
     "confirmTitle": "Pulihkan perubahan ini?",
     "confirmDescription": "Kudu akan memeriksa status saat ini sebelum memulihkan nilai asli yang tercatat. Perubahan baru yang bertentangan akan dipertahankan. Hak administrator mungkin diperlukan.",
@@ -29,8 +29,9 @@
       "failed": "Perlu perhatian",
       "conflict": "Perubahan yang lebih baru terdeteksi"
     },
-    "remove": "Hapus entri yang dipulihkan",
-    "removeDescription": "Hapus catatan pemulihan yang telah selesai ini dari riwayat lokal? Ini tidak akan mengubah pengaturan Anda atau menghapus cadangan registry."
+    "remove": "Hapus entri",
+    "removeDescription": "Hapus catatan pemulihan ini dari riwayat lokal? Tindakan ini tidak mengubah pengaturan Anda atau menghapus cadangan registry. Kudu tidak akan lagi dapat memulihkan perubahan ini untuk Anda.",
+    "unreadable": "Catatan pemulihan ini tidak dapat dibaca. Catatan ini mungkin ditulis oleh akun pengguna lain atau rusak di disk."
   },
   "pageTitle": "Riwayat Pemindaian",
   "pageDescription": "Lihat hasil terperinci dari pemindaian dan pembersihan sebelumnya",
@@ -39,7 +40,7 @@
   "viewCloud": "Cloud",
   "clearButton": "Hapus",
   "emptyStateTitle": "Belum ada riwayat",
-  "emptyStateDescription": "Jalankan pemindaian dari halaman Cleaner, Registry, atau Debloater. Hasil akan muncul di sini.",
+  "emptyStateDescription": "Jalankan pemindaian dari halaman Cleaner, Registry, atau Debloater. Hasilnya akan muncul di sini.",
   "confirmClearCloudTitle": "Hapus Riwayat Cloud",
   "confirmClearScanTitle": "Hapus Riwayat Pemindaian",
   "confirmClearCloudDescription": "Ini akan menghapus secara permanen semua entri riwayat tindakan cloud. Tindakan ini tidak dapat dibatalkan.",
@@ -60,10 +61,10 @@
   },
   "overview": {
     "totalScans": "Total Pemindaian",
-    "spaceRecovered": "Ruang Dipulihkan",
-    "itemsProcessed": "Item Diproses",
+    "spaceRecovered": "Ruang yang Dipulihkan",
+    "itemsProcessed": "Item yang Diproses",
     "avgDuration": "Durasi Rata-rata",
-    "spaceRecoveredOverTime": "Ruang Dipulihkan dari Waktu ke Waktu",
+    "spaceRecoveredOverTime": "Ruang yang Dipulihkan dari Waktu ke Waktu",
     "needTwoScansForChart": "Memerlukan setidaknya 2 pemindaian untuk grafik tren",
     "scanTypeDistribution": "Distribusi Jenis Pemindaian",
     "noData": "Tidak ada data",
@@ -103,7 +104,7 @@
     "statFound": "Ditemukan",
     "statProcessed": "Diproses",
     "statSkipped": "Dilewati",
-    "statSpaceSaved": "Ruang Dihemat",
+    "statSpaceSaved": "Ruang yang Dihemat",
     "errorCount": "{{count}} kesalahan",
     "errorCountPlural": "{{count}} kesalahan",
     "categoriesLabel": "Kategori",
@@ -120,7 +121,7 @@
       "truncatedBadge": "+{{count}} lagi",
       "truncatedHint": "Folder ini berisi {{count}} entri tambahan di luar batas daftar per folder. Entri tersebut telah dihapus tetapi tidak dicantumkan satu per satu.",
       "emptyRecorded": "Tidak ada jalur file yang tercatat untuk proses ini.",
-      "disabledHint": "Pencatatan penghapusan dinonaktifkan, sehingga jalur individual dari proses ini tidak tercatat. Aktifkan \"Simpan log file yang dihapus\" di Pengaturan → Preferensi Pembersihan agar dicatat mulai sekarang."
+      "disabledHint": "Pencatatan penghapusan dinonaktifkan, sehingga jalur individual dari proses ini tidak tercatat. Aktifkan \"Simpan log file yang dihapus\" di Pengaturan → Preferensi Pembersihan untuk mulai mencatatnya."
     }
   },
   "cloud": {

@@ -18,10 +18,10 @@
     "previous": "Önceki",
     "next": "Sonraki",
     "backups": "Kayıt defteri ve bağlam menüsü yedekleri",
-    "backupDescription": "Bu yedek dosyaları doğrulanmış sonraki durum bilgisi içermez. Elle geri yüklemeden önce bunları yedek klasöründe inceleyin; içe aktarmak daha yeni ayarların üzerine yazabilir. Yedek dosyası, işletim sistemi geri yükleme noktası değildir.",
+    "backupDescription": "Bu yedek dosyaları doğrulanmış sonraki durum bilgisi içermez. Manuel olarak geri yüklemeden önce bunları yedek klasöründe inceleyin; içe aktarmak daha yeni ayarların üzerine yazabilir. Yedek dosyası, işletim sistemi geri yükleme noktası değildir.",
     "openBackups": "Yedek klasörünü aç",
     "confirmTitle": "Bu değişiklik geri yüklensin mi?",
-    "confirmDescription": "Kudu, kaydedilen özgün değeri geri yüklemeden önce geçerli durumu denetleyecektir. Daha yeni çakışan değişiklikler korunacaktır. Yönetici ayrıcalıkları gerekebilir.",
+    "confirmDescription": "Kudu, kaydedilmiş özgün değeri geri yüklemeden önce geçerli durumu denetleyecektir. Daha yeni çakışan değişiklikler korunacaktır. Yönetici izinleri gerekebilir.",
     "status": {
       "pending": "Kesintiye uğradı / bekliyor",
       "ready": "Kullanılabilir",
@@ -29,8 +29,9 @@
       "failed": "İlgilenilmesi gerekiyor",
       "conflict": "Daha yeni değişiklik algılandı"
     },
-    "remove": "Geri yüklenen girdiyi kaldır",
-    "removeDescription": "Tamamlanan bu kurtarma kaydı yerel geçmişten kaldırılsın mı? Bu işlem ayarlarınızı değiştirmez veya kayıt defteri yedeklerini silmez."
+    "remove": "Kaydı kaldır",
+    "removeDescription": "Bu kurtarma kaydı yerel geçmişten kaldırılsın mı? Bu işlem ayarlarınızı değiştirmez veya kayıt defteri yedeklerini silmez. Kudu artık bu değişikliği sizin için geri yükleyemez.",
+    "unreadable": "Bu kurtarma kaydı okunamadı. Başka bir kullanıcı hesabı tarafından yazılmış veya diskte bozulmuş olabilir."
   },
   "pageTitle": "Tarama Geçmişi",
   "pageDescription": "Geçmiş tarama ve temizleme işlemlerinin ayrıntılı sonuçlarını görüntüleyin",
@@ -39,11 +40,11 @@
   "viewCloud": "Bulut",
   "clearButton": "Temizle",
   "emptyStateTitle": "Henüz geçmiş yok",
-  "emptyStateDescription": "Temizleyici, Kayıt Defteri veya Debloater sayfalarından bir tarama çalıştırın. Sonuçlar burada görünecektir.",
+  "emptyStateDescription": "Cleaner, Registry veya Debloater sayfalarından bir tarama çalıştırın. Sonuçlar burada görünecektir.",
   "confirmClearCloudTitle": "Bulut Geçmişini Temizle",
   "confirmClearScanTitle": "Tarama Geçmişini Temizle",
-  "confirmClearCloudDescription": "Bu işlem tüm bulut eylem geçmişi girdilerini kalıcı olarak silecektir. Bu işlem geri alınamaz.",
-  "confirmClearScanDescription": "Bu işlem tüm tarama geçmişi girdilerini kalıcı olarak silecektir. Bu işlem geri alınamaz.",
+  "confirmClearCloudDescription": "Bu işlem tüm bulut eylem geçmişi kayıtlarını kalıcı olarak silecektir. Bu işlem geri alınamaz.",
+  "confirmClearScanDescription": "Bu işlem tüm tarama geçmişi kayıtlarını kalıcı olarak silecektir. Bu işlem geri alınamaz.",
   "confirmClearLabel": "Tümünü Temizle",
   "typeLabels": {
     "cleaner": "Sistem Temizliği",
@@ -61,7 +62,7 @@
   "overview": {
     "totalScans": "Toplam Tarama",
     "spaceRecovered": "Kurtarılan Alan",
-    "itemsProcessed": "İşlenen Öğe",
+    "itemsProcessed": "İşlenen Ögeler",
     "avgDuration": "Ort. Süre",
     "spaceRecoveredOverTime": "Zaman İçinde Kurtarılan Alan",
     "needTwoScansForChart": "Eğilim grafiği için en az 2 tarama gerekir",
@@ -73,12 +74,12 @@
     "needTwoWeeksData": "En az 2 haftalık veri gerekir",
     "recentScans": "Son Taramalar",
     "tooltipSpace": "Alan",
-    "tooltipScans": "Tarama"
+    "tooltipScans": "Taramalar"
   },
   "timeline": {
     "filterAll": "Tümü",
-    "filterCleaner": "Temizleyici",
-    "filterRegistry": "Kayıt Defteri",
+    "filterCleaner": "Cleaner",
+    "filterRegistry": "Registry",
     "filterDebloater": "Debloater",
     "filterNetwork": "Ağ",
     "filterDrivers": "Sürücüler",
@@ -87,19 +88,19 @@
     "filterStartup": "Başlangıç",
     "filterServices": "Hizmetler",
     "filterUpdates": "Güncellemeler",
-    "entriesCount": "{{count}} girdi",
+    "entriesCount": "{{count}} kayıt",
     "columnType": "Tür",
     "columnDate": "Tarih",
-    "columnItems": "Öğeler",
+    "columnItems": "Ögeler",
     "columnSpace": "Alan",
     "columnDuration": "Süre",
     "columnStatus": "Durum",
     "scheduledBadge": "Zamanlı",
-    "noEntriesMatchFilter": "Bu filtreyle eşleşen girdi yok",
+    "noEntriesMatchFilter": "Bu filtreyle eşleşen kayıt yok",
     "dateAt": "saat"
   },
   "detail": {
-    "scheduledBadge": "Zamanlanmış",
+    "scheduledBadge": "Zamanlandı",
     "statFound": "Bulundu",
     "statProcessed": "İşlendi",
     "statSkipped": "Atlandı",
@@ -107,18 +108,18 @@
     "errorCount": "{{count}} hata",
     "errorCountPlural": "{{count}} hata",
     "categoriesLabel": "Kategoriler",
-    "itemsSuffix": "öğe",
+    "itemsSuffix": "öge",
     "deletedFiles": {
       "title": "Silinen Dosyalar",
       "loading": "Yükleniyor…",
       "shownCount": "{{shown}} / {{total}}",
       "loadMore": "Daha fazla yükle",
-      "exportCsv": "CSV dışa aktar",
+      "exportCsv": "CSV olarak dışa aktar",
       "openLog": "Günlüğü aç",
       "exported": "{{count}} yol dışa aktarıldı",
       "exportFailed": "Silinen dosya listesi dışa aktarılamadı",
       "truncatedBadge": "+{{count}} daha",
-      "truncatedHint": "Bu klasörde, klasör başına listeleme sınırının ötesinde {{count}} ek girdi vardı. Bunlar silindi ancak tek tek listelenmedi.",
+      "truncatedHint": "Bu klasör, klasör başına listeleme sınırının ötesinde {{count}} ek kayıt içeriyordu. Bunlar silindi ancak tek tek listelenmedi.",
       "emptyRecorded": "Bu çalıştırma için hiçbir dosya yolu kaydedilmedi.",
       "disabledHint": "Silme günlüğü kapalı olduğundan, bu çalıştırmadaki tek tek yollar kaydedilmedi. Bunları bundan sonra kaydetmek için Ayarlar → Temizleme Tercihleri bölümünde \"Silinen dosyaların günlüğünü tut\" seçeneğini açın."
     }
@@ -146,8 +147,8 @@
     "detailError": "Hata"
   },
   "cloudCommandLabels": {
-    "scan": "Tara",
-    "clean": "Temizle",
+    "scan": "Tarama",
+    "clean": "Temizleme",
     "softwareUpdateCheck": "Güncelleme Denetimi",
     "softwareUpdateRun": "Yazılım Güncellemesi",
     "getStatus": "Durum",
@@ -164,25 +165,25 @@
     "getEventLog": "Olay Günlüğü",
     "getInstalledApps": "Uygulama Envanteri",
     "driverUpdateScan": "Sürücü Taraması",
-    "driverUpdateInstall": "Sürücü Yükleme",
+    "driverUpdateInstall": "Sürücü Kurulumu",
     "driverClean": "Sürücü Temizliği",
     "startupList": "Başlangıç Listesi",
     "startupToggle": "Başlangıç Geçişi",
     "diskHealth": "Disk Sağlığı",
     "privacyScan": "Gizlilik Taraması",
-    "privacyApply": "Gizlilik Uygula",
+    "privacyApply": "Gizlilik Uygulama",
     "debloaterScan": "Debloater Taraması",
-    "debloaterRemove": "Debloater Kaldır",
+    "debloaterRemove": "Debloater Kaldırma",
     "serviceScan": "Hizmet Taraması",
-    "serviceApply": "Hizmet Uygula",
+    "serviceApply": "Hizmet Uygulama",
     "malwareQuarantine": "Karantina",
-    "malwareDelete": "Kötü Amaçlı Yazılımı Sil",
+    "malwareDelete": "Kötü Amaçlı Yazılım Silme",
     "registryScan": "Kayıt Defteri Taraması",
     "registryFix": "Kayıt Defteri Düzeltmesi"
   },
   "duration": {
-    "lessThanOneSecond": "<1sn",
-    "seconds": "{{count}}sn",
-    "minutesAndSeconds": "{{minutes}}d {{seconds}}sn"
+    "lessThanOneSecond": "<1s",
+    "seconds": "{{count}}s",
+    "minutesAndSeconds": "{{minutes}}d {{seconds}}s"
   }
 }

@@ -29,8 +29,9 @@
       "failed": "Vyžaduje pozornost",
       "conflict": "Zjištěna novější změna"
     },
-    "remove": "Odstranit obnovený záznam",
-    "removeDescription": "Odstranit tento dokončený záznam obnovení z místní historie? Tím se nezmění vaše nastavení ani neodstraní zálohy registru."
+    "remove": "Odstranit záznam",
+    "removeDescription": "Odstranit tento záznam obnovení z místní historie? Tím se nezmění vaše nastavení ani neodstraní zálohy registru. Kudu už pro vás nebude moci tuto změnu obnovit.",
+    "unreadable": "Tento záznam obnovení se nepodařilo přečíst. Mohl být vytvořen jiným uživatelským účtem nebo poškozen na disku."
   },
   "pageTitle": "Historie kontrol",
   "pageDescription": "Zobrazte podrobné výsledky předchozích kontrol a čištění",
@@ -52,7 +53,7 @@
     "network": "Vyčištění sítě",
     "drivers": "Vyčištění ovladačů",
     "malware": "Kontrola malwaru",
-    "privacy": "Štít soukromí",
+    "privacy": "Ochrana soukromí",
     "startup": "Správce po spuštění",
     "services": "Správce služeb",
     "softwareUpdate": "Aktualizace softwaru",
@@ -62,13 +63,13 @@
     "totalScans": "Celkem kontrol",
     "spaceRecovered": "Uvolněné místo",
     "itemsProcessed": "Zpracované položky",
-    "avgDuration": "Prům. doba trvání",
+    "avgDuration": "Průměrná doba",
     "spaceRecoveredOverTime": "Uvolněné místo v čase",
     "needTwoScansForChart": "Pro graf trendu jsou potřeba alespoň 2 kontroly",
     "scanTypeDistribution": "Rozložení typů kontrol",
     "noData": "Žádná data",
     "topCategoriesBySpace": "Největší kategorie podle místa",
-    "noCategoryData": "Žádná data o kategoriích",
+    "noCategoryData": "Žádná data kategorií",
     "weeklyActivity": "Týdenní aktivita",
     "needTwoWeeksData": "Jsou potřeba alespoň 2 týdny dat",
     "recentScans": "Nedávné kontroly",
@@ -103,7 +104,7 @@
     "statFound": "Nalezeno",
     "statProcessed": "Zpracováno",
     "statSkipped": "Přeskočeno",
-    "statSpaceSaved": "Uvolněné místo",
+    "statSpaceSaved": "Ušetřené místo",
     "errorCount": "{{count}} chyba",
     "errorCountPlural": "{{count}} chyb",
     "categoriesLabel": "Kategorie",
@@ -118,18 +119,18 @@
       "exported": "Exportováno {{count}} cest",
       "exportFailed": "Seznam odstraněných souborů se nepodařilo exportovat",
       "truncatedBadge": "+{{count}} dalších",
-      "truncatedHint": "Tato složka obsahovala ještě {{count}} dalších položek nad limit výpisu na složku. Byly odstraněny, ale nebyly uvedeny jednotlivě.",
-      "emptyRecorded": "Pro tento běh nebyly zaznamenány žádné cesty k souborům.",
-      "disabledHint": "Protokolování odstraňování je vypnuto, takže jednotlivé cesty z tohoto běhu nebyly zaznamenány. Chcete-li je od nynějška zaznamenávat, zapněte v Nastavení → Předvolby čištění možnost „Uchovávat protokol odstraněných souborů“."
+      "truncatedHint": "Tato složka obsahovala ještě {{count}} dalších položek nad limit výpisu na složku. Byly odstraněny, ale nebyly jednotlivě uvedeny.",
+      "emptyRecorded": "Pro toto spuštění nebyly zaznamenány žádné cesty k souborům.",
+      "disabledHint": "Protokolování odstranění je vypnuto, takže jednotlivé cesty z tohoto spuštění nebyly zaznamenány. Chcete-li je od nynějška zaznamenávat, zapněte v Nastavení → Předvolby čištění možnost „Uchovávat protokol odstraněných souborů“."
     }
   },
   "cloud": {
-    "emptyStateTitle": "Zatím žádné akce v cloudu",
+    "emptyStateTitle": "Zatím žádné cloudové akce",
     "emptyStateDescription": "Když budou přijaty příkazy z cloudového panelu, zobrazí se zde.",
     "totalCommands": "Celkem příkazů",
     "succeeded": "Úspěšné",
     "failed": "Neúspěšné",
-    "avgDuration": "Prům. doba trvání",
+    "avgDuration": "Průměrná doba",
     "columnStatus": "Stav",
     "columnCommand": "Příkaz",
     "columnSummary": "Souhrn",
@@ -162,7 +163,7 @@
     "runDism": "Oprava DISM",
     "getNetworkConfig": "Konfigurace sítě",
     "getEventLog": "Protokol událostí",
-    "getInstalledApps": "Přehled aplikací",
+    "getInstalledApps": "Seznam aplikací",
     "driverUpdateScan": "Kontrola ovladačů",
     "driverUpdateInstall": "Instalace ovladačů",
     "driverClean": "Vyčištění ovladačů",
@@ -170,9 +171,9 @@
     "startupToggle": "Přepnutí po spuštění",
     "diskHealth": "Stav disku",
     "privacyScan": "Kontrola soukromí",
-    "privacyApply": "Použít soukromí",
+    "privacyApply": "Použít nastavení soukromí",
     "debloaterScan": "Kontrola Debloater",
-    "debloaterRemove": "Odebrání Debloater",
+    "debloaterRemove": "Odstranění Debloater",
     "serviceScan": "Kontrola služeb",
     "serviceApply": "Použít služby",
     "malwareQuarantine": "Karanténa",
@@ -181,8 +182,8 @@
     "registryFix": "Oprava registru"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1 s",
+    "seconds": "{{count}} s",
+    "minutesAndSeconds": "{{minutes}} min {{seconds}} s"
   }
 }
