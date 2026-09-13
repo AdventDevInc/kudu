@@ -26,6 +26,7 @@ import { MalwareScannerPage } from './pages/MalwareScannerPage'
 import { ThreatMonitorPage } from './pages/ThreatMonitorPage'
 import { PrivacyShieldPage } from './pages/PrivacyShieldPage'
 import { HistoryPage } from './pages/HistoryPage'
+import { PerformanceDiagnosticsPage } from './pages/PerformanceDiagnosticsPage'
 import { PerformanceMonitorPage } from './pages/PerformanceMonitorPage'
 import { UninstallerPage } from './pages/UninstallerPage'
 import { ServiceManagerPage } from './pages/ServiceManagerPage'
@@ -172,6 +173,7 @@ export function App() {
             <Route path="/threat-monitor" element={<ThreatMonitorPage />} />
             <Route path="/cve" element={<CveScannerPage />} />
             <Route path="/game-mode" element={<GameModePage />} />
+            <Route path="/performance-diagnostics" element={<PerformanceDiagnosticsPage />} />
             <Route path="/performance" element={<PerformanceMonitorPage />} />
             <Route path="/uninstaller" element={<UninstallerPage />} />
             <Route path="/history" element={<HistoryPage />} />
