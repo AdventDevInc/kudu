@@ -135,6 +135,14 @@ export function createReceipt(
     hasOutcome(id: string) {
       return outcomes.some((item) => item.id === id)
     },
+    /** Reclassify a recorded failure once a later probe explains its cause (e.g. Windows EPERM). */
+    updateReason(id: string, reason: string) {
+      if (!REASON_CODES.has(reason)) reason = 'other-error'
+      if (reason === 'in-use') reason = 'in-use-or-protected'
+      for (const item of outcomes) {
+        if (item.id === id && item.outcome === 'failed') item.reason = reason
+      }
+    },
     async measureVolumes() {
       // Windows drive roots remain available even after selected directories are removed.
       // Other platforms need mount identity discovery; omit rather than report the wrong volume.

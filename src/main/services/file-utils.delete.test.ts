@@ -14,7 +14,8 @@ const state = vi.hoisted(() => ({
   trackConcurrency: false,
   activeDeletes: 0,
   maxActiveDeletes: 0,
-  items: [] as ScanItem[]
+  items: [] as ScanItem[],
+  receiptRoot: ''
 }))
 
 vi.mock('fs/promises', async (importOriginal) => {
@@ -49,6 +50,10 @@ vi.mock('fs/promises', async (importOriginal) => {
   }
 })
 
+vi.mock('electron', () => ({
+  app: { isPackaged: true, getPath: () => state.receiptRoot }
+}))
+
 vi.mock('./settings-store', () => ({
   getSettings: () => ({
     cleaner: { secureDelete: false, skipRecentMinutes: 60, keepDeletionLog: false },
@@ -77,6 +82,7 @@ vi.mock('./delete-failure-probe', () => ({
 }))
 
 import { cleanItems, safeDelete } from './file-utils'
+import { getCleanupReceipt } from './cleanup-receipts'
 
 let testDir: string
 
@@ -93,6 +99,7 @@ function createTree(): { root: string; removable: string; locked: string } {
 describe('granular directory deletion fallback', () => {
   beforeEach(() => {
     testDir = mkdtempSync(join(tmpdir(), 'kudu-delete-'))
+    state.receiptRoot = testDir
     state.rootPath = ''
     state.rootFailuresRemaining = 0
     state.lockedPath = ''
@@ -202,6 +209,17 @@ describe('granular directory deletion fallback', () => {
 
     expect(result.errors).toEqual([{ path: locked, reason: 'permission-denied' }])
     expect(result.needsElevation).toBe(true)
+    // The receipt is written before the elevation probe reclassifies EPERM, so it must be
+    // updated in place rather than left disagreeing with the returned errors.
+    expect(result.receiptSaved).toBe(true)
+    const receipt = await getCleanupReceipt(result.receiptId!)
+    expect(receipt.details).toEqual([
+      expect.objectContaining({
+        id: 'abandoned-app',
+        outcome: 'failed',
+        reason: 'permission-denied'
+      })
+    ])
   })
 
   it('uses a bounded worker pool for independent cache entries', async () => {

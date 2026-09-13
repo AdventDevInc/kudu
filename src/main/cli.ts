@@ -2129,7 +2129,12 @@ async function runLegacyScanClean(
     if (fileItemIds.length > 0) fileCleaned = await cleanItems(fileItemIds, undefined, 'cli')
     if (hasRecycleBin) {
       const rbResult = allResults.find((r) => r.category === CleanerType.RecycleBin)
-      recycleCleaned = await cleanRecycleBin(rbResult?.totalSize || 0, rbResult?.itemCount || 0)
+      const { recordNativeCleanup } = await import('./services/cleanup-receipts')
+      recycleCleaned = await recordNativeCleanup(
+        'Recycle Bin',
+        () => cleanRecycleBin(rbResult?.totalSize || 0, rbResult?.itemCount || 0),
+        'cli'
+      )
     }
     if (dbItemIds.length > 0) {
       const { recordNativeCleanup } = await import('./services/cleanup-receipts')

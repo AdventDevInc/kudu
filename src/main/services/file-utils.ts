@@ -308,6 +308,9 @@ export async function cleanItems(
   let filesDeleted = 0
   let filesSkipped = 0
   const errors: CleanResult['errors'] = []
+  // Failed receipt outcomes keyed to the error entries they were derived from, so the
+  // post-run Windows probe can reclassify the receipt alongside the returned errors.
+  const failedErrors = new Map<string, CleanResult['errors']>()
   const consumedIds: string[] = []
   let lastReport = 0
   const scheduler = new CooperativeScheduler()
@@ -508,13 +511,19 @@ export async function cleanItems(
       }
     } else {
       const removed = await removedCleanupEntries(measured)
+      const itemErrors: CleanResult['errors'] = result.failures?.length
+        ? result.failures
+        : result.reason
+          ? [{ path: item.path, reason: result.reason }]
+          : []
       receipt.add(
         item,
         'failed',
-        result.reason || result.failures?.[0]?.reason || 'partial-removal',
+        result.reason || itemErrors[0]?.reason || 'partial-removal',
         true,
         removed.reduce((sum, entry) => sum + entry.size, 0)
       )
+      failedErrors.set(item.id, itemErrors)
       totalCleaned += removed.reduce((sum, entry) => sum + entry.size, 0)
       if (logDeletions) {
         const ts = new Date().toISOString()
@@ -530,11 +539,7 @@ export async function cleanItems(
         }
       }
       filesSkipped++
-      if (result.failures?.length) {
-        errors.push(...result.failures)
-      } else if (result.reason) {
-        errors.push({ path: item.path, reason: result.reason })
-      }
+      errors.push(...itemErrors)
     }
     if (onProgress) {
       const processed = filesDeleted + filesSkipped
@@ -613,6 +618,12 @@ export async function cleanItems(
       for (const error of errors) {
         const reason = classified.get(error.path.toLowerCase())
         if (reason) error.reason = reason
+      }
+      // The receipt recorded these as in-use-or-protected before the probe ran; carry the
+      // corrected classification over so it never disagrees with the returned errors.
+      for (const [id, itemErrors] of failedErrors) {
+        if (itemErrors.some((error) => error.reason === 'permission-denied'))
+          receipt.updateReason(id, 'permission-denied')
       }
     } catch {
       // Classification improves guidance but never blocks cleanup completion.
