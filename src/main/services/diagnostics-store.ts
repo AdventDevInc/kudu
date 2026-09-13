@@ -12,6 +12,7 @@ export class DiagnosticsStore {
   private queue: Promise<unknown> = Promise.resolve()
   private summaries: DiagnosticSummary[] | null = null
   private revision = 0
+  private warnedUnreadable = false
   constructor(
     private dir: string,
     private seal: (value: string) => Buffer,
@@ -54,11 +55,19 @@ export class DiagnosticsStore {
     const names = (await readdir(this.dir)).filter(
       (n) => n.endsWith('.record') && diagnosticId(n.slice(0, -7))
     )
-    if (names.length > 30)
+    if (names.length > 100)
       throw new Error('Too many recording files. Export or remove excess files before continuing.')
     const results: DiagnosticSummary[] = []
+    let unreadable = 0
     for (const name of names) {
-      const s = await this.get(name.slice(0, -7))
+      let s: DiagnosticSession
+      try {
+        s = await this.get(name.slice(0, -7))
+      } catch {
+        // One undecryptable or unsupported file must not disable every other recording.
+        unreadable++
+        continue
+      }
       results.push({
         id: s.recording.recordId,
         title: s.title,
@@ -72,6 +81,12 @@ export class DiagnosticsStore {
       await new Promise<void>((resolve) => setImmediate(resolve))
     }
     results.sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+    if (unreadable && !this.warnedUnreadable) {
+      this.warnedUnreadable = true
+      console.warn(
+        `[diagnostics] ${unreadable} unreadable recording file(s) skipped in ${this.dir}`
+      )
+    }
     if (revision === this.revision) this.summaries = results
     return structuredClone(results)
   }
@@ -107,9 +122,16 @@ export class DiagnosticsStore {
   }
   remove(id: string): Promise<void> {
     return this.serial(async () => {
-      const s = await this.get(id)
-      if (s.pinned) throw new Error('Unpin this recording before deleting it.')
-      await unlink(this.path(id))
+      const path = this.path(id)
+      let pinned = false
+      try {
+        pinned = (await this.get(id)).pinned
+      } catch {
+        // Unreadable files are removable so the user can clear them.
+        await lstat(path)
+      }
+      if (pinned) throw new Error('Unpin this recording before deleting it.')
+      await unlink(path)
       this.summaries = null
       this.revision++
     })

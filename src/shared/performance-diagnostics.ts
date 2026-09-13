@@ -67,7 +67,8 @@ export interface DiagnosticSession {
   pinned: boolean
   state: 'recording' | 'saved' | 'interrupted'
   cloud: DiagnosticCloudResult | null
-  upload: { consentAt: string; digest: string; includeProcesses: boolean; account: string } | null
+  /** `digest` and `account` are main-process only and stripped before reaching the renderer. */
+  upload: { consentAt: string; includeProcesses: boolean; digest?: string; account?: string } | null
 }
 export type DiagnosticSummary = Pick<DiagnosticSession, 'title' | 'pinned' | 'state'> & {
   id: string

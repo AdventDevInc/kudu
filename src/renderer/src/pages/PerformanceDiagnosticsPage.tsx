@@ -34,6 +34,8 @@ export function PerformanceDiagnosticsPage() {
   const [confirm, setConfirm] = useState<'local' | 'cloud' | null>(null)
   const [range, setRange] = useState<{ startMs: number; endMs: number } | null>(null)
   const id = selected?.recording.recordId
+  // A deleted or expired Cloud copy is marked by a past expiry; the local report stays readable.
+  const cloudGone = !!selected?.cloud && new Date(selected.cloud.expiresAt).getTime() < Date.now()
   const refresh = useCallback(async () => {
     const s = await window.kudu.diagnosticsStatus()
     setRows(s.rows)
@@ -423,7 +425,7 @@ export function PerformanceDiagnosticsPage() {
                   >
                     {t('preview')}
                   </button>
-                  {selected.upload && (
+                  {selected.upload && !cloudGone && (
                     <>
                       <button
                         className={button}
@@ -475,7 +477,9 @@ export function PerformanceDiagnosticsPage() {
                 )}
                 {selected.cloud && (
                   <p role="status" className="text-sm">
-                    {t('analysisStatus', { status: t(selected.cloud.status) })}
+                    {cloudGone
+                      ? t('cloudGone')
+                      : t('analysisStatus', { status: t(selected.cloud.status) })}
                     {selected.cloud.status === 'failed' ? ` ${t('analysisFailed')}` : ''}
                   </p>
                 )}

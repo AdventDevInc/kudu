@@ -11,6 +11,7 @@ import {
   measurement
 } from './diagnostics-recorder'
 import { PerformanceDiagnostics } from './performance-diagnostics'
+import { CloudRejectedError } from './diagnostics-cloud'
 import {
   diagnosticStats,
   diagnosticUpload,
@@ -21,6 +22,7 @@ import type { DiagnosticSession } from '../../shared/performance-diagnostics'
 
 const cloud = vi.hoisted(() => ({ account: 'account-a', capabilities: vi.fn(), request: vi.fn() }))
 vi.mock('./diagnostics-cloud', () => ({
+  CloudRejectedError: class CloudRejectedError extends Error {},
   diagnosticAccount: () => cloud.account,
   diagnosticCapabilities: cloud.capabilities,
   diagnosticsRequest: cloud.request,
@@ -120,6 +122,16 @@ describe('recording privacy and persistence', () => {
     await expect(store.save(s)).rejects.toThrow()
     expect(await store.list()).toHaveLength(29)
   })
+  it('skips unreadable files without disabling the feature and allows removing them', async () => {
+    const s = session()
+    await store.save(s, true)
+    const corrupt = randomUUID()
+    await writeFile(join(dir, `${corrupt}.record`), 'corrupt')
+    const service = new PerformanceDiagnostics(store)
+    expect((await service.status()).rows.map((r) => r.id)).toEqual([s.recording.recordId])
+    await store.remove(corrupt)
+    await expect(store.remove(corrupt)).rejects.toThrow()
+  })
   it('reopens a checkpoint as interrupted after restart', async () => {
     const s = session()
     s.state = 'recording'
@@ -169,6 +181,8 @@ describe('measurement semantics', () => {
     expect(list[1].name).toBe('app')
     expect(list[0].startedAt).not.toBe(list[1].startedAt)
     expect(list[1].cpuPercent).toBeNull()
+    // systeminformation reports memRss in KiB; the payload is labelled in bytes.
+    expect(list[0].memoryBytes).toBe(512 * 1024)
   })
   it('rejects unordered or unbounded recordings and malformed report evidence', () => {
     const s = session()
@@ -236,6 +250,26 @@ describe('recording lifecycle and consent', () => {
     await store.save(s)
     await expect(service.upload(next.token)).rejects.toThrow('Recording changed')
     expect(cloud.request).not.toHaveBeenCalled()
+  })
+  it('releases the consent lock after a definitive server rejection and hides the fingerprint', async () => {
+    const s = session()
+    await store.save(s, true)
+    const service = new PerformanceDiagnostics(store)
+    const rejected = Object.assign(new Error('subscription'), { status: 402 })
+    Object.setPrototypeOf(rejected, CloudRejectedError.prototype)
+    cloud.request.mockRejectedValueOnce(rejected)
+    const p = await service.prepare(s.recording.recordId, true)
+    await expect(service.upload(p.token)).rejects.toThrow('subscription')
+    expect((await store.get(s.recording.recordId)).upload).toBeNull()
+    cloud.request.mockRejectedValueOnce(new Error('network'))
+    const again = await service.prepare(s.recording.recordId, false)
+    await expect(service.upload(again.token)).rejects.toThrow('network')
+    const kept = await store.get(s.recording.recordId)
+    expect(kept.upload?.account).toBe('account-a')
+    const exposed = await service.get(s.recording.recordId)
+    expect(exposed.upload).toEqual({ consentAt: kept.upload?.consentAt, includeProcesses: false })
+    cloud.request.mockResolvedValueOnce({ deleted: true })
+    await service.deleteCloud(s.recording.recordId)
   })
   it('saves consent before submitting and permits reading/deleting without a subscription check', async () => {
     const s = session()

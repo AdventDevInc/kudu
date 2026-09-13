@@ -33,7 +33,8 @@ export function diagnosticProcesses(
           ? new Date(p.started).toISOString()
           : null,
       cpuPercent: measurement(p.cpu, 100),
-      memoryBytes: measurement(p.memRss)
+      // systeminformation reports resident memory in KiB on every platform.
+      memoryBytes: measurement(p.memRss * 1024)
     }))
 }
 function cpuTimes(): { idle: number; total: number } {

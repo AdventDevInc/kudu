@@ -42,6 +42,23 @@ it('bounds response bodies and hides provider/error body contents', async () => 
     'Cloud diagnostics is unavailable'
   )
 })
+it('maps subscription and timeout failures to actionable messages', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response('', { status: 402 }))
+  )
+  await expect(diagnosticsRequest('GET', 'capabilities')).rejects.toMatchObject({
+    status: 402,
+    message: expect.stringContaining('subscription')
+  })
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => {
+      throw Object.assign(new Error('aborted'), { name: 'AbortError' })
+    })
+  )
+  await expect(diagnosticsRequest('GET', 'capabilities')).rejects.toThrow('timed out')
+})
 it('rejects reports with mismatched ownership or missing completion payload', () => {
   expect(() => diagnosticCloudResult({ recordId: 'other' }, 'expected', 1000)).toThrow('Invalid')
   expect(() =>

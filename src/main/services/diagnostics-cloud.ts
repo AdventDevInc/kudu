@@ -6,6 +6,16 @@ import type {
   DiagnosticCloudResult
 } from '../../shared/performance-diagnostics'
 
+/** A definitive server rejection, as opposed to a network failure with unknown outcome. */
+export class CloudRejectedError extends Error {
+  constructor(
+    message: string,
+    readonly status: number
+  ) {
+    super(message)
+  }
+}
+
 /** Fixed Kudu endpoint; never use a renderer URL, redirect, or log response bodies. */
 export function diagnosticAccount(): Promise<string> {
   return accountFingerprint(getSettings().cloud.apiKey, getMachineId())
@@ -56,18 +66,20 @@ export async function diagnosticsRequest(
     if (!response.ok) {
       await response.body?.cancel()
       const message =
-        response.status === 403
+        response.status === 402
           ? 'An active Cloud Pro subscription is required.'
-          : response.status === 429
-            ? 'Analysis limit reached. Try again later.'
-            : response.status === 404 || response.status === 410
-              ? 'Cloud report unavailable or expired.'
-              : response.status === 401
-                ? 'Cloud key is invalid or revoked. Relink in Settings.'
-                : response.status === 409
-                  ? 'This recording was already submitted with different sharing options.'
-                  : 'Cloud diagnostics is unavailable. Please try again later.'
-      throw new Error(message)
+          : response.status === 403
+            ? 'This Cloud account is not allowed to access the recording.'
+            : response.status === 429
+              ? 'Analysis limit reached. Try again later.'
+              : response.status === 404 || response.status === 410
+                ? 'Cloud report unavailable or expired.'
+                : response.status === 401
+                  ? 'Cloud key is invalid or revoked. Relink in Settings.'
+                  : response.status === 409
+                    ? 'This recording was already submitted with different sharing options.'
+                    : 'Cloud diagnostics is unavailable. Please try again later.'
+      throw new CloudRejectedError(message, response.status)
     }
     const reader = response.body?.getReader()
     if (!reader) throw new Error('Empty Cloud response')
@@ -84,6 +96,12 @@ export async function diagnosticsRequest(
       chunks.push(part.value)
     }
     return JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError')
+      throw new Error('Cloud diagnostics timed out. Check your connection and try again.', {
+        cause: error
+      })
+    throw error
   } finally {
     clearTimeout(timer)
   }

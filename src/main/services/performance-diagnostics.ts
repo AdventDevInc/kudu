@@ -6,6 +6,7 @@ import type {
   DiagnosticSummary
 } from '../../shared/performance-diagnostics'
 import {
+  CloudRejectedError,
   diagnosticAccount,
   diagnosticCapabilities,
   diagnosticCloudResult,
@@ -73,7 +74,19 @@ export class PerformanceDiagnostics {
     await this.ready()
     return this.recorder.start(seconds, processes)
   }
+  /** Renderer-facing copy: the credential fingerprint and digest stay in the main process. */
+  static expose(s: DiagnosticSession): DiagnosticSession {
+    return {
+      ...s,
+      upload: s.upload
+        ? { consentAt: s.upload.consentAt, includeProcesses: s.upload.includeProcesses }
+        : null
+    }
+  }
   async get(id: string): Promise<DiagnosticSession> {
+    return PerformanceDiagnostics.expose(await this.load(id))
+  }
+  private async load(id: string): Promise<DiagnosticSession> {
     await this.ready()
     if (this.recorder.active?.recording.recordId === id)
       return structuredClone(this.recorder.active)
@@ -82,7 +95,7 @@ export class PerformanceDiagnostics {
   private async saved(id: string): Promise<DiagnosticSession> {
     if (!diagnosticId(id) || this.recorder.active?.recording.recordId === id)
       throw new Error('Stop the recording before changing or sharing it.')
-    return this.get(id)
+    return this.load(id)
   }
   edit(id: string, value: unknown): Promise<void> {
     return this.change(async () => {
@@ -115,9 +128,10 @@ export class PerformanceDiagnostics {
     if (bytes > 1048576) throw new Error('Recording exceeds the Cloud upload limit')
     const digest = createHash('sha256').update(body).digest('hex')
     const account = await diagnosticAccount()
-    if (s.upload && (s.upload.digest !== digest || s.upload.account !== account))
+    // Only a delivered upload locks the sharing options; a rejected one may be re-prepared.
+    if (s.upload && s.cloud && s.upload.digest !== digest)
       throw new Error(
-        'This recording has already been submitted. Use its original sharing options and Cloud account, or create a new recording.'
+        'This recording has already been submitted. Use its original sharing options or create a new recording.'
       )
     this.preview = {
       id,
@@ -154,34 +168,49 @@ export class PerformanceDiagnostics {
         account: p.account
       }
       await this.store.save(s) // persist consent/reference before any network request
-      const response = await diagnosticsRequest('POST', p.id, p.body, p.account)
+      let response: unknown
+      try {
+        response = await diagnosticsRequest('POST', p.id, p.body, p.account)
+      } catch (error) {
+        // A definitive rejection never stored the recording; release the consent lock.
+        // Ambiguous failures (timeouts) keep it so a possibly stored copy stays deletable.
+        if (error instanceof CloudRejectedError) {
+          s.upload = null
+          await this.store.save(s)
+        }
+        throw error
+      }
       s.cloud = diagnosticCloudResult(response, p.id, s.recording.durationMs)
       await this.store.save(s)
-      return s
+      return PerformanceDiagnostics.expose(s)
     })
   }
   refresh(id: string): Promise<DiagnosticSession> {
     return this.change(async () => {
       const s = await this.saved(id)
-      if (!s.upload || s.upload.account !== (await diagnosticAccount()))
-        throw new Error('Use the Cloud account that received this recording.')
+      if (!s.upload) throw new Error('This recording has not been submitted to Kudu Cloud.')
+      // The server authorises the linked key, so a rotated key can still read or retract.
       s.cloud = diagnosticCloudResult(
-        await diagnosticsRequest('GET', id, undefined, s.upload.account),
+        await diagnosticsRequest('GET', id),
         id,
         s.recording.durationMs
       )
       await this.store.save(s)
-      return s
+      return PerformanceDiagnostics.expose(s)
     })
   }
   deleteCloud(id: string): Promise<void> {
     return this.change(async () => {
       const s = await this.saved(id)
-      if (!s.upload || s.upload.account !== (await diagnosticAccount()))
-        throw new Error('Use the Cloud account that received this recording.')
-      const result = (await diagnosticsRequest('DELETE', id, undefined, s.upload.account)) as {
-        deleted?: unknown
-      } | null
+      if (!s.upload) throw new Error('This recording has not been submitted to Kudu Cloud.')
+      let result: { deleted?: unknown } | null
+      try {
+        result = (await diagnosticsRequest('DELETE', id)) as { deleted?: unknown } | null
+      } catch (error) {
+        // Already gone server-side counts as deleted.
+        if (!(error instanceof CloudRejectedError && [404, 410].includes(error.status))) throw error
+        result = { deleted: true }
+      }
       if (result?.deleted !== true) throw new Error('Cloud deletion was not confirmed')
       // Keep the downloaded report readable; mark the server copy as removed via expiry.
       if (s.cloud) s.cloud.expiresAt = new Date(0).toISOString()
