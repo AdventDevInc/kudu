@@ -3,10 +3,11 @@ import { mkdtemp, mkdir, writeFile, rm, symlink, realpath } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { execFileSync } from 'child_process'
-const state = vi.hoisted(() => ({ blocked: '' }))
+const state = vi.hoisted(() => ({ blocked: '', mounts: [] as string[] }))
 vi.mock('./file-utils', () => ({
   isExcluded: (path: string, exclusions: string[]) => exclusions.includes(path)
 }))
+vi.mock('./mount-points', () => ({ mountPoints: async () => new Set(state.mounts) }))
 vi.mock('fs/promises', async (importActual) => {
   const actual = await importActual<typeof import('fs/promises')>()
   return {
@@ -23,6 +24,7 @@ beforeEach(async () => {
   // macOS /var and Windows 8.3 temp paths are aliases, which the scanner refuses.
   root = await mkdtemp(join(await realpath(tmpdir()), 'kudu-storage-test-'))
   state.blocked = ''
+  state.mounts = []
 })
 afterEach(async () => {
   await rm(root, { recursive: true, force: true })
@@ -53,6 +55,15 @@ it('does not follow a junction or collect an excluded file', async () => {
     skipped: 2
   })
   await expect(validateStorageRoot(join(root, 'alias'))).rejects.toThrow('Linked folders')
+})
+it('skips folders that are mount points below the root', async () => {
+  await mkdir(join(root, 'mounted/inner'), { recursive: true })
+  await writeFile(join(root, 'mounted/inner/file'), Buffer.alloc(40))
+  await writeFile(join(root, 'file'), Buffer.alloc(5))
+  state.mounts = [root, join(root, 'mounted')]
+  const result = await capture()
+  expect(result).toMatchObject({ status: 'complete', totalBytes: 5, files: 1, skipped: 1 })
+  expect(result.rows.some((r) => r.path === 'mounted')).toBe(false)
 })
 it('reports inaccessible branches as partial rather than pretending their size is zero', async () => {
   await mkdir(join(root, 'blocked'))

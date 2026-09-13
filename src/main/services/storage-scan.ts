@@ -1,6 +1,7 @@
 import { lstat, opendir, realpath } from 'fs/promises'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'path'
 import { isExcluded } from './file-utils'
+import { mountPoints } from './mount-points'
 import type { StorageRow } from '../../shared/storage-history'
 
 /** Check every ancestor; lstat on only the final path would follow parent junctions. */
@@ -31,6 +32,9 @@ export async function measureStorageScope(
   // Compare against the canonical root so 8.3 short names and macOS /private aliases of the
   // root itself are not mistaken for links, while links introduced below the root still are.
   const realRoot = await realpath(root)
+  // Linux bind mounts keep the source st_dev and survive realpath(), so mount points below
+  // the root are detected explicitly. The root itself may be a mount point and is still scanned.
+  const mounts = await mountPoints()
   const aliased = async (path: string) =>
     canonical(await realpath(path)) !== canonical(join(realRoot, relative(root, path)))
   const rows = new Map<string, StorageRow>([['', { path: '', bytes: 0, files: 0 }]])
@@ -74,6 +78,7 @@ export async function measureStorageScope(
         info.isSymbolicLink() ||
         !info.isDirectory() ||
         info.dev !== initial.dev ||
+        (dir.depth > 0 && mounts.has(resolve(dir.path))) ||
         (await aliased(dir.path))
       ) {
         skipped++
@@ -103,6 +108,10 @@ export async function measureStorageScope(
             continue
           }
           if (stat.isDirectory()) {
+            if (mounts.has(resolve(path))) {
+              skipped++
+              continue
+            }
             if (dir.depth >= 128 || queue.length + directories >= limits.directories) {
               partial = true
               reason = 'limit'
