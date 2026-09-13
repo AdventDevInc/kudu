@@ -1,3 +1,4 @@
+import { registerStorageHistoryIpc } from './storage-history.ipc'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { execFile } from 'child_process'
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
@@ -88,6 +89,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerContextMenuCleanerIpc(getWindow)
   registerStartupManagerIpc()
   registerDebloaterIpc(getWindow)
+  registerStorageHistoryIpc(getWindow)
   registerDiskAnalyzerIpc(getWindow)
   registerDiskTrimIpc(getWindow)
   registerDuplicateFinderIpc(getWindow)

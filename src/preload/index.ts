@@ -93,6 +93,40 @@ import type {
 } from '../shared/types'
 
 const api = {
+  storageHistoryList: (
+    scopeId?: string,
+    offset = 0
+  ): Promise<{
+    scopes: import('../shared/storage-history').StorageScope[]
+    snapshots: import('../shared/storage-history').StorageSnapshotSummary[]
+    total: number
+    capture: { scopeId: string; startedAt: string } | null
+    projection: ReturnType<typeof import('../shared/storage-history').projectStorageCapacity>
+  }> => ipcRenderer.invoke(IPC.STORAGE_HISTORY_LIST, scopeId, offset),
+  storageHistoryAdd: (): Promise<import('../shared/storage-history').StorageScope | null> =>
+    ipcRenderer.invoke(IPC.STORAGE_HISTORY_ADD),
+  storageHistoryConfigure: (
+    id: string,
+    settings: Pick<
+      import('../shared/storage-history').StorageScope,
+      'daily' | 'growthAlertBytes' | 'freeAlertPercent'
+    >
+  ): Promise<void> => ipcRenderer.invoke(IPC.STORAGE_HISTORY_CONFIGURE, id, settings),
+  storageHistoryCapture: (id: string): Promise<string> =>
+    ipcRenderer.invoke(IPC.STORAGE_HISTORY_CAPTURE, id),
+  storageHistoryCancel: (): Promise<void> => ipcRenderer.invoke(IPC.STORAGE_HISTORY_CANCEL),
+  storageHistoryDelete: (id: string, scope = false): Promise<void> =>
+    ipcRenderer.invoke(IPC.STORAGE_HISTORY_DELETE, id, scope),
+  storageHistoryCompare: (
+    before: string,
+    after: string,
+    offset = 0
+  ): Promise<import('../shared/storage-history').StorageComparison & { total: number }> =>
+    ipcRenderer.invoke(IPC.STORAGE_HISTORY_COMPARE, before, after, offset),
+  storageHistoryExport: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.STORAGE_HISTORY_EXPORT, id),
+  storageHistoryOpen: (id: string, path: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.STORAGE_HISTORY_OPEN, id, path),
   // Platform
   platformInfo: (): Promise<PlatformInfo> => ipcRenderer.invoke(IPC.PLATFORM_INFO),
 

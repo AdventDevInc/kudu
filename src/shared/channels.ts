@@ -1,4 +1,13 @@
 export const IPC = {
+  STORAGE_HISTORY_LIST: 'storage-history:list',
+  STORAGE_HISTORY_ADD: 'storage-history:add',
+  STORAGE_HISTORY_CONFIGURE: 'storage-history:configure',
+  STORAGE_HISTORY_CAPTURE: 'storage-history:capture',
+  STORAGE_HISTORY_CANCEL: 'storage-history:cancel',
+  STORAGE_HISTORY_DELETE: 'storage-history:delete',
+  STORAGE_HISTORY_COMPARE: 'storage-history:compare',
+  STORAGE_HISTORY_EXPORT: 'storage-history:export',
+  STORAGE_HISTORY_OPEN: 'storage-history:open',
   // System cleaner
   SYSTEM_SCAN: 'cleaner:system:scan',
   SYSTEM_CLEAN: 'cleaner:system:clean',
