@@ -118,6 +118,7 @@
     "capture": "Capture snapshot",
     "removeFolder": "Stop tracking and remove history",
     "capturing": "Capturing metadata since {{time}}. You can leave this page.",
+    "capturingOther": "Capturing metadata for {{folder}} since {{time}}. Choose that folder to review its history.",
     "cancel": "Cancel capture",
     "projection": "Volume capacity estimate",
     "projectionValue": "Around {{days}} days remaining at {{growth}} of growth per day.",

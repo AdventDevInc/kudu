@@ -87,6 +87,7 @@ export function StorageHistoryPage() {
   const button = 'feature-button'
   const scope = data?.scopes.find((s) => s.id === scopeId)
   const capture = data?.capture
+  const capturedScope = capture && data?.scopes.find((s) => s.id === capture.scopeId)
   return (
     <div className="feature-page feature-layout space-y-5">
       <PageHeader title={t('storage.title')} description={t('storage.description')} />
@@ -145,6 +146,26 @@ export function StorageHistoryPage() {
           description={t('storage.emptyDescription')}
         />
       )}
+      {capture && (
+        <div className="feature-card flex flex-wrap gap-4 items-center" role="status">
+          <span>
+            {capture.scopeId === scope?.id
+              ? t('storage.capturing', { time: new Date(capture.startedAt).toLocaleTimeString() })
+              : t('storage.capturingOther', {
+                  folder: capturedScope?.name ?? capturedScope?.path ?? capture.scopeId,
+                  time: new Date(capture.startedAt).toLocaleTimeString()
+                })}
+          </span>
+          <button
+            className={button}
+            onClick={() =>
+              void window.kudu.storageHistoryCancel().catch((e) => setError(String(e)))
+            }
+          >
+            {t('storage.cancel')}
+          </button>
+        </div>
+      )}
       {scope && (
         <>
           <div className="feature-card space-y-4">
@@ -182,21 +203,6 @@ export function StorageHistoryPage() {
               />
             </details>
           </div>
-          {capture && (
-            <div className="feature-card flex flex-wrap gap-4 items-center" role="status">
-              <span>
-                {t('storage.capturing', { time: new Date(capture.startedAt).toLocaleTimeString() })}
-              </span>
-              <button
-                className={button}
-                onClick={() =>
-                  void window.kudu.storageHistoryCancel().catch((e) => setError(String(e)))
-                }
-              >
-                {t('storage.cancel')}
-              </button>
-            </div>
-          )}
           <div className="feature-card space-y-2">
             <h2 className="font-semibold">{t('storage.projection')}</h2>
             {data?.projection ? (
