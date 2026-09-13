@@ -1,11 +1,11 @@
 {
   "title": "Curățări personalizate",
-  "description": "Creați reguli locale de curățare a fișierelor, cu previzualizare înainte de a le activa sau rula.",
-  "openCleaner": "Deschideți modulul de curățare",
+  "description": "Creați reguli locale de curățare a fișierelor, cu o previzualizare înainte de a le activa sau rula.",
+  "openCleaner": "Deschideți curățarea",
   "new": "Curățare nouă",
   "import": "Importați JSON",
   "export": "Exportați regulile salvate",
-  "localPrivacy": "Gratuit și local. Definițiile și exporturile includ căi absolute către foldere. Importurile sunt întotdeauna dezactivate până când le previzualizați și le activați; nu este necesar niciun abonament.",
+  "localPrivacy": "Gratuit și local. Definițiile și exporturile includ căi absolute ale folderelor. Importurile sunt întotdeauna dezactivate până când le previzualizați și le activați; nu este necesar niciun abonament.",
   "empty": "Nu există curățări personalizate salvate.",
   "enabled": "Activat",
   "disabled": "Dezactivat",
@@ -19,7 +19,7 @@
   "patterns": "Includeți modele de nume de fișiere",
   "excludePatterns": "Excludeți modele de nume de fișiere",
   "excludeDirectories": "Excludeți foldere relative",
-  "patternHelp": "O valoare pe linie. Modelele de nume de fișiere acceptă doar * și ?, de exemplu *.tmp sau cache-*.log. Excluderile de foldere folosesc căi relative, cum ar fi keep sau sessions/current. Potrivirea ignoră diferențele dintre litere mari și mici pe Windows și macOS. Fără comenzi, regex sau metacaractere pentru directoare.",
+  "patternHelp": "O valoare pe linie. Modelele de nume de fișiere acceptă doar * și ?, cum ar fi *.tmp sau cache-*.log. Excluderile de foldere folosesc căi relative, cum ar fi keep sau sessions/current. Potrivirea ignoră diferențele dintre litere mari și mici pe Windows și macOS. Fără comenzi, regex sau metacaractere pentru directoare.",
   "age": "Vechime minimă (zile)",
   "depth": "Adâncimea subfolderelor (0 = doar acest folder)",
   "enable": "Activați această curățare",
@@ -30,7 +30,7 @@
   "duplicate": "Duplicați",
   "deleteRule": "Ștergeți definiția",
   "manualJson": "Editor JSON manual",
-  "manualHelp": "Previzualizați aici definiția unei singure reguli. Salvați numai după finalizarea previzualizării. Fișierele de import/export încadrează definițiile în {version: 1, rules: [...]}.",
+  "manualHelp": "Previzualizați aici o singură definiție de regulă. Salvați doar după finalizarea previzualizării. Fișierele de import/export încadrează definițiile în {version: 1, rules: [...]}",
   "copyToEditor": "Încărcați definiția curentă în editor",
   "previewJson": "Previzualizați definiția JSON",
   "previewSummary": "{{count}} fișiere potrivite · {{size}}",
@@ -56,5 +56,7 @@
   "resultCounts": "Selectate {{selected}} · șterse {{deleted}} · omise {{skipped}} · eliminate {{size}}",
   "issues": "Unele elemente nu au putut fi curățate. Primele 100 de probleme raportate:",
   "history": "Deschideți istoricul curățării",
-  "imported": "Au fost importate {{count}} definiții dezactivate. Verificați folderele acestora înainte de activare."
+  "imported": "Au fost importate {{count}} definiții dezactivate. Verificați folderele lor înainte de activare.",
+  "emptyHint": "Dați un nume curățării, alegeți un folder și previzualizați fișierele înainte de salvare.",
+  "scanning": "Se caută fișiere potrivite?"
 }

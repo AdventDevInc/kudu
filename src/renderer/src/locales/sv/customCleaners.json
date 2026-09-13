@@ -1,6 +1,6 @@
 {
   "title": "Anpassade rensare",
-  "description": "Skapa lokala filrensningsregler med en förhandsgranskning innan du aktiverar eller kör dem.",
+  "description": "Skapa lokala regler för filrensning med en förhandsgranskning innan du aktiverar eller kör dem.",
   "openCleaner": "Öppna rensare",
   "new": "Ny rensare",
   "import": "Importera JSON",
@@ -21,7 +21,7 @@
   "excludeDirectories": "Exkludera relativa mappar",
   "patternHelp": "Ett värde per rad. Filnamnsmönster stöder endast * och ?, till exempel *.tmp eller cache-*.log. Mappundantag använder relativa sökvägar som keep eller sessions/current. Matchning ignorerar skiftläge i Windows och macOS. Inga kommandon, regex eller jokertecken för kataloger.",
   "age": "Minsta ålder (dagar)",
-  "depth": "Undermappsdjup (0 = endast den här mappen)",
+  "depth": "Undermappsdjup (0 = endast denna mapp)",
   "enable": "Aktivera den här rensaren",
   "enableHelp": "Aktiverade regler visas under Appar i vanliga rensningsskanningar, inklusive schemalagd apprensning, där matchande filer tas bort automatiskt utan en ny förhandsgranskning. Globala undantag och skydd för nyligen använda filer gäller fortfarande. Granska innehållet noggrant innan du aktiverar.",
   "preview": "Förhandsgranska filer",
@@ -48,7 +48,7 @@
   "saved": "Definition sparad.",
   "cleanMatched": "Rensa {{count}} matchande filer…",
   "previewLimits": "En förhandsgranskning upphör att gälla efter tio minuter och är begränsad till 2 000 träffar, 50 000 granskade poster och tio sekunder. Ofullständiga förhandsgranskningar kan inte aktivera eller köra en rensare. Varje fil kontrolleras igen precis före borttagning; ändrade filer hoppas över.",
-  "confirmClean": "Vill du permanent ta bort de {{count}} förhandsgranskade filerna ({{size}}) för {{name}}? Detta kan inte ångras. Filer som har skapats eller ändrats sedan förhandsgranskningen kommer inte att inkluderas.",
+  "confirmClean": "Ta bort de {{count}} förhandsgranskade filerna ({{size}}) för {{name}} permanent? Detta kan inte ångras. Filer som har skapats eller ändrats sedan förhandsgranskningen kommer inte att inkluderas.",
   "confirmDelete": "Ta bort definitionen för {{name}}? Detta tar inte bort några filer från dess mapp.",
   "confirm": "Bekräfta",
   "cancel": "Avbryt",
@@ -56,5 +56,7 @@
   "resultCounts": "Valda {{selected}} · borttagna {{deleted}} · överhoppade {{skipped}} · frigjort {{size}}",
   "issues": "Vissa objekt kunde inte rensas. De första 100 rapporterade problemen:",
   "history": "Öppna rensningshistorik",
-  "imported": "Importerade {{count}} inaktiverade definitioner. Granska deras mappar innan du aktiverar dem."
+  "imported": "Importerade {{count}} inaktiverade definitioner. Granska deras mappar innan du aktiverar dem.",
+  "emptyHint": "Ge din rensare ett namn, välj en mapp och förhandsgranska filerna innan du sparar.",
+  "scanning": "Söker efter matchande filer?"
 }
