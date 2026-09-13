@@ -5,6 +5,14 @@ vi.mock('./settings-store', () => ({
   getSettings: () => ({ cloud: { apiKey: 'test-key' } })
 }))
 afterEach(() => vi.unstubAllGlobals())
+it('refuses an account switch before sending any consented data', async () => {
+  const fetcher = vi.fn()
+  vi.stubGlobal('fetch', fetcher)
+  await expect(
+    diagnosticsRequest('POST', '12345678-1234-4123-8123-123456789012', '{}', 'previous-account')
+  ).rejects.toThrow('Cloud account changed')
+  expect(fetcher).not.toHaveBeenCalled()
+})
 it('uses only the fixed Cloud destination and rejects redirects', async () => {
   const fetcher = vi.fn(async () => new Response('{"deleted":true}'))
   vi.stubGlobal('fetch', fetcher)

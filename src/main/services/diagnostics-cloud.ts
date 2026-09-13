@@ -1,4 +1,4 @@
-import { createHash } from 'crypto'
+import { scrypt } from 'crypto'
 import { getMachineId, getSettings } from './settings-store'
 import { diagnosticId, validDiagnosticReport } from '../../shared/performance-diagnostics'
 import type {
@@ -7,28 +7,40 @@ import type {
 } from '../../shared/performance-diagnostics'
 
 /** Fixed Kudu endpoint; never use a renderer URL, redirect, or log response bodies. */
-export function diagnosticAccount(): string {
-  return createHash('sha256')
-    .update(`${getMachineId()}\n${getSettings().cloud.apiKey}`)
-    .digest('hex')
+export function diagnosticAccount(): Promise<string> {
+  return accountFingerprint(getSettings().cloud.apiKey, getMachineId())
+}
+function accountFingerprint(apiKey: string, deviceId: string): Promise<string> {
+  // A salted, purpose-specific credential fingerprint binds consent to the linked
+  // account without persisting the API key. Run the KDF off the main thread.
+  return new Promise((resolve, reject) => {
+    scrypt(apiKey, `kudu-diagnostics-v1:${deviceId}`, 32, (error, key) => {
+      if (error) reject(error)
+      else resolve(key.toString('hex'))
+    })
+  })
 }
 
 export async function diagnosticsRequest(
   method: 'GET' | 'POST' | 'DELETE',
   id: string,
-  body?: string
+  body?: string,
+  expectedAccount?: string
 ): Promise<unknown> {
   if (!(diagnosticId(id) || (id === 'capabilities' && method === 'GET')))
     throw new Error('Invalid diagnostic request')
   const key = getSettings().cloud.apiKey
+  const deviceId = getMachineId()
   if (!key) throw new Error('Link Kudu Cloud in Settings to use diagnostics.')
+  if (expectedAccount && (await accountFingerprint(key, deviceId)) !== expectedAccount)
+    throw new Error('Cloud account changed. Review the upload again.')
   if (body && Buffer.byteLength(body) > 1048576)
     throw new Error('Recording exceeds the upload limit.')
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 30000)
   try {
     const response = await fetch(
-      `https://cloud.usekudu.com/api/devices/${encodeURIComponent(getMachineId())}/performance-diagnostics/${id}`,
+      `https://cloud.usekudu.com/api/devices/${encodeURIComponent(deviceId)}/performance-diagnostics/${id}`,
       {
         method,
         redirect: 'error',

@@ -114,7 +114,7 @@ export class PerformanceDiagnostics {
     const bytes = Buffer.byteLength(body)
     if (bytes > 1048576) throw new Error('Recording exceeds the Cloud upload limit')
     const digest = createHash('sha256').update(body).digest('hex')
-    const account = diagnosticAccount()
+    const account = await diagnosticAccount()
     if (s.upload && (s.upload.digest !== digest || s.upload.account !== account))
       throw new Error(
         'This recording has already been submitted. Use its original sharing options and Cloud account, or create a new recording.'
@@ -134,7 +134,12 @@ export class PerformanceDiagnostics {
     return this.change(async () => {
       const p = this.preview
       this.preview = null
-      if (!p || token !== p.token || Date.now() > p.expires || p.account !== diagnosticAccount())
+      if (
+        !p ||
+        token !== p.token ||
+        Date.now() > p.expires ||
+        p.account !== (await diagnosticAccount())
+      )
         throw new Error('Upload preview expired. Review the recording again.')
       const s = await this.saved(p.id)
       const fresh = JSON.stringify({
@@ -149,7 +154,7 @@ export class PerformanceDiagnostics {
         account: p.account
       }
       await this.store.save(s) // persist consent/reference before any network request
-      const response = await diagnosticsRequest('POST', p.id, p.body)
+      const response = await diagnosticsRequest('POST', p.id, p.body, p.account)
       s.cloud = diagnosticCloudResult(response, p.id, s.recording.durationMs)
       await this.store.save(s)
       return s
@@ -158,10 +163,10 @@ export class PerformanceDiagnostics {
   refresh(id: string): Promise<DiagnosticSession> {
     return this.change(async () => {
       const s = await this.saved(id)
-      if (!s.upload || s.upload.account !== diagnosticAccount())
+      if (!s.upload || s.upload.account !== (await diagnosticAccount()))
         throw new Error('Use the Cloud account that received this recording.')
       s.cloud = diagnosticCloudResult(
-        await diagnosticsRequest('GET', id),
+        await diagnosticsRequest('GET', id, undefined, s.upload.account),
         id,
         s.recording.durationMs
       )
@@ -172,9 +177,11 @@ export class PerformanceDiagnostics {
   deleteCloud(id: string): Promise<void> {
     return this.change(async () => {
       const s = await this.saved(id)
-      if (!s.upload || s.upload.account !== diagnosticAccount())
+      if (!s.upload || s.upload.account !== (await diagnosticAccount()))
         throw new Error('Use the Cloud account that received this recording.')
-      const result = (await diagnosticsRequest('DELETE', id)) as { deleted?: unknown } | null
+      const result = (await diagnosticsRequest('DELETE', id, undefined, s.upload.account)) as {
+        deleted?: unknown
+      } | null
       if (result?.deleted !== true) throw new Error('Cloud deletion was not confirmed')
       // Keep the downloaded report readable; mark the server copy as removed via expiry.
       if (s.cloud) s.cloud.expiresAt = new Date(0).toISOString()
