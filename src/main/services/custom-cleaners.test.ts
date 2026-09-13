@@ -16,9 +16,10 @@ import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
 import { CustomCleaners } from './custom-cleaners'
 import { CustomCleanerStore } from './custom-cleaner-store'
-import { customRootAllowed } from './custom-cleaner-safety'
+import { customRootAllowed, customFileMatches } from './custom-cleaner-safety'
 import { customGlob, validCustomRule } from '../../shared/custom-cleaners'
 import type { CustomCleanerRule } from '../../shared/custom-cleaners'
+import type { Stats } from 'fs'
 import { cleanItems, safeDelete } from './file-utils'
 import { clearCache } from './scan-cache'
 
@@ -27,6 +28,7 @@ const settings = vi.hoisted(() => ({
   exclusions: [] as string[]
 }))
 vi.mock('./settings-store', () => ({ getSettings: () => settings }))
+vi.mock('./logger', () => ({ logInfo: () => {}, logError: () => {} }))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 let dir: string,
   root: string,
@@ -137,6 +139,23 @@ describe('restricted rule definitions', () => {
       expect(customRootAllowed(path, policy)).toBe(false)
     expect(customRootAllowed('/home/test/.cache/app', policy)).toBe(true)
   })
+  it('matches names case-insensitively on macOS as well as Windows so exclusions cannot fail open', () => {
+    const stats = {
+      isFile: () => true,
+      isSymbolicLink: () => false,
+      nlink: 1,
+      mtimeMs: 1
+    } as unknown as Stats
+    const base = { ...rule, patterns: ['*.log'], excludePatterns: ['Keep*'] }
+    const file = (r: CustomCleanerRule, name: string) => join(r.root, name)
+    const mac = { ...base, platform: 'darwin' as const }
+    expect(customFileMatches(file(mac, 'keep.log'), mac, stats, 2)).toBe(false)
+    expect(customFileMatches(file(mac, 'other.LOG'), mac, stats, 2)).toBe(true)
+    expect(customFileMatches(join(mac.root, 'Excluded', 'x.log'), mac, stats, 2)).toBe(false)
+    const linux = { ...base, platform: 'linux' as const }
+    expect(customFileMatches(file(linux, 'keep.log'), linux, stats, 2)).toBe(true)
+    expect(customFileMatches(file(linux, 'other.LOG'), linux, stats, 2)).toBe(false)
+  })
   it('imports inert copies with fresh IDs and round-trips semantics', async () => {
     await store.update(() => [rule])
     const exported = JSON.stringify({ version: 1, rules: await store.list() })
@@ -158,6 +177,22 @@ describe('restricted rule definitions', () => {
     await writeFile(join(dir, 'definitions.json'), 'corrupt')
     await expect(store.update(() => [])).rejects.toThrow()
     expect(await readFile(join(dir, 'definitions.json'), 'utf8')).toBe('corrupt')
+  })
+  it('drops invalid, duplicate and excess entries on read without rewriting until the next save', async () => {
+    const extra = Array.from({ length: 20 }, () => ({ ...rule, id: `custom-${randomUUID()}` }))
+    const raw = JSON.stringify({
+      version: 1,
+      rules: [rule, { ...rule, maxDepth: 99 }, rule, { ...rule, script: 'rm' }, ...extra]
+    })
+    await writeFile(join(dir, 'definitions.json'), raw)
+    const listed = await store.list()
+    expect(listed).toHaveLength(20)
+    expect(listed[0]).toEqual(rule)
+    expect(new Set(listed.map((r) => r.id)).size).toBe(20)
+    expect(await readFile(join(dir, 'definitions.json'), 'utf8')).toBe(raw)
+    await service.remove(rule.id)
+    expect(await store.list()).toHaveLength(19)
+    expect(JSON.parse(await readFile(join(dir, 'definitions.json'), 'utf8')).rules).toHaveLength(19)
   })
 })
 
@@ -237,6 +272,10 @@ describe('preview and deletion safety', () => {
     const p = await service.preview(rule)
     expect(p.items).toHaveLength(0)
     await expect(service.preview({ ...rule, root: join(root, 'alias') })).rejects.toThrow()
+    await mkdir(join(outside, 'sub'))
+    await expect(service.preview({ ...rule, root: join(root, 'alias', 'sub') })).rejects.toThrow(
+      'aliases'
+    )
     await old(join(root, 'sub', 'old.tmp'))
     const next = await service.preview(rule)
     await service.save(next.token)
@@ -276,5 +315,29 @@ describe('preview and deletion safety', () => {
     expect(scans[0].items).toHaveLength(110)
     expect(scans[0].group).toBe('Custom cleaners')
     expect(scans[0].items.every((i) => basename(i.path).endsWith('.tmp'))).toBe(true)
+  })
+  it('skips failing custom rules in App scans instead of failing the whole category', async () => {
+    await old(join(root, 'old.tmp'))
+    const missing = {
+      ...rule,
+      id: `custom-${randomUUID()}`,
+      name: 'Missing',
+      root: join(dir, 'gone')
+    }
+    const partial = { ...rule, id: `custom-${randomUUID()}`, name: 'Partial' }
+    await store.update(() => [missing, partial, rule])
+    const original = service.preview.bind(service)
+    vi.spyOn(service, 'preview').mockImplementation(async (value, deadline) => {
+      const p = await original(value, deadline)
+      if ((value as CustomCleanerRule).name === 'Partial') p.state = 'partial'
+      return p
+    })
+    const scans = await service.appScans()
+    expect(scans.map((s) => s.subcategory)).toEqual(['Custom: Test cache'])
+    expect(scans[0].items).toHaveLength(1)
+    vi.restoreAllMocks()
+    await rm(join(dir, 'definitions.json'))
+    await mkdir(join(dir, 'definitions.json'))
+    expect(await service.appScans()).toEqual([])
   })
 })

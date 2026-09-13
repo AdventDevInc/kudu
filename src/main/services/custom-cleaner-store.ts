@@ -3,10 +3,13 @@ import { dirname } from 'path'
 import { randomUUID } from 'crypto'
 import { validCustomRule } from '../../shared/custom-cleaners'
 import type { CustomCleanerRule } from '../../shared/custom-cleaners'
+import { logError } from './logger'
 
 export class CustomCleanerStore {
   private queue: Promise<unknown> = Promise.resolve()
+  private warned = false
   constructor(private file: string) {}
+  /** Reads drop invalid, duplicate and excess entries so the user can recover; writes stay strict. */
   async list(): Promise<CustomCleanerRule[]> {
     let info
     try {
@@ -21,17 +24,22 @@ export class CustomCleanerStore {
       version?: unknown
       rules?: unknown
     }
-    if (
-      value.version !== 1 ||
-      !Array.isArray(value.rules) ||
-      value.rules.length > 20 ||
-      !value.rules.every(validCustomRule) ||
-      new Set(value.rules.map((r) => r.id)).size !== value.rules.length
-    )
+    if (value.version !== 1 || !Array.isArray(value.rules))
       throw new Error(
         'Custom-cleaner definitions are corrupt or unsupported. Existing definitions were preserved.'
       )
-    return value.rules
+    const seen = new Set<string>()
+    const rules = value.rules.filter(
+      (r): r is CustomCleanerRule =>
+        validCustomRule(r) && !seen.has(r.id) && seen.size < 20 && !!seen.add(r.id)
+    )
+    if (rules.length !== value.rules.length && !this.warned) {
+      this.warned = true
+      logError(
+        `Ignored ${value.rules.length - rules.length} invalid or duplicate custom-cleaner definitions in ${this.file}`
+      )
+    }
+    return rules
   }
   update(transform: (rules: CustomCleanerRule[]) => CustomCleanerRule[]): Promise<void> {
     const work = async () => {

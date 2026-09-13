@@ -26,6 +26,9 @@ const forbiddenNames = new Set([
   'system volume information'
 ])
 export const customProtectedName = (name: string): boolean => forbiddenNames.has(name.toLowerCase())
+/** NTFS and default APFS/HFS+ volumes are case-insensitive, so exclusions must be too. */
+export const customCaseInsensitive = (rule: Pick<CustomCleanerRule, 'platform'>): boolean =>
+  rule.platform === 'win32' || rule.platform === 'darwin'
 export function customRootAllowed(root: string, policy: CustomRootPolicy): boolean {
   const p = policy.platform === 'win32' ? path.win32 : path.posix
   const norm = (s: string) => {
@@ -91,7 +94,11 @@ export async function customRoot(
   const canonical = await realpath(resolved)
   if (!customRootAllowed(canonical, policy))
     throw new Error('Folder aliases and junctions are not supported. Choose the real folder.')
-  return { path: canonical, info: await lstat(canonical) }
+  const info = await lstat(canonical)
+  // A folder on a different device from its parent is a mount point (/Volumes/USB, /mnt/data).
+  if (info.dev !== (await lstat(path.dirname(canonical))).dev)
+    throw new Error('Choose a specific subfolder inside a volume, not the mounted volume itself.')
+  return { path: canonical, info }
 }
 export function customFileMatches(
   file: string,
@@ -121,7 +128,7 @@ export function customFileMatches(
     segments.some((s) => forbiddenNames.has(s.toLowerCase()))
   )
     return false
-  const caseInsensitive = rule.platform === 'win32'
+  const caseInsensitive = customCaseInsensitive(rule)
   const rel = caseInsensitive ? relative.replace(/\\/g, '/').toLowerCase() : relative
   if (
     rule.excludeDirectories.some((d) => {

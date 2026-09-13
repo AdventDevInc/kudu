@@ -13,23 +13,48 @@ import { CustomCleanerStore } from './custom-cleaner-store'
 import {
   customRoot,
   customFileMatches,
+  customCaseInsensitive,
   sameCustomFile,
   customProtectedName
 } from './custom-cleaner-safety'
 import type { CustomRootPolicy } from './custom-cleaner-safety'
 import { cacheItems, removeCachedItems } from './scan-cache'
 import { cleanItems, isExcluded } from './file-utils'
+import { logError } from './logger'
 
+// Hash a fixed projection so key order and the enabled flag never change the fingerprint.
 const fingerprint = (r: CustomCleanerRule): string =>
   createHash('sha256')
-    .update(JSON.stringify({ ...r, enabled: false }))
+    .update(
+      JSON.stringify([
+        r.version,
+        r.id,
+        r.name,
+        r.description,
+        r.platform,
+        r.root,
+        r.patterns,
+        r.excludePatterns,
+        r.excludeDirectories,
+        r.minAgeDays,
+        r.maxDepth
+      ])
+    )
     .digest('hex')
+/** Rule, root and settings looked up once per clean run rather than once per item. */
+interface RunSnapshot {
+  rule: CustomCleanerRule | undefined
+  root: Awaited<ReturnType<typeof customRoot>> | null
+  exclusions: string[]
+  recentMinutes: number
+}
 interface PreviewContext {
   preview: CustomCleanerPreview
   files: Map<string, Stats>
   directories: Map<string, Stats>
   expires: number
   fingerprint: string
+  run?: { expires: number; value: Promise<RunSnapshot> }
 }
 export class CustomCleaners {
   private contexts = new Map<string, PreviewContext>()
@@ -58,24 +83,39 @@ export class CustomCleaners {
     }
     return ctx
   }
+  private invalidate(): void {
+    for (const ctx of this.contexts.values()) ctx.run = undefined
+  }
+  private snapshot(ctx: PreviewContext): Promise<RunSnapshot> {
+    const now = Date.now()
+    if (!ctx.run || ctx.run.expires < now)
+      ctx.run = {
+        expires: now + 1000,
+        value: (async () => {
+          const rule = (await this.store.list()).find((r) => r.id === ctx.preview.rule.id)
+          const root =
+            rule?.enabled && fingerprint(rule) === ctx.fingerprint
+              ? await customRoot(rule.root, this.policy)
+              : null
+          return { rule, root, exclusions: this.exclusions(), recentMinutes: this.recentMinutes() }
+        })()
+      }
+    return ctx.run.value
+  }
   private async guard(ctx: PreviewContext, item: ScanItem): Promise<string | null> {
     if (ctx.expires < Date.now() || ctx.preview.state !== 'complete')
       return 'custom-preview-expired-or-incomplete'
-    const rule = (await this.store.list()).find((r) => r.id === ctx.preview.rule.id)
-    if (!rule?.enabled || fingerprint(rule) !== ctx.fingerprint)
+    const { rule, root, exclusions, recentMinutes } = await this.snapshot(ctx)
+    if (!rule?.enabled || fingerprint(rule) !== ctx.fingerprint || !root)
       return 'custom-rule-disabled-or-changed'
-    const root = await customRoot(rule.root, this.policy)
     const oldRoot = ctx.directories.get(root.path)
     if (!oldRoot || oldRoot.ino !== root.info.ino || oldRoot.dev !== root.info.dev)
       return 'custom-root-changed'
     const original = ctx.files.get(item.id)
     const now = await lstat(item.path)
     if (!original || !sameCustomFile(original, now)) return 'custom-file-changed'
-    const cutoff = Date.now() - Math.max(rule.minAgeDays * 86400000, this.recentMinutes() * 60000)
-    if (
-      isExcluded(item.path, this.exclusions()) ||
-      !customFileMatches(item.path, rule, now, cutoff)
-    )
+    const cutoff = Date.now() - Math.max(rule.minAgeDays * 86400000, recentMinutes * 60000)
+    if (isExcluded(item.path, exclusions) || !customFileMatches(item.path, rule, now, cutoff))
       return 'custom-file-no-longer-eligible'
     if ((await realpath(item.path)) !== item.path) return 'custom-path-changed'
     for (let parent = dirname(item.path); ; parent = dirname(parent)) {
@@ -137,6 +177,8 @@ export class CustomCleaners {
       if (!ctx.preview.warnings.includes(message)) ctx.preview.warnings.push(message)
     }
     const cutoff = Date.now() - Math.max(rule.minAgeDays * 86400000, this.recentMinutes() * 60000)
+    const exclusions = this.exclusions()
+    const caseInsensitive = customCaseInsensitive(rule)
     const scan = async (folder: string, depth: number): Promise<void> => {
       if (controller.signal.aborted || ctx.preview.state === 'partial') return
       let directory
@@ -169,11 +211,11 @@ export class CustomCleaners {
           }
           const file = join(folder, entry.name)
           if (customProtectedName(entry.name)) continue
-          if (isExcluded(file, this.exclusions())) continue
+          if (isExcluded(file, exclusions)) continue
           const rel = relative(rule.root, file).split(sep).join('/')
           if (
             rule.excludeDirectories.some((d) =>
-              rule.platform === 'win32'
+              caseInsensitive
                 ? rel.toLowerCase() === d.toLowerCase() ||
                   rel.toLowerCase().startsWith(d.toLowerCase() + '/')
                 : rel === d || rel.startsWith(d + '/')
@@ -250,6 +292,7 @@ export class CustomCleaners {
     const rule = ctx.preview.rule
     await customRoot(rule.root, this.policy)
     await this.store.update((rules) => [...rules.filter((r) => r.id !== rule.id), rule])
+    this.invalidate()
     return rule
   }
   async disable(id: unknown): Promise<void> {
@@ -257,10 +300,12 @@ export class CustomCleaners {
     await this.store.update((rules) =>
       rules.map((r) => (r.id === id ? { ...r, enabled: false } : r))
     )
+    this.invalidate()
   }
   async remove(id: unknown): Promise<void> {
     if (!customRuleId(id)) throw new Error('Invalid rule ID')
     await this.store.update((rules) => rules.filter((r) => r.id !== id))
+    this.invalidate()
     for (const ctx of [...this.contexts.values()]) if (ctx.preview.rule.id === id) this.discard(ctx)
   }
   async import(json: string): Promise<number> {
@@ -285,6 +330,7 @@ export class CustomCleaners {
     const ctx = this.context(token)
     if (ctx.preview.state !== 'complete') throw new Error('Complete the preview before cleaning')
     this.cleaning = true
+    this.invalidate()
     const startedAt = new Date().toISOString()
     try {
       const result = await cleanItems(ctx.preview.items.map((i) => i.id))
@@ -305,27 +351,41 @@ export class CustomCleaners {
     const results: ScanResult[] = []
     const deadline = Date.now() + 30000
     let remaining = 10000
-    for (const rule of (await this.store.list()).filter(
-      (r) => r.enabled && r.platform === this.policy.platform
-    )) {
-      if (Date.now() > deadline || remaining <= 0)
-        throw new Error('Custom cleaner scan limit reached. Narrow or disable some rules.')
-      const preview = await this.preview(rule, Math.min(deadline, Date.now() + 10000))
-      if (preview.state !== 'complete')
-        throw new Error(`Custom cleaner ${rule.name} needs a narrower, complete preview.`)
-      const ctx = this.context(preview.token)
-      if (ctx.preview.items.length > remaining)
-        throw new Error('Custom cleaner item limit reached. Narrow or disable some rules.')
-      remaining -= ctx.preview.items.length
-      if (ctx.preview.items.length)
-        results.push({
-          category: 'app',
-          subcategory: `Custom: ${rule.name}`,
-          group: 'Custom cleaners',
-          items: ctx.preview.items,
-          itemCount: ctx.preview.itemCount,
-          totalSize: ctx.preview.totalSize
-        })
+    let rules: CustomCleanerRule[]
+    try {
+      rules = await this.store.list()
+    } catch (e) {
+      logError('Custom cleaners skipped: definitions could not be read', e)
+      return []
+    }
+    // One bad definition must never fail the whole Applications scan, including bundled rules.
+    for (const rule of rules.filter((r) => r.enabled && r.platform === this.policy.platform)) {
+      if (Date.now() > deadline || remaining <= 0) {
+        logError(
+          `Custom cleaner ${rule.name} skipped: scan limit reached. Narrow or disable rules.`
+        )
+        continue
+      }
+      try {
+        const preview = await this.preview(rule, Math.min(deadline, Date.now() + 10000))
+        if (preview.state !== 'complete')
+          throw new Error(`Custom cleaner ${rule.name} needs a narrower, complete preview.`)
+        const ctx = this.context(preview.token)
+        if (ctx.preview.items.length > remaining)
+          throw new Error('Custom cleaner item limit reached. Narrow or disable some rules.')
+        remaining -= ctx.preview.items.length
+        if (ctx.preview.items.length)
+          results.push({
+            category: 'app',
+            subcategory: `Custom: ${rule.name}`,
+            group: 'Custom cleaners',
+            items: ctx.preview.items,
+            itemCount: ctx.preview.itemCount,
+            totalSize: ctx.preview.totalSize
+          })
+      } catch (e) {
+        logError(`Custom cleaner ${rule.name} skipped`, e)
+      }
     }
     return results
   }
