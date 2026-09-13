@@ -130,9 +130,6 @@
     "reviewPaths": "Revisar las rutas seleccionadas",
     "chooseOptimizations": "Elegir optimizaciones",
     "reviewCloud": "Revisar preferencias de uso compartido",
-    "defineRule": "Elegir reglas de carpetas y archivos",
-    "previewMatches": "Vista previa de archivos coincidentes",
-    "saveCleaner": "Guardar su limpiador",
     "trackFolder": "Elegir una carpeta para supervisar",
     "captureSnapshot": "Capturar instantáneas locales",
     "compareGrowth": "Comparar cambios de almacenamiento",
@@ -174,7 +171,6 @@
     "updates": "Mantenga al día lo esencial de cada día. Compruebe las actualizaciones disponibles, compare versiones y elija qué instalar.",
     "schedules": "Un buen cuidado, según su horario. Elija las tareas, los horarios y la frecuencia que se adapten a este equipo.",
     "drivers": "Revise actualizaciones de drivers y paquetes antiguos en un solo lugar. Compruebe los cambios propuestos antes de aplicarlos.",
-    "customCleaners": "Su propia rutina de limpieza. Elija una carpeta y reglas de archivos, obtenga una vista previa de las coincidencias y luego guarde el limpiador.",
     "storageHistory": "Vea qué está creciendo. Guarde instantáneas locales de carpetas y compare dónde ha cambiado el almacenamiento.",
     "recovery": "Una forma clara de volver atrás. Revise los cambios compatibles y los detalles de restauración antes de deshacer nada.",
     "diagnostics": "Convierta un momento de lentitud en evidencia. Registre localmente, inspeccione los datos y elija si desea solicitar análisis con Cloud AI."

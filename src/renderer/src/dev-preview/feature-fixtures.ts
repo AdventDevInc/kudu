@@ -4,7 +4,6 @@ import {
   type StorageSnapshotSummary
 } from '@shared/storage-history'
 import type { RecoveryEntry } from '@shared/recovery'
-import type { CustomCleanerRule } from '@shared/custom-cleaners'
 import type { DiagnosticSession, DiagnosticSummary } from '@shared/performance-diagnostics'
 
 const now = Date.now()
@@ -54,22 +53,6 @@ const entries: RecoveryEntry[] = ['Diagnostic data preference', 'Background serv
     status: i === 0 ? 'ready' : 'restored'
   })
 )
-const rules: CustomCleanerRule[] = [
-  {
-    version: 1,
-    id: 'custom-00000000-0000-4000-8000-000000000001',
-    name: 'Old download archives',
-    description: 'Review temporary archives older than 30 days.',
-    platform: 'win32',
-    root: scope.path,
-    patterns: ['*.tmp', '*.log'],
-    excludePatterns: [],
-    excludeDirectories: ['Keep'],
-    minAgeDays: 30,
-    maxDepth: 2,
-    enabled: false
-  }
-]
 const recording: DiagnosticSession = {
   title: 'Morning startup',
   notes: 'Browser and everyday apps opening.',
@@ -111,8 +94,6 @@ const summary: DiagnosticSummary = {
   cloudStatus: null
 }
 export const featureReads = (empty: boolean) => ({
-  customCleanersList: () => (empty ? [] : rules),
-  customCleanersChoose: () => scope.path,
   diagnosticsStatus: () => ({ rows: empty ? [] : [summary], activeId: null, elapsedMs: 0 }),
   diagnosticsGet: () => recording,
   diagnosticsCapabilities: () => ({

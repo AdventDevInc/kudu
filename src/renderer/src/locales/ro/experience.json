@@ -130,9 +130,6 @@
     "reviewPaths": "Revizuiți căile selectate",
     "chooseOptimizations": "Alegeți optimizările",
     "reviewCloud": "Revizuiți preferințele de partajare",
-    "defineRule": "Alegeți regulile pentru foldere și fișiere",
-    "previewMatches": "Previzualizați fișierele potrivite",
-    "saveCleaner": "Salvați instrumentul de curățare",
     "trackFolder": "Alegeți un folder de urmărit",
     "captureSnapshot": "Capturați instantanee locale",
     "compareGrowth": "Comparați modificările de stocare",
@@ -174,7 +171,6 @@
     "updates": "Păstrați actualizate aplicațiile esențiale de zi cu zi. Verificați actualizările disponibile, comparați versiunile și alegeți ce să instalați.",
     "schedules": "Îngrijire bună, după programul dvs. Alegeți sarcinile, orele și frecvența potrivite pentru acest computer.",
     "drivers": "Revizuiți actualizările de drivere și pachetele mai vechi într-un singur loc. Verificați modificările propuse înainte de a le aplica.",
-    "customCleaners": "Propria dvs. rutină de curățare. Alegeți un folder și regulile pentru fișiere, previzualizați potrivirile, apoi salvați instrumentul de curățare.",
     "storageHistory": "Vedeți ce crește. Salvați instantanee locale ale folderelor și comparați unde s-a modificat spațiul de stocare.",
     "recovery": "O cale clară de întoarcere. Revizuiți modificările acceptate și detaliile restaurării înainte de a anula ceva.",
     "diagnostics": "Transformați un moment de încetinire în dovezi. Înregistrați local, inspectați datele și alegeți dacă solicitați analiza Cloud AI."

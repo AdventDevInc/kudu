@@ -8,7 +8,6 @@ vi.mock('./settings-store', () => ({
 }))
 
 vi.mock('./scan-cache', () => ({
-  validateCachedItem: async () => null,
   getCachedItems: () => [],
   removeCachedItems: () => {}
 }))

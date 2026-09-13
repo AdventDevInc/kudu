@@ -130,9 +130,6 @@
     "reviewPaths": "Examiner les chemins sélectionnés",
     "chooseOptimizations": "Choisir les optimisations",
     "reviewCloud": "Examiner les préférences de partage",
-    "defineRule": "Choisir les règles de dossier et de fichier",
-    "previewMatches": "Prévisualiser les fichiers correspondants",
-    "saveCleaner": "Enregistrer votre nettoyeur",
     "trackFolder": "Choisir un dossier à suivre",
     "captureSnapshot": "Capturer des instantanés locaux",
     "compareGrowth": "Comparer les changements de stockage",
@@ -174,7 +171,6 @@
     "updates": "Gardez vos outils du quotidien à jour. Vérifiez les mises à jour disponibles, comparez les versions et choisissez ce qu’il faut installer.",
     "schedules": "Un bon entretien, selon votre planning. Choisissez les tâches, les horaires et la fréquence adaptés à cet ordinateur.",
     "drivers": "Examinez les mises à jour de pilotes et les anciens packages au même endroit. Vérifiez les modifications proposées avant de les appliquer.",
-    "customCleaners": "Votre propre routine de nettoyage. Choisissez un dossier et des règles de fichier, prévisualisez les correspondances, puis enregistrez le nettoyeur.",
     "storageHistory": "Voyez ce qui augmente. Enregistrez des instantanés locaux de dossiers et comparez les endroits où le stockage a changé.",
     "recovery": "Un retour en arrière clair. Examinez les modifications prises en charge et les détails de restauration avant d’annuler quoi que ce soit.",
     "diagnostics": "Transformez un moment de lenteur en preuve. Enregistrez localement, inspectez les données et choisissez si vous souhaitez demander une analyse Cloud AI."

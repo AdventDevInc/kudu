@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
-import { getCustomCleaners } from '../services/custom-cleaner-runtime'
 import { getPlatform } from '../platform'
 import { scanAppRule, cleanItems } from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
@@ -26,8 +25,6 @@ export function registerAppCleanerIpc(getWindow: WindowGetter): void {
         // Skip
       }
     }
-
-    results.push(...(await getCustomCleaners().appScans()))
 
     const win = getWindow()
     if (win && !win.isDestroyed())

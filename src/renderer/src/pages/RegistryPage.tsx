@@ -643,7 +643,7 @@ function RegistryPageContent() {
                     <div className="flex items-center gap-3 shrink-0">
                       <button
                         onClick={() => useRegistryStore.getState().toggleCardAll(card.types)}
-                        className="relative h-6 w-11 rounded-full transition-colors"
+                        className="toggle-switch relative h-6 w-11 rounded-full transition-colors"
                         style={{ background: allSelected ? color.text : 'var(--bg-active)' }}
                       >
                         <div

@@ -85,6 +85,7 @@ export interface DiagnosticPreview {
 }
 export interface DiagnosticCapabilities {
   available: boolean
+  accessReason?: 'unlinked' | 'subscription' | 'authorization'
   requiredPlan: string
   retentionDays: number
   provider: string

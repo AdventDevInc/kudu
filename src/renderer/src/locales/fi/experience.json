@@ -130,9 +130,6 @@
     "reviewPaths": "Tarkista valitut polut",
     "chooseOptimizations": "Valitse optimoinnit",
     "reviewCloud": "Tarkista jakamisasetukset",
-    "defineRule": "Valitse kansio- ja tiedostosäännöt",
-    "previewMatches": "Esikatsele vastaavat tiedostot",
-    "saveCleaner": "Tallenna puhdistin",
     "trackFolder": "Valitse seurattava kansio",
     "captureSnapshot": "Tallenna paikalliset tilannevedokset",
     "compareGrowth": "Vertaa tallennustilan muutoksia",
@@ -174,7 +171,6 @@
     "updates": "Pidä päivittäiset perussovelluksesi ajan tasalla. Tarkista saatavilla olevat päivitykset, vertaa versioita ja valitse, mitä asennetaan.",
     "schedules": "Hyvää huolenpitoa omalla aikataulullasi. Valitse tehtävät, ajoitus ja toistuvuus, jotka sopivat tälle tietokoneelle.",
     "drivers": "Tarkista ohjainpäivitykset ja vanhemmat paketit yhdessä paikassa. Tarkista ehdotetut muutokset ennen niiden käyttöönottoa.",
-    "customCleaners": "Oma puhdistusrutiinisi. Valitse kansio ja tiedostosäännöt, esikatsele osumat ja tallenna sitten puhdistin.",
     "storageHistory": "Näe, mikä kasvaa. Tallenna paikallisia kansiotilannevedoksia ja vertaa, missä tallennustila on muuttunut.",
     "recovery": "Selkeä tie takaisin. Tarkista tuetut muutokset ja palautuksen tiedot ennen minkään kumoamista.",
     "diagnostics": "Muuta hidas hetki todisteeksi. Tallenna paikallisesti, tutki tiedot ja valitse, haluatko pyytää Cloud AI -analyysin."

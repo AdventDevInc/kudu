@@ -289,7 +289,6 @@ export const IPC = {
   GAME_MODE_PROGRESS: 'game-mode:progress',
   GAME_MODE_AUTO_EVENT: 'game-mode:auto-event',
 
-  CUSTOM_CLEANERS: 'custom-cleaners:action',
   DIAGNOSTICS: 'performance:diagnostics',
 
   // Platform

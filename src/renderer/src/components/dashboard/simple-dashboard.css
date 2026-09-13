@@ -297,7 +297,7 @@
   outline-offset: 4px;
 }
 .simple-tool:hover,
-.simple-support button:hover {
+.simple-support > button:hover {
   color: var(--accent);
 }
 .light .dashboard-view-switch button[aria-pressed='true'] {

@@ -130,9 +130,6 @@
     "reviewPaths": "Kijelölt elérési utak áttekintése",
     "chooseOptimizations": "Optimalizálások kiválasztása",
     "reviewCloud": "Megosztási beállítások áttekintése",
-    "defineRule": "Mappa- és fájlszabályok kiválasztása",
-    "previewMatches": "Egyező fájlok előnézete",
-    "saveCleaner": "Tisztító mentése",
     "trackFolder": "Válasszon egy követendő mappát",
     "captureSnapshot": "Helyi pillanatképek készítése",
     "compareGrowth": "Tárhelyváltozások összehasonlítása",
@@ -174,7 +171,6 @@
     "updates": "Tartsa naprakészen a mindennap használt eszközeit. Keresse meg az elérhető frissítéseket, hasonlítsa össze a verziókat, és válassza ki, mit szeretne telepíteni.",
     "schedules": "Megfelelő gondoskodás, az Ön időbeosztásához igazítva. Válassza ki az ehhez a számítógéphez illő feladatokat, időzítést és gyakoriságot.",
     "drivers": "Tekintse át egy helyen az illesztőprogram-frissítéseket és a régebbi csomagokat. Alkalmazás előtt ellenőrizze a javasolt módosításokat.",
-    "customCleaners": "Saját tisztítási rutin. Válasszon mappát és fájlszabályokat, tekintse meg az egyezéseket, majd mentse a tisztítót.",
     "storageHistory": "Nézze meg, mi növekszik. Mentse a helyi mappapillanatképeket, és hasonlítsa össze, hol változott a tárhely.",
     "recovery": "Egyértelmű út vissza. Bármit visszavonna, előbb tekintse át a támogatott módosításokat és a visszaállítás részleteit.",
     "diagnostics": "Alakítson egy lassú pillanatot bizonyítékká. Rögzítsen helyben, vizsgálja meg az adatokat, majd döntse el, kér-e Cloud AI elemzést."

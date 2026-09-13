@@ -130,9 +130,6 @@
     "reviewPaths": "Rever os caminhos selecionados",
     "chooseOptimizations": "Escolher otimizações",
     "reviewCloud": "Rever preferências de partilha",
-    "defineRule": "Escolher regras de pastas e ficheiros",
-    "previewMatches": "Pré-visualizar ficheiros correspondentes",
-    "saveCleaner": "Guardar o seu limpador",
     "trackFolder": "Escolher uma pasta para acompanhar",
     "captureSnapshot": "Capturar instantâneos locais",
     "compareGrowth": "Comparar alterações de armazenamento",
@@ -174,7 +171,6 @@
     "updates": "Mantenha os seus essenciais do dia a dia atualizados. Verifique atualizações disponíveis, compare versões e escolha o que instalar.",
     "schedules": "Bom cuidado, ao seu ritmo. Escolha as tarefas, horários e frequência adequados a este computador.",
     "drivers": "Reveja atualizações de drivers e pacotes antigos num só lugar. Verifique as alterações propostas antes de as aplicar.",
-    "customCleaners": "A sua própria rotina de limpeza. Escolha uma pasta e regras de ficheiros, pré-visualize correspondências e, depois, guarde o limpador.",
     "storageHistory": "Veja o que está a crescer. Guarde instantâneos locais de pastas e compare onde o armazenamento mudou.",
     "recovery": "Um caminho claro de volta. Reveja alterações suportadas e os detalhes do restauro antes de desfazer qualquer coisa.",
     "diagnostics": "Transforme um momento de lentidão em prova. Grave localmente, inspecione os dados e escolha se pretende solicitar análise Cloud AI."

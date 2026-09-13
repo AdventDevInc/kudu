@@ -103,7 +103,7 @@ export function FileShredderPage() {
           <button
             onClick={handleAddFiles}
             disabled={store.status === 'shredding'}
-            className="pulse-primary-action pulse-scan-action flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
+            className="pulse-button utility-picker flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
             style={{
               background: 'var(--bg-hover)',
               color: 'var(--text-primary)',
@@ -117,7 +117,7 @@ export function FileShredderPage() {
           <button
             onClick={handleAddFolders}
             disabled={store.status === 'shredding'}
-            className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
+            className="pulse-button utility-picker flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
             style={{
               background: 'var(--bg-hover)',
               color: 'var(--text-primary)',

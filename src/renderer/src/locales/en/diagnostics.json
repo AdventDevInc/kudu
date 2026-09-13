@@ -1,5 +1,5 @@
 {
-  "title": "Performance Diagnostics",
+  "title": "Diagnostics",
   "description": "Record a slowdown and get evidence-based feedback from Kudu Cloud AI.",
   "liveMonitor": "Free live monitor",
   "newRecording": "Record a slowdown",
@@ -84,5 +84,29 @@
   "operationFailed": "Something went wrong.",
   "checkingAccess": "Checking Cloud access?",
   "emptyHint": "Record while the slowdown happens. You can review the measurements before sharing them.",
-  "accessUnavailable": "Cloud access could not be checked. Check your connection and try again."
+  "accessUnavailable": "Cloud access could not be checked. Check your connection and try again.",
+  "upgradeTitle": "Find out what is slowing your PC down.",
+  "upgradeDescription": "Turn a slowdown into a clear next step with Kudu Cloud Pro. Record what happens and get AI feedback grounded in your PC?s measurements.",
+  "upgradeAction": "Upgrade to Cloud Pro",
+  "exploreAction": "Explore Kudu Cloud Pro",
+  "alreadySubscribed": "Already subscribed? Link your PC",
+  "supportDevelopment": "Your subscription also supports Kudu?s open-source development.",
+  "reconnectTitle": "Reconnect to Kudu Cloud",
+  "reconnectDescription": "Link this PC again to check your Cloud Pro access. Your saved recordings are still here.",
+  "reconnectAction": "Reconnect Kudu Cloud",
+  "accessUnavailableTitle": "We couldn?t check your Cloud access",
+  "benefits": {
+    "capture": {
+      "title": "Capture the slowdown",
+      "description": "Record CPU, memory and disk activity while the problem happens."
+    },
+    "understand": {
+      "title": "Understand the cause",
+      "description": "Get AI findings tied to the recording, with practical next steps."
+    },
+    "control": {
+      "title": "Stay in control",
+      "description": "Review your recording first. Nothing is uploaded without your approval."
+    }
+  }
 }

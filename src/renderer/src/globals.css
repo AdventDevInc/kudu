@@ -2803,7 +2803,7 @@ body {
   background: var(--card-bg);
   box-shadow: 0 7px 25px rgba(20, 46, 38, 0.04);
 }
-.utility-toolbar > button:first-child {
+.utility-toolbar > .utility-picker {
   min-height: 42px;
   background: var(--bg-subtle-2) !important;
   border-color: var(--border-default) !important;

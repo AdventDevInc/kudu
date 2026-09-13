@@ -191,7 +191,7 @@ export function DuplicateFinderPage() {
         <button
           onClick={handleSelectDir}
           disabled={store.status === 'scanning'}
-          className="pulse-primary-action pulse-scan-action flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
+          className="pulse-button utility-picker flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
           style={{
             background: 'var(--bg-hover)',
             color: 'var(--text-primary)',

@@ -27,7 +27,6 @@ import {
   Wrench,
   Zap,
   Cpu,
-  FolderCog,
   FolderClock,
   RotateCcw,
   type LucideIcon
@@ -42,12 +41,6 @@ export interface PageExperience {
 
 // Each tool describes its own workflow. These are instructions, never progress or scan results.
 export const pageExperiences: Record<string, PageExperience> = {
-  '/custom-cleaners': {
-    key: 'customCleaners',
-    icon: FolderCog,
-    family: 'care',
-    steps: ['defineRule', 'previewMatches', 'saveCleaner']
-  },
   '/storage-history': {
     key: 'storageHistory',
     icon: FolderClock,

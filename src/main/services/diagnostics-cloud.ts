@@ -108,7 +108,26 @@ export async function diagnosticsRequest(
 }
 
 export async function diagnosticCapabilities(): Promise<DiagnosticCapabilities> {
-  const value = (await diagnosticsRequest('GET', 'capabilities')) as Partial<DiagnosticCapabilities>
+  const unavailable = (
+    accessReason: DiagnosticCapabilities['accessReason']
+  ): DiagnosticCapabilities => ({
+    available: false,
+    accessReason,
+    requiredPlan: 'Pro',
+    provider: 'OpenAI',
+    retentionDays: 7
+  })
+  if (!getSettings().cloud.apiKey) return unavailable('unlinked')
+  let value: Partial<DiagnosticCapabilities>
+  try {
+    value = (await diagnosticsRequest('GET', 'capabilities')) as Partial<DiagnosticCapabilities>
+  } catch (error) {
+    if (error instanceof CloudRejectedError) {
+      if (error.status === 402) return unavailable('subscription')
+      if (error.status === 401 || error.status === 403) return unavailable('authorization')
+    }
+    throw error
+  }
   if (
     !value ||
     typeof value.available !== 'boolean' ||
@@ -117,7 +136,13 @@ export async function diagnosticCapabilities(): Promise<DiagnosticCapabilities> 
     value.retentionDays !== 7
   )
     throw new Error('Unsupported Cloud diagnostics response')
-  return value as DiagnosticCapabilities
+  return {
+    available: value.available,
+    requiredPlan: value.requiredPlan,
+    provider: value.provider,
+    retentionDays: value.retentionDays,
+    ...(!value.available ? { accessReason: 'subscription' as const } : {})
+  }
 }
 
 export function diagnosticCloudResult(

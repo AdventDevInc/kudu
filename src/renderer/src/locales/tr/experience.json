@@ -130,9 +130,6 @@
     "reviewPaths": "Seçili yolları gözden geçir",
     "chooseOptimizations": "Optimizasyonları seç",
     "reviewCloud": "Paylaşım tercihlerini gözden geçir",
-    "defineRule": "Klasör ve dosya kurallarını seç",
-    "previewMatches": "Eşleşen dosyaları önizle",
-    "saveCleaner": "Temizleyicinizi kaydedin",
     "trackFolder": "İzlenecek bir klasör seç",
     "captureSnapshot": "Yerel anlık görüntüler al",
     "compareGrowth": "Depolama değişikliklerini karşılaştır",
@@ -174,7 +171,6 @@
     "updates": "Günlük kullandığınız temel uygulamaları güncel tutun. Kullanılabilir güncellemeleri kontrol edin, sürümleri karşılaştırın ve neyin yükleneceğini seçin.",
     "schedules": "İyi bakım, sizin zamanlamanızla. Bu bilgisayara uygun görevleri, zamanlamayı ve sıklığı seçin.",
     "drivers": "Sürücü güncellemelerini ve eski paketleri tek bir yerde gözden geçirin. Uygulamadan önce önerilen değişiklikleri kontrol edin.",
-    "customCleaners": "Kendi temizleme rutininiz. Bir klasör ve dosya kuralları seçin, eşleşmeleri önizleyin, ardından temizleyiciyi kaydedin.",
     "storageHistory": "Neyin büyüdüğünü görün. Yerel klasör anlık görüntülerini kaydedin ve depolamanın nerede değiştiğini karşılaştırın.",
     "recovery": "Geri dönmenin açık bir yolu. Herhangi bir şeyi geri almadan önce desteklenen değişiklikleri ve geri yükleme ayrıntılarını gözden geçirin.",
     "diagnostics": "Yavaş bir anı kanıta dönüştürün. Yerel olarak kaydedin, verileri inceleyin ve Cloud AI analizi isteyip istemediğinizi seçin."

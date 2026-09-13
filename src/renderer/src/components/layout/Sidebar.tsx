@@ -19,6 +19,7 @@ import {
   Download,
   CalendarClock,
   Gamepad2,
+  RotateCcw,
   Bug,
   ChevronRight,
   CopyCheck,
@@ -82,12 +83,6 @@ const navGroups: NavGroup[] = [
         label: 'Clean up',
         path: '/cleaner',
         children: [
-          {
-            icon: Wrench,
-            labelKey: 'customCleaners:title',
-            label: 'Custom cleaners',
-            path: '/custom-cleaners'
-          },
           {
             icon: Sparkles,
             labelKey: 'cleaner:pageTitle',
@@ -162,7 +157,7 @@ const navGroups: NavGroup[] = [
           {
             icon: Activity,
             labelKey: 'diagnostics:title',
-            label: 'Performance Diagnostics',
+            label: 'Diagnostics',
             path: '/performance-diagnostics',
             cloudTier: 'pro'
           },
@@ -171,7 +166,8 @@ const navGroups: NavGroup[] = [
             labelKey: 'hardening:serviceManager.pageTitle',
             label: 'Services',
             path: '/services'
-          }
+          },
+          { icon: Gamepad2, labelKey: 'gameMode', label: 'Game Mode', path: '/game-mode' }
         ]
       }
     ]
@@ -225,12 +221,6 @@ const navGroups: NavGroup[] = [
         children: [
           { icon: HardDrive, labelKey: 'disk:pageTitle', label: 'Storage Overview', path: '/disk' },
           {
-            icon: History,
-            labelKey: 'disk:storage.title',
-            label: 'Storage History',
-            path: '/storage-history'
-          },
-          {
             icon: CopyCheck,
             labelKey: 'duplicates:pageTitle',
             label: 'Duplicate Finder',
@@ -257,7 +247,7 @@ const navGroups: NavGroup[] = [
           {
             icon: Wrench,
             labelKey: 'disk:repairTitle',
-            label: 'Disk Repair',
+            label: 'Windows Repair',
             path: '/disk-repair'
           },
           {
@@ -265,12 +255,30 @@ const navGroups: NavGroup[] = [
             labelKey: 'disk:maintenanceTitle',
             label: 'Disk Maintenance',
             path: '/disk-maintenance'
+          },
+          {
+            icon: History,
+            labelKey: 'disk:storage.title',
+            label: 'Storage History',
+            path: '/storage-history'
           }
         ]
       },
-      { icon: Gamepad2, labelKey: 'gameMode', label: 'Game Mode', path: '/game-mode' },
-      { icon: History, labelKey: 'history', label: 'Activity', path: '/history' },
-      { icon: History, labelKey: 'history:recovery.title', label: 'Recovery', path: '/recovery' }
+      {
+        icon: History,
+        labelKey: 'activityAndRecovery',
+        label: 'Activity & Recovery',
+        path: '/history',
+        children: [
+          { icon: History, labelKey: 'history', label: 'Activity', path: '/history' },
+          {
+            icon: RotateCcw,
+            labelKey: 'history:recovery.title',
+            label: 'Recovery Centre',
+            path: '/recovery'
+          }
+        ]
+      }
     ]
   }
 ]
@@ -352,6 +360,7 @@ export function Sidebar() {
       .map((item) => {
         if (!item.children) return item
         const filtered = item.children.filter((child) => {
+          if (child.path === '/game-mode' && !features.gameMode) return false
           if (child.path === '/registry' && !features.registry) return false
           if (child.path === '/debloater' && !features.debloater) return false
           if (child.path === '/drivers' && !features.drivers) return false
@@ -824,7 +833,7 @@ function CloudTierBadge({ tier }: { tier: 'basic' | 'pro' }) {
   const label = tier === 'pro' ? t('planProName') : t('planBasicName')
   return (
     <span
-      className="rounded px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider"
+      className="cloud-tier-badge"
       style={{
         background:
           tier === 'pro'

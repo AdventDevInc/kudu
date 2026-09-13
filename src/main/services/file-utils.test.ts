@@ -11,7 +11,6 @@ vi.mock('./settings-store', () => ({
 
 // Mock scan-cache
 vi.mock('./scan-cache', () => ({
-  validateCachedItem: async () => null,
   getCachedItems: () => [],
   removeCachedItems: () => {}
 }))

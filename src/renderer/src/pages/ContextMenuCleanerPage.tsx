@@ -531,7 +531,7 @@ function ContextMenuCleanerPageContent() {
                       onClick={() =>
                         useContextMenuStore.getState().toggleAllVisible(eligibleIds, !allSelected)
                       }
-                      className="relative h-6 w-11 rounded-full transition-colors"
+                      className="toggle-switch relative h-6 w-11 rounded-full transition-colors"
                       style={{ background: allSelected ? pill.text : 'var(--bg-active)' }}
                       aria-label="toggle all"
                     >

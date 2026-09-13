@@ -457,7 +457,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   return (
     <button
       onClick={() => onChange(!checked)}
-      className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
+      className="toggle-switch relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
       style={{ background: checked ? 'var(--accent)' : 'var(--bg-active)' }}
     >
       <div

@@ -130,9 +130,6 @@
     "reviewPaths": "Se gjennom valgte baner",
     "chooseOptimizations": "Velg optimaliseringer",
     "reviewCloud": "Se gjennom delingsinnstillinger",
-    "defineRule": "Velg mappe- og filregler",
-    "previewMatches": "Forhåndsvis samsvarende filer",
-    "saveCleaner": "Lagre rengjøringen",
     "trackFolder": "Velg en mappe som skal spores",
     "captureSnapshot": "Ta lokale øyeblikksbilder",
     "compareGrowth": "Sammenlign endringer i lagring",
@@ -174,7 +171,6 @@
     "updates": "Hold det viktigste du bruker til daglig oppdatert. Se etter tilgjengelige oppdateringer, sammenlign versjoner og velg hva som skal installeres.",
     "schedules": "Godt vedlikehold, på din tidsplan. Velg oppgavene, tidspunktene og frekvensen som passer denne datamaskinen.",
     "drivers": "Se gjennom driveroppdateringer og eldre pakker på ett sted. Kontroller de foreslåtte endringene før du bruker dem.",
-    "customCleaners": "Din egen oppryddingsrutine. Velg en mappe og filregler, forhåndsvis treffene, og lagre deretter rengjøringen.",
     "storageHistory": "Se hva som vokser. Lagre lokale mappeøyeblikksbilder og sammenlign hvor lagringen har endret seg.",
     "recovery": "En tydelig vei tilbake. Se gjennom støttede endringer og gjenopprettingsdetaljene før du angrer noe.",
     "diagnostics": "Gjør et tregt øyeblikk om til dokumentasjon. Ta opp lokalt, undersøk dataene, og velg om du vil be om Cloud AI-analyse."

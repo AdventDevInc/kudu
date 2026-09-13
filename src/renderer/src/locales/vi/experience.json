@@ -130,9 +130,6 @@
     "reviewPaths": "Xem lại các đường dẫn đã chọn",
     "chooseOptimizations": "Chọn tối ưu hóa",
     "reviewCloud": "Xem lại tùy chọn chia sẻ",
-    "defineRule": "Chọn quy tắc thư mục & tệp",
-    "previewMatches": "Xem trước các tệp khớp",
-    "saveCleaner": "Lưu trình dọn dẹp",
     "trackFolder": "Chọn thư mục để theo dõi",
     "captureSnapshot": "Chụp ảnh nhanh cục bộ",
     "compareGrowth": "So sánh thay đổi dung lượng lưu trữ",
@@ -174,7 +171,6 @@
     "updates": "Giữ các ứng dụng thiết yếu hằng ngày luôn mới. Kiểm tra các bản cập nhật có sẵn, so sánh phiên bản và chọn nội dung cần cài đặt.",
     "schedules": "Chăm sóc tốt, theo lịch của bạn. Chọn tác vụ, thời gian và tần suất phù hợp với máy tính này.",
     "drivers": "Xem lại các bản cập nhật driver và các gói cũ ở cùng một nơi. Kiểm tra các thay đổi được đề xuất trước khi áp dụng.",
-    "customCleaners": "Quy trình dọn dẹp của riêng bạn. Chọn thư mục và quy tắc tệp, xem trước kết quả khớp, rồi lưu trình dọn dẹp.",
     "storageHistory": "Xem điều gì đang tăng lên. Lưu ảnh nhanh thư mục cục bộ và so sánh nơi dung lượng lưu trữ đã thay đổi.",
     "recovery": "Một cách quay lại rõ ràng. Xem lại các thay đổi được hỗ trợ và chi tiết khôi phục trước khi hoàn tác bất kỳ điều gì.",
     "diagnostics": "Biến một lúc máy chậm thành dữ liệu xác thực. Ghi cục bộ, kiểm tra dữ liệu và chọn có yêu cầu phân tích Cloud AI hay không."

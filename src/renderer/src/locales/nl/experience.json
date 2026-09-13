@@ -130,9 +130,6 @@
     "reviewPaths": "Geselecteerde paden bekijken",
     "chooseOptimizations": "Optimalisaties kiezen",
     "reviewCloud": "Voorkeuren voor delen bekijken",
-    "defineRule": "Map- en bestandsregels kiezen",
-    "previewMatches": "Overeenkomende bestanden vooraf bekijken",
-    "saveCleaner": "Uw opschoonprofiel opslaan",
     "trackFolder": "Een map kiezen om te volgen",
     "captureSnapshot": "Lokale momentopnamen maken",
     "compareGrowth": "Wijzigingen in opslag vergelijken",
@@ -174,7 +171,6 @@
     "updates": "Houd uw dagelijkse benodigdheden actueel. Controleer beschikbare updates, vergelijk versies en kies wat u wilt installeren.",
     "schedules": "Goede zorg, volgens uw planning. Kies de taken, tijden en frequentie die bij deze computer passen.",
     "drivers": "Bekijk stuurprogramma-updates en oudere pakketten op één plek. Controleer de voorgestelde wijzigingen voordat u ze toepast.",
-    "customCleaners": "Uw eigen opschoonroutine. Kies een map en bestandsregels, bekijk overeenkomsten vooraf en sla daarna het opschoonprofiel op.",
     "storageHistory": "Zie wat groeit. Sla lokale momentopnamen van mappen op en vergelijk waar de opslag is veranderd.",
     "recovery": "Een duidelijke weg terug. Bekijk ondersteunde wijzigingen en hersteldetails voordat u iets ongedaan maakt.",
     "diagnostics": "Maak van een traag moment bruikbaar bewijs. Neem lokaal op, onderzoek de gegevens en kies of u Cloud AI-analyse wilt aanvragen."

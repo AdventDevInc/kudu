@@ -1,10 +1,73 @@
-import { afterEach, expect, it, vi } from 'vitest'
-import { diagnosticsRequest, diagnosticCloudResult } from './diagnostics-cloud'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import {
+  diagnosticsRequest,
+  diagnosticCloudResult,
+  diagnosticCapabilities
+} from './diagnostics-cloud'
+const settings = vi.hoisted(() => ({ cloud: { apiKey: 'test-key' } }))
 vi.mock('./settings-store', () => ({
   getMachineId: () => 'device-id',
-  getSettings: () => ({ cloud: { apiKey: 'test-key' } })
+  getSettings: () => settings
 }))
+beforeEach(() => {
+  settings.cloud.apiKey = 'test-key'
+})
 afterEach(() => vi.unstubAllGlobals())
+it('offers Cloud when unlinked without making a network request', async () => {
+  settings.cloud.apiKey = ''
+  const fetcher = vi.fn()
+  vi.stubGlobal('fetch', fetcher)
+  await expect(diagnosticCapabilities()).resolves.toMatchObject({
+    available: false,
+    accessReason: 'unlinked'
+  })
+  expect(fetcher).not.toHaveBeenCalled()
+})
+it.each([
+  [402, 'subscription'],
+  [401, 'authorization'],
+  [403, 'authorization']
+])('returns an actionable access state for HTTP %s', async (status, accessReason) => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response('', { status: Number(status) }))
+  )
+  await expect(diagnosticCapabilities()).resolves.toMatchObject({ available: false, accessReason })
+})
+it('does not treat a connection or server failure as an upgrade requirement', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response('', { status: 500 }))
+  )
+  await expect(diagnosticCapabilities()).rejects.toThrow('unavailable')
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => {
+      throw new TypeError('fetch failed')
+    })
+  )
+  await expect(diagnosticCapabilities()).rejects.toThrow('fetch failed')
+})
+it.each([true, false])('preserves server entitlement when available is %s', async (available) => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({
+            available,
+            requiredPlan: 'Pro',
+            provider: 'OpenAI',
+            retentionDays: 7,
+            accessReason: 'unlinked'
+          })
+        )
+    )
+  )
+  const result = await diagnosticCapabilities()
+  expect(result.available).toBe(available)
+  expect(result.accessReason).toBe(available ? undefined : 'subscription')
+})
 it('refuses an account switch before sending any consented data', async () => {
   const fetcher = vi.fn()
   vi.stubGlobal('fetch', fetcher)

@@ -130,9 +130,6 @@
     "reviewPaths": "Granska markerade sökvägar",
     "chooseOptimizations": "Välj optimeringar",
     "reviewCloud": "Granska delningsinställningar",
-    "defineRule": "Välj regler för mappar och filer",
-    "previewMatches": "Förhandsgranska matchande filer",
-    "saveCleaner": "Spara din rensare",
     "trackFolder": "Välj en mapp att följa",
     "captureSnapshot": "Skapa lokala ögonblicksbilder",
     "compareGrowth": "Jämför ändringar i lagring",
@@ -174,7 +171,6 @@
     "updates": "Håll dina viktigaste vardagsappar uppdaterade. Kontrollera tillgängliga uppdateringar, jämför versioner och välj vad som ska installeras.",
     "schedules": "God omsorg, på ditt schema. Välj de uppgifter, tider och den frekvens som passar den här datorn.",
     "drivers": "Granska drivrutinsuppdateringar och äldre paket på ett ställe. Kontrollera de föreslagna ändringarna innan du tillämpar dem.",
-    "customCleaners": "Din egen rensningsrutin. Välj en mapp och filregler, förhandsgranska träffar och spara sedan rensaren.",
     "storageHistory": "Se vad som växer. Spara lokala ögonblicksbilder av mappar och jämför var lagringen har förändrats.",
     "recovery": "En tydlig väg tillbaka. Granska ändringar som stöds och återställningsdetaljer innan du ångrar något.",
     "diagnostics": "Förvandla en långsam stund till underlag. Spela in lokalt, inspektera data och välj om du vill begära Cloud AI-analys."

@@ -130,9 +130,6 @@
     "reviewPaths": "Tinjau path yang dipilih",
     "chooseOptimizations": "Pilih pengoptimalan",
     "reviewCloud": "Tinjau preferensi berbagi",
-    "defineRule": "Pilih aturan folder & file",
-    "previewMatches": "Pratinjau file yang cocok",
-    "saveCleaner": "Simpan pembersih Anda",
     "trackFolder": "Pilih folder untuk dipantau",
     "captureSnapshot": "Ambil snapshot lokal",
     "compareGrowth": "Bandingkan perubahan penyimpanan",
@@ -174,7 +171,6 @@
     "updates": "Jaga kebutuhan harian Anda tetap terbaru. Periksa pembaruan yang tersedia, bandingkan versi, dan pilih yang akan diinstal.",
     "schedules": "Perawatan yang baik, sesuai jadwal Anda. Pilih tugas, waktu, dan frekuensi yang sesuai untuk komputer ini.",
     "drivers": "Tinjau pembaruan driver dan paket lama di satu tempat. Periksa perubahan yang diusulkan sebelum menerapkannya.",
-    "customCleaners": "Rutinitas pembersihan Anda sendiri. Pilih aturan folder dan file, pratinjau yang cocok, lalu simpan pembersihnya.",
     "storageHistory": "Lihat apa yang bertambah. Simpan snapshot folder lokal dan bandingkan di mana penyimpanan telah berubah.",
     "recovery": "Cara yang jelas untuk kembali. Tinjau perubahan yang didukung dan detail pemulihan sebelum membatalkan apa pun.",
     "diagnostics": "Ubah momen lambat menjadi bukti. Rekam secara lokal, periksa datanya, dan pilih apakah akan meminta analisis Cloud AI."

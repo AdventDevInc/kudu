@@ -130,9 +130,6 @@
     "reviewPaths": "Przejrzyj wybrane ścieżki",
     "chooseOptimizations": "Wybierz optymalizacje",
     "reviewCloud": "Przejrzyj preferencje udostępniania",
-    "defineRule": "Wybierz reguły folderów i plików",
-    "previewMatches": "Wyświetl podgląd pasujących plików",
-    "saveCleaner": "Zapisz moduł czyszczenia",
     "trackFolder": "Wybierz folder do śledzenia",
     "captureSnapshot": "Utwórz lokalne migawki",
     "compareGrowth": "Porównaj zmiany w pamięci masowej",
@@ -174,7 +171,6 @@
     "updates": "Dbaj o aktualność codziennie używanych programów. Sprawdź dostępne aktualizacje, porównaj wersje i wybierz, co zainstalować.",
     "schedules": "Dobra konserwacja, zgodnie z Twoim harmonogramem. Wybierz zadania, czas i częstotliwość odpowiednie dla tego komputera.",
     "drivers": "Przejrzyj aktualizacje sterowników i starsze pakiety w jednym miejscu. Sprawdź proponowane zmiany przed ich zastosowaniem.",
-    "customCleaners": "Twoja własna rutyna czyszczenia. Wybierz folder i reguły plików, wyświetl podgląd dopasowań, a następnie zapisz moduł czyszczenia.",
     "storageHistory": "Zobacz, co rośnie. Zapisuj lokalne migawki folderów i porównuj, gdzie zmieniła się pamięć masowa.",
     "recovery": "Jasna droga powrotu. Przejrzyj obsługiwane zmiany i szczegóły przywracania, zanim cokolwiek cofniesz.",
     "diagnostics": "Zamień chwilowe spowolnienie w dowód. Rejestruj lokalnie, sprawdź dane i wybierz, czy chcesz poprosić o analizę Cloud AI."

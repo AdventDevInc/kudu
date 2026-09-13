@@ -151,7 +151,8 @@
 .app-content :where(button, select, input, textarea) {
   font-size: 13px;
 }
-.app-content :where(button, select) {
+/* Switch tracks keep their explicit height so the thumb stays centered. */
+.app-content :where(button:not(.toggle-switch), select) {
   min-height: 36px;
 }
 .app-content button:disabled {
@@ -1848,44 +1849,6 @@
   }
 }
 
-.pulse-builder-page {
-  display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 22px;
-  align-items: start;
-}
-.pulse-builder-page > * {
-  grid-column: 1 / -1;
-}
-.pulse-builder-page > .pulse-cleaner-library:first-of-type {
-  grid-column: 1;
-  grid-row: 2;
-}
-.pulse-builder-page > .pulse-cleaner-definition {
-  grid-column: 2;
-  grid-row: 2;
-}
-.pulse-cleaner-library .grid {
-  grid-template-columns: 1fr;
-}
-.pulse-cleaner-library .empty-state {
-  border: 0 !important;
-  background: transparent !important;
-  padding: 20px 0 !important;
-}
-.pulse-cleaner-library .pulse-tool-art {
-  transform: scale(0.75);
-  margin-inline: auto;
-}
-.pulse-cleaner-library .empty-state h3 {
-  font-size: 15px;
-}
-.pulse-cleaner-definition fieldset {
-  line-height: 1.65;
-}
-.pulse-cleaner-definition .feature-field {
-  margin-top: 8px;
-}
 .pulse-diagnostics-page {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
@@ -1895,10 +1858,10 @@
 .pulse-diagnostics-page > * {
   grid-column: 1 / -1;
 }
-.pulse-diagnostics-page > section:first-of-type {
+.pulse-diagnostics-page > .diagnostics-recorder {
   grid-column: 1;
 }
-.pulse-diagnostics-page > section:nth-of-type(2) {
+.pulse-diagnostics-page > .diagnostics-recorder + .diagnostics-library {
   grid-column: 2;
 }
 .pulse-diagnostics-page .empty-state {
@@ -1960,19 +1923,12 @@
   border-color: var(--border-default) !important;
 }
 @media (max-width: 1150px) {
-  .pulse-builder-page,
   .pulse-diagnostics-page {
     grid-template-columns: 1fr;
   }
-  .pulse-builder-page > .pulse-cleaner-library:first-of-type,
-  .pulse-builder-page > .pulse-cleaner-definition,
-  .pulse-diagnostics-page > section:first-of-type,
-  .pulse-diagnostics-page > section:nth-of-type(2) {
+  .pulse-diagnostics-page > .diagnostics-recorder,
+  .pulse-diagnostics-page > .diagnostics-recorder + .diagnostics-library {
     grid-column: 1;
-    grid-row: auto;
-  }
-  .pulse-cleaner-library .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 800px) {
@@ -2001,7 +1957,6 @@
   color: var(--text-muted);
 }
 
-.pulse-builder-page,
 .pulse-diagnostics-page {
   align-content: start;
 }
@@ -2030,4 +1985,20 @@
   .pulse-schedule-options fieldset {
     grid-template-columns: 1fr;
   }
+}
+
+/* Plan labels are compact metadata, separate from navigation text sizing. */
+.cloud-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 12px;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }

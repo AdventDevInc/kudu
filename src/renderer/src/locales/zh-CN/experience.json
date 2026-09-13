@@ -130,9 +130,6 @@
     "reviewPaths": "查看所选路径",
     "chooseOptimizations": "选择优化项",
     "reviewCloud": "查看共享偏好设置",
-    "defineRule": "选择文件夹和文件规则",
-    "previewMatches": "预览匹配的文件",
-    "saveCleaner": "保存您的清理器",
     "trackFolder": "选择要跟踪的文件夹",
     "captureSnapshot": "捕获本地快照",
     "compareGrowth": "比较存储变化",
@@ -174,7 +171,6 @@
     "updates": "让日常常用软件保持最新。检查可用更新、比较版本，并选择要安装的内容。",
     "schedules": "按您的时间安排进行良好维护。选择适合这台计算机的任务、时间和频率。",
     "drivers": "在一个位置查看驱动程序更新和旧版本包。应用前请先查看建议的更改。",
-    "customCleaners": "您自己的清理流程。选择文件夹和文件规则，预览匹配结果，然后保存清理器。",
     "storageHistory": "查看哪些内容正在增长。保存本地文件夹快照，并比较存储发生变化的位置。",
     "recovery": "清晰的回退方式。撤销任何操作前，请查看受支持的更改和还原详细信息。",
     "diagnostics": "把系统变慢的时刻转化为依据。在本地记录、检查数据，并选择是否请求 Cloud AI 分析。"

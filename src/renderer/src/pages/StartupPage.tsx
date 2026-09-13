@@ -814,7 +814,7 @@ export function StartupPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleToggle(item, !item.enabled)}
-                    className="relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
+                    className="toggle-switch relative h-[26px] w-[46px] shrink-0 rounded-full transition-colors"
                     style={{ background: item.enabled ? 'var(--accent)' : 'var(--bg-active)' }}
                   >
                     <div

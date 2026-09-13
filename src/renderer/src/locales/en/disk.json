@@ -31,7 +31,7 @@
   "fileTypeTableHeaderFiles": "Files",
   "fileTypeTableHeaderSize": "Size",
   "fileTypeTableHeaderShare": "Share",
-  "repairTitle": "Windows System Repair",
+  "repairTitle": "Windows Repair",
   "repairDescription": "Use these built-in Windows tools to scan for and repair corrupted system files.",
   "repairRunOrder": "Run {{dism}} first to repair the component store, then {{sfc}} to fix system files.",
   "repairDismLabel": "DISM",

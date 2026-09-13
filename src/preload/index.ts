@@ -1,9 +1,4 @@
 import type {
-  CustomCleanerRule,
-  CustomCleanerPreview,
-  CustomCleanerReceipt
-} from '../shared/custom-cleaners'
-import type {
   DiagnosticCapabilities,
   DiagnosticSession,
   DiagnosticSummary,
@@ -792,25 +787,6 @@ const api = {
     }
   },
 
-  customCleanersList: (): Promise<CustomCleanerRule[]> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'list'),
-  customCleanersChoose: (): Promise<string | null> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'choose'),
-  customCleanersPreview: (rule: CustomCleanerRule): Promise<CustomCleanerPreview> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'preview', rule),
-  customCleanersPage: (token: string, offset: number): Promise<ScanItem[]> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'page', token, offset),
-  customCleanersCancel: (): Promise<void> => ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'cancel'),
-  customCleanersSave: (token: string): Promise<CustomCleanerRule> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'save', token),
-  customCleanersDisable: (id: string): Promise<void> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'disable', id),
-  customCleanersRemove: (id: string): Promise<void> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'remove', id),
-  customCleanersClean: (token: string): Promise<CustomCleanerReceipt> =>
-    ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'clean', token),
-  customCleanersExport: (): Promise<boolean> => ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'export'),
-  customCleanersImport: (): Promise<number> => ipcRenderer.invoke(IPC.CUSTOM_CLEANERS, 'import'),
   diagnosticsCapabilities: (): Promise<DiagnosticCapabilities> =>
     ipcRenderer.invoke(IPC.DIAGNOSTICS, 'capabilities'),
   diagnosticsStatus: (): Promise<{

@@ -130,9 +130,6 @@
     "reviewPaths": "Semak laluan yang dipilih",
     "chooseOptimizations": "Pilih pengoptimuman",
     "reviewCloud": "Semak keutamaan perkongsian",
-    "defineRule": "Pilih peraturan folder & fail",
-    "previewMatches": "Pratonton fail yang sepadan",
-    "saveCleaner": "Simpan pembersih anda",
     "trackFolder": "Pilih folder untuk dijejaki",
     "captureSnapshot": "Tangkap syot kilat setempat",
     "compareGrowth": "Bandingkan perubahan storan",
@@ -174,7 +171,6 @@
     "updates": "Pastikan keperluan harian anda sentiasa terkini. Semak kemas kini yang tersedia, bandingkan versi dan pilih perkara yang hendak dipasang.",
     "schedules": "Penjagaan yang baik, mengikut jadual anda. Pilih tugas, masa dan kekerapan yang sesuai untuk komputer ini.",
     "drivers": "Semak kemas kini driver dan pakej lama di satu tempat. Semak perubahan yang dicadangkan sebelum menggunakannya.",
-    "customCleaners": "Rutin pembersihan anda sendiri. Pilih peraturan folder dan fail, pratonton padanan, kemudian simpan pembersih.",
     "storageHistory": "Lihat perkara yang semakin bertambah. Simpan syot kilat folder setempat dan bandingkan tempat storan telah berubah.",
     "recovery": "Cara yang jelas untuk kembali. Semak perubahan yang disokong dan butiran pemulihan sebelum membuat asal apa-apa.",
     "diagnostics": "Tukar saat perlahan kepada bukti. Rakam secara setempat, periksa data dan pilih sama ada untuk meminta analisis Cloud AI."

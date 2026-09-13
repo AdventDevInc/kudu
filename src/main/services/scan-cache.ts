@@ -5,10 +5,8 @@ import type { ScanItem } from '../../shared/types'
  * item paths by ID. Each scan replaces the previous cache for that category.
  */
 const itemCache = new Map<string, ScanItem>()
-type ItemGuard = (item: ScanItem) => Promise<string | null>
-const itemGuards = new Map<string, ItemGuard>()
 
-export function cacheItems(items: ScanItem[], guard?: ItemGuard): void {
+export function cacheItems(items: ScanItem[]): void {
   // Do not evict live scan results here. The renderer can legitimately hold
   // more than 50k items (browser caches commonly do), and dropping the oldest
   // IDs makes Clean silently ignore files that are still visible and selected.
@@ -17,7 +15,6 @@ export function cacheItems(items: ScanItem[], guard?: ItemGuard): void {
   // without making the displayed scan uncleanable.
   for (const item of items) {
     itemCache.set(item.id, item)
-    if (guard) itemGuards.set(item.id, guard)
   }
 }
 
@@ -26,7 +23,6 @@ export function clearCachedCategory(category: string): void {
   for (const [id, item] of itemCache) {
     if (item.category === category) {
       itemCache.delete(id)
-      itemGuards.delete(id)
     }
   }
 }
@@ -35,7 +31,6 @@ export function clearCachedCategory(category: string): void {
 export function removeCachedItems(ids: string[]): void {
   for (const id of ids) {
     itemCache.delete(id)
-    itemGuards.delete(id)
   }
 }
 
@@ -60,16 +55,4 @@ export function countCachedCategories(categories: Set<string>): number {
 
 export function clearCache(): void {
   itemCache.clear()
-  itemGuards.clear()
-}
-
-/** Guards are main-owned and follow IDs through every cleaner entry point. */
-export async function validateCachedItem(item: ScanItem): Promise<string | null> {
-  const guard = itemGuards.get(item.id)
-  if (!guard) return item.fileOnly ? 'custom-preview-expired' : null
-  try {
-    return await guard(item)
-  } catch {
-    return 'custom-validation-failed'
-  }
 }

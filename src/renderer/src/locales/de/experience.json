@@ -130,9 +130,6 @@
     "reviewPaths": "Ausgewählte Pfade prüfen",
     "chooseOptimizations": "Optimierungen auswählen",
     "reviewCloud": "Freigabeeinstellungen prüfen",
-    "defineRule": "Ordner- & Dateiregeln auswählen",
-    "previewMatches": "Übereinstimmende Dateien in der Vorschau anzeigen",
-    "saveCleaner": "Cleaner speichern",
     "trackFolder": "Ordner zum Überwachen auswählen",
     "captureSnapshot": "Lokale Snapshots erfassen",
     "compareGrowth": "Speicheränderungen vergleichen",
@@ -174,7 +171,6 @@
     "updates": "Halten Sie Ihre wichtigsten Alltagsprogramme aktuell. Prüfen Sie verfügbare Updates, vergleichen Sie Versionen und wählen Sie aus, was installiert werden soll.",
     "schedules": "Gute Pflege nach Ihrem Zeitplan. Wählen Sie die Aufgaben, Zeiten und Häufigkeiten, die zu diesem Computer passen.",
     "drivers": "Prüfen Sie Treiberupdates und ältere Pakete an einem Ort. Sehen Sie die vorgeschlagenen Änderungen durch, bevor Sie sie anwenden.",
-    "customCleaners": "Ihre eigene Bereinigungsroutine. Wählen Sie einen Ordner und Dateiregeln, zeigen Sie Übereinstimmungen in der Vorschau an und speichern Sie dann den Cleaner.",
     "storageHistory": "Sehen Sie, was wächst. Speichern Sie lokale Ordner-Snapshots und vergleichen Sie, wo sich der Speicher verändert hat.",
     "recovery": "Ein klarer Weg zurück. Prüfen Sie unterstützte Änderungen und die Wiederherstellungsdetails, bevor Sie etwas rückgängig machen.",
     "diagnostics": "Machen Sie aus einem langsamen Moment verwertbare Hinweise. Zeichnen Sie lokal auf, prüfen Sie die Daten und entscheiden Sie, ob Sie eine Cloud AI-Analyse anfordern möchten."

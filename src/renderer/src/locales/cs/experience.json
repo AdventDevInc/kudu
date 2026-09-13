@@ -130,9 +130,6 @@
     "reviewPaths": "Zkontrolovat vybrané cesty",
     "chooseOptimizations": "Vybrat optimalizace",
     "reviewCloud": "Zkontrolovat předvolby sdílení",
-    "defineRule": "Vybrat pravidla pro složky a soubory",
-    "previewMatches": "Zobrazit odpovídající soubory",
-    "saveCleaner": "Uložit čistič",
     "trackFolder": "Vybrat složku ke sledování",
     "captureSnapshot": "Pořídit místní snímky",
     "compareGrowth": "Porovnat změny úložiště",
@@ -174,7 +171,6 @@
     "updates": "Udržujte své každodenní nástroje aktuální. Zkontrolujte dostupné aktualizace, porovnejte verze a vyberte, co nainstalovat.",
     "schedules": "Dobrá péče podle vašeho plánu. Vyberte úlohy, časování a četnost, které tomuto počítači vyhovují.",
     "drivers": "Zkontrolujte aktualizace ovladačů i starší balíčky na jednom místě. Před použitím zkontrolujte navrhované změny.",
-    "customCleaners": "Vlastní rutina čištění. Vyberte složku a pravidla pro soubory, zobrazte odpovídající položky a potom čistič uložte.",
     "storageHistory": "Podívejte se, co roste. Uložte místní snímky složek a porovnejte, kde se úložiště změnilo.",
     "recovery": "Jasná cesta zpět. Před vrácením změn zkontrolujte podporované změny a podrobnosti obnovení.",
     "diagnostics": "Proměňte pomalý okamžik v důkaz. Zaznamenejte data místně, prohlédněte si je a vyberte, zda požádat o analýzu Cloud AI."

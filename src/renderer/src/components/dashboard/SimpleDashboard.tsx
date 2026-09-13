@@ -14,6 +14,7 @@ import { usePlatform } from '@/hooks/usePlatform'
 import { pageExperiences } from '@/components/layout/page-experiences'
 import { getGoalTools, type DashboardGoal } from './simple-dashboard-tools'
 import './simple-dashboard.css'
+import { DashboardCloud } from './DashboardCloud'
 
 const goals = [
   { id: 'space', icon: HardDrive },
@@ -124,14 +125,16 @@ export function SimpleDashboard({
             </span>
             <ArrowUpRight size={18} />
           </button>
-          <button onClick={() => navigate('/recovery')}>
-            <RotateCcw size={23} strokeWidth={1.6} />
-            <span>
-              <strong>{t('simple.recoveryTitle')}</strong>
-              <small>{t('simple.recoveryDescription')}</small>
-            </span>
-            <ArrowUpRight size={18} />
-          </button>
+          <DashboardCloud variant="compact">
+            <button onClick={() => navigate('/recovery')}>
+              <RotateCcw size={23} strokeWidth={1.6} />
+              <span>
+                <strong>{t('simple.recoveryTitle')}</strong>
+                <small>{t('simple.recoveryDescription')}</small>
+              </span>
+              <ArrowUpRight size={18} />
+            </button>
+          </DashboardCloud>
         </div>
       )}
       <footer className="simple-dashboard-footer">

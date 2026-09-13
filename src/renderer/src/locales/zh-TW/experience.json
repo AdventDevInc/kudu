@@ -130,9 +130,6 @@
     "reviewPaths": "檢視選取的路徑",
     "chooseOptimizations": "選擇最佳化項目",
     "reviewCloud": "檢視分享偏好設定",
-    "defineRule": "選擇資料夾與檔案規則",
-    "previewMatches": "預覽相符的檔案",
-    "saveCleaner": "儲存您的清理工具",
     "trackFolder": "選擇要追蹤的資料夾",
     "captureSnapshot": "擷取本機快照",
     "compareGrowth": "比較儲存空間變化",
@@ -174,7 +171,6 @@
     "updates": "讓日常常用工具保持最新。檢查可用更新、比較版本，並選擇要安裝的項目。",
     "schedules": "依照您的時間安排做好照護。選擇適合這台電腦的工作、時間與頻率。",
     "drivers": "在同一處檢視驅動程式更新與較舊套件。套用前先檢查建議的變更。",
-    "customCleaners": "您自己的清理例行作業。選擇資料夾與檔案規則、預覽相符項目，然後儲存清理工具。",
     "storageHistory": "查看哪些內容正在增加。儲存本機資料夾快照，並比較儲存空間在哪些地方發生變化。",
     "recovery": "清楚的返回方式。復原任何內容前，先檢視受支援的變更與還原詳細資料。",
     "diagnostics": "把系統變慢的時刻轉化為依據。在本機記錄、檢查資料，並選擇是否要求 Cloud AI 分析。"

@@ -714,7 +714,7 @@ export function GameModePage() {
             </div>
             <button
               onClick={() => store.getState().setAutoDetect(!config.autoDetect)}
-              className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+              className="toggle-switch relative h-6 w-11 shrink-0 rounded-full transition-colors"
               style={{ background: config.autoDetect ? '#a6d2b8' : 'var(--bg-active)' }}
             >
               <motion.div
@@ -752,7 +752,7 @@ export function GameModePage() {
                   </div>
                   <button
                     onClick={() => store.getState().setAutoDeactivate(!config.autoDeactivate)}
-                    className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
+                    className="toggle-switch relative h-6 w-11 shrink-0 rounded-full transition-colors"
                     style={{ background: config.autoDeactivate ? '#a6d2b8' : 'var(--bg-active)' }}
                   >
                     <motion.div
@@ -931,7 +931,7 @@ export function GameModePage() {
                           <button
                             onClick={() => !active && store.getState().toggleOptimization(opt.id)}
                             disabled={active}
-                            className="relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-40"
+                            className="toggle-switch relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-40"
                             style={{ background: isEnabled ? cat.color : 'var(--bg-active)' }}
                           >
                             <motion.div

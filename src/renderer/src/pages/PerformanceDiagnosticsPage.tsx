@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Activity, Circle, Sparkles } from 'lucide-react'
-import { EmptyState } from '@/components/shared/EmptyState'
+import { DiagnosticsAccess } from '@/components/perf/DiagnosticsAccess'
+import { useSettingsStore } from '@/stores/settings-store'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { formatBytes } from '@/lib/utils'
@@ -23,6 +24,9 @@ const percent = (v: number | null): string => (v === null ? '—' : `${v.toFixed
 export function PerformanceDiagnosticsPage() {
   const { t } = useTranslation('diagnostics')
   const [cap, setCap] = useState<DiagnosticCapabilities | null>(null)
+  const [checkingAccess, setCheckingAccess] = useState(true)
+  const [accessFailed, setAccessFailed] = useState(false)
+  const cloudKey = useSettingsStore((s) => s.settings.cloud.apiKey)
   const [rows, setRows] = useState<DiagnosticSummary[]>([])
   const [active, setActive] = useState<string | null>(null)
   const [elapsed, setElapsed] = useState(0)
@@ -94,14 +98,6 @@ export function PerformanceDiagnosticsPage() {
       }
     }
     void poll()
-    void window.kudu
-      .diagnosticsCapabilities()
-      .then((c) => {
-        if (!disposed) setCap(c)
-      })
-      .catch((e) => {
-        if (!disposed) setError(String(e))
-      })
     const timer = setInterval(() => {
       void poll()
     }, 2000)
@@ -110,6 +106,28 @@ export function PerformanceDiagnosticsPage() {
       clearInterval(timer)
     }
   }, [refresh])
+  // Access checks are separate from local history and operation errors.
+  const [accessAttempt, setAccessAttempt] = useState(0)
+  useEffect(() => {
+    let disposed = false
+    setCheckingAccess(true)
+    setAccessFailed(false)
+    setCap(null)
+    void window.kudu
+      .diagnosticsCapabilities()
+      .then((value) => {
+        if (!disposed) setCap(value)
+      })
+      .catch(() => {
+        if (!disposed) setAccessFailed(true)
+      })
+      .finally(() => {
+        if (!disposed) setCheckingAccess(false)
+      })
+    return () => {
+      disposed = true
+    }
+  }, [cloudKey, accessAttempt])
   useEffect(() => {
     if (
       !id ||
@@ -176,6 +194,7 @@ export function PerformanceDiagnosticsPage() {
       <PageHeader
         title={t('title')}
         description={t('description')}
+        showWorkflow={false}
         action={
           <Link className={button} to="/performance">
             {t('liveMonitor')}
@@ -187,129 +206,118 @@ export function PerformanceDiagnosticsPage() {
           {error}
         </div>
       )}
-      <section className={panel}>
-        <div className="flex flex-wrap items-center gap-3">
-          <Activity size={18} className="text-[var(--accent)]" aria-hidden="true" />
-          <h2 className="font-semibold">{t('newRecording')}</h2>
-          <span className="feature-status">{t('pro')}</span>
-        </div>
-        <p className="text-sm text-[var(--text-muted)]">{t('localFirst')}</p>
-        {cap === null && !error && (
-          <p role="status" className="text-sm text-[var(--text-muted)]">
-            {t('checkingAccess')}
-          </p>
-        )}
-        {!cap?.available && (cap !== null || !!error) && (
-          <p className="text-sm">
-            {t(cap ? 'requiresPro' : 'accessUnavailable')}{' '}
-            <Link to="/cloud" className="underline">
-              {t('cloudSettings')}
-            </Link>{' '}
-            <button
-              className={button}
-              disabled={busy}
-              onClick={() =>
-                void run(async () => setCap(await window.kudu.diagnosticsCapabilities()))
-              }
-            >
-              {t('checkAccess')}
-            </button>
-          </p>
-        )}
-        <div className="flex flex-wrap items-center gap-4">
-          <label className="space-x-2 text-sm">
-            {t('duration')}{' '}
-            <select
-              className={field}
-              value={seconds}
-              disabled={!!active || busy}
-              onChange={(e) => setSeconds(Number(e.target.value))}
-            >
-              {[120, 300, 900].map((n) => (
-                <option key={n} value={n}>
-                  {t('minutes', { count: n / 60 })}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={collectProcesses}
-              disabled={!!active || busy}
-              onChange={(e) => setCollectProcesses(e.target.checked)}
-            />
-            {t('collectProcesses')}
-          </label>
-          {active ? (
-            <>
-              <span role="status">
-                {t('recordingElapsed', { seconds: Math.floor(elapsed / 1000) })}
-              </span>
+      {!cap?.available && !active && (
+        <DiagnosticsAccess
+          capabilities={cap}
+          checking={checkingAccess}
+          failed={accessFailed}
+          onRetry={() => setAccessAttempt((attempt) => attempt + 1)}
+        />
+      )}
+      {(cap?.available || active) && (
+        <section className={panel + ' diagnostics-recorder'}>
+          <div className="flex flex-wrap items-center gap-3">
+            <Activity size={18} className="text-[var(--accent)]" aria-hidden="true" />
+            <h2 className="font-semibold">{t('newRecording')}</h2>
+            <span className="feature-status">{t('pro')}</span>
+          </div>
+          <p className="text-sm text-[var(--text-muted)]">{t('localFirst')}</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="space-x-2 text-sm">
+              {t('duration')}{' '}
+              <select
+                className={field}
+                value={seconds}
+                disabled={!!active || busy}
+                onChange={(e) => setSeconds(Number(e.target.value))}
+              >
+                {[120, 300, 900].map((n) => (
+                  <option key={n} value={n}>
+                    {t('minutes', { count: n / 60 })}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={collectProcesses}
+                disabled={!!active || busy}
+                onChange={(e) => setCollectProcesses(e.target.checked)}
+              />
+              {t('collectProcesses')}
+            </label>
+            {active ? (
+              <>
+                <span role="status">
+                  {t('recordingElapsed', { seconds: Math.floor(elapsed / 1000) })}
+                </span>
+                <button
+                  className={button}
+                  disabled={busy}
+                  onClick={() =>
+                    void run(async () => {
+                      await window.kudu.diagnosticsStop()
+                      await open(active)
+                    })
+                  }
+                >
+                  {t('stop')}
+                </button>
+              </>
+            ) : (
               <button
-                className={button}
-                disabled={busy}
+                className={button + ' feature-primary'}
+                disabled={busy || !cap?.available}
                 onClick={() =>
                   void run(async () => {
-                    await window.kudu.diagnosticsStop()
-                    await open(active)
+                    const next = await window.kudu.diagnosticsStart(seconds, collectProcesses)
+                    await open(next)
                   })
                 }
               >
-                {t('stop')}
+                <Circle size={12} fill="currentColor" aria-hidden="true" />
+                {t('start')}
               </button>
-            </>
-          ) : (
-            <button
-              className={button + ' feature-primary'}
-              disabled={busy || !cap?.available}
-              onClick={() =>
-                void run(async () => {
-                  const next = await window.kudu.diagnosticsStart(seconds, collectProcesses)
-                  await open(next)
-                })
-              }
-            >
-              <Circle size={12} fill="currentColor" aria-hidden="true" />
-              {t('start')}
-            </button>
+            )}
+          </div>
+          <p className="text-xs text-[var(--text-muted)]">{t('sampling')}</p>
+        </section>
+      )}
+      {(cap?.available || active || rows.length > 0) && (
+        <section className={panel + ' diagnostics-library'}>
+          <h2 className="font-semibold">{t('saved')}</h2>
+          <p className="text-xs text-[var(--text-muted)]">{t('retention')}</p>
+          {loaded && !rows.length && (
+            <div className="diagnostics-empty">
+              <Activity size={24} aria-hidden="true" />
+              <h3>{t('empty')}</h3>
+              <p>{t('emptyHint')}</p>
+            </div>
           )}
-        </div>
-        <p className="text-xs text-[var(--text-muted)]">{t('sampling')}</p>
-      </section>
-      <section className={panel}>
-        <h2 className="font-semibold">{t('saved')}</h2>
-        <p className="text-xs text-[var(--text-muted)]">{t('retention')}</p>
-        {loaded && !rows.length && (
-          <EmptyState
-            icon={Activity}
-            title={t('empty')}
-            description={t('emptyHint')}
-            className="!min-h-[180px] !p-6"
-          />
-        )}
-        <div className="grid gap-2 md:grid-cols-2">
-          {rows.map((row) => (
-            <button
-              key={row.id}
-              disabled={busy}
-              aria-pressed={id === row.id}
-              className="rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4 text-left transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-40"
-              onClick={() => void run(() => open(row.id))}
-            >
-              <span className="block truncate font-medium">
-                {row.pinned ? '★ ' : ''}
-                {row.title}
-              </span>
-              <span className="text-xs text-[var(--text-muted)]">
-                {new Date(row.startedAt).toLocaleString()} · {t(row.state)} ·{' '}
-                {Math.round(row.durationMs / 1000)}s
-                {row.cloudStatus ? ` · ${t(row.cloudStatus)}` : ''}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
+          <div className="grid gap-2 md:grid-cols-2">
+            {rows.map((row) => (
+              <button
+                key={row.id}
+                disabled={busy}
+                aria-pressed={id === row.id}
+                className="rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4 text-left transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-40"
+                onClick={() => void run(() => open(row.id))}
+              >
+                <span className="block truncate font-medium">
+                  {row.pinned ? '★ ' : ''}
+                  {row.title}
+                </span>
+                <span className="text-xs text-[var(--text-muted)]">
+                  {new Date(row.startedAt).toLocaleString()} · {t(row.state)} ·{' '}
+                  {Math.round(row.durationMs / 1000)}s
+                  {row.cloudStatus ? ` · ${t(row.cloudStatus)}` : ''}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
       {selected && (
         <section ref={detailRef} tabIndex={-1} className={panel}>
           <h2 className="font-semibold">{t('recordingDetails')}</h2>

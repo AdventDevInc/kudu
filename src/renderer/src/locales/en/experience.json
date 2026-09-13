@@ -127,9 +127,6 @@
     "reviewPaths": "Review selected paths",
     "chooseOptimizations": "Choose optimizations",
     "reviewCloud": "Review sharing preferences",
-    "defineRule": "Choose folder & file rules",
-    "previewMatches": "Preview matching files",
-    "saveCleaner": "Save your cleaner",
     "trackFolder": "Choose a folder to track",
     "captureSnapshot": "Capture local snapshots",
     "compareGrowth": "Compare storage changes",
@@ -171,7 +168,6 @@
     "updates": "Keep your everyday essentials current. Check available updates, compare versions, and choose what to install.",
     "schedules": "Good care, on your schedule. Choose the tasks, timing, and frequency that suit this computer.",
     "drivers": "Review driver updates and older packages in one place. Check the proposed changes before applying them.",
-    "customCleaners": "Your own cleanup routine. Choose a folder and file rules, preview matches, then save the cleaner.",
     "storageHistory": "See what is growing. Save local folder snapshots and compare where storage has changed.",
     "recovery": "A clear way back. Review supported changes and the restore details before undoing anything.",
     "diagnostics": "Turn a slow moment into evidence. Record locally, inspect the data, and choose whether to request Cloud AI analysis."
