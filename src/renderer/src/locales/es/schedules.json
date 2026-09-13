@@ -21,12 +21,12 @@
     "duplicateAction": "Duplicar",
     "deleteAction": "Eliminar",
     "noTasksSelected": "No hay tareas seleccionadas",
-    "nextRun": "Siguiente: {{time}}",
+    "nextRun": "Próxima: {{time}}",
     "lastRun": "Última: {{time}}",
-    "neverRun": "Nunca se ejecutó"
+    "neverRun": "Nunca ejecutada"
   },
   "presets": {
-    "dialogTitle": "Elegir una plantilla",
+    "dialogTitle": "Elija una plantilla",
     "weeklyFullCleanLabel": "Limpieza completa semanal",
     "weeklyFullCleanDescription": "Todas las categorías del limpiador cada lunes a las 9:00",
     "dailyLightSweepLabel": "Limpieza ligera diaria",
@@ -53,7 +53,7 @@
     "cleanerGroup": "Limpiador",
     "maintenanceGroup": "Mantenimiento",
     "autoApplyLabel": "Aplicación automática",
-    "autoApplyDescription": "Limpie archivos, corrija problemas del registro e instale actualizaciones automáticamente sin confirmación.",
+    "autoApplyDescription": "Limpie archivos, repare problemas del registro e instale actualizaciones automáticamente sin confirmación.",
     "autoApplyWarning": "Las acciones se ejecutarán automáticamente según la programación. Asegúrese de que su lista de exclusiones esté actualizada.",
     "cancelButton": "Cancelar",
     "saveChangesButton": "Guardar cambios",
@@ -66,7 +66,7 @@
     "gaming": "Juegos",
     "recycleBin": "Papelera de reciclaje",
     "databases": "Bases de datos",
-    "registryFixes": "Correcciones del registro",
+    "registryFixes": "Reparaciones del registro",
     "driverUpdates": "Actualizaciones de controladores",
     "softwareUpdates": "Actualizaciones de software"
   },
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Todos los días a las {{time}}",
     "everyWeekdayAt": "Cada {{day}} a las {{time}}",
-    "monthlyAt": "El {{ordinalDay}} de cada mes a las {{time}}"
+    "monthlyAt": "{{ordinalDay}} de cada mes a las {{time}}"
   },
   "nextRun": {
     "todayAt": "Hoy a las {{time}}",
@@ -92,17 +92,17 @@
   },
   "lastRun": {
     "justNow": "Justo ahora",
-    "minutesAgo": "Hace {{count}} min",
-    "hoursAgo": "Hace {{count}} h",
-    "daysAgo": "Hace {{count}} d"
+    "minutesAgo": "hace {{count}} min",
+    "hoursAgo": "hace {{count}} h",
+    "daysAgo": "hace {{count}} d"
   },
   "copyNameSuffix": "(copia)",
   "advanced": {
     "title": "Condiciones de ejecución",
-    "explanation": "Todas las condiciones se comprueban antes de iniciar y antes de cada tarea o cambio. Las horas siguen la zona horaria local de este equipo. Las operaciones en ejecución finalizan antes de que un cambio en las condiciones detenga las tareas restantes.",
+    "explanation": "Todas las condiciones se comprueban antes de iniciar y antes de cada tarea o cambio. Las horas siguen la zona horaria local de este equipo. Las operaciones en ejecución finalizan antes de que un cambio de condición detenga las tareas restantes.",
     "acOnly": "Solo con alimentación de CA",
     "gameMode": "Esperar mientras el Modo de juego esté activo o restaurándose",
-    "idle": "Minutos de inactividad necesarios (0 desactiva esta opción)",
+    "idle": "Minutos de inactividad requeridos (0 desactiva esta opción)",
     "window": "Usar una ventana de mantenimiento",
     "from": "Desde",
     "to": "Hasta",
@@ -112,7 +112,7 @@
     "skip": "Omitir después de la ventana de inicio de dos minutos",
     "once": "Ejecutar una vez cuando esté listo; combinar ejecuciones perdidas",
     "runNow": "Ejecutar ahora",
-    "runConfirm": "¿Ejecutar esta programación ahora con sus tareas guardadas y la opción de aplicación automática? Sus condiciones de energía, inactividad, Modo de juego, espacio y ventana de mantenimiento seguirán aplicándose.",
+    "runConfirm": "¿Ejecutar esta programación ahora con sus tareas guardadas y la opción de aplicación automática? Sus condiciones de energía, inactividad, Modo de juego, espacio y ventana de mantenimiento siguen aplicándose: si impiden la ejecución, esta comenzará en una comprobación posterior, y si elige Ejecutar ahora de nuevo mientras está en espera, se cancelará.",
     "runFailed": "No se pudo iniciar la programación",
     "running": "En ejecución",
     "nextEvaluation": "Próxima comprobación alrededor de las {{time}}",
@@ -124,7 +124,7 @@
     "findCategories": "Buscar categorías",
     "scanning": "Analizando...",
     "scopeHint": "Solo se incluirán las categorías marcadas. Una selección vacía no ejecuta ninguna limpieza en esta tarea. El análisis detecta las categorías presentes actualmente; no limpia.",
-    "waitForScan": "Espere a que finalice el análisis o la limpieza actual.",
+    "waitForScan": "Espere a que finalice el análisis o la limpieza actuales.",
     "noCategories": "No se encontraron categorías. Ejecute un nuevo análisis cuando la aplicación tenga datos en caché.",
     "scanFailed": "No se pudieron cargar las categorías.",
     "waiting": {
@@ -138,9 +138,9 @@
       "disabled": "Programación deshabilitada",
       "changed": "La programación se editó; se descartó la definición en cola",
       "unavailable": "Esperando la ventana de la aplicación",
-      "interrupted": "La ejecución perdió su ventana y se registró como fallida; esta ocurrencia no se volverá a ejecutar."
+      "interrupted": "La ejecución perdió su ventana y se registró como fallida; esta ocurrencia no se repetirá."
     },
     "saveFailed": "No se pudo guardar la programación. Inténtelo de nuevo.",
-    "skipped": "Se omitió después de que cambiaran las condiciones."
+    "skipped": "Omitida después de que cambiaran las condiciones."
   }
 }

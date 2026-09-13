@@ -49,7 +49,7 @@
     "timeLabel": "Waktu",
     "tasksLabel": "Tugas",
     "selectAll": "Pilih semua",
-    "deselectAll": "Batalkan pilihan semua",
+    "deselectAll": "Batalkan pilih semua",
     "cleanerGroup": "Pembersih",
     "maintenanceGroup": "Pemeliharaan",
     "autoApplyLabel": "Terapkan otomatis",
@@ -87,22 +87,22 @@
   "nextRun": {
     "todayAt": "Hari ini pukul {{time}}",
     "tomorrowAt": "Besok pukul {{time}}",
-    "inDaysAt": "{{count}} hari lagi pukul {{time}}",
+    "inDaysAt": "Dalam {{count}} hari pukul {{time}}",
     "dateAt": "{{date}} pukul {{time}}"
   },
   "lastRun": {
     "justNow": "Baru saja",
-    "minutesAgo": "{{count}}m lalu",
-    "hoursAgo": "{{count}}j lalu",
-    "daysAgo": "{{count}}h lalu"
+    "minutesAgo": "{{count}}m yang lalu",
+    "hoursAgo": "{{count}}j yang lalu",
+    "daysAgo": "{{count}}h yang lalu"
   },
   "copyNameSuffix": "(salinan)",
   "advanced": {
     "title": "Kondisi menjalankan",
-    "explanation": "Semua kondisi diperiksa sebelum memulai dan sebelum setiap tugas atau perubahan. Waktu mengikuti zona waktu lokal komputer ini. Operasi yang sedang berjalan akan diselesaikan sebelum perubahan kondisi menghentikan tugas yang tersisa.",
+    "explanation": "Semua kondisi diperiksa sebelum memulai dan sebelum setiap tugas atau perubahan. Waktu mengikuti zona waktu lokal komputer ini. Operasi yang sedang berjalan akan selesai sebelum perubahan kondisi menghentikan tugas yang tersisa.",
     "acOnly": "Hanya saat menggunakan daya AC",
     "gameMode": "Tunggu selama Game Mode aktif atau sedang dipulihkan",
-    "idle": "Menit idle yang diperlukan (0 menonaktifkan)",
+    "idle": "Menit idle yang diperlukan (0 untuk menonaktifkan)",
     "window": "Gunakan jendela pemeliharaan",
     "from": "Dari",
     "to": "Sampai",
@@ -112,7 +112,7 @@
     "skip": "Lewati setelah jendela mulai dua menit",
     "once": "Jalankan sekali saat siap; gabungkan jadwal yang terlewat",
     "runNow": "Jalankan sekarang",
-    "runConfirm": "Jalankan jadwal ini sekarang menggunakan tugas tersimpan dan pilihan terapkan otomatisnya? Kondisi daya, idle, Game Mode, ruang, dan jendela pemeliharaannya tetap berlaku.",
+    "runConfirm": "Jalankan jadwal ini sekarang menggunakan tugas tersimpan dan pilihan terapkan otomatisnya? Kondisi daya, idle, Game Mode, ruang, dan jendela pemeliharaannya tetap berlaku: jika kondisi tersebut menahan eksekusi, proses akan dimulai pada pemeriksaan berikutnya, dan memilih Jalankan sekarang lagi saat masih menunggu akan membatalkannya.",
     "runFailed": "Tidak dapat memulai jadwal",
     "running": "Sedang berjalan",
     "nextEvaluation": "Pemeriksaan berikutnya sekitar {{time}}",
@@ -125,7 +125,7 @@
     "scanning": "Memindai...",
     "scopeHint": "Hanya kategori yang dicentang yang akan disertakan. Pilihan kosong tidak akan menjalankan pembersihan pada tugas ini. Pemindaian menemukan kategori yang saat ini ada; pemindaian tidak melakukan pembersihan.",
     "waitForScan": "Tunggu hingga pemindaian atau pembersihan saat ini selesai.",
-    "noCategories": "Tidak ada kategori yang ditemukan. Jalankan pemindaian baru saat aplikasi memiliki data cache.",
+    "noCategories": "Tidak ada kategori yang ditemukan. Jalankan pemindaian baru saat aplikasi telah menyimpan data cache.",
     "scanFailed": "Tidak dapat memuat kategori.",
     "waiting": {
       "idle": "Menunggu waktu idle",
@@ -138,7 +138,7 @@
       "disabled": "Jadwal dinonaktifkan",
       "changed": "Jadwal telah diedit; definisi yang masuk antrean dibuang",
       "unavailable": "Menunggu jendela aplikasi",
-      "interrupted": "Proses kehilangan jendelanya dan dicatat sebagai gagal; kejadian ini tidak akan diputar ulang."
+      "interrupted": "Eksekusi kehilangan jendelanya dan dicatat sebagai gagal; kejadian ini tidak akan diulang."
     },
     "saveFailed": "Jadwal tidak dapat disimpan. Coba lagi.",
     "skipped": "Dilewati setelah kondisi berubah."
