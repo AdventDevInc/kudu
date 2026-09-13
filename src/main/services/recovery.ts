@@ -7,33 +7,63 @@ import {
   type RecoveryValue
 } from '../../shared/recovery'
 
+export type ServiceState = { start: number; delayed: number | null; running: boolean }
+const SERVICE_NAME = /^[A-Za-z0-9_.-]{1,256}$/
+function isServiceState(value: unknown): value is ServiceState {
+  const v = value as ServiceState
+  return (
+    !!v &&
+    typeof v === 'object' &&
+    [0, 1, 2, 3, 4].includes(v.start) &&
+    [null, 0, 1].includes(v.delayed) &&
+    typeof v.running === 'boolean'
+  )
+}
+/**
+ * Read the start type, delayed-start flag, and running state of several services in a
+ * single PowerShell process. Services that do not exist or cannot be read are absent
+ * from the result rather than failing the whole batch.
+ */
+export async function readServiceStates(names: string[]): Promise<Map<string, ServiceState>> {
+  if (process.platform !== 'win32')
+    throw new Error('This recovery adapter is only available on Windows')
+  const unique = [...new Set(names)]
+  if (unique.some((name) => !SERVICE_NAME.test(name))) throw new Error('Invalid service name')
+  if (!unique.length) return new Map()
+  const root = ['HKLM:', 'SYSTEM', 'CurrentControlSet', 'Services', ''].join(
+    String.fromCharCode(92)
+  )
+  const script =
+    "$ErrorActionPreference='Stop'; $out=@{}; foreach ($n in @(" +
+    unique.map((name) => "'" + name + "'").join(',') +
+    ")) { try { $v=Get-ItemProperty -LiteralPath ('" +
+    root +
+    "' + $n) -ErrorAction Stop; $s=Get-Service -Name $n -ErrorAction Stop; " +
+    "$out[$n]=@{start=[int]$v.Start;delayed=$v.DelayedAutoStart;running=($s.Status -eq 'Running')} } catch {} }; " +
+    '$out | ConvertTo-Json -Compress'
+  const { stdout } = await execTracked(
+    'powershell',
+    ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
+    { timeout: 8000 + unique.length * 1000, windowsHide: true }
+  )
+  const parsed: unknown = JSON.parse(stdout)
+  if (!parsed || typeof parsed !== 'object') throw new Error('Service state is unavailable')
+  const states = new Map<string, ServiceState>()
+  for (const name of unique) {
+    const value = (parsed as Record<string, unknown>)[name]
+    if (value === undefined) continue
+    if (!isServiceState(value)) throw new Error('Service state is unavailable')
+    states.set(name, { start: value.start, delayed: value.delayed, running: value.running })
+  }
+  return states
+}
 export async function readRecoveryTarget(target: RecoveryTarget): Promise<RecoveryValue> {
   if (process.platform !== 'win32')
     throw new Error('This recovery adapter is only available on Windows')
   if (target.kind === 'service-start') {
-    if (!/^[A-Za-z0-9_.-]{1,256}$/.test(target.name)) throw new Error('Invalid service name')
-    const key = ['HKLM:', 'SYSTEM', 'CurrentControlSet', 'Services', target.name].join(
-      String.fromCharCode(92)
-    )
-    const script =
-      "$ErrorActionPreference='Stop'; $v=Get-ItemProperty -LiteralPath '" +
-      key +
-      "' -ErrorAction Stop; $s=Get-Service -Name '" +
-      target.name +
-      "' -ErrorAction Stop; @{start=[int]$v.Start;delayed=$v.DelayedAutoStart;running=($s.Status -eq 'Running')} | ConvertTo-Json -Compress"
-    const { stdout } = await execTracked(
-      'powershell',
-      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
-      { timeout: 8000, windowsHide: true }
-    )
-    const value = JSON.parse(stdout)
-    if (
-      ![0, 1, 2, 3, 4].includes(value.start) ||
-      ![null, 0, 1].includes(value.delayed) ||
-      typeof value.running !== 'boolean'
-    )
-      throw new Error('Service state is unavailable')
-    return { start: value.start, delayed: value.delayed, running: value.running }
+    const state = (await readServiceStates([target.name])).get(target.name)
+    if (!state) throw new Error('Service state is unavailable')
+    return state
   }
   if (target.kind === 'task-enabled') {
     const { stdout } = await execNativeUtf8('schtasks', ['/query', '/tn', target.name, '/xml'], {

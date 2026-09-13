@@ -4,7 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({ execFile: vi.fn() }))
 vi.mock('child_process', () => ({ execFile: mocks.execFile, spawn: vi.fn() }))
 vi.mock('./recovery-store', () => ({ getRecoveryEntry: vi.fn(), updateRecoveryEntry: vi.fn() }))
-import { readRecoveryTarget, writeRecoveryTarget } from './recovery'
+import { readRecoveryTarget, readServiceStates, writeRecoveryTarget } from './recovery'
 
 type Reply = { stdout: string } | Error
 const platform = process.platform
@@ -23,13 +23,39 @@ beforeEach(() => {
 afterEach(() => Object.defineProperty(process, 'platform', { value: platform, configurable: true }))
 
 it('reads service state through the allowed PowerShell executor', async () => {
-  respond({ stdout: '{"start":2,"delayed":1,"running":true}' })
+  respond({ stdout: '{"Spooler":{"start":2,"delayed":1,"running":true}}' })
   expect(await readRecoveryTarget({ kind: 'service-start', name: 'Spooler' })).toEqual({
     start: 2,
     delayed: 1,
     running: true
   })
   expect(spawned()).toEqual(['powershell'])
+})
+it('reads several services in one PowerShell process and omits missing ones', async () => {
+  respond({
+    stdout:
+      '{"Spooler":{"start":2,"delayed":0,"running":true},"Fax":{"start":4,"delayed":null,"running":false}}\r\n'
+  })
+  const states = await readServiceStates(['Spooler', 'Fax', 'Ghost', 'Spooler'])
+  expect([...states]).toEqual([
+    ['Spooler', { start: 2, delayed: 0, running: true }],
+    ['Fax', { start: 4, delayed: null, running: false }]
+  ])
+  expect(spawned()).toEqual(['powershell'])
+  const script = mocks.execFile.mock.calls[0][1].at(-1) as string
+  expect(script).toContain("@('Spooler','Fax','Ghost')")
+  expect(script).toContain('ConvertTo-Json')
+})
+it('rejects a batch containing an invalid service name before spawning anything', async () => {
+  await expect(readServiceStates(['Spooler', "x'; evil"])).rejects.toThrow('Invalid service name')
+  await expect(readRecoveryTarget({ kind: 'service-start', name: 'Sp ooler' })).rejects.toThrow(
+    'Invalid service name'
+  )
+  expect(mocks.execFile).not.toHaveBeenCalled()
+})
+it('fails the batch when a service reports an unexpected state shape', async () => {
+  respond({ stdout: '{"Spooler":{"start":9,"delayed":0,"running":true}}' })
+  await expect(readServiceStates(['Spooler'])).rejects.toThrow('Service state is unavailable')
 })
 it('reports an absent registry value instead of failing on the PowerShell fallback', async () => {
   respond(new Error('Command failed: reg query'), { stdout: 'MISSING\r\n' })

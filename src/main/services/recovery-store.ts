@@ -184,6 +184,81 @@ export async function recordRecoveryChange(
   entry.updatedAt = new Date().toISOString()
   await save(entry)
 }
+export interface RecoveryChange {
+  label: string
+  target: RecoveryTarget
+  before: RecoveryValue
+  after: RecoveryValue
+}
+/**
+ * Journal several changes that one mutation applies together (for example a single
+ * PowerShell run that reconfigures many services). Every entry is persisted as
+ * pending before `apply` runs; afterwards each is marked ready or failed from the
+ * per-change failure reasons `apply` returns (aligned with `changes`, undefined =
+ * success). `readAfter` may replace the predicted after-states, aligned the same way;
+ * a failed after-read keeps the prediction rather than reporting the change as failed.
+ * Returns the per-change failure reasons; throws only when apply itself throws.
+ */
+export async function recordRecoveryChanges(
+  source: RecoveryEntry['source'],
+  changes: RecoveryChange[],
+  apply: () => Promise<(string | undefined)[]>,
+  readAfter?: () => Promise<(RecoveryValue | undefined)[]>
+): Promise<(string | undefined)[]> {
+  const timestamp = new Date().toISOString()
+  const entries = changes.map((change) => {
+    if (JSON.stringify(change.before) === JSON.stringify(change.after)) return undefined
+    const entry: RecoveryEntry = {
+      version: 1,
+      id: randomUUID(),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      source,
+      ...change,
+      status: 'pending'
+    }
+    if (!validateRecoveryEntry(entry)) throw new Error('Unsupported recovery target')
+    return entry
+  })
+  for (const entry of entries) if (entry) await save(entry)
+  let failures: (string | undefined)[]
+  try {
+    failures = await apply()
+  } catch (error) {
+    for (const entry of entries) {
+      if (!entry) continue
+      entry.status = 'failed'
+      entry.error = 'The change did not complete. Inspect its current state before restoring.'
+      entry.updatedAt = new Date().toISOString()
+      // Never let a journal write failure mask the primary error from apply().
+      await save(entry).catch((saveError) =>
+        console.warn('[recovery] could not update journal after failed change:', saveError)
+      )
+    }
+    throw error
+  }
+  let afters: (RecoveryValue | undefined)[] = []
+  if (readAfter && failures.some((reason, i) => !reason && entries[i])) {
+    try {
+      afters = await readAfter()
+    } catch (error) {
+      console.warn('[recovery] could not read state after change:', error)
+    }
+  }
+  for (const [i, entry] of entries.entries()) {
+    if (!entry) continue
+    if (failures[i]) {
+      entry.status = 'failed'
+      entry.error = 'The change did not complete. Inspect its current state before restoring.'
+    } else {
+      entry.status = 'ready'
+      if (afters[i] !== undefined) entry.after = afters[i]
+    }
+    entry.updatedAt = new Date().toISOString()
+    await save(entry)
+  }
+  return failures
+}
 export async function updateRecoveryEntry(entry: RecoveryEntry): Promise<void> {
   if (!validateRecoveryEntry(entry)) throw new Error('Invalid recovery entry')
   await save({ ...entry, updatedAt: new Date().toISOString() })

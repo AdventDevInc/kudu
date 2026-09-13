@@ -30,6 +30,7 @@ vi.mock('electron', () => {
 
 import {
   recordRecoveryChange,
+  recordRecoveryChanges,
   listRecoveryEntries,
   listRecoveryPage,
   getRecoveryEntry,
@@ -112,6 +113,73 @@ describe('durable recovery journal', () => {
     expect(await listRecoveryEntries()).toEqual([
       expect.objectContaining({ status: 'ready', after: 1 })
     ])
+  })
+
+  it('journals a batch as pending before one mutation and settles each entry afterwards', async () => {
+    const service = (name: string) => ({ kind: 'service-start' as const, name })
+    const changes = [
+      {
+        label: 'Fax',
+        target: service('Fax'),
+        before: { start: 2, delayed: 1, running: true },
+        after: { start: 4, delayed: 1, running: false }
+      },
+      {
+        label: 'WSearch',
+        target: service('WSearch'),
+        before: { start: 2, delayed: 0, running: true },
+        after: { start: 4, delayed: 0, running: false }
+      },
+      {
+        label: 'Same',
+        target: service('Same'),
+        before: { start: 3, delayed: 0, running: false },
+        after: { start: 3, delayed: 0, running: false }
+      }
+    ]
+    const failures = await recordRecoveryChanges(
+      'services',
+      changes,
+      async () => {
+        // Every real change is durable before anything is mutated; no-ops are not journaled.
+        expect(await listRecoveryEntries()).toEqual([
+          expect.objectContaining({ label: 'WSearch', status: 'pending' }),
+          expect.objectContaining({ label: 'Fax', status: 'pending' })
+        ])
+        return [undefined, 'Access is denied', undefined]
+      },
+      async () => [{ start: 4, delayed: 0, running: false }, undefined, undefined]
+    )
+    expect(failures).toEqual([undefined, 'Access is denied', undefined])
+    expect(await listRecoveryEntries()).toEqual([
+      expect.objectContaining({ label: 'WSearch', status: 'failed', error: expect.any(String) }),
+      expect.objectContaining({
+        label: 'Fax',
+        status: 'ready',
+        after: { start: 4, delayed: 0, running: false }
+      })
+    ])
+  })
+
+  it('marks every batched entry failed when the mutation itself throws', async () => {
+    const service = (name: string) => ({ kind: 'service-start' as const, name })
+    const state = (start: number) => ({ start, delayed: 0, running: false })
+    const readAfter = vi.fn()
+    await expect(
+      recordRecoveryChanges(
+        'services',
+        [
+          { label: 'Fax', target: service('Fax'), before: state(2), after: state(4) },
+          { label: 'WSearch', target: service('WSearch'), before: state(2), after: state(4) }
+        ],
+        async () => {
+          throw new Error('PowerShell crashed')
+        },
+        readAfter
+      )
+    ).rejects.toThrow('PowerShell crashed')
+    expect(readAfter).not.toHaveBeenCalled()
+    expect((await listRecoveryEntries()).map((e) => e.status)).toEqual(['failed', 'failed'])
   })
 
   it('rejects tampered records without hiding the rest of the history', async () => {

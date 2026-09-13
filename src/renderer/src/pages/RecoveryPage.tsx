@@ -1,5 +1,5 @@
 import '@/components/shared/feature-layout.css'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { RotateCcw } from 'lucide-react'
@@ -20,16 +20,22 @@ export function RecoveryPage() {
   const [busy, setBusy] = useState(false)
   const [remove, setRemove] = useState<string | null>(null)
   const [confirm, setConfirm] = useState<RecoveryEntry | null>(null)
+  // Only the newest request may update the page: a slower earlier page load must
+  // not overwrite the result of a later one.
+  const request = useRef(0)
   const refresh = useCallback(async () => {
+    const token = ++request.current
     setLoading(true)
     try {
-      setData(await window.kudu.recoveryList(offset))
+      const result = await window.kudu.recoveryList(offset)
+      if (token !== request.current) return
+      setData(result)
       setError('')
     } catch (e) {
+      if (token !== request.current) return
       setError(e instanceof Error ? e.message : t('recovery.loadError'))
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }, [offset, t])
   useEffect(() => {
     void refresh()
@@ -157,7 +163,7 @@ export function RecoveryPage() {
         <div className="flex gap-3">
           <button
             className={button}
-            disabled={busy || !offset}
+            disabled={busy || loading || !offset}
             onClick={() => setOffset(Math.max(0, offset - 50))}
           >
             {t('recovery.previous')}
@@ -167,7 +173,7 @@ export function RecoveryPage() {
           </span>
           <button
             className={button}
-            disabled={busy || offset + 50 >= data.total}
+            disabled={busy || loading || offset + 50 >= data.total}
             onClick={() => setOffset(offset + 50)}
           >
             {t('recovery.next')}

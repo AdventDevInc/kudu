@@ -1,20 +1,13 @@
 vi.mock('../services/recovery-store', () => ({
-  recordRecoveryChange: async (
+  recordRecoveryChanges: async (
     _source: unknown,
-    _label: unknown,
-    _target: unknown,
-    _before: unknown,
-    _after: unknown,
-    apply: () => Promise<void>
+    _changes: unknown[],
+    apply: () => Promise<(string | undefined)[]>
   ) => apply()
 }))
 vi.mock('../services/recovery', () => ({
-  readRecoveryTarget: async (target: { kind: string }) =>
-    target.kind === 'service-start'
-      ? { start: 3, delayed: null, running: false }
-      : target.kind === 'task-enabled'
-        ? false
-        : 0
+  readServiceStates: async (names: string[]) =>
+    new Map(names.map((name) => [name, { start: 3, delayed: null, running: false }]))
 }))
 import { describe, it, expect } from 'vitest'
 
