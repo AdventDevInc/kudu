@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react'
+import '@/components/shared/feature-layout.css'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { FolderCog, Search, Plus } from 'lucide-react'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { formatBytes } from '@/lib/utils'
 import type {
@@ -8,11 +12,9 @@ import type {
   CustomCleanerPreview,
   CustomCleanerReceipt
 } from '@shared/custom-cleaners'
-const button =
-  'rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-40 hover:bg-white/5'
-const panel = 'rounded-xl border border-[var(--border)] p-5 space-y-4'
-const field =
-  'mt-1 block w-full rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm'
+const button = 'feature-button'
+const panel = 'feature-card space-y-4'
+const field = 'feature-field mt-1 block w-full'
 const initial = (platform: CustomCleanerRule['platform']): CustomCleanerRule => ({
   version: 1,
   id: '',
@@ -30,6 +32,8 @@ const initial = (platform: CustomCleanerRule['platform']): CustomCleanerRule => 
 
 export function CustomCleanersPage() {
   const { t } = useTranslation('customCleaners')
+  const definitionRef = useRef<HTMLElement>(null)
+  const previewRef = useRef<HTMLElement>(null)
   const [platform, setPlatform] = useState<CustomCleanerRule['platform']>('win32')
   const [rules, setRules] = useState<CustomCleanerRule[]>([])
   const [draft, setDraft] = useState<CustomCleanerRule>(initial('win32'))
@@ -39,10 +43,17 @@ export function CustomCleanersPage() {
   const [busy, setBusy] = useState(false)
   const [scanning, setScanning] = useState(false)
   const [error, setError] = useState('')
+  const [loaded, setLoaded] = useState(false)
   const [notice, setNotice] = useState('')
   const [confirm, setConfirm] = useState<'clean' | 'remove' | null>(null)
   const [receipt, setReceipt] = useState<CustomCleanerReceipt | null>(null)
   const [json, setJson] = useState('')
+  useEffect(() => {
+    if (preview?.token) {
+      previewRef.current?.focus({ preventScroll: true })
+      previewRef.current?.scrollIntoView({ block: 'start' })
+    }
+  }, [preview?.token])
   const refresh = async () => setRules(await window.kudu.customCleanersList())
   const run = async (work: () => Promise<void>) => {
     setBusy(true)
@@ -63,6 +74,7 @@ export function CustomCleanersPage() {
       .then(([list, info]) => {
         if (!done) {
           setRules(list)
+          setLoaded(true)
           setPlatform(info.platform)
           setDraft(initial(info.platform))
         }
@@ -82,6 +94,7 @@ export function CustomCleanersPage() {
     setReceipt(null)
   }
   const open = (rule: CustomCleanerRule) => {
+    definitionRef.current?.scrollIntoView({ block: 'start' })
     setDraft(rule)
     setPreview(null)
     setSaved(false)
@@ -111,7 +124,7 @@ export function CustomCleanersPage() {
     }
   }
   return (
-    <div className="space-y-6">
+    <div className="feature-page space-y-6">
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -134,6 +147,7 @@ export function CustomCleanersPage() {
       <section className={panel}>
         <div className="flex flex-wrap gap-2">
           <button className={button} disabled={busy} onClick={() => open(initial(platform))}>
+            <Plus size={14} aria-hidden="true" />
             {t('new')}
           </button>
           <button
@@ -160,15 +174,23 @@ export function CustomCleanersPage() {
           </button>
         </div>
         <p className="text-xs text-[var(--text-muted)]">{t('localPrivacy')}</p>
-        {!rules.length && <p className="text-sm">{t('empty')}</p>}
+        {loaded && !rules.length && (
+          <EmptyState
+            icon={FolderCog}
+            title={t('empty')}
+            description={t('emptyHint')}
+            className="!min-h-[180px] !p-6"
+          />
+        )}
         <div className="grid gap-2 md:grid-cols-2">
           {rules.map((r) => (
             <div
               key={r.id}
-              className="flex items-center gap-2 rounded-lg border border-[var(--border)] p-3"
+              className="flex items-center gap-2 rounded-lg border border-[var(--border-medium)] p-3"
             >
               <button
-                className="min-w-0 flex-1 text-left text-sm"
+                aria-pressed={draft.id === r.id}
+                className="min-w-0 flex-1 rounded-lg p-2 text-left text-sm"
                 disabled={busy}
                 onClick={() => open(r)}
               >
@@ -195,8 +217,11 @@ export function CustomCleanersPage() {
           ))}
         </div>
       </section>
-      <section className={panel}>
-        <h2 className="font-semibold">{t('definition')}</h2>
+      <section ref={definitionRef} className={panel}>
+        <h2 className="flex items-center gap-2 font-semibold">
+          <FolderCog size={18} className="text-[var(--accent)]" aria-hidden="true" />
+          {t('definition')}
+        </h2>
         <fieldset disabled={busy} className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="text-sm">
@@ -300,11 +325,22 @@ export function CustomCleanersPage() {
         </fieldset>
         <div className="flex flex-wrap gap-2">
           <button
-            className={button}
-            disabled={busy || !draft.root}
+            className={button + ' feature-primary'}
+            disabled={
+              busy ||
+              !draft.root ||
+              !draft.name.trim() ||
+              !Number.isInteger(draft.minAgeDays) ||
+              draft.minAgeDays < 1 ||
+              draft.minAgeDays > 3650 ||
+              !Number.isInteger(draft.maxDepth) ||
+              draft.maxDepth < 0 ||
+              draft.maxDepth > 8
+            }
             onClick={() => void run(() => scan(draft))}
           >
-            {t('preview')}
+            <Search size={14} aria-hidden="true" />
+            {scanning ? t('scanning') : t('preview')}
           </button>
           {scanning && (
             <button
@@ -359,7 +395,7 @@ export function CustomCleanersPage() {
         </details>
       </section>
       {preview && (
-        <section className={panel}>
+        <section ref={previewRef} tabIndex={-1} className={panel}>
           <h2 className="font-semibold">
             {t('previewSummary', {
               count: preview.itemCount,
@@ -391,7 +427,7 @@ export function CustomCleanersPage() {
               </thead>
               <tbody>
                 {preview.items.map((item) => (
-                  <tr key={item.id} className="border-t border-[var(--border)]">
+                  <tr key={item.id} className="border-t border-[var(--border-medium)]">
                     <td className="max-w-lg break-all py-2">{item.path}</td>
                     <td className="whitespace-nowrap px-2">{formatBytes(item.size)}</td>
                     <td className="whitespace-nowrap">
@@ -443,7 +479,7 @@ export function CustomCleanersPage() {
           )}
           <div className="flex flex-wrap gap-2">
             <button
-              className={button}
+              className={button + ' feature-primary'}
               disabled={busy || preview.state !== 'complete'}
               onClick={() =>
                 void run(async () => {
@@ -472,39 +508,34 @@ export function CustomCleanersPage() {
           <p className="text-xs text-[var(--text-muted)]">{t('previewLimits')}</p>
         </section>
       )}
-      {confirm && (
-        <section role="alert" className="rounded-xl border border-red-500/40 p-5 space-y-3">
-          <p>
-            {t(confirm === 'clean' ? 'confirmClean' : 'confirmDelete', {
-              count: preview?.itemCount ?? 0,
-              size: formatBytes(preview?.totalSize ?? 0),
-              name: draft.name
-            })}
-          </p>
-          <button
-            className={button}
-            disabled={busy}
-            onClick={() =>
-              void run(async () => {
-                if (confirm === 'clean' && preview) {
-                  setReceipt(await window.kudu.customCleanersClean(preview.token))
-                  setPreview(null)
-                  setSaved(false)
-                } else {
-                  await window.kudu.customCleanersRemove(draft.id)
-                  open(initial(platform))
-                }
-                setConfirm(null)
-              })
+      <ConfirmDialog
+        open={!!confirm}
+        variant="danger"
+        title={t(confirm === 'clean' ? 'cleanMatched' : 'deleteRule', {
+          count: preview?.itemCount ?? 0
+        })}
+        description={t(confirm === 'clean' ? 'confirmClean' : 'confirmDelete', {
+          count: preview?.itemCount ?? 0,
+          size: formatBytes(preview?.totalSize ?? 0),
+          name: draft.name
+        })}
+        confirmLabel={t('confirm')}
+        onCancel={() => setConfirm(null)}
+        onConfirm={() => {
+          const action = confirm
+          setConfirm(null)
+          void run(async () => {
+            if (action === 'clean' && preview) {
+              setReceipt(await window.kudu.customCleanersClean(preview.token))
+              setPreview(null)
+              setSaved(false)
+            } else {
+              await window.kudu.customCleanersRemove(draft.id)
+              open(initial(platform))
             }
-          >
-            {t('confirm')}
-          </button>
-          <button className={`${button} ml-2`} disabled={busy} onClick={() => setConfirm(null)}>
-            {t('cancel')}
-          </button>
-        </section>
-      )}
+          })
+        }}
+      />
       {receipt && (
         <section className={panel}>
           <h2 className="font-semibold">{t('result')}</h2>
