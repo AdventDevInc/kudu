@@ -1,5 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdtemp, mkdir, writeFile, readFile, utimes, rm, rename, symlink, link } from 'fs/promises'
+import {
+  mkdtemp,
+  mkdir,
+  writeFile,
+  readFile,
+  utimes,
+  rm,
+  rename,
+  symlink,
+  link,
+  realpath
+} from 'fs/promises'
 import { join, basename } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -26,7 +37,8 @@ beforeEach(async () => {
   clearCache()
   settings.exclusions = []
   settings.cleaner.secureDelete = false
-  dir = await mkdtemp(join(tmpdir(), 'kudu-custom-test-'))
+  // macOS /var is itself a symlink, which customRoot rejects.
+  dir = await mkdtemp(join(await realpath(tmpdir()), 'kudu-custom-test-'))
   root = join(dir, 'cache')
   await mkdir(root)
   store = new CustomCleanerStore(join(dir, 'definitions.json'))

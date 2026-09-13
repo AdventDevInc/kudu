@@ -79,19 +79,18 @@ export async function customRoot(
     throw new Error(
       'Choose a specific data/cache subfolder outside protected system, profile and Kudu folders.'
     )
-  const canonical = await realpath(root)
-  const equal =
-    policy.platform === 'win32'
-      ? canonical.toLowerCase() === path.resolve(root).toLowerCase()
-      : canonical === path.resolve(root)
-  if (!equal || !customRootAllowed(canonical, policy))
-    throw new Error('Folder aliases and junctions are not supported. Choose the real folder.')
-  for (let parent = canonical; ; parent = path.dirname(parent)) {
+  // Walk the requested path itself so links anywhere in the chain are refused, then
+  // canonicalise; realpath alone would also reject harmless 8.3 short names on Windows.
+  const resolved = path.resolve(root)
+  for (let parent = resolved; ; parent = path.dirname(parent)) {
     const info = await lstat(parent)
-    if (!info.isDirectory() || info.isSymbolicLink())
-      throw new Error('Folder ancestors must be real directories')
+    if (info.isSymbolicLink() || !info.isDirectory())
+      throw new Error('Folder aliases and junctions are not supported. Choose the real folder.')
     if (path.dirname(parent) === parent) break
   }
+  const canonical = await realpath(resolved)
+  if (!customRootAllowed(canonical, policy))
+    throw new Error('Folder aliases and junctions are not supported. Choose the real folder.')
   return { path: canonical, info: await lstat(canonical) }
 }
 export function customFileMatches(
