@@ -24,7 +24,13 @@ describe('recovery safeguards', () => {
     const after = { start: 4, delayed: 1, running: false }
     expect(recoveryDecision({ ...after, delayed: 0 }, before, after)).toBe('conflict')
     expect(recoveryDecision({ ...after, running: true }, before, after)).toBe('restore')
-    expect(recoveryDecision({ ...before, running: false }, before, after)).toBe('already-restored')
+    expect(recoveryDecision({ ...before }, before, after)).toBe('already-restored')
+  })
+  it('still restores the recorded running state when only the configuration matches', () => {
+    const before = { start: 2, delayed: 1, running: true }
+    const after = { start: 4, delayed: 1, running: false }
+    expect(recoveryDecision({ ...before, running: false }, before, after)).toBe('restore')
+    expect(recoveryDecision({ ...after, running: true }, after, before)).toBe('restore')
   })
   it('rejects unsupported types and script-bearing targets', () => {
     expect(validateRecoveryEntry(entry)).toBe(true)

@@ -18,11 +18,15 @@ export interface RecoveryEntry {
   error?: string
 }
 
-// Service running state is volatile (stops, reboots, partial restores) and is
-// only restored on a best-effort basis, so it is excluded from the comparison.
+type ServiceRecoveryValue = Extract<RecoveryValue, { running: boolean }>
+function isServiceValue(value: RecoveryValue): value is ServiceRecoveryValue {
+  return !!value && typeof value === 'object'
+}
+// Service running state is volatile (stops, reboots, partial restores), so only the
+// start type and delayed flag decide whether a newer value must be preserved.
 function comparable(value: RecoveryValue): string {
   return JSON.stringify(
-    value && typeof value === 'object' ? { start: value.start, delayed: value.delayed } : value
+    isServiceValue(value) ? { start: value.start, delayed: value.delayed } : value
   )
 }
 export function recoveryDecision(
@@ -31,11 +35,15 @@ export function recoveryDecision(
   after: RecoveryValue
 ) {
   const encoded = comparable(current)
-  return encoded === comparable(before)
-    ? 'already-restored'
-    : encoded === comparable(after)
-      ? 'restore'
-      : 'conflict'
+  if (encoded === comparable(before)) {
+    // The configuration is back, but a recorded start/stop may still be outstanding
+    // (e.g. Stop-Service succeeded before Set-Service failed, or Start-Service failed
+    // during an earlier recovery). Re-apply it instead of reporting the entry restored.
+    const runtimePending =
+      isServiceValue(current) && isServiceValue(before) && current.running !== before.running
+    return runtimePending ? 'restore' : 'already-restored'
+  }
+  return encoded === comparable(after) ? 'restore' : 'conflict'
 }
 
 export function validateRecoveryEntry(value: unknown): value is RecoveryEntry {

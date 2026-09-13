@@ -1,7 +1,11 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest'
 import type { RecoveryEntry } from '../../shared/recovery'
 const mocks = vi.hoisted(() => ({ exec: vi.fn(), get: vi.fn(), update: vi.fn() }))
-vi.mock('./exec-utf8', () => ({ execNativeUtf8: mocks.exec, psUtf8: (v: string) => v }))
+vi.mock('./exec-utf8', () => ({
+  execNativeUtf8: mocks.exec,
+  execTracked: mocks.exec,
+  psUtf8: (v: string) => v
+}))
 vi.mock('./recovery-store', () => ({
   getRecoveryEntry: mocks.get,
   updateRecoveryEntry: mocks.update
@@ -57,6 +61,41 @@ it('leaves already restored settings alone', async () => {
 it('does not report a successful restore when verification fails', async () => {
   mocks.exec.mockResolvedValue({ stdout: 'Value REG_DWORD 0x1' })
   await expect(restoreRecoveryEntry(original.id)).rejects.toThrow('could not be verified')
+  expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }))
+})
+const service: RecoveryEntry = {
+  ...original,
+  source: 'services',
+  target: { kind: 'service-start', name: 'Spooler' },
+  before: { start: 2, delayed: 1, running: true },
+  after: { start: 4, delayed: 1, running: false }
+}
+it('starts a service whose configuration is restored but which is still stopped', async () => {
+  mocks.get.mockResolvedValue(structuredClone(service))
+  mocks.exec
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":2,"delayed":1,"running":false}}' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: 'DelayedAutoStart REG_DWORD 0x1' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":2,"delayed":1,"running":true}}' })
+  expect((await restoreRecoveryEntry(service.id)).status).toBe('restored')
+  expect(mocks.exec.mock.calls.map((call) => call[0])).toEqual([
+    'powershell',
+    'sc.exe',
+    'reg',
+    'powershell',
+    'powershell'
+  ])
+  expect(mocks.exec.mock.calls[3][1].at(-1)).toContain("Start-Service -Name 'Spooler'")
+})
+it('fails instead of reporting restored when the service cannot be started', async () => {
+  mocks.get.mockResolvedValue(structuredClone(service))
+  mocks.exec
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":2,"delayed":1,"running":false}}' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: 'DelayedAutoStart REG_DWORD 0x1' })
+    .mockRejectedValueOnce(new Error('Service cannot be started'))
+  await expect(restoreRecoveryEntry(service.id)).rejects.toThrow('cannot be started')
   expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }))
 })
 it('resolves only persisted IDs and never accepts a renderer path', async () => {
