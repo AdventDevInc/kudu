@@ -24,6 +24,7 @@ import {
   notifyScheduledScanComplete,
   completeScheduleRun,
   authorizeScheduleStep,
+  acknowledgeScheduleRun,
   getScheduleRuntime,
   runScheduleNow
 } from './services/scheduler'
@@ -674,6 +675,9 @@ function initGui(): void {
 
     ipcMain.handle(IPC.SCHEDULE_AUTHORIZE, (_event, id: unknown, runId: unknown) =>
       authorizeScheduleStep(id, runId)
+    )
+    ipcMain.handle(IPC.SCHEDULE_RUN_ACK, (_event, id: unknown, runId: unknown) =>
+      acknowledgeScheduleRun(id, runId)
     )
     ipcMain.handle(IPC.SCHEDULE_RUNTIME, () => getScheduleRuntime())
     ipcMain.handle(IPC.SCHEDULE_RUN_NOW, (_event, id: unknown) =>

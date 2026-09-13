@@ -33,6 +33,13 @@ describe('schedule timing', () => {
     expect(dueScheduleOccurrence(entry, new Date('2026-09-13T09:01:00'))?.getHours()).toBe(9)
     expect(dueScheduleOccurrence(entry, new Date('2026-09-13T09:03:00'))).toBeNull()
   })
+  it('keeps a skip occurrence alive while another run holds the lock', () => {
+    const later = new Date('2026-09-13T09:05:00')
+    expect(dueScheduleOccurrence(entry, later, true)?.getHours()).toBe(9)
+    expect(
+      dueScheduleOccurrence({ ...entry, lastDueAt: '2026-09-13T09:00:00' }, later, true)
+    ).toBeNull()
+  })
   it('coalesces missed runs after sleep or reboot without replaying a consumed occurrence', () => {
     const now = new Date('2026-09-13T12:00:00')
     const catchUp = { ...entry, missedRun: 'once' as const }

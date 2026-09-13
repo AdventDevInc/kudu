@@ -394,9 +394,12 @@ export function setSettings(partial: Partial<KuduSettings>): void {
     if (patch.schedules)
       patch.schedules = patch.schedules.map((entry) => {
         const previous = data.settings.schedules.find((e) => e.id === entry.id)
+        // Editing or re-enabling a schedule must not turn its most recent past occurrence
+        // into a "missed" run that starts unattended; catch-up covers later ones only.
+        const redefined = previous && scheduleDefinition(previous) !== scheduleDefinition(entry)
         return {
           ...entry,
-          lastDueAt: previous?.lastDueAt ?? null,
+          lastDueAt: redefined ? new Date().toISOString() : (previous?.lastDueAt ?? null),
           lastRunAt: previous?.lastRunAt ?? null,
           lastRunStatus: previous?.lastRunStatus ?? 'never'
         }

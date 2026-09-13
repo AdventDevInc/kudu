@@ -332,6 +332,8 @@ const api = {
     allowed: boolean
     reason: import('../shared/schedule-policy').ScheduleWaitingReason | null
   }> => ipcRenderer.invoke(IPC.SCHEDULE_AUTHORIZE, id, runId),
+  scheduleRunAck: (scheduleId: string, runId: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.SCHEDULE_RUN_ACK, scheduleId, runId),
   scheduleRunComplete: (scheduleId: string, status: string, runId: string) =>
     ipcRenderer.invoke(IPC.SCHEDULE_RUN_COMPLETE, scheduleId, status, runId),
 

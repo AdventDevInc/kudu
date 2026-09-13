@@ -119,6 +119,7 @@ export const IPC = {
 
   // Multi-schedule
   SCHEDULE_RUN_TRIGGER: 'schedule:run-trigger',
+  SCHEDULE_RUN_ACK: 'schedule:run-ack',
   SCHEDULE_RUN_COMPLETE: 'schedule:run-complete',
 
   // Settings apply (renderer -> main)

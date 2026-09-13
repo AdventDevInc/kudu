@@ -122,7 +122,15 @@ export function previousScheduleOccurrence(entry: ScheduleEntry, now: Date): Dat
   return d
 }
 
-export function dueScheduleOccurrence(entry: ScheduleEntry, now: Date): Date | null {
+/**
+ * `waitingForRun` keeps a 'skip' occurrence alive while another schedule holds the
+ * execution lock, so two entries due in the same minute both run, in sequence.
+ */
+export function dueScheduleOccurrence(
+  entry: ScheduleEntry,
+  now: Date,
+  waitingForRun = false
+): Date | null {
   if (!entry.enabled) return null
   const due = previousScheduleOccurrence(entry, now)
   const created = Date.parse(entry.createdAt)
@@ -132,7 +140,8 @@ export function dueScheduleOccurrence(entry: ScheduleEntry, now: Date): Date | n
   )
   if (due.getTime() <= consumed || (Number.isFinite(created) && due.getTime() < created))
     return null
-  if (entry.missedRun !== 'once' && now.getTime() - due.getTime() > 2 * 60_000) return null
+  if (entry.missedRun !== 'once' && !waitingForRun && now.getTime() - due.getTime() > 2 * 60_000)
+    return null
   return due
 }
 

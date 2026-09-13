@@ -138,7 +138,7 @@
       "disabled": "Schedule disabled",
       "changed": "Schedule was edited; queued definition discarded",
       "unavailable": "Waiting for the application window",
-      "interrupted": "The run lost its window. Restart Kudu before starting more scheduled work; this occurrence will not replay."
+      "interrupted": "The run lost its window and was recorded as failed; this occurrence will not replay."
     },
     "saveFailed": "The schedule could not be saved. Try again.",
     "skipped": "Skipped after conditions changed."

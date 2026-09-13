@@ -315,7 +315,11 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
     store.setStatus(ScanStatus.Error)
     store.setProgress(null)
     status = 'failed'
-    window.kudu.scheduleRunComplete?.(payload.scheduleId, status, payload.runId)
+    try {
+      await window.kudu.scheduleRunComplete?.(payload.scheduleId, status, payload.runId)
+    } catch {
+      /* main releases the run itself once the window reports back or goes away */
+    }
     refreshSettings()
     toast.error(`"${payload.scheduleName}" failed`, {
       description: 'An error occurred during the scheduled task.'
@@ -345,33 +349,40 @@ export function useScheduledScan(): void {
     }
 
     const processQueue = async () => {
-      while (queueRef.current.length > 0) {
-        const next = queueRef.current.shift()!
-        try {
-          // Wait for any manual work to finish before running
-          const idle = await waitForIdle()
-          if (!idle) {
-            await window.kudu.scheduleRunComplete?.(next.scheduleId, 'deferred', next.runId)
-            toast.warning(`"${next.scheduleName}" skipped`, {
-              description: 'Timed out waiting for manual scan to finish.'
-            })
-            continue
+      try {
+        while (queueRef.current.length > 0) {
+          const next = queueRef.current.shift()!
+          try {
+            // Wait for any manual work to finish before running
+            const idle = await waitForIdle()
+            if (!idle) {
+              await window.kudu.scheduleRunComplete?.(next.scheduleId, 'deferred', next.runId)
+              toast.warning(`"${next.scheduleName}" skipped`, {
+                description: 'Timed out waiting for manual scan to finish.'
+              })
+              continue
+            }
+            await runSchedule(next)
+          } catch (error) {
+            if (error instanceof ScheduleConditionChanged) throw error
+            // Ensure completion is reported even on unexpected errors
+            await window.kudu.scheduleRunComplete?.(next.scheduleId, 'failed', next.runId)
           }
-          await runSchedule(next)
-        } catch (error) {
-          if (error instanceof ScheduleConditionChanged) throw error
-          // Ensure completion is reported even on unexpected errors
-          await window.kudu.scheduleRunComplete?.(next.scheduleId, 'failed', next.runId)
         }
+      } finally {
+        runningRef.current = false
       }
-      runningRef.current = false
     }
 
     const unsubscribe = window.kudu.onScheduleRunTrigger((payload: ScheduleRunPayload) => {
+      // Main rolls back triggers nobody acknowledges (renderer not mounted yet, reload).
+      void window.kudu.scheduleRunAck?.(payload.scheduleId, payload.runId).catch(() => {})
       queueRef.current.push(payload)
       if (!runningRef.current) {
         runningRef.current = true
-        processQueue()
+        processQueue().catch(() => {
+          /* the run already reported its own outcome */
+        })
       }
     })
 

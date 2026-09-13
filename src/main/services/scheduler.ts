@@ -18,9 +18,13 @@ import {
   nextScheduleOccurrence,
   scheduleDefinition,
   scheduleWaitingReason,
+  type ScheduleConditions,
   type ScheduleRuntime,
   type ScheduleWaitingReason
 } from '../../shared/schedule-policy'
+
+/** A trigger the renderer never acknowledges is rolled back so the occurrence retries. */
+const ACK_TIMEOUT_MS = 15_000
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null
 let initialCheckTimer: ReturnType<typeof setTimeout> | null = null
@@ -85,11 +89,16 @@ interface ActiveRun {
   runId: string
   dueAt: string
   window: BrowserWindow
+  acked: boolean
+  /** Detaches the window listeners and the acknowledgement timer. */
+  release: () => void
 }
 let active: ActiveRun | null = null
 let evaluating = false
 let generation = 0
 const runtime = new Map<string, ScheduleRuntime>()
+/** Definitions whose due occurrence is waiting on a condition; a silent expiry records 'skipped'. */
+const pending = new Map<string, string>()
 export function getScheduleRuntime(): ScheduleRuntime[] {
   return [...runtime.values()]
 }
@@ -102,8 +111,15 @@ function state(entry: ScheduleEntry, reason: ScheduleWaitingReason | null, runni
     nextEvaluationAt: new Date(Date.now() + 60_000).toISOString()
   })
 }
-async function conditionReason(entry: ScheduleEntry) {
-  const conditions = entry.conditions ?? {}
+async function conditionReason(entry: ScheduleEntry, betweenSteps = false) {
+  const conditions: ScheduleConditions = { ...(entry.conditions ?? {}) }
+  if (betweenSteps) {
+    // Disk space and the maintenance window gate only the start: a workflow whose first step
+    // frees space or crosses the window boundary keeps going.
+    delete conditions.freeBelowPercent
+    delete conditions.windowStart
+    delete conditions.windowEnd
+  }
   let idleSeconds: number | null = null,
     onBattery: boolean | null = null,
     gameMode: boolean | null = null,
@@ -131,20 +147,23 @@ async function conditionReason(entry: ScheduleEntry) {
     }
   }
   if (conditions.freeBelowPercent !== undefined) {
+    let timeout: ReturnType<typeof setTimeout> | undefined
     try {
       const root = parse(app.getPath('home'))
         .root.replace(/[\\/]$/, '')
         .toLowerCase()
       const disks = await Promise.race([
         si.fsSize(),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Disk query timed out')), 5000)
-        )
+        new Promise<never>((_, reject) => {
+          timeout = setTimeout(() => reject(new Error('Disk query timed out')), 5000)
+        })
       ])
       const disk = disks.find((d) => d.mount.replace(/[\\/]$/, '').toLowerCase() === root)
       if (disk && disk.size > 0) freePercent = (100 * disk.available) / disk.size
     } catch {
       /* unknown disk condition prevents execution */
+    } finally {
+      clearTimeout(timeout)
     }
   }
   return scheduleWaitingReason(
@@ -156,19 +175,48 @@ async function conditionReason(entry: ScheduleEntry) {
 export async function authorizeScheduleStep(scheduleId: unknown, runId: unknown) {
   if (!active || active.entry.id !== scheduleId || active.runId !== runId)
     return { allowed: false, reason: 'unavailable' as const }
+  active.acked = true
   const entry = getSettings().schedules.find((e) => e.id === scheduleId)
   let reason: ScheduleWaitingReason | null =
     !entry || !entry.enabled
       ? 'disabled'
       : scheduleDefinition(entry) !== scheduleDefinition(active.entry)
         ? 'changed'
-        : await conditionReason(entry)
+        : await conditionReason(entry, true)
   if (!active || active.runId !== runId) reason = 'unavailable'
   const latest = getSettings().schedules.find((e) => e.id === scheduleId)
   if (!latest?.enabled) reason = 'disabled'
   else if (entry && scheduleDefinition(latest) !== scheduleDefinition(entry)) reason = 'changed'
   if (entry) state(entry, reason, !reason)
   return { allowed: !reason, reason }
+}
+/** The renderer confirms it received a trigger; unacknowledged triggers are rolled back. */
+export function acknowledgeScheduleRun(scheduleId: unknown, runId: unknown): boolean {
+  if (!active || active.entry.id !== scheduleId || active.runId !== runId) return false
+  active.acked = true
+  return true
+}
+/**
+ * Release the execution lock for a run whose renderer can no longer report back. An
+ * unacknowledged trigger returns its occurrence so the next check retries; anything that
+ * may have started work is recorded as failed and never replayed.
+ */
+function abandonRun(runId: string, reason: ScheduleWaitingReason): void {
+  if (!active || active.runId !== runId) return
+  const { entry } = active
+  active.release()
+  active = null
+  const current = getSettings().schedules.find((e) => e.id === entry.id)
+  const unchanged = current && scheduleDefinition(current) === scheduleDefinition(entry)
+  if (reason === 'unavailable') {
+    if (unchanged) updateScheduleEntry(entry.id, { lastDueAt: entry.lastDueAt ?? null })
+  } else {
+    updateScheduleEntry(entry.id, { lastRunAt: new Date().toISOString(), lastRunStatus: 'failed' })
+  }
+  state(entry, reason)
+}
+function windowLost(window: BrowserWindow): boolean {
+  return window.isDestroyed() || window.webContents.isDestroyed() || window.webContents.isCrashed()
 }
 async function triggerScheduleEntry(
   mainWindow: BrowserWindow | null,
@@ -198,16 +246,38 @@ async function triggerScheduleEntry(
     mainWindow.webContents.isDestroyed()
   )
     return
+  const runId = randomUUID()
+  const contents = mainWindow.webContents
+  const lost = () => abandonRun(runId, 'interrupted')
+  const navigated = (
+    details: Electron.Event<Electron.WebContentsDidStartNavigationEventParams>
+  ) => {
+    if (details.isMainFrame && !details.isSameDocument) lost()
+  }
+  const ackTimer = setTimeout(() => {
+    if (active?.runId === runId && !active.acked) abandonRun(runId, 'unavailable')
+  }, ACK_TIMEOUT_MS)
   active = {
     entry: definition,
-    runId: randomUUID(),
+    runId,
     dueAt: due.toISOString(),
-    window: mainWindow
+    window: mainWindow,
+    acked: false,
+    release: () => {
+      clearTimeout(ackTimer)
+      if (contents.isDestroyed()) return
+      contents.removeListener('did-start-navigation', navigated)
+      contents.removeListener('render-process-gone', lost)
+      contents.removeListener('destroyed', lost)
+    }
   }
+  contents.on('did-start-navigation', navigated)
+  contents.on('render-process-gone', lost)
+  contents.on('destroyed', lost)
   state(entry, null, true)
-  mainWindow.webContents.send(IPC.SCHEDULE_RUN_TRIGGER, {
+  contents.send(IPC.SCHEDULE_RUN_TRIGGER, {
     scheduleId: entry.id,
-    runId: active.runId,
+    runId,
     scheduleName: entry.name,
     tasks: entry.tasks,
     autoApply: entry.autoApply,
@@ -280,7 +350,10 @@ export async function completeScheduleRun(
     })
   }
   await flushSettings()
-  if (active?.runId === runId) active = null
+  if (active?.runId === runId) {
+    active.release()
+    active = null
+  }
   state(entry, reason)
 }
 async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promise<void> {
@@ -288,23 +361,36 @@ async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promis
   evaluating = true
   try {
     const entries = getSettings().schedules
-    for (const id of runtime.keys()) if (!entries.some((e) => e.id === id)) runtime.delete(id)
+    for (const id of runtime.keys())
+      if (!entries.some((e) => e.id === id)) {
+        runtime.delete(id)
+        pending.delete(id)
+      }
     // Never time out a live operation and start an overlapping run. A lost renderer consumes
-    // this occurrence; a restart will not replay work whose completion is uncertain.
-    if (
-      active &&
-      (active.window.isDestroyed() ||
-        active.window.webContents.isDestroyed() ||
-        active.window.webContents.isCrashed())
-    ) {
-      state(active.entry, 'interrupted')
-      return
-    }
+    // this occurrence: the run is recorded as failed and never replayed, and scheduling
+    // continues against whatever window the app has now.
+    if (active && windowLost(active.window)) abandonRun(active.runId, 'interrupted')
     for (const entry of entries) {
       if (active?.entry.id === entry.id) continue
-      const due = dueScheduleOccurrence(entry, new Date())
-      if (due) await triggerScheduleEntry(getMainWindow(), entry, due)
-      else state(entry, entry.enabled ? null : 'disabled')
+      // An occurrence blocked only by another run stays due until that run finishes.
+      const busy = runtime.get(entry.id)?.reason === 'busy'
+      const due = dueScheduleOccurrence(entry, new Date(), busy)
+      if (due) {
+        await triggerScheduleEntry(getMainWindow(), entry, due)
+        const current = runtime.get(entry.id)
+        if (current?.reason && !current.running) pending.set(entry.id, scheduleDefinition(entry))
+        else pending.delete(entry.id)
+      } else {
+        if (entry.enabled && pending.get(entry.id) === scheduleDefinition(entry)) {
+          updateScheduleEntry(entry.id, {
+            lastRunAt: new Date().toISOString(),
+            lastRunStatus: 'skipped'
+          })
+          await flushSettings()
+        }
+        pending.delete(entry.id)
+        state(entry, entry.enabled ? null : 'disabled')
+      }
     }
   } finally {
     evaluating = false
@@ -353,5 +439,7 @@ export function stopScheduler(): void {
     logInfo('Scheduler stopped')
   }
   runtime.clear()
+  pending.clear()
+  active?.release()
   active = null
 }
