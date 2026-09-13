@@ -297,9 +297,10 @@ const MAX_PARALLEL_DELETES = 8
 export function cleanItems(
   itemIds: unknown,
   onProgress?: (processed: number, total: number, currentPath: string, cleanedSize: number) => void,
-  origin: DeletionOrigin = 'local'
+  origin: DeletionOrigin = 'local',
+  parentReceiptId?: string
 ): Promise<CleanResult> {
-  return trackMainWork(cleanItemsNow(itemIds, onProgress, origin))
+  return trackMainWork(cleanItemsNow(itemIds, onProgress, origin, parentReceiptId))
 }
 async function cleanItemsNow(
   itemIds: unknown,
