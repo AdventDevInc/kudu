@@ -10,7 +10,7 @@
   "deletedToast": "\"{{name}}\" 삭제됨",
   "updatedToast": "\"{{name}}\" 업데이트됨",
   "createdToast": "\"{{name}}\" 생성됨",
-  "failedEnableStartup": "시작 프로그램으로 설정하지 못했습니다. 다시 시작 후 일정이 실행되지 않을 수 있습니다.",
+  "failedEnableStartup": "시작 프로그램 활성화에 실패했습니다. 다시 시작 후 일정이 실행되지 않을 수 있습니다.",
   "failedEnableStartupAction": "자세히 알아보기",
   "deleteConfirmTitle": "일정 삭제",
   "deleteConfirmDescription": "이 일정은 영구적으로 제거됩니다. 이 작업은 되돌릴 수 없습니다.",

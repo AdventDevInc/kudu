@@ -10,7 +10,7 @@
   "deletedToast": "Видалено \"{{name}}\"",
   "updatedToast": "Оновлено \"{{name}}\"",
   "createdToast": "Створено \"{{name}}\"",
-  "failedEnableStartup": "Не вдалося ввімкнути автозапуск. Після перезавантаження розклади можуть не запускатися.",
+  "failedEnableStartup": "Не вдалося ввімкнути автозапуск. Розклади можуть не запускатися після перезавантаження.",
   "failedEnableStartupAction": "Докладніше",
   "deleteConfirmTitle": "Видалити розклад",
   "deleteConfirmDescription": "Цей розклад буде остаточно видалено. Цю дію неможливо скасувати.",
@@ -32,7 +32,7 @@
     "dailyLightSweepLabel": "Щоденне легке очищення",
     "dailyLightSweepDescription": "Система, браузери й кошик щодня о 8:00",
     "monthlyDeepMaintenanceLabel": "Щомісячне глибоке обслуговування",
-    "monthlyDeepMaintenanceDescription": "Повне очищення + реєстр, драйвери й програми 1-го числа о 10:00",
+    "monthlyDeepMaintenanceDescription": "Повне очищення + реєстр, драйвери та програми 1-го числа о 10:00",
     "customLabel": "Власний",
     "customDescription": "Почніть з нуля з порожнім розкладом"
   },
@@ -53,7 +53,7 @@
     "cleanerGroup": "Очищення",
     "maintenanceGroup": "Обслуговування",
     "autoApplyLabel": "Автозастосування",
-    "autoApplyDescription": "Автоматично очищати файли, виправляти проблеми реєстру та встановлювати оновлення без підтвердження.",
+    "autoApplyDescription": "Автоматично очищати файли, виправляти помилки реєстру та встановлювати оновлення без підтвердження.",
     "autoApplyWarning": "Дії виконуватимуться автоматично за розкладом. Переконайтеся, що список винятків актуальний.",
     "cancelButton": "Скасувати",
     "saveChangesButton": "Зберегти зміни",
@@ -71,13 +71,13 @@
     "softwareUpdates": "Оновлення програм"
   },
   "dayNames": {
-    "sunday": "неділя",
-    "monday": "понеділок",
-    "tuesday": "вівторок",
-    "wednesday": "середа",
-    "thursday": "четвер",
-    "friday": "п’ятниця",
-    "saturday": "субота"
+    "sunday": "Неділя",
+    "monday": "Понеділок",
+    "tuesday": "Вівторок",
+    "wednesday": "Середа",
+    "thursday": "Четвер",
+    "friday": "П’ятниця",
+    "saturday": "Субота"
   },
   "frequency": {
     "everyDayAt": "Щодня о {{time}}",
@@ -94,7 +94,7 @@
     "justNow": "Щойно",
     "minutesAgo": "{{count}} хв тому",
     "hoursAgo": "{{count}} год тому",
-    "daysAgo": "{{count}} дн тому"
+    "daysAgo": "{{count}} дн. тому"
   },
   "copyNameSuffix": "(копія)",
   "advanced": {

@@ -527,6 +527,7 @@ export function CleanerPage() {
           if (!cleanFn) continue
           const cleaned = await cleanInBatches(catItemIds, cleanFn)
           const result = cleaned.result
+          if (result.receiptSaved === false) toast.warning(t('history:receipts.saveError'))
           totalCleaned += result.totalCleaned
           totalFiles += result.filesDeleted
           totalSkipped += result.filesSkipped

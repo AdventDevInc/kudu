@@ -5,12 +5,12 @@
   "createScheduleButton": "Ütemezés létrehozása",
   "emptyStateTitle": "Még nincsenek ütemezések",
   "emptyStateDescription": "Hozzon létre egy ütemezést a vizsgálatok, tisztítások és frissítések automatikus futtatásához.",
-  "maxSchedulesReached": "Elérte az ütemezések maximális számát: {{max}}.",
-  "duplicatedToast": "Másolat készült erről: „{{name}}”",
+  "maxSchedulesReached": "Elérte a(z) {{max}} ütemezéses maximumot.",
+  "duplicatedToast": "Másolat létrehozva: „{{name}}”",
   "deletedToast": "Törölve: „{{name}}”",
   "updatedToast": "Frissítve: „{{name}}”",
   "createdToast": "Létrehozva: „{{name}}”",
-  "failedEnableStartup": "Nem sikerült engedélyezni az automatikus indítást. Előfordulhat, hogy az ütemezések újraindítás után nem futnak le.",
+  "failedEnableStartup": "Nem sikerült engedélyezni az automatikus indítást. Előfordulhat, hogy az ütemezések nem futnak újraindítás után.",
   "failedEnableStartupAction": "További információ",
   "deleteConfirmTitle": "Ütemezés törlése",
   "deleteConfirmDescription": "Ez az ütemezés véglegesen el lesz távolítva. Ez a művelet nem vonható vissza.",
@@ -29,7 +29,7 @@
     "dialogTitle": "Válasszon sablont",
     "weeklyFullCleanLabel": "Heti teljes tisztítás",
     "weeklyFullCleanDescription": "Minden tisztítási kategória minden hétfőn 9:00-kor",
-    "dailyLightSweepLabel": "Napi gyors tisztítás",
+    "dailyLightSweepLabel": "Napi könnyű tisztítás",
     "dailyLightSweepDescription": "Rendszer, böngészők és Lomtár naponta 8:00-kor",
     "monthlyDeepMaintenanceLabel": "Havi alapos karbantartás",
     "monthlyDeepMaintenanceDescription": "Teljes tisztítás + beállításjegyzék, illesztőprogramok és szoftverek minden hónap 1-jén 10:00-kor",
@@ -46,15 +46,15 @@
     "frequencyWeekly": "Hetente",
     "frequencyMonthly": "Havonta",
     "dayLabel": "Nap",
-    "timeLabel": "Időpont",
+    "timeLabel": "Idő",
     "tasksLabel": "Feladatok",
     "selectAll": "Összes kijelölése",
     "deselectAll": "Összes kijelölés megszüntetése",
-    "cleanerGroup": "Tisztítás",
+    "cleanerGroup": "Tisztító",
     "maintenanceGroup": "Karbantartás",
     "autoApplyLabel": "Automatikus alkalmazás",
     "autoApplyDescription": "Fájlok automatikus tisztítása, beállításjegyzék-hibák javítása és frissítések telepítése megerősítés nélkül.",
-    "autoApplyWarning": "A műveletek az ütemezés szerint automatikusan futnak. Győződjön meg arról, hogy a kizárási lista naprakész.",
+    "autoApplyWarning": "A műveletek automatikusan, az ütemezés szerint futnak. Győződjön meg arról, hogy a kizárási lista naprakész.",
     "cancelButton": "Mégse",
     "saveChangesButton": "Módosítások mentése",
     "createScheduleButton": "Ütemezés létrehozása"
@@ -66,7 +66,7 @@
     "gaming": "Játékok",
     "recycleBin": "Lomtár",
     "databases": "Adatbázisok",
-    "registryFixes": "Beállításjegyzék javítása",
+    "registryFixes": "Beállításjegyzék-javítások",
     "driverUpdates": "Illesztőprogram-frissítések",
     "softwareUpdates": "Szoftverfrissítések"
   },
@@ -80,21 +80,21 @@
     "saturday": "Szombat"
   },
   "frequency": {
-    "everyDayAt": "Minden nap {{time}} időpontban",
-    "everyWeekdayAt": "Minden {{day}} {{time}} időpontban",
-    "monthlyAt": "Minden hónap {{ordinalDay}}. napján {{time}} időpontban"
+    "everyDayAt": "Minden nap {{time}}-kor",
+    "everyWeekdayAt": "Minden {{day}} {{time}}-kor",
+    "monthlyAt": "Minden hónap {{ordinalDay}} napján {{time}}-kor"
   },
   "nextRun": {
-    "todayAt": "Ma {{time}} időpontban",
-    "tomorrowAt": "Holnap {{time}} időpontban",
-    "inDaysAt": "{{count}} nap múlva, {{time}} időpontban",
-    "dateAt": "{{date}} {{time}} időpontban"
+    "todayAt": "Ma {{time}}-kor",
+    "tomorrowAt": "Holnap {{time}}-kor",
+    "inDaysAt": "{{count}} nap múlva, {{time}}-kor",
+    "dateAt": "{{date}} {{time}}-kor"
   },
   "lastRun": {
     "justNow": "Épp most",
-    "minutesAgo": "{{count}} p",
-    "hoursAgo": "{{count}} ó",
-    "daysAgo": "{{count}} n"
+    "minutesAgo": "{{count}} perce",
+    "hoursAgo": "{{count}} órája",
+    "daysAgo": "{{count}} napja"
   },
   "copyNameSuffix": "(másolat)",
   "advanced": {

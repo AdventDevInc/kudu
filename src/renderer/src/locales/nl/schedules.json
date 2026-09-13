@@ -4,7 +4,7 @@
   "newScheduleButton": "Nieuw schema",
   "createScheduleButton": "Schema maken",
   "emptyStateTitle": "Nog geen schema's",
-  "emptyStateDescription": "Maak een schema om automatisch scans, opschoonacties en updates uit te voeren.",
+  "emptyStateDescription": "Maak een schema om scans, opschoonacties en updates automatisch uit te voeren.",
   "maxSchedulesReached": "Maximum van {{max}} schema's bereikt.",
   "duplicatedToast": "\"{{name}}\" gedupliceerd",
   "deletedToast": "\"{{name}}\" verwijderd",
@@ -54,7 +54,7 @@
     "maintenanceGroup": "Onderhoud",
     "autoApplyLabel": "Automatisch toepassen",
     "autoApplyDescription": "Bestanden automatisch opschonen, registerproblemen oplossen en updates installeren zonder bevestiging.",
-    "autoApplyWarning": "Acties worden automatisch volgens schema uitgevoerd. Controleer of uw uitsluitingenlijst up-to-date is.",
+    "autoApplyWarning": "Acties worden automatisch volgens schema uitgevoerd. Zorg ervoor dat uw uitsluitingenlijst up-to-date is.",
     "cancelButton": "Annuleren",
     "saveChangesButton": "Wijzigingen opslaan",
     "createScheduleButton": "Schema maken"
@@ -71,13 +71,13 @@
     "softwareUpdates": "Software-updates"
   },
   "dayNames": {
-    "sunday": "Zondag",
-    "monday": "Maandag",
-    "tuesday": "Dinsdag",
-    "wednesday": "Woensdag",
-    "thursday": "Donderdag",
-    "friday": "Vrijdag",
-    "saturday": "Zaterdag"
+    "sunday": "zondag",
+    "monday": "maandag",
+    "tuesday": "dinsdag",
+    "wednesday": "woensdag",
+    "thursday": "donderdag",
+    "friday": "vrijdag",
+    "saturday": "zaterdag"
   },
   "frequency": {
     "everyDayAt": "Elke dag om {{time}}",

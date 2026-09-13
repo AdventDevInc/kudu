@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+vi.mock('../services/cleanup-receipts', () => ({
+  recordNativeCleanup: (_label: string, operation: () => Promise<unknown>) => operation()
+}))
 
 // ── Hoisted mocks (available inside vi.mock factories) ──
 

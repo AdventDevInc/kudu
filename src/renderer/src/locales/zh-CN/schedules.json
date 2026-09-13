@@ -34,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "每月深度维护",
     "monthlyDeepMaintenanceDescription": "每月 1 日上午 10:00 执行完整清理 + 注册表、驱动程序和软件维护",
     "customLabel": "自定义",
-    "customDescription": "从空白计划任务开始"
+    "customDescription": "从空白计划任务开始创建"
   },
   "dialog": {
     "editTitle": "编辑计划任务",
@@ -54,7 +54,7 @@
     "maintenanceGroup": "维护",
     "autoApplyLabel": "自动应用",
     "autoApplyDescription": "自动清理文件、修复注册表问题并安装更新，无需确认。",
-    "autoApplyWarning": "操作将按计划自动执行。请确保您的排除列表已更新至最新状态。",
+    "autoApplyWarning": "操作将按计划自动执行。请确保您的排除列表已保持最新。",
     "cancelButton": "取消",
     "saveChangesButton": "保存更改",
     "createScheduleButton": "创建计划任务"

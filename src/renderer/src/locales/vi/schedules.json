@@ -1,6 +1,6 @@
 {
   "pageTitle": "Lịch biểu",
-  "pageDescription": "Tự động hóa quét, dọn dẹp và cập nhật theo lịch",
+  "pageDescription": "Tự động hóa việc quét, dọn dẹp và cập nhật theo lịch",
   "newScheduleButton": "Lịch biểu mới",
   "createScheduleButton": "Tạo lịch biểu",
   "emptyStateTitle": "Chưa có lịch biểu nào",
@@ -13,7 +13,7 @@
   "failedEnableStartup": "Không thể bật khởi động cùng hệ thống. Lịch biểu có thể không chạy sau khi khởi động lại.",
   "failedEnableStartupAction": "Tìm hiểu thêm",
   "deleteConfirmTitle": "Xóa lịch biểu",
-  "deleteConfirmDescription": "Lịch biểu này sẽ bị xóa vĩnh viễn. Không thể hoàn tác thao tác này.",
+  "deleteConfirmDescription": "Lịch biểu này sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.",
   "deleteConfirmLabel": "Xóa",
   "card": {
     "autoApplyBadge": "Tự động áp dụng",
@@ -27,12 +27,12 @@
   },
   "presets": {
     "dialogTitle": "Chọn mẫu",
-    "weeklyFullCleanLabel": "Dọn dẹp toàn diện hằng tuần",
-    "weeklyFullCleanDescription": "Tất cả danh mục dọn dẹp vào mỗi thứ Hai lúc 9 giờ sáng",
-    "dailyLightSweepLabel": "Dọn dẹp nhẹ hằng ngày",
-    "dailyLightSweepDescription": "Hệ thống, trình duyệt và thùng rác hằng ngày lúc 8 giờ sáng",
+    "weeklyFullCleanLabel": "Dọn dẹp toàn bộ hàng tuần",
+    "weeklyFullCleanDescription": "Tất cả danh mục dọn dẹp vào mỗi thứ Hai lúc 9:00 SA",
+    "dailyLightSweepLabel": "Dọn nhẹ hằng ngày",
+    "dailyLightSweepDescription": "Hệ thống, trình duyệt và thùng rác hằng ngày lúc 8:00 SA",
     "monthlyDeepMaintenanceLabel": "Bảo trì chuyên sâu hằng tháng",
-    "monthlyDeepMaintenanceDescription": "Dọn dẹp toàn diện + registry, driver và phần mềm vào ngày 1 lúc 10 giờ sáng",
+    "monthlyDeepMaintenanceDescription": "Dọn dẹp toàn bộ + registry, driver và phần mềm vào ngày 1 lúc 10:00 SA",
     "customLabel": "Tùy chỉnh",
     "customDescription": "Bắt đầu từ đầu với một lịch biểu trống"
   },
@@ -53,8 +53,8 @@
     "cleanerGroup": "Dọn dẹp",
     "maintenanceGroup": "Bảo trì",
     "autoApplyLabel": "Tự động áp dụng",
-    "autoApplyDescription": "Tự động dọn dẹp tệp, khắc phục sự cố registry và cài đặt bản cập nhật mà không cần xác nhận.",
-    "autoApplyWarning": "Các thao tác sẽ tự động chạy theo lịch. Hãy bảo đảm danh sách loại trừ của bạn đã được cập nhật.",
+    "autoApplyDescription": "Tự động dọn dẹp tệp, sửa lỗi registry và cài đặt bản cập nhật mà không cần xác nhận.",
+    "autoApplyWarning": "Các hành động sẽ tự động chạy theo lịch. Hãy bảo đảm danh sách loại trừ của bạn đã được cập nhật.",
     "cancelButton": "Hủy",
     "saveChangesButton": "Lưu thay đổi",
     "createScheduleButton": "Tạo lịch biểu"
@@ -66,12 +66,12 @@
     "gaming": "Trò chơi",
     "recycleBin": "Thùng rác",
     "databases": "Cơ sở dữ liệu",
-    "registryFixes": "Khắc phục registry",
+    "registryFixes": "Sửa lỗi registry",
     "driverUpdates": "Cập nhật driver",
     "softwareUpdates": "Cập nhật phần mềm"
   },
   "dayNames": {
-    "sunday": "Chủ Nhật",
+    "sunday": "Chủ nhật",
     "monday": "Thứ Hai",
     "tuesday": "Thứ Ba",
     "wednesday": "Thứ Tư",

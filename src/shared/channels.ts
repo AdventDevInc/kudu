@@ -2,6 +2,11 @@ export const IPC = {
   SCHEDULE_AUTHORIZE: 'schedule:authorize',
   SCHEDULE_RUNTIME: 'schedule:runtime',
   SCHEDULE_RUN_NOW: 'schedule:run-now',
+  RECEIPTS_LIST: 'cleanup-receipts:list',
+  RECEIPTS_GET: 'cleanup-receipts:get',
+  RECEIPTS_RETRY: 'cleanup-receipts:retry',
+  RECEIPTS_EXPORT: 'cleanup-receipts:export',
+  RECEIPTS_CLEAR: 'cleanup-receipts:clear',
   // System cleaner
   SYSTEM_SCAN: 'cleaner:system:scan',
   SYSTEM_CLEAN: 'cleaner:system:clean',

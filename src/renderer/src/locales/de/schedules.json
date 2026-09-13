@@ -5,7 +5,7 @@
   "createScheduleButton": "Zeitplan erstellen",
   "emptyStateTitle": "Noch keine Zeitpläne",
   "emptyStateDescription": "Erstellen Sie einen Zeitplan, um Scans, Bereinigungen und Updates automatisch auszuführen.",
-  "maxSchedulesReached": "Das Maximum von {{max}} Zeitplänen wurde erreicht.",
+  "maxSchedulesReached": "Maximal {{max}} Zeitpläne erreicht.",
   "duplicatedToast": "\"{{name}}\" dupliziert",
   "deletedToast": "\"{{name}}\" gelöscht",
   "updatedToast": "\"{{name}}\" aktualisiert",
@@ -28,11 +28,11 @@
   "presets": {
     "dialogTitle": "Vorlage auswählen",
     "weeklyFullCleanLabel": "Wöchentliche vollständige Bereinigung",
-    "weeklyFullCleanDescription": "Alle Bereinigungskategorien jeden Montag um 9 Uhr",
+    "weeklyFullCleanDescription": "Alle Bereinigungskategorien jeden Montag um 9:00 Uhr",
     "dailyLightSweepLabel": "Tägliche leichte Bereinigung",
-    "dailyLightSweepDescription": "System, Browser und Papierkorb täglich um 8 Uhr",
+    "dailyLightSweepDescription": "System, Browser und Papierkorb täglich um 8:00 Uhr",
     "monthlyDeepMaintenanceLabel": "Monatliche intensive Wartung",
-    "monthlyDeepMaintenanceDescription": "Vollständige Bereinigung + Registrierung, Treiber und Software am 1. um 10 Uhr",
+    "monthlyDeepMaintenanceDescription": "Vollständige Bereinigung + Registrierung, Treiber und Software am 1. um 10:00 Uhr",
     "customLabel": "Benutzerdefiniert",
     "customDescription": "Mit einem leeren Zeitplan von Grund auf beginnen"
   },
@@ -40,7 +40,7 @@
     "editTitle": "Zeitplan bearbeiten",
     "newTitle": "Neuer Zeitplan",
     "nameLabel": "Name",
-    "namePlaceholder": "z. B. Wöchentliche Tiefenbereinigung",
+    "namePlaceholder": "z. B. Wöchentliche intensive Bereinigung",
     "frequencyLabel": "Häufigkeit",
     "frequencyDaily": "Täglich",
     "frequencyWeekly": "Wöchentlich",
@@ -49,7 +49,7 @@
     "timeLabel": "Uhrzeit",
     "tasksLabel": "Aufgaben",
     "selectAll": "Alle auswählen",
-    "deselectAll": "Auswahl aufheben",
+    "deselectAll": "Alle abwählen",
     "cleanerGroup": "Bereinigung",
     "maintenanceGroup": "Wartung",
     "autoApplyLabel": "Automatisch anwenden",
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Jeden Tag um {{time}}",
     "everyWeekdayAt": "Jeden {{day}} um {{time}}",
-    "monthlyAt": "Jeden Monat am {{ordinalDay}} um {{time}}"
+    "monthlyAt": "Am {{ordinalDay}}. jedes Monats um {{time}}"
   },
   "nextRun": {
     "todayAt": "Heute um {{time}}",
@@ -94,7 +94,7 @@
     "justNow": "Gerade eben",
     "minutesAgo": "vor {{count}} Min.",
     "hoursAgo": "vor {{count}} Std.",
-    "daysAgo": "vor {{count}} Tg."
+    "daysAgo": "vor {{count}} Tagen"
   },
   "copyNameSuffix": "(Kopie)",
   "advanced": {

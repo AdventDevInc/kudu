@@ -1,40 +1,40 @@
 {
   "pageTitle": "לוחות זמנים",
-  "pageDescription": "אוטומציה של סריקות, ניקויים ועדכונים לפי לוח זמנים",
+  "pageDescription": "הפכו סריקות, ניקויים ועדכונים לאוטומטיים לפי לוח זמנים",
   "newScheduleButton": "לוח זמנים חדש",
-  "createScheduleButton": "יצירת לוח זמנים",
+  "createScheduleButton": "צור לוח זמנים",
   "emptyStateTitle": "עדיין אין לוחות זמנים",
   "emptyStateDescription": "צרו לוח זמנים כדי להפעיל באופן אוטומטי סריקות, ניקויים ועדכונים.",
-  "maxSchedulesReached": "הגעתם למספר המרבי של {{max}} לוחות זמנים.",
-  "duplicatedToast": "שוכפל \"{{name}}\"",
+  "maxSchedulesReached": "הגעת למספר המרבי של לוחות זמנים: {{max}}.",
+  "duplicatedToast": "הועתק \"{{name}}\"",
   "deletedToast": "נמחק \"{{name}}\"",
   "updatedToast": "עודכן \"{{name}}\"",
   "createdToast": "נוצר \"{{name}}\"",
-  "failedEnableStartup": "הפעלת האתחול נכשלה. ייתכן שלוחות הזמנים לא יופעלו לאחר הפעלה מחדש.",
-  "failedEnableStartupAction": "מידע נוסף",
+  "failedEnableStartup": "לא ניתן היה להפעיל הפעלה בעת האתחול. ייתכן שלוחות הזמנים לא יופעלו לאחר הפעלה מחדש.",
+  "failedEnableStartupAction": "למידע נוסף",
   "deleteConfirmTitle": "מחיקת לוח זמנים",
   "deleteConfirmDescription": "לוח זמנים זה יוסר לצמיתות. לא ניתן לבטל פעולה זו.",
   "deleteConfirmLabel": "מחק",
   "card": {
     "autoApplyBadge": "החלה אוטומטית",
-    "editAction": "עריכה",
-    "duplicateAction": "שכפול",
-    "deleteAction": "מחיקה",
+    "editAction": "ערוך",
+    "duplicateAction": "שכפל",
+    "deleteAction": "מחק",
     "noTasksSelected": "לא נבחרו משימות",
     "nextRun": "הבא: {{time}}",
     "lastRun": "אחרון: {{time}}",
     "neverRun": "לא הופעל מעולם"
   },
   "presets": {
-    "dialogTitle": "בחירת תבנית",
+    "dialogTitle": "בחר תבנית",
     "weeklyFullCleanLabel": "ניקוי מלא שבועי",
     "weeklyFullCleanDescription": "כל קטגוריות הניקוי בכל יום שני בשעה 9:00",
     "dailyLightSweepLabel": "ניקוי קל יומי",
     "dailyLightSweepDescription": "מערכת, דפדפנים וסל המיחזור מדי יום בשעה 8:00",
     "monthlyDeepMaintenanceLabel": "תחזוקה מעמיקה חודשית",
-    "monthlyDeepMaintenanceDescription": "ניקוי מלא + רישום, מנהלי התקנים ותוכנה ב-1 בכל חודש בשעה 10:00",
+    "monthlyDeepMaintenanceDescription": "ניקוי מלא + רישום, מנהלי התקנים ותוכנות ב־1 בכל חודש בשעה 10:00",
     "customLabel": "מותאם אישית",
-    "customDescription": "התחילו מאפס עם לוח זמנים ריק"
+    "customDescription": "התחל מאפס עם לוח זמנים ריק"
   },
   "dialog": {
     "editTitle": "עריכת לוח זמנים",
@@ -53,11 +53,11 @@
     "cleanerGroup": "מנקה",
     "maintenanceGroup": "תחזוקה",
     "autoApplyLabel": "החלה אוטומטית",
-    "autoApplyDescription": "ניקוי קבצים, תיקון בעיות ברישום והתקנת עדכונים באופן אוטומטי ללא אישור.",
-    "autoApplyWarning": "הפעולות יופעלו אוטומטית לפי לוח הזמנים. ודאו שרשימת ההחרגות שלכם מעודכנת.",
+    "autoApplyDescription": "נקה קבצים, תקן בעיות ברישום והתקן עדכונים באופן אוטומטי ללא אישור.",
+    "autoApplyWarning": "הפעולות יופעלו באופן אוטומטי לפי לוח הזמנים. ודא שרשימת ההחרגות שלך מעודכנת.",
     "cancelButton": "ביטול",
-    "saveChangesButton": "שמירת שינויים",
-    "createScheduleButton": "יצירת לוח זמנים"
+    "saveChangesButton": "שמור שינויים",
+    "createScheduleButton": "צור לוח זמנים"
   },
   "tasks": {
     "system": "מערכת",
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "כל יום בשעה {{time}}",
     "everyWeekdayAt": "בכל {{day}} בשעה {{time}}",
-    "monthlyAt": "ב-{{ordinalDay}} בכל חודש בשעה {{time}}"
+    "monthlyAt": "ב־{{ordinalDay}} בכל חודש בשעה {{time}}"
   },
   "nextRun": {
     "todayAt": "היום בשעה {{time}}",

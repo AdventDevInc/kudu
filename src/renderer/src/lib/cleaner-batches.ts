@@ -31,6 +31,7 @@ export async function cleanInBatches(
       result.filesSkipped += batch.filesSkipped || 0
       if (batch.errors?.length) result.errors.push(...batch.errors)
       if (batch.needsElevation) result.needsElevation = true
+      if (batch.receiptSaved === false) result.receiptSaved = false
     } catch (error) {
       return { result, error }
     }

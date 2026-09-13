@@ -1,17 +1,17 @@
 {
   "pageTitle": "Pianificazioni",
-  "pageDescription": "Automatizza scansioni, pulizie e aggiornamenti in base a una pianificazione",
+  "pageDescription": "Automatizza scansioni, pulizie e aggiornamenti secondo una pianificazione",
   "newScheduleButton": "Nuova pianificazione",
   "createScheduleButton": "Crea pianificazione",
   "emptyStateTitle": "Nessuna pianificazione",
   "emptyStateDescription": "Crea una pianificazione per eseguire automaticamente scansioni, pulizie e aggiornamenti.",
   "maxSchedulesReached": "Raggiunto il numero massimo di {{max}} pianificazioni.",
-  "duplicatedToast": "\"{{name}}\" duplicata",
-  "deletedToast": "\"{{name}}\" eliminata",
-  "updatedToast": "\"{{name}}\" aggiornata",
-  "createdToast": "\"{{name}}\" creata",
+  "duplicatedToast": "Duplicato \"{{name}}\"",
+  "deletedToast": "Eliminato \"{{name}}\"",
+  "updatedToast": "Aggiornato \"{{name}}\"",
+  "createdToast": "Creato \"{{name}}\"",
   "failedEnableStartup": "Impossibile abilitare l'avvio automatico. Le pianificazioni potrebbero non essere eseguite dopo il riavvio.",
-  "failedEnableStartupAction": "Ulteriori informazioni",
+  "failedEnableStartupAction": "Scopri di più",
   "deleteConfirmTitle": "Elimina pianificazione",
   "deleteConfirmDescription": "Questa pianificazione verrà rimossa definitivamente. Questa azione non può essere annullata.",
   "deleteConfirmLabel": "Elimina",
@@ -30,7 +30,7 @@
     "weeklyFullCleanLabel": "Pulizia completa settimanale",
     "weeklyFullCleanDescription": "Tutte le categorie di pulizia ogni lunedì alle 9:00",
     "dailyLightSweepLabel": "Pulizia leggera giornaliera",
-    "dailyLightSweepDescription": "Sistema, browser e Cestino ogni giorno alle 8:00",
+    "dailyLightSweepDescription": "Sistema, browser e cestino ogni giorno alle 8:00",
     "monthlyDeepMaintenanceLabel": "Manutenzione approfondita mensile",
     "monthlyDeepMaintenanceDescription": "Pulizia completa + registro, driver e software il giorno 1 alle 10:00",
     "customLabel": "Personalizzata",
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Ogni giorno alle {{time}}",
     "everyWeekdayAt": "Ogni {{day}} alle {{time}}",
-    "monthlyAt": "{{ordinalDay}} di ogni mese alle {{time}}"
+    "monthlyAt": "Il giorno {{ordinalDay}} di ogni mese alle {{time}}"
   },
   "nextRun": {
     "todayAt": "Oggi alle {{time}}",

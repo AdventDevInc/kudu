@@ -28,11 +28,11 @@
   "presets": {
     "dialogTitle": "Velg en mal",
     "weeklyFullCleanLabel": "Ukentlig full opprydding",
-    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09.00",
+    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09:00",
     "dailyLightSweepLabel": "Daglig lett opprydding",
-    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08.00",
-    "monthlyDeepMaintenanceLabel": "Månedlig grundig vedlikehold",
-    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. hver måned kl. 10.00",
+    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08:00",
+    "monthlyDeepMaintenanceLabel": "Månedlig dyptgående vedlikehold",
+    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. kl. 10:00",
     "customLabel": "Tilpasset",
     "customDescription": "Start fra bunnen av med en tom tidsplan"
   },
@@ -40,8 +40,8 @@
     "editTitle": "Rediger tidsplan",
     "newTitle": "Ny tidsplan",
     "nameLabel": "Navn",
-    "namePlaceholder": "f.eks. Ukentlig grundig opprydding",
-    "frequencyLabel": "Hyppighet",
+    "namePlaceholder": "f.eks. Ukentlig dyprengjøring",
+    "frequencyLabel": "Frekvens",
     "frequencyDaily": "Daglig",
     "frequencyWeekly": "Ukentlig",
     "frequencyMonthly": "Månedlig",
@@ -49,12 +49,12 @@
     "timeLabel": "Tid",
     "tasksLabel": "Oppgaver",
     "selectAll": "Velg alle",
-    "deselectAll": "Fjern markering av alle",
+    "deselectAll": "Fjern markering for alle",
     "cleanerGroup": "Opprydding",
     "maintenanceGroup": "Vedlikehold",
     "autoApplyLabel": "Bruk automatisk",
     "autoApplyDescription": "Rydd filer automatisk, reparer registerproblemer og installer oppdateringer uten bekreftelse.",
-    "autoApplyWarning": "Handlinger kjøres automatisk etter tidsplanen. Kontroller at listen over unntak er oppdatert.",
+    "autoApplyWarning": "Handlinger kjøres automatisk etter tidsplanen. Sørg for at ekskluderingslisten er oppdatert.",
     "cancelButton": "Avbryt",
     "saveChangesButton": "Lagre endringer",
     "createScheduleButton": "Opprett tidsplan"
@@ -92,9 +92,9 @@
   },
   "lastRun": {
     "justNow": "Akkurat nå",
-    "minutesAgo": "{{count}} min siden",
-    "hoursAgo": "{{count}} t siden",
-    "daysAgo": "{{count}} d siden"
+    "minutesAgo": "for {{count}}m siden",
+    "hoursAgo": "for {{count}}h siden",
+    "daysAgo": "for {{count}}d siden"
   },
   "copyNameSuffix": "(kopi)",
   "advanced": {

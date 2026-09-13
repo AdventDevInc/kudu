@@ -32,7 +32,7 @@
     "dailyLightSweepLabel": "تنظيف خفيف يومي",
     "dailyLightSweepDescription": "النظام والمتصفحات وسلة المحذوفات يوميًا الساعة 8 صباحًا",
     "monthlyDeepMaintenanceLabel": "صيانة عميقة شهرية",
-    "monthlyDeepMaintenanceDescription": "تنظيف كامل + السجل وبرامج التشغيل والبرامج في اليوم الأول من كل شهر الساعة 10 صباحًا",
+    "monthlyDeepMaintenanceDescription": "تنظيف كامل + السجل وبرامج التشغيل والبرامج في اليوم الأول الساعة 10 صباحًا",
     "customLabel": "مخصص",
     "customDescription": "ابدأ من الصفر بجدول فارغ"
   },
@@ -54,7 +54,7 @@
     "maintenanceGroup": "الصيانة",
     "autoApplyLabel": "تطبيق تلقائي",
     "autoApplyDescription": "تنظيف الملفات وإصلاح مشكلات السجل وتثبيت التحديثات تلقائيًا دون تأكيد.",
-    "autoApplyWarning": "سيتم تنفيذ الإجراءات تلقائيًا وفق الجدول. تأكد من أن قائمة الاستثناءات لديك محدثة.",
+    "autoApplyWarning": "سيتم تنفيذ الإجراءات تلقائيًا وفق الجدول الزمني. تأكد من أن قائمة الاستثناءات لديك محدثة.",
     "cancelButton": "إلغاء",
     "saveChangesButton": "حفظ التغييرات",
     "createScheduleButton": "إنشاء جدول"
