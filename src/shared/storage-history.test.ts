@@ -93,8 +93,15 @@ it('suppresses flat, shrinking, unstable and incompatible series', () => {
     projectStorageCapacity(trend().map((s, i) => ({ ...s, scopeKey: i > 3 ? 'new' : 'old' })))
   ).toBeNull()
   expect(
-    projectStorageCapacity(trend().map((s, i) => (i === 7 ? { ...s, status: 'partial' } : s)))
+    projectStorageCapacity(trend().map((s, i) => (i === 7 ? { ...s, volumeSize: 20000 } : s)))
   ).toBeNull()
+})
+it('uses free-space observations from partial and cancelled walks', () => {
+  expect(
+    projectStorageCapacity(
+      trend().map((s, i) => ({ ...s, status: i % 2 ? 'partial' : 'cancelled' }))
+    )
+  ).toMatchObject({ observations: 8 })
 })
 it('manual capture bursts do not satisfy the daily observation requirement', () => {
   expect(

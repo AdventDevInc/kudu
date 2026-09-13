@@ -165,6 +165,14 @@
       "cancelled": "Cancelled",
       "unavailable": "Unavailable"
     },
+    "reason": {
+      "limit": "Stopped at the scan limit; deeper folders may be missing",
+      "changed": "The folder or volume changed during the scan",
+      "inaccessible": "Some folders could not be read",
+      "excluded": "The folder is covered by a global exclusion",
+      "cancelled": "The capture was cancelled before it finished",
+      "unavailable": "The folder became unavailable during the scan"
+    },
     "comparisonReason": {
       "incomplete": "Partial, cancelled or unavailable snapshots cannot support a reliable growth comparison.",
       "scope": "The volume, folder, exclusions or measurement policy differ.",

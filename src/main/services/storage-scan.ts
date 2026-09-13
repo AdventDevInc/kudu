@@ -108,22 +108,16 @@ export async function measureStorageScope(
               reason = 'limit'
               continue
             }
-            if (dir.depth < 3) {
+            // Past the row limit only the per-folder detail row is dropped; the subtree is still
+            // traversed so its bytes reach every existing ancestor row, including the root total.
+            if (dir.depth < 3 && rows.size < limits.rows) {
               const key = relative(root, path).split(sep).join('/')
-              if (rows.size >= limits.rows) {
-                partial = true
-                reason = 'limit'
-                continue
-              }
               rows.set(key, { path: key, bytes: 0, files: 0 })
             }
             queue.push({ path, depth: dir.depth + 1 })
           } else if (stat.isFile()) {
-            if (await aliased(path)) {
-              skipped++
-              partial = true
-              continue
-            }
+            // The containing directory was already revalidated (lstat, device and alias checks)
+            // before opening, and lstat above rejects file links, so no per-file realpath is needed.
             const parts = relative(root, dir.path).split(sep).filter(Boolean)
             for (let depth = 0; depth <= Math.min(3, parts.length); depth++) {
               const row = rows.get(parts.slice(0, depth).join('/'))

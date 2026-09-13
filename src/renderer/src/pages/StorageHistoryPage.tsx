@@ -6,6 +6,16 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { formatBytes } from '@/lib/utils'
 import type { StorageScope } from '@shared/storage-history'
 
+/** Reason tokens the scanner emits; anything else is free-form error text shown verbatim. */
+const knownReasons = new Set([
+  'limit',
+  'changed',
+  'inaccessible',
+  'excluded',
+  'cancelled',
+  'unavailable'
+])
+
 export function StorageHistoryPage() {
   const { t } = useTranslation('disk')
   const [scopeId, setScopeId] = useState(''),
@@ -217,7 +227,13 @@ export function StorageHistoryPage() {
                       </td>
                       <td>
                         {t('storage.status.' + s.status)}
-                        <p className="text-xs">{s.reason}</p>
+                        {s.reason && (
+                          <p className="text-xs">
+                            {knownReasons.has(s.reason)
+                              ? t('storage.reason.' + s.reason)
+                              : s.reason}
+                          </p>
+                        )}
                         {s.skipped > 0 && (
                           <p className="text-xs">{t('storage.skipped', { count: s.skipped })}</p>
                         )}
@@ -226,7 +242,7 @@ export function StorageHistoryPage() {
                         {s.status === 'unavailable'
                           ? t('storage.unavailable')
                           : formatBytes(s.totalBytes)}
-                        {s.status === 'partial' && '+'}
+                        {(s.status === 'partial' || s.status === 'cancelled') && '+'}
                       </td>
                       <td>
                         {s.volumeFree === null

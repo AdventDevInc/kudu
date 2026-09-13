@@ -2,6 +2,7 @@ import { createHash } from 'crypto'
 import { app } from 'electron'
 import { mkdir, readFile, rename, unlink, writeFile, lstat, readdir } from 'fs/promises'
 import { join } from 'path'
+import { logError } from './logger'
 import type {
   StorageScope,
   StorageSnapshot,
@@ -24,50 +25,78 @@ const detailFile = (id: string) => {
   if (!validStorageId(id)) throw new Error('Invalid snapshot ID')
   return join(directory(), id + '.json')
 }
+const empty = (): StorageIndex => ({ version: 1, scopes: [], snapshots: [] })
+const optional = (value: unknown, type: 'number' | 'string') =>
+  value === null || typeof value === type
+let warned = false
 async function readIndex(): Promise<StorageIndex> {
   try {
-    const fileInfo = await lstat(file())
-    if (!fileInfo.isFile() || fileInfo.isSymbolicLink() || fileInfo.size > 2 * 1024 * 1024)
-      throw new Error('Storage history index is too large')
-    const value = JSON.parse(await readFile(file(), 'utf8')) as StorageIndex
-    if (
-      value.version !== 1 ||
-      !Array.isArray(value.scopes) ||
-      value.scopes.length > 10 ||
-      !Array.isArray(value.snapshots) ||
-      value.snapshots.length > 900
-    )
-      throw new Error('Invalid storage history index')
-    if (
-      value.scopes.some(
-        (s) =>
-          !validStorageId(s.id) ||
-          typeof s.path !== 'string' ||
-          typeof s.volumeId !== 'string' ||
-          typeof s.relativeRoot !== 'string' ||
-          typeof s.name !== 'string' ||
-          typeof s.daily !== 'boolean'
-      ) ||
-      value.snapshots.some(
-        (s) =>
-          !validStorageId(s.id) ||
-          !validStorageId(s.scopeId) ||
-          typeof s.checksum !== 'string' ||
-          !/^[a-f0-9]{64}$/.test(s.checksum) ||
-          !['complete', 'partial', 'cancelled', 'unavailable'].includes(s.status) ||
-          !Number.isFinite(Date.parse(s.createdAt)) ||
-          !Number.isFinite(s.totalBytes) ||
-          s.totalBytes < 0 ||
-          !Number.isFinite(s.metadataBytes) ||
-          s.metadataBytes < 0
-      )
-    )
-      throw new Error('Invalid storage history metadata')
-    return value
+    await lstat(file())
   } catch (error: any) {
-    if (error.code === 'ENOENT') return { version: 1, scopes: [], snapshots: [] }
+    if (error.code === 'ENOENT') return empty()
     throw error
   }
+  try {
+    return await parseIndex()
+  } catch (error) {
+    // A corrupt index must not fail every call forever. Move it aside for inspection and start
+    // fresh; detail files are left in place and are not touched by the recovery itself.
+    const quarantine = file() + '.corrupt-' + Date.now()
+    await rename(file(), quarantine)
+    if (!warned) {
+      warned = true
+      logError(`Storage history index was corrupt and moved to ${quarantine}`, error)
+    }
+    return empty()
+  }
+}
+async function parseIndex(): Promise<StorageIndex> {
+  const fileInfo = await lstat(file())
+  if (!fileInfo.isFile() || fileInfo.isSymbolicLink() || fileInfo.size > 2 * 1024 * 1024)
+    throw new Error('Storage history index is too large')
+  const value = JSON.parse(await readFile(file(), 'utf8')) as StorageIndex
+  if (
+    value.version !== 1 ||
+    !Array.isArray(value.scopes) ||
+    value.scopes.length > 10 ||
+    !Array.isArray(value.snapshots) ||
+    value.snapshots.length > 900
+  )
+    throw new Error('Invalid storage history index')
+  if (
+    value.scopes.some(
+      (s) =>
+        !validStorageId(s.id) ||
+        typeof s.path !== 'string' ||
+        typeof s.volumeId !== 'string' ||
+        typeof s.relativeRoot !== 'string' ||
+        typeof s.name !== 'string' ||
+        typeof s.daily !== 'boolean' ||
+        !optional(s.growthAlertBytes, 'number') ||
+        !optional(s.freeAlertPercent, 'number') ||
+        !optional(s.lastAttemptAt, 'string') ||
+        !optional(s.lastAlertAt, 'string')
+    ) ||
+    value.snapshots.some(
+      (s) =>
+        !validStorageId(s.id) ||
+        !validStorageId(s.scopeId) ||
+        typeof s.scopeKey !== 'string' ||
+        typeof s.volumeId !== 'string' ||
+        !optional(s.volumeFree, 'number') ||
+        !optional(s.volumeSize, 'number') ||
+        typeof s.checksum !== 'string' ||
+        !/^[a-f0-9]{64}$/.test(s.checksum) ||
+        !['complete', 'partial', 'cancelled', 'unavailable'].includes(s.status) ||
+        !Number.isFinite(Date.parse(s.createdAt)) ||
+        !Number.isFinite(s.totalBytes) ||
+        s.totalBytes < 0 ||
+        !Number.isFinite(s.metadataBytes) ||
+        s.metadataBytes < 0
+    )
+  )
+    throw new Error('Invalid storage history metadata')
+  return value
 }
 async function writeIndex(index: StorageIndex) {
   await mkdir(directory(), { recursive: true })

@@ -80,6 +80,21 @@ it('bounds traversal and yields the event loop during large captures', async () 
     clearInterval(timer)
   }
 })
+it('keeps counting bytes into ancestor totals after the row limit drops folder detail', async () => {
+  for (let i = 0; i < 5; i++) {
+    await mkdir(join(root, `dir${i}/nested`), { recursive: true })
+    await writeFile(join(root, `dir${i}/nested/file`), Buffer.alloc(10))
+  }
+  const result = await measureStorageScope(root, [], new AbortController().signal, {
+    entries: 250000,
+    directories: 30000,
+    rows: 3,
+    milliseconds: 30000
+  })
+  expect(result).toMatchObject({ status: 'complete', totalBytes: 50, files: 5 })
+  expect(result.rows).toHaveLength(3)
+  expect(result.rows[0]).toEqual({ path: '', bytes: 50, files: 5 })
+})
 it('keeps cancelled captures distinct from completed zero-byte snapshots', async () => {
   const controller = new AbortController()
   controller.abort()

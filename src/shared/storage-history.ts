@@ -80,15 +80,17 @@ export function compareStorageSnapshots(
   return { comparable: true, reason: null, delta: after.totalBytes - before.totalBytes, rows }
 }
 
-/** Estimates whole-volume capacity only from sufficiently stable free-space observations. */
+/**
+ * Estimates whole-volume capacity only from sufficiently stable free-space observations.
+ * Free space is a volume fact recorded even when the folder walk was partial or cancelled,
+ * so every observation with a matching volume identity and size is usable.
+ */
 export function projectStorageCapacity(snapshots: StorageSnapshotSummary[]) {
   const newest = [...snapshots].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))[0]
-  if (!newest || newest.status !== 'complete' || newest.volumeFree === null || !newest.volumeSize)
-    return null
+  if (!newest || newest.volumeFree === null || !newest.volumeSize) return null
   const points = snapshots
     .filter(
       (s) =>
-        s.status === 'complete' &&
         s.scopeKey === newest.scopeKey &&
         s.volumeId === newest.volumeId &&
         s.volumeSize === newest.volumeSize &&

@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest'
-import { mkdtemp, readFile, writeFile, rm, access } from 'fs/promises'
+import { mkdtemp, readFile, writeFile, rm, access, readdir } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -73,17 +73,32 @@ it('prunes old metadata and removes only tracked snapshot files', async () => {
   ).rejects.toThrow()
   await expect(access(state.directory)).resolves.toBeUndefined()
 })
-it('fails closed on a corrupt index without deleting valid metadata', async () => {
+it('quarantines a corrupt index and starts fresh instead of failing every call', async () => {
   const saved = snapshot()
   await saveStorageSnapshot(saved)
-  const index = join(state.directory, 'storage-history/index.json')
+  const folder = join(state.directory, 'storage-history'),
+    index = join(folder, 'index.json')
   await writeFile(index, '{broken')
-  await expect(saveStorageSnapshot(snapshot())).rejects.toThrow()
-  expect(await readFile(index, 'utf8')).toBe('{broken')
-  expect(
-    JSON.parse(await readFile(join(state.directory, 'storage-history', saved.id + '.json'), 'utf8'))
-      .id
-  ).toBe(saved.id)
+  expect((await getStorageIndex()).snapshots).toHaveLength(0)
+  const quarantined = (await readdir(folder)).filter((f) => f.startsWith('index.json.corrupt-'))
+  expect(quarantined).toHaveLength(1)
+  expect(await readFile(join(folder, quarantined[0]), 'utf8')).toBe('{broken')
+  // Recovery itself leaves detail files alone; only the index was moved aside.
+  expect(JSON.parse(await readFile(join(folder, saved.id + '.json'), 'utf8')).id).toBe(saved.id)
+  await saveStorageScope(scope)
+  const fresh = snapshot()
+  await saveStorageSnapshot(fresh)
+  expect((await getStorageIndex()).snapshots.map((s) => s.id)).toEqual([fresh.id])
+})
+it('rejects an index whose optional fields carry the wrong types', async () => {
+  await saveStorageSnapshot(snapshot())
+  const folder = join(state.directory, 'storage-history'),
+    index = join(folder, 'index.json')
+  const parsed = JSON.parse(await readFile(index, 'utf8'))
+  parsed.snapshots[0].volumeFree = '500'
+  await writeFile(index, JSON.stringify(parsed))
+  expect((await getStorageIndex()).snapshots).toHaveLength(0)
+  expect((await readdir(folder)).some((f) => f.startsWith('index.json.corrupt-'))).toBe(true)
 })
 it('recovers an orphan after an interrupted index write without touching unrelated files', async () => {
   const orphan = randomUUID() + '.json'
