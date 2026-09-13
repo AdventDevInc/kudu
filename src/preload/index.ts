@@ -128,6 +128,7 @@ const api = {
   storageHistoryOpen: (id: string, path: string): Promise<void> =>
     ipcRenderer.invoke(IPC.STORAGE_HISTORY_OPEN, id, path),
   cleanupReceiptDetails: (
+    id: string,
     page: number
   ): Promise<{ items: import('../shared/cleanup-receipts').CleanupReceiptItem[]; total: number }> =>
     ipcRenderer.invoke(IPC.RECEIPTS_GET, id, page),
