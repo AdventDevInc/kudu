@@ -28,6 +28,11 @@ export async function measureStorageScope(
 ) {
   const started = Date.now()
   const initial = await lstat(await validateStorageRoot(root))
+  // Compare against the canonical root so 8.3 short names and macOS /private aliases of the
+  // root itself are not mistaken for links, while links introduced below the root still are.
+  const realRoot = await realpath(root)
+  const aliased = async (path: string) =>
+    canonical(await realpath(path)) !== canonical(join(realRoot, relative(root, path)))
   const rows = new Map<string, StorageRow>([['', { path: '', bytes: 0, files: 0 }]])
   const queue: Array<{ path: string; depth: number }> = [{ path: root, depth: 0 }]
   let visited = 0,
@@ -69,7 +74,7 @@ export async function measureStorageScope(
         info.isSymbolicLink() ||
         !info.isDirectory() ||
         info.dev !== initial.dev ||
-        canonical(await realpath(dir.path)) !== canonical(dir.path)
+        (await aliased(dir.path))
       ) {
         skipped++
         partial = true
@@ -114,7 +119,7 @@ export async function measureStorageScope(
             }
             queue.push({ path, depth: dir.depth + 1 })
           } else if (stat.isFile()) {
-            if (canonical(await realpath(path)) !== canonical(path)) {
+            if (await aliased(path)) {
               skipped++
               partial = true
               continue

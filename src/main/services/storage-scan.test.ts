@@ -1,7 +1,8 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest'
-import { mkdtemp, mkdir, writeFile, rm, symlink } from 'fs/promises'
+import { mkdtemp, mkdir, writeFile, rm, symlink, realpath } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import { execFileSync } from 'child_process'
 const state = vi.hoisted(() => ({ blocked: '' }))
 vi.mock('./file-utils', () => ({
   isExcluded: (path: string, exclusions: string[]) => exclusions.includes(path)
@@ -19,7 +20,8 @@ vi.mock('fs/promises', async (importActual) => {
 import { measureStorageScope, validateStorageRoot } from './storage-scan'
 let root = ''
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'kudu-storage-test-'))
+  // macOS /var and Windows 8.3 temp paths are aliases, which the scanner refuses.
+  root = await mkdtemp(join(await realpath(tmpdir()), 'kudu-storage-test-'))
   state.blocked = ''
 })
 afterEach(async () => {
@@ -86,3 +88,24 @@ it('keeps cancelled captures distinct from completed zero-byte snapshots', async
     reason: 'cancelled'
   })
 })
+it.skipIf(process.platform !== 'win32')(
+  'accepts a Windows 8.3 short-name root as the same folder',
+  async ({ skip }) => {
+    await mkdir(join(root, 'sub'))
+    await writeFile(join(root, 'sub/file'), Buffer.alloc(9))
+    const short = execFileSync('powershell', [
+      '-NoProfile',
+      '-Command',
+      `(New-Object -ComObject Scripting.FileSystemObject).GetFolder('${root}').ShortPath`
+    ])
+      .toString()
+      .trim()
+    // Volumes with 8.3 name generation disabled return the long path unchanged.
+    if (short.toLowerCase() === root.toLowerCase()) skip()
+    expect(await measureStorageScope(short, [], new AbortController().signal)).toMatchObject({
+      status: 'complete',
+      totalBytes: 9,
+      files: 1
+    })
+  }
+)
