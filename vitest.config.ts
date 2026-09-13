@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
     // Verbose locally, but in CI it streams ~370KB / 2200 lines through the
     // runner's stdout pipe. Windows runs have been dying mid-stream with a bare
     // "exit code 1" and no summary, so keep CI output small and also write the

@@ -6,48 +6,45 @@ on:
       - 'v*'
 
 permissions:
-  contents: write
+  contents: read
+
+# A newer run must never interrupt signing or publication of this tag.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
+  validate:
+    uses: ./.github/workflows/ci.yml
+
+  package-smoke:
+    uses: ./.github/workflows/package-smoke.yml
+
   create-release:
+    needs: [validate, package-smoke]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Extract release notes and create release
+      - name: Verify tag and prepare draft release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG_NAME: ${{ github.ref_name }}
-        run: |
-          # Extract the current version's section from the committed CHANGELOG.md
-          node -e "
-            const fs = require('fs');
-            const log = fs.readFileSync('CHANGELOG.md', 'utf-8');
-            const tag = process.env.TAG_NAME;
-            const sections = log.split(/^(?=##? \[)/m);
-            const current = sections.find(s => s.includes(tag));
-            if (current) {
-              // Remove the heading line, keep only the body
-              const body = current.replace(/^##? .+\n+/, '').trim();
-              fs.writeFileSync('_RELEASE_NOTES.md', body);
-            } else {
-              fs.writeFileSync('_RELEASE_NOTES.md', '');
-            }
-          "
-          gh release create "$TAG_NAME" --title "$TAG_NAME" --notes-file _RELEASE_NOTES.md
+        run: node scripts/prepare-release.js
 
   build:
     needs: create-release
@@ -57,31 +54,27 @@ jobs:
         include:
           - os: windows-latest
             build-args: --win
-            publish: always
           - os: macos-latest
             build-args: --mac
-            publish: always
           # Arch flags keep each Linux runner on its native CPU — building both
           # arches on one host breaks better-sqlite3 / yara native rebuilds.
           - os: ubuntu-latest
             build-args: --linux --x64
-            publish: always
-          # --publish always would overwrite latest-linux.yml and break x64
-          # AppImage auto-update. Arm artifacts are uploaded to the same tag only.
           - os: ubuntu-24.04-arm
             build-args: --linux --arm64
-            publish: never
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -89,17 +82,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build
+        run: npm run build
+
       - name: Azure login (Windows signing)
         if: runner.os == 'Windows'
-        uses: azure/login@v3
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
-      - name: Build, package, and upload
+      - name: Package and sign without publishing
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
           AZURE_TENANT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_TENANT_ID || '' }}
           AZURE_CLIENT_ID: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_ID || '' }}
           AZURE_CLIENT_SECRET: ${{ runner.os == 'Windows' && secrets.AZURE_CLIENT_SECRET || '' }}
@@ -111,35 +106,81 @@ jobs:
           DEBUG: ${{ runner.os == 'macOS' && 'electron-notarize*' || '' }}
         timeout-minutes: 30
         run: |
-          npx electron-vite build
           if [ "$RUNNER_OS" = "Windows" ]; then
-            npx electron-builder ${{ matrix.build-args }} --publish always \
+            npx electron-builder ${{ matrix.build-args }} --publish never \
               -c.win.azureSignOptions.endpoint="https://eus.codesigning.azure.net" \
               -c.win.azureSignOptions.codeSigningAccountName="kudu-signing" \
               -c.win.azureSignOptions.certificateProfileName="kudu-sign" \
               -c.win.azureSignOptions.publisherName="Advent Development, Inc."
-          elif [ "${{ matrix.publish }}" = "never" ]; then
-            npx electron-builder ${{ matrix.build-args }} --publish never
-            shopt -s nullglob
-            # Matches both Kudu-<ver>-arm64.* and the stable Kudu-arm64.* name (#404).
-            assets=(dist/Kudu-*arm64.AppImage dist/Kudu-*arm64.deb dist/Kudu-*arm64.AppImage.blockmap)
-            if [ ${#assets[@]} -eq 0 ]; then
-              echo "No arm64 Linux artifacts found under dist/" >&2
-              ls -la dist/ || true
-              exit 1
-            fi
-            gh release upload "${GITHUB_REF_NAME}" "${assets[@]}" --clobber
           else
-            npx electron-builder ${{ matrix.build-args }} --publish always
+            npx electron-builder ${{ matrix.build-args }} --publish never
           fi
 
-  publish-choco:
+      - name: Store release artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.blockmap
+            dist/latest*.yml
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+          overwrite: true
+
+  publish-release:
     needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install verification dependencies
+        run: npm ci --ignore-scripts
+      - name: Download all platform artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: release-*
+          path: release-artifacts
+          # Keep platform directories separate so duplicate filenames fail
+          # verification instead of silently overwriting another architecture.
+          merge-multiple: false
+      - name: Verify artifacts and manifests, upload, then publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: node scripts/publish-release.js release-artifacts
+
+  deploy-website:
+    needs: publish-release
+    uses: ./.github/workflows/deploy-website.yml
+    secrets:
+      WEB_DEPLOY_HOOK: ${{ secrets.WEB_DEPLOY_HOOK }}
+
+  publish-choco:
+    needs: publish-release
     runs-on: windows-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Get version from tag
         id: version
@@ -178,8 +219,11 @@ jobs:
           choco push usekudu.${{ steps.version.outputs.version }}.nupkg --source "https://push.chocolatey.org/" --api-key "${{ secrets.CHOCOLATEY_API_KEY }}"
 
   virustotal-scan:
-    needs: build
+    needs: publish-release
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
 
     steps:
       - name: Get version from tag
@@ -245,8 +289,9 @@ jobs:
           ${vt_report}"
 
   publish-winget:
-    needs: build
+    needs: publish-release
     runs-on: windows-latest
+    timeout-minutes: 15
     env:
       GH_TOKEN: ${{ github.token }}
 

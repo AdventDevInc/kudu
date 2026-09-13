@@ -6,12 +6,23 @@ on:
     paths: ['rules/**']
   release:
     types: [published]
+  workflow_call:
+    secrets:
+      WEB_DEPLOY_HOOK:
+        required: true
 
 permissions: {}
 
 jobs:
   trigger-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions: {}
     steps:
-      - run: curl -X POST ${{ secrets.WEB_DEPLOY_HOOK }}
+      - name: Trigger website deployment
+        env:
+          WEB_DEPLOY_HOOK: ${{ secrets.WEB_DEPLOY_HOOK }}
+        run: |
+          test -n "$WEB_DEPLOY_HOOK"
+          curl --fail-with-body --silent --show-error --output /dev/null \
+            --connect-timeout 10 --max-time 60 --request POST "$WEB_DEPLOY_HOOK"

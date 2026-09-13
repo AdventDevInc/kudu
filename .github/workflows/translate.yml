@@ -8,6 +8,13 @@ on:
   # Allow manual trigger from Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: translate-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   translate:
     # Skip PRs from forks (they won't have access to secrets)
@@ -15,41 +22,41 @@ jobs:
       (github.event_name == 'workflow_dispatch') ||
       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
     env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      HAS_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
 
     steps:
       - name: Check for API key
-        if: env.OPENAI_API_KEY == ''
+        if: env.HAS_OPENAI_API_KEY != 'true'
         run: |
           echo "::warning::OPENAI_API_KEY secret is not set — skipping translations"
 
       - name: Checkout
-        if: env.OPENAI_API_KEY != ''
-        uses: actions/checkout@v7
+        if: env.HAS_OPENAI_API_KEY == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.head_ref || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
-        if: env.OPENAI_API_KEY != ''
-        uses: actions/setup-node@v7
+        if: env.HAS_OPENAI_API_KEY == 'true'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install dependencies
-        if: env.OPENAI_API_KEY != ''
-        run: npm ci
-
       - name: Run translations
-        if: env.OPENAI_API_KEY != ''
+        if: env.HAS_OPENAI_API_KEY == 'true'
+        # The translator only uses Node built-ins; no install scripts are needed.
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: node scripts/translate.js
 
       - name: Commit & push translations
-        if: env.OPENAI_API_KEY != ''
+        if: env.HAS_OPENAI_API_KEY == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

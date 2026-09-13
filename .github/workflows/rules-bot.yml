@@ -9,27 +9,35 @@ permissions:
   contents: read
   pull-requests: write
 
+concurrency:
+  group: rules-bot-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   validate-and-summarize:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Checkout base branch
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          persist-credentials: false
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Validate rules
         id: validate
@@ -94,12 +102,13 @@ jobs:
             echo "DIFF_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Comment on PR
-        uses: actions/github-script@v9
+      - name: Write job summary and comment when permitted
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           EXIT_CODE: ${{ steps.validate.outputs.exit_code }}
           VALIDATE_OUTPUT: ${{ steps.validate.outputs.output }}
           DIFF_SUMMARY: ${{ steps.diff.outputs.summary }}
+          CAN_COMMENT: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' && github.event.pull_request.user.login != 'dependabot[bot]' }}
         with:
           script: |
             const exitCode = process.env.EXIT_CODE;
@@ -125,6 +134,11 @@ jobs:
               '```',
               `</details>`,
             ].join('\n');
+
+            await core.summary.addRaw(body).write();
+            // Fork and Dependabot PRs have read-only tokens. Validation and
+            // its summary remain available even when commenting is forbidden.
+            if (process.env.CAN_COMMENT !== 'true') return;
 
             // Find existing bot comment to update
             const { data: comments } = await github.rest.issues.listComments({

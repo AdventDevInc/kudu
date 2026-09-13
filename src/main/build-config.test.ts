@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'fs'
 import path from 'path'
+import { load } from 'js-yaml'
 
 // Guards the packaging invariants that only show up once a user runs the
 // installer — nothing in the app's own code paths can catch a regression here.
@@ -9,9 +10,7 @@ import path from 'path'
 const CONFIG_PATH = path.resolve(__dirname, '..', '..', 'electron-builder.yml')
 const CONFIG = readFileSync(CONFIG_PATH, 'utf-8')
 
-// electron-builder.yml is hand-maintained and flat, so the two lookups below are
-// done without pulling in a YAML parser — the repo has no direct one, and adding
-// a dependency for a three-assertion test is not worth the lockfile churn.
+// These small helpers preserve the existing flat packaging-option checks.
 
 /** Lines belonging to a top-level `key:` block, up to the next unindented line. */
 function block(key: string): string[] {
@@ -85,14 +84,27 @@ describe('electron-builder.yml', () => {
     expect(appImageBlock.some((l) => l.trim() === '- arm64')).toBe(true)
   })
 
-  it('documents arm64 Linux release publish mode in the workflow', () => {
-    // Guard the Critical invariant: arm64 must not --publish always or it
-    // clobbers latest-linux.yml and breaks x64 AppImage auto-update.
-    const release = readFileSync(
-      path.resolve(__dirname, '..', '..', '.github', 'workflows', 'release.yml'),
-      'utf-8'
+  it('stages native ARM64 builds without publishing over x64 update metadata', () => {
+    // Both architectures must reach verification separately, with no runner
+    // able to publish or overwrite the other's manifest during packaging.
+    const release = load(
+      readFileSync(
+        path.resolve(__dirname, '..', '..', '.github', 'workflows', 'release.yml'),
+        'utf-8'
+      )
+    ) as any
+    expect(release.jobs.build.strategy.matrix.include).toContainEqual({
+      os: 'ubuntu-24.04-arm',
+      'build-args': '--linux --arm64'
+    })
+    const buildSteps = release.jobs.build.steps as { run?: string }[]
+    const packaging = buildSteps.map((step) => step.run || '').join('\n')
+    expect(packaging).toContain('--publish never')
+    expect(packaging).not.toContain('--publish always')
+    expect(packaging).not.toContain('gh release upload')
+    const download = release.jobs['publish-release'].steps.find((step: any) =>
+      step.uses?.startsWith('actions/download-artifact@')
     )
-    expect(release).toMatch(/ubuntu-24\.04-arm[\s\S]*?publish:\s*never/)
-    expect(release).toMatch(/gh release upload/)
+    expect(download.with['merge-multiple']).toBe(false)
   })
 })
