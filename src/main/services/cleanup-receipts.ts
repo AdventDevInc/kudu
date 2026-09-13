@@ -49,16 +49,24 @@ const LOCK_STALE_MS = 30_000
 
 /**
  * Serialize index updates across processes: the packaged GUI, the daemon, and `--cli` share one
- * user-data directory but have independent in-process write queues. A lock left behind by a crashed
- * process is reclaimed once it is older than LOCK_STALE_MS.
+ * user-data directory but have independent in-process write queues. The lock file holds a token
+ * naming its owner, so a caller only ever releases its own lock. A lock left behind by a crashed
+ * process is reclaimed once it is older than LOCK_STALE_MS; the reclaim renames it first, which is
+ * atomic, so of two concurrent reclaimers only one succeeds and neither can delete a lock the other
+ * has just re-acquired.
  */
 async function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
   await mkdir(directory(), { recursive: true })
+  const token = randomUUID()
   const deadline = Date.now() + LOCK_TIMEOUT_MS
   for (;;) {
     try {
       const handle = await open(lockFile(), 'wx')
-      await handle.close()
+      try {
+        await handle.writeFile(token, 'utf8')
+      } finally {
+        await handle.close()
+      }
       break
     } catch (error: any) {
       if (error.code !== 'EEXIST') throw error
@@ -66,7 +74,7 @@ async function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
         .then((info) => Date.now() - info.mtimeMs)
         .catch(() => 0)
       if (age > LOCK_STALE_MS) {
-        await unlink(lockFile()).catch(() => {})
+        await reclaimStaleLock()
         continue
       }
       if (Date.now() >= deadline)
@@ -77,8 +85,23 @@ async function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
   try {
     return await task()
   } finally {
-    await unlink(lockFile()).catch(() => {})
+    // Another process may have reclaimed this lock as stale if the task outlived LOCK_STALE_MS;
+    // never delete a lock that is no longer ours.
+    const owner = await readFile(lockFile(), 'utf8').catch(() => undefined)
+    if (owner === token) await unlink(lockFile()).catch(() => {})
   }
+}
+
+/** Move the stale lock aside atomically; the loser of a concurrent reclaim sees ENOENT and retries. */
+async function reclaimStaleLock(): Promise<void> {
+  const claimed = lockFile() + '.' + randomUUID() + '.stale'
+  try {
+    await rename(lockFile(), claimed)
+  } catch (error: any) {
+    if (error.code === 'ENOENT') return
+    throw error
+  }
+  await unlink(claimed).catch(() => {})
 }
 
 /** Read the index, quarantining an unreadable one so a corrupt file cannot wedge the feature. */
@@ -266,7 +289,7 @@ export async function clearCleanupReceipts(): Promise<void> {
       // Enumerate the directory rather than trusting the index so a corrupt or stale index
       // cannot strand detail files (which may contain logged paths) on disk.
       const owned =
-        /^([a-f0-9-]{36}\.json(\.([a-f0-9-]{36}\.)?tmp)?|receipts\.json\.(([a-f0-9-]{36}\.)?tmp|corrupt-\d+))$/
+        /^([a-f0-9-]{36}\.json(\.([a-f0-9-]{36}\.)?tmp)?|receipts\.json\.(([a-f0-9-]{36}\.)?tmp|corrupt-\d+)|receipts\.lock\.[a-f0-9-]{36}\.stale)$/
       for (const name of await readdir(directory()))
         if (owned.test(name))
           await unlink(join(directory(), name)).catch((error: NodeJS.ErrnoException) => {

@@ -77,7 +77,7 @@ export function CleanupReceipts() {
     }
   }
   return (
-    <section className="feature-page space-y-4" aria-label={t('receipts.title')}>
+    <section className="feature-page cleanup-receipts space-y-4" aria-label={t('receipts.title')}>
       <div className="flex flex-wrap items-center gap-3">
         <button className={button} disabled={loading || busy} onClick={() => void load()}>
           <RefreshCw size={14} aria-hidden="true" />

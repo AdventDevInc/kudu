@@ -4,8 +4,21 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import type { ScanItem } from '../../shared/types'
 
-const state = vi.hoisted(() => ({ root: '', logPaths: false }))
+const state = vi.hoisted(() => ({ root: '', logPaths: false, lockReleases: [] as string[] }))
 vi.mock('electron', () => ({ app: { isPackaged: true, getPath: () => state.root } }))
+// Record the owner token of every lock the service releases so tests can prove a writer only
+// ever deletes the lock it acquired itself.
+vi.mock('fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs/promises')>()
+  return {
+    ...actual,
+    unlink: async (path: Parameters<typeof actual.unlink>[0]) => {
+      if (String(path).endsWith('receipts.lock'))
+        state.lockReleases.push(await actual.readFile(path, 'utf8').catch(() => '<missing>'))
+      return actual.unlink(path)
+    }
+  }
+})
 vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { keepDeletionLog: state.logPaths } })
 }))
@@ -31,6 +44,7 @@ const item: ScanItem = {
 beforeEach(async () => {
   state.root = await mkdtemp(join(tmpdir(), 'kudu-receipts-'))
   state.logPaths = false
+  state.lockReleases = []
   clearCache()
 })
 afterEach(async () => {
@@ -200,7 +214,7 @@ describe('receipt persistence and retry authorization', () => {
     await pending
     expect((await getCleanupReceipts()).map((r) => r.id)).toEqual([receipt.id])
 
-    await writeFile(lock, '')
+    await writeFile(lock, 'crashed-owner')
     const stale = new Date(Date.now() - 60_000)
     await utimes(lock, stale, stale)
     const next = createReceipt('local')
@@ -208,13 +222,46 @@ describe('receipt persistence and retry authorization', () => {
     await next.finish()
     expect(await getCleanupReceipts()).toHaveLength(2)
     expect(await readdir(dir)).not.toContain('receipts.lock')
+    // The stale lock is moved aside, not unlinked in place, and each writer released only its own.
+    expect(state.lockReleases).not.toContain('crashed-owner')
+    expect(state.lockReleases).toHaveLength(2)
+    expect(new Set(state.lockReleases).size).toBe(2)
   })
-  it('clears temp files left behind by an interrupted write', async () => {
+  it('lets only one of two concurrent reclaimers take a stale lock and keeps the other from deleting it', async () => {
+    const dir = join(state.root, 'cleanup-receipts')
+    await mkdir(dir, { recursive: true })
+    const lock = join(dir, 'receipts.lock')
+    await writeFile(lock, 'crashed-owner')
+    const stale = new Date(Date.now() - 60_000)
+    await utimes(lock, stale, stale)
+    const a = createReceipt('local'),
+      b = createReceipt('cli')
+    a.add(item, 'deleted', '', true, 50)
+    b.add({ ...item, id: 'second' }, 'deleted', '', true, 25)
+    // Both writers observe the same stale lock in the same tick, as two processes would.
+    await Promise.all([a.finish(), b.finish()])
+    const ids = (await getCleanupReceipts()).map((r) => r.id)
+    expect(ids).toHaveLength(2)
+    expect(ids).toEqual(expect.arrayContaining([a.id, b.id]))
+    // Each writer entered the critical section under its own token and released exactly that
+    // lock; the crashed owner's file was renamed away rather than unlinked from under a live owner.
+    expect(state.lockReleases).toHaveLength(2)
+    expect(state.lockReleases).not.toContain('crashed-owner')
+    expect(state.lockReleases).not.toContain('<missing>')
+    expect(new Set(state.lockReleases).size).toBe(2)
+    for (const token of state.lockReleases) expect(token).toMatch(/^[a-f0-9-]{36}$/)
+    const files = await readdir(dir)
+    expect(files).not.toContain('receipts.lock')
+    expect(files.filter((f) => f.endsWith('.stale'))).toEqual([])
+    expect(files.filter((f) => f.endsWith('.tmp'))).toEqual([])
+  })
+  it('clears temp files and stale-lock leftovers left behind by an interrupted write', async () => {
     const dir = join(state.root, 'cleanup-receipts')
     await mkdir(dir, { recursive: true })
     const uuid = '22222222-2222-4222-8222-222222222222'
     await writeFile(join(dir, `receipts.json.${uuid}.tmp`), '[]')
     await writeFile(join(dir, `${item.id}.json.${uuid}.tmp`), '{}')
+    await writeFile(join(dir, `receipts.lock.${uuid}.stale`), 'crashed-owner')
     await clearCleanupReceipts()
     expect(await readdir(dir)).toEqual(['receipts.json'])
   })

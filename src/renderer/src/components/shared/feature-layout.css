@@ -1,5 +1,5 @@
-/* Shared presentation for the desktop feature pages; uses Kudu's active theme. */
-.feature-page {
+/* Presentation for the cleanup receipts view; scoped to .cleanup-receipts so it never overrides utility classes on other feature pages. Uses Kudu's active theme. */
+.cleanup-receipts {
   min-width: 0;
   color: var(--text-primary);
 }
@@ -67,23 +67,23 @@
 .feature-field:disabled {
   opacity: 0.5;
 }
-.feature-page input[type='checkbox'] {
+.cleanup-receipts input[type='checkbox'] {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
   accent-color: var(--accent);
 }
-.feature-page :where(.border, .border-t, .border-b) {
+.cleanup-receipts :where(.border, .border-t, .border-b) {
   border-color: var(--border-medium);
 }
-.feature-page [aria-pressed='true'] {
+.cleanup-receipts [aria-pressed='true'] {
   background: var(--accent-muted-bg);
   border-color: var(--accent);
 }
-.feature-page table {
+.cleanup-receipts table {
   border-collapse: collapse;
 }
-.feature-page th {
+.cleanup-receipts th {
   padding: 10px 12px;
   color: var(--text-muted);
   font-size: 11px;
@@ -91,15 +91,15 @@
   white-space: nowrap;
   background: var(--bg-subtle);
 }
-.feature-page td {
+.cleanup-receipts td {
   padding: 12px;
   vertical-align: top;
   border-bottom: 1px solid var(--border-subtle);
 }
-.feature-page tbody tr:hover {
+.cleanup-receipts tbody tr:hover {
   background: var(--bg-subtle);
 }
-.feature-page pre {
+.cleanup-receipts pre {
   padding: 12px;
   border-radius: 10px;
   background: var(--bg-subtle);
@@ -107,7 +107,7 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.feature-page .feature-note {
+.cleanup-receipts .feature-note {
   padding: 12px 16px;
   border: 1px solid var(--accent-muted-border);
   border-radius: 12px;
@@ -116,15 +116,15 @@
   font-size: 12px;
   line-height: 1.7;
 }
-.feature-page [role='alert'] {
+.cleanup-receipts [role='alert'] {
   color: var(--danger);
 }
-.feature-page .feature-metric {
+.cleanup-receipts .feature-metric {
   padding: 14px;
   border-radius: 12px;
   background: var(--bg-subtle);
 }
-.feature-page .feature-status {
+.cleanup-receipts .feature-status {
   display: inline-flex;
   padding: 4px 10px;
   border-radius: 999px;
@@ -139,13 +139,13 @@
   }
 }
 
-.feature-page button:not(.feature-button) {
+.cleanup-receipts button:not(.feature-button) {
   color: var(--text-primary);
 }
-.feature-page [role='dialog'] h3 {
+.cleanup-receipts [role='dialog'] h3 {
   color: var(--text-primary);
 }
 
-.light .feature-page .feature-status {
+.light .cleanup-receipts .feature-status {
   color: var(--text-secondary);
 }
