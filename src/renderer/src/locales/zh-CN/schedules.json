@@ -5,7 +5,7 @@
   "createScheduleButton": "创建计划任务",
   "emptyStateTitle": "暂无计划任务",
   "emptyStateDescription": "创建计划任务以自动执行扫描、清理和更新。",
-  "maxSchedulesReached": "已达到 {{max}} 个计划任务的上限。",
+  "maxSchedulesReached": "已达到最多 {{max}} 个计划任务的上限。",
   "duplicatedToast": "已复制“{{name}}”",
   "deletedToast": "已删除“{{name}}”",
   "updatedToast": "已更新“{{name}}”",
@@ -34,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "每月深度维护",
     "monthlyDeepMaintenanceDescription": "每月 1 日上午 10:00 执行完整清理 + 注册表、驱动程序和软件维护",
     "customLabel": "自定义",
-    "customDescription": "从空白计划任务开始"
+    "customDescription": "从空白计划任务开始创建"
   },
   "dialog": {
     "editTitle": "编辑计划任务",

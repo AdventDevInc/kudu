@@ -11,7 +11,7 @@
   "updatedToast": "Aggiornato \"{{name}}\"",
   "createdToast": "Creato \"{{name}}\"",
   "failedEnableStartup": "Impossibile abilitare l'avvio automatico. Le pianificazioni potrebbero non essere eseguite dopo il riavvio.",
-  "failedEnableStartupAction": "Ulteriori informazioni",
+  "failedEnableStartupAction": "Scopri di più",
   "deleteConfirmTitle": "Elimina pianificazione",
   "deleteConfirmDescription": "Questa pianificazione verrà rimossa definitivamente. Questa azione non può essere annullata.",
   "deleteConfirmLabel": "Elimina",
@@ -30,7 +30,7 @@
     "weeklyFullCleanLabel": "Pulizia completa settimanale",
     "weeklyFullCleanDescription": "Tutte le categorie di pulizia ogni lunedì alle 9:00",
     "dailyLightSweepLabel": "Pulizia leggera giornaliera",
-    "dailyLightSweepDescription": "Sistema, browser e Cestino ogni giorno alle 8:00",
+    "dailyLightSweepDescription": "Sistema, browser e cestino ogni giorno alle 8:00",
     "monthlyDeepMaintenanceLabel": "Manutenzione approfondita mensile",
     "monthlyDeepMaintenanceDescription": "Pulizia completa + registro, driver e software il giorno 1 alle 10:00",
     "customLabel": "Personalizzata",
@@ -63,7 +63,7 @@
     "system": "Sistema",
     "browsers": "Browser",
     "applications": "Applicazioni",
-    "gaming": "Giochi",
+    "gaming": "Gaming",
     "recycleBin": "Cestino",
     "databases": "Database",
     "registryFixes": "Correzioni del registro",
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Ogni giorno alle {{time}}",
     "everyWeekdayAt": "Ogni {{day}} alle {{time}}",
-    "monthlyAt": "{{ordinalDay}} di ogni mese alle {{time}}"
+    "monthlyAt": "Il giorno {{ordinalDay}} di ogni mese alle {{time}}"
   },
   "nextRun": {
     "todayAt": "Oggi alle {{time}}",

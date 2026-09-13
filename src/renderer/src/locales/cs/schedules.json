@@ -3,7 +3,7 @@
   "pageDescription": "Automatizujte kontroly, čištění a aktualizace podle plánu",
   "newScheduleButton": "Nový plán",
   "createScheduleButton": "Vytvořit plán",
-  "emptyStateTitle": "Zatím žádné plány",
+  "emptyStateTitle": "Zatím nejsou žádné plány",
   "emptyStateDescription": "Vytvořte plán pro automatické spouštění kontrol, čištění a aktualizací.",
   "maxSchedulesReached": "Bylo dosaženo maximálního počtu plánů: {{max}}.",
   "duplicatedToast": "Duplikováno „{{name}}“",
@@ -34,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "Měsíční hloubková údržba",
     "monthlyDeepMaintenanceDescription": "Úplné čištění + registr, ovladače a software 1. dne v měsíci v 10:00",
     "customLabel": "Vlastní",
-    "customDescription": "Začněte od začátku s prázdným plánem"
+    "customDescription": "Začněte od nuly s prázdným plánem"
   },
   "dialog": {
     "editTitle": "Upravit plán",
@@ -53,8 +53,8 @@
     "cleanerGroup": "Čištění",
     "maintenanceGroup": "Údržba",
     "autoApplyLabel": "Automaticky použít",
-    "autoApplyDescription": "Automaticky vyčistit soubory, opravit problémy registru a nainstalovat aktualizace bez potvrzení.",
-    "autoApplyWarning": "Akce budou podle plánu spuštěny automaticky. Ujistěte se, že je váš seznam výjimek aktuální.",
+    "autoApplyDescription": "Automaticky vyčistí soubory, opraví problémy registru a nainstaluje aktualizace bez potvrzení.",
+    "autoApplyWarning": "Akce se budou automaticky spouštět podle plánu. Ujistěte se, že je váš seznam výjimek aktuální.",
     "cancelButton": "Zrušit",
     "saveChangesButton": "Uložit změny",
     "createScheduleButton": "Vytvořit plán"
@@ -63,7 +63,7 @@
     "system": "Systém",
     "browsers": "Prohlížeče",
     "applications": "Aplikace",
-    "gaming": "Hraní",
+    "gaming": "Hry",
     "recycleBin": "Koš",
     "databases": "Databáze",
     "registryFixes": "Opravy registru",

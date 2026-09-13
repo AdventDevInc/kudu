@@ -1,6 +1,6 @@
 {
   "pageTitle": "일정",
-  "pageDescription": "예약된 일정에 따라 검사, 정리 및 업데이트를 자동화합니다",
+  "pageDescription": "일정에 따라 검사, 정리 및 업데이트를 자동화합니다",
   "newScheduleButton": "새 일정",
   "createScheduleButton": "일정 만들기",
   "emptyStateTitle": "아직 일정이 없습니다",

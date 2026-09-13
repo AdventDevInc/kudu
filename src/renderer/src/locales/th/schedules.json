@@ -1,6 +1,6 @@
 {
   "pageTitle": "กำหนดการ",
-  "pageDescription": "ทำให้การสแกน การล้างข้อมูล และการอัปเดตทำงานอัตโนมัติตามกำหนดเวลา",
+  "pageDescription": "ทำให้การสแกน การล้างข้อมูล และการอัปเดตเป็นอัตโนมัติตามกำหนดเวลา",
   "newScheduleButton": "กำหนดการใหม่",
   "createScheduleButton": "สร้างกำหนดการ",
   "emptyStateTitle": "ยังไม่มีกำหนดการ",
@@ -16,7 +16,7 @@
   "deleteConfirmDescription": "กำหนดการนี้จะถูกลบอย่างถาวร การดำเนินการนี้ไม่สามารถย้อนกลับได้",
   "deleteConfirmLabel": "ลบ",
   "card": {
-    "autoApplyBadge": "นำไปใช้โดยอัตโนมัติ",
+    "autoApplyBadge": "ใช้โดยอัตโนมัติ",
     "editAction": "แก้ไข",
     "duplicateAction": "ทำสำเนา",
     "deleteAction": "ลบ",
@@ -52,7 +52,7 @@
     "deselectAll": "ยกเลิกการเลือกทั้งหมด",
     "cleanerGroup": "ตัวล้างข้อมูล",
     "maintenanceGroup": "การบำรุงรักษา",
-    "autoApplyLabel": "นำไปใช้โดยอัตโนมัติ",
+    "autoApplyLabel": "ใช้โดยอัตโนมัติ",
     "autoApplyDescription": "ล้างไฟล์ แก้ไขปัญหา registry และติดตั้งการอัปเดตโดยอัตโนมัติโดยไม่ต้องยืนยัน",
     "autoApplyWarning": "การดำเนินการจะทำงานโดยอัตโนมัติตามกำหนดเวลา โปรดตรวจสอบให้แน่ใจว่ารายการยกเว้นของคุณเป็นข้อมูลล่าสุด",
     "cancelButton": "ยกเลิก",
@@ -81,19 +81,19 @@
   },
   "frequency": {
     "everyDayAt": "ทุกวัน เวลา {{time}}",
-    "everyWeekdayAt": "ทุก{{day}} เวลา {{time}}",
+    "everyWeekdayAt": "ทุกวัน{{day}} เวลา {{time}}",
     "monthlyAt": "วันที่ {{ordinalDay}} ของทุกเดือน เวลา {{time}}"
   },
   "nextRun": {
     "todayAt": "วันนี้ เวลา {{time}}",
     "tomorrowAt": "พรุ่งนี้ เวลา {{time}}",
-    "inDaysAt": "อีก {{count}} วัน เวลา {{time}}",
+    "inDaysAt": "ในอีก {{count}} วัน เวลา {{time}}",
     "dateAt": "{{date}} เวลา {{time}}"
   },
   "lastRun": {
     "justNow": "เมื่อสักครู่",
     "minutesAgo": "{{count}} นาทีที่แล้ว",
-    "hoursAgo": "{{count}} ชม. ที่แล้ว",
+    "hoursAgo": "{{count}} ชั่วโมงที่แล้ว",
     "daysAgo": "{{count}} วันที่แล้ว"
   },
   "copyNameSuffix": "(สำเนา)",

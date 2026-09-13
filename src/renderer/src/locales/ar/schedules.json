@@ -10,7 +10,7 @@
   "deletedToast": "تم حذف \"{{name}}\"",
   "updatedToast": "تم تحديث \"{{name}}\"",
   "createdToast": "تم إنشاء \"{{name}}\"",
-  "failedEnableStartup": "فشل تمكين بدء التشغيل. قد لا تعمل الجداول بعد إعادة التشغيل.",
+  "failedEnableStartup": "تعذر تمكين بدء التشغيل. قد لا تعمل الجداول بعد إعادة التشغيل.",
   "failedEnableStartupAction": "معرفة المزيد",
   "deleteConfirmTitle": "حذف الجدول",
   "deleteConfirmDescription": "ستتم إزالة هذا الجدول نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
@@ -54,7 +54,7 @@
     "maintenanceGroup": "الصيانة",
     "autoApplyLabel": "تطبيق تلقائي",
     "autoApplyDescription": "تنظيف الملفات وإصلاح مشكلات السجل وتثبيت التحديثات تلقائيًا دون تأكيد.",
-    "autoApplyWarning": "سيتم تنفيذ الإجراءات تلقائيًا وفق الجدول. تأكد من أن قائمة الاستثناءات لديك محدّثة.",
+    "autoApplyWarning": "سيتم تنفيذ الإجراءات تلقائيًا وفق الجدول الزمني. تأكد من أن قائمة الاستثناءات لديك محدثة.",
     "cancelButton": "إلغاء",
     "saveChangesButton": "حفظ التغييرات",
     "createScheduleButton": "إنشاء جدول"
@@ -87,11 +87,11 @@
   "nextRun": {
     "todayAt": "اليوم في {{time}}",
     "tomorrowAt": "غدًا في {{time}}",
-    "inDaysAt": "بعد {{count}} يوم في {{time}}",
+    "inDaysAt": "بعد {{count}} يومًا في {{time}}",
     "dateAt": "{{date}} في {{time}}"
   },
   "lastRun": {
-    "justNow": "الآن للتو",
+    "justNow": "الآن",
     "minutesAgo": "منذ {{count}} د",
     "hoursAgo": "منذ {{count}} س",
     "daysAgo": "منذ {{count}} ي"

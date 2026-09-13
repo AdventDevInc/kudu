@@ -10,7 +10,7 @@
   "deletedToast": "S-a șters „{{name}}”",
   "updatedToast": "S-a actualizat „{{name}}”",
   "createdToast": "S-a creat „{{name}}”",
-  "failedEnableStartup": "Nu s-a putut activa pornirea automată. Este posibil ca programările să nu ruleze după repornire.",
+  "failedEnableStartup": "Activarea pornirii automate a eșuat. Este posibil ca programările să nu ruleze după repornire.",
   "failedEnableStartupAction": "Aflați mai multe",
   "deleteConfirmTitle": "Ștergeți programarea",
   "deleteConfirmDescription": "Această programare va fi eliminată definitiv. Această acțiune nu poate fi anulată.",
@@ -53,7 +53,7 @@
     "cleanerGroup": "Curățare",
     "maintenanceGroup": "Întreținere",
     "autoApplyLabel": "Aplicare automată",
-    "autoApplyDescription": "Curățați automat fișierele, remediați problemele din registry și instalați actualizările fără confirmare.",
+    "autoApplyDescription": "Curățați automat fișierele, remediați problemele din registry și instalați actualizări fără confirmare.",
     "autoApplyWarning": "Acțiunile vor rula automat conform programării. Asigurați-vă că lista de excluderi este actualizată.",
     "cancelButton": "Anulați",
     "saveChangesButton": "Salvați modificările",
@@ -92,9 +92,9 @@
   },
   "lastRun": {
     "justNow": "Chiar acum",
-    "minutesAgo": "acum {{count}}m",
-    "hoursAgo": "acum {{count}}h",
-    "daysAgo": "acum {{count}}z"
+    "minutesAgo": "acum {{count}} min",
+    "hoursAgo": "acum {{count}} h",
+    "daysAgo": "acum {{count}} z"
   },
   "copyNameSuffix": "(copie)",
   "advanced": {

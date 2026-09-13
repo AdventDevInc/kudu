@@ -1,22 +1,22 @@
 {
   "pageTitle": "לוחות זמנים",
-  "pageDescription": "אוטומציה של סריקות, ניקויים ועדכונים לפי לוח זמנים",
+  "pageDescription": "הפכו סריקות, ניקויים ועדכונים לאוטומטיים לפי לוח זמנים",
   "newScheduleButton": "לוח זמנים חדש",
   "createScheduleButton": "צור לוח זמנים",
   "emptyStateTitle": "עדיין אין לוחות זמנים",
-  "emptyStateDescription": "צור לוח זמנים כדי להפעיל באופן אוטומטי סריקות, ניקויים ועדכונים.",
-  "maxSchedulesReached": "הגעת למספר המרבי של {{max}} לוחות זמנים.",
-  "duplicatedToast": "שוכפל \"{{name}}\"",
+  "emptyStateDescription": "צרו לוח זמנים כדי להפעיל באופן אוטומטי סריקות, ניקויים ועדכונים.",
+  "maxSchedulesReached": "הגעת למספר המרבי של לוחות זמנים: {{max}}.",
+  "duplicatedToast": "הועתק \"{{name}}\"",
   "deletedToast": "נמחק \"{{name}}\"",
   "updatedToast": "עודכן \"{{name}}\"",
   "createdToast": "נוצר \"{{name}}\"",
-  "failedEnableStartup": "הפעלת ההפעלה בעת האתחול נכשלה. ייתכן שלוחות הזמנים לא יופעלו לאחר אתחול מחדש.",
+  "failedEnableStartup": "לא ניתן היה להפעיל הפעלה בעת האתחול. ייתכן שלוחות הזמנים לא יופעלו לאחר הפעלה מחדש.",
   "failedEnableStartupAction": "למידע נוסף",
   "deleteConfirmTitle": "מחיקת לוח זמנים",
   "deleteConfirmDescription": "לוח זמנים זה יוסר לצמיתות. לא ניתן לבטל פעולה זו.",
   "deleteConfirmLabel": "מחק",
   "card": {
-    "autoApplyBadge": "החל אוטומטית",
+    "autoApplyBadge": "החלה אוטומטית",
     "editAction": "ערוך",
     "duplicateAction": "שכפל",
     "deleteAction": "מחק",
@@ -32,7 +32,7 @@
     "dailyLightSweepLabel": "ניקוי קל יומי",
     "dailyLightSweepDescription": "מערכת, דפדפנים וסל המיחזור מדי יום בשעה 8:00",
     "monthlyDeepMaintenanceLabel": "תחזוקה מעמיקה חודשית",
-    "monthlyDeepMaintenanceDescription": "ניקוי מלא + registry, מנהלי התקנים ותוכנות ב-1 בכל חודש בשעה 10:00",
+    "monthlyDeepMaintenanceDescription": "ניקוי מלא + רישום, מנהלי התקנים ותוכנות ב־1 בכל חודש בשעה 10:00",
     "customLabel": "מותאם אישית",
     "customDescription": "התחל מאפס עם לוח זמנים ריק"
   },
@@ -52,9 +52,9 @@
     "deselectAll": "בטל בחירה של הכול",
     "cleanerGroup": "מנקה",
     "maintenanceGroup": "תחזוקה",
-    "autoApplyLabel": "החל אוטומטית",
-    "autoApplyDescription": "נקה קבצים, תקן בעיות registry והתקן עדכונים באופן אוטומטי ללא אישור.",
-    "autoApplyWarning": "הפעולות יופעלו אוטומטית לפי לוח הזמנים. ודא שרשימת ההחרגות שלך מעודכנת.",
+    "autoApplyLabel": "החלה אוטומטית",
+    "autoApplyDescription": "נקה קבצים, תקן בעיות ברישום והתקן עדכונים באופן אוטומטי ללא אישור.",
+    "autoApplyWarning": "הפעולות יופעלו באופן אוטומטי לפי לוח הזמנים. ודא שרשימת ההחרגות שלך מעודכנת.",
     "cancelButton": "ביטול",
     "saveChangesButton": "שמור שינויים",
     "createScheduleButton": "צור לוח זמנים"
@@ -66,7 +66,7 @@
     "gaming": "משחקים",
     "recycleBin": "סל המיחזור",
     "databases": "מסדי נתונים",
-    "registryFixes": "תיקוני registry",
+    "registryFixes": "תיקוני רישום",
     "driverUpdates": "עדכוני מנהלי התקנים",
     "softwareUpdates": "עדכוני תוכנה"
   },
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "כל יום בשעה {{time}}",
     "everyWeekdayAt": "בכל {{day}} בשעה {{time}}",
-    "monthlyAt": "ב-{{ordinalDay}} בכל חודש בשעה {{time}}"
+    "monthlyAt": "ב־{{ordinalDay}} בכל חודש בשעה {{time}}"
   },
   "nextRun": {
     "todayAt": "היום בשעה {{time}}",

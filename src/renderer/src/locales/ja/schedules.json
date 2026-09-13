@@ -28,13 +28,13 @@
   "presets": {
     "dialogTitle": "テンプレートを選択",
     "weeklyFullCleanLabel": "毎週のフルクリーン",
-    "weeklyFullCleanDescription": "毎週月曜日の午前9時にすべてのクリーナーカテゴリを実行",
+    "weeklyFullCleanDescription": "毎週月曜日の午前9時に、すべてのクリーナーカテゴリを実行",
     "dailyLightSweepLabel": "毎日の軽量クリーン",
-    "dailyLightSweepDescription": "毎日午前8時にシステム、ブラウザー、ごみ箱を実行",
+    "dailyLightSweepDescription": "毎日午前8時に、システム、ブラウザー、ごみ箱を実行",
     "monthlyDeepMaintenanceLabel": "毎月の詳細メンテナンス",
-    "monthlyDeepMaintenanceDescription": "毎月1日の午前10時にフルクリーン + レジストリ、ドライバー、ソフトウェアを実行",
+    "monthlyDeepMaintenanceDescription": "毎月1日の午前10時に、フルクリーン + レジストリ、ドライバー、ソフトウェアを実行",
     "customLabel": "カスタム",
-    "customDescription": "空のスケジュールから新規作成します"
+    "customDescription": "空のスケジュールから作成を開始"
   },
   "dialog": {
     "editTitle": "スケジュールを編集",
@@ -53,7 +53,7 @@
     "cleanerGroup": "クリーナー",
     "maintenanceGroup": "メンテナンス",
     "autoApplyLabel": "自動適用",
-    "autoApplyDescription": "確認なしでファイルのクリーンアップ、レジストリの問題の修復、更新のインストールを自動的に実行します。",
+    "autoApplyDescription": "確認なしで、ファイルのクリーンアップ、レジストリの問題の修復、更新プログラムのインストールを自動的に実行します。",
     "autoApplyWarning": "操作はスケジュールに従って自動的に実行されます。除外リストが最新であることを確認してください。",
     "cancelButton": "キャンセル",
     "saveChangesButton": "変更を保存",

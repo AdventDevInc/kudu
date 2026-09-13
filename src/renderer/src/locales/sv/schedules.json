@@ -13,7 +13,7 @@
   "failedEnableStartup": "Det gick inte att aktivera autostart. Scheman kanske inte körs efter omstart.",
   "failedEnableStartupAction": "Läs mer",
   "deleteConfirmTitle": "Ta bort schema",
-  "deleteConfirmDescription": "Det här schemat tas bort permanent. Åtgärden kan inte ångras.",
+  "deleteConfirmDescription": "Det här schemat tas bort permanent. Den här åtgärden kan inte ångras.",
   "deleteConfirmLabel": "Ta bort",
   "card": {
     "autoApplyBadge": "Tillämpa automatiskt",
@@ -23,16 +23,16 @@
     "noTasksSelected": "Inga uppgifter valda",
     "nextRun": "Nästa: {{time}}",
     "lastRun": "Senaste: {{time}}",
-    "neverRun": "Aldrig kört"
+    "neverRun": "Aldrig körd"
   },
   "presets": {
     "dialogTitle": "Välj en mall",
     "weeklyFullCleanLabel": "Veckovis fullständig rensning",
-    "weeklyFullCleanDescription": "Alla rensningskategorier varje måndag kl. 09.00",
+    "weeklyFullCleanDescription": "Alla rensningskategorier varje måndag kl. 09:00",
     "dailyLightSweepLabel": "Daglig lätt rensning",
-    "dailyLightSweepDescription": "System, webbläsare och papperskorg dagligen kl. 08.00",
+    "dailyLightSweepDescription": "System, webbläsare och papperskorg dagligen kl. 08:00",
     "monthlyDeepMaintenanceLabel": "Månatligt djupt underhåll",
-    "monthlyDeepMaintenanceDescription": "Fullständig rensning + register, drivrutiner och programvara den 1:a kl. 10.00",
+    "monthlyDeepMaintenanceDescription": "Fullständig rensning + register, drivrutiner och programvara den 1:a kl. 10:00",
     "customLabel": "Anpassat",
     "customDescription": "Börja från början med ett tomt schema"
   },
@@ -64,7 +64,7 @@
     "browsers": "Webbläsare",
     "applications": "Program",
     "gaming": "Spel",
-    "recycleBin": "Papperskorgen",
+    "recycleBin": "Papperskorg",
     "databases": "Databaser",
     "registryFixes": "Registeråtgärder",
     "driverUpdates": "Drivrutinsuppdateringar",
@@ -91,7 +91,7 @@
     "dateAt": "{{date}} kl. {{time}}"
   },
   "lastRun": {
-    "justNow": "Just nu",
+    "justNow": "Nyss",
     "minutesAgo": "{{count}} min sedan",
     "hoursAgo": "{{count}} h sedan",
     "daysAgo": "{{count}} d sedan"
