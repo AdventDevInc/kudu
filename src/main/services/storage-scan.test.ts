@@ -140,7 +140,9 @@ it.skipIf(process.platform !== 'win32')(
       totalBytes: 9,
       files: 1
     })
-  }
+  },
+  // Spawning PowerShell for the short path is slow on CI runners.
+  30_000
 )
 it('discards a directory swapped for a link to an outside folder right before it is opened', async () => {
   const outside = await mkdtemp(join(await realpath(tmpdir()), 'kudu-storage-outside-'))
