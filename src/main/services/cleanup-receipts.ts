@@ -1,5 +1,15 @@
 import { app } from 'electron'
-import { mkdir, readdir, readFile, rename, unlink, writeFile, statfs } from 'fs/promises'
+import {
+  mkdir,
+  open,
+  readdir,
+  readFile,
+  rename,
+  stat,
+  unlink,
+  writeFile,
+  statfs
+} from 'fs/promises'
 import { join, parse } from 'path'
 import { randomUUID } from 'crypto'
 import type { CleanupReceipt, CleanupReceiptItem } from '../../shared/cleanup-receipts'
@@ -13,9 +23,62 @@ let writes: Promise<unknown> = Promise.resolve()
 const directory = () =>
   join(app.getPath('userData'), app.isPackaged ? 'cleanup-receipts' : 'Kudu-Dev/cleanup-receipts')
 const file = () => join(directory(), 'receipts.json')
+const lockFile = () => join(directory(), 'receipts.lock')
+const tempFile = (path: string) => path + '.' + randomUUID() + '.tmp'
 const receiptFile = (id: string) => {
   if (!/^[a-f0-9-]{36}$/.test(id)) throw new Error('Invalid receipt ID')
   return join(directory(), id + '.json')
+}
+// Persist reason codes, not exception messages which can contain private paths.
+const REASON_CODES = new Set([
+  '',
+  'scan-result-expired',
+  'not-found',
+  'excluded',
+  'permission-denied',
+  'in-use',
+  'recently-modified',
+  'local-selection-required',
+  'native-maintenance-size-unknown',
+  'partial-removal',
+  'unexpected-error',
+  'native-cleanup-failed'
+])
+const LOCK_TIMEOUT_MS = 5_000
+const LOCK_STALE_MS = 30_000
+
+/**
+ * Serialize index updates across processes: the packaged GUI, the daemon, and `--cli` share one
+ * user-data directory but have independent in-process write queues. A lock left behind by a crashed
+ * process is reclaimed once it is older than LOCK_STALE_MS.
+ */
+async function withIndexLock<T>(task: () => Promise<T>): Promise<T> {
+  await mkdir(directory(), { recursive: true })
+  const deadline = Date.now() + LOCK_TIMEOUT_MS
+  for (;;) {
+    try {
+      const handle = await open(lockFile(), 'wx')
+      await handle.close()
+      break
+    } catch (error: any) {
+      if (error.code !== 'EEXIST') throw error
+      const age = await stat(lockFile())
+        .then((info) => Date.now() - info.mtimeMs)
+        .catch(() => 0)
+      if (age > LOCK_STALE_MS) {
+        await unlink(lockFile()).catch(() => {})
+        continue
+      }
+      if (Date.now() >= deadline)
+        throw new Error('Cleanup receipt index is locked by another process', { cause: error })
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    }
+  }
+  try {
+    return await task()
+  } finally {
+    await unlink(lockFile()).catch(() => {})
+  }
 }
 
 /** Read the index, quarantining an unreadable one so a corrupt file cannot wedge the feature. */
@@ -100,22 +163,7 @@ export function createReceipt(
       removedBytes = 0,
       selectedBytes?: number | null
     ) {
-      // Persist reason codes, not exception messages which can contain private paths.
-      const allowed = new Set([
-        '',
-        'scan-result-expired',
-        'not-found',
-        'excluded',
-        'permission-denied',
-        'in-use',
-        'recently-modified',
-        'local-selection-required',
-        'native-maintenance-size-unknown',
-        'partial-removal',
-        'unexpected-error',
-        'native-cleanup-failed'
-      ])
-      if (!allowed.has(reason)) reason = 'other-error'
+      if (!REASON_CODES.has(reason)) reason = 'other-error'
       if (reason === 'in-use') reason = 'in-use-or-protected'
       outcomes.push(
         typeof item === 'string'
@@ -169,25 +217,27 @@ export function createReceipt(
         ids: outcomes.filter((i) => i.outcome === 'failed' && getCachedItem(i.id)).map((i) => i.id)
       })
       while (retryRuns.size > 100) retryRuns.delete(retryRuns.keys().next().value!)
-      const write = writes.then(async () => {
-        await mkdir(directory(), { recursive: true })
-        const existing = await readIndexOrQuarantine()
-        const detailPath = receiptFile(receipt.id)
-        await writeFile(detailPath + '.tmp', JSON.stringify(receipt), 'utf8')
-        await rename(detailPath + '.tmp', detailPath)
-        const temp = file() + '.tmp'
-        await writeFile(
-          temp,
-          JSON.stringify([{ ...receipt, details: [] }, ...existing].slice(0, 100)),
-          'utf8'
-        )
-        await rename(temp, file())
-        for (const expired of existing.slice(99)) {
-          await unlink(receiptFile(expired.id)).catch((error: NodeJS.ErrnoException) => {
-            if (error.code !== 'ENOENT') throw error
-          })
-        }
-      })
+      const write = writes.then(() =>
+        withIndexLock(async () => {
+          const existing = await readIndexOrQuarantine()
+          const detailPath = receiptFile(receipt.id)
+          const detailTemp = tempFile(detailPath)
+          await writeFile(detailTemp, JSON.stringify(receipt), 'utf8')
+          await rename(detailTemp, detailPath)
+          const temp = tempFile(file())
+          await writeFile(
+            temp,
+            JSON.stringify([{ ...receipt, details: [] }, ...existing].slice(0, 100)),
+            'utf8'
+          )
+          await rename(temp, file())
+          for (const expired of existing.slice(99)) {
+            await unlink(receiptFile(expired.id)).catch((error: NodeJS.ErrnoException) => {
+              if (error.code !== 'ENOENT') throw error
+            })
+          }
+        })
+      )
       writes = write.catch(() => {})
       await write
       return receipt
@@ -203,20 +253,23 @@ export function receiptRetryIds(id: string): string[] {
 }
 
 export async function clearCleanupReceipts(): Promise<void> {
-  const write = writes.then(async () => {
-    await mkdir(directory(), { recursive: true })
-    // Enumerate the directory rather than trusting the index so a corrupt or stale index
-    // cannot strand detail files (which may contain logged paths) on disk.
-    const owned = /^([a-f0-9-]{36}\.json(\.tmp)?|receipts\.json\.(tmp|corrupt-\d+))$/
-    for (const name of await readdir(directory()))
-      if (owned.test(name))
-        await unlink(join(directory(), name)).catch((error: NodeJS.ErrnoException) => {
-          if (error.code !== 'ENOENT') throw error
-        })
-    await writeFile(file() + '.tmp', '[]', 'utf8')
-    await rename(file() + '.tmp', file())
-    retryRuns.clear()
-  })
+  const write = writes.then(() =>
+    withIndexLock(async () => {
+      // Enumerate the directory rather than trusting the index so a corrupt or stale index
+      // cannot strand detail files (which may contain logged paths) on disk.
+      const owned =
+        /^([a-f0-9-]{36}\.json(\.([a-f0-9-]{36}\.)?tmp)?|receipts\.json\.(([a-f0-9-]{36}\.)?tmp|corrupt-\d+))$/
+      for (const name of await readdir(directory()))
+        if (owned.test(name))
+          await unlink(join(directory(), name)).catch((error: NodeJS.ErrnoException) => {
+            if (error.code !== 'ENOENT') throw error
+          })
+      const temp = tempFile(file())
+      await writeFile(temp, '[]', 'utf8')
+      await rename(temp, file())
+      retryRuns.clear()
+    })
+  )
   writes = write.catch(() => {})
   await write
 }
@@ -224,9 +277,10 @@ export async function clearCleanupReceipts(): Promise<void> {
 /** Native operations have their own accounting units; never invent per-file outcomes. */
 export async function recordNativeCleanup(
   label: string,
-  operation: () => Promise<CleanResult>
+  operation: () => Promise<CleanResult>,
+  origin: DeletionOrigin = 'local'
 ): Promise<CleanResult> {
-  const receipt = createReceipt('local')
+  const receipt = createReceipt(origin)
   const item: ScanItem = {
     id: randomUUID(),
     path: label,
@@ -245,10 +299,18 @@ export async function recordNativeCleanup(
     throw error
   }
   if (result.receiptId) return result
+  const failed = result.errors.length > 0 || result.filesSkipped > 0
+  // Keep the native operation's actionable cause when it is an allow-listed code; only call the
+  // outcome a partial removal when something was actually removed alongside the failures.
+  const nativeReason =
+    result.filesDeleted > 0
+      ? 'partial-removal'
+      : (result.errors.map((e) => e.reason).find((r) => r && REASON_CODES.has(r)) ??
+        'native-cleanup-failed')
   receipt.add(
     item,
-    result.errors.length || result.filesSkipped ? 'failed' : 'deleted',
-    result.errors.length || result.filesSkipped ? 'partial-removal' : '',
+    failed ? 'failed' : 'deleted',
+    failed ? nativeReason : '',
     true,
     result.totalCleaned,
     null

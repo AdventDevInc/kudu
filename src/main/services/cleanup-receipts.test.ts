@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, utimes, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import type { ScanItem } from '../../shared/types'
@@ -117,5 +117,105 @@ describe('receipt persistence and retry authorization', () => {
     expect(result.receiptSaved).toBe(true)
     const saved = await getCleanupReceipt(result.receiptId!)
     expect(saved.details[0]).toMatchObject({ outcome: 'deleted', selectedBytes: null })
+  })
+  it('keeps the sanitized native reason when nothing was removed and records the origin', async () => {
+    const locked = await recordNativeCleanup(
+      'Database optimization',
+      async () => ({
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 1,
+        errors: [{ path: '/private/alice/app.db', reason: 'in-use' }],
+        needsElevation: false
+      }),
+      'cli'
+    )
+    expect(locked.errors[0].reason).toBe('in-use')
+    const lockedReceipt = await getCleanupReceipt(locked.receiptId!)
+    expect(lockedReceipt.origin).toBe('cli')
+    expect(lockedReceipt.details[0]).toMatchObject({
+      outcome: 'failed',
+      reason: 'in-use-or-protected'
+    })
+    expect(JSON.stringify(lockedReceipt)).not.toContain('/private/')
+
+    const unknown = await recordNativeCleanup(
+      'Database optimization',
+      async () => ({
+        totalCleaned: 0,
+        filesDeleted: 0,
+        filesSkipped: 1,
+        errors: [{ path: '/private/alice/app.db', reason: 'disk I/O error at /private/alice' }],
+        needsElevation: false
+      }),
+      'cloud'
+    )
+    const unknownReceipt = await getCleanupReceipt(unknown.receiptId!)
+    expect(unknownReceipt.origin).toBe('cloud')
+    expect(unknownReceipt.details[0].reason).toBe('native-cleanup-failed')
+    expect(JSON.stringify(unknownReceipt)).not.toContain('/private/')
+
+    const partial = await recordNativeCleanup('Database optimization', async () => ({
+      totalCleaned: 5,
+      filesDeleted: 1,
+      filesSkipped: 1,
+      errors: [{ path: '/private/alice/app.db', reason: 'in-use' }],
+      needsElevation: false
+    }))
+    const partialReceipt = await getCleanupReceipt(partial.receiptId!)
+    expect(partialReceipt.origin).toBe('local')
+    expect(partialReceipt.details[0]).toMatchObject({
+      outcome: 'failed',
+      reason: 'partial-removal',
+      removedBytes: 5
+    })
+  })
+  it('lands concurrent receipts from independent writers in the index using unique temp files', async () => {
+    const dir = join(state.root, 'cleanup-receipts')
+    const a = createReceipt('local'),
+      b = createReceipt('cli')
+    a.add(item, 'deleted', '', true, 50)
+    b.add({ ...item, id: 'second' }, 'deleted', '', true, 25)
+    // Model a second process by defeating the in-process write queue: start both writes in the
+    // same tick, so only the cross-process lock can serialize the index update.
+    await Promise.all([a.finish(), b.finish()])
+    const ids = (await getCleanupReceipts()).map((r) => r.id)
+    expect(ids).toHaveLength(2)
+    expect(ids).toEqual(expect.arrayContaining([a.id, b.id]))
+    const files = await readdir(dir)
+    expect(files.filter((f) => f.endsWith('.tmp'))).toEqual([])
+    expect(files).not.toContain('receipts.lock')
+  })
+  it('waits for a live lock held by another process and reclaims a stale one', async () => {
+    const dir = join(state.root, 'cleanup-receipts')
+    await mkdir(dir, { recursive: true })
+    const lock = join(dir, 'receipts.lock')
+    await writeFile(lock, '')
+    const receipt = createReceipt('local')
+    receipt.add(item, 'deleted', '', true, 50)
+    const pending = receipt.finish()
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    expect(await readdir(dir)).not.toContain('receipts.json')
+    await rm(lock)
+    await pending
+    expect((await getCleanupReceipts()).map((r) => r.id)).toEqual([receipt.id])
+
+    await writeFile(lock, '')
+    const stale = new Date(Date.now() - 60_000)
+    await utimes(lock, stale, stale)
+    const next = createReceipt('local')
+    next.add(item, 'deleted', '', true, 50)
+    await next.finish()
+    expect(await getCleanupReceipts()).toHaveLength(2)
+    expect(await readdir(dir)).not.toContain('receipts.lock')
+  })
+  it('clears temp files left behind by an interrupted write', async () => {
+    const dir = join(state.root, 'cleanup-receipts')
+    await mkdir(dir, { recursive: true })
+    const uuid = '22222222-2222-4222-8222-222222222222'
+    await writeFile(join(dir, `receipts.json.${uuid}.tmp`), '[]')
+    await writeFile(join(dir, `${item.id}.json.${uuid}.tmp`), '{}')
+    await clearCleanupReceipts()
+    expect(await readdir(dir)).toEqual(['receipts.json'])
   })
 })

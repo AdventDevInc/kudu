@@ -2131,7 +2131,14 @@ async function runLegacyScanClean(
       const rbResult = allResults.find((r) => r.category === CleanerType.RecycleBin)
       recycleCleaned = await cleanRecycleBin(rbResult?.totalSize || 0, rbResult?.itemCount || 0)
     }
-    if (dbItemIds.length > 0) dbCleaned = await cleanDatabasesCli(dbItemIds)
+    if (dbItemIds.length > 0) {
+      const { recordNativeCleanup } = await import('./services/cleanup-receipts')
+      dbCleaned = await recordNativeCleanup(
+        'Database optimization',
+        () => cleanDatabasesCli(dbItemIds),
+        'cli'
+      )
+    }
     cleanResult = {
       totalCleaned: fileCleaned.totalCleaned + recycleCleaned.totalCleaned + dbCleaned.totalCleaned,
       filesDeleted: fileCleaned.filesDeleted + recycleCleaned.filesDeleted + dbCleaned.filesDeleted,
