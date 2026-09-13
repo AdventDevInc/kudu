@@ -45,6 +45,7 @@ const defaults: StoreData = {
   windowState: null,
   settings: {
     theme: 'system' as const,
+    dashboardView: 'simple',
     language: 'en',
     minimizeToTray: false,
     showNotificationOnComplete: true,

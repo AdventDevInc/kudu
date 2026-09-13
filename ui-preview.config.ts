@@ -6,6 +6,7 @@ import pkg from './package.json'
 
 export default defineConfig({
   root: resolve('src/renderer'),
+  cacheDir: resolve('node_modules/.vite-ui-preview'),
   plugins: [react(), tailwindcss()],
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   resolve: { alias: { '@': resolve('src/renderer/src'), '@shared': resolve('src/shared') } },

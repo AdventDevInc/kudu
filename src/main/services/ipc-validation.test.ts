@@ -6,6 +6,17 @@ import {
 } from './ipc-validation'
 
 describe('validateSettingsPartial', () => {
+  it('accepts only supported dashboard views', () => {
+    expect(validateSettingsPartial({ dashboardView: 'simple' })).toEqual({
+      dashboardView: 'simple'
+    })
+    expect(validateSettingsPartial({ dashboardView: 'advanced' })).toEqual({
+      dashboardView: 'advanced'
+    })
+    for (const dashboardView of ['expert', '', false, 1, null, {}]) {
+      expect(validateSettingsPartial({ dashboardView })).toBeNull()
+    }
+  })
   it('accepts valid boolean settings', () => {
     const input = { minimizeToTray: true, autoUpdate: false }
     expect(validateSettingsPartial(input)).toEqual(input)

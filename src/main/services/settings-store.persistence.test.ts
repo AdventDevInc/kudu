@@ -1,7 +1,7 @@
 import { describe, it, expect, afterAll, vi } from 'vitest'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { rmSync, existsSync } from 'fs'
+import { rmSync, existsSync, readFileSync } from 'fs'
 import { randomUUID } from 'crypto'
 
 const TEST_DIR = join(tmpdir(), `kudu-test-${randomUUID()}`)
@@ -52,6 +52,23 @@ describe('settings persistence — game mode toggle round-trip (issue #172)', ()
     const afterRestart = getSettings()
     expect(afterRestart.gameMode.enabledOptimizations).not.toContain('svc-sysmain')
     expect(afterRestart.gameMode.enabledOptimizations).toEqual(without)
+  })
+
+  it('persists the dashboard view without changing the theme or cleaner settings', async () => {
+    const initial = getSettings()
+    expect(initial.dashboardView).toBe('simple')
+    setSettings({ dashboardView: 'advanced' })
+    await flushSettings()
+    const persisted = JSON.parse(readFileSync(join(TEST_DIR, 'Kudu-Dev', 'config.json'), 'utf8'))
+    expect(persisted.settings.dashboardView).toBe('advanced')
+    expect(persisted.settings.theme).toBe(initial.theme)
+    expect(persisted.settings.cleaner).toEqual(initial.cleaner)
+    setSettings({ dashboardView: 'simple' })
+    await flushSettings()
+    expect(
+      JSON.parse(readFileSync(join(TEST_DIR, 'Kudu-Dev', 'config.json'), 'utf8')).settings
+        .dashboardView
+    ).toBe('simple')
   })
 
   it('keeps an empty enabledOptimizations array empty across a simulated restart', async () => {

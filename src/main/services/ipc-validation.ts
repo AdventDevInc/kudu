@@ -16,6 +16,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
 
   const allowedTopKeys = new Set([
     'theme',
+    'dashboardView',
     'language',
     'minimizeToTray',
     'showNotificationOnComplete',
@@ -45,6 +46,10 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
   }
 
   // Validate theme is one of the allowed values
+  if ('dashboardView' in obj && obj.dashboardView !== undefined) {
+    if (!['simple', 'advanced'].includes(obj.dashboardView as string)) return null
+  }
+
   if ('theme' in obj && obj.theme !== undefined) {
     if (!['dark', 'light', 'system'].includes(obj.theme as string)) return null
   }

@@ -44,6 +44,7 @@ import { useMalwareStore } from '@/stores/malware-store'
 import type { DriveInfo, ScanResult, CleanResult } from '@shared/types'
 import { CleanerType } from '@shared/enums'
 import { usePlatform } from '@/hooks/usePlatform'
+import { SimpleDashboard } from '@/components/dashboard/SimpleDashboard'
 
 type OneClickPhase = 'idle' | 'scanning' | 'cleaning' | 'done'
 
@@ -107,6 +108,60 @@ const CLEANER_SCAN_FNS: {
 // ── Component ────────────────────────────────────────────────
 
 export function DashboardPage() {
+  const { t } = useTranslation('experience')
+  const view = useSettingsStore((s) =>
+    s.settings.dashboardView === 'advanced' ? 'advanced' : 'simple'
+  )
+  const updateSettings = useSettingsStore((s) => s.updateSettings)
+  const [saving, setSaving] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const saveInFlight = useRef(false)
+  const changeView = async (next: 'simple' | 'advanced') => {
+    if (next === view || busy || saveInFlight.current) return
+    saveInFlight.current = true
+    setSaving(true)
+    try {
+      await window.kudu.settingsSet({ dashboardView: next })
+      updateSettings({ dashboardView: next })
+    } catch {
+      toast.error(t('simple.saveFailed'))
+    } finally {
+      saveInFlight.current = false
+      setSaving(false)
+    }
+  }
+  return (
+    <div className="dashboard-view">
+      <div className="dashboard-view-toolbar">
+        <span>{t('simple.home')}</span>
+        <div
+          className="dashboard-view-switch"
+          role="group"
+          aria-label={t('simple.viewLabel')}
+          aria-busy={saving}
+        >
+          {(['simple', 'advanced'] as const).map((mode) => (
+            <button
+              key={mode}
+              aria-pressed={view === mode}
+              disabled={saving || busy}
+              onClick={() => void changeView(mode)}
+            >
+              {t(`simple.${mode}Mode`)}
+            </button>
+          ))}
+        </div>
+      </div>
+      {view === 'simple' ? (
+        <SimpleDashboard onAdvanced={() => void changeView('advanced')} switching={saving} />
+      ) : (
+        <AdvancedDashboard onBusyChange={setBusy} />
+      )}
+    </div>
+  )
+}
+
+function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => void }) {
   const { t } = useTranslation('dashboard')
   const { t: tx } = useTranslation('experience')
   const { features } = usePlatform()
@@ -133,6 +188,10 @@ export function DashboardPage() {
   const [drives, setDrives] = useState<DriveInfo[]>([])
   const [driveStatus, setDriveStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
   const [phase, setPhase] = useState<OneClickPhase>('idle')
+  useEffect(() => {
+    onBusyChange(phase === 'scanning' || phase === 'cleaning')
+    return () => onBusyChange(false)
+  }, [phase, onBusyChange])
   const [phaseLabel, setPhaseLabel] = useState('')
   const [result, setResult] = useState<OneClickResult | null>(null)
   const [showQuickConfirm, setShowQuickConfirm] = useState(false)

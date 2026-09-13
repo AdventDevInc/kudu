@@ -1,5 +1,5 @@
 // Dedicated browser-only QA entry. This module is never imported by the Electron entry.
-import { defaultSettings } from '../stores/settings-store'
+import { defaultSettings, useSettingsStore } from '../stores/settings-store'
 import { featureReads } from './feature-fixtures'
 import type { ScanHistoryEntry, StartupItem, PerfSnapshot } from '@shared/types'
 
@@ -7,6 +7,8 @@ const GB = 1024 ** 3
 const now = Date.now()
 const empty = new URLSearchParams(location.search).get('state') === 'empty'
 const settings = structuredClone(defaultSettings)
+settings.dashboardView =
+  localStorage.getItem('kudu-preview-dashboard-view') === 'advanced' ? 'advanced' : 'simple'
 settings.theme = new URLSearchParams(location.search).get('theme') === 'light' ? 'light' : 'dark'
 settings.language = 'en'
 settings.schedules = empty
@@ -179,7 +181,12 @@ const reads: Record<string, (...args: any[]) => unknown> = {
   }),
   ...featureReads(empty),
   settingsGet: () => settings,
-  settingsSet: (partial) => Object.assign(settings, partial),
+  settingsSet: (partial) => {
+    Object.assign(settings, partial)
+    if (partial.dashboardView)
+      localStorage.setItem('kudu-preview-dashboard-view', partial.dashboardView)
+    return settings
+  },
   onboardingGet: () => true,
   elevationCheck: () => ({ isAdmin: true, isElevated: true }),
   updaterGetStatus: () => ({ state: 'idle' }),
@@ -341,6 +348,8 @@ window.kudu = new Proxy(
     }
   }
 ) as typeof window.kudu
+
+useSettingsStore.getState().setSettings(settings)
 
 const badge = document.createElement('div')
 badge.setAttribute('role', 'status')

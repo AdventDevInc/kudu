@@ -761,6 +761,7 @@ export interface ScheduleEntry {
 
 export interface KuduSettings {
   theme: 'dark' | 'light' | 'system'
+  dashboardView?: 'simple' | 'advanced'
   language: string
   minimizeToTray: boolean
   showNotificationOnComplete: boolean

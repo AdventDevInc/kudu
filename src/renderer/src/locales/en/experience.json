@@ -1,4 +1,51 @@
 {
+  "simple": {
+    "home": "Home",
+    "viewLabel": "Dashboard view",
+    "simpleMode": "Simple",
+    "advancedMode": "Advanced",
+    "saveFailed": "Couldn't save your dashboard view. Please try again.",
+    "eyebrow": "A LITTLE CARE. A BETTER DAY.",
+    "title": "What would make your PC feel better?",
+    "description": "Choose what you'd like to improve. We'll help you find the right place to start.",
+    "chooseGoal": "What would you like to do?",
+    "yourNextStep": "YOUR NEXT STEP",
+    "chooseTool": "Choose a tool to get started",
+    "startHere": "START HERE",
+    "routineTitle": "Make care a small habit.",
+    "routineDescription": "Choose tasks, timing, and conditions for a regular routine.",
+    "recoveryTitle": "Review a recent change.",
+    "recoveryDescription": "Find restore options for supported system changes.",
+    "reviewFirst": "Open a tool to review its options before making changes.",
+    "advancedPrompt": "Want graphs and system details? Switch to Advanced",
+    "cloud": { "pro": "Cloud Pro", "basic": "Cloud Basic" },
+    "goals": {
+      "space": {
+        "title": "I need more space",
+        "description": "Find the clutter. Keep the good stuff.",
+        "count_one": "{{count}} way to make room",
+        "count_other": "{{count}} ways to make room",
+        "heading": "Let's make some room.",
+        "guidance": "Start with temporary files and caches, then explore your folders if you need more space."
+      },
+      "speed": {
+        "title": "It feels a little slow",
+        "description": "Find what's getting in your way.",
+        "count_one": "{{count}} performance tool",
+        "count_other": "{{count}} performance tools",
+        "heading": "Let's find the slowdown.",
+        "guidance": "See what's using your resources, then choose which area to investigate."
+      },
+      "protection": {
+        "title": "I want peace of mind",
+        "description": "Check your protection and privacy.",
+        "count_one": "{{count}} protection tool",
+        "count_other": "{{count}} protection tools",
+        "heading": "A little more peace of mind.",
+        "guidance": "Start with a malware scan, then review privacy settings and other protection tools."
+      }
+    }
+  },
   "families": {
     "care": "Everyday care",
     "protection": "Protection & privacy",

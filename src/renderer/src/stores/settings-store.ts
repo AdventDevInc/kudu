@@ -10,6 +10,7 @@ interface SettingsState {
 
 export const defaultSettings: KuduSettings = {
   theme: 'system',
+  dashboardView: 'simple',
   language: 'en',
   minimizeToTray: false,
   showNotificationOnComplete: true,
