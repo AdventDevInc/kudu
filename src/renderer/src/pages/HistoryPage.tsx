@@ -263,10 +263,18 @@ export function HistoryPage() {
 
   if (!loaded) return null
 
-  if (entries.length === 0) {
+  if (entries.length === 0 && viewMode !== 'receipts') {
     return (
       <div className="animate-fade-in">
-        <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
+        <PageHeader
+          title={t('pageTitle')}
+          description={t('pageDescription')}
+          action={
+            <button className="feature-button" onClick={() => setViewMode('receipts')}>
+              {t('receipts.title')}
+            </button>
+          }
+        />
         <EmptyState
           icon={History}
           title={t('emptyStateTitle')}
@@ -314,6 +322,11 @@ export function HistoryPage() {
                 onClick={() => setViewMode('receipts')}
                 className="px-4 py-2 text-[12px] font-medium"
                 aria-pressed={viewMode === 'receipts'}
+                style={{
+                  background:
+                    viewMode === 'receipts' ? 'var(--accent-muted-bg)' : 'var(--bg-subtle)',
+                  color: viewMode === 'receipts' ? 'var(--accent)' : 'var(--text-muted)'
+                }}
               >
                 {t('receipts.title')}
               </button>
@@ -328,14 +341,16 @@ export function HistoryPage() {
                 {t('viewCloud')}
               </button>
             </div>
-            <button
-              onClick={() => setShowClearConfirm(true)}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-all hover:text-zinc-300"
-              style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
-            >
-              <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-              {t('clearButton')}
-            </button>
+            {viewMode !== 'receipts' && (
+              <button
+                onClick={() => setShowClearConfirm(true)}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-medium text-zinc-500 transition-all hover:text-zinc-300"
+                style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
+              >
+                <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+                {t('clearButton')}
+              </button>
+            )}
           </div>
         }
       />

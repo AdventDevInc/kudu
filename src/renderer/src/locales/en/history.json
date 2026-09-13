@@ -36,7 +36,8 @@
     "retryDescription": "Eligible cached entries will be checked against current protections and permanently deleted if still eligible. This creates a new receipt.",
     "retryConfirm": "Retry cleanup",
     "clearTitle": "Clear cleanup receipts?",
-    "clearDescription": "This permanently removes saved receipts and their retry information. Scan history and the separate deletion log are unchanged."
+    "clearDescription": "This permanently removes saved receipts and their retry information. Scan history and the separate deletion log are unchanged.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Scan History",
   "pageDescription": "View detailed results from past scans and cleanups",

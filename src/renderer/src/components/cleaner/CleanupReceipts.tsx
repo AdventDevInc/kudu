@@ -1,6 +1,9 @@
+import '@/components/shared/feature-layout.css'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { FileText, RefreshCw, Download } from 'lucide-react'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { Link } from 'react-router-dom'
 import type { CleanupReceipt, CleanupReceiptItem } from '@shared/cleanup-receipts'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -20,12 +23,21 @@ export function CleanupReceipts() {
   const [clear, setClear] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [detailsLoading, setDetailsLoading] = useState(false)
   const load = useCallback(async () => {
+    setLoading(true)
     try {
-      setReceipts(await window.kudu.cleanupReceipts())
+      const next = await window.kudu.cleanupReceipts()
+      setReceipts(next)
+      setSelected((current) =>
+        next.some((r) => r.id === current) ? current : (next[0]?.id ?? null)
+      )
       setError('')
     } catch {
       setError(t('receipts.loadError'))
+    } finally {
+      setLoading(false)
     }
   }, [t])
   useEffect(() => {
@@ -34,6 +46,7 @@ export function CleanupReceipts() {
   useEffect(() => {
     let cancelled = false
     setDetails({ items: [], total: 0 })
+    setDetailsLoading(!!selected)
     if (selected)
       window.kudu
         .cleanupReceiptDetails(selected, page)
@@ -43,12 +56,15 @@ export function CleanupReceipts() {
         .catch(() => {
           if (!cancelled) setError(t('receipts.loadError'))
         })
+        .finally(() => {
+          if (!cancelled) setDetailsLoading(false)
+        })
     return () => {
       cancelled = true
     }
   }, [selected, page, t])
   const receipt = receipts.find((r) => r.id === selected)
-  const button = 'rounded-lg border px-3 py-2 text-sm disabled:opacity-40'
+  const button = 'feature-button'
   const run = async (action: () => Promise<unknown>) => {
     setBusy(true)
     try {
@@ -61,9 +77,10 @@ export function CleanupReceipts() {
     }
   }
   return (
-    <section className="space-y-4" aria-label={t('receipts.title')}>
+    <section className="feature-page space-y-4" aria-label={t('receipts.title')}>
       <div className="flex flex-wrap items-center gap-3">
-        <button className={button} onClick={() => void load()}>
+        <button className={button} disabled={loading || busy} onClick={() => void load()}>
+          <RefreshCw size={14} aria-hidden="true" />
           {t('receipts.refresh')}
         </button>
         <button
@@ -78,13 +95,24 @@ export function CleanupReceipts() {
         </p>
       </div>
       {error && <p role="alert">{error}</p>}
-      {!receipts.length && !error && <p>{t('receipts.empty')}</p>}
+      {loading && (
+        <p role="status" className="text-sm text-[var(--text-muted)]">
+          {t('receipts.loading')}
+        </p>
+      )}
+      {!loading && !receipts.length && !error && (
+        <EmptyState
+          icon={FileText}
+          title={t('receipts.empty')}
+          description={t('receipts.description')}
+        />
+      )}
       <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
         <div className="max-h-[650px] space-y-2 overflow-auto">
           {receipts.map((r) => (
             <button
               key={r.id}
-              className="w-full rounded-xl border p-3 text-left text-sm"
+              className="w-full rounded-xl border bg-[var(--card-bg)] p-4 text-left text-sm transition-colors hover:bg-[var(--bg-hover)]"
               aria-pressed={selected === r.id}
               onClick={() => {
                 setSelected(r.id)
@@ -101,7 +129,7 @@ export function CleanupReceipts() {
           ))}
         </div>
         {receipt && (
-          <div className="min-w-0 space-y-4 rounded-xl border p-4">
+          <div className="feature-card min-w-0 space-y-4">
             <h2 className="text-lg font-semibold">{t('receipts.title')}</h2>
             <p>
               {t('receipts.selectionContext', {
@@ -109,10 +137,10 @@ export function CleanupReceipts() {
                 unselected: receipt.unselected ?? '—'
               })}
             </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
               {(['selected', 'attempted', 'deleted', 'skipped', 'failed'] as const).map((key) => (
-                <div key={key}>
-                  <p className="text-sm">{t('receipts.' + key)}</p>
+                <div key={key} className="feature-metric">
+                  <p className="text-xs text-[var(--text-muted)]">{t('receipts.' + key)}</p>
                   <b className="text-xl">{receipt[key].toLocaleString()}</b>
                 </div>
               ))}
@@ -152,6 +180,7 @@ export function CleanupReceipts() {
                 disabled={busy}
                 onClick={() => void run(() => window.kudu.cleanupReceiptExport(receipt.id))}
               >
+                <Download size={14} aria-hidden="true" />
                 {t('receipts.export')}
               </button>
               <button
@@ -174,6 +203,7 @@ export function CleanupReceipts() {
                 </p>
               ))}
             </div>
+            {detailsLoading && <p role="status">{t('receipts.loading')}</p>}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
@@ -197,7 +227,11 @@ export function CleanupReceipts() {
               </table>
             </div>
             <div className="flex items-center gap-3">
-              <button className={button} disabled={!page} onClick={() => setPage(page - 1)}>
+              <button
+                className={button}
+                disabled={detailsLoading || !page}
+                onClick={() => setPage(page - 1)}
+              >
                 {t('receipts.previous')}
               </button>
               <span>
@@ -205,7 +239,7 @@ export function CleanupReceipts() {
               </span>
               <button
                 className={button}
-                disabled={(page + 1) * 50 >= details.total}
+                disabled={detailsLoading || (page + 1) * 50 >= details.total}
                 onClick={() => setPage(page + 1)}
               >
                 {t('receipts.next')}
@@ -238,6 +272,7 @@ export function CleanupReceipts() {
       />
       <ConfirmDialog
         open={clear}
+        variant="danger"
         onCancel={() => setClear(false)}
         title={t('receipts.clearTitle')}
         description={t('receipts.clearDescription')}
