@@ -54,7 +54,7 @@ export function RecoveryPage() {
   }
   const button = 'feature-button'
   return (
-    <div className="feature-page space-y-5">
+    <div className="feature-page feature-layout space-y-5">
       <PageHeader title={t('recovery.title')} description={t('recovery.description')} />
       <p className="feature-note">{t('recovery.limits')}</p>
       <div className="flex flex-wrap items-center gap-3">
