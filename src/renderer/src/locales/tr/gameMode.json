@@ -6,18 +6,15 @@
   "activeLabel": "ETKİN",
   "inactiveLabel": "HAZIR",
   "activeSince": "{{time}} süredir etkin",
-
   "activatingProgress": "Optimizasyonlar etkinleştiriliyor...",
   "deactivatingProgress": "Sistem durumu geri yükleniyor...",
   "applyingOptimization": "Uygulanıyor: {{label}}",
   "restoringOptimization": "Geri yükleniyor: {{label}}",
-
   "resultActivated": "Oyun Modu etkinleştirildi — {{count}} optimizasyon uygulandı",
   "resultActivated_plural": "Oyun Modu etkinleştirildi — {{count}} optimizasyon uygulandı",
   "resultDeactivated": "Sistem durumu geri yüklendi — {{count}} ayar geri alındı",
   "resultDeactivated_plural": "Sistem durumu geri yüklendi — {{count}} ayar geri alındı",
   "resultErrors": "{{count}} başarısız",
-
   "categoryServices": "Hizmetler",
   "categoryServicesDesc": "Kaynak tüketimi yüksek Windows hizmetlerini geçici olarak devre dışı bırakın",
   "categoryProcesses": "İşlemler",
@@ -28,7 +25,6 @@
   "categorySystemDesc": "Bildirimleri engelleyin ve performansı en üst düzeye çıkarın",
   "categoryNetwork": "Ağ",
   "categoryNetworkDesc": "Ağ gecikmesini (ping) optimize edin",
-
   "optSvcWsearch": "Windows Search'ü devre dışı bırak",
   "optSvcWsearchDesc": "CPU ve diski yoğun kullanan dizin oluşturma hizmetini durdurur",
   "optSvcSysmain": "SysMain'i (Superfetch) devre dışı bırak",
@@ -39,7 +35,6 @@
   "optSvcSpoolerDesc": "Yazıcınız bağlı değilse yazdırma hizmetini durdurur",
   "optSvcDiagtrack": "Tanılama ve İzleme'yi devre dışı bırak",
   "optSvcDiagtrackDesc": "Telemetri ve tanılama izleme hizmetlerini durdurur",
-
   "optProcBrowsers": "Tarayıcıları kapat",
   "optProcBrowsersDesc": "Chrome, Firefox, Edge ve diğer tarayıcıları sonlandırır",
   "optProcChat": "Sohbet uygulamalarını kapat",
@@ -51,10 +46,8 @@
   "customProcessPlaceholder": "İşlem adı (örn. spotify.exe)",
   "customProcessAdd": "Ekle",
   "customProcessEmpty": "Yapılandırılmış özel işlem yok",
-
   "optMemStandby": "Bekleme belleğini temizle",
   "optMemStandbyDesc": "Oyununuz için bellek boşaltmak üzere önbelleğe alınmış RAM'i temizler",
-
   "optSysFocusAssist": "Odaklanma Yardımı'nı etkinleştir",
   "optSysFocusAssistDesc": "Windows bildirimlerini ve dikkat dağıtıcı uyarıları bastırır",
   "optSysPowerPlan": "Yüksek Performans güç planı",
@@ -67,18 +60,15 @@
   "optSysFseOptDesc": "Windows'un tam ekran oyunlara DWM bileşimi uygulamasını engeller",
   "optSysTransparency": "Saydamlık efektlerini devre dışı bırak",
   "optSysTransparencyDesc": "GPU bileşim yükünü azaltmak için pencere saydamlığını kapatır",
-
   "optNetFlushDns": "DNS önbelleğini temizle",
   "optNetFlushDnsDesc": "Yeni çözümlemeler için DNS çözümleyici önbelleğini temizler",
   "optNetNagle": "Nagle algoritmasını devre dışı bırak",
   "optNetNagleDesc": "TCP paket gruplamasını kapatıp anlık ileterek ağ gecikmesini (ping) azaltır",
-
   "enabledCount": "{{count}} etkin",
   "adminBadge": "YÖNETİCİ",
   "warningProcesses": "Sonlandırılan işlemler, Oyun Modu kapatıldığında otomatik olarak yeniden başlatılmaz.",
   "noOptimizationsSelected": "Oyun Modu'nu etkinleştirmek için en az bir optimizasyon seçin",
   "configLockedWhileActive": "Ayarları değiştirmek için önce Oyun Modu'nu devre dışı bırakın",
-
   "pendingRestoreBanner": "Son oturumdaki bazı ayarlar otomatik olarak geri yüklenemedi. Neden çözüldüğünde (örn. yönetici hakları sağlandığında) yeniden deneyin.",
   "pendingRestoreDiscardHint": "Sorun devam ederse, Oyun Modu'nun engelini kaldırmak için bekleyen durumu silebilirsiniz. Değiştirilmiş olan ayarlar olduğu gibi kalır.",
   "retryCleanup": "Geri yüklemeyi yeniden dene",
@@ -89,11 +79,9 @@
   "discardFailed": "Bekleyen geri yükleme silinemedi",
   "restoreFailedToast": "Geri yükleme tamamlanamadı — {{count}} ayar hâlâ bekliyor: {{reason}}",
   "restoreReasonUnknown": "bilinmeyen hata",
-
   "statOptimizationsActive": "Etkin Optimizasyonlar",
   "statServicesDisabled": "Duraklatılan Hizmetler",
   "statSessionTimer": "Oturum Süresi",
-
   "autoDetectTitle": "Otomatik Algılama",
   "autoDetectLabel": "Oyunları otomatik algıla",
   "autoDetectDesc": "Bir oyun başlatıldığında Oyun Modu'nu otomatik olarak etkinleştir",

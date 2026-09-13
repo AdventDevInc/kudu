@@ -43,8 +43,8 @@
   "emptyStateDescription": "Kør en scanning fra siderne Cleaner, Registry eller Debloater. Resultaterne vises her.",
   "confirmClearCloudTitle": "Ryd Cloud-historik",
   "confirmClearScanTitle": "Ryd scanningshistorik",
-  "confirmClearCloudDescription": "Dette vil permanent slette alle poster i Cloud-handlingshistorikken. Denne handling kan ikke fortrydes.",
-  "confirmClearScanDescription": "Dette vil permanent slette alle poster i scanningshistorikken. Denne handling kan ikke fortrydes.",
+  "confirmClearCloudDescription": "Dette sletter permanent alle poster i Cloud-handlingshistorikken. Denne handling kan ikke fortrydes.",
+  "confirmClearScanDescription": "Dette sletter permanent alle poster i scanningshistorikken. Denne handling kan ikke fortrydes.",
   "confirmClearLabel": "Ryd alle",
   "typeLabels": {
     "cleaner": "Systemoprydning",
@@ -53,7 +53,7 @@
     "network": "Netværksoprydning",
     "drivers": "Driveroprydning",
     "malware": "Malware-scanning",
-    "privacy": "Privatlivsskjold",
+    "privacy": "Privacy Shield",
     "startup": "Startprogramstyring",
     "services": "Tjenestestyring",
     "softwareUpdate": "Softwareopdatering",
@@ -68,7 +68,7 @@
     "needTwoScansForChart": "Der kræves mindst 2 scanninger til trenddiagrammet",
     "scanTypeDistribution": "Fordeling af scanningstyper",
     "noData": "Ingen data",
-    "topCategoriesBySpace": "Øverste kategorier efter pladsforbrug",
+    "topCategoriesBySpace": "Øverste kategorier efter plads",
     "noCategoryData": "Ingen kategoridata",
     "weeklyActivity": "Ugentlig aktivitet",
     "needTwoWeeksData": "Der kræves mindst 2 ugers data",
@@ -113,14 +113,14 @@
       "title": "Slettede filer",
       "loading": "Indlæser…",
       "shownCount": "{{shown}} af {{total}}",
-      "loadMore": "Indlæs mere",
+      "loadMore": "Indlæs flere",
       "exportCsv": "Eksportér CSV",
       "openLog": "Åbn log",
       "exported": "Eksporterede {{count}} stier",
       "exportFailed": "Kunne ikke eksportere listen over slettede filer",
       "truncatedBadge": "+{{count}} mere",
       "truncatedHint": "Denne mappe indeholdt {{count}} yderligere poster ud over grænsen for visning pr. mappe. De blev slettet, men ikke vist enkeltvis.",
-      "emptyRecorded": "Ingen filstier blev registreret for denne kørsel.",
+      "emptyRecorded": "Der blev ikke registreret nogen filstier for denne kørsel.",
       "disabledHint": "Logføring af sletninger er slået fra, så de enkelte stier fra denne kørsel blev ikke registreret. Slå \"Behold en log over slettede filer\" til under Indstillinger → Oprydningsindstillinger for at registrere dem fremover."
     }
   },
@@ -178,8 +178,8 @@
     "serviceApply": "Anvend tjenester",
     "malwareQuarantine": "Karantæne",
     "malwareDelete": "Slet malware",
-    "registryScan": "Scanning af registreringsdatabase",
-    "registryFix": "Reparation af registreringsdatabase"
+    "registryScan": "Registry-scanning",
+    "registryFix": "Registry-reparation"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

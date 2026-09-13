@@ -74,7 +74,7 @@
     "needTwoWeeksData": "至少需要 2 週的資料",
     "recentScans": "最近掃描",
     "tooltipSpace": "空間",
-    "tooltipScans": "掃描"
+    "tooltipScans": "掃描次數"
   },
   "timeline": {
     "filterAll": "全部",
@@ -88,7 +88,7 @@
     "filterStartup": "啟動",
     "filterServices": "服務",
     "filterUpdates": "更新",
-    "entriesCount": "{{count}} 筆項目",
+    "entriesCount": "{{count}} 筆記錄",
     "columnType": "類型",
     "columnDate": "日期",
     "columnItems": "項目",
@@ -96,7 +96,7 @@
     "columnDuration": "耗時",
     "columnStatus": "狀態",
     "scheduledBadge": "排程",
-    "noEntriesMatchFilter": "沒有符合此篩選條件的項目",
+    "noEntriesMatchFilter": "沒有符合此篩選條件的記錄",
     "dateAt": "於"
   },
   "detail": {
@@ -112,16 +112,16 @@
     "deletedFiles": {
       "title": "已刪除的檔案",
       "loading": "載入中…",
-      "shownCount": "{{shown}} / {{total}}",
+      "shownCount": "顯示 {{shown}} / {{total}}",
       "loadMore": "載入更多",
       "exportCsv": "匯出 CSV",
       "openLog": "開啟記錄",
       "exported": "已匯出 {{count}} 個路徑",
       "exportFailed": "無法匯出已刪除檔案清單",
-      "truncatedBadge": "另有 +{{count}} 項",
-      "truncatedHint": "此資料夾在每個資料夾清單上限之外，還有 {{count}} 筆項目。它們已被刪除，但未逐一列出。",
+      "truncatedBadge": "另有 +{{count}} 筆",
+      "truncatedHint": "此資料夾在每個資料夾的清單上限之外，還有 {{count}} 筆項目。這些項目已刪除，但未逐一列出。",
       "emptyRecorded": "此次執行未記錄任何檔案路徑。",
-      "disabledHint": "刪除記錄目前已關閉，因此未記錄此次執行中的個別路徑。請在「設定 → 清理偏好設定」中開啟「保留已刪除檔案的記錄」，之後便會開始記錄。"
+      "disabledHint": "刪除記錄功能目前已關閉，因此未記錄此次執行的個別路徑。請在「設定 → 清理偏好設定」中啟用「保留已刪除檔案的記錄」，之後即可開始記錄。"
     }
   },
   "cloud": {
@@ -142,7 +142,7 @@
     "detailStatusSuccess": "成功",
     "detailStatusFailed": "失敗",
     "detailDuration": "耗時",
-    "detailRequestId": "要求 ID",
+    "detailRequestId": "請求 ID",
     "detailSummary": "摘要",
     "detailError": "錯誤"
   },
@@ -153,12 +153,12 @@
     "softwareUpdateRun": "軟體更新",
     "getStatus": "狀態",
     "getSystemInfo": "系統資訊",
-    "getHealthReport": "健康狀態報告",
+    "getHealthReport": "健康報告",
     "ping": "Ping",
     "shutdown": "關機",
     "restart": "重新啟動",
-    "windowsUpdateCheck": "Windows Update 檢查",
-    "windowsUpdateInstall": "Windows Update",
+    "windowsUpdateCheck": "Windows 更新檢查",
+    "windowsUpdateInstall": "Windows 更新",
     "runSfc": "SFC 掃描",
     "runDism": "DISM 修復",
     "getNetworkConfig": "網路設定",
@@ -167,8 +167,8 @@
     "driverUpdateScan": "驅動程式掃描",
     "driverUpdateInstall": "安裝驅動程式",
     "driverClean": "驅動程式清理",
-    "startupList": "啟動清單",
-    "startupToggle": "切換啟動狀態",
+    "startupList": "啟動項目清單",
+    "startupToggle": "切換啟動項目",
     "diskHealth": "磁碟健康狀態",
     "privacyScan": "隱私掃描",
     "privacyApply": "套用隱私設定",
