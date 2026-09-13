@@ -1,4 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
+import { registerRecoveryIpc } from './recovery.ipc'
 import { execFile } from 'child_process'
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { dirname, isAbsolute } from 'path'
@@ -76,6 +77,7 @@ import { findCleanerBlockers } from '../services/cleaner-blockers'
 export type WindowGetter = () => BrowserWindow | null
 
 export function registerCleanerIpc(getWindow: WindowGetter): void {
+  registerRecoveryIpc()
   registerSystemCleanerIpc(getWindow)
   registerBrowserCleanerIpc(getWindow)
   registerAppCleanerIpc(getWindow)

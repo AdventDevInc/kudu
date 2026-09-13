@@ -1,3 +1,21 @@
+vi.mock('../services/recovery-store', () => ({
+  recordRecoveryChange: async (
+    _source: unknown,
+    _label: unknown,
+    _target: unknown,
+    _before: unknown,
+    _after: unknown,
+    apply: () => Promise<void>
+  ) => apply()
+}))
+vi.mock('../services/recovery', () => ({
+  readRecoveryTarget: async (target: { kind: string }) =>
+    target.kind === 'service-start'
+      ? { start: 3, delayed: null, running: false }
+      : target.kind === 'task-enabled'
+        ? false
+        : 0
+}))
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { promisify } from 'util'
 

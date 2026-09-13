@@ -1,4 +1,9 @@
 export const IPC = {
+  RECOVERY_REMOVE: 'recovery:remove',
+  RECOVERY_LIST: 'recovery:list',
+  RECOVERY_RESTORE: 'recovery:restore',
+  RECOVERY_OPEN_BACKUPS: 'recovery:open-backups',
+  RECOVERY_EXPORT: 'recovery:export',
   // System cleaner
   SYSTEM_SCAN: 'cleaner:system:scan',
   SYSTEM_CLEAN: 'cleaner:system:clean',

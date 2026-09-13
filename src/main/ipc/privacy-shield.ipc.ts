@@ -9,6 +9,8 @@ import type { WindowGetter } from './index'
 import { getPlatform } from '../platform'
 import { validateStringArray } from '../services/ipc-validation'
 import { execNativeUtf8 } from '../services/exec-utf8'
+import { recordRecoveryChange } from '../services/recovery-store'
+import { readRecoveryTarget } from '../services/recovery'
 
 const execFileAsync = promisify(execFile)
 
@@ -53,11 +55,15 @@ async function regQueryDword(key: string, value: string): Promise<number | null>
 }
 
 async function regSetDword(key: string, value: string, data: number): Promise<void> {
-  await execNativeUtf8(
-    'reg',
-    ['add', key, '/v', value, '/t', 'REG_DWORD', '/d', String(data), '/f'],
-    { timeout: 5000, windowsHide: true }
-  )
+  const target = { kind: 'registry-dword' as const, key, name: value }
+  const before = await readRecoveryTarget(target)
+  await recordRecoveryChange('privacy', value, target, before, data, async () => {
+    await execNativeUtf8(
+      'reg',
+      ['add', key, '/v', value, '/t', 'REG_DWORD', '/d', String(data), '/f'],
+      { timeout: 5000, windowsHide: true }
+    )
+  })
 }
 
 async function isTaskActive(taskPath: string): Promise<boolean> {
@@ -100,17 +106,37 @@ async function serviceExists(serviceName: string): Promise<boolean> {
 }
 
 async function disableTask(taskPath: string): Promise<void> {
-  await execNativeUtf8('schtasks', ['/change', '/tn', taskPath, '/disable'], {
-    timeout: 5000,
-    windowsHide: true
-  })
+  const target = { kind: 'task-enabled' as const, name: taskPath }
+  await recordRecoveryChange(
+    'privacy',
+    taskPath,
+    target,
+    await readRecoveryTarget(target),
+    false,
+    async () => {
+      await execNativeUtf8('schtasks', ['/change', '/tn', taskPath, '/disable'], {
+        timeout: 5000,
+        windowsHide: true
+      })
+    }
+  )
 }
 
 async function enableTask(taskPath: string): Promise<void> {
-  await execNativeUtf8('schtasks', ['/change', '/tn', taskPath, '/enable'], {
-    timeout: 5000,
-    windowsHide: true
-  })
+  const target = { kind: 'task-enabled' as const, name: taskPath }
+  await recordRecoveryChange(
+    'privacy',
+    taskPath,
+    target,
+    await readRecoveryTarget(target),
+    true,
+    async () => {
+      await execNativeUtf8('schtasks', ['/change', '/tn', taskPath, '/enable'], {
+        timeout: 5000,
+        windowsHide: true
+      })
+    }
+  )
 }
 
 // ─── Persistent service start-type cache ──────────────────────
@@ -161,62 +187,39 @@ async function disableService(serviceName: string): Promise<void> {
       saveServiceStartTypes(originalServiceStartType)
     }
   }
-  await execNativeUtf8(
-    'reg',
-    [
-      'add',
-      `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
-      '/v',
-      'Start',
-      '/t',
-      'REG_DWORD',
-      '/d',
-      '4',
-      '/f'
-    ],
-    { timeout: 5000, windowsHide: true }
-  )
+  await regSetDword(`HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`, 'Start', 4)
 }
 
 async function enableService(serviceName: string): Promise<void> {
   const original = originalServiceStartType.get(serviceName) ?? 3 // default to Manual
   // Write the registry value first — only clear the cache after success so a
   // failed revert (e.g. access denied) doesn't lose the original start type.
-  await execNativeUtf8(
-    'reg',
-    [
-      'add',
-      `HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`,
-      '/v',
-      'Start',
-      '/t',
-      'REG_DWORD',
-      '/d',
-      String(original),
-      '/f'
-    ],
-    { timeout: 5000, windowsHide: true }
-  )
+  await regSetDword(`HKLM\\SYSTEM\\CurrentControlSet\\Services\\${serviceName}`, 'Start', original)
   originalServiceStartType.delete(serviceName)
   saveServiceStartTypes(originalServiceStartType)
 }
 
 async function regDeleteValue(key: string, value: string): Promise<void> {
-  try {
-    await execNativeUtf8('reg', ['delete', key, '/v', value, '/f'], {
-      timeout: 5000,
-      windowsHide: true
-    })
-  } catch (err: unknown) {
-    // "not found" is the desired end state — swallow it.
-    // Everything else (access denied, invalid key, etc.) must surface so
-    // revertPrivacySettings can report the failure accurately.
-    const msg = err instanceof Error ? err.message : ''
-    const stderr = (err as { stderr?: string })?.stderr ?? ''
-    const combined = msg + stderr
-    if (combined.toLowerCase().includes('unable to find')) return
-    throw err
-  }
+  const target = { kind: 'registry-dword' as const, key, name: value }
+  const before = await readRecoveryTarget(target)
+  if (before === null) return
+  await recordRecoveryChange('privacy', value, target, before, null, async () => {
+    try {
+      await execNativeUtf8('reg', ['delete', key, '/v', value, '/f'], {
+        timeout: 5000,
+        windowsHide: true
+      })
+    } catch (err: unknown) {
+      // "not found" is the desired end state — swallow it.
+      // Everything else (access denied, invalid key, etc.) must surface so
+      // revertPrivacySettings can report the failure accurately.
+      const msg = err instanceof Error ? err.message : ''
+      const stderr = (err as { stderr?: string })?.stderr ?? ''
+      const combined = msg + stderr
+      if (combined.toLowerCase().includes('unable to find')) return
+      throw err
+    }
+  })
 }
 
 async function isBrowserInstalled(registryKey: string): Promise<boolean> {

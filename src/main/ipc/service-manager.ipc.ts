@@ -14,6 +14,8 @@ import type {
 import { lookupServiceSafety } from '../../shared/service-safety-kb'
 import { getPlatform } from '../platform'
 import { psUtf8 } from '../services/exec-utf8'
+import { recordRecoveryChange } from '../services/recovery-store'
+import { readRecoveryTarget } from '../services/recovery'
 
 const execFileAsync = promisify(execFile)
 
@@ -205,7 +207,7 @@ export async function scanServices(
   }
 }
 
-export async function applyServiceChanges(
+async function applyServiceChangesImpl(
   changes: { name: string; targetStartType: string }[],
   force?: boolean
 ): Promise<ServiceApplyResult> {
@@ -326,4 +328,70 @@ export function registerServiceManagerIpc(getWindow: WindowGetter): void {
       return applyServiceChanges(changes, force === true)
     }
   )
+}
+
+export async function applyServiceChanges(
+  changes: { name: string; targetStartType: string }[],
+  force?: boolean
+): Promise<ServiceApplyResult> {
+  if (
+    process.platform !== 'win32' ||
+    !Array.isArray(changes) ||
+    changes.some(
+      (c) =>
+        !c ||
+        !/^[A-Za-z0-9_.-]{1,256}$/.test(c.name) ||
+        !Object.prototype.hasOwnProperty.call(ALLOWED_START_TYPES, c.targetStartType)
+    )
+  )
+    return applyServiceChangesImpl(changes, force)
+  const result: ServiceApplyResult = { succeeded: 0, failed: 0, errors: [] }
+  for (const change of changes) {
+    if (
+      change.targetStartType === 'Disabled' &&
+      lookupServiceSafety(change.name).safety === 'unsafe' &&
+      force !== true
+    )
+      continue
+    const target = { kind: 'service-start' as const, name: change.name }
+    try {
+      const before = await readRecoveryTarget(target)
+      if (!before || typeof before !== 'object')
+        throw new Error('Original service state unavailable')
+      const after = {
+        ...before,
+        start:
+          change.targetStartType === 'Disabled' ? 4 : change.targetStartType === 'Manual' ? 3 : 2,
+        delayed: change.targetStartType === 'AutomaticDelayed' ? 1 : before.delayed,
+        running:
+          change.targetStartType === 'Disabled'
+            ? false
+            : change.targetStartType.startsWith('Automatic')
+              ? true
+              : before.running
+      }
+      await recordRecoveryChange(
+        'services',
+        change.name,
+        target,
+        before,
+        after,
+        async () => {
+          const applied = await applyServiceChangesImpl([change], force)
+          if (applied.failed || applied.succeeded !== 1)
+            throw new Error(applied.errors[0]?.reason || 'Service change failed')
+        },
+        () => readRecoveryTarget(target)
+      )
+      result.succeeded++
+    } catch (error) {
+      result.failed++
+      result.errors.push({
+        name: change.name,
+        displayName: change.name,
+        reason: error instanceof Error ? error.message : 'Recovery snapshot failed'
+      })
+    }
+  }
+  return result
 }

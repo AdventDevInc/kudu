@@ -1,3 +1,21 @@
+vi.mock('../services/recovery-store', () => ({
+  recordRecoveryChange: async (
+    _source: unknown,
+    _label: unknown,
+    _target: unknown,
+    _before: unknown,
+    _after: unknown,
+    apply: () => Promise<void>
+  ) => apply()
+}))
+vi.mock('../services/recovery', () => ({
+  readRecoveryTarget: async (target: { kind: string }) =>
+    target.kind === 'service-start'
+      ? { start: 3, delayed: null, running: false }
+      : target.kind === 'task-enabled'
+        ? false
+        : 0
+}))
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { promisify } from 'util'
 
@@ -94,7 +112,7 @@ describe('applyServiceChanges', () => {
     const result = await applyServiceChanges([{ name: 'RpcSs', targetStartType: 'Disabled' }])
 
     expect(result).toEqual({ succeeded: 0, failed: 0, errors: [] })
-    expect(mockExecFile.mock.calls[0][1].join('')).not.toContain('RpcSs')
+    expect(mockExecFile).not.toHaveBeenCalled()
   })
 
   it('allows re-enabling a system-critical service', async () => {
@@ -122,7 +140,11 @@ describe('applyServiceChanges', () => {
   })
 
   it('reports per-service failures from the script output', async () => {
-    stubPowerShell(['OK|Fax|Fax', 'FAIL|WSearch|WSearch|Access is denied'].join('\n'))
+    mockExecFile
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => cb(null, 'OK|Fax|Fax', ''))
+      .mockImplementationOnce((_cmd, _args, _opts, cb) =>
+        cb(null, 'FAIL|WSearch|WSearch|Access is denied', '')
+      )
     const result = await applyServiceChanges([
       { name: 'Fax', targetStartType: 'Disabled' },
       { name: 'WSearch', targetStartType: 'Disabled' }
