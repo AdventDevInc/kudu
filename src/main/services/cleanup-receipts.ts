@@ -1,5 +1,5 @@
 import { app } from 'electron'
-import { mkdir, readFile, rename, unlink, writeFile, statfs } from 'fs/promises'
+import { mkdir, readdir, readFile, rename, unlink, writeFile, statfs } from 'fs/promises'
 import { join, parse } from 'path'
 import { randomUUID } from 'crypto'
 import type { CleanupReceipt, CleanupReceiptItem } from '../../shared/cleanup-receipts'
@@ -205,9 +205,12 @@ export function receiptRetryIds(id: string): string[] {
 export async function clearCleanupReceipts(): Promise<void> {
   const write = writes.then(async () => {
     await mkdir(directory(), { recursive: true })
-    for (const entry of await readIndexOrQuarantine())
-      if (typeof entry?.id === 'string')
-        await unlink(receiptFile(entry.id)).catch((error: NodeJS.ErrnoException) => {
+    // Enumerate the directory rather than trusting the index so a corrupt or stale index
+    // cannot strand detail files (which may contain logged paths) on disk.
+    const owned = /^([a-f0-9-]{36}\.json(\.tmp)?|receipts\.json\.(tmp|corrupt-\d+))$/
+    for (const name of await readdir(directory()))
+      if (owned.test(name))
+        await unlink(join(directory(), name)).catch((error: NodeJS.ErrnoException) => {
           if (error.code !== 'ENOENT') throw error
         })
     await writeFile(file() + '.tmp', '[]', 'utf8')

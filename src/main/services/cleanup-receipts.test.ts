@@ -90,14 +90,21 @@ describe('receipt persistence and retry authorization', () => {
     expect(await readFile(join(dir, quarantined[0]), 'utf8')).toBe('{broken')
     expect((await getCleanupReceipt(initial.id)).id).toBe(initial.id)
   })
-  it('clears a corrupt index instead of failing forever', async () => {
+  it('clears a corrupt index and orphaned detail files instead of failing forever', async () => {
     const dir = join(state.root, 'cleanup-receipts')
     await mkdir(dir, { recursive: true })
+    const orphan = createReceipt('local')
+    orphan.add(item, 'deleted', '', true, 50)
+    await orphan.finish()
     await writeFile(join(dir, 'receipts.json'), '{broken')
+    await writeFile(join(dir, 'receipts.json.corrupt-1'), '{older')
+    await writeFile(join(dir, orphan.id + '.json.tmp'), '{partial')
+    await writeFile(join(dir, 'unrelated.txt'), 'keep')
     await expect(getCleanupReceipts()).rejects.toThrow()
     await expect(clearCleanupReceipts()).resolves.toBeUndefined()
     expect(await getCleanupReceipts()).toEqual([])
-    expect((await readdir(dir)).some((f) => f.startsWith('receipts.json.corrupt-'))).toBe(true)
+    await expect(getCleanupReceipt(orphan.id)).rejects.toMatchObject({ code: 'ENOENT' })
+    expect((await readdir(dir)).sort()).toEqual(['receipts.json', 'unrelated.txt'])
   })
   it('records native operations with an unknown selected size', async () => {
     const result = await recordNativeCleanup('Recycle Bin', async () => ({
