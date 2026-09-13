@@ -83,6 +83,12 @@ const navGroups: NavGroup[] = [
         path: '/cleaner',
         children: [
           {
+            icon: Wrench,
+            labelKey: 'customCleaners:title',
+            label: 'Custom cleaners',
+            path: '/custom-cleaners'
+          },
+          {
             icon: Sparkles,
             labelKey: 'cleaner:pageTitle',
             label: 'System Cleaner',

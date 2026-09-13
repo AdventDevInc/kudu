@@ -135,6 +135,8 @@ export interface ScanItem {
   /** An optional native maintenance operation; its reclaimable size is unknown. */
   cleanupAction?: ManagedCleanupAction
   dockerTarget?: DockerCleanupTarget
+  /** A custom-rule file: never recursively delete a replacement directory. */
+  fileOnly?: boolean
 }
 
 export interface ScanResult {

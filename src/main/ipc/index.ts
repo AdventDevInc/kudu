@@ -6,6 +6,7 @@ import { IPC } from '../../shared/channels'
 import { psUtf8 } from '../services/exec-utf8'
 import { registerSystemCleanerIpc } from './system-cleaner.ipc'
 import { registerBrowserCleanerIpc } from './browser-cleaner.ipc'
+import { registerCustomCleanersIpc } from './custom-cleaners.ipc'
 import { registerAppCleanerIpc } from './app-cleaner.ipc'
 import { registerGamingCleanerIpc } from './gaming-cleaner.ipc'
 import { registerRecycleBinIpc } from './recycle-bin.ipc'
@@ -79,6 +80,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerSystemCleanerIpc(getWindow)
   registerBrowserCleanerIpc(getWindow)
   registerAppCleanerIpc(getWindow)
+  registerCustomCleanersIpc(getWindow)
   registerGamingCleanerIpc(getWindow)
   registerRecycleBinIpc()
   registerShortcutCleanerIpc(getWindow)

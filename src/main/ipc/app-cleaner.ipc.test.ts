@@ -36,6 +36,10 @@ vi.mock('../services/ipc-validation', () => ({
   }
 }))
 
+vi.mock('../services/custom-cleaner-runtime', () => ({
+  getCustomCleaners: () => ({ appScans: async () => [] })
+}))
+
 import { registerAppCleanerIpc } from './app-cleaner.ipc'
 
 // ── Helpers ──

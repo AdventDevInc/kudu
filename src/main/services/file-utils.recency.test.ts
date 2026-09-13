@@ -16,6 +16,7 @@ vi.mock('./settings-store', () => ({
 }))
 
 vi.mock('./scan-cache', () => ({
+  validateCachedItem: async () => null,
   getCachedItems: (ids: string[]) => state.items.filter((item) => ids.includes(item.id)),
   removeCachedItems: (ids: string[]) => {
     state.items = state.items.filter((item) => !ids.includes(item.id))

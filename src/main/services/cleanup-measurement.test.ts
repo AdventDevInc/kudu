@@ -6,7 +6,11 @@ const state = vi.hoisted(() => ({ items: [] as any[] }))
 vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { secureDelete: false }, exclusions: [] })
 }))
-vi.mock('./scan-cache', () => ({ getCachedItems: () => state.items, removeCachedItems: () => {} }))
+vi.mock('./scan-cache', () => ({
+  validateCachedItem: async () => null,
+  getCachedItems: () => state.items,
+  removeCachedItems: () => {}
+}))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 import { cleanItems, getDirectorySize } from './file-utils'
 const roots: string[] = []

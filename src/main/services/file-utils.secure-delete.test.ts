@@ -6,7 +6,11 @@ import { join } from 'path'
 vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { secureDelete: true }, exclusions: [] })
 }))
-vi.mock('./scan-cache', () => ({ getCachedItems: () => [], removeCachedItems: () => {} }))
+vi.mock('./scan-cache', () => ({
+  validateCachedItem: async () => null,
+  getCachedItems: () => [],
+  removeCachedItems: () => {}
+}))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 import { safeDelete } from './file-utils'
 
