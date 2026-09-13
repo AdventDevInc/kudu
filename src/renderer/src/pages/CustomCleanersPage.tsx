@@ -124,7 +124,7 @@ export function CustomCleanersPage() {
     }
   }
   return (
-    <div className="feature-page space-y-6">
+    <div className="feature-page feature-layout space-y-6">
       <PageHeader
         title={t('title')}
         description={t('description')}
