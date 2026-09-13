@@ -5,7 +5,7 @@
   "createScheduleButton": "Skapa schema",
   "emptyStateTitle": "Inga scheman ännu",
   "emptyStateDescription": "Skapa ett schema för att automatiskt köra genomsökningar, rensningar och uppdateringar.",
-  "maxSchedulesReached": "Högst {{max}} scheman har uppnåtts.",
+  "maxSchedulesReached": "Maximalt antal scheman har uppnåtts: {{max}}.",
   "duplicatedToast": "Duplicerade \"{{name}}\"",
   "deletedToast": "Tog bort \"{{name}}\"",
   "updatedToast": "Uppdaterade \"{{name}}\"",
@@ -13,7 +13,7 @@
   "failedEnableStartup": "Det gick inte att aktivera autostart. Scheman kanske inte körs efter omstart.",
   "failedEnableStartupAction": "Läs mer",
   "deleteConfirmTitle": "Ta bort schema",
-  "deleteConfirmDescription": "Det här schemat tas bort permanent. Den här åtgärden kan inte ångras.",
+  "deleteConfirmDescription": "Det här schemat tas bort permanent. Åtgärden kan inte ångras.",
   "deleteConfirmLabel": "Ta bort",
   "card": {
     "autoApplyBadge": "Tillämpa automatiskt",
@@ -28,11 +28,11 @@
   "presets": {
     "dialogTitle": "Välj en mall",
     "weeklyFullCleanLabel": "Veckovis fullständig rensning",
-    "weeklyFullCleanDescription": "Alla rensningskategorier varje måndag kl. 09:00",
+    "weeklyFullCleanDescription": "Alla rensningskategorier varje måndag kl. 09.00",
     "dailyLightSweepLabel": "Daglig lätt rensning",
-    "dailyLightSweepDescription": "System, webbläsare och papperskorg dagligen kl. 08:00",
+    "dailyLightSweepDescription": "System, webbläsare och Papperskorgen dagligen kl. 08.00",
     "monthlyDeepMaintenanceLabel": "Månatligt djupt underhåll",
-    "monthlyDeepMaintenanceDescription": "Fullständig rensning + register, drivrutiner och programvara den 1:a kl. 10:00",
+    "monthlyDeepMaintenanceDescription": "Fullständig rensning + register, drivrutiner och programvara den 1:a kl. 10.00",
     "customLabel": "Anpassat",
     "customDescription": "Börja från början med ett tomt schema"
   },
@@ -54,7 +54,7 @@
     "maintenanceGroup": "Underhåll",
     "autoApplyLabel": "Tillämpa automatiskt",
     "autoApplyDescription": "Rensa filer, åtgärda registerproblem och installera uppdateringar automatiskt utan bekräftelse.",
-    "autoApplyWarning": "Åtgärder körs automatiskt enligt schemat. Kontrollera att undantagslistan är uppdaterad.",
+    "autoApplyWarning": "Åtgärder körs automatiskt enligt schemat. Kontrollera att din undantagslista är uppdaterad.",
     "cancelButton": "Avbryt",
     "saveChangesButton": "Spara ändringar",
     "createScheduleButton": "Skapa schema"
@@ -64,7 +64,7 @@
     "browsers": "Webbläsare",
     "applications": "Program",
     "gaming": "Spel",
-    "recycleBin": "Papperskorg",
+    "recycleBin": "Papperskorgen",
     "databases": "Databaser",
     "registryFixes": "Registeråtgärder",
     "driverUpdates": "Drivrutinsuppdateringar",
@@ -91,7 +91,7 @@
     "dateAt": "{{date}} kl. {{time}}"
   },
   "lastRun": {
-    "justNow": "Nyss",
+    "justNow": "Just nu",
     "minutesAgo": "{{count}} min sedan",
     "hoursAgo": "{{count}} h sedan",
     "daysAgo": "{{count}} d sedan"
@@ -99,10 +99,10 @@
   "copyNameSuffix": "(kopia)",
   "advanced": {
     "title": "Körningsvillkor",
-    "explanation": "Alla villkor kontrolleras före start och före varje uppgift eller ändring. Tider följer datorns lokala tidszon. Pågående åtgärder slutförs innan ett ändrat villkor stoppar återstående uppgifter.",
-    "acOnly": "Endast med nätström",
+    "explanation": "Alla villkor kontrolleras innan en körning startar. Mellan uppgifter kontrolleras ström, inaktiv tid och spelläge igen. Underhållsfönstret och tröskelvärdet för ledigt utrymme styr bara starten, så ett arbetsflöde som börjar inom fönstret eller under tröskelvärdet slutför sina återstående uppgifter. Tider följer den här datorns lokala tidszon. Pågående åtgärder slutförs innan ett ändrat villkor stoppar återstående uppgifter.",
+    "acOnly": "Endast vid nätström",
     "gameMode": "Vänta medan spelläge är aktivt eller återställs",
-    "idle": "Krävda minuter i inaktivitet (0 inaktiverar)",
+    "idle": "Krävda minuter av inaktivitet (0 inaktiverar)",
     "window": "Använd ett underhållsfönster",
     "from": "Från",
     "to": "Till",
@@ -112,7 +112,7 @@
     "skip": "Hoppa över efter startfönstret på två minuter",
     "once": "Kör en gång när allt är klart; kombinera missade körningar",
     "runNow": "Kör nu",
-    "runConfirm": "Köra det här schemat nu med dess sparade uppgifter och val för automatisk tillämpning? Dess villkor för ström, inaktivitet, spelläge, utrymme och underhållsfönster gäller fortfarande: en körning som hålls tillbaka av dem startar vid en senare kontroll, och om du väljer Kör nu igen medan den väntar avbryts den.",
+    "runConfirm": "Köra det här schemat nu med dess sparade uppgifter och val för automatisk tillämpning? Villkoren för ström, inaktivitet, spelläge, utrymme och underhållsfönster gäller fortfarande: en körning som hålls tillbaka av dem startar vid en senare kontroll, och om du väljer Kör nu igen medan den väntar avbryts den.",
     "runFailed": "Det gick inte att starta schemat",
     "running": "Körs",
     "nextEvaluation": "Nästa kontroll omkring {{time}}",
@@ -125,10 +125,10 @@
     "scanning": "Söker...",
     "scopeHint": "Endast markerade kategorier inkluderas. Ett tomt val innebär att ingen rensning körs i den här uppgiften. Sökningen hittar kategorier som finns för närvarande; den rensar inte.",
     "waitForScan": "Vänta tills den aktuella genomsökningen eller rensningen är klar.",
-    "noCategories": "Inga kategorier hittades. Kör en ny genomsökning när programmet har cachelagrade data.",
+    "noCategories": "Inga kategorier hittades. Kör en ny genomsökning när programmet har cachade data.",
     "scanFailed": "Det gick inte att läsa in kategorier.",
     "waiting": {
-      "idle": "Väntar på inaktivitet",
+      "idle": "Väntar på inaktiv tid",
       "power": "Väntar på nätström",
       "game-mode": "Väntar på att spelläge ska avslutas",
       "window": "Väntar på underhållsfönstret",
@@ -136,9 +136,9 @@
       "unknown": "Väntar på tillgängliga villkorsmätningar",
       "busy": "Väntar på en annan schemalagd körning",
       "disabled": "Schemat är inaktiverat",
-      "changed": "Schemat redigerades; definitionen i kön har kasserats",
+      "changed": "Schemat redigerades; köad definition kasserades",
       "unavailable": "Väntar på programfönstret",
-      "interrupted": "Körningen förlorade sitt fönster och registrerades som misslyckad; denna förekomst körs inte om."
+      "interrupted": "Körningen förlorade sitt fönster och registrerades som misslyckad; denna förekomst spelas inte upp igen."
     },
     "saveFailed": "Schemat kunde inte sparas. Försök igen.",
     "skipped": "Hoppades över efter att villkoren ändrades."

@@ -10,7 +10,7 @@
   "deletedToast": "Poistettu \"{{name}}\"",
   "updatedToast": "Päivitetty \"{{name}}\"",
   "createdToast": "Luotu \"{{name}}\"",
-  "failedEnableStartup": "Käynnistyksen yhteydessä suoritettavaa toimintoa ei voitu ottaa käyttöön. Aikataulut eivät ehkä käynnisty uudelleenkäynnistyksen jälkeen.",
+  "failedEnableStartup": "Käynnistyksen yhteydessä suoritusta ei voitu ottaa käyttöön. Aikataulut eivät ehkä käynnisty uudelleenkäynnistyksen jälkeen.",
   "failedEnableStartupAction": "Lisätietoja",
   "deleteConfirmTitle": "Poista aikataulu",
   "deleteConfirmDescription": "Tämä aikataulu poistetaan pysyvästi. Tätä toimintoa ei voi kumota.",
@@ -22,19 +22,19 @@
     "deleteAction": "Poista",
     "noTasksSelected": "Tehtäviä ei ole valittu",
     "nextRun": "Seuraava: {{time}}",
-    "lastRun": "Viimeksi: {{time}}",
+    "lastRun": "Viimeisin: {{time}}",
     "neverRun": "Ei koskaan suoritettu"
   },
   "presets": {
     "dialogTitle": "Valitse malli",
-    "weeklyFullCleanLabel": "Viikoittainen täyspuhdistus",
+    "weeklyFullCleanLabel": "Viikoittainen täysi puhdistus",
     "weeklyFullCleanDescription": "Kaikki puhdistusluokat joka maanantai klo 9",
     "dailyLightSweepLabel": "Päivittäinen kevyt puhdistus",
     "dailyLightSweepDescription": "Järjestelmä, selaimet ja roskakori päivittäin klo 8",
     "monthlyDeepMaintenanceLabel": "Kuukausittainen perusteellinen ylläpito",
     "monthlyDeepMaintenanceDescription": "Täysi puhdistus + rekisteri, ohjaimet ja ohjelmistot kuukauden 1. päivänä klo 10",
     "customLabel": "Mukautettu",
-    "customDescription": "Aloita tyhjästä tyhjällä aikataululla"
+    "customDescription": "Aloita tyhjästä uudella aikataululla"
   },
   "dialog": {
     "editTitle": "Muokkaa aikataulua",
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Joka päivä klo {{time}}",
     "everyWeekdayAt": "Joka {{day}} klo {{time}}",
-    "monthlyAt": "Joka kuukauden {{ordinalDay}} klo {{time}}"
+    "monthlyAt": "Joka kuukauden {{ordinalDay}}. päivä klo {{time}}"
   },
   "nextRun": {
     "todayAt": "Tänään klo {{time}}",
@@ -99,21 +99,21 @@
   "copyNameSuffix": "(kopio)",
   "advanced": {
     "title": "Suoritusehdot",
-    "explanation": "Kaikki ehdot tarkistetaan ennen käynnistystä sekä ennen jokaista tehtävää tai muutosta. Ajat noudattavat tämän tietokoneen paikallista aikavyöhykettä. Käynnissä olevat toiminnot viimeistellään ennen kuin muuttunut ehto pysäyttää jäljellä olevat tehtävät.",
+    "explanation": "Kaikki ehdot tarkistetaan ennen suorituksen alkamista. Tehtävien välillä virransyöttö, joutoaika ja Game Mode tarkistetaan uudelleen; ylläpitoikkuna ja vapaan tilan kynnys vaikuttavat vain käynnistymiseen, joten työnkulku, joka alkaa ikkunan aikana tai kynnyksen alittuessa, suorittaa jäljellä olevat tehtävänsä loppuun. Ajat noudattavat tämän tietokoneen paikallista aikavyöhykettä. Käynnissä olevat toiminnot suoritetaan loppuun ennen kuin muuttunut ehto pysäyttää jäljellä olevat tehtävät.",
     "acOnly": "Vain verkkovirralla",
-    "gameMode": "Odota, kunnes Game Mode ei ole aktiivinen tai palautus on valmis",
-    "idle": "Vaaditut käyttämättömät minuutit (0 poistaa käytöstä)",
+    "gameMode": "Odota, kun Game Mode on aktiivinen tai palautuu",
+    "idle": "Vaaditut joutominuutit (0 poistaa käytöstä)",
     "window": "Käytä ylläpitoikkunaa",
     "from": "Alkaen",
     "to": "Asti",
     "disk": "Vain kun kotiasemalla on vähän vapaata tilaa",
     "freePercent": "Vapaata tilaa alle (%)",
-    "missed": "Jos ajoitettu aika jää väliin tai ehdot eivät täyty",
+    "missed": "Jos ajoitettu aika ohitetaan tai ehdot eivät täyty",
     "skip": "Ohita kahden minuutin käynnistysikkunan jälkeen",
-    "once": "Suorita kerran, kun valmiina; yhdistä väliin jääneet suoritukset",
+    "once": "Suorita kerran, kun valmista; yhdistä ohitetut suoritukset",
     "runNow": "Suorita nyt",
-    "runConfirm": "Suoritetaanko tämä aikataulu nyt sen tallennetuilla tehtävillä ja automaattisen käytön valinnalla? Sen virta-, käyttämättömyys-, Game Mode-, tila- ja ylläpitoikkunaehdot ovat edelleen voimassa: jos ne estävät suorituksen, se käynnistyy myöhemmässä tarkistuksessa, ja jos valitset Suorita nyt uudelleen odotuksen aikana, se peruutetaan.",
-    "runFailed": "Aikataulun käynnistäminen ei onnistunut",
+    "runConfirm": "Suoritetaanko tämä aikataulu nyt sen tallennetuilla tehtävillä ja automaattisen käytön valinnalla? Sen virransyöttöä, joutoaikaa, Game Modea, tilaa ja ylläpitoikkunaa koskevat ehdot ovat edelleen voimassa: jos ne estävät suorituksen, se käynnistyy myöhemmässä tarkistuksessa, ja jos valitset Suorita nyt uudelleen sen odottaessa, odottava suoritus peruutetaan.",
+    "runFailed": "Aikataulua ei voitu käynnistää",
     "running": "Käynnissä",
     "nextEvaluation": "Seuraava tarkistus noin {{time}}",
     "workflow": "Tehtävien järjestys ja laajuus",
@@ -121,14 +121,14 @@
     "moveUp": "Ylös",
     "moveDown": "Alas",
     "restrict": "Valitse luokat kohteelle {{name}}",
-    "findCategories": "Etsi luokat",
+    "findCategories": "Etsi luokat tarkistamalla",
     "scanning": "Tarkistetaan...",
-    "scopeHint": "Vain valitut luokat sisällytetään. Tyhjä valinta ei suorita puhdistusta tässä tehtävässä. Tarkistus löytää tällä hetkellä olemassa olevat luokat; se ei puhdista.",
+    "scopeHint": "Vain valitut luokat sisällytetään. Tyhjä valinta ei suorita tässä tehtävässä puhdistusta. Tarkistus löytää tällä hetkellä olemassa olevat luokat; se ei puhdista.",
     "waitForScan": "Odota, että nykyinen tarkistus tai puhdistus valmistuu.",
     "noCategories": "Luokkia ei löytynyt. Suorita uusi tarkistus, kun sovellus on tallentanut tietoja välimuistiin.",
-    "scanFailed": "Luokkien lataaminen ei onnistunut.",
+    "scanFailed": "Luokkia ei voitu ladata.",
     "waiting": {
-      "idle": "Odotetaan käyttämättömyysaikaa",
+      "idle": "Odotetaan joutoaikaa",
       "power": "Odotetaan verkkovirtaa",
       "game-mode": "Odotetaan, että Game Mode päättyy",
       "window": "Odotetaan ylläpitoikkunaa",
@@ -138,7 +138,7 @@
       "disabled": "Aikataulu poistettu käytöstä",
       "changed": "Aikataulua muokattiin; jonossa ollut määritys hylättiin",
       "unavailable": "Odotetaan sovellusikkunaa",
-      "interrupted": "Suoritus menetti ikkunansa ja kirjattiin epäonnistuneeksi; tätä tapahtumaa ei toisteta."
+      "interrupted": "Suoritus menetti ikkunansa ja kirjattiin epäonnistuneeksi; tätä tapahtumaa ei suoriteta uudelleen."
     },
     "saveFailed": "Aikataulua ei voitu tallentaa. Yritä uudelleen.",
     "skipped": "Ohitettu ehtojen muututtua."
