@@ -19,9 +19,10 @@
   "toolsHeading": "כלים",
   "performance": "ביצועים",
   "diskTools": "אחסון",
+  "activityAndRecovery": "פעילות ושחזור",
   "history": "פעילות",
   "settings": "העדפות",
-  "breachMonitor": "ניטור פריצות",
+  "breachMonitor": "ניטור פרצות",
   "gameMode": "מצב משחק",
   "firewallAudit": "ביקורת חומת אש"
 }

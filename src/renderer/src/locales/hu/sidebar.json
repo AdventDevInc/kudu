@@ -3,9 +3,9 @@
   "subtitle": "RENDSZERTISZTÍTÓ",
   "dashboard": "Kezdőlap",
   "securityHeading": "Védelem",
-  "malwareScanner": "Kártevőkereső",
+  "malwareScanner": "Kártevővizsgáló",
   "threatMonitor": "Fenyegetésfigyelő",
-  "systemHardening": "Rendszer megerősítése",
+  "systemHardening": "Rendszermegerősítés",
   "cveScanner": "Sérülékenységek",
   "monitoring": "Figyelés",
   "maintainHeading": "Kezelés",
@@ -18,10 +18,11 @@
   "schedules": "Ütemezések",
   "toolsHeading": "ESZKÖZÖK",
   "performance": "Teljesítmény",
-  "diskTools": "Tárhely",
+  "diskTools": "Tárolás",
+  "activityAndRecovery": "Tevékenység és helyreállítás",
   "history": "Tevékenység",
   "settings": "Beállítások",
   "breachMonitor": "Adatszivárgás-figyelő",
-  "gameMode": "Játék mód",
-  "firewallAudit": "Tűzfal-ellenőrzés"
+  "gameMode": "Játékmód",
+  "firewallAudit": "Tűzfalaudit"
 }

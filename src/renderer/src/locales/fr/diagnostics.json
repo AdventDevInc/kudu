@@ -1,5 +1,5 @@
 {
-  "title": "Diagnostic des performances",
+  "title": "Diagnostics",
   "description": "Enregistrez un ralentissement et obtenez un retour fondé sur des preuves de Kudu Cloud AI.",
   "liveMonitor": "Moniteur en direct gratuit",
   "newRecording": "Enregistrer un ralentissement",
@@ -33,12 +33,12 @@
   "saveDetails": "Enregistrer les détails",
   "export": "Exporter en JSON",
   "deleteLocal": "Supprimer l’enregistrement local",
-  "exportPrivacy": "Les exportations ne sont pas chiffrées et incluent les noms de processus collectés. Choisissez où les enregistrer et les partager.",
+  "exportPrivacy": "Les exportations ne sont pas chiffrées et incluent les noms de processus collectés. Choisissez où vous les enregistrez et les partagez.",
   "cpuMean": "CPU moyen échantillonné",
   "memoryMean": "Mémoire moyenne échantillonnée",
   "missingTicks": "Ticks système manquants",
   "compare": "Comparer avec",
-  "chooseRecording": "Choisir un enregistrement enregistré",
+  "chooseRecording": "Choisir un enregistrement sauvegardé",
   "comparisonCaution": "Les moyennes d’échantillonnage décrivent des observations, pas une causalité. Répétez la même charge de travail pendant des durées similaires ; les écarts et l’activité en arrière-plan peuvent modifier les résultats.",
   "notComparable": "Les caractéristiques du système diffèrent. Une comparaison directe avant/après n’est pas disponible.",
   "comparisonValues": "Enregistrement de comparaison : CPU {{cpu}}, mémoire {{memory}}. Durées : {{first}}s / {{second}}s. Ticks manquants pour la comparaison : {{missing}}.",
@@ -61,11 +61,11 @@
   "low": "Faible",
   "medium": "Moyenne",
   "high": "Élevée",
-  "observation": "Observé :",
+  "observation": "Observation :",
   "interpretation": "Explication possible :",
   "cpuPercent": "CPU",
   "memoryPercent": "Mémoire",
-  "memoryUsedBytes": "Octets mémoire",
+  "memoryUsedBytes": "Octets de mémoire",
   "diskReadBytesPerSec": "Lectures disque",
   "diskWriteBytesPerSec": "Écritures disque",
   "processCpuPercent": "CPU du processus",
@@ -76,13 +76,37 @@
   "read": "Lecture",
   "write": "Écriture",
   "processes": "Processus observés",
-  "confirmLocal": "Supprimer cet enregistrement local et son rapport téléchargé ? Toute copie Cloud doit d’abord être supprimée afin que rien ne reste dans Kudu Cloud. Exportez d’abord si vous avez besoin d’une copie.",
+  "confirmLocal": "Supprimer cet enregistrement local et son rapport téléchargé ? Toute copie Cloud doit d’abord être supprimée, afin que rien ne reste dans Kudu Cloud. Exportez d’abord si vous avez besoin d’une copie.",
   "deleteLocalBlocked": "Supprimez d’abord la copie Cloud. Cet enregistrement local contient la seule référence nécessaire pour la supprimer.",
-  "confirmCloud": "Supprimer cet enregistrement et ce rapport de Kudu Cloud ? Votre copie locale reste disponible. Une analyse déjà envoyée au fournisseur ne peut pas être rappelée, mais son résultat ne sera pas enregistré à nouveau dans Cloud.",
+  "confirmCloud": "Supprimer cet enregistrement et ce rapport de Kudu Cloud ? Votre copie locale reste disponible. Une analyse déjà envoyée au fournisseur ne peut pas être rappelée, mais son résultat ne sera pas réenregistré dans Cloud.",
   "confirmDelete": "Confirmer la suppression",
   "recordingElapsed": "Enregistrement ? {{seconds}}s",
   "operationFailed": "Une erreur s’est produite.",
   "checkingAccess": "Vérification de l’accès Cloud?",
   "emptyHint": "Enregistrez pendant que le ralentissement se produit. Vous pouvez examiner les mesures avant de les partager.",
-  "accessUnavailable": "L’accès Cloud n’a pas pu être vérifié. Vérifiez votre connexion et réessayez."
+  "accessUnavailable": "L’accès Cloud n’a pas pu être vérifié. Vérifiez votre connexion et réessayez.",
+  "upgradeTitle": "Découvrez ce qui ralentit votre PC.",
+  "upgradeDescription": "Transformez un ralentissement en prochaine étape claire avec Kudu Cloud Pro. Enregistrez ce qui se passe et obtenez un retour de l’IA fondé sur les mesures de votre PC.",
+  "upgradeAction": "Passer à Cloud Pro",
+  "exploreAction": "Découvrir Kudu Cloud Pro",
+  "alreadySubscribed": "Déjà abonné ? Liez votre PC",
+  "supportDevelopment": "Votre abonnement soutient également le développement open source de Kudu.",
+  "reconnectTitle": "Reconnecter à Kudu Cloud",
+  "reconnectDescription": "Liez à nouveau ce PC pour vérifier votre accès Cloud Pro. Vos enregistrements sauvegardés sont toujours ici.",
+  "reconnectAction": "Reconnecter Kudu Cloud",
+  "accessUnavailableTitle": "Nous n’avons pas pu vérifier votre accès Cloud",
+  "benefits": {
+    "capture": {
+      "title": "Capturer le ralentissement",
+      "description": "Enregistrez l’activité du CPU, de la mémoire et du disque pendant que le problème se produit."
+    },
+    "understand": {
+      "title": "Comprendre la cause",
+      "description": "Obtenez des conclusions de l’IA liées à l’enregistrement, avec des prochaines étapes pratiques."
+    },
+    "control": {
+      "title": "Gardez le contrôle",
+      "description": "Examinez d’abord votre enregistrement. Rien n’est envoyé sans votre approbation."
+    }
+  }
 }

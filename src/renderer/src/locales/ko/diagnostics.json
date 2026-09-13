@@ -1,11 +1,11 @@
 {
-  "title": "성능 진단",
-  "description": "속도 저하를 기록하고 Kudu Cloud AI의 근거 기반 피드백을 받아보세요.",
+  "title": "진단",
+  "description": "성능 저하를 기록하고 Kudu Cloud AI의 근거 기반 피드백을 받아보세요.",
   "liveMonitor": "무료 실시간 모니터",
-  "newRecording": "속도 저하 기록",
+  "newRecording": "성능 저하 기록",
   "pro": "Cloud Pro",
-  "localFirst": "Kudu가 기록하는 동안 속도 저하를 재현하세요. 측정값은 업로드를 검토하고 승인할 때까지 이 장치에만 유지됩니다.",
-  "requiresPro": "새 기록과 분석을 사용하려면 활성 Cloud Pro 구독이 필요합니다.",
+  "localFirst": "Kudu가 기록하는 동안 성능 저하를 재현하세요. 측정값은 업로드를 검토하고 승인할 때까지 이 장치에만 유지됩니다.",
+  "requiresPro": "새 기록 및 분석을 사용하려면 활성화된 Cloud Pro 구독이 필요합니다.",
   "cloudSettings": "Cloud 설정",
   "checkAccess": "액세스 확인",
   "duration": "기간",
@@ -23,7 +23,7 @@
   "interrupted": "중단됨",
   "queued": "대기 중",
   "processing": "분석 중",
-  "complete": "보고서 준비 완료",
+  "complete": "보고서 준비됨",
   "failed": "분석 실패",
   "recordingDetails": "기록 세부 정보",
   "stopToReview": "기록을 중지한 다음 다시 열어 검토, 내보내기 또는 공유하세요.",
@@ -39,11 +39,11 @@
   "missingTicks": "누락된 시스템 틱",
   "compare": "비교 대상",
   "chooseRecording": "저장된 기록 선택",
-  "comparisonCaution": "샘플 평균은 관찰 결과를 설명할 뿐, 인과관계를 의미하지 않습니다. 비슷한 기간 동안 동일한 작업 부하를 반복하세요. 공백 구간과 백그라운드 활동은 결과를 바꿀 수 있습니다.",
+  "comparisonCaution": "샘플 평균은 관찰 결과를 설명할 뿐, 인과관계를 의미하지는 않습니다. 비슷한 기간 동안 동일한 작업 부하를 반복하세요. 공백 구간과 백그라운드 활동으로 결과가 달라질 수 있습니다.",
   "notComparable": "시스템 사양이 다릅니다. 직접적인 전후 비교를 사용할 수 없습니다.",
   "comparisonValues": "비교 기록: CPU {{cpu}}, 메모리 {{memory}}. 기간: {{first}}초 / {{second}}초. 비교 누락 틱: {{missing}}.",
   "cloudAnalysis": "Cloud AI 분석",
-  "cloudPrivacy": "Kudu Cloud는 분석을 위해 요약된 측정값을 OpenAI로 전송합니다. 원본 Cloud 입력 데이터는 분석 후 제거되며, 중단된 작업은 다음 유지 관리 실행 시 30분 후 삭제됩니다. Cloud 보고서는 7일 후 만료됩니다. 제공업체의 처리는 서비스 개인정보처리방침의 적용을 받습니다. 로컬 사본은 오프라인 상태와 구독 만료 후에도 계속 사용할 수 있습니다.",
+  "cloudPrivacy": "Kudu Cloud는 요약된 측정값을 OpenAI로 전송하여 분석합니다. 원시 Cloud 입력 데이터는 분석 후 제거되며, 중단된 작업은 다음 유지 관리 실행 시 30분 후 삭제됩니다. Cloud 보고서는 7일 후 만료됩니다. 제공업체의 처리는 해당 서비스의 개인정보 처리방침이 적용됩니다. 로컬 사본은 오프라인 상태와 구독 만료 후에도 계속 사용할 수 있습니다.",
   "shareProcesses": "이 업로드에 수집된 프로세스 이름과 카운터 포함",
   "preview": "업로드 검토",
   "refreshReport": "보고서 가져오기",
@@ -54,8 +54,8 @@
   "consentButton": "동의합니다 — AI 분석을 위해 업로드",
   "cancel": "취소",
   "analysisStatus": "분석: {{status}}",
-  "cloudGone": "Cloud 사본이 삭제되었거나 만료되었습니다. 가져온 보고서는 로컬에서 계속 사용할 수 있습니다.",
-  "analysisFailed": "신뢰할 수 있는 보고서가 생성되지 않았습니다. 다시 시도하려면 다른 기록을 만드세요.",
+  "cloudGone": "Cloud 사본이 삭제되었거나 만료되었습니다. 이미 가져온 보고서는 로컬에서 계속 사용할 수 있습니다.",
+  "analysisFailed": "신뢰할 수 있는 보고서가 생성되지 않았습니다. 다시 시도하려면 새 기록을 만드세요.",
   "aiCaution": "AI 제안은 틀릴 수 있습니다. 변경하기 전에 근거를 검토하세요. Kudu는 이러한 제안을 실행하지 않습니다.",
   "confidence": "신뢰도 {{level}}",
   "low": "낮음",
@@ -83,6 +83,30 @@
   "recordingElapsed": "기록 중 ? {{seconds}}초",
   "operationFailed": "문제가 발생했습니다.",
   "checkingAccess": "Cloud 액세스 확인 중?",
-  "emptyHint": "속도 저하가 발생하는 동안 기록하세요. 공유하기 전에 측정값을 검토할 수 있습니다.",
-  "accessUnavailable": "Cloud 액세스를 확인할 수 없습니다. 연결을 확인한 후 다시 시도하세요."
+  "emptyHint": "성능 저하가 발생하는 동안 기록하세요. 공유하기 전에 측정값을 검토할 수 있습니다.",
+  "accessUnavailable": "Cloud 액세스를 확인할 수 없습니다. 연결을 확인한 후 다시 시도하세요.",
+  "upgradeTitle": "PC 속도를 저하시키는 원인을 알아보세요.",
+  "upgradeDescription": "Kudu Cloud Pro로 성능 저하를 명확한 다음 단계로 바꾸세요. 발생 상황을 기록하고 PC의 측정값에 근거한 AI 피드백을 받아보세요.",
+  "upgradeAction": "Cloud Pro로 업그레이드",
+  "exploreAction": "Kudu Cloud Pro 살펴보기",
+  "alreadySubscribed": "이미 구독 중이신가요? PC 연결",
+  "supportDevelopment": "구독은 Kudu의 오픈 소스 개발도 지원합니다.",
+  "reconnectTitle": "Kudu Cloud에 다시 연결",
+  "reconnectDescription": "Cloud Pro 액세스를 확인하려면 이 PC를 다시 연결하세요. 저장된 기록은 그대로 유지됩니다.",
+  "reconnectAction": "Kudu Cloud 다시 연결",
+  "accessUnavailableTitle": "Cloud 액세스를 확인할 수 없습니다",
+  "benefits": {
+    "capture": {
+      "title": "성능 저하 캡처",
+      "description": "문제가 발생하는 동안 CPU, 메모리 및 디스크 활동을 기록합니다."
+    },
+    "understand": {
+      "title": "원인 파악",
+      "description": "기록과 연결된 AI 분석 결과와 실용적인 다음 단계를 확인하세요."
+    },
+    "control": {
+      "title": "직접 제어",
+      "description": "먼저 기록을 검토하세요. 승인 없이는 아무것도 업로드되지 않습니다."
+    }
+  }
 }

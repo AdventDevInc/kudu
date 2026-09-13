@@ -19,9 +19,10 @@
   "toolsHeading": "เครื่องมือ",
   "performance": "ประสิทธิภาพ",
   "diskTools": "ที่เก็บข้อมูล",
+  "activityAndRecovery": "กิจกรรมและการกู้คืน",
   "history": "กิจกรรม",
-  "settings": "การตั้งค่า",
-  "breachMonitor": "การตรวจสอบการรั่วไหล",
+  "settings": "การกำหนดลักษณะ",
+  "breachMonitor": "การตรวจสอบการรั่วไหลของข้อมูล",
   "gameMode": "โหมดเกม",
   "firewallAudit": "การตรวจสอบไฟร์วอลล์"
 }

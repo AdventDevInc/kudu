@@ -3,7 +3,7 @@
   "subtitle": "SYSTEMRENSER",
   "dashboard": "Hjem",
   "securityHeading": "Beskyttelse",
-  "malwareScanner": "Malware-scanner",
+  "malwareScanner": "Malwarescanner",
   "threatMonitor": "Trusselsmonitor",
   "systemHardening": "Systemhærdning",
   "cveScanner": "Sårbarheder",
@@ -19,9 +19,10 @@
   "toolsHeading": "VÆRKTØJER",
   "performance": "Ydeevne",
   "diskTools": "Lager",
+  "activityAndRecovery": "Aktivitet og gendannelse",
   "history": "Aktivitet",
   "settings": "Indstillinger",
   "breachMonitor": "Brudovervågning",
   "gameMode": "Spiltilstand",
-  "firewallAudit": "Firewall-gennemgang"
+  "firewallAudit": "Firewallkontrol"
 }

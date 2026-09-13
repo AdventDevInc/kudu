@@ -3,7 +3,7 @@
   "subtitle": "SYSTEMRENSER",
   "dashboard": "Hjem",
   "securityHeading": "Beskyttelse",
-  "malwareScanner": "Skanning etter skadelig programvare",
+  "malwareScanner": "Skanner for skadelig programvare",
   "threatMonitor": "Trusselovervåking",
   "systemHardening": "Systemherding",
   "cveScanner": "Sårbarheter",
@@ -15,13 +15,14 @@
   "startup": "Oppstart",
   "network": "Nettverk",
   "software": "Programvare",
-  "schedules": "Tidsplaner",
+  "schedules": "Planer",
   "toolsHeading": "VERKTØY",
   "performance": "Ytelse",
   "diskTools": "Lagring",
+  "activityAndRecovery": "Aktivitet og gjenoppretting",
   "history": "Aktivitet",
   "settings": "Innstillinger",
   "breachMonitor": "Overvåking av datainnbrudd",
   "gameMode": "Spillmodus",
-  "firewallAudit": "Brannmurrevisjon"
+  "firewallAudit": "Revisjon av brannmur"
 }

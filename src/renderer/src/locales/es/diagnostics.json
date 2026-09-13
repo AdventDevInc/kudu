@@ -1,5 +1,5 @@
 {
-  "title": "Diagnóstico de rendimiento",
+  "title": "Diagnósticos",
   "description": "Registre una ralentización y obtenga comentarios basados en evidencia de Kudu Cloud AI.",
   "liveMonitor": "Monitor en vivo gratuito",
   "newRecording": "Registrar una ralentización",
@@ -33,7 +33,7 @@
   "saveDetails": "Guardar detalles",
   "export": "Exportar JSON",
   "deleteLocal": "Eliminar grabación local",
-  "exportPrivacy": "Las exportaciones no están cifradas e incluyen los nombres de los procesos recopilados. Elija dónde guardarlas y compartirlas.",
+  "exportPrivacy": "Las exportaciones no están cifradas e incluyen los nombres de los procesos recopilados. Elija dónde las guarda y comparte.",
   "cpuMean": "CPU media muestreada",
   "memoryMean": "Memoria media muestreada",
   "missingTicks": "Ticks del sistema faltantes",
@@ -41,21 +41,21 @@
   "chooseRecording": "Elegir una grabación guardada",
   "comparisonCaution": "Los promedios de las muestras describen observaciones, no causalidad. Repita la misma carga de trabajo durante duraciones similares; las interrupciones y la actividad en segundo plano pueden cambiar los resultados.",
   "notComparable": "Las especificaciones del sistema son diferentes. No hay disponible una comparación directa de antes y después.",
-  "comparisonValues": "Grabación de comparación: CPU {{cpu}}, memoria {{memory}}. Duraciones: {{first}} s / {{second}} s. Ticks faltantes en la comparación: {{missing}}.",
+  "comparisonValues": "Grabación de comparación: CPU {{cpu}}, memoria {{memory}}. Duraciones: {{first}}s / {{second}}s. Ticks faltantes en la comparación: {{missing}}.",
   "cloudAnalysis": "Análisis de Cloud AI",
   "cloudPrivacy": "Kudu Cloud envía mediciones resumidas a OpenAI para su análisis. La entrada sin procesar de Cloud se elimina después del análisis; los trabajos abandonados se eliminan después de 30 minutos en la siguiente ejecución de mantenimiento. Los informes de Cloud caducan después de siete días. El procesamiento del proveedor está sujeto a la política de privacidad del servicio. Las copias locales siguen disponibles sin conexión y después de que caduque la suscripción.",
-  "shareProcesses": "Incluir en esta carga los nombres y contadores de los procesos recopilados",
+  "shareProcesses": "Incluir los nombres y contadores de los procesos recopilados en esta carga",
   "preview": "Revisar carga",
   "refreshReport": "Recuperar informe",
   "deleteCloud": "Eliminar copia de Cloud",
   "uploadSize": "Carga exacta: {{size}}",
   "exactUpload": "Inspeccionar todos los datos que se enviarán",
-  "consent": "Esto envía los datos mostrados arriba, junto con el ID del dispositivo vinculado, a Kudu Cloud y OpenAI para analizar esta grabación. Las notas locales, las rutas de archivo, las líneas de comandos y los detalles de la cuenta se excluyen de la carga de la grabación.",
+  "consent": "Esto envía los datos mostrados arriba, junto con el ID del dispositivo vinculado, a Kudu Cloud y OpenAI para analizar esta grabación. Las notas locales, las rutas de archivo, las líneas de comandos y los detalles de la cuenta se excluyen de la carga útil de la grabación.",
   "consentButton": "Acepto — cargar para análisis con AI",
   "cancel": "Cancelar",
   "analysisStatus": "Análisis: {{status}}",
   "cloudGone": "La copia de Cloud se eliminó o ha caducado. Cualquier informe recuperado sigue disponible localmente.",
-  "analysisFailed": "No se produjo ningún informe fiable. Cree otra grabación para volver a intentarlo.",
+  "analysisFailed": "No se generó ningún informe fiable. Cree otra grabación para volver a intentarlo.",
   "aiCaution": "Las sugerencias de AI pueden ser incorrectas. Revise la evidencia antes de realizar cambios; Kudu no ejecuta estas sugerencias.",
   "confidence": "Confianza {{level}}",
   "low": "Baja",
@@ -78,11 +78,35 @@
   "processes": "Procesos observados",
   "confirmLocal": "¿Eliminar esta grabación local y su informe descargado? Primero debe eliminarse cualquier copia de Cloud, para que no quede nada en Kudu Cloud. Exporte primero si necesita una copia.",
   "deleteLocalBlocked": "Elimine primero la copia de Cloud. Esta grabación local contiene la única referencia necesaria para eliminarla.",
-  "confirmCloud": "¿Eliminar esta grabación y este informe de Kudu Cloud? Su copia local permanecerá. Un análisis ya enviado al proveedor no puede retirarse, pero su resultado no se volverá a guardar en Cloud.",
+  "confirmCloud": "¿Eliminar esta grabación y este informe de Kudu Cloud? Su copia local permanecerá. Un análisis ya enviado al proveedor no puede retirarse, pero su resultado no volverá a guardarse en Cloud.",
   "confirmDelete": "Confirmar eliminación",
-  "recordingElapsed": "Grabando ? {{seconds}} s",
+  "recordingElapsed": "Grabando ? {{seconds}}s",
   "operationFailed": "Se produjo un error.",
-  "checkingAccess": "¿Comprobando acceso a Cloud?",
+  "checkingAccess": "Comprobando acceso a Cloud?",
   "emptyHint": "Grabe mientras se produce la ralentización. Puede revisar las mediciones antes de compartirlas.",
-  "accessUnavailable": "No se pudo comprobar el acceso a Cloud. Revise su conexión y vuelva a intentarlo."
+  "accessUnavailable": "No se pudo comprobar el acceso a Cloud. Compruebe su conexión e inténtelo de nuevo.",
+  "upgradeTitle": "Descubra qué está ralentizando su PC.",
+  "upgradeDescription": "Convierta una ralentización en un siguiente paso claro con Kudu Cloud Pro. Registre lo que ocurre y obtenga comentarios de AI basados en las mediciones de su PC.",
+  "upgradeAction": "Actualizar a Cloud Pro",
+  "exploreAction": "Explorar Kudu Cloud Pro",
+  "alreadySubscribed": "¿Ya está suscrito? Vincule su PC",
+  "supportDevelopment": "Su suscripción también apoya el desarrollo de código abierto de Kudu.",
+  "reconnectTitle": "Volver a conectar con Kudu Cloud",
+  "reconnectDescription": "Vincule este PC de nuevo para comprobar su acceso a Cloud Pro. Sus grabaciones guardadas siguen aquí.",
+  "reconnectAction": "Volver a conectar Kudu Cloud",
+  "accessUnavailableTitle": "No pudimos comprobar su acceso a Cloud",
+  "benefits": {
+    "capture": {
+      "title": "Capture la ralentización",
+      "description": "Registre la actividad de CPU, memoria y disco mientras se produce el problema."
+    },
+    "understand": {
+      "title": "Comprenda la causa",
+      "description": "Obtenga conclusiones de AI vinculadas a la grabación, con pasos prácticos a seguir."
+    },
+    "control": {
+      "title": "Mantenga el control",
+      "description": "Revise primero su grabación. No se carga nada sin su aprobación."
+    }
+  }
 }
