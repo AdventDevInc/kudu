@@ -149,6 +149,8 @@ export interface ScanResult {
 }
 
 export interface CleanResult {
+  receiptId?: string
+  receiptSaved?: boolean
   totalCleaned: number
   filesDeleted: number
   filesSkipped: number

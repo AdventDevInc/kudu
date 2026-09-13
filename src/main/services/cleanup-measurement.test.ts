@@ -10,6 +10,9 @@ vi.mock('./scan-cache', () => ({
   validateCachedItem: async () => null,
   getCachedItems: () => state.items,
   removeCachedItems: () => {}
+  removeCachedItems: () => {},
+  countCachedCategories: () => state.items.length,
+  getCachedItem: (id: string) => state.items.find((i) => i.id === id)
 }))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 import { cleanItems, getDirectorySize } from './file-utils'

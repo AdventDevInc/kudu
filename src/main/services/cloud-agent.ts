@@ -14,6 +14,7 @@ const Pusher = ((PusherImport as unknown as { Pusher?: typeof PusherImport }).Pu
   PusherImport) as typeof PusherImport
 type Pusher = PusherImport
 import { getSettings, setSettings, getMachineId } from './settings-store'
+import { recordNativeCleanup } from './cleanup-receipts'
 import {
   scanAppRule,
   scanDirectory,
@@ -2851,55 +2852,64 @@ class CloudAgentService {
       errors: [] as { path: string; reason: string }[],
       needsElevation: false
     }
+    // Database maintenance has its own receipt so a cloud-initiated VACUUM run is recorded
+    // even when the request carried no file items.
     if (dbIds.length > 0) {
-      const Database = (await import('better-sqlite3')).default
-      for (const id of dbIds) {
-        const item = getCachedItem(id)
-        if (!item) continue
-        try {
-          const sizeBefore = statSync(item.path).size
-          let walSizeBefore = 0
-          try {
-            walSizeBefore = statSync(item.path + '-wal').size
-          } catch {
-            /* no WAL */
+      await recordNativeCleanup(
+        'Database optimization',
+        async () => {
+          const Database = (await import('better-sqlite3')).default
+          for (const id of dbIds) {
+            const item = getCachedItem(id)
+            if (!item) continue
+            try {
+              const sizeBefore = statSync(item.path).size
+              let walSizeBefore = 0
+              try {
+                walSizeBefore = statSync(item.path + '-wal').size
+              } catch {
+                /* no WAL */
+              }
+              const db = new Database(item.path, { fileMustExist: true })
+              try {
+                const journalMode = (
+                  db.pragma('journal_mode', { simple: true }) as string
+                ).toLowerCase()
+                db.exec('VACUUM')
+                if (journalMode === 'wal') db.pragma('journal_mode = WAL')
+              } finally {
+                db.close()
+              }
+              const sizeAfter = statSync(item.path).size
+              let walSizeAfter = 0
+              try {
+                walSizeAfter = statSync(item.path + '-wal').size
+              } catch {
+                /* no WAL */
+              }
+              const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
+              if (reclaimed > 0) dbResult.totalCleaned += reclaimed
+              dbResult.filesDeleted++
+            } catch (err: unknown) {
+              dbResult.filesSkipped++
+              const code = (err as { code?: string }).code
+              if (code === 'SQLITE_BUSY' || code === 'SQLITE_LOCKED' || code === 'EBUSY') {
+                dbResult.errors.push({ path: item.path, reason: 'in-use' })
+              } else if (code === 'EPERM' || code === 'EACCES') {
+                dbResult.errors.push({ path: item.path, reason: 'permission-denied' })
+                dbResult.needsElevation = true
+              } else {
+                dbResult.errors.push({
+                  path: item.path,
+                  reason: (err as Error).message || 'unknown error'
+                })
+              }
+            }
           }
-          const db = new Database(item.path, { fileMustExist: true })
-          try {
-            const journalMode = (
-              db.pragma('journal_mode', { simple: true }) as string
-            ).toLowerCase()
-            db.exec('VACUUM')
-            if (journalMode === 'wal') db.pragma('journal_mode = WAL')
-          } finally {
-            db.close()
-          }
-          const sizeAfter = statSync(item.path).size
-          let walSizeAfter = 0
-          try {
-            walSizeAfter = statSync(item.path + '-wal').size
-          } catch {
-            /* no WAL */
-          }
-          const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
-          if (reclaimed > 0) dbResult.totalCleaned += reclaimed
-          dbResult.filesDeleted++
-        } catch (err: unknown) {
-          dbResult.filesSkipped++
-          const code = (err as { code?: string }).code
-          if (code === 'SQLITE_BUSY' || code === 'SQLITE_LOCKED' || code === 'EBUSY') {
-            dbResult.errors.push({ path: item.path, reason: 'in-use' })
-          } else if (code === 'EPERM' || code === 'EACCES') {
-            dbResult.errors.push({ path: item.path, reason: 'permission-denied' })
-            dbResult.needsElevation = true
-          } else {
-            dbResult.errors.push({
-              path: item.path,
-              reason: (err as Error).message || 'unknown error'
-            })
-          }
-        }
-      }
+          return dbResult
+        },
+        'cloud'
+      )
     }
 
     // Strip local file paths from error details before sending to cloud

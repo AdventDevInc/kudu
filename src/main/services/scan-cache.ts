@@ -52,6 +52,12 @@ export function getCachedItems(ids: string[]): ScanItem[] {
   return items
 }
 
+export function countCachedCategories(categories: Set<string>): number {
+  let count = 0
+  for (const item of itemCache.values()) if (categories.has(item.category)) count++
+  return count
+}
+
 export function clearCache(): void {
   itemCache.clear()
   itemGuards.clear()
