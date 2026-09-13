@@ -172,7 +172,7 @@ export function PerformanceDiagnosticsPage() {
     JSON.stringify(selected.recording.system) === JSON.stringify(comparison.recording.system)
   const report = selected?.cloud?.report
   return (
-    <div className="feature-page feature-layout space-y-6">
+    <div className="feature-page feature-layout pulse-diagnostics-page">
       <PageHeader
         title={t('title')}
         description={t('description')}

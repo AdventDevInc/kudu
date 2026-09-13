@@ -1,3 +1,4 @@
+import { ToolIllustration } from '@/components/shared/ToolIllustration'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -102,7 +103,7 @@ export function FileShredderPage() {
           <button
             onClick={handleAddFiles}
             disabled={store.status === 'shredding'}
-            className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
+            className="pulse-primary-action pulse-scan-action flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors disabled:opacity-50"
             style={{
               background: 'var(--bg-hover)',
               color: 'var(--text-primary)',
@@ -373,6 +374,7 @@ function StatMini({ label, value }: { label: string; value: string }) {
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="utility-empty-stage utility-empty-stage-danger flex flex-1 flex-col items-center justify-center py-20 text-center">
+      <ToolIllustration />
       <ShieldAlert
         className="mb-4 h-12 w-12"
         style={{ color: 'var(--text-faint)' }}

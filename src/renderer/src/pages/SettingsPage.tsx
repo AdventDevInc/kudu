@@ -90,8 +90,28 @@ export function SettingsPage() {
     <div className="feature-page settings-page animate-fade-in">
       <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
+      <nav className="pulse-settings-nav" aria-label={t('pageTitle')}>
+        {[
+          'sectionGeneral',
+          'sectionCloudDashboard',
+          'sectionBackups',
+          'sectionCleaningPreferences',
+          'sectionExclusions'
+        ].map((key) => (
+          <button
+            key={key}
+            onClick={() => {
+              const section = document.getElementById(key)
+              section?.scrollIntoView({ block: 'start' })
+              section?.focus({ preventScroll: true })
+            }}
+          >
+            {t(key)}
+          </button>
+        ))}
+      </nav>
       <div className="settings-grid">
-        <Section title={t('sectionGeneral')}>
+        <Section id="sectionGeneral" title={t('sectionGeneral')}>
           <Row
             label={t('themeLabel', 'Theme')}
             desc={t('themeDesc', 'Follow your system appearance or choose a mode')}
@@ -172,7 +192,7 @@ export function SettingsPage() {
           )}
         </Section>
 
-        <Section title={t('sectionCloudDashboard')}>
+        <Section id="sectionCloudDashboard" title={t('sectionCloudDashboard')}>
           <button
             onClick={() => navigate('/cloud')}
             className="flex w-full items-center gap-4 rounded-xl p-4 text-left transition-all"
@@ -209,7 +229,7 @@ export function SettingsPage() {
           </button>
         </Section>
 
-        <Section title={t('sectionBackups', 'Backups')}>
+        <Section id="sectionBackups" title={t('sectionBackups', 'Backups')}>
           <BackupFolderRow
             path={settings.backupPath}
             onPick={async () => {
@@ -253,7 +273,7 @@ export function SettingsPage() {
           </div>
         </Section>
 
-        <Section title={t('sectionCleaningPreferences')}>
+        <Section id="sectionCleaningPreferences" title={t('sectionCleaningPreferences')}>
           <Row label={t('protectRecycleBinLabel')} desc={t('protectRecycleBinDesc')}>
             <Toggle
               checked={settings.cleaner.protectRecycleBin}
@@ -307,7 +327,7 @@ export function SettingsPage() {
           </Row>
         </Section>
 
-        <Section title={t('sectionExclusions')}>
+        <Section id="sectionExclusions" title={t('sectionExclusions')}>
           <div className="space-y-2 pb-3">
             {settings.exclusions.length === 0 && (
               <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
@@ -377,9 +397,17 @@ export function SettingsPage() {
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  id,
+  title,
+  children
+}: {
+  id: string
+  title: string
+  children: React.ReactNode
+}) {
   return (
-    <section className="settings-section mb-7">
+    <section id={id} tabIndex={-1} className="settings-section mb-7">
       <h3
         className="mb-3 text-[11px] font-medium uppercase tracking-widest"
         style={{ color: 'var(--text-muted)' }}
@@ -473,7 +501,7 @@ function BackupFolderRow({
       </div>
       <div className="flex items-center gap-2.5">
         <div
-          className="flex flex-1 items-center gap-2.5 rounded-xl px-4 py-2.5"
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-4 py-2.5"
           style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-medium)' }}
         >
           <FolderOpen

@@ -707,7 +707,10 @@ export function CleanerPage() {
             <button
               onClick={handleScan}
               disabled={isScanning || isCleaning || preparingClean}
-              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
+              className={cn(
+                'pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40',
+                !hasResults && 'pulse-primary-action'
+              )}
               style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
             >
               <Search className="h-4 w-4" strokeWidth={1.8} />
@@ -723,7 +726,7 @@ export function CleanerPage() {
                 preparingClean ||
                 store.getSelectedIds().length === 0
               }
-              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
+              className="pulse-primary-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'var(--text-on-accent)',
@@ -797,37 +800,30 @@ export function CleanerPage() {
               </button>
             )
           })}
-
-          {hasResults && (
-            <div
-              className="mt-5 rounded-2xl p-4"
-              style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
-            >
-              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                {t('totalRecoverable')}
-              </p>
-              <p className="text-[20px] font-bold tracking-tight text-amber-400">
-                {formatBytes(store.getTotalSize())}
-              </p>
-              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                {t('itemsCount', {
-                  count: formatNumber(store.results.reduce((s, r) => s + r.itemCount, 0))
-                })}
-              </p>
-              <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                  {t('selectedLabel')}
-                </p>
-                <p className="text-[15px] font-semibold text-zinc-200">
-                  {formatBytes(store.getSelectedSize())}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Item panel */}
         <div className="cleaner-results flex-1 min-w-0">
+          {hasResults && (
+            <section className="pulse-cleaner-summary" aria-label={t('totalRecoverable')}>
+              <div>
+                <span>{t('totalRecoverable')}</span>
+                <strong>{formatBytes(store.getTotalSize())}</strong>
+              </div>
+              <div>
+                <span>
+                  {t('itemsCount', {
+                    count: formatNumber(
+                      store.results.reduce((sum, result) => sum + result.itemCount, 0)
+                    )
+                  })}
+                </span>
+                <strong>
+                  {t('selectedLabel')}: {formatBytes(store.getSelectedSize())}
+                </strong>
+              </div>
+            </section>
+          )}
           {(isScanning || isCleaning) && store.progress && (
             <ScanProgress
               status={isScanning ? 'scanning' : 'cleaning'}
@@ -973,7 +969,7 @@ export function CleanerPage() {
                 <button
                   onClick={handleScan}
                   disabled={isCleaning || preparingClean}
-                  className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
+                  className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
                   style={{
                     background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                     color: 'var(--text-on-accent)'

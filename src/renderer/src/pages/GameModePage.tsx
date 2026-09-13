@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Gamepad2,
+  Power,
+  Loader2,
   Server,
   Cpu,
   MemoryStick,
@@ -184,15 +186,15 @@ const CATEGORIES: CategoryDef[] = [
     labelKey: 'categoryServices',
     descKey: 'categoryServicesDesc',
     icon: Server,
-    color: '#06b6d4',
-    glow: 'rgba(6,182,212,0.12)'
+    color: '#9cb8d6',
+    glow: 'rgba(166,210,184,0.12)'
   },
   {
     id: 'processes',
     labelKey: 'categoryProcesses',
     descKey: 'categoryProcessesDesc',
     icon: Cpu,
-    color: '#8b5cf6',
+    color: '#b6aecf',
     glow: 'rgba(139,92,246,0.12)'
   },
   {
@@ -200,7 +202,7 @@ const CATEGORIES: CategoryDef[] = [
     labelKey: 'categoryMemory',
     descKey: 'categoryMemoryDesc',
     icon: MemoryStick,
-    color: '#22c55e',
+    color: '#a6d2b8',
     glow: 'rgba(34,197,94,0.12)'
   },
   {
@@ -208,7 +210,7 @@ const CATEGORIES: CategoryDef[] = [
     labelKey: 'categorySystem',
     descKey: 'categorySystemDesc',
     icon: Monitor,
-    color: '#f59e0b',
+    color: '#f0b65b',
     glow: 'rgba(245,158,11,0.12)'
   },
   {
@@ -216,17 +218,17 @@ const CATEGORIES: CategoryDef[] = [
     labelKey: 'categoryNetwork',
     descKey: 'categoryNetworkDesc',
     icon: Wifi,
-    color: '#ec4899',
+    color: '#d4a5bb',
     glow: 'rgba(236,72,153,0.12)'
   }
 ]
 
 // ── Colors ───────────────────────────────────────────────────
 
-const CYAN = '#06b6d4'
-const PURPLE = '#8b5cf6'
-const CYAN_BG = 'rgba(6,182,212,0.08)'
-const CYAN_BORDER = 'rgba(6,182,212,0.15)'
+const CYAN = '#a6d2b8'
+const PURPLE = '#f0b65b'
+const CYAN_BG = 'rgba(166,210,184,0.08)'
+const CYAN_BORDER = 'rgba(166,210,184,0.15)'
 
 // ── Timer helper ─────────────────────────────────────────────
 
@@ -239,109 +241,6 @@ function formatElapsed(ms: number): string {
 }
 
 // ── Animated Ring ────────────────────────────────────────────
-
-function OrbitRing({
-  radius,
-  duration,
-  delay,
-  active
-}: {
-  radius: number
-  duration: number
-  delay: number
-  active: boolean
-}) {
-  return (
-    <motion.div
-      className="pointer-events-none absolute rounded-full"
-      style={{
-        width: radius * 2,
-        height: radius * 2,
-        top: '50%',
-        left: '50%',
-        marginTop: -radius,
-        marginLeft: -radius,
-        border: `1px solid ${active ? 'rgba(6,182,212,0.15)' : 'var(--grid-line)'}`
-      }}
-      animate={
-        active
-          ? {
-              scale: [1, 1.05, 1],
-              opacity: [0.4, 0.8, 0.4]
-            }
-          : {
-              scale: 1,
-              opacity: 0.3
-            }
-      }
-      transition={
-        active
-          ? {
-              duration,
-              delay,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }
-          : { duration: 0.5 }
-      }
-    >
-      {active && (
-        <motion.div
-          className="absolute h-1.5 w-1.5 rounded-full"
-          style={{
-            background: CYAN,
-            boxShadow: `0 0 6px 2px ${CYAN}`,
-            top: -3,
-            left: '50%',
-            marginLeft: -3
-          }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: duration * 1.5, repeat: Infinity, ease: 'linear', delay }}
-          // orbit around center
-        />
-      )}
-    </motion.div>
-  )
-}
-
-// ── Hex Grid Background ─────────────────────────────────────
-
-function HexGrid({ active }: { active: boolean }) {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
-      style={{ opacity: active ? 0.6 : 0.2 }}
-    >
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern
-            id="hex-grid"
-            width="56"
-            height="100"
-            patternUnits="userSpaceOnUse"
-            patternTransform="scale(0.5)"
-          >
-            <path
-              d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100"
-              fill="none"
-              stroke={active ? 'rgba(6,182,212,0.08)' : 'var(--grid-line)'}
-              strokeWidth="0.5"
-            />
-            <path
-              d="M28 0L56 16L56 50L28 66L0 50L0 16Z"
-              fill="none"
-              stroke={active ? 'rgba(6,182,212,0.08)' : 'var(--grid-line)'}
-              strokeWidth="0.5"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#hex-grid)" />
-      </svg>
-    </div>
-  )
-}
-
-// ── Component ────────────────────────────────────────────────
 
 export function GameModePage() {
   const { t } = useTranslation('gameMode')
@@ -537,141 +436,29 @@ export function GameModePage() {
     <div className="flex h-full flex-col overflow-y-auto">
       <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
-      <div className="flex-1 space-y-5 px-6 pb-8">
-        {/* ── Hero Toggle ─────────────────────────────── */}
-        <div
-          className="relative overflow-hidden rounded-2xl"
-          style={{
-            background: active
-              ? 'linear-gradient(180deg, rgba(6,182,212,0.05) 0%, rgba(139,92,246,0.03) 50%, rgba(6,182,212,0.02) 100%)'
-              : 'var(--bg-subtle)',
-            border: active ? 'none' : '1px solid var(--border-medium)'
-          }}
-        >
-          {/* Animated gradient border when active */}
-          {active && (
-            <div
-              className="pointer-events-none absolute inset-0 rounded-2xl"
-              style={{
-                padding: '1px',
-                background: 'linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #8b5cf6, #06b6d4)',
-                backgroundSize: '300% 100%',
-                animation: 'game-mode-border-flow 3s linear infinite',
-                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude'
-              }}
-            />
-          )}
-
-          <HexGrid active={active} />
-
-          {/* Radial glow behind the button */}
-          {active && (
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{
-                width: 300,
-                height: 300,
-                background:
-                  'radial-gradient(circle, rgba(6,182,212,0.12) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)'
-              }}
-            />
-          )}
-
-          <div className="relative flex flex-col items-center gap-5 py-10">
-            {/* Orbit rings */}
-            <div className="relative flex h-28 w-28 items-center justify-center">
-              <OrbitRing radius={56} duration={3} delay={0} active={active} />
-              <OrbitRing radius={72} duration={4} delay={0.5} active={active} />
-              <OrbitRing radius={88} duration={5} delay={1} active={active} />
-
-              {/* Toggle button */}
-              <motion.button
-                onClick={active ? handleDeactivate : handleActivate}
-                disabled={isBusy}
-                className="relative z-10 flex h-24 w-24 items-center justify-center rounded-full transition-all disabled:opacity-50"
-                style={{
-                  background: active
-                    ? `linear-gradient(135deg, ${CYAN}, ${PURPLE})`
-                    : 'var(--bg-subtle-2)',
-                  border: `2px solid ${active ? 'transparent' : 'var(--border-strong)'}`,
-                  boxShadow: active
-                    ? `0 0 30px 4px rgba(6,182,212,0.3), 0 0 80px 8px rgba(139,92,246,0.15), inset 0 0 20px rgba(255,255,255,0.1)`
-                    : '0 0 0 0 transparent',
-                  animation: active ? 'game-mode-pulse 2.5s ease-in-out infinite' : undefined
-                }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {isBusy ? (
-                  <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-white/30 border-t-white" />
-                ) : (
-                  <Gamepad2
-                    className="h-9 w-9"
-                    style={{ color: active ? '#fff' : 'var(--text-dim)' }}
-                    strokeWidth={1.8}
-                  />
-                )}
-              </motion.button>
-            </div>
-
-            {/* Status label */}
-            <div className="text-center">
-              <motion.div
-                className="text-xs font-bold tracking-[0.25em]"
-                style={{ color: active ? CYAN : 'var(--text-dim)' }}
-                animate={
-                  active
-                    ? {
-                        textShadow: [
-                          `0 0 8px rgba(6,182,212,0.4)`,
-                          `0 0 16px rgba(6,182,212,0.6)`,
-                          `0 0 8px rgba(6,182,212,0.4)`
-                        ]
-                      }
-                    : { textShadow: '0 0 0 transparent' }
-                }
-                transition={active ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
-              >
-                {active ? t('activeLabel') : t('inactiveLabel')}
-              </motion.div>
-
-              {/* Timer */}
-              {active && activatedAt && (
-                <motion.div
-                  className="mt-1.5 font-mono text-2xl font-bold tabular-nums"
-                  style={{ color: CYAN, textShadow: '0 0 20px rgba(6,182,212,0.3)' }}
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  {formatElapsed(elapsed)}
-                </motion.div>
-              )}
-            </div>
-
-            {/* Action button */}
-            {!isBusy && (
-              <motion.button
-                onClick={active ? handleDeactivate : handleActivate}
-                className="relative overflow-hidden rounded-lg px-6 py-2.5 text-xs font-bold tracking-widest transition-colors"
-                style={{
-                  background: active ? 'rgba(239,68,68,0.1)' : 'rgba(6,182,212,0.1)',
-                  color: active ? '#ef4444' : CYAN,
-                  border: `1px solid ${active ? 'rgba(239,68,68,0.2)' : 'rgba(6,182,212,0.2)'}`
-                }}
-                whileHover={{
-                  boxShadow: active
-                    ? '0 0 20px rgba(239,68,68,0.15)'
-                    : '0 0 20px rgba(6,182,212,0.15)'
-                }}
-                whileTap={{ scale: 0.97 }}
-              >
-                {active ? t('deactivateButton') : t('activateButton')}
-              </motion.button>
-            )}
+      <div className="flex-1 space-y-5 pb-8">
+        <section className="pulse-game-hero" aria-busy={isBusy}>
+          <div className="pulse-game-symbol">
+            <Gamepad2 size={42} strokeWidth={1.4} />
           </div>
-        </div>
+          <div className="pulse-game-copy">
+            <span className="pulse-kicker">{active ? t('activeLabel') : t('inactiveLabel')}</span>
+            <h2>{t('pageTitle')}</h2>
+            <p>{t('pageDescription')}</p>
+            <span className="pulse-game-count">{t('enabledCount', { count: enabledCount })}</span>
+          </div>
+          <div className="pulse-game-activation">
+            {active && activatedAt && <strong>{formatElapsed(elapsed)}</strong>}
+            <button
+              onClick={active ? handleDeactivate : handleActivate}
+              disabled={isBusy}
+              className="pulse-button pulse-primary"
+            >
+              {isBusy ? <Loader2 size={17} className="animate-spin" /> : <Power size={17} />}
+              {active ? t('deactivateButton') : t('activateButton')}
+            </button>
+          </div>
+        </section>
 
         {/* ── Live Stats Bar ─────────────────────────── */}
         <AnimatePresence>
@@ -699,7 +486,7 @@ export function GameModePage() {
                   icon: Timer,
                   label: t('statSessionTimer'),
                   value: formatElapsed(elapsed),
-                  color: '#22c55e'
+                  color: '#a6d2b8'
                 }
               ].map((stat) => (
                 <div
@@ -792,7 +579,7 @@ export function GameModePage() {
               {lastResult.failed > 0 ? (
                 <AlertTriangle className="h-4 w-4 shrink-0" style={{ color: 'var(--accent)' }} />
               ) : (
-                <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: '#22c55e' }} />
+                <CheckCircle2 className="h-4 w-4 shrink-0" style={{ color: '#a6d2b8' }} />
               )}
               <span
                 className="text-[13px]"
@@ -813,7 +600,7 @@ export function GameModePage() {
           <div
             className="flex items-center gap-2.5 rounded-lg px-4 py-2.5 text-[12px]"
             style={{
-              background: 'rgba(6,182,212,0.06)',
+              background: 'rgba(166,210,184,0.06)',
               border: `1px solid ${CYAN_BORDER}`,
               color: CYAN
             }}
@@ -830,7 +617,7 @@ export function GameModePage() {
             style={{
               background: 'rgba(245,158,11,0.08)',
               border: '1px solid rgba(245,158,11,0.2)',
-              color: '#f59e0b'
+              color: '#f0b65b'
             }}
           >
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -848,7 +635,7 @@ export function GameModePage() {
                 className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
                 style={{
                   background: 'rgba(245,158,11,0.15)',
-                  color: '#f59e0b',
+                  color: '#f0b65b',
                   border: '1px solid rgba(245,158,11,0.3)'
                 }}
               >
@@ -867,7 +654,7 @@ export function GameModePage() {
                 className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-colors disabled:opacity-40"
                 style={{
                   background: 'transparent',
-                  color: '#f59e0b',
+                  color: '#f0b65b',
                   border: '1px solid rgba(245,158,11,0.3)'
                 }}
               >
@@ -888,7 +675,7 @@ export function GameModePage() {
               style={{
                 background: 'rgba(34,197,94,0.08)',
                 border: '1px solid rgba(34,197,94,0.15)',
-                color: '#22c55e'
+                color: '#a6d2b8'
               }}
             >
               <Radar className="h-3.5 w-3.5 shrink-0" />
@@ -916,7 +703,7 @@ export function GameModePage() {
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
               style={{ background: 'rgba(34,197,94,0.12)' }}
             >
-              <Radar className="h-[18px] w-[18px]" style={{ color: '#22c55e' }} strokeWidth={1.8} />
+              <Radar className="h-[18px] w-[18px]" style={{ color: '#a6d2b8' }} strokeWidth={1.8} />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -929,7 +716,7 @@ export function GameModePage() {
             <button
               onClick={() => store.getState().setAutoDetect(!config.autoDetect)}
               className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
-              style={{ background: config.autoDetect ? '#22c55e' : 'var(--bg-active)' }}
+              style={{ background: config.autoDetect ? '#a6d2b8' : 'var(--bg-active)' }}
             >
               <motion.div
                 className="absolute top-0.5 h-5 w-5 rounded-full"
@@ -967,7 +754,7 @@ export function GameModePage() {
                   <button
                     onClick={() => store.getState().setAutoDeactivate(!config.autoDeactivate)}
                     className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
-                    style={{ background: config.autoDeactivate ? '#22c55e' : 'var(--bg-active)' }}
+                    style={{ background: config.autoDeactivate ? '#a6d2b8' : 'var(--bg-active)' }}
                   >
                     <motion.div
                       className="absolute top-0.5 h-5 w-5 rounded-full"
@@ -1003,7 +790,7 @@ export function GameModePage() {
                       onClick={handleAddGameProcess}
                       disabled={!gameInput.trim()}
                       className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors disabled:opacity-40"
-                      style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}
+                      style={{ background: 'rgba(34,197,94,0.12)', color: '#a6d2b8' }}
                     >
                       <Plus className="h-3 w-3" />
                       {t('customGameAdd')}

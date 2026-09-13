@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { FolderClock } from 'lucide-react'
+import { StorageTrendChart } from '@/components/perf/StorageTrendChart'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -89,7 +90,7 @@ export function StorageHistoryPage() {
   const capture = data?.capture
   const capturedScope = capture && data?.scopes.find((s) => s.id === capture.scopeId)
   return (
-    <div className="feature-page feature-layout space-y-5">
+    <div className="feature-page feature-layout pulse-storage-history-page space-y-5">
       <PageHeader title={t('storage.title')} description={t('storage.description')} />
       <p className="feature-note">{t('storage.privacy')}</p>
       <div className="flex flex-wrap gap-3 items-center">
@@ -203,6 +204,7 @@ export function StorageHistoryPage() {
               />
             </details>
           </div>
+          <StorageTrendChart snapshots={data?.snapshots ?? []} />
           <div className="feature-card space-y-2">
             <h2 className="font-semibold">{t('storage.projection')}</h2>
             {data?.projection ? (

@@ -28,7 +28,7 @@ export function ScheduleOptions({
   const patch = (value: Partial<ScheduleConditions>) => onChange({ ...conditions, ...value })
   const input = 'feature-field mt-1 w-full'
   return (
-    <details className="feature-page feature-layout mb-5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4">
+    <details className="pulse-schedule-options feature-page feature-layout mb-5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4">
       <summary className="cursor-pointer text-[13px] font-semibold">{t('advanced.title')}</summary>
       <fieldset className="mt-4 space-y-4 text-[13px]">
         <legend className="sr-only">{t('advanced.title')}</legend>

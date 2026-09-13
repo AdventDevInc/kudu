@@ -5,7 +5,7 @@ import {
   type ScheduleConditions,
   type ScheduleRuntime
 } from '@shared/schedule-policy'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CalendarClock,
@@ -316,6 +316,14 @@ export function SchedulesPage() {
     )
   }
 
+  const { t: tx } = useTranslation('experience')
+  const upcoming = schedules
+    .flatMap((entry) => {
+      const date = getNextRunTime(entry)
+      return date ? [{ entry, date }] : []
+    })
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
+    .slice(0, 3)
   const [dialogInitial, setDialogInitial] = useState<Partial<ScheduleEntry>>(makeBlankEntry())
 
   return (
@@ -326,7 +334,7 @@ export function SchedulesPage() {
         action={
           <button
             onClick={handleNew}
-            className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors"
+            className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors"
             style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
           >
             <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -335,6 +343,40 @@ export function SchedulesPage() {
         }
       />
 
+      {upcoming.length > 0 && (
+        <section className="pulse-upcoming" aria-label={tx('schedules.upcoming')}>
+          <div className="pulse-section-heading">
+            <h2>{tx('schedules.upcoming')}</h2>
+            <span>
+              {tx('schedules.enabled', {
+                count: schedules.filter((entry) => entry.enabled).length
+              })}
+            </span>
+          </div>
+          <p className="mb-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+            {tx('schedules.conditions')}
+          </p>
+          <div className="pulse-upcoming-list">
+            {upcoming.map(({ entry, date }) => (
+              <article key={entry.id}>
+                <div className="pulse-calendar-date">
+                  <span>{date.toLocaleDateString(undefined, { month: 'short' })}</span>
+                  <strong>{date.getDate()}</strong>
+                </div>
+                <div>
+                  <h3>{entry.name}</h3>
+                  <p>
+                    {date.toLocaleDateString(undefined, { weekday: 'long' })}
+                    {' \u00b7 '}
+                    {date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+                <CalendarClock size={20} aria-hidden="true" />
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       {schedules.length === 0 ? (
         <EmptyState
           icon={CalendarClock}
@@ -343,7 +385,7 @@ export function SchedulesPage() {
           action={
             <button
               onClick={handleNew}
-              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"
+              className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"
               style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
             >
               <Plus className="h-4 w-4" strokeWidth={2.2} />
@@ -452,7 +494,7 @@ function ScheduleCard({
 
   return (
     <div
-      className={cn('group rounded-2xl p-5 transition-all', !entry.enabled && 'opacity-50')}
+      className={cn('group rounded-2xl p-5 transition-all')}
       style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
     >
       {/* Top row */}
@@ -476,7 +518,7 @@ function ScheduleCard({
 
         <div className="flex items-center gap-2">
           {/* Actions — visible on hover */}
-          <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="flex items-center gap-1 ">
             <IconBtn icon={Pencil} title={t('card.editAction')} onClick={onEdit} />
             <IconBtn icon={Copy} title={t('card.duplicateAction')} onClick={onDuplicate} />
             <IconBtn
@@ -600,6 +642,47 @@ function ScheduleCard({
 
 // ─── Preset Picker Dialog ─────────────────────────────────
 
+function useScheduleDialogFocus(onClose: () => void) {
+  const ref = useRef<HTMLDivElement>(null)
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null
+    const dialog = ref.current
+    const focusable = () =>
+      Array.from(
+        dialog?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), input:not(:disabled), select:not(:disabled), [tabindex="0"]'
+        ) ?? []
+      ).filter((el) => el.getClientRects().length > 0)
+    focusable()[0]?.focus()
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeRef.current()
+        return
+      }
+      if (event.key !== 'Tab') return
+      const nodes = focusable(),
+        first = nodes[0],
+        last = nodes.at(-1)
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last?.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first?.focus()
+      }
+    }
+    document.addEventListener('keydown', keydown)
+    return () => {
+      document.removeEventListener('keydown', keydown)
+      previous?.focus()
+    }
+  }, [])
+  return ref
+}
+
 function PresetPicker({
   presets,
   onSelect,
@@ -610,6 +693,7 @@ function PresetPicker({
   onClose: () => void
 }) {
   const { t } = useTranslation('schedules')
+  const dialogRef = useScheduleDialogFocus(onClose)
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       <div
@@ -618,6 +702,10 @@ function PresetPicker({
         onClick={onClose}
       />
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('presets.dialogTitle')}
         className="relative w-full max-w-md animate-scale-in rounded-2xl p-6"
         style={{
           background: 'var(--card-bg)',
@@ -627,7 +715,11 @@ function PresetPicker({
       >
         <div className="mb-5 flex items-center justify-between">
           <h3 className="text-[16px] font-semibold text-white">{t('presets.dialogTitle')}</h3>
-          <button onClick={onClose} className="text-zinc-600 transition-colors hover:text-zinc-400">
+          <button
+            onClick={onClose}
+            aria-label={t('common:close')}
+            className="text-zinc-600 transition-colors hover:text-zinc-400"
+          >
             <X className="h-5 w-5" strokeWidth={1.8} />
           </button>
         </div>
@@ -691,6 +783,7 @@ function ScheduleDialog({
   onClose: () => void
 }) {
   const { t } = useTranslation('schedules')
+  const dialogRef = useScheduleDialogFocus(onClose)
   const [name, setName] = useState(initial.name ?? '')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly'>(
     initial.frequency ?? 'weekly'
@@ -760,6 +853,10 @@ function ScheduleDialog({
         onClick={onClose}
       />
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={isEditing ? t('dialog.editTitle') : t('dialog.newTitle')}
         className="relative max-h-[85vh] w-full max-w-lg animate-scale-in overflow-y-auto rounded-2xl p-6"
         style={{
           background: 'var(--card-bg)',
@@ -771,7 +868,11 @@ function ScheduleDialog({
           <h3 className="text-[16px] font-semibold text-white">
             {isEditing ? t('dialog.editTitle') : t('dialog.newTitle')}
           </h3>
-          <button onClick={onClose} className="text-zinc-600 transition-colors hover:text-zinc-400">
+          <button
+            onClick={onClose}
+            aria-label={t('common:close')}
+            className="text-zinc-600 transition-colors hover:text-zinc-400"
+          >
             <X className="h-5 w-5" strokeWidth={1.8} />
           </button>
         </div>

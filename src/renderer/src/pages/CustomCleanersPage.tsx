@@ -124,7 +124,7 @@ export function CustomCleanersPage() {
     }
   }
   return (
-    <div className="feature-page feature-layout space-y-6">
+    <div className="feature-page feature-layout pulse-builder-page">
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -144,9 +144,13 @@ export function CustomCleanersPage() {
           {notice}
         </p>
       )}
-      <section className={panel}>
+      <section className={panel + ' pulse-cleaner-library'}>
         <div className="flex flex-wrap gap-2">
-          <button className={button} disabled={busy} onClick={() => open(initial(platform))}>
+          <button
+            className={button + ' feature-primary'}
+            disabled={busy}
+            onClick={() => open(initial(platform))}
+          >
             <Plus size={14} aria-hidden="true" />
             {t('new')}
           </button>
@@ -217,7 +221,7 @@ export function CustomCleanersPage() {
           ))}
         </div>
       </section>
-      <section ref={definitionRef} className={panel}>
+      <section ref={definitionRef} className={panel + ' pulse-cleaner-definition'}>
         <h2 className="flex items-center gap-2 font-semibold">
           <FolderCog size={18} className="text-[var(--accent)]" aria-hidden="true" />
           {t('definition')}

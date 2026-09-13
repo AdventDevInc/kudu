@@ -3,30 +3,32 @@ import { useTranslation } from 'react-i18next'
 import {
   HardDrive,
   Sparkles,
-  FileStack,
   Search,
   Database,
-  Trash2,
   Zap,
   Shield,
   CheckCircle2,
-  Wifi,
-  Cloud,
   Loader2,
   Cpu,
-  Check,
   Download,
   Server,
   Gamepad2,
-  BarChart3,
   MemoryStick,
   AlertTriangle
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
-import { StatCard } from '@/components/shared/StatCard'
+import { MetricSparkline } from '@/components/perf/MetricSparkline'
+import { QuickTelemetryChart } from '@/components/perf/QuickTelemetryChart'
+import { useQuickTelemetry } from '@/hooks/useQuickTelemetry'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CalendarClock,
+  Activity,
+  History as HistoryIcon
+} from 'lucide-react'
 import { HealthScore } from '@/components/shared/HealthScore'
 import { cn, formatBytes, formatDate, formatNumber } from '@/lib/utils'
 import { cleanInBatches } from '@/lib/cleaner-batches'
@@ -39,7 +41,7 @@ import { useServiceStore } from '@/stores/service-store'
 import { useStartupStore } from '@/stores/startup-store'
 import { useGameModeStore } from '@/stores/game-mode-store'
 import { useMalwareStore } from '@/stores/malware-store'
-import type { DriveInfo, ScanResult, CleanResult, PerfQuickStats } from '@shared/types'
+import type { DriveInfo, ScanResult, CleanResult } from '@shared/types'
 import { CleanerType } from '@shared/enums'
 import { usePlatform } from '@/hooks/usePlatform'
 
@@ -102,20 +104,14 @@ const CLEANER_SCAN_FNS: {
 
 // ── Gauge colors ─────────────────────────────────────────────
 
-function gaugeColor(pct: number): string {
-  if (pct >= 85) return '#ef4444'
-  if (pct >= 60) return '#f59e0b'
-  return '#22c55e'
-}
-
 // ── Component ────────────────────────────────────────────────
 
 export function DashboardPage() {
   const { t } = useTranslation('dashboard')
-  const { features, platform } = usePlatform()
+  const { t: tx } = useTranslation('experience')
+  const { features } = usePlatform()
   const stats = useStatsStore((s) => s.stats)
   const recomputeStats = useStatsStore((s) => s.recompute)
-  const isCloudLinked = !!useSettingsStore((s) => s.settings.cloud.apiKey)
   const historyStore = useHistoryStore()
   const scanStore = useScanStore()
   const updaterHasChecked = useUpdaterStore((s) => s.hasChecked)
@@ -142,61 +138,11 @@ export function DashboardPage() {
   const [showQuickConfirm, setShowQuickConfirm] = useState(false)
   const [showFullConfirm, setShowFullConfirm] = useState(false)
   const [stepProgress, setStepProgress] = useState({ current: 0, total: 0 })
-  // Live cloud connection status — reflects the agent's actual state, not just
-  // whether an API key is saved (a key can be linked but failing, e.g. expired
-  // subscription / 402). Only "connected" counts as connected.
-  const [cloudConnected, setCloudConnected] = useState(false)
 
   // ── Lightweight system metrics (no heavy process polling) ──
-  const [perf, setPerf] = useState<PerfQuickStats | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    // Initial sample seeds the CPU diff; first result will read 0%
-    window.kudu?.perfQuickStats?.().catch(() => {})
-    const poll = async () => {
-      try {
-        const data = await window.kudu?.perfQuickStats?.()
-        if (!cancelled && data) setPerf(data)
-      } catch {
-        /* best effort */
-      }
-    }
-    // Poll every 3s — uses only os.cpus()/os.freemem(), near-zero cost
-    const iv = setInterval(poll, 3000)
-    // First real read after 1s (gives CPU diff time to accumulate)
-    const initial = setTimeout(poll, 1000)
-    return () => {
-      cancelled = true
-      clearInterval(iv)
-      clearTimeout(initial)
-    }
-  }, [])
+  const { current: perf, samples } = useQuickTelemetry()
 
   // ── Cloud connection status ────────────────────────────────
-  useEffect(() => {
-    if (!isCloudLinked) {
-      setCloudConnected(false)
-      return
-    }
-    let cancelled = false
-    const check = () => {
-      window.kudu
-        ?.cloudGetStatus?.()
-        .then((s) => {
-          if (!cancelled) setCloudConnected(s?.status === 'connected')
-        })
-        .catch(() => {
-          if (!cancelled) setCloudConnected(false)
-        })
-    }
-    check()
-    const iv = setInterval(check, 5000)
-    return () => {
-      cancelled = true
-      clearInterval(iv)
-    }
-  }, [isCloudLinked])
 
   // ── Game Mode elapsed timer ────────────────────────────────
   const [gmElapsed, setGmElapsed] = useState(0)
@@ -315,15 +261,6 @@ export function DashboardPage() {
 
     return [...historyResults, ...sessionResults]
   })()
-
-  const toolRoutes: Record<string, string> = {
-    cleaner: '/cleaner',
-    registry: '/registry',
-    drivers: '/drivers',
-    updater: '/updates',
-    services: '/services',
-    startup: '/startup'
-  }
 
   const healthScore = (() => {
     const totalTools = toolCoverage.length
@@ -706,10 +643,6 @@ export function DashboardPage() {
   const primaryDriveUsedPercent = primaryDrive?.totalSize
     ? Math.round((primaryDrive.usedSpace / primaryDrive.totalSize) * 100)
     : diskPct
-  const freeMemory = perf ? Math.max(0, perf.memTotalBytes - perf.memUsedBytes) : 0
-  const hour = new Date().getHours()
-  const greeting =
-    hour < 12 ? t('greetingMorning') : hour < 18 ? t('greetingAfternoon') : t('greetingEvening')
   const attentionCount =
     Number(updaterNeedsAttention) +
     Number(!startupHasLoaded || startupAttentionCount > 0) +
@@ -727,432 +660,441 @@ export function DashboardPage() {
             ? t('healthHeadlineGoodShape')
             : t('healthHeadlineReady')
 
+  const recentActivity = [...historyStore.entries]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 3)
   return (
-    <div className="kudu-home animate-fade-in">
-      <div className="kudu-home-grid">
-        <div className="kudu-home-main">
-          <header className="kudu-home-greeting">
-            <div>
-              <h1>{greeting}.</h1>
-              <p>
-                {unresolvedThreatCount > 0
-                  ? unresolvedThreatCount === 1
-                    ? t('greetingDeviceNeedsAttention', { count: unresolvedThreatCount })
-                    : t('greetingDeviceNeedsAttentionPlural', { count: unresolvedThreatCount })
-                  : !hasCompletedCoreChecks
-                    ? t('greetingEstablishingStatus')
-                    : attentionCount === 0
-                      ? t('greetingHealthyAllUpToDate')
-                      : attentionCount === 1
-                        ? t('greetingChecksCompleteItems', { count: attentionCount })
-                        : t('greetingChecksCompleteItemsPlural', { count: attentionCount })}
-              </p>
+    <div className="pulse-home">
+      <header className="pulse-home-heading">
+        <div>
+          <span className="pulse-eyebrow">{tx('home.eyebrow')}</span>
+          <h1>{tx('home.title')}</h1>
+          <p>{tx('home.description')}</p>
+        </div>
+        <button className="pulse-button" onClick={() => navigate('/performance')}>
+          <Activity size={16} />
+          {tx('home.telemetryAction')}
+          <ArrowUpRight size={15} />
+        </button>
+      </header>
+      <div className="pulse-home-metrics">
+        <section className="pulse-card pulse-cpu">
+          <div className="pulse-card-heading">
+            <h2>{tx('home.cpu')}</h2>
+            <Cpu size={19} />
+          </div>
+          <div className="pulse-big-value">
+            {perf ? Math.round(cpuPct) : '\u2014'}
+            <small>{perf ? '%' : ''}</small>
+          </div>
+          <MetricSparkline samples={samples} metric="cpu" label={tx('home.cpu')} />
+          <p>
+            {perf ? tx(cpuPct >= 70 ? 'home.loadHigh' : 'home.loadLow') : tx('home.unavailable')}
+          </p>
+        </section>
+        <section className="pulse-card pulse-memory">
+          <div className="pulse-card-heading">
+            <h2>{tx('home.memory')}</h2>
+            <MemoryStick size={20} />
+          </div>
+          <div className="pulse-big-value">
+            {perf ? formatBytes(perf.memUsedBytes) : '\u2014'}
+            <small>{perf ? ' / ' + formatBytes(perf.memTotalBytes) : ''}</small>
+          </div>
+          <MetricSparkline samples={samples} metric="memory" label={tx('home.memory')} />
+          <p>
+            {tx(
+              !perf ? 'home.memoryUnknown' : ramPct >= 80 ? 'home.memoryBusy' : 'home.memoryRoom'
+            )}
+          </p>
+          <span className="pulse-live-label">
+            {perf ? tx('home.used', { percent: Math.round(ramPct) }) : tx('home.unavailable')}
+          </span>
+        </section>
+        <section className="pulse-card pulse-home-storage">
+          <div className="pulse-card-heading">
+            <h2>{tx('home.storage')}</h2>
+            <HardDrive size={18} />
+          </div>
+          <div className="pulse-big-value">
+            {primaryDrive ? formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace) : '\u2014'}
+          </div>
+          <div
+            className="pulse-storage-meter"
+            role="meter"
+            aria-label={t('glanceStorage')}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={primaryDrive ? primaryDriveUsedPercent : undefined}
+          >
+            <i style={{ width: primaryDrive ? primaryDriveUsedPercent + '%' : '0%' }} />
+          </div>
+          <p>
+            {primaryDrive
+              ? tx('home.storageDetail', {
+                  size: formatBytes(primaryDrive.totalSize),
+                  drive: primaryDrive.label || primaryDrive.letter
+                })
+              : t(driveStatus === 'loading' ? 'glanceChecking' : 'glanceStorageUnavailable')}
+          </p>
+          <button className="pulse-text-button" onClick={() => navigate('/disk')}>
+            {tx('home.storageAction')}
+            <ArrowRight size={14} />
+          </button>
+        </section>
+        <section className="pulse-card pulse-health-summary">
+          <div className="pulse-card-heading">
+            <h2>{tx('home.health')}</h2>
+            <Shield size={18} />
+          </div>
+          {hasCompletedCoreChecks ? (
+            <HealthScore score={healthScore} size="compact" />
+          ) : (
+            <div className="pulse-baseline">
+              <Shield size={31} />
+              <strong>{'\u2014'}</strong>
             </div>
-            <span className="kudu-device-avatar" aria-label="This device">
-              PC
-            </span>
-          </header>
-
-          <section className="kudu-briefing">
-            <div className="kudu-briefing-copy">
-              <span>{t('briefingEyebrow')}</span>
-              <h2>{healthHeadline}</h2>
-              <p>
-                {unresolvedThreatCount > 0
-                  ? `${unresolvedThreatCount === 1 ? t('briefingDescThreats', { count: unresolvedThreatCount }) : t('briefingDescThreatsPlural', { count: unresolvedThreatCount })}${lastMalwareScan ? t('briefingDescThreatsLastScan', { date: formatDate(lastMalwareScan.completedAt) }) : ''}`
-                  : lastMalwareScan
-                    ? t('briefingDescClean', {
-                        date: formatDate(lastMalwareScan.completedAt),
-                        size: formatBytes(stats.totalSpaceSaved)
-                      })
-                    : t('briefingDescBaseline')}
-              </p>
+          )}
+          <h3>{healthHeadline}</h3>
+          <p>{tx('home.healthDetail')}</p>
+        </section>
+      </div>
+      <div className="pulse-home-columns">
+        <div className="pulse-home-main">
+          <section className="pulse-card pulse-home-telemetry">
+            <div className="pulse-card-heading">
+              <div>
+                <h2>{tx('home.telemetry')}</h2>
+                <p>{tx('home.telemetryDescription')}</p>
+              </div>
+              <Activity size={18} />
             </div>
-            <div className="kudu-briefing-score">
-              <HealthScore score={healthScore} size="md" />
+            <div className="pulse-chart-legend">
+              <span>
+                <i />
+                {tx('home.cpu')}
+                <b>{perf ? Math.round(cpuPct) + '%' : '\u2014'}</b>
+              </span>
+              <span>
+                <i />
+                {t('glanceMemory')}
+                <b>{perf ? Math.round(ramPct) + '%' : '\u2014'}</b>
+              </span>
             </div>
+            <QuickTelemetryChart samples={samples} />
+            <button className="pulse-text-button" onClick={() => navigate('/performance')}>
+              {tx('home.telemetryAction')}
+              <ArrowRight size={15} />
+            </button>
           </section>
-
-          <section className="kudu-home-section">
-            <div className="kudu-section-title">
-              <h2>{t('recommendedHeading')}</h2>
+          <section className="pulse-card pulse-recent">
+            <div className="pulse-card-heading">
+              <h2>{tx('home.activity')}</h2>
+              <button className="pulse-text-button" onClick={() => navigate('/history')}>
+                {tx('home.allActivity')}
+                <ArrowUpRight size={15} />
+              </button>
+            </div>
+            {recentActivity.length ? (
+              recentActivity.map((entry) => (
+                <button
+                  key={entry.id}
+                  className="pulse-activity-row"
+                  onClick={() => navigate('/history')}
+                >
+                  <span className="pulse-icon-tile">
+                    <HistoryIcon size={17} />
+                  </span>
+                  <span>
+                    <b>
+                      {t(
+                        'history:typeLabels.' +
+                          (entry.type === 'software-update'
+                            ? 'softwareUpdate'
+                            : entry.type === 'cve-scan'
+                              ? 'cveScan'
+                              : entry.type),
+                        { defaultValue: entry.type }
+                      )}
+                    </b>
+                    <small>{formatDate(entry.timestamp)}</small>
+                  </span>
+                  <span>
+                    <b>{tx('home.recovered', { size: formatBytes(entry.totalSpaceSaved) })}</b>
+                    <small>{tx('home.files', { count: entry.totalItemsCleaned })}</small>
+                    <ArrowUpRight size={14} />
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="pulse-history-empty">
+                <HistoryIcon size={26} />
+                <h3>{tx('home.noActivity')}</h3>
+                <p>{tx('home.noActivityDetail')}</p>
+                <button className="pulse-text-button" onClick={() => navigate('/cleaner')}>
+                  {tx('home.cleanAction')}
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            )}
+          </section>
+          <section className="pulse-next-actions" aria-labelledby="pulse-next-title">
+            <div className="pulse-section-heading">
+              <h2 id="pulse-next-title">{tx('home.next')}</h2>
               <span>{t('safeActionsOnly')}</span>
             </div>
-            <div className="kudu-recommendations">
-              <button
-                type="button"
-                onClick={() => setShowQuickConfirm(true)}
-                disabled={isRunning}
-                className="kudu-recommendation is-primary"
-              >
-                <span className="kudu-recommendation-icon">
-                  <Sparkles strokeWidth={1.9} />
+            <div className="pulse-action-grid">
+              <article className="pulse-action-card">
+                <span className="pulse-icon-tile is-mint">
+                  <Shield size={21} />
                 </span>
-                <span>
-                  <b>{t('quickCleanTitle')}</b>
-                  <small>{t('quickCleanSubtextDesc')}</small>
+                <h3>{tx('home.protectTitle')}</h3>
+                <p>{tx('home.protectDescription')}</p>
+                <button className="pulse-button" onClick={() => navigate('/malware')}>
+                  {tx('home.protectAction')}
+                  <ArrowRight size={16} />
+                </button>
+              </article>
+              <article className="pulse-action-card">
+                <span className="pulse-icon-tile">
+                  <CalendarClock size={21} />
                 </span>
-                <i aria-hidden="true">→</i>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowFullConfirm(true)}
-                disabled={isRunning}
-                className="kudu-recommendation"
-              >
-                <span className="kudu-recommendation-icon">
-                  <Shield strokeWidth={1.9} />
-                </span>
-                <span>
-                  <b>{t('smartScanTitle')}</b>
-                  <small>{t('smartScanDesc')}</small>
-                </span>
-                <i aria-hidden="true">→</i>
-              </button>
+                <h3>{tx('home.automateTitle')}</h3>
+                <p>{tx('home.automateDescription')}</p>
+                <button className="pulse-button" onClick={() => navigate('/schedules')}>
+                  {tx('home.automateAction')}
+                  <ArrowRight size={16} />
+                </button>
+              </article>
             </div>
           </section>
-
-          {isRunning && (
-            <div className="kudu-operation" role="status">
-              <div>
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin" strokeWidth={2} />
-                <span>{phaseLabel || t('progressWorking')}</span>
-                {stepProgress.total > 0 && (
-                  <b>
-                    {stepProgress.current}/{stepProgress.total}
-                  </b>
-                )}
-              </div>
-              {stepProgress.total > 0 && (
-                <div className="kudu-operation-track">
-                  <i style={{ width: `${(stepProgress.current / stepProgress.total) * 100}%` }} />
-                </div>
-              )}
-            </div>
-          )}
-
-          {phase === 'done' && result && (
-            <div
-              className={cn(
-                'kudu-operation',
-                result.threatsFound > result.threatsQuarantined ? 'is-warning' : 'is-complete'
-              )}
-              role="status"
-            >
-              {result.threatsFound > result.threatsQuarantined ? (
-                <AlertTriangle className="h-5 w-5 shrink-0" strokeWidth={1.8} />
-              ) : (
-                <CheckCircle2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />
-              )}
-              <div className="min-w-0">
-                <b>
-                  {result.threatsFound > result.threatsQuarantined
-                    ? t('scanCompleteThreats')
-                    : t('resultCleanupComplete')}
-                </b>
-                <p>
-                  {result.spaceRecovered > 0 && (
-                    <span>
-                      {t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}
-                    </span>
-                  )}
-                  {result.filesCleaned > 0 && (
-                    <span>
-                      {t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}
-                    </span>
-                  )}
-                  {result.threatsQuarantined > 0 && (
-                    <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })}>
-                      {t('threatsQuarantinedCount', { count: result.threatsQuarantined })}
-                    </button>
-                  )}
-                  {result.threatsFound > result.threatsQuarantined && (
-                    <button onClick={() => navigate('/malware')}>
-                      {result.threatsFound - result.threatsQuarantined === 1
-                        ? t('threatsActiveCount', {
-                            count: result.threatsFound - result.threatsQuarantined
-                          })
-                        : t('threatsActiveCountPlural', {
-                            count: result.threatsFound - result.threatsQuarantined
-                          })}
-                    </button>
-                  )}
-                  {result.privacyIssues > 0 && (
-                    <button onClick={() => navigate('/privacy')}>
-                      {t('privacyImprovementsCount', { count: result.privacyIssues })}
-                    </button>
-                  )}
-                  {result.startupHighImpact > 0 && (
-                    <button onClick={() => navigate('/startup')}>
-                      {t('startupItemsCount', { count: result.startupHighImpact })}
-                    </button>
-                  )}
-                  {result.updatesAvailable > 0 && (
-                    <button onClick={() => navigate('/updates')}>
-                      {t('updatesCount', { count: result.updatesAvailable })}
-                    </button>
-                  )}
-                  {result.spaceRecovered === 0 &&
-                    result.filesCleaned === 0 &&
-                    result.registryFixed === 0 &&
-                    result.driversRemoved === 0 &&
-                    result.threatsFound === 0 &&
-                    result.privacyIssues === 0 &&
-                    result.startupHighImpact === 0 &&
-                    result.updatesAvailable === 0 && <span>{t('resultSystemAlreadyClean')}</span>}
-                </p>
-              </div>
-            </div>
-          )}
-
-          <section className="kudu-home-section">
-            <div className="kudu-section-title">
-              <h2>{t('systemGlanceHeading')}</h2>
-              <span>{t('updatedJustNow')}</span>
-            </div>
-            <div className="kudu-glance-grid">
-              <GlanceCard
-                icon={Cpu}
-                label={t('glanceProcessor')}
-                value={
-                  cpuPct < 70 ? t('glanceProcessorComfortable') : t('glanceProcessorWorkingHard')
-                }
-                percent={Math.round(cpuPct)}
-                tone="gold"
-              />
-              <GlanceCard
-                icon={MemoryStick}
-                label={t('glanceMemory')}
-                value={
-                  perf
-                    ? t('glanceMemoryFree', { size: formatBytes(freeMemory) })
-                    : t('glanceChecking')
-                }
-                percent={Math.round(ramPct)}
-                tone="green"
-              />
-              <GlanceCard
-                icon={HardDrive}
-                label={t('glanceStorage')}
-                value={
-                  primaryDrive
-                    ? t('glanceMemoryFree', {
-                        size: formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace)
-                      })
-                    : driveStatus === 'loading'
-                      ? t('glanceChecking')
-                      : t('glanceStorageUnavailable')
-                }
-                percent={primaryDriveUsedPercent}
-                tone="clay"
-              />
-            </div>
-          </section>
-
-          <section className="kudu-activity-strip" aria-label="Lifetime Kudu activity">
-            <div>
-              <span>{t('activitySpaceReclaimed')}</span>
-              <b>{formatBytes(stats.totalSpaceSaved)}</b>
-            </div>
-            <div>
-              <span>{t('activityFilesCleaned')}</span>
-              <b>{formatNumber(stats.totalFilesCleaned)}</b>
-            </div>
-            <div>
-              <span>{t('activityScansCompleted')}</span>
-              <b>{formatNumber(stats.totalScans)}</b>
-            </div>
-          </section>
-
-          {!isCloudLinked && (
-            <section className="kudu-cloud-upsell" aria-labelledby="kudu-cloud-upsell-title">
-              <span className="kudu-cloud-upsell-icon" aria-hidden="true">
-                <Cloud strokeWidth={1.8} />
-              </span>
-              <div className="kudu-cloud-upsell-copy">
-                <span>{t('cloudUpsellEyebrow')}</span>
-                <h2 id="kudu-cloud-upsell-title">{t('cloudUpsellTitle')}</h2>
-                <p>{t('cloudUpsellDescription')}</p>
-              </div>
-              <button type="button" onClick={() => navigate('/cloud')}>
-                {t('cloudUpsellAction')} <span aria-hidden="true">→</span>
-              </button>
-            </section>
-          )}
         </div>
-
-        <aside className="kudu-attention-rail" aria-label="Needs your attention">
-          <div className="kudu-attention-heading">
-            <div>
-              <span>{t('deviceCareEyebrow')}</span>
-              <h2>{t('deviceCareHeading')}</h2>
+        <aside className="pulse-home-rail">
+          {' '}
+          <article className="pulse-action-card is-primary pulse-cleanup-hero">
+            <span className="pulse-icon-tile">
+              <Sparkles size={21} />
+            </span>
+            <h3>{tx('home.cleanTitle')}</h3>
+            <p>{tx('home.cleanDescription')}</p>
+            <button className="pulse-button pulse-primary" onClick={() => navigate('/cleaner')}>
+              {tx('home.cleanAction')}
+              <ArrowRight size={16} />
+            </button>
+          </article>
+          <section className="pulse-card pulse-attention">
+            <div className="pulse-card-heading">
+              <h2>{tx('home.attention')}</h2>
+              <span className="pulse-count">{attentionCount}</span>
             </div>
-            <b>{attentionCount}</b>
-          </div>
-
-          <div className="kudu-attention-list">
             {updaterRemindersEnabled && (
-              <button type="button" onClick={() => navigate('/updates')}>
-                <span className="kudu-attention-icon">
-                  <Download />
-                </span>
+              <button onClick={() => navigate('/updates')}>
+                <Download size={17} />
                 <span>
                   <b>
                     {!updaterHasChecked
                       ? t('railCheckAppUpdates')
-                      : pendingUpdateCount > 0
-                        ? pendingUpdateCount === 1
-                          ? t('railPendingAppUpdates', { count: pendingUpdateCount })
-                          : t('railPendingAppUpdatesPlural', { count: pendingUpdateCount })
+                      : pendingUpdateCount
+                        ? t(
+                            pendingUpdateCount === 1
+                              ? 'railPendingAppUpdates'
+                              : 'railPendingAppUpdatesPlural',
+                            { count: pendingUpdateCount }
+                          )
                         : t('railAppsUpToDate')}
                   </b>
                   <small>
-                    {!updaterHasChecked
-                      ? t('railAppUpdatesSubtextCheck')
-                      : pendingUpdateCount > 0
-                        ? t('railAppUpdatesSubtextReady')
-                        : t('railAppUpdatesSubtextCompleted')}
+                    {tx(!updaterHasChecked ? 'home.check' : 'home.review')}
+                    <ArrowRight size={12} />
                   </small>
                 </span>
-                <em>
-                  {!updaterHasChecked
-                    ? t('railAction5Min')
-                    : pendingUpdateCount > 0
-                      ? t('railActionReview')
-                      : t('railActionDone')}
-                </em>
               </button>
             )}
-            <button type="button" onClick={() => navigate('/startup')}>
-              <span className="kudu-attention-icon">
-                <Zap />
-              </span>
+            <button onClick={() => navigate('/startup')}>
+              <Zap size={17} />
               <span>
                 <b>
                   {!startupHasLoaded
                     ? t('railCheckStartupApps')
-                    : startupAttentionCount > 0
-                      ? startupAttentionCount === 1
-                        ? t('railStartupAppsAttention', { count: startupAttentionCount })
-                        : t('railStartupAppsAttentionPlural', { count: startupAttentionCount })
+                    : startupAttentionCount
+                      ? t(
+                          startupAttentionCount === 1
+                            ? 'railStartupAppsAttention'
+                            : 'railStartupAppsAttentionPlural',
+                          { count: startupAttentionCount }
+                        )
                       : t('railStartupLooksGood')}
                 </b>
                 <small>
-                  {!startupHasLoaded
-                    ? t('railStartupSubtextReview')
-                    : startupAttentionCount > 0
-                      ? t('railStartupSubtextHighImpact')
-                      : t('railStartupSubtextNone')}
+                  {tx('home.review')}
+                  <ArrowRight size={12} />
                 </small>
               </span>
-              <em>
-                {!startupHasLoaded
-                  ? startupLoading
-                    ? t('railActionChecking')
-                    : t('railActionCheck')
-                  : startupAttentionCount > 0
-                    ? t('railActionReview')
-                    : t('railActionDone')}
-              </em>
             </button>
-            <button type="button" onClick={() => navigate('/malware')}>
-              <span
-                className={cn(
-                  'kudu-attention-icon',
-                  hasProtectionBaseline && unresolvedThreatCount === 0 && 'is-success'
-                )}
-              >
-                {hasProtectionBaseline && unresolvedThreatCount === 0 ? <Check /> : <Shield />}
-              </span>
+            <button onClick={() => navigate('/malware')}>
+              <Shield size={17} />
               <span>
                 <b>
-                  {unresolvedThreatCount > 0
-                    ? unresolvedThreatCount === 1
-                      ? t('railThreatsAttention', { count: unresolvedThreatCount })
-                      : t('railThreatsAttentionPlural', { count: unresolvedThreatCount })
-                    : !hasProtectionBaseline
-                      ? t('railFirstMalwareScan')
-                      : t('railProtectionGood')}
+                  {unresolvedThreatCount
+                    ? tx('home.protectionThreats', { count: unresolvedThreatCount })
+                    : tx(hasProtectionBaseline ? 'home.protectionClear' : 'home.protectionUnknown')}
                 </b>
                 <small>
-                  {unresolvedThreatCount > 0
-                    ? t('railMalwareSubtextResolve')
-                    : !hasProtectionBaseline
-                      ? t('railMalwareSubtextBaseline')
-                      : t('railMalwareSubtextNone')}
+                  {lastMalwareScan
+                    ? tx('home.lastScan', { date: formatDate(lastMalwareScan.completedAt) })
+                    : tx('home.check')}
+                  <ArrowRight size={12} />
                 </small>
               </span>
-              <em>
-                {unresolvedThreatCount > 0
-                  ? t('railActionReview')
-                  : !hasProtectionBaseline
-                    ? t('railActionStart')
-                    : t('railActionDone')}
-              </em>
-            </button>
-          </div>
-
-          <section className="kudu-drive-card">
-            <div>
-              <b>
-                {primaryDrive
-                  ? `${primaryDrive.letter}: ${primaryDrive.label || t('systemDriveLabel')}`
-                  : t('systemDriveLabel')}
-              </b>
-              <span>
-                {primaryDrive
-                  ? `${formatBytes(primaryDrive.usedSpace)} / ${formatBytes(primaryDrive.totalSize)}`
-                  : driveStatus === 'loading'
-                    ? t('storageChecking')
-                    : t('storageUnavailable')}
-              </span>
-            </div>
-            <div className="kudu-drive-track">
-              <i style={{ width: `${primaryDriveUsedPercent}%` }} />
-            </div>
-            <p>
-              {!primaryDrive
-                ? driveStatus === 'loading'
-                  ? t('storageCheckingDesc')
-                  : t('storageUnavailableDesc')
-                : primaryDriveUsedPercent > 85
-                  ? t('storageCleanupRecommended')
-                  : t('storagePlentyAvailable')}
-            </p>
-            <button type="button" onClick={() => navigate('/disk')}>
-              {t('openStorageTools')}
             </button>
           </section>
-
           {features.gameMode && (
-            <button type="button" className="kudu-rail-link" onClick={() => navigate('/game-mode')}>
-              <span className="kudu-attention-icon">
-                <Gamepad2 />
-              </span>
-              <span>
-                <b>{gameModeActive ? t('gameModeActiveLabel') : t('gameModeReadyLabel')}</b>
-                <small>
-                  {gameModeActive && gameModeActivatedAt
-                    ? formatGmElapsed(gmElapsed)
-                    : t('gameModeFocusResources')}
-                </small>
-              </span>
-              <i>→</i>
-            </button>
+            <section className="pulse-card pulse-game">
+              <Gamepad2 size={26} />
+              <h3>{gameModeActive ? t('gameModeActiveLabel') : tx('home.game')}</h3>
+              <p>
+                {gameModeActive && gameModeActivatedAt
+                  ? formatGmElapsed(gmElapsed)
+                  : tx('home.gameDescription')}
+              </p>
+              <button className="pulse-button" onClick={() => navigate('/game-mode')}>
+                {tx('home.gameAction')}
+                <ArrowRight size={15} />
+              </button>
+            </section>
           )}
-
-          <button type="button" className="kudu-cloud-status" onClick={() => navigate('/cloud')}>
-            <i className={cn(cloudConnected && 'is-connected')} />
-            <span>
-              {cloudConnected
-                ? t('cloudStatusConnected')
-                : isCloudLinked
-                  ? t('cloudStatusNeedsAttention')
-                  : t('cloudStatusConnect')}
-            </span>
-          </button>
         </aside>
       </div>
+      <section className="pulse-lifetime">
+        <div>
+          <span>{tx('home.totalSaved')}</span>
+          <b>{formatBytes(stats.totalSpaceSaved)}</b>
+        </div>
+        <div>
+          <span>{tx('home.totalFiles')}</span>
+          <b>{formatNumber(stats.totalFilesCleaned)}</b>
+        </div>
+        <div>
+          <span>{tx('home.totalScans')}</span>
+          <b>{formatNumber(stats.totalScans)}</b>
+        </div>
+        <button className="pulse-text-button" onClick={() => navigate('/history')}>
+          {tx('home.allActivity')}
+          <ArrowRight size={15} />
+        </button>
+      </section>
+      <section className="pulse-quick-care">
+        <div>
+          <h3>{tx('home.quick')}</h3>
+          <p>{tx('home.quickDetail')}</p>
+        </div>
+        <button
+          className="pulse-button"
+          disabled={isRunning}
+          onClick={() => setShowQuickConfirm(true)}
+        >
+          {tx('home.quickAction')}
+          <Sparkles size={15} />
+        </button>
+        <button
+          className="pulse-button"
+          disabled={isRunning}
+          onClick={() => setShowFullConfirm(true)}
+        >
+          {tx('home.fullAction')}
+          <Shield size={15} />
+        </button>
+      </section>
+      {isRunning && (
+        <div className="kudu-operation" role="status">
+          <div>
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin" strokeWidth={2} />
+            <span>{phaseLabel || t('progressWorking')}</span>
+            {stepProgress.total > 0 && (
+              <b>
+                {stepProgress.current}/{stepProgress.total}
+              </b>
+            )}
+          </div>
+          {stepProgress.total > 0 && (
+            <div className="kudu-operation-track">
+              <i style={{ width: `${(stepProgress.current / stepProgress.total) * 100}%` }} />
+            </div>
+          )}
+        </div>
+      )}
+
+      {phase === 'done' && result && (
+        <div
+          className={cn(
+            'kudu-operation',
+            result.threatsFound > result.threatsQuarantined ? 'is-warning' : 'is-complete'
+          )}
+          role="status"
+        >
+          {result.threatsFound > result.threatsQuarantined ? (
+            <AlertTriangle className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+          ) : (
+            <CheckCircle2 className="h-5 w-5 shrink-0" strokeWidth={1.8} />
+          )}
+          <div className="min-w-0">
+            <b>
+              {result.threatsFound > result.threatsQuarantined
+                ? t('scanCompleteThreats')
+                : t('resultCleanupComplete')}
+            </b>
+            <p>
+              {result.spaceRecovered > 0 && (
+                <span>
+                  {t('resultSpaceRecovered', { size: formatBytes(result.spaceRecovered) })}
+                </span>
+              )}
+              {result.filesCleaned > 0 && (
+                <span>{t('resultFilesCleaned', { count: formatNumber(result.filesCleaned) })}</span>
+              )}
+              {result.threatsQuarantined > 0 && (
+                <button onClick={() => navigate('/malware', { state: { tab: 'quarantine' } })}>
+                  {t('threatsQuarantinedCount', { count: result.threatsQuarantined })}
+                </button>
+              )}
+              {result.threatsFound > result.threatsQuarantined && (
+                <button onClick={() => navigate('/malware')}>
+                  {result.threatsFound - result.threatsQuarantined === 1
+                    ? t('threatsActiveCount', {
+                        count: result.threatsFound - result.threatsQuarantined
+                      })
+                    : t('threatsActiveCountPlural', {
+                        count: result.threatsFound - result.threatsQuarantined
+                      })}
+                </button>
+              )}
+              {result.privacyIssues > 0 && (
+                <button onClick={() => navigate('/privacy')}>
+                  {t('privacyImprovementsCount', { count: result.privacyIssues })}
+                </button>
+              )}
+              {result.startupHighImpact > 0 && (
+                <button onClick={() => navigate('/startup')}>
+                  {t('startupItemsCount', { count: result.startupHighImpact })}
+                </button>
+              )}
+              {result.updatesAvailable > 0 && (
+                <button onClick={() => navigate('/updates')}>
+                  {t('updatesCount', { count: result.updatesAvailable })}
+                </button>
+              )}
+              {result.spaceRecovered === 0 &&
+                result.filesCleaned === 0 &&
+                result.registryFixed === 0 &&
+                result.driversRemoved === 0 &&
+                result.threatsFound === 0 &&
+                result.privacyIssues === 0 &&
+                result.startupHighImpact === 0 &&
+                result.updatesAvailable === 0 && <span>{t('resultSystemAlreadyClean')}</span>}
+            </p>
+          </div>
+        </div>
+      )}
 
       <ConfirmDialog
         open={showQuickConfirm}
@@ -1187,186 +1129,6 @@ export function DashboardPage() {
         confirmLabel={t('fullCleanConfirmLabel')}
         variant="warning"
       />
-    </div>
-  )
-}
-
-function GlanceCard({
-  icon: Icon,
-  label,
-  value,
-  percent,
-  tone
-}: {
-  icon: typeof Cpu
-  label: string
-  value: string
-  percent: number
-  tone: 'gold' | 'green' | 'clay'
-}) {
-  const clamped = Math.max(0, Math.min(100, percent))
-  return (
-    <article className={`kudu-glance-card is-${tone}`}>
-      <div className="kudu-glance-meta">
-        <span>
-          <Icon />
-          {label}
-        </span>
-      </div>
-      <div className="kudu-glance-body">
-        <h3>{value}</h3>
-        <div
-          className="kudu-glance-dial"
-          style={{
-            background: `conic-gradient(var(--glance-color) ${clamped * 3.6}deg, var(--gauge-track) 0deg)`
-          }}
-          role="img"
-          aria-label={`${label}: ${clamped}%`}
-        >
-          <span>{clamped}%</span>
-        </div>
-      </div>
-      <div className="kudu-glance-track">
-        <i style={{ width: `${clamped}%` }} />
-      </div>
-    </article>
-  )
-}
-
-// ── Mini Gauge (inline, no separate file) ────────────────────
-
-function MiniGauge({
-  icon: Icon,
-  label,
-  percent,
-  detail
-}: {
-  icon: typeof Cpu
-  label: string
-  percent: number
-  detail: string
-}) {
-  const clamped = Math.max(0, Math.min(100, percent))
-  const color = gaugeColor(clamped)
-  const SIZE = 52
-  const STROKE = 3.5
-  const R = (SIZE - STROKE * 2) / 2
-  const C = 2 * Math.PI * R
-  const offset = C - (clamped / 100) * C
-  const gradientId = `mini-gauge-${label.replace(/\s+/g, '-')}`
-
-  return (
-    <div className="glass-card glass-card-hover flex items-center gap-3.5 rounded-xl px-4 py-3.5">
-      <div className="relative inline-flex shrink-0 items-center justify-center">
-        <svg width={SIZE} height={SIZE} className="-rotate-90">
-          <defs>
-            <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={color} stopOpacity="1" />
-              <stop offset="100%" stopColor={color} stopOpacity="0.5" />
-            </linearGradient>
-          </defs>
-          <circle
-            cx={SIZE / 2}
-            cy={SIZE / 2}
-            r={R}
-            fill="none"
-            stroke="var(--gauge-track)"
-            strokeWidth={STROKE}
-          />
-          <circle
-            cx={SIZE / 2}
-            cy={SIZE / 2}
-            r={R}
-            fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth={STROKE}
-            strokeLinecap="round"
-            strokeDasharray={C}
-            strokeDashoffset={offset}
-            style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.16,1,0.3,1)' }}
-          />
-        </svg>
-        <Icon className="absolute h-4 w-4" style={{ color }} strokeWidth={1.8} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-semibold text-zinc-200">{label}</p>
-        <p className="truncate text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-          {detail}
-        </p>
-      </div>
-    </div>
-  )
-}
-
-// ── Cloud Status Card ────────────────────────────────────────
-
-function CloudStatusCard({
-  connected,
-  label,
-  statusText,
-  onClick
-}: {
-  connected: boolean
-  label: string
-  statusText: string
-  onClick: () => void
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`${label}: ${statusText}`}
-      className="calm-cloud-card text-left"
-    >
-      <span className="calm-attention-icon success">
-        <Cloud className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
-      </span>
-      <span className="min-w-0 flex-1">
-        <b>{statusText}</b>
-        <small>{label}</small>
-      </span>
-      <span
-        className="h-1.5 w-1.5 rounded-full"
-        style={{ background: connected ? 'var(--success)' : 'var(--text-faint)' }}
-      />
-    </button>
-  )
-}
-
-// ── Drive Bar ────────────────────────────────────────────────
-
-function DriveBar({ drive, platform }: { drive: DriveInfo; platform: string }) {
-  const usedPercent = (drive.usedSpace / drive.totalSize) * 100
-  const barColor = usedPercent > 90 ? '#ef4444' : usedPercent > 75 ? '#f59e0b' : '#22c55e'
-
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <HardDrive className="h-4 w-4" style={{ color: 'var(--text-muted)' }} strokeWidth={1.6} />
-          <span className="text-[13px] font-medium text-zinc-300">
-            {platform === 'win32'
-              ? `${drive.letter}: ${drive.label}`
-              : `${drive.letter} ${drive.label}`}
-          </span>
-        </div>
-        <span className="font-mono text-[11px]" style={{ color: 'var(--text-secondary)' }}>
-          {formatBytes(drive.usedSpace)} / {formatBytes(drive.totalSize)}
-        </span>
-      </div>
-      <div
-        className="h-[5px] overflow-hidden rounded-full"
-        style={{ background: 'var(--bg-subtle-2)' }}
-      >
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{
-            width: `${usedPercent}%`,
-            background: `linear-gradient(90deg, ${barColor}, ${barColor}cc)`,
-            boxShadow: `0 0 8px ${barColor}30`
-          }}
-        />
-      </div>
     </div>
   )
 }

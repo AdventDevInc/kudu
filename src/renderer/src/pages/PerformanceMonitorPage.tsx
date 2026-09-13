@@ -137,10 +137,10 @@ export function PerformanceMonitorPage() {
       <AlertBanner snapshot={snapshot} history={history} />
 
       {/* Gauges */}
-      <div className="mb-6 grid grid-cols-4 gap-4">
+      <div className="pulse-performance-metrics">
         <GaugeCard
           label={t('gaugeCpu')}
-          percent={snapshot?.cpu.overall ?? 0}
+          percent={snapshot?.cpu.overall ?? null}
           detail={
             snapshot
               ? t('cpuThreadsDetail', { count: snapshot.cpu.perCore.length })
@@ -149,7 +149,7 @@ export function PerformanceMonitorPage() {
         />
         <GaugeCard
           label={t('gaugeMemory')}
-          percent={snapshot?.memory.percent ?? 0}
+          percent={snapshot?.memory.percent ?? null}
           detail={
             snapshot
               ? `${formatBytes(snapshot.memory.usedBytes, 1)} / ${formatBytes(snapshot.memory.totalBytes, 1)}`
@@ -158,12 +158,12 @@ export function PerformanceMonitorPage() {
         />
         <GaugeCard
           label={t('gaugeDiskIo')}
-          percent={Math.min(
-            100,
-            (((snapshot?.disk.readBytesPerSec ?? 0) + (snapshot?.disk.writeBytesPerSec ?? 0)) /
-              (200 * 1024 * 1024)) *
-              100
-          )}
+          percent={null}
+          value={
+            snapshot
+              ? formatSpeed(snapshot.disk.readBytesPerSec + snapshot.disk.writeBytesPerSec)
+              : '?'
+          }
           detail={
             snapshot
               ? t('diskIoDetail', {
@@ -175,12 +175,12 @@ export function PerformanceMonitorPage() {
         />
         <GaugeCard
           label={t('gaugeNetwork')}
-          percent={Math.min(
-            100,
-            (((snapshot?.network.rxBytesPerSec ?? 0) + (snapshot?.network.txBytesPerSec ?? 0)) /
-              (125 * 1024 * 1024)) *
-              100
-          )}
+          percent={null}
+          value={
+            snapshot
+              ? formatSpeed(snapshot.network.rxBytesPerSec + snapshot.network.txBytesPerSec)
+              : '?'
+          }
           detail={
             snapshot
               ? `${formatSpeed(snapshot.network.rxBytesPerSec)} / ${formatSpeed(snapshot.network.txBytesPerSec)}`
@@ -190,27 +190,27 @@ export function PerformanceMonitorPage() {
       </div>
 
       {/* Charts */}
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="pulse-performance-charts">
         <TimeSeriesChart
           history={history}
           timeRange={timeRange}
           dataKey="cpu"
           label={t('chartCpuUsage')}
-          color="#f59e0b"
+          color="var(--accent)"
         />
         <TimeSeriesChart
           history={history}
           timeRange={timeRange}
           dataKey="memory"
           label={t('chartMemoryUsage')}
-          color="#3b82f6"
+          color="var(--success)"
         />
         <TimeSeriesChart
           history={history}
           timeRange={timeRange}
           dataKey="disk"
           label={t('chartDiskIo')}
-          color="#22c55e"
+          color="var(--info)"
         />
       </div>
 

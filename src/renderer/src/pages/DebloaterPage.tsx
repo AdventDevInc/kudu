@@ -160,7 +160,7 @@ export function DebloaterPage({ embedded }: { embedded?: boolean }) {
       <button
         onClick={handleScan}
         disabled={scanning || removing}
-        className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
+        className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-medium text-zinc-300 transition-all disabled:opacity-40"
         style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
       >
         <Search className="h-4 w-4" strokeWidth={1.8} /> {t('debloater.scanButton')}

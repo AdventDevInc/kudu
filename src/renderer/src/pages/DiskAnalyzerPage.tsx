@@ -271,7 +271,7 @@ export function DiskAnalyzerPage() {
             <button
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
+              className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'var(--text-on-accent)'

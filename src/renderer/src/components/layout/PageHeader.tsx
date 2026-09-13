@@ -1,4 +1,7 @@
 import { cn } from '@/lib/utils'
+import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { pageExperiences } from './page-experiences'
 
 interface PageHeaderProps {
   title: string
@@ -8,15 +11,44 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, description, action, className }: PageHeaderProps) {
+  const { pathname } = useLocation()
+  const { t } = useTranslation('experience')
+  const experience = pageExperiences[pathname]
+  const Icon = experience?.icon
   return (
-    <div className={cn('page-header', className)}>
+    <header
+      className={cn('page-header pulse-page-header', className)}
+      data-family={experience?.family}
+    >
       <div className="page-header-main flex items-end justify-between gap-6">
-        <div>
+        <div className="pulse-page-heading">
+          {Icon && (
+            <div className="pulse-page-kicker">
+              <Icon size={16} strokeWidth={1.7} />
+              <span>{t(`families.${experience.family}`)}</span>
+            </div>
+          )}
           <h1>{title}</h1>
-          {description && <p className="mt-1.5 animate-fade-in text-[12px]">{description}</p>}
+          {(description || experience) && (
+            <p>
+              {experience
+                ? t(`routes.${experience.key}`, { defaultValue: description ?? '' })
+                : description}
+            </p>
+          )}
         </div>
         {action && <div className="page-header-actions flex items-center gap-2.5">{action}</div>}
       </div>
-    </div>
+      {experience?.steps && (
+        <ol className="pulse-workflow" aria-label={t('workflow')}>
+          {experience.steps.map((step, index) => (
+            <li key={step}>
+              <span aria-hidden="true">0{index + 1}</span>
+              {t(`steps.${step}`)}
+            </li>
+          ))}
+        </ol>
+      )}
+    </header>
   )
 }

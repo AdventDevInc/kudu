@@ -11,6 +11,7 @@ import type { RecoveryEntry } from '@shared/recovery'
 
 export function RecoveryPage() {
   const { t } = useTranslation('history')
+  const { t: tx } = useTranslation('experience')
   const [data, setData] = useState<Awaited<ReturnType<typeof window.kudu.recoveryList>> | null>(
     null
   )
@@ -54,8 +55,24 @@ export function RecoveryPage() {
   }
   const button = 'feature-button'
   return (
-    <div className="feature-page feature-layout space-y-5">
+    <div className="feature-page feature-layout pulse-recovery-page space-y-5">
       <PageHeader title={t('recovery.title')} description={t('recovery.description')} />
+      {data && (
+        <div className="pulse-recovery-overview">
+          <section className="feature-card">
+            <span>{tx('recovery.recorded')}</span>
+            <strong>{data.total}</strong>
+          </section>
+          <section className="feature-card">
+            <span>{tx('recovery.backups')}</span>
+            <strong>{data.backups.length}</strong>
+          </section>
+          <section className="feature-card pulse-recovery-context">
+            <RotateCcw size={24} />
+            <p>{tx('recovery.hint')}</p>
+          </section>
+        </div>
+      )}
       <p className="feature-note">{t('recovery.limits')}</p>
       <div className="flex flex-wrap items-center gap-3">
         <button className={button} disabled={busy} onClick={() => void refresh()}>

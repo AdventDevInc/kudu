@@ -8,7 +8,7 @@ interface SettingsState {
   updateSettings: (partial: Partial<KuduSettings>) => void
 }
 
-const defaultSettings: KuduSettings = {
+export const defaultSettings: KuduSettings = {
   theme: 'system',
   language: 'en',
   minimizeToTray: false,

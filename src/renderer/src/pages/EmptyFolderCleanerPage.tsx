@@ -1,3 +1,4 @@
+import { ToolIllustration } from '@/components/shared/ToolIllustration'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -136,7 +137,7 @@ export function EmptyFolderCleanerPage() {
         <button
           onClick={handleSelectDir}
           disabled={store.status === 'scanning'}
-          className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
+          className="pulse-primary-action pulse-scan-action flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
           style={{
             background: 'var(--bg-hover)',
             color: 'var(--text-primary)',
@@ -150,7 +151,7 @@ export function EmptyFolderCleanerPage() {
         {store.directory && store.status !== 'scanning' && (
           <button
             onClick={handleScan}
-            className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"
+            className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"
             style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
           >
             <Search className="h-4 w-4" strokeWidth={2} />
@@ -505,6 +506,7 @@ function StatMini({ label, value }: { label: string; value: string }) {
 function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="utility-empty-stage flex flex-1 flex-col items-center justify-center py-20 text-center">
+      <ToolIllustration />
       <FolderX
         className="mb-4 h-12 w-12"
         style={{ color: 'var(--text-faint)' }}

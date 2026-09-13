@@ -369,12 +369,15 @@ export function BreachMonitorPage() {
             <button
               onClick={handleAddEmail}
               disabled={addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)}
-              className={cn(
-                'flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-[13px] font-medium transition-colors',
-                addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)
-                  ? 'cursor-not-allowed opacity-50 text-zinc-500'
-                  : 'text-black'
-              )}
+              className={
+                'pulse-primary-action pulse-scan-action ' +
+                cn(
+                  'flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-[13px] font-medium transition-colors',
+                  addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)
+                    ? 'cursor-not-allowed opacity-50 text-zinc-500'
+                    : 'text-black'
+                )
+              }
               style={{
                 background:
                   addingEmail || !emailInput.trim() || (usage >= limit && limit > 0)

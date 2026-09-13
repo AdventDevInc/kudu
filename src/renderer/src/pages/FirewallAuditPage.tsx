@@ -251,7 +251,7 @@ export function FirewallAuditPage() {
         <button
           onClick={handleScan}
           disabled={isBusy}
-          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-all"
+          className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-all"
           style={{ background: isBusy ? '#27272a' : 'var(--accent)', opacity: isBusy ? 0.5 : 1 }}
         >
           {scanning ? (
@@ -441,7 +441,7 @@ export function FirewallAuditPage() {
           action={
             <button
               onClick={handleScan}
-              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all"
+              className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'var(--text-on-accent)'
