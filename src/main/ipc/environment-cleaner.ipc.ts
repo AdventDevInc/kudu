@@ -1,3 +1,4 @@
+import { recordNativeCleanup } from '../services/cleanup-receipts'
 import { ipcMain } from 'electron'
 import { existsSync } from 'fs'
 import { randomUUID } from 'crypto'
@@ -422,79 +423,80 @@ export function registerEnvironmentCleanerIpc(getWindow: WindowGetter): void {
         errors: [],
         needsElevation: false
       }
+    return recordNativeCleanup('Environment cleanup', async () => {
+      const isWin = process.platform === 'win32'
+      let filesDeleted = 0
+      let filesSkipped = 0
+      const errors: CleanError[] = []
+      let lastReport = 0
 
-    const isWin = process.platform === 'win32'
-    let filesDeleted = 0
-    let filesSkipped = 0
-    const errors: CleanError[] = []
-    let lastReport = 0
+      for (let i = 0; i < valid.length; i++) {
+        const id = valid[i]
+        const entry = envEntryCache.get(id)
 
-    for (let i = 0; i < valid.length; i++) {
-      const id = valid[i]
-      const entry = envEntryCache.get(id)
-
-      if (!entry) {
-        filesSkipped++
-        continue
-      }
-
-      // On non-Windows, we can only scan — cleaning requires manual shell config edits
-      if (!isWin) {
-        filesSkipped++
-        errors.push({
-          path: `${entry.variable} \u2192 ${entry.value}`,
-          reason: 'Manual removal required \u2014 edit your shell config files'
-        })
-        continue
-      }
-
-      try {
-        if (entry.variable === 'PATH') {
-          await removeWindowsPathEntry(entry)
-        } else {
-          await removeWindowsEnvVar(entry)
+        if (!entry) {
+          filesSkipped++
+          continue
         }
-        filesDeleted++
-      } catch (err: unknown) {
-        filesSkipped++
-        const msg = (err as Error).message || 'unknown error'
-        if (msg.includes('Access is denied') || msg.includes('EACCES') || msg.includes('EPERM')) {
+
+        // On non-Windows, we can only scan — cleaning requires manual shell config edits
+        if (!isWin) {
+          filesSkipped++
           errors.push({
             path: `${entry.variable} \u2192 ${entry.value}`,
-            reason: 'permission-denied'
+            reason: 'Manual removal required \u2014 edit your shell config files'
           })
-        } else {
-          errors.push({ path: `${entry.variable} \u2192 ${entry.value}`, reason: msg })
+          continue
+        }
+
+        try {
+          if (entry.variable === 'PATH') {
+            await removeWindowsPathEntry(entry)
+          } else {
+            await removeWindowsEnvVar(entry)
+          }
+          filesDeleted++
+        } catch (err: unknown) {
+          filesSkipped++
+          const msg = (err as Error).message || 'unknown error'
+          if (msg.includes('Access is denied') || msg.includes('EACCES') || msg.includes('EPERM')) {
+            errors.push({
+              path: `${entry.variable} \u2192 ${entry.value}`,
+              reason: 'permission-denied'
+            })
+          } else {
+            errors.push({ path: `${entry.variable} \u2192 ${entry.value}`, reason: msg })
+          }
+        }
+
+        const now = Date.now()
+        if (now - lastReport > 120 || i === valid.length - 1) {
+          lastReport = now
+          const win = getWindow()
+          if (win && !win.isDestroyed())
+            win.webContents.send(IPC.SCAN_PROGRESS, {
+              phase: 'cleaning',
+              category: CleanerType.Environment,
+              currentPath: entry ? `${entry.variable} \u2192 ${entry.value}` : '',
+              progress: ((i + 1) / valid.length) * 100,
+              itemsFound: valid.length,
+              sizeFound: 0
+            })
         }
       }
 
-      const now = Date.now()
-      if (now - lastReport > 120 || i === valid.length - 1) {
-        lastReport = now
-        const win = getWindow()
-        if (win && !win.isDestroyed())
-          win.webContents.send(IPC.SCAN_PROGRESS, {
-            phase: 'cleaning',
-            category: CleanerType.Environment,
-            currentPath: entry ? `${entry.variable} \u2192 ${entry.value}` : '',
-            progress: ((i + 1) / valid.length) * 100,
-            itemsFound: valid.length,
-            sizeFound: 0
-          })
+      // Broadcast environment change to running apps on Windows
+      if (isWin && filesDeleted > 0) {
+        await broadcastWinEnvChange()
       }
-    }
 
-    // Broadcast environment change to running apps on Windows
-    if (isWin && filesDeleted > 0) {
-      await broadcastWinEnvChange()
-    }
-
-    return {
-      totalCleaned: 0,
-      filesDeleted,
-      filesSkipped,
-      errors,
-      needsElevation: errors.some((e) => e.reason === 'permission-denied')
-    }
+      return {
+        totalCleaned: 0,
+        filesDeleted,
+        filesSkipped,
+        errors,
+        needsElevation: errors.some((e) => e.reason === 'permission-denied')
+      }
+    })
   })
 }
