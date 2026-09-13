@@ -1,6 +1,7 @@
 import { BrowserWindow, ipcMain, shell } from 'electron'
-import { readdir, rmdir } from 'fs/promises'
-import { join, isAbsolute, basename } from 'path'
+import { readdir, rmdir, lstat, realpath } from 'fs/promises'
+import { join, isAbsolute, basename, resolve } from 'path'
+import { homedir } from 'os'
 import { IPC } from '../../shared/channels'
 import type {
   EmptyFolderScanOptions,
@@ -79,9 +80,19 @@ const PROTECTED_GENERIC = [
   '.gradle'
 ]
 
+function isProtectedTree(folderPath: string): boolean {
+  const segments = resolve(folderPath).toLowerCase().replace(/\\/g, '/').split('/')
+  const protectedNames =
+    process.platform === 'win32'
+      ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
+      : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
+  return segments.some((segment) => protectedNames.includes(segment))
+}
+
 function isProtectedFolder(folderPath: string): boolean {
-  const name = basename(folderPath).toLowerCase()
-  const pathLower = folderPath.toLowerCase().replace(/\\/g, '/')
+  const normalized = resolve(folderPath)
+  const name = basename(normalized).toLowerCase()
+  const pathLower = normalized.toLowerCase().replace(/\\/g, '/')
 
   // Never touch root-level directories on any drive
   // e.g. C:\Windows, /usr, /etc
@@ -92,13 +103,7 @@ function isProtectedFolder(folderPath: string): boolean {
 
   if (isRootLevel) return true
 
-  // Check against protected lists
-  const protectedNames =
-    process.platform === 'win32'
-      ? [...PROTECTED_WIN32, ...PROTECTED_GENERIC]
-      : [...PROTECTED_UNIX, ...PROTECTED_GENERIC]
-
-  if (protectedNames.includes(name)) return true
+  if (isProtectedTree(normalized)) return true
 
   // Never delete user profile root folders (Desktop, Documents, Downloads, etc.)
   const userProfileDirs = [
@@ -112,9 +117,7 @@ function isProtectedFolder(folderPath: string): boolean {
   ]
   if (userProfileDirs.includes(name)) {
     // Only protect if it's directly under the user profile
-    const home = (process.env.HOME || process.env.USERPROFILE || '')
-      .toLowerCase()
-      .replace(/\\/g, '/')
+    const home = resolve(homedir()).toLowerCase().replace(/\\/g, '/')
     if (home) {
       const parent = pathLower.substring(0, pathLower.lastIndexOf('/'))
       if (parent === home || parent === home + '/') return true
@@ -146,6 +149,9 @@ async function findEmptyFolders(
 ): Promise<boolean> {
   if (cancelled) return false
   if (depth > options.maxDepth) return false
+  // Root-level and profile folders may be scanned, but protected trees must
+  // remain untouched even when the user selects a directory inside one.
+  if (isProtectedTree(dirPath)) return false
 
   let entries
   try {
@@ -208,6 +214,9 @@ async function findEmptyFolders(
       if (!subEmpty) {
         hasNonEmptySubdirs = true
       }
+    } else {
+      // Sockets, FIFOs, devices and unknown entries are content too.
+      hasFiles = true
     }
   }
 
@@ -261,7 +270,7 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
 
       const dir = typeof opts.directory === 'string' ? opts.directory : ''
       const safeOptions: EmptyFolderScanOptions = {
-        directory: isAbsolute(dir) ? dir : '',
+        directory: isAbsolute(dir) ? resolve(dir) : '',
         maxDepth: typeof opts.maxDepth === 'number' && opts.maxDepth > 0 ? opts.maxDepth : 20,
         excludePatterns: Array.isArray(opts.excludePatterns)
           ? (opts.excludePatterns as unknown[]).filter((p): p is string => typeof p === 'string')
@@ -269,6 +278,13 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
       }
 
       if (!safeOptions.directory) return emptyResult
+
+      try {
+        // A selected root can itself be an alias into a protected tree.
+        if (isProtectedTree(await realpath(safeOptions.directory))) return emptyResult
+      } catch {
+        return emptyResult
+      }
 
       const emptyFolders: EmptyFolderEntry[] = []
       const counters = { scanned: 0 }
@@ -296,12 +312,18 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
     }
   )
 
-  // Delete — always uses recycle bin for safety (rmdir only works on truly empty dirs)
+  // Revalidate protection and emptiness for both deletion modes.
   ipcMain.handle(
     IPC.EMPTY_FOLDERS_DELETE,
     async (_event, paths: unknown, mode: unknown): Promise<EmptyFolderDeleteResult> => {
       if (!Array.isArray(paths)) return { deleted: 0, failed: 0, errors: [] }
-      const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
+      const safePaths = [
+        ...new Set(
+          paths
+            .filter((p): p is string => typeof p === 'string' && isAbsolute(p))
+            .map((p) => resolve(p))
+        )
+      ]
       const deleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
 
       let deleted = 0
@@ -320,6 +342,13 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
         }
 
         try {
+          const metadata = await lstat(folderPath)
+          if (metadata.isSymbolicLink() || !metadata.isDirectory()) {
+            throw new Error('Path is no longer a regular folder')
+          }
+          if (isProtectedFolder(await realpath(folderPath))) {
+            throw new Error('Protected system folder')
+          }
           // Verify folder is still empty before deleting
           const entries = await readdir(folderPath)
           if (entries.length > 0) {
