@@ -98,6 +98,74 @@ it('fails instead of reporting restored when the service cannot be started', asy
   await expect(restoreRecoveryEntry(service.id)).rejects.toThrow('cannot be started')
   expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }))
 })
+it('finishes a service restore on the next attempt after the delayed flag write failed', async () => {
+  const split: RecoveryEntry = {
+    ...service,
+    before: { start: 4, delayed: 1, running: false },
+    after: { start: 2, delayed: 0, running: true }
+  }
+  mocks.get.mockResolvedValue(structuredClone(split))
+  mocks.exec
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":2,"delayed":0,"running":true}}' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: 'DelayedAutoStart REG_DWORD 0x0' })
+    .mockRejectedValueOnce(new Error('Access is denied'))
+  await expect(restoreRecoveryEntry(split.id)).rejects.toThrow('Access is denied')
+  expect(mocks.update).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'failed' }))
+  expect(mocks.exec.mock.calls.map((call) => call[0])).toEqual([
+    'powershell',
+    'sc.exe',
+    'reg',
+    'reg'
+  ])
+  mocks.exec.mockReset()
+  mocks.update.mockReset()
+  mocks.get.mockResolvedValue(structuredClone({ ...split, status: 'failed' }))
+  mocks.exec
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":4,"delayed":0,"running":true}}' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: 'DelayedAutoStart REG_DWORD 0x0' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: '' })
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":4,"delayed":1,"running":false}}' })
+  expect((await restoreRecoveryEntry(split.id)).status).toBe('restored')
+  expect(mocks.exec.mock.calls.map((call) => call[0])).toEqual([
+    'powershell',
+    'sc.exe',
+    'reg',
+    'reg',
+    'powershell',
+    'powershell'
+  ])
+  expect(mocks.exec.mock.calls[3][1]).toEqual([
+    'add',
+    'HKLM\\SYSTEM\\CurrentControlSet\\Services\\Spooler',
+    '/v',
+    'DelayedAutoStart',
+    '/t',
+    'REG_DWORD',
+    '/d',
+    '1',
+    '/f'
+  ])
+  expect(mocks.exec.mock.calls[4][1].at(-1)).toContain("Stop-Service -Name 'Spooler'")
+})
+it('still writes the delayed flag when sc.exe fails, then reports the failure', async () => {
+  mocks.get.mockResolvedValue(structuredClone(service))
+  mocks.exec
+    .mockResolvedValueOnce({ stdout: '{"Spooler":{"start":4,"delayed":1,"running":false}}' })
+    .mockRejectedValueOnce(new Error('sc.exe failed'))
+    .mockResolvedValueOnce({ stdout: 'DelayedAutoStart REG_DWORD 0x0' })
+    .mockResolvedValueOnce({ stdout: '' })
+  await expect(restoreRecoveryEntry(service.id)).rejects.toThrow('sc.exe failed')
+  expect(mocks.exec.mock.calls.map((call) => call[0])).toEqual([
+    'powershell',
+    'sc.exe',
+    'reg',
+    'reg'
+  ])
+  expect(mocks.update).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'failed' }))
+})
 it('resolves only persisted IDs and never accepts a renderer path', async () => {
   mocks.get.mockResolvedValue(undefined)
   await expect(restoreRecoveryEntry('C:\\untrusted.reg')).rejects.toThrow('not found')

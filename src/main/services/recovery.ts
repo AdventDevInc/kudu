@@ -120,23 +120,32 @@ export async function writeRecoveryTarget(
       3: 'demand',
       4: 'disabled'
     }
+    // The start type and delayed flag are written by different tools, so each step is
+    // attempted even when the other fails. Every step is idempotent, and recoveryDecision
+    // recognises a half-applied state, so a later attempt finishes the job.
+    const failures: unknown[] = []
     await execTracked('sc.exe', ['config', target.name, 'start=', modes[value.start]], {
       timeout: 8000,
       windowsHide: true
-    })
+    }).catch((error) => failures.push(error))
     const key = ['HKLM', 'SYSTEM', 'CurrentControlSet', 'Services', target.name].join(
       String.fromCharCode(92)
     )
-    const currentDelayed = await readRecoveryTarget({
-      kind: 'registry-dword',
-      key,
-      name: 'DelayedAutoStart'
-    })
-    if (currentDelayed !== value.delayed)
-      await writeRecoveryTarget(
-        { kind: 'registry-dword', key, name: 'DelayedAutoStart' },
-        value.delayed
-      )
+    try {
+      const currentDelayed = await readRecoveryTarget({
+        kind: 'registry-dword',
+        key,
+        name: 'DelayedAutoStart'
+      })
+      if (currentDelayed !== value.delayed)
+        await writeRecoveryTarget(
+          { kind: 'registry-dword', key, name: 'DelayedAutoStart' },
+          value.delayed
+        )
+    } catch (error) {
+      failures.push(error)
+    }
+    if (failures.length) throw failures[0]
     const condition = value.running ? "$s.Status -ne 'Running'" : "$s.Status -ne 'Stopped'"
     const command = value.running ? 'Start-Service' : 'Stop-Service'
     const script =

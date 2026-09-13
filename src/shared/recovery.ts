@@ -43,7 +43,17 @@ export function recoveryDecision(
       isServiceValue(current) && isServiceValue(before) && current.running !== before.running
     return runtimePending ? 'restore' : 'already-restored'
   }
-  return encoded === comparable(after) ? 'restore' : 'conflict'
+  if (encoded === comparable(after)) return 'restore'
+  // A service restore mutates the start type (sc.exe) and the delayed flag (registry)
+  // separately, so an interrupted attempt can leave one field restored and the other
+  // not. That intermediate state is still ours to finish rather than a newer value.
+  if (isServiceValue(current) && isServiceValue(before) && isServiceValue(after)) {
+    const partial = (['start', 'delayed'] as const).every(
+      (field) => current[field] === before[field] || current[field] === after[field]
+    )
+    if (partial) return 'restore'
+  }
+  return 'conflict'
 }
 
 export function validateRecoveryEntry(value: unknown): value is RecoveryEntry {

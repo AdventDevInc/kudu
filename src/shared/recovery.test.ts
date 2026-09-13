@@ -32,6 +32,21 @@ describe('recovery safeguards', () => {
     expect(recoveryDecision({ ...before, running: false }, before, after)).toBe('restore')
     expect(recoveryDecision({ ...after, running: true }, after, before)).toBe('restore')
   })
+  it('resumes a service restore that was interrupted between the two mutations', () => {
+    const before = { start: 4, delayed: 1, running: false }
+    const after = { start: 2, delayed: 0, running: true }
+    // start type restored, delayed flag not yet
+    expect(recoveryDecision({ start: 4, delayed: 0, running: true }, before, after)).toBe('restore')
+    // delayed flag restored, start type not yet
+    expect(recoveryDecision({ start: 2, delayed: 1, running: true }, before, after)).toBe('restore')
+    // a field matching neither side is a newer value
+    expect(recoveryDecision({ start: 3, delayed: 0, running: true }, before, after)).toBe(
+      'conflict'
+    )
+    expect(recoveryDecision({ start: 4, delayed: null, running: false }, before, after)).toBe(
+      'conflict'
+    )
+  })
   it('rejects unsupported types and script-bearing targets', () => {
     expect(validateRecoveryEntry(entry)).toBe(true)
     for (const name of ["bad'; Start-Process evil; '", '$env:SECRET', '../outside'])
