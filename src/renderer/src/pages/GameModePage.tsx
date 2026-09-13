@@ -227,7 +227,6 @@ const CATEGORIES: CategoryDef[] = [
 
 const CYAN = '#a6d2b8'
 const PURPLE = '#f0b65b'
-const CYAN_BG = 'rgba(166,210,184,0.08)'
 const CYAN_BORDER = 'rgba(166,210,184,0.15)'
 
 // ── Timer helper ─────────────────────────────────────────────

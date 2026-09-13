@@ -776,7 +776,7 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
             <HardDrive size={18} />
           </div>
           <div className="pulse-big-value">
-            {primaryDrive ? formatBytes(primaryDrive.totalSize - primaryDrive.usedSpace) : '\u2014'}
+            {primaryDrive ? formatBytes(primaryDrive.freeSpace) : '\u2014'}
           </div>
           <div
             className="pulse-storage-meter"
@@ -879,8 +879,14 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
                     <small>{formatDate(entry.timestamp)}</small>
                   </span>
                   <span>
-                    <b>{tx('home.recovered', { size: formatBytes(entry.totalSpaceSaved) })}</b>
-                    <small>{tx('home.files', { count: entry.totalItemsCleaned })}</small>
+                    <b>
+                      {entry.type === 'cleaner'
+                        ? tx('home.recovered', { size: formatBytes(entry.totalSpaceSaved) })
+                        : `${t('history:detail.statFound')}: ${entry.totalItemsFound}`}
+                    </b>
+                    <small>
+                      {t('history:detail.statProcessed')}: {entry.totalItemsCleaned}
+                    </small>
                     <ArrowUpRight size={14} />
                   </span>
                 </button>

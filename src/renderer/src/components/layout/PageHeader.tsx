@@ -12,8 +12,16 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, action, className }: PageHeaderProps) {
   const { pathname } = useLocation()
-  const { t } = useTranslation('experience')
+  const { t, i18n } = useTranslation('experience')
   const experience = pageExperiences[pathname]
+  // Keep the page's existing localized description while new experience copy is translated.
+  const hasLocalizedDescription =
+    experience &&
+    i18n.exists(`routes.${experience.key}`, {
+      ns: 'experience',
+      lng: i18n.resolvedLanguage ?? i18n.language,
+      fallbackLng: false
+    })
   const Icon = experience?.icon
   return (
     <header
@@ -31,7 +39,7 @@ export function PageHeader({ title, description, action, className }: PageHeader
           <h1>{title}</h1>
           {(description || experience) && (
             <p>
-              {experience
+              {experience && (hasLocalizedDescription || !description)
                 ? t(`routes.${experience.key}`, { defaultValue: description ?? '' })
                 : description}
             </p>
