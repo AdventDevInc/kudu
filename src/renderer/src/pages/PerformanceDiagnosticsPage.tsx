@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import '@/components/shared/feature-layout.css'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Activity, Circle, Sparkles } from 'lucide-react'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { formatBytes } from '@/lib/utils'
 import { diagnosticStats } from '@shared/performance-diagnostics'
@@ -11,10 +15,9 @@ import type {
   DiagnosticSummary
 } from '@shared/performance-diagnostics'
 
-const button =
-  'rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-40 hover:bg-white/5'
-const panel = 'rounded-xl border border-[var(--border)] p-5 space-y-4'
-const field = 'rounded-lg border border-[var(--border)] bg-transparent px-3 py-2 text-sm'
+const button = 'feature-button'
+const panel = 'feature-card space-y-4'
+const field = 'feature-field'
 const percent = (v: number | null): string => (v === null ? '—' : `${v.toFixed(1)}%`)
 
 export function PerformanceDiagnosticsPage() {
@@ -30,10 +33,18 @@ export function PerformanceDiagnosticsPage() {
   const [comparison, setComparison] = useState<DiagnosticSession | null>(null)
   const [preview, setPreview] = useState<DiagnosticPreview | null>(null)
   const [error, setError] = useState('')
+  const [loaded, setLoaded] = useState(false)
   const [busy, setBusy] = useState(false)
   const [confirm, setConfirm] = useState<'local' | 'cloud' | null>(null)
   const [range, setRange] = useState<{ startMs: number; endMs: number } | null>(null)
+  const detailRef = useRef<HTMLElement>(null)
   const id = selected?.recording.recordId
+  useEffect(() => {
+    if (id) {
+      detailRef.current?.focus({ preventScroll: true })
+      detailRef.current?.scrollIntoView({ block: 'start' })
+    }
+  }, [id])
   // A deleted or expired Cloud copy is marked by a past expiry; the local report stays readable.
   const cloudGone = !!selected?.cloud && new Date(selected.cloud.expiresAt).getTime() < Date.now()
   // The upload reference is the only handle on the Cloud copy, so it must be deleted first.
@@ -41,6 +52,7 @@ export function PerformanceDiagnosticsPage() {
   const refresh = useCallback(async () => {
     const s = await window.kudu.diagnosticsStatus()
     setRows(s.rows)
+    setLoaded(true)
     setActive(s.activeId)
     setElapsed(s.elapsedMs)
     if (s.error) setError(s.error)
@@ -155,7 +167,7 @@ export function PerformanceDiagnosticsPage() {
     JSON.stringify(selected.recording.system) === JSON.stringify(comparison.recording.system)
   const report = selected?.cloud?.report
   return (
-    <div className="space-y-6">
+    <div className="feature-page space-y-6">
       <PageHeader
         title={t('title')}
         description={t('description')}
@@ -172,14 +184,20 @@ export function PerformanceDiagnosticsPage() {
       )}
       <section className={panel}>
         <div className="flex flex-wrap items-center gap-3">
-          <strong>{t('newRecording')}</strong>
-          <span className="rounded bg-purple-500/15 px-2 py-1 text-xs">{t('pro')}</span>
+          <Activity size={18} className="text-[var(--accent)]" aria-hidden="true" />
+          <h2 className="font-semibold">{t('newRecording')}</h2>
+          <span className="feature-status">{t('pro')}</span>
         </div>
         <p className="text-sm text-[var(--text-muted)]">{t('localFirst')}</p>
-        {!cap?.available && (
+        {cap === null && (
+          <p role="status" className="text-sm text-[var(--text-muted)]">
+            {t('checkingAccess')}
+          </p>
+        )}
+        {cap && !cap.available && (
           <p className="text-sm">
             {t('requiresPro')}{' '}
-            <Link to="/settings" className="underline">
+            <Link to="/cloud" className="underline">
               {t('cloudSettings')}
             </Link>{' '}
             <button
@@ -238,7 +256,7 @@ export function PerformanceDiagnosticsPage() {
             </>
           ) : (
             <button
-              className={button}
+              className={button + ' feature-primary'}
               disabled={busy || !cap?.available}
               onClick={() =>
                 void run(async () => {
@@ -247,6 +265,7 @@ export function PerformanceDiagnosticsPage() {
                 })
               }
             >
+              <Circle size={12} fill="currentColor" aria-hidden="true" />
               {t('start')}
             </button>
           )}
@@ -256,14 +275,21 @@ export function PerformanceDiagnosticsPage() {
       <section className={panel}>
         <h2 className="font-semibold">{t('saved')}</h2>
         <p className="text-xs text-[var(--text-muted)]">{t('retention')}</p>
-        {!rows.length && <p className="text-sm">{t('empty')}</p>}
+        {loaded && !rows.length && (
+          <EmptyState
+            icon={Activity}
+            title={t('empty')}
+            description={t('emptyHint')}
+            className="!min-h-[180px] !p-6"
+          />
+        )}
         <div className="grid gap-2 md:grid-cols-2">
           {rows.map((row) => (
             <button
               key={row.id}
               disabled={busy}
               aria-pressed={id === row.id}
-              className={`${button} text-left ${id === row.id ? 'bg-purple-500/15' : ''}`}
+              className="rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4 text-left transition-colors hover:bg-[var(--bg-hover)] disabled:opacity-40"
               onClick={() => void run(() => open(row.id))}
             >
               <span className="block truncate font-medium">
@@ -280,7 +306,7 @@ export function PerformanceDiagnosticsPage() {
         </div>
       </section>
       {selected && (
-        <section className={panel}>
+        <section ref={detailRef} tabIndex={-1} className={panel}>
           <h2 className="font-semibold">{t('recordingDetails')}</h2>
           {active === id ? (
             <p>{t('stopToReview')}</p>
@@ -349,16 +375,16 @@ export function PerformanceDiagnosticsPage() {
               {cloudHeld && (
                 <p className="text-xs text-[var(--text-muted)]">{t('deleteLocalBlocked')}</p>
               )}
-              <div className="grid grid-cols-3 gap-3 text-sm">
-                <div>
+              <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
+                <div className="feature-metric">
                   {t('cpuMean')}
                   <strong className="block text-xl">{percent(stats!.cpuMean)}</strong>
                 </div>
-                <div>
+                <div className="feature-metric">
                   {t('memoryMean')}
                   <strong className="block text-xl">{percent(stats!.memoryMean)}</strong>
                 </div>
-                <div>
+                <div className="feature-metric">
                   {t('missingTicks')}
                   <strong className="block text-xl">{stats!.missingTicks}</strong>
                 </div>
@@ -404,8 +430,11 @@ export function PerformanceDiagnosticsPage() {
                   )}
                 </div>
               )}
-              <div className="border-t border-[var(--border)] pt-4 space-y-3">
-                <h3 className="font-semibold">{t('cloudAnalysis')}</h3>
+              <div className="border-t border-[var(--border-medium)] pt-4 space-y-3">
+                <h3 className="flex items-center gap-2 font-semibold">
+                  <Sparkles size={16} className="text-[var(--accent)]" aria-hidden="true" />
+                  {t('cloudAnalysis')}
+                </h3>
                 <p className="text-sm text-[var(--text-muted)]">{t('cloudPrivacy')}</p>
                 <label className="flex items-center gap-2 text-sm">
                   <input
@@ -455,7 +484,7 @@ export function PerformanceDiagnosticsPage() {
                   )}
                 </div>
                 {preview && (
-                  <div className="space-y-3 rounded-lg border border-purple-500/40 p-4">
+                  <div className="feature-note space-y-3">
                     <p>{t('uploadSize', { size: formatBytes(preview.bytes) })}</p>
                     <details>
                       <summary className="cursor-pointer">{t('exactUpload')}</summary>
@@ -577,32 +606,28 @@ export function PerformanceDiagnosticsPage() {
                   </div>
                 )}
               </div>
-              {confirm && (
-                <div role="alert" className="space-y-3 rounded-lg border border-red-500/40 p-4">
-                  <p>{t(confirm === 'local' ? 'confirmLocal' : 'confirmCloud')}</p>
-                  <button
-                    className={button}
-                    disabled={busy}
-                    onClick={() =>
-                      void run(async () => {
-                        if (confirm === 'local') {
-                          await window.kudu.diagnosticsRemove(id!)
-                          setSelected(null)
-                        } else {
-                          await window.kudu.diagnosticsDeleteCloud(id!)
-                          await open(id!)
-                        }
-                        setConfirm(null)
-                      })
+              <ConfirmDialog
+                open={!!confirm}
+                variant="danger"
+                title={t(confirm === 'local' ? 'deleteLocal' : 'deleteCloud')}
+                description={t(confirm === 'local' ? 'confirmLocal' : 'confirmCloud')}
+                details={selected.title}
+                confirmLabel={t('confirmDelete')}
+                onCancel={() => setConfirm(null)}
+                onConfirm={() => {
+                  const target = confirm
+                  setConfirm(null)
+                  void run(async () => {
+                    if (target === 'local') {
+                      await window.kudu.diagnosticsRemove(id!)
+                      setSelected(null)
+                    } else {
+                      await window.kudu.diagnosticsDeleteCloud(id!)
+                      await open(id!)
                     }
-                  >
-                    {t('confirmDelete')}
-                  </button>
-                  <button className={`${button} ml-2`} onClick={() => setConfirm(null)}>
-                    {t('cancel')}
-                  </button>
-                </div>
-              )}
+                  })
+                }}
+              />
             </>
           )}
         </section>
