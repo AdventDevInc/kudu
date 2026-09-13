@@ -1,5 +1,5 @@
 ﻿import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { join, parse, resolve } from 'path'
+import { join, parse, relative, resolve, sep } from 'path'
 import { IPC } from '../../shared/channels'
 import type { EmptyFolderDeleteResult, EmptyFolderScanResult } from '../../shared/types'
 
@@ -35,6 +35,18 @@ const root = join(parse(resolve('.')).root, 'Users', 'CleanerTest')
 const directory = join(root, 'projects')
 const empty = join(directory, 'empty')
 const systemName = process.platform === 'win32' ? 'Windows' : 'usr'
+const canonicalHome = join(
+  parse(root).root,
+  process.platform === 'win32' ? 'Windows' : 'var',
+  'home',
+  'CleanerTest'
+)
+
+function mapCanonicalHome() {
+  mocks.realpath.mockImplementation(async (path: string) =>
+    path === root || path.startsWith(root + sep) ? join(canonicalHome, relative(root, path)) : path
+  )
+}
 function entry(name: string, kind: 'directory' | 'file' | 'symlink' | 'other' = 'directory') {
   return {
     name,
@@ -102,7 +114,9 @@ describe('Empty Folder Cleaner production handlers', () => {
     }
   )
   it('rejects a scan root redirected into a protected tree', async () => {
-    mocks.realpath.mockResolvedValue(join(directory, 'node_modules', 'package'))
+    mocks.realpath.mockImplementation(async (path: string) =>
+      path === root ? root : join(directory, 'node_modules', 'package')
+    )
     expect((await scan()).folders).toEqual([])
     expect(mocks.readdir).not.toHaveBeenCalled()
   })
@@ -165,7 +179,9 @@ describe('Empty Folder Cleaner production handlers', () => {
     expect(mocks.readdir).not.toHaveBeenCalled()
   })
   it('rejects protected targets reached through a parent directory alias', async () => {
-    mocks.realpath.mockResolvedValue(join(directory, systemName, 'child'))
+    mocks.realpath.mockImplementation(async (path: string) =>
+      path === root ? root : join(directory, systemName, 'child')
+    )
     expect((await remove()).failed).toBe(1)
     expect(mocks.readdir).not.toHaveBeenCalled()
     expect(mocks.trashItem).not.toHaveBeenCalled()
@@ -199,5 +215,59 @@ describe('Empty Folder Cleaner production handlers', () => {
       deleted: 1,
       failed: 1
     })
+  })
+
+  it.each([root, canonicalHome])('scans user folders beneath canonical home %s', async (home) => {
+    mapCanonicalHome()
+    const selected = join(home, 'Documents')
+    mocks.readdir.mockImplementation(async (path: string) =>
+      path === selected ? [entry('empty')] : []
+    )
+    expect((await scan({ directory: selected })).folders.map((folder) => folder.path)).toEqual([
+      join(selected, 'empty')
+    ])
+  })
+
+  it.each(['recycle', 'permanent'])(
+    'deletes ordinary folders in a canonical home in %s mode',
+    async (mode) => {
+      mapCanonicalHome()
+      expect(await remove([empty, join(canonicalHome, 'another')], mode)).toMatchObject({
+        deleted: 2,
+        failed: 0
+      })
+    }
+  )
+
+  it('still protects special folders inside both home paths', async () => {
+    mapCanonicalHome()
+    for (const home of [root, canonicalHome]) {
+      for (const name of ['.ssh', 'node_modules', systemName]) {
+        const path = join(home, name, 'child')
+        expect((await scan({ directory: path })).folders).toEqual([])
+        expect((await remove([path])).failed).toBe(1)
+      }
+      expect((await remove([home, join(home, 'Documents')])).failed).toBe(2)
+    }
+    expect(mocks.readdir).not.toHaveBeenCalled()
+    expect(mocks.trashItem).not.toHaveBeenCalled()
+  })
+
+  it('does not exempt a sibling home sharing a path prefix', async () => {
+    mapCanonicalHome()
+    const sibling = join(canonicalHome + '-other', 'empty')
+    expect((await scan({ directory: sibling })).folders).toEqual([])
+    expect((await remove([sibling])).failed).toBe(1)
+    expect(mocks.readdir).not.toHaveBeenCalled()
+  })
+
+  it('does not exempt protected ancestors when canonical home resolution fails', async () => {
+    mocks.realpath.mockImplementation(async (path: string) => {
+      if (path === root) throw new Error('EACCES')
+      return path
+    })
+    const path = join(canonicalHome, 'empty')
+    expect((await scan({ directory: path })).folders).toEqual([])
+    expect((await remove([path])).failed).toBe(1)
   })
 })
