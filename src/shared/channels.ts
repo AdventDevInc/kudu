@@ -272,6 +272,7 @@ export const IPC = {
   GAME_MODE_AUTO_EVENT: 'game-mode:auto-event',
 
   CUSTOM_CLEANERS: 'custom-cleaners:action',
+  DIAGNOSTICS: 'performance:diagnostics',
 
   // Platform
   PLATFORM_INFO: 'platform:info',

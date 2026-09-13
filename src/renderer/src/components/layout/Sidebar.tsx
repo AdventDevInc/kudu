@@ -160,6 +160,13 @@ const navGroups: NavGroup[] = [
             path: '/performance'
           },
           {
+            icon: Activity,
+            labelKey: 'diagnostics:title',
+            label: 'Performance Diagnostics',
+            path: '/performance-diagnostics',
+            cloudTier: 'pro'
+          },
+          {
             icon: Server,
             labelKey: 'hardening:serviceManager.pageTitle',
             label: 'Services',
