@@ -1,4 +1,7 @@
 export const IPC = {
+  SCHEDULE_AUTHORIZE: 'schedule:authorize',
+  SCHEDULE_RUNTIME: 'schedule:runtime',
+  SCHEDULE_RUN_NOW: 'schedule:run-now',
   STORAGE_HISTORY_LIST: 'storage-history:list',
   STORAGE_HISTORY_ADD: 'storage-history:add',
   STORAGE_HISTORY_CONFIGURE: 'storage-history:configure',
@@ -135,6 +138,7 @@ export const IPC = {
 
   // Multi-schedule
   SCHEDULE_RUN_TRIGGER: 'schedule:run-trigger',
+  SCHEDULE_RUN_ACK: 'schedule:run-ack',
   SCHEDULE_RUN_COMPLETE: 'schedule:run-complete',
 
   // Settings apply (renderer -> main)

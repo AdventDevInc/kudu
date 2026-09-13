@@ -7,6 +7,7 @@ import { join } from 'path'
 import { readdirSync, statSync } from 'fs'
 import { IPC } from '../../shared/channels'
 import { validateStringArray } from '../services/ipc-validation'
+import { trackMainWork } from '../services/main-work'
 import { execNativeUtf8, psUtf8 } from '../services/exec-utf8'
 import type {
   DriverPackage,
@@ -860,6 +861,6 @@ export function registerDriverManagerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.DRIVER_UPDATE_INSTALL, async (_event, wuUpdateIds: string[]) => {
     const valid = validateStringArray(wuUpdateIds, 500)
     if (!valid) return { installed: 0, failed: 0, rebootRequired: false, errors: [] }
-    return installDriverUpdates(valid, sendUpdateProgress)
+    return trackMainWork(installDriverUpdates(valid, sendUpdateProgress))
   })
 }

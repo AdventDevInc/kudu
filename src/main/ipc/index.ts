@@ -156,6 +156,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
     const validated = validateSettingsPartial(settings)
     if (!validated) return { success: false, error: 'Invalid settings' }
     setSettings(validated)
+    // The schedules editor reads settings back right after saving.
+    if ('schedules' in validated) await flushSettings()
     if (typeof validated.autoUpdate === 'boolean') {
       setAutoDownload(validated.autoUpdate)
     }

@@ -735,9 +735,15 @@ export type ScheduleTaskType =
   | 'software-update'
   | 'cve-scan'
 
-export type ScheduleRunStatus = 'success' | 'partial' | 'failed' | 'never'
+export type ScheduleRunStatus = 'success' | 'partial' | 'failed' | 'never' | 'skipped'
 
 export interface ScheduleEntry {
+  conditions?: import('./schedule-policy').ScheduleConditions
+  missedRun?: 'skip' | 'once'
+  /** Stable subcategory names from a preview scan, grouped by cleaner task. */
+  cleanerSubcategories?: Partial<Record<ScheduleTaskType, string[]>>
+  /** Main-owned consumed occurrence, persisted before dispatch to prevent restart replay. */
+  lastDueAt?: string | null
   id: string
   name: string
   enabled: boolean

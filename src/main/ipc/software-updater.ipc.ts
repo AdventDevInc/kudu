@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import { IPC } from '../../shared/channels'
 import { checkForUpdates, runUpdates } from '../services/software-updater'
+import { trackMainWork } from '../services/main-work'
 import type { WindowGetter } from './index'
 import type {
   UpdateCheckResult,
@@ -39,7 +40,7 @@ export function registerSoftwareUpdaterIpc(getWindow: WindowGetter): void {
         )
         .map((it) => ({ id: it.id, source: it.source }))
       if (safeItems.length === 0) return { succeeded: 0, failed: 0, errors: [] }
-      return runUpdates(safeItems, sendProgress)
+      return trackMainWork(runUpdates(safeItems, sendProgress))
     }
   )
 }

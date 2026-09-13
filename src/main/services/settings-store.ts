@@ -1,3 +1,4 @@
+import { scheduleDefinition } from '../../shared/schedule-policy'
 import { readFileSync, writeFileSync, renameSync, unlinkSync, mkdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import { app, safeStorage } from 'electron'
@@ -389,7 +390,21 @@ export function setSettings(partial: Partial<KuduSettings>): void {
   // Fire-and-forget by contract — callers order writes with flushSettings().
   // runLocked has already logged anything that went wrong.
   void runLocked('settings', (data) => {
-    data.settings = deepMerge(data.settings, partial)
+    const patch = { ...partial }
+    if (patch.schedules)
+      patch.schedules = patch.schedules.map((entry) => {
+        const previous = data.settings.schedules.find((e) => e.id === entry.id)
+        // Editing or re-enabling a schedule must not turn its most recent past occurrence
+        // into a "missed" run that starts unattended; catch-up covers later ones only.
+        const redefined = previous && scheduleDefinition(previous) !== scheduleDefinition(entry)
+        return {
+          ...entry,
+          lastDueAt: redefined ? new Date().toISOString() : (previous?.lastDueAt ?? null),
+          lastRunAt: previous?.lastRunAt ?? null,
+          lastRunStatus: previous?.lastRunStatus ?? 'never'
+        }
+      })
+    data.settings = deepMerge(data.settings, patch)
   }).catch(() => {
     /* logged in runLocked */
   })
@@ -505,4 +520,25 @@ export function getMachineId(): string {
     /* logged in runLocked */
   })
   return id
+}
+
+/** Persist before dispatch, and reject a definition edited while conditions were evaluated. */
+export async function claimScheduleOccurrence(
+  entry: import('../../shared/types').ScheduleEntry,
+  dueAt: string
+): Promise<boolean> {
+  let claimed = false
+  await runLocked('schedule occurrence', (data) => {
+    const current = data.settings.schedules.find((e) => e.id === entry.id)
+    if (
+      !current ||
+      !current.enabled ||
+      scheduleDefinition(current) !== scheduleDefinition(entry) ||
+      Date.parse(current.lastDueAt ?? '') >= Date.parse(dueAt)
+    )
+      return false
+    current.lastDueAt = dueAt
+    claimed = true
+  })
+  return claimed
 }
