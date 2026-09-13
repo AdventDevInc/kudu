@@ -291,10 +291,12 @@ describe('preview and deletion safety', () => {
     expect((await service.clean(next.token)).result.filesDeleted).toBe(0)
     expect(await readFile(join(outside, 'outside.tmp'), 'utf8')).toBe('test data')
   })
-  it('refuses bind-mounted folders as roots, in previews and when mounted after preview', async () => {
+  it('refuses bind-mounted folders and files, in previews and when mounted after preview', async () => {
     await old(join(root, 'old.tmp'))
     await old(join(root, 'mounted', 'old.tmp'))
+    await old(join(root, 'bound.tmp'))
     mounts.add(join(root, 'mounted'))
+    mounts.add(join(root, 'bound.tmp'))
     const p = await service.preview(rule)
     expect(p.state).toBe('complete')
     expect(p.items.map((i) => i.path)).toEqual([join(root, 'old.tmp')])
@@ -304,13 +306,17 @@ describe('preview and deletion safety', () => {
     )
     mounts.clear()
     const next = await service.preview(rule)
-    expect(next.items).toHaveLength(2)
+    expect(next.items).toHaveLength(3)
     await service.save(next.token)
     mounts.add(join(root, 'mounted'))
+    mounts.add(join(root, 'bound.tmp'))
+    // Secure deletion would overwrite the bind-mounted file's external source in place.
+    settings.cleaner.secureDelete = true
     const result = await service.clean(next.token)
     expect(result.result.filesDeleted).toBe(1)
-    expect(result.result.filesSkipped).toBe(1)
+    expect(result.result.filesSkipped).toBe(2)
     expect(await readFile(join(root, 'mounted', 'old.tmp'), 'utf8')).toBe('test data')
+    expect(await readFile(join(root, 'bound.tmp'), 'utf8')).toBe('test data')
   })
   it('skips files which acquired another hard link after preview', async () => {
     await old(join(root, 'old.tmp'))

@@ -127,6 +127,8 @@ export class CustomCleaners {
     if (isExcluded(item.path, exclusions) || !customFileMatches(item.path, rule, now, cutoff))
       return 'custom-file-no-longer-eligible'
     if ((await realpath(item.path)) !== item.path) return 'custom-path-changed'
+    // A bind-mounted file keeps its source's device and identity, so only its path reveals it.
+    if (mounts.has(item.path)) return 'custom-file-mounted'
     for (let parent = dirname(item.path); ; parent = dirname(parent)) {
       const old = ctx.directories.get(parent),
         info = await lstat(parent)
@@ -248,6 +250,10 @@ export class CustomCleaners {
           }
           if (info.isDirectory()) {
             if (depth < rule.maxDepth) await scan(file, depth + 1)
+            continue
+          }
+          if (mounts.has(file)) {
+            addWarning('Aliases and other mounted volumes were skipped.')
             continue
           }
           if (customFileMatches(file, rule, info, cutoff)) {
