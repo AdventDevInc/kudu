@@ -1,4 +1,11 @@
-import { useState, useMemo } from 'react'
+import { ScheduleOptions, ScheduleScope } from '@/components/schedules/ScheduleOptions'
+import {
+  scheduleDefinition,
+  validateScheduleConditions,
+  type ScheduleConditions,
+  type ScheduleRuntime
+} from '@shared/schedule-policy'
+import { useState, useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   CalendarClock,
@@ -173,10 +180,40 @@ export function SchedulesPage() {
   const allTasks = useAllTasks()
   const presets = useMemo(() => buildPresets(platformTasks, t), [platformTasks, t])
   const schedules = settings.schedules ?? []
+  const [runtime, setRuntime] = useState<ScheduleRuntime[]>([])
+  const [runId, setRunId] = useState<string | null>(null)
+  useEffect(() => {
+    let mounted = true
+    const refresh = () =>
+      window.kudu
+        .scheduleRuntime()
+        .then((value) => {
+          if (mounted) setRuntime(value)
+        })
+        .catch(() => {})
+    void refresh()
+    const timer = setInterval(() => void refresh(), 15_000)
+    return () => {
+      mounted = false
+      clearInterval(timer)
+    }
+  }, [])
 
-  const save = (updated: ScheduleEntry[]) => {
-    updateSettings({ schedules: updated })
-    window.kudu?.settingsSet?.({ schedules: updated }).catch(() => {})
+  const save = async (updated: ScheduleEntry[]) => {
+    try {
+      await window.kudu.settingsSet({ schedules: updated })
+      const persisted = await window.kudu.settingsGet()
+      if (
+        JSON.stringify(persisted.schedules.map(scheduleDefinition)) !==
+        JSON.stringify(updated.map(scheduleDefinition))
+      )
+        throw new Error(t('advanced.saveFailed'))
+      updateSettings({ schedules: persisted.schedules })
+      return true
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t('advanced.saveFailed'))
+      return false
+    }
   }
 
   // Ensure startup + tray when any schedule is enabled
@@ -232,7 +269,7 @@ export function SchedulesPage() {
     setShowDialog(true)
   }
 
-  const handleDuplicate = (id: string) => {
+  const handleDuplicate = async (id: string) => {
     if (schedules.length >= MAX_SCHEDULES) {
       toast.error(t('maxSchedulesReached', { max: MAX_SCHEDULES }))
       return
@@ -243,32 +280,33 @@ export function SchedulesPage() {
       ...entry,
       id: crypto.randomUUID(),
       name: `${entry.name} ${t('copyNameSuffix')}`,
+      lastDueAt: null,
       lastRunAt: null,
       lastRunStatus: 'never',
       createdAt: new Date().toISOString()
     }
-    save([...schedules, dup])
+    if (!(await save([...schedules, dup]))) return
     toast.success(t('duplicatedToast', { name: entry.name }))
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return
     const entry = schedules.find((s) => s.id === deleteId)
-    save(schedules.filter((s) => s.id !== deleteId))
+    if (!(await save(schedules.filter((s) => s.id !== deleteId)))) return
     setDeleteId(null)
     if (entry) toast.success(t('deletedToast', { name: entry.name }))
   }
 
-  const handleToggle = (id: string, enabled: boolean) => {
-    save(schedules.map((s) => (s.id === id ? { ...s, enabled } : s)))
+  const handleToggle = async (id: string, enabled: boolean) => {
+    if (!(await save(schedules.map((s) => (s.id === id ? { ...s, enabled } : s))))) return
     if (enabled) ensureBackgroundMode()
   }
 
-  const handleSave = (entry: ScheduleEntry) => {
+  const handleSave = async (entry: ScheduleEntry) => {
     if (editingId) {
-      save(schedules.map((s) => (s.id === editingId ? entry : s)))
+      if (!(await save(schedules.map((s) => (s.id === editingId ? entry : s))))) return
     } else {
-      save([...schedules, entry])
+      if (!(await save([...schedules, entry]))) return
     }
     if (entry.enabled) ensureBackgroundMode()
     setShowDialog(false)
@@ -319,6 +357,8 @@ export function SchedulesPage() {
             <ScheduleCard
               key={entry.id}
               entry={entry}
+              runtime={runtime.find((r) => r.id === entry.id)}
+              onRun={() => setRunId(entry.id)}
               onToggle={(enabled) => handleToggle(entry.id, enabled)}
               onEdit={() => handleEdit(entry.id)}
               onDuplicate={() => handleDuplicate(entry.id)}
@@ -351,6 +391,26 @@ export function SchedulesPage() {
         />
       )}
 
+      <ConfirmDialog
+        open={!!runId}
+        title={t('advanced.runNow')}
+        description={t('advanced.runConfirm')}
+        confirmLabel={t('advanced.runNow')}
+        onCancel={() => setRunId(null)}
+        onConfirm={() => {
+          const id = runId!
+          setRunId(null)
+          void window.kudu
+            .scheduleRunNow(id)
+            .then((state) => {
+              if (state) setRuntime((previous) => [...previous.filter((r) => r.id !== id), state])
+              if (state?.reason) toast.info(t('advanced.waiting.' + state.reason))
+            })
+            .catch((error) =>
+              toast.error(error instanceof Error ? error.message : t('advanced.runFailed'))
+            )
+        }}
+      />
       {/* Delete confirmation */}
       <ConfirmDialog
         open={!!deleteId}
@@ -369,12 +429,16 @@ export function SchedulesPage() {
 
 function ScheduleCard({
   entry,
+  runtime,
+  onRun,
   onToggle,
   onEdit,
   onDuplicate,
   onDelete
 }: {
   entry: ScheduleEntry
+  runtime?: ScheduleRuntime
+  onRun: () => void
   onToggle: (enabled: boolean) => void
   onEdit: () => void
   onDuplicate: () => void
@@ -427,6 +491,29 @@ function ScheduleCard({
         </div>
       </div>
 
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+        <button
+          className="rounded-lg border px-3 py-1 disabled:opacity-40"
+          disabled={!entry.enabled || runtime?.running}
+          onClick={onRun}
+        >
+          {t('advanced.runNow')}
+        </button>
+        <span role="status">
+          {runtime?.running
+            ? t('advanced.running')
+            : runtime?.reason
+              ? t('advanced.waiting.' + runtime.reason)
+              : ''}
+        </span>
+        {runtime?.reason && (
+          <span className="text-xs">
+            {t('advanced.nextEvaluation', {
+              time: new Date(runtime.nextEvaluationAt).toLocaleTimeString()
+            })}
+          </span>
+        )}
+      </div>
       {/* Task pills */}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {entry.tasks.map((taskType) => {
@@ -500,6 +587,7 @@ function ScheduleCard({
             />
           )}
           <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+            {entry.lastRunStatus === 'skipped' && <span>{t('advanced.skipped')} </span>}
             {entry.lastRunAt
               ? t('card.lastRun', { time: formatLastRun(entry.lastRunAt, t) })
               : t('card.neverRun')}
@@ -612,6 +700,15 @@ function ScheduleDialog({
   const [minute, setMinute] = useState(initial.minute ?? 0)
   const [tasks, setTasks] = useState<ScheduleTaskType[]>(initial.tasks ?? [...CLEANER_TASKS])
   const [autoApply, setAutoApply] = useState(initial.autoApply ?? false)
+  const [conditions, setConditions] = useState<ScheduleConditions>(
+    initial.conditions ?? { pauseForGameMode: true, acOnly: !isEditing }
+  )
+  const [missedRun, setMissedRun] = useState<'skip' | 'once'>(
+    initial.missedRun ?? (isEditing ? 'skip' : 'once')
+  )
+  const [scope, setScope] = useState<NonNullable<ScheduleEntry['cleanerSubcategories']>>(
+    initial.cleanerSubcategories ?? {}
+  )
 
   const toggleTask = (type: ScheduleTaskType) => {
     setTasks((prev) => (prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]))
@@ -621,7 +718,8 @@ function ScheduleDialog({
   const selectAll = () => setTasks([...allAvailableTypes])
   const deselectAll = () => setTasks([])
 
-  const canSave = name.trim().length > 0 && tasks.length > 0
+  const canSave =
+    name.trim().length > 0 && tasks.length > 0 && validateScheduleConditions(conditions)
 
   const handleSubmit = () => {
     if (!canSave) return
@@ -634,6 +732,9 @@ function ScheduleDialog({
       hour,
       minute,
       tasks,
+      conditions,
+      missedRun,
+      cleanerSubcategories: scope,
       autoApply,
       lastRunAt: (initial as ScheduleEntry).lastRunAt ?? null,
       lastRunStatus: (initial as ScheduleEntry).lastRunStatus ?? 'never',
@@ -870,6 +971,63 @@ function ScheduleDialog({
           </div>
         </div>
 
+        <ScheduleOptions
+          conditions={conditions}
+          onChange={setConditions}
+          missedRun={missedRun}
+          onMissedRun={setMissedRun}
+        />
+        <fieldset className="mb-5 space-y-3 rounded-xl border p-4">
+          <legend className="px-2 font-semibold">{t('advanced.workflow')}</legend>
+          <p className="text-xs">{t('advanced.workflowHint')}</p>
+          {tasks.map((type, index) => (
+            <div key={type} className="space-y-2">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="flex-1">
+                  {index + 1}. {availableTasks.find((task) => task.type === type)?.label ?? type}
+                </span>
+                <button
+                  type="button"
+                  aria-label={t('advanced.moveUp')}
+                  disabled={index === 0}
+                  className="rounded border px-2 disabled:opacity-30"
+                  onClick={() =>
+                    setTasks((previous) => {
+                      const next = [...previous]
+                      ;[next[index - 1], next[index]] = [next[index], next[index - 1]]
+                      return next
+                    })
+                  }
+                >
+                  {t('advanced.moveUp')}
+                </button>
+                <button
+                  type="button"
+                  aria-label={t('advanced.moveDown')}
+                  disabled={index === tasks.length - 1}
+                  className="rounded border px-2 disabled:opacity-30"
+                  onClick={() =>
+                    setTasks((previous) => {
+                      const next = [...previous]
+                      ;[next[index + 1], next[index]] = [next[index], next[index + 1]]
+                      return next
+                    })
+                  }
+                >
+                  {t('advanced.moveDown')}
+                </button>
+              </div>
+              {type.startsWith('cleaner:') && type !== 'cleaner:recycleBin' && (
+                <ScheduleScope
+                  task={type}
+                  label={availableTasks.find((task) => task.type === type)?.label ?? type}
+                  selected={scope[type]}
+                  onChange={(value) => setScope((previous) => ({ ...previous, [type]: value }))}
+                />
+              )}
+            </div>
+          ))}
+        </fieldset>
         {/* Auto-apply */}
         <div
           className="mb-6 flex items-start gap-4 rounded-xl p-4"

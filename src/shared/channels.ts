@@ -1,4 +1,7 @@
 export const IPC = {
+  SCHEDULE_AUTHORIZE: 'schedule:authorize',
+  SCHEDULE_RUNTIME: 'schedule:runtime',
+  SCHEDULE_RUN_NOW: 'schedule:run-now',
   // System cleaner
   SYSTEM_SCAN: 'cleaner:system:scan',
   SYSTEM_CLEAN: 'cleaner:system:clean',

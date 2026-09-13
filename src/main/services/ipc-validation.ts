@@ -1,3 +1,4 @@
+import { validateScheduleConditions } from '../../shared/schedule-policy'
 /**
  * Runtime validation helpers for IPC inputs from the renderer process.
  * These guard against malformed or malicious data crossing the IPC boundary.
@@ -166,7 +167,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
       'cve-scan'
     ])
     const validFrequencies = new Set(['daily', 'weekly', 'monthly'])
-    const validStatuses = new Set(['success', 'partial', 'failed', 'never'])
+    const validStatuses = new Set(['success', 'partial', 'failed', 'never', 'skipped'])
     for (const entry of obj.schedules) {
       if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return null
       const e = entry as Record<string, unknown>
@@ -174,13 +175,50 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
       if (typeof e.name !== 'string' || e.name.length > 100) return null
       if (typeof e.enabled !== 'boolean') return null
       if (!validFrequencies.has(e.frequency as string)) return null
-      if (typeof e.day !== 'number' || e.day < 0 || e.day > 31) return null
-      if (typeof e.hour !== 'number' || e.hour < 0 || e.hour > 23) return null
-      if (e.minute !== undefined && (typeof e.minute !== 'number' || e.minute < 0 || e.minute > 59))
+      if (
+        !Number.isInteger(e.day) ||
+        Number(e.day) < (e.frequency === 'monthly' ? 1 : 0) ||
+        Number(e.day) > (e.frequency === 'weekly' ? 6 : 31)
+      )
+        return null
+      if (!Number.isInteger(e.hour) || Number(e.hour) < 0 || Number(e.hour) > 23) return null
+      if (
+        e.minute !== undefined &&
+        (!Number.isInteger(e.minute) || Number(e.minute) < 0 || Number(e.minute) > 59)
+      )
         return null
       if (!Array.isArray(e.tasks) || e.tasks.length > 20) return null
       if (!e.tasks.every((t: unknown) => typeof t === 'string' && validTaskTypes.has(t as string)))
         return null
+      if (e.conditions !== undefined && !validateScheduleConditions(e.conditions)) return null
+      if (e.missedRun !== undefined && !['skip', 'once'].includes(e.missedRun as string))
+        return null
+      if (
+        e.lastDueAt !== undefined &&
+        e.lastDueAt !== null &&
+        (typeof e.lastDueAt !== 'string' || !Number.isFinite(Date.parse(e.lastDueAt)))
+      )
+        return null
+      if (e.cleanerSubcategories !== undefined) {
+        if (
+          !e.cleanerSubcategories ||
+          typeof e.cleanerSubcategories !== 'object' ||
+          Array.isArray(e.cleanerSubcategories)
+        )
+          return null
+        for (const [key, values] of Object.entries(e.cleanerSubcategories)) {
+          if (values === undefined) continue
+          if (
+            key === 'cleaner:recycleBin' ||
+            !key.startsWith('cleaner:') ||
+            !validTaskTypes.has(key) ||
+            !Array.isArray(values) ||
+            values.length > 100 ||
+            values.some((v) => typeof v !== 'string' || !v || v.length > 200)
+          )
+            return null
+        }
+      }
       if (typeof e.autoApply !== 'boolean') return null
       if (e.lastRunAt !== null && (typeof e.lastRunAt !== 'string' || e.lastRunAt.length > 50))
         return null

@@ -1,9 +1,26 @@
-import { BrowserWindow, Notification } from 'electron'
+import { app, BrowserWindow, Notification, powerMonitor } from 'electron'
 import { IPC } from '../../shared/channels'
-import { getSettings, updateScheduleEntry } from './settings-store'
+import {
+  getSettings,
+  updateScheduleEntry,
+  claimScheduleOccurrence,
+  flushSettings
+} from './settings-store'
 import { t } from '../i18n'
 import { logInfo } from './logger'
 import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
+
+import { randomUUID } from 'crypto'
+import { parse } from 'path'
+import si from 'systeminformation'
+import {
+  dueScheduleOccurrence,
+  nextScheduleOccurrence,
+  scheduleDefinition,
+  scheduleWaitingReason,
+  type ScheduleRuntime,
+  type ScheduleWaitingReason
+} from '../../shared/schedule-policy'
 
 let schedulerTimer: ReturnType<typeof setInterval> | null = null
 let initialCheckTimer: ReturnType<typeof setTimeout> | null = null
@@ -13,82 +30,7 @@ let initialCheckTimer: ReturnType<typeof setTimeout> | null = null
 /**
  * Calculate the next run time for a single schedule entry.
  */
-export function getNextRunTime(entry: ScheduleEntry): Date | null {
-  if (!entry.enabled) return null
-
-  const now = new Date()
-  const next = new Date()
-  const minute = entry.minute ?? 0
-  next.setHours(entry.hour, minute, 0, 0)
-
-  switch (entry.frequency) {
-    case 'daily':
-      if (next <= now) next.setDate(next.getDate() + 1)
-      break
-
-    case 'weekly':
-      next.setDate(next.getDate() + ((entry.day - next.getDay() + 7) % 7))
-      if (next <= now) next.setDate(next.getDate() + 7)
-      break
-
-    case 'monthly': {
-      const clampDay = (d: Date, day: number) => {
-        const max = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
-        d.setDate(Math.min(day, max))
-      }
-      clampDay(next, entry.day)
-      if (next <= now) {
-        next.setMonth(next.getMonth() + 1)
-        clampDay(next, entry.day)
-      }
-      break
-    }
-  }
-
-  return next
-}
-
-/**
- * Check if a schedule entry is due to run now.
- * Uses the entry's own lastRunAt instead of global history.
- */
-function isDueEntry(entry: ScheduleEntry): boolean {
-  if (!entry.enabled) return false
-
-  const now = new Date()
-  const lastRun = entry.lastRunAt ? new Date(entry.lastRunAt) : null
-
-  const target = new Date()
-  const entryMinute = entry.minute ?? 0
-  target.setHours(entry.hour, entryMinute, 0, 0)
-  const withinWindow = Math.abs(now.getTime() - target.getTime()) <= 2 * 60_000
-
-  switch (entry.frequency) {
-    case 'daily':
-      if (!withinWindow) return false
-      if (lastRun && isSameDay(lastRun, now)) return false
-      return true
-
-    case 'weekly':
-      if (now.getDay() !== entry.day) return false
-      if (!withinWindow) return false
-      if (lastRun && isSameDay(lastRun, now)) return false
-      return true
-
-    case 'monthly': {
-      // Clamp day to the last day of the current month (same as getNextRunTime)
-      // so that e.g. day=31 fires on the 28th in February
-      const maxDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-      const effectiveDay = Math.min(entry.day, maxDay)
-      if (now.getDate() !== effectiveDay) return false
-      if (!withinWindow) return false
-      if (lastRun && isSameDay(lastRun, now)) return false
-      return true
-    }
-  }
-
-  return false
-}
+export const getNextRunTime = nextScheduleOccurrence
 
 export function isSameDay(a: Date, b: Date): boolean {
   return (
@@ -138,54 +80,158 @@ export function getNextScanTime(settings: KuduSettings): Date | null {
 
 // ─── Trigger & notify ─────────────────────────────────────
 
-/** Track in-flight schedules to prevent re-triggering before completion */
-const inFlight = new Set<string>()
-const inFlightTimers = new Map<string, ReturnType<typeof setTimeout>>()
-
-/** Safety timeout: if the renderer never calls back, clear inFlight after 10 min */
-const IN_FLIGHT_TIMEOUT_MS = 10 * 60_000
-
-function triggerScheduleEntry(mainWindow: BrowserWindow | null, entry: ScheduleEntry): void {
-  // Skip if this schedule is already in-flight
-  if (inFlight.has(entry.id)) return
-
-  // Skip if window is unavailable — mark as failed to prevent re-triggering
-  if (!mainWindow || mainWindow.isDestroyed()) {
-    logInfo(`Schedule "${entry.name}" skipped — no window available`)
-    completeScheduleRun(entry.id, 'failed')
+interface ActiveRun {
+  entry: ScheduleEntry
+  runId: string
+  dueAt: string
+  window: BrowserWindow
+}
+let active: ActiveRun | null = null
+let evaluating = false
+let generation = 0
+const runtime = new Map<string, ScheduleRuntime>()
+export function getScheduleRuntime(): ScheduleRuntime[] {
+  return [...runtime.values()]
+}
+function state(entry: ScheduleEntry, reason: ScheduleWaitingReason | null, running = false) {
+  runtime.set(entry.id, {
+    id: entry.id,
+    reason,
+    running,
+    evaluatedAt: new Date().toISOString(),
+    nextEvaluationAt: new Date(Date.now() + 60_000).toISOString()
+  })
+}
+async function conditionReason(entry: ScheduleEntry) {
+  const conditions = entry.conditions ?? {}
+  let idleSeconds: number | null = null,
+    onBattery: boolean | null = null,
+    gameMode: boolean | null = null,
+    freePercent: number | null = null
+  try {
+    idleSeconds = powerMonitor.getSystemIdleTime()
+  } catch {
+    /* unavailable */
+  }
+  try {
+    onBattery = powerMonitor.isOnBatteryPower()
+  } catch {
+    /* unavailable */
+  }
+  if (conditions.pauseForGameMode !== false) {
+    if (process.platform !== 'win32') gameMode = false
+    else {
+      try {
+        const { getGameModeStatus } = await import('../ipc/game-mode.ipc')
+        const status = getGameModeStatus()
+        gameMode = status.active || status.pendingRestore
+      } catch {
+        /* unavailable */
+      }
+    }
+  }
+  if (conditions.freeBelowPercent !== undefined) {
+    try {
+      const root = parse(app.getPath('home'))
+        .root.replace(/[\\/]$/, '')
+        .toLowerCase()
+      const disks = await Promise.race([
+        si.fsSize(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Disk query timed out')), 5000)
+        )
+      ])
+      const disk = disks.find((d) => d.mount.replace(/[\\/]$/, '').toLowerCase() === root)
+      if (disk && disk.size > 0) freePercent = (100 * disk.available) / disk.size
+    } catch {
+      /* unknown disk condition prevents execution */
+    }
+  }
+  return scheduleWaitingReason(
+    conditions,
+    { idleSeconds, onBattery, gameMode, freePercent },
+    new Date()
+  )
+}
+export async function authorizeScheduleStep(scheduleId: unknown, runId: unknown) {
+  if (!active || active.entry.id !== scheduleId || active.runId !== runId)
+    return { allowed: false, reason: 'unavailable' as const }
+  const entry = getSettings().schedules.find((e) => e.id === scheduleId)
+  let reason: ScheduleWaitingReason | null =
+    !entry || !entry.enabled
+      ? 'disabled'
+      : scheduleDefinition(entry) !== scheduleDefinition(active.entry)
+        ? 'changed'
+        : await conditionReason(entry)
+  if (!active || active.runId !== runId) reason = 'unavailable'
+  const latest = getSettings().schedules.find((e) => e.id === scheduleId)
+  if (!latest?.enabled) reason = 'disabled'
+  else if (entry && scheduleDefinition(latest) !== scheduleDefinition(entry)) reason = 'changed'
+  if (entry) state(entry, reason, !reason)
+  return { allowed: !reason, reason }
+}
+async function triggerScheduleEntry(
+  mainWindow: BrowserWindow | null,
+  entry: ScheduleEntry,
+  due: Date
+): Promise<void> {
+  if (active) {
+    state(entry, 'busy')
     return
   }
-
-  logInfo(`Schedule triggered: "${entry.name}" (${entry.id})`)
-  inFlight.add(entry.id)
-
-  // Safety timeout — if the renderer never responds (crash, reload, etc.),
-  // auto-clear so the schedule isn't stuck forever
-  inFlightTimers.set(
-    entry.id,
-    setTimeout(() => {
-      if (inFlight.has(entry.id)) {
-        logInfo(`Schedule "${entry.name}" timed out — clearing inFlight`)
-        inFlight.delete(entry.id)
-        inFlightTimers.delete(entry.id)
-      }
-    }, IN_FLIGHT_TIMEOUT_MS)
+  if (!mainWindow || mainWindow.isDestroyed() || mainWindow.webContents.isDestroyed()) {
+    state(entry, 'unavailable')
+    return
+  }
+  const definition = structuredClone(entry)
+  const startedGeneration = generation
+  const reason = await conditionReason(entry)
+  if (startedGeneration !== generation) return
+  if (reason) {
+    state(entry, reason)
+    return
+  }
+  if (!(await claimScheduleOccurrence(entry, due.toISOString()))) return
+  if (
+    startedGeneration !== generation ||
+    mainWindow.isDestroyed() ||
+    mainWindow.webContents.isDestroyed()
   )
-
+    return
+  active = {
+    entry: definition,
+    runId: randomUUID(),
+    dueAt: due.toISOString(),
+    window: mainWindow
+  }
+  state(entry, null, true)
   mainWindow.webContents.send(IPC.SCHEDULE_RUN_TRIGGER, {
     scheduleId: entry.id,
+    runId: active.runId,
     scheduleName: entry.name,
     tasks: entry.tasks,
-    autoApply: entry.autoApply
+    autoApply: entry.autoApply,
+    cleanerSubcategories: entry.cleanerSubcategories
   })
-
   if (!process.argv.includes('--daemon') && Notification.isSupported()) {
-    const notification = new Notification({
+    new Notification({
       title: t('scheduledTaskNotificationTitle'),
       body: t('scheduledTaskNotificationBody', { name: entry.name }),
       silent: true
-    })
-    notification.show()
+    }).show()
+  }
+}
+export async function runScheduleNow(getMainWindow: () => BrowserWindow | null, id: unknown) {
+  if (typeof id !== 'string') throw new Error('Invalid schedule ID')
+  if (evaluating || active) throw new Error('Another scheduled run is active')
+  const entry = getSettings().schedules.find((e) => e.id === id && e.enabled)
+  if (!entry) throw new Error('Enable the schedule before running it')
+  evaluating = true
+  try {
+    await triggerScheduleEntry(getMainWindow(), entry, new Date())
+    return runtime.get(id)
+  } finally {
+    evaluating = false
   }
 }
 
@@ -211,29 +257,57 @@ export function notifyScheduledScanComplete(totalSize: number, itemCount: number
  * Uses updateScheduleEntry for atomic read-modify-write inside the lock,
  * so concurrent completions from different schedules don't clobber each other.
  */
-export function completeScheduleRun(scheduleId: string, status: ScheduleRunStatus): void {
-  inFlight.delete(scheduleId)
-  const timer = inFlightTimers.get(scheduleId)
-  if (timer) {
-    clearTimeout(timer)
-    inFlightTimers.delete(scheduleId)
+export async function completeScheduleRun(
+  scheduleId: string,
+  status: ScheduleRunStatus | 'deferred',
+  runId?: string
+): Promise<void> {
+  if (!active || active.entry.id !== scheduleId || active.runId !== runId) return
+  const entry = active.entry
+  const reason = runtime.get(scheduleId)?.reason ?? null
+  const current = getSettings().schedules.find((e) => e.id === scheduleId)
+  if (
+    status === 'deferred' &&
+    entry.missedRun === 'once' &&
+    current &&
+    scheduleDefinition(current) === scheduleDefinition(entry)
+  ) {
+    updateScheduleEntry(scheduleId, { lastDueAt: entry.lastDueAt ?? null })
+  } else {
+    updateScheduleEntry(scheduleId, {
+      lastRunAt: new Date().toISOString(),
+      lastRunStatus: status === 'deferred' ? 'skipped' : status
+    })
   }
-  updateScheduleEntry(scheduleId, {
-    lastRunAt: new Date().toISOString(),
-    lastRunStatus: status
-  })
+  await flushSettings()
+  if (active?.runId === runId) active = null
+  state(entry, reason)
 }
-
-// ─── Scheduler loop ───────────────────────────────────────
-
-function checkSchedules(getMainWindow: () => BrowserWindow | null): void {
-  const settings = getSettings()
-
-  // Check each enabled schedule
-  for (const entry of settings.schedules) {
-    if (isDueEntry(entry)) {
-      triggerScheduleEntry(getMainWindow(), entry)
+async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promise<void> {
+  if (evaluating) return
+  evaluating = true
+  try {
+    const entries = getSettings().schedules
+    for (const id of runtime.keys()) if (!entries.some((e) => e.id === id)) runtime.delete(id)
+    // Never time out a live operation and start an overlapping run. A lost renderer consumes
+    // this occurrence; a restart will not replay work whose completion is uncertain.
+    if (
+      active &&
+      (active.window.isDestroyed() ||
+        active.window.webContents.isDestroyed() ||
+        active.window.webContents.isCrashed())
+    ) {
+      state(active.entry, 'interrupted')
+      return
     }
+    for (const entry of entries) {
+      if (active?.entry.id === entry.id) continue
+      const due = dueScheduleOccurrence(entry, new Date())
+      if (due) await triggerScheduleEntry(getMainWindow(), entry, due)
+      else state(entry, entry.enabled ? null : 'disabled')
+    }
+  } finally {
+    evaluating = false
   }
 }
 
@@ -247,7 +321,7 @@ export function startScheduler(getMainWindow: () => BrowserWindow | null): void 
 
   schedulerTimer = setInterval(() => {
     try {
-      checkSchedules(getMainWindow)
+      void checkSchedules(getMainWindow).catch((err) => logInfo(`Scheduler error: ${err}`))
     } catch (err) {
       logInfo(`Scheduler error: ${err}`)
     }
@@ -257,7 +331,7 @@ export function startScheduler(getMainWindow: () => BrowserWindow | null): void 
   initialCheckTimer = setTimeout(() => {
     initialCheckTimer = null
     try {
-      checkSchedules(getMainWindow)
+      void checkSchedules(getMainWindow).catch((err) => logInfo(`Scheduler error: ${err}`))
     } catch (err) {
       logInfo(`Scheduler initial check error: ${err}`)
     }
@@ -268,6 +342,7 @@ export function startScheduler(getMainWindow: () => BrowserWindow | null): void 
  * Stop the scheduler.
  */
 export function stopScheduler(): void {
+  generation++
   if (initialCheckTimer) {
     clearTimeout(initialCheckTimer)
     initialCheckTimer = null
@@ -277,8 +352,6 @@ export function stopScheduler(): void {
     schedulerTimer = null
     logInfo('Scheduler stopped')
   }
-  // Clean up any pending inFlight timers
-  for (const timer of inFlightTimers.values()) clearTimeout(timer)
-  inFlightTimers.clear()
-  inFlight.clear()
+  runtime.clear()
+  active = null
 }

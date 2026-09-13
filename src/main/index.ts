@@ -22,7 +22,10 @@ import {
   stopScheduler,
   getNextScanTime,
   notifyScheduledScanComplete,
-  completeScheduleRun
+  completeScheduleRun,
+  authorizeScheduleStep,
+  getScheduleRuntime,
+  runScheduleNow
 } from './services/scheduler'
 import { initAutoUpdater } from './services/auto-updater'
 import { attachRendererDiagnostics } from './services/renderer-diagnostics'
@@ -669,13 +672,35 @@ function initGui(): void {
       notifyScheduledScanComplete(totalSize, itemCount)
     })
 
+    ipcMain.handle(IPC.SCHEDULE_AUTHORIZE, (_event, id: unknown, runId: unknown) =>
+      authorizeScheduleStep(id, runId)
+    )
+    ipcMain.handle(IPC.SCHEDULE_RUNTIME, () => getScheduleRuntime())
+    ipcMain.handle(IPC.SCHEDULE_RUN_NOW, (_event, id: unknown) =>
+      runScheduleNow(() => mainWindow, id)
+    )
     // Handle multi-schedule run completion
-    const VALID_RUN_STATUSES = new Set(['success', 'partial', 'failed', 'never'])
-    ipcMain.on(IPC.SCHEDULE_RUN_COMPLETE, (_event, scheduleId: unknown, status: unknown) => {
-      if (typeof scheduleId !== 'string' || typeof status !== 'string') return
-      if (!VALID_RUN_STATUSES.has(status)) return
-      completeScheduleRun(scheduleId, status as 'success' | 'partial' | 'failed' | 'never')
-    })
+    const VALID_RUN_STATUSES = new Set([
+      'success',
+      'partial',
+      'failed',
+      'never',
+      'skipped',
+      'deferred'
+    ])
+    ipcMain.handle(
+      IPC.SCHEDULE_RUN_COMPLETE,
+      (_event, scheduleId: unknown, status: unknown, runId: unknown) => {
+        if (typeof scheduleId !== 'string' || typeof status !== 'string') return
+        if (!VALID_RUN_STATUSES.has(status)) return
+        if (typeof runId === 'string')
+          return completeScheduleRun(
+            scheduleId,
+            status as 'success' | 'partial' | 'failed' | 'never' | 'skipped' | 'deferred',
+            runId
+          )
+      }
+    )
 
     app.on('activate', () => {
       if (mainWindow && !mainWindow.isDestroyed()) {

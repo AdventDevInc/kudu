@@ -305,6 +305,8 @@ const api = {
   // Multi-schedule
   onScheduleRunTrigger: (
     callback: (data: {
+      runId: string
+      cleanerSubcategories?: import('../shared/types').ScheduleEntry['cleanerSubcategories']
       scheduleId: string
       scheduleName: string
       tasks: string[]
@@ -317,8 +319,21 @@ const api = {
       ipcRenderer.removeListener(IPC.SCHEDULE_RUN_TRIGGER, handler)
     }
   },
-  scheduleRunComplete: (scheduleId: string, status: string) =>
-    ipcRenderer.send(IPC.SCHEDULE_RUN_COMPLETE, scheduleId, status),
+  scheduleRuntime: (): Promise<import('../shared/schedule-policy').ScheduleRuntime[]> =>
+    ipcRenderer.invoke(IPC.SCHEDULE_RUNTIME),
+  scheduleRunNow: (
+    id: string
+  ): Promise<import('../shared/schedule-policy').ScheduleRuntime | undefined> =>
+    ipcRenderer.invoke(IPC.SCHEDULE_RUN_NOW, id),
+  scheduleAuthorize: (
+    id: string,
+    runId: string
+  ): Promise<{
+    allowed: boolean
+    reason: import('../shared/schedule-policy').ScheduleWaitingReason | null
+  }> => ipcRenderer.invoke(IPC.SCHEDULE_AUTHORIZE, id, runId),
+  scheduleRunComplete: (scheduleId: string, status: string, runId: string) =>
+    ipcRenderer.invoke(IPC.SCHEDULE_RUN_COMPLETE, scheduleId, status, runId),
 
   // Scan history
   historyGet: (): Promise<ScanHistoryEntry[]> => ipcRenderer.invoke(IPC.HISTORY_GET),
