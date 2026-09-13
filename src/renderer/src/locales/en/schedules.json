@@ -99,7 +99,7 @@
   "copyNameSuffix": "(copy)",
   "advanced": {
     "title": "Run conditions",
-    "explanation": "All conditions are checked before starting and before each task or change. Times follow this computer's local time zone. Running operations finish before a changed condition stops the remaining tasks.",
+    "explanation": "All conditions are checked before a run starts. Between tasks, power, idle time and Game Mode are checked again; the maintenance window and free-space threshold only gate the start, so a workflow that begins inside the window or below the threshold finishes its remaining tasks. Times follow this computer's local time zone. Running operations finish before a changed condition stops the remaining tasks.",
     "acOnly": "Only on AC power",
     "gameMode": "Wait while Game Mode is active or restoring",
     "idle": "Idle minutes required (0 disables)",

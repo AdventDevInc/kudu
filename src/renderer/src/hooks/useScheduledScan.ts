@@ -94,7 +94,9 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
           ? 'drivers'
           : ran.includes('software-update')
             ? 'software-update'
-            : 'cleaner'
+            : ran.includes('cve-scan')
+              ? 'cve-scan'
+              : 'cleaner'
 
     // Log to history
     await useHistoryStore.getState().addEntry({
