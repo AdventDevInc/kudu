@@ -1,5 +1,5 @@
 import { dialog, ipcMain, shell } from 'electron'
-import { readdir, lstat, writeFile } from 'fs/promises'
+import { mkdir, readdir, lstat, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { IPC } from '../../shared/channels'
 import { getBackupDir } from '../services/backup-dir'
@@ -39,7 +39,12 @@ export function registerRecoveryIpc(): void {
   ipcMain.handle(IPC.RECOVERY_REMOVE, (_event, id: unknown) => removeRecoveryEntry(id))
   ipcMain.handle(IPC.RECOVERY_RESTORE, (_event, id: unknown) => restoreRecoveryEntry(id))
   ipcMain.handle(IPC.RECOVERY_OPEN_BACKUPS, async () => {
-    const error = await shell.openPath(getBackupDir())
+    // The list handler tolerates a missing folder (fresh install, or a
+    // configured path nothing has written to yet), so create it here rather
+    // than hand a nonexistent path to the OS file manager.
+    const dir = getBackupDir()
+    await mkdir(dir, { recursive: true })
+    const error = await shell.openPath(dir)
     if (error) throw new Error(error)
   })
   ipcMain.handle(IPC.RECOVERY_EXPORT, async () => {
