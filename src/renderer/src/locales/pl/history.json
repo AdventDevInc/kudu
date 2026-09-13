@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Centrum odzyskiwania",
+    "description": "Przeglądaj i przywracaj obsługiwane zmiany wprowadzone przez Kudu",
+    "limits": "Odzyskiwanie obejmuje zapisane wartości DWORD prywatności/rejestru Windows, zaplanowane zadania i konfigurację usług. Trwałego usunięcia plików nie można cofnąć. Starsze lub nieobsługiwane zmiany mogą mieć tylko kopię zapasową do ręcznego użycia. Niektóre przywrócone ustawienia wymagają ponownego uruchomienia.",
+    "refresh": "Odśwież",
+    "export": "Eksportuj historię odzyskiwania",
+    "loadError": "Nie można było odczytać historii odzyskiwania.",
+    "failed": "Odzyskiwanie nie powiodło się.",
+    "empty": "Brak zapisanych zmian na tej stronie. Nowe obsługiwane zmiany pojawią się tutaj.",
+    "gameMode": "Odzyskiwanie Trybu gry",
+    "gameModeDescription": "Tryb gry ma aktywną lub oczekującą migawkę odzyskiwania.",
+    "openGameMode": "Otwórz odzyskiwanie Trybu gry",
+    "before": "Stan pierwotny",
+    "after": "Stan po Kudu",
+    "absent": "Wartość nie istniała",
+    "restore": "Przywróć stan pierwotny",
+    "previous": "Poprzedni",
+    "next": "Następny",
+    "backups": "Kopie zapasowe rejestru i menu kontekstowego",
+    "backupDescription": "Te pliki kopii zapasowych nie zawierają zweryfikowanych informacji o stanie po zmianie. Przed ręcznym przywróceniem sprawdź je w folderze kopii zapasowych; ich zaimportowanie może nadpisać nowsze ustawienia. Plik kopii zapasowej nie jest punktem przywracania systemu.",
+    "openBackups": "Otwórz folder kopii zapasowych",
+    "confirmTitle": "Przywrócić tę zmianę?",
+    "confirmDescription": "Kudu sprawdzi bieżący stan przed przywróceniem zapisanej wartości pierwotnej. Nowsze konfliktujące zmiany zostaną zachowane. Mogą być wymagane uprawnienia administratora.",
+    "status": {
+      "pending": "Przerwane / oczekujące",
+      "ready": "Dostępne",
+      "restored": "Przywrócono",
+      "failed": "Wymaga uwagi",
+      "conflict": "Wykryto nowszą zmianę"
+    },
+    "remove": "Usuń wpis",
+    "removeDescription": "Usunąć ten rekord odzyskiwania z historii lokalnej? Nie zmieni to ustawień ani nie usunie kopii zapasowych rejestru. Kudu nie będzie już mógł przywrócić tej zmiany.",
+    "unreadable": "Nie można było odczytać tego rekordu odzyskiwania. Mógł zostać zapisany przez inne konto użytkownika lub uszkodzony na dysku.",
+    "loading": "Wczytywanie historii odzyskiwania?",
+    "emptyTitle": "Tutaj zaczyna się historia odzyskiwania",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Menedżer usług",
+      "registry": "Czyszczenie rejestru"
+    }
+  },
   "receipts": {
     "volumeDelta": "Zaobserwowana zmiana wolnego miejsca na dysku {{volume}}: {{size}} (wpływ miała również inna aktywność)",
     "selectionContext": "Wpisy w pamięci podręcznej w tych kategoriach: {{found}} · Niewybrane w tej operacji: {{unselected}}",
@@ -85,7 +126,7 @@
   "timeline": {
     "filterAll": "Wszystkie",
     "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterRegistry": "Rejestr",
     "filterDebloater": "Debloater",
     "filterNetwork": "Sieć",
     "filterDrivers": "Sterowniki",
@@ -188,8 +229,8 @@
     "registryFix": "Naprawa rejestru"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1 s",
+    "seconds": "{{count}} s",
+    "minutesAndSeconds": "{{minutes}} min {{seconds}} s"
   }
 }

@@ -1,6 +1,33 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { promisify } from 'util'
 
+const { mockRecordRecoveryChange, mockReadRecoveryTarget } = vi.hoisted(() => ({
+  mockRecordRecoveryChange: vi.fn(
+    async (
+      _source: unknown,
+      _label: unknown,
+      _target: unknown,
+      _before: unknown,
+      _after: unknown,
+      apply: () => Promise<void>
+    ) => apply()
+  ),
+  mockReadRecoveryTarget: vi.fn(async (target: { kind: string }) =>
+    target.kind === 'service-start'
+      ? { start: 3, delayed: null, running: false }
+      : target.kind === 'task-enabled'
+        ? false
+        : 0
+  )
+}))
+vi.mock('../services/recovery-store', () => ({
+  recordRecoveryChange: (...args: Parameters<typeof mockRecordRecoveryChange>) =>
+    mockRecordRecoveryChange(...args)
+}))
+vi.mock('../services/recovery', () => ({
+  readRecoveryTarget: (target: { kind: string }) => mockReadRecoveryTarget(target)
+}))
+
 // ── Mocks ───────────────────────────────────────────────────────────
 // These tests drive the real scan/fix code against realistic reg.exe
 // output. The pure-helper tests in registry-cleaner.ipc.test.ts use
@@ -342,5 +369,99 @@ describe('fixRegistryEntries — protected key guard', () => {
     const deletes = mockExecNative.mock.calls.filter((c) => c[0] === 'reg' && c[1][0] === 'delete')
     expect(deletes).toHaveLength(1)
     expect(deletes[0][1]).toEqual(['delete', target, '/f'])
+  })
+})
+
+describe('fixRegistryEntries — delete-value recovery journaling', () => {
+  const DEFENDER_KEY = 'HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender'
+  const entry = (fix: Record<string, unknown>, valueName = 'DisableAntiSpyware') => ({
+    id: 'e1',
+    type: 'vulnerability' as const,
+    keyPath: DEFENDER_KEY,
+    valueName,
+    issue: 'Windows Defender antivirus is completely disabled via policy',
+    risk: 'high' as const,
+    selected: true,
+    fix
+  })
+  const regDeletes = () =>
+    mockExecNative.mock.calls.filter((c) => c[0] === 'reg' && c[1][0] === 'delete')
+
+  it('scan preserves the detected REG_DWORD type on Defender policy deletes', async () => {
+    mockExecNative.mockImplementation(async (_tool: string, args: string[]) => {
+      if (args[0] === 'query' && args[3] === 'DisableAntiSpyware')
+        return {
+          stdout: `\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\r\n    DisableAntiSpyware    REG_DWORD    0x1\r\n\r\n`,
+          stderr: ''
+        }
+      if (args[0] === 'query' && args[3] === 'DisableRealtimeMonitoring')
+        return {
+          stdout: `\r\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\r\n    DisableRealtimeMonitoring    REG_DWORD    0x1\r\n\r\n`,
+          stderr: ''
+        }
+      return { stdout: '', stderr: '' }
+    })
+
+    const entries = await scanRegistry()
+    const byName = (n: string) => entries.find((e) => e.valueName === n)
+    expect(byName('DisableAntiSpyware')?.fix).toEqual({
+      op: 'delete-value',
+      regType: 'REG_DWORD'
+    })
+    expect(byName('DisableRealtimeMonitoring')?.fix).toEqual({
+      op: 'delete-value',
+      regType: 'REG_DWORD'
+    })
+  })
+
+  it('journals a DWORD delete with the current value and a null after-state, then deletes', async () => {
+    mockReadRecoveryTarget.mockResolvedValueOnce(1)
+
+    const result = await fixRegistryEntries([
+      entry({ op: 'delete-value', regType: 'REG_DWORD' })
+    ] as any)
+
+    expect(result.fixed).toBe(1)
+    expect(mockReadRecoveryTarget).toHaveBeenCalledWith({
+      kind: 'registry-dword',
+      key: DEFENDER_KEY,
+      name: 'DisableAntiSpyware'
+    })
+    expect(mockRecordRecoveryChange).toHaveBeenCalledTimes(1)
+    const [source, label, target, before, after] = mockRecordRecoveryChange.mock.calls[0]
+    expect(source).toBe('registry')
+    expect(label).toBe('Windows Defender antivirus is completely disabled via policy')
+    expect(target).toEqual({
+      kind: 'registry-dword',
+      key: DEFENDER_KEY,
+      name: 'DisableAntiSpyware'
+    })
+    expect(before).toBe(1)
+    expect(after).toBeNull()
+
+    const deletes = regDeletes()
+    expect(deletes).toHaveLength(1)
+    expect(deletes[0][1]).toEqual(['delete', DEFENDER_KEY, '/v', 'DisableAntiSpyware', '/f'])
+  })
+
+  it('does not journal a DWORD delete when the value is already gone', async () => {
+    mockReadRecoveryTarget.mockResolvedValueOnce(null)
+
+    await fixRegistryEntries([entry({ op: 'delete-value', regType: 'REG_DWORD' })] as any)
+
+    expect(mockRecordRecoveryChange).not.toHaveBeenCalled()
+    expect(regDeletes()).toHaveLength(1)
+  })
+
+  it('does not journal a non-DWORD delete', async () => {
+    const result = await fixRegistryEntries([
+      entry({ op: 'delete-value' }, 'StaleEntry'),
+      entry({ op: 'delete-value', regType: 'REG_SZ' }, 'StalePath')
+    ] as any)
+
+    expect(result.fixed).toBe(2)
+    expect(mockReadRecoveryTarget).not.toHaveBeenCalled()
+    expect(mockRecordRecoveryChange).not.toHaveBeenCalled()
+    expect(regDeletes()).toHaveLength(2)
   })
 })

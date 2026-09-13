@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Kurtarma Merkezi",
+    "description": "Kudu tarafından yapılan desteklenen değişiklikleri inceleyin ve geri yükleyin",
+    "limits": "Kurtarma; kaydedilmiş Windows DWORD gizlilik/kayıt defteri değerlerini, zamanlanmış görevleri ve hizmet yapılandırmasını kapsar. Kalıcı dosya silme işlemi geri alınamaz. Daha eski veya desteklenmeyen değişiklikler için yalnızca manuel bir yedek bulunabilir. Geri yüklenen bazı ayarlar yeniden başlatma gerektirir.",
+    "refresh": "Yenile",
+    "export": "Kurtarma geçmişini dışa aktar",
+    "loadError": "Kurtarma geçmişi okunamadı.",
+    "failed": "Kurtarma başarısız oldu.",
+    "empty": "Bu sayfada kaydedilmiş değişiklik yok. Yeni desteklenen değişiklikler burada görünecek.",
+    "gameMode": "Oyun Modu kurtarması",
+    "gameModeDescription": "Oyun Modu için etkin veya bekleyen bir kurtarma anlık görüntüsü var.",
+    "openGameMode": "Oyun Modu kurtarmasını aç",
+    "before": "Özgün durum",
+    "after": "Kudu sonrası durum",
+    "absent": "Değer mevcut değildi",
+    "restore": "Özgün durumu geri yükle",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "backups": "Kayıt defteri ve bağlam menüsü yedekleri",
+    "backupDescription": "Bu yedek dosyaları doğrulanmış sonraki durum bilgisi içermez. Manuel olarak geri yüklemeden önce bunları yedek klasöründe inceleyin; içe aktarmak daha yeni ayarların üzerine yazabilir. Yedek dosyası, işletim sistemi geri yükleme noktası değildir.",
+    "openBackups": "Yedek klasörünü aç",
+    "confirmTitle": "Bu değişiklik geri yüklensin mi?",
+    "confirmDescription": "Kudu, kaydedilen özgün değeri geri yüklemeden önce geçerli durumu denetleyecektir. Daha yeni çakışan değişiklikler korunacaktır. Yönetici ayrıcalıkları gerekebilir.",
+    "status": {
+      "pending": "Kesintiye uğradı / bekliyor",
+      "ready": "Kullanılabilir",
+      "restored": "Geri yüklendi",
+      "failed": "Dikkat gerekiyor",
+      "conflict": "Daha yeni değişiklik algılandı"
+    },
+    "remove": "Kaydı kaldır",
+    "removeDescription": "Bu kurtarma kaydı yerel geçmişten kaldırılsın mı? Bu işlem ayarlarınızı değiştirmez veya kayıt defteri yedeklerini silmez. Kudu artık bu değişikliği sizin için geri yükleyemez.",
+    "unreadable": "Bu kurtarma kaydı okunamadı. Başka bir kullanıcı hesabı tarafından yazılmış veya diskte bozulmuş olabilir.",
+    "loading": "Kurtarma geçmişi yükleniyor?",
+    "emptyTitle": "Kurtarma geçmişiniz burada başlar",
+    "source": {
+      "privacy": "Gizlilik Kalkanı",
+      "services": "Hizmet Yöneticisi",
+      "registry": "Kayıt Defteri Temizleyici"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} gözlemlenen boş alan değişikliği: {{size}} (diğer etkinliklerden de etkilenmiş olabilir)",
     "selectionContext": "Bu kategorilerde önbelleğe alınmış girdiler: {{found}} · Bu işlemde seçilmedi: {{unselected}}",

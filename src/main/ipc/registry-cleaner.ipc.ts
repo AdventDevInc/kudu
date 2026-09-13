@@ -15,6 +15,8 @@ import { execFile } from 'child_process'
 import { promisify } from 'util'
 import { join } from 'path'
 import { getBackupDir } from '../services/backup-dir'
+import { readRecoveryTarget } from '../services/recovery'
+import { recordRecoveryChange } from '../services/recovery-store'
 import { getSettings, updateRegistryIgnoredTweaks } from '../services/settings-store'
 import { IPC } from '../../shared/channels'
 import type { RegistryEntry } from '../../shared/types'
@@ -1421,7 +1423,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
         issue: 'Windows Defender real-time protection is disabled via policy',
         risk: 'high',
         selected: true,
-        fix: { op: 'delete-value' }
+        fix: { op: 'delete-value', regType: 'REG_DWORD' }
       })
     }
   } catch {
@@ -1449,7 +1451,7 @@ export async function scanRegistry(signal?: AbortSignal): Promise<RegistryEntry[
         issue: 'Windows Defender antivirus is completely disabled via policy',
         risk: 'high',
         selected: true,
-        fix: { op: 'delete-value' }
+        fix: { op: 'delete-value', regType: 'REG_DWORD' }
       })
     }
   } catch {
@@ -2187,9 +2189,28 @@ export async function fixRegistryEntries(
 
     try {
       switch (fix.op) {
-        case 'delete-value':
-          await execReg(['delete', key, '/v', value, '/f'], { timeout: 10000, signal })
+        case 'delete-value': {
+          const remove = async () => {
+            await execReg(['delete', key, '/v', value, '/f'], { timeout: 10000, signal })
+          }
+          // DWORD deletions (e.g. Defender policy overrides) are journaled so the
+          // Recovery Centre can restore the original value; the recovery model
+          // represents a deleted DWORD as a null after-state. Other value types
+          // are only covered by the .reg backup taken above.
+          const target = { kind: 'registry-dword' as const, key, name: value }
+          const before = fix.regType === 'REG_DWORD' ? await readRecoveryTarget(target) : null
+          if (before === null) await remove()
+          else
+            await recordRecoveryChange(
+              'registry',
+              entry.issue.slice(0, 512),
+              target,
+              before,
+              null,
+              remove
+            )
           break
+        }
 
         case 'delete-key':
           if (isProtectedDeleteKey(key)) {
@@ -2200,10 +2221,23 @@ export async function fixRegistryEntries(
 
         case 'set-value':
           if (fix.regType && fix.data !== undefined) {
-            await execReg(['add', key, '/v', value, '/t', fix.regType, '/d', fix.data, '/f'], {
-              timeout: 10000,
-              signal
-            })
+            const apply = async () => {
+              await execReg(['add', key, '/v', value, '/t', fix.regType!, '/d', fix.data!, '/f'], {
+                timeout: 10000,
+                signal
+              })
+            }
+            if (fix.regType === 'REG_DWORD') {
+              const target = { kind: 'registry-dword' as const, key, name: value }
+              await recordRecoveryChange(
+                'registry',
+                entry.issue.slice(0, 512),
+                target,
+                await readRecoveryTarget(target),
+                Number(fix.data),
+                apply
+              )
+            } else await apply()
           }
           break
 

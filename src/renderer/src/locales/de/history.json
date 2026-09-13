@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Wiederherstellungscenter",
+    "description": "Überprüfen und wiederherstellen unterstützter Änderungen, die von Kudu vorgenommen wurden",
+    "limits": "Die Wiederherstellung umfasst aufgezeichnete Windows-DWORD-Datenschutz-/Registrierungswerte, geplante Aufgaben und Dienstkonfigurationen. Das dauerhafte Löschen von Dateien kann nicht rückgängig gemacht werden. Ältere oder nicht unterstützte Änderungen verfügen möglicherweise nur über eine manuelle Sicherung. Einige wiederhergestellte Einstellungen erfordern einen Neustart.",
+    "refresh": "Aktualisieren",
+    "export": "Wiederherstellungsverlauf exportieren",
+    "loadError": "Der Wiederherstellungsverlauf konnte nicht gelesen werden.",
+    "failed": "Wiederherstellung fehlgeschlagen.",
+    "empty": "Auf dieser Seite sind keine aufgezeichneten Änderungen vorhanden. Neue unterstützte Änderungen werden hier angezeigt.",
+    "gameMode": "Game Mode-Wiederherstellung",
+    "gameModeDescription": "Für Game Mode ist ein aktiver oder ausstehender Wiederherstellungsschnappschuss vorhanden.",
+    "openGameMode": "Game Mode-Wiederherstellung öffnen",
+    "before": "Ursprünglicher Zustand",
+    "after": "Zustand nach Kudu",
+    "absent": "Wert war nicht vorhanden",
+    "restore": "Ursprünglichen Zustand wiederherstellen",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "backups": "Registrierungs- und Kontextmenü-Sicherungen",
+    "backupDescription": "Diese Sicherungsdateien enthalten keine verifizierten Informationen zum nachfolgenden Zustand. Prüfen Sie sie im Sicherungsordner, bevor Sie sie manuell wiederherstellen; beim Importieren können neuere Einstellungen überschrieben werden. Eine Sicherungsdatei ist kein OS-Wiederherstellungspunkt.",
+    "openBackups": "Sicherungsordner öffnen",
+    "confirmTitle": "Diese Änderung wiederherstellen?",
+    "confirmDescription": "Kudu überprüft den aktuellen Zustand, bevor der aufgezeichnete ursprüngliche Wert wiederhergestellt wird. Neuere widersprüchliche Änderungen bleiben erhalten. Administratorrechte können erforderlich sein.",
+    "status": {
+      "pending": "Unterbrochen / ausstehend",
+      "ready": "Verfügbar",
+      "restored": "Wiederhergestellt",
+      "failed": "Erfordert Aufmerksamkeit",
+      "conflict": "Neuere Änderung erkannt"
+    },
+    "remove": "Eintrag entfernen",
+    "removeDescription": "Diesen Wiederherstellungseintrag aus dem lokalen Verlauf entfernen? Dadurch werden Ihre Einstellungen nicht geändert und Registrierungs-Sicherungen nicht gelöscht. Kudu kann diese Änderung dann nicht mehr für Sie wiederherstellen.",
+    "unreadable": "Dieser Wiederherstellungseintrag konnte nicht gelesen werden. Er wurde möglicherweise von einem anderen Benutzerkonto geschrieben oder auf dem Datenträger beschädigt.",
+    "loading": "Wiederherstellungsverlauf wird geladen?",
+    "emptyTitle": "Ihr Wiederherstellungsverlauf beginnt hier",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Service Manager",
+      "registry": "Registry Cleaner"
+    }
+  },
   "receipts": {
     "volumeDelta": "Beobachtete Änderung des freien Speicherplatzes auf {{volume}}: {{size}} (auch durch andere Aktivitäten beeinflusst)",
     "selectionContext": "Zwischengespeicherte Einträge in diesen Kategorien: {{found}} · In diesem Vorgang nicht ausgewählt: {{unselected}}",

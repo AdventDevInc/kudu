@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "復原中心",
+    "description": "檢視並還原 Kudu 所做的受支援變更",
+    "limits": "復原涵蓋已記錄的 Windows DWORD 隱私權/登錄值、排程工作與服務設定。永久刪除的檔案無法復原。較舊或不受支援的變更可能只有手動備份。部分已還原的設定需要重新啟動才會生效。",
+    "refresh": "重新整理",
+    "export": "匯出復原歷程",
+    "loadError": "無法讀取復原歷程。",
+    "failed": "復原失敗。",
+    "empty": "此頁面沒有已記錄的變更。新的受支援變更會顯示在這裡。",
+    "gameMode": "遊戲模式復原",
+    "gameModeDescription": "遊戲模式有一個作用中或待處理的復原快照。",
+    "openGameMode": "開啟遊戲模式復原",
+    "before": "原始狀態",
+    "after": "Kudu 套用後的狀態",
+    "absent": "值不存在",
+    "restore": "還原原始狀態",
+    "previous": "上一個",
+    "next": "下一個",
+    "backups": "登錄與內容功能表備份",
+    "backupDescription": "這些備份檔案不包含已驗證的變更後狀態資訊。手動還原前，請先在備份資料夾中檢查；匯入它們可能會覆寫較新的設定。備份檔案不是作業系統還原點。",
+    "openBackups": "開啟備份資料夾",
+    "confirmTitle": "要還原此變更嗎？",
+    "confirmDescription": "Kudu 會在還原已記錄的原始值之前檢查目前狀態。較新的衝突變更將會保留。可能需要系統管理員權限。",
+    "status": {
+      "pending": "已中斷 / 待處理",
+      "ready": "可用",
+      "restored": "已還原",
+      "failed": "需要注意",
+      "conflict": "偵測到較新的變更"
+    },
+    "remove": "移除項目",
+    "removeDescription": "要從本機歷程中移除此復原記錄嗎？這不會變更您的設定，也不會刪除登錄備份。Kudu 將無法再為您還原此變更。",
+    "unreadable": "無法讀取此復原記錄。它可能是由其他使用者帳戶寫入，或磁碟上的資料已損毀。",
+    "loading": "正在載入復原歷程？",
+    "emptyTitle": "您的復原歷程從這裡開始",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "服務管理員",
+      "registry": "登錄清理"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} 觀察到的可用空間變化：{{size}}（也受到其他活動影響）",
     "selectionContext": "這些類別中的快取項目：{{found}} · 本次作業未選取：{{unselected}}",

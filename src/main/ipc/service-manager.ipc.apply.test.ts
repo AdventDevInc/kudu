@@ -1,6 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { promisify } from 'util'
 
+type ServiceState = { start: number; delayed: number | null; running: boolean }
+const recovery = vi.hoisted(() => ({
+  record: vi.fn(),
+  read: vi.fn(),
+  states: new Map<string, ServiceState>()
+}))
+vi.mock('../services/recovery-store', () => ({
+  recordRecoveryChanges: recovery.record
+}))
+vi.mock('../services/recovery', () => ({
+  readServiceStates: recovery.read
+}))
+
 // ── Mocks ──
 
 vi.mock('electron', () => ({
@@ -52,8 +65,34 @@ function stubPowerShell(stdout: string): () => string {
 beforeEach(() => {
   mockExecFile.mockReset()
   mockPlatformApply.mockReset()
+  recovery.states = new Map()
+  // Unknown services read as Manual/stopped; a test may seed a specific state.
+  recovery.read.mockReset().mockImplementation(async (names: string[]) => {
+    const map = new Map<string, ServiceState>()
+    for (const name of names)
+      map.set(name, recovery.states.get(name) ?? { start: 3, delayed: null, running: false })
+    return map
+  })
+  // Journal like the real store: run the batch, then read back the after-states.
+  recovery.record
+    .mockReset()
+    .mockImplementation(
+      async (
+        _source: unknown,
+        _changes: unknown[],
+        apply: () => Promise<(string | undefined)[]>,
+        readAfter?: () => Promise<unknown[]>
+      ) => {
+        const failures = await apply()
+        await readAfter?.()
+        return failures
+      }
+    )
   setPlatform('win32')
 })
+
+/** The journal entries handed to the recovery store by the last apply. */
+const journaled = () => recovery.record.mock.calls[0][1] as { before: unknown; after: unknown }[]
 
 afterEach(() => {
   setPlatform(originalPlatform)
@@ -88,13 +127,110 @@ describe('applyServiceChanges', () => {
     expect(script()).not.toContain('Stop-Service')
   })
 
+  it('clears the delayed-start flag when re-enabling a service as Automatic', async () => {
+    recovery.states.set('seclogon', { start: 4, delayed: 1, running: false })
+    const script = stubPowerShell('OK|seclogon|Secondary Logon')
+    await applyServiceChanges([{ name: 'seclogon', targetStartType: 'Automatic' }])
+
+    // Set-Service in Windows PowerShell leaves DelayedAutoStart alone, so the script
+    // must write it and the journal must predict the value it writes.
+    expect(script()).toContain(
+      "Set-ItemProperty -LiteralPath 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\seclogon' -Name DelayedAutoStart -Value 0 -Type DWord"
+    )
+    expect(journaled()).toEqual([
+      {
+        label: 'seclogon',
+        target: { kind: 'service-start', name: 'seclogon' },
+        before: { start: 4, delayed: 1, running: false },
+        after: { start: 2, delayed: 0, running: true }
+      }
+    ])
+  })
+
+  it('sets delayed start through the registry flag Windows PowerShell cannot set', async () => {
+    const script = stubPowerShell('OK|seclogon|Secondary Logon')
+    await applyServiceChanges([{ name: 'seclogon', targetStartType: 'AutomaticDelayed' }])
+
+    expect(script()).toContain("Set-Service -Name 'seclogon' -StartupType Automatic")
+    expect(script()).not.toContain('AutomaticDelayedStart')
+    expect(script()).toContain('-Name DelayedAutoStart -Value 1 -Type DWord')
+    expect(journaled()[0].after).toEqual({ start: 2, delayed: 1, running: true })
+  })
+
+  it('predicts that Manual and Disabled leave the delayed-start flag untouched', async () => {
+    recovery.states.set('Fax', { start: 2, delayed: 1, running: true })
+    recovery.states.set('seclogon', { start: 2, delayed: null, running: true })
+    const script = stubPowerShell('OK|Fax|Fax\nOK|seclogon|Secondary Logon')
+    await applyServiceChanges([
+      { name: 'Fax', targetStartType: 'Disabled' },
+      { name: 'seclogon', targetStartType: 'Manual' }
+    ])
+
+    expect(script()).not.toContain('DelayedAutoStart')
+    expect(journaled().map((c) => c.after)).toEqual([
+      { start: 4, delayed: 1, running: false },
+      { start: 3, delayed: null, running: true }
+    ])
+  })
+
+  it('snapshots, applies, and verifies a batch with one process per step', async () => {
+    stubPowerShell('OK|Fax|Fax\nOK|WSearch|Windows Search\nOK|seclogon|Secondary Logon')
+    const changes = [
+      { name: 'Fax', targetStartType: 'Disabled' },
+      { name: 'WSearch', targetStartType: 'Disabled' },
+      { name: 'seclogon', targetStartType: 'Manual' }
+    ]
+    const result = await applyServiceChanges(changes)
+
+    expect(result).toEqual({ succeeded: 3, failed: 0, errors: [] })
+    // One before-read, one apply, one after-read — not three per service.
+    expect(mockExecFile).toHaveBeenCalledTimes(1)
+    expect(recovery.read.mock.calls).toEqual([
+      [['Fax', 'WSearch', 'seclogon']],
+      [['Fax', 'WSearch', 'seclogon']]
+    ])
+    expect(recovery.record).toHaveBeenCalledTimes(1)
+    expect(journaled().map((c) => c.before)).toHaveLength(3)
+  })
+
+  it('does not touch a service whose original state cannot be captured', async () => {
+    recovery.read.mockImplementation(
+      async () => new Map([['Fax', { start: 2, delayed: 0, running: true }]])
+    )
+    const script = stubPowerShell('OK|Fax|Fax')
+    const result = await applyServiceChanges([
+      { name: 'Fax', targetStartType: 'Disabled' },
+      { name: 'Ghost', targetStartType: 'Disabled' }
+    ])
+
+    expect(result.succeeded).toBe(1)
+    expect(result.errors).toEqual([
+      { name: 'Ghost', displayName: 'Ghost', reason: 'Original service state unavailable' }
+    ])
+    expect(script()).not.toContain('Ghost')
+  })
+
+  it('fails every change without mutating when the snapshot itself fails', async () => {
+    recovery.read.mockRejectedValue(new Error('PowerShell unavailable'))
+    stubPowerShell('OK|Fax|Fax')
+    const result = await applyServiceChanges([{ name: 'Fax', targetStartType: 'Disabled' }])
+
+    expect(result).toEqual({
+      succeeded: 0,
+      failed: 1,
+      errors: [{ name: 'Fax', displayName: 'Fax', reason: 'PowerShell unavailable' }]
+    })
+    expect(mockExecFile).not.toHaveBeenCalled()
+    expect(recovery.record).not.toHaveBeenCalled()
+  })
+
   it('refuses to disable a system-critical service', async () => {
     stubPowerShell('')
     // RpcSs is rated unsafe in the safety knowledge base
     const result = await applyServiceChanges([{ name: 'RpcSs', targetStartType: 'Disabled' }])
 
     expect(result).toEqual({ succeeded: 0, failed: 0, errors: [] })
-    expect(mockExecFile.mock.calls[0][1].join('')).not.toContain('RpcSs')
+    expect(mockExecFile).not.toHaveBeenCalled()
   })
 
   it('allows re-enabling a system-critical service', async () => {
@@ -122,7 +258,7 @@ describe('applyServiceChanges', () => {
   })
 
   it('reports per-service failures from the script output', async () => {
-    stubPowerShell(['OK|Fax|Fax', 'FAIL|WSearch|WSearch|Access is denied'].join('\n'))
+    stubPowerShell('OK|Fax|Fax\nFAIL|WSearch|WSearch|Access is denied')
     const result = await applyServiceChanges([
       { name: 'Fax', targetStartType: 'Disabled' },
       { name: 'WSearch', targetStartType: 'Disabled' }
@@ -135,6 +271,8 @@ describe('applyServiceChanges', () => {
       displayName: 'WSearch',
       reason: 'Access is denied'
     })
+    // The journal learns which entry failed so Recovery does not offer a bogus restore.
+    expect(await recovery.record.mock.results[0].value).toEqual([undefined, 'Access is denied'])
   })
 
   it('delegates to the platform layer off Windows', async () => {

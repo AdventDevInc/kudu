@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Palautuskeskus",
+    "description": "Tarkista ja palauta Kudu:n tekemät tuetut muutokset",
+    "limits": "Palautus kattaa tallennetut Windowsin DWORD-yksityisyys-/rekisteriarvot, ajoitetut tehtävät ja palveluiden määritykset. Tiedostojen pysyvää poistamista ei voi kumota. Vanhemmista tai tukemattomista muutoksista voi olla vain manuaalinen varmuuskopio. Osa palautetuista asetuksista edellyttää uudelleenkäynnistystä.",
+    "refresh": "Päivitä",
+    "export": "Vie palautushistoria",
+    "loadError": "Palautushistoriaa ei voitu lukea.",
+    "failed": "Palautus epäonnistui.",
+    "empty": "Tällä sivulla ei ole tallennettuja muutoksia. Uudet tuetut muutokset näkyvät täällä.",
+    "gameMode": "Game Mode -palautus",
+    "gameModeDescription": "Game Mode -tilassa on aktiivinen tai odottava palautustilannevedos.",
+    "openGameMode": "Avaa Game Mode -palautus",
+    "before": "Alkuperäinen tila",
+    "after": "Tila Kudu:n jälkeen",
+    "absent": "Arvoa ei ollut olemassa",
+    "restore": "Palauta alkuperäinen tila",
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "backups": "Rekisterin ja pikavalikon varmuuskopiot",
+    "backupDescription": "Nämä varmuuskopiotiedostot eivät sisällä vahvistettuja tietoja muutoksen jälkeisestä tilasta. Tarkista ne varmuuskopiokansiossa ennen manuaalista palautusta; niiden tuominen voi korvata uudemmat asetukset. Varmuuskopiotiedosto ei ole käyttöjärjestelmän palautuspiste.",
+    "openBackups": "Avaa varmuuskopiokansio",
+    "confirmTitle": "Palautetaanko tämä muutos?",
+    "confirmDescription": "Kudu tarkistaa nykyisen tilan ennen tallennetun alkuperäisen arvon palauttamista. Uudemmat ristiriitaiset muutokset säilytetään. Järjestelmänvalvojan oikeudet voivat olla tarpeen.",
+    "status": {
+      "pending": "Keskeytynyt / odottaa",
+      "ready": "Saatavilla",
+      "restored": "Palautettu",
+      "failed": "Vaatii huomiota",
+      "conflict": "Uudempi muutos havaittu"
+    },
+    "remove": "Poista merkintä",
+    "removeDescription": "Poistetaanko tämä palautustietue paikallisesta historiasta? Tämä ei muuta asetuksiasi eikä poista rekisterin varmuuskopioita. Kudu ei voi enää palauttaa tätä muutosta puolestasi.",
+    "unreadable": "Tätä palautustietuetta ei voitu lukea. Sen on voinut kirjoittaa toinen käyttäjätili tai se on voinut vioittua levyllä.",
+    "loading": "Ladataanko palautushistoriaa?",
+    "emptyTitle": "Palautushistoriasi alkaa tästä",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Service Manager",
+      "registry": "Registry Cleaner"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} havaittu vapaan tilan muutos: {{size}} (myös muu toiminta vaikutti tähän)",
     "selectionContext": "Välimuistiin tallennetut kohteet näissä luokissa: {{found}} · Ei valittu tässä toiminnossa: {{unselected}}",

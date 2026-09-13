@@ -133,6 +133,21 @@ const api = {
     ipcRenderer.invoke(IPC.STORAGE_HISTORY_EXPORT, id),
   storageHistoryOpen: (id: string, path: string): Promise<void> =>
     ipcRenderer.invoke(IPC.STORAGE_HISTORY_OPEN, id, path),
+  recoveryList: (
+    offset = 0
+  ): Promise<{
+    entries: import('../shared/recovery').RecoveryEntry[]
+    /** IDs of sealed records on this page that could not be decrypted or validated */
+    unreadable: string[]
+    total: number
+    backups: Array<{ name: string; size: number; modifiedAt: string }>
+    gameMode: import('../shared/types').GameModeStatus | null
+  }> => ipcRenderer.invoke(IPC.RECOVERY_LIST, offset),
+  recoveryRemove: (id: string): Promise<void> => ipcRenderer.invoke(IPC.RECOVERY_REMOVE, id),
+  recoveryRestore: (id: string): Promise<import('../shared/recovery').RecoveryEntry> =>
+    ipcRenderer.invoke(IPC.RECOVERY_RESTORE, id),
+  recoveryOpenBackups: (): Promise<void> => ipcRenderer.invoke(IPC.RECOVERY_OPEN_BACKUPS),
+  recoveryExport: (): Promise<boolean> => ipcRenderer.invoke(IPC.RECOVERY_EXPORT),
   cleanupReceiptDetails: (
     id: string,
     page: number
