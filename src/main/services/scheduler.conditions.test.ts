@@ -13,6 +13,9 @@ const mocks = vi.hoisted(() => ({
 // Home and its volume must agree with path.parse on the host platform.
 const home = process.platform === 'win32' ? 'C:\\Users\\test' : '/home/test'
 const mount = process.platform === 'win32' ? 'C:\\' : '/'
+// A separate volume holding the home directory, and a sibling that does not contain it.
+const homeMount = process.platform === 'win32' ? 'C:\\Users' : '/home'
+const siblingMount = process.platform === 'win32' ? 'C:\\Users\\testing' : '/home/testing'
 vi.mock('electron', () => ({
   app: { getPath: () => home },
   BrowserWindow: class {},
@@ -36,7 +39,8 @@ import {
   authorizeScheduleStep,
   acknowledgeScheduleRun,
   completeScheduleRun,
-  getScheduleRuntime
+  getScheduleRuntime,
+  runScheduleNow
 } from './scheduler'
 function makeWindow() {
   const webContents = Object.assign(new EventEmitter(), {
@@ -125,6 +129,73 @@ it('gates disk space and the maintenance window at the start only', async () => 
   mocks.disks = [{ mount, size: 100, available: 50 }]
   vi.setSystemTime(new Date('2026-09-13T10:00:00'))
   expect((await authorizeScheduleStep('one', payload().runId)).allowed).toBe(true)
+})
+it('measures free space on the deepest volume containing the home directory', async () => {
+  mocks.entries = [{ ...entry, conditions: { freeBelowPercent: 20 } }]
+  mocks.disks = [
+    { mount, size: 100, available: 50 },
+    { mount: siblingMount, size: 100, available: 10 }
+  ]
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect(mocks.send).not.toHaveBeenCalled()
+  expect(runtimeOf('one')?.reason).toBe('disk')
+  mocks.disks = [
+    { mount, size: 100, available: 50 },
+    { mount: homeMount, size: 100, available: 10 }
+  ]
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+})
+it('keeps a Run Now request waiting until its conditions pass', async () => {
+  // Today's occurrence is consumed, so only the manual request can start a run.
+  mocks.entries = [{ ...entry, lastDueAt: new Date('2026-09-13T09:00:00').toISOString() }]
+  vi.setSystemTime(new Date('2026-09-13T12:00:00'))
+  mocks.battery = true
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  expect((await runScheduleNow(() => window as any, 'one'))?.reason).toBe('power')
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).not.toHaveBeenCalled()
+  expect(runtimeOf('one')?.reason).toBe('power')
+  mocks.battery = false
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(mocks.claim).toHaveBeenCalledBefore(mocks.send)
+  await completeScheduleRun('one', 'success', payload().runId)
+  await vi.advanceTimersByTimeAsync(2 * 60_000)
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(mocks.patch).not.toHaveBeenCalledWith(
+    'one',
+    expect.objectContaining({ lastRunStatus: 'skipped' })
+  )
+})
+it('drops a waiting Run Now request when the schedule is edited, disabled or cancelled', async () => {
+  const consumed = new Date('2026-09-13T09:00:00').toISOString()
+  mocks.entries = [{ ...entry, lastDueAt: consumed }]
+  vi.setSystemTime(new Date('2026-09-13T12:00:00'))
+  mocks.battery = true
+  startScheduler(() => window as any)
+  await vi.advanceTimersByTimeAsync(5000)
+  await runScheduleNow(() => window as any, 'one')
+  mocks.entries = [{ ...mocks.entries[0], tasks: ['registry'] }]
+  mocks.battery = false
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).not.toHaveBeenCalled()
+  mocks.battery = true
+  await runScheduleNow(() => window as any, 'one')
+  mocks.entries[0].enabled = false
+  await vi.advanceTimersByTimeAsync(60_000)
+  mocks.entries[0].enabled = true
+  mocks.battery = false
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).not.toHaveBeenCalled()
+  mocks.battery = true
+  await runScheduleNow(() => window as any, 'one')
+  expect((await runScheduleNow(() => window as any, 'one'))?.reason).toBeNull()
+  mocks.battery = false
+  await vi.advanceTimersByTimeAsync(60_000)
+  expect(mocks.send).not.toHaveBeenCalled()
 })
 it('runs two schedules due in the same minute one after the other', async () => {
   mocks.entries = [

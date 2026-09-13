@@ -112,7 +112,7 @@
     "skip": "Skip after the two-minute start window",
     "once": "Run once when ready; combine missed runs",
     "runNow": "Run now",
-    "runConfirm": "Run this schedule now using its saved tasks and auto-apply choice? Its power, idle, Game Mode, space and maintenance-window conditions still apply.",
+    "runConfirm": "Run this schedule now using its saved tasks and auto-apply choice? Its power, idle, Game Mode, space and maintenance-window conditions still apply: a run they hold back starts at a later check, and choosing Run now again while it is waiting cancels it.",
     "runFailed": "Could not start the schedule",
     "running": "Running",
     "nextEvaluation": "Next check around {{time}}",

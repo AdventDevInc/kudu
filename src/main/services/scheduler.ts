@@ -11,7 +11,6 @@ import { logInfo } from './logger'
 import type { KuduSettings, ScheduleEntry, ScheduleRunStatus } from '../../shared/types'
 
 import { randomUUID } from 'crypto'
-import { parse } from 'path'
 import si from 'systeminformation'
 import {
   dueScheduleOccurrence,
@@ -99,6 +98,8 @@ let generation = 0
 const runtime = new Map<string, ScheduleRuntime>()
 /** Definitions whose due occurrence is waiting on a condition; a silent expiry records 'skipped'. */
 const pending = new Map<string, string>()
+/** Definitions whose Run Now request is waiting on a condition; each check retries them. */
+const manual = new Map<string, string>()
 export function getScheduleRuntime(): ScheduleRuntime[] {
   return [...runtime.values()]
 }
@@ -110,6 +111,10 @@ function state(entry: ScheduleEntry, reason: ScheduleWaitingReason | null, runni
     evaluatedAt: new Date().toISOString(),
     nextEvaluationAt: new Date(Date.now() + 60_000).toISOString()
   })
+}
+function normalizeMount(path: string): string {
+  const trimmed = path.replace(/[\\/]+$/, '')
+  return process.platform === 'win32' ? trimmed.toLowerCase() : trimmed
 }
 async function conditionReason(entry: ScheduleEntry, betweenSteps = false) {
   const conditions: ScheduleConditions = { ...(entry.conditions ?? {}) }
@@ -149,16 +154,21 @@ async function conditionReason(entry: ScheduleEntry, betweenSteps = false) {
   if (conditions.freeBelowPercent !== undefined) {
     let timeout: ReturnType<typeof setTimeout> | undefined
     try {
-      const root = parse(app.getPath('home'))
-        .root.replace(/[\\/]$/, '')
-        .toLowerCase()
+      const home = normalizeMount(app.getPath('home'))
       const disks = await Promise.race([
         si.fsSize(),
         new Promise<never>((_, reject) => {
           timeout = setTimeout(() => reject(new Error('Disk query timed out')), 5000)
         })
       ])
-      const disk = disks.find((d) => d.mount.replace(/[\\/]$/, '').toLowerCase() === root)
+      // The home directory may live on its own volume: use the deepest mount containing it.
+      let disk: (typeof disks)[number] | undefined
+      for (const d of disks) {
+        const mount = normalizeMount(d.mount)
+        const contains =
+          home === mount || (home.startsWith(mount) && /[\\/]/.test(home.charAt(mount.length)))
+        if (contains && (!disk || mount.length > normalizeMount(disk.mount).length)) disk = d
+      }
       if (disk && disk.size > 0) freePercent = (100 * disk.available) / disk.size
     } catch {
       /* unknown disk condition prevents execution */
@@ -296,10 +306,17 @@ export async function runScheduleNow(getMainWindow: () => BrowserWindow | null, 
   if (evaluating || active) throw new Error('Another scheduled run is active')
   const entry = getSettings().schedules.find((e) => e.id === id && e.enabled)
   if (!entry) throw new Error('Enable the schedule before running it')
+  // Run Now while a request is waiting cancels it.
+  if (manual.delete(id)) {
+    if (!pending.has(id)) state(entry, null)
+    return runtime.get(id)
+  }
   evaluating = true
   try {
     await triggerScheduleEntry(getMainWindow(), entry, new Date())
-    return runtime.get(id)
+    const current = runtime.get(id)
+    if (current?.reason && !current.running) manual.set(id, scheduleDefinition(entry))
+    return current
   } finally {
     evaluating = false
   }
@@ -365,6 +382,7 @@ async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promis
       if (!entries.some((e) => e.id === id)) {
         runtime.delete(id)
         pending.delete(id)
+        manual.delete(id)
       }
     // Never time out a live operation and start an overlapping run. A lost renderer consumes
     // this occurrence: the run is recorded as failed and never replayed, and scheduling
@@ -374,14 +392,10 @@ async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promis
       if (active?.entry.id === entry.id) continue
       // An occurrence blocked only by another run stays due until that run finishes.
       const busy = runtime.get(entry.id)?.reason === 'busy'
-      const due = dueScheduleOccurrence(entry, new Date(), busy)
-      if (due) {
-        await triggerScheduleEntry(getMainWindow(), entry, due)
-        const current = runtime.get(entry.id)
-        if (current?.reason && !current.running) pending.set(entry.id, scheduleDefinition(entry))
-        else pending.delete(entry.id)
-      } else {
-        if (entry.enabled && pending.get(entry.id) === scheduleDefinition(entry)) {
+      const definition = scheduleDefinition(entry)
+      const occurrence = dueScheduleOccurrence(entry, new Date(), busy)
+      if (!occurrence) {
+        if (entry.enabled && pending.get(entry.id) === definition) {
           updateScheduleEntry(entry.id, {
             lastRunAt: new Date().toISOString(),
             lastRunStatus: 'skipped'
@@ -389,6 +403,18 @@ async function checkSchedules(getMainWindow: () => BrowserWindow | null): Promis
           await flushSettings()
         }
         pending.delete(entry.id)
+      }
+      // A Run Now request waits only while its definition stays enabled and unchanged.
+      if (!entry.enabled || manual.get(entry.id) !== definition) manual.delete(entry.id)
+      const due = occurrence ?? (manual.has(entry.id) ? new Date() : null)
+      if (due) {
+        await triggerScheduleEntry(getMainWindow(), entry, due)
+        const current = runtime.get(entry.id)
+        const waiting = !!current?.reason && !current.running
+        if (waiting && occurrence) pending.set(entry.id, definition)
+        else pending.delete(entry.id)
+        if (!waiting) manual.delete(entry.id)
+      } else {
         state(entry, entry.enabled ? null : 'disabled')
       }
     }
@@ -440,6 +466,7 @@ export function stopScheduler(): void {
   }
   runtime.clear()
   pending.clear()
+  manual.clear()
   active?.release()
   active = null
 }
