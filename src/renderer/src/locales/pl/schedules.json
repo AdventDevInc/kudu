@@ -10,7 +10,7 @@
   "deletedToast": "Usunięto „{{name}}”",
   "updatedToast": "Zaktualizowano „{{name}}”",
   "createdToast": "Utworzono „{{name}}”",
-  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
+  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie systemu. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
   "failedEnableStartupAction": "Dowiedz się więcej",
   "deleteConfirmTitle": "Usuń harmonogram",
   "deleteConfirmDescription": "Ten harmonogram zostanie trwale usunięty. Tej operacji nie można cofnąć.",
@@ -34,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "Comiesięczna gruntowna konserwacja",
     "monthlyDeepMaintenanceDescription": "Pełne czyszczenie + rejestr, sterowniki i oprogramowanie 1. dnia miesiąca o 10:00",
     "customLabel": "Niestandardowy",
-    "customDescription": "Rozpocznij od zera z pustym harmonogramem"
+    "customDescription": "Rozpocznij od pustego harmonogramu"
   },
   "dialog": {
     "editTitle": "Edytuj harmonogram",
@@ -66,7 +66,7 @@
     "gaming": "Gry",
     "recycleBin": "Kosz",
     "databases": "Bazy danych",
-    "registryFixes": "Naprawa rejestru",
+    "registryFixes": "Naprawy rejestru",
     "driverUpdates": "Aktualizacje sterowników",
     "softwareUpdates": "Aktualizacje oprogramowania"
   },
@@ -96,5 +96,51 @@
     "hoursAgo": "{{count}} godz. temu",
     "daysAgo": "{{count}} dni temu"
   },
-  "copyNameSuffix": "(kopia)"
+  "copyNameSuffix": "(kopia)",
+  "advanced": {
+    "title": "Warunki uruchamiania",
+    "explanation": "Wszystkie warunki są sprawdzane przed rozpoczęciem oraz przed każdym zadaniem lub zmianą. Godziny są zgodne z lokalną strefą czasową tego komputera. Rozpoczęte operacje kończą się, zanim zmiana warunków zatrzyma pozostałe zadania.",
+    "acOnly": "Tylko przy zasilaniu sieciowym",
+    "gameMode": "Czekaj, gdy Tryb gry jest aktywny lub trwa przywracanie",
+    "idle": "Wymagane minuty bezczynności (0 wyłącza)",
+    "window": "Użyj okna konserwacji",
+    "from": "Od",
+    "to": "Do",
+    "disk": "Tylko gdy na dysku głównym jest mało wolnego miejsca",
+    "freePercent": "Wolne miejsce poniżej (%)",
+    "missed": "Jeśli zaplanowany czas zostanie pominięty lub warunki nie są gotowe",
+    "skip": "Pomiń po dwuminutowym oknie uruchomienia",
+    "once": "Uruchom raz, gdy będzie gotowe; połącz pominięte uruchomienia",
+    "runNow": "Uruchom teraz",
+    "runConfirm": "Uruchomić ten harmonogram teraz z zapisanymi zadaniami i ustawieniem automatycznego zastosowania? Warunki zasilania, bezczynności, Trybu gry, miejsca na dysku i okna konserwacji nadal będą obowiązywać.",
+    "runFailed": "Nie udało się uruchomić harmonogramu",
+    "running": "W trakcie działania",
+    "nextEvaluation": "Następne sprawdzenie około {{time}}",
+    "workflow": "Kolejność i zakres zadań",
+    "workflowHint": "Zadania są wykonywane od góry do dołu. Ograniczenie kategorii dotyczy tylko przyszłych pasujących wyników skanowania. Kosz pozostaje operacją obejmującą cały kosz.",
+    "moveUp": "W górę",
+    "moveDown": "W dół",
+    "restrict": "Wybierz kategorie dla {{name}}",
+    "findCategories": "Skanuj w poszukiwaniu kategorii",
+    "scanning": "Skanowanie...",
+    "scopeHint": "Uwzględnione zostaną tylko zaznaczone kategorie. Pusty wybór oznacza brak czyszczenia w tym zadaniu. Skanowanie wykrywa obecnie dostępne kategorie; nie wykonuje czyszczenia.",
+    "waitForScan": "Poczekaj na zakończenie bieżącego skanowania lub czyszczenia.",
+    "noCategories": "Nie znaleziono kategorii. Uruchom nowe skanowanie, gdy aplikacja będzie miała dane w pamięci podręcznej.",
+    "scanFailed": "Nie udało się załadować kategorii.",
+    "waiting": {
+      "idle": "Oczekiwanie na bezczynność",
+      "power": "Oczekiwanie na zasilanie sieciowe",
+      "game-mode": "Oczekiwanie na zakończenie Trybu gry",
+      "window": "Oczekiwanie na okno konserwacji",
+      "disk": "Oczekiwanie na małą ilość wolnego miejsca na dysku",
+      "unknown": "Oczekiwanie na dostępne pomiary warunków",
+      "busy": "Oczekiwanie na inne zaplanowane uruchomienie",
+      "disabled": "Harmonogram wyłączony",
+      "changed": "Harmonogram został edytowany; definicja w kolejce została odrzucona",
+      "unavailable": "Oczekiwanie na okno aplikacji",
+      "interrupted": "Uruchomienie utraciło swoje okno. Uruchom ponownie Kudu przed rozpoczęciem kolejnych zaplanowanych zadań; to wystąpienie nie zostanie powtórzone."
+    },
+    "saveFailed": "Nie udało się zapisać harmonogramu. Spróbuj ponownie.",
+    "skipped": "Pominięto po zmianie warunków."
+  }
 }

@@ -10,7 +10,7 @@
   "deletedToast": "Se eliminó \"{{name}}\"",
   "updatedToast": "Se actualizó \"{{name}}\"",
   "createdToast": "Se creó \"{{name}}\"",
-  "failedEnableStartup": "No se pudo habilitar el inicio. Es posible que las programaciones no se ejecuten después de reiniciar.",
+  "failedEnableStartup": "No se pudo habilitar el inicio automático. Es posible que las programaciones no se ejecuten después de reiniciar.",
   "failedEnableStartupAction": "Más información",
   "deleteConfirmTitle": "Eliminar programación",
   "deleteConfirmDescription": "Esta programación se eliminará permanentemente. Esta acción no se puede deshacer.",
@@ -26,15 +26,15 @@
     "neverRun": "Nunca se ejecutó"
   },
   "presets": {
-    "dialogTitle": "Elegir una plantilla",
+    "dialogTitle": "Elija una plantilla",
     "weeklyFullCleanLabel": "Limpieza completa semanal",
-    "weeklyFullCleanDescription": "Todas las categorías de limpieza todos los lunes a las 9:00",
+    "weeklyFullCleanDescription": "Todas las categorías del limpiador cada lunes a las 9:00",
     "dailyLightSweepLabel": "Limpieza ligera diaria",
     "dailyLightSweepDescription": "Sistema, navegadores y papelera de reciclaje todos los días a las 8:00",
     "monthlyDeepMaintenanceLabel": "Mantenimiento profundo mensual",
     "monthlyDeepMaintenanceDescription": "Limpieza completa + registro, controladores y software el día 1 a las 10:00",
     "customLabel": "Personalizada",
-    "customDescription": "Comience desde cero con una programación en blanco"
+    "customDescription": "Empiece desde cero con una programación en blanco"
   },
   "dialog": {
     "editTitle": "Editar programación",
@@ -50,10 +50,10 @@
     "tasksLabel": "Tareas",
     "selectAll": "Seleccionar todo",
     "deselectAll": "Deseleccionar todo",
-    "cleanerGroup": "Limpieza",
+    "cleanerGroup": "Limpiador",
     "maintenanceGroup": "Mantenimiento",
     "autoApplyLabel": "Aplicación automática",
-    "autoApplyDescription": "Limpie archivos, corrija problemas del registro e instale actualizaciones automáticamente sin confirmación.",
+    "autoApplyDescription": "Limpie archivos, repare problemas del registro e instale actualizaciones automáticamente sin confirmación.",
     "autoApplyWarning": "Las acciones se ejecutarán automáticamente según la programación. Asegúrese de que su lista de exclusiones esté actualizada.",
     "cancelButton": "Cancelar",
     "saveChangesButton": "Guardar cambios",
@@ -66,7 +66,7 @@
     "gaming": "Juegos",
     "recycleBin": "Papelera de reciclaje",
     "databases": "Bases de datos",
-    "registryFixes": "Correcciones del registro",
+    "registryFixes": "Reparaciones del registro",
     "driverUpdates": "Actualizaciones de controladores",
     "softwareUpdates": "Actualizaciones de software"
   },
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Todos los días a las {{time}}",
     "everyWeekdayAt": "Cada {{day}} a las {{time}}",
-    "monthlyAt": "{{ordinalDay}} de cada mes a las {{time}}"
+    "monthlyAt": "El {{ordinalDay}} de cada mes a las {{time}}"
   },
   "nextRun": {
     "todayAt": "Hoy a las {{time}}",
@@ -96,5 +96,51 @@
     "hoursAgo": "Hace {{count}} h",
     "daysAgo": "Hace {{count}} d"
   },
-  "copyNameSuffix": "(copia)"
+  "copyNameSuffix": "(copia)",
+  "advanced": {
+    "title": "Condiciones de ejecución",
+    "explanation": "Todas las condiciones se comprueban antes de iniciar y antes de cada tarea o cambio. Las horas siguen la zona horaria local de este equipo. Las operaciones en ejecución finalizan antes de que un cambio en las condiciones detenga las tareas restantes.",
+    "acOnly": "Solo con alimentación de CA",
+    "gameMode": "Esperar mientras el Modo de juego esté activo o restaurándose",
+    "idle": "Minutos de inactividad requeridos (0 desactiva esta opción)",
+    "window": "Usar una ventana de mantenimiento",
+    "from": "Desde",
+    "to": "Hasta",
+    "disk": "Solo cuando la unidad principal tenga poco espacio",
+    "freePercent": "Espacio libre inferior a (%)",
+    "missed": "Si se pierde la hora programada o las condiciones no están listas",
+    "skip": "Omitir después de la ventana de inicio de dos minutos",
+    "once": "Ejecutar una vez cuando esté listo; combinar ejecuciones perdidas",
+    "runNow": "Ejecutar ahora",
+    "runConfirm": "¿Ejecutar esta programación ahora con sus tareas guardadas y la opción de aplicación automática? Sus condiciones de energía, inactividad, Modo de juego, espacio y ventana de mantenimiento seguirán aplicándose.",
+    "runFailed": "No se pudo iniciar la programación",
+    "running": "En ejecución",
+    "nextEvaluation": "Próxima comprobación alrededor de las {{time}}",
+    "workflow": "Orden y alcance de las tareas",
+    "workflowHint": "Las tareas se ejecutan de arriba abajo. Una restricción de categoría solo se aplica a futuros resultados de análisis coincidentes. La Papelera de reciclaje sigue siendo una operación sobre toda la papelera.",
+    "moveUp": "Arriba",
+    "moveDown": "Abajo",
+    "restrict": "Elegir categorías para {{name}}",
+    "findCategories": "Buscar categorías",
+    "scanning": "Analizando...",
+    "scopeHint": "Solo se incluirán las categorías marcadas. Una selección vacía no ejecuta ninguna limpieza en esta tarea. El análisis detecta las categorías presentes actualmente; no limpia.",
+    "waitForScan": "Espere a que finalice el análisis o la limpieza actual.",
+    "noCategories": "No se encontraron categorías. Ejecute un nuevo análisis cuando la aplicación tenga datos en caché.",
+    "scanFailed": "No se pudieron cargar las categorías.",
+    "waiting": {
+      "idle": "Esperando tiempo de inactividad",
+      "power": "Esperando alimentación de CA",
+      "game-mode": "Esperando a que finalice el Modo de juego",
+      "window": "Esperando la ventana de mantenimiento",
+      "disk": "Esperando poco espacio en disco",
+      "unknown": "Esperando mediciones de condiciones disponibles",
+      "busy": "Esperando otra ejecución programada",
+      "disabled": "Programación deshabilitada",
+      "changed": "La programación se editó; se descartó la definición en cola",
+      "unavailable": "Esperando la ventana de la aplicación",
+      "interrupted": "La ejecución perdió su ventana. Reinicie Kudu antes de iniciar más trabajo programado; esta incidencia no se volverá a ejecutar."
+    },
+    "saveFailed": "No se pudo guardar la programación. Inténtelo de nuevo.",
+    "skipped": "Se omitió después de que cambiaran las condiciones."
+  }
 }

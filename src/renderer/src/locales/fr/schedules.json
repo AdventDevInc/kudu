@@ -1,11 +1,11 @@
 {
   "pageTitle": "Planifications",
-  "pageDescription": "Automatisez les analyses, nettoyages et mises à jour selon un planning",
+  "pageDescription": "Automatisez les analyses, nettoyages et mises à jour selon une planification",
   "newScheduleButton": "Nouvelle planification",
-  "createScheduleButton": "Créer une planification",
+  "createScheduleButton": "Créer la planification",
   "emptyStateTitle": "Aucune planification pour le moment",
   "emptyStateDescription": "Créez une planification pour exécuter automatiquement des analyses, nettoyages et mises à jour.",
-  "maxSchedulesReached": "Nombre maximal de planifications atteint : {{max}}.",
+  "maxSchedulesReached": "Nombre maximal de {{max}} planifications atteint.",
   "duplicatedToast": "\"{{name}}\" dupliqué",
   "deletedToast": "\"{{name}}\" supprimé",
   "updatedToast": "\"{{name}}\" mis à jour",
@@ -30,11 +30,11 @@
     "weeklyFullCleanLabel": "Nettoyage complet hebdomadaire",
     "weeklyFullCleanDescription": "Toutes les catégories de nettoyage chaque lundi à 9 h",
     "dailyLightSweepLabel": "Nettoyage léger quotidien",
-    "dailyLightSweepDescription": "Système, navigateurs et corbeille tous les jours à 8 h",
+    "dailyLightSweepDescription": "Système, navigateurs et corbeille chaque jour à 8 h",
     "monthlyDeepMaintenanceLabel": "Maintenance approfondie mensuelle",
     "monthlyDeepMaintenanceDescription": "Nettoyage complet + registre, pilotes et logiciels le 1er de chaque mois à 10 h",
     "customLabel": "Personnalisé",
-    "customDescription": "Commencer à partir d’une planification vide"
+    "customDescription": "Commencer de zéro avec une planification vide"
   },
   "dialog": {
     "editTitle": "Modifier la planification",
@@ -53,11 +53,11 @@
     "cleanerGroup": "Nettoyage",
     "maintenanceGroup": "Maintenance",
     "autoApplyLabel": "Application automatique",
-    "autoApplyDescription": "Nettoyez automatiquement les fichiers, corrigez les problèmes du registre et installez les mises à jour sans confirmation.",
-    "autoApplyWarning": "Les actions seront exécutées automatiquement selon le planning. Assurez-vous que votre liste d’exclusions est à jour.",
+    "autoApplyDescription": "Nettoyer automatiquement les fichiers, corriger les problèmes du registre et installer les mises à jour sans confirmation.",
+    "autoApplyWarning": "Les actions seront exécutées automatiquement selon la planification. Assurez-vous que votre liste d’exclusions est à jour.",
     "cancelButton": "Annuler",
     "saveChangesButton": "Enregistrer les modifications",
-    "createScheduleButton": "Créer une planification"
+    "createScheduleButton": "Créer la planification"
   },
   "tasks": {
     "system": "Système",
@@ -82,7 +82,7 @@
   "frequency": {
     "everyDayAt": "Tous les jours à {{time}}",
     "everyWeekdayAt": "Chaque {{day}} à {{time}}",
-    "monthlyAt": "{{ordinalDay}} de chaque mois à {{time}}"
+    "monthlyAt": "Le {{ordinalDay}} de chaque mois à {{time}}"
   },
   "nextRun": {
     "todayAt": "Aujourd’hui à {{time}}",
@@ -96,5 +96,51 @@
     "hoursAgo": "il y a {{count}} h",
     "daysAgo": "il y a {{count}} j"
   },
-  "copyNameSuffix": "(copie)"
+  "copyNameSuffix": "(copie)",
+  "advanced": {
+    "title": "Conditions d’exécution",
+    "explanation": "Toutes les conditions sont vérifiées avant le démarrage et avant chaque tâche ou modification. Les heures suivent le fuseau horaire local de cet ordinateur. Les opérations en cours se terminent avant qu’un changement de condition n’arrête les tâches restantes.",
+    "acOnly": "Uniquement sur secteur",
+    "gameMode": "Attendre tant que le Mode Jeu est actif ou en cours de restauration",
+    "idle": "Minutes d’inactivité requises (0 pour désactiver)",
+    "window": "Utiliser une fenêtre de maintenance",
+    "from": "De",
+    "to": "Jusqu’à",
+    "disk": "Uniquement lorsque le disque principal manque d’espace",
+    "freePercent": "Espace libre inférieur à (%)",
+    "missed": "Si l’heure planifiée est manquée ou si les conditions ne sont pas prêtes",
+    "skip": "Ignorer après la fenêtre de démarrage de deux minutes",
+    "once": "Exécuter une fois dès que possible ; regrouper les exécutions manquées",
+    "runNow": "Exécuter maintenant",
+    "runConfirm": "Exécuter cette planification maintenant avec ses tâches enregistrées et son choix d’application automatique ? Les conditions d’alimentation, d’inactivité, de Mode Jeu, d’espace disque et de fenêtre de maintenance s’appliquent toujours.",
+    "runFailed": "Impossible de démarrer la planification",
+    "running": "En cours d’exécution",
+    "nextEvaluation": "Prochaine vérification vers {{time}}",
+    "workflow": "Ordre et portée des tâches",
+    "workflowHint": "Les tâches s’exécutent de haut en bas. Une restriction de catégorie s’applique uniquement aux futurs résultats d’analyse correspondants. La corbeille reste une opération sur l’ensemble de la corbeille.",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "restrict": "Choisir des catégories pour {{name}}",
+    "findCategories": "Analyser les catégories",
+    "scanning": "Analyse en cours...",
+    "scopeHint": "Seules les catégories cochées seront incluses. Une sélection vide n’exécute aucun nettoyage dans cette tâche. L’analyse détecte les catégories actuellement présentes ; elle n’effectue aucun nettoyage.",
+    "waitForScan": "Attendez la fin de l’analyse ou du nettoyage en cours.",
+    "noCategories": "Aucune catégorie trouvée. Lancez une nouvelle analyse lorsque l’application a mis des données en cache.",
+    "scanFailed": "Impossible de charger les catégories.",
+    "waiting": {
+      "idle": "En attente d’inactivité",
+      "power": "En attente de l’alimentation secteur",
+      "game-mode": "En attente de la fin du Mode Jeu",
+      "window": "En attente de la fenêtre de maintenance",
+      "disk": "En attente d’un espace disque faible",
+      "unknown": "En attente de mesures de condition disponibles",
+      "busy": "En attente d’une autre exécution planifiée",
+      "disabled": "Planification désactivée",
+      "changed": "La planification a été modifiée ; la définition mise en file d’attente a été abandonnée",
+      "unavailable": "En attente de la fenêtre de l’application",
+      "interrupted": "L’exécution a perdu sa fenêtre. Redémarrez Kudu avant de lancer d’autres tâches planifiées ; cette occurrence ne sera pas rejouée."
+    },
+    "saveFailed": "La planification n’a pas pu être enregistrée. Réessayez.",
+    "skipped": "Ignorée après modification des conditions."
+  }
 }

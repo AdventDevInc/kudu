@@ -28,13 +28,13 @@
   "presets": {
     "dialogTitle": "テンプレートを選択",
     "weeklyFullCleanLabel": "毎週のフルクリーン",
-    "weeklyFullCleanDescription": "毎週月曜日の午前9時に、すべてのクリーナーカテゴリを実行",
+    "weeklyFullCleanDescription": "毎週月曜日の午前9時にすべてのクリーナーカテゴリを実行",
     "dailyLightSweepLabel": "毎日の軽量クリーン",
-    "dailyLightSweepDescription": "毎日午前8時に、システム、ブラウザー、ごみ箱を実行",
+    "dailyLightSweepDescription": "毎日午前8時にシステム、ブラウザー、ごみ箱を実行",
     "monthlyDeepMaintenanceLabel": "毎月の詳細メンテナンス",
-    "monthlyDeepMaintenanceDescription": "毎月1日の午前10時に、フルクリーン + レジストリ、ドライバー、ソフトウェアを実行",
+    "monthlyDeepMaintenanceDescription": "毎月1日の午前10時にフルクリーン + レジストリ、ドライバー、ソフトウェアを実行",
     "customLabel": "カスタム",
-    "customDescription": "空のスケジュールから作成を開始"
+    "customDescription": "空のスケジュールから新規作成"
   },
   "dialog": {
     "editTitle": "スケジュールを編集",
@@ -53,7 +53,7 @@
     "cleanerGroup": "クリーナー",
     "maintenanceGroup": "メンテナンス",
     "autoApplyLabel": "自動適用",
-    "autoApplyDescription": "確認なしで、ファイルのクリーンアップ、レジストリの問題の修復、更新プログラムのインストールを自動的に実行します。",
+    "autoApplyDescription": "確認なしでファイルのクリーンアップ、レジストリの問題の修正、更新のインストールを自動的に実行します。",
     "autoApplyWarning": "操作はスケジュールに従って自動的に実行されます。除外リストが最新であることを確認してください。",
     "cancelButton": "キャンセル",
     "saveChangesButton": "変更を保存",
@@ -66,7 +66,7 @@
     "gaming": "ゲーム",
     "recycleBin": "ごみ箱",
     "databases": "データベース",
-    "registryFixes": "レジストリの修復",
+    "registryFixes": "レジストリの修正",
     "driverUpdates": "ドライバーの更新",
     "softwareUpdates": "ソフトウェアの更新"
   },
@@ -96,5 +96,51 @@
     "hoursAgo": "{{count}}時間前",
     "daysAgo": "{{count}}日前"
   },
-  "copyNameSuffix": "（コピー）"
+  "copyNameSuffix": "（コピー）",
+  "advanced": {
+    "title": "実行条件",
+    "explanation": "すべての条件は、開始前および各タスクまたは変更の前に確認されます。時刻はこのコンピューターのローカル タイム ゾーンに従います。実行中の操作は、条件の変更によって残りのタスクが停止される前に完了します。",
+    "acOnly": "AC電源接続時のみ",
+    "gameMode": "Game Mode が有効な間、または復元中は待機",
+    "idle": "必要なアイドル時間（分）（0 で無効）",
+    "window": "メンテナンス時間帯を使用する",
+    "from": "開始",
+    "to": "終了",
+    "disk": "ホーム ドライブの空き容量が少ない場合のみ",
+    "freePercent": "空き容量が次の値未満（%）",
+    "missed": "予定時刻を過ぎた場合、または条件が満たされていない場合",
+    "skip": "2 分間の開始猶予後にスキップ",
+    "once": "準備ができたら 1 回実行し、未実行分はまとめる",
+    "runNow": "今すぐ実行",
+    "runConfirm": "保存されているタスクと自動適用の設定を使用して、このスケジュールを今すぐ実行しますか？ 電源、アイドル、Game Mode、空き容量、メンテナンス時間帯の条件は引き続き適用されます。",
+    "runFailed": "スケジュールを開始できませんでした",
+    "running": "実行中",
+    "nextEvaluation": "次回の確認予定: {{time}} 頃",
+    "workflow": "タスクの順序と範囲",
+    "workflowHint": "タスクは上から下の順に実行されます。カテゴリ制限は、今後一致するスキャン結果にのみ適用されます。ごみ箱は常にごみ箱全体を対象に実行されます。",
+    "moveUp": "上へ",
+    "moveDown": "下へ",
+    "restrict": "{{name}} のカテゴリを選択",
+    "findCategories": "カテゴリをスキャン",
+    "scanning": "スキャン中...",
+    "scopeHint": "チェックされたカテゴリのみが含まれます。何も選択されていない場合、このタスクではクリーンアップは実行されません。スキャンでは現在存在するカテゴリを検出しますが、クリーンアップは行いません。",
+    "waitForScan": "現在のスキャンまたはクリーンアップが完了するまでお待ちください。",
+    "noCategories": "カテゴリが見つかりませんでした。アプリケーションにデータがキャッシュされた後で、新しいスキャンを実行してください。",
+    "scanFailed": "カテゴリを読み込めませんでした。",
+    "waiting": {
+      "idle": "アイドル状態になるまで待機中",
+      "power": "AC電源接続を待機中",
+      "game-mode": "Game Mode の終了を待機中",
+      "window": "メンテナンス時間帯を待機中",
+      "disk": "ディスク容量不足になるまで待機中",
+      "unknown": "利用可能な条件測定値を待機中",
+      "busy": "別のスケジュール実行を待機中",
+      "disabled": "スケジュールは無効です",
+      "changed": "スケジュールが編集されたため、キューに入っていた定義は破棄されました",
+      "unavailable": "アプリケーション ウィンドウを待機中",
+      "interrupted": "実行中にウィンドウを失いました。さらにスケジュールされた作業を開始する前に Kudu を再起動してください。この実行は再試行されません。"
+    },
+    "saveFailed": "スケジュールを保存できませんでした。もう一度お試しください。",
+    "skipped": "条件が変更されたためスキップされました。"
+  }
 }
