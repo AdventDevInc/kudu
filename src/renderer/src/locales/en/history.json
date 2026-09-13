@@ -31,7 +31,14 @@
     },
     "remove": "Remove entry",
     "removeDescription": "Remove this recovery record from local history? This does not change your settings or delete registry backups. Kudu will no longer be able to restore this change for you.",
-    "unreadable": "This recovery record could not be read. It may have been written by another user account or damaged on disk."
+    "unreadable": "This recovery record could not be read. It may have been written by another user account or damaged on disk.",
+    "loading": "Loading recovery history?",
+    "emptyTitle": "Your recovery history starts here",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Service Manager",
+      "registry": "Registry Cleaner"
+    }
   },
   "pageTitle": "Scan History",
   "pageDescription": "View detailed results from past scans and cleanups",

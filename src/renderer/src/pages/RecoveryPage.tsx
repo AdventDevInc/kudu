@@ -1,6 +1,9 @@
+import '@/components/shared/feature-layout.css'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { RotateCcw } from 'lucide-react'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { formatBytes } from '@/lib/utils'
@@ -13,15 +16,19 @@ export function RecoveryPage() {
   )
   const [offset, setOffset] = useState(0)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [remove, setRemove] = useState<string | null>(null)
   const [confirm, setConfirm] = useState<RecoveryEntry | null>(null)
   const refresh = useCallback(async () => {
+    setLoading(true)
     try {
       setData(await window.kudu.recoveryList(offset))
       setError('')
     } catch (e) {
       setError(e instanceof Error ? e.message : t('recovery.loadError'))
+    } finally {
+      setLoading(false)
     }
   }, [offset, t])
   useEffect(() => {
@@ -39,14 +46,12 @@ export function RecoveryPage() {
       setBusy(false)
     }
   }
-  const button = 'rounded-lg border px-3 py-2 text-sm disabled:opacity-40'
+  const button = 'feature-button'
   return (
-    <div className="p-8 space-y-5">
+    <div className="feature-page space-y-5">
       <PageHeader title={t('recovery.title')} description={t('recovery.description')} />
-      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-        {t('recovery.limits')}
-      </p>
-      <div className="flex gap-3">
+      <p className="feature-note">{t('recovery.limits')}</p>
+      <div className="flex flex-wrap items-center gap-3">
         <button className={button} disabled={busy} onClick={() => void refresh()}>
           {t('recovery.refresh')}
         </button>
@@ -64,7 +69,7 @@ export function RecoveryPage() {
         </p>
       )}
       {data?.gameMode && (data.gameMode.active || data.gameMode.pendingRestore) && (
-        <div className="rounded-xl border p-4">
+        <div className="feature-card">
           <h2 className="font-semibold">{t('recovery.gameMode')}</h2>
           <p>{data.gameMode.pendingReason || t('recovery.gameModeDescription')}</p>
           <Link className="underline" to="/game-mode">
@@ -72,10 +77,17 @@ export function RecoveryPage() {
           </Link>
         </div>
       )}
-      {data && !data.entries.length && !data.unreadable.length && <p>{t('recovery.empty')}</p>}
+      {loading && <p role="status">{t('recovery.loading')}</p>}
+      {!loading && data && !data.entries.length && !data.unreadable.length && (
+        <EmptyState
+          icon={RotateCcw}
+          title={t('recovery.emptyTitle')}
+          description={t('recovery.empty')}
+        />
+      )}
       <div className="space-y-3">
         {data?.unreadable.map((id) => (
-          <article key={id} className="rounded-xl border p-4">
+          <article key={id} className="feature-card">
             <p className="text-sm">{t('recovery.unreadable')}</p>
             <button className={button + ' mt-3'} disabled={busy} onClick={() => setRemove(id)}>
               {t('recovery.remove')}
@@ -83,17 +95,16 @@ export function RecoveryPage() {
           </article>
         ))}
         {data?.entries.map((entry) => (
-          <article key={entry.id} className="rounded-xl border p-4">
+          <article key={entry.id} className="feature-card">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="font-semibold">{entry.label}</h2>
-                <p className="text-sm">
-                  {entry.source} · {new Date(entry.createdAt).toLocaleString()}
+                <p className="text-xs text-[var(--text-muted)]">
+                  {t('recovery.source.' + entry.source)} ·{' '}
+                  {new Date(entry.createdAt).toLocaleString()}
                 </p>
               </div>
-              <span className="rounded-full border px-3 py-1 text-sm">
-                {t('recovery.status.' + entry.status)}
-              </span>
+              <span className="feature-status">{t('recovery.status.' + entry.status)}</span>
             </div>
             <p className="my-2 break-all font-mono text-xs">
               {entry.target.kind === 'registry-dword'
@@ -124,7 +135,7 @@ export function RecoveryPage() {
               </p>
             )}
             <button
-              className={button + ' mt-3'}
+              className={button + ' feature-primary mt-3'}
               disabled={busy || entry.status === 'restored'}
               onClick={() => setConfirm(entry)}
             >
@@ -163,11 +174,12 @@ export function RecoveryPage() {
           </button>
         </div>
       )}
-      <section className="rounded-xl border p-4 space-y-3">
+      <section className="feature-card space-y-3">
         <h2 className="font-semibold">{t('recovery.backups')}</h2>
         <p className="text-sm">{t('recovery.backupDescription')}</p>
         <button
           className={button}
+          disabled={busy}
           onClick={() => void run(() => window.kudu.recoveryOpenBackups())}
         >
           {t('recovery.openBackups')}
@@ -180,6 +192,7 @@ export function RecoveryPage() {
       </section>
       <ConfirmDialog
         open={!!remove}
+        variant="danger"
         onCancel={() => setRemove(null)}
         title={t('recovery.remove')}
         description={t('recovery.removeDescription')}
@@ -195,6 +208,7 @@ export function RecoveryPage() {
         onCancel={() => setConfirm(null)}
         title={t('recovery.confirmTitle')}
         description={t('recovery.confirmDescription')}
+        details={confirm?.label}
         confirmLabel={t('recovery.restore')}
         onConfirm={() => {
           const id = confirm!.id
