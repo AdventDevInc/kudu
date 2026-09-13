@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Centre de récupération",
+    "description": "Consultez et restaurez les modifications prises en charge effectuées par Kudu",
+    "limits": "La récupération couvre les valeurs DWORD de confidentialité/du registre Windows enregistrées, les tâches planifiées et la configuration des services. La suppression définitive de fichiers ne peut pas être annulée. Les modifications plus anciennes ou non prises en charge peuvent ne disposer que d’une sauvegarde manuelle. Certains paramètres restaurés nécessitent un redémarrage.",
+    "refresh": "Actualiser",
+    "export": "Exporter l’historique de récupération",
+    "loadError": "Impossible de lire l’historique de récupération.",
+    "failed": "La récupération a échoué.",
+    "empty": "Aucune modification enregistrée sur cette page. Les nouvelles modifications prises en charge apparaîtront ici.",
+    "gameMode": "Récupération du mode Jeu",
+    "gameModeDescription": "Le mode Jeu dispose d’un instantané de récupération actif ou en attente.",
+    "openGameMode": "Ouvrir la récupération du mode Jeu",
+    "before": "État d’origine",
+    "after": "État après Kudu",
+    "absent": "La valeur n’existait pas",
+    "restore": "Restaurer l’état d’origine",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "backups": "Sauvegardes du registre et du menu contextuel",
+    "backupDescription": "Ces fichiers de sauvegarde ne contiennent pas d’informations vérifiées sur l’état après modification. Vérifiez-les dans le dossier de sauvegarde avant de les restaurer manuellement ; leur importation peut écraser des paramètres plus récents. Un fichier de sauvegarde n’est pas un point de restauration du système d’exploitation.",
+    "openBackups": "Ouvrir le dossier de sauvegarde",
+    "confirmTitle": "Restaurer cette modification ?",
+    "confirmDescription": "Kudu vérifiera l’état actuel avant de restaurer la valeur d’origine enregistrée. Les modifications conflictuelles plus récentes seront conservées. Des privilèges d’administrateur peuvent être requis.",
+    "status": {
+      "pending": "Interrompu / en attente",
+      "ready": "Disponible",
+      "restored": "Restauré",
+      "failed": "Nécessite une attention",
+      "conflict": "Modification plus récente détectée"
+    },
+    "remove": "Supprimer l’entrée",
+    "removeDescription": "Supprimer cet enregistrement de récupération de l’historique local ? Cela ne modifie pas vos paramètres et ne supprime pas les sauvegardes du registre. Kudu ne pourra plus restaurer cette modification pour vous.",
+    "unreadable": "Impossible de lire cet enregistrement de récupération. Il a peut-être été écrit par un autre compte utilisateur ou endommagé sur le disque.",
+    "loading": "Chargement de l’historique de récupération ?",
+    "emptyTitle": "Votre historique de récupération commence ici",
+    "source": {
+      "privacy": "Bouclier de confidentialité",
+      "services": "Gestionnaire de services",
+      "registry": "Nettoyeur du registre"
+    }
+  },
   "receipts": {
     "volumeDelta": "Changement d’espace libre observé sur {{volume}} : {{size}} (également affecté par d’autres activités)",
     "selectionContext": "Éléments en cache dans ces catégories : {{found}} · Non sélectionnés dans cette opération : {{unselected}}",
@@ -84,8 +125,8 @@
   },
   "timeline": {
     "filterAll": "Tout",
-    "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterCleaner": "Nettoyeur",
+    "filterRegistry": "Registre",
     "filterDebloater": "Debloater",
     "filterNetwork": "Réseau",
     "filterDrivers": "Pilotes",

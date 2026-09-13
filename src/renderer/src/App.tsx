@@ -26,6 +26,7 @@ import { MalwareScannerPage } from './pages/MalwareScannerPage'
 import { ThreatMonitorPage } from './pages/ThreatMonitorPage'
 import { PrivacyShieldPage } from './pages/PrivacyShieldPage'
 import { HistoryPage } from './pages/HistoryPage'
+import { RecoveryPage } from './pages/RecoveryPage'
 import { PerformanceDiagnosticsPage } from './pages/PerformanceDiagnosticsPage'
 import { PerformanceMonitorPage } from './pages/PerformanceMonitorPage'
 import { UninstallerPage } from './pages/UninstallerPage'
@@ -177,6 +178,7 @@ export function App() {
             <Route path="/performance" element={<PerformanceMonitorPage />} />
             <Route path="/uninstaller" element={<UninstallerPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/recovery" element={<RecoveryPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/cloud" element={<CloudPage />} />
@@ -237,6 +239,7 @@ const ROUTE_TITLES: Record<string, { key: string }> = {
   '/performance': { key: 'performance:pageTitle' },
   '/uninstaller': { key: 'uninstaller:pageTitle' },
   '/history': { key: 'history:pageTitle' },
+  '/recovery': { key: 'history:recovery.title' },
   '/settings': { key: 'settings:pageTitle' },
   '/about': { key: 'settings:sectionAbout' },
   '/privacy': { key: 'hardening:privacy.pageTitle' },

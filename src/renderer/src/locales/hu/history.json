@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Helyreállítási központ",
+    "description": "A Kudu által végrehajtott támogatott módosítások áttekintése és visszaállítása",
+    "limits": "A helyreállítás a rögzített Windows DWORD adatvédelmi/rendszerleíróadatbázis-értékekre, ütemezett feladatokra és szolgáltatáskonfigurációra terjed ki. A véglegesen törölt fájlok nem állíthatók vissza. A régebbi vagy nem támogatott módosításokhoz csak kézi biztonsági mentés állhat rendelkezésre. Egyes visszaállított beállításokhoz újraindítás szükséges.",
+    "refresh": "Frissítés",
+    "export": "Helyreállítási előzmények exportálása",
+    "loadError": "A helyreállítási előzmények nem olvashatók be.",
+    "failed": "A helyreállítás sikertelen.",
+    "empty": "Ezen az oldalon nincsenek rögzített módosítások. Az új támogatott módosítások itt jelennek meg.",
+    "gameMode": "Játékmód helyreállítása",
+    "gameModeDescription": "A Játékmódhoz aktív vagy függőben lévő helyreállítási pillanatkép tartozik.",
+    "openGameMode": "Játékmód helyreállításának megnyitása",
+    "before": "Eredeti állapot",
+    "after": "Állapot a Kudu után",
+    "absent": "Az érték nem létezett",
+    "restore": "Eredeti állapot visszaállítása",
+    "previous": "Előző",
+    "next": "Következő",
+    "backups": "Rendszerleíróadatbázis- és helyi menü biztonsági mentések",
+    "backupDescription": "Ezek a biztonsági mentési fájlok nem tartalmaznak ellenőrzött utólagos állapotinformációt. Kézi visszaállítás előtt ellenőrizze őket a biztonsági mentési mappában; importálásuk felülírhat újabb beállításokat. A biztonsági mentési fájl nem azonos az operációs rendszer visszaállítási pontjával.",
+    "openBackups": "Biztonsági mentési mappa megnyitása",
+    "confirmTitle": "Visszaállítja ezt a módosítást?",
+    "confirmDescription": "A Kudu a visszaállítás előtt ellenőrzi az aktuális állapotot, majd visszaállítja a rögzített eredeti értéket. Az újabb, ütköző módosítások megmaradnak. Rendszergazdai jogosultság szükséges lehet.",
+    "status": {
+      "pending": "Megszakítva / függőben",
+      "ready": "Elérhető",
+      "restored": "Visszaállítva",
+      "failed": "Figyelmet igényel",
+      "conflict": "Újabb módosítás észlelve"
+    },
+    "remove": "Bejegyzés eltávolítása",
+    "removeDescription": "Eltávolítja ezt a helyreállítási bejegyzést a helyi előzményekből? Ez nem módosítja a beállításait, és nem törli a rendszerleíróadatbázis biztonsági mentéseit. A Kudu ezután már nem tudja visszaállítani ezt a módosítást.",
+    "unreadable": "Ez a helyreállítási bejegyzés nem olvasható. Lehet, hogy egy másik felhasználói fiók hozta létre, vagy a lemezen megsérült.",
+    "loading": "Helyreállítási előzmények betöltése?",
+    "emptyTitle": "Itt kezdődnek a helyreállítási előzményei",
+    "source": {
+      "privacy": "Adatvédelmi pajzs",
+      "services": "Szolgáltatáskezelő",
+      "registry": "Rendszerleíróadatbázis-tisztító"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} megfigyelt szabadterület-változása: {{size}} (más tevékenységek is befolyásolták)",
     "selectionContext": "Gyorsítótárazott bejegyzések ezekben a kategóriákban: {{found}} · Ebben a műveletben nincs kiválasztva: {{unselected}}",

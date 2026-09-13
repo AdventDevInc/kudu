@@ -14,6 +14,8 @@ import type {
 import { lookupServiceSafety } from '../../shared/service-safety-kb'
 import { getPlatform } from '../platform'
 import { psUtf8 } from '../services/exec-utf8'
+import { recordRecoveryChanges, type RecoveryChange } from '../services/recovery-store'
+import { readServiceStates, type ServiceState } from '../services/recovery'
 
 const execFileAsync = promisify(execFile)
 
@@ -22,12 +24,37 @@ function psArgs(script: string): string[] {
 }
 const PS_OPTS = { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
 
-// Start types callers may request, mapped to the value Set-Service expects.
+// Start types callers may request, mapped to the value Set-Service expects. Windows
+// PowerShell 5.1 has no AutomaticDelayedStart: delayed start is Automatic plus the
+// DelayedAutoStart registry flag, which the apply script sets explicitly.
 const ALLOWED_START_TYPES: Record<string, string> = {
   Manual: 'Manual',
   Disabled: 'Disabled',
   Automatic: 'Automatic',
-  AutomaticDelayed: 'AutomaticDelayedStart'
+  AutomaticDelayed: 'Automatic'
+}
+const SERVICE_NAME = /^[A-Za-z0-9_.-]{1,256}$/
+const SERVICES_KEY = ['HKLM:', 'SYSTEM', 'CurrentControlSet', 'Services', ''].join(
+  String.fromCharCode(92)
+)
+
+/**
+ * The state the apply script leaves a service in, mirroring exactly what it does for
+ * each target so an interrupted or unreadable after-read still journals the truth:
+ * Automatic clears the delayed flag, AutomaticDelayed sets it, and Manual/Disabled
+ * leave it untouched (Set-Service in Windows PowerShell only changes the start type).
+ */
+export function predictServiceState(before: ServiceState, targetStartType: string): ServiceState {
+  switch (targetStartType) {
+    case 'Automatic':
+      return { start: 2, delayed: 0, running: true }
+    case 'AutomaticDelayed':
+      return { start: 2, delayed: 1, running: true }
+    case 'Disabled':
+      return { start: 4, delayed: before.delayed, running: false }
+    default:
+      return { start: 3, delayed: before.delayed, running: before.running }
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -205,7 +232,7 @@ export async function scanServices(
   }
 }
 
-export async function applyServiceChanges(
+async function applyServiceChangesImpl(
   changes: { name: string; targetStartType: string }[],
   force?: boolean
 ): Promise<ServiceApplyResult> {
@@ -227,7 +254,7 @@ export async function applyServiceChanges(
         errors: [{ name: '', displayName: '', reason: 'Invalid change entry' }]
       }
     }
-    if (!/^[A-Za-z0-9_.\-]{1,256}$/.test(c.name)) {
+    if (!SERVICE_NAME.test(c.name)) {
       return {
         succeeded: 0,
         failed: 0,
@@ -260,12 +287,20 @@ export async function applyServiceChanges(
     // An automatic service is expected to be running — start it now so the
     // user does not have to reboot for the change to take effect.
     const starting = c.targetStartType === 'Automatic' || c.targetStartType === 'AutomaticDelayed'
+    // Set-Service leaves DelayedAutoStart alone, so a formerly delayed-start service
+    // would silently stay delayed when set to Automatic; write the flag explicitly.
+    // predictServiceState must mirror what happens here.
+    const delayed = starting ? (c.targetStartType === 'AutomaticDelayed' ? 1 : 0) : undefined
+    const delayedLine =
+      delayed === undefined
+        ? ''
+        : `  Set-ItemProperty -LiteralPath '${SERVICES_KEY}${safeName}' -Name DelayedAutoStart -Value ${delayed} -Type DWord -ErrorAction Stop\n`
     return `
 try {
   $svc = Get-Service -Name '${safeName}' -ErrorAction Stop
   $dn = $svc.DisplayName
 ${disabling ? `  if ($svc.Status -eq 'Running') { Stop-Service -Name '${safeName}' -Force -ErrorAction Stop }\n` : ''}  Set-Service -Name '${safeName}' -StartupType ${safeType} -ErrorAction Stop
-${starting ? `  if ($svc.Status -ne 'Running') { try { Start-Service -Name '${safeName}' -ErrorAction Stop } catch {} }\n` : ''}  Write-Output "OK|${safeName}|$dn"
+${delayedLine}${starting ? `  if ($svc.Status -ne 'Running') { try { Start-Service -Name '${safeName}' -ErrorAction Stop } catch {} }\n` : ''}  Write-Output "OK|${safeName}|$dn"
 } catch {
   Write-Output "FAIL|${safeName}|${safeName}|$($_.Exception.Message)"
 }`
@@ -326,4 +361,88 @@ export function registerServiceManagerIpc(getWindow: WindowGetter): void {
       return applyServiceChanges(changes, force === true)
     }
   )
+}
+
+export async function applyServiceChanges(
+  changes: { name: string; targetStartType: string }[],
+  force?: boolean
+): Promise<ServiceApplyResult> {
+  if (
+    process.platform !== 'win32' ||
+    !Array.isArray(changes) ||
+    changes.some(
+      (c) =>
+        !c ||
+        !SERVICE_NAME.test(c.name) ||
+        !Object.prototype.hasOwnProperty.call(ALLOWED_START_TYPES, c.targetStartType)
+    )
+  )
+    return applyServiceChangesImpl(changes, force)
+  const result: ServiceApplyResult = { succeeded: 0, failed: 0, errors: [] }
+  const fail = (name: string, reason: string) => {
+    result.failed++
+    result.errors.push({ name, displayName: name, reason })
+  }
+  const requested = changes.filter(
+    (change) =>
+      change.targetStartType !== 'Disabled' ||
+      lookupServiceSafety(change.name).safety !== 'unsafe' ||
+      force === true
+  )
+  if (!requested.length) return result
+  // Snapshot every service in one PowerShell run, journal each as pending, apply the
+  // whole batch in one run as before, then verify every after-state in one run.
+  let states: Map<string, ServiceState>
+  try {
+    states = await readServiceStates(requested.map((change) => change.name))
+  } catch (error) {
+    for (const change of requested)
+      fail(change.name, error instanceof Error ? error.message : 'Recovery snapshot failed')
+    return result
+  }
+  const applicable: typeof requested = []
+  const journal: RecoveryChange[] = []
+  for (const change of requested) {
+    const before = states.get(change.name)
+    if (!before) {
+      fail(change.name, 'Original service state unavailable')
+      continue
+    }
+    applicable.push(change)
+    journal.push({
+      label: change.name,
+      target: { kind: 'service-start', name: change.name },
+      before,
+      after: predictServiceState(before, change.targetStartType)
+    })
+  }
+  if (!applicable.length) return result
+  const names = applicable.map((change) => change.name)
+  try {
+    const failures = await recordRecoveryChanges(
+      'services',
+      journal,
+      async () => {
+        const applied = await applyServiceChangesImpl(applicable, force)
+        const general = applied.errors.find((e) => !e.name)?.reason
+        return names.map(
+          (name) =>
+            general ||
+            applied.errors.find((e) => e.name === name)?.reason ||
+            (applied.succeeded + applied.failed < names.length
+              ? 'Service change failed'
+              : undefined)
+        )
+      },
+      async () => {
+        const after = await readServiceStates(names)
+        return names.map((name) => after.get(name))
+      }
+    )
+    failures.forEach((reason, i) => (reason ? fail(names[i], reason) : result.succeeded++))
+  } catch (error) {
+    for (const name of names)
+      fail(name, error instanceof Error ? error.message : 'Service change failed')
+  }
+  return result
 }

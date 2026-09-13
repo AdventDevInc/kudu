@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Återställningscenter",
+    "description": "Granska och återställ ändringar som Kudu har gjort och som stöds",
+    "limits": "Återställning omfattar registrerade Windows DWORD-värden för sekretess/registrets värden, schemalagda aktiviteter och tjänstkonfiguration. Permanent filborttagning kan inte ångras. Äldre eller ändringar som inte stöds kan endast ha en manuell säkerhetskopia. Vissa återställda inställningar kräver en omstart.",
+    "refresh": "Uppdatera",
+    "export": "Exportera återställningshistorik",
+    "loadError": "Det gick inte att läsa återställningshistoriken.",
+    "failed": "Återställningen misslyckades.",
+    "empty": "Det finns inga registrerade ändringar på den här sidan. Nya ändringar som stöds visas här.",
+    "gameMode": "Återställning för spelläge",
+    "gameModeDescription": "Spelläge har en aktiv eller väntande återställningsögonblicksbild.",
+    "openGameMode": "Öppna återställning för spelläge",
+    "before": "Ursprungligt tillstånd",
+    "after": "Tillstånd efter Kudu",
+    "absent": "Värdet fanns inte",
+    "restore": "Återställ ursprungligt tillstånd",
+    "previous": "Föregående",
+    "next": "Nästa",
+    "backups": "Säkerhetskopior för registret och snabbmenyn",
+    "backupDescription": "Dessa säkerhetskopior innehåller inte verifierad information om efterföljande tillstånd. Granska dem i säkerhetskopieringsmappen innan du återställer manuellt. Om du importerar dem kan nyare inställningar skrivas över. En säkerhetskopia är inte en återställningspunkt i operativsystemet.",
+    "openBackups": "Öppna säkerhetskopieringsmapp",
+    "confirmTitle": "Återställa den här ändringen?",
+    "confirmDescription": "Kudu kontrollerar det aktuella tillståndet innan det registrerade ursprungliga värdet återställs. Nyare motstridiga ändringar bevaras. Administratörsbehörighet kan krävas.",
+    "status": {
+      "pending": "Avbruten / väntande",
+      "ready": "Tillgänglig",
+      "restored": "Återställd",
+      "failed": "Kräver åtgärd",
+      "conflict": "Nyare ändring upptäckt"
+    },
+    "remove": "Ta bort post",
+    "removeDescription": "Ta bort den här återställningsposten från lokal historik? Detta ändrar inte dina inställningar och tar inte bort säkerhetskopior av registret. Kudu kommer inte längre att kunna återställa den här ändringen åt dig.",
+    "unreadable": "Den här återställningsposten kunde inte läsas. Den kan ha skrivits av ett annat användarkonto eller skadats på disken.",
+    "loading": "Läser in återställningshistorik?",
+    "emptyTitle": "Din återställningshistorik börjar här",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Tjänstehanteraren",
+      "registry": "Registerrensning"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} observerad förändring av ledigt utrymme: {{size}} (påverkades även av annan aktivitet)",
     "selectionContext": "Cachelagrade poster i dessa kategorier: {{found}} · Inte valda i den här åtgärden: {{unselected}}",
@@ -84,8 +125,8 @@
   },
   "timeline": {
     "filterAll": "Alla",
-    "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterCleaner": "Rensare",
+    "filterRegistry": "Register",
     "filterDebloater": "Debloater",
     "filterNetwork": "Nätverk",
     "filterDrivers": "Drivrutiner",

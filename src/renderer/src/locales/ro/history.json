@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "Centru de recuperare",
+    "description": "Revizuiți și restaurați modificările acceptate efectuate de Kudu",
+    "limits": "Recuperarea acoperă valorile DWORD de confidențialitate/registry din Windows înregistrate, activitățile programate și configurația serviciilor. Ștergerea permanentă a fișierelor nu poate fi anulată. Modificările mai vechi sau neacceptate pot avea doar o copie de rezervă manuală. Unele setări restaurate necesită o repornire.",
+    "refresh": "Reîmprospătare",
+    "export": "Exportă istoricul de recuperare",
+    "loadError": "Istoricul de recuperare nu a putut fi citit.",
+    "failed": "Recuperarea a eșuat.",
+    "empty": "Nu există modificări înregistrate pe această pagină. Noile modificări acceptate vor apărea aici.",
+    "gameMode": "Recuperare Game Mode",
+    "gameModeDescription": "Game Mode are un instantaneu de recuperare activ sau în așteptare.",
+    "openGameMode": "Deschide recuperarea Game Mode",
+    "before": "Starea inițială",
+    "after": "Starea după Kudu",
+    "absent": "Valoarea nu exista",
+    "restore": "Restaurează starea inițială",
+    "previous": "Anterior",
+    "next": "Următor",
+    "backups": "Copii de rezervă pentru registry și meniul contextual",
+    "backupDescription": "Aceste fișiere de rezervă nu conțin informații verificate despre starea ulterioară. Verificați-le în folderul de backup înainte de restaurarea manuală; importarea lor poate suprascrie setări mai noi. Un fișier de rezervă nu este un punct de restaurare al sistemului de operare.",
+    "openBackups": "Deschide folderul de backup",
+    "confirmTitle": "Restaurați această modificare?",
+    "confirmDescription": "Kudu va verifica starea curentă înainte de a restaura valoarea inițială înregistrată. Modificările conflictuale mai noi vor fi păstrate. Pot fi necesare privilegii de administrator.",
+    "status": {
+      "pending": "Întrerupt / în așteptare",
+      "ready": "Disponibil",
+      "restored": "Restaurat",
+      "failed": "Necesită atenție",
+      "conflict": "A fost detectată o modificare mai nouă"
+    },
+    "remove": "Elimină înregistrarea",
+    "removeDescription": "Eliminați această înregistrare de recuperare din istoricul local? Aceasta nu vă modifică setările și nu șterge copiile de rezervă din registry. Kudu nu va mai putea restaura această modificare pentru dvs.",
+    "unreadable": "Această înregistrare de recuperare nu a putut fi citită. Este posibil să fi fost scrisă de un alt cont de utilizator sau să fie deteriorată pe disc.",
+    "loading": "Se încarcă istoricul de recuperare?",
+    "emptyTitle": "Istoricul dvs. de recuperare începe aici",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Manager servicii",
+      "registry": "Registry Cleaner"
+    }
+  },
   "receipts": {
     "volumeDelta": "Modificare observată a spațiului liber pe {{volume}}: {{size}} (afectată și de alte activități)",
     "selectionContext": "Intrări în cache din aceste categorii: {{found}} · Neselectate în această operațiune: {{unselected}}",

@@ -257,7 +257,8 @@ const navGroups: NavGroup[] = [
         ]
       },
       { icon: Gamepad2, labelKey: 'gameMode', label: 'Game Mode', path: '/game-mode' },
-      { icon: History, labelKey: 'history', label: 'Activity', path: '/history' }
+      { icon: History, labelKey: 'history', label: 'Activity', path: '/history' },
+      { icon: History, labelKey: 'history:recovery.title', label: 'Recovery', path: '/recovery' }
     ]
   }
 ]

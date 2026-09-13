@@ -1,4 +1,45 @@
 {
+  "recovery": {
+    "title": "回復センター",
+    "description": "Kudu によって行われた対応済みの変更を確認して復元します",
+    "limits": "回復の対象は、記録された Windows の DWORD プライバシー/レジストリ値、スケジュールされたタスク、およびサービス構成です。ファイルの完全削除は元に戻せません。古い変更や未対応の変更には、手動バックアップしかない場合があります。一部の復元された設定は再起動が必要です。",
+    "refresh": "更新",
+    "export": "回復履歴をエクスポート",
+    "loadError": "回復履歴を読み取れませんでした。",
+    "failed": "回復に失敗しました。",
+    "empty": "このページには記録された変更はありません。新しい対応済みの変更はここに表示されます。",
+    "gameMode": "ゲーム モードの回復",
+    "gameModeDescription": "ゲーム モードには有効または保留中の回復スナップショットがあります。",
+    "openGameMode": "ゲーム モードの回復を開く",
+    "before": "元の状態",
+    "after": "Kudu 適用後の状態",
+    "absent": "値は存在しませんでした",
+    "restore": "元の状態に復元",
+    "previous": "前へ",
+    "next": "次へ",
+    "backups": "レジストリとコンテキスト メニューのバックアップ",
+    "backupDescription": "これらのバックアップ ファイルには、検証済みの変更後の状態情報は含まれていません。手動で復元する前にバックアップ フォルダーで内容を確認してください。インポートすると新しい設定が上書きされる場合があります。バックアップ ファイルは OS の復元ポイントではありません。",
+    "openBackups": "バックアップ フォルダーを開く",
+    "confirmTitle": "この変更を復元しますか？",
+    "confirmDescription": "Kudu は、記録された元の値を復元する前に現在の状態を確認します。新しい競合する変更は保持されます。管理者権限が必要な場合があります。",
+    "status": {
+      "pending": "中断 / 保留中",
+      "ready": "利用可能",
+      "restored": "復元済み",
+      "failed": "要確認",
+      "conflict": "新しい変更を検出"
+    },
+    "remove": "項目を削除",
+    "removeDescription": "この回復記録をローカル履歴から削除しますか？ これによって設定が変更されたり、レジストリのバックアップが削除されたりすることはありません。Kudu はこの変更を復元できなくなります。",
+    "unreadable": "この回復記録を読み取れませんでした。別のユーザー アカウントによって書き込まれたか、ディスク上で破損している可能性があります。",
+    "loading": "回復履歴を読み込み中？",
+    "emptyTitle": "回復履歴はここから始まります",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Service Manager",
+      "registry": "Registry Cleaner"
+    }
+  },
   "receipts": {
     "volumeDelta": "{{volume}} の空き容量の変化を検出: {{size}}（他のアクティビティの影響も含まれます）",
     "selectionContext": "これらのカテゴリ内のキャッシュ済みエントリ: {{found}} · この操作で未選択: {{unselected}}",
@@ -188,8 +229,8 @@
     "registryFix": "レジストリ修復"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1秒",
+    "seconds": "{{count}}秒",
+    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
   }
 }
