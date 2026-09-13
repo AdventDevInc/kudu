@@ -1,4 +1,4 @@
-name: PR Title
+name: CI - PR Title
 
 # PRs are squash-merged with the PR title as the commit message, so the title
 # is what the changelog sees. Individual commits inside a PR are not linted.

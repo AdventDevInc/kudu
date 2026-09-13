@@ -1,4 +1,4 @@
-name: Rules Bot
+name: Automation - Cleaner Rules
 
 on:
   pull_request:
@@ -15,6 +15,7 @@ concurrency:
 
 jobs:
   validate-and-summarize:
+    name: Validate and Summarize Rules
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

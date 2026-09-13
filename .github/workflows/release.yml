@@ -1,4 +1,4 @@
-name: Release
+name: Release - Publish
 
 on:
   push:
@@ -15,12 +15,15 @@ concurrency:
 
 jobs:
   validate:
+    name: Validate Release
     uses: ./.github/workflows/ci.yml
 
   package-smoke:
+    name: Verify Packaging
     uses: ./.github/workflows/package-smoke.yml
 
   create-release:
+    name: Prepare Draft Release
     needs: [validate, package-smoke]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -47,6 +50,7 @@ jobs:
         run: node scripts/prepare-release.js
 
   build:
+    name: Build and Sign (${{ matrix.os }})
     needs: create-release
     strategy:
       fail-fast: false
@@ -134,6 +138,7 @@ jobs:
           overwrite: true
 
   publish-release:
+    name: Verify and Publish Release
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -166,12 +171,14 @@ jobs:
         run: node scripts/publish-release.js release-artifacts
 
   deploy-website:
+    name: Deploy Website
     needs: publish-release
     uses: ./.github/workflows/deploy-website.yml
     secrets:
       WEB_DEPLOY_HOOK: ${{ secrets.WEB_DEPLOY_HOOK }}
 
   publish-choco:
+    name: Publish Chocolatey Package
     needs: publish-release
     runs-on: windows-latest
     timeout-minutes: 15
@@ -219,6 +226,7 @@ jobs:
           choco push usekudu.${{ steps.version.outputs.version }}.nupkg --source "https://push.chocolatey.org/" --api-key "${{ secrets.CHOCOLATEY_API_KEY }}"
 
   virustotal-scan:
+    name: Submit to VirusTotal
     needs: publish-release
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -289,6 +297,7 @@ jobs:
           ${vt_report}"
 
   publish-winget:
+    name: Submit WinGet Manifest
     needs: publish-release
     runs-on: windows-latest
     timeout-minutes: 15

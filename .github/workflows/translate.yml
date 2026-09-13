@@ -1,4 +1,4 @@
-name: Auto-translate
+name: Automation - Translations
 
 on:
   pull_request:
@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   translate:
+    name: Update Translations
     # Skip PRs from forks (they won't have access to secrets)
     if: |
       (github.event_name == 'workflow_dispatch') ||

@@ -1,4 +1,4 @@
-name: Rebuild macOS release
+name: Release - Rebuild macOS
 
 on:
   workflow_dispatch:
@@ -21,6 +21,7 @@ concurrency:
 
 jobs:
   rebuild:
+    name: Rebuild macOS
     runs-on: macos-latest
     timeout-minutes: 45
     steps:

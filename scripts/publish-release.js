@@ -19,7 +19,18 @@ async function main() {
   ).flat()
   verifyUploadedAssets(assets, uploaded)
   assert(getRelease().draft, 'Release was published before verification completed')
-  gh('release', 'edit', tag, '--repo', repo, '--draft=false', '--latest')
+  // Let GitHub select Latest by release date and semantic version. Forcing
+  // --latest would let an older, slower pipeline displace a newer release.
+  gh(
+    'api',
+    '--method',
+    'PATCH',
+    `repos/${repo}/releases/${release.id}`,
+    '-F',
+    'draft=false',
+    '-f',
+    'make_latest=legacy'
+  )
   assert.equal(getRelease().draft, false, 'Release publication was not confirmed')
   console.log(`Published ${tag} after verifying every uploaded artifact checksum`)
 }

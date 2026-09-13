@@ -1,4 +1,4 @@
-name: Stale
+name: Automation - Stale Issues and PRs
 
 on:
   schedule:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   stale:
+    name: Close Stale Issues and PRs
     runs-on: ubuntu-latest
     timeout-minutes: 10
 

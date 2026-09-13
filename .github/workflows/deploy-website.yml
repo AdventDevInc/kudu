@@ -1,10 +1,12 @@
-name: Deploy Website
+name: Website - Deploy
 
 on:
   push:
     branches: [main]
     paths: ['rules/**']
   release:
+    # Handles manual releases. GITHUB_TOKEN publication does not trigger this;
+    # the release workflow calls this workflow directly after verification.
     types: [published]
   workflow_call:
     secrets:
@@ -15,6 +17,7 @@ permissions: {}
 
 jobs:
   trigger-deploy:
+    name: Deploy Website
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions: {}

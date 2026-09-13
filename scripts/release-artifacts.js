@@ -17,6 +17,7 @@ function manifestTargets(version) {
       `Kudu-${version}-${arch}.dmg`,
       `Kudu-${version}-${arch}.zip`
     ]),
+    // Our pinned electron-builder includes DEBs in Linux update metadata too.
     'latest-linux.yml': ['Kudu-x86_64.AppImage', `Kudu-${version}-amd64.deb`],
     'latest-linux-arm64.yml': ['Kudu-arm64.AppImage', `Kudu-${version}-arm64.deb`]
   }

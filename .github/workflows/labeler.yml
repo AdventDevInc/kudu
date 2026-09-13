@@ -1,4 +1,4 @@
-name: Labeler
+name: Automation - PR Labels
 
 on:
   pull_request_target:
@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   label:
+    name: Apply PR Labels
     runs-on: ubuntu-latest
     timeout-minutes: 10
 

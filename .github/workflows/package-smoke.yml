@@ -1,4 +1,4 @@
-name: Package Smoke Test
+name: CI - Package Smoke Tests
 
 on:
   pull_request:
@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   package:
-    name: Packaged app (${{ matrix.os }})
+    name: Packaged App (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
