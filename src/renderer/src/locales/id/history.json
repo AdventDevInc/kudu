@@ -2,15 +2,15 @@
   "recovery": {
     "title": "Pusat Pemulihan",
     "description": "Tinjau dan pulihkan perubahan yang didukung yang dibuat oleh Kudu",
-    "limits": "Pemulihan mencakup nilai privasi/registry Windows DWORD yang tercatat, tugas terjadwal, dan konfigurasi layanan. Penghapusan file permanen tidak dapat dibatalkan. Perubahan yang lebih lama atau tidak didukung mungkin hanya memiliki cadangan manual. Beberapa pengaturan yang dipulihkan memerlukan mulai ulang.",
+    "limits": "Pemulihan mencakup nilai DWORD privasi/registry Windows yang tercatat, tugas terjadwal, dan konfigurasi layanan. Penghapusan file permanen tidak dapat dibatalkan. Perubahan yang lebih lama atau tidak didukung mungkin hanya memiliki cadangan manual. Beberapa pengaturan yang dipulihkan memerlukan mulai ulang.",
     "refresh": "Segarkan",
     "export": "Ekspor riwayat pemulihan",
     "loadError": "Riwayat pemulihan tidak dapat dibaca.",
     "failed": "Pemulihan gagal.",
     "empty": "Tidak ada perubahan yang tercatat di halaman ini. Perubahan baru yang didukung akan muncul di sini.",
-    "gameMode": "Pemulihan Mode Game",
-    "gameModeDescription": "Mode Game memiliki snapshot pemulihan yang aktif atau tertunda.",
-    "openGameMode": "Buka pemulihan Mode Game",
+    "gameMode": "Pemulihan Game Mode",
+    "gameModeDescription": "Game Mode memiliki snapshot pemulihan yang aktif atau tertunda.",
+    "openGameMode": "Buka pemulihan Game Mode",
     "before": "Status asli",
     "after": "Status setelah Kudu",
     "absent": "Nilai tidak ada",
@@ -30,8 +30,15 @@
       "conflict": "Perubahan yang lebih baru terdeteksi"
     },
     "remove": "Hapus entri",
-    "removeDescription": "Hapus catatan pemulihan ini dari riwayat lokal? Tindakan ini tidak mengubah pengaturan Anda atau menghapus cadangan registry. Kudu tidak akan lagi dapat memulihkan perubahan ini untuk Anda.",
-    "unreadable": "Catatan pemulihan ini tidak dapat dibaca. Catatan ini mungkin ditulis oleh akun pengguna lain atau rusak di disk."
+    "removeDescription": "Hapus catatan pemulihan ini dari riwayat lokal? Ini tidak mengubah pengaturan Anda atau menghapus cadangan registry. Kudu tidak akan lagi dapat memulihkan perubahan ini untuk Anda.",
+    "unreadable": "Catatan pemulihan ini tidak dapat dibaca. Catatan ini mungkin ditulis oleh akun pengguna lain atau rusak di disk.",
+    "loading": "Memuat riwayat pemulihan?",
+    "emptyTitle": "Riwayat pemulihan Anda dimulai di sini",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Manajer Layanan",
+      "registry": "Pembersih Registry"
+    }
   },
   "pageTitle": "Riwayat Pemindaian",
   "pageDescription": "Lihat hasil terperinci dari pemindaian dan pembersihan sebelumnya",
@@ -40,7 +47,7 @@
   "viewCloud": "Cloud",
   "clearButton": "Hapus",
   "emptyStateTitle": "Belum ada riwayat",
-  "emptyStateDescription": "Jalankan pemindaian dari halaman Cleaner, Registry, atau Debloater. Hasil akan muncul di sini.",
+  "emptyStateDescription": "Jalankan pemindaian dari halaman Cleaner, Registry, atau Debloater. Hasilnya akan muncul di sini.",
   "confirmClearCloudTitle": "Hapus Riwayat Cloud",
   "confirmClearScanTitle": "Hapus Riwayat Pemindaian",
   "confirmClearCloudDescription": "Ini akan menghapus secara permanen semua entri riwayat tindakan cloud. Tindakan ini tidak dapat dibatalkan.",
@@ -53,7 +60,7 @@
     "network": "Pembersihan Jaringan",
     "drivers": "Pembersihan Driver",
     "malware": "Pemindaian Malware",
-    "privacy": "Perisai Privasi",
+    "privacy": "Privacy Shield",
     "startup": "Manajer Startup",
     "services": "Manajer Layanan",
     "softwareUpdate": "Pembaruan Perangkat Lunak",
@@ -65,13 +72,13 @@
     "itemsProcessed": "Item Diproses",
     "avgDuration": "Durasi Rata-rata",
     "spaceRecoveredOverTime": "Ruang Dipulihkan dari Waktu ke Waktu",
-    "needTwoScansForChart": "Perlu setidaknya 2 pemindaian untuk grafik tren",
+    "needTwoScansForChart": "Diperlukan setidaknya 2 pemindaian untuk grafik tren",
     "scanTypeDistribution": "Distribusi Jenis Pemindaian",
     "noData": "Tidak ada data",
     "topCategoriesBySpace": "Kategori Teratas berdasarkan Ruang",
     "noCategoryData": "Tidak ada data kategori",
     "weeklyActivity": "Aktivitas Mingguan",
-    "needTwoWeeksData": "Perlu setidaknya 2 minggu data",
+    "needTwoWeeksData": "Diperlukan setidaknya 2 minggu data",
     "recentScans": "Pemindaian Terbaru",
     "tooltipSpace": "Ruang",
     "tooltipScans": "Pemindaian"
@@ -95,7 +102,7 @@
     "columnSpace": "Ruang",
     "columnDuration": "Durasi",
     "columnStatus": "Status",
-    "scheduledBadge": "Jadwal",
+    "scheduledBadge": "Terjadwal",
     "noEntriesMatchFilter": "Tidak ada entri yang cocok dengan filter ini",
     "dateAt": "pukul"
   },
@@ -116,12 +123,12 @@
       "loadMore": "Muat lebih banyak",
       "exportCsv": "Ekspor CSV",
       "openLog": "Buka log",
-      "exported": "{{count}} jalur berhasil diekspor",
+      "exported": "Mengekspor {{count}} jalur",
       "exportFailed": "Tidak dapat mengekspor daftar file yang dihapus",
       "truncatedBadge": "+{{count}} lagi",
       "truncatedHint": "Folder ini berisi {{count}} entri tambahan di luar batas daftar per folder. Entri tersebut telah dihapus tetapi tidak dicantumkan satu per satu.",
       "emptyRecorded": "Tidak ada jalur file yang dicatat untuk proses ini.",
-      "disabledHint": "Pencatatan penghapusan dinonaktifkan, sehingga jalur individual dari proses ini tidak dicatat. Aktifkan \"Simpan log file yang dihapus\" di Pengaturan → Preferensi Pembersihan agar dicatat mulai sekarang."
+      "disabledHint": "Pencatatan penghapusan dinonaktifkan, sehingga jalur individual dari proses ini tidak dicatat. Aktifkan \"Simpan log file yang dihapus\" di Pengaturan → Preferensi Pembersihan untuk mulai mencatatnya."
     }
   },
   "cloud": {

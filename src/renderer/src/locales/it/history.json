@@ -2,12 +2,12 @@
   "recovery": {
     "title": "Centro di ripristino",
     "description": "Esamina e ripristina le modifiche supportate apportate da Kudu",
-    "limits": "Il ripristino copre i valori DWORD di privacy/registro di Windows registrati, le attività pianificate e la configurazione dei servizi. L'eliminazione permanente dei file non può essere annullata. Le modifiche più vecchie o non supportate potrebbero avere solo un backup manuale. Alcune impostazioni ripristinate richiedono un riavvio.",
+    "limits": "Il ripristino copre i valori DWORD di privacy/registro di sistema di Windows registrati, le attività pianificate e la configurazione dei servizi. L'eliminazione permanente dei file non può essere annullata. Le modifiche meno recenti o non supportate potrebbero avere solo un backup manuale. Alcune impostazioni ripristinate richiedono un riavvio.",
     "refresh": "Aggiorna",
     "export": "Esporta cronologia di ripristino",
     "loadError": "Impossibile leggere la cronologia di ripristino.",
     "failed": "Ripristino non riuscito.",
-    "empty": "Nessuna modifica registrata in questa pagina. Le nuove modifiche supportate appariranno qui.",
+    "empty": "Nessuna modifica registrata in questa pagina. Le nuove modifiche supportate verranno visualizzate qui.",
     "gameMode": "Ripristino Modalità gioco",
     "gameModeDescription": "La Modalità gioco dispone di un'istantanea di ripristino attiva o in sospeso.",
     "openGameMode": "Apri ripristino Modalità gioco",
@@ -17,11 +17,11 @@
     "restore": "Ripristina stato originale",
     "previous": "Precedente",
     "next": "Successivo",
-    "backups": "Backup del registro e del menu contestuale",
+    "backups": "Backup del registro di sistema e del menu contestuale",
     "backupDescription": "Questi file di backup non contengono informazioni verificate sullo stato successivo. Esaminali nella cartella di backup prima di ripristinarli manualmente; importarli può sovrascrivere impostazioni più recenti. Un file di backup non è un punto di ripristino del sistema operativo.",
     "openBackups": "Apri cartella di backup",
     "confirmTitle": "Ripristinare questa modifica?",
-    "confirmDescription": "Kudu verificherà lo stato corrente prima di ripristinare il valore originale registrato. Le modifiche in conflitto più recenti verranno mantenute. Potrebbero essere richiesti privilegi di amministratore.",
+    "confirmDescription": "Kudu verificherà lo stato corrente prima di ripristinare il valore originale registrato. Le modifiche in conflitto più recenti verranno mantenute. Potrebbero essere necessari privilegi di amministratore.",
     "status": {
       "pending": "Interrotto / in sospeso",
       "ready": "Disponibile",
@@ -30,8 +30,15 @@
       "conflict": "Rilevata una modifica più recente"
     },
     "remove": "Rimuovi voce",
-    "removeDescription": "Rimuovere questo record di ripristino dalla cronologia locale? Questa operazione non modifica le impostazioni né elimina i backup del registro. Kudu non sarà più in grado di ripristinare questa modifica per te.",
-    "unreadable": "Impossibile leggere questo record di ripristino. Potrebbe essere stato scritto da un altro account utente o danneggiato sul disco."
+    "removeDescription": "Rimuovere questo record di ripristino dalla cronologia locale? Questa operazione non modifica le impostazioni né elimina i backup del registro di sistema. Kudu non sarà più in grado di ripristinare questa modifica per te.",
+    "unreadable": "Impossibile leggere questo record di ripristino. Potrebbe essere stato scritto da un altro account utente o danneggiato sul disco.",
+    "loading": "Caricamento cronologia di ripristino?",
+    "emptyTitle": "La tua cronologia di ripristino inizia qui",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Gestione servizi",
+      "registry": "Pulizia registro di sistema"
+    }
   },
   "pageTitle": "Cronologia scansioni",
   "pageDescription": "Visualizza i risultati dettagliati delle scansioni e pulizie precedenti",
@@ -40,7 +47,7 @@
   "viewCloud": "Cloud",
   "clearButton": "Cancella",
   "emptyStateTitle": "Nessuna cronologia disponibile",
-  "emptyStateDescription": "Esegui una scansione dalle pagine Cleaner, Registro o Debloater. I risultati verranno visualizzati qui.",
+  "emptyStateDescription": "Esegui una scansione dalle pagine Cleaner, Registro di sistema o Debloater. I risultati verranno visualizzati qui.",
   "confirmClearCloudTitle": "Cancella cronologia Cloud",
   "confirmClearScanTitle": "Cancella cronologia scansioni",
   "confirmClearCloudDescription": "Questa operazione eliminerà definitivamente tutte le voci della cronologia delle azioni cloud. L'azione non può essere annullata.",
@@ -48,12 +55,12 @@
   "confirmClearLabel": "Cancella tutto",
   "typeLabels": {
     "cleaner": "Pulizia sistema",
-    "registry": "Correzione registro",
+    "registry": "Correzione registro di sistema",
     "debloater": "Debloater",
     "network": "Pulizia rete",
     "drivers": "Pulizia driver",
     "malware": "Scansione malware",
-    "privacy": "Scudo privacy",
+    "privacy": "Privacy Shield",
     "startup": "Gestione avvio",
     "services": "Gestione servizi",
     "softwareUpdate": "Aggiornamento software",
@@ -65,10 +72,10 @@
     "itemsProcessed": "Elementi elaborati",
     "avgDuration": "Durata media",
     "spaceRecoveredOverTime": "Spazio recuperato nel tempo",
-    "needTwoScansForChart": "Sono necessarie almeno 2 scansioni per il grafico dell'andamento",
+    "needTwoScansForChart": "Sono necessarie almeno 2 scansioni per il grafico delle tendenze",
     "scanTypeDistribution": "Distribuzione dei tipi di scansione",
     "noData": "Nessun dato",
-    "topCategoriesBySpace": "Categorie principali per spazio",
+    "topCategoriesBySpace": "Principali categorie per spazio",
     "noCategoryData": "Nessun dato sulle categorie",
     "weeklyActivity": "Attività settimanale",
     "needTwoWeeksData": "Sono necessarie almeno 2 settimane di dati",
@@ -79,7 +86,7 @@
   "timeline": {
     "filterAll": "Tutte",
     "filterCleaner": "Cleaner",
-    "filterRegistry": "Registro",
+    "filterRegistry": "Registro di sistema",
     "filterDebloater": "Debloater",
     "filterNetwork": "Rete",
     "filterDrivers": "Driver",
@@ -95,7 +102,7 @@
     "columnSpace": "Spazio",
     "columnDuration": "Durata",
     "columnStatus": "Stato",
-    "scheduledBadge": "Pianif.",
+    "scheduledBadge": "Pianif",
     "noEntriesMatchFilter": "Nessuna voce corrisponde a questo filtro",
     "dateAt": "alle"
   },
@@ -120,13 +127,13 @@
       "exportFailed": "Impossibile esportare l'elenco dei file eliminati",
       "truncatedBadge": "+{{count}} altri",
       "truncatedHint": "Questa cartella conteneva altre {{count}} voci oltre il limite di elenco per cartella. Sono state eliminate ma non elencate singolarmente.",
-      "emptyRecorded": "Nessun percorso di file è stato registrato per questa esecuzione.",
-      "disabledHint": "La registrazione delle eliminazioni è disattivata, quindi i singoli percorsi di questa esecuzione non sono stati registrati. Attiva \"Mantieni un registro dei file eliminati\" in Impostazioni → Preferenze di pulizia per registrarli da ora in poi."
+      "emptyRecorded": "Nessun percorso file è stato registrato per questa esecuzione.",
+      "disabledHint": "La registrazione delle eliminazioni è disattivata, quindi i singoli percorsi di questa esecuzione non sono stati registrati. Attiva \"Mantieni un registro dei file eliminati\" in Impostazioni → Preferenze di pulizia per registrarli d'ora in poi."
     }
   },
   "cloud": {
     "emptyStateTitle": "Nessuna azione cloud disponibile",
-    "emptyStateDescription": "Quando verranno ricevuti comandi dal dashboard cloud, appariranno qui.",
+    "emptyStateDescription": "Quando i comandi vengono ricevuti dal dashboard cloud, verranno visualizzati qui.",
     "totalCommands": "Comandi totali",
     "succeeded": "Riusciti",
     "failed": "Non riusciti",
@@ -140,7 +147,7 @@
     "detailCommand": "Comando",
     "detailStatus": "Stato",
     "detailStatusSuccess": "Operazione riuscita",
-    "detailStatusFailed": "Non riuscito",
+    "detailStatusFailed": "Non riuscita",
     "detailDuration": "Durata",
     "detailRequestId": "ID richiesta",
     "detailSummary": "Riepilogo",
@@ -178,8 +185,8 @@
     "serviceApply": "Applica servizi",
     "malwareQuarantine": "Quarantena",
     "malwareDelete": "Eliminazione malware",
-    "registryScan": "Scansione registro",
-    "registryFix": "Correzione registro"
+    "registryScan": "Scansione registro di sistema",
+    "registryFix": "Correzione registro di sistema"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

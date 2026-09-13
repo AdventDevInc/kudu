@@ -1,16 +1,16 @@
 {
   "recovery": {
-    "title": "復元センター",
+    "title": "回復センター",
     "description": "Kudu によって行われた対応済みの変更を確認して復元します",
-    "limits": "復元の対象は、記録された Windows の DWORD プライバシー/レジストリ値、スケジュールされたタスク、およびサービス構成です。完全に削除されたファイルは元に戻せません。古い変更や未対応の変更では、手動バックアップしかない場合があります。復元した設定の一部は再起動が必要です。",
+    "limits": "回復の対象は、記録された Windows の DWORD プライバシー/レジストリ値、スケジュールされたタスク、およびサービス構成です。ファイルの完全削除は元に戻せません。古い変更や未対応の変更には、手動バックアップしかない場合があります。一部の復元された設定は再起動が必要です。",
     "refresh": "更新",
-    "export": "復元履歴をエクスポート",
-    "loadError": "復元履歴を読み取れませんでした。",
-    "failed": "復元に失敗しました。",
-    "empty": "このページには記録された変更がありません。新しい対応済みの変更はここに表示されます。",
-    "gameMode": "ゲーム モードの復元",
-    "gameModeDescription": "ゲーム モードには有効または保留中の復元スナップショットがあります。",
-    "openGameMode": "ゲーム モードの復元を開く",
+    "export": "回復履歴をエクスポート",
+    "loadError": "回復履歴を読み取れませんでした。",
+    "failed": "回復に失敗しました。",
+    "empty": "このページには記録された変更はありません。新しい対応済みの変更はここに表示されます。",
+    "gameMode": "ゲーム モードの回復",
+    "gameModeDescription": "ゲーム モードには有効または保留中の回復スナップショットがあります。",
+    "openGameMode": "ゲーム モードの回復を開く",
     "before": "元の状態",
     "after": "Kudu 適用後の状態",
     "absent": "値は存在しませんでした",
@@ -18,10 +18,10 @@
     "previous": "前へ",
     "next": "次へ",
     "backups": "レジストリとコンテキスト メニューのバックアップ",
-    "backupDescription": "これらのバックアップ ファイルには、検証済みの変更後状態の情報は含まれていません。手動で復元する前にバックアップ フォルダーで内容を確認してください。インポートすると新しい設定が上書きされる場合があります。バックアップ ファイルは OS の復元ポイントではありません。",
+    "backupDescription": "これらのバックアップ ファイルには、検証済みの変更後の状態情報は含まれていません。手動で復元する前にバックアップ フォルダーで内容を確認してください。インポートすると新しい設定が上書きされる場合があります。バックアップ ファイルは OS の復元ポイントではありません。",
     "openBackups": "バックアップ フォルダーを開く",
     "confirmTitle": "この変更を復元しますか？",
-    "confirmDescription": "Kudu は、記録された元の値を復元する前に現在の状態を確認します。新しい競合する変更は保持されます。管理者権限が必要になる場合があります。",
+    "confirmDescription": "Kudu は、記録された元の値を復元する前に現在の状態を確認します。新しい競合する変更は保持されます。管理者権限が必要な場合があります。",
     "status": {
       "pending": "中断 / 保留中",
       "ready": "利用可能",
@@ -30,8 +30,15 @@
       "conflict": "新しい変更を検出"
     },
     "remove": "項目を削除",
-    "removeDescription": "この復元記録をローカル履歴から削除しますか？ これによって設定が変更されたり、レジストリのバックアップが削除されたりすることはありません。Kudu はこの変更を復元できなくなります。",
-    "unreadable": "この復元記録を読み取れませんでした。別のユーザー アカウントによって書き込まれたか、ディスク上で破損している可能性があります。"
+    "removeDescription": "この回復記録をローカル履歴から削除しますか？ これによって設定が変更されたり、レジストリのバックアップが削除されたりすることはありません。Kudu はこの変更を復元できなくなります。",
+    "unreadable": "この回復記録を読み取れませんでした。別のユーザー アカウントによって書き込まれたか、ディスク上で破損している可能性があります。",
+    "loading": "回復履歴を読み込み中？",
+    "emptyTitle": "回復履歴はここから始まります",
+    "source": {
+      "privacy": "Privacy Shield",
+      "services": "Service Manager",
+      "registry": "Registry Cleaner"
+    }
   },
   "pageTitle": "スキャン履歴",
   "pageDescription": "過去のスキャンとクリーンアップの詳細な結果を表示します",
@@ -43,7 +50,7 @@
   "emptyStateDescription": "Cleaner、Registry、または Debloater ページからスキャンを実行してください。結果はここに表示されます。",
   "confirmClearCloudTitle": "クラウド履歴をクリア",
   "confirmClearScanTitle": "スキャン履歴をクリア",
-  "confirmClearCloudDescription": "これにより、すべてのクラウド操作履歴エントリが完全に削除されます。この操作は元に戻せません。",
+  "confirmClearCloudDescription": "これにより、すべてのクラウド アクション履歴エントリが完全に削除されます。この操作は元に戻せません。",
   "confirmClearScanDescription": "これにより、すべてのスキャン履歴エントリが完全に削除されます。この操作は元に戻せません。",
   "confirmClearLabel": "すべてクリア",
   "typeLabels": {
@@ -53,7 +60,7 @@
     "network": "ネットワーク クリーンアップ",
     "drivers": "ドライバー クリーンアップ",
     "malware": "マルウェア スキャン",
-    "privacy": "プライバシー保護",
+    "privacy": "Privacy Shield",
     "startup": "スタートアップ マネージャー",
     "services": "サービス マネージャー",
     "softwareUpdate": "ソフトウェア更新",
@@ -62,8 +69,8 @@
   "overview": {
     "totalScans": "合計スキャン数",
     "spaceRecovered": "回復した容量",
-    "itemsProcessed": "処理済み項目",
-    "avgDuration": "平均所要時間",
+    "itemsProcessed": "処理した項目",
+    "avgDuration": "平均時間",
     "spaceRecoveredOverTime": "期間ごとの回復容量",
     "needTwoScansForChart": "傾向グラフには少なくとも 2 回のスキャンが必要です",
     "scanTypeDistribution": "スキャン種類の分布",
@@ -93,10 +100,10 @@
     "columnDate": "日付",
     "columnItems": "項目",
     "columnSpace": "容量",
-    "columnDuration": "所要時間",
+    "columnDuration": "時間",
     "columnStatus": "状態",
-    "scheduledBadge": "予約",
-    "noEntriesMatchFilter": "このフィルターに一致するエントリはありません",
+    "scheduledBadge": "予定",
+    "noEntriesMatchFilter": "このフィルターに一致する項目はありません",
     "dateAt": ""
   },
   "detail": {
@@ -121,27 +128,27 @@
       "truncatedBadge": "さらに +{{count}} 件",
       "truncatedHint": "このフォルダーには、フォルダーごとの一覧表示上限を超える {{count}} 件の追加エントリがありました。これらは削除されましたが、個別には一覧表示されていません。",
       "emptyRecorded": "この実行ではファイル パスは記録されませんでした。",
-      "disabledHint": "削除ログがオフになっているため、この実行での個別のパスは記録されませんでした。今後記録するには、設定 → クリーニング設定で「削除されたファイルのログを保持する」をオンにしてください。"
+      "disabledHint": "削除ログがオフのため、この実行での個別のパスは記録されませんでした。今後記録するには、設定 → クリーニング設定で「削除されたファイルのログを保持する」をオンにしてください。"
     }
   },
   "cloud": {
-    "emptyStateTitle": "クラウド操作はまだありません",
+    "emptyStateTitle": "クラウド アクションはまだありません",
     "emptyStateDescription": "クラウド ダッシュボードからコマンドを受信すると、ここに表示されます。",
     "totalCommands": "合計コマンド数",
     "succeeded": "成功",
     "failed": "失敗",
-    "avgDuration": "平均所要時間",
+    "avgDuration": "平均時間",
     "columnStatus": "状態",
     "columnCommand": "コマンド",
     "columnSummary": "概要",
     "columnDate": "日付",
-    "columnDuration": "所要時間",
+    "columnDuration": "時間",
     "completed": "完了",
     "detailCommand": "コマンド",
     "detailStatus": "状態",
     "detailStatusSuccess": "成功",
     "detailStatusFailed": "失敗",
-    "detailDuration": "所要時間",
+    "detailDuration": "時間",
     "detailRequestId": "リクエスト ID",
     "detailSummary": "概要",
     "detailError": "エラー"
@@ -171,19 +178,19 @@
     "startupToggle": "スタートアップ切り替え",
     "diskHealth": "ディスクの正常性",
     "privacyScan": "プライバシー スキャン",
-    "privacyApply": "プライバシー適用",
+    "privacyApply": "プライバシーの適用",
     "debloaterScan": "Debloater スキャン",
-    "debloaterRemove": "Debloater 削除",
+    "debloaterRemove": "Debloater の削除",
     "serviceScan": "サービス スキャン",
-    "serviceApply": "サービス適用",
+    "serviceApply": "サービスの適用",
     "malwareQuarantine": "隔離",
-    "malwareDelete": "マルウェア削除",
+    "malwareDelete": "マルウェアの削除",
     "registryScan": "レジストリ スキャン",
     "registryFix": "レジストリ修復"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1秒",
+    "seconds": "{{count}}秒",
+    "minutesAndSeconds": "{{minutes}}分 {{seconds}}秒"
   }
 }
