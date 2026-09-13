@@ -1,4 +1,4 @@
-import { lstat, opendir, realpath } from 'fs/promises'
+import { lstat, opendir, realpath, stat } from 'fs/promises'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'path'
 import { isExcluded } from './file-utils'
 import { mountPoints } from './mount-points'
@@ -86,6 +86,22 @@ export async function measureStorageScope(
         continue
       }
       const handle = await opendir(dir.path)
+      // opendir follows a symlink swapped in after the lstat above; confirm the opened directory
+      // is still the validated one before reading anything from it.
+      const [opened, link] = await Promise.all([stat(dir.path), lstat(dir.path)])
+      if (opened.ino !== info.ino || opened.dev !== info.dev || link.isSymbolicLink()) {
+        await handle.close()
+        skipped++
+        partial = true
+        reason = 'changed'
+        continue
+      }
+      // Everything this directory contributes is staged locally and only committed once the
+      // post-iteration check confirms it was not replaced mid-read; a swap contributes nothing.
+      let bytes = 0,
+        files = 0
+      const children: Array<{ path: string; depth: number }> = []
+      const keys: string[] = []
       for await (const item of handle) {
         if (signal.aborted) {
           reason = 'cancelled'
@@ -102,37 +118,32 @@ export async function measureStorageScope(
           continue
         }
         try {
-          const stat = await lstat(path)
+          const entry = await lstat(path)
           // Mount points are checked before branching on type: a Linux bind mount can expose a
           // regular file (not only a directory) that still reports the root's device ID.
-          if (stat.isSymbolicLink() || stat.dev !== initial.dev || mounts.has(resolve(path))) {
+          if (entry.isSymbolicLink() || entry.dev !== initial.dev || mounts.has(resolve(path))) {
             skipped++
             continue
           }
-          if (stat.isDirectory()) {
-            if (dir.depth >= 128 || queue.length + directories >= limits.directories) {
+          if (entry.isDirectory()) {
+            if (
+              dir.depth >= 128 ||
+              queue.length + children.length + directories >= limits.directories
+            ) {
               partial = true
               reason = 'limit'
               continue
             }
             // Past the row limit only the per-folder detail row is dropped; the subtree is still
             // traversed so its bytes reach every existing ancestor row, including the root total.
-            if (dir.depth < 3 && rows.size < limits.rows) {
-              const key = relative(root, path).split(sep).join('/')
-              rows.set(key, { path: key, bytes: 0, files: 0 })
-            }
-            queue.push({ path, depth: dir.depth + 1 })
-          } else if (stat.isFile()) {
+            if (dir.depth < 3 && rows.size + keys.length < limits.rows)
+              keys.push(relative(root, path).split(sep).join('/'))
+            children.push({ path, depth: dir.depth + 1 })
+          } else if (entry.isFile()) {
             // The containing directory was already revalidated (lstat, device and alias checks)
             // before opening, and lstat above rejects file links, so no per-file realpath is needed.
-            const parts = relative(root, dir.path).split(sep).filter(Boolean)
-            for (let depth = 0; depth <= Math.min(3, parts.length); depth++) {
-              const row = rows.get(parts.slice(0, depth).join('/'))
-              if (row) {
-                row.bytes += stat.size
-                row.files++
-              }
-            }
+            bytes += entry.size
+            files++
           } else skipped++
         } catch {
           errors++
@@ -142,8 +153,20 @@ export async function measureStorageScope(
       }
       const after = await lstat(dir.path)
       if (after.ino !== info.ino || after.dev !== info.dev || after.isSymbolicLink()) {
+        skipped++
         partial = true
         reason = 'changed'
+        continue
+      }
+      for (const key of keys) rows.set(key, { path: key, bytes: 0, files: 0 })
+      queue.push(...children)
+      const parts = relative(root, dir.path).split(sep).filter(Boolean)
+      for (let depth = 0; depth <= Math.min(3, parts.length); depth++) {
+        const row = rows.get(parts.slice(0, depth).join('/'))
+        if (row) {
+          row.bytes += bytes
+          row.files += files
+        }
       }
     } catch {
       errors++

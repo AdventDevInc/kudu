@@ -48,6 +48,7 @@ export function StorageHistoryPage() {
         const result = await window.kudu.storageHistoryList(scopeId, offset)
         if (mounted) {
           setData(result)
+          setError('')
           setLoading(false)
           if (!scopeId && result.scopes[0]) setScopeId(result.scopes[0].id)
         }

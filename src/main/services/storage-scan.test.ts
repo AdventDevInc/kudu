@@ -1,9 +1,13 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest'
-import { mkdtemp, mkdir, writeFile, rm, symlink, realpath } from 'fs/promises'
+import { mkdtemp, mkdir, writeFile, rm, rename, symlink, realpath } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { execFileSync } from 'child_process'
-const state = vi.hoisted(() => ({ blocked: '', mounts: [] as string[] }))
+const state = vi.hoisted(() => ({
+  blocked: '',
+  mounts: [] as string[],
+  beforeOpen: null as null | ((path: string) => Promise<void>)
+}))
 vi.mock('./file-utils', () => ({
   isExcluded: (path: string, exclusions: string[]) => exclusions.includes(path)
 }))
@@ -14,6 +18,7 @@ vi.mock('fs/promises', async (importActual) => {
     ...actual,
     opendir: async (path: string) => {
       if (path === state.blocked) throw new Error('Access denied')
+      await state.beforeOpen?.(path)
       return actual.opendir(path)
     }
   }
@@ -25,6 +30,7 @@ beforeEach(async () => {
   root = await mkdtemp(join(await realpath(tmpdir()), 'kudu-storage-test-'))
   state.blocked = ''
   state.mounts = []
+  state.beforeOpen = null
 })
 afterEach(async () => {
   await rm(root, { recursive: true, force: true })
@@ -136,3 +142,25 @@ it.skipIf(process.platform !== 'win32')(
     })
   }
 )
+it('discards a directory swapped for a link to an outside folder right before it is opened', async () => {
+  const outside = await mkdtemp(join(await realpath(tmpdir()), 'kudu-storage-outside-'))
+  try {
+    await writeFile(join(outside, 'secret'), Buffer.alloc(500))
+    await mkdir(join(outside, 'secret-dir'))
+    await mkdir(join(root, 'inner'))
+    await writeFile(join(root, 'inner/file'), Buffer.alloc(20))
+    await writeFile(join(root, 'file'), Buffer.alloc(3))
+    const inner = join(root, 'inner')
+    state.beforeOpen = async (path) => {
+      if (path !== inner) return
+      state.beforeOpen = null
+      await rename(inner, join(root, 'moved'))
+      await symlink(outside, inner, process.platform === 'win32' ? 'junction' : 'dir')
+    }
+    const result = await capture()
+    expect(result).toMatchObject({ status: 'partial', reason: 'changed', totalBytes: 3, files: 1 })
+    expect(result.rows.some((r) => r.path.includes('secret'))).toBe(false)
+  } finally {
+    await rm(outside, { recursive: true, force: true })
+  }
+})
