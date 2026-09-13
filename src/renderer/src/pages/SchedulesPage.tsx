@@ -977,57 +977,62 @@ function ScheduleDialog({
           missedRun={missedRun}
           onMissedRun={setMissedRun}
         />
-        <fieldset className="mb-5 space-y-3 rounded-xl border p-4">
-          <legend className="px-2 font-semibold">{t('advanced.workflow')}</legend>
-          <p className="text-xs">{t('advanced.workflowHint')}</p>
-          {tasks.map((type, index) => (
-            <div key={type} className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="flex-1">
-                  {index + 1}. {availableTasks.find((task) => task.type === type)?.label ?? type}
-                </span>
-                <button
-                  type="button"
-                  aria-label={t('advanced.moveUp')}
-                  disabled={index === 0}
-                  className="rounded border px-2 disabled:opacity-30"
-                  onClick={() =>
-                    setTasks((previous) => {
-                      const next = [...previous]
-                      ;[next[index - 1], next[index]] = [next[index], next[index - 1]]
-                      return next
-                    })
-                  }
-                >
-                  {t('advanced.moveUp')}
-                </button>
-                <button
-                  type="button"
-                  aria-label={t('advanced.moveDown')}
-                  disabled={index === tasks.length - 1}
-                  className="rounded border px-2 disabled:opacity-30"
-                  onClick={() =>
-                    setTasks((previous) => {
-                      const next = [...previous]
-                      ;[next[index + 1], next[index]] = [next[index], next[index + 1]]
-                      return next
-                    })
-                  }
-                >
-                  {t('advanced.moveDown')}
-                </button>
+        <details className="feature-page mb-5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4">
+          <summary className="cursor-pointer text-[13px] font-semibold">
+            {t('advanced.workflow')}
+          </summary>
+          <fieldset className="mt-4 space-y-3">
+            <legend className="sr-only">{t('advanced.workflow')}</legend>
+            <p className="text-xs">{t('advanced.workflowHint')}</p>
+            {tasks.map((type, index) => (
+              <div key={type} className="space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="flex-1">
+                    {index + 1}. {availableTasks.find((task) => task.type === type)?.label ?? type}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={t('advanced.moveUp')}
+                    disabled={index === 0}
+                    className="feature-button"
+                    onClick={() =>
+                      setTasks((previous) => {
+                        const next = [...previous]
+                        ;[next[index - 1], next[index]] = [next[index], next[index - 1]]
+                        return next
+                      })
+                    }
+                  >
+                    {t('advanced.moveUp')}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={t('advanced.moveDown')}
+                    disabled={index === tasks.length - 1}
+                    className="feature-button"
+                    onClick={() =>
+                      setTasks((previous) => {
+                        const next = [...previous]
+                        ;[next[index + 1], next[index]] = [next[index], next[index + 1]]
+                        return next
+                      })
+                    }
+                  >
+                    {t('advanced.moveDown')}
+                  </button>
+                </div>
+                {type.startsWith('cleaner:') && type !== 'cleaner:recycleBin' && (
+                  <ScheduleScope
+                    task={type}
+                    label={availableTasks.find((task) => task.type === type)?.label ?? type}
+                    selected={scope[type]}
+                    onChange={(value) => setScope((previous) => ({ ...previous, [type]: value }))}
+                  />
+                )}
               </div>
-              {type.startsWith('cleaner:') && type !== 'cleaner:recycleBin' && (
-                <ScheduleScope
-                  task={type}
-                  label={availableTasks.find((task) => task.type === type)?.label ?? type}
-                  selected={scope[type]}
-                  onChange={(value) => setScope((previous) => ({ ...previous, [type]: value }))}
-                />
-              )}
-            </div>
-          ))}
-        </fieldset>
+            ))}
+          </fieldset>
+        </details>
         {/* Auto-apply */}
         <div
           className="mb-6 flex items-start gap-4 rounded-xl p-4"
