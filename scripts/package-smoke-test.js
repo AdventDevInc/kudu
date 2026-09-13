@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict')
 const { spawnSync } = require('node:child_process')
-const { existsSync, mkdtempSync, readFileSync, rmSync } = require('node:fs')
+const { existsSync, mkdtempSync, readFileSync } = require('node:fs')
+const { rm } = require('node:fs/promises')
 const { createRequire } = require('node:module')
 const { tmpdir } = require('node:os')
 const path = require('node:path')
@@ -38,6 +39,13 @@ if (process.argv[2] === '--native') {
   assert.equal(scanner.scan(Buffer.from('clean data')).length, 0)
   console.log('Packaged resources, SQLite, and YARA passed')
 } else {
+  runPackagedSmoke().catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+}
+
+async function runPackagedSmoke() {
   assert(process.argv[2], 'Usage: node scripts/package-smoke-test.js <packaged executable>')
   const executable = path.resolve(process.argv[2])
   const resources = path.join(path.dirname(executable), 'resources')
@@ -52,7 +60,9 @@ if (process.argv[2] === '--native') {
   delete env.NODE_PATH
   const run = (args, overrides = {}) => {
     const result = spawnSync(executable, args, {
-      cwd: temporary,
+      // Windows helpers can briefly outlive Electron and retain their cwd.
+      // Keep that cwd outside the disposable user-data directory.
+      cwd: tmpdir(),
       env: { ...env, ...overrides },
       encoding: 'utf8',
       timeout: 60_000,
@@ -84,6 +94,6 @@ if (process.argv[2] === '--native') {
     console.log('Packaged CLI smoke tests passed')
   } finally {
     // Only the directory returned by mkdtempSync is ever removed.
-    rmSync(temporary, { recursive: true, force: true })
+    await rm(temporary, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })
   }
 }
