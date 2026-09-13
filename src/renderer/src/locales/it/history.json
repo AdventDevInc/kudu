@@ -39,13 +39,13 @@
     "clearDescription": "Questa operazione rimuove definitivamente le ricevute salvate e le relative informazioni sui nuovi tentativi. La cronologia delle scansioni e il registro di eliminazione separato non verranno modificati."
   },
   "pageTitle": "Cronologia scansioni",
-  "pageDescription": "Visualizza i risultati dettagliati delle scansioni e delle pulizie precedenti",
+  "pageDescription": "Visualizza i risultati dettagliati delle scansioni e pulizie precedenti",
   "viewOverview": "Panoramica",
   "viewTimeline": "Sequenza temporale",
   "viewCloud": "Cloud",
   "clearButton": "Cancella",
-  "emptyStateTitle": "Nessuna cronologia al momento",
-  "emptyStateDescription": "Eseguire una scansione dalle pagine Cleaner, Registry o Debloater. I risultati verranno visualizzati qui.",
+  "emptyStateTitle": "Nessuna cronologia disponibile",
+  "emptyStateDescription": "Esegui una scansione dalle pagine Cleaner, Registro o Debloater. I risultati verranno visualizzati qui.",
   "confirmClearCloudTitle": "Cancella cronologia Cloud",
   "confirmClearScanTitle": "Cancella cronologia scansioni",
   "confirmClearCloudDescription": "Questa operazione eliminerà definitivamente tutte le voci della cronologia delle azioni cloud. L'azione non può essere annullata.",
@@ -53,12 +53,12 @@
   "confirmClearLabel": "Cancella tutto",
   "typeLabels": {
     "cleaner": "Pulizia sistema",
-    "registry": "Correzione del registro",
+    "registry": "Correzione registro",
     "debloater": "Debloater",
     "network": "Pulizia rete",
     "drivers": "Pulizia driver",
     "malware": "Scansione malware",
-    "privacy": "Protezione privacy",
+    "privacy": "Scudo privacy",
     "startup": "Gestione avvio",
     "services": "Gestione servizi",
     "softwareUpdate": "Aggiornamento software",
@@ -70,7 +70,7 @@
     "itemsProcessed": "Elementi elaborati",
     "avgDuration": "Durata media",
     "spaceRecoveredOverTime": "Spazio recuperato nel tempo",
-    "needTwoScansForChart": "Sono necessarie almeno 2 scansioni per il grafico delle tendenze",
+    "needTwoScansForChart": "Sono necessarie almeno 2 scansioni per il grafico dell'andamento",
     "scanTypeDistribution": "Distribuzione dei tipi di scansione",
     "noData": "Nessun dato",
     "topCategoriesBySpace": "Categorie principali per spazio",
@@ -82,9 +82,9 @@
     "tooltipScans": "Scansioni"
   },
   "timeline": {
-    "filterAll": "Tutti",
+    "filterAll": "Tutte",
     "filterCleaner": "Cleaner",
-    "filterRegistry": "Registry",
+    "filterRegistry": "Registro",
     "filterDebloater": "Debloater",
     "filterNetwork": "Rete",
     "filterDrivers": "Driver",
@@ -124,13 +124,13 @@
       "exported": "Esportati {{count}} percorsi",
       "exportFailed": "Impossibile esportare l'elenco dei file eliminati",
       "truncatedBadge": "+{{count}} altri",
-      "truncatedHint": "Questa cartella conteneva altri {{count}} elementi oltre il limite di elenco per cartella. Sono stati eliminati ma non elencati singolarmente.",
+      "truncatedHint": "Questa cartella conteneva altre {{count}} voci oltre il limite di elenco per cartella. Sono state eliminate ma non elencate singolarmente.",
       "emptyRecorded": "Nessun percorso di file è stato registrato per questa esecuzione.",
-      "disabledHint": "La registrazione delle eliminazioni è disattivata, quindi i singoli percorsi di questa esecuzione non sono stati registrati. Attivare \"Mantieni un registro dei file eliminati\" in Impostazioni → Preferenze di pulizia per registrarli d'ora in poi."
+      "disabledHint": "La registrazione delle eliminazioni è disattivata, quindi i singoli percorsi di questa esecuzione non sono stati registrati. Attiva \"Mantieni un registro dei file eliminati\" in Impostazioni → Preferenze di pulizia per registrarli da ora in poi."
     }
   },
   "cloud": {
-    "emptyStateTitle": "Nessuna azione cloud al momento",
+    "emptyStateTitle": "Nessuna azione cloud disponibile",
     "emptyStateDescription": "Quando verranno ricevuti comandi dal dashboard cloud, appariranno qui.",
     "totalCommands": "Comandi totali",
     "succeeded": "Riusciti",
@@ -154,7 +154,7 @@
   "cloudCommandLabels": {
     "scan": "Scansione",
     "clean": "Pulizia",
-    "softwareUpdateCheck": "Verifica aggiornamenti",
+    "softwareUpdateCheck": "Controllo aggiornamenti",
     "softwareUpdateRun": "Aggiornamento software",
     "getStatus": "Stato",
     "getSystemInfo": "Informazioni di sistema",
@@ -162,7 +162,7 @@
     "ping": "Ping",
     "shutdown": "Arresta",
     "restart": "Riavvia",
-    "windowsUpdateCheck": "Verifica Windows Update",
+    "windowsUpdateCheck": "Controllo Windows Update",
     "windowsUpdateInstall": "Windows Update",
     "runSfc": "Scansione SFC",
     "runDism": "Riparazione DISM",
@@ -183,8 +183,8 @@
     "serviceApply": "Applica servizi",
     "malwareQuarantine": "Quarantena",
     "malwareDelete": "Eliminazione malware",
-    "registryScan": "Scansione del registro",
-    "registryFix": "Correzione del registro"
+    "registryScan": "Scansione registro",
+    "registryFix": "Correzione registro"
   },
   "duration": {
     "lessThanOneSecond": "<1s",

@@ -39,7 +39,7 @@
     "clearDescription": "Cela supprime définitivement les reçus enregistrés et leurs informations de nouvelle tentative. L’historique des analyses et le journal de suppression séparé restent inchangés."
   },
   "pageTitle": "Historique des analyses",
-  "pageDescription": "Afficher les résultats détaillés des analyses et nettoyages précédents",
+  "pageDescription": "Consultez les résultats détaillés des analyses et nettoyages précédents",
   "viewOverview": "Vue d’ensemble",
   "viewTimeline": "Chronologie",
   "viewCloud": "Cloud",
@@ -70,7 +70,7 @@
     "itemsProcessed": "Éléments traités",
     "avgDuration": "Durée moy.",
     "spaceRecoveredOverTime": "Espace récupéré au fil du temps",
-    "needTwoScansForChart": "Au moins 2 analyses sont nécessaires pour le graphique de tendance",
+    "needTwoScansForChart": "Au moins 2 analyses sont nécessaires pour afficher le graphique de tendance",
     "scanTypeDistribution": "Répartition des types d’analyse",
     "noData": "Aucune donnée",
     "topCategoriesBySpace": "Principales catégories par espace",
@@ -82,7 +82,7 @@
     "tooltipScans": "Analyses"
   },
   "timeline": {
-    "filterAll": "Tous",
+    "filterAll": "Tout",
     "filterCleaner": "Cleaner",
     "filterRegistry": "Registry",
     "filterDebloater": "Debloater",
@@ -99,13 +99,13 @@
     "columnItems": "Éléments",
     "columnSpace": "Espace",
     "columnDuration": "Durée",
-    "columnStatus": "État",
-    "scheduledBadge": "Planifié",
+    "columnStatus": "Statut",
+    "scheduledBadge": "Planif.",
     "noEntriesMatchFilter": "Aucune entrée ne correspond à ce filtre",
     "dateAt": "à"
   },
   "detail": {
-    "scheduledBadge": "Planifié",
+    "scheduledBadge": "Planifiée",
     "statFound": "Trouvés",
     "statProcessed": "Traités",
     "statSkipped": "Ignorés",
@@ -126,7 +126,7 @@
       "truncatedBadge": "+{{count}} de plus",
       "truncatedHint": "Ce dossier contenait encore {{count}} entrées au-delà de la limite d’affichage par dossier. Elles ont été supprimées, mais n’ont pas été listées individuellement.",
       "emptyRecorded": "Aucun chemin de fichier n’a été enregistré pour cette exécution.",
-      "disabledHint": "La journalisation des suppressions est désactivée, donc les chemins individuels de cette exécution n’ont pas été enregistrés. Activez « Conserver un journal des fichiers supprimés » dans Paramètres → Préférences de nettoyage pour les enregistrer à partir de maintenant."
+      "disabledHint": "La journalisation des suppressions est désactivée, les chemins individuels de cette exécution n’ont donc pas été enregistrés. Activez « Conserver un journal des fichiers supprimés » dans Paramètres → Préférences de nettoyage pour les enregistrer à l’avenir."
     }
   },
   "cloud": {
@@ -136,16 +136,16 @@
     "succeeded": "Réussies",
     "failed": "Échouées",
     "avgDuration": "Durée moy.",
-    "columnStatus": "État",
+    "columnStatus": "Statut",
     "columnCommand": "Commande",
     "columnSummary": "Résumé",
     "columnDate": "Date",
     "columnDuration": "Durée",
-    "completed": "Terminé",
+    "completed": "Terminée",
     "detailCommand": "Commande",
-    "detailStatus": "État",
-    "detailStatusSuccess": "Réussite",
-    "detailStatusFailed": "Échec",
+    "detailStatus": "Statut",
+    "detailStatusSuccess": "Réussie",
+    "detailStatusFailed": "Échouée",
     "detailDuration": "Durée",
     "detailRequestId": "ID de requête",
     "detailSummary": "Résumé",
@@ -156,7 +156,7 @@
     "clean": "Nettoyer",
     "softwareUpdateCheck": "Vérification des mises à jour",
     "softwareUpdateRun": "Mise à jour des logiciels",
-    "getStatus": "État",
+    "getStatus": "Statut",
     "getSystemInfo": "Informations système",
     "getHealthReport": "Rapport d’état",
     "ping": "Ping",

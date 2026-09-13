@@ -53,7 +53,7 @@
   "confirmClearLabel": "مسح الكل",
   "typeLabels": {
     "cleaner": "تنظيف النظام",
-    "registry": "إصلاح Registry",
+    "registry": "إصلاح السجل",
     "debloater": "Debloater",
     "network": "تنظيف الشبكة",
     "drivers": "تنظيف برامج التشغيل",
@@ -70,7 +70,7 @@
     "itemsProcessed": "العناصر التي تمت معالجتها",
     "avgDuration": "متوسط المدة",
     "spaceRecoveredOverTime": "المساحة المستردة بمرور الوقت",
-    "needTwoScansForChart": "يلزم وجود عمليتي فحص على الأقل لعرض مخطط الاتجاه",
+    "needTwoScansForChart": "يلزم إجراء عمليتي فحص على الأقل لعرض مخطط الاتجاه",
     "scanTypeDistribution": "توزيع أنواع الفحص",
     "noData": "لا توجد بيانات",
     "topCategoriesBySpace": "أهم الفئات حسب المساحة",
@@ -106,7 +106,7 @@
   },
   "detail": {
     "scheduledBadge": "مجدول",
-    "statFound": "تم العثور عليه",
+    "statFound": "تم العثور على",
     "statProcessed": "تمت المعالجة",
     "statSkipped": "تم التخطي",
     "statSpaceSaved": "المساحة الموفرة",
@@ -124,17 +124,17 @@
       "exported": "تم تصدير {{count}} مسار",
       "exportFailed": "تعذر تصدير قائمة الملفات المحذوفة",
       "truncatedBadge": "+{{count}} أخرى",
-      "truncatedHint": "كان هذا المجلد يحتوي على {{count}} من العناصر الإضافية بعد حد الإدراج لكل مجلد. تم حذفها ولكن لم تُدرج بشكل فردي.",
-      "emptyRecorded": "لم يتم تسجيل أي مسارات ملفات لهذا التشغيل.",
-      "disabledHint": "تسجيل الحذف معطل، لذلك لم يتم تسجيل المسارات الفردية من هذا التشغيل. فعّل \"الاحتفاظ بسجل للملفات المحذوفة\" في الإعدادات ← تفضيلات التنظيف لتسجيلها من الآن فصاعدًا."
+      "truncatedHint": "كان هذا المجلد يحتوي على {{count}} إدخالًا إضافيًا يتجاوز حد عرض الإدخالات لكل مجلد. تم حذفها ولكن لم تُدرج بشكل فردي.",
+      "emptyRecorded": "لم يتم تسجيل أي مسارات ملفات لهذه العملية.",
+      "disabledHint": "تسجيل الحذف متوقف، لذلك لم يتم تسجيل المسارات الفردية لهذه العملية. فعّل \"الاحتفاظ بسجل للملفات المحذوفة\" من الإعدادات ← تفضيلات التنظيف لتسجيلها من الآن فصاعدًا."
     }
   },
   "cloud": {
     "emptyStateTitle": "لا توجد إجراءات سحابية بعد",
-    "emptyStateDescription": "عند استلام أوامر من لوحة التحكم السحابية، ستظهر هنا.",
+    "emptyStateDescription": "عند استلام الأوامر من لوحة التحكم السحابية، ستظهر هنا.",
     "totalCommands": "إجمالي الأوامر",
-    "succeeded": "نجح",
-    "failed": "فشل",
+    "succeeded": "نجحت",
+    "failed": "فشلت",
     "avgDuration": "متوسط المدة",
     "columnStatus": "الحالة",
     "columnCommand": "الأمر",
@@ -168,7 +168,7 @@
     "runDism": "إصلاح DISM",
     "getNetworkConfig": "تكوين الشبكة",
     "getEventLog": "سجل الأحداث",
-    "getInstalledApps": "جرد التطبيقات",
+    "getInstalledApps": "قائمة التطبيقات المثبتة",
     "driverUpdateScan": "فحص برامج التشغيل",
     "driverUpdateInstall": "تثبيت برنامج التشغيل",
     "driverClean": "تنظيف برامج التشغيل",
@@ -183,12 +183,12 @@
     "serviceApply": "تطبيق الخدمات",
     "malwareQuarantine": "الحجر",
     "malwareDelete": "حذف البرامج الضارة",
-    "registryScan": "فحص Registry",
-    "registryFix": "إصلاح Registry"
+    "registryScan": "فحص السجل",
+    "registryFix": "إصلاح السجل"
   },
   "duration": {
-    "lessThanOneSecond": "<1s",
-    "seconds": "{{count}}s",
-    "minutesAndSeconds": "{{minutes}}m {{seconds}}s"
+    "lessThanOneSecond": "<1ث",
+    "seconds": "{{count}}ث",
+    "minutesAndSeconds": "{{minutes}}د {{seconds}}ث"
   }
 }

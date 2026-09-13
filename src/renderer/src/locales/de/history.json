@@ -39,7 +39,7 @@
     "clearDescription": "Dadurch werden gespeicherte Belege und ihre Wiederholungsinformationen dauerhaft entfernt. Der Scanverlauf und das separate Löschprotokoll bleiben unverändert."
   },
   "pageTitle": "Scanverlauf",
-  "pageDescription": "Detaillierte Ergebnisse vergangener Scans und Bereinigungen anzeigen",
+  "pageDescription": "Detaillierte Ergebnisse früherer Scans und Bereinigungen anzeigen",
   "viewOverview": "Übersicht",
   "viewTimeline": "Zeitachse",
   "viewCloud": "Cloud",
@@ -48,9 +48,9 @@
   "emptyStateDescription": "Führen Sie einen Scan auf den Seiten „Cleaner“, „Registry“ oder „Debloater“ aus. Die Ergebnisse werden hier angezeigt.",
   "confirmClearCloudTitle": "Cloud-Verlauf löschen",
   "confirmClearScanTitle": "Scanverlauf löschen",
-  "confirmClearCloudDescription": "Dadurch werden alle Verlaufseinträge zu Cloud-Aktionen dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+  "confirmClearCloudDescription": "Dadurch werden alle Einträge im Cloud-Aktionsverlauf dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
   "confirmClearScanDescription": "Dadurch werden alle Einträge im Scanverlauf dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
-  "confirmClearLabel": "Alles löschen",
+  "confirmClearLabel": "Alle löschen",
   "typeLabels": {
     "cleaner": "Systembereinigung",
     "registry": "Registry-Reparatur",
@@ -61,7 +61,7 @@
     "privacy": "Datenschutzschild",
     "startup": "Autostart-Manager",
     "services": "Dienst-Manager",
-    "softwareUpdate": "Softwareaktualisierung",
+    "softwareUpdate": "Software-Update",
     "cveScan": "CVE-Scan"
   },
   "overview": {
@@ -70,13 +70,13 @@
     "itemsProcessed": "Verarbeitete Elemente",
     "avgDuration": "Durchschn. Dauer",
     "spaceRecoveredOverTime": "Freigegebener Speicherplatz im Zeitverlauf",
-    "needTwoScansForChart": "Für das Trenddiagramm werden mindestens 2 Scans benötigt",
+    "needTwoScansForChart": "Mindestens 2 Scans für das Trenddiagramm erforderlich",
     "scanTypeDistribution": "Verteilung der Scantypen",
     "noData": "Keine Daten",
     "topCategoriesBySpace": "Top-Kategorien nach Speicherplatz",
     "noCategoryData": "Keine Kategoriedaten",
     "weeklyActivity": "Wöchentliche Aktivität",
-    "needTwoWeeksData": "Es werden mindestens 2 Wochen Daten benötigt",
+    "needTwoWeeksData": "Mindestens 2 Wochen Daten erforderlich",
     "recentScans": "Letzte Scans",
     "tooltipSpace": "Speicherplatz",
     "tooltipScans": "Scans"
@@ -100,7 +100,7 @@
     "columnSpace": "Speicherplatz",
     "columnDuration": "Dauer",
     "columnStatus": "Status",
-    "scheduledBadge": "Geplant",
+    "scheduledBadge": "Gepl.",
     "noEntriesMatchFilter": "Keine Einträge entsprechen diesem Filter",
     "dateAt": "um"
   },
@@ -126,7 +126,7 @@
       "truncatedBadge": "+{{count}} weitere",
       "truncatedHint": "Dieser Ordner enthielt {{count}} weitere Einträge über das Limit der Auflistung pro Ordner hinaus. Sie wurden gelöscht, aber nicht einzeln aufgeführt.",
       "emptyRecorded": "Für diesen Durchlauf wurden keine Dateipfade aufgezeichnet.",
-      "disabledHint": "Die Löschprotokollierung ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen die Option „Protokoll gelöschter Dateien führen“, um sie künftig aufzuzeichnen."
+      "disabledHint": "Die Protokollierung von Löschvorgängen ist deaktiviert, daher wurden die einzelnen Pfade dieses Durchlaufs nicht aufgezeichnet. Aktivieren Sie in Einstellungen → Bereinigungseinstellungen „Protokoll gelöschter Dateien führen“, um sie ab jetzt aufzuzeichnen."
     }
   },
   "cloud": {
@@ -155,7 +155,7 @@
     "scan": "Scan",
     "clean": "Bereinigen",
     "softwareUpdateCheck": "Updateprüfung",
-    "softwareUpdateRun": "Softwareaktualisierung",
+    "softwareUpdateRun": "Software-Update",
     "getStatus": "Status",
     "getSystemInfo": "Systeminformationen",
     "getHealthReport": "Systemzustandsbericht",
@@ -172,14 +172,14 @@
     "driverUpdateScan": "Treiberscan",
     "driverUpdateInstall": "Treiberinstallation",
     "driverClean": "Treiberbereinigung",
-    "startupList": "Autostartliste",
+    "startupList": "Autostart-Liste",
     "startupToggle": "Autostart umschalten",
     "diskHealth": "Datenträgerzustand",
-    "privacyScan": "Datenschutzscan",
+    "privacyScan": "Datenschutz-Scan",
     "privacyApply": "Datenschutzeinstellungen anwenden",
     "debloaterScan": "Debloater-Scan",
     "debloaterRemove": "Debloater entfernen",
-    "serviceScan": "Dienstscan",
+    "serviceScan": "Dienst-Scan",
     "serviceApply": "Dienste anwenden",
     "malwareQuarantine": "Quarantäne",
     "malwareDelete": "Malware löschen",
