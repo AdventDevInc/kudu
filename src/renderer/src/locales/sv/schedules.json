@@ -13,7 +13,7 @@
   "failedEnableStartup": "Det gick inte att aktivera start vid uppstart. Scheman kanske inte körs efter omstart.",
   "failedEnableStartupAction": "Läs mer",
   "deleteConfirmTitle": "Ta bort schema",
-  "deleteConfirmDescription": "Det här schemat tas bort permanent. Åtgärden kan inte ångras.",
+  "deleteConfirmDescription": "Det här schemat tas bort permanent. Den här åtgärden kan inte ångras.",
   "deleteConfirmLabel": "Ta bort",
   "card": {
     "autoApplyBadge": "Tillämpa automatiskt",
@@ -22,7 +22,7 @@
     "deleteAction": "Ta bort",
     "noTasksSelected": "Inga uppgifter valda",
     "nextRun": "Nästa: {{time}}",
-    "lastRun": "Senast: {{time}}",
+    "lastRun": "Senaste: {{time}}",
     "neverRun": "Aldrig kört"
   },
   "presets": {
@@ -91,7 +91,7 @@
     "dateAt": "{{date}} kl. {{time}}"
   },
   "lastRun": {
-    "justNow": "Just nu",
+    "justNow": "Nyss",
     "minutesAgo": "{{count}}m sedan",
     "hoursAgo": "{{count}}h sedan",
     "daysAgo": "{{count}}d sedan"
@@ -102,7 +102,7 @@
     "explanation": "Alla villkor kontrolleras före start och före varje uppgift eller ändring. Tider följer den här datorns lokala tidszon. Pågående åtgärder slutförs innan ett ändrat villkor stoppar återstående uppgifter.",
     "acOnly": "Endast med nätström",
     "gameMode": "Vänta medan Spelläge är aktivt eller återställs",
-    "idle": "Krävda inaktiva minuter (0 inaktiverar)",
+    "idle": "Krävda minuter i inaktivitet (0 inaktiverar)",
     "window": "Använd ett underhållsfönster",
     "from": "Från",
     "to": "Till",
@@ -123,12 +123,12 @@
     "restrict": "Välj kategorier för {{name}}",
     "findCategories": "Sök efter kategorier",
     "scanning": "Söker...",
-    "scopeHint": "Endast markerade kategorier inkluderas. Ett tomt val innebär att ingen rensning körs i den här uppgiften. Sökningen hittar kategorier som finns just nu; den rensar inte.",
+    "scopeHint": "Endast markerade kategorier inkluderas. Ett tomt val innebär att ingen rensning körs i den här uppgiften. Genomsökningen hittar kategorier som finns för närvarande; den rensar inte.",
     "waitForScan": "Vänta tills den aktuella genomsökningen eller rensningen är klar.",
     "noCategories": "Inga kategorier hittades. Kör en ny genomsökning när programmet har cachade data.",
     "scanFailed": "Det gick inte att läsa in kategorier.",
     "waiting": {
-      "idle": "Väntar på inaktiv tid",
+      "idle": "Väntar på inaktivitet",
       "power": "Väntar på nätström",
       "game-mode": "Väntar på att Spelläge ska avslutas",
       "window": "Väntar på underhållsfönstret",
@@ -136,9 +136,9 @@
       "unknown": "Väntar på tillgängliga villkorsmätningar",
       "busy": "Väntar på en annan schemalagd körning",
       "disabled": "Schemat är inaktiverat",
-      "changed": "Schemat har redigerats; definitionen i kön har kasserats",
+      "changed": "Schemat redigerades; definitionen i kön kasserades",
       "unavailable": "Väntar på programfönstret",
-      "interrupted": "Körningen förlorade sitt fönster. Starta om Kudu innan du startar mer schemalagt arbete; denna förekomst körs inte igen."
+      "interrupted": "Körningen förlorade sitt fönster och registrerades som misslyckad; denna förekomst körs inte igen."
     },
     "saveFailed": "Schemat kunde inte sparas. Försök igen.",
     "skipped": "Hoppades över efter att villkoren ändrades."

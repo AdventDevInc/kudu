@@ -11,7 +11,7 @@
   "updatedToast": "\"{{name}}\" diperbarui",
   "createdToast": "\"{{name}}\" dibuat",
   "failedEnableStartup": "Gagal mengaktifkan startup. Jadwal mungkin tidak berjalan setelah reboot.",
-  "failedEnableStartupAction": "Pelajari selengkapnya",
+  "failedEnableStartupAction": "Pelajari lebih lanjut",
   "deleteConfirmTitle": "Hapus jadwal",
   "deleteConfirmDescription": "Jadwal ini akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.",
   "deleteConfirmLabel": "Hapus",
@@ -99,14 +99,14 @@
   "copyNameSuffix": "(salinan)",
   "advanced": {
     "title": "Kondisi menjalankan",
-    "explanation": "Semua kondisi diperiksa sebelum memulai dan sebelum setiap tugas atau perubahan. Waktu mengikuti zona waktu lokal komputer ini. Operasi yang sedang berjalan akan selesai sebelum perubahan kondisi menghentikan tugas yang tersisa.",
+    "explanation": "Semua kondisi diperiksa sebelum memulai dan sebelum setiap tugas atau perubahan. Waktu mengikuti zona waktu lokal komputer ini. Operasi yang sedang berjalan akan diselesaikan sebelum perubahan kondisi menghentikan tugas yang tersisa.",
     "acOnly": "Hanya saat menggunakan daya AC",
     "gameMode": "Tunggu selama Game Mode aktif atau sedang dipulihkan",
     "idle": "Menit idle yang diperlukan (0 menonaktifkan)",
     "window": "Gunakan jendela pemeliharaan",
     "from": "Dari",
     "to": "Sampai",
-    "disk": "Hanya saat drive utama hampir kehabisan ruang",
+    "disk": "Hanya saat drive utama kekurangan ruang",
     "freePercent": "Ruang kosong di bawah (%)",
     "missed": "Jika waktu terjadwal terlewat atau kondisi belum siap",
     "skip": "Lewati setelah jendela mulai dua menit",
@@ -125,7 +125,7 @@
     "scanning": "Memindai...",
     "scopeHint": "Hanya kategori yang dicentang yang akan disertakan. Pilihan kosong tidak akan menjalankan pembersihan pada tugas ini. Pemindaian menemukan kategori yang saat ini ada; pemindaian tidak melakukan pembersihan.",
     "waitForScan": "Tunggu hingga pemindaian atau pembersihan saat ini selesai.",
-    "noCategories": "Tidak ada kategori yang ditemukan. Jalankan pemindaian baru saat aplikasi telah menyimpan data cache.",
+    "noCategories": "Tidak ada kategori yang ditemukan. Jalankan pemindaian baru saat aplikasi memiliki data cache.",
     "scanFailed": "Tidak dapat memuat kategori.",
     "waiting": {
       "idle": "Menunggu waktu idle",
@@ -138,7 +138,7 @@
       "disabled": "Jadwal dinonaktifkan",
       "changed": "Jadwal telah diedit; definisi yang masuk antrean dibuang",
       "unavailable": "Menunggu jendela aplikasi",
-      "interrupted": "Proses kehilangan jendelanya. Mulai ulang Kudu sebelum memulai pekerjaan terjadwal lainnya; kejadian ini tidak akan diputar ulang."
+      "interrupted": "Proses kehilangan jendelanya dan dicatat sebagai gagal; kejadian ini tidak akan diputar ulang."
     },
     "saveFailed": "Jadwal tidak dapat disimpan. Coba lagi.",
     "skipped": "Dilewati setelah kondisi berubah."

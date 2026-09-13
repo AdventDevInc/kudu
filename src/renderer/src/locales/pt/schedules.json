@@ -42,9 +42,9 @@
     "nameLabel": "Nome",
     "namePlaceholder": "ex.: Limpeza profunda semanal",
     "frequencyLabel": "Frequência",
-    "frequencyDaily": "Diária",
-    "frequencyWeekly": "Semanal",
-    "frequencyMonthly": "Mensal",
+    "frequencyDaily": "Diariamente",
+    "frequencyWeekly": "Semanalmente",
+    "frequencyMonthly": "Mensalmente",
     "dayLabel": "Dia",
     "timeLabel": "Hora",
     "tasksLabel": "Tarefas",
@@ -101,7 +101,7 @@
     "title": "Condições de execução",
     "explanation": "Todas as condições são verificadas antes do início e antes de cada tarefa ou alteração. Os horários seguem o fuso horário local deste computador. As operações em execução são concluídas antes que uma condição alterada interrompa as tarefas restantes.",
     "acOnly": "Somente com alimentação CA",
-    "gameMode": "Aguardar enquanto o Modo de Jogo estiver ativo ou em restauração",
+    "gameMode": "Aguardar enquanto o Modo de Jogo estiver ativo ou sendo restaurado",
     "idle": "Minutos de inatividade necessários (0 desativa)",
     "window": "Usar uma janela de manutenção",
     "from": "De",
@@ -124,7 +124,7 @@
     "findCategories": "Verificar categorias",
     "scanning": "Verificando...",
     "scopeHint": "Somente as categorias marcadas serão incluídas. Uma seleção vazia não executa nenhuma limpeza nesta tarefa. A verificação descobre as categorias presentes no momento; ela não limpa.",
-    "waitForScan": "Aguarde a conclusão da verificação ou limpeza atual.",
+    "waitForScan": "Aguarde a verificação ou limpeza atual terminar.",
     "noCategories": "Nenhuma categoria encontrada. Execute uma nova verificação quando o aplicativo tiver dados em cache.",
     "scanFailed": "Não foi possível carregar as categorias.",
     "waiting": {
@@ -138,7 +138,7 @@
       "disabled": "Agendamento desativado",
       "changed": "O agendamento foi editado; definição enfileirada descartada",
       "unavailable": "Aguardando a janela do aplicativo",
-      "interrupted": "A execução perdeu sua janela. Reinicie o Kudu antes de iniciar mais trabalho agendado; esta ocorrência não será repetida."
+      "interrupted": "A execução perdeu sua janela e foi registrada como falha; esta ocorrência não será repetida."
     },
     "saveFailed": "Não foi possível salvar o agendamento. Tente novamente.",
     "skipped": "Ignorado após a alteração das condições."

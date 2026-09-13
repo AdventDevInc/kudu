@@ -1,11 +1,11 @@
 {
   "pageTitle": "Planifications",
-  "pageDescription": "Automatisez les analyses, nettoyages et mises à jour selon une planification",
+  "pageDescription": "Automatisez les analyses, nettoyages et mises à jour selon un planning",
   "newScheduleButton": "Nouvelle planification",
   "createScheduleButton": "Créer la planification",
   "emptyStateTitle": "Aucune planification pour le moment",
   "emptyStateDescription": "Créez une planification pour exécuter automatiquement des analyses, nettoyages et mises à jour.",
-  "maxSchedulesReached": "Nombre maximal de {{max}} planifications atteint.",
+  "maxSchedulesReached": "Nombre maximal de planifications atteint : {{max}}.",
   "duplicatedToast": "\"{{name}}\" dupliqué",
   "deletedToast": "\"{{name}}\" supprimé",
   "updatedToast": "\"{{name}}\" mis à jour",
@@ -34,7 +34,7 @@
     "monthlyDeepMaintenanceLabel": "Maintenance approfondie mensuelle",
     "monthlyDeepMaintenanceDescription": "Nettoyage complet + registre, pilotes et logiciels le 1er de chaque mois à 10 h",
     "customLabel": "Personnalisé",
-    "customDescription": "Commencer de zéro avec une planification vide"
+    "customDescription": "Partir de zéro avec une planification vide"
   },
   "dialog": {
     "editTitle": "Modifier la planification",
@@ -54,7 +54,7 @@
     "maintenanceGroup": "Maintenance",
     "autoApplyLabel": "Application automatique",
     "autoApplyDescription": "Nettoyer automatiquement les fichiers, corriger les problèmes du registre et installer les mises à jour sans confirmation.",
-    "autoApplyWarning": "Les actions seront exécutées automatiquement selon la planification. Assurez-vous que votre liste d’exclusions est à jour.",
+    "autoApplyWarning": "Les actions seront exécutées automatiquement selon le planning. Assurez-vous que votre liste d’exclusions est à jour.",
     "cancelButton": "Annuler",
     "saveChangesButton": "Enregistrer les modifications",
     "createScheduleButton": "Créer la planification"
@@ -92,14 +92,14 @@
   },
   "lastRun": {
     "justNow": "À l’instant",
-    "minutesAgo": "il y a {{count}} min",
-    "hoursAgo": "il y a {{count}} h",
-    "daysAgo": "il y a {{count}} j"
+    "minutesAgo": "Il y a {{count}} min",
+    "hoursAgo": "Il y a {{count}} h",
+    "daysAgo": "Il y a {{count}} j"
   },
   "copyNameSuffix": "(copie)",
   "advanced": {
     "title": "Conditions d’exécution",
-    "explanation": "Toutes les conditions sont vérifiées avant le démarrage et avant chaque tâche ou modification. Les heures suivent le fuseau horaire local de cet ordinateur. Les opérations en cours se terminent avant qu’un changement de condition n’arrête les tâches restantes.",
+    "explanation": "Toutes les conditions sont vérifiées avant le démarrage et avant chaque tâche ou modification. Les heures suivent le fuseau horaire local de cet ordinateur. Les opérations en cours se terminent avant qu’un changement de condition n’interrompe les tâches restantes.",
     "acOnly": "Uniquement sur secteur",
     "gameMode": "Attendre tant que le Mode Jeu est actif ou en cours de restauration",
     "idle": "Minutes d’inactivité requises (0 pour désactiver)",
@@ -136,9 +136,9 @@
       "unknown": "En attente de mesures de condition disponibles",
       "busy": "En attente d’une autre exécution planifiée",
       "disabled": "Planification désactivée",
-      "changed": "La planification a été modifiée ; la définition mise en file d’attente a été abandonnée",
+      "changed": "La planification a été modifiée ; la définition mise en file d’attente a été ignorée",
       "unavailable": "En attente de la fenêtre de l’application",
-      "interrupted": "L’exécution a perdu sa fenêtre. Redémarrez Kudu avant de lancer d’autres tâches planifiées ; cette occurrence ne sera pas rejouée."
+      "interrupted": "L’exécution a perdu sa fenêtre et a été enregistrée comme échouée ; cette occurrence ne sera pas rejouée."
     },
     "saveFailed": "La planification n’a pas pu être enregistrée. Réessayez.",
     "skipped": "Ignorée après modification des conditions."

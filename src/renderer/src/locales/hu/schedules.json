@@ -26,7 +26,7 @@
     "neverRun": "Még nem futott"
   },
   "presets": {
-    "dialogTitle": "Válasszon sablont",
+    "dialogTitle": "Sablon kiválasztása",
     "weeklyFullCleanLabel": "Heti teljes tisztítás",
     "weeklyFullCleanDescription": "Minden tisztítási kategória minden hétfőn 9:00-kor",
     "dailyLightSweepLabel": "Napi könnyű tisztítás",
@@ -46,7 +46,7 @@
     "frequencyWeekly": "Hetente",
     "frequencyMonthly": "Havonta",
     "dayLabel": "Nap",
-    "timeLabel": "Idő",
+    "timeLabel": "Időpont",
     "tasksLabel": "Feladatok",
     "selectAll": "Összes kijelölése",
     "deselectAll": "Összes kijelölés megszüntetése",
@@ -54,7 +54,7 @@
     "maintenanceGroup": "Karbantartás",
     "autoApplyLabel": "Automatikus alkalmazás",
     "autoApplyDescription": "Fájlok automatikus tisztítása, beállításjegyzék-hibák javítása és frissítések telepítése megerősítés nélkül.",
-    "autoApplyWarning": "A műveletek az ütemezés szerint automatikusan futnak. Győződjön meg róla, hogy a kizárási lista naprakész.",
+    "autoApplyWarning": "A műveletek az ütemezés szerint automatikusan futnak. Győződjön meg arról, hogy a kizárási lista naprakész.",
     "cancelButton": "Mégse",
     "saveChangesButton": "Módosítások mentése",
     "createScheduleButton": "Ütemezés létrehozása"
@@ -71,13 +71,13 @@
     "softwareUpdates": "Szoftverfrissítések"
   },
   "dayNames": {
-    "sunday": "Vasárnap",
-    "monday": "Hétfő",
-    "tuesday": "Kedd",
-    "wednesday": "Szerda",
-    "thursday": "Csütörtök",
-    "friday": "Péntek",
-    "saturday": "Szombat"
+    "sunday": "vasárnap",
+    "monday": "hétfő",
+    "tuesday": "kedd",
+    "wednesday": "szerda",
+    "thursday": "csütörtök",
+    "friday": "péntek",
+    "saturday": "szombat"
   },
   "frequency": {
     "everyDayAt": "Minden nap {{time}}-kor",
@@ -87,7 +87,7 @@
   "nextRun": {
     "todayAt": "Ma {{time}}-kor",
     "tomorrowAt": "Holnap {{time}}-kor",
-    "inDaysAt": "{{count}} nap múlva, {{time}}-kor",
+    "inDaysAt": "{{count}} nap múlva {{time}}-kor",
     "dateAt": "{{date}} {{time}}-kor"
   },
   "lastRun": {
@@ -99,9 +99,9 @@
   "copyNameSuffix": "(másolat)",
   "advanced": {
     "title": "Futtatási feltételek",
-    "explanation": "A rendszer minden feltételt ellenőriz az indítás előtt, valamint minden feladat vagy módosítás előtt. Az időpontok ezen számítógép helyi időzónáját követik. A futó műveletek befejeződnek, mielőtt egy megváltozott feltétel leállítaná a hátralévő feladatokat.",
+    "explanation": "A rendszer minden feltételt ellenőriz az indítás előtt, valamint minden feladat vagy módosítás előtt. Az időpontok ezen a számítógépen beállított helyi időzónát követik. A már futó műveletek befejeződnek, mielőtt egy megváltozott feltétel leállítaná a hátralévő feladatokat.",
     "acOnly": "Csak hálózati tápellátás esetén",
-    "gameMode": "Várakozás, amíg a Játék mód aktív vagy helyreállítás alatt áll",
+    "gameMode": "Várakozás, amíg a Játék mód aktív vagy visszaáll",
     "idle": "Szükséges tétlen percek száma (0 = kikapcsolva)",
     "window": "Karbantartási időablak használata",
     "from": "Kezdete",
@@ -109,10 +109,10 @@
     "disk": "Csak akkor, ha a rendszermeghajtón kevés a szabad hely",
     "freePercent": "Szabad hely ez alatt (%)",
     "missed": "Ha az ütemezett időpont kimarad, vagy a feltételek nem teljesülnek",
-    "skip": "Kihagyás a kétperces indítási időablak után",
+    "skip": "Kihagyás a kétperces indítási ablak után",
     "once": "Futtatás egyszer, amikor készen áll; a kimaradt futások összevonása",
     "runNow": "Futtatás most",
-    "runConfirm": "Most futtatja ezt az ütemezést a mentett feladatokkal és az automatikus alkalmazás beállításával? A tápellátási, tétlenségi, Játék módra, tárhelyre és karbantartási időablakra vonatkozó feltételek továbbra is érvényesek.",
+    "runConfirm": "Most futtatja ezt az ütemezést a mentett feladataival és az automatikus alkalmazás beállításával? A tápellátási, tétlenségi, Játék módra, tárhelyre és karbantartási időablakra vonatkozó feltételek továbbra is érvényesek.",
     "runFailed": "Nem sikerült elindítani az ütemezést",
     "running": "Fut",
     "nextEvaluation": "Következő ellenőrzés körülbelül ekkor: {{time}}",
@@ -136,11 +136,11 @@
       "unknown": "Várakozás az elérhető feltételmérésekre",
       "busy": "Várakozás egy másik ütemezett futásra",
       "disabled": "Az ütemezés le van tiltva",
-      "changed": "Az ütemezés szerkesztve lett; a sorba állított meghatározás elvetve",
+      "changed": "Az ütemezés szerkesztve lett; a várólistára helyezett meghatározás elvetve",
       "unavailable": "Várakozás az alkalmazásablakra",
-      "interrupted": "A futás elvesztette az időablakát. Indítsa újra a Kudu alkalmazást, mielőtt további ütemezett munkát indítana; ez az előfordulás nem lesz újrajátszva."
+      "interrupted": "A futás elvesztette az időablakát, és sikertelenként lett rögzítve; ez az előfordulás nem lesz újrajátszva."
     },
     "saveFailed": "Az ütemezést nem sikerült menteni. Próbálja újra.",
-    "skipped": "Kihagyva a feltételek megváltozása miatt."
+    "skipped": "Kihagyva a feltételek megváltozása után."
   }
 }

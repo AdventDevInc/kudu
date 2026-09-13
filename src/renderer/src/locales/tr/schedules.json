@@ -1,19 +1,19 @@
 {
   "pageTitle": "Zamanlamalar",
-  "pageDescription": "Taramaları, temizlemeleri ve güncellemeleri bir zamanlamaya göre otomatikleştirin",
+  "pageDescription": "Taramaları, temizlikleri ve güncellemeleri bir zamanlamaya göre otomatikleştirin",
   "newScheduleButton": "Yeni Zamanlama",
   "createScheduleButton": "Zamanlama Oluştur",
   "emptyStateTitle": "Henüz zamanlama yok",
-  "emptyStateDescription": "Taramaları, temizlemeleri ve güncellemeleri otomatik olarak çalıştırmak için bir zamanlama oluşturun.",
+  "emptyStateDescription": "Taramaları, temizlikleri ve güncellemeleri otomatik olarak çalıştırmak için bir zamanlama oluşturun.",
   "maxSchedulesReached": "En fazla {{max}} zamanlamaya ulaşıldı.",
   "duplicatedToast": "\"{{name}}\" çoğaltıldı",
   "deletedToast": "\"{{name}}\" silindi",
   "updatedToast": "\"{{name}}\" güncellendi",
   "createdToast": "\"{{name}}\" oluşturuldu",
-  "failedEnableStartup": "Başlangıç etkinleştirilemedi. Zamanlamalar yeniden başlatmadan sonra çalışmayabilir.",
+  "failedEnableStartup": "Başlangıçta çalıştırma etkinleştirilemedi. Zamanlamalar yeniden başlatmadan sonra çalışmayabilir.",
   "failedEnableStartupAction": "Daha fazla bilgi",
   "deleteConfirmTitle": "Zamanlamayı sil",
-  "deleteConfirmDescription": "Bu zamanlama kalıcı olarak kaldırılacak. Bu işlem geri alınamaz.",
+  "deleteConfirmDescription": "Bu zamanlama kalıcı olarak kaldırılacaktır. Bu işlem geri alınamaz.",
   "deleteConfirmLabel": "Sil",
   "card": {
     "autoApplyBadge": "Otomatik uygula",
@@ -53,8 +53,8 @@
     "cleanerGroup": "Temizleyici",
     "maintenanceGroup": "Bakım",
     "autoApplyLabel": "Otomatik uygula",
-    "autoApplyDescription": "Dosyaları otomatik olarak temizleyin, kayıt defteri sorunlarını düzeltin ve güncellemeleri onay olmadan yükleyin.",
-    "autoApplyWarning": "İşlemler zamanlamaya göre otomatik olarak çalıştırılacaktır. Hariç tutma listenizin güncel olduğundan emin olun.",
+    "autoApplyDescription": "Dosyaları otomatik olarak temizleyin, kayıt defteri sorunlarını düzeltin ve güncellemeleri onay istemeden yükleyin.",
+    "autoApplyWarning": "İşlemler, zamanlamaya göre otomatik olarak çalıştırılacaktır. Hariç tutma listenizin güncel olduğundan emin olun.",
     "cancelButton": "İptal",
     "saveChangesButton": "Değişiklikleri Kaydet",
     "createScheduleButton": "Zamanlama Oluştur"
@@ -94,14 +94,14 @@
     "justNow": "Az önce",
     "minutesAgo": "{{count}} dk önce",
     "hoursAgo": "{{count}} sa önce",
-    "daysAgo": "{{count}} gün önce"
+    "daysAgo": "{{count}} g önce"
   },
   "copyNameSuffix": "(kopya)",
   "advanced": {
     "title": "Çalıştırma koşulları",
-    "explanation": "Tüm koşullar başlatmadan önce ve her görev ya da değişiklikten önce denetlenir. Saatler bu bilgisayarın yerel saat dilimine göre belirlenir. Çalışan işlemler, değişen bir koşul kalan görevleri durdurmadan önce tamamlanır.",
+    "explanation": "Tüm koşullar, başlatmadan önce ve her görev ya da değişiklikten önce denetlenir. Saatler bu bilgisayarın yerel saat dilimine göre belirlenir. Çalışan işlemler, değişen bir koşul kalan görevleri durdurmadan önce tamamlanır.",
     "acOnly": "Yalnızca AC gücünde",
-    "gameMode": "Oyun Modu etkin veya geri yükleme sürerken bekle",
+    "gameMode": "Oyun Modu etkinken veya geri yükleme sürerken bekle",
     "idle": "Gerekli boşta kalma süresi (dakika) (0 devre dışı bırakır)",
     "window": "Bir bakım penceresi kullan",
     "from": "Başlangıç",
@@ -112,20 +112,20 @@
     "skip": "İki dakikalık başlatma penceresinden sonra atla",
     "once": "Hazır olduğunda bir kez çalıştır; kaçırılan çalıştırmaları birleştir",
     "runNow": "Şimdi çalıştır",
-    "runConfirm": "Bu zamanlama şimdi, kayıtlı görevleri ve otomatik uygulama seçimi kullanılarak çalıştırılsın mı? Güç, boşta kalma, Oyun Modu, alan ve bakım penceresi koşulları yine geçerli olacaktır.",
+    "runConfirm": "Bu zamanlama şimdi, kaydedilmiş görevleri ve otomatik uygulama seçimi kullanılarak çalıştırılsın mı? Güç, boşta kalma, Oyun Modu, alan ve bakım penceresi koşulları yine de geçerli olacaktır.",
     "runFailed": "Zamanlama başlatılamadı",
     "running": "Çalışıyor",
     "nextEvaluation": "Sonraki denetim yaklaşık {{time}}",
     "workflow": "Görev sırası ve kapsam",
-    "workflowHint": "Görevler yukarıdan aşağıya çalıştırılır. Kategori kısıtlaması yalnızca gelecekteki eşleşen tarama sonuçlarına uygulanır. Geri Dönüşüm Kutusu tüm kutuyu kapsayan bir işlem olarak kalır.",
+    "workflowHint": "Görevler yukarıdan aşağıya çalıştırılır. Bir kategori kısıtlaması yalnızca gelecekteki eşleşen tarama sonuçları için geçerlidir. Geri Dönüşüm Kutusu işlemi kutunun tamamına uygulanmaya devam eder.",
     "moveUp": "Yukarı",
     "moveDown": "Aşağı",
     "restrict": "{{name}} için kategorileri seçin",
     "findCategories": "Kategorileri tara",
     "scanning": "Taranıyor...",
-    "scopeHint": "Yalnızca işaretli kategoriler dahil edilir. Boş seçim, bu görevde hiçbir temizleme çalıştırmaz. Tarama, şu anda mevcut kategorileri bulur; temizleme yapmaz.",
-    "waitForScan": "Geçerli tarama veya temizleme işleminin tamamlanmasını bekleyin.",
-    "noCategories": "Kategori bulunamadı. Uygulama verileri önbelleğe aldığında yeni bir tarama çalıştırın.",
+    "scopeHint": "Yalnızca işaretlenen kategoriler dahil edilir. Boş bir seçim, bu görevde hiçbir temizliğin çalıştırılmayacağı anlamına gelir. Tarama, şu anda mevcut kategorileri bulur; temizlik yapmaz.",
+    "waitForScan": "Geçerli tarama veya temizliğin tamamlanmasını bekleyin.",
+    "noCategories": "Kategori bulunamadı. Uygulama verileri önbelleğe aldıktan sonra yeni bir tarama çalıştırın.",
     "scanFailed": "Kategoriler yüklenemedi.",
     "waiting": {
       "idle": "Boşta kalma süresi bekleniyor",
@@ -136,11 +136,11 @@
       "unknown": "Kullanılabilir koşul ölçümleri bekleniyor",
       "busy": "Başka bir zamanlanmış çalıştırma bekleniyor",
       "disabled": "Zamanlama devre dışı",
-      "changed": "Zamanlama düzenlendi; kuyruğa alınan tanım atıldı",
+      "changed": "Zamanlama düzenlendi; kuyruğa alınmış tanım atıldı",
       "unavailable": "Uygulama penceresi bekleniyor",
-      "interrupted": "Çalıştırma kendi penceresini kaybetti. Daha fazla zamanlanmış iş başlatmadan önce Kudu'yu yeniden başlatın; bu olay yeniden oynatılmayacaktır."
+      "interrupted": "Çalıştırma, penceresini kaybetti ve başarısız olarak kaydedildi; bu gerçekleşme yeniden oynatılmayacaktır."
     },
     "saveFailed": "Zamanlama kaydedilemedi. Yeniden deneyin.",
-    "skipped": "Koşullar değiştikten sonra atlandı."
+    "skipped": "Koşullar değiştiği için atlandı."
   }
 }

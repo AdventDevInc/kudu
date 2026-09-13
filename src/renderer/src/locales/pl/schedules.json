@@ -10,7 +10,7 @@
   "deletedToast": "Usunięto „{{name}}”",
   "updatedToast": "Zaktualizowano „{{name}}”",
   "createdToast": "Utworzono „{{name}}”",
-  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie systemu. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
+  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
   "failedEnableStartupAction": "Dowiedz się więcej",
   "deleteConfirmTitle": "Usuń harmonogram",
   "deleteConfirmDescription": "Ten harmonogram zostanie trwale usunięty. Tej operacji nie można cofnąć.",
@@ -31,7 +31,7 @@
     "weeklyFullCleanDescription": "Wszystkie kategorie czyszczenia w każdy poniedziałek o 9:00",
     "dailyLightSweepLabel": "Codzienne lekkie czyszczenie",
     "dailyLightSweepDescription": "System, przeglądarki i kosz codziennie o 8:00",
-    "monthlyDeepMaintenanceLabel": "Comiesięczna gruntowna konserwacja",
+    "monthlyDeepMaintenanceLabel": "Miesięczna gruntowna konserwacja",
     "monthlyDeepMaintenanceDescription": "Pełne czyszczenie + rejestr, sterowniki i oprogramowanie 1. dnia miesiąca o 10:00",
     "customLabel": "Niestandardowy",
     "customDescription": "Rozpocznij od pustego harmonogramu"
@@ -66,7 +66,7 @@
     "gaming": "Gry",
     "recycleBin": "Kosz",
     "databases": "Bazy danych",
-    "registryFixes": "Naprawy rejestru",
+    "registryFixes": "Naprawa rejestru",
     "driverUpdates": "Aktualizacje sterowników",
     "softwareUpdates": "Aktualizacje oprogramowania"
   },
@@ -99,7 +99,7 @@
   "copyNameSuffix": "(kopia)",
   "advanced": {
     "title": "Warunki uruchamiania",
-    "explanation": "Wszystkie warunki są sprawdzane przed rozpoczęciem oraz przed każdym zadaniem lub zmianą. Godziny są zgodne z lokalną strefą czasową tego komputera. Rozpoczęte operacje kończą się, zanim zmiana warunków zatrzyma pozostałe zadania.",
+    "explanation": "Wszystkie warunki są sprawdzane przed rozpoczęciem oraz przed każdym zadaniem lub zmianą. Godziny są zgodne z lokalną strefą czasową tego komputera. Rozpoczęte operacje zostaną ukończone, zanim zmiana warunków zatrzyma pozostałe zadania.",
     "acOnly": "Tylko przy zasilaniu sieciowym",
     "gameMode": "Czekaj, gdy Tryb gry jest aktywny lub trwa przywracanie",
     "idle": "Wymagane minuty bezczynności (0 wyłącza)",
@@ -108,11 +108,11 @@
     "to": "Do",
     "disk": "Tylko gdy na dysku głównym jest mało wolnego miejsca",
     "freePercent": "Wolne miejsce poniżej (%)",
-    "missed": "Jeśli zaplanowany czas zostanie pominięty lub warunki nie są gotowe",
+    "missed": "Jeśli zaplanowany czas zostanie pominięty lub warunki nie będą gotowe",
     "skip": "Pomiń po dwuminutowym oknie uruchomienia",
     "once": "Uruchom raz, gdy będzie gotowe; połącz pominięte uruchomienia",
     "runNow": "Uruchom teraz",
-    "runConfirm": "Uruchomić ten harmonogram teraz z zapisanymi zadaniami i ustawieniem automatycznego zastosowania? Warunki zasilania, bezczynności, Trybu gry, miejsca na dysku i okna konserwacji nadal będą obowiązywać.",
+    "runConfirm": "Uruchomić ten harmonogram teraz z użyciem zapisanych zadań i ustawienia automatycznego zastosowania? Warunki zasilania, bezczynności, Trybu gry, miejsca na dysku i okna konserwacji nadal będą obowiązywać.",
     "runFailed": "Nie udało się uruchomić harmonogramu",
     "running": "W trakcie działania",
     "nextEvaluation": "Następne sprawdzenie około {{time}}",
@@ -138,7 +138,7 @@
       "disabled": "Harmonogram wyłączony",
       "changed": "Harmonogram został edytowany; definicja w kolejce została odrzucona",
       "unavailable": "Oczekiwanie na okno aplikacji",
-      "interrupted": "Uruchomienie utraciło swoje okno. Uruchom ponownie Kudu przed rozpoczęciem kolejnych zaplanowanych zadań; to wystąpienie nie zostanie powtórzone."
+      "interrupted": "Uruchomienie utraciło swoje okno i zostało zapisane jako nieudane; to wystąpienie nie zostanie powtórzone."
     },
     "saveFailed": "Nie udało się zapisać harmonogramu. Spróbuj ponownie.",
     "skipped": "Pominięto po zmianie warunków."
