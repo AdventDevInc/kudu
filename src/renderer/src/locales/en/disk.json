@@ -121,7 +121,7 @@
     "cancel": "Cancel capture",
     "projection": "Volume capacity estimate",
     "projectionValue": "Around {{days}} days remaining at {{growth}} of growth per day.",
-    "projectionRange": "Approximate model range: {{min}}?{{max}} days, based on {{count}} daily observations.",
+    "projectionRange": "Approximate model range: {{min}} to {{max}} days, based on {{count}} daily observations.",
     "noProjection": "A forecast needs at least seven comparable daily observations spanning seven days and a stable positive growth trend.",
     "projectionCaution": "This estimates the whole volume from free-space measurements. Other applications and folders affect it. The range describes model fit, not a guarantee or proof of what caused growth.",
     "snapshots": "Saved snapshots",
@@ -182,6 +182,10 @@
       "added": "Added path",
       "removed": "Removed path",
       "changed": "Changed"
-    }
+    },
+    "loading": "Loading storage history?",
+    "emptyTitle": "See how your storage changes",
+    "emptyDescription": "Choose a folder, capture a baseline, then take another snapshot to see what grew. Your files stay untouched.",
+    "settings": "Automatic snapshots & alerts"
   }
 }

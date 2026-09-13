@@ -1,6 +1,9 @@
+import '@/components/shared/feature-layout.css'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { FolderClock } from 'lucide-react'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { formatBytes } from '@/lib/utils'
@@ -23,6 +26,7 @@ export function StorageHistoryPage() {
   const [data, setData] = useState<Awaited<
     ReturnType<typeof window.kudu.storageHistoryList>
   > | null>(null)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(''),
     [busy, setBusy] = useState(false)
   const [before, setBefore] = useState(''),
@@ -44,10 +48,14 @@ export function StorageHistoryPage() {
         const result = await window.kudu.storageHistoryList(scopeId, offset)
         if (mounted) {
           setData(result)
+          setLoading(false)
           if (!scopeId && result.scopes[0]) setScopeId(result.scopes[0].id)
         }
       } catch (e) {
-        if (mounted) setError(e instanceof Error ? e.message : t('storage.loadError'))
+        if (mounted) {
+          setError(e instanceof Error ? e.message : t('storage.loadError'))
+          setLoading(false)
+        }
       }
     }
     void read()
@@ -75,15 +83,13 @@ export function StorageHistoryPage() {
       setComparison(await window.kudu.storageHistoryCompare(before, after, nextPage))
     )
   }
-  const button = 'rounded-lg border px-3 py-2 text-sm disabled:opacity-40'
+  const button = 'feature-button'
   const scope = data?.scopes.find((s) => s.id === scopeId)
   const capture = data?.capture
   return (
-    <div className="space-y-5">
+    <div className="feature-page space-y-5">
       <PageHeader title={t('storage.title')} description={t('storage.description')} />
-      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-        {t('storage.privacy')}
-      </p>
+      <p className="feature-note">{t('storage.privacy')}</p>
       <div className="flex flex-wrap gap-3 items-center">
         <button
           className={button}
@@ -103,7 +109,7 @@ export function StorageHistoryPage() {
         <label>
           {t('storage.folder')}{' '}
           <select
-            className="rounded-lg border bg-transparent px-3 py-2"
+            className="feature-field max-w-full"
             value={scopeId}
             onChange={(e) => {
               setScopeId(e.target.value)
@@ -130,9 +136,17 @@ export function StorageHistoryPage() {
           {error}
         </p>
       )}
+      {loading && <p role="status">{t('storage.loading')}</p>}
+      {!loading && !error && !data?.scopes.length && (
+        <EmptyState
+          icon={FolderClock}
+          title={t('storage.emptyTitle')}
+          description={t('storage.emptyDescription')}
+        />
+      )}
       {scope && (
         <>
-          <div className="rounded-xl border p-4 space-y-4">
+          <div className="feature-card space-y-4">
             <p className="break-all font-mono text-xs">{scope.path}</p>
             <div className="flex flex-wrap gap-3">
               <button
@@ -155,15 +169,20 @@ export function StorageHistoryPage() {
                 {t('storage.removeFolder')}
               </button>
             </div>
-            <ScopeSettings
-              key={scope.id}
-              scope={scope}
-              disabled={busy}
-              save={(config) => run(() => window.kudu.storageHistoryConfigure(scope.id, config))}
-            />
+            <details>
+              <summary className="cursor-pointer text-sm font-semibold">
+                {t('storage.settings')}
+              </summary>
+              <ScopeSettings
+                key={scope.id}
+                scope={scope}
+                disabled={busy}
+                save={(config) => run(() => window.kudu.storageHistoryConfigure(scope.id, config))}
+              />
+            </details>
           </div>
           {capture && (
-            <div className="rounded-xl border p-4 flex flex-wrap gap-4 items-center" role="status">
+            <div className="feature-card flex flex-wrap gap-4 items-center" role="status">
               <span>
                 {t('storage.capturing', { time: new Date(capture.startedAt).toLocaleTimeString() })}
               </span>
@@ -177,7 +196,7 @@ export function StorageHistoryPage() {
               </button>
             </div>
           )}
-          <div className="rounded-xl border p-4 space-y-2">
+          <div className="feature-card space-y-2">
             <h2 className="font-semibold">{t('storage.projection')}</h2>
             {data?.projection ? (
               <>
@@ -314,7 +333,7 @@ export function StorageHistoryPage() {
               </div>
             )}
           </section>
-          <section className="rounded-xl border p-4 space-y-3">
+          <section className="feature-card space-y-3">
             <h2 className="font-semibold">{t('storage.compare')}</h2>
             <p className="text-sm">{t('storage.compareHint')}</p>
             <button
@@ -406,6 +425,7 @@ export function StorageHistoryPage() {
       )}
       <ConfirmDialog
         open={!!deleting}
+        variant="danger"
         title={t('storage.delete')}
         description={deleting?.scope ? t('storage.deleteScopeConfirm') : t('storage.deleteConfirm')}
         confirmLabel={t('storage.delete')}
@@ -447,9 +467,24 @@ function ScopeSettings({
       scope.freeAlertPercent === null ? '' : String(scope.freeAlertPercent)
     )
   return (
-    <div className="space-y-3 text-sm">
+    <form
+      className="mt-4 space-y-3 text-sm"
+      onSubmit={(event) => {
+        event.preventDefault()
+        void save({
+          daily,
+          growthAlertBytes: growth ? Math.round(Number(growth) * 1073741824) : null,
+          freeAlertPercent: free ? Number(free) : null
+        })
+      }}
+    >
       <label className="flex gap-2 items-center">
-        <input type="checkbox" checked={daily} onChange={(e) => setDaily(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={daily}
+          disabled={disabled}
+          onChange={(e) => setDaily(e.target.checked)}
+        />
         {t('storage.daily')}
       </label>
       <p className="text-xs">{t('storage.dailyHint')}</p>
@@ -457,7 +492,7 @@ function ScopeSettings({
         <label>
           {t('storage.growthAlert')}
           <input
-            className="block rounded-lg border px-3 py-2 bg-transparent"
+            className="feature-field mt-1 block w-full"
             type="number"
             min={0.01}
             max={900000}
@@ -469,7 +504,7 @@ function ScopeSettings({
         <label>
           {t('storage.freeAlert')}
           <input
-            className="block rounded-lg border px-3 py-2 bg-transparent"
+            className="feature-field mt-1 block w-full"
             type="number"
             min={1}
             max={100}
@@ -479,19 +514,9 @@ function ScopeSettings({
           />
         </label>
       </div>
-      <button
-        className="rounded-lg border px-3 py-2 disabled:opacity-40"
-        disabled={disabled}
-        onClick={() =>
-          void save({
-            daily,
-            growthAlertBytes: growth ? Math.round(Number(growth) * 1073741824) : null,
-            freeAlertPercent: free ? Number(free) : null
-          })
-        }
-      >
+      <button className="feature-button feature-primary" type="submit" disabled={disabled}>
         {t('storage.save')}
       </button>
-    </div>
+    </form>
   )
 }
