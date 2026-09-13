@@ -1,3 +1,9 @@
+import type {
+  DiagnosticCapabilities,
+  DiagnosticSession,
+  DiagnosticSummary,
+  DiagnosticPreview
+} from '../shared/performance-diagnostics'
 import { contextBridge, ipcRenderer } from 'electron'
 import { IPC } from '../shared/channels'
 import type {
@@ -747,6 +753,36 @@ const api = {
       ipcRenderer.removeListener(IPC.REGISTRY_FIX_PROGRESS, handler)
     }
   },
+
+  diagnosticsCapabilities: (): Promise<DiagnosticCapabilities> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'capabilities'),
+  diagnosticsStatus: (): Promise<{
+    rows: DiagnosticSummary[]
+    activeId: string | null
+    elapsedMs: number
+    error: string | null
+  }> => ipcRenderer.invoke(IPC.DIAGNOSTICS, 'status'),
+  diagnosticsStart: (seconds: number, processes: boolean): Promise<string> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'start', seconds, processes),
+  diagnosticsStop: (): Promise<void> => ipcRenderer.invoke(IPC.DIAGNOSTICS, 'stop'),
+  diagnosticsGet: (id: string): Promise<DiagnosticSession> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'get', id),
+  diagnosticsEdit: (
+    id: string,
+    details: { title: string; notes: string; pinned: boolean }
+  ): Promise<void> => ipcRenderer.invoke(IPC.DIAGNOSTICS, 'edit', id, details),
+  diagnosticsPreview: (id: string, processes: boolean): Promise<DiagnosticPreview> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'preview', id, processes),
+  diagnosticsUpload: (token: string): Promise<DiagnosticSession> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'upload', token),
+  diagnosticsRefresh: (id: string): Promise<DiagnosticSession> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'refresh', id),
+  diagnosticsDeleteCloud: (id: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'deleteCloud', id),
+  diagnosticsRemove: (id: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'remove', id),
+  diagnosticsExport: (id: string): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.DIAGNOSTICS, 'export', id),
 
   // Game Mode
   gameModeActivate: (config: GameModeConfig): Promise<GameModeActivateResult> =>
