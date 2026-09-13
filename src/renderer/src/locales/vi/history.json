@@ -36,7 +36,8 @@
     "retryDescription": "Các mục đã lưu trong bộ nhớ đệm đủ điều kiện sẽ được kiểm tra theo các cơ chế bảo vệ hiện tại và bị xóa vĩnh viễn nếu vẫn đủ điều kiện. Thao tác này sẽ tạo một biên nhận mới.",
     "retryConfirm": "Thử lại dọn dẹp",
     "clearTitle": "Xóa biên nhận dọn dẹp?",
-    "clearDescription": "Thao tác này sẽ xóa vĩnh viễn các biên nhận đã lưu và thông tin thử lại của chúng. Lịch sử quét và nhật ký xóa riêng biệt sẽ không thay đổi."
+    "clearDescription": "Thao tác này sẽ xóa vĩnh viễn các biên nhận đã lưu và thông tin thử lại của chúng. Lịch sử quét và nhật ký xóa riêng biệt sẽ không thay đổi.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Lịch sử quét",
   "pageDescription": "Xem kết quả chi tiết từ các lần quét và dọn dẹp trước đó",

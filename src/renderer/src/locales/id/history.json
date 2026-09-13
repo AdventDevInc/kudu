@@ -36,7 +36,8 @@
     "retryDescription": "Entri cache yang memenuhi syarat akan diperiksa terhadap perlindungan saat ini dan dihapus secara permanen jika masih memenuhi syarat. Ini akan membuat tanda terima baru.",
     "retryConfirm": "Coba lagi pembersihan",
     "clearTitle": "Hapus tanda terima pembersihan?",
-    "clearDescription": "Ini akan menghapus secara permanen tanda terima yang disimpan dan informasi percobaan ulangnya. Riwayat pemindaian dan log penghapusan terpisah tidak berubah."
+    "clearDescription": "Ini akan menghapus secara permanen tanda terima yang disimpan dan informasi percobaan ulangnya. Riwayat pemindaian dan log penghapusan terpisah tidak berubah.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Riwayat Pemindaian",
   "pageDescription": "Lihat hasil terperinci dari pemindaian dan pembersihan sebelumnya",

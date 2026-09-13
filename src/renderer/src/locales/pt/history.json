@@ -36,7 +36,8 @@
     "retryDescription": "As entradas elegíveis em cache serão verificadas em relação às proteções atuais e eliminadas permanentemente se continuarem elegíveis. Isto cria um novo recibo.",
     "retryConfirm": "Repetir limpeza",
     "clearTitle": "Limpar recibos de limpeza?",
-    "clearDescription": "Isto remove permanentemente os recibos guardados e as respetivas informações de nova tentativa. O histórico de análises e o registo de eliminação separado permanecem inalterados."
+    "clearDescription": "Isto remove permanentemente os recibos guardados e as respetivas informações de nova tentativa. O histórico de análises e o registo de eliminação separado permanecem inalterados.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Histórico de verificações",
   "pageDescription": "Veja resultados detalhados de verificações e limpezas anteriores",

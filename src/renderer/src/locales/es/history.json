@@ -36,7 +36,8 @@
     "retryDescription": "Las entradas aptas almacenadas en caché se comprobarán con las protecciones actuales y se eliminarán permanentemente si siguen siendo aptas. Esto crea un nuevo comprobante.",
     "retryConfirm": "Reintentar limpieza",
     "clearTitle": "¿Borrar los comprobantes de limpieza?",
-    "clearDescription": "Esto elimina permanentemente los comprobantes guardados y su información de reintento. El historial de análisis y el registro de eliminación independiente no cambian."
+    "clearDescription": "Esto elimina permanentemente los comprobantes guardados y su información de reintento. El historial de análisis y el registro de eliminación independiente no cambian.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Historial de análisis",
   "pageDescription": "Ver resultados detallados de análisis y limpiezas anteriores",

@@ -36,7 +36,8 @@
     "retryDescription": "Kvalifiserte bufrede oppføringer blir kontrollert mot gjeldende beskyttelser og slettet permanent hvis de fortsatt er kvalifiserte. Dette oppretter en ny kvittering.",
     "retryConfirm": "Prøv opprydding på nytt",
     "clearTitle": "Tøm oppryddingskvitteringer?",
-    "clearDescription": "Dette fjerner lagrede kvitteringer og informasjon om nye forsøk permanent. Skanningshistorikk og den separate sletteloggen forblir uendret."
+    "clearDescription": "Dette fjerner lagrede kvitteringer og informasjon om nye forsøk permanent. Skanningshistorikk og den separate sletteloggen forblir uendret.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Skannelogg",
   "pageDescription": "Vis detaljerte resultater fra tidligere skanninger og oppryddinger",

@@ -36,7 +36,8 @@
     "retryDescription": "Berättigade cachelagrade poster kontrolleras mot aktuella skydd och tas bort permanent om de fortfarande är berättigade. Detta skapar ett nytt kvitto.",
     "retryConfirm": "Försök igen med rensning",
     "clearTitle": "Rensa rensningskvitton?",
-    "clearDescription": "Detta tar permanent bort sparade kvitton och deras information om nya försök. Genomsökningshistorik och den separata borttagningsloggen påverkas inte."
+    "clearDescription": "Detta tar permanent bort sparade kvitton och deras information om nya försök. Genomsökningshistorik och den separata borttagningsloggen påverkas inte.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Skanningshistorik",
   "pageDescription": "Visa detaljerade resultat från tidigare skanningar och rensningar",

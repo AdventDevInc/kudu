@@ -36,7 +36,8 @@
     "retryDescription": "符合条件的缓存条目将根据当前保护设置进行检查，如仍符合条件则会被永久删除。这将创建一份新的回执。",
     "retryConfirm": "重试清理",
     "clearTitle": "清除清理回执？",
-    "clearDescription": "这将永久删除已保存的回执及其重试信息。扫描历史和单独的删除日志不会更改。"
+    "clearDescription": "这将永久删除已保存的回执及其重试信息。扫描历史和单独的删除日志不会更改。",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "扫描历史",
   "pageDescription": "查看过去扫描和清理的详细结果",

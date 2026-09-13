@@ -36,7 +36,8 @@
     "retryDescription": "A jogosult gyorsítótárazott elemek ellenőrzésre kerülnek az aktuális védelmek alapján, és véglegesen törlésre kerülnek, ha továbbra is jogosultak. Ez új bizonylatot hoz létre.",
     "retryConfirm": "Tisztítás újrapróbálása",
     "clearTitle": "Törli a tisztítási bizonylatokat?",
-    "clearDescription": "Ez véglegesen eltávolítja a mentett bizonylatokat és azok újrapróbálási adatait. A vizsgálati előzmények és a külön törlési napló nem változnak."
+    "clearDescription": "Ez véglegesen eltávolítja a mentett bizonylatokat és azok újrapróbálási adatait. A vizsgálati előzmények és a külön törlési napló nem változnak.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Vizsgálati előzmények",
   "pageDescription": "Korábbi vizsgálatok és tisztítások részletes eredményeinek megtekintése",

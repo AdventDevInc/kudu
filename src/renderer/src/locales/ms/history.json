@@ -36,7 +36,8 @@
     "retryDescription": "Entri cache yang layak akan diperiksa terhadap perlindungan semasa dan dipadamkan secara kekal jika masih layak. Ini akan mencipta resit baharu.",
     "retryConfirm": "Cuba semula pembersihan",
     "clearTitle": "Kosongkan resit pembersihan?",
-    "clearDescription": "Ini akan mengalih keluar resit yang disimpan dan maklumat percubaan semulanya secara kekal. Sejarah imbasan dan log pemadaman berasingan tidak berubah."
+    "clearDescription": "Ini akan mengalih keluar resit yang disimpan dan maklumat percubaan semulanya secara kekal. Sejarah imbasan dan log pemadaman berasingan tidak berubah.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Sejarah Imbasan",
   "pageDescription": "Lihat hasil terperinci daripada imbasan dan pembersihan yang lalu",

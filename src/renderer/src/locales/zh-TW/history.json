@@ -36,7 +36,8 @@
     "retryDescription": "符合條件的快取項目將依目前保護設定重新檢查，若仍符合條件則會永久刪除。這將建立新的收據。",
     "retryConfirm": "重試清理",
     "clearTitle": "要清除清理收據嗎？",
-    "clearDescription": "這會永久移除已儲存的收據及其重試資訊。掃描記錄與獨立的刪除記錄不會變更。"
+    "clearDescription": "這會永久移除已儲存的收據及其重試資訊。掃描記錄與獨立的刪除記錄不會變更。",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "掃描記錄",
   "pageDescription": "檢視過去掃描與清理的詳細結果",

@@ -50,6 +50,7 @@ export function LargeFileFinderPage() {
   }, [])
 
   const selectedCount = store.selectedPaths.size
+  const busy = store.status === 'scanning' || store.status === 'deleting'
   const selectedSize = useMemo(() => {
     if (!store.result) return 0
     let size = 0
@@ -70,7 +71,7 @@ export function LargeFileFinderPage() {
   }
 
   const handleScan = async () => {
-    if (!store.directory) return
+    if (!store.directory || busy) return
     store.reset()
     store.setStatus('scanning')
     try {
@@ -143,7 +144,7 @@ export function LargeFileFinderPage() {
       <div className="utility-toolbar mb-4 flex items-center gap-3">
         <button
           onClick={handleSelectDir}
-          disabled={store.status === 'scanning'}
+          disabled={busy}
           className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-[13px] font-medium transition-colors"
           style={{
             background: 'var(--bg-hover)',
@@ -155,7 +156,7 @@ export function LargeFileFinderPage() {
           {store.directory ? store.directory : t('selectDirectory')}
         </button>
 
-        {store.directory && store.status !== 'scanning' && (
+        {store.directory && !busy && (
           <button
             onClick={handleScan}
             className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-colors"

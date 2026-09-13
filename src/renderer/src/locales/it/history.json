@@ -36,7 +36,8 @@
     "retryDescription": "Gli elementi idonei memorizzati nella cache verranno verificati rispetto alle protezioni correnti ed eliminati definitivamente se ancora idonei. Questa operazione crea una nuova ricevuta.",
     "retryConfirm": "Riprova pulizia",
     "clearTitle": "Cancellare le ricevute di pulizia?",
-    "clearDescription": "Questa operazione rimuove definitivamente le ricevute salvate e le relative informazioni sui nuovi tentativi. La cronologia delle scansioni e il registro di eliminazione separato non verranno modificati."
+    "clearDescription": "Questa operazione rimuove definitivamente le ricevute salvate e le relative informazioni sui nuovi tentativi. La cronologia delle scansioni e il registro di eliminazione separato non verranno modificati.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Cronologia scansioni",
   "pageDescription": "Visualizza i risultati dettagliati delle scansioni e pulizie precedenti",

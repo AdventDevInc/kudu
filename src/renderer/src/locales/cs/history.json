@@ -36,7 +36,8 @@
     "retryDescription": "Způsobilé položky uložené v mezipaměti budou zkontrolovány podle aktuálních ochran a budou trvale odstraněny, pokud budou stále způsobilé. Tím se vytvoří nové potvrzení.",
     "retryConfirm": "Opakovat čištění",
     "clearTitle": "Vymazat potvrzení o čištění?",
-    "clearDescription": "Tímto trvale odstraníte uložená potvrzení a jejich informace o opakování. Historie skenování a samostatný protokol odstranění zůstanou beze změny."
+    "clearDescription": "Tímto trvale odstraníte uložená potvrzení a jejich informace o opakování. Historie skenování a samostatný protokol odstranění zůstanou beze změny.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Historie kontrol",
   "pageDescription": "Zobrazte podrobné výsledky předchozích kontrol a čištění",

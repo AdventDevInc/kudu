@@ -36,7 +36,8 @@
     "retryDescription": "Kelvolliset välimuistiin tallennetut kohteet tarkistetaan nykyisiä suojauksia vasten ja poistetaan pysyvästi, jos ne ovat edelleen kelvollisia. Tämä luo uuden kuitin.",
     "retryConfirm": "Yritä puhdistus uudelleen",
     "clearTitle": "Poistetaanko puhdistuksen kuitit?",
-    "clearDescription": "Tämä poistaa tallennetut kuitit ja niiden uusintayritystiedot pysyvästi. Tarkistushistoria ja erillinen poistamisloki eivät muutu."
+    "clearDescription": "Tämä poistaa tallennetut kuitit ja niiden uusintayritystiedot pysyvästi. Tarkistushistoria ja erillinen poistamisloki eivät muutu.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Skannaushistoria",
   "pageDescription": "Tarkastele aiempien skannausten ja puhdistusten yksityiskohtaisia tuloksia",

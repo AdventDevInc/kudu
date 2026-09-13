@@ -36,7 +36,8 @@
     "retryDescription": "Geeignete zwischengespeicherte Einträge werden anhand der aktuellen Schutzregeln geprüft und dauerhaft gelöscht, wenn sie weiterhin geeignet sind. Dadurch wird ein neuer Beleg erstellt.",
     "retryConfirm": "Bereinigung wiederholen",
     "clearTitle": "Bereinigungsbelege löschen?",
-    "clearDescription": "Dadurch werden gespeicherte Belege und ihre Wiederholungsinformationen dauerhaft entfernt. Der Scanverlauf und das separate Löschprotokoll bleiben unverändert."
+    "clearDescription": "Dadurch werden gespeicherte Belege und ihre Wiederholungsinformationen dauerhaft entfernt. Der Scanverlauf und das separate Löschprotokoll bleiben unverändert.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Scanverlauf",
   "pageDescription": "Detaillierte Ergebnisse früherer Scans und Bereinigungen anzeigen",

@@ -36,7 +36,8 @@
     "retryDescription": "In aanmerking komende gebufferde items worden gecontroleerd aan de hand van de huidige beveiligingen en permanent verwijderd als ze nog steeds in aanmerking komen. Dit maakt een nieuw bewijs aan.",
     "retryConfirm": "Opschoning opnieuw proberen",
     "clearTitle": "Opschoningsbewijzen wissen?",
-    "clearDescription": "Hiermee worden opgeslagen bewijzen en hun informatie voor opnieuw proberen permanent verwijderd. Scangeschiedenis en het afzonderlijke verwijderingslogboek blijven ongewijzigd."
+    "clearDescription": "Hiermee worden opgeslagen bewijzen en hun informatie voor opnieuw proberen permanent verwijderd. Scangeschiedenis en het afzonderlijke verwijderingslogboek blijven ongewijzigd.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Scangeschiedenis",
   "pageDescription": "Bekijk gedetailleerde resultaten van eerdere scans en opschoonacties",

@@ -36,7 +36,8 @@
     "retryDescription": "Kwalifikujące się wpisy z pamięci podręcznej zostaną sprawdzone pod kątem bieżących zabezpieczeń i trwale usunięte, jeśli nadal się kwalifikują. Spowoduje to utworzenie nowego potwierdzenia.",
     "retryConfirm": "Ponów czyszczenie",
     "clearTitle": "Wyczyścić potwierdzenia czyszczenia?",
-    "clearDescription": "To trwale usunie zapisane potwierdzenia i informacje o ponowieniach. Historia skanowania i oddzielny dziennik usunięć pozostaną bez zmian."
+    "clearDescription": "To trwale usunie zapisane potwierdzenia i informacje o ponowieniach. Historia skanowania i oddzielny dziennik usunięć pozostaną bez zmian.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Historia skanowań",
   "pageDescription": "Wyświetl szczegółowe wyniki poprzednich skanowań i czyszczeń",

@@ -36,7 +36,8 @@
     "retryDescription": "재시도 가능한 캐시된 항목은 현재 보호 설정을 기준으로 다시 확인되며, 여전히 대상이면 영구적으로 삭제됩니다. 그러면 새 영수증이 생성됩니다.",
     "retryConfirm": "정리 다시 시도",
     "clearTitle": "정리 영수증을 지우시겠습니까?",
-    "clearDescription": "저장된 영수증과 해당 재시도 정보가 영구적으로 제거됩니다. 검사 기록과 별도의 삭제 로그는 변경되지 않습니다."
+    "clearDescription": "저장된 영수증과 해당 재시도 정보가 영구적으로 제거됩니다. 검사 기록과 별도의 삭제 로그는 변경되지 않습니다.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "검사 기록",
   "pageDescription": "이전 검사 및 정리의 상세 결과를 확인합니다",

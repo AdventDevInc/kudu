@@ -36,7 +36,8 @@
     "retryDescription": "Les éléments en cache admissibles seront vérifiés selon les protections actuelles et supprimés définitivement s’ils sont toujours admissibles. Cela créera un nouveau reçu.",
     "retryConfirm": "Réessayer le nettoyage",
     "clearTitle": "Effacer les reçus de nettoyage ?",
-    "clearDescription": "Cela supprime définitivement les reçus enregistrés et leurs informations de nouvelle tentative. L’historique des analyses et le journal de suppression séparé restent inchangés."
+    "clearDescription": "Cela supprime définitivement les reçus enregistrés et leurs informations de nouvelle tentative. L’historique des analyses et le journal de suppression séparé restent inchangés.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Historique des analyses",
   "pageDescription": "Consultez les résultats détaillés des analyses et nettoyages précédents",

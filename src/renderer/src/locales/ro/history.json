@@ -36,7 +36,8 @@
     "retryDescription": "Intrările eligibile din cache vor fi verificate în raport cu protecțiile curente și vor fi șterse definitiv dacă sunt încă eligibile. Aceasta creează o nouă chitanță.",
     "retryConfirm": "Reîncearcă curățarea",
     "clearTitle": "Ștergeți chitanțele de curățare?",
-    "clearDescription": "Aceasta elimină definitiv chitanțele salvate și informațiile lor de reîncercare. Istoricul scanărilor și jurnalul separat de ștergere rămân neschimbate."
+    "clearDescription": "Aceasta elimină definitiv chitanțele salvate și informațiile lor de reîncercare. Istoricul scanărilor și jurnalul separat de ștergere rămân neschimbate.",
+    "loading": "Loading cleanup receipts?"
   },
   "pageTitle": "Istoric scanări",
   "pageDescription": "Vizualizați rezultatele detaliate ale scanărilor și curățării anterioare",
