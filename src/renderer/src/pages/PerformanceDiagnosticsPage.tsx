@@ -189,14 +189,14 @@ export function PerformanceDiagnosticsPage() {
           <span className="feature-status">{t('pro')}</span>
         </div>
         <p className="text-sm text-[var(--text-muted)]">{t('localFirst')}</p>
-        {cap === null && (
+        {cap === null && !error && (
           <p role="status" className="text-sm text-[var(--text-muted)]">
             {t('checkingAccess')}
           </p>
         )}
-        {cap && !cap.available && (
+        {!cap?.available && (cap !== null || !!error) && (
           <p className="text-sm">
-            {t('requiresPro')}{' '}
+            {t(cap ? 'requiresPro' : 'accessUnavailable')}{' '}
             <Link to="/cloud" className="underline">
               {t('cloudSettings')}
             </Link>{' '}

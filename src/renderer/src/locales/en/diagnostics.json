@@ -83,5 +83,6 @@
   "recordingElapsed": "Recording ? {{seconds}}s",
   "operationFailed": "Something went wrong.",
   "checkingAccess": "Checking Cloud access?",
-  "emptyHint": "Record while the slowdown happens. You can review the measurements before sharing them."
+  "emptyHint": "Record while the slowdown happens. You can review the measurements before sharing them.",
+  "accessUnavailable": "Cloud access could not be checked. Check your connection and try again."
 }
