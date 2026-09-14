@@ -615,8 +615,7 @@ async function cleanRecycleBin(
 
 async function cleanDatabasesCli(itemIds: string[]): Promise<CleanResult> {
   const { getCachedItem } = await import('./services/scan-cache')
-  const { statSync } = await import('fs')
-  const Database = (await import('better-sqlite3')).default
+  const { optimizeDatabase } = await import('./services/database-optimizer')
   let totalCleaned = 0,
     filesDeleted = 0,
     filesSkipped = 0
@@ -626,30 +625,7 @@ async function cleanDatabasesCli(itemIds: string[]): Promise<CleanResult> {
     const item = getCachedItem(id)
     if (!item) continue
     try {
-      const sizeBefore = statSync(item.path).size
-      let walSizeBefore = 0
-      try {
-        walSizeBefore = statSync(item.path + '-wal').size
-      } catch {
-        /* no WAL */
-      }
-      const db = new Database(item.path, { fileMustExist: true })
-      try {
-        const journalMode = (db.pragma('journal_mode', { simple: true }) as string).toLowerCase()
-        db.exec('VACUUM')
-        if (journalMode === 'wal') db.pragma('journal_mode = WAL')
-      } finally {
-        db.close()
-      }
-      const sizeAfter = statSync(item.path).size
-      let walSizeAfter = 0
-      try {
-        walSizeAfter = statSync(item.path + '-wal').size
-      } catch {
-        /* no WAL */
-      }
-      const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
-      if (reclaimed > 0) totalCleaned += reclaimed
+      totalCleaned += await optimizeDatabase(item.path)
       filesDeleted++
     } catch (err: unknown) {
       filesSkipped++

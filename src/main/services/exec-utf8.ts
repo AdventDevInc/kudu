@@ -137,7 +137,7 @@ export function spawnTrackedLines(
   file: string,
   args: string[],
   onLine: (line: string) => void,
-  opts?: { timeout?: number; signal?: AbortSignal; windowsHide?: boolean }
+  opts?: { timeout?: number; signal?: AbortSignal; windowsHide?: boolean; env?: NodeJS.ProcessEnv }
 ): Promise<{ stderr: string; code: number | null; timedOut: boolean }> {
   return new Promise((resolve, reject) => {
     if (opts?.signal?.aborted) {
@@ -145,7 +145,7 @@ export function spawnTrackedLines(
       return
     }
 
-    const child = spawn(file, args, { windowsHide: opts?.windowsHide ?? true })
+    const child = spawn(file, args, { windowsHide: opts?.windowsHide ?? true, env: opts?.env })
     child.stdout?.setEncoding('utf-8')
     child.stderr?.setEncoding('utf-8')
 

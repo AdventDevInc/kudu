@@ -22,6 +22,18 @@ function nodeEval(source: string): string[] {
 }
 
 describe('spawnTrackedLines', () => {
+  it('passes the supplied environment to the helper process', async () => {
+    const lines: string[] = []
+    const result = await spawnTrackedLines(
+      NODE,
+      nodeEval('console.log(process.env.KUDU_COMMAND_TEST)'),
+      (line) => lines.push(line),
+      { env: { ...process.env, KUDU_COMMAND_TEST: 'isolated' } }
+    )
+    expect(result.code).toBe(0)
+    expect(lines).toEqual(['isolated'])
+  })
+
   it('delivers one callback per stdout line, without trailing newlines', async () => {
     const lines: string[] = []
     const { code, timedOut } = await spawnTrackedLines(

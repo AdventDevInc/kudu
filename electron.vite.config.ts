@@ -11,7 +11,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/main/index.ts'),
-          'yara-worker': resolve(__dirname, 'src/main/workers/yara-worker.ts')
+          'yara-worker': resolve(__dirname, 'src/main/workers/yara-worker.ts'),
+          'database-worker': resolve(__dirname, 'src/main/workers/database-worker.ts')
         }
       }
     }

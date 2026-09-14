@@ -3,7 +3,7 @@ import { ipcMain } from 'electron'
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
-import Database from 'better-sqlite3'
+import { optimizeDatabase } from '../services/database-optimizer'
 import { IPC } from '../../shared/channels'
 import { getPlatform } from '../platform'
 import { cacheItems, clearCachedCategory, getCachedItem } from '../services/scan-cache'
@@ -167,40 +167,20 @@ export function registerDatabaseOptimizerIpc(getWindow: WindowGetter): void {
         const item = getCachedItem(id)
 
         if (item) {
-          // Yield between each VACUUM so the main thread stays responsive
-          await new Promise((resolve) => setTimeout(resolve, 0))
+          const win = getWindow()
+          if (win && !win.isDestroyed()) {
+            win.webContents.send(IPC.SCAN_PROGRESS, {
+              phase: 'cleaning',
+              category: CleanerType.Database,
+              currentPath: item.path,
+              progress: (i / valid.length) * 100,
+              itemsFound: valid.length,
+              sizeFound: totalCleaned
+            })
+          }
 
           try {
-            const sizeBefore = fs.statSync(item.path).size
-            let walSizeBefore = 0
-            try {
-              walSizeBefore = fs.statSync(item.path + '-wal').size
-            } catch {
-              /* no WAL */
-            }
-
-            const db = new Database(item.path, { fileMustExist: true })
-            try {
-              const journalMode = (
-                db.pragma('journal_mode', { simple: true }) as string
-              ).toLowerCase()
-              db.exec('VACUUM')
-              if (journalMode === 'wal') {
-                db.pragma('journal_mode = WAL')
-              }
-            } finally {
-              db.close()
-            }
-
-            const sizeAfter = fs.statSync(item.path).size
-            let walSizeAfter = 0
-            try {
-              walSizeAfter = fs.statSync(item.path + '-wal').size
-            } catch {
-              /* no WAL */
-            }
-            const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
-            if (reclaimed > 0) totalCleaned += reclaimed
+            totalCleaned += await optimizeDatabase(item.path)
             filesDeleted++
           } catch (err: unknown) {
             filesSkipped++

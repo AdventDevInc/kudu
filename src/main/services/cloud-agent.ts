@@ -2858,37 +2858,12 @@ class CloudAgentService {
       await recordNativeCleanup(
         'Database optimization',
         async () => {
-          const Database = (await import('better-sqlite3')).default
+          const { optimizeDatabase } = await import('./database-optimizer')
           for (const id of dbIds) {
             const item = getCachedItem(id)
             if (!item) continue
             try {
-              const sizeBefore = statSync(item.path).size
-              let walSizeBefore = 0
-              try {
-                walSizeBefore = statSync(item.path + '-wal').size
-              } catch {
-                /* no WAL */
-              }
-              const db = new Database(item.path, { fileMustExist: true })
-              try {
-                const journalMode = (
-                  db.pragma('journal_mode', { simple: true }) as string
-                ).toLowerCase()
-                db.exec('VACUUM')
-                if (journalMode === 'wal') db.pragma('journal_mode = WAL')
-              } finally {
-                db.close()
-              }
-              const sizeAfter = statSync(item.path).size
-              let walSizeAfter = 0
-              try {
-                walSizeAfter = statSync(item.path + '-wal').size
-              } catch {
-                /* no WAL */
-              }
-              const reclaimed = sizeBefore + walSizeBefore - (sizeAfter + walSizeAfter)
-              if (reclaimed > 0) dbResult.totalCleaned += reclaimed
+              dbResult.totalCleaned += await optimizeDatabase(item.path)
               dbResult.filesDeleted++
             } catch (err: unknown) {
               dbResult.filesSkipped++

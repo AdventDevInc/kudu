@@ -16,8 +16,8 @@ const {
   mockReaddirSync,
   mockCacheItems,
   mockGetCachedItem,
+  mockOptimizeDatabase,
   mockDbExec,
-  mockDbPragma,
   mockDbClose,
   mockDatabaseConstructor,
   mockDatabaseTargets
@@ -32,8 +32,8 @@ const {
   mockReaddirSync: vi.fn(),
   mockCacheItems: vi.fn(),
   mockGetCachedItem: vi.fn(),
+  mockOptimizeDatabase: vi.fn(),
   mockDbExec: vi.fn(),
-  mockDbPragma: vi.fn(),
   mockDbClose: vi.fn(),
   mockDatabaseConstructor: vi.fn(),
   mockDatabaseTargets: vi.fn()
@@ -68,7 +68,6 @@ vi.mock('better-sqlite3', () => {
     if (result instanceof Error) throw result
     return {
       exec: (...a: unknown[]) => mockDbExec(...a),
-      pragma: (...a: unknown[]) => mockDbPragma(...a),
       close: () => mockDbClose()
     }
   } as any
@@ -89,6 +88,11 @@ vi.mock('../services/ipc-validation', () => ({
   }
 }))
 
+vi.mock('../services/database-optimizer', () => ({
+  optimizeDatabase: (...args: unknown[]) => mockOptimizeDatabase(...args)
+}))
+
+import { vacuumDatabase } from '../services/database-vacuum'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 
 // ── Helpers ──
@@ -304,6 +308,8 @@ describe('DATABASE_SCAN handler', () => {
 describe('DATABASE_CLEAN handler', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockOptimizeDatabase.mockReset().mockImplementation(vacuumDatabase)
+    mockDbExec.mockReset()
     // Default: constructor succeeds
     mockDatabaseConstructor.mockReturnValue(undefined)
   })
@@ -352,8 +358,6 @@ describe('DATABASE_CLEAN handler', () => {
       throw new Error('ENOENT')
     })
 
-    mockDbPragma.mockReturnValue('wal')
-
     registerDatabaseOptimizerIpc(() => null)
     const handler = getHandler('cleaner:database:clean')
     const result = await handler({}, ['test-id'])
@@ -363,29 +367,66 @@ describe('DATABASE_CLEAN handler', () => {
     expect(result.totalCleaned).toBe(20000)
   })
 
-  it('restores WAL journal mode after VACUUM if original was WAL', async () => {
+  it('uses a short lock timeout and closes the database after optimization', async () => {
     mockGetCachedItem.mockReturnValue({ id: 'test-id', path: '/data/test.db', size: 5000 })
     mockStatSync.mockReturnValue({ size: 10000 })
-    mockDbPragma.mockReturnValue('wal')
-
     registerDatabaseOptimizerIpc(() => null)
-    const handler = getHandler('cleaner:database:clean')
-    await handler({}, ['test-id'])
-
-    expect(mockDbPragma).toHaveBeenCalledWith('journal_mode = WAL')
+    await getHandler('cleaner:database:clean')({}, ['test-id'])
+    expect(mockDatabaseConstructor).toHaveBeenCalledWith('/data/test.db', {
+      fileMustExist: true,
+      timeout: 250
+    })
+    expect(mockDbClose).toHaveBeenCalledOnce()
   })
 
-  it('does not restore WAL mode when journal mode is not WAL', async () => {
+  it('closes the database when VACUUM fails', async () => {
     mockGetCachedItem.mockReturnValue({ id: 'test-id', path: '/data/test.db', size: 5000 })
     mockStatSync.mockReturnValue({ size: 10000 })
-    mockDbPragma.mockReturnValue('delete')
-
+    mockDbExec.mockImplementation(() => {
+      throw Object.assign(new Error('busy'), { code: 'SQLITE_BUSY' })
+    })
     registerDatabaseOptimizerIpc(() => null)
-    const handler = getHandler('cleaner:database:clean')
-    await handler({}, ['test-id'])
+    const result = await getHandler('cleaner:database:clean')({}, ['test-id'])
+    expect(mockDbClose).toHaveBeenCalledOnce()
+    expect(result.errors).toEqual([{ path: '/data/test.db', reason: 'in-use' }])
+  })
 
-    const walSetCalls = mockDbPragma.mock.calls.filter((c) => c[0] === 'journal_mode = WAL')
-    expect(walSetCalls).toHaveLength(0)
+  it('reports the current database before awaiting maintenance, then continues after a timeout', async () => {
+    mockGetCachedItem.mockImplementation((id: string) => ({ id, path: '/data/' + id, size: 5000 }))
+    let rejectFirst!: (error: Error) => void
+    mockOptimizeDatabase
+      .mockImplementationOnce(
+        () =>
+          new Promise((_resolve, reject) => {
+            rejectFirst = reject
+          })
+      )
+      .mockResolvedValueOnce(1234)
+    registerDatabaseOptimizerIpc(() => mockWindow() as any)
+    const pending = getHandler('cleaner:database:clean')({}, ['state.vscdb', 'other.db'])
+    expect(mockSend).toHaveBeenCalledWith(
+      'scan:progress',
+      expect.objectContaining({
+        currentPath: '/data/state.vscdb',
+        progress: 0
+      })
+    )
+    expect(mockOptimizeDatabase).toHaveBeenCalledTimes(1)
+    rejectFirst(new Error('Database optimization timed out'))
+    const result = await pending
+    expect(result).toEqual(
+      expect.objectContaining({
+        filesSkipped: 1,
+        filesDeleted: 1,
+        totalCleaned: 1234,
+        errors: [{ path: '/data/state.vscdb', reason: 'Database optimization timed out' }]
+      })
+    )
+    expect(mockOptimizeDatabase).toHaveBeenLastCalledWith('/data/other.db')
+    expect(mockSend).toHaveBeenLastCalledWith(
+      'scan:progress',
+      expect.objectContaining({ progress: 100 })
+    )
   })
 
   it('handles SQLITE_BUSY error as in-use', async () => {
@@ -463,7 +504,6 @@ describe('DATABASE_CLEAN handler', () => {
       if (typeof p === 'string' && p.endsWith('-wal')) throw new Error('ENOENT')
       return { size: callCount <= 1 ? 10000 : 15000 }
     })
-    mockDbPragma.mockReturnValue('delete')
 
     registerDatabaseOptimizerIpc(() => null)
     const handler = getHandler('cleaner:database:clean')
