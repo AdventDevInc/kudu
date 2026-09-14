@@ -61,7 +61,7 @@ import { downloadAndUpdateBlacklist, loadBlacklist } from './threat-blacklist-st
 import { fetchAndCacheRules } from './yara-rules-store'
 import { resetYaraEngine } from '../ipc/malware-scanner.ipc'
 import { threatMonitor } from './threat-monitor'
-import { isLikelyFalsePositive, deduplicateCves } from './cve-filter'
+import { isLikelyFalsePositive, deduplicateCves, summarizeCveSeverities } from './cve-filter'
 
 const DEFAULT_SERVER_URL = 'https://cloud.usekudu.com'
 
@@ -322,12 +322,8 @@ class CloudAgentService {
     const afterFp = vulnerabilities.filter((v) => !isLikelyFalsePositive(v))
     const clean = deduplicateCves(afterFp)
 
-    // Recompute summary from the filtered results (simpler and more correct
-    // than subtracting from server totals, which break across pagination)
-    const summary = { critical: 0, high: 0, medium: 0, low: 0 }
-    for (const v of clean) {
-      if (v.severity in summary) summary[v.severity as keyof typeof summary]++
-    }
+    // Recompute summary from the filtered rows (not server page totals)
+    const summary = summarizeCveSeverities(clean)
 
     return {
       vulnerabilities: clean,

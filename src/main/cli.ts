@@ -1489,6 +1489,7 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
     if (!ctx.json) cliLog(ctx, 'Fetching vulnerabilities...')
     try {
       const firstPage = await cloudAgent.getVulnerabilities()
+      let threatSummary = firstPage.summary
       if (ctx.json) {
         // Fetch all pages so --json output is complete
         const allVulns = [...firstPage.vulnerabilities]
@@ -1500,10 +1501,14 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
           hasMore = next.nextPageUrl !== null
           page++
         }
+        // Summary/total must come from the returned rows, not page 1 alone (#445)
+        const { deduplicateCves, summarizeCveSeverities } = await import('./services/cve-filter')
+        const vulnerabilities = deduplicateCves(allVulns)
+        threatSummary = summarizeCveSeverities(vulnerabilities)
         cliOut(ctx, {
-          vulnerabilities: allVulns,
-          summary: firstPage.summary,
-          total: firstPage.total,
+          vulnerabilities,
+          summary: threatSummary,
+          total: vulnerabilities.length,
           librarySize: firstPage.librarySize
         })
       } else {
@@ -1528,7 +1533,7 @@ async function handleCve(args: string[], ctx: CliContext): Promise<number | void
           }
         }
       }
-      if (firstPage.summary.critical > 0 || firstPage.summary.high > 0) return ExitCode.SCAN_THREATS
+      if (threatSummary.critical > 0 || threatSummary.high > 0) return ExitCode.SCAN_THREATS
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
       cliOut(ctx, ctx.json ? { error: msg } : `Failed: ${msg}`)
