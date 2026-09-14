@@ -4,7 +4,8 @@ import {
   type StorageSnapshotSummary
 } from '@shared/storage-history'
 import type { RecoveryEntry } from '@shared/recovery'
-import type { DiagnosticSession, DiagnosticSummary } from '@shared/performance-diagnostics'
+import type { DiagnosticSession } from '@shared/performance-diagnostics'
+import { diagnosticsFixture } from './diagnostics-fixture'
 
 const now = Date.now()
 const GB = 1024 ** 3
@@ -83,19 +84,8 @@ const recording: DiagnosticSession = {
     }))
   }
 }
-const summary: DiagnosticSummary = {
-  id: recording.recording.recordId,
-  title: recording.title,
-  pinned: false,
-  state: 'saved',
-  startedAt: recording.recording.startedAt,
-  durationMs: 120000,
-  samples: 61,
-  cloudStatus: null
-}
 export const featureReads = (empty: boolean) => ({
-  diagnosticsStatus: () => ({ rows: empty ? [] : [summary], activeId: null, elapsedMs: 0 }),
-  diagnosticsGet: () => recording,
+  ...diagnosticsFixture(recording, empty),
   diagnosticsCapabilities: () => ({
     available: true,
     requiredPlan: 'pro',

@@ -102,7 +102,9 @@ export class DiagnosticsStore {
         if (rows.some((r) => r.id === id)) throw new Error('Recording already exists')
         // Explicit cleanup prevents silently discarding an unsynced recording or Cloud reference.
         if (rows.length >= 30)
-          throw new Error('30 recordings saved. Export and delete a recording to make space.')
+          throw new Error(
+            '30 sessions saved. Delete a previous session to make space for a new recording.'
+          )
       } else {
         // No resurrection after deletion.
         await lstat(path)
