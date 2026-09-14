@@ -22,7 +22,7 @@ import i18next from 'i18next'
 
 export function SettingsPage() {
   const { t } = useTranslation('settings')
-  const { features, platform } = usePlatform()
+  const { features, platform, isPortable } = usePlatform()
   const { settings, updateSettings, setSettings } = useSettingsStore()
   const [newExclusion, setNewExclusion] = useState('')
   const navigate = useNavigate()
@@ -135,9 +135,22 @@ export function SettingsPage() {
               ))}
             </select>
           </Row>
-          <Row label={t('runAtStartupLabel')} desc={t('runAtStartupDesc')}>
-            <Toggle checked={settings.runAtStartup} onChange={saveStartup} />
-          </Row>
+          {isPortable ? (
+            <Row
+              label={t('runAtStartupLabel')}
+              desc={t('portableStartupDesc', {
+                defaultValue: 'Run at startup requires the installed version of Kudu.'
+              })}
+            >
+              <span className="text-[12px] text-zinc-500">
+                {t('portableManual', { defaultValue: 'Manual launch' })}
+              </span>
+            </Row>
+          ) : (
+            <Row label={t('runAtStartupLabel')} desc={t('runAtStartupDesc')}>
+              <Toggle checked={settings.runAtStartup} onChange={saveStartup} />
+            </Row>
+          )}
           <Row label={t('minimizeToTrayLabel')} desc={t('minimizeToTrayDesc')}>
             <Toggle checked={settings.minimizeToTray} onChange={saveTray} />
           </Row>
@@ -153,25 +166,29 @@ export function SettingsPage() {
               onChange={(v) => save({ showThreatNotifications: v })}
             />
           </Row>
-          <Row label={t('autoUpdateLabel')} desc={t('autoUpdateDesc')}>
-            <Toggle checked={settings.autoUpdate} onChange={(v) => save({ autoUpdate: v })} />
-          </Row>
-          <Row label={t('autoRestartLabel')} desc={t('autoRestartDesc')}>
-            <Toggle checked={settings.autoRestart} onChange={(v) => save({ autoRestart: v })} />
-          </Row>
-          <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')}>
-            <select
-              value={settings.updateCheckIntervalHours}
-              onChange={(e) => save({ updateCheckIntervalHours: Number(e.target.value) })}
-              className={selectStyle}
-              style={selectBorder}
-            >
-              <option value={1}>{t('updateCheckEveryHour')}</option>
-              <option value={4}>{t('updateCheckEvery4Hours')}</option>
-              <option value={12}>{t('updateCheckEvery12Hours')}</option>
-              <option value={24}>{t('updateCheckOnceADay')}</option>
-            </select>
-          </Row>
+          {!isPortable && (
+            <>
+              <Row label={t('autoUpdateLabel')} desc={t('autoUpdateDesc')}>
+                <Toggle checked={settings.autoUpdate} onChange={(v) => save({ autoUpdate: v })} />
+              </Row>
+              <Row label={t('autoRestartLabel')} desc={t('autoRestartDesc')}>
+                <Toggle checked={settings.autoRestart} onChange={(v) => save({ autoRestart: v })} />
+              </Row>
+              <Row label={t('updateCheckIntervalLabel')} desc={t('updateCheckIntervalDesc')}>
+                <select
+                  value={settings.updateCheckIntervalHours}
+                  onChange={(e) => save({ updateCheckIntervalHours: Number(e.target.value) })}
+                  className={selectStyle}
+                  style={selectBorder}
+                >
+                  <option value={1}>{t('updateCheckEveryHour')}</option>
+                  <option value={4}>{t('updateCheckEvery4Hours')}</option>
+                  <option value={12}>{t('updateCheckEvery12Hours')}</option>
+                  <option value={24}>{t('updateCheckOnceADay')}</option>
+                </select>
+              </Row>
+            </>
+          )}
           <Row
             label={t('softwareUpdaterNotificationsLabel')}
             desc={t('softwareUpdaterNotificationsDesc')}

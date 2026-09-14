@@ -41,6 +41,7 @@ import { runCli } from './cli'
 import { runDaemon } from './daemon'
 import { createWindowsTrayIcon } from './tray-icon'
 import { isAdmin } from './services/elevation'
+import { skipPortableStartup } from './services/portable'
 
 // ─── Disable hardware acceleration ──────────────────────────
 // Must be called before app.whenReady().  On machines with incompatible
@@ -360,6 +361,7 @@ function initGui(): void {
     // Only register auto-launch when packaged — in dev mode this would register
     // the bare Electron binary, causing a generic "Getting Started" window on reboot.
     if (!app.isPackaged) return
+    if (skipPortableStartup(enabled)) return
 
     if (process.platform === 'win32') {
       await applyAutoLaunchWin32(enabled)

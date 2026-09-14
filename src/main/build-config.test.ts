@@ -81,6 +81,8 @@ describe('electron-builder.yml', () => {
   it('publishes a Windows portable artifact alongside NSIS', () => {
     expect(block('win').some((l) => l.includes('target: portable'))).toBe(true)
     expect(option('portable', 'artifactName')).toBe('Kudu-Portable-${version}.${ext}')
+    expect(option('portable', 'requestExecutionLevel')).toBe('admin')
+    expect((load(CONFIG) as any).afterAllArtifactBuild).toBe('scripts/build-portable-zip.js')
   })
 
   it('publishes a stable AppImage name for in-place Linux auto-update', () => {

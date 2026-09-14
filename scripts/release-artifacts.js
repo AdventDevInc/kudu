@@ -30,6 +30,7 @@ function expectedAssetNames(tag) {
   return [
     ...installers,
     `Kudu-Portable-${version}.exe`,
+    `Kudu-Portable-${version}-x64.zip`,
     ...installers.filter((name) => /\.(exe|dmg|zip)$/.test(name)).map((name) => `${name}.blockmap`),
     ...Object.keys(manifests)
   ]

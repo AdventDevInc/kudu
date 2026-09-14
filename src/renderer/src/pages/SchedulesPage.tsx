@@ -177,6 +177,7 @@ export function SchedulesPage() {
   const { t } = useTranslation('schedules')
   const { settings, updateSettings } = useSettingsStore()
   const platformTasks = usePlatformTasks()
+  const { isPortable } = usePlatform()
   const allTasks = useAllTasks()
   const presets = useMemo(() => buildPresets(platformTasks, t), [platformTasks, t])
   const schedules = settings.schedules ?? []
@@ -218,7 +219,7 @@ export function SchedulesPage() {
 
   // Ensure startup + tray when any schedule is enabled
   const ensureBackgroundMode = () => {
-    if (!settings.runAtStartup) {
+    if (!isPortable && !settings.runAtStartup) {
       updateSettings({ runAtStartup: true })
       window.kudu?.settingsSet?.({ runAtStartup: true }).catch(() => {})
       window.kudu?.applyStartup?.(true).catch(() => {

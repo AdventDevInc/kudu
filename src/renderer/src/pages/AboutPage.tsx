@@ -13,12 +13,14 @@ import {
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useAppUpdateStore } from '@/stores/app-update-store'
 import logoSrc from '@/assets/logo.png'
+import { usePlatform } from '@/hooks/usePlatform'
 
 declare const __APP_VERSION__: string
 
 export function AboutPage() {
   const { t } = useTranslation('settings')
   const updateStatus = useAppUpdateStore((s) => s.status)
+  const { isPortable } = usePlatform()
 
   return (
     <div className="animate-fade-in">
@@ -37,104 +39,122 @@ export function AboutPage() {
           </div>
         </div>
 
-        <div className="mt-5 flex items-center gap-3">
-          {updateStatus.state === 'idle' && (
-            <button
-              onClick={() => window.kudu?.updaterCheck?.()}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-400 transition-colors"
-              style={{ border: '1px solid var(--border-medium)' }}
-            >
-              <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('checkForUpdates')}
-            </button>
-          )}
-          {updateStatus.state === 'checking' && (
-            <span className="flex items-center gap-2 text-[12px] text-zinc-500">
-              <Loader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} />{' '}
-              {t('checkingForUpdates')}
-            </span>
-          )}
-          {updateStatus.state === 'not-available' && (
-            <>
-              <span className="flex items-center gap-2 text-[12px] text-zinc-500">
-                <CheckCircle
-                  className="h-3.5 w-3.5"
-                  style={{ color: '#22c55e' }}
-                  strokeWidth={1.8}
-                />{' '}
-                {t('upToDate')}
-              </span>
+        {isPortable ? (
+          <div className="mt-5 space-y-3">
+            <p className="text-[12px] text-zinc-400">
+              {t('portableUpdatesDesc', {
+                defaultValue:
+                  'Portable builds use manual updates. Close Kudu and replace the app files with the latest portable download. Your settings are retained.'
+              })}
+            </p>
+            <LinkButton
+              icon={Download}
+              label={t('portableDownload', { defaultValue: 'Download latest portable build' })}
+              href="https://github.com/AdventDevInc/kudu/releases/latest"
+            />
+          </div>
+        ) : (
+          <div className="mt-5 flex items-center gap-3">
+            {updateStatus.state === 'idle' && (
               <button
                 onClick={() => window.kudu?.updaterCheck?.()}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-colors"
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-400 transition-colors"
                 style={{ border: '1px solid var(--border-medium)' }}
               >
-                <RefreshCw className="h-3 w-3" strokeWidth={1.8} /> {t('checkAgain')}
+                <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('checkForUpdates')}
               </button>
-            </>
-          )}
-          {updateStatus.state === 'available' && (
-            <>
-              <span className="text-[12px] text-zinc-400">
-                {t('versionAvailable', { version: updateStatus.version })}
+            )}
+            {updateStatus.state === 'checking' && (
+              <span className="flex items-center gap-2 text-[12px] text-zinc-500">
+                <Loader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} />{' '}
+                {t('checkingForUpdates')}
               </span>
-              <button
-                onClick={() => window.kudu?.updaterDownload?.()}
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-200 transition-colors"
-                style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
-              >
-                <Download className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('download')}
-              </button>
-            </>
-          )}
-          {updateStatus.state === 'downloading' && (
-            <div className="flex flex-1 items-center gap-3">
-              <Loader
-                className="h-3.5 w-3.5 shrink-0 animate-spin text-zinc-500"
-                strokeWidth={1.8}
-              />
-              <div className="flex-1">
-                <div className="mb-1 text-[12px] text-zinc-400">
-                  {t('downloading', { progress: updateStatus.progress ?? 0 })}
-                </div>
-                <div
-                  className="h-1.5 w-full overflow-hidden rounded-full"
-                  style={{ background: 'var(--bg-hover-2)' }}
+            )}
+            {updateStatus.state === 'not-available' && (
+              <>
+                <span className="flex items-center gap-2 text-[12px] text-zinc-500">
+                  <CheckCircle
+                    className="h-3.5 w-3.5"
+                    style={{ color: '#22c55e' }}
+                    strokeWidth={1.8}
+                  />{' '}
+                  {t('upToDate')}
+                </span>
+                <button
+                  onClick={() => window.kudu?.updaterCheck?.()}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-colors"
+                  style={{ border: '1px solid var(--border-medium)' }}
                 >
+                  <RefreshCw className="h-3 w-3" strokeWidth={1.8} /> {t('checkAgain')}
+                </button>
+              </>
+            )}
+            {updateStatus.state === 'available' && (
+              <>
+                <span className="text-[12px] text-zinc-400">
+                  {t('versionAvailable', { version: updateStatus.version })}
+                </span>
+                <button
+                  onClick={() => window.kudu?.updaterDownload?.()}
+                  className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium text-zinc-200 transition-colors"
+                  style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+                >
+                  <Download className="h-3.5 w-3.5" strokeWidth={1.8} /> {t('download')}
+                </button>
+              </>
+            )}
+            {updateStatus.state === 'downloading' && (
+              <div className="flex flex-1 items-center gap-3">
+                <Loader
+                  className="h-3.5 w-3.5 shrink-0 animate-spin text-zinc-500"
+                  strokeWidth={1.8}
+                />
+                <div className="flex-1">
+                  <div className="mb-1 text-[12px] text-zinc-400">
+                    {t('downloading', { progress: updateStatus.progress ?? 0 })}
+                  </div>
                   <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${updateStatus.progress ?? 0}%`, background: 'var(--accent)' }}
-                  />
+                    className="h-1.5 w-full overflow-hidden rounded-full"
+                    style={{ background: 'var(--bg-hover-2)' }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: `${updateStatus.progress ?? 0}%`,
+                        background: 'var(--accent)'
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-          {updateStatus.state === 'downloaded' && (
-            <button
-              onClick={() => window.kudu?.updaterInstall?.()}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium transition-colors"
-              style={{ background: '#22c55e', color: 'var(--text-on-accent)' }}
-            >
-              <Download className="h-3.5 w-3.5" strokeWidth={1.8} />{' '}
-              {t('restartAndInstall', { version: updateStatus.version })}
-            </button>
-          )}
-          {updateStatus.state === 'error' && (
-            <>
-              <span className="flex items-center gap-2 text-[12px] text-red-400">
-                <AlertCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
-                {updateStatus.error}
-              </span>
+            )}
+            {updateStatus.state === 'downloaded' && (
               <button
-                onClick={() => window.kudu?.updaterCheck?.()}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-colors"
-                style={{ border: '1px solid var(--border-medium)' }}
+                onClick={() => window.kudu?.updaterInstall?.()}
+                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[12px] font-medium transition-colors"
+                style={{ background: '#22c55e', color: 'var(--text-on-accent)' }}
               >
-                {t('retry')}
+                <Download className="h-3.5 w-3.5" strokeWidth={1.8} />{' '}
+                {t('restartAndInstall', { version: updateStatus.version })}
               </button>
-            </>
-          )}
-        </div>
-
+            )}
+            {updateStatus.state === 'error' && (
+              <>
+                <span className="flex items-center gap-2 text-[12px] text-red-400">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
+                  {updateStatus.error}
+                </span>
+                <button
+                  onClick={() => window.kudu?.updaterCheck?.()}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] font-medium text-zinc-400 transition-colors"
+                  style={{ border: '1px solid var(--border-medium)' }}
+                >
+                  {t('retry')}
+                </button>
+              </>
+            )}
+          </div>
+        )}
         <div className="mt-6 flex items-center gap-2.5">
           <LinkButton
             icon={Github}

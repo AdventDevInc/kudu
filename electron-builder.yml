@@ -9,6 +9,9 @@ directories:
 files:
   - out/**/*
 
+# Archive a separate copy so the portable marker never enters the installer.
+afterAllArtifactBuild: scripts/build-portable-zip.js
+
 extraResources:
   - from: resources/icon.ico
     to: icon.ico
@@ -51,6 +54,7 @@ nsis:
 
 portable:
   artifactName: Kudu-Portable-${version}.${ext}
+  requestExecutionLevel: admin
 
 mac:
   target:

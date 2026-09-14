@@ -3,6 +3,7 @@ import { autoUpdater } from 'electron-updater'
 import { IPC } from '../../shared/channels'
 import { getSettings } from './settings-store'
 import { retargetAppImageLaunchers } from './appimage-launchers'
+import { isPortable } from './portable'
 import type { UpdateStatus } from '../../shared/types'
 
 let status: UpdateStatus = { state: 'idle' }
@@ -41,8 +42,7 @@ interface InitOptions {
 /** electron-updater only supports AppImage on Linux and NSIS on Windows. */
 function shouldSkipUpdater(): boolean {
   if (process.platform === 'linux' && !process.env.APPIMAGE) return true
-  // Portable builds set PORTABLE_EXECUTABLE_DIR; NSIS update flow would break.
-  if (process.env.PORTABLE_EXECUTABLE_DIR) return true
+  if (isPortable()) return true
   return false
 }
 
@@ -51,8 +51,8 @@ function skipReason(): string {
   if (process.platform === 'linux' && !process.env.APPIMAGE) {
     return 'In-app updates require the AppImage build (deb/package installs use your package manager)'
   }
-  if (process.env.PORTABLE_EXECUTABLE_DIR) {
-    return 'Portable builds do not support in-app updates'
+  if (isPortable()) {
+    return 'Portable builds require manual updates. Download the latest portable build from GitHub Releases.'
   }
   return 'Updates are unavailable for this package format'
 }

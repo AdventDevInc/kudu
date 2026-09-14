@@ -1,4 +1,5 @@
 export interface PlatformInfo {
+  isPortable?: boolean
   platform: 'win32' | 'darwin' | 'linux'
   features: {
     registry: boolean

@@ -1,4 +1,5 @@
 import { registerStorageHistoryIpc } from './storage-history.ipc'
+import { isPortable } from '../services/portable'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
 import { registerRecoveryIpc } from './recovery.ipc'
 import { registerCleanupReceiptsIpc } from './cleanup-receipts.ipc'
@@ -135,6 +136,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   // Platform info
   const isWin = process.platform === 'win32'
   ipcMain.handle(IPC.PLATFORM_INFO, () => ({
+    isPortable: isPortable(),
     platform: process.platform as 'win32' | 'darwin' | 'linux',
     features: {
       registry: isWin,

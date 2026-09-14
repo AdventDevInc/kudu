@@ -37,9 +37,21 @@ Get the latest installer for your platform from [GitHub Releases](https://github
 
 | Platform | Format |
 |----------|--------|
-| Windows | `.exe` installer or portable (`Kudu-Portable-*.exe`) |
+| Windows | `.exe` installer, portable ZIP (`Kudu-Portable-*-x64.zip`), or portable EXE (`Kudu-Portable-*.exe`) |
 | macOS | `.dmg` (Intel & Apple Silicon) |
 | Linux | `.AppImage` or `.deb` (x64, arm64) |
+
+For Windows portable use, download the ZIP, extract **all** files to your preferred
+folder or drive, and run `Kudu.exe`. Keep the `resources/portable.json` marker with
+the app. Unlike the portable EXE, the ZIP runs from the extracted folder without
+unpacking the application into Windows Temp each time. Both formats request
+administrator access and store settings in the normal AppData location.
+
+Portable builds use manual updates: close Kudu, then extract the latest ZIP into
+a new folder (or replace the portable EXE). Settings are retained. Automatic
+startup is available only with the installed version; portable schedules run
+while Kudu is open. The installer remains the recommended option for automatic
+updates and startup.
 
 ## Why Kudu?
 

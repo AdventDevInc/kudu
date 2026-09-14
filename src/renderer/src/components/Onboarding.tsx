@@ -22,6 +22,7 @@ interface OnboardingSettings {
 const TOTAL_STEPS = 4
 
 export function Onboarding({ onComplete }: OnboardingProps) {
+  const { isPortable } = usePlatform()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [settings, setSettings] = useState<OnboardingSettings>({
@@ -42,14 +43,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
     try {
       const settingsPayload: Record<string, any> = {
-        runAtStartup: settings.runAtStartup,
+        ...(!isPortable && { runAtStartup: settings.runAtStartup }),
         minimizeToTray: settings.minimizeToTray
       }
       if (settings.scheduledClean) {
         settingsPayload.schedule = { enabled: true, frequency: 'weekly', day: 1, hour: 9 }
       }
       await window.kudu?.settingsSet?.(settingsPayload)
-      await window.kudu?.applyStartup?.(settings.runAtStartup).catch(() => {})
+      if (!isPortable) await window.kudu?.applyStartup?.(settings.runAtStartup).catch(() => {})
       window.kudu?.applyTray?.(settings.minimizeToTray)
     } catch {
       // Best-effort
@@ -248,7 +249,7 @@ function SettingsStep({
   onNext: () => void
 }) {
   const { t } = useTranslation('onboarding')
-  const { platform } = usePlatform()
+  const { platform, isPortable } = usePlatform()
   const isWin = platform === 'win32'
   return (
     <StepWrapper>
@@ -257,12 +258,14 @@ function SettingsStep({
         <p className="mb-6 text-[13px] text-zinc-500">{t('recommendedSetupDescription')}</p>
 
         <div className="space-y-1">
-          <SettingRow
-            label={t('runAtStartupLabel')}
-            desc={isWin ? t('runAtStartupDescriptionWindows') : t('runAtStartupDescriptionOther')}
-            checked={settings.runAtStartup}
-            onChange={(v) => onChange({ ...settings, runAtStartup: v })}
-          />
+          {!isPortable && (
+            <SettingRow
+              label={t('runAtStartupLabel')}
+              desc={isWin ? t('runAtStartupDescriptionWindows') : t('runAtStartupDescriptionOther')}
+              checked={settings.runAtStartup}
+              onChange={(v) => onChange({ ...settings, runAtStartup: v })}
+            />
+          )}
           <SettingRow
             label={t('minimizeToTrayLabel')}
             desc={t('minimizeToTrayDescription')}

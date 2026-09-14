@@ -62,12 +62,22 @@ async function editManifest(directory: string, name: string, edit: (manifest: an
 describe('release artifact verification', () => {
   it('accepts a complete release with all architecture manifests', async () => {
     const assets = await verifyReleaseArtifacts(await fixture(), tag)
-    expect(assets).toHaveLength(19)
+    expect(assets).toHaveLength(20)
   })
 
   it('rejects a missing installer before publishing', async () => {
     const directory = await fixture()
     await rm(join(directory, 'Kudu-2.9.0-arm64.dmg'))
+    await expect(verifyReleaseArtifacts(directory, tag)).rejects.toThrow('Missing release artifact')
+  })
+
+  it('requires the portable ZIP and never offers it as an installer update', async () => {
+    const directory = await fixture()
+    await editManifest(directory, 'latest.yml', (manifest) => {
+      manifest.files[0].url = 'Kudu-Portable-2.9.0-x64.zip'
+    })
+    await expect(verifyReleaseArtifacts(directory, tag)).rejects.toThrow('unexpected update target')
+    await rm(join(directory, 'Kudu-Portable-2.9.0-x64.zip'))
     await expect(verifyReleaseArtifacts(directory, tag)).rejects.toThrow('Missing release artifact')
   })
 
