@@ -247,6 +247,15 @@ describe('win32 commands', () => {
         sizeKb: 0
       })
     })
+
+    it('excludes MSI SystemComponent registry entries from the PowerShell query (#446)', async () => {
+      execFileMock.mockResolvedValue({ stdout: '[]', stderr: '' })
+
+      await cmds.getInstalledApps()
+
+      const command = String(execFileMock.mock.calls[0]?.[1]?.[3] ?? '')
+      expect(command).toMatch(/SystemComponent\s*-ne\s*1/)
+    })
   })
 
   describe('checkOsUpdates', () => {

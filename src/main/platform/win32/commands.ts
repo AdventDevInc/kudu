@@ -109,7 +109,7 @@ export function createWin32Commands(): PlatformCommands {
               `'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'); ` +
               `foreach ($p in $paths) { ` +
               `  $apps += Get-ItemProperty $p -ErrorAction SilentlyContinue | ` +
-              `  Where-Object { $_.DisplayName -and $_.DisplayName.Trim() -ne '' } | ` +
+              `  Where-Object { $_.DisplayName -and $_.DisplayName.Trim() -ne '' -and $_.SystemComponent -ne 1 } | ` +
               `  Select-Object DisplayName,DisplayVersion,Publisher,InstallDate,EstimatedSize } ` +
               `$apps | Sort-Object DisplayName -Unique | ConvertTo-Json -Compress`
           )
