@@ -20,12 +20,39 @@ export interface WinReInfo {
 }
 
 const UNREADABLE =
-  'reagentc /info did not report a recognisable status (needs an elevated, English-locale shell)'
+  'reagentc /info did not report a recognisable status (needs an elevated shell)'
 
-/** Pure parser for `reagentc /info` stdout (#395). */
+/** Map reagentc status tokens (EN + common translations) to the CLI enum. */
+const STATUS_BY_TOKEN: Record<string, WinReStatus> = {
+  enabled: 'Enabled',
+  disabled: 'Disabled',
+  включено: 'Enabled',
+  отключено: 'Disabled'
+}
+
+function parseStatusToken(raw: string): WinReStatus | null {
+  return STATUS_BY_TOKEN[raw.trim().toLowerCase()] ?? null
+}
+
+/**
+ * Prefer the value after a colon (`Enabled`/`Disabled` / translations) so
+ * localised labels still parse (#444). Fall back to the English label form.
+ */
+function parseWinReStatus(stdout: string): WinReStatus | null {
+  for (const line of stdout.split(/\r?\n/)) {
+    const valueMatch = line.match(/:\s*(\S+)\s*$/)
+    if (!valueMatch) continue
+    const status = parseStatusToken(valueMatch[1])
+    if (status) return status
+  }
+
+  const labelMatch = stdout.match(/Windows RE status:\s*(\S+)/i)
+  return labelMatch ? parseStatusToken(labelMatch[1]) : null
+}
+
+/** Pure parser for `reagentc /info` stdout (#395 / #444). */
 export function parseWinReInfo(stdout: string): WinReInfo {
-  const statusMatch = stdout.match(/Windows RE status:\s*(\S+)/i)
-  const raw = statusMatch?.[1] ?? ''
+  const status = parseWinReStatus(stdout)
 
   const locationMatch = stdout.match(/Windows RE location:[ \t]*([^\r\n]*)/i)
   const location = locationMatch?.[1]?.trim() || null
@@ -33,8 +60,8 @@ export function parseWinReInfo(stdout: string): WinReInfo {
   const bcdMatch = stdout.match(/Boot Configuration Data \(BCD\) identifier:\s*([0-9a-fA-F-]{36})/i)
   const bcdIdentifier = bcdMatch?.[1] ?? null
 
-  if (raw === 'Enabled' || raw === 'Disabled') {
-    return { status: raw, location, bcdIdentifier }
+  if (status === 'Enabled' || status === 'Disabled') {
+    return { status, location, bcdIdentifier }
   }
   return { status: 'Unknown', location, bcdIdentifier, error: UNREADABLE }
 }

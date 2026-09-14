@@ -61,4 +61,21 @@ describe('parseWinReInfo', () => {
   it('treats unrecognised status text as Unknown', () => {
     expect(parseWinReInfo('Windows RE status:         Weird').status).toBe('Unknown')
   })
+
+  it('parses Enabled when the label is localised but the value stays English (#444)', () => {
+    const ru = `
+    Состояние среды восстановления Windows:         Enabled
+    Расположение среды восстановления Windows:       \\\\?\\GLOBALROOT\\device\\harddisk0\\partition4\\Recovery\\WindowsRE
+`.trim()
+    expect(parseWinReInfo(ru).status).toBe('Enabled')
+  })
+
+  it('parses Russian Enabled/Disabled values (#444)', () => {
+    expect(
+      parseWinReInfo('    Состояние среды восстановления Windows:         Включено').status
+    ).toBe('Enabled')
+    expect(
+      parseWinReInfo('    Состояние среды восстановления Windows:         Отключено').status
+    ).toBe('Disabled')
+  })
 })
