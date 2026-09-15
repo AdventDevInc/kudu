@@ -70,7 +70,7 @@
     "ajv": "^8.20.0",
     "conventional-changelog-angular": "^8.3.1",
     "conventional-changelog-cli": "^5.0.0",
-    "electron": "^41.10.5",
+    "electron": "^44.3.0",
     "electron-builder": "^26.16.1",
     "electron-vite": "^5.0.0",
     "eslint": "^10.10.0",
