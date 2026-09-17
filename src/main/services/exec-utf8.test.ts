@@ -147,3 +147,17 @@ describe('ConsoleOutputDecoder', () => {
     expect(d.write(bytes) + d.end()).toBe('ok')
   })
 })
+
+describe('ConsoleOutputDecoder (chunk boundaries)', () => {
+  it('waits for a second byte before sniffing so a lone leading byte cannot mis-select UTF-8', () => {
+    const d = new ConsoleOutputDecoder()
+    const bytes = Buffer.from('\r\nVerification 1% complete.', 'utf16le')
+    const out = d.write(bytes.subarray(0, 1)) + d.write(bytes.subarray(1)) + d.end()
+    expect(out).toBe('\r\nVerification 1% complete.')
+  })
+
+  it('flushes a single held byte as UTF-8 on end', () => {
+    const d = new ConsoleOutputDecoder()
+    expect(d.write(Buffer.from('x')) + d.end()).toBe('x')
+  })
+})

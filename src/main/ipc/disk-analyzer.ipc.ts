@@ -337,6 +337,7 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
     })
 
     child.on('close', (code) => {
+      stdout += decoder.end() + stderrDecoder.end()
       const success = code === 0
       let summary: string
       if (stdout.includes('did not find any integrity violations')) {
@@ -455,6 +456,7 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
     })
 
     child.on('close', (code) => {
+      stdout += dismDecoder.end() + dismStderrDecoder.end()
       const success = code === 0
       let summary: string
       if (stdout.includes('The restore operation completed successfully')) {
@@ -568,6 +570,7 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
     })
 
     child.on('close', (code) => {
+      stdout += decoder.end() + stderrDecoder.end()
       // CHKDSK exit codes: 0 = no errors, 1 = errors found & fixed,
       // 2 = cleanup performed, 3 = could not check the disk.
       // Codes 0–2 are successful completions.

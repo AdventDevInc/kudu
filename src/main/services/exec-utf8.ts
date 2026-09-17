@@ -36,25 +36,39 @@ export function psUtf8(command: string): string {
  *
  * UTF-8 console text never contains C0 control bytes below TAB, while UTF-16LE
  * has one as the high byte of every ASCII, Latin, Cyrillic, Greek, Hebrew or
- * Arabic character (U+0000–U+08FF).  The first chunk decides: a leading BOM
- * or any such byte selects UTF-16LE, otherwise UTF-8.  The choice is made
- * once so multi-byte sequences split across chunks still decode correctly.
+ * Arabic character (U+0000–U+08FF).  The first two bytes or more decide: a
+ * leading BOM or any such byte selects UTF-16LE, otherwise UTF-8.  The choice
+ * is made once so multi-byte sequences split across chunks still decode.
  */
 export class ConsoleOutputDecoder {
   private decoder: StringDecoder | null = null
+  /** Bytes held back until enough have arrived to sniff the encoding. */
+  private held: Buffer | null = null
 
   write(chunk: Buffer): string {
-    if (!this.decoder) {
-      const bom = chunk.length >= 2 && chunk[0] === 0xff && chunk[1] === 0xfe
-      const utf16 = bom || chunk.some((b) => b < 0x09)
-      this.decoder = new StringDecoder(utf16 ? 'utf16le' : 'utf-8')
-      if (bom) chunk = chunk.subarray(2)
+    if (this.decoder) return this.decoder.write(chunk)
+
+    // A one-byte first chunk (e.g. the `\r` of a UTF-16LE `\r\n`) carries no
+    // signal either way, so wait for a second byte before committing.
+    if (this.held) chunk = Buffer.concat([this.held, chunk])
+    if (chunk.length < 2) {
+      this.held = chunk
+      return ''
     }
-    return this.decoder.write(chunk)
+    this.held = null
+
+    const bom = chunk[0] === 0xff && chunk[1] === 0xfe
+    const utf16 = bom || chunk.some((b) => b < 0x09)
+    this.decoder = new StringDecoder(utf16 ? 'utf16le' : 'utf-8')
+    return this.decoder.write(bom ? chunk.subarray(2) : chunk)
   }
 
+  /** Flush any incomplete trailing sequence once the stream has ended. */
   end(): string {
-    return this.decoder?.end() ?? ''
+    if (this.decoder) return this.decoder.end()
+    const held = this.held
+    this.held = null
+    return held ? held.toString('utf-8') : ''
   }
 }
 
