@@ -5,125 +5,60 @@
 <h1 align="center">Kudu</h1>
 
 <p align="center">
-  <b>Free, open-source system cleaner & security scanner for Windows, macOS, and Linux.</b><br/>
-  Reclaim disk space. Remove malware. Take back your privacy. All in one app.
+  Free, open-source system cleaner and security scanner for Windows, macOS, and Linux.
 </p>
 
 <p align="center">
-  <a href="https://github.com/adventdevinc/kudu/stargazers"><img src="https://img.shields.io/github/stars/adventdevinc/kudu?style=flat-square&label=Stars" alt="Stars" /></a>
   <a href="https://github.com/adventdevinc/kudu/releases"><img src="https://img.shields.io/github/v/release/adventdevinc/kudu?style=flat-square" alt="Release" /></a>
   <a href="https://github.com/adventdevinc/kudu/releases"><img src="https://img.shields.io/github/downloads/adventdevinc/kudu/total?style=flat-square&label=Downloads" alt="Downloads" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/adventdevinc/kudu?style=flat-square" alt="License" /></a>
   <a href="https://github.com/adventdevinc/kudu/actions"><img src="https://img.shields.io/github/actions/workflow/status/adventdevinc/kudu/release.yml?style=flat-square&label=Build" alt="Build" /></a>
-  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat-square" alt="Platform" />
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/adventdevinc/kudu?style=flat-square" alt="License" /></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/adventdevinc/kudu/releases"><b>Download</b></a> &nbsp;&middot;&nbsp;
   <a href="https://usekudu.com"><b>Website</b></a> &nbsp;&middot;&nbsp;
   <a href="https://usekudu.com/cleaners"><b>Cleaners</b></a> &nbsp;&middot;&nbsp;
-  <a href="CLI.md"><b>CLI Docs</b></a>
+  <a href="CLI.md"><b>CLI</b></a>
 </p>
-
----
 
 <p align="center">
   <img src="resources/kudu-animated.gif" alt="Kudu Demo" width="800" />
 </p>
 
-## Download
+## Overview
 
-Get the latest installer for your platform from [GitHub Releases](https://github.com/adventdevinc/kudu/releases):
+Kudu reclaims disk space, removes malware, and protects your privacy — without ads, bundled software, or upsells. Everything runs locally, and every line of code is open for you to audit.
 
-| Platform | Format |
-|----------|--------|
-| Windows | `.exe` installer, portable ZIP (`Kudu-Portable-*-x64.zip`), or portable EXE (`Kudu-Portable-*.exe`) |
-| macOS | `.dmg` (Intel & Apple Silicon) |
-| Linux | `.AppImage` or `.deb` (x64, arm64) |
+It covers system, browser, app, and game cache cleaning; registry and startup management; a disk analyzer; a malware scanner; privacy controls; a software updater; performance monitoring; scheduled scans; and a scriptable [CLI](CLI.md). See the [website](https://usekudu.com) for the full feature list and the [cleaner directory](https://usekudu.com/cleaners) for every supported app.
 
-For Windows portable use, download the ZIP, extract **all** files to your preferred
-folder or drive, and run `Kudu.exe`. Keep the `resources/portable.json` marker with
-the app. Unlike the portable EXE, the ZIP runs from the extracted folder without
-unpacking the application into Windows Temp each time. Both formats request
-administrator access and store settings in the normal AppData location.
+Available in 30 languages.
 
-Portable builds use manual updates: close Kudu, then extract the latest ZIP into
-a new folder (or replace the portable EXE). Settings are retained. Automatic
-startup is available only with the installed version; portable schedules run
-while Kudu is open. The installer remains the recommended option for automatic
-updates and startup.
+## Install
 
-## Why Kudu?
+Download the latest release for your platform from [GitHub Releases](https://github.com/adventdevinc/kudu/releases).
 
-Most system cleaners are closed-source, ad-filled, and want your money. Some are barely disguised malware themselves.
+| Platform | Formats                                    |
+| -------- | ------------------------------------------ |
+| Windows  | `.exe` installer, portable ZIP or EXE      |
+| macOS    | `.dmg` (Intel and Apple Silicon)           |
+| Linux    | `.AppImage` or `.deb` (x64, arm64)         |
 
-Kudu's desktop tools are **free, open-source, and transparent**. No ads, bundled software, or nagging. Scans and cleaning stay local; optional Kudu Cloud features only connect when you explicitly enable them. You can read every line of code, audit every scan, and verify every delete. Built by developers who were tired of recommending CCleaner with a straight face.
-
-## What It Does
-
-<table>
-<tr>
-<td width="33%" valign="top">
-
-### Cleaning & Optimization
-- **System Cleaner** — temp files, logs, caches, crash dumps
-- **Browser Cleaner** — caches across all major browsers
-- **App Cleaner** — leftover app data
-- **Gaming Cleaner** — game launcher & shader caches
-- **Registry Cleaner** — broken/orphaned entries
-- **Startup Manager** — boot impact analysis
-- **Network Cleanup** — DNS, Wi-Fi profiles, ARP cache
-- **Disk Analyzer** — interactive treemap of disk usage
-- **Debloater** — remove Windows bloatware
-- **Driver Manager** — stale driver cleanup
-- **Program Uninstaller** — uninstall + leftover cleanup
-- **Service Manager** — optimize Windows services
-- **Software Updater** — bulk-update across winget, Chocolatey, Scoop & npm
-
-</td>
-<td width="33%" valign="top">
-
-### Security & Privacy
-- **Malware Scanner** — signature matching, heuristic analysis, Defender integration
-- **Privacy Shield** — control 30+ Windows privacy settings (telemetry, ad ID, Cortana, tracking)
-- **Secure Delete** — overwrite files with random data before deletion
-
-</td>
-<td width="33%" valign="top">
-
-### Monitoring & Tools
-- **Performance Monitor** — real-time CPU, memory, disk, network, per-core stats, S.M.A.R.T.
-- **System Restore Points** — create restore points before cleaning
-- **Cleaning History** — track past sessions & space recovered
-- **Scheduled Scans** — daily, weekly, or monthly
-- **One-Click Clean** — scan & clean everything in one click
-- **[CLI Mode](CLI.md)** — scriptable, no GUI required
-
-</td>
-</tr>
-</table>
-
-## Languages
-
-Kudu is available in 30 languages:
-
-English, Spanish, French, German, Portuguese, Italian, Japanese, Korean, Chinese (Simplified), Chinese (Traditional), Russian, Arabic, Hindi, Turkish, Dutch, Polish, Swedish, Norwegian, Danish, Finnish, Czech, Thai, Vietnamese, Indonesian, Malay, Ukrainian, Romanian, Greek, Hebrew, Hungarian
-
-## Disclaimer
-
-Kudu by design removes files from your system. You are responsible for reviewing items before removal. We accept no liability for data loss or system instability. This software is provided "as is" without warranty.
+The installer is recommended for automatic updates and scheduled scans on startup. Portable builds keep settings in AppData and are updated manually.
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues, submit PRs, or suggest features. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tooling, and PR conventions.
+Issues, pull requests, and feature suggestions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and conventions.
 
-**Want to add a cleaner for your favorite app?** Kudu's cleaning rules are simple JSON files — no code required. See the [Cleaner Rules Guide](rules/RULES.md) to get started, or browse the [full cleaner directory](https://usekudu.com/cleaners) to see what's already covered.
+Cleaning rules are plain JSON — no code required to add support for a new app. Start with the [Cleaner Rules Guide](rules/RULES.md).
 
-If you find Kudu useful, consider giving it a star — it helps others discover the project.
+## Support
 
-## Support Kudu
+Kudu's desktop tools are free for everyone. If it saves you time, consider [sponsoring development](https://usekudu.com/sponsors) or starring the repo.
 
-Kudu's desktop tools stay free for everyone. If Kudu saves you time, you can [support continued open-source development](https://usekudu.com/sponsors).
+## Disclaimer
+
+Kudu removes files from your system by design. Review items before removal; the software is provided "as is" without warranty, and we accept no liability for data loss or system instability.
 
 ## License
 
