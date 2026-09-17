@@ -1,6 +1,7 @@
 {
   "pageTitle": "Harmonogramy",
   "pageDescription": "Automatyzuj skanowania, czyszczenie i aktualizacje według harmonogramu",
+  "dismissNudge": "Ukryj tę kartę",
   "newScheduleButton": "Nowy harmonogram",
   "createScheduleButton": "Utwórz harmonogram",
   "emptyStateTitle": "Brak harmonogramów",
@@ -10,7 +11,7 @@
   "deletedToast": "Usunięto „{{name}}”",
   "updatedToast": "Zaktualizowano „{{name}}”",
   "createdToast": "Utworzono „{{name}}”",
-  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
+  "failedEnableStartup": "Nie udało się włączyć uruchamiania przy starcie systemu. Harmonogramy mogą nie działać po ponownym uruchomieniu.",
   "failedEnableStartupAction": "Dowiedz się więcej",
   "deleteConfirmTitle": "Usuń harmonogram",
   "deleteConfirmDescription": "Ten harmonogram zostanie trwale usunięty. Tej operacji nie można cofnąć.",
@@ -30,11 +31,11 @@
     "weeklyFullCleanLabel": "Cotygodniowe pełne czyszczenie",
     "weeklyFullCleanDescription": "Wszystkie kategorie czyszczenia w każdy poniedziałek o 9:00",
     "dailyLightSweepLabel": "Codzienne lekkie czyszczenie",
-    "dailyLightSweepDescription": "System, przeglądarki i kosz codziennie o 8:00",
+    "dailyLightSweepDescription": "System, przeglądarki i Kosz codziennie o 8:00",
     "monthlyDeepMaintenanceLabel": "Comiesięczna gruntowna konserwacja",
     "monthlyDeepMaintenanceDescription": "Pełne czyszczenie + rejestr, sterowniki i oprogramowanie 1. dnia miesiąca o 10:00",
     "customLabel": "Niestandardowy",
-    "customDescription": "Rozpocznij od zera z pustym harmonogramem"
+    "customDescription": "Rozpocznij od pustego harmonogramu"
   },
   "dialog": {
     "editTitle": "Edytuj harmonogram",
@@ -99,7 +100,7 @@
   "copyNameSuffix": "(kopia)",
   "advanced": {
     "title": "Warunki uruchamiania",
-    "explanation": "Wszystkie warunki są sprawdzane przed rozpoczęciem uruchomienia. Między zadaniami ponownie sprawdzane są zasilanie, czas bezczynności i Tryb gry; okno konserwacji oraz próg wolnego miejsca wpływają tylko na rozpoczęcie, więc przepływ pracy rozpoczęty w oknie lub poniżej progu kończy pozostałe zadania. Godziny są zgodne z lokalną strefą czasową tego komputera. Trwające operacje kończą się, zanim zmieniony warunek zatrzyma pozostałe zadania.",
+    "explanation": "Wszystkie warunki są sprawdzane przed rozpoczęciem uruchomienia. Pomiędzy zadaniami ponownie sprawdzane są zasilanie, czas bezczynności i Tryb gry; okno konserwacji oraz próg wolnego miejsca ograniczają tylko rozpoczęcie, więc przebieg rozpoczęty w oknie lub poniżej progu dokończy pozostałe zadania. Godziny są zgodne z lokalną strefą czasową tego komputera. Trwające operacje kończą się, zanim zmieniony warunek zatrzyma pozostałe zadania.",
     "acOnly": "Tylko przy zasilaniu sieciowym",
     "gameMode": "Czekaj, gdy Tryb gry jest aktywny lub trwa przywracanie",
     "idle": "Wymagane minuty bezczynności (0 wyłącza)",
@@ -108,16 +109,16 @@
     "to": "Do",
     "disk": "Tylko gdy na dysku domowym jest mało wolnego miejsca",
     "freePercent": "Wolne miejsce poniżej (%)",
-    "missed": "Jeśli zaplanowany czas zostanie pominięty lub warunki nie będą gotowe",
+    "missed": "Jeśli zaplanowany czas zostanie pominięty lub warunki nie są gotowe",
     "skip": "Pomiń po dwuminutowym oknie uruchomienia",
     "once": "Uruchom raz, gdy będzie gotowe; połącz pominięte uruchomienia",
     "runNow": "Uruchom teraz",
-    "runConfirm": "Uruchomić ten harmonogram teraz z użyciem zapisanych zadań i ustawienia automatycznego zastosowania? Nadal obowiązują warunki zasilania, bezczynności, Trybu gry, miejsca i okna konserwacji: jeśli wstrzymują uruchomienie, rozpocznie się ono przy kolejnym sprawdzeniu, a ponowne wybranie opcji Uruchom teraz podczas oczekiwania anuluje je.",
-    "runFailed": "Nie udało się uruchomić harmonogramu",
-    "running": "W trakcie działania",
+    "runConfirm": "Uruchomić ten harmonogram teraz z użyciem zapisanych zadań i ustawienia automatycznego zastosowania? Warunki dotyczące zasilania, bezczynności, Trybu gry, miejsca i okna konserwacji nadal obowiązują: jeśli wstrzymują uruchomienie, rozpocznie się ono przy kolejnym sprawdzeniu, a wybranie opcji Uruchom teraz ponownie podczas oczekiwania spowoduje jego anulowanie.",
+    "runFailed": "Nie można uruchomić harmonogramu",
+    "running": "Uruchomiono",
     "nextEvaluation": "Następne sprawdzenie około {{time}}",
     "workflow": "Kolejność i zakres zadań",
-    "workflowHint": "Zadania są wykonywane od góry do dołu. Ograniczenie kategorii dotyczy tylko przyszłych pasujących wyników skanowania. Kosz pozostaje operacją obejmującą cały kosz.",
+    "workflowHint": "Zadania są uruchamiane od góry do dołu. Ograniczenie kategorii dotyczy tylko przyszłych pasujących wyników skanowania. Kosz pozostaje operacją obejmującą cały kosz.",
     "moveUp": "W górę",
     "moveDown": "W dół",
     "restrict": "Wybierz kategorie dla {{name}}",
@@ -126,7 +127,7 @@
     "scopeHint": "Uwzględnione zostaną tylko zaznaczone kategorie. Pusty wybór oznacza brak czyszczenia w tym zadaniu. Skanowanie wykrywa obecnie dostępne kategorie; nie wykonuje czyszczenia.",
     "waitForScan": "Poczekaj na zakończenie bieżącego skanowania lub czyszczenia.",
     "noCategories": "Nie znaleziono kategorii. Uruchom nowe skanowanie, gdy aplikacja będzie miała dane w pamięci podręcznej.",
-    "scanFailed": "Nie udało się wczytać kategorii.",
+    "scanFailed": "Nie można załadować kategorii.",
     "waiting": {
       "idle": "Oczekiwanie na bezczynność",
       "power": "Oczekiwanie na zasilanie sieciowe",
@@ -140,7 +141,7 @@
       "unavailable": "Oczekiwanie na okno aplikacji",
       "interrupted": "Uruchomienie utraciło swoje okno i zostało zapisane jako nieudane; to wystąpienie nie zostanie powtórzone."
     },
-    "saveFailed": "Nie udało się zapisać harmonogramu. Spróbuj ponownie.",
+    "saveFailed": "Nie można zapisać harmonogramu. Spróbuj ponownie.",
     "skipped": "Pominięto po zmianie warunków."
   }
 }

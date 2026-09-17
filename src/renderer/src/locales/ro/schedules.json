@@ -1,16 +1,17 @@
 {
   "pageTitle": "Programări",
   "pageDescription": "Automatizați scanările, curățările și actualizările după un program",
+  "dismissNudge": "Ascundeți acest card",
   "newScheduleButton": "Programare nouă",
   "createScheduleButton": "Creați programarea",
-  "emptyStateTitle": "Nu există încă programări",
+  "emptyStateTitle": "Încă nu există programări",
   "emptyStateDescription": "Creați o programare pentru a rula automat scanări, curățări și actualizări.",
   "maxSchedulesReached": "A fost atins numărul maxim de {{max}} programări.",
   "duplicatedToast": "S-a duplicat „{{name}}”",
   "deletedToast": "S-a șters „{{name}}”",
   "updatedToast": "S-a actualizat „{{name}}”",
   "createdToast": "S-a creat „{{name}}”",
-  "failedEnableStartup": "Activarea pornirii automate a eșuat. Este posibil ca programările să nu ruleze după repornire.",
+  "failedEnableStartup": "Nu s-a putut activa pornirea automată. Este posibil ca programările să nu ruleze după repornire.",
   "failedEnableStartupAction": "Aflați mai multe",
   "deleteConfirmTitle": "Ștergeți programarea",
   "deleteConfirmDescription": "Această programare va fi eliminată definitiv. Această acțiune nu poate fi anulată.",
@@ -67,7 +68,7 @@
     "recycleBin": "Coș de reciclare",
     "databases": "Baze de date",
     "registryFixes": "Remedieri registry",
-    "driverUpdates": "Actualizări drivere",
+    "driverUpdates": "Actualizări de drivere",
     "softwareUpdates": "Actualizări software"
   },
   "dayNames": {
@@ -92,15 +93,15 @@
   },
   "lastRun": {
     "justNow": "Chiar acum",
-    "minutesAgo": "acum {{count}} min",
-    "hoursAgo": "acum {{count}} h",
-    "daysAgo": "acum {{count}} z"
+    "minutesAgo": "acum {{count}}m",
+    "hoursAgo": "acum {{count}}h",
+    "daysAgo": "acum {{count}}z"
   },
   "copyNameSuffix": "(copie)",
   "advanced": {
     "title": "Condiții de rulare",
     "explanation": "Toate condițiile sunt verificate înainte de începerea unei rulări. Între sarcini, alimentarea, timpul de inactivitate și Game Mode sunt verificate din nou; fereastra de întreținere și pragul de spațiu liber controlează doar pornirea, astfel încât un flux de lucru care începe în interiorul ferestrei sau sub prag își finalizează sarcinile rămase. Orele urmează fusul orar local al acestui computer. Operațiunile aflate în desfășurare se finalizează înainte ca o condiție modificată să oprească sarcinile rămase.",
-    "acOnly": "Numai când este conectat la alimentare AC",
+    "acOnly": "Numai la alimentare AC",
     "gameMode": "Așteptați cât timp Game Mode este activ sau se restaurează",
     "idle": "Minute de inactivitate necesare (0 dezactivează)",
     "window": "Utilizați o fereastră de întreținere",
@@ -112,25 +113,25 @@
     "skip": "Omiteți după fereastra de pornire de două minute",
     "once": "Rulați o dată când este pregătit; combinați rulările ratate",
     "runNow": "Rulați acum",
-    "runConfirm": "Rulați acum această programare folosind sarcinile salvate și opțiunea de aplicare automată? Condițiile privind alimentarea, inactivitatea, Game Mode, spațiul și fereastra de întreținere se aplică în continuare: o rulare pe care acestea o amână pornește la o verificare ulterioară, iar dacă alegeți din nou Rulați acum cât timp este în așteptare, aceasta se anulează.",
+    "runConfirm": "Rulați această programare acum folosind sarcinile salvate și opțiunea de aplicare automată? Condițiile privind alimentarea, inactivitatea, Game Mode, spațiul și fereastra de întreținere se aplică în continuare: o rulare pe care acestea o amână va începe la o verificare ulterioară, iar dacă alegeți din nou Rulați acum în timp ce aceasta este în așteptare, o veți anula.",
     "runFailed": "Programarea nu a putut fi pornită",
     "running": "În curs de rulare",
     "nextEvaluation": "Următoarea verificare în jurul orei {{time}}",
     "workflow": "Ordinea și domeniul sarcinilor",
-    "workflowHint": "Sarcinile rulează de sus în jos. O restricție de categorie se aplică doar rezultatelor viitoare ale scanării care corespund. Coșul de reciclare rămâne o operațiune asupra întregului coș.",
+    "workflowHint": "Sarcinile rulează de sus în jos. O restricție de categorie se aplică numai rezultatelor viitoare ale scanărilor corespunzătoare. Coșul de reciclare rămâne o operațiune asupra întregului coș.",
     "moveUp": "Sus",
     "moveDown": "Jos",
-    "restrict": "Alegeți categorii pentru {{name}}",
+    "restrict": "Alegeți categoriile pentru {{name}}",
     "findCategories": "Scanați pentru categorii",
     "scanning": "Se scanează...",
     "scopeHint": "Vor fi incluse numai categoriile bifate. O selecție goală nu rulează nicio curățare în această sarcină. Scanarea descoperă categoriile prezente în prezent; nu efectuează curățarea.",
-    "waitForScan": "Așteptați finalizarea scanării sau curățării curente.",
+    "waitForScan": "Așteptați finalizarea scanării sau a curățării curente.",
     "noCategories": "Nu au fost găsite categorii. Rulați o nouă scanare când aplicația are date în cache.",
     "scanFailed": "Categoriile nu au putut fi încărcate.",
     "waiting": {
       "idle": "Se așteaptă timpul de inactivitate",
       "power": "Se așteaptă alimentarea AC",
-      "game-mode": "Se așteaptă finalizarea Game Mode",
+      "game-mode": "Se așteaptă încheierea Game Mode",
       "window": "Se așteaptă fereastra de întreținere",
       "disk": "Se așteaptă spațiu redus pe disc",
       "unknown": "Se așteaptă măsurători disponibile ale condițiilor",
@@ -138,9 +139,9 @@
       "disabled": "Programare dezactivată",
       "changed": "Programarea a fost editată; definiția pusă în coadă a fost eliminată",
       "unavailable": "Se așteaptă fereastra aplicației",
-      "interrupted": "Rularea și-a pierdut fereastra și a fost înregistrată ca eșuată; această apariție nu va fi reluată."
+      "interrupted": "Rularea și-a pierdut fereastra și a fost înregistrată ca eșuată; această execuție nu va fi reluată."
     },
     "saveFailed": "Programarea nu a putut fi salvată. Încercați din nou.",
-    "skipped": "Omisă după schimbarea condițiilor."
+    "skipped": "Omisă după modificarea condițiilor."
   }
 }

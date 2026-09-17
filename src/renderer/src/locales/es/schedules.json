@@ -1,6 +1,7 @@
 {
   "pageTitle": "Programaciones",
   "pageDescription": "Automatice análisis, limpiezas y actualizaciones según una programación",
+  "dismissNudge": "Ocultar esta tarjeta",
   "newScheduleButton": "Nueva programación",
   "createScheduleButton": "Crear programación",
   "emptyStateTitle": "Aún no hay programaciones",
@@ -10,7 +11,7 @@
   "deletedToast": "Se eliminó \"{{name}}\"",
   "updatedToast": "Se actualizó \"{{name}}\"",
   "createdToast": "Se creó \"{{name}}\"",
-  "failedEnableStartup": "No se pudo habilitar el inicio. Es posible que las programaciones no se ejecuten después de reiniciar.",
+  "failedEnableStartup": "No se pudo habilitar el inicio automático. Es posible que las programaciones no se ejecuten después de reiniciar.",
   "failedEnableStartupAction": "Más información",
   "deleteConfirmTitle": "Eliminar programación",
   "deleteConfirmDescription": "Esta programación se eliminará permanentemente. Esta acción no se puede deshacer.",
@@ -28,13 +29,13 @@
   "presets": {
     "dialogTitle": "Elegir una plantilla",
     "weeklyFullCleanLabel": "Limpieza completa semanal",
-    "weeklyFullCleanDescription": "Todas las categorías de limpieza todos los lunes a las 9:00",
+    "weeklyFullCleanDescription": "Todas las categorías del limpiador cada lunes a las 9:00",
     "dailyLightSweepLabel": "Limpieza ligera diaria",
     "dailyLightSweepDescription": "Sistema, navegadores y papelera de reciclaje todos los días a las 8:00",
     "monthlyDeepMaintenanceLabel": "Mantenimiento profundo mensual",
     "monthlyDeepMaintenanceDescription": "Limpieza completa + registro, controladores y software el día 1 a las 10:00",
     "customLabel": "Personalizada",
-    "customDescription": "Comience desde cero con una programación en blanco"
+    "customDescription": "Empiece desde cero con una programación en blanco"
   },
   "dialog": {
     "editTitle": "Editar programación",
@@ -50,10 +51,10 @@
     "tasksLabel": "Tareas",
     "selectAll": "Seleccionar todo",
     "deselectAll": "Deseleccionar todo",
-    "cleanerGroup": "Limpieza",
+    "cleanerGroup": "Limpiador",
     "maintenanceGroup": "Mantenimiento",
     "autoApplyLabel": "Aplicación automática",
-    "autoApplyDescription": "Limpie archivos, corrija problemas del registro e instale actualizaciones automáticamente sin confirmación.",
+    "autoApplyDescription": "Limpie archivos, repare problemas del registro e instale actualizaciones automáticamente sin confirmación.",
     "autoApplyWarning": "Las acciones se ejecutarán automáticamente según la programación. Asegúrese de que su lista de exclusiones esté actualizada.",
     "cancelButton": "Cancelar",
     "saveChangesButton": "Guardar cambios",
@@ -66,7 +67,7 @@
     "gaming": "Juegos",
     "recycleBin": "Papelera de reciclaje",
     "databases": "Bases de datos",
-    "registryFixes": "Correcciones del registro",
+    "registryFixes": "Reparaciones del registro",
     "driverUpdates": "Actualizaciones de controladores",
     "softwareUpdates": "Actualizaciones de software"
   },
@@ -82,7 +83,7 @@
   "frequency": {
     "everyDayAt": "Todos los días a las {{time}}",
     "everyWeekdayAt": "Cada {{day}} a las {{time}}",
-    "monthlyAt": "{{ordinalDay}} de cada mes a las {{time}}"
+    "monthlyAt": "El {{ordinalDay}} de cada mes a las {{time}}"
   },
   "nextRun": {
     "todayAt": "Hoy a las {{time}}",
@@ -92,27 +93,27 @@
   },
   "lastRun": {
     "justNow": "Justo ahora",
-    "minutesAgo": "Hace {{count}} min",
-    "hoursAgo": "Hace {{count}} h",
-    "daysAgo": "Hace {{count}} d"
+    "minutesAgo": "hace {{count}} min",
+    "hoursAgo": "hace {{count}} h",
+    "daysAgo": "hace {{count}} d"
   },
   "copyNameSuffix": "(copia)",
   "advanced": {
     "title": "Condiciones de ejecución",
-    "explanation": "Todas las condiciones se comprueban antes de que comience una ejecución. Entre tareas, se vuelven a comprobar la alimentación, el tiempo de inactividad y el Modo Juego; la ventana de mantenimiento y el umbral de espacio libre solo condicionan el inicio, por lo que un flujo de trabajo que comience dentro de la ventana o por debajo del umbral finalizará las tareas restantes. Las horas siguen la zona horaria local de este equipo. Las operaciones en ejecución finalizan antes de que un cambio de condición detenga las tareas restantes.",
+    "explanation": "Todas las condiciones se comprueban antes de que comience una ejecución. Entre tareas, se vuelven a comprobar la alimentación, el tiempo de inactividad y el Modo de juego; la ventana de mantenimiento y el umbral de espacio libre solo condicionan el inicio, por lo que un flujo de trabajo que comience dentro de la ventana o por debajo del umbral finalizará sus tareas restantes. Las horas siguen la zona horaria local de este equipo. Las operaciones en ejecución terminan antes de que un cambio de condición detenga las tareas restantes.",
     "acOnly": "Solo con alimentación de CA",
-    "gameMode": "Esperar mientras el Modo Juego esté activo o restaurándose",
+    "gameMode": "Esperar mientras el Modo de juego esté activo o restaurándose",
     "idle": "Minutos de inactividad requeridos (0 desactiva)",
     "window": "Usar una ventana de mantenimiento",
     "from": "Desde",
     "to": "Hasta",
     "disk": "Solo cuando la unidad principal tenga poco espacio",
     "freePercent": "Espacio libre por debajo de (%)",
-    "missed": "Si se pierde la hora programada o las condiciones no están listas",
+    "missed": "Si se omite la hora programada o las condiciones no están listas",
     "skip": "Omitir después de la ventana de inicio de dos minutos",
-    "once": "Ejecutar una vez cuando esté listo; combinar ejecuciones perdidas",
+    "once": "Ejecutar una vez cuando esté listo; combinar ejecuciones omitidas",
     "runNow": "Ejecutar ahora",
-    "runConfirm": "¿Ejecutar esta programación ahora con sus tareas guardadas y la opción de aplicación automática? Sus condiciones de alimentación, inactividad, Modo Juego, espacio y ventana de mantenimiento siguen aplicándose: si impiden la ejecución, esta comenzará en una comprobación posterior, y si vuelve a elegir Ejecutar ahora mientras está en espera, se cancelará.",
+    "runConfirm": "¿Ejecutar esta programación ahora con sus tareas guardadas y la opción de aplicación automática elegida? Sus condiciones de alimentación, inactividad, Modo de juego, espacio y ventana de mantenimiento siguen aplicándose: si impiden la ejecución, esta comenzará en una comprobación posterior, y si vuelve a elegir Ejecutar ahora mientras está en espera, se cancelará.",
     "runFailed": "No se pudo iniciar la programación",
     "running": "En ejecución",
     "nextEvaluation": "Próxima comprobación alrededor de las {{time}}",
@@ -124,13 +125,13 @@
     "findCategories": "Buscar categorías",
     "scanning": "Analizando...",
     "scopeHint": "Solo se incluirán las categorías marcadas. Una selección vacía no ejecuta ninguna limpieza en esta tarea. El análisis detecta las categorías presentes actualmente; no limpia.",
-    "waitForScan": "Espere a que finalice el análisis o la limpieza actual.",
+    "waitForScan": "Espere a que finalice el análisis o la limpieza actuales.",
     "noCategories": "No se encontraron categorías. Ejecute un nuevo análisis cuando la aplicación tenga datos en caché.",
     "scanFailed": "No se pudieron cargar las categorías.",
     "waiting": {
       "idle": "Esperando tiempo de inactividad",
       "power": "Esperando alimentación de CA",
-      "game-mode": "Esperando a que finalice el Modo Juego",
+      "game-mode": "Esperando a que finalice el Modo de juego",
       "window": "Esperando la ventana de mantenimiento",
       "disk": "Esperando poco espacio en disco",
       "unknown": "Esperando mediciones de condiciones disponibles",

@@ -1,11 +1,12 @@
 {
   "pageTitle": "Tidsplaner",
   "pageDescription": "Automatiser skanninger, oppryddinger og oppdateringer etter en tidsplan",
+  "dismissNudge": "Skjul dette kortet",
   "newScheduleButton": "Ny tidsplan",
   "createScheduleButton": "Opprett tidsplan",
   "emptyStateTitle": "Ingen tidsplaner ennå",
   "emptyStateDescription": "Opprett en tidsplan for å kjøre skanninger, oppryddinger og oppdateringer automatisk.",
-  "maxSchedulesReached": "Maksimalt antall på {{max}} tidsplaner er nådd.",
+  "maxSchedulesReached": "Maksimalt antall tidsplaner nådd: {{max}}.",
   "duplicatedToast": "Dupliserte \"{{name}}\"",
   "deletedToast": "Slettet \"{{name}}\"",
   "updatedToast": "Oppdaterte \"{{name}}\"",
@@ -13,7 +14,7 @@
   "failedEnableStartup": "Kunne ikke aktivere oppstart. Tidsplaner kjøres kanskje ikke etter omstart.",
   "failedEnableStartupAction": "Les mer",
   "deleteConfirmTitle": "Slett tidsplan",
-  "deleteConfirmDescription": "Denne tidsplanen blir slettet permanent. Denne handlingen kan ikke angres.",
+  "deleteConfirmDescription": "Denne tidsplanen blir fjernet permanent. Denne handlingen kan ikke angres.",
   "deleteConfirmLabel": "Slett",
   "card": {
     "autoApplyBadge": "Bruk automatisk",
@@ -28,11 +29,11 @@
   "presets": {
     "dialogTitle": "Velg en mal",
     "weeklyFullCleanLabel": "Ukentlig full opprydding",
-    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09:00",
+    "weeklyFullCleanDescription": "Alle oppryddingskategorier hver mandag kl. 09.00",
     "dailyLightSweepLabel": "Daglig lett opprydding",
-    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08:00",
+    "dailyLightSweepDescription": "System, nettlesere og papirkurv daglig kl. 08.00",
     "monthlyDeepMaintenanceLabel": "Månedlig dyptgående vedlikehold",
-    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. kl. 10:00",
+    "monthlyDeepMaintenanceDescription": "Full opprydding + register, drivere og programvare den 1. hver måned kl. 10.00",
     "customLabel": "Tilpasset",
     "customDescription": "Start fra bunnen av med en tom tidsplan"
   },
@@ -49,12 +50,12 @@
     "timeLabel": "Tid",
     "tasksLabel": "Oppgaver",
     "selectAll": "Velg alle",
-    "deselectAll": "Fjern markering for alle",
+    "deselectAll": "Fjern markering av alle",
     "cleanerGroup": "Opprydding",
     "maintenanceGroup": "Vedlikehold",
     "autoApplyLabel": "Bruk automatisk",
-    "autoApplyDescription": "Rydd filer automatisk, reparer registerproblemer og installer oppdateringer uten bekreftelse.",
-    "autoApplyWarning": "Handlinger kjøres automatisk etter tidsplanen. Sørg for at ekskluderingslisten er oppdatert.",
+    "autoApplyDescription": "Rydd opp filer, reparer registerproblemer og installer oppdateringer automatisk uten bekreftelse.",
+    "autoApplyWarning": "Handlinger kjøres automatisk etter tidsplanen. Sørg for at listen over unntak er oppdatert.",
     "cancelButton": "Avbryt",
     "saveChangesButton": "Lagre endringer",
     "createScheduleButton": "Opprett tidsplan"
@@ -92,17 +93,17 @@
   },
   "lastRun": {
     "justNow": "Akkurat nå",
-    "minutesAgo": "for {{count}}m siden",
-    "hoursAgo": "for {{count}}h siden",
-    "daysAgo": "for {{count}}d siden"
+    "minutesAgo": "{{count}}m siden",
+    "hoursAgo": "{{count}}t siden",
+    "daysAgo": "{{count}}d siden"
   },
   "copyNameSuffix": "(kopi)",
   "advanced": {
     "title": "Kjørebetingelser",
-    "explanation": "Alle betingelser kontrolleres før en kjøring starter. Mellom oppgaver kontrolleres strøm, inaktiv tid og Game Mode på nytt; vedlikeholdsvinduet og terskelen for ledig plass gjelder bare ved oppstart, så en arbeidsflyt som starter innenfor vinduet eller under terskelen, fullfører de gjenstående oppgavene. Tidene følger denne datamaskinens lokale tidssone. Operasjoner som kjører, fullføres før en endret betingelse stopper de gjenstående oppgavene.",
+    "explanation": "Alle betingelser kontrolleres før en kjøring starter. Mellom oppgaver kontrolleres strøm, inaktiv tid og Game Mode på nytt; vedlikeholdsvinduet og terskelen for ledig plass styrer bare starten, så en arbeidsflyt som begynner innenfor vinduet eller under terskelen fullfører de gjenstående oppgavene. Tidene følger denne datamaskinens lokale tidssone. Operasjoner som kjører, fullføres før en endret betingelse stopper de gjenstående oppgavene.",
     "acOnly": "Bare på nettstrøm",
     "gameMode": "Vent mens Game Mode er aktiv eller gjenopprettes",
-    "idle": "Påkrevde minutter med inaktivitet (0 deaktiverer)",
+    "idle": "Krevde minutter med inaktivitet (0 deaktiverer)",
     "window": "Bruk et vedlikeholdsvindu",
     "from": "Fra",
     "to": "Til",
@@ -141,6 +142,6 @@
       "interrupted": "Kjøringen mistet vinduet sitt og ble registrert som mislykket; denne forekomsten blir ikke kjørt på nytt."
     },
     "saveFailed": "Tidsplanen kunne ikke lagres. Prøv igjen.",
-    "skipped": "Hoppet over etter at betingelsene endret seg."
+    "skipped": "Hoppet over etter at betingelsene ble endret."
   }
 }

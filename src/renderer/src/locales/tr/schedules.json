@@ -1,26 +1,27 @@
 {
-  "pageTitle": "Zamanlanmış Görevler",
-  "pageDescription": "Taramaları, temizlikleri ve güncellemeleri bir takvime göre otomatikleştirin",
-  "newScheduleButton": "Yeni Görev",
-  "createScheduleButton": "Görev Oluştur",
-  "emptyStateTitle": "Henüz zamanlanmış görev yok",
+  "pageTitle": "Zamanlamalar",
+  "pageDescription": "Taramaları, temizlikleri ve güncellemeleri bir zamanlamaya göre otomatikleştirin",
+  "dismissNudge": "Bu kartı gizle",
+  "newScheduleButton": "Yeni Zamanlama",
+  "createScheduleButton": "Zamanlama Oluştur",
+  "emptyStateTitle": "Henüz zamanlama yok",
   "emptyStateDescription": "Taramaları, temizlikleri ve güncellemeleri otomatik olarak çalıştırmak için bir zamanlama oluşturun.",
-  "maxSchedulesReached": "Maksimum {{max}} zamanlanmış görev sınırına ulaşıldı.",
+  "maxSchedulesReached": "En fazla {{max}} zamanlamaya ulaşıldı.",
   "duplicatedToast": "\"{{name}}\" çoğaltıldı",
   "deletedToast": "\"{{name}}\" silindi",
   "updatedToast": "\"{{name}}\" güncellendi",
   "createdToast": "\"{{name}}\" oluşturuldu",
-  "failedEnableStartup": "Başlangıçta çalıştırma etkinleştirilemedi. Görevler yeniden başlatmanın ardından çalışmayabilir.",
-  "failedEnableStartupAction": "Daha fazla bilgi edinin",
-  "deleteConfirmTitle": "Zamanlanmış görevi sil",
-  "deleteConfirmDescription": "Bu zamanlanmış görev kalıcı olarak kaldırılacaktır. Bu işlem geri alınamaz.",
+  "failedEnableStartup": "Başlangıçta çalıştırma etkinleştirilemedi. Zamanlamalar yeniden başlatmadan sonra çalışmayabilir.",
+  "failedEnableStartupAction": "Daha fazla bilgi",
+  "deleteConfirmTitle": "Zamanlamayı sil",
+  "deleteConfirmDescription": "Bu zamanlama kalıcı olarak kaldırılacaktır. Bu işlem geri alınamaz.",
   "deleteConfirmLabel": "Sil",
   "card": {
     "autoApplyBadge": "Otomatik uygula",
     "editAction": "Düzenle",
     "duplicateAction": "Çoğalt",
     "deleteAction": "Sil",
-    "noTasksSelected": "Hiç görev seçilmedi",
+    "noTasksSelected": "Görev seçilmedi",
     "nextRun": "Sonraki: {{time}}",
     "lastRun": "Son: {{time}}",
     "neverRun": "Hiç çalıştırılmadı"
@@ -29,16 +30,16 @@
     "dialogTitle": "Bir şablon seçin",
     "weeklyFullCleanLabel": "Haftalık Tam Temizlik",
     "weeklyFullCleanDescription": "Her Pazartesi saat 09:00'da tüm temizleyici kategorileri",
-    "dailyLightSweepLabel": "Günlük Hızlı Süpürme",
+    "dailyLightSweepLabel": "Günlük Hafif Temizlik",
     "dailyLightSweepDescription": "Her gün saat 08:00'de sistem, tarayıcılar ve geri dönüşüm kutusu",
     "monthlyDeepMaintenanceLabel": "Aylık Derin Bakım",
     "monthlyDeepMaintenanceDescription": "Her ayın 1'inde saat 10:00'da tam temizlik + kayıt defteri, sürücüler ve yazılımlar",
     "customLabel": "Özel",
-    "customDescription": "Boş bir zamanlama ile sıfırdan oluşturun"
+    "customDescription": "Boş bir zamanlamayla sıfırdan başlayın"
   },
   "dialog": {
-    "editTitle": "Görevi Düzenle",
-    "newTitle": "Yeni Görev",
+    "editTitle": "Zamanlamayı Düzenle",
+    "newTitle": "Yeni Zamanlama",
     "nameLabel": "Ad",
     "namePlaceholder": "Örn. Haftalık Derin Temizlik",
     "frequencyLabel": "Sıklık",
@@ -53,11 +54,11 @@
     "cleanerGroup": "Temizleyici",
     "maintenanceGroup": "Bakım",
     "autoApplyLabel": "Otomatik uygula",
-    "autoApplyDescription": "Dosyaları otomatik temizleyin, kayıt defteri sorunlarını düzeltin ve güncellemeleri onay istemeden yükleyin.",
-    "autoApplyWarning": "İşlemler belirlenen zamanda otomatik olarak çalışacaktır. Hariç tutulanlar listenizin güncel olduğundan emin olun.",
+    "autoApplyDescription": "Dosyaları otomatik olarak temizleyin, kayıt defteri sorunlarını düzeltin ve güncellemeleri onay istemeden yükleyin.",
+    "autoApplyWarning": "İşlemler zamanlamaya göre otomatik olarak çalıştırılacaktır. Hariç tutma listenizin güncel olduğundan emin olun.",
     "cancelButton": "İptal",
     "saveChangesButton": "Değişiklikleri Kaydet",
-    "createScheduleButton": "Görev Oluştur"
+    "createScheduleButton": "Zamanlama Oluştur"
   },
   "tasks": {
     "system": "Sistem",
@@ -82,24 +83,24 @@
   "frequency": {
     "everyDayAt": "Her gün saat {{time}}",
     "everyWeekdayAt": "Her {{day}} saat {{time}}",
-    "monthlyAt": "Her ayın {{ordinalDay}}. günü saat {{time}}"
+    "monthlyAt": "Her ayın {{ordinalDay}} günü saat {{time}}"
   },
   "nextRun": {
     "todayAt": "Bugün saat {{time}}",
     "tomorrowAt": "Yarın saat {{time}}",
-    "inDaysAt": "{{count}} gün içinde saat {{time}}",
+    "inDaysAt": "{{count}} gün sonra saat {{time}}",
     "dateAt": "{{date}} saat {{time}}"
   },
   "lastRun": {
     "justNow": "Az önce",
     "minutesAgo": "{{count}} dk önce",
     "hoursAgo": "{{count}} sa önce",
-    "daysAgo": "{{count}} gün önce"
+    "daysAgo": "{{count}} g önce"
   },
   "copyNameSuffix": "(kopya)",
   "advanced": {
     "title": "Çalıştırma koşulları",
-    "explanation": "Tüm koşullar, çalıştırma başlamadan önce denetlenir. Görevler arasında güç, boşta kalma süresi ve Oyun Modu yeniden denetlenir; bakım penceresi ve boş alan eşiği yalnızca başlangıcı sınırlar, bu nedenle pencere içinde veya eşik altındayken başlayan bir iş akışı kalan görevlerini tamamlar. Saatler bu bilgisayarın yerel saat dilimini temel alır. Çalışan işlemler, değişen bir koşul kalan görevleri durdurmadan önce tamamlanır.",
+    "explanation": "Bir çalıştırma başlamadan önce tüm koşullar denetlenir. Görevler arasında güç, boşta kalma süresi ve Oyun Modu yeniden denetlenir; bakım penceresi ve boş alan eşiği yalnızca başlangıcı sınırlar, bu nedenle pencere içinde veya eşik altındayken başlayan bir iş akışı kalan görevlerini tamamlar. Saatler bu bilgisayarın yerel saat dilimine göre belirlenir. Koşul değişikliği kalan görevleri durdurmadan önce çalışan işlemler tamamlanır.",
     "acOnly": "Yalnızca AC gücünde",
     "gameMode": "Oyun Modu etkinken veya geri yükleme sürerken bekle",
     "idle": "Gerekli boşta kalma süresi (dakika) (0 devre dışı bırakır)",
@@ -112,19 +113,19 @@
     "skip": "İki dakikalık başlangıç penceresinden sonra atla",
     "once": "Hazır olduğunda bir kez çalıştır; kaçırılan çalıştırmaları birleştir",
     "runNow": "Şimdi çalıştır",
-    "runConfirm": "Bu zamanlama, kaydedilmiş görevleri ve otomatik uygulama seçimi kullanılarak şimdi çalıştırılsın mı? Güç, boşta kalma, Oyun Modu, alan ve bakım penceresi koşulları yine de geçerlidir: bunların engellediği bir çalıştırma daha sonraki bir denetimde başlar ve beklerken yeniden Şimdi çalıştır seçilirse iptal edilir.",
+    "runConfirm": "Bu zamanlama şimdi, kaydedilmiş görevleri ve otomatik uygulama seçimi kullanılarak çalıştırılsın mı? Güç, boşta kalma, Oyun Modu, alan ve bakım penceresi koşulları yine geçerlidir: bunların engellediği bir çalıştırma daha sonraki bir denetimde başlar ve beklerken yeniden Şimdi çalıştır seçilirse iptal edilir.",
     "runFailed": "Zamanlama başlatılamadı",
     "running": "Çalışıyor",
     "nextEvaluation": "Sonraki denetim yaklaşık {{time}}",
-    "workflow": "Görev sırası ve kapsam",
-    "workflowHint": "Görevler yukarıdan aşağıya çalıştırılır. Bir kategori kısıtlaması yalnızca gelecekteki eşleşen tarama sonuçlarına uygulanır. Geri Dönüşüm Kutusu, kutunun tamamına uygulanan bir işlem olarak kalır.",
+    "workflow": "Görev sırası ve kapsamı",
+    "workflowHint": "Görevler yukarıdan aşağıya çalıştırılır. Kategori kısıtlaması yalnızca gelecekteki eşleşen tarama sonuçlarına uygulanır. Geri Dönüşüm Kutusu işlemi her zaman kutunun tamamına uygulanır.",
     "moveUp": "Yukarı",
     "moveDown": "Aşağı",
     "restrict": "{{name}} için kategorileri seçin",
     "findCategories": "Kategorileri tara",
     "scanning": "Taranıyor...",
-    "scopeHint": "Yalnızca işaretlenen kategoriler dahil edilir. Boş seçim, bu görevde hiçbir temizliğin çalıştırılmayacağı anlamına gelir. Tarama, şu anda mevcut kategorileri bulur; temizlik yapmaz.",
-    "waitForScan": "Geçerli tarama veya temizliğin tamamlanmasını bekleyin.",
+    "scopeHint": "Yalnızca işaretlenen kategoriler dahil edilir. Boş seçim, bu görevde hiçbir temizliğin çalıştırılmayacağı anlamına gelir. Tarama yalnızca şu anda mevcut kategorileri bulur; temizlik yapmaz.",
+    "waitForScan": "Geçerli taramanın veya temizliğin tamamlanmasını bekleyin.",
     "noCategories": "Kategori bulunamadı. Uygulama verileri önbelleğe aldıktan sonra yeni bir tarama çalıştırın.",
     "scanFailed": "Kategoriler yüklenemedi.",
     "waiting": {
@@ -136,11 +137,11 @@
       "unknown": "Kullanılabilir koşul ölçümleri bekleniyor",
       "busy": "Başka bir zamanlanmış çalıştırma bekleniyor",
       "disabled": "Zamanlama devre dışı",
-      "changed": "Zamanlama düzenlendi; kuyruğa alınmış tanım atıldı",
+      "changed": "Zamanlama düzenlendi; kuyruğa alınan tanım atıldı",
       "unavailable": "Uygulama penceresi bekleniyor",
-      "interrupted": "Çalıştırma penceresini kaybetti ve başarısız olarak kaydedildi; bu olay yeniden oynatılmayacaktır."
+      "interrupted": "Çalıştırma penceresini kaybetti ve başarısız olarak kaydedildi; bu olay yeniden oynatılmayacak."
     },
     "saveFailed": "Zamanlama kaydedilemedi. Yeniden deneyin.",
-    "skipped": "Koşullar değiştiği için atlandı."
+    "skipped": "Koşullar değiştikten sonra atlandı."
   }
 }
