@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -36,7 +36,8 @@ import {
   PackageMinus,
   Cloud,
   Mail,
-  MousePointerClick
+  MousePointerClick,
+  X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
@@ -348,6 +349,18 @@ export function Sidebar() {
   const { features } = usePlatform()
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
 
+  // Schedules promo card: auto-hides once a schedule is enabled, or when dismissed.
+  const hasEnabledSchedule = useSettingsStore((s) =>
+    (s.settings.schedules ?? []).some((entry) => entry.enabled)
+  )
+  const scheduleNudgeDismissed = useSettingsStore((s) => s.settings.scheduleNudgeDismissed ?? false)
+  const updateSettings = useSettingsStore((s) => s.updateSettings)
+  const showScheduleNudge = !hasEnabledSchedule && !scheduleNudgeDismissed
+  const dismissScheduleNudge = useCallback(() => {
+    updateSettings({ scheduleNudgeDismissed: true })
+    window.kudu?.settingsSet?.({ scheduleNudgeDismissed: true }).catch(() => {})
+  }, [updateSettings])
+
   // Filter nav items based on platform features and cloud state
   const filteredNavGroups = navGroups.map((group) => ({
     ...group,
@@ -461,19 +474,32 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <button
-        type="button"
-        onClick={() => navigate('/schedules')}
-        className="automatic-care-card mx-3 mb-2 text-left"
-      >
-        <span className="automatic-care-icon">
-          <CalendarClock className="h-3.5 w-3.5" strokeWidth={1.8} />
-        </span>
-        <span className="min-w-0">
-          <b>{t('schedules:pageTitle')}</b>
-          <small>{t('schedules:pageDescription')}</small>
-        </span>
-      </button>
+      {showScheduleNudge && (
+        <div className="automatic-care-card mx-3 mb-2">
+          <button
+            type="button"
+            onClick={() => navigate('/schedules')}
+            className="flex min-w-0 flex-1 items-start gap-[9px] text-left"
+          >
+            <span className="automatic-care-icon">
+              <CalendarClock className="h-3.5 w-3.5" strokeWidth={1.8} />
+            </span>
+            <span className="min-w-0">
+              <b>{t('schedules:pageTitle')}</b>
+              <small>{t('schedules:pageDescription')}</small>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={dismissScheduleNudge}
+            className="automatic-care-dismiss"
+            aria-label={t('schedules:dismissNudge')}
+            title={t('schedules:dismissNudge')}
+          >
+            <X className="h-3 w-3" strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       {/* Bottom */}
       <BottomNav

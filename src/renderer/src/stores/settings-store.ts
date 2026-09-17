@@ -20,6 +20,7 @@ export const defaultSettings: KuduSettings = {
   autoRestart: true,
   updateCheckIntervalHours: 4,
   softwareUpdaterNotifications: true,
+  scheduleNudgeDismissed: false,
   preferElevatedLaunch: false,
   cleaner: {
     skipRecentMinutes: 60,

@@ -925,6 +925,26 @@ summary,
   background: var(--accent-muted-bg);
   color: var(--accent);
 }
+.automatic-care-dismiss {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  place-items: center;
+  margin: -3px -3px 0 0;
+  border-radius: 6px;
+  color: var(--text-faint);
+  opacity: 0;
+  transition: 0.18s ease;
+}
+.automatic-care-card:hover .automatic-care-dismiss,
+.automatic-care-dismiss:focus-visible {
+  opacity: 1;
+}
+.automatic-care-dismiss:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
 
 /* Shared page language: quiet surfaces, generous hierarchy, tactile controls. */
 .glass-card {

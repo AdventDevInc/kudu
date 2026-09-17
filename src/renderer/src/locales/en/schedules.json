@@ -1,6 +1,7 @@
 {
   "pageTitle": "Schedules",
   "pageDescription": "Automate scans, cleanups, and updates on a schedule",
+  "dismissNudge": "Hide this card",
   "newScheduleButton": "New Schedule",
   "createScheduleButton": "Create Schedule",
   "emptyStateTitle": "No schedules yet",

@@ -777,6 +777,12 @@ export interface KuduSettings {
    */
   softwareUpdaterNotifications: boolean
   /**
+   * When true, the Schedules promo card at the bottom of the sidebar stays
+   * hidden. Set when the user dismisses it; the card also auto-hides once any
+   * schedule is enabled.
+   */
+  scheduleNudgeDismissed: boolean
+  /**
    * When true, prompt for elevation (UAC / pkexec) on launch if not already
    * elevated. Opt-in — default stays unelevated (#390). Hidden on macOS.
    */
