@@ -1079,7 +1079,7 @@ function ScheduleDialog({
           missedRun={missedRun}
           onMissedRun={setMissedRun}
         />
-        <details className="feature-page feature-layout mb-5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4">
+        <details className="feature-layout mb-5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-subtle)] p-4">
           <summary className="cursor-pointer text-[13px] font-semibold">
             {t('advanced.workflow')}
           </summary>
