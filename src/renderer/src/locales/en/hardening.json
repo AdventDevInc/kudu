@@ -28,6 +28,7 @@
     "settingsApplied": "{{count}} setting applied",
     "settingsAppliedPlural": "{{count}} settings applied",
     "settingsFailedRequireAdmin": "{{count}} failed — may require administrator privileges",
+    "settingsFailed": "{{count}} failed",
     "emptyStateTitle": "Privacy Shield",
     "emptyStateDescription": "Click \"Scan\" to audit your privacy and security settings and apply recommended hardening.",
     "allProtectedBadge": "All protected",
@@ -52,7 +53,8 @@
     "allSettingsLabel": "All settings",
     "unknownError": "Unknown error",
     "requiresSettingEnabled": "Enable \"{{label}}\" first",
-    "adminRequired": "Try running as administrator"
+    "adminRequired": "Try running as administrator",
+    "settingNotApplied": "The system did not report the change — it may need a restart, or the setting may be managed by another profile"
   },
   "privacyCategories": {
     "telemetryLabel": "Telemetry & Data Collection",

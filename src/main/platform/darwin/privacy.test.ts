@@ -146,3 +146,93 @@ describe('darwin privacy', () => {
     })
   })
 })
+
+// Regression tests for #443: checks must not rely on root-only tools, or a
+// successful elevated apply is immediately reported back as "unprotected".
+describe('darwin privacy checks run unprivileged', () => {
+  const settings = createDarwinPrivacy().getSettings()
+  const find = (id: string) => settings.find((s) => s.id === id)!
+
+  function mockExec(handler: (cmd: string, args: string[]) => { stdout: string } | Error) {
+    execFileMock.mockReset()
+    execFileMock.mockImplementation(async (cmd: string, args: string[]) => {
+      const result = handler(cmd, args)
+      if (result instanceof Error) throw result
+      return result
+    })
+  }
+
+  const calledCommands = () => execFileMock.mock.calls.map((c) => c[0] as string)
+
+  describe('macos-remote-login', () => {
+    it('reads launchd override table instead of systemsetup', async () => {
+      mockExec((cmd, args) => {
+        if (cmd === '/bin/launchctl' && args[0] === 'print-disabled') {
+          return { stdout: 'disabled services = {\n\t"com.openssh.sshd" => disabled\n}\n' }
+        }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-remote-login').check()).toBe(true)
+      expect(calledCommands()).not.toContain('/usr/sbin/systemsetup')
+    })
+
+    it('reports unprotected when sshd is enabled', async () => {
+      mockExec((cmd, args) => {
+        if (cmd === '/bin/launchctl' && args[0] === 'print-disabled') {
+          return { stdout: '"com.openssh.sshd" => enabled' }
+        }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-remote-login').check()).toBe(false)
+    })
+
+    it('falls back to probing port 22 when launchctl gives no answer', async () => {
+      mockExec((cmd, args) => {
+        if (cmd === '/bin/launchctl') return { stdout: 'disabled services = {\n}\n' }
+        if (cmd === '/usr/bin/nc') {
+          expect(args).toContain('22')
+          return new Error('connection refused')
+        }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-remote-login').check()).toBe(true)
+    })
+
+    it('apply disables sshd via launchctl as well as systemsetup', async () => {
+      mockExec(() => ({ stdout: '' }))
+      await find('macos-remote-login').apply()
+      const script = execFileMock.mock.calls[0][1].join(' ')
+      expect(script).toContain('systemsetup -f -setremotelogin off')
+      expect(script).toContain('launchctl disable system/com.openssh.sshd')
+      expect(script).toContain('launchctl bootout system/com.openssh.sshd')
+    })
+  })
+
+  describe('macos-wake-on-network', () => {
+    it('reads pmset instead of systemsetup', async () => {
+      mockExec((cmd) => {
+        if (cmd === '/usr/bin/pmset')
+          return { stdout: ' womp                 0\n sleep                1\n' }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-wake-on-network').check()).toBe(true)
+      mockExec((cmd) => {
+        if (cmd === '/usr/bin/pmset') return { stdout: ' womp                 1\n' }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-wake-on-network').check()).toBe(false)
+    })
+  })
+
+  describe('managed browser preferences', () => {
+    it('chmods the managed prefs plist so the user-level check can read it back', async () => {
+      mockExec(() => ({ stdout: '' }))
+      await find('macos-chrome-metrics').apply()
+      const script = execFileMock.mock.calls[0][1].join(' ')
+      expect(script).toContain("'write' '/Library/Managed Preferences/com.google.Chrome'")
+      expect(script).toContain(
+        "'/bin/chmod' '644' '/Library/Managed Preferences/com.google.Chrome.plist'"
+      )
+    })
+  })
+})

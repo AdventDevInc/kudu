@@ -22,6 +22,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { cn } from '@/lib/utils'
+import { usePlatform } from '@/hooks/usePlatform'
 import { usePrivacyStore } from '@/stores/privacy-store'
 import { useHistoryStore } from '@/stores/history-store'
 import type { PrivacySetting } from '@shared/types'
@@ -186,6 +187,9 @@ function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
 
 export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
   const { t } = useTranslation('hardening')
+  // On macOS/Linux elevation happens per-action via a password prompt, so
+  // "run as administrator" advice is meaningless there.
+  const isWindows = usePlatform().platform === 'win32'
   const state = usePrivacyStore((s) => s.state)
   const status = usePrivacyStore((s) => s.status)
   const applyResult = usePrivacyStore((s) => s.applyResult)
@@ -410,7 +414,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
             t(isEnabling ? 'privacy.settingApplyFailed' : 'privacy.settingRevertFailed', {
               label: setting.label
             }),
-            { description: t('privacy.adminRequired') }
+            { description: t(isWindows ? 'privacy.adminRequired' : 'privacy.settingNotApplied') }
           )
         } else {
           toast.success(
@@ -426,7 +430,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
         usePrivacyStore.getState().setStatus('done')
       }
     },
-    [t]
+    [t, isWindows]
   )
 
   const isScanning = status === 'scanning'
@@ -687,7 +691,9 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
               </p>
               {applyResult.failed > 0 && (
                 <p className="text-[12px] mt-0.5" style={{ color: 'var(--accent)' }}>
-                  {t('privacy.settingsFailedRequireAdmin', { count: applyResult.failed })}
+                  {t(isWindows ? 'privacy.settingsFailedRequireAdmin' : 'privacy.settingsFailed', {
+                    count: applyResult.failed
+                  })}
                 </p>
               )}
             </div>
@@ -897,7 +903,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* Admin warning */}
-      {state && unprotectedCount > 0 && (
+      {isWindows && state && unprotectedCount > 0 && (
         <div
           className="mt-4 flex items-start gap-3 rounded-2xl px-5 py-3"
           style={{
