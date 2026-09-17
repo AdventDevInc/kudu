@@ -1,6 +1,6 @@
 {
   "pageTitle": "Systemherding",
-  "descriptionWindows": "Stripp ned Windows — fjern telemetri, bloatware og unødvendige tjenester",
+  "descriptionWindows": "Stram inn Windows — fjern telemetri, bloatware og unødvendige tjenester",
   "descriptionOther": "Herd systemet ditt — administrer personverninnstillinger og unødvendige tjenester",
   "tabs": {
     "privacy": "Personvern",
@@ -12,7 +12,7 @@
   },
   "privacy": {
     "pageTitle": "Personvernskjold",
-    "pageDescription": "Kontroller telemetri, annonser, sporing og datainnsamling i hele systemet",
+    "pageDescription": "Kontroller telemetri, annonser, sporing og datainnsamling på hele systemet",
     "scanButton": "Skann",
     "protectAllButton": "Beskytt alle ({{count}})",
     "privacyScore": "Personvernpoeng",
@@ -28,9 +28,10 @@
     "settingsApplied": "{{count}} innstilling brukt",
     "settingsAppliedPlural": "{{count}} innstillinger brukt",
     "settingsFailedRequireAdmin": "{{count}} mislyktes — kan kreve administratorrettigheter",
+    "settingsFailed": "{{count}} mislyktes",
     "emptyStateTitle": "Personvernskjold",
     "emptyStateDescription": "Klikk på \"Skann\" for å kontrollere personvern- og sikkerhetsinnstillingene dine og bruke anbefalt herding.",
-    "allProtectedBadge": "Alle beskyttet",
+    "allProtectedBadge": "Alt beskyttet",
     "unprotectedBadge": "{{count}} ubeskyttet",
     "protectAllCategoryButton": "Beskytt alle",
     "adminBadge": "Admin",
@@ -52,7 +53,8 @@
     "allSettingsLabel": "Alle innstillinger",
     "unknownError": "Ukjent feil",
     "requiresSettingEnabled": "Aktiver \"{{label}}\" først",
-    "adminRequired": "Prøv å kjøre som administrator"
+    "adminRequired": "Prøv å kjøre som administrator",
+    "settingNotApplied": "Systemet rapporterte ikke endringen — det kan være nødvendig med en omstart, eller innstillingen kan være administrert av en annen profil"
   },
   "privacyCategories": {
     "telemetryLabel": "Telemetri og datainnsamling",
@@ -84,7 +86,7 @@
     "scanButton": "Skann",
     "removingButton": "Fjerner...",
     "removeButton": "Fjern ({{count}})",
-    "irreversibleWarning": "Kan ikke angres — fjernede apper kan bare installeres på nytt fra Microsoft Store. Gå nøye gjennom valgene dine.",
+    "irreversibleWarning": "Kan ikke angres — fjernede apper kan bare installeres på nytt fra Microsoft Store. Gå nøye gjennom valgene.",
     "scanningPackages": "Skanner installerte pakker...",
     "removingProgress": "Fjerner {{current}} av {{total}}",
     "removedApps": "Fjernet {{count}} app",
@@ -120,7 +122,7 @@
     "categoryUtility": "Verktøy"
   },
   "serviceManager": {
-    "pageTitle": "Tjenestebehandling",
+    "pageTitle": "Tjenesteadministrasjon",
     "pageDescription": "Vis, administrer og deaktiver unødvendige Windows-tjenester — eller slå på en deaktivert tjeneste igjen",
     "scanningButton": "Skanner...",
     "scanServicesButton": "Skann tjenester",
@@ -135,7 +137,7 @@
     "infoBannerMayAffect": "= kan påvirke funksjonalitet,",
     "infoBannerRed": "Rød",
     "infoBannerSystemCritical": "= systemkritisk.",
-    "infoBannerUseRecommended": "Bruk \"Bruk anbefalte\" for en trygg forhåndsinnstilling med ett klikk.",
+    "infoBannerUseRecommended": "Bruk \"Bruk anbefalte\" for et trygt forhåndsvalg med ett klikk.",
     "infoBannerReEnable": "Velg en deaktivert tjeneste for å slå den på igjen.",
     "scanProgressEnumerating": "Lister opp tjenester...",
     "scanProgressClassifying": "Klassifiserer tjenester...",
@@ -183,7 +185,7 @@
     "confirmEnableTitle": "Aktiver valgte tjenester på nytt",
     "confirmEnableDescription": "Dette vil sette {{count}} deaktiverte tjeneste(r) tilbake til {{startType}}. Automatiske tjenester startes med en gang. Dette krever administratorrettigheter.",
     "confirmEnableLabel": "Aktiver tjenester",
-    "scanFailedToast": "Skanning av tjenester mislyktes",
+    "scanFailedToast": "Tjenesteskanning mislyktes",
     "scanFailedError": "Kunne ikke skanne tjenester",
     "applyFailedToast": "Kunne ikke bruke tjenesteendringer",
     "applyFailedError": "Kunne ikke bruke endringer",
@@ -213,7 +215,7 @@
     "startTypeUnknown": "Ukjent",
     "statusRunning": "Kjører",
     "statusStopped": "Stoppet",
-    "statusPaused": "Pauset",
+    "statusPaused": "Satt på pause",
     "statusStartPending": "Venter på start",
     "statusStopPending": "Venter på stopp",
     "statusUnknown": "Ukjent"
