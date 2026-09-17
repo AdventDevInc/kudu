@@ -73,6 +73,8 @@ it('treats a task whose Settings omit <Enabled> as enabled (schema default)', as
   })
   expect(await readRecoveryTarget({ kind: 'task-enabled', name: '\\Test\\Task' })).toBe(true)
   expect(spawned()).toEqual(['cmd.exe'])
+  respond({ stdout: '<Task><Settings /><Triggers /></Task>' })
+  expect(await readRecoveryTarget({ kind: 'task-enabled', name: '\\Test\\Task' })).toBe(true)
 })
 it('reads an explicit task Settings <Enabled> value', async () => {
   respond({ stdout: '<Task><Settings><Enabled>false</Enabled></Settings></Task>' })
