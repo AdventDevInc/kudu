@@ -141,9 +141,11 @@ async function isLaunchdServiceEnabled(label: string, fallbackPort: number): Pro
     const { stdout } = await execFileAsync('/bin/launchctl', ['print-disabled', 'system'], {
       timeout: 5_000
     })
+    // Newer macOS prints `=> enabled|disabled`; older prints `=> true|false`
+    // (true = disabled, since this is the *disabled* table).
     const escaped = label.replace(/\./g, '\\.')
-    const match = stdout.match(new RegExp(`"${escaped}"\\s*=>\\s*(enabled|disabled)`))
-    if (match) return match[1] === 'enabled'
+    const match = stdout.match(new RegExp(`"${escaped}"\\s*=>\\s*(enabled|disabled|true|false)`))
+    if (match) return match[1] === 'enabled' || match[1] === 'false'
   } catch {
     /* fall through to port probe */
   }
@@ -239,7 +241,7 @@ async function applySshdDirective(directive: string, value: string): Promise<voi
   try {
     await elevatedExec('/bin/launchctl', ['kickstart', '-k', `system/${SSHD_LABEL}`])
   } catch {
-    await elevatedExec('/bin/launchctl', ['stop', 'com.openssh.sshd']).catch(() => {})
+    await elevatedExec('/bin/launchctl', ['stop', SSHD_LABEL]).catch(() => {})
   }
 }
 
@@ -637,6 +639,33 @@ async function managedPrefWrite(
   ])
 }
 
+// Read a boolean policy key back. Prefer plutil, which reads the file
+// directly and so isn't affected by the user cfprefsd's cached view of a file
+// root just replaced; fall back to `defaults read` for older macOS.
+// Returns null when the key/file is absent or unreadable.
+async function managedPrefBool(domain: string, key: string): Promise<boolean | null> {
+  try {
+    const { stdout } = await execFileAsync(
+      '/usr/bin/plutil',
+      ['-extract', key, 'raw', '-o', '-', `${MANAGED_PREFS}/${domain}.plist`],
+      { timeout: 5_000 }
+    )
+    const val = stdout.trim()
+    if (val === 'true' || val === '1') return true
+    if (val === 'false' || val === '0') return false
+  } catch {
+    /* fall through */
+  }
+  try {
+    const val = await defaultsRead(`${MANAGED_PREFS}/${domain}`, key)
+    if (val === '1') return true
+    if (val === '0') return false
+  } catch {
+    /* absent or unreadable */
+  }
+  return null
+}
+
 const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
   {
     id: 'macos-safari-dnt',
@@ -664,15 +693,7 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       if (!(await isBrowserInstalled(CHROME_BUNDLE_ID))) return true
-      try {
-        const val = await defaultsRead(
-          `${MANAGED_PREFS}/com.google.Chrome`,
-          'MetricsReportingEnabled'
-        )
-        return val === '0'
-      } catch {
-        return false
-      }
+      return (await managedPrefBool('com.google.Chrome', 'MetricsReportingEnabled')) === false
     },
     async apply() {
       await managedPrefWrite('com.google.Chrome', 'MetricsReportingEnabled', 'bool', 'false')
@@ -686,15 +707,10 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       if (!(await isBrowserInstalled(CHROME_BUNDLE_ID))) return true
-      try {
-        const val = await defaultsRead(
-          `${MANAGED_PREFS}/com.google.Chrome`,
-          'SafeBrowsingExtendedReportingEnabled'
-        )
-        return val === '0'
-      } catch {
-        return false
-      }
+      return (
+        (await managedPrefBool('com.google.Chrome', 'SafeBrowsingExtendedReportingEnabled')) ===
+        false
+      )
     },
     async apply() {
       await managedPrefWrite(
@@ -713,12 +729,7 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     requiresAdmin: true,
     async check() {
       if (!(await isBrowserInstalled(FIREFOX_BUNDLE_ID))) return true
-      try {
-        const val = await defaultsRead(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry')
-        return val === '1'
-      } catch {
-        return false
-      }
+      return (await managedPrefBool('org.mozilla.firefox', 'DisableTelemetry')) === true
     },
     async apply() {
       await managedPrefWrite('org.mozilla.firefox', 'DisableTelemetry', 'bool', 'true')

@@ -186,6 +186,14 @@ describe('darwin privacy checks run unprivileged', () => {
       expect(await find('macos-remote-login').check()).toBe(false)
     })
 
+    it('understands the older true/false override format', async () => {
+      mockExec((cmd) => {
+        if (cmd === '/bin/launchctl') return { stdout: '"com.openssh.sshd" => false' }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-remote-login').check()).toBe(false)
+    })
+
     it('falls back to probing port 22 when launchctl gives no answer', async () => {
       mockExec((cmd, args) => {
         if (cmd === '/bin/launchctl') return { stdout: 'disabled services = {\n}\n' }
@@ -225,6 +233,46 @@ describe('darwin privacy checks run unprivileged', () => {
   })
 
   describe('managed browser preferences', () => {
+    const chromeInstalled = (cmd: string) =>
+      cmd === '/usr/bin/mdfind' ? { stdout: '/Applications/Google Chrome.app\n' } : null
+
+    it('reads the plist directly via plutil (bypasses cfprefsd cache)', async () => {
+      mockExec((cmd, args) => {
+        const found = chromeInstalled(cmd)
+        if (found) return found
+        if (cmd === '/usr/bin/plutil') {
+          expect(args).toEqual([
+            '-extract',
+            'MetricsReportingEnabled',
+            'raw',
+            '-o',
+            '-',
+            '/Library/Managed Preferences/com.google.Chrome.plist'
+          ])
+          return { stdout: 'false\n' }
+        }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-chrome-metrics').check()).toBe(true)
+      expect(calledCommands()).not.toContain('/usr/bin/defaults')
+    })
+
+    it('falls back to defaults read when plutil fails', async () => {
+      mockExec((cmd) => {
+        const found = chromeInstalled(cmd)
+        if (found) return found
+        if (cmd === '/usr/bin/plutil') return new Error('no such file')
+        if (cmd === '/usr/bin/defaults') return { stdout: '0\n' }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-chrome-metrics').check()).toBe(true)
+    })
+
+    it('reports unprotected when the policy is absent or unreadable', async () => {
+      mockExec((cmd) => chromeInstalled(cmd) ?? new Error('permission denied'))
+      expect(await find('macos-chrome-metrics').check()).toBe(false)
+    })
+
     it('chmods the managed prefs plist so the user-level check can read it back', async () => {
       mockExec(() => ({ stdout: '' }))
       await find('macos-chrome-metrics').apply()
