@@ -70,9 +70,14 @@ export async function readRecoveryTarget(target: RecoveryTarget): Promise<Recove
       timeout: 8000,
       windowsHide: true
     })
-    const match = stdout.match(/<Settings>[\s\S]*?<Enabled>(true|false)<\/Enabled>/i)
-    if (!match) throw new Error('Task state is unavailable')
-    return match[1].toLowerCase() === 'true'
+    // Task Scheduler omits <Enabled> from <Settings> when it holds the schema
+    // default (true) — most never-toggled built-in tasks export this way — so a
+    // missing element means enabled, not unreadable. Scope the match to the
+    // <Settings> block so a trigger-level <Enabled> is never picked up instead.
+    const settings = stdout.match(/<Settings>([\s\S]*?)<\/Settings>/i)
+    if (!settings) throw new Error('Task state is unavailable')
+    const match = settings[1].match(/<Enabled>(true|false)<\/Enabled>/i)
+    return match ? match[1].toLowerCase() === 'true' : true
   }
   const key = target.key
   const name = target.name

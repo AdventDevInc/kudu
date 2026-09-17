@@ -64,6 +64,28 @@ it('reports an absent registry value instead of failing on the PowerShell fallba
   ).toBeNull()
   expect(spawned()).toEqual(['cmd.exe', 'powershell'])
 })
+it('treats a task whose Settings omit <Enabled> as enabled (schema default)', async () => {
+  // Most never-toggled built-in tasks export without <Enabled>; a trigger-level
+  // <Enabled> after the Settings block must not be mistaken for the task state.
+  respond({
+    stdout:
+      '<Task><Settings><Hidden>true</Hidden></Settings><Triggers><BootTrigger><Enabled>false</Enabled></BootTrigger></Triggers></Task>'
+  })
+  expect(await readRecoveryTarget({ kind: 'task-enabled', name: '\\Test\\Task' })).toBe(true)
+  expect(spawned()).toEqual(['cmd.exe'])
+})
+it('reads an explicit task Settings <Enabled> value', async () => {
+  respond({ stdout: '<Task><Settings><Enabled>false</Enabled></Settings></Task>' })
+  expect(await readRecoveryTarget({ kind: 'task-enabled', name: '\\Test\\Task' })).toBe(false)
+  respond({ stdout: '<Task><Settings><Enabled>true</Enabled></Settings></Task>' })
+  expect(await readRecoveryTarget({ kind: 'task-enabled', name: '\\Test\\Task' })).toBe(true)
+})
+it('fails when the task XML has no Settings block at all', async () => {
+  respond({ stdout: 'ERROR: The system cannot find the file specified.' })
+  await expect(readRecoveryTarget({ kind: 'task-enabled', name: '\\Test\\Task' })).rejects.toThrow(
+    'Task state is unavailable'
+  )
+})
 it('restores a service with sc.exe, reg.exe, and PowerShell', async () => {
   respond({ stdout: '' }, { stdout: 'DelayedAutoStart REG_DWORD 0x1' }, { stdout: '' })
   await writeRecoveryTarget(
