@@ -229,7 +229,7 @@ export function createWin32Commands(): PlatformCommands {
             '-Command',
             psUtf8(
               `$p = Start-Process -FilePath 'sfc.exe' -ArgumentList '/scannow' -WindowStyle Hidden -Wait -PassThru -RedirectStandardOutput "$env:TEMP\\sfc_out.txt"; ` +
-                `$output = Get-Content "$env:TEMP\\sfc_out.txt" -Raw -Encoding UTF8 -ErrorAction SilentlyContinue; ` +
+                `$output = Get-Content "$env:TEMP\\sfc_out.txt" -Raw -Encoding Unicode -ErrorAction SilentlyContinue; ` +
                 `Remove-Item "$env:TEMP\\sfc_out.txt" -ErrorAction SilentlyContinue; ` +
                 `[PSCustomObject]@{ exitCode=$p.ExitCode; output=$output } | ConvertTo-Json -Compress`
             )

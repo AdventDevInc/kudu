@@ -2,7 +2,6 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { readdir, stat } from 'fs/promises'
 import { execFile, spawn } from 'child_process'
 import { promisify } from 'util'
-import { StringDecoder } from 'string_decoder'
 import { join, basename, sep } from 'path'
 import { IPC } from '../../shared/channels'
 import { extname } from 'path'
@@ -15,7 +14,7 @@ import type {
   DiskRepairProgress
 } from '../../shared/types'
 import type { WindowGetter } from './index'
-import { psUtf8 } from '../services/exec-utf8'
+import { psUtf8, ConsoleOutputDecoder } from '../services/exec-utf8'
 
 const execFileAsync = promisify(execFile)
 
@@ -292,8 +291,9 @@ async function runSfc(drive: string, getWindow: WindowGetter): Promise<DiskRepai
     const child = spawn('cmd', ['/c', 'chcp 65001 >nul & sfc', ...args], { windowsHide: true })
     let stdout = ''
     let lastPercent = 0
-    const decoder = new StringDecoder('utf-8')
-    const stderrDecoder = new StringDecoder('utf-8')
+    // sfc.exe ignores the code page and emits UTF-16LE when stdout is a pipe
+    const decoder = new ConsoleOutputDecoder()
+    const stderrDecoder = new ConsoleOutputDecoder()
 
     child.stdout?.on('data', (chunk: Buffer) => {
       const text = decoder.write(chunk)
@@ -411,8 +411,8 @@ async function runDism(getWindow: WindowGetter): Promise<DiskRepairResult> {
     )
     let stdout = ''
     let lastPercent = 0
-    const dismDecoder = new StringDecoder('utf-8')
-    const dismStderrDecoder = new StringDecoder('utf-8')
+    const dismDecoder = new ConsoleOutputDecoder()
+    const dismStderrDecoder = new ConsoleOutputDecoder()
 
     child.stdout?.on('data', (chunk: Buffer) => {
       const text = dismDecoder.write(chunk)
@@ -524,8 +524,8 @@ async function runChkdsk(drive: string, getWindow: WindowGetter): Promise<DiskRe
     })
     let stdout = ''
     let lastPercent = 0
-    const decoder = new StringDecoder('utf-8')
-    const stderrDecoder = new StringDecoder('utf-8')
+    const decoder = new ConsoleOutputDecoder()
+    const stderrDecoder = new ConsoleOutputDecoder()
 
     child.stdout?.on('data', (chunk: Buffer) => {
       const text = decoder.write(chunk)

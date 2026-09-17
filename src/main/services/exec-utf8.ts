@@ -12,6 +12,7 @@
 
 import { execFile, spawn, type ExecFileOptions, type ChildProcess } from 'child_process'
 import { promisify } from 'util'
+import { StringDecoder } from 'string_decoder'
 
 const execFileAsync = promisify(execFile)
 
@@ -25,6 +26,36 @@ const PS_UTF8_PREAMBLE =
  */
 export function psUtf8(command: string): string {
   return PS_UTF8_PREAMBLE + command
+}
+
+/**
+ * Incremental decoder for console output whose encoding is only known once
+ * bytes arrive.  Most tools honour `chcp 65001` and emit UTF-8, but sfc.exe
+ * writes UTF-16LE to a redirected stdout regardless of the active code page,
+ * which shows up as NUL-spaced ASCII and mojibake on non-Latin locales.
+ *
+ * UTF-8 console text never contains C0 control bytes below TAB, while UTF-16LE
+ * has one as the high byte of every ASCII, Latin, Cyrillic, Greek, Hebrew or
+ * Arabic character (U+0000–U+08FF).  The first chunk decides: a leading BOM
+ * or any such byte selects UTF-16LE, otherwise UTF-8.  The choice is made
+ * once so multi-byte sequences split across chunks still decode correctly.
+ */
+export class ConsoleOutputDecoder {
+  private decoder: StringDecoder | null = null
+
+  write(chunk: Buffer): string {
+    if (!this.decoder) {
+      const bom = chunk.length >= 2 && chunk[0] === 0xff && chunk[1] === 0xfe
+      const utf16 = bom || chunk.some((b) => b < 0x09)
+      this.decoder = new StringDecoder(utf16 ? 'utf16le' : 'utf-8')
+      if (bom) chunk = chunk.subarray(2)
+    }
+    return this.decoder.write(chunk)
+  }
+
+  end(): string {
+    return this.decoder?.end() ?? ''
+  }
 }
 
 /** Tools that may be invoked through cmd.exe via execNativeUtf8 */
