@@ -779,7 +779,7 @@ export interface KuduSettings {
   /**
    * When true, the Schedules promo card at the bottom of the sidebar stays
    * hidden. Set when the user dismisses it; the card also auto-hides once any
-   * schedule is enabled.
+   * schedule exists.
    */
   scheduleNudgeDismissed: boolean
   /**

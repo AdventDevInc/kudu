@@ -349,13 +349,14 @@ export function Sidebar() {
   const { features } = usePlatform()
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
 
-  // Schedules promo card: auto-hides once a schedule is enabled, or when dismissed.
-  const hasEnabledSchedule = useSettingsStore((s) =>
-    (s.settings.schedules ?? []).some((entry) => entry.enabled)
+  // Schedules promo card: auto-hides once the user has any schedule (even a paused
+  // one — they've found the feature), including the legacy single-schedule setting.
+  const hasAnySchedule = useSettingsStore(
+    (s) => (s.settings.schedules ?? []).length > 0 || Boolean(s.settings.schedule?.enabled)
   )
   const scheduleNudgeDismissed = useSettingsStore((s) => s.settings.scheduleNudgeDismissed ?? false)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
-  const showScheduleNudge = !hasEnabledSchedule && !scheduleNudgeDismissed
+  const showScheduleNudge = !hasAnySchedule && !scheduleNudgeDismissed
   const dismissScheduleNudge = useCallback(() => {
     updateSettings({ scheduleNudgeDismissed: true })
     window.kudu?.settingsSet?.({ scheduleNudgeDismissed: true }).catch(() => {})
