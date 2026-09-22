@@ -133,10 +133,67 @@ export function stripTrailingVersion(name: string): string {
 
 // ─── Winget (Windows) ───────────────────────────────────────
 
-/** A column of a winget table: its header text and start offset in the line. */
+/** A column of a winget table: its header text and start display column. */
 interface WingetColumn {
   label: string
   start: number
+}
+
+/**
+ * Codepoint ranges the console renders two cells wide (CJK, Hangul, kana,
+ * fullwidth forms, emoji). Winget pads its table to display columns, so a
+ * Japanese header like `名前  ID  バージョン` occupies far more terminal
+ * columns than it does UTF-16 code units — slicing rows by string index would
+ * shear every column after it.
+ */
+const WIDE_CHAR_RANGES: [number, number][] = [
+  [0x1100, 0x115f],
+  [0x2e80, 0x303e],
+  [0x3041, 0x33ff],
+  [0x3400, 0x4dbf],
+  [0x4e00, 0x9fff],
+  [0xa000, 0xa4cf],
+  [0xa960, 0xa97f],
+  [0xac00, 0xd7a3],
+  [0xf900, 0xfaff],
+  [0xfe10, 0xfe19],
+  [0xfe30, 0xfe6f],
+  [0xff00, 0xff60],
+  [0xffe0, 0xffe6],
+  [0x1f300, 0x1f64f],
+  [0x1f900, 0x1f9ff],
+  [0x20000, 0x3fffd]
+]
+
+/** Terminal cells a single codepoint occupies: 0 (combining), 1, or 2. */
+function charWidth(code: number): number {
+  if (code >= 0x0300 && code <= 0x036f) return 0
+  for (const [lo, hi] of WIDE_CHAR_RANGES) {
+    if (code >= lo && code <= hi) return 2
+  }
+  return 1
+}
+
+/** Terminal cells a string occupies. */
+export function displayWidth(text: string): number {
+  let width = 0
+  for (const ch of text) width += charWidth(ch.codePointAt(0) as number)
+  return width
+}
+
+/**
+ * Slice a line by *display* columns rather than string indexes. A wide
+ * character straddling a boundary is kept with the column it starts in.
+ */
+export function sliceByDisplayColumns(line: string, startCol: number, endCol: number): string {
+  let col = 0
+  let out = ''
+  for (const ch of line) {
+    if (col >= endCol) break
+    if (col >= startCol) out += ch
+    col += charWidth(ch.codePointAt(0) as number)
+  }
+  return out
 }
 
 interface WingetTable {
@@ -181,18 +238,18 @@ export function locateWingetTable(stdout: string, minColumns: number): WingetTab
   const header = lines[separatorIdx - 1]
   const columns: WingetColumn[] = []
   for (const m of header.matchAll(/\S+/g)) {
-    columns.push({ label: m[0], start: m.index ?? 0 })
+    columns.push({ label: m[0], start: displayWidth(header.slice(0, m.index ?? 0)) })
   }
   if (columns.length < minColumns) return null
 
-  const idCol = columns[1]
+  const idStart = columns[1].start
   const idEnd = columns[2].start
   const rows: string[] = []
   for (let i = separatorIdx + 1; i < lines.length; i++) {
     const line = lines[i]
     if (!line.trim()) continue
     if (/^\d+\s/.test(line)) {
-      const idCell = line.substring(idCol.start, idEnd).trim()
+      const idCell = sliceByDisplayColumns(line, idStart, idEnd).trim()
       if (!idCell || /\s/.test(idCell) || /\.\s*$/.test(line)) break
     }
     rows.push(line)
@@ -229,7 +286,7 @@ function resolveWingetColumns(
 
 function cell(line: string, range: [number, number] | undefined): string {
   if (!range) return ''
-  return line.substring(range[0], range[1]).trim()
+  return sliceByDisplayColumns(line, range[0], range[1]).trim()
 }
 
 /** winget prefixes versions with "> " or "< " when the installed version is uncertain. */
@@ -297,6 +354,22 @@ export function parseWingetListOutput(stdout: string): UpToDateApp[] {
   return apps
 }
 
+/** Version component of an MSIX package folder (`Name_1.22.10_x64__hash`). */
+function packageVersion(folder: string): string {
+  return folder.split('_')[1] ?? ''
+}
+
+/** Compare dotted numeric versions; returns <0, 0 or >0 like a sort comparator. */
+export function comparePackageVersions(a: string, b: string): number {
+  const pa = a.split('.')
+  const pb = b.split('.')
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (parseInt(pa[i] ?? '0', 10) || 0) - (parseInt(pb[i] ?? '0', 10) || 0)
+    if (diff !== 0) return diff
+  }
+  return 0
+}
+
 /**
  * Places winget may live when it is not on PATH. Kudu runs elevated
  * (requireAdministrator); when UAC elevates under a different account than
@@ -314,11 +387,12 @@ function wingetPathCandidates(): string[] {
   const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
   const windowsApps = join(programFiles, 'WindowsApps')
   try {
+    // Highest version first so a stale side-by-side package is not picked.
+    // Compare version components numerically — lexicographic ordering would
+    // rank 1.9 above 1.10.
     const packages = readdirSync(windowsApps)
       .filter((d) => /^Microsoft\.DesktopAppInstaller_.*_8wekyb3d8bbwe$/i.test(d))
-      // Highest version first so a stale side-by-side package is not picked
-      .sort()
-      .reverse()
+      .sort((a, b) => comparePackageVersions(packageVersion(b), packageVersion(a)))
     for (const pkg of packages) {
       candidates.push(join(windowsApps, pkg, 'winget.exe'))
     }
