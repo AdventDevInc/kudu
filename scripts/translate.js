@@ -8,7 +8,16 @@
  *   OPENAI_API_KEY=sk-... node scripts/translate.js --lang es,fr       # Specific languages
  *   OPENAI_API_KEY=sk-... node scripts/translate.js --ns common,sidebar # Specific namespaces
  *   OPENAI_API_KEY=sk-... node scripts/translate.js --dry-run          # Preview only
- *   OPENAI_API_KEY=sk-... node scripts/translate.js --force            # Re-translate even if unchanged
+ *   OPENAI_API_KEY=sk-... node scripts/translate.js --force            # Re-translate every key
+ *
+ * Incremental by key: only keys that are new or whose English text changed
+ * since the last run are sent to the model. Existing translations for
+ * untouched keys are kept verbatim, so a PR that adds three strings changes
+ * three lines per language instead of rewriting every file (which made
+ * every open PR conflict on all locale files).
+ *
+ * Per-key English hashes live in locales/.checksums.json:
+ *   { "version": 2, "keys": { "<namespace>": { "<dot.key>": "<sha256>" } } }
  */
 
 const fs = require('fs')
@@ -76,16 +85,108 @@ function sha256(content) {
   return createHash('sha256').update(content, 'utf-8').digest('hex')
 }
 
+const CHECKSUMS_VERSION = 2
+
+/**
+ * Load per-key English hashes. Older checksum files (one whole-file hash per
+ * language/namespace) carry no per-key data, so they are treated as empty and
+ * bootstrapped on the first run: keys already present in every target file
+ * are assumed current, and only missing keys get translated.
+ */
 function loadChecksums() {
   try {
-    return JSON.parse(fs.readFileSync(CHECKSUMS_PATH, 'utf-8'))
+    const parsed = JSON.parse(fs.readFileSync(CHECKSUMS_PATH, 'utf-8'))
+    if (parsed && parsed.version === CHECKSUMS_VERSION && parsed.keys) return parsed
   } catch {
-    return {}
+    /* fall through */
   }
+  return { version: CHECKSUMS_VERSION, keys: {} }
 }
 
 function saveChecksums(checksums) {
-  fs.writeFileSync(CHECKSUMS_PATH, JSON.stringify(checksums, null, 2), 'utf-8')
+  // Sort namespaces and keys so the file is stable across runs and merges.
+  const keys = {}
+  for (const ns of Object.keys(checksums.keys).sort()) {
+    const entries = checksums.keys[ns]
+    keys[ns] = {}
+    for (const k of Object.keys(entries).sort()) keys[ns][k] = entries[k]
+  }
+  fs.writeFileSync(
+    CHECKSUMS_PATH,
+    JSON.stringify({ version: CHECKSUMS_VERSION, keys }, null, 2) + '\n',
+    'utf-8'
+  )
+}
+
+/** Flatten a nested JSON object into a Map of dot-key -> leaf value */
+function flattenEntries(obj, prefix = '') {
+  const out = new Map()
+  for (const [k, v] of Object.entries(obj)) {
+    const fullKey = prefix ? `${prefix}.${k}` : k
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      for (const [ck, cv] of flattenEntries(v, fullKey)) out.set(ck, cv)
+    } else {
+      out.set(fullKey, v)
+    }
+  }
+  return out
+}
+
+/** Read a dot-key from a nested object; undefined when absent */
+function getPath(obj, dotKey) {
+  let cur = obj
+  for (const part of dotKey.split('.')) {
+    if (!cur || typeof cur !== 'object' || !(part in cur)) return undefined
+    cur = cur[part]
+  }
+  return cur
+}
+
+/**
+ * Build a target-language object that mirrors the English structure and key
+ * order, taking values from `fresh` (newly translated) for keys in `keySet`
+ * and from `existing` (previous translation) otherwise. Keys no longer in
+ * English are dropped. Missing values fall back to English so the app never
+ * renders a bare key.
+ */
+function mergeTranslation(englishJson, existing, fresh, keySet, prefix = '') {
+  const out = {}
+  for (const [k, enVal] of Object.entries(englishJson)) {
+    const fullKey = prefix ? `${prefix}.${k}` : k
+    if (enVal && typeof enVal === 'object' && !Array.isArray(enVal)) {
+      out[k] = mergeTranslation(
+        enVal,
+        existing && typeof existing[k] === 'object' ? existing[k] : {},
+        fresh && typeof fresh[k] === 'object' ? fresh[k] : {},
+        keySet,
+        fullKey
+      )
+      continue
+    }
+    if (keySet.has(fullKey) && fresh && fresh[k] !== undefined) {
+      out[k] = fresh[k]
+    } else if (existing && existing[k] !== undefined && typeof existing[k] !== 'object') {
+      out[k] = existing[k]
+    } else {
+      out[k] = enVal
+    }
+  }
+  return out
+}
+
+/** Pick only the given dot-keys out of a nested English object, keeping nesting */
+function pickKeys(englishJson, keySet, prefix = '') {
+  const out = {}
+  for (const [k, v] of Object.entries(englishJson)) {
+    const fullKey = prefix ? `${prefix}.${k}` : k
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      const child = pickKeys(v, keySet, fullKey)
+      if (Object.keys(child).length > 0) out[k] = child
+    } else if (keySet.has(fullKey)) {
+      out[k] = v
+    }
+  }
+  return out
 }
 
 function sleep(ms) {
@@ -299,7 +400,7 @@ async function main() {
   console.log(`Languages: ${languages.map(([c, n]) => `${c} (${n})`).join(', ')}`)
   console.log(`Mode: ${dryRun ? 'DRY RUN' : force ? 'FORCE' : 'INCREMENTAL'}\n`)
 
-  // Load checksums for incremental mode
+  // Per-key English hashes drive incremental mode
   const checksums = loadChecksums()
   const failures = []
   let translated = 0
@@ -307,35 +408,76 @@ async function main() {
 
   // Build all tasks across all languages and namespaces
   const tasks = []
+  // Per namespace: the English hash for every key, and whether every
+  // language finished cleanly (only then are the stored hashes advanced, so a
+  // failed language is retried next run instead of silently left stale).
+  const nsState = {}
 
-  for (const [langCode, langName] of languages) {
-    const langDir = path.join(LOCALES_DIR, langCode)
-    if (!fs.existsSync(langDir)) {
-      fs.mkdirSync(langDir, { recursive: true })
-    }
+  for (const ns of nsFiles) {
+    const enPath = path.join(enDir, `${ns}.json`)
+    const englishJson = JSON.parse(fs.readFileSync(enPath, 'utf-8'))
+    const enEntries = flattenEntries(englishJson)
+    const enHashes = {}
+    for (const [k, v] of enEntries) enHashes[k] = sha256(String(v))
+    const stored = checksums.keys[ns]
+    nsState[ns] = { enHashes, failed: false, stored }
 
-    for (const ns of nsFiles) {
-      const enPath = path.join(enDir, `${ns}.json`)
-      const enContent = fs.readFileSync(enPath, 'utf-8')
-      const enHash = sha256(enContent)
-      const checksumKey = `${langCode}/${ns}`
-
-      // Skip if unchanged (unless --force)
-      if (!force && checksums[checksumKey] === enHash) {
-        const outPath = path.join(langDir, `${ns}.json`)
-        if (fs.existsSync(outPath)) {
-          console.log(`  [skip] ${langCode}/${ns}.json (unchanged)`)
-          skipped++
-          continue
-        }
+    for (const [langCode, langName] of languages) {
+      const langDir = path.join(LOCALES_DIR, langCode)
+      if (!fs.existsSync(langDir)) {
+        fs.mkdirSync(langDir, { recursive: true })
+      }
+      const outPath = path.join(langDir, `${ns}.json`)
+      let existing = {}
+      try {
+        existing = JSON.parse(fs.readFileSync(outPath, 'utf-8'))
+      } catch {
+        existing = {}
       }
 
-      if (dryRun) {
-        console.log(`  [would translate] ${langCode}/${ns}.json`)
+      // Decide which keys this language needs. With no stored hashes for the
+      // namespace (first run after migrating from whole-file checksums) only
+      // missing keys are translated; changed wording can't be detected yet.
+      const toTranslate = new Set()
+      for (const k of enEntries.keys()) {
+        const present = getPath(existing, k) !== undefined
+        const changed = stored ? stored[k] !== enHashes[k] : false
+        if (force || !present || changed) toTranslate.add(k)
+      }
+
+      // Structural sync (dropped keys, reordering) happens even with nothing
+      // to translate, so the file always mirrors English.
+      const synced = mergeTranslation(englishJson, existing, {}, new Set())
+      const syncedText = JSON.stringify(synced, null, 2) + '\n'
+
+      if (toTranslate.size === 0) {
+        let currentText = ''
+        try {
+          currentText = fs.readFileSync(outPath, 'utf-8')
+        } catch {
+          currentText = ''
+        }
+        if (currentText !== syncedText) {
+          if (dryRun) {
+            console.log(`  [would sync] ${langCode}/${ns}.json (structure only)`)
+          } else {
+            fs.writeFileSync(outPath, syncedText, 'utf-8')
+            console.log(`  [sync] ${langCode}/${ns}.json (structure only)`)
+          }
+        } else {
+          skipped++
+        }
         continue
       }
 
-      const englishJson = JSON.parse(enContent)
+      if (dryRun) {
+        console.log(
+          `  [would translate] ${langCode}/${ns}.json — ${toTranslate.size} key(s): ${[...toTranslate].slice(0, 5).join(', ')}${toTranslate.size > 5 ? ', …' : ''}`
+        )
+        continue
+      }
+
+      const subset = pickKeys(englishJson, toTranslate)
 
       tasks.push(() =>
         (async () => {
@@ -344,18 +486,18 @@ async function main() {
 
           for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-              const result = await translateNamespace(ns, langCode, langName, englishJson)
+              const fresh = await translateNamespace(ns, langCode, langName, subset)
 
               // Auto-repair dropped interpolation variables (common with RTL languages)
-              const repaired = repairTranslation(englishJson, result)
+              const repaired = repairTranslation(subset, fresh)
               if (repaired > 0) {
                 console.log(
                   `  [repair] ${langCode}/${ns}.json — re-inserted ${repaired} dropped variable(s)`
                 )
               }
 
-              // Validate
-              const errors = validateTranslation(englishJson, result, langCode, ns)
+              // Validate the subset the model was asked for
+              const errors = validateTranslation(subset, fresh, langCode, ns)
               if (errors.length > 0) {
                 if (attempt < MAX_RETRIES) {
                   console.log(`  [retry] ${langCode}/${ns}.json — validation errors: ${errors[0]}`)
@@ -366,15 +508,14 @@ async function main() {
                 )
               }
 
-              // Write output
-              const outPath = path.join(langDir, `${ns}.json`)
-              fs.writeFileSync(outPath, JSON.stringify(result, null, 2) + '\n', 'utf-8')
-
-              // Update checksum (saved to disk after all tasks complete)
-              checksums[checksumKey] = enHash
+              // Merge fresh keys into the existing translation and write
+              const merged = mergeTranslation(englishJson, existing, fresh, toTranslate)
+              fs.writeFileSync(outPath, JSON.stringify(merged, null, 2) + '\n', 'utf-8')
 
               const elapsed = ((Date.now() - start) / 1000).toFixed(1)
-              console.log(`  [done] ${langCode}/${ns}.json (${elapsed}s)`)
+              console.log(
+                `  [done] ${langCode}/${ns}.json — ${toTranslate.size} key(s) (${elapsed}s)`
+              )
               translated++
               return
             } catch (err) {
@@ -394,6 +535,7 @@ async function main() {
 
           console.error(`  [FAILED] ${langCode}/${ns}.json — ${lastError?.message}`)
           failures.push(`${langCode}/${ns}: ${lastError?.message}`)
+          nsState[ns].failed = true
         })()
       )
     }
@@ -404,8 +546,15 @@ async function main() {
     await withConcurrency(tasks, MAX_CONCURRENT)
   }
 
-  // Save checksums once after all tasks complete (avoids concurrent file writes)
-  saveChecksums(checksums)
+  // Advance stored hashes for namespaces where every language succeeded.
+  // (Only when a namespace or language filter is not narrowing the run: a
+  // partial run must not mark keys as done for languages it never touched.)
+  if (!dryRun && !langFilter) {
+    for (const [ns, state] of Object.entries(nsState)) {
+      if (!state.failed) checksums.keys[ns] = state.enHashes
+    }
+    saveChecksums(checksums)
+  }
 
   // Summary
   console.log(`\n${'─'.repeat(50)}`)
