@@ -1123,7 +1123,7 @@ async function handlePrivacy(args: string[], ctx: CliContext): Promise<number | 
   }
 }
 
-async function handleDrivers(args: string[], ctx: CliContext): Promise<number | void> {
+export async function handleDrivers(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const {
     scanDrivers,
@@ -1206,6 +1206,26 @@ async function handleDrivers(args: string[], ctx: CliContext): Promise<number | 
         })()
     if (toInstall.length === 0) {
       cliUsage(ctx, 'kudu --cli drivers update <id,...> or --all')
+      return ExitCode.INVALID_ARGS
+    }
+    // Only install updates that are actually offered. Ignored IDs are refused
+    // rather than silently forwarded to Windows Update (#464).
+    const offered = new Set(updateResult.updates.map((u) => u.updateId))
+    const ignoredIds = new Set(updateResult.ignoredUpdates.map((u) => u.updateId))
+    const rejected = toInstall.filter((id) => !offered.has(id))
+    if (rejected.length > 0) {
+      const ignoredHits = rejected.filter((id) => ignoredIds.has(id))
+      const unknown = rejected.filter((id) => !ignoredIds.has(id))
+      const parts: string[] = []
+      if (ignoredHits.length > 0)
+        parts.push(`ignored: ${ignoredHits.join(', ')} (run "drivers unignore" first)`)
+      if (unknown.length > 0) parts.push(`not offered: ${unknown.join(', ')}`)
+      cliOut(
+        ctx,
+        ctx.json
+          ? { error: 'Refusing to install', ignored: ignoredHits, notOffered: unknown }
+          : `Refusing to install — ${parts.join('; ')}`
+      )
       return ExitCode.INVALID_ARGS
     }
     cliLog(ctx, `Installing ${toInstall.length} driver updates...`)

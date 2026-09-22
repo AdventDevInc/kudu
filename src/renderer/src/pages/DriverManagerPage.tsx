@@ -288,7 +288,9 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   // ─── Ignore / restore a driver update ─────────────────────
   // Optimistic: move the row immediately, then persist and hide/unhide the
   // update in Windows Update itself. Hiding needs elevation; if that part
-  // fails the update stays ignored in Kudu and the user is told. The row is
+  // fails the update stays ignored in Kudu and the user is told. If the
+  // request itself rejects (settings could not be written) the move is rolled
+  // back so the UI never claims a state that was not persisted. The row is
   // marked pending until the request finishes so it can't be flipped back
   // while the (slow) Windows Update call is still running.
   const handleIgnore = useCallback(
@@ -310,6 +312,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           })
         }
       } catch {
+        useDriverStore.getState().unignoreUpdate(upd.id)
         toast.error(t('driverManager.ignoreFailedToast'))
       } finally {
         useDriverStore.getState().setIgnorePending(upd.id, false)
@@ -333,6 +336,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           })
         }
       } catch {
+        useDriverStore.getState().ignoreUpdate(upd.id)
         toast.error(t('driverManager.ignoreFailedToast'))
       } finally {
         useDriverStore.getState().setIgnorePending(upd.id, false)
