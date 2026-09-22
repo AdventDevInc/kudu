@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { YaraEngine, isAdvisoryDetection } from './yara-engine'
+import { YaraEngine, isAdvisoryDetection, isSuppressedRule } from './yara-engine'
 
 // ─── Test pure conversion logic (replicated to avoid Electron imports) ───
 
@@ -296,5 +296,20 @@ describe('isAdvisoryDetection', () => {
 
   it('does not fire on an unrelated name that merely contains "susp"', () => {
     expect(isAdvisoryDetection('Trojan.Suspenders')).toBe(false)
+  })
+})
+
+describe('isSuppressedRule', () => {
+  it('drops the XORed-URL heuristic that fires on most clean binaries', () => {
+    expect(isSuppressedRule('SUSP_XORed_URL_In_EXE')).toBe(true)
+  })
+
+  it('is case-insensitive', () => {
+    expect(isSuppressedRule('susp_xored_url_in_exe')).toBe(true)
+  })
+
+  it('leaves every other rule alone', () => {
+    expect(isSuppressedRule('SUSP_NET_NAME_ConfuserEx')).toBe(false)
+    expect(isSuppressedRule('Trojan_Win32_Emotet')).toBe(false)
   })
 })

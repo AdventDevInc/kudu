@@ -539,6 +539,28 @@ export function isAdvisoryDetection(detectionName: string): boolean {
   return name.startsWith('susp.') || name.startsWith('susp_') || name.includes('vulndriver')
 }
 
+/**
+ * Rules whose hits are dropped entirely, before they become threats.
+ *
+ * These are upstream rules that fire on ordinary, benign software often
+ * enough that surfacing them at all trains users to ignore the scanner.
+ * Advisory handling (see isAdvisoryDetection) is not enough here — an
+ * unticked row on hundreds of files is still noise.
+ *
+ * Keyed by YARA identifier, compared case-insensitively. The cloud bundle
+ * should also drop them; this list exists so already-cached bundles and any
+ * future re-add stop firing without waiting for a rule update.
+ */
+const SUPPRESSED_RULES = new Set([
+  // signature-base: matches any PE with an XOR-encoded "http" substring.
+  // Fires on Electron, .NET, Go and packed binaries across a clean system.
+  'susp_xored_url_in_exe'
+])
+
+export function isSuppressedRule(ruleName: string): boolean {
+  return SUPPRESSED_RULES.has(ruleName.toLowerCase())
+}
+
 export function yaraMatchToThreatFields(match: YaraMatch): {
   detectionName: string
   severity: 'critical' | 'high' | 'medium' | 'low'
