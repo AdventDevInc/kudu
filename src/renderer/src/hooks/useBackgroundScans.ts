@@ -54,6 +54,7 @@ export function useBackgroundScans(): void {
         s.setUpToDate(result.upToDate)
         s.setPackageManagerAvailable(result.packageManagerAvailable)
         s.setPackageManagerName(result.packageManagerName)
+        s.setManagers(result.managers)
         s.setHasChecked(true)
       } catch {
         // Silent — don't set error so the page still shows its initial state

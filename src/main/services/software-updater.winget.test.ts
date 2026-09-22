@@ -171,6 +171,31 @@ describe('checkForUpdates (winget)', () => {
     expect(result.managers[0]).toEqual({ name: 'winget', available: true, outdatedCount: 0 })
   })
 
+  it('keeps partial rows but flags the scan when winget is killed mid-table', async () => {
+    scriptWinget({
+      '--version': { stdout: 'v1.9.0' },
+      upgrade: { stdout: UPGRADE_TABLE, error: { killed: true, signal: 'SIGTERM' } }
+    })
+
+    const result = await checkForUpdates()
+    expect(result.apps).toHaveLength(2)
+    expect(result.managers[0]).toMatchObject({ outdatedCount: 2, error: 'timed out' })
+  })
+
+  it('flags a source failure even when a table was printed', async () => {
+    scriptWinget({
+      '--version': { stdout: 'v1.9.0' },
+      upgrade: {
+        stdout: 'Failed in attempting to update the source: msstore\r\n' + UPGRADE_TABLE,
+        error: { code: 0x8a15000f }
+      }
+    })
+
+    const result = await checkForUpdates()
+    expect(result.apps).toHaveLength(2)
+    expect(result.managers[0].error).toBeDefined()
+  })
+
   it('still parses the table when winget exits non-zero after printing it', async () => {
     scriptWinget({
       '--version': { stdout: 'v1.9.0' },

@@ -106,7 +106,8 @@ function describeExecError(err: any, fallback: string): string {
 function buildResult(
   name: PackageManagerName,
   apps: UpdatableApp[],
-  upToDate: UpToDateApp[]
+  upToDate: UpToDateApp[],
+  error?: string
 ): UpdateCheckResult {
   return {
     apps,
@@ -117,7 +118,7 @@ function buildResult(
     patchCount: apps.filter((a) => a.severity === 'patch').length,
     packageManagerAvailable: true,
     packageManagerName: name,
-    managers: [{ name, available: true, outdatedCount: apps.length }]
+    managers: [{ name, available: true, outdatedCount: apps.length, ...(error ? { error } : {}) }]
   }
 }
 
@@ -382,6 +383,10 @@ async function checkForUpdatesWinget(): Promise<UpdateCheckResult> {
   }
 
   let stdout: string
+  // Set when winget did not finish cleanly. Whatever rows it managed to print
+  // are still returned, but flagged: a table cut off by a timeout or a source
+  // failure is not a complete answer.
+  let scanError: string | undefined
   try {
     const result = await execFileAsync(
       winget,
@@ -393,9 +398,9 @@ async function checkForUpdatesWinget(): Promise<UpdateCheckResult> {
     // winget may exit with non-zero code even on success (e.g. 0x8A150014 = no updates)
     // but still produce valid output in stdout
     stdout = err?.stdout ?? ''
-    const hasTable = locateWingetTable(stdout, 5) !== null
-    if (!hasTable && !isWingetNothingToDo(err?.code)) {
-      return emptyResult(true, 'winget', describeExecError(err, 'winget upgrade failed'))
+    if (!isWingetNothingToDo(err?.code)) {
+      scanError = describeExecError(err, 'winget upgrade failed')
+      if (locateWingetTable(stdout, 5) === null) return emptyResult(true, 'winget', scanError)
     }
   }
 
@@ -424,7 +429,7 @@ async function checkForUpdatesWinget(): Promise<UpdateCheckResult> {
     // Non-critical — just skip the up-to-date list
   }
 
-  return buildResult('winget', apps, upToDate)
+  return buildResult('winget', apps, upToDate, scanError)
 }
 
 const WINGET_UPGRADE_ARGS = [
