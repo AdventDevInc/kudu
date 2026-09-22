@@ -1280,6 +1280,8 @@ async function handleUpdates(args: string[], ctx: CliContext): Promise<number | 
         )
         return
       }
+      for (const m of result.managers)
+        if (m.error) cliLog(ctx, `  warning: ${m.name} could not be scanned — ${m.error}`)
       cliLog(
         ctx,
         `Found ${result.apps.length} available updates, ${result.upToDate.length} up to date`

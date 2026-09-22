@@ -1084,6 +1084,12 @@ export interface PackageManagerStatus {
   available: boolean
   /** Number of outdated packages this manager reported. */
   outdatedCount: number
+  /**
+   * Why this manager's scan cannot be trusted: the CLI was not found, timed
+   * out, or failed before producing a package list. Absent when the scan
+   * succeeded (even if nothing was outdated).
+   */
+  error?: string
 }
 
 /** A single package to update, tagged with the manager that owns it. */

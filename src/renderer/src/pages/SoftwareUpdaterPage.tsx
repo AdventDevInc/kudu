@@ -107,6 +107,10 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
   const { platform } = usePlatform()
   const windowsPackageManagers = useSettingsStore((s) => s.settings.windowsPackageManagers)
   const enabledManagers = windowsPackageManagers ?? DEFAULT_WINDOWS_MANAGERS
+  // Managers that were scanned but never produced a package list (CLI
+  // missing, timed out, crashed). Their packages are absent from `apps`, so
+  // "everything is up to date" would be misleading without a warning (#462).
+  const failedManagers = useMemo(() => managers.filter((m) => m.error), [managers])
 
   const [showSortMenu, setShowSortMenu] = useState(false)
   const [showFilterMenu, setShowFilterMenu] = useState(false)
@@ -180,7 +184,8 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       if (
         result.packageManagerAvailable &&
         visibleCount === 0 &&
-        useUpdaterStore.getState().ignoredApps.length === 0
+        useUpdaterStore.getState().ignoredApps.length === 0 &&
+        !result.managers.some((m) => m.error)
       ) {
         toast.success(t('softwareUpdater.toastAllUpToDate'))
       } else if (visibleCount > 0) {
@@ -608,6 +613,32 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
               </span>
             )}
           </p>
+        </div>
+      )}
+
+      {/* Managers that were reachable but failed to report — partial results */}
+      {hasChecked && packageManagerAvailable && failedManagers.length > 0 && (
+        <div
+          className="mb-5 flex items-start gap-3 rounded-2xl px-5 py-4"
+          style={{
+            background: 'rgba(245,158,11,0.04)',
+            border: '1px solid rgba(245,158,11,0.12)'
+          }}
+        >
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" strokeWidth={1.8} />
+          <div className="flex flex-col gap-1 text-[12px] text-zinc-400">
+            {failedManagers.map((m) => (
+              <p key={m.name}>
+                <span className="font-semibold text-amber-400">
+                  {t('softwareUpdater.managerScanFailed', {
+                    manager: WINDOWS_MANAGER_OPTIONS.find((o) => o.id === m.name)?.label ?? m.name
+                  })}
+                </span>
+                {m.error && <span className="text-zinc-500"> — {m.error}</span>}
+              </p>
+            ))}
+            <p>{t('softwareUpdater.managerScanFailedHint')}</p>
+          </div>
         </div>
       )}
 

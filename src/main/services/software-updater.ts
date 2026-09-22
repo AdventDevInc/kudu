@@ -1,4 +1,6 @@
 import { execFile } from 'child_process'
+import { existsSync, readdirSync } from 'fs'
+import { join } from 'path'
 import { promisify } from 'util'
 import type {
   PackageManagerName,
@@ -55,9 +57,15 @@ export function computeSeverity(current: string, available: string): UpdateSever
   return 'unknown'
 }
 
+/**
+ * Build an empty check result. `error` records why the scan produced nothing
+ * (CLI missing, timed out, crashed) so the UI can distinguish "nothing is
+ * outdated" from "we never got an answer" — see #462.
+ */
 function emptyResult(
   packageManagerAvailable: boolean,
-  packageManagerName: PackageManagerName | null
+  packageManagerName: PackageManagerName | null,
+  error?: string
 ): UpdateCheckResult {
   return {
     apps: [],
@@ -69,9 +77,29 @@ function emptyResult(
     packageManagerAvailable,
     packageManagerName,
     managers: packageManagerName
-      ? [{ name: packageManagerName, available: packageManagerAvailable, outdatedCount: 0 }]
+      ? [
+          {
+            name: packageManagerName,
+            available: packageManagerAvailable,
+            outdatedCount: 0,
+            ...(error ? { error } : {})
+          }
+        ]
       : []
   }
+}
+
+/** Last non-empty line of a CLI's output, trimmed for display. */
+function lastOutputLine(raw: string, fallback: string): string {
+  const line = cleanOutput(raw).trim().split('\n').filter(Boolean).pop()?.trim() || fallback
+  return line.length > 200 ? line.slice(0, 200) + '…' : line
+}
+
+/** Describe an execFile rejection: timeout, missing binary, or last output line. */
+function describeExecError(err: any, fallback: string): string {
+  if (err?.killed || err?.signal) return 'timed out'
+  if (err?.code === 'ENOENT') return 'command not found'
+  return lastOutputLine(err?.stderr || err?.stdout || err?.message || '', fallback)
 }
 
 /** Build a single-manager check result with derived counts + status. */
@@ -104,49 +132,128 @@ export function stripTrailingVersion(name: string): string {
 
 // ─── Winget (Windows) ───────────────────────────────────────
 
-export function parseWingetUpgradeOutput(stdout: string): UpdatableApp[] {
+/** A column of a winget table: its header text and start offset in the line. */
+interface WingetColumn {
+  label: string
+  start: number
+}
+
+interface WingetTable {
+  /** Column offsets, left to right, as laid out in the header line. */
+  columns: WingetColumn[]
+  /** Data rows (everything after the separator up to the first summary line). */
+  rows: string[]
+}
+
+/**
+ * English column headers, used to map columns by name when available. Winget
+ * localises its headers (e.g. `Nome  ID  Versione  Disponibile  Origine` on
+ * Italian systems), so non-English output falls back to positional columns —
+ * the column order is fixed regardless of language. Matching only English
+ * headers is what made #462 report "everything is up to date" on non-English
+ * machines: the table was never found.
+ */
+const WINGET_COLUMN_NAMES = ['name', 'id', 'version', 'available', 'source'] as const
+type WingetColumnName = (typeof WINGET_COLUMN_NAMES)[number]
+
+/**
+ * Locate the table in `winget upgrade` / `winget list` output without relying
+ * on the language of the column headers. The header is the line immediately
+ * above the first dashes-only separator, and columns start wherever a header
+ * token starts. Rows stop at the first trailing summary line ("11 upgrades
+ * available.", "7 packages have version numbers that cannot be determined.",
+ * or their translations) — every summary line starts with a count and, unlike
+ * a real row, has no single-token Id in the Id column.
+ */
+export function locateWingetTable(stdout: string, minColumns: number): WingetTable | null {
   const lines = cleanOutput(stdout).split(/\r?\n/)
 
-  // Find the header line
-  let headerIdx = -1
-  for (let i = 0; i < lines.length; i++) {
-    if (/Name\s+Id\s+Version\s+Available\s+Source/i.test(lines[i])) {
-      headerIdx = i
+  let separatorIdx = -1
+  for (let i = 1; i < lines.length; i++) {
+    if (/^-{3,}\s*$/.test(lines[i]) && lines[i - 1].trim()) {
+      separatorIdx = i
       break
     }
   }
-  if (headerIdx === -1) return []
+  if (separatorIdx === -1) return null
 
-  // Separator line (dashes) is right after header
-  const separatorIdx = headerIdx + 1
-  if (separatorIdx >= lines.length || !/^[-\s]+$/.test(lines[separatorIdx])) return []
+  const header = lines[separatorIdx - 1]
+  const columns: WingetColumn[] = []
+  for (const m of header.matchAll(/\S+/g)) {
+    columns.push({ label: m[0], start: m.index ?? 0 })
+  }
+  if (columns.length < minColumns) return null
 
-  const header = lines[headerIdx]
-  const idStart = header.indexOf('Id')
-  const versionStart = header.indexOf('Version')
-  const availableStart = header.indexOf('Available')
-  const sourceStart = header.indexOf('Source')
-
-  if (idStart < 0 || versionStart < 0 || availableStart < 0 || sourceStart < 0) return []
-
-  const apps: UpdatableApp[] = []
+  const idCol = columns[1]
+  const idEnd = columns[2].start
+  const rows: string[] = []
   for (let i = separatorIdx + 1; i < lines.length; i++) {
     const line = lines[i]
     if (!line.trim()) continue
-    // Stop at summary line like "42 upgrades available."
-    if (/^\d+\s+upgrade/i.test(line.trim())) break
+    if (/^\d+\s/.test(line)) {
+      const idCell = line.substring(idCol.start, idEnd).trim()
+      if (!idCell || /\s/.test(idCell) || /\.\s*$/.test(line)) break
+    }
+    rows.push(line)
+  }
+  return { columns, rows }
+}
 
-    const name = line.substring(0, idStart).trim()
-    const id = line.substring(idStart, versionStart).trim()
-    let version = line.substring(versionStart, availableStart).trim()
-    let available = line.substring(availableStart, sourceStart).trim()
-    if (version.startsWith('> ')) version = version.slice(2)
-    if (version.startsWith('< ')) version = version.slice(2)
-    if (available.startsWith('> ')) available = available.slice(2)
-    if (available.startsWith('< ')) available = available.slice(2)
-    const source = line.substring(sourceStart).trim()
+/**
+ * Resolve each logical column's [start, end) range. English headers are
+ * matched by name; anything else uses the fixed winget column order.
+ */
+function resolveWingetColumns(
+  columns: WingetColumn[]
+): Partial<Record<WingetColumnName, [number, number]>> {
+  const ranges: Partial<Record<WingetColumnName, [number, number]>> = {}
+  const rangeAt = (i: number): [number, number] => [
+    columns[i].start,
+    i + 1 < columns.length ? columns[i + 1].start : Number.MAX_SAFE_INTEGER
+  ]
 
-    if (!id || !version || !available) continue
+  // Only trust names when every header is a known English one — German, for
+  // instance, keeps "Name"/"ID"/"Version" but localises the rest.
+  const englishHeader = columns.every((c) =>
+    WINGET_COLUMN_NAMES.includes(c.label.toLowerCase() as WingetColumnName)
+  )
+  for (let i = 0; i < columns.length; i++) {
+    const key = englishHeader ? columns[i].label.toLowerCase() : WINGET_COLUMN_NAMES[i]
+    if (WINGET_COLUMN_NAMES.includes(key as WingetColumnName)) {
+      ranges[key as WingetColumnName] = rangeAt(i)
+    }
+  }
+  return ranges
+}
+
+function cell(line: string, range: [number, number] | undefined): string {
+  if (!range) return ''
+  return line.substring(range[0], range[1]).trim()
+}
+
+/** winget prefixes versions with "> " or "< " when the installed version is uncertain. */
+function stripVersionMarker(version: string): string {
+  return version.replace(/^[<>]\s+/, '')
+}
+
+export function parseWingetUpgradeOutput(stdout: string): UpdatableApp[] {
+  // Name  Id  Version  Available  Source — all five are always present
+  const table = locateWingetTable(stdout, 5)
+  if (!table) return []
+  const cols = resolveWingetColumns(table.columns)
+  if (!cols.name || !cols.id || !cols.version || !cols.available || !cols.source) return []
+
+  const apps: UpdatableApp[] = []
+  for (const line of table.rows) {
+    const name = cell(line, cols.name)
+    const id = cell(line, cols.id)
+    const version = stripVersionMarker(cell(line, cols.version))
+    const available = stripVersionMarker(cell(line, cols.available))
+    const source = cell(line, cols.source)
+
+    // Package ids never contain whitespace — a "cell" that does is wrapped
+    // prose from a footer we failed to recognise, not a package.
+    if (!id || /\s/.test(id) || !version || !available) continue
     // When winget reports "< X" for the installed version and X matches the
     // available version, it cannot determine the real version — the app is
     // likely already up to date, so skip it.
@@ -166,49 +273,19 @@ export function parseWingetUpgradeOutput(stdout: string): UpdatableApp[] {
 }
 
 export function parseWingetListOutput(stdout: string): UpToDateApp[] {
-  const lines = cleanOutput(stdout).split(/\r?\n/)
-
-  // Find header — winget list has: Name  Id  Version  Available  Source
-  // (Available column may be empty for most apps)
-  let headerIdx = -1
-  for (let i = 0; i < lines.length; i++) {
-    if (/Name\s+Id\s+Version/i.test(lines[i])) {
-      headerIdx = i
-      break
-    }
-  }
-  if (headerIdx === -1) return []
-
-  const separatorIdx = headerIdx + 1
-  if (separatorIdx >= lines.length || !/^[-\s]+$/.test(lines[separatorIdx])) return []
-
-  const header = lines[headerIdx]
-  const idStart = header.indexOf('Id')
-  const versionStart = header.indexOf('Version')
-  // Available and Source columns may or may not exist in winget list
-  const availableStart = header.indexOf('Available')
-  const sourceStart = header.indexOf('Source')
-
-  if (idStart < 0 || versionStart < 0) return []
-
-  const versionEnd = availableStart > 0 ? availableStart : sourceStart > 0 ? sourceStart : -1
+  // Name  Id  Version [Available] [Source] — the last two columns are only
+  // present when at least one row has something to put in them.
+  const table = locateWingetTable(stdout, 3)
+  if (!table) return []
+  const cols = resolveWingetColumns(table.columns)
+  if (!cols.name || !cols.id || !cols.version) return []
 
   const apps: UpToDateApp[] = []
-  for (let i = separatorIdx + 1; i < lines.length; i++) {
-    const line = lines[i]
-    if (!line.trim()) continue
-    if (/^\d+\s+package/i.test(line.trim())) break
-
-    const name = line.substring(0, idStart).trim()
-    const id = line.substring(idStart, versionStart).trim()
-    let version =
-      versionEnd > 0
-        ? line.substring(versionStart, versionEnd).trim()
-        : line.substring(versionStart).trim()
-    // winget list sometimes prefixes versions with "> " or "< " — strip them
-    if (version.startsWith('> ')) version = version.slice(2)
-    if (version.startsWith('< ')) version = version.slice(2)
-    const source = sourceStart > 0 ? line.substring(sourceStart).trim() : ''
+  for (const line of table.rows) {
+    const name = cell(line, cols.name)
+    const id = cell(line, cols.id)
+    const version = stripVersionMarker(cell(line, cols.version))
+    const source = cell(line, cols.source)
 
     if (!id || !version || version === 'Unknown') continue
     // Skip ARP entries (not real winget packages)
@@ -219,72 +296,135 @@ export function parseWingetListOutput(stdout: string): UpToDateApp[] {
   return apps
 }
 
-async function isWingetAvailable(): Promise<boolean> {
-  try {
-    await execFileAsync('winget', ['--version'], {
-      timeout: 10_000,
-      windowsHide: true
-    })
-    return true
-  } catch {
-    return false
+/**
+ * Places winget may live when it is not on PATH. Kudu runs elevated
+ * (requireAdministrator); when UAC elevates under a different account than
+ * the logged-in user, that account's PATH lacks the `WindowsApps` alias
+ * directory and a bare `winget` fails with ENOENT even though the tool works
+ * fine from the user's own terminal. The package directory under Program
+ * Files is readable by administrators and holds the real executable.
+ */
+function wingetPathCandidates(): string[] {
+  const candidates: string[] = []
+  const localAppData = process.env.LOCALAPPDATA
+  if (localAppData) {
+    candidates.push(join(localAppData, 'Microsoft', 'WindowsApps', 'winget.exe'))
   }
+  const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
+  const windowsApps = join(programFiles, 'WindowsApps')
+  try {
+    const packages = readdirSync(windowsApps)
+      .filter((d) => /^Microsoft\.DesktopAppInstaller_.*_8wekyb3d8bbwe$/i.test(d))
+      // Highest version first so a stale side-by-side package is not picked
+      .sort()
+      .reverse()
+    for (const pkg of packages) {
+      candidates.push(join(windowsApps, pkg, 'winget.exe'))
+    }
+  } catch {
+    // Not admin, or no Store packages installed
+  }
+  return candidates.filter((p) => existsSync(p))
 }
 
-async function checkForUpdatesWinget(): Promise<UpdateCheckResult> {
-  const available = await isWingetAvailable()
-  if (!available) {
-    return emptyResult(false, 'winget')
-  }
+/** Resolved winget executable, cached once a probe succeeds. */
+let wingetExe: string | null = null
 
-  try {
-    let stdout = ''
+/**
+ * Find a working winget executable: PATH first, then the known install
+ * locations. Returns null when none of them respond to `--version`.
+ */
+export async function resolveWinget(): Promise<string | null> {
+  if (wingetExe) return wingetExe
+  for (const candidate of ['winget', ...wingetPathCandidates()]) {
     try {
-      const result = await execFileAsync(
-        'winget',
-        ['upgrade', '--accept-source-agreements', '--disable-interactivity'],
-        { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
-      )
-      stdout = result.stdout
-    } catch (err: any) {
-      // winget may exit with non-zero code even on success (e.g. 0x8A150014 = no updates)
-      // but still produce valid output in stdout
-      if (err?.stdout) {
-        stdout = err.stdout
-      } else {
-        return emptyResult(true, 'winget')
-      }
-    }
-
-    const apps = parseWingetUpgradeOutput(stdout)
-
-    // Also get the full list of winget-tracked apps to show "up to date" ones
-    let upToDate: UpToDateApp[] = []
-    try {
-      let listStdout = ''
-      try {
-        const listResult = await execFileAsync(
-          'winget',
-          ['list', '--source', 'winget', '--accept-source-agreements', '--disable-interactivity'],
-          { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
-        )
-        listStdout = listResult.stdout
-      } catch (err: any) {
-        if (err?.stdout) listStdout = err.stdout
-      }
-      if (listStdout) {
-        const allApps = parseWingetListOutput(listStdout)
-        const outdatedIds = new Set(apps.map((a) => a.id))
-        upToDate = allApps.filter((a) => !outdatedIds.has(a.id))
-      }
+      await execFileAsync(candidate, ['--version'], { timeout: 10_000, windowsHide: true })
+      wingetExe = candidate
+      return candidate
     } catch {
-      // Non-critical — just skip the up-to-date list
+      // Try the next location
     }
-
-    return buildResult('winget', apps, upToDate)
-  } catch {
-    return emptyResult(true, 'winget')
   }
+  return null
+}
+
+/** Exported for tests: forget the cached winget location. */
+export function resetWingetCache(): void {
+  wingetExe = null
+}
+
+/**
+ * winget exit codes that mean "nothing to report" rather than "something went
+ * wrong". Node surfaces the HRESULT as an unsigned 32-bit exit code.
+ */
+const WINGET_NOTHING_TO_DO_CODES = new Set([
+  0x8a150014, // APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND
+  0x8a15002b // APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE
+])
+
+function isWingetNothingToDo(code: unknown): boolean {
+  return typeof code === 'number' && WINGET_NOTHING_TO_DO_CODES.has(code >>> 0)
+}
+
+/**
+ * The scan alone is fast, but winget refreshes stale source indexes first and
+ * the msstore source in particular can take well over a minute on a slow
+ * connection. A timeout here used to be reported as "everything is up to
+ * date" (#462); it is now surfaced as an error instead, but give winget
+ * enough time that it rarely comes to that.
+ */
+const WINGET_CHECK_TIMEOUT = 3 * 60 * 1000
+
+async function checkForUpdatesWinget(): Promise<UpdateCheckResult> {
+  const winget = await resolveWinget()
+  if (!winget) {
+    return emptyResult(false, 'winget', 'winget was not found or did not start')
+  }
+
+  let stdout: string
+  try {
+    const result = await execFileAsync(
+      winget,
+      ['upgrade', '--accept-source-agreements', '--disable-interactivity'],
+      { timeout: WINGET_CHECK_TIMEOUT, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
+    )
+    stdout = result.stdout
+  } catch (err: any) {
+    // winget may exit with non-zero code even on success (e.g. 0x8A150014 = no updates)
+    // but still produce valid output in stdout
+    stdout = err?.stdout ?? ''
+    const hasTable = locateWingetTable(stdout, 5) !== null
+    if (!hasTable && !isWingetNothingToDo(err?.code)) {
+      return emptyResult(true, 'winget', describeExecError(err, 'winget upgrade failed'))
+    }
+  }
+
+  const apps = parseWingetUpgradeOutput(stdout)
+
+  // Also get the full list of winget-tracked apps to show "up to date" ones
+  let upToDate: UpToDateApp[] = []
+  try {
+    let listStdout = ''
+    try {
+      const listResult = await execFileAsync(
+        winget,
+        ['list', '--source', 'winget', '--accept-source-agreements', '--disable-interactivity'],
+        { timeout: WINGET_CHECK_TIMEOUT, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
+      )
+      listStdout = listResult.stdout
+    } catch (err: any) {
+      if (err?.stdout) listStdout = err.stdout
+    }
+    if (listStdout) {
+      const allApps = parseWingetListOutput(listStdout)
+      const outdatedIds = new Set(apps.map((a) => a.id))
+      upToDate = allApps.filter((a) => !outdatedIds.has(a.id))
+    }
+  } catch {
+    // Non-critical — just skip the up-to-date list
+  }
+
+  return buildResult('winget', apps, upToDate)
 }
 
 const WINGET_UPGRADE_ARGS = [
@@ -329,10 +469,11 @@ async function attemptWingetUpgrade(
   if (!/^[\w][\w.\-]{0,200}$/.test(appId)) {
     return { success: false, output: 'Invalid app ID format' }
   }
+  const winget = (await resolveWinget()) ?? 'winget'
   let upgradeStdout = ''
   try {
     const result = await execFileAsync(
-      'winget',
+      winget,
       ['upgrade', appId, ...WINGET_UPGRADE_ARGS, ...extraArgs],
       { timeout: 10 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
     )
@@ -366,9 +507,11 @@ async function attemptElevatedUpgrade(
   }
 
   try {
+    const winget = (await resolveWinget()) ?? 'winget'
     const args = ['upgrade', appId, ...WINGET_UPGRADE_ARGS, '--force'].join(' ')
-    // Escape single quotes for PowerShell single-quoted string ('' is the escape for ')
+    // Escape single quotes for PowerShell single-quoted strings ('' is the escape for ')
     const safeArgs = args.replace(/'/g, "''")
+    const safeExe = winget.replace(/'/g, "''")
     // Run winget elevated via Start-Process; -Wait blocks until done, -PassThru gives exit code
     const { stdout } = await execFileAsync(
       'powershell.exe',
@@ -376,7 +519,7 @@ async function attemptElevatedUpgrade(
         '-NoProfile',
         '-Command',
         psUtf8(
-          `$p = Start-Process winget -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`
+          `$p = Start-Process '${safeExe}' -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`
         )
       ],
       { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
@@ -384,9 +527,9 @@ async function attemptElevatedUpgrade(
     // We can't reliably capture stdout from the elevated process, so verify
     // by checking if winget still lists this app as upgradeable
     const checkResult = await execFileAsync(
-      'winget',
+      winget,
       ['upgrade', '--accept-source-agreements', '--disable-interactivity', '--include-unknown'],
-      { timeout: 60_000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
+      { timeout: WINGET_CHECK_TIMEOUT, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
     )
     const stillNeedsUpgrade = checkResult.stdout.includes(appId)
     return {
@@ -1073,16 +1216,24 @@ function enabledWindowsManagers(): WindowsPackageManager[] {
 async function checkForUpdatesWindows(): Promise<UpdateCheckResult> {
   const enabled = enabledWindowsManagers()
   const results = await Promise.all(
-    enabled.map((m) => WINDOWS_CHECKERS[m]().catch(() => emptyResult(false, m)))
+    enabled.map((m) =>
+      WINDOWS_CHECKERS[m]().catch((err) =>
+        emptyResult(false, m, describeExecError(err, `${m} check failed`))
+      )
+    )
   )
 
   const apps = results.flatMap((r) => r.apps)
   const upToDate = results.flatMap((r) => r.upToDate)
-  const managers: PackageManagerStatus[] = results.map((r, i) => ({
-    name: enabled[i],
-    available: r.packageManagerAvailable,
-    outdatedCount: r.apps.length
-  }))
+  const managers: PackageManagerStatus[] = results.map((r, i) => {
+    const error = r.managers[0]?.error
+    return {
+      name: enabled[i],
+      available: r.packageManagerAvailable,
+      outdatedCount: r.apps.length,
+      ...(error ? { error } : {})
+    }
+  })
 
   return {
     apps,

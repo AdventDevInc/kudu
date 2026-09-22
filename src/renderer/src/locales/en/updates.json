@@ -18,6 +18,8 @@
     "managerEnabledHint": "{{manager}} enabled — click to stop scanning it",
     "managerDisabledHint": "{{manager}} disabled — click to include it",
     "managerNotInstalled": "{{manager}} is enabled but not installed",
+    "managerScanFailed": "{{manager}} could not be scanned",
+    "managerScanFailedHint": "Its packages are missing from the results below — updates may still be available.",
     "checkForUpdatesButton": "Check for Updates",
     "searchPlaceholder": "Search apps...",
     "filterAll": "All",
