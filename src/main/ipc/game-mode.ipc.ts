@@ -280,12 +280,42 @@ const PROTECTED_PROCESSES = new Set([
 // ── Helper: run PowerShell ───────────────────────────────────
 
 async function ps(script: string, timeout = 15000): Promise<string> {
-  const { stdout } = await execFileAsync(
-    'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
-    { timeout, windowsHide: true }
+  try {
+    const { stdout } = await execFileAsync(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
+      { timeout, windowsHide: true }
+    )
+    return stdout.trim()
+  } catch (err: any) {
+    // execFile's message is "Command failed: powershell.exe ... <whole script>
+    // <stderr>", which buries the actual PowerShell error under the command
+    // line. Surface the error text itself so the user can act on it.
+    throw new Error(describePsFailure(err), { cause: err })
+  }
+}
+
+/** Reduce an execFile rejection to the PowerShell error text (or exit code). */
+function describePsFailure(err: any): string {
+  const stderr = typeof err?.stderr === 'string' ? err.stderr.trim() : ''
+  if (stderr) return stderr.split(/\r?\n/)[0]
+  if (err?.killed) return 'PowerShell timed out'
+  if (typeof err?.code === 'number') return `PowerShell exited with code ${err.code}`
+  return err?.message ?? 'unknown'
+}
+
+/**
+ * PowerShell fragment that deletes registry value `name` from `$p` only when
+ * it exists. `Remove-ItemProperty -ErrorAction SilentlyContinue` on a missing
+ * value still flips `$?` to false, which makes powershell.exe exit 1 with an
+ * empty stderr — so a value that is already gone would fail to "restore" on
+ * every retry, even as administrator (#463). Checking first keeps it idempotent.
+ */
+function psRemoveValueIfPresent(name: string): string {
+  return (
+    `if ($null -ne (Get-ItemProperty -Path $p -Name '${name}' -ErrorAction SilentlyContinue)) { ` +
+    `Remove-ItemProperty -Path $p -Name '${name}' -ErrorAction Stop }`
   )
-  return stdout.trim()
 }
 
 // ── Individual optimizations ─────────────────────────────────
@@ -510,7 +540,7 @@ async function restoreRegistryTweaks(tweaks: GameModeSnapshot['registryTweaks'])
         )
       } else {
         await ps(
-          `Remove-ItemProperty -Path '${tweak.path}' -Name '${tweak.name}' -ErrorAction SilentlyContinue`
+          `$p = '${tweak.path}'; if (Test-Path $p) { ${psRemoveValueIfPresent(tweak.name)} }`
         )
       }
       restored++
@@ -621,12 +651,12 @@ async function restoreNagle(interfaces: GameModeSnapshot['nagleInterfaces']): Pr
   for (const iface of interfaces) {
     const noDelay =
       iface.originalTcpNoDelay !== null
-        ? `Set-ItemProperty -Path $p -Name TcpNoDelay -Value ${iface.originalTcpNoDelay} -Type DWord -Force`
-        : `Remove-ItemProperty -Path $p -Name TcpNoDelay -ErrorAction SilentlyContinue`
+        ? `Set-ItemProperty -Path $p -Name TcpNoDelay -Value ${iface.originalTcpNoDelay} -Type DWord -Force -ErrorAction Stop`
+        : psRemoveValueIfPresent('TcpNoDelay')
     const ackFreq =
       iface.originalTcpAckFrequency !== null
-        ? `Set-ItemProperty -Path $p -Name TcpAckFrequency -Value ${iface.originalTcpAckFrequency} -Type DWord -Force`
-        : `Remove-ItemProperty -Path $p -Name TcpAckFrequency -ErrorAction SilentlyContinue`
+        ? `Set-ItemProperty -Path $p -Name TcpAckFrequency -Value ${iface.originalTcpAckFrequency} -Type DWord -Force -ErrorAction Stop`
+        : psRemoveValueIfPresent('TcpAckFrequency')
     try {
       await ps(`$p = '${iface.path}'; if (Test-Path $p) { ${noDelay}; ${ackFreq} }`)
       restored++

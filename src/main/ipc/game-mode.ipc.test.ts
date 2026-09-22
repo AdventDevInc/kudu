@@ -8,6 +8,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 const psCalls: string[] = []
 /** Substrings that make the fake PowerShell call reject, mimicking a stuck step */
 let psFailOn: string[] = []
+/** Like psFailOn, but rejects the way execFile does on a non-zero exit: with stderr + code */
+let psExitOn: Array<[needle: string, stderr: string, code: number]> = []
 /** Canned stdout per matching substring */
 let psOutput: Array<[string, string]> = []
 
@@ -63,6 +65,16 @@ vi.mock('child_process', () => ({
     const failure = psFailOn.find((needle) => script.includes(needle))
     if (failure) {
       cb(new Error(`fake failure for ${failure}`))
+      return
+    }
+    const exit = psExitOn.find(([needle]) => script.includes(needle))
+    if (exit) {
+      const err = Object.assign(new Error(`Command failed: powershell.exe ${script}\n${exit[1]}`), {
+        code: exit[2],
+        stderr: exit[1],
+        stdout: ''
+      })
+      cb(err)
       return
     }
     const canned = psOutput.find(([needle]) => script.includes(needle))
@@ -663,6 +675,7 @@ describe('deactivateGameMode residual handling', () => {
     fakeFs.clear()
     psCalls.length = 0
     psFailOn = []
+    psExitOn = []
     psOutput = []
   })
 
@@ -753,6 +766,68 @@ describe('deactivateGameMode residual handling', () => {
     expect(storedSnapshot().nagleInterfaces[0].path).toBe(IFACE_B)
   })
 
+  it('only removes a Nagle value that still exists (issue #463)', async () => {
+    // Remove-ItemProperty -ErrorAction SilentlyContinue on a missing value
+    // still makes powershell.exe exit 1, so the removal must be guarded.
+    seedSnapshot({
+      nagleInterfaces: [{ path: IFACE_A, originalTcpNoDelay: null, originalTcpAckFrequency: null }]
+    })
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(0)
+    const script = psCalls.find((s) => s.includes(IFACE_A))!
+    expect(script).not.toContain('-ErrorAction SilentlyContinue }')
+    for (const name of ['TcpNoDelay', 'TcpAckFrequency']) {
+      expect(script).toContain(
+        `if ($null -ne (Get-ItemProperty -Path $p -Name '${name}' -ErrorAction SilentlyContinue)) { ` +
+          `Remove-ItemProperty -Path $p -Name '${name}' -ErrorAction Stop }`
+      )
+    }
+  })
+
+  it('guards registry tweak removal the same way', async () => {
+    seedSnapshot({
+      registryTweaks: [{ path: GAME_DVR, name: 'AppCaptureEnabled', originalValue: null }]
+    })
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(0)
+    const script = psCalls.find((s) => s.includes('AppCaptureEnabled'))!
+    expect(script).toContain(`$p = '${GAME_DVR}'; if (Test-Path $p) { if ($null -ne`)
+    expect(script).not.toContain('SilentlyContinue }')
+  })
+
+  it('reports the PowerShell error text instead of the command line', async () => {
+    seedSnapshot({
+      nagleInterfaces: [{ path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 }]
+    })
+    psExitOn = [
+      [IFACE_A, 'Set-ItemProperty : Requested registry access is not allowed.\nAt line:1', 1]
+    ]
+
+    const result = await deactivateGameMode(noop)
+
+    expect(result.failed).toBe(1)
+    const reason = storedSnapshot().restoreErrors[0].reason
+    expect(reason).toBe(
+      '1 network interface(s) failed to restore: Set-ItemProperty : Requested registry access is not allowed.'
+    )
+    expect(reason).not.toContain('powershell.exe')
+  })
+
+  it('reports the exit code when PowerShell fails silently', async () => {
+    seedSnapshot({
+      nagleInterfaces: [{ path: IFACE_A, originalTcpNoDelay: 0, originalTcpAckFrequency: 2 }]
+    })
+    psExitOn = [[IFACE_A, '', 1]]
+
+    await deactivateGameMode(noop)
+
+    expect(storedSnapshot().restoreErrors[0].reason).toContain('PowerShell exited with code 1')
+  })
+
   it('guards service restore against a service that no longer exists', async () => {
     seedSnapshot({
       services: [{ name: 'WSearch', originalStartType: 'Automatic', wasRunning: true }]
@@ -782,6 +857,7 @@ describe('auto-deactivate lifecycle (issue #289)', () => {
     fakeFs.clear()
     psCalls.length = 0
     psFailOn = []
+    psExitOn = []
     psOutput = []
     gameDetectorMocks.startGameDetector.mockReset()
     gameDetectorMocks.stopGameDetector.mockReset()
@@ -839,6 +915,7 @@ describe('discardPendingRestore', () => {
     fakeFs.clear()
     psCalls.length = 0
     psFailOn = []
+    psExitOn = []
     psOutput = []
   })
 
