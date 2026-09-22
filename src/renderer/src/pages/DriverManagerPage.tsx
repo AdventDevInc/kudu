@@ -40,6 +40,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const totalStaleSize = useDriverStore((s) => s.totalStaleSize)
   const updates = useDriverStore((s) => s.updates)
   const ignoredUpdates = useDriverStore((s) => s.ignoredUpdates)
+  const pendingIgnoreIds = useDriverStore((s) => s.pendingIgnoreIds)
   const updateScanning = useDriverStore((s) => s.updateScanning)
   const updateProgress = useDriverStore((s) => s.updateProgress)
   const installing = useDriverStore((s) => s.installing)
@@ -287,11 +288,16 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   // ─── Ignore / restore a driver update ─────────────────────
   // Optimistic: move the row immediately, then persist and hide/unhide the
   // update in Windows Update itself. Hiding needs elevation; if that part
-  // fails the update stays ignored in Kudu and the user is told.
+  // fails the update stays ignored in Kudu and the user is told. The row is
+  // marked pending until the request finishes so it can't be flipped back
+  // while the (slow) Windows Update call is still running.
   const handleIgnore = useCallback(
     async (upd: DriverUpdate) => {
-      useDriverStore.getState().ignoreUpdate(upd.id)
+      const store = useDriverStore.getState()
+      if (store.pendingIgnoreIds.has(upd.id)) return
+      store.ignoreUpdate(upd.id)
       if (!upd.updateId) return
+      store.setIgnorePending(upd.id, true)
       try {
         const result = await window.kudu.driverUpdateIgnore(upd.updateId, true)
         if (result.windowsUpdateHidden) {
@@ -305,6 +311,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         }
       } catch {
         toast.error(t('driverManager.ignoreFailedToast'))
+      } finally {
+        useDriverStore.getState().setIgnorePending(upd.id, false)
       }
     },
     [t]
@@ -312,8 +320,11 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
 
   const handleUnignore = useCallback(
     async (upd: DriverUpdate) => {
-      useDriverStore.getState().unignoreUpdate(upd.id)
+      const store = useDriverStore.getState()
+      if (store.pendingIgnoreIds.has(upd.id)) return
+      store.unignoreUpdate(upd.id)
       if (!upd.updateId) return
+      store.setIgnorePending(upd.id, true)
       try {
         const result = await window.kudu.driverUpdateIgnore(upd.updateId, false)
         if (!result.windowsUpdateHidden) {
@@ -323,6 +334,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         }
       } catch {
         toast.error(t('driverManager.ignoreFailedToast'))
+      } finally {
+        useDriverStore.getState().setIgnorePending(upd.id, false)
       }
     },
     [t]
@@ -693,7 +706,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                     e.stopPropagation()
                     void handleIgnore(upd)
                   }}
-                  disabled={isBusy}
+                  disabled={isBusy || pendingIgnoreIds.has(upd.id)}
                   title={t('driverManager.ignoreButton')}
                   aria-label={t('driverManager.ignoreButton')}
                   className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium text-zinc-500 transition-all hover:bg-white/5 hover:text-zinc-300 disabled:opacity-30 shrink-0"
@@ -757,7 +770,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                   </span>
                   <button
                     onClick={() => void handleUnignore(upd)}
-                    disabled={isBusy}
+                    disabled={isBusy || pendingIgnoreIds.has(upd.id)}
                     className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-zinc-200 disabled:opacity-30 shrink-0"
                     style={{ border: '1px solid var(--border-medium)' }}
                   >

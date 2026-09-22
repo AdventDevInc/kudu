@@ -615,6 +615,48 @@ describe('setDriverUpdateIgnored', () => {
     expect(script).toContain("-eq 'a''b'")
   })
 
+  it('runs overlapping hide/unhide requests strictly in order', async () => {
+    setPlatform('win32')
+    const order: string[] = []
+    let releaseFirst!: () => void
+    mockExecFile.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          order.push('hide:start')
+          releaseFirst = () => {
+            order.push('hide:end')
+            resolve({ stdout: 'HIDE_OK\n', stderr: '' })
+          }
+        })
+    )
+    mockExecFile.mockImplementationOnce(async () => {
+      order.push('unhide')
+      return { stdout: 'HIDE_OK\n', stderr: '' }
+    })
+
+    const hide = setDriverUpdateIgnored('abc-123', true)
+    const unhide = setDriverUpdateIgnored('abc-123', false)
+    await new Promise((r) => setTimeout(r, 0))
+    expect(order).toEqual(['hide:start'])
+    releaseFirst()
+    await Promise.all([hide, unhide])
+    expect(order).toEqual(['hide:start', 'hide:end', 'unhide'])
+    expect(mockUpdateIgnored.mock.calls).toEqual([
+      ['abc-123', true],
+      ['abc-123', false]
+    ])
+  })
+
+  it('keeps the queue moving after a failed request', async () => {
+    setPlatform('win32')
+    mockExecFile.mockRejectedValueOnce(new Error('boom'))
+    mockExecFile.mockResolvedValueOnce({ stdout: 'HIDE_OK\n', stderr: '' })
+    const first = await setDriverUpdateIgnored('a', true)
+    const second = await setDriverUpdateIgnored('b', true)
+    expect(first.windowsUpdateHidden).toBe(false)
+    expect(second.windowsUpdateHidden).toBe(true)
+  })
+
   it('only persists off Windows', async () => {
     setPlatform('linux')
     const result = await setDriverUpdateIgnored('abc-123', true)

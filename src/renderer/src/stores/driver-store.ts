@@ -21,6 +21,8 @@ interface DriverState {
   // Updates
   updates: DriverUpdate[]
   ignoredUpdates: DriverUpdate[]
+  /** Updates whose ignore/restore request is still in flight (by row id) */
+  pendingIgnoreIds: Set<string>
   updateScanning: boolean
   updateProgress: DriverUpdateProgress | null
   installing: boolean
@@ -46,6 +48,7 @@ interface DriverState {
 
   setUpdates: (updates: DriverUpdate[]) => void
   setIgnoredUpdates: (updates: DriverUpdate[]) => void
+  setIgnorePending: (id: string, pending: boolean) => void
   /** Move an update from the offered list to the ignored list (local state only) */
   ignoreUpdate: (id: string) => void
   /** Move an update from the ignored list back to the offered list (local state only) */
@@ -75,6 +78,7 @@ export const useDriverStore = create<DriverState>((set) => ({
   totalStaleSize: 0,
   updates: [],
   ignoredUpdates: [],
+  pendingIgnoreIds: new Set<string>(),
   updateScanning: false,
   updateProgress: null,
   installing: false,
@@ -108,6 +112,13 @@ export const useDriverStore = create<DriverState>((set) => ({
 
   setUpdates: (updates) => set({ updates }),
   setIgnoredUpdates: (ignoredUpdates) => set({ ignoredUpdates }),
+  setIgnorePending: (id, pending) =>
+    set((s) => {
+      const next = new Set(s.pendingIgnoreIds)
+      if (pending) next.add(id)
+      else next.delete(id)
+      return { pendingIgnoreIds: next }
+    }),
   ignoreUpdate: (id) =>
     set((s) => {
       const found = s.updates.find((u) => u.id === id)
@@ -158,6 +169,7 @@ export const useDriverStore = create<DriverState>((set) => ({
       totalStaleSize: 0,
       updates: [],
       ignoredUpdates: [],
+      pendingIgnoreIds: new Set<string>(),
       updateScanning: false,
       updateProgress: null,
       installing: false,

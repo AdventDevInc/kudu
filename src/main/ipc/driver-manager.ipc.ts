@@ -751,7 +751,22 @@ export function partitionIgnoredDriverUpdates(
  * Hiding in Windows Update needs elevation; when it fails, the Kudu-side
  * ignore still applies and the failure is reported.
  */
-export async function setDriverUpdateIgnored(
+let ignoreQueue: Promise<unknown> = Promise.resolve()
+
+export function setDriverUpdateIgnored(
+  wuUpdateId: string,
+  ignored: boolean
+): Promise<DriverUpdateIgnoreResult> {
+  // Run hide/unhide requests strictly in order. Each one does a Windows Update
+  // search that can take a long time; letting an "unhide" overlap a pending
+  // "hide" would let the earlier call win and leave WU out of sync with the
+  // persisted setting.
+  const run = ignoreQueue.then(() => setDriverUpdateIgnoredNow(wuUpdateId, ignored))
+  ignoreQueue = run.catch(() => {})
+  return run
+}
+
+async function setDriverUpdateIgnoredNow(
   wuUpdateId: string,
   ignored: boolean
 ): Promise<DriverUpdateIgnoreResult> {

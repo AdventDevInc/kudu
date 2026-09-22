@@ -116,6 +116,13 @@ describe('driver-store', () => {
       expect(useDriverStore.getState().ignoredUpdates).toEqual([])
     })
 
+    it('setIgnorePending tracks in-flight ignore requests per update', () => {
+      useDriverStore.getState().setIgnorePending('a', true)
+      expect(useDriverStore.getState().pendingIgnoreIds.has('a')).toBe(true)
+      useDriverStore.getState().setIgnorePending('a', false)
+      expect(useDriverStore.getState().pendingIgnoreIds.has('a')).toBe(false)
+    })
+
     it('unignoreUpdate moves the update back, selected and unhidden', () => {
       useDriverStore.getState().setIgnoredUpdates([{ ...makeUpdate('a'), isHidden: true }])
       useDriverStore.getState().unignoreUpdate('a')
