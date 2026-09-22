@@ -30,6 +30,7 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     'cleaner',
     'exclusions',
     'ignoredSoftwareUpdates',
+    'ignoredDriverUpdates',
     'backupPath',
     'backupMode',
     'windowsPackageManager',
@@ -123,6 +124,14 @@ export function validateSettingsPartial(input: unknown): Record<string, unknown>
     if (obj.ignoredSoftwareUpdates.length > 500) return null
     if (obj.ignoredSoftwareUpdates.some((v: string) => v.length > 200 || v.length === 0))
       return null
+  }
+
+  // Validate ignoredDriverUpdates is an array of Windows Update UpdateID strings if present
+  if ('ignoredDriverUpdates' in obj && obj.ignoredDriverUpdates !== undefined) {
+    if (!Array.isArray(obj.ignoredDriverUpdates)) return null
+    if (!obj.ignoredDriverUpdates.every((v: unknown) => typeof v === 'string')) return null
+    if (obj.ignoredDriverUpdates.length > 500) return null
+    if (obj.ignoredDriverUpdates.some((v: string) => v.length > 200 || v.length === 0)) return null
   }
 
   // Validate backupPath: empty string means "use default", otherwise must be an absolute,

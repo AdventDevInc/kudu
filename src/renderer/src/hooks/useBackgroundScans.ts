@@ -77,6 +77,7 @@ export function useBackgroundScans(): void {
       try {
         const result = await window.kudu.driverUpdateScan()
         useDriverStore.getState().setUpdates(result.updates)
+        useDriverStore.getState().setIgnoredUpdates(result.ignoredUpdates ?? [])
       } catch {
         // Silent
       } finally {

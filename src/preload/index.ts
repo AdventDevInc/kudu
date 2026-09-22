@@ -42,6 +42,7 @@ import type {
   DriverCleanResult,
   DriverScanProgress,
   DriverUpdateScanResult,
+  DriverUpdateIgnoreResult,
   DriverUpdateInstallResult,
   DriverUpdateProgress,
   PerfSystemInfo,
@@ -525,6 +526,8 @@ const api = {
     ipcRenderer.invoke(IPC.DRIVER_UPDATE_SCAN),
   driverUpdateInstall: (updateIds: string[]): Promise<DriverUpdateInstallResult> =>
     ipcRenderer.invoke(IPC.DRIVER_UPDATE_INSTALL, updateIds),
+  driverUpdateIgnore: (updateId: string, ignored: boolean): Promise<DriverUpdateIgnoreResult> =>
+    ipcRenderer.invoke(IPC.DRIVER_UPDATE_IGNORE, updateId, ignored),
   onDriverUpdateProgress: (callback: (data: DriverUpdateProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: DriverUpdateProgress) =>
       callback(data)

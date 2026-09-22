@@ -99,6 +99,32 @@ describe('driver-store', () => {
       useDriverStore.getState().deselectAllUpdates()
       expect(useDriverStore.getState().updates.every((u) => !u.selected)).toBe(true)
     })
+
+    it('ignoreUpdate moves the update to the ignored list, deselected', () => {
+      useDriverStore.getState().setUpdates([makeUpdate('a', true), makeUpdate('b', true)])
+      useDriverStore.getState().ignoreUpdate('a')
+      const s = useDriverStore.getState()
+      expect(s.updates.map((u) => u.id)).toEqual(['b'])
+      expect(s.ignoredUpdates.map((u) => u.id)).toEqual(['a'])
+      expect(s.ignoredUpdates[0].selected).toBe(false)
+    })
+
+    it('ignoreUpdate is a no-op for unknown ids', () => {
+      useDriverStore.getState().setUpdates([makeUpdate('a')])
+      useDriverStore.getState().ignoreUpdate('zzz')
+      expect(useDriverStore.getState().updates).toHaveLength(1)
+      expect(useDriverStore.getState().ignoredUpdates).toEqual([])
+    })
+
+    it('unignoreUpdate moves the update back, selected and unhidden', () => {
+      useDriverStore.getState().setIgnoredUpdates([{ ...makeUpdate('a'), isHidden: true }])
+      useDriverStore.getState().unignoreUpdate('a')
+      const s = useDriverStore.getState()
+      expect(s.ignoredUpdates).toEqual([])
+      expect(s.updates).toHaveLength(1)
+      expect(s.updates[0].selected).toBe(true)
+      expect(s.updates[0].isHidden).toBe(false)
+    })
   })
 
   it('reset clears all state', () => {
@@ -109,6 +135,7 @@ describe('driver-store', () => {
     const state = useDriverStore.getState()
     expect(state.packages).toEqual([])
     expect(state.updates).toEqual([])
+    expect(state.ignoredUpdates).toEqual([])
     expect(state.scanning).toBe(false)
   })
 })

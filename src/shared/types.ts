@@ -565,15 +565,28 @@ export interface DriverUpdate {
   updateTitle: string // Windows Update title string
   downloadSize: string // human-readable size from WU
   selected: boolean
+  // True when the update is hidden in Windows Update (IUpdate.IsHidden)
+  isHidden: boolean
 }
 
 export interface DriverUpdateScanResult {
   updates: DriverUpdate[]
+  // Updates the user chose to ignore (persisted in settings) or that are
+  // hidden in Windows Update. Never auto-installed; shown collapsed in the UI.
+  ignoredUpdates: DriverUpdate[]
   totalAvailable: number
   scanDuration: number
   // True when Windows is configured to exclude drivers from Windows Update
   // (policy / device-installation setting), so no WU driver scan was performed.
   updatesDisabled: boolean
+}
+
+export interface DriverUpdateIgnoreResult {
+  // Whether the update was also hidden/unhidden in Windows Update itself.
+  // False when the WU call failed (e.g. not elevated); the Kudu-side
+  // ignore still applies.
+  windowsUpdateHidden: boolean
+  error?: string
 }
 
 export interface DriverUpdateInstallResult {
@@ -802,6 +815,8 @@ export interface KuduSettings {
   }
   exclusions: string[]
   ignoredSoftwareUpdates: string[]
+  /** Windows Update UpdateIDs of driver updates the user chose to ignore. */
+  ignoredDriverUpdates: string[]
   /** Folder where backups (registry, shell extensions, etc.) are written. Empty = use default. */
   backupPath: string
   /**

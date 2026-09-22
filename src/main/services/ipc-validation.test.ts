@@ -107,6 +107,17 @@ describe('validateSettingsPartial', () => {
     expect(validateSettingsPartial({ ignoredSoftwareUpdates: [''] })).toBeNull()
   })
 
+  it('accepts valid ignoredDriverUpdates array', () => {
+    const input = { ignoredDriverUpdates: ['1e2f3a4b-0000-4000-8000-000000000000'] }
+    expect(validateSettingsPartial(input)).toEqual(input)
+  })
+
+  it('rejects ignoredDriverUpdates with non-string or empty entries', () => {
+    expect(validateSettingsPartial({ ignoredDriverUpdates: [42] })).toBeNull()
+    expect(validateSettingsPartial({ ignoredDriverUpdates: [''] })).toBeNull()
+    expect(validateSettingsPartial({ ignoredDriverUpdates: 'x' })).toBeNull()
+  })
+
   it('accepts valid schedule', () => {
     const input = { schedule: { enabled: true, frequency: 'daily', day: 0, hour: 9 } }
     expect(validateSettingsPartial(input)).toEqual(input)

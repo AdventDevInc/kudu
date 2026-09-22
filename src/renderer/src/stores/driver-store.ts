@@ -20,6 +20,7 @@ interface DriverState {
 
   // Updates
   updates: DriverUpdate[]
+  ignoredUpdates: DriverUpdate[]
   updateScanning: boolean
   updateProgress: DriverUpdateProgress | null
   installing: boolean
@@ -44,6 +45,11 @@ interface DriverState {
   deselectAllStale: () => void
 
   setUpdates: (updates: DriverUpdate[]) => void
+  setIgnoredUpdates: (updates: DriverUpdate[]) => void
+  /** Move an update from the offered list to the ignored list (local state only) */
+  ignoreUpdate: (id: string) => void
+  /** Move an update from the ignored list back to the offered list (local state only) */
+  unignoreUpdate: (id: string) => void
   setUpdateScanning: (scanning: boolean) => void
   setUpdateProgress: (progress: DriverUpdateProgress | null) => void
   setInstalling: (installing: boolean) => void
@@ -68,6 +74,7 @@ export const useDriverStore = create<DriverState>((set) => ({
   error: null,
   totalStaleSize: 0,
   updates: [],
+  ignoredUpdates: [],
   updateScanning: false,
   updateProgress: null,
   installing: false,
@@ -100,6 +107,25 @@ export const useDriverStore = create<DriverState>((set) => ({
     })),
 
   setUpdates: (updates) => set({ updates }),
+  setIgnoredUpdates: (ignoredUpdates) => set({ ignoredUpdates }),
+  ignoreUpdate: (id) =>
+    set((s) => {
+      const found = s.updates.find((u) => u.id === id)
+      if (!found) return {}
+      return {
+        updates: s.updates.filter((u) => u.id !== id),
+        ignoredUpdates: [...s.ignoredUpdates, { ...found, selected: false }]
+      }
+    }),
+  unignoreUpdate: (id) =>
+    set((s) => {
+      const found = s.ignoredUpdates.find((u) => u.id === id)
+      if (!found) return {}
+      return {
+        ignoredUpdates: s.ignoredUpdates.filter((u) => u.id !== id),
+        updates: [...s.updates, { ...found, selected: true, isHidden: false }]
+      }
+    }),
   setUpdateScanning: (updateScanning) => set({ updateScanning }),
   setUpdateProgress: (updateProgress) => set({ updateProgress }),
   setInstalling: (installing) => set({ installing }),
@@ -131,6 +157,7 @@ export const useDriverStore = create<DriverState>((set) => ({
       error: null,
       totalStaleSize: 0,
       updates: [],
+      ignoredUpdates: [],
       updateScanning: false,
       updateProgress: null,
       installing: false,

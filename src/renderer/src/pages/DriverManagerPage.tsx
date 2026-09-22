@@ -11,7 +11,11 @@ import {
   Download,
   ArrowUpCircle,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  EyeOff,
+  Eye,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -23,7 +27,7 @@ import { useHistoryStore } from '@/stores/history-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useDriverStore } from '@/stores/driver-store'
 import { formatBytes } from '@/lib/utils'
-import type { DriverScanProgress, DriverUpdateProgress } from '@shared/types'
+import type { DriverScanProgress, DriverUpdate, DriverUpdateProgress } from '@shared/types'
 
 export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const { t } = useTranslation('updates')
@@ -35,6 +39,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const error = useDriverStore((s) => s.error)
   const totalStaleSize = useDriverStore((s) => s.totalStaleSize)
   const updates = useDriverStore((s) => s.updates)
+  const ignoredUpdates = useDriverStore((s) => s.ignoredUpdates)
   const updateScanning = useDriverStore((s) => s.updateScanning)
   const updateProgress = useDriverStore((s) => s.updateProgress)
   const installing = useDriverStore((s) => s.installing)
@@ -45,6 +50,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const hasScanned = useDriverStore((s) => s.hasScanned)
 
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showIgnored, setShowIgnored] = useState(false)
   const cleanStartRef = useRef<number>(0)
   const historyStore = useHistoryStore()
   const recomputeStats = useStatsStore((s) => s.recompute)
@@ -74,6 +80,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
     store.setUpdateScanning(true)
     store.setPackages([])
     store.setUpdates([])
+    store.setIgnoredUpdates([])
     store.setCleanResult(null)
     store.setInstallResult(null)
     store.setError(null)
@@ -110,6 +117,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
     let updateCount = 0
     if (updateResult.status === 'fulfilled') {
       s.setUpdates(updateResult.value.updates)
+      s.setIgnoredUpdates(updateResult.value.ignoredUpdates ?? [])
       s.setUpdatesDisabled(updateResult.value.updatesDisabled)
       updateCount = updateResult.value.updates.length
     } else {
@@ -264,6 +272,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       }
       if (updateResult.status === 'fulfilled') {
         s.setUpdates(updateResult.value.updates)
+        s.setIgnoredUpdates(updateResult.value.ignoredUpdates ?? [])
         s.setUpdatesDisabled(updateResult.value.updatesDisabled)
       }
       s.setScanning(false)
@@ -275,6 +284,50 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
 
   const stalePackages = packages.filter((p) => !p.isCurrent)
   const selectedStaleCount = stalePackages.filter((p) => p.selected).length
+  // ─── Ignore / restore a driver update ─────────────────────
+  // Optimistic: move the row immediately, then persist and hide/unhide the
+  // update in Windows Update itself. Hiding needs elevation; if that part
+  // fails the update stays ignored in Kudu and the user is told.
+  const handleIgnore = useCallback(
+    async (upd: DriverUpdate) => {
+      useDriverStore.getState().ignoreUpdate(upd.id)
+      if (!upd.updateId) return
+      try {
+        const result = await window.kudu.driverUpdateIgnore(upd.updateId, true)
+        if (result.windowsUpdateHidden) {
+          toast.success(t('driverManager.ignoredToast', { name: upd.deviceName }), {
+            description: t('driverManager.ignoredToastHidden')
+          })
+        } else {
+          toast.warning(t('driverManager.ignoredToast', { name: upd.deviceName }), {
+            description: t('driverManager.ignoredToastNotHidden')
+          })
+        }
+      } catch {
+        toast.error(t('driverManager.ignoreFailedToast'))
+      }
+    },
+    [t]
+  )
+
+  const handleUnignore = useCallback(
+    async (upd: DriverUpdate) => {
+      useDriverStore.getState().unignoreUpdate(upd.id)
+      if (!upd.updateId) return
+      try {
+        const result = await window.kudu.driverUpdateIgnore(upd.updateId, false)
+        if (!result.windowsUpdateHidden) {
+          toast.warning(t('driverManager.restoredToast', { name: upd.deviceName }), {
+            description: t('driverManager.restoredToastNotUnhidden')
+          })
+        }
+      } catch {
+        toast.error(t('driverManager.ignoreFailedToast'))
+      }
+    },
+    [t]
+  )
+
   const selectedUpdateCount = updates.filter((u) => u.selected).length
   const totalSelected = selectedStaleCount + selectedUpdateCount
   const allStaleSelected = stalePackages.length > 0 && stalePackages.every((p) => p.selected)
@@ -635,9 +688,86 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                     </div>
                   )}
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    void handleIgnore(upd)
+                  }}
+                  disabled={isBusy}
+                  title={t('driverManager.ignoreButton')}
+                  aria-label={t('driverManager.ignoreButton')}
+                  className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-medium text-zinc-500 transition-all hover:bg-white/5 hover:text-zinc-300 disabled:opacity-30 shrink-0"
+                  style={{ border: '1px solid var(--border-medium)' }}
+                >
+                  <EyeOff className="h-3.5 w-3.5" strokeWidth={1.8} />
+                </button>
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ─── Ignored Updates Section ─────────────────────────── */}
+      {ignoredUpdates.length > 0 && !isScanning && (
+        <div className="mb-6">
+          <button
+            onClick={() => setShowIgnored(!showIgnored)}
+            className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
+          >
+            {showIgnored ? (
+              <ChevronDown className="h-4 w-4" strokeWidth={2} />
+            ) : (
+              <ChevronRight className="h-4 w-4" strokeWidth={2} />
+            )}
+            <EyeOff className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
+            {t('driverManager.ignoredSection', { count: ignoredUpdates.length })}
+          </button>
+
+          {showIgnored && (
+            <div className="grid grid-cols-1 gap-1.5">
+              {ignoredUpdates.map((upd) => (
+                <div
+                  key={upd.id}
+                  className="flex items-center gap-4 rounded-xl px-5 py-3"
+                  style={{
+                    background: 'var(--bg-subtle)',
+                    border: '1px solid var(--border-subtle)',
+                    opacity: 0.7
+                  }}
+                >
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                    style={{ background: 'rgba(113,113,122,0.08)' }}
+                  >
+                    <EyeOff className="h-4 w-4 text-zinc-500" strokeWidth={1.8} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[12px] font-medium text-zinc-400 truncate block">
+                      {upd.deviceName}
+                    </span>
+                    <span
+                      className="text-[10px] truncate block"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      {upd.provider} — {upd.updateTitle}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-600 shrink-0">
+                    v{upd.availableVersion}
+                  </span>
+                  <button
+                    onClick={() => void handleUnignore(upd)}
+                    disabled={isBusy}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-medium text-zinc-400 transition-all hover:bg-white/5 hover:text-zinc-200 disabled:opacity-30 shrink-0"
+                    style={{ border: '1px solid var(--border-medium)' }}
+                  >
+                    <Eye className="h-3.5 w-3.5" strokeWidth={1.8} />
+                    {t('driverManager.unignoreButton')}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

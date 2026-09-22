@@ -8,6 +8,7 @@ import { readdirSync, statSync } from 'fs'
 import { IPC } from '../../shared/channels'
 import { validateStringArray } from '../services/ipc-validation'
 import { trackMainWork } from '../services/main-work'
+import { getSettings, updateIgnoredDriverUpdates } from '../services/settings-store'
 import { execNativeUtf8, psUtf8 } from '../services/exec-utf8'
 import type {
   DriverPackage,
@@ -16,6 +17,7 @@ import type {
   DriverScanProgress,
   DriverUpdate,
   DriverUpdateScanResult,
+  DriverUpdateIgnoreResult,
   DriverUpdateInstallResult,
   DriverUpdateProgress
 } from '../../shared/types'
@@ -529,6 +531,7 @@ export async function scanDriverUpdates(
   if (process.platform !== 'win32') {
     return {
       updates: [],
+      ignoredUpdates: [],
       totalAvailable: 0,
       scanDuration: Date.now() - startTime,
       updatesDisabled: false
@@ -540,6 +543,7 @@ export async function scanDriverUpdates(
   if (await areDriverUpdatesDisabled()) {
     return {
       updates: [],
+      ignoredUpdates: [],
       totalAvailable: 0,
       scanDuration: Date.now() - startTime,
       updatesDisabled: true
@@ -554,17 +558,24 @@ export async function scanDriverUpdates(
     percent: 0
   })
 
-  const updates: DriverUpdate[] = []
+  const found: DriverUpdate[] = []
 
   try {
     // Use the Windows Update COM API via PowerShell to find driver updates.
     // WMI driver table is cached once before the loop for performance.
+    // Hidden updates are searched too so the user can see (and restore)
+    // drivers they previously ignored.
     const script = `
         $ErrorActionPreference = 'Stop'
         $session = New-Object -ComObject Microsoft.Update.Session
         $searcher = $session.CreateUpdateSearcher()
-        $criteria = "IsInstalled=0 AND Type='Driver'"
+        $criteria = "IsInstalled=0 AND Type='Driver' AND IsHidden=0"
         $result = $searcher.Search($criteria)
+        $hiddenResult = $null
+        try { $hiddenResult = $searcher.Search("IsInstalled=0 AND Type='Driver' AND IsHidden=1") } catch {}
+        $all = New-Object -ComObject Microsoft.Update.UpdateColl
+        foreach ($u in $result.Updates) { $all.Add($u) | Out-Null }
+        if ($hiddenResult) { foreach ($u in $hiddenResult.Updates) { $all.Add($u) | Out-Null } }
 
         # Cache installed driver table once (expensive query)
         # Use Get-CimInstance (works on PS 5.1+/7+), fall back to Get-WmiObject
@@ -577,7 +588,7 @@ export async function scanDriverUpdates(
           } catch {}
         }
 
-        foreach ($update in $result.Updates) {
+        foreach ($update in $all) {
           $driver = $update.DriverModel
           $ver = $update.DriverVerDate
           $hwId = ''
@@ -615,10 +626,12 @@ export async function scanDriverUpdates(
           }
 
           $wuId = $update.Identity.UpdateID
-          Write-Output "DRVUPD|$($driver)|$($hwId)|$($cls)|$($currentVer)|$($currentDate)|$($wuId)|$($verStr)|$($provider)|$($title)|$($size)"
+          $hidden = 0
+          if ($update.IsHidden) { $hidden = 1 }
+          Write-Output "DRVUPD|$($driver)|$($hwId)|$($cls)|$($currentVer)|$($currentDate)|$($wuId)|$($verStr)|$($provider)|$($title)|$($size)|$($hidden)"
         }
 
-        if ($result.Updates.Count -eq 0) {
+        if ($all.Count -eq 0) {
           Write-Output 'DRVUPD_NONE'
         }
       `
@@ -656,6 +669,7 @@ export async function scanDriverUpdates(
       const provider = parts[8] || 'Unknown'
       const updateTitle = parts[9] || deviceName
       const downloadSize = parts[10] || ''
+      const isHidden = parts[11] === '1'
 
       // Extract version from the update title if available (common pattern: "vX.X.X.X")
       const versionMatch = updateTitle.match(/(\d+\.\d+\.\d+[\.\d]*)/)
@@ -670,7 +684,7 @@ export async function scanDriverUpdates(
         percent: Math.round((idx / totalCount) * 100)
       })
 
-      updates.push({
+      found.push({
         id: makeId(updateId || deviceName, availableVersion),
         updateId,
         deviceName,
@@ -683,7 +697,8 @@ export async function scanDriverUpdates(
         provider,
         updateTitle,
         downloadSize,
-        selected: true
+        selected: true,
+        isHidden
       })
     }
   } catch (err: any) {
@@ -692,11 +707,89 @@ export async function scanDriverUpdates(
     throw new Error(err?.stderr || err?.message || 'Driver update scan failed')
   }
 
+  const { updates, ignoredUpdates } = partitionIgnoredDriverUpdates(
+    found,
+    getSettings().ignoredDriverUpdates ?? []
+  )
+
   return {
     updates,
+    ignoredUpdates,
     totalAvailable: updates.length,
     scanDuration: Date.now() - startTime,
     updatesDisabled: false
+  }
+}
+
+/**
+ * Split scanned driver updates into offered and ignored. An update is ignored
+ * when its Windows Update ID is on the user's ignore list, or when it is
+ * hidden in Windows Update itself (e.g. hidden with wushowhide). Ignored
+ * updates are returned deselected so they are never installed by accident.
+ */
+export function partitionIgnoredDriverUpdates(
+  found: DriverUpdate[],
+  ignoredIds: readonly string[]
+): { updates: DriverUpdate[]; ignoredUpdates: DriverUpdate[] } {
+  const ignored = new Set(ignoredIds)
+  const updates: DriverUpdate[] = []
+  const ignoredUpdates: DriverUpdate[] = []
+  for (const u of found) {
+    if (u.isHidden || (u.updateId && ignored.has(u.updateId))) {
+      ignoredUpdates.push({ ...u, selected: false })
+    } else {
+      updates.push(u)
+    }
+  }
+  return { updates, ignoredUpdates }
+}
+
+/**
+ * Ignore (or restore) a driver update. The ID is persisted to settings so the
+ * update stays out of Kudu's list, and the update is also hidden in Windows
+ * Update via the WUA COM API so Windows itself stops offering it (issue #464).
+ * Hiding in Windows Update needs elevation; when it fails, the Kudu-side
+ * ignore still applies and the failure is reported.
+ */
+export async function setDriverUpdateIgnored(
+  wuUpdateId: string,
+  ignored: boolean
+): Promise<DriverUpdateIgnoreResult> {
+  await updateIgnoredDriverUpdates(wuUpdateId, ignored)
+
+  if (process.platform !== 'win32') {
+    return { windowsUpdateHidden: false }
+  }
+
+  try {
+    const safeId = wuUpdateId.replace(/'/g, "''")
+    const script = `
+        $ErrorActionPreference = 'Stop'
+        $session = New-Object -ComObject Microsoft.Update.Session
+        $searcher = $session.CreateUpdateSearcher()
+        $result = $searcher.Search("IsInstalled=0 AND Type='Driver' AND IsHidden=${ignored ? 0 : 1}")
+        $found = $false
+        foreach ($update in $result.Updates) {
+          if ($update.Identity.UpdateID -eq '${safeId}') {
+            $update.IsHidden = ${ignored ? '$true' : '$false'}
+            $found = $true
+          }
+        }
+        if ($found) { Write-Output 'HIDE_OK' } else { Write-Output 'HIDE_NOTFOUND' }
+      `
+    const { stdout } = await execFileAsync('powershell', psArgs(script), {
+      timeout: 120000,
+      maxBuffer: 1024 * 1024,
+      windowsHide: true
+    })
+    if (stdout.includes('HIDE_OK')) return { windowsUpdateHidden: true }
+    // Not in the current WU result set: already in the requested state, or the
+    // update is no longer offered. Nothing to change in Windows Update.
+    return { windowsUpdateHidden: false, error: 'Update not found in Windows Update' }
+  } catch (err: any) {
+    const msg: string = err?.stderr || err?.message || 'Unknown error'
+    console.error('Failed to change driver update hidden state:', msg)
+    return { windowsUpdateHidden: false, error: msg.slice(0, 300) }
   }
 }
 
@@ -857,6 +950,16 @@ export function registerDriverManagerIpc(getWindow: WindowGetter): void {
   })
 
   ipcMain.handle(IPC.DRIVER_UPDATE_SCAN, () => scanDriverUpdates(sendUpdateProgress))
+
+  ipcMain.handle(
+    IPC.DRIVER_UPDATE_IGNORE,
+    async (_event, wuUpdateId: unknown, ignored: unknown): Promise<DriverUpdateIgnoreResult> => {
+      if (typeof wuUpdateId !== 'string' || !wuUpdateId || wuUpdateId.length > 200) {
+        return { windowsUpdateHidden: false, error: 'Invalid update id' }
+      }
+      return setDriverUpdateIgnored(wuUpdateId, ignored === true)
+    }
+  )
 
   ipcMain.handle(IPC.DRIVER_UPDATE_INSTALL, async (_event, wuUpdateIds: string[]) => {
     const valid = validateStringArray(wuUpdateIds, 500)

@@ -20,6 +20,16 @@ vi.mock('child_process', () => {
   return { execFile }
 })
 
+const { mockGetSettings, mockUpdateIgnored } = vi.hoisted(() => ({
+  mockGetSettings: vi.fn(() => ({ ignoredDriverUpdates: [] as string[] })),
+  mockUpdateIgnored: vi.fn(async () => {})
+}))
+
+vi.mock('../services/settings-store', () => ({
+  getSettings: () => mockGetSettings(),
+  updateIgnoredDriverUpdates: (...args: unknown[]) => mockUpdateIgnored(...args)
+}))
+
 vi.mock('../services/exec-utf8', () => ({
   psUtf8: (cmd: string) => cmd,
   execNativeUtf8: (...args: unknown[]) => mockExecNative(...args)
@@ -30,9 +40,12 @@ import {
   driverIdentityKey,
   findSupersededDrivers,
   scanDrivers,
-  cleanDrivers
+  cleanDrivers,
+  partitionIgnoredDriverUpdates,
+  setDriverUpdateIgnored
 } from './driver-manager.ipc'
 import type { RawDriver } from './driver-manager.ipc'
+import type { DriverUpdate } from '../../shared/types'
 
 const originalPlatform = process.platform
 
@@ -487,5 +500,126 @@ describe('cleanDrivers', () => {
     setPlatform('linux')
     const result = await cleanDrivers(['oem20.inf'])
     expect(result).toEqual({ removed: 0, failed: 0, spaceRecovered: 0, errors: [] })
+  })
+})
+
+// ── Driver update ignore list (#464) ──
+
+function makeUpdate(updateId: string, isHidden = false): DriverUpdate {
+  return {
+    id: updateId,
+    updateId,
+    deviceName: `Device ${updateId}`,
+    deviceId: '',
+    className: 'Keyboard',
+    currentVersion: '1.0',
+    currentDate: '',
+    availableVersion: '2.0',
+    availableDate: '',
+    provider: 'Lenovo',
+    updateTitle: `Lenovo - Keyboard - ${updateId}`,
+    downloadSize: '',
+    selected: true,
+    isHidden
+  }
+}
+
+describe('partitionIgnoredDriverUpdates', () => {
+  it('offers everything when nothing is ignored', () => {
+    const { updates, ignoredUpdates } = partitionIgnoredDriverUpdates(
+      [makeUpdate('a'), makeUpdate('b')],
+      []
+    )
+    expect(updates.map((u) => u.updateId)).toEqual(['a', 'b'])
+    expect(ignoredUpdates).toEqual([])
+  })
+
+  it('moves updates on the ignore list out of the offered set and deselects them', () => {
+    const { updates, ignoredUpdates } = partitionIgnoredDriverUpdates(
+      [makeUpdate('a'), makeUpdate('b')],
+      ['b']
+    )
+    expect(updates.map((u) => u.updateId)).toEqual(['a'])
+    expect(ignoredUpdates.map((u) => u.updateId)).toEqual(['b'])
+    expect(ignoredUpdates[0].selected).toBe(false)
+  })
+
+  it('treats updates hidden in Windows Update as ignored', () => {
+    const { updates, ignoredUpdates } = partitionIgnoredDriverUpdates(
+      [makeUpdate('a'), makeUpdate('b', true)],
+      []
+    )
+    expect(updates.map((u) => u.updateId)).toEqual(['a'])
+    expect(ignoredUpdates.map((u) => u.updateId)).toEqual(['b'])
+  })
+
+  it('never matches an update with no Windows Update ID against the list', () => {
+    const noId = { ...makeUpdate('x'), updateId: '' }
+    const { updates } = partitionIgnoredDriverUpdates([noId], [''])
+    expect(updates).toHaveLength(1)
+  })
+})
+
+describe('setDriverUpdateIgnored', () => {
+  beforeEach(() => {
+    mockExecFile.mockReset()
+    mockUpdateIgnored.mockClear()
+  })
+  afterEach(() => setPlatform(originalPlatform))
+
+  it('persists the ignore and hides the update in Windows Update', async () => {
+    setPlatform('win32')
+    mockExecFile.mockResolvedValue({ stdout: 'HIDE_OK\n', stderr: '' })
+    const result = await setDriverUpdateIgnored('abc-123', true)
+    expect(mockUpdateIgnored).toHaveBeenCalledWith('abc-123', true)
+    expect(result).toEqual({ windowsUpdateHidden: true })
+    const script = String((mockExecFile.mock.calls[0] as unknown[])[1]).replace(/\s+/g, ' ')
+    expect(script).toContain('IsHidden=0')
+    expect(script).toContain("-eq 'abc-123'")
+    expect(script).toContain('$update.IsHidden = $true')
+  })
+
+  it('unhides in Windows Update when restoring', async () => {
+    setPlatform('win32')
+    mockExecFile.mockResolvedValue({ stdout: 'HIDE_OK\n', stderr: '' })
+    const result = await setDriverUpdateIgnored('abc-123', false)
+    expect(mockUpdateIgnored).toHaveBeenCalledWith('abc-123', false)
+    expect(result.windowsUpdateHidden).toBe(true)
+    const script = String((mockExecFile.mock.calls[0] as unknown[])[1]).replace(/\s+/g, ' ')
+    expect(script).toContain('IsHidden=1')
+    expect(script).toContain('$update.IsHidden = $false')
+  })
+
+  it('keeps the Kudu-side ignore when Windows Update refuses (not elevated)', async () => {
+    setPlatform('win32')
+    mockExecFile.mockRejectedValue(Object.assign(new Error('boom'), { stderr: 'Access denied' }))
+    const result = await setDriverUpdateIgnored('abc-123', true)
+    expect(mockUpdateIgnored).toHaveBeenCalledWith('abc-123', true)
+    expect(result.windowsUpdateHidden).toBe(false)
+    expect(result.error).toContain('Access denied')
+  })
+
+  it('reports when the update is no longer offered by Windows Update', async () => {
+    setPlatform('win32')
+    mockExecFile.mockResolvedValue({ stdout: 'HIDE_NOTFOUND\n', stderr: '' })
+    const result = await setDriverUpdateIgnored('abc-123', true)
+    expect(result.windowsUpdateHidden).toBe(false)
+    expect(result.error).toBeTruthy()
+  })
+
+  it("escapes single quotes so the ID can't break out of the PowerShell literal", async () => {
+    setPlatform('win32')
+    mockExecFile.mockResolvedValue({ stdout: 'HIDE_OK\n', stderr: '' })
+    await setDriverUpdateIgnored("a'b", true)
+    const script = String((mockExecFile.mock.calls[0] as unknown[])[1])
+    expect(script).toContain("-eq 'a''b'")
+  })
+
+  it('only persists off Windows', async () => {
+    setPlatform('linux')
+    const result = await setDriverUpdateIgnored('abc-123', true)
+    expect(mockUpdateIgnored).toHaveBeenCalledWith('abc-123', true)
+    expect(mockExecFile).not.toHaveBeenCalled()
+    expect(result).toEqual({ windowsUpdateHidden: false })
   })
 })

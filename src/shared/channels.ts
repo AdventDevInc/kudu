@@ -183,6 +183,7 @@ export const IPC = {
   DRIVER_PROGRESS: 'driver:progress',
   DRIVER_UPDATE_SCAN: 'driver:update:scan',
   DRIVER_UPDATE_INSTALL: 'driver:update:install',
+  DRIVER_UPDATE_IGNORE: 'driver:update:ignore',
   DRIVER_UPDATE_PROGRESS: 'driver:update:progress',
 
   // Program Uninstaller

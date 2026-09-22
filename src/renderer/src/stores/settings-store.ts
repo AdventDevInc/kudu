@@ -32,6 +32,7 @@ export const defaultSettings: KuduSettings = {
   },
   exclusions: [],
   ignoredSoftwareUpdates: [],
+  ignoredDriverUpdates: [],
   backupPath: '',
   backupMode: 'targeted',
   schedule: {

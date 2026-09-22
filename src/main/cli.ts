@@ -706,6 +706,8 @@ Driver Manager:
   drivers clean <name,...>   Remove specified driver packages
   drivers check-updates      Check for driver updates
   drivers update [--all]     Install driver updates
+  drivers ignore <id,...>    Ignore driver updates (also hides them in Windows Update)
+  drivers unignore <id,...>  Stop ignoring driver updates
 
 Service Manager:
   services scan              Scan Windows services
@@ -1123,8 +1125,13 @@ async function handlePrivacy(args: string[], ctx: CliContext): Promise<number | 
 
 async function handleDrivers(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
-  const { scanDrivers, cleanDrivers, scanDriverUpdates, installDriverUpdates } =
-    await import('./ipc/driver-manager.ipc')
+  const {
+    scanDrivers,
+    cleanDrivers,
+    scanDriverUpdates,
+    installDriverUpdates,
+    setDriverUpdateIgnored
+  } = await import('./ipc/driver-manager.ipc')
 
   if (sub === 'scan') {
     cliLog(ctx, 'Scanning driver packages...')
@@ -1162,6 +1169,7 @@ async function handleDrivers(args: string[], ctx: CliContext): Promise<number | 
       cliOut(ctx, {
         updates: updateResult.updates,
         count: updateResult.updates.length,
+        ignoredUpdates: updateResult.ignoredUpdates,
         updatesDisabled: updateResult.updatesDisabled
       })
     } else if (updateResult.updatesDisabled) {
@@ -1171,7 +1179,12 @@ async function handleDrivers(args: string[], ctx: CliContext): Promise<number | 
       )
     } else {
       cliLog(ctx, `Found ${updateResult.updates.length} driver updates`)
-      for (const u of updateResult.updates) cliLog(ctx, `  ${u.updateTitle}`)
+      for (const u of updateResult.updates) cliLog(ctx, `  ${u.updateTitle} [${u.updateId}]`)
+      if (updateResult.ignoredUpdates.length > 0) {
+        cliLog(ctx, `Ignored ${updateResult.ignoredUpdates.length} driver updates`)
+        for (const u of updateResult.ignoredUpdates)
+          cliLog(ctx, `  ${u.updateTitle} [${u.updateId}]`)
+      }
     }
   } else if (sub === 'update') {
     cliLog(ctx, 'Checking for driver updates...')
@@ -1201,8 +1214,34 @@ async function handleDrivers(args: string[], ctx: CliContext): Promise<number | 
     })
     if (showProgress(ctx)) log('')
     cliOut(ctx, result)
+  } else if (sub === 'ignore' || sub === 'unignore') {
+    const idArg = args.find((a) => a !== sub && !a.startsWith('--'))
+    if (!idArg) {
+      cliUsage(ctx, `kudu --cli drivers ${sub} <update-id,...>`)
+      return ExitCode.INVALID_ARGS
+    }
+    const ids = idArg
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    const results: Record<string, unknown> = {}
+    for (const id of ids) {
+      const result = await setDriverUpdateIgnored(id, sub === 'ignore')
+      results[id] = result
+      if (!ctx.json) {
+        const state = sub === 'ignore' ? 'Ignored' : 'Restored'
+        const wu = result.windowsUpdateHidden
+          ? '(Windows Update updated)'
+          : `(Windows Update not changed: ${result.error || 'unknown'})`
+        cliLog(ctx, `${state} ${id} ${wu}`)
+      }
+    }
+    if (ctx.json) cliOut(ctx, results)
   } else {
-    cliUsage(ctx, 'kudu --cli drivers <scan|clean|check-updates|update> [names|--all]')
+    cliUsage(
+      ctx,
+      'kudu --cli drivers <scan|clean|check-updates|update|ignore|unignore> [names|ids|--all]'
+    )
     return ExitCode.INVALID_ARGS
   }
 }

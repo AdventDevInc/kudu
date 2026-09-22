@@ -67,6 +67,7 @@ const defaults: StoreData = {
     },
     exclusions: [],
     ignoredSoftwareUpdates: [],
+    ignoredDriverUpdates: [],
     backupPath: '',
     backupMode: 'targeted' as const,
     schedule: {
@@ -449,6 +450,22 @@ export function updateRegistryIgnoredTweaks(signatures: string[], ignored: boole
     data.settings.registryIgnoredTweaks = [...set].slice(-200)
   }).catch(() => {
     /* logged in runLocked */
+  })
+}
+
+/**
+ * Atomically add or remove a driver-update ignore entry (Windows Update
+ * UpdateID) within the write lock, so concurrent toggles never clobber each
+ * other. Resolves once the change is persisted.
+ */
+export function updateIgnoredDriverUpdates(updateId: string, ignored: boolean): Promise<void> {
+  if (!updateId) return Promise.resolve()
+  return runLocked('driver ignore list', (data) => {
+    const set = new Set(data.settings.ignoredDriverUpdates ?? [])
+    if (ignored) set.add(updateId)
+    else set.delete(updateId)
+    // Bound the list to match validation (oldest entries dropped first).
+    data.settings.ignoredDriverUpdates = [...set].slice(-500)
   })
 }
 
