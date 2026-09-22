@@ -451,7 +451,7 @@ async function main() {
       const syncedText = JSON.stringify(synced, null, 2) + '\n'
 
       if (toTranslate.size === 0) {
-        let currentText = ''
+        let currentText
         try {
           currentText = fs.readFileSync(outPath, 'utf-8')
         } catch {
