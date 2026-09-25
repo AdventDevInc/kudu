@@ -202,8 +202,7 @@ describe('Quarantine Events download history', () => {
       // Swap in a different file while sqlite3 "runs".
       renameSync(quarantineDb(), quarantineDb() + '.old')
       writeFileSync(quarantineDb(), 'replacement')
-      return '0|-1|-1
-'
+      return '0|-1|-1'
     })
     await expect(clearQuarantineEvents(quarantineDb(), info)).rejects.toMatchObject({
       reason: expect.stringContaining('replaced while it was being cleared')
