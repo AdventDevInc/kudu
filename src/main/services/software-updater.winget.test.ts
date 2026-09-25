@@ -225,15 +225,21 @@ describe('runUpdates (winget)', () => {
 
   /**
    * Script winget: `upgrade <id>` runs through `attempts` in order (the last
-   * one repeats), the bare `upgrade` rescan returns `rescan`.
+   * one repeats), the bare `upgrade` rescan returns `rescan`, and the
+   * elevated PowerShell run returns `elevatedRun`.
    */
-  function scriptUpgrade(attempts: Scripted[], rescan: Scripted = { stdout: '' }): Call[] {
+  function scriptUpgrade(
+    attempts: Scripted[],
+    rescan: Scripted = { stdout: '' },
+    elevatedRun: Scripted = { stdout: '' }
+  ): Call[] {
     const calls: Call[] = []
     let attempt = 0
     mockExecFile.mockImplementation((file: string, args: string[], _o: unknown, cb: ExecCb) => {
       calls.push({ file, args })
       let scripted: Scripted = { stdout: '' }
-      if (args[0] === '--version') scripted = { stdout: 'v1.9.0' }
+      if (file === 'powershell.exe') scripted = elevatedRun
+      else if (args[0] === '--version') scripted = { stdout: 'v1.9.0' }
       else if (args[0] === 'upgrade' && args[1]?.startsWith('--')) scripted = rescan
       else if (args[0] === 'upgrade') scripted = attempts[Math.min(attempt++, attempts.length - 1)]
       if (scripted.error) {
@@ -269,6 +275,16 @@ describe('runUpdates (winget)', () => {
     expect(result.succeeded).toBe(1)
   })
 
+  it('counts "no applicable update" as success: the app is already current', async () => {
+    const calls = scriptUpgrade([
+      { stdout: 'Nessun aggiornamento disponibile.\r\n', error: { code: 0x8a15002b } }
+    ])
+
+    const result = await update()
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+    expect(upgradeCalls(calls)).toHaveLength(1)
+  })
+
   it('does not retry a failure that retrying cannot fix', async () => {
     const calls = scriptUpgrade([
       { stdout: "L'applicazione è in esecuzione.\r\n", error: { code: 0x8a150101 } }
@@ -301,5 +317,18 @@ describe('runUpdates (winget)', () => {
 
     const result = await update()
     expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+  })
+
+  it('accepts a reboot-pending exit from the elevated run', async () => {
+    const calls = scriptUpgrade(
+      [{ stdout: 'Accesso negato.\r\n', error: { code: 0x80070005 } }],
+      { stdout: 'Nessun pacchetto installato trovato.\r\n', error: { code: 0x8a150014 } },
+      // PowerShell hands back winget's HRESULT as a signed exit code
+      { error: { code: 0x8a150109 | 0 } }
+    )
+
+    const result = await update()
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+    expect(upgradeCalls(calls).some((c) => c.args.includes('--force'))).toBe(false)
   })
 })

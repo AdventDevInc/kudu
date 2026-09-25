@@ -522,8 +522,16 @@ const WINGET_UPGRADE_ARGS = [
  */
 const WINGET_UPGRADE_OK_CODES = new Set([
   0x8a150109, // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH
-  0x8a15010b // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED
+  0x8a15010b, // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED
+  // Nothing newer to install — typically the app was updated since the scan,
+  // so the requested end state already holds
+  0x8a15002b // APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE
 ])
+
+function isWingetUpgradeOk(code: number): boolean {
+  const unsigned = code >>> 0
+  return unsigned === 0 || WINGET_UPGRADE_OK_CODES.has(unsigned)
+}
 
 const WINGET_TECH_MISMATCH = 0x8a15008e // APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH
 const WINGET_REQUIRES_ADMIN = 0x8a150019 // APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN
@@ -555,7 +563,6 @@ const WINGET_FINAL_FAILURES = new Map<number, string>([
 /** Readable messages for failures that are still worth retrying. */
 const WINGET_FAILURE_MESSAGES = new Map<number, string>([
   [0x8a150014, 'Package not found in the winget sources'],
-  [0x8a15002b, 'No applicable update found'],
   [0x8a15010d, 'Another version of this app is already installed'],
   [0x8a150114, 'The installer does not support upgrading this app']
 ])
@@ -625,7 +632,7 @@ async function attemptWingetUpgrade(
     code = err.code >>> 0
   }
 
-  if (code === 0 || WINGET_UPGRADE_OK_CODES.has(code)) {
+  if (isWingetUpgradeOk(code)) {
     return { success: true, output: upgradeStdout, code }
   }
 
@@ -681,17 +688,26 @@ async function attemptElevatedUpgrade(
     const safeArgs = args.replace(/'/g, "''")
     const safeExe = winget.replace(/'/g, "''")
     // Run winget elevated via Start-Process; -Wait blocks until done, -PassThru gives exit code
-    const { stdout } = await execFileAsync(
-      'powershell.exe',
-      [
-        '-NoProfile',
-        '-Command',
-        psUtf8(
-          `$p = Start-Process '${safeExe}' -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`
-        )
-      ],
-      { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
-    )
+    let stdout = ''
+    try {
+      const result = await execFileAsync(
+        'powershell.exe',
+        [
+          '-NoProfile',
+          '-Command',
+          psUtf8(
+            `$p = Start-Process '${safeExe}' -ArgumentList '${safeArgs}' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; exit $p.ExitCode`
+          )
+        ],
+        { timeout: 5 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
+      )
+      stdout = result.stdout
+    } catch (err: any) {
+      // winget's exit code is passed through, so a reboot-pending success
+      // lands here too — let the rescan below judge it
+      if (typeof err?.code !== 'number' || !isWingetUpgradeOk(err.code)) throw err
+      stdout = err.stdout ?? ''
+    }
     // We can't reliably capture stdout from the elevated process, so verify
     // by checking if winget still lists this app as upgradeable
     let checkStdout: string
