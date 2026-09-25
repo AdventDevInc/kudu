@@ -451,6 +451,9 @@ async function reasonToKeep(
     // An excluded file is never opened, so it can't be verified as the copy that stays.
     if (await isExcludedResolved(other, exclusions)) continue
     if (await isIntactCopy(other, target, targetRealPath, group)) {
+      // Hashing can take a while; an exclusion added meanwhile still disqualifies it.
+      if (await isExcludedResolved(other, await expandExclusions(getSettings().exclusions)))
+        continue
       survivor = true
       break
     }

@@ -513,6 +513,21 @@ describe('duplicate finder deletion safety', () => {
     expect(existsSync(bb)).toBe(true)
   })
 
+  it('does not accept a survivor that became excluded while it was verified', async () => {
+    rmSync(ccc)
+    await scan()
+    // Exclude the survivor once its verification has started.
+    let calls = 0
+    mocks.onRealpath = (path) => {
+      if (path === a && ++calls === 1) mocks.settings.exclusions = [a]
+    }
+    const result = await remove([bb])
+    mocks.onRealpath = null
+    expect(result).toMatchObject({ deleted: 0, failed: 1 })
+    expect(result.errors[0].reason).toContain('No other intact copy')
+    expect(existsSync(bb)).toBe(true)
+  })
+
   it('never opens an excluded file as the surviving copy', async () => {
     rmSync(ccc)
     await scan()
