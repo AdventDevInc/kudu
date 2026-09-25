@@ -71,6 +71,8 @@ export function sqliteFailureReason(err: unknown): string {
   if (/readonly database|unable to open|authori[sz]ation denied|permission denied/i.test(text))
     return 'permission-denied'
   if (/no such table/i.test(text)) return 'not-found'
+  // sqlite3 before 3.31 (macOS 10.15 and older) lacks -nofollow; never run without it.
+  if (/unknown option/i.test(text)) return 'unsupported on this macOS version'
   return 'could not update the download history database'
 }
 
@@ -89,8 +91,11 @@ export async function clearQuarantineEvents(path: string, scanned: BigIntStats):
   await verifyTraceFile(path, scanned)
   try {
     // secure_delete zeroes the removed rows instead of leaving them in free pages.
+    // -nofollow makes sqlite3 refuse the path if it was swapped for a symlink
+    // after the check above, rather than deleting rows from its target.
     await sqlite([
       '-bail',
+      '-nofollow',
       '-cmd',
       '.timeout 2000',
       existingDatabaseUri(path),
@@ -118,6 +123,7 @@ export async function findMacQuarantineTraces(ctx: TraceScanContext): Promise<Pr
     count = parseCount(
       await sqlite([
         '-readonly',
+        '-nofollow',
         '-cmd',
         '.timeout 2000',
         path,

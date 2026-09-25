@@ -137,6 +137,7 @@ describe('Quarantine Events download history', () => {
     expect(result.items[0]).toMatchObject({ entryCount: 42, size: 0, selected: false })
     expect(calls[0]).toEqual([
       '-readonly',
+      '-nofollow',
       '-cmd',
       '.timeout 2000',
       quarantineDb(),
@@ -150,6 +151,7 @@ describe('Quarantine Events download history', () => {
     expect(outcome.filesDeleted).toBe(1)
     expect(calls[1]).toEqual([
       '-bail',
+      '-nofollow',
       '-cmd',
       '.timeout 2000',
       existingDatabaseUri(quarantineDb()),
@@ -191,6 +193,9 @@ describe('Quarantine Events download history', () => {
   })
 
   it('maps sqlite3 errors to skip reasons', () => {
+    expect(sqliteFailureReason(sqliteError('sqlite3: Error: unknown option: -nofollow'))).toBe(
+      'unsupported on this macOS version'
+    )
     expect(sqliteFailureReason(sqliteError('Error: database is locked'))).toBe('in-use')
     expect(sqliteFailureReason(sqliteError('attempt to write a readonly database'))).toBe(
       'permission-denied'
