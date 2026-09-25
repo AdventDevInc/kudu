@@ -97,4 +97,23 @@ describe('findLinuxRecentFileTraces', () => {
     await writeFile(join(share, 'recently-used.xbel'), '<xbel/>')
     expect(await findLinuxRecentFileTraces(ctx({ platform: 'darwin' }))).toEqual([])
   })
+
+  it('reads the lists from $XDG_DATA_HOME when it is set', async () => {
+    const custom = join(home, 'data')
+    await mkdir(custom)
+    await writeFile(join(custom, 'recently-used.xbel'), '<xbel/>')
+    await writeFile(join(share, 'recently-used.xbel'), '<xbel/>')
+    const groups = await findLinuxRecentFileTraces(ctx({ env: { XDG_DATA_HOME: custom } }))
+    expect(groups.flatMap((g) => g.traces.map((t) => t.path))).toEqual([
+      join(custom, 'recently-used.xbel')
+    ])
+  })
+
+  it('ignores a relative $XDG_DATA_HOME, as the spec requires', async () => {
+    await writeFile(join(share, 'recently-used.xbel'), '<xbel/>')
+    const groups = await findLinuxRecentFileTraces(ctx({ env: { XDG_DATA_HOME: 'data' } }))
+    expect(groups.flatMap((g) => g.traces.map((t) => t.path))).toEqual([
+      join(share, 'recently-used.xbel')
+    ])
+  })
 })

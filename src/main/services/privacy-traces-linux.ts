@@ -1,4 +1,4 @@
-import { join } from 'path'
+import { isAbsolute, join } from 'path'
 import {
   deletingTrace,
   listTraceFiles,
@@ -8,6 +8,15 @@ import {
 } from './privacy-traces'
 
 /**
+ * GTK and KDE keep these lists under $XDG_DATA_HOME, which defaults to
+ * ~/.local/share. The spec ignores a relative value, so Kudu does too.
+ */
+function xdgDataHome(ctx: TraceScanContext): string {
+  const configured = ctx.env.XDG_DATA_HOME
+  return configured && isAbsolute(configured) ? configured : join(ctx.home, '.local', 'share')
+}
+
+/**
  * Desktop recent-file lists. GTK recreates recently-used.xbel when it next
  * records a file, and KDE keeps one .desktop entry per recent document.
  */
@@ -15,7 +24,7 @@ export async function findLinuxRecentFileTraces(
   ctx: TraceScanContext
 ): Promise<PrivacyTraceGroup[]> {
   if (ctx.platform !== 'linux') return []
-  const share = join(ctx.home, '.local', 'share')
+  const share = xdgDataHome(ctx)
   const groups: PrivacyTraceGroup[] = []
 
   const xbelPath = join(share, 'recently-used.xbel')
