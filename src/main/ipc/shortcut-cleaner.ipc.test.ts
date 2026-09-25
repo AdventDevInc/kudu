@@ -42,7 +42,7 @@ vi.mock('os', async (importOriginal) => ({
 }))
 vi.mock('../services/settings-store', () => ({ getSettings: () => mocks.settings }))
 
-import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
+import { registerShortcutCleanerIpc, resolveWinShortcuts } from './shortcut-cleaner.ipc'
 
 // ── isShortcutTargetBroken ──
 // `targetExists` answers for the target itself. Drive and share roots are
@@ -701,4 +701,24 @@ describe('shortcut scan global exclusions', () => {
     expect(await scannedPaths()).not.toContain(hidden)
     expect(await scannedPaths()).not.toContain(join(home, 'Desktop', 'hidden.desktop'))
   })
+})
+
+// Runs the real PowerShell walk, so Windows only.
+describe.skipIf(process.platform !== 'win32')('resolveWinShortcuts pruning', () => {
+  it('never enumerates an excluded subfolder', async () => {
+    const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'kudu-lnk-')))
+    try {
+      mkdirSync(join(root, 'Keep'))
+      mkdirSync(join(root, 'Private'))
+      writeFileSync(join(root, 'Keep', 'a.lnk'), 'x')
+      writeFileSync(join(root, 'Private', 'b.lnk'), 'x')
+      const all = (await resolveWinShortcuts(root)).map((s) => s.path).sort()
+      expect(all).toEqual([join(root, 'Keep', 'a.lnk'), join(root, 'Private', 'b.lnk')])
+      const pruned = (await resolveWinShortcuts(root, [join(root, 'Private')])).map((s) => s.path)
+      expect(pruned).toEqual([join(root, 'Keep', 'a.lnk')])
+      expect(await resolveWinShortcuts(root, ['*.lnk'])).toEqual([])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }, 30000)
 })
