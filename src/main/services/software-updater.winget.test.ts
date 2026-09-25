@@ -31,7 +31,7 @@ vi.mock('./settings-store', () => ({
   getSettings: () => ({ windowsPackageManagers: ['winget'] })
 }))
 
-import { checkForUpdates, resetWingetCache } from './software-updater'
+import { checkForUpdates, resetWingetCache, runUpdates } from './software-updater'
 
 type ExecCb = (err: unknown, stdout: string, stderr: string) => void
 
@@ -205,5 +205,130 @@ describe('checkForUpdates (winget)', () => {
     const result = await checkForUpdates()
     expect(result.apps).toHaveLength(2)
     expect(result.managers[0].error).toBeUndefined()
+  })
+})
+
+// Regression tests for #475: an upgrade is judged by winget's exit code, not
+// by English output text, so a localised Windows reports real results.
+describe('runUpdates (winget)', () => {
+  const ITALIAN_SUCCESS = [
+    'Trovato DLSS Updater [Recol.DLSSUpdater] Versione 3.1.0',
+    'Download in corso https://example.com/DLSS.Updater.3.1.0.exe',
+    'Installazione riuscita',
+    ''
+  ].join('\r\n')
+
+  interface Call {
+    file: string
+    args: string[]
+  }
+
+  /**
+   * Script winget: `upgrade <id>` runs through `attempts` in order (the last
+   * one repeats), the bare `upgrade` rescan returns `rescan`, and the
+   * elevated PowerShell run returns `elevatedRun`.
+   */
+  function scriptUpgrade(
+    attempts: Scripted[],
+    rescan: Scripted = { stdout: '' },
+    elevatedRun: Scripted = { stdout: '' }
+  ): Call[] {
+    const calls: Call[] = []
+    let attempt = 0
+    mockExecFile.mockImplementation((file: string, args: string[], _o: unknown, cb: ExecCb) => {
+      calls.push({ file, args })
+      let scripted: Scripted = { stdout: '' }
+      if (file === 'powershell.exe') scripted = elevatedRun
+      else if (args[0] === '--version') scripted = { stdout: 'v1.9.0' }
+      else if (args[0] === 'upgrade' && args[1]?.startsWith('--')) scripted = rescan
+      else if (args[0] === 'upgrade') scripted = attempts[Math.min(attempt++, attempts.length - 1)]
+      if (scripted.error) {
+        cb(
+          Object.assign(new Error('failed'), { stdout: scripted.stdout ?? '' }, scripted.error),
+          scripted.stdout ?? '',
+          ''
+        )
+      } else {
+        cb(null, scripted.stdout ?? '', '')
+      }
+    })
+    return calls
+  }
+
+  const upgradeCalls = (calls: Call[]): Call[] =>
+    calls.filter((c) => c.args[0] === 'upgrade' && !c.args[1]?.startsWith('--'))
+  const elevated = (calls: Call[]): boolean => calls.some((c) => c.file === 'powershell.exe')
+  const update = (id = 'Recol.DLSSUpdater') => runUpdates([{ id, source: 'winget' }], () => {})
+
+  it('counts a clean exit as success whatever language winget speaks', async () => {
+    const calls = scriptUpgrade([{ stdout: ITALIAN_SUCCESS }])
+
+    const result = await update()
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+    expect(upgradeCalls(calls)).toHaveLength(1)
+  })
+
+  it('counts "restart required to finish" as success', async () => {
+    scriptUpgrade([{ stdout: ITALIAN_SUCCESS, error: { code: 0x8a150109 } }])
+
+    const result = await update()
+    expect(result.succeeded).toBe(1)
+  })
+
+  it('counts "no applicable update" as success: the app is already current', async () => {
+    const calls = scriptUpgrade([
+      { stdout: 'Nessun aggiornamento disponibile.\r\n', error: { code: 0x8a15002b } }
+    ])
+
+    const result = await update()
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+    expect(upgradeCalls(calls)).toHaveLength(1)
+  })
+
+  it('does not retry a failure that retrying cannot fix', async () => {
+    const calls = scriptUpgrade([
+      { stdout: "L'applicazione è in esecuzione.\r\n", error: { code: 0x8a150101 } }
+    ])
+
+    const result = await update()
+    expect(result.failed).toBe(1)
+    expect(result.errors[0].reason).toBe('The app is running — close it and try again')
+    expect(upgradeCalls(calls)).toHaveLength(1)
+    expect(elevated(calls)).toBe(false)
+  })
+
+  it('retries an unknown localised failure elevated, then forced, and shows the exit code', async () => {
+    const calls = scriptUpgrade(
+      [{ stdout: 'Programma di installazione non riuscito: 1603\r\n', error: { code: 1603 } }],
+      { stdout: UPGRADE_TABLE.replace('GitHub.cli', 'Recol.DLSSUpdater') }
+    )
+
+    const result = await update()
+    expect(elevated(calls)).toBe(true)
+    expect(upgradeCalls(calls).map((c) => c.args.includes('--force'))).toEqual([false, true])
+    expect(result.errors[0].reason).toBe('Programma di installazione non riuscito: 1603 (0x643)')
+  })
+
+  it('treats an empty rescan after an elevated upgrade as success', async () => {
+    scriptUpgrade([{ stdout: 'Accesso negato.\r\n', error: { code: 0x80070005 } }], {
+      stdout: 'Nessun pacchetto installato trovato.\r\n',
+      error: { code: 0x8a150014 }
+    })
+
+    const result = await update()
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+  })
+
+  it('accepts a reboot-pending exit from the elevated run', async () => {
+    const calls = scriptUpgrade(
+      [{ stdout: 'Accesso negato.\r\n', error: { code: 0x80070005 } }],
+      { stdout: 'Nessun pacchetto installato trovato.\r\n', error: { code: 0x8a150014 } },
+      // PowerShell hands back winget's HRESULT as a signed exit code
+      { error: { code: 0x8a150109 | 0 } }
+    )
+
+    const result = await update()
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+    expect(upgradeCalls(calls).some((c) => c.args.includes('--force'))).toBe(false)
   })
 })
