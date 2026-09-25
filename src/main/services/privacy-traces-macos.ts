@@ -111,6 +111,15 @@ export async function clearQuarantineEvents(path: string, scanned: BigIntStats):
   } catch (err) {
     throw new TraceSkipped(sqliteFailureReason(err))
   }
+  // sqlite3 opens by path, so a regular file renamed over the database between
+  // the check above and the open cannot be refused up front. Re-check after:
+  // the query only ever touches a table named LSQuarantineEvent, and if the
+  // file changed the clear is not reported as done.
+  try {
+    await verifyTraceFile(path, scanned)
+  } catch {
+    throw new TraceSkipped('the database was replaced while it was being cleared, scan again')
+  }
   // In WAL mode the deleted rows live on in the -wal file until a checkpoint.
   // The pragma reports busy|log|checkpointed; busy means another connection
   // (LaunchServices) held it open, so the old entries may still be on disk.

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, rename, rm, symlink, writeFile } from 'fs/promises'
-import { existsSync } from 'fs'
+import { existsSync, renameSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -193,6 +193,21 @@ describe('Quarantine Events download history', () => {
     fakeSqlite(() => '')
     await expect(clearQuarantineEvents(quarantineDb(), info)).rejects.toBeDefined()
     expect(execFile).not.toHaveBeenCalled()
+  })
+
+  it('does not report success when the database is replaced during the clear', async () => {
+    await createDb()
+    const info = (await statTraceFile(quarantineDb()))!
+    fakeSqlite(() => {
+      // Swap in a different file while sqlite3 "runs".
+      renameSync(quarantineDb(), quarantineDb() + '.old')
+      writeFileSync(quarantineDb(), 'replacement')
+      return '0|-1|-1
+'
+    })
+    await expect(clearQuarantineEvents(quarantineDb(), info)).rejects.toMatchObject({
+      reason: expect.stringContaining('replaced while it was being cleared')
+    })
   })
 
   it('reports rows left in a busy write-ahead log as skipped', async () => {
