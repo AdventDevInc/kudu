@@ -41,7 +41,7 @@
     { "id": "krita", "name": "Krita", "paths": ["${CACHES}/krita"], "description": "Krita resource and rendering cache" },
     { "id": "filezilla", "name": "FileZilla", "paths": ["${CACHES}/FileZilla"], "description": "FileZilla directory listing cache" },
     { "id": "transmission", "name": "Transmission", "paths": ["${CACHES}/org.m0k.transmission"], "description": "Transmission BitTorrent client cache" },
-    { "id": "android-studio", "name": "Android Studio", "paths": ["${CACHES}/Google"], "description": "Google application caches including Android Studio and other Google products" },
+    { "id": "android-studio", "name": "Android Studio", "paths": ["${CACHES}/Google"], "childSubdir": "caches", "description": "Android Studio IDE caches (per-version caches folder); indexes and local history are left alone" },
     { "id": "conda", "name": "Conda Package Cache", "paths": ["${HOME}/anaconda3/pkgs", "${HOME}/miniconda3/pkgs", "${HOME}/.conda/pkgs"], "description": "Conda downloaded package cache (conda clean --packages clears this)" },
     { "id": "unity", "name": "Unity Editor", "paths": ["${CACHES}/com.unity3d.UnityEditor"], "description": "Unity global shader and GI cache (regenerated when projects are opened)" },
     { "id": "notion", "name": "Notion", "paths": ["${APP_SUPPORT}/Notion/Cache/Cache_Data", "${APP_SUPPORT}/Notion/Code Cache", "${APP_SUPPORT}/Notion/GPUCache"], "description": "Notion Electron app cache, compiled code cache, and GPU cache" },

@@ -41,7 +41,7 @@
     { "id": "audacious", "name": "Audacious", "paths": ["${CACHE}/audacious"], "description": "Audacious audio player cache" },
     { "id": "rhythmbox", "name": "Rhythmbox", "paths": ["${CACHE}/rhythmbox"], "description": "Rhythmbox music player album art and metadata cache" },
     { "id": "wine", "name": "Wine", "paths": ["${HOME}/.wine/drive_c/windows/temp"], "description": "Temporary files inside the default Wine prefix" },
-    { "id": "android-studio", "name": "Android Studio", "paths": ["${CACHE}/Google"], "description": "Google application caches including Android Studio and other Google products" },
+    { "id": "android-studio", "name": "Android Studio", "paths": ["${CACHE}/Google"], "childSubdir": "caches", "description": "Android Studio IDE caches (per-version caches folder); indexes and local history are left alone" },
     { "id": "conda", "name": "Conda Package Cache", "paths": ["${HOME}/anaconda3/pkgs", "${HOME}/miniconda3/pkgs", "${HOME}/.conda/pkgs"], "description": "Conda downloaded package cache (conda clean --packages clears this)" },
     { "id": "unity", "name": "Unity Editor", "paths": ["${CACHE}/unity3d"], "description": "Unity global shader and GI cache (regenerated when projects are opened)" },
     { "id": "notion", "name": "Notion", "paths": ["${CONFIG}/Notion/Cache/Cache_Data", "${CONFIG}/Notion/Code Cache", "${CONFIG}/Notion/GPUCache"], "description": "Notion Electron app cache, compiled code cache, and GPU cache" },

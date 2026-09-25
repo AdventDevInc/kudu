@@ -130,6 +130,25 @@ describe('buildCleanerPaths', () => {
     expect(targets[1].needsAdmin).toBe(true)
   })
 
+  it('keeps only the first system target when two resolve to the same folder', () => {
+    // ${TMPDIR} is usually /tmp on Linux, which also has its own rule.
+    const dup = buildCleanerPaths(
+      {
+        ...minimalJson,
+        system: {
+          type: 'system',
+          cleanTargets: [
+            { path: '${HOME}/tmp', subcategory: 'User Temp Files' },
+            { path: '${HOME}/tmp', subcategory: 'System Temp Files' },
+            { path: '${HOME}/tmp', subcategory: 'Nested Caches', childSubdir: 'cache' },
+          ],
+        },
+      },
+      'linux'
+    ).systemCleanTargets()
+    expect(dup.map((t) => t.subcategory)).toEqual(['User Temp Files', 'Nested Caches'])
+  })
+
   it('resolves singleFileCleanTargets', () => {
     const targets = paths.singleFileCleanTargets()
     expect(targets).toHaveLength(1)

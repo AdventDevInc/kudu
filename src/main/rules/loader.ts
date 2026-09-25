@@ -180,6 +180,16 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
 
   return {
     systemCleanTargets(): CleanTarget[] {
+      // Variables can resolve two rules to one folder — on Linux ${TMPDIR} is
+      // usually /tmp, which also has its own rule. Scanning it twice would
+      // double-count its size, so the first rule for a location wins.
+      const seen = new Set<string>()
+      const locationKey = (t: CleanTarget): string =>
+        [
+          platform === 'win32' ? t.path.toLowerCase() : t.path,
+          t.childSubdir ?? '',
+          t.cleanupAction ?? '',
+        ].join('\0')
       return json.system.cleanTargets.map((t) => {
         const target: CleanTarget = {
           path: resolvePath(t.path, vars, platform),
@@ -191,6 +201,11 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
         if (t.childSubdir) target.childSubdir = t.childSubdir
         if (t.deepRecencyCheck) target.deepRecencyCheck = true
         return target
+      }).filter((target) => {
+        const key = locationKey(target)
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
       })
     },
 
