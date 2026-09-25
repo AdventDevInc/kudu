@@ -506,9 +506,10 @@ describe('fixRegistryEntries — targeted backup seals', () => {
 
     expect(mockSeal.createPrivateTempDir).toHaveBeenCalledWith('kudu-reg-backup-')
     const exp = mockExecNative.mock.calls.find((c) => c[0] === 'reg' && c[1][0] === 'export')!
-    expect(exp[1][2]).toMatch(/^C:\\Windows\\Temp\\kudu-reg-backup-private\\/)
+    // Joined with the host's path module, so either separator follows the folder.
+    expect(exp[1][2]).toMatch(/^C:\\Windows\\Temp\\kudu-reg-backup-private[\\/]/)
     const [write] = targetedWrites()
-    const fileName = String(write[0]).split('\\').pop()
+    const fileName = String(write[0]).split(/[\\/]/).pop()
     expect(mockSeal.sealBackup).toHaveBeenCalledWith('C:\\temp\\backups', fileName, write[1])
     expect(Buffer.isBuffer(write[1])).toBe(true)
   })
@@ -561,7 +562,7 @@ describe('fixRegistryEntries — targeted backup seals', () => {
     await fixRegistryEntries([entry] as any)
 
     // Only the three newest runs are kept; the two oldest are removed with their seals.
-    expect(mockUnlinkSync.mock.calls.map((c) => String(c[0]).split('\\').pop()).sort()).toEqual([
+    expect(mockUnlinkSync.mock.calls.map((c) => String(c[0]).split(/[\\/]/).pop()).sort()).toEqual([
       `registry-backup-${stamp(2)}.reg`,
       `registry-backup-targeted-${stamp(1)}.reg`
     ])
