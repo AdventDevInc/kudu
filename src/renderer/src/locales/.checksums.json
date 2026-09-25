@@ -83,6 +83,8 @@
       "categoryGaming": "0fadfa22881467dc3dd6d154af97f5f0fae4851fddc6028a1860f4f7a103575b",
       "categoryGamingDescription": "39771f0eb4595e37e8bb389720d08a42c5b4eb0630d539f07c7c06b01db3311c",
       "categoryItemsHeading": "2c9d64077a8055b46f415077d127dfca6ae0b5887c16e81430769ef62dba877c",
+      "categoryPrivacyTraces": "b042354ad8d0a5df9c457d32147b6bbee68bd7ed09c62d82e748f0066dcaf509",
+      "categoryPrivacyTracesDescription": "08fa7218689387183ae6508620f50db23a6b796b0688c758e0c4b5e6495c207a",
       "categoryRecycleBin": "fa56abc468388b10ee540610f9f3727e3207a8ed25b240f2f18fac03c9da07ae",
       "categoryRecycleBinDescription": "5352e2e98aafd312225bdc5d1ec38284eec6ecc9dc5e4d7d1c09d62c1f745fef",
       "categoryShortcuts": "46e978d0c19397c7d0318f6440950c15e046f5841a0feb03c35fdc68e1dfc68a",
@@ -118,6 +120,7 @@
       "pageTitle": "dbd5a6deca8bb3cb407ca4d169fc037dba92020510cf7d0f0befaa9d0f73f09a",
       "permissionDenied": "4657840c3006320be47a73f76a63f76d091240ff260705a7ce7e54fbe64e577b",
       "permissionError": "4f80748231dfed26cefe99186c17a75d6a23f63239444d392579ceca098855c5",
+      "privacyShellHistoryNote": "718ad03af0168a34f8e6054dc9e2d401cd113313095dc7b2fd38b97a5fb47e1c",
       "relaunchAsAdmin": "9a3bdecf9f78c3b6598b634bcc9653b1bbbef3df55bcea3756c151ecb990eccc",
       "scanButton": "ea1c510d1ddb726491a6cb0a66573189c72bf8781322f8adaed0c0c0c7cea4af",
       "scannersFailed": "21a5bf58d3712c33d3eb59142e42f74456a0a7150aa919b3e8eb976ee5400a59",
@@ -138,7 +141,9 @@
       "toastRestorePointSkipped": "a1bbc702c1531d8deb924a3131a2862d5f960cb216d7483cd94169eec31f6f79",
       "toastRestorePointSkippedDescription": "626043f4d32cc05c43861672ff85497389fd97480d3d9eb769f587e95e92c465",
       "toggleAll": "2bc944d6ef6822005f544138ea4a7bdf65d120fb43d38332e9dc9f736a312a8f",
-      "totalRecoverable": "f47ed4bd196d66d392a42c586bebfeff7afa2ed5e6e034a79ca9599e678a080c"
+      "totalRecoverable": "f47ed4bd196d66d392a42c586bebfeff7afa2ed5e6e034a79ca9599e678a080c",
+      "traceEntryCount": "fb7cd066d305cf057af50f89a24c5f9f4724cd1d4462914cdbbd8ca308f351fe",
+      "traceEntryCountPlural": "81e53883aa0e6c69f224e59c021f41b4632a0dd5597c4d3453116f42a92e98b4"
     },
     "cloud": {
       "alreadyHaveAccount": "c4661fce5581f78abd1f597cc22af3c8769b3b1bffc457b847f55f6e3b7d9998",
