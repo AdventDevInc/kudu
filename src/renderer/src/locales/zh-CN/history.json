@@ -66,6 +66,7 @@
         "forbidden-key": "包含超出 Kudu 更改范围的注册表项。",
         "empty": "不包含任何注册表项。",
         "unreadable": "无法读取。",
+        "classes-root": "包含 HKEY_CLASSES_ROOT 键，该项合并了计算机范围和每用户的类，因此 Kudu 无法判断应将其还原到哪一处。该项只能查看。",
         "unverified": "无法验证此备份——自 Kudu 写入后，它可能已被更改，因此只能查看。"
       }
     }

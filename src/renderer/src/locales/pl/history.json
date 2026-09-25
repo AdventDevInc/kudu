@@ -66,6 +66,7 @@
         "forbidden-key": "Zawiera klucze spoza obszarów modyfikowanych przez Kudu.",
         "empty": "Nie zawiera żadnych kluczy rejestru.",
         "unreadable": "Nie można odczytać.",
+        "classes-root": "Zawiera klucze HKEY_CLASSES_ROOT, które łączą klasy komputera i poszczególnych użytkowników, więc Kudu nie może określić, do którego miejsca je przywrócić. Można je tylko sprawdzić.",
         "unverified": "Nie można zweryfikować tej kopii zapasowej — mogła zostać zmieniona od czasu jej zapisania przez Kudu, dlatego można ją tylko przejrzeć."
       }
     }

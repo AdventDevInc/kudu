@@ -66,6 +66,7 @@
         "forbidden-key": "Innehåller nycklar utanför de områden som Kudu ändrar.",
         "empty": "Innehåller inga registernycklar.",
         "unreadable": "Kunde inte läsas.",
+        "classes-root": "Innehåller HKEY_CLASSES_ROOT-nycklar, som sammanfogar datorns och användarens klassnycklar, så Kudu kan inte avgöra vilken plats de ska återställas till. De kan bara granskas.",
         "unverified": "Den här säkerhetskopian kan inte verifieras — den kan ha ändrats sedan Kudu skapade den, så den kan bara granskas."
       }
     }

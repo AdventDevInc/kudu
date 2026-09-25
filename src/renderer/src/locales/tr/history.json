@@ -66,6 +66,7 @@
         "forbidden-key": "Kudu'nun değiştirdiği alanların dışındaki anahtarları içeriyor.",
         "empty": "Hiç kayıt defteri anahtarı içermiyor.",
         "unreadable": "Okunamadı.",
+        "classes-root": "Makine ve kullanıcıya özel sınıfları birleştiren HKEY_CLASSES_ROOT anahtarlarını içerir; bu nedenle Kudu bunların hangisine geri yükleneceğini belirleyemez. Yalnızca incelenebilir.",
         "unverified": "Bu yedek doğrulanamıyor — Kudu bunu yazdıktan sonra değiştirilmiş olabilir, bu nedenle yalnızca incelenebilir."
       }
     }

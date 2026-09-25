@@ -66,6 +66,7 @@
         "forbidden-key": "Enthält Schlüssel außerhalb der Bereiche, die Kudu ändert.",
         "empty": "Enthält keine Registrierungsschlüssel.",
         "unreadable": "Konnte nicht gelesen werden.",
+        "classes-root": "Enthält HKEY_CLASSES_ROOT-Schlüssel, die die Klassen des Computers und die benutzerspezifischen Klassen zusammenführen, sodass Kudu nicht erkennen kann, an welchen Ort sie wiederhergestellt werden sollen. Sie können nur überprüft werden.",
         "unverified": "Diese Sicherung kann nicht verifiziert werden — sie wurde möglicherweise geändert, seit Kudu sie erstellt hat, und kann daher nur geprüft werden."
       }
     }

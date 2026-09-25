@@ -66,6 +66,7 @@
         "forbidden-key": "Mengandungi kunci di luar kawasan yang diubah oleh Kudu.",
         "empty": "Tidak mengandungi sebarang kunci registry.",
         "unreadable": "Tidak dapat dibaca.",
+        "classes-root": "Mengandungi kunci HKEY_CLASSES_ROOT, yang menggabungkan kelas peranti dan kelas setiap pengguna, jadi Kudu tidak dapat menentukan yang mana satu untuk dipulihkan. Ia hanya boleh diperiksa.",
         "unverified": "Sandaran ini tidak dapat disahkan — ia mungkin telah diubah sejak Kudu menulisnya, jadi ia hanya boleh diperiksa."
       }
     }

@@ -66,6 +66,7 @@
         "forbidden-key": "Berisi kunci di luar area yang diubah oleh Kudu.",
         "empty": "Tidak berisi kunci registry.",
         "unreadable": "Tidak dapat dibaca.",
+        "classes-root": "Berisi kunci HKEY_CLASSES_ROOT, yang menggabungkan kelas tingkat mesin dan per pengguna, sehingga Kudu tidak dapat menentukan ke mana kunci tersebut harus dipulihkan. Kunci ini hanya dapat diperiksa.",
         "unverified": "Cadangan ini tidak dapat diverifikasi — mungkin telah diubah sejak Kudu menulisnya, sehingga hanya dapat diperiksa."
       }
     }

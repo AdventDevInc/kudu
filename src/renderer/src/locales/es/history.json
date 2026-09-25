@@ -66,6 +66,7 @@
         "forbidden-key": "Contiene claves fuera de las áreas que Kudu modifica.",
         "empty": "No contiene claves del registro.",
         "unreadable": "No se pudo leer.",
+        "classes-root": "Contiene claves HKEY_CLASSES_ROOT, que combinan las clases del equipo y las de cada usuario, por lo que Kudu no puede determinar en cuál de ellas restaurarlas. Solo se puede inspeccionar.",
         "unverified": "No se puede verificar esta copia de seguridad; es posible que se haya modificado desde que Kudu la creó, por lo que solo puede inspeccionarse."
       }
     }

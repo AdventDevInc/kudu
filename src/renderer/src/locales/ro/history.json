@@ -66,6 +66,7 @@
         "forbidden-key": "Conține chei din afara zonelor pe care Kudu le modifică.",
         "empty": "Nu conține chei de registry.",
         "unreadable": "Nu a putut fi citit.",
+        "classes-root": "Conține chei HKEY_CLASSES_ROOT, care îmbină clasele de la nivelul sistemului și cele per utilizator, astfel încât Kudu nu poate determina unde să le restaureze. Acestea pot fi doar inspectate.",
         "unverified": "Această copie de rezervă nu poate fi verificată — este posibil să fi fost modificată de când Kudu a creat-o, astfel încât poate fi doar inspectată."
       }
     }

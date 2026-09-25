@@ -66,6 +66,7 @@
         "forbidden-key": "Contiene chiavi al di fuori delle aree modificate da Kudu.",
         "empty": "Non contiene chiavi del registro.",
         "unreadable": "Impossibile leggerlo.",
+        "classes-root": "Contiene chiavi HKEY_CLASSES_ROOT, che uniscono le classi del computer e quelle per utente, quindi Kudu non può stabilire in quale posizione ripristinarle. Può solo essere ispezionato.",
         "unverified": "Impossibile verificare questo backup: potrebbe essere stato modificato dopo che Kudu lo ha creato, quindi può solo essere esaminato."
       }
     }

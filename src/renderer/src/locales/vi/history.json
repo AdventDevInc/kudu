@@ -66,6 +66,7 @@
         "forbidden-key": "Chứa các khóa nằm ngoài những khu vực mà Kudu thay đổi.",
         "empty": "Không chứa khóa registry nào.",
         "unreadable": "Không thể đọc được.",
+        "classes-root": "Chứa các khóa HKEY_CLASSES_ROOT, là nơi hợp nhất các lớp của máy và của từng người dùng, nên Kudu không thể xác định cần khôi phục chúng vào đâu. Chỉ có thể kiểm tra.",
         "unverified": "Không thể xác minh bản sao lưu này — có thể nó đã bị thay đổi kể từ khi Kudu tạo ra, vì vậy chỉ có thể xem xét."
       }
     }

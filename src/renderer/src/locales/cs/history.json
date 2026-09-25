@@ -66,6 +66,7 @@
         "forbidden-key": "Obsahuje klíče mimo oblasti, které Kudu mění.",
         "empty": "Neobsahuje žádné klíče registru.",
         "unreadable": "Nepodařilo se přečíst.",
+        "classes-root": "Obsahuje klíče HKEY_CLASSES_ROOT, které slučují třídy na úrovni počítače a jednotlivých uživatelů, takže Kudu nedokáže určit, kam je při obnovení vrátit. Lze je pouze zkontrolovat.",
         "unverified": "Tuto zálohu nelze ověřit — od chvíle, kdy ji Kudu vytvořilo, mohla být změněna, takže ji lze pouze zkontrolovat."
       }
     }

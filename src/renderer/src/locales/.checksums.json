@@ -1836,6 +1836,7 @@
       "recovery.openGameMode": "888918f26ca43ce6f37f1354db4c072c954a3b88a000f18dccc76a97ed447afb",
       "recovery.previous": "a57b08a480b822a0a572b993391c292ede593bf8000b406675b180bbb16260fa",
       "recovery.refresh": "0e91610117029a62a478b7fa7df0b8598bebe3ab1e192d4b1882e310719c9671",
+      "recovery.registryBackups.blocked.classes-root": "c468db9065b94774e60888474bdfeafac56e4e75fe4cb477d58ea3d26f81edae",
       "recovery.registryBackups.blocked.deletion": "02ed6e140645ab2fd6b84ff8f953be39a6e91ece0d1a94197422b888ed5d4e14",
       "recovery.registryBackups.blocked.empty": "14ed3101ec3e802597b404b0ad8418b7282ca44403d7cd21c9053cb5da0595f3",
       "recovery.registryBackups.blocked.forbidden-key": "db86ee393f86d76787efed144ddb54d58c291c411ff878eae8d883f6c1bcccd2",

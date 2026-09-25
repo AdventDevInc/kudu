@@ -66,6 +66,7 @@
         "forbidden-key": "包含超出 Kudu 變更範圍的機碼。",
         "empty": "未包含任何登錄機碼。",
         "unreadable": "無法讀取。",
+        "classes-root": "包含 HKEY_CLASSES_ROOT 機碼，此機碼會合併電腦層級與個別使用者的類別，因此 Kudu 無法判斷應將其還原到哪一方。只能進行檢視。",
         "unverified": "無法驗證此備份——它可能在 Kudu 寫入後已遭變更，因此只能檢視。"
       }
     }

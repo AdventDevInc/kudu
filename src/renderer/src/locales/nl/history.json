@@ -66,6 +66,7 @@
         "forbidden-key": "Bevat sleutels buiten de gebieden die Kudu wijzigt.",
         "empty": "Bevat geen registersleutels.",
         "unreadable": "Kon niet worden gelezen.",
+        "classes-root": "Bevat HKEY_CLASSES_ROOT-sleutels, die de machinebrede en per-gebruikersklassen samenvoegen, waardoor Kudu niet kan bepalen naar welke locatie deze moeten worden hersteld. Ze kunnen alleen worden geïnspecteerd.",
         "unverified": "Deze back-up kan niet worden geverifieerd — mogelijk is deze gewijzigd nadat Kudu deze heeft geschreven, en kan deze daarom alleen worden bekeken."
       }
     }

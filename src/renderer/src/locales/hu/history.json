@@ -66,6 +66,7 @@
         "forbidden-key": "A Kudu által módosított területeken kívüli kulcsokat tartalmaz.",
         "empty": "Nem tartalmaz registrykulcsokat.",
         "unreadable": "Nem olvasható.",
+        "classes-root": "HKEY_CLASSES_ROOT kulcsokat tartalmaz, amelyek a gépszintű és a felhasználónkénti osztályokat egyesítik, ezért a Kudu nem tudja megállapítani, melyikbe kellene visszaállítani őket. Csak megtekinthetők.",
         "unverified": "Ez a biztonsági mentés nem ellenőrizhető — lehet, hogy a Kudu létrehozása óta módosították, ezért csak megtekinthető."
       }
     }

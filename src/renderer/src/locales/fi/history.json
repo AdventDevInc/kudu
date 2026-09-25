@@ -66,6 +66,7 @@
         "forbidden-key": "Sisältää avaimia Kudu:n muuttamien alueiden ulkopuolelta.",
         "empty": "Ei sisällä rekisteriavaimia.",
         "unreadable": "Ei voitu lukea.",
+        "classes-root": "Sisältää HKEY_CLASSES_ROOT-avaimia, jotka yhdistävät konekohtaiset ja käyttäjäkohtaiset luokat, joten Kudu ei voi päätellä, kumpaan ne pitäisi palauttaa. Niitä voidaan vain tarkastella.",
         "unverified": "Tätä varmuuskopiota ei voi vahvistaa — sitä on saatettu muuttaa sen jälkeen, kun Kudu kirjoitti sen, joten sitä voi vain tarkastella."
       }
     }
