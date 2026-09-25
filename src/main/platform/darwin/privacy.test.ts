@@ -1094,6 +1094,30 @@ describe('darwin privacy revert', () => {
       ])
     })
 
+    it('restores a directive with trailing whitespace followed by another line', async () => {
+      const original = `# sshd${NL}PermitRootLogin yes   ${NL}Port 22${NL}`
+      files.set(SSHD, original)
+
+      await find('macos-ssh-root-login').apply()
+      // Whitespace inside the file survives apply
+      expect(files.get(SSHD)).toBe(
+        `# sshd${NL}# PermitRootLogin yes   ${NL}Port 22${NL}PermitRootLogin no${NL}`
+      )
+
+      await find('macos-ssh-root-login').revert!()
+      expect(files.get(SSHD)).toBe(original)
+    })
+
+    it('restores a directive with trailing whitespace at the end of the file', async () => {
+      const original = `Port 22${NL}PermitRootLogin yes   ${NL}`
+      files.set(SSHD, original)
+
+      await find('macos-ssh-root-login').apply()
+      await find('macos-ssh-root-login').revert!()
+
+      expect(files.get(SSHD)).toBe(`Port 22${NL}PermitRootLogin yes   ${NL}`)
+    })
+
     it('refuses to overwrite sshd_config lines edited after apply', async () => {
       files.set(SSHD, sshdOriginal)
       await find('macos-ssh-root-login').apply()

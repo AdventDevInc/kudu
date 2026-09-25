@@ -386,6 +386,8 @@ interface StatePart<S> {
    * (e.g. a plist's mode, so a policy Kudu still has applied stays readable).
    */
   lastRevertOnly?: boolean
+  /** Whether two states are the same; defaults to exact (JSON) equality */
+  equal?: (a: S, b: S) => boolean
   /** Whether `current` counts as restored to `prior`; defaults to equality */
   restored?: (current: S, prior: S) => boolean
   /** `currentUnknown`: the current state couldn't be read without root */
@@ -403,6 +405,8 @@ const NOT_CAPTURED =
   "Kudu has no record of this setting's previous state and macOS's default isn't certain, so it can't be reverted safely. Change it in System Settings instead."
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+const partEqual = (part: StatePart<any>, a: unknown, b: unknown) =>
+  part.equal ? part.equal(a, b) : same(a, b)
 const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean'
 
 function errorText(error: unknown): string {
@@ -431,18 +435,18 @@ async function captureState(
     // wrote (e.g. retrying a half-finished apply); anything else means the
     // user changed it since, so what's there now is theirs.
     const kept = earlier?.[part.id]
-    let value = part.valid(kept) && same(current, part.applied(kept)) ? kept : current
+    let value = part.valid(kept) && partEqual(part, current, part.applied(kept)) ? kept : current
     // Shared state already changed by another setting's apply: carry over the
     // user's original from that setting's capture
-    if (part.shared && same(value, part.applied(value))) {
+    if (part.shared && partEqual(part, value, part.applied(value))) {
       for (const other of settings) {
         if (other === setting || !other.state.some((p) => p.id === part.id)) continue
         const theirs = (await loadPriorState(other.id))?.[part.id]
-        if (part.valid(theirs) && !same(theirs, part.applied(theirs))) value = theirs
+        if (part.valid(theirs) && !partEqual(part, theirs, part.applied(theirs))) value = theirs
       }
     }
     prior[part.id] = value
-    if (!same(value, part.applied(value))) changes = true
+    if (!partEqual(part, value, part.applied(value))) changes = true
   }
   // Already in the applied state: there is nothing of the user's to put back,
   // so revert treats the setting as uncaptured.
@@ -616,7 +620,7 @@ async function revertSettings(
         // its restore runs unconditionally inside the shared elevated batch.
         let currentUnknown = false
         try {
-          if (same(await part.read({ elevate: false }), prior)) continue
+          if (partEqual(part, await part.read({ elevate: false }), prior)) continue
         } catch (error) {
           if (!(error instanceof RootOnlyError) || !setting.requiresAdmin) throw error
           currentUnknown = true
@@ -677,7 +681,9 @@ async function revertSettings(
       const prior = priors[part.id]
       restored &&= await part
         .read({ elevate: false })
-        .then((value) => (part.restored ? part.restored(value, prior) : same(value, prior)))
+        .then((value) =>
+          part.restored ? part.restored(value, prior) : partEqual(part, value, prior)
+        )
         .catch((error) => error instanceof RootOnlyError && unverified.has(part))
     }
     if (!restored) {
@@ -1028,6 +1034,15 @@ function sshdLines(content: string, directive: string): string[] {
 function sshdPart(directive: string, value: string): StatePart<string[]> {
   const applied = (prior: string[]) =>
     sshdLines(updateSshdConfig(prior.join('\n'), directive, value), directive)
+  // Predicting from the directive lines alone can't tell whether the last one
+  // ends the file (where updateSshdConfig trims its trailing whitespace) or is
+  // followed by other lines (where it keeps it), so trailing whitespace is
+  // ignored when comparing. The lines written back on revert are exact.
+  const equal = (a: string[], b: string[]) =>
+    same(
+      a.map((line) => line.trimEnd()),
+      b.map((line) => line.trimEnd())
+    )
   return {
     id: `sshd_config:${directive}`,
     async read() {
@@ -1040,6 +1055,7 @@ function sshdPart(directive: string, value: string): StatePart<string[]> {
       v.length <= 100 &&
       v.every((line) => typeof line === 'string' && sshdLines(line, directive).length === 1),
     applied,
+    equal,
     restore: (prior) => [
       {
         path: SSHD_CONFIG,
@@ -1049,7 +1065,7 @@ function sshdPart(directive: string, value: string): StatePart<string[]> {
           const expected = applied(prior)
           if (
             content === null ||
-            !same(
+            !equal(
               at.map((i) => lines[i]),
               expected
             )
