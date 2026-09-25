@@ -33,9 +33,16 @@ vi.mock('../services/program-uninstaller', () => ({
 }))
 
 const mockSafeDelete = vi.fn()
+const mockTouchesExclusions = vi.fn()
+const settings = vi.hoisted(() => ({ exclusions: [] as string[] }))
 
 vi.mock('../services/file-utils', () => ({
-  safeDelete: (...args: unknown[]) => mockSafeDelete(...args)
+  safeDelete: (...args: unknown[]) => mockSafeDelete(...args),
+  deletionTouchesExclusions: (...args: unknown[]) => mockTouchesExclusions(...args)
+}))
+
+vi.mock('../services/settings-store', () => ({
+  getSettings: () => ({ exclusions: settings.exclusions })
 }))
 
 import { registerProgramUninstallerIpc } from './program-uninstaller.ipc'
@@ -83,6 +90,8 @@ describe('program-uninstaller IPC', () => {
   beforeEach(() => {
     handleMap.clear()
     vi.clearAllMocks()
+    mockTouchesExclusions.mockResolvedValue(false)
+    settings.exclusions = []
     // Re-register to get a fresh module-level cachedPrograms
   })
 
@@ -292,6 +301,31 @@ describe('program-uninstaller IPC', () => {
         leftoversCleaned: 2,
         leftoversSize: 400 // 100 + 300, not 200
       })
+    })
+
+    it('keeps leftovers that are excluded or contain something excluded', async () => {
+      const program = makeProgram()
+      mockGetInstalledProgramsFull.mockResolvedValue([program])
+      mockRunUninstaller.mockResolvedValue(0)
+      mockVerifyUninstall.mockResolvedValue(true)
+      const local = 'C:\\Users\\u\\AppData\\Local\\TestApp'
+      const roaming = 'C:\\Users\\u\\AppData\\Roaming\\TestApp'
+      mockScanLeftoversForProgram.mockResolvedValue([
+        { path: local, size: 100 },
+        { path: roaming, size: 200 }
+      ])
+      settings.exclusions = [`${roaming}\\saves`]
+      mockTouchesExclusions.mockImplementation(async (p: string) => p === roaming)
+      mockSafeDelete.mockResolvedValue({ success: true })
+
+      registerProgramUninstallerIpc(() => makeWindow())
+      await invoke('uninstaller:list')
+      const result = await invoke('uninstaller:uninstall', 'prog-1')
+
+      expect(mockTouchesExclusions).toHaveBeenCalledWith(roaming, settings.exclusions)
+      expect(mockSafeDelete).toHaveBeenCalledTimes(1)
+      expect(mockSafeDelete).toHaveBeenCalledWith(local)
+      expect(result).toMatchObject({ leftoversFound: 2, leftoversCleaned: 1, leftoversSize: 100 })
     })
 
     it('does not send progress when window is null', async () => {

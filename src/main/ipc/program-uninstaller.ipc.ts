@@ -7,7 +7,8 @@ import {
   deleteRegistryKey,
   scanLeftoversForProgram
 } from '../services/program-uninstaller'
-import { safeDelete } from '../services/file-utils'
+import { deletionTouchesExclusions, safeDelete } from '../services/file-utils'
+import { getSettings } from '../services/settings-store'
 import type {
   InstalledProgram,
   UninstallerListResult,
@@ -109,7 +110,11 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
 
       let cleaned = 0
       let cleanedSize = 0
+      const { exclusions } = getSettings()
       for (const item of leftovers) {
+        // Leftovers are removed without a review step, so anything the user
+        // excluded — the folder itself or something inside it — is kept.
+        if (await deletionTouchesExclusions(item.path, exclusions)) continue
         const result = await safeDelete(item.path)
         if (result.success) {
           cleaned++
@@ -196,7 +201,11 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
 
       let cleaned = 0
       let cleanedSize = 0
+      const { exclusions } = getSettings()
       for (const item of leftovers) {
+        // Leftovers are removed without a review step, so anything the user
+        // excluded — the folder itself or something inside it — is kept.
+        if (await deletionTouchesExclusions(item.path, exclusions)) continue
         const result = await safeDelete(item.path)
         if (result.success) {
           cleaned++
