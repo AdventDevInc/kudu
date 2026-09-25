@@ -717,6 +717,17 @@ describe.skipIf(process.platform !== 'win32')('resolveWinShortcuts pruning', () 
       const pruned = (await resolveWinShortcuts(root, [join(root, 'Private')])).map((s) => s.path)
       expect(pruned).toEqual([join(root, 'Keep', 'a.lnk')])
       expect(await resolveWinShortcuts(root, ['*.lnk'])).toEqual([])
+
+      // A junction inside the root pointing at an excluded folder is never followed.
+      const privateApps = realpathSync.native(mkdtempSync(join(tmpdir(), 'kudu-lnk-private-')))
+      try {
+        writeFileSync(join(privateApps, 'secret.lnk'), 'x')
+        symlinkSync(privateApps, join(root, 'Apps'), 'junction')
+        const viaJunction = (await resolveWinShortcuts(root, [privateApps])).map((s) => s.path)
+        expect(viaJunction.some((p) => p.toLowerCase().includes('secret.lnk'))).toBe(false)
+      } finally {
+        rmSync(privateApps, { recursive: true, force: true })
+      }
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

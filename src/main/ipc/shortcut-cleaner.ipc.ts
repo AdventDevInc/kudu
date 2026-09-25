@@ -61,7 +61,11 @@ function Skip($p) {
 function Walk($d) {
   Get-ChildItem -LiteralPath $d -ErrorAction SilentlyContinue | ForEach-Object {
     if (Skip $_.FullName) { return }
-    if ($_.PSIsContainer) { Walk $_.FullName }
+    if ($_.PSIsContainer) {
+      # Never follow junctions or directory symlinks: the alias could lead
+      # into an excluded tree, or loop back on itself.
+      if (-not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint)) { Walk $_.FullName }
+    }
     elseif ($_.Extension -ieq '.lnk') {
       try {
         $sc = $shell.CreateShortcut($_.FullName)

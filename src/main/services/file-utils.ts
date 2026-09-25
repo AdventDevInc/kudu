@@ -452,9 +452,6 @@ async function cleanItemsNow(
     ? [...new Set(itemIds.filter((v): v is string => typeof v === 'string'))]
     : []
   const items = getCachedItems(validIds)
-  // Resolved once per run: an exclusion written through an alias (or one added
-  // or retargeted since the scan) must still stop the delete of its real path.
-  const exclusions = await expandExclusions(getSettings().exclusions)
   const receipt = createReceipt(origin, parentReceiptId, items)
   await receipt.measureVolumes()
   let totalCleaned = 0
@@ -575,7 +572,9 @@ async function cleanItemsNow(
       return
     }
 
-    if (await isExcludedResolved(item.path, exclusions)) {
+    // Re-resolved per item: an exclusion alias added or retargeted while the
+    // run is in progress must still stop this delete.
+    if (await isExcludedResolved(item.path, await expandExclusions(getSettings().exclusions))) {
       receipt.add(item, 'skipped', 'excluded')
       filesSkipped++
       errors.push({ path: item.path, reason: 'excluded' })
@@ -942,7 +941,9 @@ async function revalidateRecencyItem(
   item: ScanItem,
   rootInfo: Stats
 ): Promise<'excluded' | 'recently-modified' | null> {
-  if (isExcluded(item.path, getSettings().exclusions)) return 'excluded'
+  // Checked again immediately before the recursive delete, aliases resolved.
+  if (await isExcludedResolved(item.path, await expandExclusions(getSettings().exclusions)))
+    return 'excluded'
   if (rootInfo.isSymbolicLink()) return 'recently-modified'
   if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff))
     return 'recently-modified'
