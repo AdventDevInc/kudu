@@ -469,10 +469,18 @@ function run(cmd: string, args: string[], root = false): string {
         return [...mac.launchd].map(([label, state]) => `\t"${label}" => ${state}\n`).join('')
       return ''
     case '/bin/sh': {
+      // KEEP_MODE: sh -c <script> sh <file> <command...>
+      if (args[1].includes('stat -f %Lp')) {
+        const file = args[3]
+        const mode = files.has(file) ? (modes.get(file) ?? 0o644) : 0o644
+        const out = run(args[4], args.slice(5), root)
+        if (files.has(file)) modes.set(file, mode)
+        return out
+      }
       // REMOVE_IF_EMPTY: sh -c <script> sh <file>
       if (args.length === 4) {
         const domain = args[3].replace(/\.plist$/, '')
-        if (![...mac.defaults.keys()].some((id) => id.startsWith(`${domain}	`)))
+        if (![...mac.defaults.keys()].some((id) => id.startsWith(`${domain}\t`)))
           files.delete(args[3])
         return ''
       }
@@ -771,6 +779,40 @@ describe('darwin privacy revert', () => {
         pref('string', 'https://intranet')
       )
       expect(storedSettings()).toEqual({})
+    })
+
+    it("restores the mode when the plist's other policy predates Kudu", async () => {
+      // Metrics reporting is already off (set by the user or MDM, not by Kudu)
+      files.set(`${CHROME_POLICY}.plist`, 'plist')
+      modes.set(`${CHROME_POLICY}.plist`, 0o600)
+      mac.defaults.set(prefId(CHROME_POLICY, 'MetricsReportingEnabled'), pref('bool', '0'))
+      expect(await find('macos-chrome-metrics').check()).toBe(true)
+
+      await find('macos-chrome-safe-browsing').apply()
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o644)
+      await find('macos-chrome-safe-browsing').revert!()
+
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o600)
+      expect(mac.defaults.get(prefId(CHROME_POLICY, 'MetricsReportingEnabled'))).toEqual(
+        pref('bool', '0')
+      )
+      expect(storedSettings()).toEqual({})
+    })
+
+    it('leaves the mode to a later setting in the same batch only if Kudu applied it', async () => {
+      files.set(`${CHROME_POLICY}.plist`, 'plist')
+      modes.set(`${CHROME_POLICY}.plist`, 0o600)
+      mac.defaults.set(prefId(CHROME_POLICY, 'MetricsReportingEnabled'), pref('bool', '0'))
+      await find('macos-chrome-safe-browsing').apply()
+
+      // Metrics has no capture (reverted via its fallback), so it can't restore the mode
+      const result = await privacy.revertSettings!([
+        'macos-chrome-safe-browsing',
+        'macos-chrome-metrics'
+      ])
+
+      expect(result).toEqual({ succeeded: 2, failed: 0, errors: [] })
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o600)
     })
 
     it('keeps a plist Kudu created while it still holds other policies', async () => {

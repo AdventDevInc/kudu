@@ -371,8 +371,8 @@ interface StatePart<S> {
    */
   shared?: boolean
   /**
-   * Only the last sharing setting reverted restores it (e.g. a plist's mode,
-   * so a policy still applied stays readable).
+   * Only the last sharing setting Kudu applied to be reverted restores it
+   * (e.g. a plist's mode, so a policy Kudu still has applied stays readable).
    */
   lastRevertOnly?: boolean
   /** Whether `current` counts as restored to `prior`; defaults to equality */
@@ -564,9 +564,11 @@ async function revertSettings(
       for (const part of setting.state.filter((p) => p.lastRevertOnly && p.id in priors)) {
         for (const other of settings) {
           if (other === setting || !other.state.some((p) => p.id === part.id)) continue
+          // Only a recorded Kudu apply that is still pending (not reverted, or
+          // reverted later in this batch) takes it over. A policy that was
+          // already in place before Kudu doesn't: the user's mode goes back.
           const at = ids.indexOf(other.id)
-          // Reverted later in this batch, or still applied: leave it to them
-          if (at > ids.indexOf(id) || (at < 0 && (await other.check().catch(() => false))))
+          if ((at < 0 || at > ids.indexOf(id)) && (await loadPriorState(other.id)) !== undefined)
             delete priors[part.id]
         }
       }
@@ -782,6 +784,11 @@ async function readPlistDefault(
 }
 
 // `defaults delete` fails when the key is already gone; only that case is fine
+// Runs a command, then puts back the file's mode as it was just before
+// (0644, as managedPrefWrite sets, if the command creates the file)
+const KEEP_MODE =
+  'f=$1; shift; m=$(/usr/bin/stat -f %Lp "$f" 2>/dev/null) || m=644; "$@" || exit 1; /bin/chmod "$m" "$f"'
+
 const DELETE_IF_PRESENT =
   'out=$(/usr/bin/defaults delete "$1" "$2" 2>&1) && exit 0; case "$out" in *"does not exist"*) exit 0 ;; esac; echo "$out" >&2; exit 1'
 
@@ -826,10 +833,14 @@ function prefPart(
                     ]
             }
       if (!options.managed) return [write]
+      // Rewriting the value must not change the plist's mode as a side effect
+      // (another setting in the batch may just have restored it to 0600)
       return [
         { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
-        write,
-        { cmd: '/bin/chmod', args: ['644', `${domain}.plist`] }
+        {
+          cmd: '/bin/sh',
+          args: ['-c', KEEP_MODE, 'sh', `${domain}.plist`, write.cmd, ...write.args]
+        }
       ]
     }
   }
