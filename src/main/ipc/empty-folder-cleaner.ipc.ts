@@ -375,7 +375,6 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
       ]
       const deleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
       const homePaths = await getHomePaths()
-      const exclusions = await expandExclusions(getSettings().exclusions)
 
       let deleted = 0
       let failed = 0
@@ -385,6 +384,8 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
       safePaths.sort((a, b) => b.split(/[\\/]/).length - a.split(/[\\/]/).length)
 
       for (const folderPath of safePaths) {
+        // Re-read per item: an exclusion added or retargeted mid-run still applies.
+        const exclusions = await expandExclusions(getSettings().exclusions)
         // Double-check protection at delete time
         if (isProtectedFolder(folderPath, homePaths)) {
           failed++

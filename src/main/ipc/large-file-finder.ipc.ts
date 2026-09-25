@@ -269,7 +269,6 @@ export function registerLargeFileFinderIpc(getWindow: WindowGetter): void {
           ...new Set(paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p)))
         ]
         const deleteMode: LargeFileDeleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
-        const exclusions = await expandExclusions(getSettings().exclusions)
 
         let deleted = 0
         let failed = 0
@@ -277,6 +276,8 @@ export function registerLargeFileFinderIpc(getWindow: WindowGetter): void {
         const errors: { path: string; reason: string }[] = []
 
         for (const filePath of safePaths) {
+          // Re-read per item: an exclusion added or retargeted mid-run still applies.
+          const exclusions = await expandExclusions(getSettings().exclusions)
           // Exclusions may have changed since the scan; re-check before touching the file.
           if (await isExcludedResolved(filePath, exclusions)) {
             failed++

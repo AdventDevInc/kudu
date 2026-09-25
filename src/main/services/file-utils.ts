@@ -941,9 +941,10 @@ async function revalidateRecencyItem(
   item: ScanItem,
   rootInfo: Stats
 ): Promise<'excluded' | 'recently-modified' | null> {
-  // Checked again immediately before the recursive delete, aliases resolved.
-  if (await isExcludedResolved(item.path, await expandExclusions(getSettings().exclusions)))
-    return 'excluded'
+  // Checked again immediately before the recursive delete, aliases resolved —
+  // for the item and, below, for everything inside it.
+  const exclusions = await expandExclusions(getSettings().exclusions)
+  if (await isExcludedResolved(item.path, exclusions)) return 'excluded'
   if (rootInfo.isSymbolicLink()) return 'recently-modified'
   if (item.recencyCutoff !== undefined && !Number.isFinite(item.recencyCutoff))
     return 'recently-modified'
@@ -953,7 +954,7 @@ async function revalidateRecencyItem(
 
   const ctx: RecencyScan = {
     cutoff,
-    exclusions: getSettings().exclusions,
+    exclusions,
     remaining: MAX_RECENCY_ITEMS
   }
   const resolved = await resolveChildren(item.path, ctx, MAX_RECENCY_DEPTH)
