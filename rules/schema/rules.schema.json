@@ -176,7 +176,11 @@
           "enum": ["chrome", "edge", "brave", "opera", "operaGX", "vivaldi", "arc", "chromium", "thorium", "supermium", "helium", "cromite", "catsxp"],
           "description": "Browser identifier matching the BrowserPathConfig keys"
         },
-        "base": { "$ref": "#/definitions/TemplatePath" }
+        "base": { "$ref": "#/definitions/TemplatePath" },
+        "cache": {
+          "$ref": "#/definitions/TemplatePath",
+          "description": "Root mirroring base where Chromium keeps each profile's disk cache (macOS ~/Library/Caches, Linux ~/.cache)"
+        }
       }
     },
 

@@ -132,6 +132,38 @@ describe('chromiumCacheTargets', () => {
     expect(mockReaddir).not.toHaveBeenCalled()
   })
 
+  // macOS and Linux keep the HTTP cache under ~/Library/Caches or ~/.cache,
+  // mirroring the profile path, so scanning only `base` never found it.
+  it('scans profile caches under the split cache root too', async () => {
+    mockExistsSync.mockImplementation(
+      (p: string) => p === '/fake/chrome' || p === join('/fake/cache/chrome', 'Profile 1', 'Cache')
+    )
+    mockReaddir.mockResolvedValue([{ isDirectory: () => true, name: 'Profile 1' }])
+
+    const split = { ...chrome, cache: '/fake/cache/chrome' }
+    expect(await chromiumCacheTargets(split)).toEqual([
+      { path: join('/fake/cache/chrome', 'Profile 1', 'Cache'), label: 'Chrome - Profile 1 Cache' }
+    ])
+    expect(mockReaddir).toHaveBeenCalledWith('/fake/chrome', { withFileTypes: true })
+  })
+
+  it('scans the split cache root for profile-less builds', async () => {
+    mockExistsSync.mockImplementation(
+      (p: string) => p === '/fake/opera' || p === join('/fake/cache/opera', 'Cache')
+    )
+    const opera = {
+      key: 'opera',
+      label: 'Opera',
+      hasProfiles: false,
+      ...browser('/fake/opera'),
+      cache: '/fake/cache/opera'
+    }
+
+    expect(await chromiumCacheTargets(opera)).toEqual([
+      { path: join('/fake/cache/opera', 'Cache'), label: 'Opera - Cache' }
+    ])
+  })
+
   it('omits cache directories that do not exist', async () => {
     mockExistsSync.mockImplementation(
       (p: string) => p === '/fake/chrome' || p.endsWith('Code Cache')

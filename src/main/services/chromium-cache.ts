@@ -84,16 +84,24 @@ export async function chromiumCacheTargets(browser: ChromiumBrowser): Promise<Ca
     add(join(browser.base, dir), `${browser.label} - ${label}`)
   }
 
+  // macOS and Linux split the disk cache out to a mirrored root; the rest of
+  // the profile caches stay under `base`, so both roots are checked.
+  const roots = browser.cache ? [browser.base, browser.cache] : [browser.base]
+
   if (!browser.hasProfiles) {
-    for (const { dir, label } of browser.profileCaches) {
-      add(join(browser.base, dir), `${browser.label} - ${label}`)
+    for (const root of roots) {
+      for (const { dir, label } of browser.profileCaches) {
+        add(join(root, dir), `${browser.label} - ${label}`)
+      }
     }
     return targets
   }
 
   for (const profile of await getChromiumProfiles(browser.base)) {
-    for (const { dir, label } of browser.profileCaches) {
-      add(join(browser.base, profile, dir), `${browser.label} - ${profile} ${label}`)
+    for (const root of roots) {
+      for (const { dir, label } of browser.profileCaches) {
+        add(join(root, profile, dir), `${browser.label} - ${profile} ${label}`)
+      }
     }
   }
   return targets

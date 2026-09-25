@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 146 |
-| 🪟 Windows rules | 135 |
-| 🍎 macOS rules | 80 |
-| 🐧 Linux rules | 78 |
+| Unique app rules | 163 |
+| 🪟 Windows rules | 152 |
+| 🍎 macOS rules | 92 |
+| 🐧 Linux rules | 91 |
 
 ## AI Tools
 
@@ -63,17 +63,22 @@
 | CurseForge | ✅ | ❌ | ❌ |
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
+| Discord Canary | ✅ | ✅ | ✅ |
+| Discord PTB | ✅ | ✅ | ✅ |
+| Docker Build Cache | ✅ | ✅ | ✅ |
 | Docker Desktop | ✅ | ✅ | ❌ |
 | EA Desktop Logs | ✅ | ❌ | ❌ |
-| Electron Runtime Cache | ✅ | ❌ | ❌ |
+| Electron Runtime Cache | ✅ | ✅ | ✅ |
 | electron-builder Cache | ✅ | ✅ | ✅ |
 | ffmpeg-static Cache | ✅ | ❌ | ❌ |
 | Figma | ✅ | ✅ | ❌ |
 | FileZilla | ✅ | ✅ | ✅ |
 | Firefox Crash History | ✅ | ❌ | ❌ |
+| fontconfig | ✅ | ❌ | ❌ |
 | GIMP | ✅ | ✅ | ✅ |
 | Git Project Updater | ✅ | ❌ | ❌ |
 | GitHub Desktop | ✅ | ✅ | ❌ |
+| Go Build Cache | ✅ | ✅ | ✅ |
 | Go Module Cache | ✅ | ✅ | ✅ |
 | Google Cloud CLI Cache | ✅ | ✅ | ✅ |
 | Google Drive | ✅ | ❌ | ❌ |
@@ -99,6 +104,7 @@
 | Microsoft Edge Update Logs | ✅ | ❌ | ❌ |
 | Microsoft Edge WebView2 Caches | ✅ | ❌ | ❌ |
 | Microsoft Teams | ✅ | ✅ | ✅ |
+| Modern MTR | ✅ | ❌ | ❌ |
 | node-gyp Cache | ✅ | ✅ | ✅ |
 | Notion | ✅ | ✅ | ✅ |
 | npm Cache | ✅ | ✅ | ✅ |
@@ -107,9 +113,11 @@
 | OBS Studio | ✅ | ✅ | ✅ |
 | Obsidian | ✅ | ✅ | ✅ |
 | Old Firefox Pending Crashes | ✅ | ❌ | ❌ |
+| OneDrive Logs | ✅ | ❌ | ❌ |
 | Pidgin | ✅ | ❌ | ✅ |
 | pip Cache | ✅ | ✅ | ✅ |
-| pnpm Store | ✅ | ✅ | ✅ |
+| pnpm Unused Packages | ✅ | ✅ | ✅ |
+| Poetry Cache | ✅ | ✅ | ✅ |
 | Polyscope | ✅ | ❌ | ❌ |
 | Postman | ✅ | ✅ | ✅ |
 | qBittorrent | ✅ | ✅ | ✅ |
@@ -132,12 +140,19 @@
 | ToDesktop Builder | ✅ | ❌ | ❌ |
 | Todoist | ✅ | ✅ | ✅ |
 | Transmission | ✅ | ✅ | ✅ |
+| TypeScript Typings Cache | ✅ | ✅ | ✅ |
 | Unity Editor | ✅ | ✅ | ✅ |
+| Unreal Engine Derived Data Cache | ✅ | ❌ | ❌ |
 | Upscayl | ✅ | ❌ | ❌ |
+| uv Unused Packages | ✅ | ✅ | ✅ |
 | Visual Studio | ✅ | ❌ | ❌ |
 | VLC | ✅ | ✅ | ✅ |
 | VS Code | ✅ | ✅ | ✅ |
+| VS Code C/C++ IntelliSense Cache | ✅ | ✅ | ✅ |
+| VS Code Insiders | ✅ | ✅ | ✅ |
+| VSCodium | ✅ | ✅ | ✅ |
 | WhatsApp Desktop | ✅ | ✅ | ✅ |
+| Windows Package Manager Logs | ✅ | ❌ | ❌ |
 | Wine | ❌ | ❌ | ✅ |
 | Yarn Cache | ✅ | ✅ | ✅ |
 | Zed Editor | ✅ | ✅ | ✅ |
@@ -163,6 +178,7 @@
 | Roblox | ✅ | ✅ | ❌ |
 | Rockstar Games Launcher | ✅ | ❌ | ❌ |
 | Steam Launcher | ✅ | ✅ | ✅ |
+| Steam Shader Pre-Cache | ✅ | ✅ | ✅ |
 | Ubisoft Connect | ✅ | ❌ | ❌ |
 | Valorant | ✅ | ❌ | ❌ |
 | Xbox App | ✅ | ❌ | ❌ |
@@ -172,6 +188,7 @@
 | App | 🪟 | 🍎 | 🐧 |
 |-----|:---:|:---:|:---:|
 | AMD Shader Cache | ✅ | ❌ | ❌ |
+| CUDA Compute Cache | ✅ | ❌ | ✅ |
 | Intel Shader Cache | ✅ | ❌ | ❌ |
 | Mesa Shader Cache | ❌ | ❌ | ✅ |
 | Metal Shader Cache | ❌ | ✅ | ❌ |
@@ -240,7 +257,6 @@
 - Defender Support Logs 🔒
 - Defender Trace Files 🔒
 - Delivery Optimization Cache 🔒
-- Delivery Optimization User Cache
 - Diagnostic ETL Logs 🔒
 - DirectX Shader Cache
 - Elevated Diagnostics
@@ -264,6 +280,7 @@
 - Previous Windows Installation 🔒
 - RDP Bitmap Cache
 - Reliability Monitor Data 🔒
+- SYSTEM Account Temp Files 🔒
 - Setup Cleanup Logs 🔒
 - Setup Logs 🔒
 - System Certificate Cache 🔒
@@ -277,6 +294,7 @@
 - WMI Trace Logs 🔒
 - WinSAT Results 🔒
 - Windows Caches
+- Windows Component Cleanup 🔒
 - Windows Debug Logs 🔒
 - Windows Logs 🔒
 - Windows Search Logs 🔒
@@ -308,6 +326,11 @@
 - Xcode DerivedData
 - Xcode Device Logs
 - Xcode Download Cache
+- Xcode iOS Device Support
+- Xcode tvOS Device Support
+- Xcode watchOS Device Support
+- iPad Software Updates
+- iPhone Software Updates
 
 ### 🐧 Linux
 
