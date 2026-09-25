@@ -96,22 +96,21 @@ async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): 
 }
 
 // Moving a user-written temp file into place would make the user its owner,
-// letting any unprivileged process edit a root config file. Keep the owner and
-// mode the file already has (a restrictive 0600 stays 0600); a file Kudu
-// creates gets the stock root:wheel 0644. Runs in the same elevation as the mv.
+// letting any unprivileged process rewrite sshd or kernel config. Always hand
+// it to root:wheel — older Kudu builds left these files user-owned, so the
+// current owner isn't worth keeping — but keep the mode it already has (a
+// restrictive 0600 stays 0600) minus group/other write; a file Kudu creates
+// gets 0644. Runs in the same elevation as the mv.
 async function installFileCommands(tmp: string, filePath: string): Promise<Command[]> {
-  let owner = 'root:wheel'
   let mode = '644'
   try {
-    const info = await stat(filePath)
-    owner = `${info.uid}:${info.gid}`
-    mode = (info.mode & 0o7777).toString(8)
+    mode = ((await stat(filePath)).mode & 0o755).toString(8)
   } catch (error: any) {
     if (error?.code !== 'ENOENT') throw error
   }
   return [
     { cmd: '/bin/mv', args: ['-f', tmp, filePath] },
-    { cmd: '/usr/sbin/chown', args: [owner, filePath] },
+    { cmd: '/usr/sbin/chown', args: ['root:wheel', filePath] },
     { cmd: '/bin/chmod', args: [mode, filePath] }
   ]
 }

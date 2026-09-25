@@ -816,11 +816,11 @@ describe('darwin privacy revert', () => {
       expect(modes.get('/etc/sysctl.conf')).toBe(0o644)
     })
 
-    it("keeps a config file's own owner and restrictive mode through apply and revert", async () => {
+    it('hands a user-owned 0600 config file back to root:wheel, keeping its mode', async () => {
       const SSHD_CONFIG = '/etc/ssh/sshd_config'
       files.set(SSHD_CONFIG, 'PermitRootLogin yes\n')
       modes.set(SSHD_CONFIG, 0o600)
-      owners.set(SSHD_CONFIG, '0:0')
+      owners.set(SSHD_CONFIG, '501:20') // as older Kudu builds left it
 
       await find('macos-ssh-root-login').apply()
       expect([owners.get(SSHD_CONFIG), modes.get(SSHD_CONFIG)]).toEqual(['0:0', 0o600])
@@ -829,6 +829,17 @@ describe('darwin privacy revert', () => {
       expect(files.get(SSHD_CONFIG)).toBe('PermitRootLogin yes\n')
       expect([owners.get(SSHD_CONFIG), modes.get(SSHD_CONFIG)]).toEqual(['0:0', 0o600])
       expect(elevatedCalls).toContainEqual(['/bin/chmod', '600', SSHD_CONFIG])
+      expect(elevatedCalls).not.toContainEqual(['/usr/sbin/chown', '501:20', SSHD_CONFIG])
+    })
+
+    it('drops group and world write from a config file mode', async () => {
+      files.set('/etc/sysctl.conf', 'kern.coredump=1\n')
+      modes.set('/etc/sysctl.conf', 0o666)
+      await find('macos-core-dumps').apply()
+      expect([owners.get('/etc/sysctl.conf'), modes.get('/etc/sysctl.conf')]).toEqual([
+        '0:0',
+        0o644
+      ])
     })
 
     it('gives a config file Kudu creates the stock root:wheel 0644', async () => {
