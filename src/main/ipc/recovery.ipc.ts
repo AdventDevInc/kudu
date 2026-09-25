@@ -21,7 +21,11 @@ export function registerRecoveryIpc(): void {
     try {
       const files = await readdir(directory, { withFileTypes: true })
       for (const f of files
-        .filter((f) => f.isFile() && /^registry-backup-[A-Za-z0-9_.-]+\.reg$/.test(f.name))
+        // Privacy-trace backups keep their own prefix so each feature prunes only its own files.
+        .filter(
+          (f) =>
+            f.isFile() && /^(?:registry|privacy-traces)-backup-[A-Za-z0-9_.-]+\.reg$/.test(f.name)
+        )
         .slice(0, 100)) {
         const info = await lstat(join(directory, f.name))
         if (info.isFile() && !info.isSymbolicLink())

@@ -6,7 +6,9 @@ const handlers = new Map<string, (...args: unknown[]) => unknown>()
 const mocks = vi.hoisted(() => ({
   mkdir: vi.fn(async () => undefined),
   openPath: vi.fn(async () => ''),
-  backupDir: 'C:/kudu-test/Kudu Backups'
+  backupDir: 'C:/kudu-test/Kudu Backups',
+  readdir: vi.fn(),
+  lstat: vi.fn()
 }))
 
 vi.mock('electron', () => ({
@@ -21,15 +23,15 @@ vi.mock('electron', () => ({
 
 vi.mock('fs/promises', () => ({
   mkdir: mocks.mkdir,
-  readdir: vi.fn(),
-  lstat: vi.fn(),
+  readdir: mocks.readdir,
+  lstat: mocks.lstat,
   writeFile: vi.fn()
 }))
 
 vi.mock('../services/backup-dir', () => ({ getBackupDir: () => mocks.backupDir }))
 vi.mock('../services/recovery-store', () => ({
   listRecoveryEntries: vi.fn(),
-  listRecoveryPage: vi.fn(),
+  listRecoveryPage: vi.fn(async () => ({ entries: [], hasMore: false })),
   removeRecoveryEntry: vi.fn()
 }))
 vi.mock('../services/recovery', () => ({ restoreRecoveryEntry: vi.fn() }))
@@ -62,5 +64,35 @@ describe('RECOVERY_OPEN_BACKUPS', () => {
     await expect(handlers.get(IPC.RECOVERY_OPEN_BACKUPS)!({})).rejects.toThrow(
       'No application found'
     )
+  })
+})
+
+describe('RECOVERY_LIST backups', () => {
+  beforeEach(() => {
+    handlers.clear()
+    registerRecoveryIpc()
+  })
+
+  it('lists registry cleaner and privacy-trace backups, and nothing else', async () => {
+    const file = (name: string) => ({ name, isFile: () => true })
+    mocks.readdir.mockResolvedValue([
+      file('registry-backup-targeted-2026-09-25T00-00-00-000Z.reg'),
+      file('privacy-traces-backup-RunMRU-2026-09-25T00-00-00-000Z.reg'),
+      file('notes.txt'),
+      file('other-backup.reg')
+    ])
+    mocks.lstat.mockResolvedValue({
+      isFile: () => true,
+      isSymbolicLink: () => false,
+      size: 10,
+      mtime: new Date(0)
+    })
+    const result = (await handlers.get(IPC.RECOVERY_LIST)!({}, 0)) as {
+      backups: Array<{ name: string }>
+    }
+    expect(result.backups.map((b) => b.name)).toEqual([
+      'registry-backup-targeted-2026-09-25T00-00-00-000Z.reg',
+      'privacy-traces-backup-RunMRU-2026-09-25T00-00-00-000Z.reg'
+    ])
   })
 })
