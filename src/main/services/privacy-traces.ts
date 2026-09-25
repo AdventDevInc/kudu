@@ -1,6 +1,7 @@
-import { lstat, open, type FileHandle } from 'fs/promises'
+import { lstat, open, readdir, unlink, type FileHandle } from 'fs/promises'
 import { constants } from 'fs'
 import type { BigIntStats } from 'fs'
+import { join } from 'path'
 import { randomBytes, randomUUID } from 'crypto'
 import { CleanerType } from '../../shared/enums'
 import type { CleanError, CleanResult, ScanItem, ScanResult } from '../../shared/types'
@@ -165,6 +166,39 @@ export async function truncateTraceFile(
   }
 }
 
+/**
+ * Delete a trace file which its owner recreates on demand (a recent-items
+ * shortcut, for example). The same link and identity checks as truncation
+ * apply: any overwrite goes through the verified handle, and the path is
+ * re-checked against the scanned identity immediately before it is unlinked
+ * (unlink itself never follows a symlink). The remaining window between that
+ * check and the unlink can at worst remove a newer recent-items entry in the
+ * same list — never write to it.
+ */
+export async function deleteTraceFile(
+  path: string,
+  scanned: BigIntStats,
+  options: TraceCleanOptions
+): Promise<number> {
+  const handle = await openVerifiedTrace(path, scanned)
+  let size: number
+  try {
+    size = Number((await handle.stat({ bigint: true })).size)
+    if (options.secureDelete) {
+      try {
+        await overwriteThroughHandle(handle, size)
+      } catch {
+        // Match safeDelete: an overwrite failure must not leave the trace in place.
+      }
+    }
+  } finally {
+    await handle.close()
+  }
+  await verifyTraceFile(path, scanned)
+  await unlink(path)
+  return size
+}
+
 /** Build a trace which truncates `path` when cleaned. */
 export function truncatingTrace(path: string, info: BigIntStats): PrivacyTrace {
   return {
@@ -173,6 +207,37 @@ export function truncatingTrace(path: string, info: BigIntStats): PrivacyTrace {
     lastModified: Number(info.mtimeMs),
     clean: (options) => truncateTraceFile(path, info, options)
   }
+}
+
+/** Build a trace which deletes `path` when cleaned. */
+export function deletingTrace(path: string, info: BigIntStats): PrivacyTrace {
+  return {
+    path,
+    size: Number(info.size),
+    lastModified: Number(info.mtimeMs),
+    clean: (options) => deleteTraceFile(path, info, options)
+  }
+}
+
+/** Direct children of `dir` whose names match `pattern` and which are single-link regular files. */
+export async function listTraceFiles(
+  dir: string,
+  pattern: RegExp
+): Promise<Array<{ path: string; info: BigIntStats }>> {
+  let names: string[]
+  try {
+    names = await readdir(dir)
+  } catch {
+    return []
+  }
+  const files: Array<{ path: string; info: BigIntStats }> = []
+  for (const name of names) {
+    if (!pattern.test(name)) continue
+    const path = join(dir, name)
+    const info = await statTraceFile(path)
+    if (info) files.push({ path, info })
+  }
+  return files
 }
 
 /** Drop excluded traces and groups left empty. */

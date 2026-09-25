@@ -13,11 +13,15 @@ import {
   type PrivacyTraceProvider
 } from '../services/privacy-traces'
 import { findShellHistoryTraces } from '../services/privacy-traces-shell'
+import {
+  findWindowsRecentTraces,
+  findWindowsRegistryTraces
+} from '../services/privacy-traces-windows'
 import type { WindowGetter } from './index'
 
-/** Providers run in this order; each reports its own groups. */
+/** Providers run in this order; each reports its own groups and skips other platforms. */
 export function privacyTraceProviders(): PrivacyTraceProvider[] {
-  return [findShellHistoryTraces]
+  return [findShellHistoryTraces, findWindowsRecentTraces, findWindowsRegistryTraces]
 }
 
 /**

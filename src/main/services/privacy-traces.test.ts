@@ -24,6 +24,7 @@ vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
 import { getCachedItem } from './scan-cache'
 import {
   CHANGED_SINCE_SCAN,
+  deleteTraceFile,
   cleanPrivacyTraces,
   scanPrivacyTraces,
   openVerifiedTrace,
@@ -384,5 +385,25 @@ describe('overwriteThroughHandle short writes', () => {
     expect(covered(1)).toBe(10)
     expect(writes[1]).toMatchObject({ offset: 5, position: 5 })
     expect(handle.datasync).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('deleteTraceFile', () => {
+  it('deletes the scanned file, overwriting it first when secure delete is on', async () => {
+    const path = await put(join(home, 'recent.lnk'), 'shortcut')
+    const info = (await statTraceFile(path))!
+    expect(await deleteTraceFile(path, info, { secureDelete: true })).toBe(8)
+    await expect(stat(path)).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('never overwrites or deletes a file swapped in after the scan', async () => {
+    const path = await put(join(home, 'recent.lnk'), 'old')
+    const info = (await statTraceFile(path))!
+    await rm(path)
+    await put(path, 'newer shortcut')
+    await expect(deleteTraceFile(path, info, { secureDelete: true })).rejects.toMatchObject({
+      reason: CHANGED_SINCE_SCAN
+    })
+    expect(await readFile(path, 'utf8')).toBe('newer shortcut')
   })
 })
