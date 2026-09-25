@@ -147,7 +147,9 @@ function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
 /**
  * Overwrite a single file with random data then zeros (2-pass shred).
  * Checks the module-level `cancelled` flag between chunks so large files can
- * be interrupted.
+ * be interrupted. Returns false when cancelled part-way: the file is then only
+ * partly overwritten, so the caller must neither delete it nor count it as
+ * shredded.
  *
  * A path is not a stable reference to a file. Every resolution of it consults
  * the directories above it, and for a shred target those directories are
@@ -162,8 +164,8 @@ function sendProgress(win: BrowserWindow | null, data: ShredderProgress): void {
  * selected. O_NOFOLLOW only guards the final component. Comparing against an
  * identity captured before the walk finished is what closes that.
  */
-async function shredFile(filePath: string, expected: FileIdentity): Promise<void> {
-  if (expected.size === 0n) return
+async function shredFile(filePath: string, expected: FileIdentity): Promise<boolean> {
+  if (expected.size === 0n) return true
 
   const size = Number(expected.size)
   const CHUNK = 1024 * 1024 // 1 MB
@@ -185,7 +187,7 @@ async function shredFile(filePath: string, expected: FileIdentity): Promise<void
     // Pass 1: random data
     let offset = 0
     while (offset < size) {
-      if (cancelled) return
+      if (cancelled) return false
       const len = Math.min(CHUNK, size - offset)
       await fh.write(randomBytes(len), 0, len, offset)
       offset += len
@@ -196,12 +198,13 @@ async function shredFile(filePath: string, expected: FileIdentity): Promise<void
     const zeroBuf = Buffer.alloc(Math.min(CHUNK, size))
     offset = 0
     while (offset < size) {
-      if (cancelled) return
+      if (cancelled) return false
       const len = Math.min(CHUNK, size - offset)
       await fh.write(zeroBuf, 0, len, offset)
       offset += len
     }
     await fh.datasync()
+    return true
   } finally {
     await fh.close()
   }
@@ -452,7 +455,14 @@ export function registerFileShredderIpc(getWindow: WindowGetter): void {
       try {
         const identity = identities.get(filePath)
         if (!identity) throw new Error('File was not verified during collection — skipped')
-        await shredFile(filePath, identity)
+        if (!(await shredFile(filePath, identity))) {
+          failed++
+          errors.push({
+            path: filePath,
+            reason: 'Cancelled before the overwrite finished — file was not deleted'
+          })
+          break
+        }
         await rm(filePath, { force: true })
         const fileSize = fileSizes.get(filePath) || 0
         bytesShredded += fileSize

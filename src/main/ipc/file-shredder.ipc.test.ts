@@ -579,3 +579,55 @@ describe('shredFile identity verification', () => {
     expect(mockRm).not.toHaveBeenCalled()
   })
 })
+
+// ── Cancelling part-way through a file ──
+// Cancel is checked between chunks, so a file can be left with only its first
+// pass written. That file was not securely overwritten: deleting it and
+// counting it as shredded would tell the user the data is gone when it isn't.
+
+describe('cancelling mid-file', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockRm.mockResolvedValue(undefined)
+    mockStat.mockResolvedValue({ size: 100 })
+    mockLstat.mockImplementation(lstatStub({ size: 100, ino: 1, dev: 1 }))
+  })
+
+  async function shredCancellingAfterFirstWrite() {
+    registerFileShredderIpc(() => mockWindow() as any)
+    const cancel = getHandler('shredder:cancel')
+    const fh = fhStub({ size: 100, ino: 1, dev: 1 })
+    fh.write.mockImplementation(async () => {
+      cancel()
+    })
+    mockOpen.mockResolvedValue(fh)
+    const handler = getHandler('shredder:shred')
+    const result = (await handler({}, ['/home/user/temp/a.txt', '/home/user/temp/b.txt'])) as {
+      shredded: number
+      failed: number
+      cancelled: boolean
+      errors: { path: string; reason: string }[]
+    }
+    return { fh, result }
+  }
+
+  it('does not delete a partly overwritten file', async () => {
+    const { fh, result } = await shredCancellingAfterFirstWrite()
+    expect(fh.write).toHaveBeenCalledTimes(1)
+    expect(mockRm).not.toHaveBeenCalled()
+    expect(result.shredded).toBe(0)
+  })
+
+  it('reports the interrupted file and stops before the next one', async () => {
+    const { result } = await shredCancellingAfterFirstWrite()
+    expect(result.cancelled).toBe(true)
+    expect(result.failed).toBe(1)
+    expect(result.errors).toEqual([
+      expect.objectContaining({
+        path: '/home/user/temp/a.txt',
+        reason: expect.stringMatching(/Cancelled before the overwrite finished/)
+      })
+    ])
+    expect(mockOpen).toHaveBeenCalledTimes(1)
+  })
+})
