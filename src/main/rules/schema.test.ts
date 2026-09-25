@@ -13,7 +13,7 @@ const validate = ajv.compile(schema)
 
 // Known template variables per platform
 const VALID_VARS: Record<string, Set<string>> = {
-  win32: new Set(['HOME', 'LOCALAPPDATA', 'APPDATA', 'WINDIR', 'PROGRAMDATA', 'PROGRAMFILES', 'PROGRAMFILES_X86', 'TMPDIR']),
+  win32: new Set(['HOME', 'LOCALAPPDATA', 'APPDATA', 'WINDIR', 'PROGRAMDATA', 'PROGRAMFILES', 'PROGRAMFILES_X86', 'SYSTEMDRIVE', 'TMPDIR']),
   darwin: new Set(['HOME', 'LIBRARY', 'CACHES', 'APP_SUPPORT', 'TMPDIR']),
   linux: new Set(['HOME', 'CONFIG', 'CACHE', 'LOCAL_SHARE', 'TMPDIR']),
 }

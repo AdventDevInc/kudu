@@ -129,6 +129,7 @@ function buildVariables(platform: 'win32' | 'darwin' | 'linux'): Record<string, 
         PROGRAMDATA: process.env.ProgramData || 'C:\\ProgramData',
         PROGRAMFILES: process.env.ProgramFiles || 'C:\\Program Files',
         PROGRAMFILES_X86: process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)',
+        SYSTEMDRIVE: process.env.SystemDrive || 'C:',
         TMPDIR: tmpdir(),
       }
     }

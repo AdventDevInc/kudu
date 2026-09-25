@@ -48,6 +48,11 @@ describe('resolvePath', () => {
     expect(resolvePath('${HOME}/Installer/$PatchCache$', vars, 'linux')).toBe('/Users/test/Installer/$PatchCache$')
   })
 
+  it('resolves the system drive for folders at the root of the Windows drive', () => {
+    const win32Vars = { ...vars, SYSTEMDRIVE: 'D:' }
+    expect(resolvePath('${SYSTEMDRIVE}/AMD', win32Vars, 'win32')).toBe('D:' + String.fromCharCode(92) + 'AMD')
+  })
+
   it('resolves variables with digits like PROGRAMFILES_X86', () => {
     const win32Vars = { ...vars, PROGRAMFILES_X86: 'C:\\Program Files (x86)' }
     expect(resolvePath('${PROGRAMFILES_X86}/Steam', win32Vars, 'win32')).toBe('C:\\Program Files (x86)\\Steam')

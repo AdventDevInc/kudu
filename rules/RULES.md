@@ -91,6 +91,7 @@ Paths use template variables instead of hardcoded locations. The loader resolves
 | `${PROGRAMDATA}` | `C:\ProgramData` |
 | `${PROGRAMFILES}` | `C:\Program Files` |
 | `${PROGRAMFILES_X86}` | `C:\Program Files (x86)` |
+| `${SYSTEMDRIVE}` | `C:` (the drive Windows is installed on) |
 | `${TMPDIR}` | System temp directory |
 
 **macOS (`darwin/`):**
