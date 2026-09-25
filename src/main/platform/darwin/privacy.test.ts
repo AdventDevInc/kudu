@@ -12,8 +12,9 @@ vi.mock('util', () => ({
 const files = new Map<string, string>()
 // Plists only root can read (cfprefsd creates new files 0600)
 const rootOnly = new Set<string>()
-// Permission bits per file (default 0644)
+// Permission bits and owner per file (default 0644, root:wheel = 0:0)
 const modes = new Map<string, number>()
+const owners = new Map<string, string>()
 const enoent = (path: string) => Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' })
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(async (path: string) => {
@@ -35,7 +36,8 @@ vi.mock('fs/promises', () => ({
   constants: { R_OK: 4 },
   stat: vi.fn(async (path: string) => {
     if (!files.has(path)) throw enoent(path)
-    return { mode: 0o100000 | (modes.get(path) ?? 0o644) }
+    const [uid, gid] = (owners.get(path) ?? '0:0').split(':').map(Number)
+    return { mode: 0o100000 | (modes.get(path) ?? 0o644), uid, gid }
   }),
   unlink: vi.fn(async (path: string) => {
     files.delete(path)
@@ -499,13 +501,18 @@ function run(cmd: string, args: string[], root = false): string {
       mac.womp[args[0] === '-b' ? 'Battery Power' : 'AC Power'] = args[2]
       return ''
     case '/bin/mv':
+      // The moved file keeps the temp file's inode: user-owned, umask mode
       files.set(args[2], files.get(args[1])!)
       files.delete(args[1])
+      owners.set(args[2], '501:20')
+      modes.set(args[2], 0o644)
       return ''
     case '/bin/rm':
       files.delete(args[1])
       return ''
     case '/usr/sbin/chown':
+      owners.set(args[1], args[0].replace('root:wheel', '0:0'))
+      return ''
     case '/bin/chmod':
       modes.set(args[1], parseInt(args[0], 8))
       return ''
@@ -590,6 +597,7 @@ describe('darwin privacy revert', () => {
     files.clear()
     rootOnly.clear()
     modes.clear()
+    owners.clear()
     elevatedCalls.length = 0
     mac = freshMac()
     privacy = createDarwinPrivacy()
@@ -803,8 +811,55 @@ describe('darwin privacy revert', () => {
 
       expect(mac.sysctl.get('kern.coredump')).toBe('1')
       expect(files.get('/etc/sysctl.conf')).toBe(original)
-      // The file is handed back to root rather than left owned by the user
+      // Owner and mode survive the temp-file-and-mv write
+      expect(owners.get('/etc/sysctl.conf')).toBe('0:0')
+      expect(modes.get('/etc/sysctl.conf')).toBe(0o644)
+    })
+
+    it("keeps a config file's own owner and restrictive mode through apply and revert", async () => {
+      const SSHD_CONFIG = '/etc/ssh/sshd_config'
+      files.set(SSHD_CONFIG, 'PermitRootLogin yes\n')
+      modes.set(SSHD_CONFIG, 0o600)
+      owners.set(SSHD_CONFIG, '0:0')
+
+      await find('macos-ssh-root-login').apply()
+      expect([owners.get(SSHD_CONFIG), modes.get(SSHD_CONFIG)]).toEqual(['0:0', 0o600])
+
+      await find('macos-ssh-root-login').revert!()
+      expect(files.get(SSHD_CONFIG)).toBe('PermitRootLogin yes\n')
+      expect([owners.get(SSHD_CONFIG), modes.get(SSHD_CONFIG)]).toEqual(['0:0', 0o600])
+      expect(elevatedCalls).toContainEqual(['/bin/chmod', '600', SSHD_CONFIG])
+    })
+
+    it('gives a config file Kudu creates the stock root:wheel 0644', async () => {
+      mac.sysctl.set('net.inet.ip.forwarding', '1')
+      await find('macos-ip-forwarding').apply()
       expect(elevatedCalls).toContainEqual(['/usr/sbin/chown', 'root:wheel', '/etc/sysctl.conf'])
+      expect([owners.get('/etc/sysctl.conf'), modes.get('/etc/sysctl.conf')]).toEqual([
+        '0:0',
+        0o644
+      ])
+    })
+
+    it('ends with the same owner and mode when Kudu itself runs as root', async () => {
+      const getuid = Object.getOwnPropertyDescriptor(process, 'getuid')
+      Object.defineProperty(process, 'getuid', { value: () => 0, configurable: true })
+      try {
+        files.set('/etc/sysctl.conf', 'kern.coredump=1\n')
+        modes.set('/etc/sysctl.conf', 0o600)
+        await find('macos-core-dumps').apply()
+        expect([owners.get('/etc/sysctl.conf'), modes.get('/etc/sysctl.conf')]).toEqual([
+          '0:0',
+          0o600
+        ])
+        await find('macos-core-dumps').revert!()
+        expect(files.get('/etc/sysctl.conf')).toBe('kern.coredump=1\n')
+        expect(modes.get('/etc/sysctl.conf')).toBe(0o600)
+        expect(osascriptCalls()).toHaveLength(0)
+      } finally {
+        if (getuid) Object.defineProperty(process, 'getuid', getuid)
+        else delete (process as { getuid?: unknown }).getuid
+      }
     })
 
     it('removes sysctl.conf again when Kudu created it', async () => {
