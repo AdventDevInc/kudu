@@ -55,3 +55,22 @@ describe('deletionTouchesExclusions', () => {
     expect(await deletionTouchesExclusions(join(root, 'Gone'), ['*.sav'])).toBe(false)
   })
 })
+
+describe('deletionTouchesExclusions when the target cannot be inspected', () => {
+  it('treats an unreadable target as affected', async () => {
+    vi.resetModules()
+    vi.doMock('fs/promises', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('fs/promises')>()
+      return {
+        ...actual,
+        lstat: async () => {
+          throw Object.assign(new Error('denied'), { code: 'EACCES' })
+        }
+      }
+    })
+    const { deletionTouchesExclusions: check } = await import('./file-utils')
+    expect(await check(join(root, 'App'), ['*.sav'])).toBe(true)
+    vi.doUnmock('fs/promises')
+    vi.resetModules()
+  })
+})

@@ -205,8 +205,10 @@ export async function deletionTouchesExclusions(
   try {
     const root = await lstat(targetPath)
     if (!root.isDirectory() || root.isSymbolicLink()) return false
-  } catch {
-    return false
+  } catch (err) {
+    // Only a target that is confirmed gone is safe to wave through.
+    const code = (err as NodeJS.ErrnoException).code
+    return code !== 'ENOENT' && code !== 'ENOTDIR'
   }
   return walk(targetPath)
 }
