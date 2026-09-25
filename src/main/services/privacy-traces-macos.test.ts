@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, rename, rm, symlink, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -26,7 +26,8 @@ import {
   existingDatabaseUri,
   findMacQuarantineTraces,
   findMacRecentItemTraces,
-  sqliteFailureReason
+  sqliteFailureReason,
+  walCheckpointBusy
 } from './privacy-traces-macos'
 
 type Callback = (err: Error | null, stdout: string, stderr: string) => void
@@ -155,7 +156,7 @@ describe('Quarantine Events download history', () => {
       '-cmd',
       '.timeout 2000',
       existingDatabaseUri(quarantineDb()),
-      'PRAGMA secure_delete = ON; DELETE FROM LSQuarantineEvent;'
+      'PRAGMA secure_delete = ON; DELETE FROM LSQuarantineEvent; PRAGMA wal_checkpoint(TRUNCATE);'
     ])
     expect(existsSync(quarantineDb())).toBe(true)
   })
@@ -185,11 +186,29 @@ describe('Quarantine Events download history', () => {
   it('refuses a database replaced since the scan', async () => {
     await createDb()
     const info = (await statTraceFile(quarantineDb()))!
-    await rm(quarantineDb())
+    // Keep the old file alive while creating the new one so its inode differs.
+    await rename(quarantineDb(), quarantineDb() + '.old')
     await createDb()
+    await rm(quarantineDb() + '.old')
     fakeSqlite(() => '')
     await expect(clearQuarantineEvents(quarantineDb(), info)).rejects.toBeDefined()
     expect(execFile).not.toHaveBeenCalled()
+  })
+
+  it('reports rows left in a busy write-ahead log as skipped', async () => {
+    await createDb()
+    const info = (await statTraceFile(quarantineDb()))!
+    fakeSqlite(() => '1|4|2\n')
+    await expect(clearQuarantineEvents(quarantineDb(), info)).rejects.toMatchObject({
+      reason: expect.stringContaining('database is in use')
+    })
+  })
+
+  it('reads the checkpoint result', () => {
+    expect(walCheckpointBusy('0|-1|-1\n')).toBe(false)
+    expect(walCheckpointBusy('0|3|3')).toBe(false)
+    expect(walCheckpointBusy('1|3|0\n')).toBe(true)
+    expect(walCheckpointBusy('')).toBe(false)
   })
 
   it('maps sqlite3 errors to skip reasons', () => {

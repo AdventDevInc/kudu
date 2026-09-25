@@ -87,22 +87,37 @@ export function existingDatabaseUri(path: string): string {
 }
 
 /** Empty LSQuarantineEvent in place. The database file itself is never deleted. */
+/** Whether `PRAGMA wal_checkpoint` output (busy|log|checkpointed) reports busy. */
+export function walCheckpointBusy(stdout: string): boolean {
+  const last = stdout.trim().split(/\r?\n/).pop() ?? ''
+  return /^1\|/.test(last)
+}
+
 export async function clearQuarantineEvents(path: string, scanned: BigIntStats): Promise<number> {
   await verifyTraceFile(path, scanned)
+  let output: string
   try {
     // secure_delete zeroes the removed rows instead of leaving them in free pages.
     // -nofollow makes sqlite3 refuse the path if it was swapped for a symlink
     // after the check above, rather than deleting rows from its target.
-    await sqlite([
+    output = await sqlite([
       '-bail',
       '-nofollow',
       '-cmd',
       '.timeout 2000',
       existingDatabaseUri(path),
-      'PRAGMA secure_delete = ON; DELETE FROM LSQuarantineEvent;'
+      'PRAGMA secure_delete = ON; DELETE FROM LSQuarantineEvent; PRAGMA wal_checkpoint(TRUNCATE);'
     ])
   } catch (err) {
     throw new TraceSkipped(sqliteFailureReason(err))
+  }
+  // In WAL mode the deleted rows live on in the -wal file until a checkpoint.
+  // The pragma reports busy|log|checkpointed; busy means another connection
+  // (LaunchServices) held it open, so the old entries may still be on disk.
+  if (walCheckpointBusy(output)) {
+    throw new TraceSkipped(
+      'cleared, but the database is in use, so older entries may remain until the app using it closes'
+    )
   }
   return 0
 }
