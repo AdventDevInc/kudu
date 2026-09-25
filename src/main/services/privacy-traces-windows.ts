@@ -344,7 +344,10 @@ export async function clearMruList(list: MruList): Promise<number> {
   // clear leaves an ordering value Explorer rebuilds rather than stray entries.
   for (const name of plan.entries) await reg(['delete', list.key, '/v', name, '/f'])
   for (const subkey of plan.subkeys) await reg(['delete', subkey, '/f'])
-  for (const name of plan.order) await reg(['delete', list.key, '/v', name, '/f'])
+  // Only drop the ordering value once every entry is gone; otherwise it still
+  // describes the entries that remain.
+  if (failures === 0)
+    for (const name of plan.order) await reg(['delete', list.key, '/v', name, '/f'])
   if (failures > 0) {
     throw new TraceSkipped(`${failures} entries could not be removed; a backup was saved`)
   }

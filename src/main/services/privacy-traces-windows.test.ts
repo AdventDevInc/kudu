@@ -191,6 +191,23 @@ describe('clearMruList', () => {
     expect(deletes.some((c) => c[1] === openSave.key && !c.includes('/v'))).toBe(false)
   })
 
+  it('keeps the ordering value when an entry could not be deleted', async () => {
+    fakeReg(RUN_MRU_OUTPUT)
+    const base = exec.getMockImplementation()!
+    exec.mockImplementation(async (tool: string, args: string[]) => {
+      if (args[0] === 'delete' && args[3] === 'a') throw new Error('ERROR: Access is denied.')
+      return base(tool, args)
+    })
+    await expect(clearMruList(RUN_MRU)).rejects.toMatchObject({
+      reason: expect.stringContaining('could not be removed')
+    })
+    const deleted = regCalls()
+      .filter((c) => c[0] === 'delete')
+      .map((c) => c[3])
+    expect(deleted).toContain('b')
+    expect(deleted).not.toContain('MRUList')
+  })
+
   it('aborts without deleting anything when the backup fails', async () => {
     fakeReg(RUN_MRU_OUTPUT, { exportFails: true })
     await expect(clearMruList(RUN_MRU)).rejects.toMatchObject({
