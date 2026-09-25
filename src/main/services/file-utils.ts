@@ -232,7 +232,30 @@ export async function deletionTouchesExclusions(
  * written through an alias (a symlink, a junction, or a Windows 8.3 short
  * name such as RUNNER~1) that never appears in a resolved path.
  */
-export async function expandExclusions(exclusions: string[]): Promise<string[]> {
+/**
+ * Resolving every exclusion is filesystem work, and cleaners call this per item.
+ * A result is reused for up to a second for the same exclusion list, so a large
+ * clean does one expansion per second rather than one per item, while an
+ * exclusion added or retargeted mid-run still takes effect within that second.
+ */
+const EXPANSION_TTL_MS = 1000
+let lastExpansion: { key: string; at: number; result: Promise<string[]> } | null = null
+
+export function expandExclusions(exclusions: string[]): Promise<string[]> {
+  const key = JSON.stringify(exclusions)
+  const now = Date.now()
+  if (lastExpansion && lastExpansion.key === key && now - lastExpansion.at < EXPANSION_TTL_MS)
+    return lastExpansion.result
+  const result = expandExclusionsNow(exclusions)
+  lastExpansion = { key, at: now, result }
+  // A failed expansion must not be reused.
+  result.catch(() => {
+    if (lastExpansion?.result === result) lastExpansion = null
+  })
+  return result
+}
+
+async function expandExclusionsNow(exclusions: string[]): Promise<string[]> {
   const expanded = new Set(exclusions)
   for (const exc of exclusions) {
     if (exc.startsWith('*.')) continue
