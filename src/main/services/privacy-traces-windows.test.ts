@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, readdir, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -12,6 +12,21 @@ const backupDir = vi.hoisted(() => ({ path: '' }))
 vi.mock('./backup-dir', () => ({ getBackupDir: () => backupDir.path }))
 const exec = vi.hoisted(() => vi.fn())
 vi.mock('./exec-utf8', () => ({ execNativeUtf8: exec }))
+const seal = vi.hoisted(() => ({
+  privateDir: null as string | null,
+  sealBackup: vi.fn(async () => true),
+  removeSeals: vi.fn(async () => {})
+}))
+vi.mock('./registry-backup-seal', () => ({
+  createPrivateTempDir: async () => {
+    if (!seal.privateDir) throw new Error('not elevated')
+    const { mkdir } = await import('fs/promises')
+    await mkdir(seal.privateDir, { recursive: true })
+    return seal.privateDir
+  },
+  sealBackup: seal.sealBackup,
+  removeSeals: seal.removeSeals
+}))
 
 import { cleanPrivacyTraces, scanPrivacyTraces, type PrivacyTrace } from './privacy-traces'
 import {
@@ -228,6 +243,24 @@ describe('clearMruList', () => {
     fakeReg(`${HKCU_EXPLORER}\\RunMRU\n`)
     await clearMruList(RUN_MRU)
     expect(regCalls().map((c) => c[0])).toEqual(['query'])
+  })
+
+  it('exports into the private folder and seals exactly the bytes it writes', async () => {
+    seal.privateDir = join(root, 'private')
+    seal.sealBackup.mockClear()
+    fakeReg(RUN_MRU_OUTPUT)
+    try {
+      await clearMruList(RUN_MRU)
+    } finally {
+      seal.privateDir = null
+    }
+    const exportCall = regCalls().find((c) => c[0] === 'export')!
+    expect(exportCall[2].startsWith(join(root, 'private'))).toBe(true)
+    const [name] = (await readdir(backupDir.path)).filter((f) =>
+      f.startsWith('privacy-traces-backup-RunMRU-')
+    )
+    const written = await readFile(join(backupDir.path, name))
+    expect(seal.sealBackup).toHaveBeenCalledWith(name, written)
   })
 
   it('keeps only the newest backups of a list', async () => {

@@ -1,7 +1,8 @@
-import { mkdir, readdir, stat, unlink } from 'fs/promises'
+import { mkdir, readdir, readFile, rm, unlink, writeFile } from 'fs/promises'
 import { basename, join } from 'path'
 import { getBackupDir } from './backup-dir'
 import { execNativeUtf8 } from './exec-utf8'
+import { createPrivateTempDir, removeSeals, sealBackup } from './registry-backup-seal'
 import {
   deletingTrace,
   listTraceFiles,
@@ -293,8 +294,13 @@ async function pruneBackups(dir: string, slug: string, current: string): Promise
       .filter((f) => f.startsWith(prefix) && f.endsWith('.reg') && f !== current)
       .sort()
       .reverse()
-    for (const f of files.slice(BACKUPS_KEPT_PER_LIST - 1))
+    const pruned: string[] = []
+    for (const f of files.slice(BACKUPS_KEPT_PER_LIST - 1)) {
       await unlink(join(dir, f)).catch(() => {})
+      pruned.push(f)
+    }
+    // A pruned file's seal must go too, or a kept copy of it could be replayed.
+    await removeSeals(pruned)
   } catch {
     /* best effort */
   }
@@ -306,14 +312,33 @@ export async function backupMruList(list: MruList): Promise<string> {
   const slug = backupSlug(list)
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
   const file = join(dir, `${BACKUP_PREFIX}${slug}-${timestamp}.reg`)
+  // Export into a folder unelevated processes can't write, so the file can be
+  // sealed as exactly what reg.exe exported and restored from the Recovery
+  // Centre. Without one (not elevated) the backup is still written, unsealed:
+  // it guards the clear, but can only be imported by hand.
+  let privateDir: string | null
+  try {
+    privateDir = await createPrivateTempDir('kudu-trace-backup-')
+  } catch {
+    privateDir = null
+  }
   try {
     await mkdir(dir, { recursive: true })
-    await execNativeUtf8('reg', ['export', list.key, file, '/y'], { timeout: 30000 })
-    if ((await stat(file)).size === 0) throw new Error('empty backup')
+    const exportPath = privateDir ? join(privateDir, 'export.reg') : file
+    await execNativeUtf8('reg', ['export', list.key, exportPath, '/y'], { timeout: 30000 })
+    const bytes = await readFile(exportPath)
+    if (bytes.length === 0) throw new Error('empty backup')
+    if (privateDir) {
+      await writeFile(file, bytes, { flag: 'wx' })
+      // Seal the bytes just written, never a re-read of the user-writable folder.
+      await sealBackup(basename(file), bytes)
+    }
   } catch {
     // An empty or partial export must not count as one of the kept backups.
     await unlink(file).catch(() => {})
     throw new TraceSkipped('registry backup failed, nothing was changed')
+  } finally {
+    if (privateDir) await rm(privateDir, { recursive: true, force: true }).catch(() => {})
   }
   await pruneBackups(dir, slug, basename(file))
   return file
