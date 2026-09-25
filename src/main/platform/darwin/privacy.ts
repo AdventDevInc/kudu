@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { readFile, stat, unlink, writeFile } from 'fs/promises'
+import { access, constants, readFile, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -329,14 +329,19 @@ type RestoreAction = Command | FileEdit
 interface StatePart<S> {
   /** Key in the prior-state store; keep stable across releases */
   id: string
-  read: () => Promise<S>
+  /** `elevate: false` throws RootOnlyError instead of asking for a password */
+  read: (options?: { elevate?: boolean }) => Promise<S>
   valid: (value: unknown) => value is S
   /** The state apply() leaves behind, given the state it started from */
   applied: (prior: S) => S
   /** Documented macOS default, used only when no prior state was captured */
   fallback?: S
-  restore: (prior: S) => RestoreAction[]
+  /** `currentUnknown`: the current state couldn't be read without root */
+  restore: (prior: S, currentUnknown?: boolean) => RestoreAction[]
 }
+
+/** A root-only file that can't be read without a password prompt of its own. */
+class RootOnlyError extends Error {}
 
 interface DarwinPrivacySetting extends PrivacySettingDef {
   state: StatePart<any>[]
@@ -488,6 +493,8 @@ async function revertSettings(
   // Config files as this batch will leave them, so two edits to one file stack
   const files = new Map<string, string | null>()
   const temps: string[] = []
+  // Parts only root can read back; their root command's exit status is the check
+  const unverified = new Set<StatePart<any>>()
 
   for (const id of ids) {
     const setting = settings.find((s) => s.id === id)
@@ -502,8 +509,17 @@ async function revertSettings(
       const staged = new Map<string, string | null>()
       for (const part of setting.state) {
         const prior = priors[part.id]
-        if (same(await part.read(), prior)) continue
-        for (const action of part.restore(prior)) {
+        // Planning never prompts: a root-only plist can't be compared first, so
+        // its restore runs unconditionally inside the shared elevated batch.
+        let currentUnknown = false
+        try {
+          if (same(await part.read({ elevate: false }), prior)) continue
+        } catch (error) {
+          if (!(error instanceof RootOnlyError) || !setting.requiresAdmin) throw error
+          currentUnknown = true
+          unverified.add(part)
+        }
+        for (const action of part.restore(prior, currentUnknown)) {
           if ('cmd' in action) {
             commands.push(action)
             continue
@@ -553,9 +569,9 @@ async function revertSettings(
     let restored = true
     for (const part of setting.state) {
       restored &&= await part
-        .read()
+        .read({ elevate: false })
         .then((value) => same(value, priors[part.id]))
-        .catch(() => false)
+        .catch((error) => error instanceof RootOnlyError && unverified.has(part))
     }
     if (!restored) {
       fail(
@@ -668,30 +684,38 @@ function parsePlistValue(key: string, xml: string): DefaultsValue {
 
 // System-wide domains are written by root's cfprefsd, so the user's cached view
 // of them can be stale. Read the plist file itself, like managedPrefBool does.
-async function readPlistDefault(domain: string, key: string): Promise<DefaultsValue> {
+async function readPlistDefault(
+  domain: string,
+  key: string,
+  elevate: boolean
+): Promise<DefaultsValue> {
   const file = `${domain}.plist`
+  const args = ['-extract', key, 'xml1', '-o', '-', file]
+  let rootOnly = false
   try {
-    await stat(file)
+    await access(file, constants.R_OK)
   } catch (error: any) {
     if (error?.code === 'ENOENT') return null
-    throw error
+    if (error?.code !== 'EACCES') throw error
+    rootOnly = true
   }
-  const args = ['-extract', key, 'xml1', '-o', '-', file]
   let xml: string
   try {
-    xml = (await execFileAsync('/usr/bin/plutil', args, { timeout: 5_000 })).stdout
+    if (!rootOnly) xml = (await execFileAsync('/usr/bin/plutil', args, { timeout: 5_000 })).stdout
+    // Root-only plist (cfprefsd creates new files 0600). Capture before apply
+    // reads it as root; revert passes elevate: false to keep a single prompt.
+    else if (elevate) xml = await elevatedExec('/usr/bin/plutil', args)
+    else throw new RootOnlyError(`${file} is readable only by root`)
   } catch (error) {
     if (NO_PLIST_VALUE.test(errorText(error))) return null
-    // Root-only plist (cfprefsd creates new files 0600): read it as root
-    try {
-      xml = await elevatedExec('/usr/bin/plutil', args)
-    } catch (elevatedError) {
-      if (NO_PLIST_VALUE.test(errorText(elevatedError))) return null
-      throw elevatedError
-    }
+    throw error
   }
   return parsePlistValue(key, xml)
 }
+
+// `defaults delete` fails when the key is already gone; only that case is fine
+const DELETE_IF_PRESENT =
+  'out=$(/usr/bin/defaults delete "$1" "$2" 2>&1) && exit 0; case "$out" in *"does not exist"*) exit 0 ;; esac; echo "$out" >&2; exit 1'
 
 /**
  * A preference key. `applied` is what apply() writes (null = deletes it).
@@ -707,28 +731,32 @@ function prefPart(
   const host = options.currentHost ? ['-currentHost'] : []
   return {
     id: `defaults:${options.currentHost ? 'currentHost:' : ''}${domain}:${key}`,
-    read: () =>
+    read: ({ elevate = true } = {}) =>
       domain.startsWith('/')
-        ? readPlistDefault(domain, key)
+        ? readPlistDefault(domain, key, elevate)
         : readUserDefault(domain, key, !!options.currentHost),
     valid: isDefaultsValue,
     applied: () => applied,
     fallback: options.fallback,
-    restore(prior) {
-      const write: Command = {
-        cmd: '/usr/bin/defaults',
-        args:
-          prior === null
-            ? [...host, 'delete', domain, key]
-            : [
-                ...host,
-                'write',
-                domain,
-                key,
-                `-${prior.type}`,
-                prior.type === 'bool' ? (prior.value === '1' ? 'true' : 'false') : prior.value
-              ]
-      }
+    restore(prior, currentUnknown) {
+      // Unread (root-only) current state: the key may already be gone
+      const write: Command =
+        prior === null && currentUnknown
+          ? { cmd: '/bin/sh', args: ['-c', DELETE_IF_PRESENT, 'sh', domain, key] }
+          : {
+              cmd: '/usr/bin/defaults',
+              args:
+                prior === null
+                  ? [...host, 'delete', domain, key]
+                  : [
+                      ...host,
+                      'write',
+                      domain,
+                      key,
+                      `-${prior.type}`,
+                      prior.type === 'bool' ? (prior.value === '1' ? 'true' : 'false') : prior.value
+                    ]
+            }
       if (!options.managed) return [write]
       return [
         { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },

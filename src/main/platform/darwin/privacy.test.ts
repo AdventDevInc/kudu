@@ -10,6 +10,8 @@ vi.mock('util', () => ({
 }))
 // In-memory file system: config files, plists (existence only) and Kudu's own store
 const files = new Map<string, string>()
+// Plists only root can read (cfprefsd creates new files 0600)
+const rootOnly = new Set<string>()
 const enoent = (path: string) => Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' })
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(async (path: string) => {
@@ -24,10 +26,11 @@ vi.mock('fs/promises', () => ({
     files.delete(from)
   }),
   mkdir: vi.fn(async () => {}),
-  stat: vi.fn(async (path: string) => {
+  access: vi.fn(async (path: string) => {
     if (!files.has(path)) throw enoent(path)
-    return {}
+    if (rootOnly.has(path)) throw Object.assign(new Error(`EACCES: ${path}`), { code: 'EACCES' })
   }),
+  constants: { R_OK: 4 },
   unlink: vi.fn(async (path: string) => {
     files.delete(path)
   })
@@ -376,9 +379,10 @@ function defaultsCommand(input: string[]): string {
   throw new Error(`unexpected defaults ${input.join(' ')}`)
 }
 
-function plutilCommand(args: string[]): string {
+function plutilCommand(args: string[], root: boolean): string {
   const [, key, format, , , file] = args
   if (!files.has(file)) throw failure('file does not exist')
+  if (rootOnly.has(file) && !root) throw failure('Permission denied')
   const current = mac.defaults.get(prefId(file.replace(/\.plist$/, ''), key))
   if (!current)
     throw failure(
@@ -398,7 +402,7 @@ function plutilCommand(args: string[]): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0">\n${body}\n</plist>\n`
 }
 
-function run(cmd: string, args: string[]): string {
+function run(cmd: string, args: string[], root = false): string {
   const line = [cmd, ...args].join(' ')
   for (const f of mac.failing) if (line.includes(f)) throw failure(`simulated failure: ${f}`)
   const fw = mac.firewall
@@ -406,7 +410,7 @@ function run(cmd: string, args: string[]): string {
     case '/usr/bin/defaults':
       return defaultsCommand(args)
     case '/usr/bin/plutil':
-      return plutilCommand(args)
+      return plutilCommand(args, root)
     case '/usr/sbin/sysctl':
       if (args[0] === '-n') return mac.sysctl.get(args[1]) + '\n'
       mac.sysctl.set(args[1].split('=')[0], args[1].split('=')[1])
@@ -446,6 +450,15 @@ function run(cmd: string, args: string[]): string {
         return [...mac.launchd].map(([label, state]) => `\t"${label}" => ${state}\n`).join('')
       return ''
     case '/bin/sh': {
+      // DELETE_IF_PRESENT: sh -c <script> sh <domain> <key>
+      if (args.length === 5) {
+        try {
+          defaultsCommand(['delete', args[3], args[4]])
+        } catch (error) {
+          if (!/does not exist/.test(String((error as Error).message))) throw error
+        }
+        return ''
+      }
       const label = args[1].match(/launchctl (enable|disable) system\/([\w.]+)/)
       if (label) mac.launchd.set(label[2], label[1] === 'enable' ? 'enabled' : 'disabled')
       return ''
@@ -496,14 +509,20 @@ function unquote(word: string): string {
 }
 
 function runChain(chain: string): string {
+  // Tokenise outside quotes: shell words, `&&`, and the `{ … || true; }` wrapper
+  const commands = [{ argv: [] as string[], optional: false }]
+  for (const token of chain.match(/(?:'[^']*'|\\')+|&&|\|\||[{}]|true;/g) ?? []) {
+    const current = commands[commands.length - 1]
+    if (token === '&&') commands.push({ argv: [], optional: false })
+    else if (token === '{') current.optional = true
+    else if (!['||', 'true;', '}'].includes(token)) current.argv.push(unquote(token))
+  }
   let out = ''
-  for (const part of chain.split(' && ')) {
-    const optional = part.startsWith('{ ') && part.endsWith(' || true; }')
-    const body = optional ? part.slice(2, -' || true; }'.length) : part
-    const [cmd, ...args] = (body.match(/(?:'[^']*'|\\')+/g) ?? []).map(unquote)
-    elevatedCalls.push([cmd, ...args])
+  for (const { argv, optional } of commands) {
+    const [cmd, ...args] = argv
+    elevatedCalls.push(argv)
     try {
-      out = run(cmd, args)
+      out = run(cmd, args, true)
     } catch (error) {
       if (!optional) throw error
     }
@@ -550,6 +569,7 @@ describe('darwin privacy revert', () => {
 
   beforeEach(() => {
     files.clear()
+    rootOnly.clear()
     elevatedCalls.length = 0
     mac = freshMac()
     privacy = createDarwinPrivacy()
@@ -952,6 +972,67 @@ describe('darwin privacy revert', () => {
       expect(Object.keys(storedSettings())).toEqual(
         expect.arrayContaining(['macos-stealth-mode', 'macos-guest-account'])
       )
+    })
+  })
+
+  describe('root-only system plists', () => {
+    const SAFE_BROWSING = 'SafeBrowsingExtendedReportingEnabled'
+    const FIREFOX_POLICY = '/Library/Managed Preferences/org.mozilla.firefox'
+
+    async function applyWithRootOnlyPlists() {
+      files.set(`${CHROME_POLICY}.plist`, 'plist')
+      files.set(`${LOGINWINDOW}.plist`, 'plist')
+      mac.defaults.set(prefId(CHROME_POLICY, SAFE_BROWSING), pref('bool', '1'))
+      mac.defaults.set(prefId(LOGINWINDOW, 'GuestEnabled'), pref('bool', '1'))
+      rootOnly.add(`${CHROME_POLICY}.plist`).add(`${LOGINWINDOW}.plist`)
+      for (const id of [
+        'macos-chrome-metrics',
+        'macos-chrome-safe-browsing',
+        'macos-firefox-telemetry',
+        'macos-guest-account'
+      ])
+        await find(id).apply()
+      // Capture read the root-only plists as root rather than guessing "unset"
+      expect(storedSettings()['macos-chrome-safe-browsing']).toEqual({
+        [`defaults:${CHROME_POLICY}:${SAFE_BROWSING}`]: { type: 'bool', value: '1' }
+      })
+      rootOnly.add(`${FIREFOX_POLICY}.plist`)
+      execFileMock.mockClear()
+      elevatedCalls.length = 0
+    }
+
+    it('reverts several of them behind one password prompt', async () => {
+      await applyWithRootOnlyPlists()
+      // Already gone: the unconditional delete must tolerate it
+      mac.defaults.delete(prefId(FIREFOX_POLICY, 'DisableTelemetry'))
+
+      const result = await privacy.revertSettings!([
+        'macos-chrome-metrics',
+        'macos-chrome-safe-browsing',
+        'macos-firefox-telemetry',
+        'macos-guest-account'
+      ])
+
+      expect(result).toEqual({ succeeded: 4, failed: 0, errors: [] })
+      expect(execFileMock.mock.calls.map((c) => c[0])).toEqual(['/usr/bin/osascript'])
+      expect(mac.defaults.has(prefId(CHROME_POLICY, 'MetricsReportingEnabled'))).toBe(false)
+      expect(mac.defaults.get(prefId(CHROME_POLICY, SAFE_BROWSING))).toEqual(pref('bool', '1'))
+      expect(mac.defaults.get(prefId(LOGINWINDOW, 'GuestEnabled'))).toEqual(pref('bool', '1'))
+      expect(storedSettings()).toEqual({})
+    })
+
+    it('keeps the record when the root command fails', async () => {
+      await applyWithRootOnlyPlists()
+      mac.failing.add(SAFE_BROWSING)
+
+      const result = await privacy.revertSettings!([
+        'macos-chrome-safe-browsing',
+        'macos-guest-account'
+      ])
+
+      expect(execFileMock.mock.calls.map((c) => c[0])).toEqual(['/usr/bin/osascript'])
+      expect(result.errors.map((e) => e.id)).toEqual(['macos-chrome-safe-browsing'])
+      expect(storedSettings()['macos-chrome-safe-browsing']).toBeDefined()
     })
   })
 
