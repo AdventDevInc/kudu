@@ -811,6 +811,26 @@ export const KNOWN_BLOATWARE: Omit<BloatwareApp, 'id' | 'size' | 'selected'>[] =
   }
 ]
 
+/** AppX package names are dot-separated identifiers; anything else (notably `*`) is refused. */
+const PACKAGE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/
+
+/**
+ * Some publishers suffix the package name (`WildTangentGames.63435CFB65F55`),
+ * so an installed package matches a known entry exactly or as `<known>.<suffix>`.
+ * Scan and removal share this so everything the scan offers can be removed.
+ */
+function matchesKnownBloatware(installedName: string, knownName: string): boolean {
+  return installedName === knownName || installedName.startsWith(knownName + '.')
+}
+
+function isRemovableBloatware(name: unknown): name is string {
+  return (
+    typeof name === 'string' &&
+    PACKAGE_NAME.test(name) &&
+    KNOWN_BLOATWARE.some((b) => matchesKnownBloatware(name, b.packageName))
+  )
+}
+
 // ── Exported core logic ──
 
 export async function scanBloatware(): Promise<BloatwareApp[]> {
@@ -844,8 +864,8 @@ export async function scanBloatware(): Promise<BloatwareApp[]> {
     }
 
     for (const bloatware of KNOWN_BLOATWARE) {
-      const matchedPkg = installedPackages.find(
-        (p) => p.Name === bloatware.packageName || p.Name.startsWith(bloatware.packageName + '.')
+      const matchedPkg = installedPackages.find((p) =>
+        matchesKnownBloatware(p.Name, bloatware.packageName)
       )
 
       if (matchedPkg) {
@@ -887,8 +907,7 @@ export async function removeBloatware(
     status: 'removing' | 'done' | 'failed'
   ) => void
 ): Promise<{ removed: number; failed: number }> {
-  const knownNames = new Set(KNOWN_BLOATWARE.map((b) => b.packageName))
-  const validNames = packageNames.filter((name) => typeof name === 'string' && knownNames.has(name))
+  const validNames = packageNames.filter(isRemovableBloatware)
 
   let removed = 0
   let failed = 0

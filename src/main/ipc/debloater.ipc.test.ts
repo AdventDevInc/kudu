@@ -353,6 +353,34 @@ describe('removeBloatware', () => {
     expect(mockExecFile).not.toHaveBeenCalled()
   })
 
+  it('removes a package the scan matched by suffix', async () => {
+    // The scan offers `WildTangentGames.63435CFB65F55` for the known
+    // `WildTangentGames` entry; removal used to accept exact names only and
+    // silently skipped it.
+    mockExecFile.mockImplementation((...args: unknown[]) => {
+      const callback = args[args.length - 1] as Function
+      if (typeof callback === 'function') callback(null, { stdout: '' })
+    })
+
+    const result = await removeBloatware(['WildTangentGames.63435CFB65F55'])
+    expect(result).toEqual({ removed: 1, failed: 0 })
+    expect(JSON.stringify(mockExecFile.mock.calls[0])).toContain(
+      "Get-AppxPackage 'WildTangentGames.63435CFB65F55'"
+    )
+  })
+
+  it('rejects names that only share a prefix without the dot separator', async () => {
+    const result = await removeBloatware(['WildTangentGamesExtra', 'NortonSecurityCore'])
+    expect(result).toEqual({ removed: 0, failed: 0 })
+    expect(mockExecFile).not.toHaveBeenCalled()
+  })
+
+  it('rejects wildcards that Get-AppxPackage would expand', async () => {
+    const result = await removeBloatware(['Microsoft.BingNews.*', 'McAfee.*'])
+    expect(result).toEqual({ removed: 0, failed: 0 })
+    expect(mockExecFile).not.toHaveBeenCalled()
+  })
+
   it('removes known packages and counts successes', async () => {
     mockExecFile.mockImplementation((...args: unknown[]) => {
       const callback = args[args.length - 1] as Function
