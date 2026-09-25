@@ -514,6 +514,56 @@ const WINGET_UPGRADE_ARGS = [
   '--include-unknown'
 ]
 
+/**
+ * Non-zero winget exit codes that still mean the upgrade went through. The
+ * exit code is the source of truth: winget's output is localised, so matching
+ * English text reported every upgrade on a non-English Windows as failed
+ * (#475).
+ */
+const WINGET_UPGRADE_OK_CODES = new Set([
+  0x8a150109, // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH
+  0x8a15010b // APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED
+])
+
+const WINGET_TECH_MISMATCH = 0x8a15008e // APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH
+const WINGET_REQUIRES_ADMIN = 0x8a150019 // APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN
+
+/**
+ * Failures that neither an elevated nor a forced retry can fix, with a message
+ * to show in place of winget's (possibly localised) last output line.
+ */
+const WINGET_FINAL_FAILURES = new Map<number, string>([
+  [
+    WINGET_TECH_MISMATCH,
+    'Installer type changed — uninstall this app manually then install the new version'
+  ],
+  [0x8a150056, 'The installer cannot run as administrator'],
+  [0x8a15007d, 'Cannot update a per-user install from an administrator context'],
+  [0x8a150101, 'The app is running — close it and try again'],
+  [0x8a150102, 'Another installation is in progress — try again later'],
+  [0x8a150103, 'Files are in use — close the app and try again'],
+  [0x8a150105, 'Not enough disk space'],
+  [0x8a150106, 'Not enough memory — close other apps and try again'],
+  [0x8a150107, 'No network connection'],
+  [0x8a15010a, 'Restart your PC, then try again'],
+  [0x8a15010c, 'The installation was cancelled'],
+  [0x8a15010e, 'A newer version is already installed'],
+  [0x8a15010f, 'Blocked by organisation policy'],
+  [0x8a150111, 'The app is in use by another application — close it and try again']
+])
+
+/** Readable messages for failures that are still worth retrying. */
+const WINGET_FAILURE_MESSAGES = new Map<number, string>([
+  [0x8a150014, 'Package not found in the winget sources'],
+  [0x8a15002b, 'No applicable update found'],
+  [0x8a15010d, 'Another version of this app is already installed'],
+  [0x8a150114, 'The installer does not support upgrading this app']
+])
+
+/**
+ * English-only fallbacks, kept for older winget builds whose exit codes are
+ * less reliable. Never the only signal: see WINGET_UPGRADE_OK_CODES.
+ */
 const SUCCESS_PATTERNS = [
   'successfully installed',
   'successfully upgraded',
@@ -539,17 +589,25 @@ const ELEVATION_HINTS = [
   '0x80070005' // E_ACCESSDENIED
 ]
 
-/** Attempt a single winget upgrade and return {success, output} */
+interface WingetAttempt {
+  success: boolean
+  output: string
+  /** winget's exit code as an unsigned HRESULT; undefined if it never exited. */
+  code?: number
+}
+
+/** Attempt a single winget upgrade, judged by exit code first. */
 async function attemptWingetUpgrade(
   appId: string,
   extraArgs: string[] = []
-): Promise<{ success: boolean; output: string }> {
+): Promise<WingetAttempt> {
   // Validate appId format to prevent argument injection (e.g. --source flags)
   if (!/^[\w][\w.\-]{0,200}$/.test(appId)) {
     return { success: false, output: 'Invalid app ID format' }
   }
   const winget = (await resolveWinget()) ?? 'winget'
   let upgradeStdout = ''
+  let code: number
   try {
     const result = await execFileAsync(
       winget,
@@ -557,23 +615,54 @@ async function attemptWingetUpgrade(
       { timeout: 10 * 60 * 1000, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
     )
     upgradeStdout = result.stdout
+    code = 0
   } catch (err: any) {
-    if (err?.stdout) {
-      upgradeStdout = err.stdout
-    } else {
-      return { success: false, output: err?.message || 'Unknown error' }
+    if (typeof err?.code !== 'number') {
+      // Timed out, or never started: there is no verdict to read
+      return { success: false, output: err?.stdout || describeExecError(err, 'Unknown error') }
     }
+    upgradeStdout = err.stdout ?? ''
+    code = err.code >>> 0
+  }
+
+  if (code === 0 || WINGET_UPGRADE_OK_CODES.has(code)) {
+    return { success: true, output: upgradeStdout, code }
   }
 
   const output = cleanOutput(upgradeStdout).toLowerCase()
   const wasSuccessful = SUCCESS_PATTERNS.some((p) => output.includes(p))
   const hasClearFailure = FAILURE_PATTERNS.some((p) => output.includes(p))
+  return { success: wasSuccessful && !hasClearFailure, output: upgradeStdout, code }
+}
 
-  if (wasSuccessful && !hasClearFailure) {
-    return { success: true, output: upgradeStdout }
+function isFinalWingetFailure(result: WingetAttempt): boolean {
+  if (result.code !== undefined && WINGET_FINAL_FAILURES.has(result.code)) return true
+  return cleanOutput(result.output).toLowerCase().includes('install technology is different')
+}
+
+/**
+ * Whether a failed upgrade is worth retrying elevated. Output text only helps
+ * on an English system, so any failure without a known non-permission cause
+ * qualifies — matching what the English "installer failed" hint used to do.
+ */
+function mightNeedElevation(result: WingetAttempt): boolean {
+  const lowerOutput = cleanOutput(result.output).toLowerCase()
+  if (ELEVATION_HINTS.some((h) => lowerOutput.includes(h))) return true
+  if (FAILURE_PATTERNS.some((p) => lowerOutput.includes(p))) return true
+  if (result.code === undefined) return false
+  return result.code === WINGET_REQUIRES_ADMIN || !WINGET_FAILURE_MESSAGES.has(result.code)
+}
+
+/** User-facing reason for a failed upgrade: known cause first, then winget's last line. */
+function describeWingetFailure(result: WingetAttempt): string {
+  if (result.code !== undefined) {
+    const known = WINGET_FINAL_FAILURES.get(result.code) ?? WINGET_FAILURE_MESSAGES.get(result.code)
+    if (known) return known
   }
-  // If no success pattern matched, treat as failure — don't assume success on ambiguous output
-  return { success: false, output: upgradeStdout }
+  const line = lastOutputLine(result.output, 'Upgrade failed')
+  if (result.code === undefined) return line
+  const hex = `0x${result.code.toString(16)}`
+  return line.toLowerCase().includes(hex) ? line : `${line} (${hex})`
 }
 
 /** Retry a failed upgrade with elevation using PowerShell Start-Process -Verb RunAs */
@@ -605,12 +694,20 @@ async function attemptElevatedUpgrade(
     )
     // We can't reliably capture stdout from the elevated process, so verify
     // by checking if winget still lists this app as upgradeable
-    const checkResult = await execFileAsync(
-      winget,
-      ['upgrade', '--accept-source-agreements', '--disable-interactivity', '--include-unknown'],
-      { timeout: WINGET_CHECK_TIMEOUT, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
-    )
-    const stillNeedsUpgrade = checkResult.stdout.includes(appId)
+    let checkStdout: string
+    try {
+      const checkResult = await execFileAsync(
+        winget,
+        ['upgrade', '--accept-source-agreements', '--disable-interactivity', '--include-unknown'],
+        { timeout: WINGET_CHECK_TIMEOUT, maxBuffer: 10 * 1024 * 1024, windowsHide: true }
+      )
+      checkStdout = checkResult.stdout
+    } catch (err: any) {
+      // With nothing left to upgrade winget exits non-zero — that is the success case
+      if (!isWingetNothingToDo(err?.code)) throw err
+      checkStdout = err?.stdout ?? ''
+    }
+    const stillNeedsUpgrade = checkStdout.includes(appId)
     return {
       success: !stillNeedsUpgrade,
       output: stillNeedsUpgrade ? 'App still needs upgrade after elevated attempt' : stdout
@@ -627,44 +724,26 @@ async function upgradeAppWinget(
   alreadyAdmin: boolean
 ): Promise<{ success: boolean; error?: string }> {
   // First attempt: normal upgrade
-  let result = await attemptWingetUpgrade(appId)
+  const result = await attemptWingetUpgrade(appId)
+  if (result.success) return { success: true }
 
-  // If failed and not already admin, retry with elevation
-  if (!result.success && !alreadyAdmin) {
-    const lowerOutput = cleanOutput(result.output).toLowerCase()
-    const looksLikeElevationIssue =
-      ELEVATION_HINTS.some((h) => lowerOutput.includes(h)) ||
-      FAILURE_PATTERNS.some((p) => lowerOutput.includes(p))
-
-    if (looksLikeElevationIssue) {
-      result = await attemptElevatedUpgrade(appId)
-    }
+  // Installer technology changed, app in use, no network…: retrying can't help
+  if (isFinalWingetFailure(result)) {
+    return { success: false, error: describeWingetFailure(result) }
   }
 
-  // If installer technology changed, skip retries — user must manually uninstall + reinstall
-  if (!result.success) {
-    const lowerOutput = cleanOutput(result.output).toLowerCase()
-    if (lowerOutput.includes('install technology is different')) {
-      return {
-        success: false,
-        error: 'Installer type changed — uninstall this app manually then install the new version'
-      }
-    }
+  // If not already admin, retry with elevation
+  if (!alreadyAdmin && mightNeedElevation(result)) {
+    const elevated = await attemptElevatedUpgrade(appId)
+    if (elevated.success) return { success: true }
   }
 
   // If still failed, retry once with --force (handles version mismatch issues)
-  if (!result.success) {
-    const retryResult = await attemptWingetUpgrade(appId, ['--force'])
-    if (retryResult.success) result = retryResult
-  }
+  const retryResult = await attemptWingetUpgrade(appId, ['--force'])
+  if (retryResult.success) return { success: true }
 
-  if (result.success) return { success: true }
-
-  const lastLine = cleanOutput(result.output).trim().split('\n').pop() || 'Upgrade failed'
-  return {
-    success: false,
-    error: lastLine.length > 200 ? lastLine.slice(0, 200) + '...' : lastLine
-  }
+  // Report the first attempt: the retries' output is less specific
+  return { success: false, error: describeWingetFailure(result) }
 }
 
 // ─── Chocolatey (Windows) ──────────────────────────────────
