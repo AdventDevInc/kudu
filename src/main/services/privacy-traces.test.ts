@@ -399,8 +399,7 @@ describe('deleteTraceFile', () => {
   it('never overwrites or deletes a file swapped in after the scan', async () => {
     const path = await put(join(home, 'recent.lnk'), 'old')
     const info = (await statTraceFile(path))!
-    await rm(path)
-    await put(path, 'newer shortcut')
+    await replaceFile(path, 'newer shortcut')
     await expect(deleteTraceFile(path, info, { secureDelete: true })).rejects.toMatchObject({
       reason: CHANGED_SINCE_SCAN
     })
