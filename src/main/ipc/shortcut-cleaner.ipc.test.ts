@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
 import {
   isShortcutTargetBroken,
+  probePath,
   WIN_SYSTEM_SUBDIRS,
   type PathState,
   type ShortcutInfo
@@ -537,4 +541,31 @@ describe('shortcut directories structure', () => {
     ]
     expect(linuxDirs).toHaveLength(3)
   })
+})
+
+describe('probePath', () => {
+  it('reports a real file as present and a missing path as missing', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'kudu-probe-'))
+    try {
+      writeFileSync(join(dir, 'app'), 'x')
+      expect(probePath(join(dir, 'app'))).toBe('present')
+      expect(probePath(join(dir, 'gone'))).toBe('missing')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  // Creating symlinks on Windows needs Developer Mode or admin rights.
+  it.skipIf(process.platform === 'win32')(
+    'follows a dangling symlink to its missing target',
+    () => {
+      const dir = mkdtempSync(join(tmpdir(), 'kudu-probe-'))
+      try {
+        symlinkSync(join(dir, 'removed-binary'), join(dir, 'launcher'))
+        expect(probePath(join(dir, 'launcher'))).toBe('missing')
+      } finally {
+        rmSync(dir, { recursive: true, force: true })
+      }
+    }
+  )
 })

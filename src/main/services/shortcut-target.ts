@@ -1,4 +1,4 @@
-import { lstatSync } from 'fs'
+import { statSync } from 'fs'
 import path from 'path'
 
 export interface ShortcutInfo {
@@ -15,7 +15,8 @@ export type PathState = 'present' | 'missing' | 'unknown'
 
 export function probePath(p: string): PathState {
   try {
-    lstatSync(p)
+    // Follow links: a launcher whose target is a dangling symlink is broken.
+    statSync(p)
     return 'present'
   } catch (err) {
     const code = (err as NodeJS.ErrnoException).code
