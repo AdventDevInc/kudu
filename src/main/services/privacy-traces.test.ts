@@ -7,6 +7,7 @@ import {
   mkdtemp,
   readFile,
   realpath,
+  rename,
   rm,
   stat,
   symlink,
@@ -48,6 +49,16 @@ async function put(path: string, content = 'ls -la\n'): Promise<string> {
   return path
 }
 
+/**
+ * Replace a file with a new one. The old file stays alive until the new one
+ * exists, otherwise the filesystem may hand the new file the same inode.
+ */
+async function replaceFile(path: string, content: string): Promise<void> {
+  await rename(path, path + '.old')
+  await put(path, content)
+  await rm(path + '.old')
+}
+
 /** Symlinks need Developer Mode or elevation on Windows; skip rather than fail there. */
 async function trySymlink(target: string, path: string): Promise<boolean> {
   try {
@@ -59,7 +70,7 @@ async function trySymlink(target: string, path: string): Promise<boolean> {
 }
 
 beforeEach(async () => {
-  home = await mkdtemp(join(tmpdir(), 'kudu-traces-'))
+  home = await realpath(await mkdtemp(join(tmpdir(), 'kudu-traces-')))
 })
 afterEach(async () => {
   await rm(home, { recursive: true, force: true })
@@ -171,6 +182,30 @@ describe('shell history discovery', () => {
   })
 })
 
+describe('shell history locations', () => {
+  it('uses $XDG_DATA_HOME for fish and PowerShell, and Application Support on macOS', async () => {
+    const data = join(home, 'data')
+    const fish = await put(join(data, 'fish', 'fish_history'))
+    const ps = await put(join(data, 'powershell', 'PSReadLine', 'ConsoleHost_history.txt'))
+    const macPs = await put(
+      join(
+        home,
+        'Library',
+        'Application Support',
+        'powershell',
+        'PSReadLine',
+        'ConsoleHost_history.txt'
+      )
+    )
+    const linux = await findShellHistoryTraces(ctx({ env: { XDG_DATA_HOME: data } }))
+    expect(tracePaths(linux)).toEqual([fish, ps].sort())
+    const mac = await findShellHistoryTraces(
+      ctx({ platform: 'darwin', env: { XDG_DATA_HOME: data } })
+    )
+    expect(tracePaths(mac)).toEqual([fish, macPs, ps].sort())
+  })
+})
+
 describe('scanPrivacyTraces', () => {
   it('returns every item unselected and keeps it out of the shared scan cache', async () => {
     await put(join(home, '.bash_history'))
@@ -256,8 +291,7 @@ describe('truncation', () => {
   it('never writes to a file swapped in after the scan, even with secure delete on', async () => {
     const path = await put(join(home, '.bash_history'), 'old\n')
     const info = (await statTraceFile(path))!
-    await rm(path)
-    await put(path, 'replacement history\n')
+    await replaceFile(path, 'replacement history\n')
     await expect(truncateTraceFile(path, info, { secureDelete: true })).rejects.toMatchObject({
       reason: CHANGED_SINCE_SCAN
     })
@@ -267,8 +301,7 @@ describe('truncation', () => {
   it('refuses a file replaced since the scan', async () => {
     const path = await put(join(home, '.bash_history'), 'old\n')
     const info = (await statTraceFile(path))!
-    await rm(path)
-    await put(path, 'new history\n')
+    await replaceFile(path, 'new history\n')
     await expect(truncateTraceFile(path, info, { secureDelete: false })).rejects.toMatchObject({
       reason: CHANGED_SINCE_SCAN
     })

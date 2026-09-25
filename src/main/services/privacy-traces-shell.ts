@@ -49,18 +49,23 @@ function historyCandidates(ctx: TraceScanContext): { files: string[]; dirs: Hist
       ]
     }
   }
+  // fish and PowerShell follow $XDG_DATA_HOME (absolute values only, per the spec).
+  const xdg = ctx.env.XDG_DATA_HOME
+  const dataHome = xdg && isAbsolute(xdg) ? xdg : join(home, '.local', 'share')
+  const psReadLineDirs = [join(dataHome, 'powershell', 'PSReadLine')]
+  if (ctx.platform === 'darwin') {
+    // Some PowerShell builds on macOS use Application Support instead.
+    psReadLineDirs.push(join(home, 'Library', 'Application Support', 'powershell', 'PSReadLine'))
+  }
   return {
     files: [
       ...UNIX_HOME_HISTORY.map((name) => join(home, name)),
-      join(home, '.local', 'share', 'fish', 'fish_history')
+      join(dataHome, 'fish', 'fish_history')
     ],
     dirs: [
       // macOS Terminal keeps one history file per restored session.
       { dir: join(home, '.zsh_sessions'), pattern: ZSH_SESSION_HISTORY },
-      {
-        dir: join(home, '.local', 'share', 'powershell', 'PSReadLine'),
-        pattern: PSREADLINE_HISTORY
-      }
+      ...psReadLineDirs.map((dir) => ({ dir, pattern: PSREADLINE_HISTORY }))
     ]
   }
 }

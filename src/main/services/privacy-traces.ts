@@ -74,7 +74,10 @@ export async function statTraceFile(path: string): Promise<BigIntStats | null> {
 }
 
 function sameFile(a: BigIntStats, b: BigIntStats): boolean {
-  return a.dev === b.dev && a.ino === b.ino
+  // Filesystems reuse a freed inode number straight away, so a replacement can
+  // carry the old dev/ino. Birth time tells them apart where it is reported.
+  const born = a.birthtimeNs === 0n || b.birthtimeNs === 0n || a.birthtimeNs === b.birthtimeNs
+  return a.dev === b.dev && a.ino === b.ino && born
 }
 
 /** Re-check that `path` is still the exact single-link regular file seen by the scan. */

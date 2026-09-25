@@ -1052,12 +1052,15 @@ export function CleanerPage() {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={toggleActiveCategory}
-                    className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
-                  >
-                    {t('toggleAll')}
-                  </button>
+                  {/* Privacy traces are opted into group by group: no select-everything. */}
+                  {activeCategory !== CleanerType.PrivacyTraces && (
+                    <button
+                      onClick={toggleActiveCategory}
+                      className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
+                    >
+                      {t('toggleAll')}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -1136,6 +1139,8 @@ export function CleanerPage() {
                               className="flex items-center gap-3 px-4 py-3.5 cursor-pointer"
                               onClick={() => toggleGroup(groupKey)}
                               onContextMenu={(e) => {
+                                // The quick-clean menu would clear traces without selecting them.
+                                if (result.category === CleanerType.PrivacyTraces) return
                                 const ids = result.items.map((item) => item.id)
                                 openContextMenu(e, result.subcategory, ids)
                               }}
