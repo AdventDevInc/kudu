@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 151 |
-| 🪟 Windows rules | 140 |
-| 🍎 macOS rules | 84 |
-| 🐧 Linux rules | 81 |
+| Unique app rules | 164 |
+| 🪟 Windows rules | 153 |
+| 🍎 macOS rules | 93 |
+| 🐧 Linux rules | 91 |
 
 ## AI Tools
 
@@ -63,6 +63,8 @@
 | CurseForge | ✅ | ❌ | ❌ |
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
+| Discord Canary | ✅ | ✅ | ✅ |
+| Discord PTB | ✅ | ✅ | ✅ |
 | Docker Build Cache | ✅ | ✅ | ✅ |
 | Docker Desktop | ✅ | ✅ | ❌ |
 | EA Desktop Logs | ✅ | ❌ | ❌ |
@@ -76,6 +78,7 @@
 | GIMP | ✅ | ✅ | ✅ |
 | Git Project Updater | ✅ | ❌ | ❌ |
 | GitHub Desktop | ✅ | ✅ | ❌ |
+| Go Build Cache | ✅ | ✅ | ✅ |
 | Go Module Cache | ✅ | ✅ | ✅ |
 | Google Cloud CLI Cache | ✅ | ✅ | ✅ |
 | Google Drive | ✅ | ❌ | ❌ |
@@ -110,9 +113,11 @@
 | OBS Studio | ✅ | ✅ | ✅ |
 | Obsidian | ✅ | ✅ | ✅ |
 | Old Firefox Pending Crashes | ✅ | ❌ | ❌ |
+| OneDrive Logs | ✅ | ❌ | ❌ |
 | Pidgin | ✅ | ❌ | ✅ |
 | pip Cache | ✅ | ✅ | ✅ |
 | pnpm Unused Packages | ✅ | ✅ | ✅ |
+| Poetry Cache | ✅ | ✅ | ✅ |
 | Polyscope | ✅ | ❌ | ❌ |
 | Postman | ✅ | ✅ | ✅ |
 | qBittorrent | ✅ | ✅ | ✅ |
@@ -135,13 +140,19 @@
 | ToDesktop Builder | ✅ | ❌ | ❌ |
 | Todoist | ✅ | ✅ | ✅ |
 | Transmission | ✅ | ✅ | ✅ |
+| TypeScript Typings Cache | ✅ | ✅ | ✅ |
 | Unity Editor | ✅ | ✅ | ✅ |
+| Unreal Engine Derived Data Cache | ✅ | ❌ | ❌ |
 | Upscayl | ✅ | ❌ | ❌ |
 | uv Unused Packages | ✅ | ✅ | ✅ |
 | Visual Studio | ✅ | ❌ | ❌ |
 | VLC | ✅ | ✅ | ✅ |
 | VS Code | ✅ | ✅ | ✅ |
+| VS Code C/C++ IntelliSense Cache | ✅ | ✅ | ✅ |
+| VS Code Insiders | ✅ | ✅ | ✅ |
+| VSCodium | ✅ | ✅ | ✅ |
 | WhatsApp Desktop | ✅ | ✅ | ✅ |
+| Windows Package Manager Logs | ✅ | ❌ | ❌ |
 | Wine | ❌ | ❌ | ✅ |
 | Yarn Cache | ✅ | ✅ | ✅ |
 | Zed Editor | ✅ | ✅ | ✅ |
@@ -168,6 +179,7 @@
 | Roblox | ✅ | ✅ | ❌ |
 | Rockstar Games Launcher | ✅ | ❌ | ❌ |
 | Steam Launcher | ✅ | ✅ | ✅ |
+| Steam Shader Pre-Cache | ✅ | ✅ | ✅ |
 | Ubisoft Connect | ✅ | ❌ | ❌ |
 | Valorant | ✅ | ❌ | ❌ |
 | Xbox App | ✅ | ❌ | ❌ |
@@ -177,6 +189,7 @@
 | App | 🪟 | 🍎 | 🐧 |
 |-----|:---:|:---:|:---:|
 | AMD Shader Cache | ✅ | ❌ | ❌ |
+| CUDA Compute Cache | ✅ | ❌ | ✅ |
 | Intel Shader Cache | ✅ | ❌ | ❌ |
 | Mesa Shader Cache | ❌ | ❌ | ✅ |
 | Metal Shader Cache | ❌ | ✅ | ❌ |
@@ -268,6 +281,7 @@
 - Previous Windows Installation 🔒
 - RDP Bitmap Cache
 - Reliability Monitor Data 🔒
+- SYSTEM Account Temp Files 🔒
 - Setup Cleanup Logs 🔒
 - Setup Logs 🔒
 - System Certificate Cache 🔒
@@ -313,6 +327,11 @@
 - Xcode DerivedData
 - Xcode Device Logs
 - Xcode Download Cache
+- Xcode iOS Device Support
+- Xcode tvOS Device Support
+- Xcode watchOS Device Support
+- iPad Software Updates
+- iPhone Software Updates
 
 ### 🐧 Linux
 

@@ -2,7 +2,7 @@
   "$schema": "../schema/rules.schema.json",
   "type": "gaming",
   "apps": [
-    { "id": "steam", "name": "Steam Launcher", "paths": ["${PROGRAMFILES_X86}/Steam/logs", "${PROGRAMFILES_X86}/Steam/dumps", "${PROGRAMFILES_X86}/Steam/appcache/httpcache"], "description": "Steam client logs, crash dumps, and HTTP cache" },
+    { "id": "steam", "name": "Steam Launcher", "paths": ["${PROGRAMFILES_X86}/Steam/logs", "${PROGRAMFILES_X86}/Steam/dumps", "${PROGRAMFILES_X86}/Steam/appcache/httpcache", "${LOCALAPPDATA}/Steam/htmlcache/Default/Cache", "${LOCALAPPDATA}/Steam/htmlcache/Default/Code Cache", "${LOCALAPPDATA}/Steam/htmlcache/Default/GPUCache", "${LOCALAPPDATA}/Steam/htmlcache/GrShaderCache", "${LOCALAPPDATA}/Steam/htmlcache/ShaderCache"], "description": "Steam client logs, crash dumps, and HTTP cache" },
     { "id": "epic", "name": "Epic Games Launcher", "paths": ["${LOCALAPPDATA}/EpicGamesLauncher/Saved/webcache", "${LOCALAPPDATA}/EpicGamesLauncher/Saved/webcache_4430", "${LOCALAPPDATA}/EpicGamesLauncher/Saved/Logs", "${LOCALAPPDATA}/EpicGamesLauncher/Intermediate", "${PROGRAMDATA}/Epic/EpicGamesLauncher/VaultCache"], "description": "Epic Games Launcher web cache, logs, and Vault asset cache" },
     { "id": "epic-webcache", "name": "Epic Games Launcher Web Cache", "paths": ["${LOCALAPPDATA}/EpicGamesLauncher/Saved/webcache_4147"], "minAgeDays": 7, "description": "Epic launcher web cache older than one week; rebuilt on demand. Close the launcher before cleaning." },
     { "id": "ea", "name": "EA App", "paths": ["${LOCALAPPDATA}/Electronic Arts/EA Desktop/Logs", "${LOCALAPPDATA}/Electronic Arts/EA Desktop/IGOCache", "${LOCALAPPDATA}/EADesktop/cache", "${LOCALAPPDATA}/Origin/cache"], "description": "EA App and legacy Origin logs and cached data" },
@@ -19,6 +19,7 @@
     { "id": "valorant", "name": "Valorant", "paths": ["${LOCALAPPDATA}/VALORANT/Saved/Logs", "${LOCALAPPDATA}/VALORANT/Saved/Crashes"], "description": "Valorant game logs and crash reports" },
     { "id": "fortnite", "name": "Fortnite", "paths": ["${LOCALAPPDATA}/FortniteGame/Saved/Logs", "${LOCALAPPDATA}/FortniteGame/Saved/Crashes"], "description": "Fortnite game logs and crash reports" },
     { "id": "amazon-games", "name": "Amazon Games", "paths": ["${LOCALAPPDATA}/Amazon Games/Data/Logs", "${LOCALAPPDATA}/Amazon Games/App/CEFCache"], "description": "Amazon Games launcher logs and Chromium embedded framework cache" },
-    { "id": "overwolf", "name": "Overwolf / CurseForge", "paths": ["${LOCALAPPDATA}/Overwolf/Log", "${LOCALAPPDATA}/Overwolf/BrowserCache"], "description": "Overwolf overlay and CurseForge mod manager logs and browser cache" }
+    { "id": "overwolf", "name": "Overwolf / CurseForge", "paths": ["${LOCALAPPDATA}/Overwolf/Log", "${LOCALAPPDATA}/Overwolf/BrowserCache"], "description": "Overwolf overlay and CurseForge mod manager logs and browser cache" },
+    { "cacheReset": true, "id": "steam-shader-cache", "name": "Steam Shader Pre-Cache", "paths": ["${PROGRAMFILES_X86}/Steam/steamapps/shadercache"], "description": "Per-game shader caches in the default Steam library; re-downloaded or recompiled the next time each game launches" }
   ]
 }

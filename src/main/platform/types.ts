@@ -60,6 +60,12 @@ export interface ChromiumCacheDir {
 
 export interface BrowserPaths {
   base: string
+  /**
+   * Root that mirrors `base` for the disk cache. On macOS and Linux Chromium
+   * keeps each profile's HTTP cache under ~/Library/Caches or ~/.cache instead
+   * of beside the profile, so it never appears under `base`.
+   */
+  cache?: string
   /** Cache directories inside each profile (Default, Profile 1, …) */
   profileCaches: ChromiumCacheDir[]
   /** Cache directories shared by every profile, directly under `base` */

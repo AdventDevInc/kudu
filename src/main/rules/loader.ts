@@ -39,7 +39,7 @@ export interface BrowserRulesJson {
     profile: Array<{ dir: string; label: string }>
     shared?: Array<{ dir: string; label: string }>
   }
-  chromium: Array<{ key: string; base: string }>
+  chromium: Array<{ key: string; base: string; cache?: string }>
   firefox: { base: string; cache: string }
   firefoxForks?: Array<{ key: string; base: string; cache: string }>
   safari?: { cache: string } | null
@@ -216,6 +216,7 @@ export function buildCleanerPaths(json: RulesJsonSet, platform: 'win32' | 'darwi
       for (const browser of json.browsers.chromium) {
         config[browser.key] = {
           base: resolvePath(browser.base, vars, platform),
+          ...(browser.cache ? { cache: resolvePath(browser.cache, vars, platform) } : {}),
           profileCaches,
           sharedCaches,
         }

@@ -3,6 +3,7 @@
   "type": "system",
   "cleanTargets": [
     { "path": "${LOCALAPPDATA}/Temp", "subcategory": "User Temp Files", "deepRecencyCheck": true, "description": "Temporary files created by applications and the current user session; recent descendants are protected through cleanup" },
+    { "path": "${WINDIR}/SystemTemp", "subcategory": "SYSTEM Account Temp Files", "needsAdmin": true, "deepRecencyCheck": true, "description": "Temporary files from processes running as SYSTEM on current Windows 11 builds; recent descendants are protected through cleanup" },
     { "path": "${WINDIR}/Temp", "subcategory": "System Temp Files", "description": "Temporary files created by Windows services and system processes" },
     { "cacheReset": true, "path": "${WINDIR}/Prefetch", "subcategory": "Prefetch Data", "needsAdmin": true, "description": "Application launch prefetch files used to speed up program startup" },
     { "path": "${WINDIR}/Logs", "subcategory": "Windows Logs", "needsAdmin": true, "description": "Windows system and component log files including CBS and DISM logs" },

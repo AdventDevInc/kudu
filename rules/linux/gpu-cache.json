@@ -2,8 +2,9 @@
   "$schema": "../schema/rules.schema.json",
   "type": "gpu-cache",
   "apps": [
-    { "cacheReset": true, "id": "mesa-cache", "name": "Mesa Shader Cache", "paths": ["${CACHE}/mesa_shader_cache"], "description": "Mesa/OpenGL compiled shader cache; rebuilt automatically per-application" },
+    { "cacheReset": true, "id": "mesa-cache", "name": "Mesa Shader Cache", "paths": ["${CACHE}/mesa_shader_cache", "${CACHE}/mesa_shader_cache_db"], "description": "Mesa OpenGL/Vulkan compiled shader cache, including the single-file database newer Mesa releases use; rebuilt automatically per-application" },
     { "cacheReset": true, "id": "nvidia-cache", "name": "NVIDIA Shader Cache", "paths": ["${CACHE}/nvidia/GLCache"], "description": "NVIDIA compiled shader cache for OpenGL and Vulkan; rebuilt automatically per-game" },
-    { "cacheReset": true, "id": "unity-cache", "name": "Unity Shader Cache", "paths": ["${CACHE}/unity3d"], "description": "Unity engine compiled shader cache; rebuilt when Unity projects are opened" }
+    { "cacheReset": true, "id": "unity-cache", "name": "Unity Shader Cache", "paths": ["${CACHE}/unity3d"], "description": "Unity engine compiled shader cache; rebuilt when Unity projects are opened" },
+    { "cacheReset": true, "id": "cuda-compute-cache", "name": "CUDA Compute Cache", "paths": ["${HOME}/.nv/ComputeCache"], "description": "CUDA JIT-compiled kernel cache; rebuilt automatically the next time CUDA apps run" }
   ]
 }

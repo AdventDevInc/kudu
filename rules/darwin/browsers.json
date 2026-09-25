@@ -5,7 +5,8 @@
     "profile": [
       { "dir": "Cache", "label": "Cache" },
       { "dir": "Code Cache", "label": "Code Cache" },
-      { "dir": "GpuCache", "label": "GPU Cache" },
+      { "dir": "GPUCache", "label": "GPU Cache" },
+      { "dir": "Shared Dictionary/cache", "label": "Shared Dictionary Cache", "description": "Chromium shared-compression dictionary cache; downloaded content rebuilt on demand" },
       { "dir": "Service Worker/CacheStorage", "label": "Service Worker Cache" },
       { "dir": "DawnWebGPUCache", "label": "WebGPU Shader Cache", "description": "Dawn's compiled WebGPU shaders — rebuilt on demand" },
       { "dir": "DawnGraphiteCache", "label": "Graphite Shader Cache", "description": "Dawn/Skia Graphite pipeline cache — rebuilt on demand" }
@@ -21,19 +22,19 @@
     ]
   },
   "chromium": [
-    { "key": "chrome", "base": "${APP_SUPPORT}/Google/Chrome" },
-    { "key": "edge", "base": "${APP_SUPPORT}/Microsoft Edge" },
-    { "key": "brave", "base": "${APP_SUPPORT}/BraveSoftware/Brave-Browser" },
-    { "key": "opera", "base": "${APP_SUPPORT}/com.operasoftware.Opera" },
-    { "key": "operaGX", "base": "${APP_SUPPORT}/com.operasoftware.OperaGX" },
-    { "key": "vivaldi", "base": "${APP_SUPPORT}/Vivaldi" },
-    { "key": "arc", "base": "${APP_SUPPORT}/Arc/User Data" },
-    { "key": "chromium", "base": "${APP_SUPPORT}/Chromium" },
-    { "key": "thorium", "base": "${APP_SUPPORT}/Thorium" },
-    { "key": "supermium", "base": "${APP_SUPPORT}/Supermium" },
-    { "key": "helium", "base": "${APP_SUPPORT}/net.imput.helium" },
-    { "key": "cromite", "base": "${APP_SUPPORT}/Cromite" },
-    { "key": "catsxp", "base": "${APP_SUPPORT}/ArcSoft/CatsXP" }
+    { "key": "chrome", "base": "${APP_SUPPORT}/Google/Chrome", "cache": "${CACHES}/Google/Chrome" },
+    { "key": "edge", "base": "${APP_SUPPORT}/Microsoft Edge", "cache": "${CACHES}/Microsoft Edge" },
+    { "key": "brave", "base": "${APP_SUPPORT}/BraveSoftware/Brave-Browser", "cache": "${CACHES}/BraveSoftware/Brave-Browser" },
+    { "key": "opera", "base": "${APP_SUPPORT}/com.operasoftware.Opera", "cache": "${CACHES}/com.operasoftware.Opera" },
+    { "key": "operaGX", "base": "${APP_SUPPORT}/com.operasoftware.OperaGX", "cache": "${CACHES}/com.operasoftware.OperaGX" },
+    { "key": "vivaldi", "base": "${APP_SUPPORT}/Vivaldi", "cache": "${CACHES}/Vivaldi" },
+    { "key": "arc", "base": "${APP_SUPPORT}/Arc/User Data", "cache": "${CACHES}/Arc/User Data" },
+    { "key": "chromium", "base": "${APP_SUPPORT}/Chromium", "cache": "${CACHES}/Chromium" },
+    { "key": "thorium", "base": "${APP_SUPPORT}/Thorium", "cache": "${CACHES}/Thorium" },
+    { "key": "supermium", "base": "${APP_SUPPORT}/Supermium", "cache": "${CACHES}/Supermium" },
+    { "key": "helium", "base": "${APP_SUPPORT}/net.imput.helium", "cache": "${CACHES}/net.imput.helium" },
+    { "key": "cromite", "base": "${APP_SUPPORT}/Cromite", "cache": "${CACHES}/Cromite" },
+    { "key": "catsxp", "base": "${APP_SUPPORT}/ArcSoft/CatsXP", "cache": "${CACHES}/ArcSoft/CatsXP" }
   ],
   "firefox": {
     "base": "${APP_SUPPORT}/Firefox/Profiles",

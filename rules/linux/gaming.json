@@ -2,10 +2,11 @@
   "$schema": "../schema/rules.schema.json",
   "type": "gaming",
   "apps": [
-    { "id": "steam", "name": "Steam", "paths": ["${HOME}/.steam/steam/logs", "${LOCAL_SHARE}/Steam/logs"], "description": "Steam client log files" },
+    { "id": "steam", "name": "Steam", "paths": ["${HOME}/.steam/steam/logs", "${LOCAL_SHARE}/Steam/logs", "${LOCAL_SHARE}/Steam/appcache/httpcache"], "description": "Steam client log files and web download cache" },
     { "id": "itch", "name": "itch.io", "paths": ["${CONFIG}/itch/Cache/Cache_Data", "${CONFIG}/itch/logs"], "description": "itch.io Electron app cache and log files" },
     { "id": "heroic", "name": "Heroic Games Launcher", "paths": ["${CONFIG}/heroic/Cache/Cache_Data", "${CONFIG}/heroic/GPUCache"], "description": "Heroic Games Launcher Electron app cache and GPU cache" },
     { "id": "lutris", "name": "Lutris", "paths": ["${CACHE}/lutris"], "description": "Lutris download and installer cache" },
-    { "id": "minecraft", "name": "Minecraft Java Edition", "paths": ["${HOME}/.minecraft/logs", "${HOME}/.minecraft/crash-reports", "${HOME}/.minecraft/webcache2"], "description": "Minecraft logs, crash reports, and launcher web cache" }
+    { "id": "minecraft", "name": "Minecraft Java Edition", "paths": ["${HOME}/.minecraft/logs", "${HOME}/.minecraft/crash-reports", "${HOME}/.minecraft/webcache2"], "description": "Minecraft logs, crash reports, and launcher web cache" },
+    { "cacheReset": true, "id": "steam-shader-cache", "name": "Steam Shader Pre-Cache", "paths": ["${LOCAL_SHARE}/Steam/steamapps/shadercache"], "description": "Per-game shader caches in the default Steam library; re-downloaded or recompiled the next time each game launches" }
   ]
 }
