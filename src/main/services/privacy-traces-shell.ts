@@ -1,5 +1,5 @@
-import { readdir } from 'fs/promises'
-import { isAbsolute, join, relative, resolve } from 'path'
+import { readdir, realpath } from 'fs/promises'
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'path'
 import {
   statTraceFile,
   truncatingTrace,
@@ -65,13 +65,28 @@ function historyCandidates(ctx: TraceScanContext): { files: string[]; dirs: Hist
   }
 }
 
-/** $HISTFILE counts only when it names a path strictly inside the home directory. */
-export function histfileInsideHome(histfile: string | undefined, home: string): string | null {
+/**
+ * $HISTFILE counts only when it names a file strictly inside the home
+ * directory. Its parent is resolved through any symlinks first: a lexical check
+ * alone would admit `~/link/file` where `link` points outside home. The file
+ * itself is still checked with lstat/O_NOFOLLOW like every other trace.
+ */
+export async function histfileInsideHome(
+  histfile: string | undefined,
+  home: string
+): Promise<string | null> {
   if (!histfile || !isAbsolute(histfile)) return null
   const target = resolve(histfile)
-  const rel = relative(resolve(home), target)
-  if (!rel || rel.startsWith('..') || isAbsolute(rel)) return null
-  return target
+  if (target === resolve(home)) return null
+  try {
+    const realHome = await realpath(home)
+    const realParent = await realpath(dirname(target))
+    const rel = relative(realHome, realParent)
+    if (rel.startsWith('..') || isAbsolute(rel)) return null
+    return join(realParent, basename(target))
+  } catch {
+    return null
+  }
 }
 
 async function listMatching({ dir, pattern }: HistoryDir): Promise<string[]> {
@@ -90,7 +105,7 @@ async function listMatching({ dir, pattern }: HistoryDir): Promise<string[]> {
  */
 export async function findShellHistoryTraces(ctx: TraceScanContext): Promise<PrivacyTraceGroup[]> {
   const { files, dirs } = historyCandidates(ctx)
-  const histfile = histfileInsideHome(ctx.env.HISTFILE, ctx.home)
+  const histfile = await histfileInsideHome(ctx.env.HISTFILE, ctx.home)
   if (histfile) files.push(histfile)
   for (const dir of dirs) files.push(...(await listMatching(dir)))
 

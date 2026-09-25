@@ -6,6 +6,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  realpath,
   rm,
   stat,
   symlink,
@@ -18,23 +19,14 @@ vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { secureDelete: false }, exclusions: [] })
 }))
 vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
-const overwriteCalls = vi.hoisted(() => [] as string[])
-vi.mock('./file-utils', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('./file-utils')>()
-  return {
-    ...actual,
-    secureOverwrite: async (path: string) => {
-      overwriteCalls.push(path)
-      return actual.secureOverwrite(path)
-    }
-  }
-})
 
 import { getCachedItem } from './scan-cache'
 import {
   CHANGED_SINCE_SCAN,
   cleanPrivacyTraces,
   scanPrivacyTraces,
+  openVerifiedTrace,
+  overwriteThroughHandle,
   statTraceFile,
   truncateTraceFile,
   type PrivacyTrace,
@@ -68,7 +60,6 @@ async function trySymlink(target: string, path: string): Promise<boolean> {
 
 beforeEach(async () => {
   home = await mkdtemp(join(tmpdir(), 'kudu-traces-'))
-  overwriteCalls.length = 0
 })
 afterEach(async () => {
   await rm(home, { recursive: true, force: true })
@@ -150,12 +141,33 @@ describe('shell history discovery', () => {
     expect(tracePaths(duplicate)).toEqual([bash])
   })
 
-  it('ignores $HISTFILE outside home or not absolute', () => {
-    expect(histfileInsideHome(join(home, '..', 'other', '.bash_history'), home)).toBeNull()
-    expect(histfileInsideHome(home, home)).toBeNull()
-    expect(histfileInsideHome('.bash_history', home)).toBeNull()
-    expect(histfileInsideHome(undefined, home)).toBeNull()
-    expect(histfileInsideHome(join(home, 'h'), home)).toBe(join(home, 'h'))
+  it('ignores $HISTFILE outside home or not absolute', async () => {
+    const outside = await mkdtemp(join(tmpdir(), 'kudu-outside-'))
+    try {
+      expect(await histfileInsideHome(join(outside, '.bash_history'), home)).toBeNull()
+      expect(await histfileInsideHome(home, home)).toBeNull()
+      expect(await histfileInsideHome('.bash_history', home)).toBeNull()
+      expect(await histfileInsideHome(undefined, home)).toBeNull()
+      expect(await histfileInsideHome(join(home, 'h'), home)).toBe(join(await realpath(home), 'h'))
+    } finally {
+      await rm(outside, { recursive: true, force: true })
+    }
+  })
+
+  it('ignores $HISTFILE reaching outside home through a symlinked directory', async () => {
+    const outside = await mkdtemp(join(tmpdir(), 'kudu-outside-'))
+    try {
+      const victim = await put(join(outside, 'victim'), 'keep me\n')
+      if (!(await trySymlink(outside, join(home, 'link')))) return
+      expect(await histfileInsideHome(join(home, 'link', 'victim'), home)).toBeNull()
+      const groups = await findShellHistoryTraces(
+        ctx({ env: { HISTFILE: join(home, 'link', 'victim') } })
+      )
+      expect(tracePaths(groups)).not.toContain(join(home, 'link', 'victim'))
+      expect(await readFile(victim, 'utf8')).toBe('keep me\n')
+    } finally {
+      await rm(outside, { recursive: true, force: true })
+    }
   })
 })
 
@@ -217,15 +229,39 @@ describe('truncation', () => {
     expect(after.size).toBe(0)
     expect(after.ino).toBe(before.ino)
     expect(after.mode).toBe(before.mode)
-    expect(overwriteCalls).toEqual([])
   })
 
-  it('overwrites before truncating when secure delete is on', async () => {
+  it('overwrites through the verified handle before truncating when secure delete is on', async () => {
     const path = await put(join(home, '.bash_history'), 'secret command\n')
+    const before = await stat(path)
     const info = (await statTraceFile(path))!
-    await truncateTraceFile(path, info, { secureDelete: true })
-    expect(overwriteCalls).toEqual([path])
+    expect(await truncateTraceFile(path, info, { secureDelete: true })).toBe(15)
     expect(await readFile(path, 'utf8')).toBe('')
+    expect((await stat(path)).ino).toBe(before.ino)
+  })
+
+  it('overwrites every byte with the random pass then zeros', async () => {
+    const path = await put(join(home, 'blob'), 'x'.repeat(3000))
+    const handle = await openVerifiedTrace(path, (await statTraceFile(path))!)
+    try {
+      await overwriteThroughHandle(handle, 3000)
+    } finally {
+      await handle.close()
+    }
+    const data = await readFile(path)
+    expect(data.length).toBe(3000)
+    expect(data.every((b) => b === 0)).toBe(true)
+  })
+
+  it('never writes to a file swapped in after the scan, even with secure delete on', async () => {
+    const path = await put(join(home, '.bash_history'), 'old\n')
+    const info = (await statTraceFile(path))!
+    await rm(path)
+    await put(path, 'replacement history\n')
+    await expect(truncateTraceFile(path, info, { secureDelete: true })).rejects.toMatchObject({
+      reason: CHANGED_SINCE_SCAN
+    })
+    expect(await readFile(path, 'utf8')).toBe('replacement history\n')
   })
 
   it('refuses a file replaced since the scan', async () => {

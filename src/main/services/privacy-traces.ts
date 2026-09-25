@@ -1,11 +1,11 @@
-import { lstat, open } from 'fs/promises'
+import { lstat, open, type FileHandle } from 'fs/promises'
 import { constants } from 'fs'
 import type { BigIntStats } from 'fs'
-import { randomUUID } from 'crypto'
+import { randomBytes, randomUUID } from 'crypto'
 import { CleanerType } from '../../shared/enums'
 import type { CleanError, CleanResult, ScanItem, ScanResult } from '../../shared/types'
 import { requireLocalOptIn } from './cache-reset-policy'
-import { deleteFailureReason, isExcluded, secureOverwrite } from './file-utils'
+import { deleteFailureReason, isExcluded } from './file-utils'
 
 /**
  * Privacy traces are records of what the user did (shell history, recent
@@ -86,6 +86,43 @@ async function verifyTraceFile(path: string, scanned: BigIntStats): Promise<BigI
 }
 
 /**
+ * Open `path` without following links and confirm the handle is the exact
+ * single-link regular file the scan saw. Every destructive step then goes
+ * through this handle, so a file swapped in after the check is never touched.
+ */
+export async function openVerifiedTrace(path: string, scanned: BigIntStats): Promise<FileHandle> {
+  await verifyTraceFile(path, scanned)
+  // No O_CREAT: a file removed in the meantime stays removed.
+  const handle = await open(path, constants.O_RDWR | (constants.O_NOFOLLOW || 0))
+  try {
+    const opened = await handle.stat({ bigint: true })
+    if (!opened.isFile() || opened.nlink !== 1n || !sameFile(opened, scanned)) {
+      throw new TraceSkipped(CHANGED_SINCE_SCAN)
+    }
+    return handle
+  } catch (err) {
+    await handle.close()
+    throw err
+  }
+}
+
+const OVERWRITE_CHUNK = 1024 * 1024
+
+/**
+ * The cleaner's secure delete (random pass, then zeros), written through an
+ * already-verified handle rather than by path.
+ */
+export async function overwriteThroughHandle(handle: FileHandle, size: number): Promise<void> {
+  for (const fill of [(n: number) => randomBytes(n), (n: number) => Buffer.alloc(n)]) {
+    for (let offset = 0; offset < size; offset += OVERWRITE_CHUNK) {
+      const length = Math.min(OVERWRITE_CHUNK, size - offset)
+      await handle.write(fill(length), 0, length, offset)
+    }
+    await handle.datasync()
+  }
+}
+
+/**
  * Empty a history file in place. Truncating rather than deleting keeps the
  * file, its permissions and its ownership, so the owning program carries on
  * writing to it exactly as before. Symlinks, hard links and files replaced
@@ -96,24 +133,18 @@ export async function truncateTraceFile(
   scanned: BigIntStats,
   options: TraceCleanOptions
 ): Promise<number> {
-  await verifyTraceFile(path, scanned)
-  if (options.secureDelete) {
-    try {
-      // Refuses links and replaced files itself; truncation below re-verifies.
-      await secureOverwrite(path)
-    } catch {
-      // Match safeDelete: an overwrite failure must not leave the trace in place.
-    }
-  }
-  // No O_CREAT: a file removed in the meantime stays removed.
-  const handle = await open(path, constants.O_RDWR | (constants.O_NOFOLLOW || 0))
+  const handle = await openVerifiedTrace(path, scanned)
   try {
-    const opened = await handle.stat({ bigint: true })
-    if (!opened.isFile() || opened.nlink !== 1n || !sameFile(opened, scanned)) {
-      throw new TraceSkipped(CHANGED_SINCE_SCAN)
+    const size = Number((await handle.stat({ bigint: true })).size)
+    if (options.secureDelete) {
+      try {
+        await overwriteThroughHandle(handle, size)
+      } catch {
+        // Match safeDelete: an overwrite failure must not leave the trace in place.
+      }
     }
     await handle.truncate(0)
-    return Number(opened.size)
+    return size
   } finally {
     await handle.close()
   }
