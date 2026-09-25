@@ -1,36 +1,28 @@
 import { describe, it, expect } from 'vitest'
+import {
+  isShortcutTargetBroken,
+  WIN_SYSTEM_SUBDIRS,
+  type PathState,
+  type ShortcutInfo
+} from '../services/shortcut-target'
 
-// ── Test the pure logic from shortcut-cleaner.ipc.ts ──
-// Replicated here to avoid importing the Electron-dependent module.
+// ── isShortcutTargetBroken ──
+// `targetExists` answers for the target itself. Drive and share roots are
+// reported present, and the other Program Files folder missing, unless a test
+// passes its own probe.
 
-// ── ShortcutInfo type ──
+const DRIVE_OR_SHARE_ROOT = /^([a-z]:\\|\\\\[^\\]+\\[^\\]+)$/i
 
-interface ShortcutInfo {
-  path: string
-  targetPath: string | null
-}
-
-// ── isTargetBroken (replica) ──
-// Simplified replica without existsSync (tests parsing/regex logic only).
-
-const WIN_SYSTEM_SUBDIRS =
-  /\\(System Tools|Administrative Tools|Accessibility|Windows PowerShell|Windows System|Windows Accessories)\\/i
-
-function isTargetBrokenLogic(info: ShortcutInfo, platform: string, targetExists: boolean): boolean {
-  if (platform === 'win32') {
-    if (WIN_SYSTEM_SUBDIRS.test(info.path)) return false
-    if (!info.targetPath) return false
-    if (/\\Windows\\/i.test(info.targetPath)) return false
-  }
-  if (!info.targetPath) return true
-  if (info.targetPath.trim() === '') return true
-  if (/^https?:\/\//i.test(info.targetPath)) return false
-  if (/^[a-z]+:/i.test(info.targetPath) && !info.targetPath.startsWith('/')) return false
-  if (/^shell:/i.test(info.targetPath)) return false
-  if (/^microsoft\./i.test(info.targetPath)) return false
-  if (/\\WindowsApps\\/i.test(info.targetPath)) return false
-  if (platform !== 'win32' && !info.targetPath.startsWith('/')) return false
-  return !targetExists
+function isTargetBrokenLogic(
+  info: ShortcutInfo,
+  platform: NodeJS.Platform,
+  targetExists: boolean
+): boolean {
+  return isShortcutTargetBroken(info, platform, (p): PathState => {
+    if (DRIVE_OR_SHARE_ROOT.test(p)) return 'present'
+    if (p === info.targetPath) return targetExists ? 'present' : 'missing'
+    return 'missing'
+  })
 }
 
 describe('isTargetBroken logic', () => {
@@ -103,10 +95,7 @@ describe('isTargetBroken logic', () => {
     ).toBe(false)
   })
 
-  it('does not flag taskbar shortcuts with Windows drive-letter targets', () => {
-    // Windows drive-letter paths like C:\... match the ^[a-z]+: protocol regex,
-    // so they are treated as "special targets" and not flagged as broken.
-    // The actual existsSync check in the real code handles them correctly.
+  it('flags taskbar shortcuts whose drive-letter target is gone', () => {
     expect(
       isTargetBrokenLogic(
         {
@@ -116,7 +105,7 @@ describe('isTargetBroken logic', () => {
         'win32',
         false
       )
-    ).toBe(false)
+    ).toBe(true)
   })
 
   it('does not flag shortcuts pointing to Windows system executables', () => {
@@ -234,10 +223,10 @@ describe('isTargetBroken logic', () => {
     expect(
       isTargetBrokenLogic(
         {
-          path: 'C:\\Desktop\\broken.lnk',
+          path: '/home/user/Desktop/broken.desktop',
           targetPath: '   '
         },
-        'win32',
+        'linux',
         false
       )
     ).toBe(true)
@@ -245,10 +234,9 @@ describe('isTargetBroken logic', () => {
 
   // ── Target exists/not ──
 
-  it('Windows drive-letter targets are treated as protocol-like (not broken)', () => {
-    // Windows paths like C:\... match the ^[a-z]+: protocol regex,
-    // so the logic short-circuits to "not broken". The real code relies on
-    // existsSync to handle actual file checks for drive-letter paths.
+  it('flags a Windows drive-letter target that does not exist', () => {
+    // Regression: drive letters used to match the protocol-handler check, so
+    // no shortcut with a C:\... target was ever flagged on Windows.
     expect(
       isTargetBrokenLogic(
         {
@@ -258,7 +246,60 @@ describe('isTargetBroken logic', () => {
         'win32',
         false
       )
+    ).toBe(true)
+  })
+
+  it('does not flag a target on a drive that is not connected', () => {
+    const info = { path: 'C:\\Desktop\\usb.lnk', targetPath: 'E:\\Tools\\app.exe' }
+    expect(isShortcutTargetBroken(info, 'win32', () => 'missing')).toBe(false)
+  })
+
+  it('does not flag a target on a network share that is offline', () => {
+    const info = { path: 'C:\\Desktop\\nas.lnk', targetPath: '\\\\nas\\media\\player.exe' }
+    expect(
+      isShortcutTargetBroken(info, 'win32', (p) => (p === '\\\\nas\\media' ? 'unknown' : 'missing'))
     ).toBe(false)
+  })
+
+  it('flags a missing target on a network share that is reachable', () => {
+    const info = { path: 'C:\\Desktop\\nas.lnk', targetPath: '\\\\nas\\media\\player.exe' }
+    expect(
+      isShortcutTargetBroken(info, 'win32', (p) => (p === '\\\\nas\\media' ? 'present' : 'missing'))
+    ).toBe(true)
+  })
+
+  it('does not flag a target it could not inspect (e.g. access denied)', () => {
+    const info = { path: 'C:\\Desktop\\app.lnk', targetPath: 'C:\\Restricted\\app.exe' }
+    expect(
+      isShortcutTargetBroken(info, 'win32', (p) => (p === 'C:\\' ? 'present' : 'unknown'))
+    ).toBe(false)
+  })
+
+  it('does not flag a Program Files target installed under Program Files (x86)', () => {
+    const info = { path: 'C:\\Desktop\\app.lnk', targetPath: 'C:\\Program Files\\Acme\\acme.exe' }
+    const probe = (p: string): PathState =>
+      p === 'C:\\' || p === 'C:\\Program Files (x86)\\Acme\\acme.exe' ? 'present' : 'missing'
+    expect(isShortcutTargetBroken(info, 'win32', probe)).toBe(false)
+  })
+
+  it('does not flag a Program Files (x86) target installed under Program Files', () => {
+    const info = {
+      path: 'C:\\Desktop\\app.lnk',
+      targetPath: 'C:\\Program Files (x86)\\Acme\\acme.exe'
+    }
+    const probe = (p: string): PathState =>
+      p === 'C:\\' || p === 'C:\\Program Files\\Acme\\acme.exe' ? 'present' : 'missing'
+    expect(isShortcutTargetBroken(info, 'win32', probe)).toBe(false)
+  })
+
+  it('flags a Program Files target missing from both Program Files folders', () => {
+    const info = { path: 'C:\\Desktop\\app.lnk', targetPath: 'C:\\Program Files\\Acme\\acme.exe' }
+    expect(isTargetBrokenLogic(info, 'win32', false)).toBe(true)
+  })
+
+  it('on Linux, does not flag a target it could not inspect', () => {
+    const info = { path: '/home/user/Desktop/app.desktop', targetPath: '/opt/secret/app' }
+    expect(isShortcutTargetBroken(info, 'linux', () => 'unknown')).toBe(false)
   })
 
   it('does not flag existing target (Windows drive letter)', () => {
