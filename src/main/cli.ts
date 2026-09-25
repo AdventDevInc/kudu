@@ -1741,10 +1741,13 @@ async function repairWinReStatus(args: string[], ctx: CliContext): Promise<numbe
 
 // ─── Config management ───────────────────────────────────────
 
-/** Show enough of the cloud API key to recognise it, never enough to reuse it. */
+/**
+ * Show enough of the cloud API key to recognise it, never enough to reuse it:
+ * only the last four characters, and only when at least twelve stay hidden.
+ */
 function maskApiKey(key: string): string {
   if (!key) return key
-  return key.length > 8 ? `${key.slice(0, 4)}...${key.slice(-4)}` : '****'
+  return key.length >= 16 ? `****${key.slice(-4)}` : '****'
 }
 
 /**

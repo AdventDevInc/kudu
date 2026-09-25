@@ -283,7 +283,7 @@ describe('redactSettingsForDisplay', () => {
 
   it('masks the cloud API key, keeping only enough to recognise it', () => {
     const shown = redactSettingsForDisplay(settings)
-    expect(shown.cloud.apiKey).toBe('kudu...cdef')
+    expect(shown.cloud.apiKey).toBe('****cdef')
     expect(JSON.stringify(shown)).not.toContain('1234567890')
   })
 
@@ -300,6 +300,11 @@ describe('redactSettingsForDisplay', () => {
 
   it('fully masks a short key and leaves an unset key empty', () => {
     expect(redactSettingsForDisplay({ cloud: { apiKey: 'short' } }).cloud.apiKey).toBe('****')
+    // 10 characters is the shortest key cloud linking accepts.
+    expect(redactSettingsForDisplay({ cloud: { apiKey: 'abcdefghij' } }).cloud.apiKey).toBe('****')
+    expect(redactSettingsForDisplay({ cloud: { apiKey: 'abcdefghijklmno' } }).cloud.apiKey).toBe(
+      '****'
+    )
     expect(redactSettingsForDisplay({ cloud: { apiKey: '' } }).cloud.apiKey).toBe('')
   })
 })
