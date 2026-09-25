@@ -2822,12 +2822,12 @@ class CloudAgentService {
     const { getCachedItem } = await import('./scan-cache')
     const dbIds: string[] = []
     const fileIds: string[] = []
-    let cleansTrash = false
+    const trashItemPaths: string[] = []
     for (const id of itemIds) {
       const item = getCachedItem(id)
       if (item?.category === CleanerType.Database) dbIds.push(id)
       else fileIds.push(id)
-      if (item?.category === CleanerType.RecycleBin) cleansTrash = true
+      if (item?.category === CleanerType.RecycleBin) trashItemPaths.push(item.path)
     }
 
     // Tagged 'cloud' so a remote clean overlapping a manual one can't have its
@@ -2844,9 +2844,9 @@ class CloudAgentService {
           }
 
     const trashPath = getPlatform().paths.trashPath()
-    if (trashPath && cleansTrash) {
-      const { pruneOrphanedTrashInfo } = await import('./trash-info')
-      await pruneOrphanedTrashInfo(trashPath)
+    if (trashPath && trashItemPaths.length > 0) {
+      const { pruneOrphanedTrashInfo, trashEntryNames } = await import('./trash-info')
+      await pruneOrphanedTrashInfo(trashPath, trashEntryNames(trashPath, trashItemPaths))
     }
 
     const dbResult = {

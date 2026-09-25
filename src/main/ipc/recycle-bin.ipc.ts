@@ -7,10 +7,10 @@ import type { ScanResult, CleanResult } from '../../shared/types'
 import { randomUUID } from 'crypto'
 import { getPlatform } from '../platform'
 import { scanDirectory, cleanItems } from '../services/file-utils'
-import { cacheItems, clearCachedCategory } from '../services/scan-cache'
+import { cacheItems, clearCachedCategory, getCachedItems } from '../services/scan-cache'
 import { queryRecycleBinStats } from '../services/recycle-bin-stats'
 import { emptyRecycleBinFast, finalizeRecycleBinShell } from '../services/recycle-bin-cleaner'
-import { pruneOrphanedTrashInfo } from '../services/trash-info'
+import { pruneOrphanedTrashInfo, trashEntryNames } from '../services/trash-info'
 import {
   isDeletionLoggingEnabled,
   listRecycleBinContents,
@@ -87,9 +87,13 @@ export function registerRecycleBinIpc(): void {
       if (trashPath) {
         // macOS / Linux: delete cached trash items via standard file-utils flow
         try {
+          const cleaned = trashEntryNames(
+            trashPath,
+            getCachedItems(lastScannedItemIds).map((item) => item.path)
+          )
           const result = await cleanItems(lastScannedItemIds)
           lastScannedItemIds = []
-          await pruneOrphanedTrashInfo(trashPath)
+          await pruneOrphanedTrashInfo(trashPath, cleaned)
           return result
         } catch (err: any) {
           return {

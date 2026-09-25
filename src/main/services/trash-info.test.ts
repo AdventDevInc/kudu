@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { existsSync, mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { pruneOrphanedTrashInfo } from './trash-info'
+import { pruneOrphanedTrashInfo, trashEntryNames } from './trash-info'
 
 let trash: string
 const files = () => join(trash, 'files')
@@ -57,5 +57,41 @@ describe('pruneOrphanedTrashInfo', () => {
   it('does nothing when there is no info folder', async () => {
     rmSync(join(trash, 'info'), { recursive: true })
     expect(await pruneOrphanedTrashInfo(files())).toBe(0)
+  })
+})
+
+describe('pruneOrphanedTrashInfo for entries Kudu just cleaned', () => {
+  it('removes a fresh record when its entry was just cleaned', async () => {
+    // Emptied within the grace period: nothing would ever prune it later.
+    trashed('just-trashed.txt', { payload: false, ageMs: 5_000 })
+    expect(await pruneOrphanedTrashInfo(files(), new Set(['just-trashed.txt']))).toBe(1)
+    expect(existsSync(info('just-trashed.txt'))).toBe(false)
+  })
+
+  it('still keeps the record if the cleaned entry survived', async () => {
+    trashed('locked.bin', { ageMs: 5_000 })
+    expect(await pruneOrphanedTrashInfo(files(), new Set(['locked.bin']))).toBe(0)
+    expect(existsSync(info('locked.bin'))).toBe(true)
+  })
+
+  it('keeps other fresh orphans that were not part of the clean', async () => {
+    trashed('in-flight.iso', { payload: false, ageMs: 5_000 })
+    expect(await pruneOrphanedTrashInfo(files(), new Set(['something-else']))).toBe(0)
+    expect(existsSync(info('in-flight.iso'))).toBe(true)
+  })
+})
+
+describe('trashEntryNames', () => {
+  it('maps cleaned paths to their top-level trash entry', () => {
+    const names = trashEntryNames(files(), [
+      join(files(), 'report.pdf'),
+      join(files(), 'Project', 'src', 'main.c'),
+      join(files(), 'Project', 'README')
+    ])
+    expect([...names].sort()).toEqual(['Project', 'report.pdf'])
+  })
+
+  it('ignores paths outside the trash', () => {
+    expect(trashEntryNames(files(), [join(trash, 'info', 'x.trashinfo'), files()]).size).toBe(0)
   })
 })
