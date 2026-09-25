@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 164 |
-| 🪟 Windows rules | 153 |
-| 🍎 macOS rules | 93 |
-| 🐧 Linux rules | 91 |
+| Unique app rules | 168 |
+| 🪟 Windows rules | 157 |
+| 🍎 macOS rules | 95 |
+| 🐧 Linux rules | 93 |
 
 ## AI Tools
 
@@ -46,6 +46,7 @@
 |-----|:---:|:---:|:---:|
 | 1Password | ✅ | ✅ | ✅ |
 | Adobe Creative Cloud | ✅ | ✅ | ❌ |
+| AMD Installer Files | ✅ | ❌ | ❌ |
 | Android Studio | ✅ | ✅ | ✅ |
 | Audacious | ❌ | ❌ | ✅ |
 | AWS CLI Cache | ✅ | ✅ | ✅ |
@@ -110,12 +111,14 @@
 | npm Cache | ✅ | ✅ | ✅ |
 | NuGet Cache | ✅ | ❌ | ❌ |
 | NVIDIA App | ✅ | ❌ | ❌ |
+| NVIDIA Driver Downloads | ✅ | ❌ | ❌ |
 | OBS Studio | ✅ | ✅ | ✅ |
 | Obsidian | ✅ | ✅ | ✅ |
 | Old Firefox Pending Crashes | ✅ | ❌ | ❌ |
 | OneDrive Logs | ✅ | ❌ | ❌ |
 | Pidgin | ✅ | ❌ | ✅ |
 | pip Cache | ✅ | ✅ | ✅ |
+| Pipenv Cache | ✅ | ✅ | ✅ |
 | pnpm Unused Packages | ✅ | ✅ | ✅ |
 | Poetry Cache | ✅ | ✅ | ✅ |
 | Polyscope | ✅ | ❌ | ❌ |
@@ -123,6 +126,7 @@
 | qBittorrent | ✅ | ✅ | ✅ |
 | Rhythmbox | ❌ | ❌ | ✅ |
 | Ruby Gem Cache | ✅ | ✅ | ✅ |
+| sccache | ✅ | ✅ | ✅ |
 | Scoop Cache | ✅ | ❌ | ❌ |
 | ShurePlus MOTIV | ✅ | ❌ | ❌ |
 | Signal Desktop | ✅ | ✅ | ✅ |
