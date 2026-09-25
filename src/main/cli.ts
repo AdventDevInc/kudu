@@ -747,7 +747,7 @@ Repair (Windows):
   repair winre-status [--verbose]  Windows Recovery Environment status (needs admin)
 
 Config Management:
-  config get [key]             Show settings (e.g. config get cloud.apiKey)
+  config get [key]             Show settings (e.g. config get cleaner); API key is masked
   config set <key> <value>     Update a setting (e.g. config set cloud.apiKey my-key)
 
 Service Management (Linux):
@@ -1741,13 +1741,30 @@ async function repairWinReStatus(args: string[], ctx: CliContext): Promise<numbe
 
 // ─── Config management ───────────────────────────────────────
 
+/** Show enough of the cloud API key to recognise it, never enough to reuse it. */
+function maskApiKey(key: string): string {
+  if (!key) return key
+  return key.length > 8 ? `${key.slice(0, 4)}...${key.slice(-4)}` : '****'
+}
+
+/**
+ * Settings as `config get` may print them. The cloud API key authenticates
+ * this machine to Kudu Cloud, and CLI output ends up in terminals, logs and
+ * support tickets — so it is masked in every form, JSON included.
+ */
+export function redactSettingsForDisplay<T extends Record<string, any>>(settings: T): T {
+  const apiKey = settings.cloud?.apiKey
+  if (typeof apiKey !== 'string' || !apiKey) return settings
+  return { ...settings, cloud: { ...settings.cloud, apiKey: maskApiKey(apiKey) } }
+}
+
 async function handleConfig(args: string[], ctx: CliContext): Promise<number | void> {
   const sub = args[0]
   const { getSettings, setSettings, flushSettings } = await import('./services/settings-store')
 
   if (sub === 'get') {
     const key = args[1]
-    const settings = getSettings() as Record<string, any>
+    const settings = redactSettingsForDisplay(getSettings() as Record<string, any>)
     if (!key) {
       cliOut(ctx, settings)
       return
@@ -1761,17 +1778,12 @@ async function handleConfig(args: string[], ctx: CliContext): Promise<number | v
       else log(`Unknown setting: ${key}`)
       return ExitCode.INVALID_ARGS
     }
-    // Mask the API key in non-JSON output
-    if (key === 'cloud.apiKey' && !ctx.json && typeof value === 'string' && value.length > 8) {
-      cliLog(ctx, `  ${key}: ${value.slice(0, 4)}...${value.slice(-4)}`)
-    } else {
-      cliOut(
-        ctx,
-        ctx.json
-          ? { [key]: value }
-          : `  ${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
-      )
-    }
+    cliOut(
+      ctx,
+      ctx.json
+        ? { [key]: value }
+        : `  ${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
+    )
   } else if (sub === 'set') {
     const key = args[1]
     const rawValue = args.slice(2).join(' ')
@@ -1819,7 +1831,7 @@ async function handleConfig(args: string[], ctx: CliContext): Promise<number | v
       cliLog(ctx, '')
       cliLog(ctx, 'Examples:')
       cliLog(ctx, '  kudu --cli config get                        Show all settings')
-      cliLog(ctx, '  kudu --cli config get cloud.apiKey            Show API key')
+      cliLog(ctx, '  kudu --cli config get cloud.apiKey            Show API key (masked)')
       cliLog(ctx, '  kudu --cli config set cloud.apiKey my-key     Set API key')
     }
     return ExitCode.INVALID_ARGS

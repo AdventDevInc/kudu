@@ -6,7 +6,8 @@ import {
   cliVerbose,
   exitCodeForCleanResult,
   exitCodeForRestorePoint,
-  exitCodeForRegistryFix
+  exitCodeForRegistryFix,
+  redactSettingsForDisplay
 } from './cli'
 
 describe('parseCliArgs', () => {
@@ -271,5 +272,34 @@ describe('exitCodeForRegistryFix', () => {
 
   it('fails when nothing could be fixed', () => {
     expect(exitCodeForRegistryFix({ fixed: 0, failed: 7 })).toBe(ExitCode.GENERAL_ERROR)
+  })
+})
+
+describe('redactSettingsForDisplay', () => {
+  const settings = {
+    cleaner: { secureDelete: false },
+    cloud: { apiKey: 'kudu_live_1234567890abcdef', serverUrl: 'https://cloud.usekudu.com' }
+  }
+
+  it('masks the cloud API key, keeping only enough to recognise it', () => {
+    const shown = redactSettingsForDisplay(settings)
+    expect(shown.cloud.apiKey).toBe('kudu...cdef')
+    expect(JSON.stringify(shown)).not.toContain('1234567890')
+  })
+
+  it('leaves every other setting untouched', () => {
+    const shown = redactSettingsForDisplay(settings)
+    expect(shown.cleaner).toBe(settings.cleaner)
+    expect(shown.cloud.serverUrl).toBe(settings.cloud.serverUrl)
+  })
+
+  it('does not mutate the stored settings', () => {
+    redactSettingsForDisplay(settings)
+    expect(settings.cloud.apiKey).toBe('kudu_live_1234567890abcdef')
+  })
+
+  it('fully masks a short key and leaves an unset key empty', () => {
+    expect(redactSettingsForDisplay({ cloud: { apiKey: 'short' } }).cloud.apiKey).toBe('****')
+    expect(redactSettingsForDisplay({ cloud: { apiKey: '' } }).cloud.apiKey).toBe('')
   })
 })
