@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import {
+  checkShortcutTarget,
   isShortcutTargetBroken,
   probePath,
   WIN_SYSTEM_SUBDIRS,
@@ -544,12 +545,12 @@ describe('shortcut directories structure', () => {
 })
 
 describe('probePath', () => {
-  it('reports a real file as present and a missing path as missing', () => {
+  it('reports a real file as present and a missing path as missing', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'kudu-probe-'))
     try {
       writeFileSync(join(dir, 'app'), 'x')
-      expect(probePath(join(dir, 'app'))).toBe('present')
-      expect(probePath(join(dir, 'gone'))).toBe('missing')
+      expect(await probePath(join(dir, 'app'))).toBe('present')
+      expect(await probePath(join(dir, 'gone'))).toBe('missing')
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }
@@ -558,14 +559,36 @@ describe('probePath', () => {
   // Creating symlinks on Windows needs Developer Mode or admin rights.
   it.skipIf(process.platform === 'win32')(
     'follows a dangling symlink to its missing target',
-    () => {
+    async () => {
       const dir = mkdtempSync(join(tmpdir(), 'kudu-probe-'))
       try {
         symlinkSync(join(dir, 'removed-binary'), join(dir, 'launcher'))
-        expect(probePath(join(dir, 'launcher'))).toBe('missing')
+        expect(await probePath(join(dir, 'launcher'))).toBe('missing')
       } finally {
         rmSync(dir, { recursive: true, force: true })
       }
     }
   )
+})
+
+describe('checkShortcutTarget', () => {
+  it('never looks past an unreachable drive root', async () => {
+    const probe = vi.fn(async (p: string): Promise<PathState> =>
+      p === 'E:\\' ? 'unknown' : 'missing'
+    )
+    const info = { path: 'C:\\Desktop\\usb.lnk', targetPath: 'E:\\Tools\\app.exe' }
+    expect(await checkShortcutTarget(info, 'win32', probe)).toBe(false)
+    expect(probe.mock.calls.map(([p]) => p)).toEqual(['E:\\'])
+  })
+
+  it('flags a missing target once the root and both Program Files folders are checked', async () => {
+    const probe = vi.fn(async (p: string): Promise<PathState> =>
+      p === 'C:\\' ? 'present' : 'missing'
+    )
+    const info = { path: 'C:\\Desktop\\a.lnk', targetPath: 'C:\\Program Files\\Acme\\a.exe' }
+    expect(await checkShortcutTarget(info, 'win32', probe)).toBe(true)
+    expect(probe.mock.calls.map(([p]) => p).sort()).toEqual(
+      ['C:\\', 'C:\\Program Files (x86)\\Acme\\a.exe', 'C:\\Program Files\\Acme\\a.exe'].sort()
+    )
+  })
 })

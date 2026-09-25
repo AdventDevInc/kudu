@@ -1,4 +1,4 @@
-import { statSync } from 'fs'
+import { stat } from 'fs/promises'
 import path from 'path'
 
 export interface ShortcutInfo {
@@ -13,10 +13,14 @@ export interface ShortcutInfo {
  */
 export type PathState = 'present' | 'missing' | 'unknown'
 
-export function probePath(p: string): PathState {
+/**
+ * Asynchronous so a slow or disconnected network drive never blocks the
+ * Electron main process; the lookup runs on libuv's thread pool.
+ */
+export async function probePath(p: string): Promise<PathState> {
   try {
     // Follow links: a launcher whose target is a dangling symlink is broken.
-    statSync(p)
+    await stat(p)
     return 'present'
   } catch (err) {
     const code = (err as NodeJS.ErrnoException).code
@@ -57,10 +61,44 @@ function programFilesAlternates(target: string): string[] {
   return []
 }
 
+/**
+ * The paths `isShortcutTargetBroken` may look up, in the order it needs them.
+ * On Windows nothing past the drive/share root is touched unless it is reachable.
+ */
+function candidatePaths(info: ShortcutInfo, platform: NodeJS.Platform): string[][] {
+  if (!info.targetPath) return []
+  if (platform !== 'win32') return [[info.targetPath]]
+  const root = winTargetRoot(info.targetPath)
+  return root ? [[root], [info.targetPath, ...programFilesAlternates(info.targetPath)]] : []
+}
+
+/**
+ * Look up everything the decision needs asynchronously, then decide. `probe`
+ * is usually memoised by the caller so many shortcuts on one drive share a
+ * single root lookup.
+ */
+export async function checkShortcutTarget(
+  info: ShortcutInfo,
+  platform: NodeJS.Platform,
+  probe: (p: string) => Promise<PathState> = probePath
+): Promise<boolean> {
+  const states = new Map<string, PathState>()
+  for (const [i, batch] of candidatePaths(info, platform).entries()) {
+    // Stop before touching anything on an unreachable drive or share.
+    if (i > 0 && [...states.values()].some((state) => state !== 'present')) break
+    for (const [path, state] of await Promise.all(
+      batch.map(async (path) => [path, await probe(path)] as const)
+    ))
+      states.set(path, state)
+  }
+  return isShortcutTargetBroken(info, platform, (p) => states.get(p) ?? 'unknown')
+}
+
+/** The decision itself, given a synchronous view of what the filesystem said. */
 export function isShortcutTargetBroken(
   info: ShortcutInfo,
   platform: NodeJS.Platform,
-  probe: (p: string) => PathState = probePath
+  probe: (p: string) => PathState
 ): boolean {
   if (platform === 'win32') {
     // Never flag shortcuts in built-in Windows Start Menu subdirectories

@@ -14,7 +14,12 @@ import { validateStringArray } from '../services/ipc-validation'
 import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
 import { psUtf8 } from '../services/exec-utf8'
-import { isShortcutTargetBroken, type ShortcutInfo } from '../services/shortcut-target'
+import {
+  checkShortcutTarget,
+  probePath,
+  type PathState,
+  type ShortcutInfo
+} from '../services/shortcut-target'
 
 const execFileAsync = promisify(execFile)
 
@@ -202,6 +207,14 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
     const isWin = process.platform === 'win32'
     const isMac = process.platform === 'darwin'
 
+    // One lookup per path per scan: many shortcuts share a drive root.
+    const probed = new Map<string, Promise<PathState>>()
+    const probe = (path: string): Promise<PathState> => {
+      let state = probed.get(path)
+      if (!state) probed.set(path, (state = probePath(path)))
+      return state
+    }
+
     for (const dir of dirs) {
       try {
         let shortcuts: ShortcutInfo[]
@@ -215,7 +228,7 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
 
         const brokenItems: ScanItem[] = []
         for (const sc of shortcuts) {
-          if (isShortcutTargetBroken(sc, process.platform)) {
+          if (await checkShortcutTarget(sc, process.platform, probe)) {
             let size = 0
             try {
               const s = await stat(sc.path)
