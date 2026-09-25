@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { access, constants, readFile, unlink, writeFile } from 'fs/promises'
+import { access, constants, readFile, stat, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -37,7 +37,7 @@ export function createDarwinPrivacy(): PlatformPrivacy {
       return settings.map((setting) => ({
         ...setting,
         async apply() {
-          await captureState(setting)
+          await captureState(settings, setting)
           await setting.apply()
         },
         async revert() {
@@ -301,7 +301,8 @@ const SSHD_ENABLE_SCRIPT = [
 //     UniversalSearchEnabled / PreloadTopHit / SendDoNotTrackHTTPHeader,
 //     Spotlight LookupSuggestionsDisabled: key unset. macOS ships them unset,
 //     and unset is the unprotected behaviour.
-//   - Chrome / Firefox managed policies: no policy key (an unmanaged Mac has none).
+//   - Chrome / Firefox managed policies: no policy key (an unmanaged Mac has
+//     none); the plist's mode is left as Kudu set it.
 //   - Application Firewall off, stealth mode off, automatically allow built-in
 //     and downloaded signed software on.
 //   - kern.coredump=1 with no line in /etc/sysctl.conf.
@@ -336,6 +337,16 @@ interface StatePart<S> {
   applied: (prior: S) => S
   /** Documented macOS default, used only when no prior state was captured */
   fallback?: S
+  /** Without a capture, leave this part as it is rather than blocking revert */
+  optional?: boolean
+  /**
+   * Several settings change this same state (one plist's mode). Its original
+   * is carried across their captures and only put back by the last of them
+   * reverted, so a policy still applied stays readable.
+   */
+  shared?: boolean
+  /** Whether `current` counts as restored to `prior`; defaults to equality */
+  restored?: (current: S, prior: S) => boolean
   /** `currentUnknown`: the current state couldn't be read without root */
   restore: (prior: S, currentUnknown?: boolean) => RestoreAction[]
 }
@@ -358,7 +369,10 @@ function errorText(error: unknown): string {
   return `${e?.message ?? ''}\n${e?.stderr ?? ''}`
 }
 
-async function captureState(setting: DarwinPrivacySetting): Promise<void> {
+async function captureState(
+  settings: DarwinPrivacySetting[],
+  setting: DarwinPrivacySetting
+): Promise<void> {
   const earlier = await loadPriorState(setting.id)
   const prior: PriorState = {}
   let changes = false
@@ -376,7 +390,16 @@ async function captureState(setting: DarwinPrivacySetting): Promise<void> {
     // wrote (e.g. retrying a half-finished apply); anything else means the
     // user changed it since, so what's there now is theirs.
     const kept = earlier?.[part.id]
-    const value = part.valid(kept) && same(current, part.applied(kept)) ? kept : current
+    let value = part.valid(kept) && same(current, part.applied(kept)) ? kept : current
+    // Shared state already changed by another setting's apply: carry over the
+    // user's original from that setting's capture
+    if (part.shared && same(value, part.applied(value))) {
+      for (const other of settings) {
+        if (other === setting || !other.state.some((p) => p.id === part.id)) continue
+        const theirs = (await loadPriorState(other.id))?.[part.id]
+        if (part.valid(theirs) && !same(theirs, part.applied(theirs))) value = theirs
+      }
+    }
     prior[part.id] = value
     if (!same(value, part.applied(value))) changes = true
   }
@@ -395,7 +418,7 @@ function resolvePriors(
     const value = stored?.[part.id]
     if (part.valid(value)) priors[part.id] = value
     else if (part.fallback !== undefined) priors[part.id] = part.fallback
-    else return undefined
+    else if (!part.optional) return undefined
   }
   return priors
 }
@@ -505,9 +528,19 @@ async function revertSettings(
     try {
       const priors = resolvePriors(setting, await loadPriorState(setting.id))
       if (!priors) throw new Error(NOT_CAPTURED)
+      for (const part of setting.state.filter((p) => p.shared && p.id in priors)) {
+        for (const other of settings) {
+          if (other === setting || !other.state.some((p) => p.id === part.id)) continue
+          const at = ids.indexOf(other.id)
+          // Reverted later in this batch, or still applied: leave it to them
+          if (at > ids.indexOf(id) || (at < 0 && (await other.check().catch(() => false))))
+            delete priors[part.id]
+        }
+      }
       const commands: Command[] = []
       const staged = new Map<string, string | null>()
       for (const part of setting.state) {
+        if (!(part.id in priors)) continue
         const prior = priors[part.id]
         // Planning never prompts: a root-only plist can't be compared first, so
         // its restore runs unconditionally inside the shared elevated batch.
@@ -568,9 +601,11 @@ async function revertSettings(
   for (const { setting, priors } of ran) {
     let restored = true
     for (const part of setting.state) {
+      if (!(part.id in priors)) continue
+      const prior = priors[part.id]
       restored &&= await part
         .read({ elevate: false })
-        .then((value) => same(value, priors[part.id]))
+        .then((value) => (part.restored ? part.restored(value, prior) : same(value, prior)))
         .catch((error) => error instanceof RootOnlyError && unverified.has(part))
     }
     if (!restored) {
@@ -764,6 +799,48 @@ function prefPart(
         { cmd: '/bin/chmod', args: ['644', `${domain}.plist`] }
       ]
     }
+  }
+}
+
+// Removes the plist only while it holds no keys at all; anything else stays
+const REMOVE_IF_EMPTY =
+  '[ "$(/usr/bin/plutil -convert json -o - "$1" 2>/dev/null)" = "{}" ] && /bin/rm -f "$1"; exit 0'
+
+/**
+ * A managed-preferences plist's existence and mode. managedPrefWrite creates
+ * it if needed and makes it 0644 so the policy is readable; revert puts back
+ * the mode the user had (e.g. 0600, which keeps other policies private), or
+ * removes a plist Kudu created once it is empty again. Without a capture the
+ * file is left as it is.
+ */
+function managedPlistPart(domain: string): StatePart<{ mode: string } | null> {
+  const file = `${MANAGED_PREFS}/${domain}.plist`
+  return {
+    id: `plist-mode:${file}`,
+    async read() {
+      try {
+        return { mode: ((await stat(file)).mode & 0o777).toString(8).padStart(3, '0') }
+      } catch (error: any) {
+        if (error?.code === 'ENOENT') return null
+        throw error
+      }
+    },
+    valid: (v): v is { mode: string } | null =>
+      v === null ||
+      (!!v &&
+        typeof v === 'object' &&
+        typeof (v as { mode?: unknown }).mode === 'string' &&
+        /^[0-7]{3}$/.test((v as { mode: string }).mode)),
+    applied: () => ({ mode: '644' }),
+    optional: true,
+    shared: true,
+    // A plist Kudu created may still hold someone else's policies; then it stays
+    restored: (current, prior) => prior === null || same(current, prior),
+    restore: (prior) => [
+      prior === null
+        ? { cmd: '/bin/sh', args: ['-c', REMOVE_IF_EMPTY, 'sh', file] }
+        : { cmd: '/bin/chmod', args: [prior.mode, file] }
+    ]
   }
 }
 
@@ -1519,7 +1596,8 @@ const DARWIN_BROWSER_SETTINGS: DarwinPrivacySetting[] = [
       prefPart(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled', OFF, {
         managed: true,
         fallback: null
-      })
+      }),
+      managedPlistPart('com.google.Chrome')
     ],
     applicable: () => isBrowserInstalled(CHROME_BUNDLE_ID),
     async check() {
@@ -1540,7 +1618,8 @@ const DARWIN_BROWSER_SETTINGS: DarwinPrivacySetting[] = [
       prefPart(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled', OFF, {
         managed: true,
         fallback: null
-      })
+      }),
+      managedPlistPart('com.google.Chrome')
     ],
     applicable: () => isBrowserInstalled(CHROME_BUNDLE_ID),
     async check() {
@@ -1569,7 +1648,8 @@ const DARWIN_BROWSER_SETTINGS: DarwinPrivacySetting[] = [
       prefPart(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry', ON, {
         managed: true,
         fallback: null
-      })
+      }),
+      managedPlistPart('org.mozilla.firefox')
     ],
     applicable: () => isBrowserInstalled(FIREFOX_BUNDLE_ID),
     async check() {

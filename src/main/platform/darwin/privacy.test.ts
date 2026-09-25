@@ -12,6 +12,8 @@ vi.mock('util', () => ({
 const files = new Map<string, string>()
 // Plists only root can read (cfprefsd creates new files 0600)
 const rootOnly = new Set<string>()
+// Permission bits per file (default 0644)
+const modes = new Map<string, number>()
 const enoent = (path: string) => Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' })
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(async (path: string) => {
@@ -31,6 +33,10 @@ vi.mock('fs/promises', () => ({
     if (rootOnly.has(path)) throw Object.assign(new Error(`EACCES: ${path}`), { code: 'EACCES' })
   }),
   constants: { R_OK: 4 },
+  stat: vi.fn(async (path: string) => {
+    if (!files.has(path)) throw enoent(path)
+    return { mode: 0o100000 | (modes.get(path) ?? 0o644) }
+  }),
   unlink: vi.fn(async (path: string) => {
     files.delete(path)
   })
@@ -369,7 +375,11 @@ function defaultsCommand(input: string[]): string {
     case 'write': {
       const type = flag.slice(1)
       mac.defaults.set(id, pref(type, type === 'bool' ? (value === 'true' ? '1' : '0') : value))
-      if (domain.startsWith('/')) files.set(`${domain}.plist`, 'plist')
+      // cfprefsd creates new system plists owner-only
+      if (domain.startsWith('/') && !files.has(`${domain}.plist`)) {
+        files.set(`${domain}.plist`, 'plist')
+        modes.set(`${domain}.plist`, 0o600)
+      }
       return ''
     }
     case 'delete':
@@ -450,6 +460,13 @@ function run(cmd: string, args: string[], root = false): string {
         return [...mac.launchd].map(([label, state]) => `\t"${label}" => ${state}\n`).join('')
       return ''
     case '/bin/sh': {
+      // REMOVE_IF_EMPTY: sh -c <script> sh <file>
+      if (args.length === 4) {
+        const domain = args[3].replace(/\.plist$/, '')
+        if (![...mac.defaults.keys()].some((id) => id.startsWith(`${domain}	`)))
+          files.delete(args[3])
+        return ''
+      }
       // DELETE_IF_PRESENT: sh -c <script> sh <domain> <key>
       if (args.length === 5) {
         try {
@@ -490,6 +507,8 @@ function run(cmd: string, args: string[], root = false): string {
       return ''
     case '/usr/sbin/chown':
     case '/bin/chmod':
+      modes.set(args[1], parseInt(args[0], 8))
+      return ''
     case '/bin/mkdir':
       return ''
     case '/usr/bin/nc':
@@ -570,6 +589,7 @@ describe('darwin privacy revert', () => {
   beforeEach(() => {
     files.clear()
     rootOnly.clear()
+    modes.clear()
     elevatedCalls.length = 0
     mac = freshMac()
     privacy = createDarwinPrivacy()
@@ -696,19 +716,57 @@ describe('darwin privacy revert', () => {
       ])
     })
 
-    it('removes a managed policy Kudu added and keeps the plist readable', async () => {
+    it('removes a managed policy plist Kudu created', async () => {
       await find('macos-chrome-metrics').apply()
       expect(mac.defaults.get(prefId(CHROME_POLICY, 'MetricsReportingEnabled'))).toEqual(
         pref('bool', '0')
       )
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o644)
 
       await find('macos-chrome-metrics').revert!()
 
       expect(mac.defaults.has(prefId(CHROME_POLICY, 'MetricsReportingEnabled'))).toBe(false)
-      expect(elevatedCalls.slice(-2)).toEqual([
-        ['/usr/bin/defaults', 'delete', CHROME_POLICY, 'MetricsReportingEnabled'],
-        ['/bin/chmod', '644', `${CHROME_POLICY}.plist`]
+      expect(files.has(`${CHROME_POLICY}.plist`)).toBe(false)
+      expect(storedSettings()).toEqual({})
+    })
+
+    it("restores an existing policy plist's owner-only mode and keeps its other policies", async () => {
+      files.set(`${CHROME_POLICY}.plist`, 'plist')
+      modes.set(`${CHROME_POLICY}.plist`, 0o600)
+      mac.defaults.set(
+        prefId(CHROME_POLICY, 'HomepageLocation'),
+        pref('string', 'https://intranet')
+      )
+      await find('macos-chrome-metrics').apply()
+      await find('macos-chrome-safe-browsing').apply()
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o644)
+      execFileMock.mockClear()
+
+      const result = await privacy.revertSettings!([
+        'macos-chrome-metrics',
+        'macos-chrome-safe-browsing'
       ])
+
+      expect(result).toEqual({ succeeded: 2, failed: 0, errors: [] })
+      expect(osascriptCalls()).toHaveLength(1)
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o600)
+      expect(files.has(`${CHROME_POLICY}.plist`)).toBe(true)
+      expect(mac.defaults.get(prefId(CHROME_POLICY, 'HomepageLocation'))).toEqual(
+        pref('string', 'https://intranet')
+      )
+      expect(storedSettings()).toEqual({})
+    })
+
+    it('keeps a plist Kudu created while it still holds other policies', async () => {
+      await find('macos-chrome-metrics').apply()
+      mac.defaults.set(prefId(CHROME_POLICY, 'HomepageLocation'), pref('string', 'https://mdm'))
+
+      await find('macos-chrome-metrics').revert!()
+
+      expect(files.has(`${CHROME_POLICY}.plist`)).toBe(true)
+      expect(mac.defaults.get(prefId(CHROME_POLICY, 'HomepageLocation'))).toEqual(
+        pref('string', 'https://mdm')
+      )
     })
 
     it('refuses to apply when the current value could not be restored exactly', async () => {
@@ -985,6 +1043,7 @@ describe('darwin privacy revert', () => {
       mac.defaults.set(prefId(CHROME_POLICY, SAFE_BROWSING), pref('bool', '1'))
       mac.defaults.set(prefId(LOGINWINDOW, 'GuestEnabled'), pref('bool', '1'))
       rootOnly.add(`${CHROME_POLICY}.plist`).add(`${LOGINWINDOW}.plist`)
+      modes.set(`${CHROME_POLICY}.plist`, 0o600)
       for (const id of [
         'macos-chrome-metrics',
         'macos-chrome-safe-browsing',
@@ -994,7 +1053,9 @@ describe('darwin privacy revert', () => {
         await find(id).apply()
       // Capture read the root-only plists as root rather than guessing "unset"
       expect(storedSettings()['macos-chrome-safe-browsing']).toEqual({
-        [`defaults:${CHROME_POLICY}:${SAFE_BROWSING}`]: { type: 'bool', value: '1' }
+        [`defaults:${CHROME_POLICY}:${SAFE_BROWSING}`]: { type: 'bool', value: '1' },
+        // The user's original mode, carried over from the metrics capture
+        [`plist-mode:${CHROME_POLICY}.plist`]: { mode: '600' }
       })
       rootOnly.add(`${FIREFOX_POLICY}.plist`)
       execFileMock.mockClear()
@@ -1018,6 +1079,7 @@ describe('darwin privacy revert', () => {
       expect(mac.defaults.has(prefId(CHROME_POLICY, 'MetricsReportingEnabled'))).toBe(false)
       expect(mac.defaults.get(prefId(CHROME_POLICY, SAFE_BROWSING))).toEqual(pref('bool', '1'))
       expect(mac.defaults.get(prefId(LOGINWINDOW, 'GuestEnabled'))).toEqual(pref('bool', '1'))
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o600)
       expect(storedSettings()).toEqual({})
     })
 
@@ -1030,9 +1092,25 @@ describe('darwin privacy revert', () => {
         'macos-guest-account'
       ])
 
-      expect(execFileMock.mock.calls.map((c) => c[0])).toEqual(['/usr/bin/osascript'])
+      expect(osascriptCalls()).toHaveLength(1)
       expect(result.errors.map((e) => e.id)).toEqual(['macos-chrome-safe-browsing'])
       expect(storedSettings()['macos-chrome-safe-browsing']).toBeDefined()
+    })
+
+    it('leaves the plist readable while another Kudu policy in it is still applied', async () => {
+      await applyWithRootOnlyPlists()
+      modes.set(`${CHROME_POLICY}.plist`, 0o644) // as managedPrefWrite left it
+      rootOnly.clear()
+
+      const result = await privacy.revertSettings!(['macos-chrome-safe-browsing'])
+
+      expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o644)
+      expect(await find('macos-chrome-metrics').check()).toBe(true)
+
+      await privacy.revertSettings!(['macos-chrome-metrics'])
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o600)
+      expect(storedSettings()).not.toHaveProperty('macos-chrome-metrics')
     })
   })
 
