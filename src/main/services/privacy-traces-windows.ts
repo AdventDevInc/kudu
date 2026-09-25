@@ -1,5 +1,5 @@
 import { mkdir, readdir, stat, unlink } from 'fs/promises'
-import { join } from 'path'
+import { basename, join } from 'path'
 import { getBackupDir } from './backup-dir'
 import { execNativeUtf8 } from './exec-utf8'
 import {
@@ -284,14 +284,17 @@ function backupSlug(list: MruList): string {
 }
 
 /** Keep only the newest backups of one list: they hold the very history being cleared. */
-async function pruneBackups(dir: string, slug: string): Promise<void> {
+async function pruneBackups(dir: string, slug: string, current: string): Promise<void> {
   try {
     const prefix = `${BACKUP_PREFIX}${slug}-`
+    // The backup just taken is always kept, even if the clock went backwards
+    // and older files carry later timestamps: it guards the clear about to run.
     const files = (await readdir(dir))
-      .filter((f) => f.startsWith(prefix) && f.endsWith('.reg'))
+      .filter((f) => f.startsWith(prefix) && f.endsWith('.reg') && f !== current)
       .sort()
       .reverse()
-    for (const f of files.slice(BACKUPS_KEPT_PER_LIST)) await unlink(join(dir, f)).catch(() => {})
+    for (const f of files.slice(BACKUPS_KEPT_PER_LIST - 1))
+      await unlink(join(dir, f)).catch(() => {})
   } catch {
     /* best effort */
   }
@@ -312,7 +315,7 @@ export async function backupMruList(list: MruList): Promise<string> {
     await unlink(file).catch(() => {})
     throw new TraceSkipped('registry backup failed, nothing was changed')
   }
-  await pruneBackups(dir, slug)
+  await pruneBackups(dir, slug, basename(file))
   return file
 }
 

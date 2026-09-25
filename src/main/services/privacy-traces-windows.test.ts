@@ -225,6 +225,21 @@ describe('clearMruList', () => {
     expect(files.filter((f) => f.startsWith('privacy-traces-backup-RunMRU-'))).toHaveLength(3)
     expect(files).toContain('registry-backup-2020-01-01.reg')
   })
+
+  it('never prunes the backup it just took, even when the clock went backwards', async () => {
+    await mkdir(backupDir.path, { recursive: true })
+    const future = ['2099-01-01', '2099-01-02', '2099-01-03']
+    for (const ts of future) {
+      await writeFile(join(backupDir.path, `privacy-traces-backup-RunMRU-${ts}.reg`), 'x')
+    }
+    fakeReg(RUN_MRU_OUTPUT)
+    await clearMruList(RUN_MRU)
+    const kept = (await readdir(backupDir.path)).filter((f) =>
+      f.startsWith('privacy-traces-backup-RunMRU-')
+    )
+    expect(kept).toHaveLength(3)
+    expect(kept.filter((f) => !f.includes('2099-'))).toHaveLength(1)
+  })
 })
 
 describe('findWindowsRegistryTraces', () => {
