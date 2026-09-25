@@ -196,8 +196,21 @@ export async function deletionTouchesExclusions(
       if (--budget < 0) return true
       const child = join(dir, entry.name)
       if (isExcluded(child, extPatterns)) return true
+      let isDir = entry.isDirectory()
+      let isLink = entry.isSymbolicLink()
+      if (!isDir && !isLink && !entry.isFile()) {
+        // Some FUSE and network filesystems report no entry type; ask directly,
+        // and treat anything that can't be classified as affected.
+        try {
+          const info = await lstat(child)
+          isDir = info.isDirectory()
+          isLink = info.isSymbolicLink()
+        } catch {
+          return true
+        }
+      }
       // rm unlinks a symlink without touching its target, so don't descend it.
-      if (entry.isDirectory() && !entry.isSymbolicLink() && (await walk(child))) return true
+      if (isDir && !isLink && (await walk(child))) return true
     }
     return false
   }

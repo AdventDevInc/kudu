@@ -74,3 +74,30 @@ describe('deletionTouchesExclusions when the target cannot be inspected', () => 
     vi.resetModules()
   })
 })
+
+describe('deletionTouchesExclusions with untyped directory entries', () => {
+  it('looks up entries whose type the filesystem did not report', async () => {
+    vi.resetModules()
+    vi.doMock('fs/promises', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('fs/promises')>()
+      return {
+        ...actual,
+        // Mimic a FUSE/network mount: every Dirent reports an unknown type.
+        readdir: (async (path: string, opts?: { withFileTypes?: boolean }) => {
+          const entries = await actual.readdir(path, { withFileTypes: true })
+          if (!opts?.withFileTypes) return entries.map((e) => e.name)
+          return entries.map((e) => ({
+            name: e.name,
+            isDirectory: () => false,
+            isFile: () => false,
+            isSymbolicLink: () => false
+          }))
+        }) as typeof actual.readdir
+      }
+    })
+    const { deletionTouchesExclusions: check } = await import('./file-utils')
+    expect(await check(join(root, 'App'), ['*.sav'])).toBe(true)
+    vi.doUnmock('fs/promises')
+    vi.resetModules()
+  })
+})
