@@ -116,7 +116,19 @@ export async function overwriteThroughHandle(handle: FileHandle, size: number): 
   for (const fill of [(n: number) => randomBytes(n), (n: number) => Buffer.alloc(n)]) {
     for (let offset = 0; offset < size; offset += OVERWRITE_CHUNK) {
       const length = Math.min(OVERWRITE_CHUNK, size - offset)
-      await handle.write(fill(length), 0, length, offset)
+      const chunk = fill(length)
+      // A write may be short; keep going until the whole chunk is on disk.
+      let written = 0
+      while (written < length) {
+        const { bytesWritten } = await handle.write(
+          chunk,
+          written,
+          length - written,
+          offset + written
+        )
+        if (bytesWritten <= 0) throw new Error('overwrite made no progress')
+        written += bytesWritten
+      }
     }
     await handle.datasync()
   }

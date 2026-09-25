@@ -330,3 +330,26 @@ describe('cleanPrivacyTraces', () => {
     ])
   })
 })
+
+describe('overwriteThroughHandle short writes', () => {
+  it('keeps writing until each chunk is complete', async () => {
+    const writes: Array<{ offset: number; length: number; position: number }> = []
+    const handle = {
+      write: vi.fn(async (_buf: Buffer, offset: number, length: number, position: number) => {
+        writes.push({ offset, length, position })
+        // Only ever accept half of what was asked for (at least one byte).
+        return { bytesWritten: Math.max(1, Math.floor(length / 2)) }
+      }),
+      datasync: vi.fn(async () => {})
+    }
+    await overwriteThroughHandle(handle as never, 10)
+    const covered = (pass: number) =>
+      writes
+        .slice(pass * (writes.length / 2), (pass + 1) * (writes.length / 2))
+        .reduce((sum, w) => sum + Math.max(1, Math.floor(w.length / 2)), 0)
+    expect(covered(0)).toBe(10)
+    expect(covered(1)).toBe(10)
+    expect(writes[1]).toMatchObject({ offset: 5, position: 5 })
+    expect(handle.datasync).toHaveBeenCalledTimes(2)
+  })
+})
