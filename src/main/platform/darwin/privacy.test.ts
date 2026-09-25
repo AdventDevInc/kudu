@@ -17,14 +17,24 @@ const modes = new Map<string, number>()
 // Paths that are symbolic links (e.g. maintained by configuration management)
 const symlinks = new Set<string>()
 const owners = new Map<string, string>()
+// Mode each Kudu temp file was created with, and what every mv put in place
+const tempModes: number[] = []
+const moves: Array<{ path: string; mode?: number; owner?: string }> = []
 const enoent = (path: string) => Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' })
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(async (path: string) => {
     if (!files.has(path)) throw enoent(path)
     return files.get(path)
   }),
-  writeFile: vi.fn(async (path: string, content: string) => {
+  writeFile: vi.fn(async (path: string, content: string, options?: unknown) => {
     files.set(path, content)
+    // Kudu's temp files are created by the user, with the requested mode
+    if (path.includes('kudu-test-uuid')) {
+      const mode = (options as { mode?: number } | undefined)?.mode
+      tempModes.push(mode ?? 0o644)
+      modes.set(path, mode ?? 0o644)
+      owners.set(path, '501:20')
+    }
   }),
   rename: vi.fn(async (from: string, to: string) => {
     files.set(to, files.get(from)!)
@@ -515,12 +525,17 @@ function run(cmd: string, args: string[], root = false): string {
           .join('')
       mac.womp[args[0] === '-b' ? 'Battery Power' : 'AC Power'] = args[2]
       return ''
-    case '/bin/mv':
-      // The moved file keeps the temp file's inode: user-owned, umask mode
-      files.set(args[2], files.get(args[1])!)
-      files.delete(args[1])
-      owners.set(args[2], '501:20')
-      modes.set(args[2], 0o644)
+    case '/bin/mv': {
+      // The destination becomes the temp file's inode, with its owner and mode
+      const [, from, to] = args
+      files.set(to, files.get(from)!)
+      files.delete(from)
+      owners.set(to, owners.get(from) ?? '501:20')
+      modes.set(to, modes.get(from) ?? 0o644)
+      moves.push({ path: to, mode: modes.get(to), owner: owners.get(to) })
+      return ''
+    }
+    case '/usr/bin/true':
       return ''
     case '/bin/rm':
       files.delete(args[1])
@@ -574,14 +589,25 @@ function runChain(chain: string): string {
 function osascript(appleScript: string): string {
   const script: string = JSON.parse(appleScript.match(/^do shell script (".*") with prompt /s)![1])
   if (!script.includes('kudu-group:')) return runChain(script)
-  return [...script.matchAll(/\((.*?)\) 1>&2; echo kudu-group:(\d+):\$\?/g)]
+  const status = new Map<string, number>()
+  return [...script.matchAll(/\((.*?)\) 1>&2; s(\d+)=\$\?; echo kudu-group:\d+:\$s\d+/g)]
     .map(([, chain, i]) => {
+      // `{ if [ "$sN" = 0 ]…; then <command>; fi; }` runs only after those groups succeeded
+      const resolved = chain.replace(
+        /\{ if ((?:\[ "\$s\d+" = 0 \](?: && )?)+); then (.*?); fi; \}/g,
+        (_, test: string, command: string) =>
+          [...test.matchAll(/\$s(\d+)/g)].every(([, n]) => status.get(n) === 0)
+            ? command
+            : "'/usr/bin/true'"
+      )
+      let code = 0
       try {
-        runChain(chain)
-        return `kudu-group:${i}:0`
+        runChain(resolved)
       } catch {
-        return `kudu-group:${i}:1`
+        code = 1
       }
+      status.set(i, code)
+      return `kudu-group:${i}:${code}`
     })
     .join('\r')
 }
@@ -614,6 +640,8 @@ describe('darwin privacy revert', () => {
     symlinks.clear()
     modes.clear()
     owners.clear()
+    tempModes.length = 0
+    moves.length = 0
     elevatedCalls.length = 0
     mac = freshMac()
     privacy = createDarwinPrivacy()
@@ -878,8 +906,14 @@ describe('darwin privacy revert', () => {
       await find('macos-ssh-root-login').revert!()
       expect(files.get(SSHD_CONFIG)).toBe('PermitRootLogin yes\n')
       expect([owners.get(SSHD_CONFIG), modes.get(SSHD_CONFIG)]).toEqual(['0:0', 0o600])
-      expect(elevatedCalls).toContainEqual(['/bin/chmod', '600', SSHD_CONFIG])
-      expect(elevatedCalls).not.toContainEqual(['/usr/sbin/chown', '501:20', SSHD_CONFIG])
+      // Contents are never exposed: temp files start owner-only, and every mv
+      // puts in place a file that already has its final owner and mode
+      expect(tempModes.length).toBeGreaterThan(0)
+      expect(tempModes.every((mode) => mode === 0o600)).toBe(true)
+      expect(moves.filter((m) => m.path === SSHD_CONFIG)).toEqual([
+        { path: SSHD_CONFIG, mode: 0o600, owner: '0:0' },
+        { path: SSHD_CONFIG, mode: 0o600, owner: '0:0' }
+      ])
     })
 
     it('drops group and world write from a config file mode', async () => {
@@ -895,7 +929,7 @@ describe('darwin privacy revert', () => {
     it('gives a config file Kudu creates the stock root:wheel 0644', async () => {
       mac.sysctl.set('net.inet.ip.forwarding', '1')
       await find('macos-ip-forwarding').apply()
-      expect(elevatedCalls).toContainEqual(['/usr/sbin/chown', 'root:wheel', '/etc/sysctl.conf'])
+      expect(moves).toEqual([{ path: '/etc/sysctl.conf', mode: 0o644, owner: '0:0' }])
       expect([owners.get('/etc/sysctl.conf'), modes.get('/etc/sysctl.conf')]).toEqual([
         '0:0',
         0o644
@@ -1300,6 +1334,35 @@ describe('darwin privacy revert', () => {
       expect(osascriptCalls()).toHaveLength(1)
       expect(result.errors.map((e) => e.id)).toEqual(['macos-chrome-safe-browsing'])
       expect(storedSettings()['macos-chrome-safe-browsing']).toBeDefined()
+    })
+
+    it('restores the shared mode only once the earlier policy revert succeeded', async () => {
+      await applyWithRootOnlyPlists()
+      rootOnly.clear()
+      modes.set(`${CHROME_POLICY}.plist`, 0o644) // as managedPrefWrite left it
+      mac.failing.add('MetricsReportingEnabled')
+
+      const result = await privacy.revertSettings!([
+        'macos-chrome-metrics',
+        'macos-chrome-safe-browsing'
+      ])
+
+      expect(osascriptCalls()).toHaveLength(1)
+      expect(result.errors.map((e) => e.id)).toEqual(['macos-chrome-metrics'])
+      // Metrics is still applied, so the plist must stay readable
+      expect(mac.defaults.get(prefId(CHROME_POLICY, 'MetricsReportingEnabled'))).toEqual(
+        pref('bool', '0')
+      )
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o644)
+      // ...and its record still holds the original mode for its own revert
+      expect(storedSettings()['macos-chrome-metrics'][`plist-mode:${CHROME_POLICY}.plist`]).toEqual(
+        { mode: '600' }
+      )
+
+      mac.failing.clear()
+      await privacy.revertSettings!(['macos-chrome-metrics'])
+      expect(modes.get(`${CHROME_POLICY}.plist`)).toBe(0o600)
+      expect(storedSettings()).not.toHaveProperty('macos-chrome-metrics')
     })
 
     it('leaves the plist readable while another Kudu policy in it is still applied', async () => {

@@ -117,6 +117,10 @@ async function assertNotSymlink(filePath: string): Promise<void> {
 // current owner isn't worth keeping — but keep the mode it already has (a
 // restrictive 0600 stays 0600) minus group/other write; a file Kudu creates
 // gets 0644. Runs in the same elevation as the mv.
+//
+// The temp file is written owner-only (writeTempFile) and given its final
+// owner and mode before the mv, so the destination never exists — even
+// briefly — with looser permissions than intended.
 async function installFileCommands(tmp: string, filePath: string): Promise<Command[]> {
   await assertNotSymlink(filePath)
   let mode = '644'
@@ -126,16 +130,21 @@ async function installFileCommands(tmp: string, filePath: string): Promise<Comma
     if (error?.code !== 'ENOENT') throw error
   }
   return [
-    { cmd: '/bin/mv', args: ['-f', tmp, filePath] },
-    { cmd: '/usr/sbin/chown', args: ['root:wheel', filePath] },
-    { cmd: '/bin/chmod', args: [mode, filePath] }
+    { cmd: '/usr/sbin/chown', args: ['root:wheel', tmp] },
+    { cmd: '/bin/chmod', args: [mode, tmp] },
+    { cmd: '/bin/mv', args: ['-f', tmp, filePath] }
   ]
+}
+
+async function writeTempFile(content: string): Promise<string> {
+  const tmp = join(tmpdir(), `kudu-${randomUUID()}.tmp`)
+  await writeFile(tmp, content, { encoding: 'utf8', mode: 0o600 })
+  return tmp
 }
 
 // Temp file then mv, as root or not, so both end with the same owner and mode
 async function elevatedWriteFile(filePath: string, content: string): Promise<void> {
-  const tmp = join(tmpdir(), `kudu-${randomUUID()}.tmp`)
-  await writeFile(tmp, content, 'utf8')
+  const tmp = await writeTempFile(content)
   try {
     await elevatedBatch(await installFileCommands(tmp, filePath))
   } finally {
@@ -343,6 +352,8 @@ interface Command {
   args: string[]
   /** Failure is ignored (e.g. restarting a daemon that isn't running) */
   optional?: boolean
+  /** Skipped (not failed) unless these earlier elevated groups succeeded */
+  requires?: number[]
 }
 
 /** Rewrite a root-owned config file; `null` means the file is absent. */
@@ -477,7 +488,8 @@ async function elevatedGroups(groups: Command[][]): Promise<(string | undefined)
     const failures: (string | undefined)[] = []
     for (const group of groups) {
       try {
-        for (const { cmd, args, optional } of group) {
+        for (const { cmd, args, optional, requires } of group) {
+          if (requires?.some((i) => failures[i] !== undefined)) continue
           await execFileAsync(cmd, args, { timeout: 10_000 }).catch((error) => {
             if (!optional) throw error
           })
@@ -492,12 +504,15 @@ async function elevatedGroups(groups: Command[][]): Promise<(string | undefined)
   const script = groups
     .map((group, i) => {
       const chain = group
-        .map(({ cmd, args, optional }) => {
-          const line = [cmd, ...args].map(shellEscape).join(' ')
-          return optional ? `{ ${line} || true; }` : line
+        .map(({ cmd, args, optional, requires }) => {
+          const escaped = [cmd, ...args].map(shellEscape).join(' ')
+          const line = optional ? `{ ${escaped} || true; }` : escaped
+          if (!requires?.length) return line
+          const met = requires.map((r) => `[ "$s${r}" = 0 ]`).join(' && ')
+          return `{ if ${met}; then ${line}; fi; }`
         })
         .join(' && ')
-      return `(${chain}) 1>&2; echo kudu-group:${i}:$?`
+      return `(${chain}) 1>&2; s${i}=$?; echo kudu-group:${i}:$s${i}`
     })
     .join('; ')
   let stdout: string
@@ -537,15 +552,25 @@ async function revertSettings(
   ids: string[]
 ): Promise<PrivacyApplyResult> {
   const errors: PrivacyApplyResult['errors'] = []
-  const fail = (setting: DarwinPrivacySetting, reason: unknown) =>
+  const failed = new Set<string>()
+  const fail = (setting: DarwinPrivacySetting, reason: unknown) => {
+    failed.add(setting.id)
     errors.push({
       id: setting.id,
       label: setting.label,
       reason: reason instanceof Error ? reason.message : String(reason)
     })
-  const ran: Array<{ setting: DarwinPrivacySetting; priors: PriorState }> = []
-  const groups: Array<{ setting: DarwinPrivacySetting; priors: PriorState; commands: Command[] }> =
-    []
+  }
+  // Shared parts whose restore waits on earlier groups: part id → group indices
+  type Waits = Map<string, number[]>
+  const ran: Array<{ setting: DarwinPrivacySetting; priors: PriorState; waits?: Waits }> = []
+  const groups: Array<{
+    setting: DarwinPrivacySetting
+    priors: PriorState
+    commands: Command[]
+    waits: Waits
+  }> = []
+  const groupOf = new Map<string, number>()
   // Config files as this batch will leave them, so two edits to one file stack
   const files = new Map<string, string | null>()
   const temps: string[] = []
@@ -561,16 +586,26 @@ async function revertSettings(
     try {
       const priors = resolvePriors(setting, await loadPriorState(setting.id))
       if (!priors) throw new Error(NOT_CAPTURED)
+      const waits: Waits = new Map()
       for (const part of setting.state.filter((p) => p.lastRevertOnly && p.id in priors)) {
+        const needs: number[] = []
         for (const other of settings) {
           if (other === setting || !other.state.some((p) => p.id === part.id)) continue
-          // Only a recorded Kudu apply that is still pending (not reverted, or
-          // reverted later in this batch) takes it over. A policy that was
-          // already in place before Kudu doesn't: the user's mode goes back.
+          // Only a recorded Kudu apply matters; a policy that was already in
+          // place before Kudu doesn't hold the user's mode back.
+          if ((await loadPriorState(other.id)) === undefined) continue
           const at = ids.indexOf(other.id)
-          if ((at < 0 || at > ids.indexOf(id)) && (await loadPriorState(other.id)) !== undefined)
+          // Still applied, reverted later in this batch, or its revert already
+          // failed: its record keeps the original for when it is reverted
+          if (at < 0 || at > ids.indexOf(id) || failed.has(other.id)) {
             delete priors[part.id]
+            break
+          }
+          // Reverted earlier in this batch: only once that revert succeeded
+          const group = groupOf.get(other.id)
+          if (group !== undefined) needs.push(group)
         }
+        if (part.id in priors && needs.length > 0) waits.set(part.id, needs)
       }
       const commands: Command[] = []
       const staged = new Map<string, string | null>()
@@ -589,7 +624,7 @@ async function revertSettings(
         }
         for (const action of part.restore(prior, currentUnknown)) {
           if ('cmd' in action) {
-            commands.push(action)
+            commands.push(waits.has(part.id) ? { ...action, requires: waits.get(part.id) } : action)
             continue
           }
           const current = staged.has(action.path)
@@ -602,8 +637,7 @@ async function revertSettings(
           if (next === null) {
             commands.push({ cmd: '/bin/rm', args: ['-f', action.path] })
           } else {
-            const tmp = join(tmpdir(), `kudu-${randomUUID()}.tmp`)
-            await writeFile(tmp, next, 'utf8')
+            const tmp = await writeTempFile(next)
             temps.push(tmp)
             commands.push(...(await installFileCommands(tmp, action.path)))
           }
@@ -611,7 +645,8 @@ async function revertSettings(
       }
       staged.forEach((content, path) => files.set(path, content))
       if (setting.requiresAdmin && commands.length > 0) {
-        groups.push({ setting, priors, commands })
+        groupOf.set(setting.id, groups.length)
+        groups.push({ setting, priors, commands, waits })
         continue
       }
       for (const { cmd, args, optional } of commands) {
@@ -633,10 +668,12 @@ async function revertSettings(
   await Promise.all(temps.map((tmp) => unlink(tmp).catch(() => {})))
 
   let succeeded = 0
-  for (const { setting, priors } of ran) {
+  for (const { setting, priors, waits } of ran) {
     let restored = true
     for (const part of setting.state) {
       if (!(part.id in priors)) continue
+      // Skipped because an earlier sharer's revert failed; its record keeps it
+      if (waits?.get(part.id)?.some((i) => failures[i] !== undefined)) continue
       const prior = priors[part.id]
       restored &&= await part
         .read({ elevate: false })
