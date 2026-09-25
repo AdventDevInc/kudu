@@ -328,11 +328,15 @@ export interface PrivacySettingDef {
   check: () => Promise<boolean>
   apply: () => Promise<void>
   revert?: () => Promise<void>
+  /** Whether revert can run right now (e.g. the prior state is known); default true */
+  canRevert?: () => Promise<boolean>
   applicable?: () => Promise<boolean>
 }
 
 export interface PlatformPrivacy {
   getSettings(): PrivacySettingDef[]
+  /** Revert several settings together, e.g. behind a single elevation prompt */
+  revertSettings?(ids: string[]): Promise<PrivacyApplyResult>
 }
 
 // ─── Services ───────────────────────────────────────────────

@@ -36,6 +36,7 @@ interface SettingDef {
   check: () => Promise<boolean> // returns true if already privacy-friendly
   apply: () => Promise<void> // applies the privacy-friendly state
   revert?: () => Promise<void> // reverts to Windows default (unprotected)
+  canRevert?: () => Promise<boolean> // false while revert has nothing safe to restore
   applicable?: () => Promise<boolean> // returns false if the underlying resource doesn't exist (e.g. browser not installed, task missing)
 }
 
@@ -1491,7 +1492,8 @@ export async function scanPrivacy(
     // A setting is only reversible if it has a revert function AND the underlying
     // resource actually exists (e.g. browser installed, task present, service present).
     // Settings that report enabled=true because the resource is absent are vacuously
-    // true and should not offer a revert toggle.
+    // true and should not offer a revert toggle. macOS settings additionally
+    // report whether their prior state is known (canRevert).
     const hasRevert = typeof def.revert === 'function'
     const isApplicable = def.applicable
       ? await withTimeout(
@@ -1500,7 +1502,15 @@ export async function scanPrivacy(
           true
         )
       : true
-    const reversible = hasRevert && isApplicable
+    const canRevert =
+      hasRevert && def.canRevert
+        ? await withTimeout(
+            def.canRevert().catch(() => false),
+            10000,
+            false
+          )
+        : hasRevert
+    const reversible = canRevert && isApplicable
 
     settings.push({
       id: def.id,
@@ -1547,6 +1557,10 @@ export async function applyPrivacySettings(ids: string[]): Promise<PrivacyApplyR
 }
 
 export async function revertPrivacySettings(ids: string[]): Promise<PrivacyApplyResult> {
+  // macOS reverts as a batch so several admin settings share one password prompt
+  const platformPrivacy = process.platform === 'win32' ? undefined : getPlatform().privacy
+  if (platformPrivacy?.revertSettings) return platformPrivacy.revertSettings(ids)
+
   const settingDefs = getSettingsForPlatform()
   let succeeded = 0
   let failed = 0

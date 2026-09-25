@@ -71,12 +71,13 @@ vi.mock('electron', () => {
   }
 })
 
+// Mutable so the macOS-path tests can install their own settings and batch revert
+const platformPrivacy = vi.hoisted(() => ({
+  getSettings: (): any[] => [],
+  revertSettings: undefined as undefined | ((ids: string[]) => Promise<unknown>)
+}))
 vi.mock('../platform', () => ({
-  getPlatform: () => ({
-    privacy: {
-      getSettings: () => []
-    }
-  })
+  getPlatform: () => ({ privacy: platformPrivacy })
 }))
 
 vi.mock('../services/ipc-validation', () => ({
@@ -912,6 +913,52 @@ describe('revertPrivacySettings', () => {
 
     const result = await revertPrivacySettings(['telemetry-level', 'advertising-id'])
     expect(result.succeeded + result.failed).toBe(2)
+  })
+})
+
+describe('macOS settings', () => {
+  const darwinSetting = (id: string, canRevert: boolean) => ({
+    id,
+    category: 'telemetry',
+    label: id,
+    description: id,
+    requiresAdmin: true,
+    check: async () => true,
+    apply: async () => {},
+    revert: async () => {},
+    canRevert: async () => canRevert
+  })
+
+  beforeEach(() => {
+    Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true })
+  })
+  afterEach(() => {
+    platformPrivacy.getSettings = () => []
+    platformPrivacy.revertSettings = undefined
+  })
+
+  it('only offers a revert when the platform knows what to restore', async () => {
+    platformPrivacy.getSettings = () => [
+      darwinSetting('macos-known', true),
+      darwinSetting('macos-unknown', false)
+    ]
+
+    const { settings } = await scanPrivacy()
+
+    expect(settings.map((s) => [s.id, s.reversible])).toEqual([
+      ['macos-known', true],
+      ['macos-unknown', false]
+    ])
+  })
+
+  it('hands reverts to the platform batch so they share one password prompt', async () => {
+    const batch = vi.fn(async () => ({ succeeded: 2, failed: 0, errors: [] }))
+    platformPrivacy.revertSettings = batch
+
+    const result = await revertPrivacySettings(['macos-a', 'macos-b'])
+
+    expect(batch).toHaveBeenCalledWith(['macos-a', 'macos-b'])
+    expect(result).toEqual({ succeeded: 2, failed: 0, errors: [] })
   })
 })
 

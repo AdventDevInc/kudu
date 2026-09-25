@@ -1,11 +1,18 @@
 import { execFile } from 'child_process'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, stat, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
 import { promisify } from 'util'
-import { updateSshdConfig, updateSysctlConfig } from '../config-utils'
+import {
+  SYSCTL_HEADER,
+  removeSysctlConfigParam,
+  updateSshdConfig,
+  updateSysctlConfig
+} from '../config-utils'
 import type { PlatformPrivacy, PrivacySettingDef } from '../types'
+import type { PrivacyApplyResult } from '../../../shared/types'
+import { clearPriorState, loadPriorState, savePriorState, type PriorState } from './privacy-state'
 
 const execFileAsync = promisify(execFile)
 
@@ -14,20 +21,33 @@ function isRoot(): boolean {
 }
 
 export function createDarwinPrivacy(): PlatformPrivacy {
+  const settings: DarwinPrivacySetting[] = [
+    ...DARWIN_PRIVACY_SETTINGS,
+    ...DARWIN_ADS_SETTINGS,
+    ...DARWIN_SEARCH_SETTINGS,
+    ...DARWIN_SYNC_SETTINGS,
+    ...DARWIN_AI_SETTINGS,
+    ...DARWIN_BROWSER_SETTINGS,
+    ...DARWIN_KERNEL_SETTINGS,
+    ...DARWIN_NETWORK_SETTINGS,
+    ...DARWIN_ACCESS_SETTINGS
+  ]
   return {
     getSettings(): PrivacySettingDef[] {
-      return [
-        ...DARWIN_PRIVACY_SETTINGS,
-        ...DARWIN_ADS_SETTINGS,
-        ...DARWIN_SEARCH_SETTINGS,
-        ...DARWIN_SYNC_SETTINGS,
-        ...DARWIN_AI_SETTINGS,
-        ...DARWIN_BROWSER_SETTINGS,
-        ...DARWIN_KERNEL_SETTINGS,
-        ...DARWIN_NETWORK_SETTINGS,
-        ...DARWIN_ACCESS_SETTINGS
-      ]
-    }
+      return settings.map((setting) => ({
+        ...setting,
+        async apply() {
+          await captureState(setting)
+          await setting.apply()
+        },
+        async revert() {
+          const result = await revertSettings(settings, [setting.id])
+          if (result.failed > 0) throw new Error(result.errors[0].reason)
+        },
+        canRevert: async () => !!resolvePriors(setting, await loadPriorState(setting.id))
+      }))
+    },
+    revertSettings: (ids) => revertSettings(settings, ids)
   }
 }
 
@@ -75,6 +95,17 @@ async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): 
   await execFileAsync('/usr/bin/osascript', ['-e', script], { timeout: 30_000 })
 }
 
+// Moving a user-written temp file into place keeps the user as its owner,
+// which would let any unprivileged process edit a root config file. Hand it
+// back to root with the stock macOS mode as part of the same elevation.
+function installFileCommands(tmp: string, filePath: string): Command[] {
+  return [
+    { cmd: '/bin/mv', args: ['-f', tmp, filePath] },
+    { cmd: '/usr/sbin/chown', args: ['root:wheel', filePath] },
+    { cmd: '/bin/chmod', args: ['644', filePath] }
+  ]
+}
+
 async function elevatedWriteFile(filePath: string, content: string): Promise<void> {
   if (isRoot()) {
     await writeFile(filePath, content, 'utf8')
@@ -83,7 +114,7 @@ async function elevatedWriteFile(filePath: string, content: string): Promise<voi
   // Write to temp first (no root needed), then elevated mv to target
   const tmp = join(tmpdir(), `kudu-${randomUUID()}.tmp`)
   await writeFile(tmp, content, 'utf8')
-  await elevatedExec('/bin/mv', ['-f', tmp, filePath])
+  await elevatedBatch(installFileCommands(tmp, filePath))
 }
 
 // ─── defaults helpers ───────────────────────────────────────
@@ -183,6 +214,7 @@ async function restartAlf(): Promise<void> {
 // ─── Sysctl helpers (macOS) ─────────────────────────────────
 
 const SYSCTL_CONF = '/etc/sysctl.conf'
+const SYSCTL_REVERT_NOTE = '# Delete this file and reboot to revert all changes'
 
 async function sysctlGet(param: string): Promise<string> {
   const { stdout } = await execFileAsync('/usr/sbin/sysctl', ['-n', param], { timeout: 5_000 })
@@ -201,13 +233,7 @@ async function sysctlApply(param: string, value: string): Promise<void> {
     /* file doesn't exist yet */
   }
 
-  const updated = updateSysctlConfig(
-    existing,
-    param,
-    value,
-    '=',
-    '# Delete this file and reboot to revert all changes'
-  )
+  const updated = updateSysctlConfig(existing, param, value, '=', SYSCTL_REVERT_NOTE)
 
   await elevatedWriteFile(SYSCTL_CONF, updated)
 }
@@ -245,13 +271,736 @@ async function applySshdDirective(directive: string, value: string): Promise<voi
   }
 }
 
-const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
+// systemsetup is the documented way, but on Ventura+ it needs Full Disk
+// Access for the *calling* process — which the osascript elevation
+// trampoline doesn't inherit — and can silently no-op. Follow up with the
+// launchd calls it performs under the hood so the result is deterministic.
+const SSHD_DISABLE_SCRIPT = [
+  '/usr/sbin/systemsetup -f -setremotelogin off >/dev/null 2>&1 || true',
+  `/bin/launchctl disable system/${SSHD_LABEL}`,
+  `/bin/launchctl bootout system/${SSHD_LABEL} >/dev/null 2>&1 || true`
+].join('; ')
+const SSHD_ENABLE_SCRIPT = [
+  '/usr/sbin/systemsetup -f -setremotelogin on >/dev/null 2>&1 || true',
+  `/bin/launchctl enable system/${SSHD_LABEL} || exit 1`,
+  // Fails harmlessly when the job is already loaded
+  '/bin/launchctl bootstrap system /System/Library/LaunchDaemons/ssh.plist >/dev/null 2>&1 || true'
+].join('; ')
+
+// ─── Revert: capture and restore prior state ────────────────
+// Each setting lists the pieces of system state its apply() changes. apply()
+// first captures what they hold now (privacy-state.ts) and revert writes
+// exactly that back — the user's own state, not an assumed default. Only when
+// nothing was captured (applied by an older Kudu, or protected before Kudu
+// touched it) does revert use a part's `fallback`: the macOS default, given
+// only where that default is certain. Without one the setting stays
+// non-reversible rather than guessing.
+//
+// Fallbacks in use:
+//   - AirDrop DiscoverableMode, CrashReporter DialogType, Safari
+//     UniversalSearchEnabled / PreloadTopHit / SendDoNotTrackHTTPHeader,
+//     Spotlight LookupSuggestionsDisabled: key unset. macOS ships them unset,
+//     and unset is the unprotected behaviour.
+//   - Chrome / Firefox managed policies: no policy key (an unmanaged Mac has none).
+//   - Application Firewall off, stealth mode off, automatically allow built-in
+//     and downloaded signed software on.
+//   - kern.coredump=1 with no line in /etc/sysctl.conf.
+// Everything else has none: its default comes from Setup Assistant choices
+// (Siri, analytics, dictation), varies by hardware (wake on network), already
+// is the protected state (Gatekeeper, guest account, remote login and Apple
+// events, IP forwarding, keys the checks treat unset as protected), or can't
+// be known (the auto-login user, which sshd_config lines were Kudu's).
+
+interface Command {
+  cmd: string
+  args: string[]
+  /** Failure is ignored (e.g. restarting a daemon that isn't running) */
+  optional?: boolean
+}
+
+/** Rewrite a root-owned config file; `null` means the file is absent. */
+interface FileEdit {
+  path: string
+  edit: (content: string | null) => string | null
+}
+
+type RestoreAction = Command | FileEdit
+
+interface StatePart<S> {
+  /** Key in the prior-state store; keep stable across releases */
+  id: string
+  read: () => Promise<S>
+  valid: (value: unknown) => value is S
+  /** The state apply() leaves behind, given the state it started from */
+  applied: (prior: S) => S
+  /** Documented macOS default, used only when no prior state was captured */
+  fallback?: S
+  restore: (prior: S) => RestoreAction[]
+}
+
+interface DarwinPrivacySetting extends PrivacySettingDef {
+  state: StatePart<any>[]
+}
+
+const NOT_CAPTURED =
+  "Kudu has no record of this setting's previous state and macOS's default isn't certain, so it can't be reverted safely. Change it in System Settings instead."
+
+const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean'
+
+function errorText(error: unknown): string {
+  const e = error as { message?: string; stderr?: string } | undefined
+  return `${e?.message ?? ''}\n${e?.stderr ?? ''}`
+}
+
+async function captureState(setting: DarwinPrivacySetting): Promise<void> {
+  const earlier = await loadPriorState(setting.id)
+  const prior: PriorState = {}
+  let changes = false
+  for (const part of setting.state) {
+    let current: unknown
+    try {
+      current = await part.read()
+    } catch (error) {
+      throw new Error(
+        `Kudu couldn't record the current state, so nothing was changed: ${error instanceof Error ? error.message : error}`,
+        { cause: error }
+      )
+    }
+    // An earlier capture still stands while the part holds exactly what Kudu
+    // wrote (e.g. retrying a half-finished apply); anything else means the
+    // user changed it since, so what's there now is theirs.
+    const kept = earlier?.[part.id]
+    const value = part.valid(kept) && same(current, part.applied(kept)) ? kept : current
+    prior[part.id] = value
+    if (!same(value, part.applied(value))) changes = true
+  }
+  // Already in the applied state: there is nothing of the user's to put back,
+  // so revert treats the setting as uncaptured.
+  if (changes) await savePriorState(setting.id, prior)
+  else await clearPriorState(setting.id)
+}
+
+function resolvePriors(
+  setting: DarwinPrivacySetting,
+  stored: PriorState | undefined
+): PriorState | undefined {
+  const priors: PriorState = {}
+  for (const part of setting.state) {
+    const value = stored?.[part.id]
+    if (part.valid(value)) priors[part.id] = value
+    else if (part.fallback !== undefined) priors[part.id] = part.fallback
+    else return undefined
+  }
+  return priors
+}
+
+async function readConfig(path: string): Promise<string | null> {
+  try {
+    return await readFile(path, 'utf8')
+  } catch (error: any) {
+    if (error?.code === 'ENOENT') return null
+    throw error
+  }
+}
+
+/**
+ * Run independent command groups behind one password prompt. Within a group
+ * commands stop at the first failure (like elevatedBatch); each group reports
+ * its own exit status, so one failed revert neither fails nor hides the rest.
+ * Returns a failure reason per group (undefined = success).
+ */
+async function elevatedGroups(groups: Command[][]): Promise<(string | undefined)[]> {
+  if (groups.length === 0) return []
+  if (isRoot()) {
+    const failures: (string | undefined)[] = []
+    for (const group of groups) {
+      try {
+        for (const { cmd, args, optional } of group) {
+          await execFileAsync(cmd, args, { timeout: 10_000 }).catch((error) => {
+            if (!optional) throw error
+          })
+        }
+        failures.push(undefined)
+      } catch (error) {
+        failures.push(error instanceof Error ? error.message : 'Unknown error')
+      }
+    }
+    return failures
+  }
+  const script = groups
+    .map((group, i) => {
+      const chain = group
+        .map(({ cmd, args, optional }) => {
+          const line = [cmd, ...args].map(shellEscape).join(' ')
+          return optional ? `{ ${line} || true; }` : line
+        })
+        .join(' && ')
+      return `(${chain}) 1>&2; echo kudu-group:${i}:$?`
+    })
+    .join('; ')
+  let stdout: string
+  try {
+    ;({ stdout } = await execFileAsync(
+      '/usr/bin/osascript',
+      [
+        '-e',
+        `do shell script ${JSON.stringify(script)} with prompt ${JSON.stringify(ELEVATION_PROMPT)} with administrator privileges`
+      ],
+      { timeout: 30_000 + groups.length * 10_000 }
+    ))
+  } catch (error) {
+    // Cancelled or refused password: nothing ran
+    const reason = error instanceof Error ? error.message : 'Unknown error'
+    return groups.map(() => reason)
+  }
+  const status = new Map(
+    [...stdout.matchAll(/kudu-group:(\d+):(\d+)/g)].map((m) => [Number(m[1]), Number(m[2])])
+  )
+  return groups.map((_, i) =>
+    status.get(i) === 0
+      ? undefined
+      : status.has(i)
+        ? `The revert command failed (exit code ${status.get(i)})`
+        : 'The revert command did not run'
+  )
+}
+
+/**
+ * Revert several settings together. User-level settings are restored
+ * directly; every admin setting shares a single password prompt. A setting's
+ * captured state is only forgotten once the system reads back as restored.
+ */
+async function revertSettings(
+  settings: DarwinPrivacySetting[],
+  ids: string[]
+): Promise<PrivacyApplyResult> {
+  const errors: PrivacyApplyResult['errors'] = []
+  const fail = (setting: DarwinPrivacySetting, reason: unknown) =>
+    errors.push({
+      id: setting.id,
+      label: setting.label,
+      reason: reason instanceof Error ? reason.message : String(reason)
+    })
+  const ran: Array<{ setting: DarwinPrivacySetting; priors: PriorState }> = []
+  const groups: Array<{ setting: DarwinPrivacySetting; priors: PriorState; commands: Command[] }> =
+    []
+  // Config files as this batch will leave them, so two edits to one file stack
+  const files = new Map<string, string | null>()
+  const temps: string[] = []
+
+  for (const id of ids) {
+    const setting = settings.find((s) => s.id === id)
+    if (!setting) {
+      errors.push({ id, label: id, reason: 'Revert not supported for this setting' })
+      continue
+    }
+    try {
+      const priors = resolvePriors(setting, await loadPriorState(setting.id))
+      if (!priors) throw new Error(NOT_CAPTURED)
+      const commands: Command[] = []
+      const staged = new Map<string, string | null>()
+      for (const part of setting.state) {
+        const prior = priors[part.id]
+        if (same(await part.read(), prior)) continue
+        for (const action of part.restore(prior)) {
+          if ('cmd' in action) {
+            commands.push(action)
+            continue
+          }
+          const current = staged.has(action.path)
+            ? (staged.get(action.path) as string | null)
+            : files.has(action.path)
+              ? (files.get(action.path) as string | null)
+              : await readConfig(action.path)
+          const next = action.edit(current)
+          staged.set(action.path, next)
+          if (next === null) {
+            commands.push({ cmd: '/bin/rm', args: ['-f', action.path] })
+          } else {
+            const tmp = join(tmpdir(), `kudu-${randomUUID()}.tmp`)
+            await writeFile(tmp, next, 'utf8')
+            temps.push(tmp)
+            commands.push(...installFileCommands(tmp, action.path))
+          }
+        }
+      }
+      staged.forEach((content, path) => files.set(path, content))
+      if (setting.requiresAdmin && commands.length > 0) {
+        groups.push({ setting, priors, commands })
+        continue
+      }
+      for (const { cmd, args, optional } of commands) {
+        await execFileAsync(cmd, args, { timeout: 5_000 }).catch((error) => {
+          if (!optional) throw error
+        })
+      }
+      ran.push({ setting, priors })
+    } catch (error) {
+      fail(setting, error)
+    }
+  }
+
+  const failures = await elevatedGroups(groups.map((g) => g.commands))
+  groups.forEach((group, i) => {
+    if (failures[i]) fail(group.setting, failures[i])
+    else ran.push(group)
+  })
+  await Promise.all(temps.map((tmp) => unlink(tmp).catch(() => {})))
+
+  let succeeded = 0
+  for (const { setting, priors } of ran) {
+    let restored = true
+    for (const part of setting.state) {
+      restored &&= await part
+        .read()
+        .then((value) => same(value, priors[part.id]))
+        .catch(() => false)
+    }
+    if (!restored) {
+      fail(
+        setting,
+        "macOS didn't report the previous state after reverting. Kudu kept its record so you can try again."
+      )
+      continue
+    }
+    await clearPriorState(setting.id).catch((error) =>
+      console.warn('[privacy] could not clear prior state:', error)
+    )
+    succeeded++
+  }
+  return { succeeded, failed: errors.length, errors }
+}
+
+// ─── Revert: state parts ────────────────────────────────────
+
+type DefaultsType = 'bool' | 'int' | 'float' | 'string'
+type DefaultsValue = { type: DefaultsType; value: string } | null
+
+const OFF: DefaultsValue = { type: 'bool', value: '0' }
+const ON: DefaultsValue = { type: 'bool', value: '1' }
+
+const DEFAULTS_FORMATS: Record<DefaultsType, (value: string) => boolean> = {
+  bool: (v) => v === '0' || v === '1',
+  int: (v) => /^-?\d{1,19}$/.test(v),
+  float: (v) => /^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(v),
+  // Control characters can't round-trip through the elevation script
+  string: (v) => v.length <= 4096 && ![...v].some((c) => c < ' ' || c === '\x7f')
+}
+
+function isDefaultsValue(value: unknown): value is DefaultsValue {
+  if (value === null) return true
+  const v = value as { type?: unknown; value?: unknown }
+  return (
+    !!v &&
+    typeof v === 'object' &&
+    typeof v.value === 'string' &&
+    (['bool', 'int', 'float', 'string'] as unknown[]).includes(v.type) &&
+    DEFAULTS_FORMATS[v.type as DefaultsType](v.value)
+  )
+}
+
+// Only scalar types can be written back exactly with `defaults write -<type>`;
+// anything else (arrays, dictionaries, dates, data) refuses the apply instead.
+function checkedDefault(key: string, type: DefaultsType | undefined, value: string): DefaultsValue {
+  const result = type ? { type, value } : undefined
+  if (!isDefaultsValue(result)) throw new Error(`the current value of ${key} can't be restored`)
+  return result
+}
+
+const DEFAULTS_TYPE_NAMES = new Map<string, DefaultsType>([
+  ['boolean', 'bool'],
+  ['integer', 'int'],
+  ['float', 'float'],
+  ['string', 'string']
+])
+
+async function readUserDefault(
+  domain: string,
+  key: string,
+  currentHost: boolean
+): Promise<DefaultsValue> {
+  const host = currentHost ? ['-currentHost'] : []
+  let typeName: string
+  try {
+    const { stdout } = await execFileAsync(
+      '/usr/bin/defaults',
+      [...host, 'read-type', domain, key],
+      { timeout: 5_000 }
+    )
+    typeName = stdout.trim().replace(/^Type is /, '')
+  } catch (error) {
+    // "The domain/default pair of (…) does not exist" — anything else is not
+    // proof of absence, so it fails the capture rather than recording "unset"
+    if (/does not exist/i.test(errorText(error))) return null
+    throw error
+  }
+  const type = DEFAULTS_TYPE_NAMES.get(typeName)
+  if (!type) return checkedDefault(key, undefined, '')
+  const { stdout } = await execFileAsync('/usr/bin/defaults', [...host, 'read', domain, key], {
+    timeout: 5_000
+  })
+  return checkedDefault(key, type, type === 'string' ? stdout.replace(/\n$/, '') : stdout.trim())
+}
+
+const NO_PLIST_VALUE = /No value at that key path/i
+
+function decodeXml(text: string): string {
+  return text
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&')
+}
+
+function parsePlistValue(key: string, xml: string): DefaultsValue {
+  const body = xml.match(/<plist[^>]*>([\s\S]*)<\/plist>/)?.[1].trim() ?? ''
+  if (body === '<true/>') return ON
+  if (body === '<false/>') return OFF
+  if (body === '<string/>') return checkedDefault(key, 'string', '')
+  const match = body.match(/^<(integer|real|string)>([^<]*)<\/\1>$/)
+  const types: Record<string, DefaultsType> = { integer: 'int', real: 'float', string: 'string' }
+  return checkedDefault(key, match ? types[match[1]] : undefined, match ? decodeXml(match[2]) : '')
+}
+
+// System-wide domains are written by root's cfprefsd, so the user's cached view
+// of them can be stale. Read the plist file itself, like managedPrefBool does.
+async function readPlistDefault(domain: string, key: string): Promise<DefaultsValue> {
+  const file = `${domain}.plist`
+  try {
+    await stat(file)
+  } catch (error: any) {
+    if (error?.code === 'ENOENT') return null
+    throw error
+  }
+  const args = ['-extract', key, 'xml1', '-o', '-', file]
+  let xml: string
+  try {
+    xml = (await execFileAsync('/usr/bin/plutil', args, { timeout: 5_000 })).stdout
+  } catch (error) {
+    if (NO_PLIST_VALUE.test(errorText(error))) return null
+    // Root-only plist (cfprefsd creates new files 0600): read it as root
+    try {
+      xml = await elevatedExec('/usr/bin/plutil', args)
+    } catch (elevatedError) {
+      if (NO_PLIST_VALUE.test(errorText(elevatedError))) return null
+      throw elevatedError
+    }
+  }
+  return parsePlistValue(key, xml)
+}
+
+/**
+ * A preference key. `applied` is what apply() writes (null = deletes it).
+ * Absolute domains are system plists (restored as root); `managed` ones also
+ * get the same mkdir/chmod that managedPrefWrite does.
+ */
+function prefPart(
+  domain: string,
+  key: string,
+  applied: DefaultsValue,
+  options: { currentHost?: boolean; managed?: boolean; fallback?: DefaultsValue } = {}
+): StatePart<DefaultsValue> {
+  const host = options.currentHost ? ['-currentHost'] : []
+  return {
+    id: `defaults:${options.currentHost ? 'currentHost:' : ''}${domain}:${key}`,
+    read: () =>
+      domain.startsWith('/')
+        ? readPlistDefault(domain, key)
+        : readUserDefault(domain, key, !!options.currentHost),
+    valid: isDefaultsValue,
+    applied: () => applied,
+    fallback: options.fallback,
+    restore(prior) {
+      const write: Command = {
+        cmd: '/usr/bin/defaults',
+        args:
+          prior === null
+            ? [...host, 'delete', domain, key]
+            : [
+                ...host,
+                'write',
+                domain,
+                key,
+                `-${prior.type}`,
+                prior.type === 'bool' ? (prior.value === '1' ? 'true' : 'false') : prior.value
+              ]
+      }
+      if (!options.managed) return [write]
+      return [
+        { cmd: '/bin/mkdir', args: ['-p', MANAGED_PREFS] },
+        write,
+        { cmd: '/bin/chmod', args: ['644', `${domain}.plist`] }
+      ]
+    }
+  }
+}
+
+function sysctlLine(content: string | null, param: string): string | null {
+  return (
+    content?.split('\n').find((line) => {
+      const trimmed = line.trimStart()
+      return trimmed.startsWith(`${param}=`) || trimmed.startsWith(`${param} =`)
+    }) ?? null
+  )
+}
+
+// Put back the line updateSysctlConfig replaced (or drop the one it added),
+// leaving every other line alone. A file that only holds Kudu's header was
+// created by Kudu, so it goes too.
+function restoreSysctlLine(content: string | null, param: string, prior: string | null) {
+  if (prior === null) {
+    const rest = removeSysctlConfigParam(content ?? '', param)
+    return rest.trim() === [...SYSCTL_HEADER, SYSCTL_REVERT_NOTE].join('\n') ? null : rest
+  }
+  const lines = (content ?? '').split('\n')
+  const current = sysctlLine(content, param)
+  if (current !== null) {
+    lines[lines.indexOf(current)] = prior
+    return lines.join('\n')
+  }
+  const rest = (content ?? '').trimEnd()
+  return (rest ? rest + '\n' : '') + prior + '\n'
+}
+
+/**
+ * A sysctl set by sysctlApply: the live kernel value and its line in
+ * /etc/sysctl.conf. `fallback` is the documented kernel default, if certain.
+ */
+function sysctlParts(param: string, value: string, fallback?: string): StatePart<any>[] {
+  const live: StatePart<string> = {
+    id: `sysctl:${param}`,
+    read: () => sysctlGet(param),
+    valid: (v): v is string => typeof v === 'string' && /^-?\d{1,19}$/.test(v),
+    applied: () => value,
+    fallback,
+    restore: (prior) => [{ cmd: '/usr/sbin/sysctl', args: ['-w', `${param}=${prior}`] }]
+  }
+  const conf: StatePart<string | null> = {
+    id: `sysctl.conf:${param}`,
+    read: async () => sysctlLine(await readConfig(SYSCTL_CONF), param),
+    valid: (v): v is string | null =>
+      v === null || (typeof v === 'string' && !v.includes('\n') && sysctlLine(v, param) === v),
+    applied: () => `${param}=${value}`,
+    // With the kernel default restored, Kudu's line is simply dropped
+    fallback: fallback === undefined ? undefined : null,
+    restore: (prior) => [
+      { path: SYSCTL_CONF, edit: (content) => restoreSysctlLine(content, param, prior) }
+    ]
+  }
+  return [live, conf]
+}
+
+const SSHD_CONFIG = '/etc/ssh/sshd_config'
+
+// Same lines updateSshdConfig matches, in file order
+function sshdLines(content: string, directive: string): string[] {
+  const pattern = new RegExp(`^\\s*#?\\s*${directive}\\s`)
+  return content.split('\n').filter((line) => pattern.test(line))
+}
+
+/**
+ * An sshd_config directive set by applySshdDirective. The prior state is every
+ * line for the directive (active or commented). Revert maps them back one to
+ * one — undoing the commenting-out and dropping the appended line — but only
+ * while those lines are exactly as Kudu left them; otherwise it refuses
+ * rather than overwrite someone else's edit. No fallback: without a capture
+ * there's no telling which lines were Kudu's.
+ */
+function sshdPart(directive: string, value: string): StatePart<string[]> {
+  const applied = (prior: string[]) =>
+    sshdLines(updateSshdConfig(prior.join('\n'), directive, value), directive)
+  return {
+    id: `sshd_config:${directive}`,
+    read: async () => sshdLines(await readFile(SSHD_CONFIG, 'utf8'), directive),
+    valid: (v): v is string[] =>
+      Array.isArray(v) &&
+      v.length <= 100 &&
+      v.every((line) => typeof line === 'string' && sshdLines(line, directive).length === 1),
+    applied,
+    restore: (prior) => [
+      {
+        path: SSHD_CONFIG,
+        edit(content) {
+          const lines = (content ?? '').split('\n')
+          const at = lines.flatMap((line, i) => (sshdLines(line, directive).length ? [i] : []))
+          const expected = applied(prior)
+          if (
+            content === null ||
+            !same(
+              at.map((i) => lines[i]),
+              expected
+            )
+          )
+            throw new Error(
+              `${SSHD_CONFIG} was edited after Kudu changed it, so Kudu won't overwrite it. Restore ${directive} by hand.`
+            )
+          prior.forEach((line, n) => (lines[at[n]] = line))
+          if (expected.length > prior.length) lines.splice(at[at.length - 1], 1)
+          return lines.join('\n')
+        }
+      },
+      { cmd: '/bin/launchctl', args: ['kickstart', '-k', `system/${SSHD_LABEL}`], optional: true }
+    ]
+  }
+}
+
+function launchdPart(
+  label: string,
+  port: number,
+  restore: (enabled: boolean) => Command
+): StatePart<boolean> {
+  return {
+    id: `launchd:${label}`,
+    read: () => isLaunchdServiceEnabled(label, port),
+    valid: isBoolean,
+    applied: () => false,
+    restore: (prior) => [restore(prior)]
+  }
+}
+
+const ALF_RESTART: Command = {
+  cmd: '/bin/launchctl',
+  args: ['kickstart', '-k', 'system/com.apple.alf'],
+  optional: true
+}
+
+function parseOnOff(output: string): boolean {
+  if (/\b(disabled|off)\b/i.test(output)) return false
+  if (/\b(enabled|on)\b/i.test(output)) return true
+  throw new Error(`unrecognised firewall output: ${output}`)
+}
+
+// 0 = off, 1 = on, 2 = block all incoming connections
+const firewallPart: StatePart<number> = {
+  id: 'alf:globalstate',
+  async read() {
+    const out = await socketfilterfwGet('--getglobalstate')
+    const state = out.match(/State = ([012])/)
+    return state ? Number(state[1]) : parseOnOff(out) ? 1 : 0
+  },
+  valid: (v): v is number => v === 0 || v === 1 || v === 2,
+  applied: () => 1,
+  fallback: 0, // The Application Firewall ships turned off
+  restore: (prior) =>
+    prior === 0
+      ? [{ cmd: SOCKETFILTERFW, args: ['--setglobalstate', 'off'] }]
+      : [
+          { cmd: SOCKETFILTERFW, args: ['--setglobalstate', 'on'] },
+          { cmd: SOCKETFILTERFW, args: ['--setblockall', prior === 2 ? 'on' : 'off'] }
+        ]
+}
+
+const stealthPart: StatePart<boolean> = {
+  id: 'alf:stealthmode',
+  read: async () => parseOnOff(await socketfilterfwGet('--getstealthmode')),
+  valid: isBoolean,
+  applied: () => true,
+  fallback: false, // Stealth mode ships turned off
+  restore: (prior) => [
+    { cmd: SOCKETFILTERFW, args: ['--setstealthmode', prior ? 'on' : 'off'] },
+    ALF_RESTART
+  ]
+}
+
+// --getallowsigned prints one line per flag: built-in (--setallowsigned) and
+// downloaded (--setallowsignedapp) signed software. Both ship enabled.
+function allowSignedPart(flag: string, line: RegExp): StatePart<boolean> {
+  return {
+    id: `alf:${flag.replace(/^--set/, '')}`,
+    async read() {
+      const out = await socketfilterfwGet('--getallowsigned')
+      const match = out.split('\n').find((l) => line.test(l))
+      if (!match) throw new Error(`unrecognised firewall output: ${out}`)
+      return parseOnOff(match)
+    },
+    valid: isBoolean,
+    applied: () => false,
+    fallback: true,
+    restore: (prior) => [{ cmd: SOCKETFILTERFW, args: [flag, prior ? 'on' : 'off'] }, ALF_RESTART]
+  }
+}
+
+const gatekeeperPart: StatePart<boolean> = {
+  id: 'spctl:assessments',
+  async read() {
+    let out: string
+    try {
+      const { stdout, stderr } = await execFileAsync('/usr/sbin/spctl', ['--status'], {
+        timeout: 5_000
+      })
+      out = stdout + stderr
+    } catch (error) {
+      // Some releases exit non-zero when assessments are disabled
+      const e = error as { stdout?: string; stderr?: string }
+      out = `${e.stdout ?? ''}${e.stderr ?? ''}`
+    }
+    if (out.includes('assessments enabled')) return true
+    if (out.includes('assessments disabled')) return false
+    throw new Error('Gatekeeper status is unavailable')
+  },
+  valid: isBoolean,
+  applied: () => true,
+  restore: (prior) => [
+    { cmd: '/usr/sbin/spctl', args: [prior ? '--master-enable' : '--master-disable'] }
+  ]
+}
+
+// Wake-on-network per power source (pmset flag), as `pmset -g custom` lists it
+type WompState = Record<string, '0' | '1'>
+const PMSET_SOURCES: Record<string, string> = {
+  'Battery Power': '-b',
+  'AC Power': '-c',
+  'UPS Power': '-u'
+}
+
+const wompPart: StatePart<WompState> = {
+  id: 'pmset:womp',
+  async read() {
+    const { stdout } = await execFileAsync('/usr/bin/pmset', ['-g', 'custom'], { timeout: 5_000 })
+    const state: WompState = {}
+    let source: string | undefined
+    for (const line of stdout.split('\n')) {
+      const header = line.match(/^(\w+ Power):\s*$/)
+      if (header) source = PMSET_SOURCES[header[1]]
+      const womp = line.match(/^\s*womp\s+([01])\s*$/)
+      if (womp && source) state[source] = womp[1] as '0' | '1'
+    }
+    return state
+  },
+  valid: (v): v is WompState =>
+    !!v &&
+    typeof v === 'object' &&
+    !Array.isArray(v) &&
+    Object.entries(v).every(
+      ([source, value]) =>
+        Object.values(PMSET_SOURCES).includes(source) && (value === '0' || value === '1')
+    ),
+  applied: (prior) => Object.fromEntries(Object.keys(prior).map((source) => [source, '0'])),
+  restore: (prior) =>
+    Object.entries(prior).map(([source, value]) => ({
+      cmd: '/usr/bin/pmset',
+      args: [source, 'womp', value]
+    }))
+}
+
+const DARWIN_PRIVACY_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-diagnostics',
     category: 'telemetry',
     label: 'Diagnostic & Usage Data',
     description: 'Disable sharing diagnostic and usage data with Apple',
     requiresAdmin: true,
+    state: [
+      prefPart(
+        '/Library/Application Support/CrashReporter/DiagnosticMessagesHistory',
+        'AutoSubmit',
+        OFF
+      )
+    ],
     async check() {
       try {
         const val = await defaultsRead(
@@ -278,6 +1027,12 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     label: 'Siri Analytics',
     description: 'Disable Siri analytics and improvement data collection',
     requiresAdmin: false,
+    state: [
+      prefPart('com.apple.assistant.support', 'Siri Data Sharing Opt-In Status', {
+        type: 'int',
+        value: '2'
+      })
+    ],
     async check() {
       try {
         const val = await defaultsRead(
@@ -304,6 +1059,7 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     label: 'Health Data Sharing',
     description: 'Disable sharing health data with Apple for research',
     requiresAdmin: false,
+    state: [prefPart('com.apple.HealthKit', 'ResearchDataSharingEnabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.HealthKit', 'ResearchDataSharingEnabled')
@@ -324,6 +1080,14 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     description:
       'Set AirDrop to "No One" — you will not be able to receive files via AirDrop until re-enabled in System Settings',
     requiresAdmin: false,
+    state: [
+      prefPart(
+        'com.apple.sharingd',
+        'DiscoverableMode',
+        { type: 'string', value: 'Off' },
+        { fallback: null }
+      )
+    ],
     async check() {
       try {
         const val = await defaultsRead('com.apple.sharingd', 'DiscoverableMode')
@@ -342,6 +1106,14 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
     label: 'Crash Reporter',
     description: 'Set crash reporter to not send reports automatically',
     requiresAdmin: false,
+    state: [
+      prefPart(
+        'com.apple.CrashReporter',
+        'DialogType',
+        { type: 'string', value: 'none' },
+        { fallback: null }
+      )
+    ],
     async check() {
       try {
         const val = await defaultsRead('com.apple.CrashReporter', 'DialogType')
@@ -358,13 +1130,14 @@ const DARWIN_PRIVACY_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Ads & Suggestions ──────────────────────────────────────
 
-const DARWIN_ADS_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_ADS_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-ad-tracking',
     category: 'ads',
     label: 'Personalized Ads',
     description: 'Limit ad tracking by Apple',
     requiresAdmin: false,
+    state: [prefPart('com.apple.AdLib', 'allowApplePersonalizedAdvertising', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.AdLib', 'allowApplePersonalizedAdvertising')
@@ -383,6 +1156,7 @@ const DARWIN_ADS_SETTINGS: PrivacySettingDef[] = [
     label: 'Siri Suggestions in App Store',
     description: 'Disable Siri Suggestions in the App Store',
     requiresAdmin: false,
+    state: [prefPart('com.apple.AppStore', 'SiriSuggestionsEnabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.AppStore', 'SiriSuggestionsEnabled')
@@ -399,13 +1173,14 @@ const DARWIN_ADS_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Search ─────────────────────────────────────────────────
 
-const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_SEARCH_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-safari-suggestions',
     category: 'search',
     label: 'Safari Suggestions',
     description: 'Disable Safari search suggestions sent to Apple',
     requiresAdmin: false,
+    state: [prefPart('com.apple.Safari', 'UniversalSearchEnabled', OFF, { fallback: null })],
     async check() {
       try {
         const val = await defaultsRead('com.apple.Safari', 'UniversalSearchEnabled')
@@ -424,6 +1199,9 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
     label: 'Spotlight Suggestions',
     description: 'Disable Spotlight web suggestions',
     requiresAdmin: false,
+    state: [
+      prefPart('com.apple.lookup.shared', 'LookupSuggestionsDisabled', ON, { fallback: null })
+    ],
     async check() {
       try {
         const val = await defaultsRead('com.apple.lookup.shared', 'LookupSuggestionsDisabled')
@@ -442,6 +1220,7 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
     label: 'Safari Preload Top Hit',
     description: 'Disable Safari preloading the top search hit which sends browsing data to sites',
     requiresAdmin: false,
+    state: [prefPart('com.apple.Safari', 'PreloadTopHit', OFF, { fallback: null })],
     async check() {
       try {
         const val = await defaultsRead('com.apple.Safari', 'PreloadTopHit')
@@ -458,7 +1237,7 @@ const DARWIN_SEARCH_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Sync & Cloud ───────────────────────────────────────────
 
-const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_SYNC_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-handoff',
     category: 'sync',
@@ -466,6 +1245,11 @@ const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
     description:
       'Disable Handoff and Universal Clipboard — you will no longer be able to continue activities or copy/paste between Apple devices',
     requiresAdmin: false,
+    state: [
+      prefPart('com.apple.coreservices.useractivityd', 'ActivityReceivingAllowed', OFF, {
+        currentHost: true
+      })
+    ],
     async check() {
       try {
         const { stdout } = await execFileAsync(
@@ -504,6 +1288,7 @@ const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
     label: 'iCloud Analytics',
     description: 'Disable iCloud analytics sharing with Apple',
     requiresAdmin: false,
+    state: [prefPart('com.apple.iCloud.Diagnostics', 'iCloudAnalyticsEnabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.iCloud.Diagnostics', 'iCloudAnalyticsEnabled')
@@ -524,6 +1309,7 @@ const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
     description:
       'Disable Safari iCloud tab syncing — you will no longer see tabs open on your other Apple devices',
     requiresAdmin: false,
+    state: [prefPart('com.apple.Safari', 'CloudTabsEnabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.Safari', 'CloudTabsEnabled')
@@ -540,7 +1326,7 @@ const DARWIN_SYNC_SETTINGS: PrivacySettingDef[] = [
 
 // ─── AI Features ────────────────────────────────────────────
 
-const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_AI_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-siri-enabled',
     category: 'ai',
@@ -548,6 +1334,7 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
     description:
       'Disable Siri entirely — Hey Siri, voice commands, and Siri Shortcuts will stop working',
     requiresAdmin: false,
+    state: [prefPart('com.apple.assistant.support', 'Assistant Enabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.assistant.support', 'Assistant Enabled')
@@ -566,6 +1353,13 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
     label: 'Siri Dictation',
     description: 'Disable dictation — the microphone key on your keyboard will stop working',
     requiresAdmin: false,
+    state: [
+      prefPart(
+        'com.apple.speech.recognition.AppleSpeechRecognition.prefs',
+        'DictationIMMEnabled',
+        OFF
+      )
+    ],
     async check() {
       try {
         const val = await defaultsRead(
@@ -592,6 +1386,7 @@ const DARWIN_AI_SETTINGS: PrivacySettingDef[] = [
     label: 'Apple Intelligence',
     description: 'Disable Apple Intelligence AI features (macOS 15 Sequoia and later)',
     requiresAdmin: false,
+    state: [prefPart('com.apple.assistant.support', 'Apple Intelligence Enabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('com.apple.assistant.support', 'Apple Intelligence Enabled')
@@ -666,13 +1461,14 @@ async function managedPrefBool(domain: string, key: string): Promise<boolean | n
   return null
 }
 
-const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_BROWSER_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-safari-dnt',
     category: 'browser',
     label: 'Safari Do Not Track',
     description: 'Enable the Do Not Track header in Safari',
     requiresAdmin: false,
+    state: [prefPart('com.apple.Safari', 'SendDoNotTrackHTTPHeader', ON, { fallback: null })],
     async check() {
       try {
         const val = await defaultsRead('com.apple.Safari', 'SendDoNotTrackHTTPHeader')
@@ -691,6 +1487,13 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     label: 'Chrome Metrics Reporting',
     description: 'Stop Chrome from sending usage metrics to Google',
     requiresAdmin: true,
+    state: [
+      prefPart(`${MANAGED_PREFS}/com.google.Chrome`, 'MetricsReportingEnabled', OFF, {
+        managed: true,
+        fallback: null
+      })
+    ],
+    applicable: () => isBrowserInstalled(CHROME_BUNDLE_ID),
     async check() {
       if (!(await isBrowserInstalled(CHROME_BUNDLE_ID))) return true
       return (await managedPrefBool('com.google.Chrome', 'MetricsReportingEnabled')) === false
@@ -705,6 +1508,13 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     label: 'Chrome Safe Browsing Reports',
     description: 'Stop Chrome from sending extended URL and download reports to Google',
     requiresAdmin: true,
+    state: [
+      prefPart(`${MANAGED_PREFS}/com.google.Chrome`, 'SafeBrowsingExtendedReportingEnabled', OFF, {
+        managed: true,
+        fallback: null
+      })
+    ],
+    applicable: () => isBrowserInstalled(CHROME_BUNDLE_ID),
     async check() {
       if (!(await isBrowserInstalled(CHROME_BUNDLE_ID))) return true
       return (
@@ -727,6 +1537,13 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
     label: 'Firefox Telemetry',
     description: 'Disable Firefox telemetry data collection and upload to Mozilla',
     requiresAdmin: true,
+    state: [
+      prefPart(`${MANAGED_PREFS}/org.mozilla.firefox`, 'DisableTelemetry', ON, {
+        managed: true,
+        fallback: null
+      })
+    ],
+    applicable: () => isBrowserInstalled(FIREFOX_BUNDLE_ID),
     async check() {
       if (!(await isBrowserInstalled(FIREFOX_BUNDLE_ID))) return true
       return (await managedPrefBool('org.mozilla.firefox', 'DisableTelemetry')) === true
@@ -739,13 +1556,14 @@ const DARWIN_BROWSER_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Kernel / System Hardening ──────────────────────────────
 
-const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_KERNEL_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-gatekeeper',
     category: 'kernel',
     label: 'Gatekeeper',
     description: 'Ensure Gatekeeper is enabled to block unverified applications',
     requiresAdmin: true,
+    state: [gatekeeperPart],
     async check() {
       try {
         const { stdout, stderr } = await execFileAsync('/usr/sbin/spctl', ['--status'], {
@@ -767,6 +1585,12 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
     label: 'Remote Apple Events',
     description: 'Disable remote Apple Events to prevent remote automation of your Mac',
     requiresAdmin: true,
+    state: [
+      launchdPart('com.apple.AEServer', 3031, (enabled) => ({
+        cmd: '/usr/sbin/systemsetup',
+        args: ['-setremoteappleevents', enabled ? 'on' : 'off']
+      }))
+    ],
     async check() {
       // Remote Apple Events is the com.apple.AEServer launchd job (eppc, port 3031)
       return !(await isLaunchdServiceEnabled('com.apple.AEServer', 3031))
@@ -781,6 +1605,7 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
     label: 'Wake on Network Access',
     description: 'Disable wake on network access to prevent remote wake-ups',
     requiresAdmin: true,
+    state: [wompPart],
     async check() {
       // `pmset -g` is readable without root; `womp` is the Wake-on-LAN flag
       try {
@@ -802,6 +1627,7 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
     label: 'Guest Account',
     description: 'Disable the guest account to prevent unauthorized local access',
     requiresAdmin: true,
+    state: [prefPart('/Library/Preferences/com.apple.loginwindow', 'GuestEnabled', OFF)],
     async check() {
       try {
         const val = await defaultsRead('/Library/Preferences/com.apple.loginwindow', 'GuestEnabled')
@@ -825,6 +1651,7 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
     label: 'Automatic Login',
     description: 'Disable automatic login to require authentication at startup',
     requiresAdmin: true,
+    state: [prefPart('/Library/Preferences/com.apple.loginwindow', 'autoLoginUser', null)],
     async check() {
       try {
         const val = await defaultsRead(
@@ -849,13 +1676,14 @@ const DARWIN_KERNEL_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Network Hardening ──────────────────────────────────────
 
-const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_NETWORK_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-firewall',
     category: 'network',
     label: 'Application Firewall',
     description: 'Enable the macOS Application Firewall to control incoming connections',
     requiresAdmin: true,
+    state: [firewallPart],
     async check() {
       try {
         const out = await socketfilterfwGet('--getglobalstate')
@@ -874,6 +1702,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     label: 'Stealth Mode',
     description: 'Enable stealth mode so your Mac does not respond to probe requests (ICMP ping)',
     requiresAdmin: true,
+    state: [stealthPart],
     dependsOn: 'macos-firewall',
     async check() {
       try {
@@ -894,6 +1723,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     label: 'Disable IP Forwarding',
     description: 'Prevent the system from forwarding packets between network interfaces',
     requiresAdmin: true,
+    state: sysctlParts('net.inet.ip.forwarding', '0'),
     async check() {
       try {
         return (await sysctlGet('net.inet.ip.forwarding')) === '0'
@@ -911,6 +1741,10 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
     label: 'Block Signed App Auto-Allow',
     description: 'Prevent signed applications from automatically bypassing the firewall',
     requiresAdmin: true,
+    state: [
+      allowSignedPart('--setallowsigned', /built-?in/i),
+      allowSignedPart('--setallowsignedapp', /download/i)
+    ],
     dependsOn: 'macos-firewall',
     async check() {
       try {
@@ -932,7 +1766,7 @@ const DARWIN_NETWORK_SETTINGS: PrivacySettingDef[] = [
 
 // ─── Access Control ─────────────────────────────────────────
 
-const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
+const DARWIN_ACCESS_SETTINGS: DarwinPrivacySetting[] = [
   {
     id: 'macos-remote-login',
     category: 'access',
@@ -940,22 +1774,17 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     description:
       'Disable the SSH server entirely. If you need SSH access, leave this off and harden SSH settings instead',
     requiresAdmin: true,
+    state: [
+      launchdPart(SSHD_LABEL, 22, (enabled) => ({
+        cmd: '/bin/sh',
+        args: ['-c', enabled ? SSHD_ENABLE_SCRIPT : SSHD_DISABLE_SCRIPT]
+      }))
+    ],
     async check() {
       return !(await isLaunchdServiceEnabled(SSHD_LABEL, 22))
     },
     async apply() {
-      // systemsetup is the documented way, but on Ventura+ it needs Full Disk
-      // Access for the *calling* process — which the osascript elevation
-      // trampoline doesn't inherit — and can silently no-op. Follow up with the
-      // launchd calls it performs under the hood so the result is deterministic.
-      await elevatedExec('/bin/sh', [
-        '-c',
-        [
-          '/usr/sbin/systemsetup -f -setremotelogin off >/dev/null 2>&1 || true',
-          `/bin/launchctl disable system/${SSHD_LABEL}`,
-          `/bin/launchctl bootout system/${SSHD_LABEL} >/dev/null 2>&1 || true`
-        ].join('; ')
-      ])
+      await elevatedExec('/bin/sh', ['-c', SSHD_DISABLE_SCRIPT])
     }
   },
   {
@@ -964,6 +1793,7 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     label: 'Disable SSH Root Login',
     description: 'Prevent direct root login over SSH — use sudo from a regular account instead',
     requiresAdmin: true,
+    state: [sshdPart('PermitRootLogin', 'no')],
     async check() {
       try {
         const content = await readFile('/etc/ssh/sshd_config', 'utf8')
@@ -983,6 +1813,7 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     description:
       'Require key-based SSH authentication only. WARNING: ensure SSH keys are configured before enabling or you may be locked out',
     requiresAdmin: true,
+    state: [sshdPart('PasswordAuthentication', 'no')],
     async check() {
       try {
         const content = await readFile('/etc/ssh/sshd_config', 'utf8')
@@ -1001,6 +1832,7 @@ const DARWIN_ACCESS_SETTINGS: PrivacySettingDef[] = [
     label: 'Disable Core Dumps',
     description: 'Prevent core dumps to avoid leaking sensitive memory contents',
     requiresAdmin: true,
+    state: sysctlParts('kern.coredump', '0', '1'),
     async check() {
       try {
         return (await sysctlGet('kern.coredump')) === '0'

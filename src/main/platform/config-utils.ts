@@ -8,7 +8,7 @@
 
 // ─── Sysctl config editing ─────────────────────────────────
 
-const SYSCTL_HEADER = ['# Kudu system hardening — managed automatically']
+export const SYSCTL_HEADER = ['# Kudu system hardening — managed automatically']
 
 /**
  * Update sysctl config file contents by setting `param` to `value`.
