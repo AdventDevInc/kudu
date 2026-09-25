@@ -10,6 +10,7 @@ import { scanDirectory, cleanItems } from '../services/file-utils'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
 import { queryRecycleBinStats } from '../services/recycle-bin-stats'
 import { emptyRecycleBinFast, finalizeRecycleBinShell } from '../services/recycle-bin-cleaner'
+import { pruneOrphanedTrashInfo } from '../services/trash-info'
 import {
   isDeletionLoggingEnabled,
   listRecycleBinContents,
@@ -88,6 +89,7 @@ export function registerRecycleBinIpc(): void {
         try {
           const result = await cleanItems(lastScannedItemIds)
           lastScannedItemIds = []
+          await pruneOrphanedTrashInfo(trashPath)
           return result
         } catch (err: any) {
           return {
