@@ -136,12 +136,16 @@ export interface ScanItem {
   /** An optional native maintenance operation; its reclaimable size is unknown. */
   cleanupAction?: ManagedCleanupAction
   dockerTarget?: DockerCleanupTarget
+  /** Number of records inside a privacy trace (list entries, rows) when bytes mean little. */
+  entryCount?: number
 }
 
 export interface ScanResult {
   category: string
   subcategory: string
   group?: string
+  /** i18n key (cleaner namespace) for a note shown under the subcategory label. */
+  descriptionKey?: string
   items: ScanItem[]
   totalSize: number
   itemCount: number

@@ -118,6 +118,7 @@ const reads: Record<string, (...args: any[]) => unknown> = {
   recycleBinScan: () => [],
   shortcutScan: () => [],
   environmentScan: () => [],
+  privacyTracesScan: () => [],
   databaseScan: () => [],
   cleanerBlockers: () => [],
   serviceScan: () => ({

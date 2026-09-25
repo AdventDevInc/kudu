@@ -33,6 +33,7 @@ import { registerFirewallAuditIpc } from './firewall-audit.ipc'
 import { registerSoftwareUpdaterIpc } from './software-updater.ipc'
 import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 import { registerEnvironmentCleanerIpc } from './environment-cleaner.ipc'
+import { registerPrivacyTracesIpc } from './privacy-traces.ipc'
 import { showOpenDialog } from './open-dialog'
 import { registerDatabaseOptimizerIpc } from './database-optimizer.ipc'
 import { registerCloudAgentIpc } from './cloud-agent.ipc'
@@ -90,6 +91,7 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerRecycleBinIpc()
   registerShortcutCleanerIpc(getWindow)
   registerEnvironmentCleanerIpc(getWindow)
+  registerPrivacyTracesIpc(getWindow)
   registerDatabaseOptimizerIpc(getWindow)
   registerRegistryCleanerIpc(getWindow)
   registerContextMenuCleanerIpc(getWindow)

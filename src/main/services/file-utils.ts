@@ -156,7 +156,7 @@ export function isExcluded(filePath: string, exclusions: string[]): boolean {
  * Overwrite a single file's contents with random data, then zeros, before deletion.
  * For directories, recursively overwrite all files within.
  */
-async function secureOverwrite(filePath: string): Promise<void> {
+export async function secureOverwrite(filePath: string): Promise<void> {
   const stats = await lstat(filePath)
   // Unlink aliases normally; overwriting them would alter data owned by another
   // path. Check ancestors too, since lstat only inspects the final component.

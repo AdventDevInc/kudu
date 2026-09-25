@@ -1,0 +1,296 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  chmod,
+  link,
+  lstat,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  stat,
+  symlink,
+  writeFile
+} from 'fs/promises'
+import { tmpdir } from 'os'
+import { join } from 'path'
+
+vi.mock('./settings-store', () => ({
+  getSettings: () => ({ cleaner: { secureDelete: false }, exclusions: [] })
+}))
+vi.mock('./deletion-log-store', () => ({ recordDeletions: () => {} }))
+const overwriteCalls = vi.hoisted(() => [] as string[])
+vi.mock('./file-utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./file-utils')>()
+  return {
+    ...actual,
+    secureOverwrite: async (path: string) => {
+      overwriteCalls.push(path)
+      return actual.secureOverwrite(path)
+    }
+  }
+})
+
+import { getCachedItem } from './scan-cache'
+import {
+  CHANGED_SINCE_SCAN,
+  cleanPrivacyTraces,
+  scanPrivacyTraces,
+  statTraceFile,
+  truncateTraceFile,
+  type PrivacyTrace,
+  type TraceScanContext
+} from './privacy-traces'
+import { findShellHistoryTraces, histfileInsideHome } from './privacy-traces-shell'
+
+let home: string
+const tracePaths = (groups: Awaited<ReturnType<typeof findShellHistoryTraces>>) =>
+  groups.flatMap((g) => g.traces.map((t) => t.path)).sort()
+
+function ctx(overrides: Partial<TraceScanContext> = {}): TraceScanContext {
+  return { platform: 'linux', home, env: {}, exclusions: [], ...overrides }
+}
+
+async function put(path: string, content = 'ls -la\n'): Promise<string> {
+  await mkdir(join(path, '..'), { recursive: true })
+  await writeFile(path, content)
+  return path
+}
+
+/** Symlinks need Developer Mode or elevation on Windows; skip rather than fail there. */
+async function trySymlink(target: string, path: string): Promise<boolean> {
+  try {
+    await symlink(target, path, 'file')
+    return true
+  } catch {
+    return false
+  }
+}
+
+beforeEach(async () => {
+  home = await mkdtemp(join(tmpdir(), 'kudu-traces-'))
+  overwriteCalls.length = 0
+})
+afterEach(async () => {
+  await rm(home, { recursive: true, force: true })
+})
+
+describe('shell history discovery', () => {
+  it('finds Unix shell and REPL histories that exist and are non-empty', async () => {
+    const expected = [
+      await put(join(home, '.bash_history')),
+      await put(join(home, '.zsh_history')),
+      await put(join(home, '.zsh_sessions', 'ABC-123.history')),
+      await put(join(home, '.local', 'share', 'fish', 'fish_history')),
+      await put(
+        join(home, '.local', 'share', 'powershell', 'PSReadLine', 'ConsoleHost_history.txt')
+      ),
+      await put(join(home, '.python_history')),
+      await put(join(home, '.node_repl_history')),
+      await put(join(home, '.lesshst')),
+      await put(join(home, '.sqlite_history')),
+      await put(join(home, '.mysql_history')),
+      await put(join(home, '.psql_history')),
+      await put(join(home, '.rediscli_history')),
+      await put(join(home, '.irb_history'))
+    ]
+    await put(join(home, '.zsh_sessions', 'ABC-123.session'))
+    await put(join(home, '.viminfo'))
+    await put(join(home, '.mysql_history_empty'), '')
+    await writeFile(join(home, '.psql_history'), '') // exists but empty
+
+    const groups = await findShellHistoryTraces(ctx())
+    expect(groups).toHaveLength(1)
+    expect(groups[0].subcategory).toBe('Shell history')
+    expect(groups[0].descriptionKey).toBe('privacyShellHistoryNote')
+    expect(tracePaths(groups)).toEqual(expected.filter((p) => !p.endsWith('.psql_history')).sort())
+  })
+
+  it('finds PSReadLine, Git Bash and REPL histories on Windows', async () => {
+    const appData = join(home, 'AppData', 'Roaming')
+    const psDir = join(appData, 'Microsoft', 'Windows', 'PowerShell', 'PSReadLine')
+    const expected = [
+      await put(join(psDir, 'ConsoleHost_history.txt')),
+      await put(join(psDir, 'Visual Studio Code Host_history.txt')),
+      await put(join(home, '.bash_history')),
+      await put(join(home, '.python_history')),
+      await put(join(home, '.node_repl_history'))
+    ]
+    await put(join(psDir, 'notes.txt'))
+    // Unix-only names are not looked for on Windows.
+    await put(join(home, '.zsh_history'))
+
+    const groups = await findShellHistoryTraces(
+      ctx({ platform: 'win32', env: { APPDATA: appData } })
+    )
+    expect(tracePaths(groups)).toEqual(expected.sort())
+  })
+
+  it('returns no group when nothing is found', async () => {
+    expect(await findShellHistoryTraces(ctx())).toEqual([])
+  })
+
+  it('never lists symlinked history files', async () => {
+    const real = await put(join(home, 'dotfiles', 'bash_history'))
+    if (!(await trySymlink(real, join(home, '.bash_history')))) return
+    expect(await findShellHistoryTraces(ctx())).toEqual([])
+  })
+
+  it('never lists hard-linked history files', async () => {
+    const real = await put(join(home, 'elsewhere'))
+    await link(real, join(home, '.bash_history'))
+    expect(await findShellHistoryTraces(ctx())).toEqual([])
+  })
+
+  it('respects $HISTFILE inside home and de-duplicates it', async () => {
+    const custom = await put(join(home, '.config', 'bash', 'history'))
+    const bash = await put(join(home, '.bash_history'))
+    const withCustom = await findShellHistoryTraces(ctx({ env: { HISTFILE: custom } }))
+    expect(tracePaths(withCustom)).toEqual([bash, custom].sort())
+    const duplicate = await findShellHistoryTraces(ctx({ env: { HISTFILE: bash } }))
+    expect(tracePaths(duplicate)).toEqual([bash])
+  })
+
+  it('ignores $HISTFILE outside home or not absolute', () => {
+    expect(histfileInsideHome(join(home, '..', 'other', '.bash_history'), home)).toBeNull()
+    expect(histfileInsideHome(home, home)).toBeNull()
+    expect(histfileInsideHome('.bash_history', home)).toBeNull()
+    expect(histfileInsideHome(undefined, home)).toBeNull()
+    expect(histfileInsideHome(join(home, 'h'), home)).toBe(join(home, 'h'))
+  })
+})
+
+describe('scanPrivacyTraces', () => {
+  it('returns every item unselected and keeps it out of the shared scan cache', async () => {
+    await put(join(home, '.bash_history'))
+    const cache = new Map<string, PrivacyTrace>()
+    const results = await scanPrivacyTraces([findShellHistoryTraces], ctx(), cache)
+    expect(results).toHaveLength(1)
+    expect(results[0]).toMatchObject({
+      category: 'privacyTraces',
+      subcategory: 'Shell history',
+      descriptionKey: 'privacyShellHistoryNote',
+      itemCount: 1,
+      totalSize: 7
+    })
+    const [item] = results[0].items
+    expect(item.selected).toBe(false)
+    expect(cache.has(item.id)).toBe(true)
+    expect(getCachedItem(item.id)).toBeUndefined()
+  })
+
+  it('drops traces matched by the global exclusions', async () => {
+    const bash = await put(join(home, '.bash_history'))
+    await put(join(home, '.zsh_history'))
+    const cache = new Map<string, PrivacyTrace>()
+    const results = await scanPrivacyTraces(
+      [findShellHistoryTraces],
+      ctx({ exclusions: [join(home, '.zsh_history')] }),
+      cache
+    )
+    expect(results.flatMap((r) => r.items.map((i) => i.path))).toEqual([bash])
+  })
+
+  it('keeps other providers when one fails', async () => {
+    await put(join(home, '.bash_history'))
+    const results = await scanPrivacyTraces(
+      [
+        async () => {
+          throw new Error('boom')
+        },
+        findShellHistoryTraces
+      ],
+      ctx(),
+      new Map()
+    )
+    expect(results).toHaveLength(1)
+  })
+})
+
+describe('truncation', () => {
+  it('empties the file in place, preserving the file and its mode', async () => {
+    const path = await put(join(home, '.bash_history'), 'secret command\n')
+    if (process.platform !== 'win32') await chmod(path, 0o600)
+    const before = await stat(path)
+    const info = (await statTraceFile(path))!
+    expect(await truncateTraceFile(path, info, { secureDelete: false })).toBe(15)
+    const after = await stat(path)
+    expect(after.size).toBe(0)
+    expect(after.ino).toBe(before.ino)
+    expect(after.mode).toBe(before.mode)
+    expect(overwriteCalls).toEqual([])
+  })
+
+  it('overwrites before truncating when secure delete is on', async () => {
+    const path = await put(join(home, '.bash_history'), 'secret command\n')
+    const info = (await statTraceFile(path))!
+    await truncateTraceFile(path, info, { secureDelete: true })
+    expect(overwriteCalls).toEqual([path])
+    expect(await readFile(path, 'utf8')).toBe('')
+  })
+
+  it('refuses a file replaced since the scan', async () => {
+    const path = await put(join(home, '.bash_history'), 'old\n')
+    const info = (await statTraceFile(path))!
+    await rm(path)
+    await put(path, 'new history\n')
+    await expect(truncateTraceFile(path, info, { secureDelete: false })).rejects.toMatchObject({
+      reason: CHANGED_SINCE_SCAN
+    })
+    expect(await readFile(path, 'utf8')).toBe('new history\n')
+  })
+
+  it('refuses a file swapped for a symlink since the scan', async () => {
+    const path = await put(join(home, '.bash_history'), 'history\n')
+    const victim = await put(join(home, 'important.txt'), 'keep me\n')
+    const info = (await statTraceFile(path))!
+    await rm(path)
+    if (!(await trySymlink(victim, path))) return
+    await expect(truncateTraceFile(path, info, { secureDelete: true })).rejects.toBeDefined()
+    expect(await readFile(victim, 'utf8')).toBe('keep me\n')
+    expect((await lstat(path)).isSymbolicLink()).toBe(true)
+  })
+})
+
+describe('cleanPrivacyTraces', () => {
+  it('clears selected traces and reports cleared bytes', async () => {
+    const path = await put(join(home, '.bash_history'), 'abc\n')
+    const cache = new Map<string, PrivacyTrace>()
+    const [result] = await scanPrivacyTraces([findShellHistoryTraces], ctx(), cache)
+    const outcome = await cleanPrivacyTraces([result.items[0].id], cache, {
+      secureDelete: false,
+      exclusions: []
+    })
+    expect(outcome).toMatchObject({ totalCleaned: 4, filesDeleted: 1, filesSkipped: 0 })
+    expect((await stat(path)).size).toBe(0)
+    expect(cache.size).toBe(0)
+  })
+
+  it('re-checks exclusions at clean time', async () => {
+    const path = await put(join(home, '.bash_history'), 'abc\n')
+    const cache = new Map<string, PrivacyTrace>()
+    const [result] = await scanPrivacyTraces([findShellHistoryTraces], ctx(), cache)
+    const outcome = await cleanPrivacyTraces([result.items[0].id], cache, {
+      secureDelete: false,
+      exclusions: [home]
+    })
+    expect(outcome.filesSkipped).toBe(1)
+    expect(outcome.errors).toEqual([{ path, reason: 'excluded' }])
+    expect(await readFile(path, 'utf8')).toBe('abc\n')
+  })
+
+  it('skips unknown IDs and continues past failures', async () => {
+    const path = await put(join(home, '.bash_history'), 'abc\n')
+    const cache = new Map<string, PrivacyTrace>()
+    const [result] = await scanPrivacyTraces([findShellHistoryTraces], ctx(), cache)
+    await rm(path)
+    const outcome = await cleanPrivacyTraces(['unknown', result.items[0].id], cache, {
+      secureDelete: false,
+      exclusions: []
+    })
+    expect(outcome.filesDeleted).toBe(0)
+    expect(outcome.errors).toEqual([
+      { path: 'unknown', reason: 'scan-result-expired' },
+      { path, reason: 'not-found' }
+    ])
+  })
+})

@@ -57,6 +57,19 @@ describe('scan-store', () => {
     expect(useScanStore.getState().selectedItems.has('native')).toBe(true)
   })
 
+  it('keeps privacy traces unselected on the next scan even after an opt-in', () => {
+    const scan = (id: string) => {
+      const result = makeResult('privacyTraces', 'Shell history', [{ id, size: 10 }])
+      result.items[0].selected = false
+      return result
+    }
+    useScanStore.getState().setResults([scan('first')])
+    useScanStore.getState().toggleSubcategory(useScanStore.getState().results[0])
+    expect(useScanStore.getState().selectedItems.has('first')).toBe(true)
+    useScanStore.getState().setResults([scan('second')])
+    expect(useScanStore.getState().selectedItems.has('second')).toBe(false)
+  })
+
   it('setResults populates results and auto-selects items', () => {
     const results = [
       makeResult('system', 'temp', [

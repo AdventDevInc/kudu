@@ -224,6 +224,11 @@ const api = {
   environmentClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.ENVIRONMENT_CLEAN, itemIds),
 
+  // Privacy traces (opt-in only)
+  privacyTracesScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.PRIVACY_TRACES_SCAN),
+  privacyTracesClean: (itemIds: string[]): Promise<CleanResult> =>
+    ipcRenderer.invoke(IPC.PRIVACY_TRACES_CLEAN, itemIds),
+
   // Registry
   registryScan: (): Promise<RegistryEntry[]> => ipcRenderer.invoke(IPC.REGISTRY_SCAN),
   registryFix: (

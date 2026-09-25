@@ -14,6 +14,7 @@ import {
   Link2Off,
   Database,
   Variable,
+  Fingerprint,
   ShieldAlert,
   ChevronDown
 } from 'lucide-react'
@@ -30,7 +31,8 @@ const categoryIcons: Record<string, LucideIcon> = {
   recycleBin: Trash2,
   shortcut: Link2Off,
   database: Database,
-  environment: Variable
+  environment: Variable,
+  privacyTraces: Fingerprint
 }
 
 interface CleanSummaryProps {

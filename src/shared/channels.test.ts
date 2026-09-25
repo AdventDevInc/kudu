@@ -50,11 +50,12 @@ describe('CleanerType enum', () => {
     expect(CleanerType.Shortcut).toBe('shortcut')
     expect(CleanerType.Database).toBe('database')
     expect(CleanerType.Environment).toBe('environment')
+    expect(CleanerType.PrivacyTraces).toBe('privacyTraces')
   })
 
-  it('has exactly 9 members', () => {
+  it('has exactly 10 members', () => {
     const keys = Object.keys(CleanerType).filter((k) => isNaN(Number(k)))
-    expect(keys).toHaveLength(9)
+    expect(keys).toHaveLength(10)
   })
 })
 

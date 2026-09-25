@@ -7,7 +7,8 @@ export enum CleanerType {
   UninstallLeftovers = 'uninstallLeftovers',
   Shortcut = 'shortcut',
   Database = 'database',
-  Environment = 'environment'
+  Environment = 'environment',
+  PrivacyTraces = 'privacyTraces'
 }
 
 export enum ScanStatus {

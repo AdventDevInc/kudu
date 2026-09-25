@@ -57,6 +57,10 @@ export const IPC = {
   ENVIRONMENT_SCAN: 'cleaner:environment:scan',
   ENVIRONMENT_CLEAN: 'cleaner:environment:clean',
 
+  // Privacy traces (shell history and OS activity lists; always opt-in)
+  PRIVACY_TRACES_SCAN: 'cleaner:privacy-traces:scan',
+  PRIVACY_TRACES_CLEAN: 'cleaner:privacy-traces:clean',
+
   // Cleaner shared
   CLEANER_OPEN_LOCATION: 'cleaner:open-location',
   CLEANER_BLOCKERS: 'cleaner:blockers',
