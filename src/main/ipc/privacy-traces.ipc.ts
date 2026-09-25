@@ -13,6 +13,8 @@ import {
   type PrivacyTraceProvider
 } from '../services/privacy-traces'
 import { findShellHistoryTraces } from '../services/privacy-traces-shell'
+import { findLinuxRecentFileTraces } from '../services/privacy-traces-linux'
+import { findMacQuarantineTraces, findMacRecentItemTraces } from '../services/privacy-traces-macos'
 import {
   findWindowsRecentTraces,
   findWindowsRegistryTraces
@@ -21,7 +23,14 @@ import type { WindowGetter } from './index'
 
 /** Providers run in this order; each reports its own groups and skips other platforms. */
 export function privacyTraceProviders(): PrivacyTraceProvider[] {
-  return [findShellHistoryTraces, findWindowsRecentTraces, findWindowsRegistryTraces]
+  return [
+    findShellHistoryTraces,
+    findWindowsRecentTraces,
+    findWindowsRegistryTraces,
+    findMacRecentItemTraces,
+    findMacQuarantineTraces,
+    findLinuxRecentFileTraces
+  ]
 }
 
 /**

@@ -82,7 +82,7 @@ function sameFile(a: BigIntStats, b: BigIntStats): boolean {
 }
 
 /** Re-check that `path` is still the exact single-link regular file seen by the scan. */
-async function verifyTraceFile(path: string, scanned: BigIntStats): Promise<BigIntStats> {
+export async function verifyTraceFile(path: string, scanned: BigIntStats): Promise<BigIntStats> {
   const current = await lstat(path, { bigint: true })
   if (!current.isFile() || current.nlink !== 1n) throw new TraceSkipped(NOT_A_REGULAR_FILE)
   if (!sameFile(current, scanned)) throw new TraceSkipped(CHANGED_SINCE_SCAN)
