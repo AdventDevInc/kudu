@@ -38,6 +38,36 @@
       "privacy": "隐私防护",
       "services": "服务管理器",
       "registry": "注册表清理"
+    },
+    "registryBackups": {
+      "title": "注册表备份",
+      "description": "Kudu 会保存其即将更改的注册表项。可在此还原有针对性的备份。完整分支导出只能在备份文件夹中查看，因为导入它们会回退自那以后所做的无关更改。",
+      "empty": "尚无注册表备份。",
+      "restore": "还原",
+      "showInFolder": "在文件夹中显示",
+      "moreKeys": "另外还有 +{{count}} 项",
+      "requiresAdmin": "需要管理员权限",
+      "confirmTitle": "还原此注册表备份？",
+      "confirmDescription": "Kudu 将导入以下项。备份中的值将替换当前值，并补回缺失的项和值。除以下情况外，不会删除其他任何内容：如果还原的是“还原前备份”，还会移除被该次还原所撤销的操作曾添加的项和值。导入前，Kudu 会将这些项的当前状态保存为“还原前备份”。某些更改仅在注销或重新启动后才会生效。",
+      "restored": "已还原。先前状态已保存到 {{file}}。",
+      "restoredNoBackup": "已还原。这些注册表项此前均不存在，因此无需先进行备份。",
+      "failed": "还原失败：{{error}}",
+      "source": {
+        "registry": "注册表清理",
+        "context-menu": "上下文菜单清理",
+        "privacy-traces": "隐私痕迹",
+        "pre-restore": "还原前备份"
+      },
+      "blocked": {
+        "full-export": "完整分支导出。还原它会回退无关更改，因此只能查看。",
+        "too-large": "过大，无法作为有针对性的备份。",
+        "format": "不是 Kudu 写入的注册表导出格式。",
+        "deletion": "包含删除项，而 Kudu 备份绝不会包含此类内容。",
+        "forbidden-key": "包含超出 Kudu 更改范围的注册表项。",
+        "empty": "不包含任何注册表项。",
+        "unreadable": "无法读取。",
+        "unverified": "无法验证此备份——自 Kudu 写入后，它可能已被更改，因此只能查看。"
+      }
     }
   },
   "receipts": {

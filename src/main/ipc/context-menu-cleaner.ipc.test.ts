@@ -1,4 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
+import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
 
 // ── Mocks ──
 // The IPC module imports electron and our exec-utf8 wrapper. We mock electron
@@ -30,7 +33,8 @@ import {
   isProtectedVerb,
   normalizeKeyPath,
   parentKeyOf,
-  parseRegQueryBlocks
+  parseRegQueryBlocks,
+  pruneOldBackups
 } from './context-menu-cleaner.ipc'
 
 // ── isProtectedVerb ──
@@ -336,6 +340,37 @@ describe('CLSID_SAFELIST', () => {
   it('every entry is a brace-wrapped GUID', () => {
     for (const c of CLSID_SAFELIST) {
       expect(c).toMatch(/^\{[0-9A-Fa-f-]{30,}\}$/)
+    }
+  })
+})
+
+// ── pruneOldBackups ──
+
+describe('pruneOldBackups', () => {
+  it('prunes only its own backups, oldest runs first, and reports what it removed', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'kudu-ctx-prune-'))
+    try {
+      const ts = (d: number) => `2026-01-0${d}T00-00-00-000Z`
+      const own = (d: number, f: string) => `registry-backup-context-menu-${f}-${ts(d)}.reg`
+      const files = [
+        own(1, 'Folder'),
+        own(1, 'Drive'),
+        own(2, 'Folder'),
+        own(3, 'Folder'),
+        own(4, 'Folder'),
+        // Other features' backups, older than everything above: never touched here.
+        'registry-backup-targeted-2025-01-01T00-00-00-000Z.reg',
+        'registry-backup-2025-01-01T00-00-00-000Z.reg',
+        'pre-restore-backup-2025-01-01T00-00-00-000Z.reg'
+      ]
+      for (const f of files) writeFileSync(join(dir, f), '')
+
+      const removed = pruneOldBackups(dir, 3)
+
+      expect(removed.sort()).toEqual([own(1, 'Drive'), own(1, 'Folder')])
+      expect(readdirSync(dir).sort()).toEqual(files.slice(2).sort())
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
     }
   })
 })

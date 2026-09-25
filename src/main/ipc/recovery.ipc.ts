@@ -9,6 +9,11 @@ import {
   removeRecoveryEntry
 } from '../services/recovery-store'
 import { restoreRecoveryEntry } from '../services/recovery'
+import {
+  listRegistryBackups,
+  resolveBackupFile,
+  restoreRegistryBackup
+} from '../services/registry-backups'
 import { getGameModeStatus } from './game-mode.ipc'
 
 export function registerRecoveryIpc(): void {
@@ -50,6 +55,13 @@ export function registerRecoveryIpc(): void {
     await mkdir(dir, { recursive: true })
     const error = await shell.openPath(dir)
     if (error) throw new Error(error)
+  })
+  ipcMain.handle(IPC.RECOVERY_REGISTRY_BACKUPS, () => listRegistryBackups())
+  ipcMain.handle(IPC.RECOVERY_REGISTRY_RESTORE, (_event, name: unknown) =>
+    restoreRegistryBackup(name)
+  )
+  ipcMain.handle(IPC.RECOVERY_SHOW_BACKUP, async (_event, name: unknown) => {
+    shell.showItemInFolder((await resolveBackupFile(name)).path)
   })
   ipcMain.handle(IPC.RECOVERY_EXPORT, async () => {
     const entries = await listRecoveryEntries()

@@ -38,6 +38,36 @@
       "privacy": "Gizlilik Kalkanı",
       "services": "Hizmet Yöneticisi",
       "registry": "Kayıt Defteri Temizleyici"
+    },
+    "registryBackups": {
+      "title": "Kayıt defteri yedekleri",
+      "description": "Kudu, değiştirmek üzere olduğu kayıt defteri anahtarlarını kaydeder. Hedeflenmiş yedekler burada geri yüklenebilir. Tam dal dışa aktarımları yalnızca yedek klasöründe incelenebilir; çünkü içe aktarılmaları, o zamandan beri yapılan ilgisiz değişiklikleri geri alır.",
+      "empty": "Henüz kayıt defteri yedeği yok.",
+      "restore": "Geri yükle",
+      "showInFolder": "Klasörde göster",
+      "moreKeys": "+{{count}} daha",
+      "requiresAdmin": "Yönetici gerekir",
+      "confirmTitle": "Bu kayıt defteri yedeği geri yüklensin mi?",
+      "confirmDescription": "Kudu aşağıdaki anahtarları içe aktaracaktır. Yedekteki değerler mevcut olanların yerini alır ve eksik anahtarlar ile değerler yeniden eklenir. Bunun dışında hiçbir şey silinmez; ancak geri yükleme öncesi bir yedeğin geri yüklenmesi, geri alınan geri yüklemenin eklediği anahtarları ve değerleri de kaldırır. İçe aktarmadan önce Kudu, bu anahtarların mevcut durumunu geri yükleme öncesi yedek olarak kaydeder. Bazı değişiklikler yalnızca oturumu kapattıktan veya yeniden başlattıktan sonra etkili olur.",
+      "restored": "Geri yüklendi. Önceki durum {{file}} dosyasına kaydedildi.",
+      "restoredNoBackup": "Geri yüklendi. Bu anahtarların hiçbiri daha önce mevcut değildi, bu nedenle önce yedeklenecek bir şey yoktu.",
+      "failed": "Geri yükleme başarısız oldu: {{error}}",
+      "source": {
+        "registry": "Kayıt Defteri Temizleyici",
+        "context-menu": "Bağlam Menüsü Temizleyici",
+        "privacy-traces": "Gizlilik İzleri",
+        "pre-restore": "Geri yükleme öncesi yedek"
+      },
+      "blocked": {
+        "full-export": "Tam dal dışa aktarımı. Geri yüklenmesi ilgisiz değişiklikleri geri alacağından yalnızca incelenebilir.",
+        "too-large": "Hedeflenmiş bir yedek olmak için fazla büyük.",
+        "format": "Kudu'nun yazdığı kayıt defteri dışa aktarma biçiminde değil.",
+        "deletion": "Silme girdileri içeriyor; Kudu yedeklerinde bunlar hiçbir zaman bulunmaz.",
+        "forbidden-key": "Kudu'nun değiştirdiği alanların dışındaki anahtarları içeriyor.",
+        "empty": "Hiç kayıt defteri anahtarı içermiyor.",
+        "unreadable": "Okunamadı.",
+        "unverified": "Bu yedek doğrulanamıyor — Kudu bunu yazdıktan sonra değiştirilmiş olabilir, bu nedenle yalnızca incelenebilir."
+      }
     }
   },
   "receipts": {

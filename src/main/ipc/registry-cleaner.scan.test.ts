@@ -53,17 +53,31 @@ vi.mock('../services/exec-utf8', () => ({
 }))
 
 const mockExistsSync = vi.fn((_p: string): boolean => true)
+const mockReaddirSync = vi.fn((_p: string): string[] => [])
+const mockWriteFileSync = vi.fn()
+const mockUnlinkSync = vi.fn()
 
 vi.mock('fs', () => ({
   existsSync: (p: string) => mockExistsSync(p),
   statSync: () => ({ isFile: () => true }),
-  readdirSync: () => [],
-  unlinkSync: vi.fn(),
+  readdirSync: (p: string) => mockReaddirSync(p),
+  unlinkSync: (p: string) => mockUnlinkSync(p),
   mkdirSync: vi.fn(),
   mkdtempSync: () => 'C:\\temp\\kudu-test',
   readFileSync: () => '',
-  writeFileSync: vi.fn(),
+  writeFileSync: (...args: unknown[]) => mockWriteFileSync(...args),
   rmSync: vi.fn()
+}))
+
+const mockSeal = {
+  createPrivateTempDir: vi.fn(),
+  sealBackup: vi.fn(),
+  removeSeals: vi.fn()
+}
+vi.mock('../services/registry-backup-seal', () => ({
+  createPrivateTempDir: (prefix: string) => mockSeal.createPrivateTempDir(prefix),
+  sealBackup: (name: string, bytes: Buffer) => mockSeal.sealBackup(name, bytes),
+  removeSeals: (names: string[]) => mockSeal.removeSeals(names)
 }))
 
 vi.mock('../services/backup-dir', () => ({ getBackupDir: () => 'C:\\temp\\backups' }))
@@ -98,7 +112,11 @@ const APP_PATHS_OUTPUT = [
 beforeEach(() => {
   vi.clearAllMocks()
   mockExistsSync.mockImplementation(() => true)
+  mockReaddirSync.mockImplementation(() => [])
   mockExecNative.mockImplementation(async () => ({ stdout: '', stderr: '' }))
+  mockSeal.createPrivateTempDir.mockResolvedValue('C:\\Windows\\Temp\\kudu-reg-backup-private')
+  mockSeal.sealBackup.mockResolvedValue(true)
+  mockSeal.removeSeals.mockResolvedValue(undefined)
 })
 
 describe('normalizeHiveNames', () => {
@@ -463,5 +481,78 @@ describe('fixRegistryEntries — delete-value recovery journaling', () => {
     expect(mockReadRecoveryTarget).not.toHaveBeenCalled()
     expect(mockRecordRecoveryChange).not.toHaveBeenCalled()
     expect(regDeletes()).toHaveLength(2)
+  })
+})
+
+describe('fixRegistryEntries — targeted backup seals', () => {
+  const KEY = 'HKCU\\SOFTWARE\\Stale\\App'
+  const entry = {
+    id: 'e1',
+    type: 'invalid' as const,
+    keyPath: KEY,
+    valueName: 'Path',
+    issue: 'stale',
+    risk: 'low' as const,
+    selected: true,
+    fix: { op: 'delete-value' as const }
+  }
+  const targetedWrites = () =>
+    mockWriteFileSync.mock.calls.filter((c) =>
+      /registry-backup-targeted-.*\.reg$/.test(String(c[0]))
+    )
+
+  it('exports into a private folder and seals exactly the bytes it wrote', async () => {
+    await fixRegistryEntries([entry] as any)
+
+    expect(mockSeal.createPrivateTempDir).toHaveBeenCalledWith('kudu-reg-backup-')
+    const exp = mockExecNative.mock.calls.find((c) => c[0] === 'reg' && c[1][0] === 'export')!
+    expect(exp[1][2]).toMatch(/^C:\\Windows\\Temp\\kudu-reg-backup-private\\/)
+    const [write] = targetedWrites()
+    const fileName = String(write[0]).split('\\').pop()
+    expect(mockSeal.sealBackup).toHaveBeenCalledWith(fileName, write[1])
+    expect(Buffer.isBuffer(write[1])).toBe(true)
+  })
+
+  it('still writes the backup, unsealed, when no private folder can be made', async () => {
+    mockSeal.createPrivateTempDir.mockRejectedValue(new Error('not elevated'))
+
+    const result = await fixRegistryEntries([entry] as any)
+
+    expect(targetedWrites()).toHaveLength(1)
+    expect(mockSeal.sealBackup).not.toHaveBeenCalled()
+    expect(result.fixed).toBe(1)
+  })
+
+  it('carries on with the fix when sealing fails', async () => {
+    mockSeal.sealBackup.mockResolvedValue(false)
+    const result = await fixRegistryEntries([entry] as any)
+    expect(targetedWrites()).toHaveLength(1)
+    expect(result.fixed).toBe(1)
+  })
+
+  it('drops the seals of targeted backups it prunes', async () => {
+    const stamp = (d: number) => `2026-01-0${d}T00-00-00-000Z`
+    mockReaddirSync.mockImplementation(() => [
+      `registry-backup-targeted-${stamp(1)}.reg`,
+      `registry-backup-tasks-${stamp(1)}`,
+      `registry-backup-${stamp(2)}.reg`,
+      `registry-backup-targeted-${stamp(3)}.reg`,
+      `registry-backup-targeted-${stamp(4)}.reg`,
+      `registry-backup-targeted-${stamp(5)}.reg`
+    ])
+
+    await fixRegistryEntries([entry] as any)
+
+    // Only the three newest runs are kept; the two oldest are removed with their seals.
+    expect(mockUnlinkSync.mock.calls.map((c) => String(c[0]).split('\\').pop()).sort()).toEqual([
+      `registry-backup-${stamp(2)}.reg`,
+      `registry-backup-targeted-${stamp(1)}.reg`
+    ])
+    // Every removed file's seal is dropped (removeSeals skips names never sealed).
+    expect(mockSeal.removeSeals).toHaveBeenCalledTimes(1)
+    expect([...mockSeal.removeSeals.mock.calls[0][0]].sort()).toEqual([
+      `registry-backup-${stamp(2)}.reg`,
+      `registry-backup-targeted-${stamp(1)}.reg`
+    ])
   })
 })

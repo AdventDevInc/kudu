@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Tjänstehanteraren",
       "registry": "Registerrensning"
+    },
+    "registryBackups": {
+      "title": "Säkerhetskopior av registret",
+      "description": "Kudu sparar registernycklarna som programmet är på väg att ändra. Riktade säkerhetskopior kan återställas här. Exporter av hela grenar kan endast granskas i säkerhetskopieringsmappen, eftersom en import av dem skulle återställa även orelaterade ändringar som gjorts sedan dess.",
+      "empty": "Inga säkerhetskopior av registret ännu.",
+      "restore": "Återställ",
+      "showInFolder": "Visa i mapp",
+      "moreKeys": "+{{count}} till",
+      "requiresAdmin": "Kräver administratör",
+      "confirmTitle": "Återställa den här säkerhetskopian av registret?",
+      "confirmDescription": "Kudu importerar nycklarna nedan. Värden från säkerhetskopian ersätter de nuvarande och saknade nycklar och värden läggs tillbaka. Inget annat tas bort, förutom att återställning av en säkerhetskopia från före återställning även tar bort de nycklar och värden som den återställning som ångras hade lagt till. Innan importen sparar Kudu det aktuella tillståndet för dessa nycklar som en säkerhetskopia från före återställning. Vissa ändringar börjar gälla först efter att du har loggat ut eller startat om.",
+      "restored": "Återställd. Det tidigare tillståndet sparades i {{file}}.",
+      "restoredNoBackup": "Återställd. Ingen av dessa nycklar fanns tidigare, så det fanns inget att säkerhetskopiera först.",
+      "failed": "Återställningen misslyckades: {{error}}",
+      "source": {
+        "registry": "Registerrensare",
+        "context-menu": "Rensning av snabbmeny",
+        "privacy-traces": "Sekretesspår",
+        "pre-restore": "Säkerhetskopia före återställning"
+      },
+      "blocked": {
+        "full-export": "Export av hel gren. Att återställa den skulle återställa även orelaterade ändringar, så den kan endast granskas.",
+        "too-large": "För stor för att vara en riktad säkerhetskopia.",
+        "format": "Inte i det registerexportformat som Kudu skriver.",
+        "deletion": "Innehåller borttagningsposter, vilket Kudu-säkerhetskopior aldrig gör.",
+        "forbidden-key": "Innehåller nycklar utanför de områden som Kudu ändrar.",
+        "empty": "Innehåller inga registernycklar.",
+        "unreadable": "Kunde inte läsas.",
+        "unverified": "Den här säkerhetskopian kan inte verifieras — den kan ha ändrats sedan Kudu skapade den, så den kan bara granskas."
+      }
     }
   },
   "receipts": {

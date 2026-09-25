@@ -150,6 +150,14 @@ const api = {
     ipcRenderer.invoke(IPC.RECOVERY_RESTORE, id),
   recoveryOpenBackups: (): Promise<void> => ipcRenderer.invoke(IPC.RECOVERY_OPEN_BACKUPS),
   recoveryExport: (): Promise<boolean> => ipcRenderer.invoke(IPC.RECOVERY_EXPORT),
+  recoveryRegistryBackups: (): Promise<import('../shared/recovery').RegistryBackup[]> =>
+    ipcRenderer.invoke(IPC.RECOVERY_REGISTRY_BACKUPS),
+  recoveryRegistryRestore: (
+    name: string
+  ): Promise<import('../shared/recovery').RegistryRestoreResult> =>
+    ipcRenderer.invoke(IPC.RECOVERY_REGISTRY_RESTORE, name),
+  recoveryShowBackup: (name: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.RECOVERY_SHOW_BACKUP, name),
   cleanupReceiptDetails: (
     id: string,
     page: number

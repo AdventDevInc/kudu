@@ -3,7 +3,7 @@ import {
   type StorageScope,
   type StorageSnapshotSummary
 } from '@shared/storage-history'
-import type { RecoveryEntry } from '@shared/recovery'
+import type { RecoveryEntry, RegistryBackup } from '@shared/recovery'
 import type { DiagnosticSession } from '@shared/performance-diagnostics'
 import { diagnosticsFixture } from './diagnostics-fixture'
 
@@ -99,6 +99,35 @@ export const featureReads = (empty: boolean) => ({
     backups: [],
     gameMode: null
   }),
+  recoveryRegistryBackups: (): RegistryBackup[] =>
+    empty
+      ? []
+      : [
+          {
+            name: 'registry-backup-targeted-2026-09-20T20-02-42-445Z.reg',
+            source: 'registry',
+            size: 42338,
+            modifiedAt: new Date(now - 86400000).toISOString(),
+            keys: [
+              'HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.jpg\\OpenWithList',
+              'HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient'
+            ],
+            keyCount: 2,
+            restorable: true,
+            requiresAdmin: true
+          },
+          {
+            name: 'registry-backup-context-menu-Directory-2026-09-18T09-12-00-000Z.reg',
+            source: 'context-menu',
+            size: 18_400_000,
+            modifiedAt: new Date(now - 3 * 86400000).toISOString(),
+            keys: ['HKEY_CLASSES_ROOT\\Directory\\shellex'],
+            keyCount: 1,
+            restorable: false,
+            blocked: 'full-export',
+            requiresAdmin: false
+          }
+        ],
   storageHistoryList: () => ({
     scopes: empty ? [] : [scope],
     snapshots: empty ? [] : snapshots,

@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Menedżer usług",
       "registry": "Czyszczenie rejestru"
+    },
+    "registryBackups": {
+      "title": "Kopie zapasowe rejestru",
+      "description": "Kudu zapisuje klucze rejestru, które ma zamiar zmienić. W tym miejscu można przywrócić ukierunkowane kopie zapasowe. Pełne eksporty gałęzi można tylko przeglądać w folderze kopii zapasowych, ponieważ ich zaimportowanie cofnęłoby także niezwiązane zmiany wprowadzone od tego czasu.",
+      "empty": "Brak kopii zapasowych rejestru.",
+      "restore": "Przywróć",
+      "showInFolder": "Pokaż w folderze",
+      "moreKeys": "+{{count}} więcej",
+      "requiresAdmin": "Wymaga uprawnień administratora",
+      "confirmTitle": "Przywrócić tę kopię zapasową rejestru?",
+      "confirmDescription": "Kudu zaimportuje poniższe klucze. Wartości z kopii zapasowej zastąpią bieżące, a brakujące klucze i wartości zostaną przywrócone. Nic innego nie zostanie usunięte, z wyjątkiem sytuacji, gdy przywracanie kopii zapasowej sprzed przywrócenia usuwa również klucze i wartości dodane przez przywracanie, które jest cofane. Przed importem Kudu zapisze bieżący stan tych kluczy jako kopię zapasową sprzed przywrócenia. Niektóre zmiany zaczną obowiązywać dopiero po wylogowaniu lub ponownym uruchomieniu komputera.",
+      "restored": "Przywrócono. Poprzedni stan zapisano w pliku {{file}}.",
+      "restoredNoBackup": "Przywrócono. Żaden z tych kluczy wcześniej nie istniał, więc nie było czego wcześniej archiwizować.",
+      "failed": "Przywracanie nie powiodło się: {{error}}",
+      "source": {
+        "registry": "Czyszczenie rejestru",
+        "context-menu": "Czyszczenie menu kontekstowego",
+        "privacy-traces": "Ślady prywatności",
+        "pre-restore": "Kopia zapasowa sprzed przywrócenia"
+      },
+      "blocked": {
+        "full-export": "Pełny eksport gałęzi. Jego przywrócenie cofnęłoby niezwiązane zmiany, dlatego można go tylko przeglądać.",
+        "too-large": "Zbyt duży, aby był ukierunkowaną kopią zapasową.",
+        "format": "Nie jest w formacie eksportu rejestru zapisywanym przez Kudu.",
+        "deletion": "Zawiera wpisy usuwania, których kopie zapasowe Kudu nigdy nie zawierają.",
+        "forbidden-key": "Zawiera klucze spoza obszarów modyfikowanych przez Kudu.",
+        "empty": "Nie zawiera żadnych kluczy rejestru.",
+        "unreadable": "Nie można odczytać.",
+        "unverified": "Nie można zweryfikować tej kopii zapasowej — mogła zostać zmieniona od czasu jej zapisania przez Kudu, dlatego można ją tylko przejrzeć."
+      }
     }
   },
   "receipts": {

@@ -38,6 +38,36 @@
       "privacy": "Personvernskjold",
       "services": "Tjenestebehandling",
       "registry": "Registerrenser"
+    },
+    "registryBackups": {
+      "title": "Sikkerhetskopier av registeret",
+      "description": "Kudu lagrer registernøklene det er i ferd med å endre. Målrettede sikkerhetskopier kan gjenopprettes her. Eksporter av hele grener kan bare inspiseres i sikkerhetskopimappen, fordi import av dem ville rulle tilbake urelaterte endringer som er gjort siden.",
+      "empty": "Ingen sikkerhetskopier av registeret ennå.",
+      "restore": "Gjenopprett",
+      "showInFolder": "Vis i mappe",
+      "moreKeys": "+{{count}} til",
+      "requiresAdmin": "Krever administrator",
+      "confirmTitle": "Gjenopprette denne sikkerhetskopien av registeret?",
+      "confirmDescription": "Kudu vil importere nøklene nedenfor. Verdier fra sikkerhetskopien erstatter de gjeldende, og manglende nøkler og verdier legges til igjen. Ingenting annet slettes, bortsett fra at gjenoppretting av en sikkerhetskopi fra før gjenoppretting også fjerner nøklene og verdiene som gjenopprettingen den opphever hadde lagt til. Før import lagrer Kudu gjeldende tilstand for disse nøklene som en sikkerhetskopi fra før gjenoppretting. Noen endringer trer først i kraft etter at du logger av eller starter på nytt.",
+      "restored": "Gjenopprettet. Forrige tilstand ble lagret i {{file}}.",
+      "restoredNoBackup": "Gjenopprettet. Ingen av disse nøklene fantes fra før, så det var ingenting å sikkerhetskopiere først.",
+      "failed": "Gjenoppretting mislyktes: {{error}}",
+      "source": {
+        "registry": "Registeropprydding",
+        "context-menu": "Opprydding i hurtigmeny",
+        "privacy-traces": "Personvernspor",
+        "pre-restore": "Sikkerhetskopi før gjenoppretting"
+      },
+      "blocked": {
+        "full-export": "Eksport av hel gren. Gjenoppretting ville rulle tilbake urelaterte endringer, så den kan bare inspiseres.",
+        "too-large": "For stor til å være en målrettet sikkerhetskopi.",
+        "format": "Ikke i registereksportformatet som Kudu skriver.",
+        "deletion": "Inneholder sletteoppføringer, noe Kudu-sikkerhetskopier aldri gjør.",
+        "forbidden-key": "Inneholder nøkler utenfor områdene Kudu endrer.",
+        "empty": "Inneholder ingen registernøkler.",
+        "unreadable": "Kunne ikke leses.",
+        "unverified": "Denne sikkerhetskopien kan ikke verifiseres — den kan ha blitt endret siden Kudu opprettet den, så den kan bare inspiseres."
+      }
     }
   },
   "receipts": {

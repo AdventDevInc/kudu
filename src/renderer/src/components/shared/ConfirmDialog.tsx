@@ -124,7 +124,7 @@ export function ConfirmDialog({
             </p>
             {details && (
               <p
-                className="mt-3 rounded-xl p-3 font-mono text-[11px] break-all overflow-hidden"
+                className="mt-3 whitespace-pre-line rounded-xl p-3 font-mono text-[11px] break-all overflow-y-auto"
                 style={{
                   background: 'var(--bg-subtle)',
                   color: 'var(--text-muted)',

@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Servicebeheer",
       "registry": "Registeropschoning"
+    },
+    "registryBackups": {
+      "title": "Registerback-ups",
+      "description": "Kudu slaat de registersleutels op die het gaat wijzigen. Gerichte back-ups kunnen hier worden hersteld. Exporten van volledige takken kunnen alleen in de back-upmap worden bekeken, omdat het importeren ervan niet-gerelateerde wijzigingen die sindsdien zijn aangebracht, zou terugdraaien.",
+      "empty": "Nog geen registerback-ups.",
+      "restore": "Herstellen",
+      "showInFolder": "Weergeven in map",
+      "moreKeys": "+{{count}} meer",
+      "requiresAdmin": "Administrator vereist",
+      "confirmTitle": "Deze registerback-up herstellen?",
+      "confirmDescription": "Kudu importeert de onderstaande sleutels. Waarden uit de back-up vervangen de huidige en ontbrekende sleutels en waarden worden teruggezet. Verder wordt niets verwijderd, behalve dat het herstellen van een back-up van vóór het herstel ook de sleutels en waarden verwijdert die zijn toegevoegd door het herstel dat daarmee ongedaan wordt gemaakt. Voordat Kudu importeert, slaat het de huidige status van deze sleutels op als een back-up van vóór het herstel. Sommige wijzigingen worden pas van kracht nadat u zich hebt afgemeld of de computer opnieuw hebt opgestart.",
+      "restored": "Hersteld. De vorige status is opgeslagen in {{file}}.",
+      "restoredNoBackup": "Hersteld. Geen van deze sleutels bestond eerder, dus er was niets om eerst een back-up van te maken.",
+      "failed": "Herstellen mislukt: {{error}}",
+      "source": {
+        "registry": "Registeropschoner",
+        "context-menu": "Opschoner voor contextmenu",
+        "privacy-traces": "Privacysporen",
+        "pre-restore": "Back-up vóór herstel"
+      },
+      "blocked": {
+        "full-export": "Export van volledige tak. Herstellen zou niet-gerelateerde wijzigingen terugdraaien, dus deze kan alleen worden bekeken.",
+        "too-large": "Te groot om een gerichte back-up te zijn.",
+        "format": "Niet in de indeling voor registerexport die Kudu gebruikt.",
+        "deletion": "Bevat verwijderingsvermeldingen, wat Kudu-back-ups nooit doen.",
+        "forbidden-key": "Bevat sleutels buiten de gebieden die Kudu wijzigt.",
+        "empty": "Bevat geen registersleutels.",
+        "unreadable": "Kon niet worden gelezen.",
+        "unverified": "Deze back-up kan niet worden geverifieerd — mogelijk is deze gewijzigd nadat Kudu deze heeft geschreven, en kan deze daarom alleen worden bekeken."
+      }
     }
   },
   "receipts": {

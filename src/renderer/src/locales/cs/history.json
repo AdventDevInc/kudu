@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Správce služeb",
       "registry": "Čistič registru"
+    },
+    "registryBackups": {
+      "title": "Zálohy registru",
+      "description": "Kudu ukládá klíče registru, které se chystá změnit. Cílené zálohy zde lze obnovit. Exporty celých větví lze pouze zobrazit ve složce záloh, protože jejich import by vrátil zpět i nesouvisející změny provedené od té doby.",
+      "empty": "Zatím nejsou k dispozici žádné zálohy registru.",
+      "restore": "Obnovit",
+      "showInFolder": "Zobrazit ve složce",
+      "moreKeys": "+{{count}} dalších",
+      "requiresAdmin": "Vyžaduje oprávnění správce",
+      "confirmTitle": "Obnovit tuto zálohu registru?",
+      "confirmDescription": "Kudu importuje níže uvedené klíče. Hodnoty ze zálohy nahradí aktuální hodnoty a chybějící klíče a hodnoty budou znovu přidány. Nic jiného se neodstraní, s výjimkou toho, že obnovení zálohy vytvořené před obnovením také odstraní klíče a hodnoty, které přidalo obnovení, jež se tímto vrací zpět. Před importem Kudu uloží aktuální stav těchto klíčů jako zálohu před obnovením. Některé změny se projeví až po odhlášení nebo restartování.",
+      "restored": "Obnoveno. Předchozí stav byl uložen do {{file}}.",
+      "restoredNoBackup": "Obnoveno. Žádný z těchto klíčů dříve neexistoval, takže nebylo co nejprve zálohovat.",
+      "failed": "Obnovení se nezdařilo: {{error}}",
+      "source": {
+        "registry": "Čištění registru",
+        "context-menu": "Čištění místní nabídky",
+        "privacy-traces": "Stopy soukromí",
+        "pre-restore": "Záloha před obnovením"
+      },
+      "blocked": {
+        "full-export": "Export celé větve. Jeho obnovení by vrátilo zpět i nesouvisející změny, takže jej lze pouze zobrazit.",
+        "too-large": "Příliš velké na to, aby šlo o cílenou zálohu.",
+        "format": "Není ve formátu exportu registru, který Kudu vytváří.",
+        "deletion": "Obsahuje položky pro odstranění, které zálohy Kudu nikdy neobsahují.",
+        "forbidden-key": "Obsahuje klíče mimo oblasti, které Kudu mění.",
+        "empty": "Neobsahuje žádné klíče registru.",
+        "unreadable": "Nepodařilo se přečíst.",
+        "unverified": "Tuto zálohu nelze ověřit — od chvíle, kdy ji Kudu vytvořilo, mohla být změněna, takže ji lze pouze zkontrolovat."
+      }
     }
   },
   "receipts": {

@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Service Manager",
       "registry": "Registry Cleaner"
+    },
+    "registryBackups": {
+      "title": "Registry backups",
+      "description": "Kudu saves the registry keys it is about to change. Targeted backups can be restored here. Full-branch exports can only be inspected in the backup folder, because importing them would roll back unrelated changes made since.",
+      "empty": "No registry backups yet.",
+      "restore": "Restore",
+      "showInFolder": "Show in folder",
+      "moreKeys": "+{{count}} more",
+      "requiresAdmin": "Requires administrator",
+      "confirmTitle": "Restore this registry backup?",
+      "confirmDescription": "Kudu will import the keys below. Values from the backup replace the current ones and missing keys and values are added back. Nothing else is deleted, except that restoring a pre-restore backup also removes the keys and values that the restore it undoes had added. Before importing, Kudu saves the current state of these keys as a pre-restore backup. Some changes take effect only after signing out or restarting.",
+      "restored": "Restored. The previous state was saved to {{file}}.",
+      "restoredNoBackup": "Restored. None of these keys existed before, so there was nothing to back up first.",
+      "failed": "Restore failed: {{error}}",
+      "source": {
+        "registry": "Registry Cleaner",
+        "context-menu": "Context Menu Cleaner",
+        "privacy-traces": "Privacy Traces",
+        "pre-restore": "Pre-restore backup"
+      },
+      "blocked": {
+        "full-export": "Full-branch export. Restoring it would roll back unrelated changes, so it can only be inspected.",
+        "too-large": "Too large to be a targeted backup.",
+        "format": "Not in the registry export format Kudu writes.",
+        "deletion": "Contains deletion entries, which Kudu backups never do.",
+        "forbidden-key": "Contains keys outside the areas Kudu changes.",
+        "empty": "Contains no registry keys.",
+        "unreadable": "Could not be read.",
+        "unverified": "This backup can't be verified — it may have been changed since Kudu wrote it, so it can only be inspected."
+      }
     }
   },
   "receipts": {

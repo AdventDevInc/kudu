@@ -38,6 +38,36 @@
       "privacy": "Bouclier de confidentialité",
       "services": "Gestionnaire de services",
       "registry": "Nettoyeur du registre"
+    },
+    "registryBackups": {
+      "title": "Sauvegardes du registre",
+      "description": "Kudu enregistre les clés de registre qu’il s’apprête à modifier. Les sauvegardes ciblées peuvent être restaurées ici. Les exportations de branches complètes peuvent uniquement être consultées dans le dossier de sauvegarde, car leur importation annulerait des modifications sans rapport effectuées depuis.",
+      "empty": "Aucune sauvegarde du registre pour le moment.",
+      "restore": "Restaurer",
+      "showInFolder": "Afficher dans le dossier",
+      "moreKeys": "+{{count}} de plus",
+      "requiresAdmin": "Nécessite les droits d’administrateur",
+      "confirmTitle": "Restaurer cette sauvegarde du registre ?",
+      "confirmDescription": "Kudu importera les clés ci-dessous. Les valeurs de la sauvegarde remplacent les valeurs actuelles, et les clés et valeurs manquantes sont rétablies. Rien d’autre n’est supprimé, sauf que la restauration d’une sauvegarde pré-restauration supprime également les clés et valeurs ajoutées par la restauration qu’elle annule. Avant l’importation, Kudu enregistre l’état actuel de ces clés dans une sauvegarde pré-restauration. Certaines modifications ne prennent effet qu’après la déconnexion ou le redémarrage.",
+      "restored": "Restauration effectuée. L’état précédent a été enregistré dans {{file}}.",
+      "restoredNoBackup": "Restauration effectuée. Aucune de ces clés n’existait auparavant, il n’y avait donc rien à sauvegarder au préalable.",
+      "failed": "Échec de la restauration : {{error}}",
+      "source": {
+        "registry": "Nettoyeur du registre",
+        "context-menu": "Nettoyeur du menu contextuel",
+        "privacy-traces": "Traces de confidentialité",
+        "pre-restore": "Sauvegarde préalable à la restauration"
+      },
+      "blocked": {
+        "full-export": "Exportation de branche complète. Sa restauration annulerait des modifications sans rapport ; elle peut donc uniquement être consultée.",
+        "too-large": "Trop volumineux pour être une sauvegarde ciblée.",
+        "format": "N’est pas dans le format d’exportation du registre utilisé par Kudu.",
+        "deletion": "Contient des entrées de suppression, ce que les sauvegardes Kudu ne font jamais.",
+        "forbidden-key": "Contient des clés en dehors des zones modifiées par Kudu.",
+        "empty": "Ne contient aucune clé de registre.",
+        "unreadable": "Impossible à lire.",
+        "unverified": "Cette sauvegarde ne peut pas être vérifiée — elle a peut-être été modifiée depuis que Kudu l’a créée, elle peut donc uniquement être examinée."
+      }
     }
   },
   "receipts": {

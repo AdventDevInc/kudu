@@ -99,3 +99,35 @@ export function validateRecoveryEntry(value: unknown): value is RecoveryEntry {
     )
   return false
 }
+
+/** Feature that wrote a registry backup, inferred from its filename prefix. */
+export type RegistryBackupSource = 'registry' | 'context-menu' | 'privacy-traces' | 'pre-restore'
+/** Why a registry backup cannot be restored from inside Kudu. */
+export type RegistryBackupBlock =
+  | 'full-export'
+  | 'too-large'
+  | 'format'
+  | 'deletion'
+  | 'forbidden-key'
+  | 'empty'
+  | 'unreadable'
+  | 'unverified'
+export interface RegistryBackup {
+  name: string
+  source: RegistryBackupSource
+  size: number
+  modifiedAt: string
+  /** Top-level keys in the file (each exported with its subtree), capped for display. */
+  keys: string[]
+  keyCount: number
+  restorable: boolean
+  blocked?: RegistryBackupBlock
+  /** True when restoring needs administrator privileges: always, since sealing and the private working folder need elevation. */
+  requiresAdmin: boolean
+}
+export interface RegistryRestoreResult {
+  name: string
+  keys: string[]
+  /** File name of the safety backup taken before importing, or null when none of the keys existed. */
+  preRestoreBackup: string | null
+}

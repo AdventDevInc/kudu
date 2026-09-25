@@ -6,6 +6,7 @@ import { createHash } from 'crypto'
 import { IPC } from '../../shared/channels'
 import { execNativeUtf8 } from '../services/exec-utf8'
 import { isAdmin } from '../services/elevation'
+import { removeSeals } from '../services/registry-backup-seal'
 import type {
   ContextMenuAction,
   ContextMenuApplyProgress,
@@ -604,10 +605,17 @@ export async function scanContextMenu(
 
 const BACKUP_DIR = () => getBackupDir()
 
-function pruneOldBackups(backupDir: string, keep: number): void {
+/**
+ * Keep only this cleaner's newest N backup runs. Only its own
+ * `registry-backup-context-menu-*` files are considered: other features' backups
+ * (e.g. the registry cleaner's sealed targeted backups) are theirs to prune.
+ * Returns the names removed, so any integrity seals can be dropped too.
+ */
+export function pruneOldBackups(backupDir: string, keep: number): string[] {
+  const removed: string[] = []
   try {
     const files = readdirSync(backupDir).filter(
-      (f: string) => f.startsWith('registry-backup-') && f.endsWith('.reg')
+      (f: string) => f.startsWith('registry-backup-context-menu-') && f.endsWith('.reg')
     )
     // Group by timestamp suffix `-<ts>.reg`.
     const groups = new Map<string, string[]>()
@@ -624,6 +632,7 @@ function pruneOldBackups(backupDir: string, keep: number): void {
       for (const f of groups.get(ts)!) {
         try {
           unlinkSync(join(backupDir, f))
+          removed.push(f)
         } catch {
           /* skip */
         }
@@ -632,6 +641,7 @@ function pruneOldBackups(backupDir: string, keep: number): void {
   } catch {
     /* skip */
   }
+  return removed
 }
 
 async function backupShellExtensionHives(signal?: AbortSignal): Promise<void> {
@@ -662,7 +672,7 @@ async function backupShellExtensionHives(signal?: AbortSignal): Promise<void> {
       /* skip */
     })
   }
-  pruneOldBackups(backupDir, 3)
+  await removeSeals(pruneOldBackups(backupDir, 3))
 }
 
 async function applyOne(

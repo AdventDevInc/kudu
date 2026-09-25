@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Service Manager",
       "registry": "Registry Cleaner"
+    },
+    "registryBackups": {
+      "title": "Registrierungs-Backups",
+      "description": "Kudu speichert die Registrierungsschlüssel, die geändert werden sollen. Gezielte Backups können hier wiederhergestellt werden. Exporte vollständiger Zweige können nur im Backup-Ordner eingesehen werden, da ein Import auch seitdem vorgenommene, nicht zusammenhängende Änderungen rückgängig machen würde.",
+      "empty": "Noch keine Registrierungs-Backups.",
+      "restore": "Wiederherstellen",
+      "showInFolder": "Im Ordner anzeigen",
+      "moreKeys": "+{{count}} weitere",
+      "requiresAdmin": "Administrator erforderlich",
+      "confirmTitle": "Dieses Registrierungs-Backup wiederherstellen?",
+      "confirmDescription": "Kudu importiert die unten aufgeführten Schlüssel. Werte aus der Sicherung ersetzen die aktuellen, und fehlende Schlüssel und Werte werden wieder hinzugefügt. Nichts anderes wird gelöscht, außer dass beim Wiederherstellen einer Sicherung vor der Wiederherstellung auch die Schlüssel und Werte entfernt werden, die durch die damit rückgängig gemachte Wiederherstellung hinzugefügt wurden. Vor dem Importieren speichert Kudu den aktuellen Zustand dieser Schlüssel als Sicherung vor der Wiederherstellung. Einige Änderungen werden erst nach dem Abmelden oder einem Neustart wirksam.",
+      "restored": "Wiederhergestellt. Der vorherige Zustand wurde in {{file}} gespeichert.",
+      "restoredNoBackup": "Wiederhergestellt. Keiner dieser Schlüssel war zuvor vorhanden, daher gab es nichts, was zuerst gesichert werden konnte.",
+      "failed": "Wiederherstellung fehlgeschlagen: {{error}}",
+      "source": {
+        "registry": "Registry Cleaner",
+        "context-menu": "Kontextmenü-Bereiniger",
+        "privacy-traces": "Datenschutzspuren",
+        "pre-restore": "Backup vor der Wiederherstellung"
+      },
+      "blocked": {
+        "full-export": "Export eines vollständigen Zweigs. Eine Wiederherstellung würde auch nicht zusammenhängende Änderungen rückgängig machen, daher kann er nur eingesehen werden.",
+        "too-large": "Zu groß, um ein gezieltes Backup zu sein.",
+        "format": "Nicht im Registrierungs-Exportformat, das Kudu schreibt.",
+        "deletion": "Enthält Lösch-Einträge, die Kudu-Backups nie enthalten.",
+        "forbidden-key": "Enthält Schlüssel außerhalb der Bereiche, die Kudu ändert.",
+        "empty": "Enthält keine Registrierungsschlüssel.",
+        "unreadable": "Konnte nicht gelesen werden.",
+        "unverified": "Diese Sicherung kann nicht verifiziert werden — sie wurde möglicherweise geändert, seit Kudu sie erstellt hat, und kann daher nur geprüft werden."
+      }
     }
   },
   "receipts": {

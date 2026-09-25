@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Manager servicii",
       "registry": "Registry Cleaner"
+    },
+    "registryBackups": {
+      "title": "Copii de siguranță ale registry",
+      "description": "Kudu salvează cheile de registry pe care urmează să le modifice. Copiile de siguranță țintite pot fi restaurate aici. Exporturile complete ale ramurilor pot fi doar inspectate în folderul de backup, deoarece importarea lor ar anula modificări fără legătură efectuate între timp.",
+      "empty": "Nu există încă copii de siguranță ale registry.",
+      "restore": "Restaurare",
+      "showInFolder": "Afișează în folder",
+      "moreKeys": "+încă {{count}}",
+      "requiresAdmin": "Necesită administrator",
+      "confirmTitle": "Restaurați această copie de siguranță a registry?",
+      "confirmDescription": "Kudu va importa cheile de mai jos. Valorile din copia de rezervă le înlocuiesc pe cele curente, iar cheile și valorile lipsă sunt adăugate înapoi. Nimic altceva nu este șters, cu excepția faptului că restaurarea unei copii de rezervă de dinaintea restaurării elimină și cheile și valorile pe care le-a adăugat restaurarea pe care o anulează. Înainte de import, Kudu salvează starea curentă a acestor chei ca o copie de rezervă de dinaintea restaurării. Unele modificări intră în vigoare numai după deconectare sau repornire.",
+      "restored": "Restaurat. Starea anterioară a fost salvată în {{file}}.",
+      "restoredNoBackup": "Restaurat. Niciuna dintre aceste chei nu exista înainte, deci nu a existat nimic de salvat mai întâi.",
+      "failed": "Restaurarea a eșuat: {{error}}",
+      "source": {
+        "registry": "Registry Cleaner",
+        "context-menu": "Curățare meniu contextual",
+        "privacy-traces": "Urme de confidențialitate",
+        "pre-restore": "Copie de siguranță de pre-restaurare"
+      },
+      "blocked": {
+        "full-export": "Export complet al ramurii. Restaurarea lui ar anula modificări fără legătură, deci poate fi doar inspectat.",
+        "too-large": "Prea mare pentru a fi o copie de siguranță țintită.",
+        "format": "Nu este în formatul de export registry scris de Kudu.",
+        "deletion": "Conține intrări de ștergere, pe care copiile de siguranță Kudu nu le includ niciodată.",
+        "forbidden-key": "Conține chei din afara zonelor pe care Kudu le modifică.",
+        "empty": "Nu conține chei de registry.",
+        "unreadable": "Nu a putut fi citit.",
+        "unverified": "Această copie de rezervă nu poate fi verificată — este posibil să fi fost modificată de când Kudu a creat-o, astfel încât poate fi doar inspectată."
+      }
     }
   },
   "receipts": {

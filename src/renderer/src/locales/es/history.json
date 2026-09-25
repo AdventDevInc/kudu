@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Administrador de servicios",
       "registry": "Limpiador del registro"
+    },
+    "registryBackups": {
+      "title": "Copias de seguridad del registro",
+      "description": "Kudu guarda las claves del registro que está a punto de cambiar. Las copias de seguridad específicas pueden restaurarse aquí. Las exportaciones de ramas completas solo pueden inspeccionarse en la carpeta de copias de seguridad, porque importarlas revertiría cambios no relacionados realizados desde entonces.",
+      "empty": "Aún no hay copias de seguridad del registro.",
+      "restore": "Restaurar",
+      "showInFolder": "Mostrar en la carpeta",
+      "moreKeys": "+{{count}} más",
+      "requiresAdmin": "Requiere administrador",
+      "confirmTitle": "¿Restaurar esta copia de seguridad del registro?",
+      "confirmDescription": "Kudu importará las claves que se indican a continuación. Los valores de la copia de seguridad reemplazarán a los actuales y se volverán a agregar las claves y los valores que falten. No se eliminará nada más, salvo que al restaurar una copia de seguridad previa a la restauración también se eliminan las claves y los valores que había agregado la restauración que se deshace. Antes de importar, Kudu guarda el estado actual de estas claves como una copia de seguridad previa a la restauración. Algunos cambios solo surten efecto después de cerrar sesión o reiniciar.",
+      "restored": "Restaurado. El estado anterior se guardó en {{file}}.",
+      "restoredNoBackup": "Restaurado. Ninguna de estas claves existía antes, por lo que no había nada que respaldar primero.",
+      "failed": "Error al restaurar: {{error}}",
+      "source": {
+        "registry": "Limpiador del registro",
+        "context-menu": "Limpiador del menú contextual",
+        "privacy-traces": "Rastros de privacidad",
+        "pre-restore": "Copia de seguridad previa a la restauración"
+      },
+      "blocked": {
+        "full-export": "Exportación de rama completa. Restaurarla revertiría cambios no relacionados, por lo que solo puede inspeccionarse.",
+        "too-large": "Demasiado grande para ser una copia de seguridad específica.",
+        "format": "No está en el formato de exportación del registro que escribe Kudu.",
+        "deletion": "Contiene entradas de eliminación, que las copias de seguridad de Kudu nunca incluyen.",
+        "forbidden-key": "Contiene claves fuera de las áreas que Kudu modifica.",
+        "empty": "No contiene claves del registro.",
+        "unreadable": "No se pudo leer.",
+        "unverified": "No se puede verificar esta copia de seguridad; es posible que se haya modificado desde que Kudu la creó, por lo que solo puede inspeccionarse."
+      }
     }
   },
   "receipts": {

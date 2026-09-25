@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Service Manager",
       "registry": "Registry Cleaner"
+    },
+    "registryBackups": {
+      "title": "Rekisterin varmuuskopiot",
+      "description": "Kudu tallentaa rekisteriavaimet, joita se on muuttamassa. Kohdennetut varmuuskopiot voidaan palauttaa täällä. Koko haaran vientitiedostoja voi tarkastella vain varmuuskopiokansiossa, koska niiden tuominen palauttaisi myös muita, tämän jälkeen tehtyjä muutoksia.",
+      "empty": "Ei vielä rekisterin varmuuskopioita.",
+      "restore": "Palauta",
+      "showInFolder": "Näytä kansiossa",
+      "moreKeys": "+{{count}} lisää",
+      "requiresAdmin": "Vaatii järjestelmänvalvojan oikeudet",
+      "confirmTitle": "Palautetaanko tämä rekisterin varmuuskopio?",
+      "confirmDescription": "Kudu tuo alla olevat avaimet. Varmuuskopion arvot korvaavat nykyiset arvot, ja puuttuvat avaimet ja arvot lisätään takaisin. Mitään muuta ei poisteta, paitsi että palautusta edeltävän varmuuskopion palauttaminen poistaa myös ne avaimet ja arvot, jotka kumottava palautus oli lisännyt. Ennen tuontia Kudu tallentaa näiden avainten nykyisen tilan palautusta edeltäväksi varmuuskopioksi. Osa muutoksista tulee voimaan vasta uloskirjautumisen tai uudelleenkäynnistyksen jälkeen.",
+      "restored": "Palautettu. Edellinen tila tallennettiin tiedostoon {{file}}.",
+      "restoredNoBackup": "Palautettu. Mitään näistä avaimista ei ollut aiemmin olemassa, joten varmuuskopiota ei ollut ensin mahdollista luoda.",
+      "failed": "Palautus epäonnistui: {{error}}",
+      "source": {
+        "registry": "Rekisterin puhdistus",
+        "context-menu": "Kontekstivalikon puhdistus",
+        "privacy-traces": "Tietosuojajäljet",
+        "pre-restore": "Palautusta edeltävä varmuuskopio"
+      },
+      "blocked": {
+        "full-export": "Koko haaran vientitiedosto. Sen palauttaminen kumoaisi myös muita muutoksia, joten sitä voi vain tarkastella.",
+        "too-large": "Liian suuri ollakseen kohdennettu varmuuskopio.",
+        "format": "Ei ole Kudu:n kirjoittamassa rekisterin vientimuodossa.",
+        "deletion": "Sisältää poistomerkintöjä, joita Kudu:n varmuuskopiot eivät koskaan sisällä.",
+        "forbidden-key": "Sisältää avaimia Kudu:n muuttamien alueiden ulkopuolelta.",
+        "empty": "Ei sisällä rekisteriavaimia.",
+        "unreadable": "Ei voitu lukea.",
+        "unverified": "Tätä varmuuskopiota ei voi vahvistaa — sitä on saatettu muuttaa sen jälkeen, kun Kudu kirjoitti sen, joten sitä voi vain tarkastella."
+      }
     }
   },
   "receipts": {

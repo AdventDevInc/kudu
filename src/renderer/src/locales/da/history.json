@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Tjenestehåndtering",
       "registry": "Registreringsdatabaseoprydning"
+    },
+    "registryBackups": {
+      "title": "Sikkerhedskopier af registreringsdatabasen",
+      "description": "Kudu gemmer de registreringsnøgler, som programmet er ved at ændre. Målrettede sikkerhedskopier kan gendannes her. Eksporter af hele grene kan kun gennemgås i sikkerhedskopimappen, fordi import af dem ville tilbagerulle ændringer uden relation, som er foretaget siden.",
+      "empty": "Ingen sikkerhedskopier af registreringsdatabasen endnu.",
+      "restore": "Gendan",
+      "showInFolder": "Vis i mappe",
+      "moreKeys": "+{{count}} mere",
+      "requiresAdmin": "Kræver administrator",
+      "confirmTitle": "Gendan denne sikkerhedskopi af registreringsdatabasen?",
+      "confirmDescription": "Kudu importerer nøglerne nedenfor. Værdier fra sikkerhedskopien erstatter de nuværende, og manglende nøgler og værdier tilføjes igen. Intet andet slettes, bortset fra at gendannelse af en sikkerhedskopi fra før gendannelse også fjerner de nøgler og værdier, som den gendannelse, den ophæver, havde tilføjet. Før import gemmer Kudu den aktuelle tilstand for disse nøgler som en sikkerhedskopi fra før gendannelse. Nogle ændringer træder først i kraft, når du logger af eller genstarter.",
+      "restored": "Gendannet. Den tidligere tilstand blev gemt i {{file}}.",
+      "restoredNoBackup": "Gendannet. Ingen af disse nøgler fandtes tidligere, så der var ikke noget at sikkerhedskopiere først.",
+      "failed": "Gendannelse mislykkedes: {{error}}",
+      "source": {
+        "registry": "Registreringsdatabaseoprydning",
+        "context-menu": "Oprydning af genvejsmenu",
+        "privacy-traces": "Privatlivsspor",
+        "pre-restore": "Sikkerhedskopi før gendannelse"
+      },
+      "blocked": {
+        "full-export": "Eksport af hel gren. Gendannelse af den ville tilbagerulle ændringer uden relation, så den kan kun gennemgås.",
+        "too-large": "For stor til at være en målrettet sikkerhedskopi.",
+        "format": "Ikke i det eksportformat for registreringsdatabasen, som Kudu skriver.",
+        "deletion": "Indeholder sletteposter, hvilket Kudu-sikkerhedskopier aldrig gør.",
+        "forbidden-key": "Indeholder nøgler uden for de områder, som Kudu ændrer.",
+        "empty": "Indeholder ingen registreringsnøgler.",
+        "unreadable": "Kunne ikke læses.",
+        "unverified": "Denne sikkerhedskopi kan ikke verificeres — den kan være blevet ændret, siden Kudu oprettede den, så den kan kun gennemses."
+      }
     }
   },
   "receipts": {

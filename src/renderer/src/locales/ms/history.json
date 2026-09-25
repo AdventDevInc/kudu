@@ -38,6 +38,36 @@
       "privacy": "Perisai Privasi",
       "services": "Pengurus Perkhidmatan",
       "registry": "Pembersih Registry"
+    },
+    "registryBackups": {
+      "title": "Sandaran registry",
+      "description": "Kudu menyimpan kunci registry yang akan diubah. Sandaran yang disasarkan boleh dipulihkan di sini. Eksport cawangan penuh hanya boleh diperiksa dalam folder sandaran, kerana mengimportnya akan mengembalikan perubahan tidak berkaitan yang telah dibuat sejak itu.",
+      "empty": "Belum ada sandaran registry.",
+      "restore": "Pulihkan",
+      "showInFolder": "Tunjukkan dalam folder",
+      "moreKeys": "+{{count}} lagi",
+      "requiresAdmin": "Memerlukan pentadbir",
+      "confirmTitle": "Pulihkan sandaran registry ini?",
+      "confirmDescription": "Kudu akan mengimport kunci di bawah. Nilai daripada sandaran akan menggantikan nilai semasa dan kunci serta nilai yang tiada akan ditambah semula. Tiada perkara lain akan dipadamkan, kecuali pemulihan sandaran pra-pemulihan juga akan membuang kunci dan nilai yang telah ditambah oleh pemulihan yang dibatalkannya. Sebelum mengimport, Kudu menyimpan keadaan semasa kunci ini sebagai sandaran pra-pemulihan. Sesetengah perubahan hanya berkuat kuasa selepas anda mendaftar keluar atau memulakan semula.",
+      "restored": "Dipulihkan. Keadaan sebelumnya telah disimpan ke {{file}}.",
+      "restoredNoBackup": "Dipulihkan. Tiada satu pun daripada kunci ini wujud sebelum ini, jadi tiada apa-apa untuk disandarkan terlebih dahulu.",
+      "failed": "Pemulihan gagal: {{error}}",
+      "source": {
+        "registry": "Pembersih Registry",
+        "context-menu": "Pembersih Menu Konteks",
+        "privacy-traces": "Jejak Privasi",
+        "pre-restore": "Sandaran pra-pemulihan"
+      },
+      "blocked": {
+        "full-export": "Eksport cawangan penuh. Memulihkannya akan mengembalikan perubahan tidak berkaitan, jadi ia hanya boleh diperiksa.",
+        "too-large": "Terlalu besar untuk menjadi sandaran yang disasarkan.",
+        "format": "Bukan dalam format eksport registry yang ditulis oleh Kudu.",
+        "deletion": "Mengandungi entri pemadaman, yang tidak pernah ada dalam sandaran Kudu.",
+        "forbidden-key": "Mengandungi kunci di luar kawasan yang diubah oleh Kudu.",
+        "empty": "Tidak mengandungi sebarang kunci registry.",
+        "unreadable": "Tidak dapat dibaca.",
+        "unverified": "Sandaran ini tidak dapat disahkan — ia mungkin telah diubah sejak Kudu menulisnya, jadi ia hanya boleh diperiksa."
+      }
     }
   },
   "receipts": {

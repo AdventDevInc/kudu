@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "服務管理員",
       "registry": "登錄清理"
+    },
+    "registryBackups": {
+      "title": "登錄備份",
+      "description": "Kudu 會儲存即將變更的登錄機碼。您可在此還原針對性的備份。完整分支匯出只能在備份資料夾中檢視，因為匯入它們會回復自那之後所做的其他無關變更。",
+      "empty": "尚無登錄備份。",
+      "restore": "還原",
+      "showInFolder": "在資料夾中顯示",
+      "moreKeys": "另外 +{{count}} 個",
+      "requiresAdmin": "需要系統管理員權限",
+      "confirmTitle": "要還原此登錄備份嗎？",
+      "confirmDescription": "Kudu 將匯入下列機碼。備份中的值會取代目前的值，遺失的機碼和值也會重新加入。除此之外，不會刪除任何其他內容，但還原「還原前備份」時，也會移除被其復原所撤銷的還原作業先前新增的機碼和值。匯入前，Kudu 會先將這些機碼的目前狀態儲存為「還原前備份」。某些變更可能要在您登出或重新啟動後才會生效。",
+      "restored": "已還原。先前的狀態已儲存至 {{file}}。",
+      "restoredNoBackup": "已還原。這些機碼先前皆不存在，因此沒有可先行備份的內容。",
+      "failed": "還原失敗：{{error}}",
+      "source": {
+        "registry": "登錄清理",
+        "context-menu": "內容功能表清理",
+        "privacy-traces": "隱私痕跡",
+        "pre-restore": "還原前備份"
+      },
+      "blocked": {
+        "full-export": "完整分支匯出。還原它會回復無關的變更，因此只能檢視。",
+        "too-large": "檔案過大，無法視為針對性備份。",
+        "format": "不是 Kudu 所寫入的登錄匯出格式。",
+        "deletion": "包含刪除項目，而 Kudu 備份不會包含此類項目。",
+        "forbidden-key": "包含超出 Kudu 變更範圍的機碼。",
+        "empty": "未包含任何登錄機碼。",
+        "unreadable": "無法讀取。",
+        "unverified": "無法驗證此備份——它可能在 Kudu 寫入後已遭變更，因此只能檢視。"
+      }
     }
   },
   "receipts": {

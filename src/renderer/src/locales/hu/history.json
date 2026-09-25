@@ -38,6 +38,36 @@
       "privacy": "Adatvédelmi pajzs",
       "services": "Szolgáltatáskezelő",
       "registry": "Rendszerleíróadatbázis-tisztító"
+    },
+    "registryBackups": {
+      "title": "Registry biztonsági mentések",
+      "description": "A Kudu elmenti azokat a registrykulcsokat, amelyeket módosítani készül. A célzott biztonsági mentések itt állíthatók vissza. A teljes ág exportjai csak a biztonsági mentések mappájában tekinthetők meg, mert importálásuk visszavonná az azóta végzett, nem kapcsolódó módosításokat is.",
+      "empty": "Még nincsenek registry biztonsági mentések.",
+      "restore": "Visszaállítás",
+      "showInFolder": "Megjelenítés a mappában",
+      "moreKeys": "+{{count}} további",
+      "requiresAdmin": "Rendszergazdai jogosultság szükséges",
+      "confirmTitle": "Visszaállítja ezt a registry biztonsági mentést?",
+      "confirmDescription": "A Kudu importálja az alábbi kulcsokat. A biztonsági mentésben lévő értékek lecserélik a jelenlegieket, a hiányzó kulcsok és értékek pedig visszakerülnek. Semmi más nem törlődik, kivéve hogy egy visszaállítás előtti biztonsági mentés visszaállítása eltávolítja azokat a kulcsokat és értékeket is, amelyeket az általa visszavont visszaállítás adott hozzá. Az importálás előtt a Kudu a kulcsok jelenlegi állapotát egy visszaállítás előtti biztonsági mentésként menti. Egyes módosítások csak kijelentkezés vagy újraindítás után lépnek érvénybe.",
+      "restored": "Visszaállítva. Az előző állapot mentése ide történt: {{file}}.",
+      "restoredNoBackup": "Visszaállítva. Ezek közül a kulcsok közül korábban egyik sem létezett, ezért nem volt mit előzetesen menteni.",
+      "failed": "A visszaállítás sikertelen: {{error}}",
+      "source": {
+        "registry": "Registrytisztító",
+        "context-menu": "Helyi menü tisztító",
+        "privacy-traces": "Adatvédelmi nyomok",
+        "pre-restore": "Visszaállítás előtti biztonsági mentés"
+      },
+      "blocked": {
+        "full-export": "Teljes ág exportja. Visszaállítása nem kapcsolódó módosításokat is visszavonna, ezért csak megtekinthető.",
+        "too-large": "Túl nagy ahhoz, hogy célzott biztonsági mentés legyen.",
+        "format": "Nem a Kudu által írt registry exportformátumban van.",
+        "deletion": "Törlési bejegyzéseket tartalmaz, pedig a Kudu biztonsági mentései soha nem tartalmaznak ilyet.",
+        "forbidden-key": "A Kudu által módosított területeken kívüli kulcsokat tartalmaz.",
+        "empty": "Nem tartalmaz registrykulcsokat.",
+        "unreadable": "Nem olvasható.",
+        "unverified": "Ez a biztonsági mentés nem ellenőrizhető — lehet, hogy a Kudu létrehozása óta módosították, ezért csak megtekinthető."
+      }
     }
   },
   "receipts": {

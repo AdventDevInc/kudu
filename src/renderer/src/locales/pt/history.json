@@ -38,6 +38,36 @@
       "privacy": "Escudo de Privacidade",
       "services": "Gestor de Serviços",
       "registry": "Limpador do Registo"
+    },
+    "registryBackups": {
+      "title": "Cópias de segurança do registo",
+      "description": "O Kudu guarda as chaves do registo que está prestes a alterar. As cópias de segurança direcionadas podem ser restauradas aqui. As exportações de ramos completos só podem ser inspecionadas na pasta de cópias de segurança, porque importá-las reverteria alterações não relacionadas efetuadas desde então.",
+      "empty": "Ainda não existem cópias de segurança do registo.",
+      "restore": "Restaurar",
+      "showInFolder": "Mostrar na pasta",
+      "moreKeys": "+{{count}} mais",
+      "requiresAdmin": "Requer administrador",
+      "confirmTitle": "Restaurar esta cópia de segurança do registo?",
+      "confirmDescription": "O Kudu importará as chaves abaixo. Os valores da cópia de segurança substituirão os atuais, e as chaves e os valores em falta serão adicionados novamente. Nada mais será eliminado, exceto que a restauração de uma cópia de segurança pré-restauração também remove as chaves e os valores que a restauração desfeita tinha adicionado. Antes de importar, o Kudu guarda o estado atual destas chaves como uma cópia de segurança pré-restauração. Algumas alterações só entram em vigor depois de terminar sessão ou reiniciar.",
+      "restored": "Restaurado. O estado anterior foi guardado em {{file}}.",
+      "restoredNoBackup": "Restaurado. Nenhuma destas chaves existia anteriormente, por isso não havia nada para guardar primeiro.",
+      "failed": "Falha ao restaurar: {{error}}",
+      "source": {
+        "registry": "Limpeza do Registo",
+        "context-menu": "Limpeza do Menu de Contexto",
+        "privacy-traces": "Rastos de Privacidade",
+        "pre-restore": "Cópia de segurança pré-restauro"
+      },
+      "blocked": {
+        "full-export": "Exportação de ramo completo. Restaurá-la reverteria alterações não relacionadas, por isso só pode ser inspecionada.",
+        "too-large": "Demasiado grande para ser uma cópia de segurança direcionada.",
+        "format": "Não está no formato de exportação do registo utilizado pelo Kudu.",
+        "deletion": "Contém entradas de eliminação, o que nunca acontece nas cópias de segurança do Kudu.",
+        "forbidden-key": "Contém chaves fora das áreas alteradas pelo Kudu.",
+        "empty": "Não contém chaves do registo.",
+        "unreadable": "Não foi possível ler.",
+        "unverified": "Não é possível verificar esta cópia de segurança — pode ter sido alterada desde que o Kudu a gravou, por isso só pode ser inspecionada."
+      }
     }
   },
   "receipts": {

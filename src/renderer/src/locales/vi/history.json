@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Trình quản lý Dịch vụ",
       "registry": "Trình dọn dẹp Sổ đăng ký"
+    },
+    "registryBackups": {
+      "title": "Bản sao lưu Registry",
+      "description": "Kudu lưu các khóa registry mà ứng dụng sắp thay đổi. Bạn có thể khôi phục các bản sao lưu mục tiêu tại đây. Các bản xuất toàn bộ nhánh chỉ có thể được xem trong thư mục sao lưu, vì việc nhập chúng sẽ hoàn tác các thay đổi không liên quan đã được thực hiện kể từ đó.",
+      "empty": "Chưa có bản sao lưu registry nào.",
+      "restore": "Khôi phục",
+      "showInFolder": "Hiển thị trong thư mục",
+      "moreKeys": "+{{count}} mục nữa",
+      "requiresAdmin": "Yêu cầu quyền quản trị viên",
+      "confirmTitle": "Khôi phục bản sao lưu registry này?",
+      "confirmDescription": "Kudu sẽ nhập các khóa bên dưới. Các giá trị từ bản sao lưu sẽ thay thế các giá trị hiện tại và các khóa cũng như giá trị bị thiếu sẽ được thêm lại. Không có nội dung nào khác bị xóa, ngoại trừ việc khôi phục một bản sao lưu trước khi khôi phục cũng sẽ xóa các khóa và giá trị mà lần khôi phục bị hoàn tác đó đã thêm vào. Trước khi nhập, Kudu sẽ lưu trạng thái hiện tại của các khóa này thành một bản sao lưu trước khi khôi phục. Một số thay đổi chỉ có hiệu lực sau khi đăng xuất hoặc khởi động lại.",
+      "restored": "Đã khôi phục. Trạng thái trước đó đã được lưu vào {{file}}.",
+      "restoredNoBackup": "Đã khôi phục. Trước đó không có khóa nào trong số này tồn tại, nên không có gì để sao lưu trước.",
+      "failed": "Khôi phục thất bại: {{error}}",
+      "source": {
+        "registry": "Trình dọn dẹp Registry",
+        "context-menu": "Trình dọn dẹp menu ngữ cảnh",
+        "privacy-traces": "Dấu vết quyền riêng tư",
+        "pre-restore": "Bản sao lưu trước khi khôi phục"
+      },
+      "blocked": {
+        "full-export": "Bản xuất toàn bộ nhánh. Việc khôi phục sẽ hoàn tác các thay đổi không liên quan, nên chỉ có thể xem.",
+        "too-large": "Quá lớn để là một bản sao lưu mục tiêu.",
+        "format": "Không đúng định dạng xuất registry do Kudu tạo.",
+        "deletion": "Chứa các mục xóa, trong khi bản sao lưu của Kudu không bao giờ có.",
+        "forbidden-key": "Chứa các khóa nằm ngoài những khu vực mà Kudu thay đổi.",
+        "empty": "Không chứa khóa registry nào.",
+        "unreadable": "Không thể đọc được.",
+        "unverified": "Không thể xác minh bản sao lưu này — có thể nó đã bị thay đổi kể từ khi Kudu tạo ra, vì vậy chỉ có thể xem xét."
+      }
     }
   },
   "receipts": {

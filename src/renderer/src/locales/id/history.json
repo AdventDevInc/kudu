@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Manajer Layanan",
       "registry": "Pembersih Registry"
+    },
+    "registryBackups": {
+      "title": "Cadangan registry",
+      "description": "Kudu menyimpan kunci registry yang akan diubah. Cadangan yang ditargetkan dapat dipulihkan di sini. Ekspor cabang penuh hanya dapat diperiksa di folder cadangan, karena mengimpornya akan mengembalikan perubahan lain yang tidak terkait yang dibuat sejak saat itu.",
+      "empty": "Belum ada cadangan registry.",
+      "restore": "Pulihkan",
+      "showInFolder": "Tampilkan di folder",
+      "moreKeys": "+{{count}} lainnya",
+      "requiresAdmin": "Memerlukan administrator",
+      "confirmTitle": "Pulihkan cadangan registry ini?",
+      "confirmDescription": "Kudu akan mengimpor kunci di bawah ini. Nilai dari cadangan akan menggantikan nilai saat ini, dan kunci serta nilai yang hilang akan ditambahkan kembali. Tidak ada hal lain yang dihapus, kecuali bahwa memulihkan cadangan pra-pemulihan juga akan menghapus kunci dan nilai yang telah ditambahkan oleh pemulihan yang dibatalkannya. Sebelum mengimpor, Kudu menyimpan status saat ini dari kunci-kunci ini sebagai cadangan pra-pemulihan. Beberapa perubahan hanya berlaku setelah Anda keluar atau memulai ulang.",
+      "restored": "Dipulihkan. Status sebelumnya disimpan ke {{file}}.",
+      "restoredNoBackup": "Dipulihkan. Tidak satu pun dari kunci ini ada sebelumnya, jadi tidak ada yang perlu dicadangkan terlebih dahulu.",
+      "failed": "Pemulihan gagal: {{error}}",
+      "source": {
+        "registry": "Pembersih Registry",
+        "context-menu": "Pembersih Menu Konteks",
+        "privacy-traces": "Jejak Privasi",
+        "pre-restore": "Cadangan sebelum pemulihan"
+      },
+      "blocked": {
+        "full-export": "Ekspor cabang penuh. Memulihkannya akan mengembalikan perubahan lain yang tidak terkait, sehingga hanya dapat diperiksa.",
+        "too-large": "Terlalu besar untuk menjadi cadangan yang ditargetkan.",
+        "format": "Bukan dalam format ekspor registry yang ditulis oleh Kudu.",
+        "deletion": "Berisi entri penghapusan, yang tidak pernah ada dalam cadangan Kudu.",
+        "forbidden-key": "Berisi kunci di luar area yang diubah oleh Kudu.",
+        "empty": "Tidak berisi kunci registry.",
+        "unreadable": "Tidak dapat dibaca.",
+        "unverified": "Cadangan ini tidak dapat diverifikasi — mungkin telah diubah sejak Kudu menulisnya, sehingga hanya dapat diperiksa."
+      }
     }
   },
   "receipts": {

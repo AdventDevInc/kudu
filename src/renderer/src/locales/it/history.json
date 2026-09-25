@@ -38,6 +38,36 @@
       "privacy": "Privacy Shield",
       "services": "Gestione servizi",
       "registry": "Pulizia registro di sistema"
+    },
+    "registryBackups": {
+      "title": "Backup del registro",
+      "description": "Kudu salva le chiavi del registro che sta per modificare. I backup mirati possono essere ripristinati qui. Le esportazioni di rami completi possono essere solo esaminate nella cartella di backup, perché importarle annullerebbe modifiche non correlate effettuate successivamente.",
+      "empty": "Nessun backup del registro disponibile.",
+      "restore": "Ripristina",
+      "showInFolder": "Mostra nella cartella",
+      "moreKeys": "+{{count}} altri",
+      "requiresAdmin": "Richiede privilegi di amministratore",
+      "confirmTitle": "Ripristinare questo backup del registro?",
+      "confirmDescription": "Kudu importerà le chiavi riportate di seguito. I valori del backup sostituiscono quelli correnti e le chiavi e i valori mancanti vengono ripristinati. Non viene eliminato nient'altro, salvo che il ripristino di un backup pre-ripristino rimuove anche le chiavi e i valori aggiunti dal ripristino che viene annullato. Prima dell'importazione, Kudu salva lo stato corrente di queste chiavi come backup pre-ripristino. Alcune modifiche avranno effetto solo dopo la disconnessione o il riavvio.",
+      "restored": "Ripristino completato. Lo stato precedente è stato salvato in {{file}}.",
+      "restoredNoBackup": "Ripristino completato. Nessuna di queste chiavi esisteva in precedenza, quindi non c'era nulla di cui eseguire prima il backup.",
+      "failed": "Ripristino non riuscito: {{error}}",
+      "source": {
+        "registry": "Pulizia registro",
+        "context-menu": "Pulizia menu contestuale",
+        "privacy-traces": "Tracce della privacy",
+        "pre-restore": "Backup pre-ripristino"
+      },
+      "blocked": {
+        "full-export": "Esportazione di un ramo completo. Il ripristino annullerebbe modifiche non correlate, quindi può solo essere esaminata.",
+        "too-large": "Troppo grande per essere un backup mirato.",
+        "format": "Non è nel formato di esportazione del registro scritto da Kudu.",
+        "deletion": "Contiene voci di eliminazione, che i backup di Kudu non includono mai.",
+        "forbidden-key": "Contiene chiavi al di fuori delle aree modificate da Kudu.",
+        "empty": "Non contiene chiavi del registro.",
+        "unreadable": "Impossibile leggerlo.",
+        "unverified": "Impossibile verificare questo backup: potrebbe essere stato modificato dopo che Kudu lo ha creato, quindi può solo essere esaminato."
+      }
     }
   },
   "receipts": {
