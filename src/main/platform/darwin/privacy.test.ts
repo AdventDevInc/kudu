@@ -929,6 +929,47 @@ describe('darwin privacy revert', () => {
       expect(storedSettings()).toEqual({})
     })
 
+    const TAB = String.fromCharCode(9)
+
+    it.each([
+      ['net.inet.ip.forwarding   = 1'],
+      [`${TAB}net.inet.ip.forwarding${TAB}=${TAB}1`],
+      ['net.inet.ip.forwarding=1']
+    ])('restores a sysctl.conf line written as %j byte for byte', async (line) => {
+      const original = `# mine${NL}${line}${NL}kern.maxfiles=65536${NL}`
+      files.set('/etc/sysctl.conf', original)
+      mac.sysctl.set('net.inet.ip.forwarding', '1')
+
+      await find('macos-ip-forwarding').apply()
+      // The user's line is replaced, not duplicated
+      expect(files.get('/etc/sysctl.conf')).toBe(
+        `# mine${NL}net.inet.ip.forwarding=0${NL}kern.maxfiles=65536${NL}`
+      )
+      expect(storedSettings()['macos-ip-forwarding']['sysctl.conf:net.inet.ip.forwarding']).toBe(
+        line
+      )
+
+      await find('macos-ip-forwarding').revert!()
+      expect(files.get('/etc/sysctl.conf')).toBe(original)
+      expect(mac.sysctl.get('net.inet.ip.forwarding')).toBe('1')
+    })
+
+    it.each([
+      [`${TAB}permitrootlogin${TAB}yes`],
+      ['PermitRootLogin=yes'],
+      ['PERMITROOTLOGIN   yes']
+    ])('restores an sshd_config line written as %j byte for byte', async (line) => {
+      const SSHD_CONFIG = '/etc/ssh/sshd_config'
+      const original = `Port 22${NL}${NL}${line}${NL}UsePAM yes${NL}`
+      files.set(SSHD_CONFIG, original)
+
+      await find('macos-ssh-root-login').apply()
+      expect(files.get(SSHD_CONFIG)).toContain(`# ${line.trimStart()}`)
+
+      await find('macos-ssh-root-login').revert!()
+      expect(files.get(SSHD_CONFIG)).toBe(original)
+    })
+
     it('removes sysctl.conf again when Kudu created it', async () => {
       mac.sysctl.set('net.inet.ip.forwarding', '1')
       await find('macos-ip-forwarding').apply()

@@ -210,3 +210,47 @@ describe('updateSshdConfig', () => {
     expect(result).toContain('PermitRootLogin no')
   })
 })
+
+describe('whitespace- and case-tolerant matching', () => {
+  const TAB = String.fromCharCode(9)
+
+  it.each([
+    ['net.inet.ip.forwarding   = 1'],
+    [`${TAB}net.inet.ip.forwarding${TAB}=${TAB}1`],
+    ['net.inet.ip.forwarding=1']
+  ])('replaces and removes a sysctl assignment written as %j', (line) => {
+    const content = `# mine\n${line}\nkern.maxfiles=65536\n`
+    expect(updateSysctlConfig(content, 'net.inet.ip.forwarding', '0', '=', '# x')).toBe(
+      '# mine\nnet.inet.ip.forwarding=0\nkern.maxfiles=65536\n'
+    )
+    expect(removeSysctlConfigParam(content, 'net.inet.ip.forwarding')).toBe(
+      '# mine\nkern.maxfiles=65536\n'
+    )
+  })
+
+  it('does not treat a longer sysctl name as the same param', () => {
+    const content = 'net.inet.ip.forwarding_extra=1\n'
+    expect(removeSysctlConfigParam(content, 'net.inet.ip.forwarding')).toBe(content)
+  })
+
+  it.each([
+    [`${TAB}permitrootlogin${TAB}yes`, `# permitrootlogin${TAB}yes`],
+    ['PermitRootLogin=yes', '# PermitRootLogin=yes'],
+    ['PERMITROOTLOGIN   yes', '# PERMITROOTLOGIN   yes']
+  ])('comments out an sshd directive written as %j', (line, commented) => {
+    const result = updateSshdConfig(`Port 22\n${line}\n`, 'PermitRootLogin', 'no')
+    expect(result).toBe(`Port 22\n${commented}\nPermitRootLogin no\n`)
+  })
+
+  it('leaves blank lines around an sshd directive alone', () => {
+    const result = updateSshdConfig('Port 22\n\nPermitRootLogin yes\n', 'PermitRootLogin', 'no')
+    expect(result).toBe('Port 22\n\n# PermitRootLogin yes\nPermitRootLogin no\n')
+  })
+
+  it('does not match a longer sshd keyword', () => {
+    const content = 'PermitRootLoginExtra yes\n'
+    expect(updateSshdConfig(content, 'PermitRootLogin', 'no')).toBe(
+      'PermitRootLoginExtra yes\nPermitRootLogin no\n'
+    )
+  })
+})

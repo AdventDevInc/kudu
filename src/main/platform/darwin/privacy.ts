@@ -7,6 +7,8 @@ import { promisify } from 'util'
 import {
   SYSCTL_HEADER,
   removeSysctlConfigParam,
+  sshdDirective,
+  sysctlAssignment,
   updateSshdConfig,
   updateSysctlConfig
 } from '../config-utils'
@@ -876,13 +878,10 @@ function managedPlistPart(domain: string): StatePart<{ mode: string } | null> {
   }
 }
 
+// The line updateSysctlConfig replaces: the first assignment, in any spacing
 function sysctlLine(content: string | null, param: string): string | null {
-  return (
-    content?.split('\n').find((line) => {
-      const trimmed = line.trimStart()
-      return trimmed.startsWith(`${param}=`) || trimmed.startsWith(`${param} =`)
-    }) ?? null
-  )
+  const assignment = sysctlAssignment(param)
+  return content?.split('\n').find((line) => assignment.test(line)) ?? null
 }
 
 // Put back the line updateSysctlConfig replaced (or drop the one it added),
@@ -966,7 +965,7 @@ const SSHD_CONFIG = '/etc/ssh/sshd_config'
 
 // Same lines updateSshdConfig matches, in file order
 function sshdLines(content: string, directive: string): string[] {
-  const pattern = new RegExp(`^\\s*#?\\s*${directive}\\s`)
+  const pattern = sshdDirective(directive)
   return content.split('\n').filter((line) => pattern.test(line))
 }
 

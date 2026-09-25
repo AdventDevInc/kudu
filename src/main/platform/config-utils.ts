@@ -10,9 +10,20 @@
 
 export const SYSCTL_HEADER = ['# Kudu system hardening — managed automatically']
 
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * Matches a line assigning `param`, with any spaces or tabs around the key and
+ * `=` (`key=v`, `key = v`, `\tkey\t=\tv`). Capture, apply, revert and removal
+ * all use this one matcher so they agree on which line is the param's.
+ */
+export function sysctlAssignment(param: string): RegExp {
+  return new RegExp(`^[ \t]*${escapeRegExp(param)}[ \t]*=`)
+}
+
 /**
  * Update sysctl config file contents by setting `param` to `value`.
- * - Replaces an existing line for the same param (with or without spaces around `=`)
+ * - Replaces the first existing line for the same param (any spacing, see sysctlAssignment)
  * - Appends if not found, adding a header comment if the file is new
  * - `separator` controls the format: `' = '` for Linux, `'='` for macOS
  * - `headerExtra` is the second comment line (platform-specific revert instructions)
@@ -29,10 +40,10 @@ export function updateSysctlConfig(
   while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop()
 
   const newLine = `${param}${separator}${value}`
+  const assignment = sysctlAssignment(param)
   let found = false
   for (let i = 0; i < lines.length; i++) {
-    const trimmed = lines[i].trimStart()
-    if (trimmed.startsWith(`${param}=`) || trimmed.startsWith(`${param} =`)) {
+    if (assignment.test(lines[i])) {
       lines[i] = newLine
       found = true
       break
@@ -56,8 +67,7 @@ export function updateSysctlConfig(
  * Leaves other params and comments intact.
  */
 export function removeSysctlConfigParam(existing: string, param: string): string {
-  const escaped = param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const assignment = new RegExp(`^\\s*${escaped}\\s*=`)
+  const assignment = sysctlAssignment(param)
   const lines = existing.split('\n').filter((line) => !assignment.test(line))
   while (lines.length > 0 && lines[lines.length - 1].trim() === '') lines.pop()
   if (lines.length === 0) return ''
@@ -67,6 +77,16 @@ export function removeSysctlConfigParam(existing: string, param: string): string
 // ─── SSH config editing ─────────────────────────────────────
 
 /**
+ * Matches a line (active or commented) for an sshd_config keyword. sshd treats
+ * keywords case-insensitively and separates the argument with spaces, tabs or
+ * one `=`, so `\tpermitrootlogin=yes` is the same directive as `PermitRootLogin yes`.
+ * Matching is per line: blank lines around a directive are never touched.
+ */
+export function sshdDirective(directive: string): RegExp {
+  return new RegExp(`^[ \t]*#?[ \t]*${escapeRegExp(directive)}(?=[ \t=])`, 'i')
+}
+
+/**
  * Update sshd_config contents by setting `directive` to `value`.
  * - Comments out ALL existing occurrences of the directive (active or commented)
  * - Preserves lines that already match the exact canonical value (idempotent)
@@ -74,18 +94,22 @@ export function removeSysctlConfigParam(existing: string, param: string): string
  */
 export function updateSshdConfig(content: string, directive: string, value: string): string {
   const canonicalLine = `${directive} ${value}`
-  const pattern = new RegExp(`^(\\s*#?\\s*${directive}\\s.*)$`, 'gm')
+  const pattern = sshdDirective(directive)
 
   // Comment out every existing occurrence, except lines that already match
   // the exact canonical value (keeps the file idempotent on repeated applies)
-  let updated = content.replace(pattern, (match) => {
-    const trimmed = match.trimStart()
-    if (trimmed === canonicalLine) return match
-    return trimmed.startsWith('#') ? match : `# ${trimmed}`
-  })
+  let updated = content
+    .split('\n')
+    .map((line) => {
+      if (!pattern.test(line)) return line
+      const trimmed = line.trimStart()
+      if (trimmed === canonicalLine) return line
+      return trimmed.startsWith('#') ? line : `# ${trimmed}`
+    })
+    .join('\n')
 
   // Only append if no uncommented canonical line exists
-  const hasCanonical = new RegExp(`^\\s*${directive}\\s+${value}\\s*$`, 'm').test(updated)
+  const hasCanonical = updated.split('\n').some((line) => line.trim() === canonicalLine)
   if (!hasCanonical) {
     updated = updated.trimEnd() + `\n${canonicalLine}\n`
   }
