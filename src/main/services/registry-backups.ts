@@ -96,16 +96,19 @@ const BROAD_ROOTS = new Set(
       'MIME',
       'MIME\\Database',
       'WOW6432Node',
-      'WOW6432Node\\CLSID'
-    ].map((k) => `${HKCR}\\${k}`),
-    ...[
-      '*',
-      'Directory',
-      'Directory\\Background',
-      'Folder',
-      'Drive',
-      'AllFilesystemObjects'
-    ].flatMap((k) => [`${HKCR}\\${k}`, `${HKCR}\\${k}\\shell`, `${HKCR}\\${k}\\shellex`])
+      'WOW6432Node\\CLSID',
+      ...[
+        '*',
+        'Directory',
+        'Directory\\Background',
+        'Folder',
+        'Drive',
+        'AllFilesystemObjects'
+      ].flatMap((k) => [k, `${k}\\shell`, `${k}\\shellex`])
+    ].flatMap((k) =>
+      // The same branches in HKCR and in both hives it merges.
+      [HKCR, `${HKLM}\\SOFTWARE\\Classes`, `${HKCU}\\SOFTWARE\\Classes`].map((c) => `${c}\\${k}`)
+    )
   ].map((k) => k.toUpperCase())
 )
 
@@ -302,6 +305,10 @@ export function assessRegistryBackup(name: string, buf: Buffer, sealed: boolean)
     return { ...result, blocked: 'forbidden-key' }
   if (!targeted || parsed.keys.length > MAX_SECTIONS || roots.some(isBroadRoot))
     return { ...result, blocked: 'full-export' }
+  // HKCR merges HKLM\SOFTWARE\Classes and HKCU\SOFTWARE\Classes; importing into it
+  // can't put a key back into the hive it came from (a deleted per-user key
+  // would come back machine-wide), so only backups of the backing keys restore.
+  if (parsed.keys.some((k) => isUnder(k, HKCR))) return { ...result, blocked: 'classes-root' }
   if (!sealed) return { ...result, blocked: 'unverified' }
   return result
 }
@@ -379,7 +386,7 @@ export async function listRegistryBackups(): Promise<RegistryBackup[]> {
   if (process.platform !== 'win32') return []
   const dir = getBackupDir()
   // Seals are read before the folder is listed; see `sweepSeals`.
-  const sealsBefore = await readSeals()
+  const sealsBefore = await readSeals(dir)
   let names: string[]
   try {
     names = await backupFileNames(dir)
@@ -387,7 +394,7 @@ export async function listRegistryBackups(): Promise<RegistryBackup[]> {
     if (error.code === 'ENOENT') return []
     throw error
   }
-  const seals = await sweepSeals(sealsBefore, new Set(names.map((n) => n.toLowerCase())))
+  const seals = await sweepSeals(dir, sealsBefore, new Set(names.map((n) => n.toLowerCase())))
   const backups: RegistryBackup[] = []
   for (const name of names) {
     const backup = await describeBackup(dir, name, seals).catch(() => null)
@@ -652,7 +659,7 @@ async function createPreRestoreBackup(
       { cause: error }
     )
   }
-  if (!(await sealBackup(name, body))) {
+  if (!(await sealBackup(dir, name, body))) {
     await rm(join(dir, name), { force: true }).catch(() => {})
     throw new Error(
       'Could not record the integrity seal for the pre-restore backup, so nothing was imported. Relaunch Kudu as administrator.'
@@ -682,7 +689,7 @@ async function prunePreRestoreBackups(dir: string, current: string): Promise<voi
       await rm(join(dir, f), { force: true })
       removed.push(f)
     }
-    await removeSeals(removed)
+    await removeSeals(dir, removed)
   } catch {
     // Best effort: a leftover backup or seal is harmless.
   }
@@ -697,6 +704,8 @@ const BLOCK_MESSAGES: Record<RegistryBackupBlock, string> = {
   'forbidden-key': 'This file contains keys outside the areas Kudu changes.',
   empty: 'This backup contains no registry keys.',
   unreadable: 'This backup could not be read.',
+  'classes-root':
+    "This backup contains HKEY_CLASSES_ROOT keys. That view merges the machine and per-user classes, so Kudu can't tell which of them each key belongs to and will not restore it.",
   unverified:
     "This backup can't be verified — it may have been changed since Kudu wrote it, so Kudu will not restore it."
 }
@@ -720,14 +729,14 @@ export async function restoreRegistryBackup(name: unknown): Promise<RegistryRest
   if (restoring) throw new Error('A registry restore is already running')
   restoring = true
   try {
-    // Seals are read before the folder is listed; see `sweepSeals`.
-    const sealsBefore = await readSeals()
     const { dir, path } = await resolveBackupFile(name)
     const fileName = name as string
     if (!classifyBackupName(fileName).targeted) throw new Error(BLOCK_MESSAGES['full-export'])
     if ((await lstat(path)).size > MAX_TARGETED_BYTES) throw new Error(BLOCK_MESSAGES['too-large'])
+    // Seals are read before the folder is listed; see `sweepSeals`.
+    const sealsBefore = await readSeals(dir)
     const present = new Set((await backupFileNames(dir)).map((n) => n.toLowerCase()))
-    const seals = await sweepSeals(sealsBefore, present)
+    const seals = await sweepSeals(dir, sealsBefore, present)
     const buf = await readFile(path)
     const sealed = seals.get(fileName.toLowerCase()) === sha256Hex(buf)
     const assessment = assessRegistryBackup(fileName, buf, sealed)

@@ -300,7 +300,7 @@ async function pruneBackups(dir: string, slug: string, current: string): Promise
       pruned.push(f)
     }
     // A pruned file's seal must go too, or a kept copy of it could be replayed.
-    await removeSeals(pruned)
+    await removeSeals(dir, pruned)
   } catch {
     /* best effort */
   }
@@ -331,7 +331,7 @@ export async function backupMruList(list: MruList): Promise<string> {
     if (privateDir) {
       await writeFile(file, bytes, { flag: 'wx' })
       // Seal the bytes just written, never a re-read of the user-writable folder.
-      await sealBackup(basename(file), bytes)
+      await sealBackup(dir, basename(file), bytes)
     }
   } catch {
     // An empty or partial export must not count as one of the kept backups.

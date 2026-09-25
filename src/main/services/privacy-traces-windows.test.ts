@@ -260,7 +260,7 @@ describe('clearMruList', () => {
       f.startsWith('privacy-traces-backup-RunMRU-')
     )
     const written = await readFile(join(backupDir.path, name))
-    expect(seal.sealBackup).toHaveBeenCalledWith(name, written)
+    expect(seal.sealBackup).toHaveBeenCalledWith(backupDir.path, name, written)
   })
 
   it('keeps only the newest backups of a list', async () => {

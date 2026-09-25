@@ -112,6 +112,7 @@ export type RegistryBackupBlock =
   | 'empty'
   | 'unreadable'
   | 'unverified'
+  | 'classes-root'
 export interface RegistryBackup {
   name: string
   source: RegistryBackupSource

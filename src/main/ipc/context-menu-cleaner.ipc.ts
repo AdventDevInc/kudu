@@ -672,7 +672,7 @@ async function backupShellExtensionHives(signal?: AbortSignal): Promise<void> {
       /* skip */
     })
   }
-  await removeSeals(pruneOldBackups(backupDir, 3))
+  await removeSeals(backupDir, pruneOldBackups(backupDir, 3))
 }
 
 async function applyOne(

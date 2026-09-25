@@ -76,8 +76,8 @@ const mockSeal = {
 }
 vi.mock('../services/registry-backup-seal', () => ({
   createPrivateTempDir: (prefix: string) => mockSeal.createPrivateTempDir(prefix),
-  sealBackup: (name: string, bytes: Buffer) => mockSeal.sealBackup(name, bytes),
-  removeSeals: (names: string[]) => mockSeal.removeSeals(names)
+  sealBackup: (dir: string, name: string, bytes: Buffer) => mockSeal.sealBackup(dir, name, bytes),
+  removeSeals: (dir: string, names: string[]) => mockSeal.removeSeals(dir, names)
 }))
 
 vi.mock('../services/backup-dir', () => ({ getBackupDir: () => 'C:\\temp\\backups' }))
@@ -509,7 +509,7 @@ describe('fixRegistryEntries — targeted backup seals', () => {
     expect(exp[1][2]).toMatch(/^C:\\Windows\\Temp\\kudu-reg-backup-private\\/)
     const [write] = targetedWrites()
     const fileName = String(write[0]).split('\\').pop()
-    expect(mockSeal.sealBackup).toHaveBeenCalledWith(fileName, write[1])
+    expect(mockSeal.sealBackup).toHaveBeenCalledWith('C:\\temp\\backups', fileName, write[1])
     expect(Buffer.isBuffer(write[1])).toBe(true)
   })
 
@@ -521,6 +521,23 @@ describe('fixRegistryEntries — targeted backup seals', () => {
     expect(targetedWrites()).toHaveLength(1)
     expect(mockSeal.sealBackup).not.toHaveBeenCalled()
     expect(result.fixed).toBe(1)
+  })
+
+  it('backs up HKCR keys as their HKLM and HKCU Classes keys, never through HKCR', async () => {
+    await fixRegistryEntries([
+      { ...entry, keyPath: 'HKCR\\CLSID\\{abc}', fix: { op: 'delete-key' as const } },
+      { ...entry, id: 'e2', keyPath: 'HKEY_CLASSES_ROOT\\.foo', fix: { op: 'delete-key' as const } }
+    ] as any)
+
+    const exported = mockExecNative.mock.calls
+      .filter((c) => c[0] === 'reg' && c[1][0] === 'export')
+      .map((c) => c[1][1])
+    expect(exported).toEqual([
+      'HKLM\\SOFTWARE\\Classes\\CLSID\\{abc}',
+      'HKCU\\SOFTWARE\\Classes\\CLSID\\{abc}',
+      'HKLM\\SOFTWARE\\Classes\\.foo',
+      'HKCU\\SOFTWARE\\Classes\\.foo'
+    ])
   })
 
   it('carries on with the fix when sealing fails', async () => {
@@ -550,7 +567,7 @@ describe('fixRegistryEntries — targeted backup seals', () => {
     ])
     // Every removed file's seal is dropped (removeSeals skips names never sealed).
     expect(mockSeal.removeSeals).toHaveBeenCalledTimes(1)
-    expect([...mockSeal.removeSeals.mock.calls[0][0]].sort()).toEqual([
+    expect([...mockSeal.removeSeals.mock.calls[0][1]].sort()).toEqual([
       `registry-backup-${stamp(2)}.reg`,
       `registry-backup-targeted-${stamp(1)}.reg`
     ])

@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createHash } from 'crypto'
+import { mkdirSync, mkdtempSync, rmSync } from 'fs'
+import { tmpdir } from 'os'
+import { join, resolve } from 'path'
 
 const mocks = vi.hoisted(() => ({
   native: vi.fn(),
@@ -20,12 +23,17 @@ import {
   removeSeal,
   removeSeals,
   sealBackup,
+  sealKeyFor,
   sha256Hex,
   sweepSeals,
   verifySeal
 } from './registry-backup-seal'
 
-const KEY = 'HKLM\\SOFTWARE\\Kudu\\RegistryBackupSeals'
+// Does not exist, so the folder id comes from the resolved path.
+const DIR = 'C:\\Users\\me\\Documents\\Kudu Backups'
+const folderId = (dir: string) =>
+  createHash('sha256').update(resolve(dir).toLowerCase(), 'utf8').digest('hex').slice(0, 32)
+const KEY = 'HKLM\\SOFTWARE\\Kudu\\RegistryBackupSeals\\' + folderId(DIR)
 const NAME = 'registry-backup-targeted-2026-09-20T04-54-02-325Z.reg'
 const BYTES = Buffer.from('backup bytes')
 const HASH = createHash('sha256').update(BYTES).digest('hex')
@@ -46,7 +54,7 @@ afterEach(() => {
 describe('sealBackup', () => {
   it('records the SHA-256 of the exact bytes under HKLM, in the 64-bit view', async () => {
     expect(sha256Hex(BYTES)).toBe(HASH)
-    await expect(sealBackup(NAME, BYTES)).resolves.toBe(true)
+    await expect(sealBackup(DIR, NAME, BYTES)).resolves.toBe(true)
     expect(mocks.native).toHaveBeenCalledWith(
       'reg',
       ['add', KEY, '/v', NAME, '/t', 'REG_SZ', '/d', HASH, '/f', '/reg:64'],
@@ -56,18 +64,18 @@ describe('sealBackup', () => {
 
   it('does nothing when not elevated, off Windows, or for names that are not plain file names', async () => {
     mocks.admin.mockReturnValue(false)
-    expect(await sealBackup(NAME, BYTES)).toBe(false)
+    expect(await sealBackup(DIR, NAME, BYTES)).toBe(false)
     mocks.admin.mockReturnValue(true)
     for (const name of ['..\\x.reg', 'a b.reg', 'sub\\x.reg', 'x.txt', 'a..reg', '"x".reg'])
-      expect(await sealBackup(name, BYTES)).toBe(false)
+      expect(await sealBackup(DIR, name, BYTES)).toBe(false)
     Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-    expect(await sealBackup(NAME, BYTES)).toBe(false)
+    expect(await sealBackup(DIR, NAME, BYTES)).toBe(false)
     expect(mocks.native).not.toHaveBeenCalled()
   })
 
   it('reports failure instead of throwing when the write fails', async () => {
     mocks.native.mockRejectedValue(new Error('ERROR: Access is denied.'))
-    await expect(sealBackup(NAME, BYTES)).resolves.toBe(false)
+    await expect(sealBackup(DIR, NAME, BYTES)).resolves.toBe(false)
   })
 })
 
@@ -77,30 +85,30 @@ describe('readSeal / readSeals / verifySeal', () => {
       stdout: queryOutput([`    ${NAME}    REG_SZ    ${HASH.toUpperCase()}`]),
       stderr: ''
     })
-    expect(await readSeal(NAME)).toBe(HASH)
+    expect(await readSeal(DIR, NAME)).toBe(HASH)
     expect(mocks.native).toHaveBeenCalledWith(
       'reg',
       ['query', KEY, '/v', NAME, '/reg:64'],
       expect.anything()
     )
-    expect(await verifySeal(NAME, BYTES)).toBe(true)
-    expect(await verifySeal(NAME, Buffer.from('changed'))).toBe(false)
+    expect(await verifySeal(DIR, NAME, BYTES)).toBe(true)
+    expect(await verifySeal(DIR, NAME, Buffer.from('changed'))).toBe(false)
   })
 
   it('treats a missing, unreadable or malformed seal as no seal', async () => {
     mocks.native.mockRejectedValue(new Error('ERROR: The system was unable to find the value.'))
-    expect(await readSeal(NAME)).toBeNull()
-    expect(await verifySeal(NAME, BYTES)).toBe(false)
+    expect(await readSeal(DIR, NAME)).toBeNull()
+    expect(await verifySeal(DIR, NAME, BYTES)).toBe(false)
     mocks.native.mockResolvedValue({
       stdout: queryOutput([`    ${NAME}    REG_SZ    not-a-hash`]),
       stderr: ''
     })
-    expect(await readSeal(NAME)).toBeNull()
+    expect(await readSeal(DIR, NAME)).toBeNull()
     mocks.native.mockResolvedValue({
       stdout: queryOutput([`    ${NAME}    REG_DWORD    0x1`]),
       stderr: ''
     })
-    expect(await readSeal(NAME)).toBeNull()
+    expect(await readSeal(DIR, NAME)).toBeNull()
   })
 
   it('lists every seal by lower-cased name', async () => {
@@ -113,30 +121,59 @@ describe('readSeal / readSeals / verifySeal', () => {
       ]),
       stderr: ''
     })
-    expect(await readSeals()).toEqual(
+    expect(await readSeals(DIR)).toEqual(
       new Map([
         [NAME.toLowerCase(), HASH],
         [other.toLowerCase(), '0'.repeat(64)]
       ])
     )
     mocks.native.mockRejectedValue(new Error('ERROR: The system was unable to find the key.'))
-    expect(await readSeals()).toEqual(new Map())
+    expect(await readSeals(DIR)).toEqual(new Map())
   })
 })
 
 describe('removeSeal', () => {
   it('deletes the value and never throws', async () => {
-    await removeSeal(NAME)
+    await removeSeal(DIR, NAME)
     expect(mocks.native).toHaveBeenCalledWith(
       'reg',
       ['delete', KEY, '/v', NAME, '/f', '/reg:64'],
       expect.anything()
     )
     mocks.native.mockRejectedValue(new Error('ERROR: The system was unable to find the value.'))
-    await expect(removeSeal(NAME)).resolves.toBeUndefined()
+    await expect(removeSeal(DIR, NAME)).resolves.toBeUndefined()
     mocks.native.mockClear()
-    await removeSeal('..\\evil.reg')
+    await removeSeal(DIR, '..\\evil.reg')
     expect(mocks.native).not.toHaveBeenCalled()
+  })
+})
+
+describe('sealKeyFor', () => {
+  it('gives each backup folder its own key, however the path is spelled', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'kudu-seal-dirs-'))
+    try {
+      const a = join(root, 'A')
+      const b = join(root, 'B')
+      mkdirSync(a)
+      mkdirSync(b)
+      const keyA = await sealKeyFor(a)
+      expect(keyA).toMatch(/^HKLM\\SOFTWARE\\Kudu\\RegistryBackupSeals\\[0-9a-f]{32}$/)
+      expect(await sealKeyFor(b)).not.toBe(keyA)
+      expect(await sealKeyFor(a.toUpperCase())).toBe(keyA)
+      expect(await sealKeyFor(join(a, '.'))).toBe(keyA)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('never touches another folder’s seals', async () => {
+    const other = 'D:\\Elsewhere'
+    await sealBackup(other, NAME, BYTES)
+    await removeSeal(DIR, NAME)
+    const keys = mocks.native.mock.calls.map((c) => c[1][1])
+    expect(keys[0]).toBe('HKLM\\SOFTWARE\\Kudu\\RegistryBackupSeals\\' + folderId(other))
+    expect(keys[1]).toBe(KEY)
+    expect(keys[0]).not.toBe(keys[1])
   })
 })
 
@@ -149,13 +186,13 @@ describe('removeSeals / sweepSeals', () => {
       stdout: args[0] === 'query' ? queryOutput([`    ${NAME}    REG_SZ    ${HASH}`]) : '',
       stderr: ''
     }))
-    await removeSeals([NAME, OTHER])
+    await removeSeals(DIR, [NAME, OTHER])
     expect(mocks.native.mock.calls.filter((c) => c[1][0] === 'query')).toHaveLength(1)
     expect(deletes().map((c) => c[1][3])).toEqual([NAME])
 
     mocks.native.mockClear()
     mocks.admin.mockReturnValue(false)
-    await removeSeals([NAME])
+    await removeSeals(DIR, [NAME])
     expect(mocks.native).not.toHaveBeenCalled()
   })
 
@@ -164,14 +201,14 @@ describe('removeSeals / sweepSeals', () => {
       [NAME.toLowerCase(), HASH],
       [OTHER.toLowerCase(), HASH]
     ])
-    const kept = await sweepSeals(seals, new Set([NAME.toLowerCase()]))
+    const kept = await sweepSeals(DIR, seals, new Set([NAME.toLowerCase()]))
     expect(kept).toEqual(new Map([[NAME.toLowerCase(), HASH]]))
     expect(deletes().map((c) => c[1][3])).toEqual([OTHER.toLowerCase()])
 
     // Unelevated: nothing can be removed, but a missing file's seal is still not returned.
     mocks.native.mockClear()
     mocks.admin.mockReturnValue(false)
-    expect(await sweepSeals(seals, new Set())).toEqual(new Map())
+    expect(await sweepSeals(DIR, seals, new Set())).toEqual(new Map())
     expect(mocks.native).not.toHaveBeenCalled()
   })
 })

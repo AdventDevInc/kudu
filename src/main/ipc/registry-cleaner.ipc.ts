@@ -2020,6 +2020,17 @@ export function collectBackupTargets(entries: RegistryEntry[]): {
   return { keys: [...keys], tasks: [...tasks] }
 }
 
+/**
+ * The keys that actually hold `key`'s data. HKCR is a merged view of
+ * HKLM\SOFTWARE\Classes and HKCU\SOFTWARE\Classes, and an import into it can't
+ * put a key back into the hive it came from, so HKCR keys are backed up as their
+ * two backing keys instead (whichever exist get exported). Exported for tests.
+ */
+export function backingKeys(key: string): string[] {
+  const m = /^(?:HKCR|HKEY_CLASSES_ROOT)\\(.+)$/i.exec(key)
+  return m ? [`HKLM\\SOFTWARE\\Classes\\${m[1]}`, `HKCU\\SOFTWARE\\Classes\\${m[1]}`] : [key]
+}
+
 /** Strip the optional UTF-16 BOM and the `Windows Registry Editor Version 5.00` header from reg-export text. */
 function stripRegHeader(content: string): string {
   return content.replace(/^\uFEFF?Windows Registry Editor Version 5\.00\r?\n\r?\n/, '')
@@ -2054,7 +2065,7 @@ async function createTargetedBackup(
   try {
     const bodies: string[] = []
     let idx = 0
-    for (const key of keys) {
+    for (const key of [...new Set(keys.flatMap(backingKeys))]) {
       if (signal?.aborted) break
       const tempPath = join(tempDir, `part-${idx++}.reg`)
       try {
@@ -2072,7 +2083,7 @@ async function createTargetedBackup(
       const bytes = Buffer.concat([bom, Buffer.from(finalText, 'utf16le')])
       writeFileSync(join(backupDir, fileName), bytes)
       // Seal the bytes just written, never a re-read of the user-writable folder.
-      if (sealable) await sealBackup(fileName, bytes)
+      if (sealable) await sealBackup(backupDir, fileName, bytes)
     }
 
     if (tasks.length > 0) {
@@ -2183,7 +2194,7 @@ export async function fixRegistryEntries(
     } else {
       await createTargetedBackup(entries, backupDir, timestamp, signal)
     }
-    await removeSeals(pruneOldBackups(backupDir, 3))
+    await removeSeals(backupDir, pruneOldBackups(backupDir, 3))
   } catch {
     // Backup failed, but continue
   }

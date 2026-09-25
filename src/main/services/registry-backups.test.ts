@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   tracked: vi.fn(),
   admin: vi.fn(() => true),
   dir: '',
+  sealedDir: '',
   /** Seals as recorded in HKLM: lower-cased file name → sha256 hex. */
   seals: new Map<string, string>(),
   sealBackup: vi.fn(),
@@ -37,16 +38,17 @@ vi.mock('./registry-backup-seal', () => {
     sha256Hex,
     sealBackup: mocks.sealBackup,
     createPrivateTempDir: mocks.privateTemp,
-    readSeals: async () => new Map(mocks.seals),
+    // Seals are namespaced by backup folder; every seal in these tests belongs to `dir`.
+    readSeals: async (d: string) => (d === mocks.sealedDir ? new Map(mocks.seals) : new Map()),
     // Like the real helpers: only seals that exist are removed, via removeSeal.
-    removeSeals: async (names: string[]) => {
-      for (const n of names) if (mocks.seals.has(n.toLowerCase())) await mocks.removeSeal(n)
+    removeSeals: async (d: string, names: string[]) => {
+      for (const n of names) if (mocks.seals.has(n.toLowerCase())) await mocks.removeSeal(d, n)
     },
-    sweepSeals: async (seals: Map<string, string>, present: Set<string>) => {
+    sweepSeals: async (d: string, seals: Map<string, string>, present: Set<string>) => {
       const kept = new Map<string, string>()
       for (const [n, h] of seals) {
         if (present.has(n)) kept.set(n, h)
-        else await mocks.removeSeal(n)
+        else await mocks.removeSeal(d, n)
       }
       return kept
     }
@@ -97,11 +99,11 @@ beforeEach(() => {
   vi.resetAllMocks()
   mocks.admin.mockReturnValue(true)
   mocks.seals.clear()
-  mocks.sealBackup.mockImplementation(async (name: string, bytes: Buffer) => {
+  mocks.sealBackup.mockImplementation(async (_d: string, name: string, bytes: Buffer) => {
     mocks.seals.set(name.toLowerCase(), sha(bytes))
     return true
   })
-  mocks.removeSeal.mockImplementation(async (name: string) => {
+  mocks.removeSeal.mockImplementation(async (_d: string, name: string) => {
     mocks.seals.delete(name.toLowerCase())
   })
   privateDirs = []
@@ -114,6 +116,7 @@ beforeEach(() => {
   dir = mkdtempSync(join(tmpdir(), 'kudu-reg-backups-'))
   outside = mkdtempSync(join(tmpdir(), 'kudu-reg-outside-'))
   mocks.dir = dir
+  mocks.sealedDir = dir
 })
 afterEach(() => {
   Object.defineProperty(process, 'platform', { value: platform, configurable: true })
@@ -300,6 +303,8 @@ describe('assessRegistryBackup', () => {
       'HKEY_CURRENT_USER\\SOFTWARE\\Classes',
       'HKEY_CLASSES_ROOT\\CLSID',
       'HKEY_CLASSES_ROOT\\*\\shellex',
+      'HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID',
+      'HKEY_CURRENT_USER\\SOFTWARE\\Classes\\Directory\\shell',
       'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services'
     ])
       expect(assessRegistryBackup(TARGETED, keysFile([root, root + '\\Child']), true).blocked).toBe(
@@ -312,8 +317,26 @@ describe('assessRegistryBackup', () => {
       'full-export'
     )
     expect(
-      assessRegistryBackup(TARGETED, keysFile(['HKEY_CLASSES_ROOT\\CLSID\\{1234}']), true).blocked
+      assessRegistryBackup(
+        TARGETED,
+        keysFile(['HKEY_CURRENT_USER\\SOFTWARE\\Classes\\CLSID\\{1234}']),
+        true
+      ).blocked
     ).toBeUndefined()
+  })
+
+  it('refuses HKEY_CLASSES_ROOT keys: the merged view hides which hive they belong to', () => {
+    const clsid = 'HKEY_CLASSES_ROOT\\CLSID\\{1234}'
+    for (const keys of [[clsid], [RUN, clsid + '\\InprocServer32']])
+      expect(assessRegistryBackup(TARGETED, keysFile(keys), true).blocked).toBe('classes-root')
+    // Pre-restore snapshots too, sealed or not.
+    expect(assessRegistryBackup(PRE, keysFile([clsid]), true).blocked).toBe('classes-root')
+    // The backing keys are fine.
+    for (const key of [
+      'HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\CLSID\\{1234}',
+      'HKEY_CURRENT_USER\\SOFTWARE\\Classes\\CLSID\\{1234}'
+    ])
+      expect(assessRegistryBackup(TARGETED, keysFile([key]), true).blocked).toBeUndefined()
   })
 })
 
@@ -436,7 +459,7 @@ describe('listRegistryBackups', () => {
 
     await listRegistryBackups()
 
-    expect(mocks.removeSeal.mock.calls).toEqual([[gone.toLowerCase()]])
+    expect(mocks.removeSeal.mock.calls).toEqual([[dir, gone.toLowerCase()]])
     expect([...mocks.seals.keys()]).toEqual([TARGETED.toLowerCase()])
     // An unelevated process that kept the bytes puts the file back.
     writeFileSync(join(dir, gone), bytes)
@@ -446,6 +469,19 @@ describe('listRegistryBackups', () => {
       blocked: 'unverified'
     })
     expect(list.find((b) => b.name === TARGETED)).toMatchObject({ restorable: true })
+  })
+
+  it('keeps the seals of a previous backup folder when the folder changes', async () => {
+    writeSealed(TARGETED, keysFile([RUN]))
+    // The user points Kudu at another, existing folder and opens Recovery.
+    mocks.dir = outside
+    writeFileSync(join(outside, 'registry-backup-targeted-2026-09-14T04-54-02-325Z.reg'), '')
+    await listRegistryBackups()
+    expect(mocks.removeSeal).not.toHaveBeenCalled()
+    // Back to the first folder: its backup is still verified.
+    mocks.dir = dir
+    const [backup] = await listRegistryBackups()
+    expect(backup).toMatchObject({ name: TARGETED, restorable: true })
   })
 
   it('returns nothing off Windows or when the folder does not exist', async () => {
@@ -598,9 +634,9 @@ describe('restoreRegistryBackup', () => {
   it('deletes the highest parent the restore creates, never a scope or branch root', async () => {
     const product = 'HKEY_CURRENT_USER\\SOFTWARE\\Vendor\\Product'
     const service = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\NewSvc\\Parameters'
-    const clsid = 'HKEY_CLASSES_ROOT\\CLSID\\{1234}\\InprocServer32'
+    const clsid = 'HKEY_CURRENT_USER\\SOFTWARE\\Classes\\CLSID\\{1234}\\InprocServer32'
     writeSealed(TARGETED, keysFile([product, product + '\\Sub', service, clsid]))
-    // Vendor, NewSvc and {1234} are all missing; so are HKCR\CLSID and the
+    // Vendor, NewSvc and {1234} are all missing; so are Classes\CLSID and the
     // Services root as far as this probe says — they must still never be deleted.
     baseline = []
     simulate({})
@@ -611,7 +647,7 @@ describe('restoreRegistryBackup', () => {
     for (const root of [
       'HKEY_CURRENT_USER\\SOFTWARE',
       'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services',
-      'HKEY_CLASSES_ROOT\\CLSID'
+      'HKEY_CURRENT_USER\\SOFTWARE\\Classes\\CLSID'
     ])
       expect(probed).not.toContain(root)
     const parsed = parseRegExport(readFileSync(join(dir, preRestoreBackup!)), true)
@@ -620,7 +656,7 @@ describe('restoreRegistryBackup', () => {
       sections: [
         { key: 'HKEY_CURRENT_USER\\SOFTWARE\\Vendor', deleted: true },
         { key: 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\NewSvc', deleted: true },
-        { key: 'HKEY_CLASSES_ROOT\\CLSID\\{1234}', deleted: true }
+        { key: 'HKEY_CURRENT_USER\\SOFTWARE\\Classes\\CLSID\\{1234}', deleted: true }
       ]
     })
     expect(parsed.ok && parsed.sections).toHaveLength(3)
@@ -645,7 +681,7 @@ describe('restoreRegistryBackup', () => {
     const { preRestoreBackup } = await restoreRegistryBackup(TARGETED)
 
     const bytes = readFileSync(join(dir, preRestoreBackup!))
-    expect(mocks.sealBackup).toHaveBeenCalledWith(preRestoreBackup, bytes)
+    expect(mocks.sealBackup).toHaveBeenCalledWith(dir, preRestoreBackup, bytes)
     expect(mocks.sealBackup.mock.invocationCallOrder[0]).toBeLessThan(callOrder(importCalls()[0]))
     const [listed] = (await listRegistryBackups()).filter((b) => b.name === preRestoreBackup)
     expect(listed).toMatchObject({ restorable: true, keys: [RUN + '-now', DNS] })
@@ -722,7 +758,7 @@ describe('restoreRegistryBackup', () => {
 
     await restoreRegistryBackup(TARGETED)
 
-    expect(mocks.removeSeal).toHaveBeenCalledWith(gone.toLowerCase())
+    expect(mocks.removeSeal).toHaveBeenCalledWith(dir, gone.toLowerCase())
     expect(mocks.seals.has(gone.toLowerCase())).toBe(false)
   })
 
@@ -730,7 +766,7 @@ describe('restoreRegistryBackup', () => {
     writeSealed(TARGETED, keysFile([RUN]))
     simulate({ [RUN]: ['Value'] })
     const existedWhenSealed: boolean[] = []
-    mocks.sealBackup.mockImplementation(async (name: string) => {
+    mocks.sealBackup.mockImplementation(async (_d: string, name: string) => {
       existedWhenSealed.push(readdirSync(dir).includes(name))
       return false
     })
@@ -738,6 +774,13 @@ describe('restoreRegistryBackup', () => {
     await expect(restoreRegistryBackup(TARGETED)).rejects.toThrow(/seal/)
     expect(existedWhenSealed).toEqual([true])
     expect(preRestoreFiles()).toEqual([])
+  })
+
+  it('refuses a backup with HKEY_CLASSES_ROOT keys before running anything', async () => {
+    writeSealed(TARGETED, keysFile([RUN, 'HKEY_CLASSES_ROOT\\CLSID\\{1234}']))
+    await expect(restoreRegistryBackup(TARGETED)).rejects.toThrow(/HKEY_CLASSES_ROOT/)
+    expect(mocks.tracked).not.toHaveBeenCalled()
+    expect(mocks.native).not.toHaveBeenCalled()
   })
 
   it('refuses deletion lines in a sealed backup that is not a pre-restore backup', async () => {
@@ -755,7 +798,7 @@ describe('restoreRegistryBackup', () => {
     const { preRestoreBackup } = await restoreRegistryBackup(TARGETED)
 
     expect(preRestoreFiles().sort()).toEqual([...old.slice(2), preRestoreBackup].sort())
-    expect(mocks.removeSeal.mock.calls.map((c) => c[0]).sort()).toEqual(old.slice(0, 2))
+    expect(mocks.removeSeal.mock.calls.map((c) => c[1]).sort()).toEqual(old.slice(0, 2))
     expect([...mocks.seals.keys()].filter((k) => k.startsWith('pre-restore-')).sort()).toEqual(
       [...old.slice(2), preRestoreBackup!].map((f) => f.toLowerCase()).sort()
     )

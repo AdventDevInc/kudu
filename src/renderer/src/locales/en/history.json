@@ -66,6 +66,7 @@
         "forbidden-key": "Contains keys outside the areas Kudu changes.",
         "empty": "Contains no registry keys.",
         "unreadable": "Could not be read.",
+        "classes-root": "Contains HKEY_CLASSES_ROOT keys, which merge the machine and per-user classes, so Kudu can't tell which one to restore them to. It can only be inspected.",
         "unverified": "This backup can't be verified — it may have been changed since Kudu wrote it, so it can only be inspected."
       }
     }

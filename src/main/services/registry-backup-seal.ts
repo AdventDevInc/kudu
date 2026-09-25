@@ -1,4 +1,6 @@
 import { createHash, randomBytes } from 'crypto'
+import { realpath } from 'fs/promises'
+import { resolve } from 'path'
 import { isAdmin } from './elevation'
 import { execNativeUtf8, execTracked, psUtf8 } from './exec-utf8'
 
@@ -9,14 +11,17 @@ import { execNativeUtf8, execTracked, psUtf8 } from './exec-utf8'
  * user's Documents, which any unelevated process of that user can write. A
  * backup is only restorable when the SHA-256 of its exact bytes matches the one
  * Kudu recorded when writing it, in a key only administrators can change:
- * `HKLM\SOFTWARE\Kudu\RegistryBackupSeals` (value name = backup file name).
+ * `HKLM\SOFTWARE\Kudu\RegistryBackupSeals\<folder id>` (value name = backup file
+ * name). The folder id is derived from the backup folder's real path, so each
+ * folder has its own seals: switching the backup folder never makes the seals
+ * of backups left in the previous one look orphaned.
  *
  * Seals are read from HKLM only, never from the backup folder or userData.
  * Sealing needs elevation; when it is not possible the backup is still written
  * but cannot be restored from inside Kudu. Nothing here throws into the caller.
  */
 
-const SEAL_KEY = 'HKLM\\SOFTWARE\\Kudu\\RegistryBackupSeals'
+const SEAL_ROOT = 'HKLM\\SOFTWARE\\Kudu\\RegistryBackupSeals'
 /** File names only: no separators, no `..`, nothing cmd.exe or reg.exe would reinterpret. */
 const SEALABLE_NAME = /^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,199}\.reg$/
 const SHA256_HEX = /^[0-9a-f]{64}$/
@@ -29,13 +34,40 @@ export function sha256Hex(bytes: Buffer): string {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-/** Record the hash of `bytes` as the seal for `fileName`. False when it could not be recorded. */
-export async function sealBackup(fileName: string, bytes: Buffer): Promise<boolean> {
+/**
+ * The seal key for backups in `dir`: a subkey named after a hash of the folder's
+ * real path (junctions resolved, case-folded), so the same folder always maps
+ * to the same key however it is spelled.
+ */
+export async function sealKeyFor(dir: string): Promise<string> {
+  let real: string
+  try {
+    real = await realpath(dir)
+  } catch {
+    real = resolve(dir)
+  }
+  const id = createHash('sha256').update(real.toLowerCase(), 'utf8').digest('hex').slice(0, 32)
+  return `${SEAL_ROOT}\\${id}`
+}
+
+/** Record the hash of `bytes` as the seal for `fileName` in `dir`. False when it could not be recorded. */
+export async function sealBackup(dir: string, fileName: string, bytes: Buffer): Promise<boolean> {
   if (process.platform !== 'win32' || !isSealable(fileName) || !isAdmin()) return false
   try {
     await execNativeUtf8(
       'reg',
-      ['add', SEAL_KEY, '/v', fileName, '/t', 'REG_SZ', '/d', sha256Hex(bytes), '/f', '/reg:64'],
+      [
+        'add',
+        await sealKeyFor(dir),
+        '/v',
+        fileName,
+        '/t',
+        'REG_SZ',
+        '/d',
+        sha256Hex(bytes),
+        '/f',
+        '/reg:64'
+      ],
       { timeout: 15000, windowsHide: true }
     )
     return true
@@ -55,11 +87,11 @@ function parseSeals(stdout: string): Map<string, string> {
   return seals
 }
 
-/** Every recorded seal, keyed by lower-cased file name. Empty when none can be read. */
-export async function readSeals(): Promise<Map<string, string>> {
+/** Every seal recorded for `dir`, keyed by lower-cased file name. Empty when none can be read. */
+export async function readSeals(dir: string): Promise<Map<string, string>> {
   if (process.platform !== 'win32') return new Map()
   try {
-    const { stdout } = await execNativeUtf8('reg', ['query', SEAL_KEY, '/reg:64'], {
+    const { stdout } = await execNativeUtf8('reg', ['query', await sealKeyFor(dir), '/reg:64'], {
       timeout: 15000,
       windowsHide: true
     })
@@ -69,68 +101,72 @@ export async function readSeals(): Promise<Map<string, string>> {
   }
 }
 
-/** The recorded hash for `fileName`, or null when there is none or it cannot be read. */
-export async function readSeal(fileName: string): Promise<string | null> {
+/** The recorded hash for `fileName` in `dir`, or null when there is none or it cannot be read. */
+export async function readSeal(dir: string, fileName: string): Promise<string | null> {
   if (process.platform !== 'win32' || !isSealable(fileName)) return null
   try {
-    const { stdout } = await execNativeUtf8('reg', ['query', SEAL_KEY, '/v', fileName, '/reg:64'], {
-      timeout: 15000,
-      windowsHide: true
-    })
+    const { stdout } = await execNativeUtf8(
+      'reg',
+      ['query', await sealKeyFor(dir), '/v', fileName, '/reg:64'],
+      { timeout: 15000, windowsHide: true }
+    )
     return parseSeals(stdout).get(fileName.toLowerCase()) ?? null
   } catch {
     return null
   }
 }
 
-/** True only when `bytes` hash to the seal recorded for `fileName`. */
-export async function verifySeal(fileName: string, bytes: Buffer): Promise<boolean> {
-  const seal = await readSeal(fileName)
+/** True only when `bytes` hash to the seal recorded for `fileName` in `dir`. */
+export async function verifySeal(dir: string, fileName: string, bytes: Buffer): Promise<boolean> {
+  const seal = await readSeal(dir, fileName)
   return seal !== null && seal === sha256Hex(bytes)
 }
 
-/** Remove the seal of a deleted backup. Best effort. */
-export async function removeSeal(fileName: string): Promise<void> {
+/** Remove the seal of a deleted backup in `dir`. Best effort. */
+export async function removeSeal(dir: string, fileName: string): Promise<void> {
   if (process.platform !== 'win32' || !isSealable(fileName) || !isAdmin()) return
   try {
-    await execNativeUtf8('reg', ['delete', SEAL_KEY, '/v', fileName, '/f', '/reg:64'], {
-      timeout: 15000,
-      windowsHide: true
-    })
+    await execNativeUtf8(
+      'reg',
+      ['delete', await sealKeyFor(dir), '/v', fileName, '/f', '/reg:64'],
+      { timeout: 15000, windowsHide: true }
+    )
   } catch {
     // Best effort; `sweepSeals` retries once the file is gone.
   }
 }
 
 /**
- * Remove the seals of deleted backups, reading the seal list once so files that
- * were never sealed cost no reg.exe call. Call it after deleting the files.
- * Best effort.
+ * Remove the seals of backups deleted from `dir`, reading the seal list once so
+ * files that were never sealed cost no reg.exe call. Call it after deleting the
+ * files. Best effort.
  */
-export async function removeSeals(fileNames: string[]): Promise<void> {
+export async function removeSeals(dir: string, fileNames: string[]): Promise<void> {
   if (process.platform !== 'win32' || !fileNames.length || !isAdmin()) return
-  const seals = await readSeals()
-  for (const name of fileNames) if (seals.has(name.toLowerCase())) await removeSeal(name)
+  const seals = await readSeals(dir)
+  for (const name of fileNames) if (seals.has(name.toLowerCase())) await removeSeal(dir, name)
 }
 
 /**
- * Drop every seal whose backup file no longer exists. `present` is the lower-cased
- * names of the regular files in the backup folder, listed *after* `seals` was
- * read: Kudu always writes a backup before sealing it, so a seal read earlier
- * than the listing can never belong to a file not yet written.
+ * Drop every seal of `dir` whose backup file no longer exists there. `seals` is
+ * `readSeals(dir)`, and `present` the lower-cased names of the regular files in
+ * `dir`, listed *after* `seals` was read: Kudu always writes a backup before
+ * sealing it, so a seal read earlier than the listing can never belong to a file
+ * not yet written. Other folders' seals are never touched.
  *
  * Without this, a backup deleted outside Kudu (or whose seal removal failed)
  * could be put back later, byte for byte, by an unelevated process and be
  * verified again. Returns the seals that remain. Needs elevation to remove.
  */
 export async function sweepSeals(
+  dir: string,
   seals: Map<string, string>,
   present: Set<string>
 ): Promise<Map<string, string>> {
   const kept = new Map<string, string>()
   for (const [name, hash] of seals) {
     if (present.has(name)) kept.set(name, hash)
-    else if (process.platform === 'win32' && isAdmin()) await removeSeal(name)
+    else if (process.platform === 'win32' && isAdmin()) await removeSeal(dir, name)
   }
   return kept
 }
