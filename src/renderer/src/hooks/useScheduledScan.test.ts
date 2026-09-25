@@ -92,6 +92,29 @@ it('honors empty scope and the existing Recycle Bin protection', async () => {
   expect(api.systemClean).not.toHaveBeenCalled()
   expect(api.recycleBinScan).not.toHaveBeenCalled()
 })
+it('never auto-applies cache resets or native maintenance', async () => {
+  api.systemScan.mockResolvedValue([
+    {
+      ...result('Temp', 'plain'),
+      itemCount: 3,
+      items: [
+        { id: 'plain', size: 10 },
+        { id: 'prefetch', size: 10, cacheReset: true },
+        { id: 'dism', size: 0, cleanupAction: 'windows-components' }
+      ]
+    }
+  ])
+  await runSchedule(payload)
+  expect(api.systemClean).toHaveBeenCalledWith(['plain'])
+})
+it('skips cleanup when only opt-in items were found', async () => {
+  api.systemScan.mockResolvedValue([
+    { ...result('Prefetch', 'prefetch'), items: [{ id: 'prefetch', size: 10, cacheReset: true }] }
+  ])
+  await runSchedule(payload)
+  expect(api.systemClean).not.toHaveBeenCalled()
+  expect(api.scheduleRunComplete).toHaveBeenCalledWith('one', 'success', 'run-token')
+})
 it('reports returned cleanup failures as partial instead of success', async () => {
   api.systemClean.mockResolvedValue({ filesDeleted: 0, totalCleaned: 0, errors: ['locked'] })
   await runSchedule(payload)

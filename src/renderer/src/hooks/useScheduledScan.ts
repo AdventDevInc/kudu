@@ -164,8 +164,13 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
           totalSize += size
           totalItems += found
 
-          if (payload.autoApply && found > 0) {
-            const allIds = results.flatMap((r) => r.items.map((i) => i.id))
+          // Cache resets and native maintenance are opt-in: they stay unselected
+          // in the cleaner and need explicit flags in the CLI, so an unattended
+          // run must never pick them up just because they were scanned.
+          const allIds = results.flatMap((r) =>
+            r.items.filter((i) => !i.cacheReset && !i.cleanupAction).map((i) => i.id)
+          )
+          if (payload.autoApply && allIds.length > 0) {
             try {
               await assertAllowed()
               const cleanResult = await task.clean(allIds)
