@@ -126,6 +126,19 @@ it('creates the restore point just before the first clean', async () => {
   expect(api.createRestorePoint).toHaveBeenCalledTimes(1)
   expect(api.createRestorePoint).toHaveBeenCalledBefore(api.systemClean)
 })
+it('rechecks eligibility after the restore point and before cleaning', async () => {
+  mocks.createRestorePoint = true
+  let restorePointDone = false
+  api.createRestorePoint.mockImplementation(async () => {
+    restorePointDone = true
+  })
+  api.scheduleAuthorize.mockImplementation(async () =>
+    restorePointDone ? { allowed: false, reason: 'power' } : { allowed: true, reason: null }
+  )
+  await runSchedule(payload)
+  expect(api.createRestorePoint).toHaveBeenCalledTimes(1)
+  expect(api.systemClean).not.toHaveBeenCalled()
+})
 it('skips the restore point when nothing will be cleaned', async () => {
   mocks.createRestorePoint = true
   api.systemScan.mockResolvedValue([

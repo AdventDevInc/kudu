@@ -176,6 +176,9 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
             try {
               await assertAllowed()
               await ensureRestorePoint()
+              // Creating a restore point can take a minute; the schedule's
+              // conditions must still hold right before anything is deleted.
+              await assertAllowed()
               const cleanResult = await task.clean(allIds)
               if (cleanResult?.errors?.length) status = 'partial'
               const cleaned = cleanResult?.filesDeleted ?? 0
