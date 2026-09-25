@@ -60,6 +60,7 @@
     { "id": "ledger-live", "name": "Ledger Live", "paths": ["${CONFIG}/Ledger Live/Cache/Cache_Data"], "description": "Ledger Live Electron app cache" },
     { "id": "node-gyp", "name": "node-gyp Cache", "paths": ["${HOME}/.node-gyp"], "description": "Node.js native addon build header cache (re-downloaded on demand)" },
     { "id": "electron-builder", "name": "electron-builder Cache", "paths": ["${CACHE}/electron-builder"], "description": "Electron builder download cache (re-downloaded on demand)" },
+    { "id": "electron", "name": "Electron Runtime Cache", "paths": ["${CACHE}/electron"], "minAgeDays": 7, "description": "Downloaded Electron runtime archives older than one week; re-downloaded on demand. Preserves installed apps and recent downloads." },
     { "id": "zen-browser", "name": "Zen Browser", "paths": ["${CACHE}/zen", "${HOME}/.zen"], "childSubdir": "cache2", "description": "Zen Browser per-profile web content cache" },
     { "id": "kodi", "name": "Kodi", "paths": ["${HOME}/.kodi/temp", "${HOME}/.kodi/userdata/Thumbnails"], "description": "Kodi media center temp files and thumbnail images (can be several GB; rebuilt on demand)" },
     { "id": "qbittorrent", "name": "qBittorrent", "paths": ["${CACHE}/qBittorrent"], "description": "qBittorrent cache files" },

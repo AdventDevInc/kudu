@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 146 |
-| 🪟 Windows rules | 135 |
-| 🍎 macOS rules | 80 |
-| 🐧 Linux rules | 78 |
+| Unique app rules | 151 |
+| 🪟 Windows rules | 140 |
+| 🍎 macOS rules | 84 |
+| 🐧 Linux rules | 81 |
 
 ## AI Tools
 
@@ -63,14 +63,16 @@
 | CurseForge | ✅ | ❌ | ❌ |
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
+| Docker Build Cache | ✅ | ✅ | ✅ |
 | Docker Desktop | ✅ | ✅ | ❌ |
 | EA Desktop Logs | ✅ | ❌ | ❌ |
-| Electron Runtime Cache | ✅ | ❌ | ❌ |
+| Electron Runtime Cache | ✅ | ✅ | ✅ |
 | electron-builder Cache | ✅ | ✅ | ✅ |
 | ffmpeg-static Cache | ✅ | ❌ | ❌ |
 | Figma | ✅ | ✅ | ❌ |
 | FileZilla | ✅ | ✅ | ✅ |
 | Firefox Crash History | ✅ | ❌ | ❌ |
+| fontconfig | ✅ | ❌ | ❌ |
 | GIMP | ✅ | ✅ | ✅ |
 | Git Project Updater | ✅ | ❌ | ❌ |
 | GitHub Desktop | ✅ | ✅ | ❌ |
@@ -99,6 +101,7 @@
 | Microsoft Edge Update Logs | ✅ | ❌ | ❌ |
 | Microsoft Edge WebView2 Caches | ✅ | ❌ | ❌ |
 | Microsoft Teams | ✅ | ✅ | ✅ |
+| Modern MTR | ✅ | ❌ | ❌ |
 | node-gyp Cache | ✅ | ✅ | ✅ |
 | Notion | ✅ | ✅ | ✅ |
 | npm Cache | ✅ | ✅ | ✅ |
@@ -109,7 +112,7 @@
 | Old Firefox Pending Crashes | ✅ | ❌ | ❌ |
 | Pidgin | ✅ | ❌ | ✅ |
 | pip Cache | ✅ | ✅ | ✅ |
-| pnpm Store | ✅ | ✅ | ✅ |
+| pnpm Unused Packages | ✅ | ✅ | ✅ |
 | Polyscope | ✅ | ❌ | ❌ |
 | Postman | ✅ | ✅ | ✅ |
 | qBittorrent | ✅ | ✅ | ✅ |
@@ -134,6 +137,7 @@
 | Transmission | ✅ | ✅ | ✅ |
 | Unity Editor | ✅ | ✅ | ✅ |
 | Upscayl | ✅ | ❌ | ❌ |
+| uv Unused Packages | ✅ | ✅ | ✅ |
 | Visual Studio | ✅ | ❌ | ❌ |
 | VLC | ✅ | ✅ | ✅ |
 | VS Code | ✅ | ✅ | ✅ |
@@ -152,6 +156,7 @@
 | Battle.net | ✅ | ❌ | ❌ |
 | EA App | ✅ | ❌ | ❌ |
 | Epic Games Launcher | ✅ | ✅ | ❌ |
+| Epic Games Launcher Web Cache | ✅ | ✅ | ❌ |
 | Fortnite | ✅ | ❌ | ❌ |
 | GOG Galaxy | ✅ | ❌ | ❌ |
 | Heroic Games Launcher | ❌ | ✅ | ✅ |
@@ -240,7 +245,6 @@
 - Defender Support Logs 🔒
 - Defender Trace Files 🔒
 - Delivery Optimization Cache 🔒
-- Delivery Optimization User Cache
 - Diagnostic ETL Logs 🔒
 - DirectX Shader Cache
 - Elevated Diagnostics
@@ -277,6 +281,7 @@
 - WMI Trace Logs 🔒
 - WinSAT Results 🔒
 - Windows Caches
+- Windows Component Cleanup 🔒
 - Windows Debug Logs 🔒
 - Windows Logs 🔒
 - Windows Search Logs 🔒

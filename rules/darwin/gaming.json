@@ -4,6 +4,7 @@
   "apps": [
     { "id": "steam", "name": "Steam", "paths": ["${APP_SUPPORT}/Steam/logs"], "description": "Steam client log files" },
     { "id": "epic", "name": "Epic Games Launcher", "paths": ["${APP_SUPPORT}/Epic/EpicGamesLauncher/Saved/webcache", "${LIBRARY}/Logs/EpicGamesLauncher"], "description": "Epic Games Launcher web cache and log files" },
+    { "id": "epic-webcache", "name": "Epic Games Launcher Web Cache", "paths": ["${CACHES}/com.epicgames.EpicGamesLauncher/webcache"], "minAgeDays": 7, "description": "Epic launcher web cache older than one week; rebuilt on demand. Close the launcher before cleaning." },
     { "id": "itch", "name": "itch.io", "paths": ["${APP_SUPPORT}/itch/Cache/Cache_Data", "${APP_SUPPORT}/itch/logs"], "description": "itch.io Electron app cache and log files" },
     { "id": "heroic", "name": "Heroic Games Launcher", "paths": ["${APP_SUPPORT}/heroic/Cache/Cache_Data", "${APP_SUPPORT}/heroic/GPUCache"], "description": "Heroic Games Launcher Electron app cache and GPU cache" },
     { "id": "minecraft", "name": "Minecraft Java Edition", "paths": ["${APP_SUPPORT}/minecraft/logs", "${APP_SUPPORT}/minecraft/crash-reports", "${APP_SUPPORT}/minecraft/webcache2"], "description": "Minecraft logs, crash reports, and launcher web cache" },
