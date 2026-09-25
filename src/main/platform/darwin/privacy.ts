@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { access, constants, readFile, stat, unlink, writeFile } from 'fs/promises'
+import { access, constants, lstat, readFile, stat, unlink, writeFile } from 'fs/promises'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { randomUUID } from 'crypto'
@@ -95,6 +95,20 @@ async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): 
   await execFileAsync('/usr/bin/osascript', ['-e', script], { timeout: 30_000 })
 }
 
+// A symlinked config file is usually maintained by configuration management;
+// replacing the link (mv) would destroy it and writing through it would edit
+// someone else's source of truth, so Kudu leaves such files alone entirely.
+async function assertNotSymlink(filePath: string): Promise<void> {
+  try {
+    if ((await lstat(filePath)).isSymbolicLink())
+      throw new Error(
+        `${filePath} is a symbolic link, probably managed by configuration management. Kudu won't modify it; change the setting there instead.`
+      )
+  } catch (error: any) {
+    if (error?.code !== 'ENOENT') throw error
+  }
+}
+
 // Moving a user-written temp file into place would make the user its owner,
 // letting any unprivileged process rewrite sshd or kernel config. Always hand
 // it to root:wheel — older Kudu builds left these files user-owned, so the
@@ -102,6 +116,7 @@ async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): 
 // restrictive 0600 stays 0600) minus group/other write; a file Kudu creates
 // gets 0644. Runs in the same elevation as the mv.
 async function installFileCommands(tmp: string, filePath: string): Promise<Command[]> {
+  await assertNotSymlink(filePath)
   let mode = '644'
   try {
     mode = ((await stat(filePath)).mode & 0o755).toString(8)
@@ -349,11 +364,15 @@ interface StatePart<S> {
   /** Without a capture, leave this part as it is rather than blocking revert */
   optional?: boolean
   /**
-   * Several settings change this same state (one plist's mode). Its original
-   * is carried across their captures and only put back by the last of them
-   * reverted, so a policy still applied stays readable.
+   * Several settings change this same state (a plist's mode, sysctl.conf's
+   * existence). The user's original is carried across their captures.
    */
   shared?: boolean
+  /**
+   * Only the last sharing setting reverted restores it (e.g. a plist's mode,
+   * so a policy still applied stays readable).
+   */
+  lastRevertOnly?: boolean
   /** Whether `current` counts as restored to `prior`; defaults to equality */
   restored?: (current: S, prior: S) => boolean
   /** `currentUnknown`: the current state couldn't be read without root */
@@ -432,7 +451,10 @@ function resolvePriors(
   return priors
 }
 
+// Root config files (sysctl.conf, sshd_config); refuses symlinks up front so
+// capture fails — and apply changes nothing — before any live change is made
 async function readConfig(path: string): Promise<string | null> {
+  await assertNotSymlink(path)
   try {
     return await readFile(path, 'utf8')
   } catch (error: any) {
@@ -537,7 +559,7 @@ async function revertSettings(
     try {
       const priors = resolvePriors(setting, await loadPriorState(setting.id))
       if (!priors) throw new Error(NOT_CAPTURED)
-      for (const part of setting.state.filter((p) => p.shared && p.id in priors)) {
+      for (const part of setting.state.filter((p) => p.lastRevertOnly && p.id in priors)) {
         for (const other of settings) {
           if (other === setting || !other.state.some((p) => p.id === part.id)) continue
           const at = ids.indexOf(other.id)
@@ -843,6 +865,7 @@ function managedPlistPart(domain: string): StatePart<{ mode: string } | null> {
     applied: () => ({ mode: '644' }),
     optional: true,
     shared: true,
+    lastRevertOnly: true,
     // A plist Kudu created may still hold someone else's policies; then it stays
     restored: (current, prior) => prior === null || same(current, prior),
     restore: (prior) => [
@@ -863,13 +886,9 @@ function sysctlLine(content: string | null, param: string): string | null {
 }
 
 // Put back the line updateSysctlConfig replaced (or drop the one it added),
-// leaving every other line alone. A file that only holds Kudu's header was
-// created by Kudu, so it goes too.
+// leaving every other line alone
 function restoreSysctlLine(content: string | null, param: string, prior: string | null) {
-  if (prior === null) {
-    const rest = removeSysctlConfigParam(content ?? '', param)
-    return rest.trim() === [...SYSCTL_HEADER, SYSCTL_REVERT_NOTE].join('\n') ? null : rest
-  }
+  if (prior === null) return removeSysctlConfigParam(content ?? '', param)
   const lines = (content ?? '').split('\n')
   const current = sysctlLine(content, param)
   if (current !== null) {
@@ -905,7 +924,42 @@ function sysctlParts(param: string, value: string, fallback?: string): StatePart
       { path: SYSCTL_CONF, edit: (content) => restoreSysctlLine(content, param, prior) }
     ]
   }
-  return [live, conf]
+  return [live, conf, sysctlFilePart]
+}
+
+// Whether /etc/sysctl.conf existed, and its exact text if it was blank —
+// updateSysctlConfig writes Kudu's header into a missing or blank file. Once
+// only that header is left, revert deletes a file Kudu created or puts the
+// blank text back; a file that has gained other lines stays. Without a
+// capture the file is left alone.
+type SysctlFileState = null | string | true // absent | blank text | has content
+const sysctlFilePart: StatePart<SysctlFileState> = {
+  id: 'sysctl.conf:file',
+  async read() {
+    const content = await readConfig(SYSCTL_CONF)
+    if (content === null) return null
+    return content.trim() === '' ? content : true
+  },
+  valid: (v): v is SysctlFileState =>
+    v === null || v === true || (typeof v === 'string' && v.length <= 4096 && v.trim() === ''),
+  applied: () => true,
+  optional: true,
+  shared: true,
+  restored: (current, prior) => current === true || same(current, prior),
+  restore: (prior) =>
+    prior === true
+      ? []
+      : [
+          {
+            path: SYSCTL_CONF,
+            edit: (content) => {
+              const rest = content?.trim() ?? ''
+              const onlyKudu =
+                rest === '' || rest === [...SYSCTL_HEADER, SYSCTL_REVERT_NOTE].join('\n')
+              return onlyKudu ? prior : content
+            }
+          }
+        ]
 }
 
 const SSHD_CONFIG = '/etc/ssh/sshd_config'
@@ -929,7 +983,11 @@ function sshdPart(directive: string, value: string): StatePart<string[]> {
     sshdLines(updateSshdConfig(prior.join('\n'), directive, value), directive)
   return {
     id: `sshd_config:${directive}`,
-    read: async () => sshdLines(await readFile(SSHD_CONFIG, 'utf8'), directive),
+    async read() {
+      const content = await readConfig(SSHD_CONFIG)
+      if (content === null) throw new Error(`${SSHD_CONFIG} is missing`)
+      return sshdLines(content, directive)
+    },
     valid: (v): v is string[] =>
       Array.isArray(v) &&
       v.length <= 100 &&

@@ -14,6 +14,8 @@ const files = new Map<string, string>()
 const rootOnly = new Set<string>()
 // Permission bits and owner per file (default 0644, root:wheel = 0:0)
 const modes = new Map<string, number>()
+// Paths that are symbolic links (e.g. maintained by configuration management)
+const symlinks = new Set<string>()
 const owners = new Map<string, string>()
 const enoent = (path: string) => Object.assign(new Error(`ENOENT: ${path}`), { code: 'ENOENT' })
 vi.mock('fs/promises', () => ({
@@ -29,6 +31,10 @@ vi.mock('fs/promises', () => ({
     files.delete(from)
   }),
   mkdir: vi.fn(async () => {}),
+  lstat: vi.fn(async (path: string) => {
+    if (!files.has(path) && !symlinks.has(path)) throw enoent(path)
+    return { isSymbolicLink: () => symlinks.has(path) }
+  }),
   access: vi.fn(async (path: string) => {
     if (!files.has(path)) throw enoent(path)
     if (rootOnly.has(path)) throw Object.assign(new Error(`EACCES: ${path}`), { code: 'EACCES' })
@@ -348,6 +354,7 @@ const storedSettings = () => JSON.parse(files.get(STORE) ?? '{"settings":{}}').s
 const pref = (type: string, value: string): Pref => ({ type, value })
 const prefId = (domain: string, key: string, host = false) => `${host ? 'H:' : ''}${domain}\t${key}`
 const LOGINWINDOW = '/Library/Preferences/com.apple.loginwindow'
+const NL = String.fromCharCode(10)
 const CHROME_POLICY = '/Library/Managed Preferences/com.google.Chrome'
 
 function failure(stderr: string) {
@@ -596,6 +603,7 @@ describe('darwin privacy revert', () => {
   beforeEach(() => {
     files.clear()
     rootOnly.clear()
+    symlinks.clear()
     modes.clear()
     owners.clear()
     elevatedCalls.length = 0
@@ -871,6 +879,54 @@ describe('darwin privacy revert', () => {
         if (getuid) Object.defineProperty(process, 'getuid', getuid)
         else delete (process as { getuid?: unknown }).getuid
       }
+    })
+
+    it('refuses to touch a symlinked config file, on apply and on revert', async () => {
+      const SSHD_CONFIG = '/etc/ssh/sshd_config'
+      files.set('/etc/sysctl.conf', 'kern.coredump=1' + NL)
+      symlinks.add('/etc/sysctl.conf')
+
+      await expect(find('macos-core-dumps').apply()).rejects.toThrow(/symbolic link/)
+      // Refused during capture, before the live value was touched
+      expect(mac.sysctl.get('kern.coredump')).toBe('1')
+      expect(files.get('/etc/sysctl.conf')).toBe('kern.coredump=1' + NL)
+
+      files.set(SSHD_CONFIG, 'PermitRootLogin yes' + NL)
+      await find('macos-ssh-root-login').apply()
+      const applied = files.get(SSHD_CONFIG)
+      symlinks.add(SSHD_CONFIG) // configuration management took it over since
+      execFileMock.mockClear()
+
+      await expect(find('macos-ssh-root-login').revert!()).rejects.toThrow(/symbolic link/)
+      expect(files.get(SSHD_CONFIG)).toBe(applied)
+      expect(osascriptCalls()).toHaveLength(0)
+      expect(storedSettings()['macos-ssh-root-login']).toBeDefined()
+    })
+
+    it('puts an existing blank sysctl.conf back instead of deleting it', async () => {
+      files.set('/etc/sysctl.conf', '')
+      mac.sysctl.set('net.inet.ip.forwarding', '1')
+      await find('macos-ip-forwarding').apply()
+      expect(files.get('/etc/sysctl.conf')).toContain('net.inet.ip.forwarding=0')
+
+      await find('macos-ip-forwarding').revert!()
+
+      expect(files.get('/etc/sysctl.conf')).toBe('')
+    })
+
+    it('deletes a sysctl.conf Kudu created only once its last line is reverted', async () => {
+      mac.sysctl.set('net.inet.ip.forwarding', '1')
+      await find('macos-ip-forwarding').apply()
+      await find('macos-core-dumps').apply()
+      // The file's absence is carried over to the second capture
+      expect(storedSettings()['macos-core-dumps']['sysctl.conf:file']).toBeNull()
+
+      await find('macos-ip-forwarding').revert!()
+      expect(files.get('/etc/sysctl.conf')).toContain('kern.coredump=0')
+
+      await find('macos-core-dumps').revert!()
+      expect(files.has('/etc/sysctl.conf')).toBe(false)
+      expect(storedSettings()).toEqual({})
     })
 
     it('removes sysctl.conf again when Kudu created it', async () => {
