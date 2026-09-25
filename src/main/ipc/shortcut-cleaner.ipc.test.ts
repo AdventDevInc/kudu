@@ -1,7 +1,17 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'fs'
-import { tmpdir } from 'os'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync
+} from 'fs'
 import { join } from 'path'
+import { tmpdir } from 'os'
+import { IPC } from '../../shared/channels'
+import type { CleanResult, ScanResult } from '../../shared/types'
 import {
   checkShortcutTarget,
   isShortcutTargetBroken,
@@ -10,6 +20,29 @@ import {
   type PathState,
   type ShortcutInfo
 } from '../services/shortcut-target'
+
+const mocks = vi.hoisted(() => ({
+  handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
+  home: '',
+  settings: {
+    exclusions: [] as string[],
+    cleaner: { secureDelete: false, skipRecentMinutes: 0, keepDeletionLog: false }
+  }
+}))
+
+vi.mock('electron', () => ({
+  ipcMain: {
+    handle: (channel: string, handler: (...args: unknown[]) => Promise<unknown>) =>
+      mocks.handlers.set(channel, handler)
+  }
+}))
+vi.mock('os', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('os')>()),
+  homedir: () => mocks.home
+}))
+vi.mock('../services/settings-store', () => ({ getSettings: () => mocks.settings }))
+
+import { registerShortcutCleanerIpc } from './shortcut-cleaner.ipc'
 
 // ── isShortcutTargetBroken ──
 // `targetExists` answers for the target itself. Drive and share roots are
@@ -590,5 +623,82 @@ describe('checkShortcutTarget', () => {
     expect(probe.mock.calls.map(([p]) => p).sort()).toEqual(
       ['C:\\', 'C:\\Program Files (x86)\\Acme\\a.exe', 'C:\\Program Files\\Acme\\a.exe'].sort()
     )
+  })
+})
+
+// ── Global exclusions (production handler) ──
+
+describe('shortcut scan global exclusions', () => {
+  const originalPlatform = process.platform
+  let home: string
+
+  function writeBrokenEntry(dir: string, name: string): string {
+    mkdirSync(dir, { recursive: true })
+    const path = join(dir, name)
+    writeFileSync(path, '[Desktop Entry]\nExec=/nonexistent-kudu-test/app %u\n')
+    return path
+  }
+
+  async function scannedPaths(): Promise<string[]> {
+    const results = (await mocks.handlers.get(IPC.SHORTCUT_SCAN)!(null)) as ScanResult[]
+    // Only report fixtures; a real /usr/share/applications may add unrelated entries.
+    return results
+      .flatMap((r) => r.items.map((i) => i.path))
+      .filter((p) => p.startsWith(home))
+      .sort()
+  }
+
+  beforeEach(() => {
+    // The Linux resolver reads .desktop files directly, so it runs on any host.
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
+    // Scans resolve real paths (8.3 names expanded on Windows), so use one here.
+    home = realpathSync.native(mkdtempSync(join(tmpdir(), 'kudu-shortcuts-')))
+    mocks.home = home
+    mocks.settings.exclusions = []
+    mocks.handlers.clear()
+    registerShortcutCleanerIpc(() => null)
+  })
+
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true })
+    rmSync(home, { recursive: true, force: true })
+  })
+
+  it('does not report excluded shortcuts or shortcuts in excluded directories', async () => {
+    const desktop = join(home, 'Desktop')
+    const apps = join(home, '.local', 'share', 'applications')
+    const reported = writeBrokenEntry(desktop, 'broken.desktop')
+    const excludedFile = writeBrokenEntry(desktop, 'kept.desktop')
+    const inExcludedDir = writeBrokenEntry(apps, 'other.desktop')
+
+    expect(await scannedPaths()).toEqual([reported, excludedFile, inExcludedDir].sort())
+
+    mocks.settings.exclusions = [excludedFile, apps]
+    expect(await scannedPaths()).toEqual([reported])
+  })
+
+  it('refuses to clean a shortcut excluded through an alias added after the scan', async () => {
+    const desktop = join(home, 'Desktop')
+    const broken = writeBrokenEntry(desktop, 'broken.desktop')
+    const results = (await mocks.handlers.get(IPC.SHORTCUT_SCAN)!(null)) as ScanResult[]
+    const item = results.flatMap((r) => r.items).find((i) => i.path === broken)!
+    expect(item).toBeDefined()
+
+    // After the scan, the user excludes the Desktop via a link that points at it.
+    symlinkSync(desktop, join(home, 'keep'), 'junction')
+    mocks.settings.exclusions = [join(home, 'keep')]
+    const result = (await mocks.handlers.get(IPC.SHORTCUT_CLEAN)!(null, [item.id])) as CleanResult
+    expect(result.errors).toEqual([{ path: broken, reason: 'excluded' }])
+    expect(existsSync(broken)).toBe(true)
+  })
+
+  it('does not read a shortcut folder that is a link into an excluded tree', async () => {
+    const privateApps = join(home, 'private-apps')
+    const hidden = writeBrokenEntry(privateApps, 'hidden.desktop')
+    // ~/Desktop is a junction/symlink into the excluded folder.
+    symlinkSync(privateApps, join(home, 'Desktop'), 'junction')
+    mocks.settings.exclusions = [privateApps]
+    expect(await scannedPaths()).not.toContain(hidden)
+    expect(await scannedPaths()).not.toContain(join(home, 'Desktop', 'hidden.desktop'))
   })
 })

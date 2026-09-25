@@ -1,7 +1,28 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import { writeFileSync, mkdirSync, rmSync } from 'fs'
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
+import { writeFileSync, mkdirSync, rmSync, existsSync, mkdtempSync, realpathSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
+import { IPC } from '../../shared/channels'
+import type { DuplicateDeleteResult, DuplicateScanResult } from '../../shared/types'
+
+const mocks = vi.hoisted(() => ({
+  handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
+  trashItem: vi.fn(),
+  settings: { exclusions: [] as string[] }
+}))
+
+vi.mock('electron', () => ({
+  BrowserWindow: vi.fn(),
+  ipcMain: {
+    handle: (channel: string, handler: (...args: unknown[]) => Promise<unknown>) =>
+      mocks.handlers.set(channel, handler)
+  },
+  shell: { trashItem: mocks.trashItem, showItemInFolder: vi.fn() }
+}))
+vi.mock('./open-dialog', () => ({ showOpenDialog: vi.fn() }))
+vi.mock('../services/settings-store', () => ({ getSettings: () => mocks.settings }))
+
+import { registerDuplicateFinderIpc } from './duplicate-finder.ipc'
 
 // We test the exported scan functions by creating a temp directory
 // with known duplicate files and scanning it via the module's internals.
@@ -128,5 +149,59 @@ describe('duplicate group reclaimable space calculation', () => {
     const fileSize = 1_000_000
     const reclaimable = fileSize * (1 - 1)
     expect(reclaimable).toBe(0)
+  })
+})
+
+describe('duplicate finder global exclusions', () => {
+  let root: string
+
+  function scan(directory = root) {
+    return mocks.handlers.get(IPC.DUPLICATES_SCAN)!(null, {
+      directory,
+      minFileSize: 1
+    }) as Promise<DuplicateScanResult>
+  }
+
+  function remove(paths: string[]) {
+    return mocks.handlers.get(IPC.DUPLICATES_DELETE)!(
+      null,
+      paths,
+      'permanent'
+    ) as Promise<DuplicateDeleteResult>
+  }
+
+  beforeEach(() => {
+    mocks.handlers.clear()
+    mocks.settings.exclusions = []
+    registerDuplicateFinderIpc(() => null)
+    // Scans walk the real path (e.g. /private/var on macOS), so compare against it.
+    root = realpathSync.native(mkdtempSync(join(tmpdir(), 'kudu-dup-exclusions-')))
+    mkdirSync(join(root, 'keep'))
+    for (const name of ['a.bin', 'b.bin', 'c.log', join('keep', 'd.bin')]) {
+      writeFileSync(join(root, name), 'same content')
+    }
+    return () => rmSync(root, { recursive: true, force: true })
+  })
+
+  it('skips excluded directories and extensions while scanning', async () => {
+    mocks.settings.exclusions = [join(root, 'keep'), '*.log']
+    const result = await scan()
+    const paths = result.groups.flatMap((g) => g.files.map((f) => f.path)).sort()
+    expect(paths).toEqual([join(root, 'a.bin'), join(root, 'b.bin')])
+  })
+
+  it('returns nothing when the scan root itself is excluded', async () => {
+    mocks.settings.exclusions = [root]
+    expect((await scan()).groups).toEqual([])
+  })
+
+  it('refuses to delete a path excluded after the scan', async () => {
+    await scan()
+    mocks.settings.exclusions = [join(root, 'keep')]
+    const excluded = join(root, 'keep', 'd.bin')
+    const result = await remove([excluded])
+    expect(result).toMatchObject({ deleted: 0, failed: 1 })
+    expect(result.errors).toEqual([{ path: excluded, reason: 'excluded' }])
+    expect(existsSync(excluded)).toBe(true)
   })
 })

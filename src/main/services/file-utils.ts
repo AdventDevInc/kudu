@@ -1,5 +1,5 @@
 import { applyCacheResetPolicy } from './cache-reset-policy'
-import { chmod, rm, rmdir, stat, lstat, readdir, open } from 'fs/promises'
+import { chmod, rm, rmdir, stat, lstat, readdir, open, realpath } from 'fs/promises'
 import { createReceipt } from './cleanup-receipts'
 import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
@@ -227,6 +227,71 @@ export async function deletionTouchesExclusions(
 }
 
 /**
+ * The exclusion list plus the real location of every path entry that exists.
+ * Tools that walk real paths need both forms: an exclusion may have been
+ * written through an alias (a symlink, a junction, or a Windows 8.3 short
+ * name such as RUNNER~1) that never appears in a resolved path.
+ */
+export async function expandExclusions(exclusions: string[]): Promise<string[]> {
+  const expanded = new Set(exclusions)
+  for (const exc of exclusions) {
+    if (exc.startsWith('*.')) continue
+    const real = await realpathOfLongestPrefix(exc)
+    if (real) expanded.add(real)
+  }
+  return [...expanded]
+}
+
+/**
+ * The real location of `path`, resolving its longest existing prefix when the
+ * rest doesn't exist yet: an exclusion for `/alias/empty/reserved` (with
+ * `/alias` -> `/real`) must still protect `/real/empty/reserved`.
+ */
+async function realpathOfLongestPrefix(path: string): Promise<string | null> {
+  const missing: string[] = []
+  let current = resolve(path)
+  for (;;) {
+    try {
+      return join(await realpath(current), ...missing.reverse())
+    } catch {
+      const parent = dirname(current)
+      if (parent === current) return null
+      missing.push(current.slice(parent.length).replace(/^[\\/]+/, ''))
+      current = parent
+    }
+  }
+}
+
+/**
+ * Resolve a user-chosen scan folder to its real path, or null when the folder
+ * is missing or excluded under either name. Walking the real path means every
+ * result, and every later exclusion check, sees the canonical location rather
+ * than an alias (symlink, junction) into an excluded tree.
+ */
+export async function resolveScanRoot(dir: string, exclusions: string[]): Promise<string | null> {
+  if (isExcluded(dir, exclusions)) return null
+  try {
+    const real = await realpath(dir)
+    return isExcluded(real, exclusions) ? null : real
+  } catch {
+    return null
+  }
+}
+
+/** isExcluded for a path about to be deleted: checks the path and its real location. */
+export async function isExcludedResolved(path: string, exclusions: string[]): Promise<boolean> {
+  if (exclusions.length === 0) return false
+  if (isExcluded(path, exclusions)) return true
+  // Extension patterns match the same file name whatever its location.
+  if (exclusions.every((exc) => exc.startsWith('*.'))) return false
+  try {
+    return isExcluded(await realpath(path), exclusions)
+  } catch {
+    return false
+  }
+}
+
+/**
  * Overwrite a single file's contents with random data, then zeros, before deletion.
  * For directories, recursively overwrite all files within.
  */
@@ -387,6 +452,9 @@ async function cleanItemsNow(
     ? [...new Set(itemIds.filter((v): v is string => typeof v === 'string'))]
     : []
   const items = getCachedItems(validIds)
+  // Resolved once per run: an exclusion written through an alias (or one added
+  // or retargeted since the scan) must still stop the delete of its real path.
+  const exclusions = await expandExclusions(getSettings().exclusions)
   const receipt = createReceipt(origin, parentReceiptId, items)
   await receipt.measureVolumes()
   let totalCleaned = 0
@@ -507,7 +575,7 @@ async function cleanItemsNow(
       return
     }
 
-    if (isExcluded(item.path, getSettings().exclusions)) {
+    if (await isExcludedResolved(item.path, exclusions)) {
       receipt.add(item, 'skipped', 'excluded')
       filesSkipped++
       errors.push({ path: item.path, reason: 'excluded' })

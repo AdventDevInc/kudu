@@ -9,7 +9,8 @@ import { homedir } from 'os'
 import { IPC } from '../../shared/channels'
 import { CleanerType } from '../../shared/enums'
 import { cacheItems, clearCachedCategory } from '../services/scan-cache'
-import { cleanItems } from '../services/file-utils'
+import { cleanItems, expandExclusions, isExcluded, resolveScanRoot } from '../services/file-utils'
+import { getSettings } from '../services/settings-store'
 import { validateStringArray } from '../services/ipc-validation'
 import type { ScanItem, ScanResult, CleanResult } from '../../shared/types'
 import type { WindowGetter } from './index'
@@ -206,6 +207,7 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
     const dirs = getShortcutDirs()
     const isWin = process.platform === 'win32'
     const isMac = process.platform === 'darwin'
+    const exclusions = await expandExclusions(getSettings().exclusions)
 
     // One lookup per path per scan: many shortcuts share a drive root.
     const probed = new Map<string, Promise<PathState>>()
@@ -216,18 +218,25 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
     }
 
     for (const dir of dirs) {
+      // Never enumerate a globally excluded shortcut directory. Resolve it
+      // first: a Desktop that is a link into an excluded tree must not be read
+      // (or cleaned) through its alias.
+      const root = await resolveScanRoot(dir.path, exclusions)
+      if (!root) continue
       try {
         let shortcuts: ShortcutInfo[]
         if (isWin) {
-          shortcuts = await resolveWinShortcuts(dir.path)
+          shortcuts = await resolveWinShortcuts(root)
         } else if (isMac) {
-          shortcuts = await resolveMacAliases(dir.path)
+          shortcuts = await resolveMacAliases(root)
         } else {
-          shortcuts = await resolveLinuxDesktopFiles(dir.path)
+          shortcuts = await resolveLinuxDesktopFiles(root)
         }
 
         const brokenItems: ScanItem[] = []
         for (const sc of shortcuts) {
+          // Windows enumerates recursively, so also drop shortcuts in excluded subfolders
+          if (isExcluded(sc.path, exclusions)) continue
           if (await checkShortcutTarget(sc, process.platform, probe)) {
             let size = 0
             try {
@@ -289,6 +298,7 @@ export function registerShortcutCleanerIpc(getWindow: WindowGetter): void {
         errors: [],
         needsElevation: false
       }
+    // cleanItems re-resolves exclusions (aliases included) and records receipts.
     return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
       const win = getWindow()
       if (win && !win.isDestroyed())

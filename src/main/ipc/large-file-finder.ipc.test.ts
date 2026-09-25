@@ -4,12 +4,13 @@ import { tmpdir } from 'os'
 import { IPC } from '../../shared/channels'
 import type { LargeFileDeleteResult, LargeFileScanResult } from '../../shared/types'
 
-const { handlers, readdir, lstat, rm, trashItem } = vi.hoisted(() => ({
+const { handlers, readdir, lstat, rm, trashItem, settings } = vi.hoisted(() => ({
   handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
   readdir: vi.fn(),
   lstat: vi.fn(),
   rm: vi.fn(),
-  trashItem: vi.fn()
+  trashItem: vi.fn(),
+  settings: { exclusions: [] as string[] }
 }))
 
 vi.mock('electron', () => ({
@@ -20,8 +21,9 @@ vi.mock('electron', () => ({
   },
   shell: { trashItem }
 }))
-vi.mock('fs/promises', () => ({ readdir, lstat, rm }))
+vi.mock('fs/promises', () => ({ readdir, lstat, rm, realpath: async (path: string) => path }))
 vi.mock('./open-dialog', () => ({ showOpenDialog: vi.fn() }))
+vi.mock('../services/settings-store', () => ({ getSettings: () => settings }))
 
 import { registerLargeFileFinderIpc } from './large-file-finder.ipc'
 
@@ -39,11 +41,11 @@ const identity = {
   isSymbolicLink: () => false
 }
 
-function fileEntry(name = 'archive.zip') {
+function fileEntry(name = 'archive.zip', isDirectory = false) {
   return {
     name,
-    isFile: () => true,
-    isDirectory: () => false,
+    isFile: () => !isDirectory,
+    isDirectory: () => isDirectory,
     isSymbolicLink: () => false
   }
 }
@@ -60,6 +62,7 @@ describe('Large File Finder scan and deletion safety', () => {
   beforeEach(async () => {
     vi.resetAllMocks()
     handlers.clear()
+    settings.exclusions = []
     registerLargeFileFinderIpc(() => null)
     await scan(null) // Invalidate results left by the previous test.
     readdir.mockResolvedValue([fileEntry()])
@@ -95,6 +98,40 @@ describe('Large File Finder scan and deletion safety', () => {
         expect(trashItem).toHaveBeenCalledWith(filePath)
         expect(rm).not.toHaveBeenCalled()
       }
+    }
+  )
+
+  it('does not descend into excluded directories or list excluded files', async () => {
+    const excludedDir = join(directory, 'vault')
+    readdir.mockImplementation(async (path: string) =>
+      path === directory
+        ? [fileEntry(), fileEntry('movie.mkv'), fileEntry('vault', true)]
+        : [fileEntry('secret.zip')]
+    )
+    settings.exclusions = [excludedDir, '*.mkv']
+    expect((await scan()).files.map((file) => file.path)).toEqual([filePath])
+    expect(readdir.mock.calls.map(([path]) => path)).not.toContain(excludedDir)
+  })
+
+  it('returns nothing when the scan root itself is excluded', async () => {
+    settings.exclusions = [directory]
+    expect((await scan()).files).toEqual([])
+    expect(readdir).not.toHaveBeenCalled()
+  })
+
+  it.each(['recycle', 'permanent'])(
+    'refuses to delete a file excluded after the scan in %s mode',
+    async (mode) => {
+      await scan()
+      settings.exclusions = ['*.zip']
+      expect(await remove([filePath], mode)).toEqual({
+        deleted: 0,
+        failed: 1,
+        spaceRecovered: 0,
+        errors: [{ path: filePath, reason: 'excluded' }]
+      })
+      expect(trashItem).not.toHaveBeenCalled()
+      expect(rm).not.toHaveBeenCalled()
     }
   )
 

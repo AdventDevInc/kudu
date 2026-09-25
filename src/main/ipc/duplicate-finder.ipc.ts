@@ -15,6 +15,13 @@ import type {
 } from '../../shared/types'
 import type { WindowGetter } from './index'
 import { showOpenDialog } from './open-dialog'
+import {
+  isExcluded,
+  isExcludedResolved,
+  resolveScanRoot,
+  expandExclusions
+} from '../services/file-utils'
+import { getSettings } from '../services/settings-store'
 
 let cancelled = false
 
@@ -34,7 +41,8 @@ async function walkDirectory(
   depth: number,
   files: DuplicateFile[],
   win: BrowserWindow | null,
-  lastReport: { time: number }
+  lastReport: { time: number },
+  exclusions: string[]
 ): Promise<void> {
   if (cancelled) return
   if (depth > options.maxDepth) return
@@ -51,8 +59,8 @@ async function walkDirectory(
 
     const fullPath = join(dirPath, entry.name)
 
-    // Skip symlinks
-    if (entry.isSymbolicLink()) continue
+    // Skip symlinks and globally excluded paths (never descend into them)
+    if (entry.isSymbolicLink() || isExcluded(fullPath, exclusions)) continue
 
     if (entry.isDirectory()) {
       // Check exclude patterns
@@ -61,7 +69,7 @@ async function walkDirectory(
       )
       if (shouldExclude) continue
 
-      await walkDirectory(fullPath, options, depth + 1, files, win, lastReport)
+      await walkDirectory(fullPath, options, depth + 1, files, win, lastReport, exclusions)
     } else if (entry.isFile()) {
       try {
         const s = await stat(fullPath)
@@ -320,12 +328,17 @@ export function registerDuplicateFinderIpc(getWindow: WindowGetter): void {
         maxDepth: typeof opts.maxDepth === 'number' && opts.maxDepth > 0 ? opts.maxDepth : 20
       }
 
-      if (!safeOptions.directory) return emptyResult
+      const exclusions = await expandExclusions(getSettings().exclusions)
+      const root = safeOptions.directory
+        ? await resolveScanRoot(safeOptions.directory, exclusions)
+        : null
+      if (!root) return emptyResult
+      safeOptions.directory = root
 
       // Phase 1: Walk
       const files: DuplicateFile[] = []
       const lastReport = { time: Date.now() }
-      await walkDirectory(safeOptions.directory, safeOptions, 0, files, win, lastReport)
+      await walkDirectory(safeOptions.directory, safeOptions, 0, files, win, lastReport, exclusions)
 
       if (cancelled) {
         return {
@@ -394,6 +407,7 @@ export function registerDuplicateFinderIpc(getWindow: WindowGetter): void {
       if (!Array.isArray(paths)) return { deleted: 0, failed: 0, spaceRecovered: 0, errors: [] }
       const safePaths = paths.filter((p): p is string => typeof p === 'string' && isAbsolute(p))
       const deleteMode: DuplicateDeleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
+      const exclusions = await expandExclusions(getSettings().exclusions)
 
       let deleted = 0
       let failed = 0
@@ -401,6 +415,12 @@ export function registerDuplicateFinderIpc(getWindow: WindowGetter): void {
       const errors: { path: string; reason: string }[] = []
 
       for (const filePath of safePaths) {
+        // Exclusions may have changed since the scan; re-check before touching the file.
+        if (await isExcludedResolved(filePath, exclusions)) {
+          failed++
+          errors.push({ path: filePath, reason: 'excluded' })
+          continue
+        }
         try {
           const s = await stat(filePath)
           const fileSize = s.size

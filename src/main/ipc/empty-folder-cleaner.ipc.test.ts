@@ -10,7 +10,8 @@ const mocks = vi.hoisted(() => ({
   lstat: vi.fn(),
   realpath: vi.fn(),
   trashItem: vi.fn(),
-  homedir: vi.fn()
+  homedir: vi.fn(),
+  settings: { exclusions: [] as string[] }
 }))
 vi.mock('electron', () => ({
   BrowserWindow: vi.fn(),
@@ -28,6 +29,7 @@ vi.mock('fs/promises', () => ({
 }))
 vi.mock('os', () => ({ homedir: mocks.homedir }))
 vi.mock('./open-dialog', () => ({ showOpenDialog: vi.fn() }))
+vi.mock('../services/settings-store', () => ({ getSettings: () => mocks.settings }))
 import { registerEmptyFolderCleanerIpc } from './empty-folder-cleaner.ipc'
 
 // All filesystem calls are mocked; these fixtures are never deletion targets.
@@ -73,6 +75,7 @@ describe('Empty Folder Cleaner production handlers', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     mocks.handlers.clear()
+    mocks.settings.exclusions = []
     registerEmptyFolderCleanerIpc(() => null)
     mocks.homedir.mockReturnValue(root)
     mocks.realpath.mockImplementation(async (path: string) => path)
@@ -145,6 +148,56 @@ describe('Empty Folder Cleaner production handlers', () => {
     })
     expect((await scan({ directory, maxDepth: 1, excludePatterns: ['build'] })).folders).toEqual([])
     expect(mocks.readdir.mock.calls.map(([path]) => path)).toEqual([directory, empty])
+  })
+  it('does not descend into excluded folders or mark their parents empty', async () => {
+    const container = join(directory, 'container')
+    mocks.readdir.mockImplementation(async (path: string) => {
+      if (path === directory) return [entry('container'), entry('empty')]
+      if (path === container) return [entry('kept')]
+      return []
+    })
+    mocks.settings.exclusions = [join(container, 'kept')]
+    expect((await scan()).folders.map((folder) => folder.path)).toEqual([empty])
+    expect(mocks.readdir.mock.calls.map(([path]) => path)).not.toContain(join(container, 'kept'))
+  })
+  it('does not offer folders that are excluded or contain an excluded path', async () => {
+    mocks.readdir.mockImplementation(async (path: string) =>
+      path === directory ? [entry('empty'), entry('cache.old')] : []
+    )
+    // The exclusion need not exist yet: deleting its parent would still remove its location.
+    mocks.settings.exclusions = [join(empty, 'placeholder'), '*.old']
+    expect((await scan()).folders).toEqual([])
+  })
+  it('returns nothing when the scan root itself is excluded', async () => {
+    mocks.settings.exclusions = [directory]
+    expect((await scan()).folders).toEqual([])
+    expect(mocks.readdir).not.toHaveBeenCalled()
+  })
+  it.each([
+    ['the folder itself', empty, empty],
+    ['a path inside it', join(empty, 'nested', 'placeholder'), empty],
+    ['its extension', '*.old', join(directory, 'cache.old')]
+  ])('refuses to delete a folder when %s is excluded', async (_label, exclusion, target) => {
+    mocks.settings.exclusions = [exclusion]
+    expect(await remove([target])).toEqual({
+      deleted: 0,
+      failed: 1,
+      errors: [{ path: target, reason: 'excluded' }]
+    })
+    expect(mocks.readdir).not.toHaveBeenCalled()
+    expect(mocks.trashItem).not.toHaveBeenCalled()
+    expect(mocks.rmdir).not.toHaveBeenCalled()
+  })
+  it('refuses to delete a folder whose canonical path is excluded', async () => {
+    const canonical = join(root, 'elsewhere', 'empty')
+    mocks.realpath.mockImplementation(async (path: string) => (path === empty ? canonical : path))
+    mocks.settings.exclusions = [canonical]
+    expect(await remove([empty])).toMatchObject({
+      deleted: 0,
+      failed: 1,
+      errors: [{ path: empty, reason: 'excluded' }]
+    })
+    expect(mocks.trashItem).not.toHaveBeenCalled()
   })
   it('treats unreadable children as non-empty', async () => {
     mocks.readdir.mockResolvedValueOnce([entry('empty')]).mockRejectedValueOnce(new Error('EACCES'))
@@ -219,13 +272,14 @@ describe('Empty Folder Cleaner production handlers', () => {
 
   it.each([root, canonicalHome])('scans user folders beneath canonical home %s', async (home) => {
     mapCanonicalHome()
-    const selected = join(home, 'Documents')
+    // The scan walks the folder's real path, so results use the canonical home.
+    const walked = join(canonicalHome, 'Documents')
     mocks.readdir.mockImplementation(async (path: string) =>
-      path === selected ? [entry('empty')] : []
+      path === walked ? [entry('empty')] : []
     )
-    expect((await scan({ directory: selected })).folders.map((folder) => folder.path)).toEqual([
-      join(selected, 'empty')
-    ])
+    expect(
+      (await scan({ directory: join(home, 'Documents') })).folders.map((folder) => folder.path)
+    ).toEqual([join(walked, 'empty')])
   })
 
   it.each(['recycle', 'permanent'])(

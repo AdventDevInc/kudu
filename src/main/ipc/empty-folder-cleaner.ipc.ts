@@ -12,6 +12,8 @@ import type {
 } from '../../shared/types'
 import type { WindowGetter } from './index'
 import { showOpenDialog } from './open-dialog'
+import { isExcluded, resolveScanRoot, expandExclusions } from '../services/file-utils'
+import { getSettings } from '../services/settings-store'
 
 let cancelled = false
 
@@ -143,6 +145,15 @@ function isProtectedFolder(folderPath: string, homePaths: string[]): boolean {
   return false
 }
 
+/**
+ * Deleting a folder also deletes everything beneath it, so it is off-limits when
+ * it is excluded itself or when an excluded path lies inside it.
+ */
+function touchesExclusion(folderPath: string, exclusions: string[]): boolean {
+  if (isExcluded(folderPath, exclusions)) return true
+  return exclusions.some((exc) => !exc.startsWith('*.') && isExcluded(exc, [folderPath]))
+}
+
 function sendProgress(win: BrowserWindow | null, data: EmptyFolderScanProgress): void {
   if (win && !win.isDestroyed()) {
     win.webContents.send(IPC.EMPTY_FOLDERS_PROGRESS, data)
@@ -162,7 +173,8 @@ async function findEmptyFolders(
   win: BrowserWindow | null,
   lastReport: { time: number },
   rootDir: string,
-  homePaths: string[]
+  homePaths: string[],
+  exclusions: string[]
 ): Promise<boolean> {
   if (cancelled) return false
   if (depth > options.maxDepth) return false
@@ -204,7 +216,7 @@ async function findEmptyFolders(
     if (entry.isFile()) {
       hasFiles = true
     } else if (entry.isDirectory()) {
-      // Skip hidden/dot-directories and user-configured exclusions before recursing
+      // Skip hidden/dot-directories and the tool's exclude patterns before recursing
       if (entry.name.startsWith('.')) {
         hasNonEmptySubdirs = true // treat as non-empty so parent isn't flagged
         continue
@@ -218,6 +230,11 @@ async function findEmptyFolders(
       }
 
       const subPath = join(dirPath, entry.name)
+      // Globally excluded folders are kept, so their parent is never empty
+      if (isExcluded(subPath, exclusions)) {
+        hasNonEmptySubdirs = true
+        continue
+      }
       const subEmpty = await findEmptyFolders(
         subPath,
         options,
@@ -227,7 +244,8 @@ async function findEmptyFolders(
         win,
         lastReport,
         rootDir,
-        homePaths
+        homePaths,
+        exclusions
       )
       if (!subEmpty) {
         hasNonEmptySubdirs = true
@@ -241,8 +259,13 @@ async function findEmptyFolders(
   // This folder is empty if it has no files and all subdirectories were empty (and removed from consideration)
   const isEmpty = !hasFiles && !hasNonEmptySubdirs
 
-  // Never mark the root scan directory or protected folders as empty
-  if (isEmpty && dirPath !== rootDir && !isProtectedFolder(dirPath, homePaths)) {
+  // Never mark the root scan directory, protected or excluded folders as empty
+  if (
+    isEmpty &&
+    dirPath !== rootDir &&
+    !isProtectedFolder(dirPath, homePaths) &&
+    !touchesExclusion(dirPath, exclusions)
+  ) {
     emptyFolders.push({
       path: dirPath,
       name: basename(dirPath),
@@ -295,7 +318,12 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
           : []
       }
 
-      if (!safeOptions.directory) return emptyResult
+      const exclusions = await expandExclusions(getSettings().exclusions)
+      const root = safeOptions.directory
+        ? await resolveScanRoot(safeOptions.directory, exclusions)
+        : null
+      if (!root) return emptyResult
+      safeOptions.directory = root
 
       const homePaths = await getHomePaths()
       try {
@@ -317,7 +345,8 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
         win,
         lastReport,
         safeOptions.directory,
-        homePaths
+        homePaths,
+        exclusions
       )
 
       // Sort by depth descending (deepest first — so deleting goes bottom-up)
@@ -346,6 +375,7 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
       ]
       const deleteMode = mode === 'permanent' ? 'permanent' : 'recycle'
       const homePaths = await getHomePaths()
+      const exclusions = await expandExclusions(getSettings().exclusions)
 
       let deleted = 0
       let failed = 0
@@ -361,15 +391,22 @@ export function registerEmptyFolderCleanerIpc(getWindow: WindowGetter): void {
           errors.push({ path: folderPath, reason: 'Protected system folder' })
           continue
         }
+        if (touchesExclusion(folderPath, exclusions)) {
+          failed++
+          errors.push({ path: folderPath, reason: 'excluded' })
+          continue
+        }
 
         try {
           const metadata = await lstat(folderPath)
           if (metadata.isSymbolicLink() || !metadata.isDirectory()) {
             throw new Error('Path is no longer a regular folder')
           }
-          if (isProtectedFolder(await realpath(folderPath), homePaths)) {
+          const canonicalPath = await realpath(folderPath)
+          if (isProtectedFolder(canonicalPath, homePaths)) {
             throw new Error('Protected system folder')
           }
+          if (touchesExclusion(canonicalPath, exclusions)) throw new Error('excluded')
           // Verify folder is still empty before deleting
           const entries = await readdir(folderPath)
           if (entries.length > 0) {
