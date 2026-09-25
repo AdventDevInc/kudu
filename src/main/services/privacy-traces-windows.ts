@@ -308,6 +308,8 @@ export async function backupMruList(list: MruList): Promise<string> {
     await execNativeUtf8('reg', ['export', list.key, file, '/y'], { timeout: 30000 })
     if ((await stat(file)).size === 0) throw new Error('empty backup')
   } catch {
+    // An empty or partial export must not count as one of the kept backups.
+    await unlink(file).catch(() => {})
     throw new TraceSkipped('registry backup failed, nothing was changed')
   }
   await pruneBackups(dir, slug)

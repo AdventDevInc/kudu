@@ -199,10 +199,12 @@ describe('clearMruList', () => {
     expect(regCalls().some((c) => c[0] === 'delete')).toBe(false)
   })
 
-  it('aborts when the backup file is empty', async () => {
+  it('aborts when the backup file is empty, and removes the empty file', async () => {
     fakeReg(RUN_MRU_OUTPUT, { exportEmpty: true })
     await expect(clearMruList(RUN_MRU)).rejects.toBeDefined()
     expect(regCalls().some((c) => c[0] === 'delete')).toBe(false)
+    const left = await readdir(backupDir.path).catch(() => [] as string[])
+    expect(left.filter((f) => f.startsWith('privacy-traces-backup-'))).toEqual([])
   })
 
   it('does nothing, not even a backup, when the list is already empty', async () => {
