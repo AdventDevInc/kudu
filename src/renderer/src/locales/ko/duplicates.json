@@ -43,6 +43,8 @@
   "deleteFailed": "파일 {{failed}}개를 삭제할 수 없습니다",
   "openLocation": "파일 위치 열기",
   "original": "유지",
+  "keepOneCopy": "최소 한 개의 복사본은 유지해야 합니다",
+  "hardLinkedCopy": "다른 하드 링크가 이 파일을 유지하고 있으므로 삭제해도 공간이 확보되지 않습니다",
   "copies": "사본 {{count}}개",
   "groupHeader": "각 {{size}} · 파일 {{count}}개",
   "emptyTitle": "중복 파일을 찾지 못했습니다",

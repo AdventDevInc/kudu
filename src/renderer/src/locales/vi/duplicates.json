@@ -43,6 +43,8 @@
   "deleteFailed": "Không thể xóa {{failed}} tệp",
   "openLocation": "Mở vị trí tệp",
   "original": "Giữ lại",
+  "keepOneCopy": "Phải giữ lại ít nhất một bản sao",
+  "hardLinkedCopy": "Các liên kết cứng khác vẫn giữ tệp này, vì vậy việc xóa tệp sẽ không giải phóng dung lượng",
   "copies": "{{count}} bản sao",
   "groupHeader": "{{size}} mỗi tệp · {{count}} tệp",
   "emptyTitle": "Không tìm thấy tệp trùng lặp",

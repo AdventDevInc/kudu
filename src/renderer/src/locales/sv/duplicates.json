@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} filer kunde inte tas bort",
   "openLocation": "Öppna filens plats",
   "original": "Behåll",
+  "keepOneCopy": "Minst en kopia måste behållas",
+  "hardLinkedCopy": "Andra hårda länkar behåller den här filen, så om du tar bort den frigörs inget utrymme",
   "copies": "{{count}} kopior",
   "groupHeader": "{{size}} vardera · {{count}} filer",
   "emptyTitle": "Inga dubbletter hittades",

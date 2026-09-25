@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} Dateien konnten nicht gelöscht werden",
   "openLocation": "Dateispeicherort öffnen",
   "original": "Behalten",
+  "keepOneCopy": "Mindestens eine Kopie muss beibehalten werden",
+  "hardLinkedCopy": "Andere Hardlinks verweisen auf diese Datei, daher würde das Löschen keinen Speicherplatz freigeben",
   "copies": "{{count}} Kopien",
   "groupHeader": "{{size}} jeweils · {{count}} Dateien",
   "emptyTitle": "Keine Duplikate gefunden",

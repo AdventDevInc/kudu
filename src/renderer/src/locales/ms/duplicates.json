@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} fail tidak dapat dipadam",
   "openLocation": "Buka lokasi fail",
   "original": "Simpan",
+  "keepOneCopy": "Sekurang-kurangnya satu salinan mesti dikekalkan",
+  "hardLinkedCopy": "Pautan keras lain masih mengekalkan fail ini, jadi memadamkannya tidak akan mengosongkan sebarang ruang",
   "copies": "{{count}} salinan",
   "groupHeader": "{{size}} setiap satu · {{count}} fail",
   "emptyTitle": "Tiada Pendua Ditemui",

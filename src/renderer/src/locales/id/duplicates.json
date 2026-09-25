@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} file tidak dapat dihapus",
   "openLocation": "Buka lokasi file",
   "original": "Simpan",
+  "keepOneCopy": "Setidaknya satu salinan harus disimpan",
+  "hardLinkedCopy": "Tautan keras lain mempertahankan file ini, sehingga menghapusnya tidak akan mengosongkan ruang",
   "copies": "{{count}} salinan",
   "groupHeader": "masing-masing {{size}} · {{count}} file",
   "emptyTitle": "Tidak Ada Duplikat Ditemukan",

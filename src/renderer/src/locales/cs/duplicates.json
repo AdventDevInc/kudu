@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} souborů se nepodařilo odstranit",
   "openLocation": "Otevřít umístění souboru",
   "original": "Ponechat",
+  "keepOneCopy": "Musí být zachována alespoň jedna kopie",
+  "hardLinkedCopy": "Tento soubor zachovávají jiné pevné odkazy, takže jeho odstraněním se neuvolní žádné místo",
   "copies": "{{count}} kopií",
   "groupHeader": "{{size}} každá · {{count}} souborů",
   "emptyTitle": "Nebyly nalezeny žádné duplicity",

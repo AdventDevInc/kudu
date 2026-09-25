@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} fájlt nem sikerült törölni",
   "openLocation": "Fájl helyének megnyitása",
   "original": "Megtartás",
+  "keepOneCopy": "Legalább egy példányt meg kell tartani",
+  "hardLinkedCopy": "Más hard linkek is erre a fájlra mutatnak, ezért a törlése nem szabadítana fel tárhelyet",
   "copies": "{{count}} másolat",
   "groupHeader": "{{size}} egyenként · {{count}} fájl",
   "emptyTitle": "Nem találhatók duplikátumok",

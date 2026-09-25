@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} filer kunne ikke slettes",
   "openLocation": "Åpne filplassering",
   "original": "Behold",
+  "keepOneCopy": "Minst én kopi må beholdes",
+  "hardLinkedCopy": "Andre harde lenker beholder denne filen, så sletting av den vil ikke frigjøre plass",
   "copies": "{{count}} kopier",
   "groupHeader": "{{size}} hver · {{count}} filer",
   "emptyTitle": "Ingen duplikater funnet",

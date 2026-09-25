@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} dosya silinemedi",
   "openLocation": "Dosya konumunu aç",
   "original": "Tut",
+  "keepOneCopy": "En az bir kopya tutulmalıdır",
+  "hardLinkedCopy": "Diğer sabit bağlantılar bu dosyayı koruyor, bu nedenle silmek yer açmaz",
   "copies": "{{count}} kopya",
   "groupHeader": "Her biri {{size}} · {{count}} dosya",
   "emptyTitle": "Yinelenen Dosya Bulunamadı",

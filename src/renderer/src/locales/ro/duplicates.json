@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} fișiere nu au putut fi șterse",
   "openLocation": "Deschideți locația fișierului",
   "original": "Păstrați",
+  "keepOneCopy": "Trebuie păstrată cel puțin o copie",
+  "hardLinkedCopy": "Alte legături hard păstrează acest fișier, astfel încât ștergerea lui nu ar elibera spațiu",
   "copies": "{{count}} copii",
   "groupHeader": "{{size}} fiecare · {{count}} fișiere",
   "emptyTitle": "Nu s-au găsit duplicate",

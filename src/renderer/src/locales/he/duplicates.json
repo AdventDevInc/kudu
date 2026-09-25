@@ -43,6 +43,8 @@
   "deleteFailed": "לא ניתן היה למחוק {{failed}} קבצים",
   "openLocation": "פתח את מיקום הקובץ",
   "original": "השאר",
+  "keepOneCopy": "יש לשמור לפחות עותק אחד",
+  "hardLinkedCopy": "קישורים קשיחים אחרים שומרים על קובץ זה, ולכן מחיקתו לא תפנה מקום",
   "copies": "{{count}} עותקים",
   "groupHeader": "{{size}} כל אחד · {{count}} קבצים",
   "emptyTitle": "לא נמצאו כפילויות",

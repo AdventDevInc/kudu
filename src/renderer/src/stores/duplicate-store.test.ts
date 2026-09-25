@@ -80,6 +80,22 @@ describe('duplicate-store', () => {
     expect(useDuplicateStore.getState().selectedPaths.has('/a/file1.txt')).toBe(false)
   })
 
+  it('togglePath refuses to select the last unselected copy in a group', () => {
+    useDuplicateStore
+      .getState()
+      .setResult(makeResult([{ hash: 'f'.repeat(64), fileSize: 10, paths: ['/a', '/b', '/c'] }]))
+    const { togglePath } = useDuplicateStore.getState()
+    togglePath('/a')
+    togglePath('/b')
+    togglePath('/c')
+    expect([...useDuplicateStore.getState().selectedPaths]).toEqual(['/a', '/b'])
+
+    // Freeing one copy makes the other selectable again.
+    togglePath('/a')
+    togglePath('/c')
+    expect([...useDuplicateStore.getState().selectedPaths]).toEqual(['/b', '/c'])
+  })
+
   it('selectAllDuplicates keeps shortest path per group and selects the rest', () => {
     const result = makeResult([
       {
@@ -97,6 +113,84 @@ describe('duplicate-store', () => {
     // Longer paths should be selected for deletion
     expect(selected.has('/a/longer/path.txt')).toBe(true)
     expect(selected.has('/a/very/much/longer/path.txt')).toBe(true)
+  })
+
+  it('selectAllDuplicates keeps the first-listed file even when its path is longer', () => {
+    // The main process lists a hard-linked file first because deleting it frees nothing.
+    const result = makeResult([
+      {
+        hash: 'cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333cccc3333',
+        fileSize: 1000,
+        paths: ['/linked/copy/elsewhere.bin', '/a.bin']
+      }
+    ])
+    useDuplicateStore.getState().setResult(result)
+    useDuplicateStore.getState().selectAllDuplicates()
+
+    const selected = useDuplicateStore.getState().selectedPaths
+    expect(selected.has('/linked/copy/elsewhere.bin')).toBe(false)
+    expect(selected.has('/a.bin')).toBe(true)
+  })
+
+  it('never selects or counts hard-linked copies', () => {
+    const result = makeResult([
+      {
+        hash: 'dddd4444dddd4444dddd4444dddd4444dddd4444dddd4444dddd4444dddd4444',
+        fileSize: 1000,
+        paths: ['/linked-a.bin', '/linked-b.bin', '/plain.bin']
+      }
+    ])
+    result.groups[0].files[0].hardLinked = true
+    result.groups[0].files[1].hardLinked = true
+    useDuplicateStore.getState().setResult(result)
+    useDuplicateStore.getState().selectAllDuplicates()
+    expect([...useDuplicateStore.getState().selectedPaths]).toEqual(['/plain.bin'])
+
+    // After the plain copy is deleted, the two linked copies remain but free nothing.
+    useDuplicateStore.getState().removeDeletedFiles(new Set(['/plain.bin']))
+    const [group] = useDuplicateStore.getState().result!.groups
+    expect(group.reclaimableSpace).toBe(0)
+  })
+
+  it('drops a group whose deletion was refused, instead of recomputing it', () => {
+    const result = makeResult([
+      {
+        hash: 'eeee5555eeee5555eeee5555eeee5555eeee5555eeee5555eeee5555eeee5555',
+        fileSize: 1000,
+        paths: ['/a.bin', '/b.bin', '/c.bin']
+      },
+      {
+        hash: 'ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666ffff6666',
+        fileSize: 10,
+        paths: ['/x.bin', '/y.bin']
+      }
+    ])
+    useDuplicateStore.getState().setResult(result)
+    useDuplicateStore.getState().selectAllDuplicates()
+    // /b.bin was deleted, /c.bin was refused (e.g. no intact survivor remained).
+    useDuplicateStore.getState().removeDeletedFiles(new Set(['/b.bin']), new Set(['/c.bin']))
+    const state = useDuplicateStore.getState()
+    expect(state.result!.groups.map((g) => g.files.map((f) => f.path))).toEqual([
+      ['/x.bin', '/y.bin']
+    ])
+    expect(state.selectedPaths.has('/c.bin')).toBe(false)
+    expect(state.selectedPaths.has('/y.bin')).toBe(true)
+  })
+
+  it('never lets a hard-linked copy be selected by hand', () => {
+    const result = makeResult([
+      {
+        hash: '99998888999988889999888899998888999988889999888899998888aaaa7777',
+        fileSize: 1000,
+        paths: ['/keep.bin', '/linked.bin', '/plain.bin']
+      }
+    ])
+    result.groups[0].files[1].hardLinked = true
+    useDuplicateStore.getState().setResult(result)
+    useDuplicateStore.getState().togglePath('/linked.bin')
+    expect(useDuplicateStore.getState().selectedPaths.has('/linked.bin')).toBe(false)
+    useDuplicateStore.getState().togglePath('/plain.bin')
+    expect(useDuplicateStore.getState().selectedPaths.has('/plain.bin')).toBe(true)
   })
 
   it('selectAllDuplicates works with multiple groups', () => {

@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} bestanden konden niet worden verwijderd",
   "openLocation": "Bestandslocatie openen",
   "original": "Behouden",
+  "keepOneCopy": "Er moet ten minste één kopie worden bewaard",
+  "hardLinkedCopy": "Andere harde koppelingen behouden dit bestand, dus als u het verwijdert, komt er geen ruimte vrij",
   "copies": "{{count}} kopieën",
   "groupHeader": "{{size}} per stuk · {{count}} bestanden",
   "emptyTitle": "Geen dubbele bestanden gevonden",

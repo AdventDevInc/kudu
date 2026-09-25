@@ -40,7 +40,7 @@ interface DuplicateState {
   togglePath: (path: string) => void
   selectAllDuplicates: () => void
   deselectAll: () => void
-  removeDeletedFiles: (deletedPaths: Set<string>) => void
+  removeDeletedFiles: (deletedPaths: Set<string>, failedPaths?: Set<string>) => void
   reset: () => void
 }
 
@@ -75,7 +75,14 @@ export const useDuplicateStore = create<DuplicateState>((set, get) => ({
     set((s) => {
       const next = new Set(s.selectedPaths)
       if (next.has(path)) next.delete(path)
-      else next.add(path)
+      else {
+        // Never select every copy in a group; at least one must always be kept
+        const group = s.result?.groups.find((g) => g.files.some((f) => f.path === path))
+        if (group?.files.every((f) => f.path === path || next.has(f.path))) return {}
+        // A hard-linked copy frees nothing, and the main process always refuses it.
+        if (group?.files.find((f) => f.path === path)?.hardLinked) return {}
+        next.add(path)
+      }
       return { selectedPaths: next }
     }),
   selectAllDuplicates: () => {
@@ -83,26 +90,31 @@ export const useDuplicateStore = create<DuplicateState>((set, get) => ({
     if (!result) return
     const selected = new Set<string>()
     for (const group of result.groups) {
-      // Keep the file with the shortest path, select the rest
-      const sorted = [...group.files].sort((a, b) => a.path.length - b.path.length)
-      for (let i = 1; i < sorted.length; i++) {
-        selected.add(sorted[i].path)
-      }
+      // Keep the first-listed file — the one the main process also keeps (a
+      // hard-linked file before the shortest path) — and select the rest.
+      for (const file of group.files.slice(1)) if (!file.hardLinked) selected.add(file.path)
     }
     set({ selectedPaths: selected })
   },
   deselectAll: () => set({ selectedPaths: new Set() }),
-  removeDeletedFiles: (deletedPaths) => {
+  removeDeletedFiles: (deletedPaths, failedPaths = new Set()) => {
     const result = get().result
     if (!result) return
-    // Remove deleted files from each group, drop groups with <2 files remaining
+    // Remove deleted files from each group, drop groups with <2 files remaining.
+    // A group where a deletion was refused (changed content, no intact copy
+    // left, …) no longer matches the scan, so it's dropped until scanned again.
     const groups = result.groups
+      .filter((g) => !g.files.some((f) => failedPaths.has(f.path)))
       .map((g) => {
         const remaining = g.files.filter((f) => !deletedPaths.has(f.path))
         return {
           ...g,
           files: remaining,
-          reclaimableSpace: remaining.length >= 2 ? g.fileSize * (remaining.length - 1) : 0
+          // Hard-linked copies free nothing when deleted, so they never count.
+          reclaimableSpace:
+            remaining.length >= 2
+              ? g.fileSize * remaining.slice(1).filter((f) => !f.hardLinked).length
+              : 0
         }
       })
       .filter((g) => g.files.length >= 2)
@@ -110,8 +122,9 @@ export const useDuplicateStore = create<DuplicateState>((set, get) => ({
     const totalReclaimable = groups.reduce((s, g) => s + g.reclaimableSpace, 0)
     // Remove deleted paths from selection
     const nextSelected = new Set<string>()
+    const shown = new Set(groups.flatMap((g) => g.files.map((f) => f.path)))
     for (const p of get().selectedPaths) {
-      if (!deletedPaths.has(p)) nextSelected.add(p)
+      if (!deletedPaths.has(p) && shown.has(p)) nextSelected.add(p)
     }
     set({
       result: { ...result, groups, totalDuplicates, totalReclaimable },

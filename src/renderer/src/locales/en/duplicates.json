@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} files could not be deleted",
   "openLocation": "Open file location",
   "original": "Keep",
+  "keepOneCopy": "At least one copy must be kept",
+  "hardLinkedCopy": "Other hard links keep this file, so deleting it would free no space",
   "copies": "{{count}} copies",
   "groupHeader": "{{size}} each · {{count}} files",
   "emptyTitle": "No Duplicates Found",

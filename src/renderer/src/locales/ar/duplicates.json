@@ -43,6 +43,8 @@
   "deleteFailed": "تعذر حذف {{failed}} من الملفات",
   "openLocation": "فتح موقع الملف",
   "original": "الاحتفاظ",
+  "keepOneCopy": "يجب الاحتفاظ بنسخة واحدة على الأقل",
+  "hardLinkedCopy": "تحتفظ روابط صلبة أخرى بهذا الملف، لذا فإن حذفه لن يحرر أي مساحة",
   "copies": "{{count}} نسخ",
   "groupHeader": "{{size}} لكل ملف · {{count}} ملفات",
   "emptyTitle": "لم يتم العثور على ملفات مكررة",

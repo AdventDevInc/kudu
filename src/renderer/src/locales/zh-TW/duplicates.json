@@ -43,6 +43,8 @@
   "deleteFailed": "有 {{failed}} 個檔案無法刪除",
   "openLocation": "開啟檔案位置",
   "original": "保留",
+  "keepOneCopy": "必須至少保留一個副本",
+  "hardLinkedCopy": "其他硬連結仍保留此檔案，因此刪除它不會釋放任何空間",
   "copies": "{{count}} 個副本",
   "groupHeader": "每個 {{size}} · 共 {{count}} 個檔案",
   "emptyTitle": "找不到重複檔案",

@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} tiedostoa ei voitu poistaa",
   "openLocation": "Avaa tiedoston sijainti",
   "original": "Säilytä",
+  "keepOneCopy": "Vähintään yksi kopio on säilytettävä",
+  "hardLinkedCopy": "Muut kiinteät linkit pitävät tämän tiedoston käytössä, joten sen poistaminen ei vapauttaisi tilaa",
   "copies": "{{count}} kopiota",
   "groupHeader": "{{size}} kukin · {{count}} tiedostoa",
   "emptyTitle": "Kaksoiskappaleita ei löytynyt",

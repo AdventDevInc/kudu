@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} फ़ाइलें हटाई नहीं जा सकीं",
   "openLocation": "फ़ाइल स्थान खोलें",
   "original": "रखें",
+  "keepOneCopy": "कम से कम एक प्रति रखी जानी चाहिए",
+  "hardLinkedCopy": "अन्य hard links इस फ़ाइल को बनाए रखते हैं, इसलिए इसे हटाने से कोई स्थान खाली नहीं होगा",
   "copies": "{{count}} प्रतियाँ",
   "groupHeader": "{{size}} प्रत्येक · {{count}} फ़ाइलें",
   "emptyTitle": "कोई डुप्लिकेट नहीं मिला",

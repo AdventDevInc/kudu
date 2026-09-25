@@ -43,6 +43,8 @@
   "deleteFailed": "Não foi possível eliminar {{failed}} ficheiros",
   "openLocation": "Abrir localização do ficheiro",
   "original": "Manter",
+  "keepOneCopy": "Pelo menos uma cópia deve ser mantida",
+  "hardLinkedCopy": "Outros links físicos mantêm este ficheiro, por isso eliminá-lo não libertaria espaço",
   "copies": "{{count}} cópias",
   "groupHeader": "{{size}} cada · {{count}} ficheiros",
   "emptyTitle": "Nenhum duplicado encontrado",

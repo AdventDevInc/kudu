@@ -1456,6 +1456,8 @@ export interface DuplicateFile {
   path: string
   size: number
   lastModified: number
+  /** The file has other hard links, so deleting it would free no space. */
+  hardLinked?: boolean
 }
 
 export interface DuplicateGroup {

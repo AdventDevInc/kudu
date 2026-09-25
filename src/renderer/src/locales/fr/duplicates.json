@@ -43,6 +43,8 @@
   "deleteFailed": "Impossible de supprimer {{failed}} fichiers",
   "openLocation": "Ouvrir l’emplacement du fichier",
   "original": "Conserver",
+  "keepOneCopy": "Au moins une copie doit être conservée",
+  "hardLinkedCopy": "D’autres liens physiques conservent ce fichier ; sa suppression ne libérerait donc aucun espace",
   "copies": "{{count}} copies",
   "groupHeader": "{{size}} chacun · {{count}} fichiers",
   "emptyTitle": "Aucun doublon trouvé",

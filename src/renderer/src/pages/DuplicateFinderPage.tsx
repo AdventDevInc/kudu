@@ -124,14 +124,14 @@ export function DuplicateFinderPage() {
       const result = await window.kudu?.duplicatesDelete?.(paths, store.deleteMode)
       if (result) {
         store.setDeleteResult(result)
+        // Build the set of successfully deleted paths (remove failures)
+        const failedPaths = new Set(result.errors.map((e) => e.path))
+        const successPaths = new Set<string>()
+        for (const p of deletingPaths) {
+          if (!failedPaths.has(p)) successPaths.add(p)
+        }
+        store.removeDeletedFiles(successPaths, failedPaths)
         if (result.deleted > 0) {
-          // Build the set of successfully deleted paths (remove failures)
-          const failedPaths = new Set(result.errors.map((e) => e.path))
-          const successPaths = new Set<string>()
-          for (const p of deletingPaths) {
-            if (!failedPaths.has(p)) successPaths.add(p)
-          }
-          store.removeDeletedFiles(successPaths)
           toast.success(
             t('deleteSuccess', { count: result.deleted, size: formatBytes(result.spaceRecovered) })
           )
@@ -590,7 +590,8 @@ export function DuplicateFinderPage() {
               <div className="space-y-2">
                 {store.result.groups.map((group) => {
                   const isExpanded = expandedGroups.has(group.fullHash)
-                  const sorted = [...group.files].sort((a, b) => a.path.length - b.path.length)
+                  // The main process lists the copy to keep first; show that order as-is.
+                  const sorted = group.files
                   const groupSelected = group.files.filter((f) =>
                     store.selectedPaths.has(f.path)
                   ).length
@@ -648,7 +649,11 @@ export function DuplicateFinderPage() {
                       {isExpanded && (
                         <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
                           {sorted.map((file, idx) => {
-                            const isKept = idx === 0 && !store.selectedPaths.has(file.path)
+                            const isSelected = store.selectedPaths.has(file.path)
+                            const isKept = idx === 0 && !isSelected
+                            // Selecting this would leave no copy of the file behind
+                            const isLastCopy =
+                              !isSelected && groupSelected === group.files.length - 1
                             return (
                               <div
                                 key={file.path}
@@ -659,9 +664,17 @@ export function DuplicateFinderPage() {
                               >
                                 <input
                                   type="checkbox"
-                                  checked={store.selectedPaths.has(file.path)}
+                                  checked={isSelected}
+                                  disabled={isLastCopy || file.hardLinked}
+                                  title={
+                                    file.hardLinked
+                                      ? t('hardLinkedCopy')
+                                      : isLastCopy
+                                        ? t('keepOneCopy')
+                                        : undefined
+                                  }
                                   onChange={() => store.togglePath(file.path)}
-                                  className="h-3.5 w-3.5 shrink-0 cursor-pointer rounded accent-amber-500"
+                                  className="h-3.5 w-3.5 shrink-0 cursor-pointer rounded accent-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
                                 />
                                 <span
                                   className="min-w-0 flex-1 truncate text-[12px]"

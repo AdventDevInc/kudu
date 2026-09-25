@@ -43,6 +43,8 @@
   "deleteFailed": "Nie udało się usunąć {{failed}} plików",
   "openLocation": "Otwórz lokalizację pliku",
   "original": "Zachowaj",
+  "keepOneCopy": "Należy zachować co najmniej jedną kopię",
+  "hardLinkedCopy": "Inne dowiązania twarde zachowują ten plik, więc jego usunięcie nie zwolni żadnego miejsca",
   "copies": "{{count}} kopii",
   "groupHeader": "{{size}} każdy · {{count}} plików",
   "emptyTitle": "Nie znaleziono duplikatów",

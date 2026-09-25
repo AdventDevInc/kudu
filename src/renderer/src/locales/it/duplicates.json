@@ -43,6 +43,8 @@
   "deleteFailed": "Impossibile eliminare {{failed}} file",
   "openLocation": "Apri percorso file",
   "original": "Mantieni",
+  "keepOneCopy": "È necessario conservare almeno una copia",
+  "hardLinkedCopy": "Altri collegamenti fisici mantengono questo file, quindi eliminarlo non libererebbe spazio",
   "copies": "{{count}} copie",
   "groupHeader": "{{size}} ciascuno · {{count}} file",
   "emptyTitle": "Nessun duplicato trovato",

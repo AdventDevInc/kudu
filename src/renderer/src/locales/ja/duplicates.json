@@ -43,6 +43,8 @@
   "deleteFailed": "{{failed}} 個のファイルを削除できませんでした",
   "openLocation": "ファイルの場所を開く",
   "original": "保持",
+  "keepOneCopy": "少なくとも1つのコピーを保持する必要があります",
+  "hardLinkedCopy": "このファイルは他のハード リンクによって保持されているため、削除しても空き領域は増えません",
   "copies": "{{count}} 個のコピー",
   "groupHeader": "各 {{size}} · {{count}} 個のファイル",
   "emptyTitle": "重複ファイルは見つかりませんでした",
