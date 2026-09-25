@@ -686,8 +686,13 @@ async function prunePreRestoreBackups(dir: string, current: string): Promise<voi
       .slice(PRE_RESTORE_BACKUPS_KEPT - 1)
     const removed: string[] = []
     for (const f of old) {
-      await rm(join(dir, f), { force: true })
-      removed.push(f)
+      // One locked file must not stop the seals of the others being removed.
+      try {
+        await rm(join(dir, f), { force: true })
+        removed.push(f)
+      } catch {
+        /* kept, with its seal, for next time */
+      }
     }
     await removeSeals(dir, removed)
   } catch {
