@@ -17,7 +17,8 @@ export function trashEntryNames(trashFilesPath: string, cleanedPaths: string[]):
   const names = new Set<string>()
   for (const path of cleanedPaths) {
     const rel = relative(trashFilesPath, path)
-    if (!rel || rel.startsWith('..') || isAbsolute(rel)) continue
+    // Only '..' itself or a '../' prefix leaves the trash; '..secret' is a valid name.
+    if (!rel || rel === '..' || rel.startsWith('..' + sep) || isAbsolute(rel)) continue
     names.add(rel.split(sep)[0])
   }
   return names

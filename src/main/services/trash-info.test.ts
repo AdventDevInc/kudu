@@ -91,6 +91,10 @@ describe('trashEntryNames', () => {
     expect([...names].sort()).toEqual(['Project', 'report.pdf'])
   })
 
+  it('accepts entries whose names begin with two dots', () => {
+    expect([...trashEntryNames(files(), [join(files(), '..secret')])]).toEqual(['..secret'])
+  })
+
   it('ignores paths outside the trash', () => {
     expect(trashEntryNames(files(), [join(trash, 'info', 'x.trashinfo'), files()]).size).toBe(0)
   })
