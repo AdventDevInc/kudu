@@ -127,17 +127,19 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
     toast.info(`Running "${payload.scheduleName}"`, { description: 'Scheduled task started...' })
     store.setStatus(ScanStatus.Scanning)
     store.setResults([])
-    // ── Restore point before auto-apply cleaning ──
-    const cleanerTasks = payload.tasks.filter((t) => t.startsWith('cleaner:'))
-    if (payload.autoApply && cleanerTasks.length > 0) {
-      const { createRestorePoint } = useSettingsStore.getState().settings.cleaner
-      if (createRestorePoint) {
-        try {
-          await window.kudu.createRestorePoint(`Kudu scheduled clean — ${payload.scheduleName}`)
-        } catch (error) {
-          if (error instanceof ScheduleConditionChanged) throw error
-          // Best-effort — don't block the clean
-        }
+    // ── Restore point before the first auto-apply clean ──
+    // Created lazily so a run that ends up cleaning nothing (e.g. a scope of
+    // only opt-in cache resets) never pays for a restore point.
+    let restorePointAttempted = false
+    const ensureRestorePoint = async (): Promise<void> => {
+      if (restorePointAttempted) return
+      restorePointAttempted = true
+      if (!useSettingsStore.getState().settings.cleaner.createRestorePoint) return
+      try {
+        await window.kudu.createRestorePoint(`Kudu scheduled clean — ${payload.scheduleName}`)
+      } catch (error) {
+        if (error instanceof ScheduleConditionChanged) throw error
+        // Best-effort — don't block the clean
       }
     }
 
@@ -173,6 +175,7 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
           if (payload.autoApply && allIds.length > 0) {
             try {
               await assertAllowed()
+              await ensureRestorePoint()
               const cleanResult = await task.clean(allIds)
               if (cleanResult?.errors?.length) status = 'partial'
               const cleaned = cleanResult?.filesDeleted ?? 0

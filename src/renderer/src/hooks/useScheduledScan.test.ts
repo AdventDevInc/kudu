@@ -1,5 +1,6 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
+  createRestorePoint: false,
   history: vi.fn(),
   state: { setStatus: vi.fn(), setResults: vi.fn(), addResults: vi.fn(), setProgress: vi.fn() }
 }))
@@ -7,7 +8,9 @@ vi.mock('@/stores/scan-store', () => ({ useScanStore: { getState: () => mocks.st
 vi.mock('@/stores/settings-store', () => ({
   useSettingsStore: {
     getState: () => ({
-      settings: { cleaner: { createRestorePoint: false, protectRecycleBin: true } }
+      settings: {
+        cleaner: { createRestorePoint: mocks.createRestorePoint, protectRecycleBin: true }
+      }
     })
   },
   refreshSettings: vi.fn()
@@ -35,6 +38,7 @@ const result = (subcategory: string, id: string) => ({
 })
 const api = {
   scheduleAuthorize: vi.fn(),
+  createRestorePoint: vi.fn(),
   scheduleRunComplete: vi.fn(),
   notifyScheduledScanComplete: vi.fn(),
   systemScan: vi.fn(),
@@ -46,6 +50,7 @@ const api = {
 }
 beforeEach(() => {
   vi.clearAllMocks()
+  mocks.createRestorePoint = false
   vi.stubGlobal('window', { kudu: api })
   api.scheduleAuthorize.mockReset().mockResolvedValue({ allowed: true, reason: null })
   api.systemScan.mockResolvedValue([result('Cache', 'one'), result('Logs', 'two')])
@@ -114,6 +119,20 @@ it('skips cleanup when only opt-in items were found', async () => {
   await runSchedule(payload)
   expect(api.systemClean).not.toHaveBeenCalled()
   expect(api.scheduleRunComplete).toHaveBeenCalledWith('one', 'success', 'run-token')
+})
+it('creates the restore point just before the first clean', async () => {
+  mocks.createRestorePoint = true
+  await runSchedule(payload)
+  expect(api.createRestorePoint).toHaveBeenCalledTimes(1)
+  expect(api.createRestorePoint).toHaveBeenCalledBefore(api.systemClean)
+})
+it('skips the restore point when nothing will be cleaned', async () => {
+  mocks.createRestorePoint = true
+  api.systemScan.mockResolvedValue([
+    { ...result('Prefetch', 'prefetch'), items: [{ id: 'prefetch', size: 10, cacheReset: true }] }
+  ])
+  await runSchedule(payload)
+  expect(api.createRestorePoint).not.toHaveBeenCalled()
 })
 it('reports returned cleanup failures as partial instead of success', async () => {
   api.systemClean.mockResolvedValue({ filesDeleted: 0, totalCleaned: 0, errors: ['locked'] })
