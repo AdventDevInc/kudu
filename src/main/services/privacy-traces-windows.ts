@@ -300,8 +300,9 @@ async function pruneBackups(dir: string, slug: string, current: string): Promise
       try {
         await unlink(join(dir, f))
         pruned.push(f)
-      } catch {
-        /* kept for next time */
+      } catch (err) {
+        // A concurrent deletion also revokes the seal; other failures retain it.
+        if ((err as NodeJS.ErrnoException).code === 'ENOENT') pruned.push(f)
       }
     }
     // A pruned file's seal must go too, or a kept copy of it could be replayed.

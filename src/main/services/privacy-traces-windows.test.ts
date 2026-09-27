@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, rm, unlink, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+
+vi.mock('fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('fs/promises')>()
+  return { ...actual, unlink: vi.fn(actual.unlink) }
+})
 
 vi.mock('./settings-store', () => ({
   getSettings: () => ({ cleaner: { secureDelete: false }, exclusions: [] })
@@ -61,6 +66,8 @@ beforeEach(async () => {
   root = await mkdtemp(join(tmpdir(), 'kudu-win-traces-'))
   backupDir.path = join(root, 'Kudu Backups')
   exec.mockReset()
+  vi.mocked(unlink).mockReset()
+  seal.removeSeals.mockClear()
 })
 afterEach(async () => {
   await rm(root, { recursive: true, force: true })
@@ -275,6 +282,37 @@ describe('clearMruList', () => {
     expect(files.filter((f) => f.startsWith('privacy-traces-backup-RunMRU-'))).toHaveLength(3)
     expect(files).toContain('registry-backup-2020-01-01.reg')
   })
+
+  it.each(['ENOENT', 'EBUSY', 'EPERM', 'EACCES'])(
+    'revokes seals only for absent backups and continues pruning after %s',
+    async (code) => {
+      await mkdir(backupDir.path, { recursive: true })
+      const old = [1, 2, 3, 4].map((d) => `privacy-traces-backup-RunMRU-2020-01-0${d}.reg`)
+      for (const name of old) await writeFile(join(backupDir.path, name), 'x')
+      const actual = await vi.importActual<typeof import('fs/promises')>('fs/promises')
+      vi.mocked(unlink).mockImplementationOnce(async (path) => {
+        expect(path).toBe(join(backupDir.path, old[1]))
+        if (code === 'ENOENT') {
+          // Another process removes the file after readdir, before our unlink.
+          await actual.unlink(path)
+          return actual.unlink(path)
+        }
+        throw Object.assign(new Error('file retained'), { code })
+      })
+      fakeReg(RUN_MRU_OUTPUT)
+
+      await clearMruList(RUN_MRU)
+
+      expect(seal.removeSeals).toHaveBeenCalledExactlyOnceWith(
+        backupDir.path,
+        code === 'ENOENT' ? [old[1], old[0]] : [old[0]]
+      )
+      const files = await readdir(backupDir.path)
+      expect(files).not.toContain(old[0])
+      expect(files.includes(old[1])).toBe(code !== 'ENOENT')
+      expect(files).toEqual(expect.arrayContaining(old.slice(2)))
+    }
+  )
 
   it('never prunes the backup it just took, even when the clock went backwards', async () => {
     await mkdir(backupDir.path, { recursive: true })
