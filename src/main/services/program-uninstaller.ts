@@ -44,7 +44,8 @@ function makeId(registryKey: string): string {
 
 /**
  * Scan Windows Prefetch directory to build a map of exe name → last used timestamp.
- * Prefetch files are named like "PROGRAMNAME-HASH.pf" and their mtime = last execution.
+ * Prefetch files are named like "PROGRAMNAME-HASH.pf". Their mtime is an
+ * approximate launch signal, not proof of the last use or dependency activity.
  */
 async function getPrefetchMap(): Promise<Map<string, number>> {
   const prefetchDir = join(process.env.WINDIR || 'C:\\Windows', 'Prefetch')

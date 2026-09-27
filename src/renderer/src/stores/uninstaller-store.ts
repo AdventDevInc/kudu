@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { canBatchUninstall } from '@shared/uninstall-policy'
 import type {
   InstalledProgram,
   UninstallProgress,
@@ -7,7 +8,7 @@ import type {
 } from '../../../shared/types'
 
 type SortField = 'displayName' | 'estimatedSize' | 'installDate' | 'publisher' | 'safety'
-type FilterMode = 'all' | 'unused'
+type FilterMode = 'all' | 'no-recent-launch'
 
 interface UninstallerState {
   programs: InstalledProgram[]
@@ -50,9 +51,6 @@ interface UninstallerState {
   reset: () => void
 }
 
-/** Programs not seen in Prefetch for 90+ days are considered unused */
-export const UNUSED_THRESHOLD_DAYS = 90
-
 export const useUninstallerStore = create<UninstallerState>((set) => ({
   programs: [],
   loading: false,
@@ -91,10 +89,15 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
     set((state) => {
       const selectedIds = new Set(state.selectedIds)
       if (selectedIds.has(id)) selectedIds.delete(id)
-      else selectedIds.add(id)
+      else if (state.programs.some((p) => p.id === id && canBatchUninstall(p))) selectedIds.add(id)
       return { selectedIds }
     }),
-  selectAll: (ids) => set({ selectedIds: new Set(ids) }),
+  selectAll: (ids) =>
+    set((state) => ({
+      selectedIds: new Set(
+        state.programs.filter((p) => ids.includes(p.id) && canBatchUninstall(p)).map((p) => p.id)
+      )
+    })),
   clearSelected: () => set({ selectedIds: new Set<string>() }),
   setSafetyRatings: (ratings) =>
     set({

@@ -16,6 +16,7 @@ vi.mock('../../shared/channels', () => ({
   IPC: {
     UNINSTALLER_LIST: 'uninstaller:list',
     UNINSTALLER_UNINSTALL: 'uninstaller:uninstall',
+    UNINSTALLER_FORCE_REMOVE: 'uninstaller:force-remove',
     UNINSTALLER_PROGRESS: 'uninstaller:progress'
   }
 }))
@@ -24,11 +25,13 @@ const mockGetInstalledProgramsFull = vi.fn()
 const mockRunUninstaller = vi.fn()
 const mockVerifyUninstall = vi.fn()
 const mockScanLeftoversForProgram = vi.fn()
+const mockDeleteRegistryKey = vi.fn()
 
 vi.mock('../services/program-uninstaller', () => ({
   getInstalledProgramsFull: (...args: unknown[]) => mockGetInstalledProgramsFull(...args),
   runUninstaller: (...args: unknown[]) => mockRunUninstaller(...args),
   verifyUninstall: (...args: unknown[]) => mockVerifyUninstall(...args),
+  deleteRegistryKey: (...args: unknown[]) => mockDeleteRegistryKey(...args),
   scanLeftoversForProgram: (...args: unknown[]) => mockScanLeftoversForProgram(...args)
 }))
 
@@ -95,11 +98,56 @@ describe('program-uninstaller IPC', () => {
     // Re-register to get a fresh module-level cachedPrograms
   })
 
-  it('registers both IPC handlers', () => {
+  it('registers all IPC handlers', () => {
     registerProgramUninstallerIpc(() => makeWindow())
     expect(handleMap.has('uninstaller:list')).toBe(true)
     expect(handleMap.has('uninstaller:uninstall')).toBe(true)
+    expect(handleMap.has('uninstaller:force-remove')).toBe(true)
   })
+
+  describe.each(['uninstaller:uninstall', 'uninstaller:force-remove'])(
+    '%s dependency guard',
+    (channel) => {
+      it.each([
+        undefined,
+        {},
+        { dependencyWarningAcknowledged: false },
+        { dependencyWarningAcknowledged: 'true' }
+      ])(
+        'blocks shared components before any destructive action without explicit acknowledgement (%j)',
+        async (options) => {
+          mockGetInstalledProgramsFull.mockResolvedValue([
+            makeProgram({ displayName: 'Dokan Library 2.0' })
+          ])
+          registerProgramUninstallerIpc(() => makeWindow())
+          await invoke('uninstaller:list')
+          expect(await invoke(channel, 'prog-1', options)).toMatchObject({
+            success: false,
+            error: expect.stringContaining('dependency warning')
+          })
+          expect(mockRunUninstaller).not.toHaveBeenCalled()
+          expect(mockDeleteRegistryKey).not.toHaveBeenCalled()
+          expect(mockScanLeftoversForProgram).not.toHaveBeenCalled()
+          expect(mockSafeDelete).not.toHaveBeenCalled()
+        }
+      )
+
+      it('allows deliberate individual removal after the warning is acknowledged', async () => {
+        mockGetInstalledProgramsFull.mockResolvedValue([
+          makeProgram({ displayName: 'Dokan Library 2.0' })
+        ])
+        mockRunUninstaller.mockResolvedValue(0)
+        mockVerifyUninstall.mockResolvedValue(true)
+        mockDeleteRegistryKey.mockResolvedValue(true)
+        mockScanLeftoversForProgram.mockResolvedValue([])
+        registerProgramUninstallerIpc(() => makeWindow())
+        await invoke('uninstaller:list')
+        expect(
+          await invoke(channel, 'prog-1', { dependencyWarningAcknowledged: true })
+        ).toMatchObject({ success: true })
+      })
+    }
+  )
 
   // ── UNINSTALLER_LIST ───────────────────────────────────────
 

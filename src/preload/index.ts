@@ -1,3 +1,4 @@
+import type { UninstallOptions } from '../shared/uninstall-policy'
 import type {
   DiagnosticCapabilities,
   DiagnosticSession,
@@ -617,10 +618,13 @@ const api = {
 
   // Program Uninstaller
   uninstallerList: (): Promise<UninstallerListResult> => ipcRenderer.invoke(IPC.UNINSTALLER_LIST),
-  uninstallerUninstall: (programId: string): Promise<UninstallResult> =>
-    ipcRenderer.invoke(IPC.UNINSTALLER_UNINSTALL, programId),
-  uninstallerForceRemove: (programId: string): Promise<UninstallResult> =>
-    ipcRenderer.invoke(IPC.UNINSTALLER_FORCE_REMOVE, programId),
+  uninstallerUninstall: (programId: string, options?: UninstallOptions): Promise<UninstallResult> =>
+    ipcRenderer.invoke(IPC.UNINSTALLER_UNINSTALL, programId, options),
+  uninstallerForceRemove: (
+    programId: string,
+    options?: UninstallOptions
+  ): Promise<UninstallResult> =>
+    ipcRenderer.invoke(IPC.UNINSTALLER_FORCE_REMOVE, programId, options),
   onUninstallerProgress: (callback: (data: UninstallProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: UninstallProgress) => callback(data)
     ipcRenderer.on(IPC.UNINSTALLER_PROGRESS, handler)

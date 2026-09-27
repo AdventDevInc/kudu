@@ -84,6 +84,7 @@ import {
   getInstalledProgramsFull
 } from './program-uninstaller'
 import type { InstalledProgram } from '../../shared/types'
+import { hasNoRecentLaunch } from '../../shared/uninstall-policy'
 
 function makeProgram(overrides: Partial<InstalledProgram> = {}): InstalledProgram {
   return {
@@ -1070,6 +1071,40 @@ describe('getInstalledProgramsFull', () => {
   afterEach(() => {
     Object.defineProperty(process, 'platform', { value: originalPlatform })
   })
+
+  it.each(['missing', 'cleared', 'inaccessible', 'old', 'recent'])(
+    'classifies %s launch evidence without treating missing history as inactivity',
+    async (scenario) => {
+      Object.defineProperty(process, 'platform', { value: 'win32' })
+      const now = Date.now()
+      const block =
+        'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DiskDrill\r\n' +
+        '    DisplayName    REG_SZ    Disk Drill\r\n' +
+        '    DisplayIcon    REG_SZ    C:\\DiskDrill\\DD.exe,0\r\n' +
+        '    UninstallString    REG_SZ    C:\\DiskDrill\\uninstall.exe\r\n\r\n'
+      mockExecFile.mockImplementation(
+        (_cmd: string, _args: string[], _opts: object, cb: Function) => cb(null, block, '')
+      )
+      if (scenario === 'inaccessible') mockReaddir.mockRejectedValue(new Error('EACCES'))
+      else
+        mockReaddir.mockResolvedValue(
+          scenario === 'cleared'
+            ? []
+            : [scenario === 'missing' ? 'OTHER.EXE-123.pf' : 'DD.EXE-123.pf']
+        )
+      mockStat.mockResolvedValue({ mtimeMs: now - (scenario === 'old' ? 91 : 1) * 86400000 })
+
+      const [program] = await getInstalledProgramsFull()
+      expect(program.lastUsed).toBe(
+        scenario === 'cleared' || scenario === 'inaccessible'
+          ? -1
+          : scenario === 'missing'
+            ? 0
+            : now - (scenario === 'old' ? 91 : 1) * 86400000
+      )
+      expect(hasNoRecentLaunch(program, now)).toBe(scenario === 'old')
+    }
+  )
 
   it('queries all three registry keys on win32', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' })

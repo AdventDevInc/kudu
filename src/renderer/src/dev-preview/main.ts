@@ -326,10 +326,17 @@ const reads: Record<string, (...args: any[]) => unknown> = {
   uninstallerList: () => ({
     programs: empty
       ? []
-      : ['Firefox', 'VLC media player', 'Visual Studio Code'].map((name, i) => ({
+      : [
+          'Firefox',
+          'VLC media player',
+          'Disk Drill',
+          'Dokan Library',
+          'WinFsp 2025',
+          'Microsoft Visual C++ 2015-2022 Redistributable (x64)'
+        ].map((name, i) => ({
           id: 'app-' + i,
           displayName: name,
-          publisher: ['Mozilla', 'VideoLAN', 'Microsoft'][i],
+          publisher: ['Mozilla', 'VideoLAN', 'CleverFiles', 'Dokan', 'WinFsp', 'Microsoft'][i],
           displayVersion: '1.0.0',
           installDate: '20260820',
           estimatedSize: (130 + 50 * i) * 1024 ** 2,
@@ -340,7 +347,7 @@ const reads: Record<string, (...args: any[]) => unknown> = {
           registryKey: 'preview',
           isSystemComponent: false,
           isWindowsInstaller: false,
-          lastUsed: now - i * 86400000
+          lastUsed: [now - 86400000, now - 120 * 86400000, 0, 0, now - 180 * 86400000, -1][i]
         }))
   }),
   duplicatesSelectDir: () => 'C:\\Users\\Preview\\Downloads',

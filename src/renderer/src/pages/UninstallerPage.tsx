@@ -27,7 +27,13 @@ import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import { useHistoryStore } from '@/stores/history-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useSettingsStore } from '@/stores/settings-store'
-import { useUninstallerStore, UNUSED_THRESHOLD_DAYS } from '@/stores/uninstaller-store'
+import { useUninstallerStore } from '@/stores/uninstaller-store'
+import {
+  canBatchUninstall,
+  getSharedComponentKind,
+  hasNoRecentLaunch,
+  RECENT_LAUNCH_THRESHOLD_DAYS
+} from '@shared/uninstall-policy'
 import { formatBytes } from '@/lib/utils'
 import type { InstalledProgram, UninstallProgress } from '@shared/types'
 
@@ -39,19 +45,11 @@ function formatDate(raw: string): string {
   return `${year}-${month}-${day}`
 }
 
-const UNUSED_THRESHOLD_MS = UNUSED_THRESHOLD_DAYS * 24 * 60 * 60 * 1000
-
-function isUnused(prog: InstalledProgram): boolean {
-  if (prog.lastUsed === -1) return false // unknown (Prefetch unavailable)
-  if (prog.lastUsed === 0) return true // Prefetch available but never seen
-  return Date.now() - prog.lastUsed > UNUSED_THRESHOLD_MS
-}
-
 function formatLastUsed(
   ts: number,
   t: (key: string, opts?: Record<string, unknown>) => string
 ): string {
-  if (ts <= 0) return t('lastUsedNeverDetected')
+  if (ts <= 0) return t('usageUnknown')
   const days = Math.floor((Date.now() - ts) / (24 * 60 * 60 * 1000))
   if (days === 0) return t('lastUsedToday')
   if (days === 1) return t('lastUsedYesterday')
@@ -218,7 +216,9 @@ export function UninstallerPage() {
     lastFailedProgramRef.current = program
 
     try {
-      const result = await window.kudu.uninstallerUninstall(program.id)
+      const result = await window.kudu.uninstallerUninstall(program.id, {
+        dependencyWarningAcknowledged: getSharedComponentKind(program) !== null
+      })
       const s = useUninstallerStore.getState()
       s.setUninstallResult(result)
       s.setProgress(null)
@@ -265,7 +265,9 @@ export function UninstallerPage() {
   const handleBatchUninstall = useCallback(async () => {
     setConfirmBatch(false)
     const store = useUninstallerStore.getState()
-    const toUninstall = store.programs.filter((p) => store.selectedIds.has(p.id))
+    const toUninstall = store.programs.filter(
+      (p) => store.selectedIds.has(p.id) && canBatchUninstall(p)
+    )
     if (toUninstall.length === 0) return
 
     store.setUninstalling(true)
@@ -369,7 +371,9 @@ export function UninstallerPage() {
     uninstallStartRef.current = Date.now()
 
     try {
-      const result = await window.kudu.uninstallerForceRemove(program.id)
+      const result = await window.kudu.uninstallerForceRemove(program.id, {
+        dependencyWarningAcknowledged: getSharedComponentKind(program) !== null
+      })
       const s = useUninstallerStore.getState()
       s.setUninstallResult(result)
       s.setProgress(null)
@@ -414,9 +418,9 @@ export function UninstallerPage() {
   const filteredPrograms = useMemo(() => {
     let list = programs
 
-    // Filter by unused
-    if (filterMode === 'unused') {
-      list = list.filter(isUnused)
+    // Filter by detected launch history
+    if (filterMode === 'no-recent-launch') {
+      list = list.filter((p) => hasNoRecentLaunch(p))
     }
 
     // Filter by search
@@ -447,14 +451,21 @@ export function UninstallerPage() {
     })
   }, [programs, searchQuery, sortField, sortDirection, filterMode, safetyRatings])
 
-  // Unused stats — only meaningful when Prefetch data is available
-  const hasPrefetchData = useMemo(() => programs.some((p) => p.lastUsed !== -1), [programs])
-  const unusedPrograms = useMemo(() => programs.filter(isUnused), [programs])
-  const unusedTotalSize = useMemo(
-    () => unusedPrograms.reduce((sum, p) => sum + p.estimatedSize, 0),
-    [unusedPrograms]
+  // Only positive launch evidence can support the older-launch filter
+  const hasPrefetchData = useMemo(
+    () => programs.some((p) => Number.isFinite(p.lastUsed) && p.lastUsed > 0),
+    [programs]
+  )
+  const noRecentLaunchPrograms = useMemo(
+    () => programs.filter((p) => hasNoRecentLaunch(p)),
+    [programs]
+  )
+  const noRecentLaunchTotalSize = useMemo(
+    () => noRecentLaunchPrograms.reduce((sum, p) => sum + p.estimatedSize, 0),
+    [noRecentLaunchPrograms]
   )
 
+  const selectablePrograms = filteredPrograms.filter(canBatchUninstall)
   const isBusy = loading || uninstalling
 
   return (
@@ -497,16 +508,18 @@ export function UninstallerPage() {
               {t('filterAll', { count: programs.length })}
             </button>
             <button
-              onClick={() => useUninstallerStore.getState().setFilterMode('unused')}
+              onClick={() => useUninstallerStore.getState().setFilterMode('no-recent-launch')}
               className="flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-medium transition-colors"
               style={{
-                background: filterMode === 'unused' ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle)',
-                color: filterMode === 'unused' ? 'var(--accent-hover)' : 'var(--text-muted)',
+                background:
+                  filterMode === 'no-recent-launch' ? 'rgba(245,158,11,0.1)' : 'var(--bg-subtle)',
+                color:
+                  filterMode === 'no-recent-launch' ? 'var(--accent-hover)' : 'var(--text-muted)',
                 borderLeft: '1px solid var(--border-medium)'
               }}
             >
               <AlertTriangle className="h-3 w-3" strokeWidth={2} />
-              {t('filterUnused', { count: unusedPrograms.length })}
+              {t('filterNoRecentLaunch', { count: noRecentLaunchPrograms.length })}
             </button>
           </div>
         )}
@@ -604,7 +617,7 @@ export function UninstallerPage() {
       {hasLoaded &&
         !loading &&
         hasPrefetchData &&
-        unusedPrograms.length > 0 &&
+        noRecentLaunchPrograms.length > 0 &&
         filterMode === 'all' && (
           <div
             className="mb-5 flex items-center justify-between rounded-2xl px-5 py-4 cursor-pointer transition-colors hover:border-amber-500/20"
@@ -612,26 +625,28 @@ export function UninstallerPage() {
               background: 'rgba(245,158,11,0.04)',
               border: '1px solid var(--accent-muted-bg)'
             }}
-            onClick={() => useUninstallerStore.getState().setFilterMode('unused')}
+            onClick={() => useUninstallerStore.getState().setFilterMode('no-recent-launch')}
           >
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
               <div>
                 <p className="text-[13px] font-medium text-zinc-200">
-                  {unusedPrograms.length !== 1
-                    ? t('unusedBannerTitlePlural', {
-                        count: unusedPrograms.length,
-                        days: UNUSED_THRESHOLD_DAYS
+                  {noRecentLaunchPrograms.length !== 1
+                    ? t('noRecentLaunchBannerTitlePlural', {
+                        count: noRecentLaunchPrograms.length,
+                        days: RECENT_LAUNCH_THRESHOLD_DAYS
                       })
-                    : t('unusedBannerTitle', {
-                        count: unusedPrograms.length,
-                        days: UNUSED_THRESHOLD_DAYS
+                    : t('noRecentLaunchBannerTitle', {
+                        count: noRecentLaunchPrograms.length,
+                        days: RECENT_LAUNCH_THRESHOLD_DAYS
                       })}
                 </p>
                 <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {unusedTotalSize > 0
-                    ? t('unusedBannerDescriptionWithSize', { size: formatBytes(unusedTotalSize) })
-                    : t('unusedBannerDescriptionNoSize')}
+                  {noRecentLaunchTotalSize > 0
+                    ? t('noRecentLaunchBannerDescriptionWithSize', {
+                        size: formatBytes(noRecentLaunchTotalSize)
+                      })
+                    : t('noRecentLaunchBannerDescriptionNoSize')}
                 </p>
               </div>
             </div>
@@ -654,8 +669,9 @@ export function UninstallerPage() {
       >
         <Shield className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
         <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-          <span className="font-semibold text-amber-500">{t('safeUninstallLabel')}</span> —{' '}
-          {t('safeUninstallDescription')}
+          <span className="font-semibold text-amber-500">{t('nativeUninstallLabel')}</span> —{' '}
+          {t('nativeUninstallDescription')}
+          <span className="mt-2 block">{t('launchHistoryLimitations')}</span>
         </p>
       </div>
 
@@ -814,7 +830,9 @@ export function UninstallerPage() {
         <div className="flex flex-col items-center justify-center py-16">
           <Search className="h-10 w-10 text-zinc-600 mb-4" strokeWidth={1.5} />
           <p className="text-[13px] text-zinc-400">
-            {filterMode === 'unused' ? t('noUnusedProgramsFound') : t('noProgramsMatchSearch')}
+            {filterMode === 'no-recent-launch'
+              ? t('noLaunchCandidatesFound')
+              : t('noProgramsMatchSearch')}
           </p>
         </div>
       )}
@@ -832,7 +850,7 @@ export function UninstallerPage() {
             <button
               onClick={() => {
                 const store = useUninstallerStore.getState()
-                const allFilteredIds = filteredPrograms.map((p) => p.id)
+                const allFilteredIds = selectablePrograms.map((p) => p.id)
                 const allSelected = allFilteredIds.every((id) => selectedIds.has(id))
                 if (allSelected) {
                   store.clearSelected()
@@ -840,16 +858,18 @@ export function UninstallerPage() {
                   store.selectAll(allFilteredIds)
                 }
               }}
-              disabled={uninstalling}
+              disabled={uninstalling || selectablePrograms.length === 0}
               className="text-zinc-400 hover:text-zinc-200 transition-colors disabled:opacity-30"
               title={
-                filteredPrograms.every((p) => selectedIds.has(p.id))
+                selectablePrograms.length > 0 &&
+                selectablePrograms.every((p) => selectedIds.has(p.id))
                   ? t('deselectAll')
                   : t('selectAll')
               }
             >
               {filteredPrograms.length > 0 &&
-              filteredPrograms.every((p) => selectedIds.has(p.id)) ? (
+              selectablePrograms.length > 0 &&
+              selectablePrograms.every((p) => selectedIds.has(p.id)) ? (
                 <CheckSquare className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
               ) : filteredPrograms.some((p) => selectedIds.has(p.id)) ? (
                 <MinusSquare className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
@@ -857,17 +877,22 @@ export function UninstallerPage() {
                 <Square className="h-4.5 w-4.5" strokeWidth={1.8} />
               )}
             </button>
-            {filterMode === 'unused' ? (
+            {filterMode === 'no-recent-launch' ? (
               <AlertTriangle className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
             ) : (
               <Package className="h-4.5 w-4.5 text-amber-400" strokeWidth={1.8} />
             )}
             <span className="text-[13px] font-semibold text-zinc-200">
-              {filterMode === 'unused' ? t('unusedProgramsHeading') : t('installedProgramsHeading')}{' '}
+              {filterMode === 'no-recent-launch'
+                ? t('noRecentLaunchHeading')
+                : t('installedProgramsHeading')}{' '}
               {searchQuery
                 ? t('programCount', {
                     filtered: filteredPrograms.length,
-                    total: filterMode === 'unused' ? unusedPrograms.length : programs.length
+                    total:
+                      filterMode === 'no-recent-launch'
+                        ? noRecentLaunchPrograms.length
+                        : programs.length
                   })
                 : `(${filteredPrograms.length})`}
             </span>
@@ -875,7 +900,8 @@ export function UninstallerPage() {
 
           <div className="grid grid-cols-1 gap-2">
             {filteredPrograms.map((prog) => {
-              const unused = isUnused(prog)
+              const noRecentLaunch = hasNoRecentLaunch(prog)
+              const componentKind = getSharedComponentKind(prog)
               const isSelected = selectedIds.has(prog.id)
               const rating = safetyRatings[prog.displayName]
               const isExpanded = expandedItemId === prog.id
@@ -886,15 +912,19 @@ export function UninstallerPage() {
                     style={{
                       background: isSelected
                         ? 'var(--accent-muted-bg)'
-                        : unused
+                        : noRecentLaunch
                           ? 'rgba(245,158,11,0.03)'
                           : 'var(--bg-subtle)',
-                      border: `1px solid ${isSelected ? 'var(--accent-muted-border)' : unused ? 'var(--accent-muted-bg)' : 'var(--border-subtle)'}`
+                      border: `1px solid ${isSelected ? 'var(--accent-muted-border)' : noRecentLaunch ? 'var(--accent-muted-bg)' : 'var(--border-subtle)'}`
                     }}
                   >
                     <button
                       onClick={() => useUninstallerStore.getState().toggleSelected(prog.id)}
-                      disabled={uninstalling}
+                      disabled={uninstalling || componentKind !== null}
+                      aria-label={
+                        componentKind ? t('sharedComponentBatchExcluded') : prog.displayName
+                      }
+                      title={componentKind ? t('sharedComponentBatchExcluded') : undefined}
                       className="shrink-0 text-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-30"
                     >
                       {isSelected ? (
@@ -906,10 +936,10 @@ export function UninstallerPage() {
                     <div
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                       style={{
-                        background: unused ? 'rgba(245,158,11,0.1)' : 'rgba(139,92,246,0.1)'
+                        background: noRecentLaunch ? 'rgba(245,158,11,0.1)' : 'rgba(139,92,246,0.1)'
                       }}
                     >
-                      {unused ? (
+                      {noRecentLaunch ? (
                         <AlertTriangle
                           className="h-5 w-5"
                           style={{ color: 'var(--accent)' }}
@@ -924,7 +954,7 @@ export function UninstallerPage() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         <span className="text-[13px] font-medium text-zinc-200 truncate">
                           {prog.displayName}
                         </span>
@@ -936,7 +966,7 @@ export function UninstallerPage() {
                             v{prog.displayVersion}
                           </span>
                         )}
-                        {unused && (
+                        {noRecentLaunch && (
                           <span
                             className="rounded-md px-2 py-0.5 text-[10px] font-medium shrink-0"
                             style={{
@@ -944,11 +974,11 @@ export function UninstallerPage() {
                               color: 'var(--accent-hover)'
                             }}
                           >
-                            {t('unusedBadge')}
+                            {t('noRecentLaunchBadge')}
                           </span>
                         )}
                       </div>
-                      <div className="mt-0.5 flex items-center gap-3">
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                         <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>
                           {prog.publisher || t('unknownPublisher')}
                           {prog.installDate ? ` — ${formatDate(prog.installDate)}` : ''}
@@ -956,22 +986,33 @@ export function UninstallerPage() {
                         {prog.lastUsed > 0 && (
                           <span
                             className="flex items-center gap-1 text-[10px] shrink-0"
-                            style={{ color: unused ? 'var(--accent)' : 'var(--text-muted)' }}
+                            style={{
+                              color: noRecentLaunch ? 'var(--accent)' : 'var(--text-muted)'
+                            }}
                           >
                             <Clock className="h-3 w-3" strokeWidth={1.8} />
-                            {formatLastUsed(prog.lastUsed, t)}
+                            {t('lastLaunchDetected', { time: formatLastUsed(prog.lastUsed, t) })}
                           </span>
                         )}
-                        {prog.lastUsed === 0 && filterMode === 'unused' && (
+                        {prog.lastUsed <= 0 && (
                           <span
                             className="flex items-center gap-1 text-[10px] shrink-0"
-                            style={{ color: 'var(--accent)' }}
+                            style={{ color: 'var(--text-muted)' }}
                           >
                             <Clock className="h-3 w-3" strokeWidth={1.8} />
-                            {t('lastUsedNeverDetected')}
+                            {t('usageUnknown')}
                           </span>
                         )}
                       </div>
+                      {componentKind && (
+                        <p
+                          className="mt-2 text-[11px] leading-relaxed"
+                          style={{ color: 'var(--warning)' }}
+                        >
+                          <ShieldAlert className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+                          {t('sharedComponentNotice')}
+                        </p>
+                      )}
                     </div>
                     <div className="shrink-0 flex items-center gap-4">
                       {/* Safety badge */}
@@ -1121,8 +1162,16 @@ export function UninstallerPage() {
         onConfirm={handleUninstall}
         onCancel={() => setConfirmProgram(null)}
         title={t('confirmUninstallTitle', { programName: confirmProgram?.displayName ?? '' })}
-        description={t('confirmUninstallDescription')}
-        confirmLabel={t('confirmUninstallLabel')}
+        description={
+          confirmProgram && getSharedComponentKind(confirmProgram)
+            ? `${t(getSharedComponentKind(confirmProgram) === 'filesystem' ? 'filesystemDependencyWarning' : 'sharedDependencyWarning')} ${t('confirmNativeUninstallDescription')}`
+            : t('confirmNativeUninstallDescription')
+        }
+        confirmLabel={t(
+          confirmProgram && getSharedComponentKind(confirmProgram)
+            ? 'confirmSharedUninstallLabel'
+            : 'confirmUninstallLabel'
+        )}
         variant="danger"
       />
 
@@ -1136,7 +1185,7 @@ export function UninstallerPage() {
             ? t('confirmBatchTitlePlural', { count: selectedIds.size })
             : t('confirmBatchTitle', { count: selectedIds.size })
         }
-        description={t('confirmBatchDescription')}
+        description={t('confirmNativeBatchDescription')}
         details={programs
           .filter((p) => selectedIds.has(p.id))
           .map((p) => p.displayName)
@@ -1151,8 +1200,16 @@ export function UninstallerPage() {
         onConfirm={handleForceRemove}
         onCancel={() => setConfirmForceRemove(null)}
         title={t('confirmForceRemoveTitle', { programName: confirmForceRemove?.displayName ?? '' })}
-        description={t('confirmForceRemoveDescription')}
-        confirmLabel={t('confirmForceRemoveLabel')}
+        description={
+          confirmForceRemove && getSharedComponentKind(confirmForceRemove)
+            ? `${t(getSharedComponentKind(confirmForceRemove) === 'filesystem' ? 'filesystemDependencyWarning' : 'sharedDependencyWarning')} ${t('confirmForceRemoveDescription')}`
+            : t('confirmForceRemoveDescription')
+        }
+        confirmLabel={t(
+          confirmForceRemove && getSharedComponentKind(confirmForceRemove)
+            ? 'confirmSharedForceRemoveLabel'
+            : 'confirmForceRemoveLabel'
+        )}
         variant="warning"
       />
     </div>

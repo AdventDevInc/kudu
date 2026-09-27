@@ -713,7 +713,7 @@ export interface InstalledProgram {
   registryKey: string
   isSystemComponent: boolean
   isWindowsInstaller: boolean
-  lastUsed: number // timestamp ms, 0 = unknown/never seen in Prefetch
+  lastUsed: number // Approximate launch timestamp from Prefetch; 0 = no match, -1 = unavailable. Neither proves non-use.
 }
 
 export interface UninstallerListResult {

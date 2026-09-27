@@ -9,6 +9,7 @@ import {
 } from '../services/program-uninstaller'
 import { deletionTouchesExclusions, safeDelete } from '../services/file-utils'
 import { getSettings } from '../services/settings-store'
+import { getSharedComponentKind, type UninstallOptions } from '../../shared/uninstall-policy'
 import type {
   InstalledProgram,
   UninstallerListResult,
@@ -18,6 +19,24 @@ import type {
 import type { WindowGetter } from './index'
 
 let cachedPrograms: InstalledProgram[] = []
+
+function dependencyWarningFailure(
+  program: InstalledProgram,
+  options?: UninstallOptions
+): UninstallResult | null {
+  if (!getSharedComponentKind(program) || options?.dependencyWarningAcknowledged === true)
+    return null
+  return {
+    success: false,
+    programName: program.displayName,
+    exitCode: null,
+    error:
+      'This shared component may be required by other software or devices. Uninstall it individually and confirm the dependency warning.',
+    leftoversFound: 0,
+    leftoversCleaned: 0,
+    leftoversSize: 0
+  }
+}
 
 export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
   const sendProgress = (data: UninstallProgress): void => {
@@ -33,7 +52,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(
     IPC.UNINSTALLER_UNINSTALL,
-    async (_event, programId: string): Promise<UninstallResult> => {
+    async (_event, programId: string, options?: UninstallOptions): Promise<UninstallResult> => {
       const program = cachedPrograms.find((p) => p.id === programId)
       if (!program) {
         return {
@@ -46,6 +65,9 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           leftoversSize: 0
         }
       }
+
+      const warningFailure = dependencyWarningFailure(program, options)
+      if (warningFailure) return warningFailure
 
       // Phase 1: Run the native uninstaller
       sendProgress({
@@ -135,7 +157,7 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
 
   ipcMain.handle(
     IPC.UNINSTALLER_FORCE_REMOVE,
-    async (_event, programId: string): Promise<UninstallResult> => {
+    async (_event, programId: string, options?: UninstallOptions): Promise<UninstallResult> => {
       const program = cachedPrograms.find((p) => p.id === programId)
       if (!program) {
         return {
@@ -148,6 +170,9 @@ export function registerProgramUninstallerIpc(getWindow: WindowGetter): void {
           leftoversSize: 0
         }
       }
+
+      const warningFailure = dependencyWarningFailure(program, options)
+      if (warningFailure) return warningFailure
 
       // Phase 1: Delete registry key
       sendProgress({
