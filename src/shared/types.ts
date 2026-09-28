@@ -1173,8 +1173,18 @@ export interface UpdateResult {
    * Failed packages. `source` is set on Windows aggregation so a failure can be
    * matched to the exact package when the same id exists under two managers
    * (e.g. choco + scoop "git"); it is omitted on single-manager platforms.
+   * `suggestedCommands` carries the commands a user can run themselves when
+   * the updater cannot apply the update (see `wingetRemedies` and
+   * `manualRemedies` in software-updater.ts); absent when Kudu has nothing
+   * better to offer than what it already tried.
    */
-  errors: { appId: string; name: string; reason: string; source?: string }[]
+  errors: {
+    appId: string
+    name: string
+    reason: string
+    source?: string
+    suggestedCommands?: string[]
+  }[]
 }
 
 // ─── Disk Repair ───────────────────────────────────────────

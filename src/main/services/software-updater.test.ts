@@ -26,6 +26,8 @@ import {
   comparePackageVersions,
   displayWidth,
   groupWindowsUpdateItems,
+  wingetRemedies,
+  manualRemedies,
   BREW_PATH_CANDIDATES
 } from './software-updater'
 
@@ -866,6 +868,45 @@ describe('isValidAppIdForSource', () => {
 
   it('falls back to the platform validator for unknown sources', () => {
     expect(isValidAppIdForSource('', 'mystery')).toBe(false)
+  })
+})
+
+// ─── wingetRemedies / manualRemedies ───────────────────────
+
+describe('wingetRemedies', () => {
+  it('installs over the upgrade when winget has no applicable update', () => {
+    // Both codes mean winget's *upgrade* correlation failed, not that the app
+    // is current — installing pushes the newest manifest over the old copy.
+    expect(wingetRemedies('Anki.Anki', 0x8a15002b)).toEqual([
+      'winget install --id "Anki.Anki" --exact --force'
+    ])
+    expect(wingetRemedies('Gyan.FFmpeg', 0x8a150014)).toEqual([
+      'winget install --id "Gyan.FFmpeg" --exact --force'
+    ])
+  })
+
+  it('uninstalls then reinstalls when the install technology changed', () => {
+    expect(wingetRemedies('LLVM.LLVM', 0x8a15008e)).toEqual([
+      'winget uninstall --id "LLVM.LLVM" --exact',
+      'winget install --id "LLVM.LLVM" --exact'
+    ])
+  })
+
+  it('runs the same upgrade by hand when there is no mapped remedy', () => {
+    // Kudu runs winget silently, so the same command interactively is what
+    // finally shows winget's output.
+    expect(wingetRemedies('Some.App')).toEqual(['winget upgrade --id "Some.App" --exact'])
+    expect(wingetRemedies('Some.App', 1603)).toEqual(['winget upgrade --id "Some.App" --exact'])
+  })
+})
+
+describe('manualRemedies', () => {
+  it('names the manager command for the managers without exit codes', () => {
+    expect(manualRemedies('choco', 'git')).toEqual(['choco upgrade git -y'])
+    expect(manualRemedies('scoop', 'git')).toEqual(['scoop update git'])
+    expect(manualRemedies('npm', '@angular/cli')).toEqual(['npm install -g @angular/cli@latest'])
+    // winget failures always carry their own command
+    expect(manualRemedies('winget', 'git')).toBeUndefined()
   })
 })
 

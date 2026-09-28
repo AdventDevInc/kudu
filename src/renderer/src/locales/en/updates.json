@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} app updated successfully",
     "updateResultAppsUpdatedPlural": "{{count}} apps updated successfully",
     "updateResultFailed": "{{count}} failed",
+    "suggestedCommandsLabel": "Try running this yourself:",
     "deselectAll": "Deselect all",
     "selectAll": "Select all",
     "selectedCount": "{{count}} selected",

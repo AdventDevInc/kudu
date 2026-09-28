@@ -734,18 +734,48 @@ async function attemptElevatedUpgrade(
   }
 }
 
+/**
+ * Commands that do what the failed upgrade could not, keyed by winget exit
+ * code. In these cases another retry cannot help — winget's own advice is to
+ * install over the broken upgrade path — so the command is the remedy.
+ */
+export function wingetRemedies(appId: string, code?: number): string[] {
+  const id = `"${appId}"`
+  switch (code === undefined ? 0 : code >>> 0) {
+    // "No applicable upgrade" / "No installed package found matching input
+    // criteria": winget's *upgrade* correlation is what failed, so install
+    // over the existing copy instead.
+    case 0x8a15002b: // APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE
+    case 0x8a150014: // APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND
+      return [`winget install --id ${id} --exact --force`]
+    // "A newer version was found, but the install technology is different from
+    // the current version installed. Please uninstall the package and try
+    // installing the latest version." — winget names the remedy itself.
+    case 0x8a15008e: // APPINSTALLER_CLI_ERROR_UPDATE_INSTALL_TECHNOLOGY_MISMATCH
+      return [`winget uninstall --id ${id} --exact`, `winget install --id ${id} --exact`]
+    // Anything else: Kudu ran winget silently, so the same command by hand is
+    // what shows the output winget never got to print.
+    default:
+      return [`winget upgrade --id ${id} --exact`]
+  }
+}
+
 /** Run a single app through the winget upgrade pipeline: normal → elevated → force */
 async function upgradeAppWinget(
   appId: string,
   alreadyAdmin: boolean
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; suggestedCommands?: string[] }> {
   // First attempt: normal upgrade
   const result = await attemptWingetUpgrade(appId)
   if (result.success) return { success: true }
 
   // Installer technology changed, app in use, no network…: retrying can't help
   if (isFinalWingetFailure(result)) {
-    return { success: false, error: describeWingetFailure(result) }
+    return {
+      success: false,
+      error: describeWingetFailure(result),
+      suggestedCommands: wingetRemedies(appId, result.code)
+    }
   }
 
   // If not already admin, retry with elevation
@@ -759,7 +789,11 @@ async function upgradeAppWinget(
   if (retryResult.success) return { success: true }
 
   // Report the first attempt: the retries' output is less specific
-  return { success: false, error: describeWingetFailure(result) }
+  return {
+    success: false,
+    error: describeWingetFailure(result),
+    suggestedCommands: wingetRemedies(appId, result.code)
+  }
 }
 
 // ─── Chocolatey (Windows) ──────────────────────────────────
@@ -1422,12 +1456,31 @@ async function checkForUpdatesWindows(): Promise<UpdateCheckResult> {
   }
 }
 
-/** Upgrade a single package with the pipeline appropriate to its manager. */
+/**
+ * The same command by hand for the managers whose failures carry no code to
+ * map. winget is absent on purpose: `wingetRemedies` always covers it.
+ */
+export function manualRemedies(
+  manager: WindowsPackageManager,
+  appId: string
+): string[] | undefined {
+  switch (manager) {
+    case 'choco':
+      return [`choco upgrade ${appId} -y`]
+    case 'scoop':
+      return [`scoop update ${appId}`]
+    case 'npm':
+      return [`npm install -g ${appId}@latest`]
+    case 'winget':
+      return undefined
+  }
+}
+
 function upgradeWindowsApp(
   source: WindowsPackageManager,
   appId: string,
   alreadyAdmin: boolean
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; suggestedCommands?: string[] }> {
   switch (source) {
     case 'winget':
       return upgradeAppWinget(appId, alreadyAdmin)
@@ -1514,7 +1567,8 @@ async function runUpdatesWindows(
           appId,
           name: appId,
           reason: result.error || 'Upgrade failed',
-          source: origSource
+          source: origSource,
+          suggestedCommands: result.suggestedCommands ?? manualRemedies(manager, appId)
         })
         onProgress({
           phase: 'updating',

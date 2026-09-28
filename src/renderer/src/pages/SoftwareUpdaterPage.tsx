@@ -758,25 +758,28 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             {updateResult.errors.length > 0 && (
               <div className="mt-2">
                 {updateResult.errors.map((e) => {
-                  const isInstallerChange = e.reason
-                    .toLowerCase()
-                    .includes('installer type changed')
+                  const commands = e.suggestedCommands ?? []
                   return (
                     <div key={e.appId} className="mt-1.5">
                       <span style={{ color: 'var(--text-muted)' }} className="text-[12px]">
                         {e.name}: {e.reason}
                       </span>
-                      {isInstallerChange && packageManagerName && (
-                        <div
-                          className="mt-1.5 rounded-lg px-3 py-2 font-mono text-[11px] text-zinc-300 select-all cursor-text"
-                          style={{
-                            background: 'rgba(0,0,0,0.3)',
-                            border: '1px solid var(--border-medium)'
-                          }}
-                        >
-                          {packageManagerName} uninstall {e.appId}
-                          <br />
-                          {packageManagerName} install {e.appId}
+                      {commands.length > 0 && (
+                        <div className="mt-1.5">
+                          <div style={{ color: 'var(--text-muted)' }} className="mb-1 text-[11px]">
+                            {t('softwareUpdater.suggestedCommandsLabel')}
+                          </div>
+                          <div
+                            className="rounded-lg px-3 py-2 font-mono text-[11px] text-zinc-300 select-all cursor-text"
+                            style={{
+                              background: 'rgba(0,0,0,0.3)',
+                              border: '1px solid var(--border-medium)'
+                            }}
+                          >
+                            {commands.map((command) => (
+                              <div key={command}>{command}</div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
