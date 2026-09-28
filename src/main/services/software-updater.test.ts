@@ -845,11 +845,10 @@ describe('isValidAppIdForSource', () => {
     expect(isValidAppIdForSource('@angular/cli', 'winget')).toBe(false)
   })
 
-  it('accepts Scoop names containing + (rejected by the winget pattern)', () => {
+  it('accepts names containing + where the owning manager allows it', () => {
     expect(isValidAppIdForSource('notepad++', 'scoop')).toBe(true)
-    // brew/apt accept '+', so assert against winget rather than the
-    // platform-dependent isValidAppId (which is true on macOS/Linux)
-    expect(isValidAppIdForSource('notepad++', 'winget')).toBe(false)
+    // winget ids carry '+' too — Notepad++.Notepad++ is a real package
+    expect(isValidAppIdForSource('Notepad++.Notepad++', 'winget')).toBe(true)
   })
 
   it('accepts typical ids for each Windows manager', () => {

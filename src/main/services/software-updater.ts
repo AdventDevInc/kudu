@@ -609,7 +609,7 @@ async function attemptWingetUpgrade(
   extraArgs: string[] = []
 ): Promise<WingetAttempt> {
   // Validate appId format to prevent argument injection (e.g. --source flags)
-  if (!/^[\w][\w.\-]{0,200}$/.test(appId)) {
+  if (!WINGET_ID_PATTERN.test(appId)) {
     return { success: false, output: 'Invalid app ID format' }
   }
   const winget = (await resolveWinget()) ?? 'winget'
@@ -676,8 +676,8 @@ function describeWingetFailure(result: WingetAttempt): string {
 async function attemptElevatedUpgrade(
   appId: string
 ): Promise<{ success: boolean; output: string }> {
-  // Validate appId format to prevent injection — winget IDs are alphanumeric with dots, dashes, underscores
-  if (!/^[\w][\w.\-]{0,200}$/.test(appId)) {
+  // Validate appId format to prevent injection (see WINGET_ID_PATTERN)
+  if (!WINGET_ID_PATTERN.test(appId)) {
     return { success: false, output: 'Invalid app ID format' }
   }
 
@@ -2193,8 +2193,12 @@ export async function runUpdates(
   return { succeeded: 0, failed: 0, errors: [] }
 }
 
-/** Winget package id: alphanumeric plus dot/dash/underscore */
-const WINGET_ID_PATTERN = /^[\w][\w.\-]{0,200}$/
+/**
+ * Winget package id. Real ids carry '+' (Notepad++.Notepad++), so the
+ * character class allows it; the leading \w keeps an id from being parsed as
+ * a flag.
+ */
+const WINGET_ID_PATTERN = /^[\w][\w.+\-]{0,200}$/
 
 /** Validate an app ID for the current platform's package manager */
 export function isValidAppId(id: string): boolean {

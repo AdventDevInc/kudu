@@ -268,6 +268,17 @@ describe('runUpdates (winget)', () => {
     expect(upgradeCalls(calls)).toHaveLength(1)
   })
 
+  it("passes an id containing '+' through to winget", async () => {
+    const calls = scriptUpgrade([{ stdout: '' }])
+
+    const result = await update('Notepad++.Notepad++')
+
+    expect(result).toEqual({ succeeded: 1, failed: 0, errors: [] })
+    const upgrades = upgradeCalls(calls)
+    expect(upgrades).toHaveLength(1)
+    expect(upgrades[0].args).toContain('Notepad++.Notepad++')
+  })
+
   it('counts "restart required to finish" as success', async () => {
     scriptUpgrade([{ stdout: ITALIAN_SUCCESS, error: { code: 0x8a150109 } }])
 
