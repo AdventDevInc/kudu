@@ -11,7 +11,7 @@ export function getSharedComponentKind(program: ProgramIdentity): SharedComponen
   const name = program.displayName.trim()
   if (/^(dokan(?:y)?|winfsp)\b/i.test(name)) return 'filesystem'
   if (
-    /^microsoft visual c\+\+(?:\s|$).*\b(redistributable|runtime)\b/i.test(name) ||
+    /^microsoft visual c\+\+\s+.*\b(redistributable|runtime)\b/i.test(name) ||
     /^(?:microsoft\s+)?\.net(?:\s+core)?\s+(?:framework|runtime|host|host fx resolver|sdk)\b/i.test(
       name
     ) ||

@@ -1080,7 +1080,7 @@ describe('getInstalledProgramsFull', () => {
       const block =
         'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\DiskDrill\r\n' +
         '    DisplayName    REG_SZ    Disk Drill\r\n' +
-        '    DisplayIcon    REG_SZ    C:\\DiskDrill\\DD.exe,0\r\n' +
+        `    DisplayIcon    REG_SZ    ${join('C:', 'DiskDrill', 'DD.exe')},0\r\n` +
         '    UninstallString    REG_SZ    C:\\DiskDrill\\uninstall.exe\r\n\r\n'
       mockExecFile.mockImplementation(
         (_cmd: string, _args: string[], _opts: object, cb: Function) => cb(null, block, '')

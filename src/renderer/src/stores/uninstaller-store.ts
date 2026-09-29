@@ -10,6 +10,11 @@ import type {
 type SortField = 'displayName' | 'estimatedSize' | 'installDate' | 'publisher' | 'safety'
 type FilterMode = 'all' | 'no-recent-launch'
 
+function filterModeForPrograms(mode: FilterMode, programs: InstalledProgram[]): FilterMode {
+  // The launch-history tabs disappear when no positive evidence remains.
+  return programs.some((p) => Number.isFinite(p.lastUsed) && p.lastUsed > 0) ? mode : 'all'
+}
+
 interface UninstallerState {
   programs: InstalledProgram[]
   loading: boolean
@@ -68,7 +73,12 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
   safetyLoading: false,
   expandedItemId: null,
 
-  setPrograms: (programs) => set({ programs, selectedIds: new Set<string>() }),
+  setPrograms: (programs) =>
+    set((state) => ({
+      programs,
+      selectedIds: new Set<string>(),
+      filterMode: filterModeForPrograms(state.filterMode, programs)
+    })),
   setLoading: (loading) => set({ loading }),
   setUninstalling: (uninstalling) => set({ uninstalling }),
   setProgress: (progress) => set({ progress }),
@@ -83,7 +93,12 @@ export const useUninstallerStore = create<UninstallerState>((set) => ({
     set((state) => {
       const selectedIds = new Set(state.selectedIds)
       selectedIds.delete(id)
-      return { programs: state.programs.filter((p) => p.id !== id), selectedIds }
+      const programs = state.programs.filter((p) => p.id !== id)
+      return {
+        programs,
+        selectedIds,
+        filterMode: filterModeForPrograms(state.filterMode, programs)
+      }
     }),
   toggleSelected: (id) =>
     set((state) => {

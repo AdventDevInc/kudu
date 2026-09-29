@@ -34,4 +34,35 @@ describe('uninstaller selection', () => {
     useUninstallerStore.getState().toggleSelected('1')
     expect(useUninstallerStore.getState().selectedIds.size).toBe(0)
   })
+
+  it('returns to All when removing the last program with launch evidence', () => {
+    const store = useUninstallerStore.getState()
+    store.setPrograms([
+      { ...programs[0], lastUsed: 1 },
+      { ...programs[1], lastUsed: 0 }
+    ])
+    store.setFilterMode('no-recent-launch')
+    store.removeProgram('0')
+    expect(useUninstallerStore.getState().filterMode).toBe('all')
+    expect(useUninstallerStore.getState().programs.map((p) => p.id)).toEqual(['1'])
+  })
+
+  it('returns to All when a refresh loses launch evidence', () => {
+    const store = useUninstallerStore.getState()
+    store.setPrograms([{ ...programs[0], lastUsed: 1 }])
+    store.setFilterMode('no-recent-launch')
+    store.setPrograms([{ ...programs[0], lastUsed: -1 }])
+    expect(useUninstallerStore.getState().filterMode).toBe('all')
+  })
+
+  it('preserves the chosen filter while launch evidence remains', () => {
+    const store = useUninstallerStore.getState()
+    const withHistory = programs.map((p) => ({ ...p, lastUsed: 1 }))
+    store.setPrograms(withHistory)
+    store.setFilterMode('no-recent-launch')
+    store.removeProgram('0')
+    expect(useUninstallerStore.getState().filterMode).toBe('no-recent-launch')
+    store.setPrograms(withHistory)
+    expect(useUninstallerStore.getState().filterMode).toBe('no-recent-launch')
+  })
 })
