@@ -260,6 +260,18 @@ describe('runUpdates (winget)', () => {
   const elevated = (calls: Call[]): boolean => calls.some((c) => c.file === 'powershell.exe')
   const update = (id = 'Recol.DLSSUpdater') => runUpdates([{ id, source: 'winget' }], () => {})
 
+  it.each(['winget', 'choco', 'scoop', 'npm', 'msstore'])(
+    'does not suggest a shell command for a rejected %s ID',
+    async (source) => {
+      const result = await runUpdates([{ id: 'bad; Write-Output injected', source }], () => {})
+
+      expect(result.failed).toBe(1)
+      expect(result.errors[0].reason).toContain('Invalid')
+      expect(result.errors[0].suggestedCommands ?? []).toEqual([])
+      expect(mockExecFile).not.toHaveBeenCalled()
+    }
+  )
+
   it('counts a clean exit as success whatever language winget speaks', async () => {
     const calls = scriptUpgrade([{ stdout: ITALIAN_SUCCESS }])
 

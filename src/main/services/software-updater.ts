@@ -740,6 +740,8 @@ async function attemptElevatedUpgrade(
  * install over the broken upgrade path — so the command is the remedy.
  */
 export function wingetRemedies(appId: string, code?: number): string[] {
+  // A rejected ID must not become a shell command the user is encouraged to paste.
+  if (!isValidAppIdForSource(appId, 'winget')) return []
   const id = `"${appId}"`
   switch (code === undefined ? 0 : code >>> 0) {
     // "No applicable upgrade" / "No installed package found matching input
@@ -1464,6 +1466,7 @@ export function manualRemedies(
   manager: WindowsPackageManager,
   appId: string
 ): string[] | undefined {
+  if (!isValidAppIdForSource(appId, manager)) return undefined
   switch (manager) {
     case 'choco':
       return [`choco upgrade ${appId} -y`]

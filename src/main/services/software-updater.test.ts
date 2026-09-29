@@ -874,6 +874,15 @@ describe('isValidAppIdForSource', () => {
 // ─── wingetRemedies / manualRemedies ───────────────────────
 
 describe('wingetRemedies', () => {
+  it.each(['--all', 'App\"; echo injected; \"', 'App$(echo injected)', 'App\nwhoami'])(
+    'omits commands for invalid IDs (%s)',
+    (id) => {
+      for (const code of [undefined, 0x8a150014, 0x8a15008e]) {
+        expect(wingetRemedies(id, code)).toEqual([])
+      }
+    }
+  )
+
   it('installs over the upgrade when winget has no applicable update', () => {
     // Both codes mean winget's *upgrade* correlation failed, not that the app
     // is current — installing pushes the newest manifest over the old copy.
@@ -901,6 +910,12 @@ describe('wingetRemedies', () => {
 })
 
 describe('manualRemedies', () => {
+  it.each(['choco', 'scoop', 'npm'] as const)('omits invalid %s IDs', (manager) => {
+    for (const id of ['--all', 'app; echo injected', 'app$(echo injected)', 'app\nwhoami']) {
+      expect(manualRemedies(manager, id)).toBeUndefined()
+    }
+  })
+
   it('names the manager command for the managers without exit codes', () => {
     expect(manualRemedies('choco', 'git')).toEqual(['choco upgrade git -y'])
     expect(manualRemedies('scoop', 'git')).toEqual(['scoop update git'])
