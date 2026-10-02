@@ -3,7 +3,8 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import { execTracked, psUtf8 } from './exec-utf8'
 
-const MAX_VERIFIED_PATHS = 500
+// Paths per PowerShell process, so a single run stays inside its timeout.
+const BATCH_SIZE = 200
 
 // Paths travel through a UTF-8 JSON file rather than the command line, so no
 // filename can break out of the script. -Encoding UTF8 matters: Windows
@@ -46,19 +47,25 @@ export function parseAuthenticodeResults(stdout: string): Set<string> {
 
 /**
  * Which of `paths` carry a valid Authenticode signature (Windows only).
- * Fails closed: any error yields an empty set, so callers treat the files as
- * unsigned rather than trusting them by accident.
+ * Fails closed: a batch that errors contributes nothing, so its files are
+ * treated as unsigned rather than trusted by accident.
  */
 export async function findValidlySignedFiles(paths: string[]): Promise<Set<string>> {
-  if (process.platform !== 'win32') return new Set()
-  const uniquePaths = [...new Set(paths)].slice(0, MAX_VERIFIED_PATHS)
-  if (uniquePaths.length === 0) return new Set()
+  const valid = new Set<string>()
+  if (process.platform !== 'win32') return valid
+  const uniquePaths = [...new Set(paths)]
+  for (let i = 0; i < uniquePaths.length; i += BATCH_SIZE) {
+    for (const path of await verifyBatch(uniquePaths.slice(i, i + BATCH_SIZE))) valid.add(path)
+  }
+  return valid
+}
 
+async function verifyBatch(paths: string[]): Promise<Set<string>> {
   let tempDir: string | null = null
   try {
     tempDir = await mkdtemp(join(tmpdir(), 'kudu-authenticode-'))
     const pathFile = join(tempDir, 'paths.json')
-    await writeFile(pathFile, JSON.stringify(uniquePaths), 'utf8')
+    await writeFile(pathFile, JSON.stringify(paths), 'utf8')
     // A replacer function, so a `$` in the temp path is not read as a pattern.
     const script = AUTHENTICODE_SCRIPT.replace('__PATH_FILE__', () => pathFile.replace(/'/g, "''"))
     // Revocation checks can wait on the network, hence the generous timeout.
