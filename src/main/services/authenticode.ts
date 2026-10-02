@@ -9,58 +9,84 @@ const BATCH_SIZE = 200
 // Paths travel through a UTF-8 JSON file rather than the command line, so no
 // filename can break out of the script. -Encoding UTF8 matters: Windows
 // PowerShell 5.1 otherwise reads the file as ANSI and mangles non-ASCII paths.
+//
+// Each file is held open without FILE_SHARE_WRITE/DELETE while it is hashed
+// and verified, so nothing can modify, replace or rename it in between. The
+// hash therefore names exactly the bytes Authenticode accepted.
 const AUTHENTICODE_SCRIPT = `$paths = [string[]](Get-Content -Raw -Encoding UTF8 -LiteralPath '__PATH_FILE__' | ConvertFrom-Json)
 $out = @($paths | ForEach-Object {
   $path = [string]$_
   $status = 'UnknownError'
-  try { $status = [string](Get-AuthenticodeSignature -LiteralPath $path -ErrorAction Stop).Status } catch {}
-  [PSCustomObject]@{ path = $path; status = $status }
+  $hash = ''
+  $fs = $null
+  try {
+    $fs = [IO.File]::Open($path, 'Open', 'Read', 'Read')
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $hash = [BitConverter]::ToString($sha.ComputeHash($fs)).Replace('-', '').ToLowerInvariant()
+    $status = [string](Get-AuthenticodeSignature -LiteralPath $path -ErrorAction Stop).Status
+  } catch {
+  } finally {
+    if ($fs) { $fs.Dispose() }
+  }
+  [PSCustomObject]@{ path = $path; status = $status; sha256 = $hash }
 })
 ConvertTo-Json -InputObject $out -Compress`
 
 interface VerifyResult {
   path?: unknown
   status?: unknown
+  sha256?: unknown
 }
 
 /**
- * Lower-cased paths whose Authenticode status is `Valid`: signed, untampered,
- * and chaining to a trusted root that has not revoked the certificate.
+ * Lower-cased path → SHA-256 of the content, for each file whose Authenticode
+ * status is `Valid`: signed, untampered, and chaining to a trusted root that
+ * has not revoked the certificate.
  */
-export function parseAuthenticodeResults(stdout: string): Set<string> {
-  const valid = new Set<string>()
+export function parseAuthenticodeResults(stdout: string): Map<string, string> {
+  const valid = new Map<string, string>()
   let parsed: VerifyResult[]
   try {
-    const value = JSON.parse(stdout.trim().replace(/^\uFEFF/, ''))
+    const value = JSON.parse(stdout.trim().replace(/^﻿/, ''))
     parsed = Array.isArray(value) ? value : [value]
   } catch {
     return valid
   }
 
   for (const result of parsed) {
-    if (typeof result?.path === 'string' && result.status === 'Valid') {
-      valid.add(result.path.toLowerCase())
+    if (
+      typeof result?.path === 'string' &&
+      result.status === 'Valid' &&
+      typeof result.sha256 === 'string' &&
+      /^[0-9a-f]{64}$/.test(result.sha256)
+    ) {
+      valid.set(result.path.toLowerCase(), result.sha256)
     }
   }
   return valid
 }
 
 /**
- * Which of `paths` carry a valid Authenticode signature (Windows only).
+ * The files among `paths` that carry a valid Authenticode signature (Windows
+ * only), keyed by lower-cased path with the SHA-256 of the verified content.
+ * Callers compare that hash with the bytes they analyzed, so a file swapped
+ * after analysis cannot borrow another binary's signature.
+ *
  * Fails closed: a batch that errors contributes nothing, so its files are
  * treated as unsigned rather than trusted by accident.
  */
-export async function findValidlySignedFiles(paths: string[]): Promise<Set<string>> {
-  const valid = new Set<string>()
+export async function findValidlySignedFiles(paths: string[]): Promise<Map<string, string>> {
+  const valid = new Map<string, string>()
   if (process.platform !== 'win32') return valid
   const uniquePaths = [...new Set(paths)]
   for (let i = 0; i < uniquePaths.length; i += BATCH_SIZE) {
-    for (const path of await verifyBatch(uniquePaths.slice(i, i + BATCH_SIZE))) valid.add(path)
+    const batch = await verifyBatch(uniquePaths.slice(i, i + BATCH_SIZE))
+    for (const [path, sha256] of batch) valid.set(path, sha256)
   }
   return valid
 }
 
-async function verifyBatch(paths: string[]): Promise<Set<string>> {
+async function verifyBatch(paths: string[]): Promise<Map<string, string>> {
   let tempDir: string | null = null
   try {
     tempDir = await mkdtemp(join(tmpdir(), 'kudu-authenticode-'))
@@ -76,7 +102,7 @@ async function verifyBatch(paths: string[]): Promise<Set<string>> {
     )
     return parseAuthenticodeResults(stdout)
   } catch {
-    return new Set()
+    return new Map()
   } finally {
     if (tempDir) await rm(tempDir, { recursive: true, force: true }).catch(() => {})
   }
