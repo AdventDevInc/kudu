@@ -42,10 +42,14 @@ if (process.env.RELEASE_SKIP_CI_CHECK !== '1') {
   let runs
   try {
     runs = JSON.parse(
-      capture(`gh run list --workflow ci.yml --commit ${sha} --event push --limit 1 --json status,conclusion,url`)
+      capture(
+        `gh run list --workflow ci.yml --commit ${sha} --event push --limit 1 --json status,conclusion,url`
+      )
     )
   } catch {
-    console.error('Error: could not read CI status with the GitHub CLI. Install and authenticate gh,')
+    console.error(
+      'Error: could not read CI status with the GitHub CLI. Install and authenticate gh,'
+    )
     console.error('or set RELEASE_SKIP_CI_CHECK=1 to release without this check.')
     process.exit(1)
   }
