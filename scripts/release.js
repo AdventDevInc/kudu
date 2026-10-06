@@ -34,6 +34,34 @@ if (behind !== '0') {
   process.exit(1)
 }
 
+// Ensure CI passed on the exact commit being released. The release workflow
+// re-runs CI and refuses to build a red commit, so tagging one strands the tag:
+// v3.6.0 was tagged on a commit that failed lint and never shipped.
+if (process.env.RELEASE_SKIP_CI_CHECK !== '1') {
+  const sha = capture('git rev-parse HEAD')
+  let runs
+  try {
+    runs = JSON.parse(
+      capture(`gh run list --workflow ci.yml --commit ${sha} --event push --limit 1 --json status,conclusion,url`)
+    )
+  } catch {
+    console.error('Error: could not read CI status with the GitHub CLI. Install and authenticate gh,')
+    console.error('or set RELEASE_SKIP_CI_CHECK=1 to release without this check.')
+    process.exit(1)
+  }
+  const [latest] = runs
+  if (!latest) {
+    console.error(`Error: no CI run found for ${sha.slice(0, 7)}. Push it and wait for CI first.`)
+    process.exit(1)
+  }
+  if (latest.status !== 'completed' || latest.conclusion !== 'success') {
+    const state = latest.status === 'completed' ? latest.conclusion : latest.status
+    console.error(`Error: CI for ${sha.slice(0, 7)} is ${state}; releases need a green main.`)
+    console.error(latest.url)
+    process.exit(1)
+  }
+}
+
 // 1. Bump version (no git tag, no commit)
 run(`npm version ${bump} --no-git-tag-version`)
 const version = JSON.parse(readFileSync('package.json', 'utf-8')).version

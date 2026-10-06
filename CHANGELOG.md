@@ -1,9 +1,3 @@
-# [3.6.0](https://github.com/adventdevinc/kudu/compare/v3.5.0...v3.6.0) (2026-10-02)
-
-
-### Bug Fixes
-
-* **malware:** stop flagging validly signed binaries with the PE heuristic ([#507](https://github.com/adventdevinc/kudu/issues/507)) ([e9784a1](https://github.com/adventdevinc/kudu/commit/e9784a163f4d5ac1c60b6697ee577bda3f2ca033))
 # [3.5.0](https://github.com/adventdevinc/kudu/compare/v3.4.0...v3.5.0) (2026-09-29)
 
 
