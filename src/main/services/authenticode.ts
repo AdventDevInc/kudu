@@ -47,7 +47,7 @@ export function parseAuthenticodeResults(stdout: string): Map<string, string> {
   const valid = new Map<string, string>()
   let parsed: VerifyResult[]
   try {
-    const value = JSON.parse(stdout.trim().replace(/^﻿/, ''))
+    const value = JSON.parse(stdout.trim().replace(/^\uFEFF/, ''))
     parsed = Array.isArray(value) ? value : [value]
   } catch {
     return valid
