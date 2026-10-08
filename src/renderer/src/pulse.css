@@ -1961,10 +1961,7 @@
   align-content: start;
 }
 .sidebar-submenu-item > span:first-of-type {
-  white-space: normal;
-  text-overflow: clip;
   line-height: 1.4;
-  overflow: visible;
 }
 .pulse-schedule-options summary {
   color: var(--text-secondary);

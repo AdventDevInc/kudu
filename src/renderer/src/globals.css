@@ -849,6 +849,8 @@ summary,
   width: 100%;
   min-height: 34px;
   grid-template-columns: 15px minmax(0, 1fr) auto;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
   gap: 8px;
   align-items: center;
   padding: 6px 9px;
