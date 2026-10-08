@@ -1,8 +1,8 @@
 diff --git a/node_modules/systeminformation/lib/util.js b/node_modules/systeminformation/lib/util.js
-index 76ebfc3..dda06ca 100644
+index f4fed61..cbb2534 100644
 --- a/node_modules/systeminformation/lib/util.js
 +++ b/node_modules/systeminformation/lib/util.js
-@@ -566,12 +566,15 @@ function getCodepage() {
+@@ -576,12 +576,15 @@ function getCodepage() {
    if (_windows) {
      if (!codepage) {
        try {
@@ -23,16 +23,16 @@ index 76ebfc3..dda06ca 100644
        }
      }
      return codepage;
-@@ -660,8 +663,13 @@ function execWin(cmd, opts, callback) {
+@@ -670,8 +673,13 @@ function execWin(cmd, opts, callback) {
      callback = opts;
      opts = execOptsWin;
    }
--  let newCmd = 'chcp 65001 > nul && cmd /C ' + cmd + ' && chcp ' + codepage + ' > nul';
+-  const newCmd = 'chcp 65001 > nul && cmd /C ' + cmd + ' && chcp ' + codepage + ' > nul';
 -  exec(newCmd, opts, (error, stdout) => {
 +  // Avoid chcp calls that trigger Sigma rule "Console CodePage Lookup Via CHCP".
 +  // Force UTF-8 output via environment variable instead of chcp 65001 / chcp <restore>.
 +  // Node on Windows respects this when decoding child stdout.
-+  let newCmd = 'cmd /D /C ' + cmd;
++  const newCmd = 'cmd /D /C ' + cmd;
 +  const env = Object.assign({}, opts.env || process.env);
 +  const patchedOpts = Object.assign({}, opts, { env });
 +  exec(newCmd, patchedOpts, (error, stdout) => {
