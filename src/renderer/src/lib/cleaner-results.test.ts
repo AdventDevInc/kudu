@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { ScanResult } from '@shared/types'
 import { filterCleanerResults, splitSearchHighlight } from './cleaner-results'
 
@@ -71,6 +71,33 @@ describe('Cleaner result search', () => {
     expect(inventory.items).toHaveLength(2)
     expect(filterCleanerResults([inventory], 'a', selected, true, () => '')).toEqual([])
   })
+
+  it.each(['install', 'INSTALL'])(
+    'keeps path search and highlighting locale-neutral for %s under Turkish casing',
+    (query) => {
+      const localeLowerCase = String.prototype.toLocaleLowerCase
+      const turkishDefault = vi
+        .spyOn(String.prototype, 'toLocaleLowerCase')
+        .mockImplementation(function (this: string) {
+          return localeLowerCase.call(this, 'tr')
+        })
+      try {
+        const inventory = result('system', 'Cache', ['/INSTALL/cache.log', '/install/cache.log'])
+        expect(
+          filterCleanerResults([inventory], query, new Set(), false, () => '')[0].items
+        ).toHaveLength(2)
+        for (const path of ['/INSTALL/cache.log', '/install/cache.log']) {
+          const parts = splitSearchHighlight(path, query)
+          expect(parts.filter((part) => part.match).map((part) => part.text)).toEqual([
+            path.slice(1, 8)
+          ])
+          expect(parts.map((part) => part.text).join('')).toBe(path)
+        }
+      } finally {
+        turkishDefault.mockRestore()
+      }
+    }
+  )
 
   it('highlights repeated literal matches without treating search text as a regular expression', () => {
     const parts = splitSearchHighlight('Cache.[1]/cache.[1]', 'CACHE.[1]')

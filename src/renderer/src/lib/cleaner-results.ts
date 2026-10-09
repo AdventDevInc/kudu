@@ -8,15 +8,15 @@ export function filterCleanerResults(
   selectedOnly: boolean,
   categoryLabel: (result: ScanResult) => string
 ): ScanResult[] {
-  const needle = query.trim().toLocaleLowerCase()
+  const needle = query.trim().toLowerCase()
   return results.flatMap((result) => {
     const groupMatches = [result.subcategory, result.group ?? '', categoryLabel(result)].some(
-      (label) => label.toLocaleLowerCase().includes(needle)
+      (label) => label.toLowerCase().includes(needle)
     )
     const items = result.items.filter(
       (item) =>
         (!selectedOnly || selected.has(item.id)) &&
-        (!needle || groupMatches || item.path.toLocaleLowerCase().includes(needle))
+        (!needle || groupMatches || item.path.toLowerCase().includes(needle))
     )
     if (!items.length) return []
     return [
@@ -34,9 +34,9 @@ export function splitSearchHighlight(
   text: string,
   query: string
 ): { text: string; match: boolean }[] {
-  const needle = query.trim().toLocaleLowerCase()
+  const needle = query.trim().toLowerCase()
   if (!needle) return [{ text, match: false }]
-  const lower = text.toLocaleLowerCase()
+  const lower = text.toLowerCase()
   const parts: { text: string; match: boolean }[] = []
   let start = 0
   let index = lower.indexOf(needle)
