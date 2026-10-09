@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "Η εφαρμογή {{count}} ενημερώθηκε με επιτυχία",
     "updateResultAppsUpdatedPlural": "Οι εφαρμογές {{count}} ενημερώθηκαν με επιτυχία",
     "updateResultFailed": "{{count}} απέτυχαν",
+    "suggestedCommandsLabel": "Δοκιμάστε να το εκτελέσετε μόνοι σας:",
     "deselectAll": "Κατάργηση επιλογής όλων",
     "selectAll": "Επιλογή όλων",
     "selectedCount": "{{count}} επιλεγμένα",

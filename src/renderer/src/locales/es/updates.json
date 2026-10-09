@@ -65,7 +65,7 @@
     "updateResultAppsUpdated": "{{count}} aplicación actualizada correctamente",
     "updateResultAppsUpdatedPlural": "{{count}} aplicaciones actualizadas correctamente",
     "updateResultFailed": "{{count}} con error",
-    "suggestedCommandsLabel": "Ejecute esto manualmente:",
+    "suggestedCommandsLabel": "Intente ejecutar esto usted mismo:",
     "deselectAll": "Deseleccionar todo",
     "selectAll": "Seleccionar todo",
     "selectedCount": "{{count}} seleccionadas",

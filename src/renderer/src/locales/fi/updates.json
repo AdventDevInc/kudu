@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} sovellus päivitettiin onnistuneesti",
     "updateResultAppsUpdatedPlural": "{{count}} sovellusta päivitettiin onnistuneesti",
     "updateResultFailed": "{{count}} epäonnistui",
+    "suggestedCommandsLabel": "Kokeile suorittaa tämä itse:",
     "deselectAll": "Poista kaikkien valinta",
     "selectAll": "Valitse kaikki",
     "selectedCount": "{{count}} valittu",

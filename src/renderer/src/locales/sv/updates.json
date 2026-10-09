@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} app uppdaterades",
     "updateResultAppsUpdatedPlural": "{{count}} appar uppdaterades",
     "updateResultFailed": "{{count}} misslyckades",
+    "suggestedCommandsLabel": "Försök att köra detta själv:",
     "deselectAll": "Avmarkera alla",
     "selectAll": "Markera alla",
     "selectedCount": "{{count}} markerade",

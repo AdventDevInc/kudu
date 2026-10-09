@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "Pomyślnie zaktualizowano {{count}} aplikację",
     "updateResultAppsUpdatedPlural": "Pomyślnie zaktualizowano {{count}} aplikacje",
     "updateResultFailed": "Niepowodzenia: {{count}}",
+    "suggestedCommandsLabel": "Spróbuj uruchomić to samodzielnie:",
     "deselectAll": "Odznacz wszystko",
     "selectAll": "Zaznacz wszystko",
     "selectedCount": "Zaznaczono: {{count}}",

@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} app ble oppdatert",
     "updateResultAppsUpdatedPlural": "{{count}} apper ble oppdatert",
     "updateResultFailed": "{{count}} mislyktes",
+    "suggestedCommandsLabel": "Prøv å kjøre dette selv:",
     "deselectAll": "Fjern markering av alle",
     "selectAll": "Velg alle",
     "selectedCount": "{{count}} valgt",

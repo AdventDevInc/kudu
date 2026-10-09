@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} aplikace byla úspěšně aktualizována",
     "updateResultAppsUpdatedPlural": "{{count}} aplikací bylo úspěšně aktualizováno",
     "updateResultFailed": "{{count}} selhalo",
+    "suggestedCommandsLabel": "Zkuste to spustit sami:",
     "deselectAll": "Zrušit výběr všeho",
     "selectAll": "Vybrat vše",
     "selectedCount": "Vybráno: {{count}}",

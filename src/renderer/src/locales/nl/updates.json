@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} app succesvol bijgewerkt",
     "updateResultAppsUpdatedPlural": "{{count}} apps succesvol bijgewerkt",
     "updateResultFailed": "{{count}} mislukt",
+    "suggestedCommandsLabel": "Probeer dit zelf uit te voeren:",
     "deselectAll": "Alles deselecteren",
     "selectAll": "Alles selecteren",
     "selectedCount": "{{count}} geselecteerd",

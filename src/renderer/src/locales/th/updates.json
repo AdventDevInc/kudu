@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "อัปเดตแอป {{count}} รายการสำเร็จ",
     "updateResultAppsUpdatedPlural": "อัปเดตแอป {{count}} รายการสำเร็จ",
     "updateResultFailed": "ล้มเหลว {{count}} รายการ",
+    "suggestedCommandsLabel": "ลองเรียกใช้ด้วยตนเอง:",
     "deselectAll": "ยกเลิกการเลือกทั้งหมด",
     "selectAll": "เลือกทั้งหมด",
     "selectedCount": "เลือกแล้ว {{count}} รายการ",

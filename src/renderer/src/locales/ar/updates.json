@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "تم تحديث {{count}} تطبيق بنجاح",
     "updateResultAppsUpdatedPlural": "تم تحديث {{count}} تطبيقات بنجاح",
     "updateResultFailed": "فشل {{count}}",
+    "suggestedCommandsLabel": "جرّب تشغيل هذا بنفسك:",
     "deselectAll": "إلغاء تحديد الكل",
     "selectAll": "تحديد الكل",
     "selectedCount": "تم تحديد {{count}}",

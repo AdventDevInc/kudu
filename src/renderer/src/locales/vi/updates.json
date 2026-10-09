@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "Đã cập nhật thành công {{count}} ứng dụng",
     "updateResultAppsUpdatedPlural": "Đã cập nhật thành công {{count}} ứng dụng",
     "updateResultFailed": "{{count}} mục thất bại",
+    "suggestedCommandsLabel": "Hãy thử tự chạy lệnh này:",
     "deselectAll": "Bỏ chọn tất cả",
     "selectAll": "Chọn tất cả",
     "selectedCount": "Đã chọn {{count}}",

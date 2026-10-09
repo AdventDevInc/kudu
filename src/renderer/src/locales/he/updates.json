@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} יישום עודכן בהצלחה",
     "updateResultAppsUpdatedPlural": "{{count}} יישומים עודכנו בהצלחה",
     "updateResultFailed": "{{count}} נכשלו",
+    "suggestedCommandsLabel": "נסה להפעיל זאת בעצמך:",
     "deselectAll": "בטל בחירה של הכול",
     "selectAll": "בחר הכול",
     "selectedCount": "{{count}} נבחרו",

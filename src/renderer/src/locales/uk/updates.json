@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} програму успішно оновлено",
     "updateResultAppsUpdatedPlural": "{{count}} програм успішно оновлено",
     "updateResultFailed": "{{count}} не вдалося оновити",
+    "suggestedCommandsLabel": "Спробуйте виконати це самостійно:",
     "deselectAll": "Зняти вибір з усіх",
     "selectAll": "Вибрати все",
     "selectedCount": "Вибрано: {{count}}",

@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}}개 앱이 성공적으로 업데이트됨",
     "updateResultAppsUpdatedPlural": "{{count}}개 앱이 성공적으로 업데이트됨",
     "updateResultFailed": "{{count}}개 실패",
+    "suggestedCommandsLabel": "직접 실행해 보세요:",
     "deselectAll": "모두 선택 해제",
     "selectAll": "모두 선택",
     "selectedCount": "{{count}}개 선택됨",

@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} приложение успешно обновлено",
     "updateResultAppsUpdatedPlural": "{{count}} приложений успешно обновлено",
     "updateResultFailed": "Не удалось: {{count}}",
+    "suggestedCommandsLabel": "Попробуйте выполнить это самостоятельно:",
     "deselectAll": "Снять выделение со всех",
     "selectAll": "Выбрать все",
     "selectedCount": "Выбрано: {{count}}",

@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} aplikasi berjaya dikemas kini",
     "updateResultAppsUpdatedPlural": "{{count}} aplikasi berjaya dikemas kini",
     "updateResultFailed": "{{count}} gagal",
+    "suggestedCommandsLabel": "Cuba jalankan ini sendiri:",
     "deselectAll": "Nyahpilih semua",
     "selectAll": "Pilih semua",
     "selectedCount": "{{count}} dipilih",

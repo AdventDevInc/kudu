@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} alkalmazás sikeresen frissítve",
     "updateResultAppsUpdatedPlural": "{{count}} alkalmazás sikeresen frissítve",
     "updateResultFailed": "{{count}} sikertelen",
+    "suggestedCommandsLabel": "Próbálja meg saját maga futtatni ezt:",
     "deselectAll": "Kijelölés megszüntetése",
     "selectAll": "Összes kijelölése",
     "selectedCount": "{{count}} kijelölve",

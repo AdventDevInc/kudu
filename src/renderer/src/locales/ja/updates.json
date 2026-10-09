@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} 個のアプリを正常に更新しました",
     "updateResultAppsUpdatedPlural": "{{count}} 個のアプリを正常に更新しました",
     "updateResultFailed": "{{count}} 件失敗",
+    "suggestedCommandsLabel": "ご自身で次を実行してみてください:",
     "deselectAll": "すべての選択を解除",
     "selectAll": "すべて選択",
     "selectedCount": "{{count}} 件を選択中",

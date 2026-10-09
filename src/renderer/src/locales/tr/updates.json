@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} uygulama başarıyla güncellendi",
     "updateResultAppsUpdatedPlural": "{{count}} uygulama başarıyla güncellendi",
     "updateResultFailed": "{{count}} başarısız",
+    "suggestedCommandsLabel": "Bunu kendiniz çalıştırmayı deneyin:",
     "deselectAll": "Tüm seçimleri kaldır",
     "selectAll": "Tümünü seç",
     "selectedCount": "{{count}} seçildi",

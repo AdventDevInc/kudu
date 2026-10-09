@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "已成功更新 {{count}} 个应用",
     "updateResultAppsUpdatedPlural": "已成功更新 {{count}} 个应用",
     "updateResultFailed": "{{count}} 个失败",
+    "suggestedCommandsLabel": "请尝试自行运行此命令：",
     "deselectAll": "取消全选",
     "selectAll": "全选",
     "selectedCount": "已选择 {{count}} 项",

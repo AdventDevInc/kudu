@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} app blev opdateret",
     "updateResultAppsUpdatedPlural": "{{count}} apps blev opdateret",
     "updateResultFailed": "{{count}} mislykkedes",
+    "suggestedCommandsLabel": "Prøv selv at køre dette:",
     "deselectAll": "Fravælg alle",
     "selectAll": "Vælg alle",
     "selectedCount": "{{count}} valgt",

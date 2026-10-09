@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} aplicație actualizată cu succes",
     "updateResultAppsUpdatedPlural": "{{count}} aplicații actualizate cu succes",
     "updateResultFailed": "{{count}} eșuate",
+    "suggestedCommandsLabel": "Încercați să rulați aceasta personal:",
     "deselectAll": "Deselectează tot",
     "selectAll": "Selectează tot",
     "selectedCount": "{{count}} selectate",

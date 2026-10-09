@@ -65,6 +65,7 @@
     "updateResultAppsUpdated": "{{count}} aplikasi berhasil diperbarui",
     "updateResultAppsUpdatedPlural": "{{count}} aplikasi berhasil diperbarui",
     "updateResultFailed": "{{count}} gagal",
+    "suggestedCommandsLabel": "Coba jalankan ini sendiri:",
     "deselectAll": "Batalkan pilihan semua",
     "selectAll": "Pilih semua",
     "selectedCount": "{{count}} dipilih",
