@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
+  Copy,
+  X,
   Monitor,
   Globe,
   AppWindow,
@@ -30,6 +32,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { CleanSummary } from '@/components/cleaner/CleanSummary'
 import { cn, formatBytes, formatNumber } from '@/lib/utils'
 import { cleanInBatches } from '@/lib/cleaner-batches'
+import { filterCleanerResults, splitSearchHighlight } from '@/lib/cleaner-results'
 import { useScanStore } from '@/stores/scan-store'
 import { useStatsStore } from '@/stores/stats-store'
 import { useHistoryStore } from '@/stores/history-store'
@@ -245,6 +248,11 @@ export function CleanerPage() {
     ? scannerCategories.filter((c) => c.type !== CleanerType.RecycleBin)
     : scannerCategories
   const [activeCategory, setActiveCategory] = useState<CategoryType>(CleanerType.System)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchScope, setSearchScope] = useState<'category' | 'all'>('category')
+  const [selectedOnly, setSelectedOnly] = useState(false)
+  const [visibleLimits, setVisibleLimits] = useState<Record<string, number>>({})
+  const [collapsedMatches, setCollapsedMatches] = useState<Set<string>>(new Set())
   const [showConfirm, setShowConfirm] = useState(false)
   const [blockers, setBlockers] = useState<CleanerBlocker[]>([])
   const [confirmBlockers, setConfirmBlockers] = useState<CleanerBlocker[]>([])
@@ -343,6 +351,8 @@ export function CleanerPage() {
     store.setResults([])
     store.setCleanSummary(null)
     setExpandedGroups(new Set())
+    setVisibleLimits({})
+    setCollapsedMatches(new Set())
     setFailedCategories([])
     setElevationSkipped([])
     const failed: string[] = []
@@ -649,18 +659,49 @@ export function CleanerPage() {
   const categoryItemCount = (type: CategoryType) =>
     categoryResults(type).reduce((sum, r) => sum + r.itemCount, 0)
 
-  const toggleActiveCategory = () => {
-    const results = categoryResults(activeCategory)
-    const items = results.flatMap((result) => result.items)
-    const allSelected = items.length > 0 && items.every((item) => store.selectedItems.has(item.id))
-
-    for (const result of results) {
-      const resultSelected = result.items.every((item) => store.selectedItems.has(item.id))
-      if ((allSelected && resultSelected) || (!allSelected && !resultSelected)) {
-        store.toggleSubcategory(result)
-      }
-    }
-  }
+  const resultCategoryLabel = (result: ScanResult) =>
+    t(
+      categories.find((category) =>
+        result.group === AI_TOOLS_GROUP
+          ? category.type === AI_TOOLS_VIEW
+          : category.type === result.category
+      )?.labelKey ?? ''
+    )
+  const scopedResults =
+    searchScope === 'all'
+      ? store.results.filter(
+          (result) => !protectRecycleBin || result.category !== CleanerType.RecycleBin
+        )
+      : protectRecycleBin && activeCategory === CleanerType.RecycleBin
+        ? []
+        : categoryResults(activeCategory)
+  const visibleResults = filterCleanerResults(
+    scopedResults,
+    searchQuery,
+    store.selectedItems,
+    selectedOnly,
+    resultCategoryLabel
+  )
+  const visibleIds = visibleResults.flatMap((result) => result.items.map((item) => item.id))
+  const visibleIdSet = new Set(visibleIds)
+  const selectedHere = visibleIds.filter((id) => store.selectedItems.has(id)).length
+  const selectedElsewhere = [...store.selectedItems].filter((id) => !visibleIdSet.has(id)).length
+  const isFiltering = !!searchQuery.trim() || selectedOnly
+  const viewKey = JSON.stringify([activeCategory, searchScope, searchQuery, selectedOnly])
+  // Privacy traces remain a deliberate group-by-group opt-in.
+  const bulkSelectableIds = visibleResults
+    .filter((result) => result.category !== CleanerType.PrivacyTraces)
+    .flatMap((result) => result.items.map((item) => item.id))
+  const highlight = (text: string) =>
+    splitSearchHighlight(text, searchQuery).map((part, index) =>
+      part.match ? (
+        <mark key={index} className="rounded-sm bg-amber-500/20 text-inherit">
+          {part.text}
+        </mark>
+      ) : (
+        <span key={index}>{part.text}</span>
+      )
+    )
 
   const toggleGroup = (key: string) => {
     setExpandedGroups((prev) => {
@@ -671,8 +712,26 @@ export function CleanerPage() {
     })
   }
 
+  const toggleResultGroup = (groupKey: string, displayKey: string) => {
+    if (isFiltering) {
+      setCollapsedMatches((previous) => {
+        const next = new Set(previous)
+        if (next.has(displayKey)) next.delete(displayKey)
+        else next.add(displayKey)
+        return next
+      })
+    } else toggleGroup(groupKey)
+  }
+
   const toggleSubcategorySelection = (result: ScanResult) => {
-    store.toggleSubcategory(result)
+    if (isFiltering || searchScope === 'all') {
+      store.setItemsSelected(
+        result.items.map((item) => item.id),
+        !result.items.every((item) => store.selectedItems.has(item.id))
+      )
+    } else {
+      store.toggleSubcategory(result)
+    }
   }
 
   // Sort results by aggregate size, keeping the scanner's order when 'default'.
@@ -685,7 +744,8 @@ export function CleanerPage() {
   const isScanning = store.status === ScanStatus.Scanning
   const isCleaning = store.status === ScanStatus.Cleaning
   const hasResults = store.results.length > 0
-  const isRecycleBinProtected = protectRecycleBin && activeCategory === CleanerType.RecycleBin
+  const isRecycleBinProtected =
+    protectRecycleBin && activeCategory === CleanerType.RecycleBin && searchScope === 'category'
   const confirmCleanIds = scopedClean?.ids ?? store.getSelectedIds()
   const confirmCleanSize = scopedClean
     ? sizeForIds(store.results, scopedClean.ids)
@@ -762,12 +822,15 @@ export function CleanerPage() {
         <div className="cleaner-categories w-56 shrink-0 space-y-1.5">
           {categories.map((cat) => {
             const count = categoryItemCount(cat.type)
-            const isActive = activeCategory === cat.type
+            const isActive = searchScope === 'category' && activeCategory === cat.type
             const isProtected = protectRecycleBin && cat.type === CleanerType.RecycleBin
             return (
               <button
                 key={cat.type}
-                onClick={() => setActiveCategory(cat.type)}
+                onClick={() => {
+                  setActiveCategory(cat.type)
+                  setSearchScope('category')
+                }}
                 onContextMenu={(e) => {
                   // Privacy traces are opt-in per item: no clean-everything shortcut.
                   if (isProtected || cat.type === CleanerType.PrivacyTraces) return
@@ -996,6 +1059,103 @@ export function CleanerPage() {
             />
           )}
 
+          {hasResults && (
+            <fieldset
+              disabled={isScanning || isCleaning || preparingClean}
+              className="mb-4 space-y-3 rounded-xl border p-3 disabled:opacity-50"
+              style={{ borderColor: 'var(--border-default)', background: 'var(--card-bg)' }}
+            >
+              <legend className="sr-only">{t('searchResults')}</legend>
+              <div className="flex flex-wrap items-center gap-2">
+                <div
+                  className="relative flex min-w-48 flex-1 items-center gap-2 rounded-lg border px-3 py-2"
+                  style={{ borderColor: 'var(--border-medium)' }}
+                >
+                  <Search className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder={t('searchResultsPlaceholder')}
+                    aria-label={t('searchResults')}
+                    className="min-w-0 flex-1 bg-transparent text-[13px] outline-none [&::-webkit-search-cancel-button]:hidden"
+                    style={{ color: 'var(--text-primary)' }}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      aria-label={t('clearSearch')}
+                      onClick={() => setSearchQuery('')}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <select
+                  aria-label={t('searchScope')}
+                  value={searchScope}
+                  onChange={(event) => setSearchScope(event.target.value as 'category' | 'all')}
+                  className="rounded-lg border px-3 py-2 text-[12px]"
+                  style={{
+                    borderColor: 'var(--border-medium)',
+                    background: 'var(--card-bg)',
+                    color: 'var(--text-secondary)'
+                  }}
+                >
+                  <option value="category">{t('currentCategory')}</option>
+                  <option value="all">{t('allCleanupCategories')}</option>
+                </select>
+                <label
+                  className="flex items-center gap-2 text-[12px]"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedOnly}
+                    onChange={(event) => setSelectedOnly(event.target.checked)}
+                    className="accent-amber-500"
+                  />
+                  {t('selectedOnly')}
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-[12px]">
+                <p role="status" style={{ color: 'var(--text-muted)' }}>
+                  {t('resultSelectionSummary', {
+                    count: formatNumber(visibleIds.length),
+                    selected: formatNumber(selectedHere),
+                    elsewhere: formatNumber(selectedElsewhere)
+                  })}
+                </p>
+                <div className="flex gap-3 text-amber-500">
+                  <button
+                    type="button"
+                    disabled={!bulkSelectableIds.length}
+                    onClick={() => store.setItemsSelected(bulkSelectableIds, true)}
+                    className="disabled:opacity-40"
+                  >
+                    {t(isFiltering ? 'selectMatches' : 'selectInView')}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!selectedHere}
+                    onClick={() => store.setItemsSelected(visibleIds, false)}
+                    className="disabled:opacity-40"
+                  >
+                    {t(isFiltering ? 'deselectMatches' : 'deselectInView')}
+                  </button>
+                </div>
+              </div>
+              <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                {t('searchSelectionHint')}
+              </p>
+              {visibleResults.some((result) => result.category === CleanerType.PrivacyTraces) && (
+                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  {t('privacyBulkSelectionHint')}
+                </p>
+              )}
+            </fieldset>
+          )}
+
           {hasResults && !isRecycleBinProtected && (
             <div key={activeCategory} className="space-y-2">
               <div className="mb-3 flex items-center justify-between px-1">
@@ -1004,7 +1164,10 @@ export function CleanerPage() {
                   style={{ color: 'var(--text-muted)' }}
                 >
                   {t('categoryItemsHeading', {
-                    category: t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '')
+                    category:
+                      searchScope === 'all'
+                        ? t('allCleanupCategories')
+                        : t(categories.find((c) => c.type === activeCategory)?.labelKey ?? '')
                   })}
                 </span>
                 <div className="flex items-center gap-3">
@@ -1052,38 +1215,29 @@ export function CleanerPage() {
                       </div>
                     )}
                   </div>
-                  {/* Privacy traces are opted into group by group: no select-everything. */}
-                  {activeCategory !== CleanerType.PrivacyTraces && (
-                    <button
-                      onClick={toggleActiveCategory}
-                      className="text-[12px] font-medium text-amber-500 hover:text-amber-400"
-                    >
-                      {t('toggleAll')}
-                    </button>
-                  )}
                 </div>
               </div>
 
-              {categoryResults(activeCategory).length === 0 && (
+              {visibleResults.length === 0 && (
                 <div
                   className="py-12 text-center text-[13px]"
                   style={{ color: 'var(--text-muted)' }}
                 >
-                  {t('noItemsInCategory')}
+                  {t(isFiltering ? 'noMatchingResults' : 'noItemsInCategory')}
                 </div>
               )}
 
               {(() => {
-                const results = categoryResults(activeCategory)
+                const results = visibleResults
                 // Group results by group label (ungrouped first, then grouped
                 // sections); each section is sorted independently so sort
                 // order never interleaves group sections.
                 const ungrouped =
-                  activeCategory === AI_TOOLS_VIEW
+                  activeCategory === AI_TOOLS_VIEW && searchScope === 'category'
                     ? sortResults(results)
                     : sortResults(results.filter((r) => !r.group))
                 const grouped = new Map<string, ScanResult[]>()
-                if (activeCategory !== AI_TOOLS_VIEW) {
+                if (activeCategory !== AI_TOOLS_VIEW || searchScope === 'all') {
                   for (const r of results) {
                     if (!r.group) continue
                     if (!grouped.has(r.group)) grouped.set(r.group, [])
@@ -1104,7 +1258,7 @@ export function CleanerPage() {
                           className="text-[11px] font-semibold uppercase tracking-wider"
                           style={{ color: 'var(--text-secondary)' }}
                         >
-                          {section.label}
+                          {highlight(section.label)}
                         </span>
                         <div className="flex-1 h-px" style={{ background: 'var(--bg-hover-2)' }} />
                         <span
@@ -1117,8 +1271,16 @@ export function CleanerPage() {
                     )}
                     <div className="space-y-1.5">
                       {section.items.map((result) => {
-                        const groupKey = `${result.category}:${result.subcategory}`
-                        const isExpanded = expandedGroups.has(groupKey)
+                        const groupKey = JSON.stringify([
+                          result.category,
+                          result.group,
+                          result.subcategory
+                        ])
+                        const displayKey = viewKey + groupKey
+                        const visibleLimit = visibleLimits[displayKey] ?? 50
+                        const isExpanded = isFiltering
+                          ? !collapsedMatches.has(displayKey)
+                          : expandedGroups.has(groupKey)
                         const selectedInGroup = result.items.filter((item) =>
                           store.selectedItems.has(item.id)
                         ).length
@@ -1127,7 +1289,7 @@ export function CleanerPage() {
 
                         return (
                           <div
-                            key={result.subcategory}
+                            key={groupKey}
                             className="rounded-xl overflow-hidden"
                             style={{
                               background: 'var(--card-bg)',
@@ -1137,7 +1299,7 @@ export function CleanerPage() {
                             {/* Group header */}
                             <div
                               className="flex items-center gap-3 px-4 py-3.5 cursor-pointer"
-                              onClick={() => toggleGroup(groupKey)}
+                              onClick={() => toggleResultGroup(groupKey, displayKey)}
                               onContextMenu={(e) => {
                                 // The quick-clean menu would clear traces without selecting them.
                                 if (result.category === CleanerType.PrivacyTraces) return
@@ -1152,12 +1314,17 @@ export function CleanerPage() {
                               }}
                             >
                               {/* Checkbox */}
-                              <div
+                              <button
+                                type="button"
+                                role="checkbox"
+                                aria-checked={someSelected ? 'mixed' : allSelected}
+                                aria-label={t('selectGroup', { name: result.subcategory })}
+                                disabled={isScanning || isCleaning || preparingClean}
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   toggleSubcategorySelection(result)
                                 }}
-                                className="flex items-center"
+                                className="flex items-center disabled:opacity-40"
                               >
                                 <div
                                   className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] cursor-pointer"
@@ -1190,17 +1357,28 @@ export function CleanerPage() {
                                     />
                                   )}
                                 </div>
-                              </div>
+                              </button>
 
                               {/* Expand arrow */}
-                              <ChevronRight
-                                className={cn(
-                                  'h-3.5 w-3.5 shrink-0 transition-transform',
-                                  isExpanded && 'rotate-90'
-                                )}
-                                style={{ color: 'var(--text-muted)' }}
-                                strokeWidth={2}
-                              />
+                              <button
+                                type="button"
+                                aria-label={t('toggleGroupDetails', { name: result.subcategory })}
+                                aria-expanded={isExpanded}
+                                onClick={(event) => {
+                                  event.stopPropagation()
+                                  toggleResultGroup(groupKey, displayKey)
+                                }}
+                                className="shrink-0 rounded p-1 hover:bg-[var(--bg-hover)]"
+                              >
+                                <ChevronRight
+                                  className={cn(
+                                    'h-3.5 w-3.5 transition-transform',
+                                    isExpanded && 'rotate-90'
+                                  )}
+                                  style={{ color: 'var(--text-muted)' }}
+                                  strokeWidth={2}
+                                />
+                              </button>
 
                               {/* Folder icon */}
                               <Folder
@@ -1214,8 +1392,16 @@ export function CleanerPage() {
                               {/* Label */}
                               <div className="flex-1 min-w-0">
                                 <span className="text-[13px] font-medium text-zinc-300">
-                                  {result.subcategory}
+                                  {highlight(result.subcategory)}
                                 </span>
+                                {searchScope === 'all' && (
+                                  <p
+                                    className="mt-0.5 text-[11px]"
+                                    style={{ color: 'var(--text-muted)' }}
+                                  >
+                                    {highlight(resultCategoryLabel(result))}
+                                  </p>
+                                )}
                                 {result.descriptionKey && (
                                   <p
                                     className="mt-1 text-[11px]"
@@ -1293,7 +1479,7 @@ export function CleanerPage() {
                             {/* Expanded item list */}
                             {isExpanded && (
                               <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                                {result.items.slice(0, 50).map((item) => {
+                                {result.items.slice(0, visibleLimit).map((item) => {
                                   const checked = store.selectedItems.has(item.id)
                                   const pathLabel =
                                     item.path.split(/[/\\]/).slice(-2).join('/') || item.path
@@ -1320,7 +1506,12 @@ export function CleanerPage() {
                                       <input
                                         type="checkbox"
                                         checked={checked}
-                                        onChange={() => store.toggleItem(item.id)}
+                                        disabled={isScanning || isCleaning || preparingClean}
+                                        onChange={() => {
+                                          if (isFiltering || searchScope === 'all')
+                                            store.setItemsSelected([item.id], !checked)
+                                          else store.toggleItem(item.id)
+                                        }}
                                         className="sr-only peer"
                                       />
                                       <div
@@ -1351,14 +1542,27 @@ export function CleanerPage() {
                                         )}
                                       </div>
                                       <span
-                                        className="flex-1 min-w-0 truncate text-[12px] font-mono"
+                                        title={item.path}
+                                        className="flex-1 min-w-0 text-[12px] font-mono"
                                         style={{ color: 'var(--text-secondary)' }}
                                       >
-                                        {item.cleanupAction
-                                          ? t('maintenanceOptional', {
-                                              defaultValue: 'Optional maintenance'
-                                            })
-                                          : pathLabel}
+                                        {item.cleanupAction ? (
+                                          t('maintenanceOptional', {
+                                            defaultValue: 'Optional maintenance'
+                                          })
+                                        ) : (
+                                          <>
+                                            <span className="block truncate">
+                                              {highlight(pathLabel)}
+                                            </span>
+                                            <span
+                                              className="mt-0.5 block break-all select-text text-[10px]"
+                                              style={{ color: 'var(--text-muted)' }}
+                                            >
+                                              {highlight(item.path)}
+                                            </span>
+                                          </>
+                                        )}
                                       </span>
                                       <span
                                         className="font-mono text-[11px] shrink-0"
@@ -1372,6 +1576,25 @@ export function CleanerPage() {
                                             ? entryCountLabel(item.entryCount)
                                             : formatBytes(item.size)}
                                       </span>
+                                      <button
+                                        type="button"
+                                        title={t('copyPath')}
+                                        aria-label={t('copyPath')}
+                                        className="shrink-0 rounded p-1 hover:bg-[var(--bg-hover-2)]"
+                                        onClick={(event) => {
+                                          event.preventDefault()
+                                          event.stopPropagation()
+                                          void navigator.clipboard
+                                            .writeText(item.path)
+                                            .then(() => toast.success(t('pathCopied')))
+                                            .catch(() => toast.error(t('pathCopyFailed')))
+                                        }}
+                                      >
+                                        <Copy
+                                          className="h-3.5 w-3.5"
+                                          style={{ color: 'var(--text-muted)' }}
+                                        />
+                                      </button>
                                       {isAbsolutePath(item.path) && (
                                         <button
                                           type="button"
@@ -1392,15 +1615,24 @@ export function CleanerPage() {
                                     </label>
                                   )
                                 })}
-                                {result.items.length > 50 && (
-                                  <div
-                                    className="px-4 py-2.5 pl-14 text-[11px]"
-                                    style={{ color: 'var(--text-muted)' }}
+                                {result.items.length > visibleLimit && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setVisibleLimits((previous) => ({
+                                        ...previous,
+                                        [displayKey]: visibleLimit + 50
+                                      }))
+                                    }
+                                    className="w-full px-4 py-2.5 text-left pl-14 text-[12px] text-amber-500 hover:bg-[var(--bg-hover)]"
                                   >
-                                    {t('moreItems', {
-                                      count: formatNumber(result.items.length - 50)
+                                    {t('showMoreItems', {
+                                      count: formatNumber(
+                                        Math.min(50, result.items.length - visibleLimit)
+                                      ),
+                                      remaining: formatNumber(result.items.length - visibleLimit)
                                     })}
-                                  </div>
+                                  </button>
                                 )}
                               </div>
                             )}
@@ -1429,7 +1661,7 @@ export function CleanerPage() {
             ? t('confirmCleanCategoryTitle', { name: scopedClean.label })
             : t('confirmCleanTitle')
         }
-        description={`${t('confirmCleanDescription', { count: formatNumber(confirmCleanIds.length), size: formatBytes(confirmCleanSize) })}${confirmBlockers.length > 0 ? ` ${t('confirmCloseApps', { apps: blockerNames(confirmBlockers, (count) => t('moreApps', { count })) })}` : ''}`}
+        description={`${t('confirmCleanDescription', { count: formatNumber(confirmCleanIds.length), size: formatBytes(confirmCleanSize) })}${!scopedClean && selectedElsewhere > 0 ? ` ${t('confirmHiddenSelection', { count: formatNumber(selectedElsewhere) })}` : ''}${confirmBlockers.length > 0 ? ` ${t('confirmCloseApps', { apps: blockerNames(confirmBlockers, (count) => t('moreApps', { count })) })}` : ''}`}
         confirmLabel={t('confirmCleanLabel')}
         variant="warning"
       />

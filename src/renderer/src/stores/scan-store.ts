@@ -49,6 +49,7 @@ interface ScanState {
   setCleanSummary: (summary: CleanSummaryData | null) => void
   setActiveCategory: (cat: CleanerType | null) => void
   toggleItem: (id: string) => void
+  setItemsSelected: (ids: string[], selected: boolean) => void
   toggleSubcategory: (result: ScanResult) => void
   selectAll: (category: string) => void
   deselectAll: (category: string) => void
@@ -93,6 +94,18 @@ export const useScanStore = create<ScanState>((set, get) => ({
   setProgress: (progress) => set({ progress }),
   setCleanSummary: (cleanSummary) => set({ cleanSummary }),
   setActiveCategory: (activeCategory) => set({ activeCategory }),
+  // Search-scoped changes affect this scan only, never remembered group exclusions.
+  setItemsSelected: (ids, selected) =>
+    set((s) => {
+      const knownIds = new Set(s.results.flatMap((result) => result.items.map((item) => item.id)))
+      const next = new Set(s.selectedItems)
+      for (const id of ids) {
+        if (!knownIds.has(id)) continue
+        if (selected) next.add(id)
+        else next.delete(id)
+      }
+      return { selectedItems: next }
+    }),
   toggleItem: (id) =>
     set((s) => {
       const next = new Set(s.selectedItems)

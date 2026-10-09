@@ -199,3 +199,39 @@ describe('scan-store', () => {
     expect(state.selectedItems.size).toBe(0)
   })
 })
+
+describe('search-scoped selection', () => {
+  beforeEach(() => {
+    storage.clear()
+    useScanStore.setState({ excludedSubcategories: new Set(['Temp files']) })
+    useScanStore.getState().reset()
+  })
+
+  it('changes only known matching IDs and preserves hidden selections and remembered exclusions', () => {
+    const store = useScanStore.getState()
+    store.setResults([
+      makeResult('system', 'Temp files', [
+        { id: 'match', size: 1 },
+        { id: 'hidden', size: 2 }
+      ]),
+      makeResult('app', 'Other cache', [{ id: 'elsewhere', size: 3 }])
+    ])
+    store.setItemsSelected(['match', 'expired'], true)
+    expect([...useScanStore.getState().selectedItems].sort()).toEqual(['elsewhere', 'match'])
+    store.setItemsSelected(['match'], false)
+    expect([...useScanStore.getState().selectedItems]).toEqual(['elsewhere'])
+    expect([...useScanStore.getState().excludedSubcategories]).toEqual(['Temp files'])
+    expect(storage.size).toBe(0)
+  })
+
+  it('does not persist a filtered deselection across scans', () => {
+    useScanStore.setState({ excludedSubcategories: new Set() })
+    const inventory = [makeResult('system', 'Temp files', [{ id: 'match', size: 1 }])]
+    const store = useScanStore.getState()
+    store.setResults(inventory)
+    store.setItemsSelected(['match'], false)
+    expect(useScanStore.getState().getSelectedIds()).toEqual([])
+    store.setResults(inventory)
+    expect(useScanStore.getState().getSelectedIds()).toEqual(['match'])
+  })
+})
