@@ -99,6 +99,24 @@ describe('Cleaner result search', () => {
     }
   )
 
+  it.each([
+    ['/\u0130nfo/cache.log', 'nfo', ['nfo']],
+    ['/\u0130nfo/\u0130nfo', 'nfo', ['nfo', 'nfo']],
+    ['/\u0130nfo', 'i', ['\u0130']],
+    ['/\u0130nfo', '\u0130', ['\u0130']],
+    ['/\u0130\u0130\u0130', '\u0307i', ['\u0130\u0130\u0130']],
+    ['/\u{1F4C1}\u0130nfo', 'nfo', ['nfo']]
+  ])(
+    'maps lowercase match offsets back to the original Unicode path %s for %s',
+    (path, query, matches) => {
+      const inventory = result('system', 'Cache', [path])
+      expect(filterCleanerResults([inventory], query, new Set(), false, () => '')).toHaveLength(1)
+      const parts = splitSearchHighlight(path, query)
+      expect(parts.filter((part) => part.match).map((part) => part.text)).toEqual(matches)
+      expect(parts.map((part) => part.text).join('')).toBe(path)
+    }
+  )
+
   it('highlights repeated literal matches without treating search text as a regular expression', () => {
     const parts = splitSearchHighlight('Cache.[1]/cache.[1]', 'CACHE.[1]')
     expect(parts.filter((part) => part.match).map((part) => part.text)).toEqual([

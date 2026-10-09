@@ -37,14 +37,40 @@ export function splitSearchHighlight(
   const needle = query.trim().toLowerCase()
   if (!needle) return [{ text, match: false }]
   const lower = text.toLowerCase()
-  const parts: { text: string; match: boolean }[] = []
-  let start = 0
+  // Lowercasing can expand a source character (e.g. U+0130 becomes i + dot).
+  // Map each folded UTF-16 unit to the entire original code point, while
+  // searching the whole folded string to preserve context-sensitive casing.
+  const sourceStarts: number[] = []
+  const sourceEnds: number[] = []
+  let sourceOffset = 0
+  for (const character of text) {
+    const end = sourceOffset + character.length
+    for (let unit = 0; unit < character.toLowerCase().length; unit++) {
+      sourceStarts.push(sourceOffset)
+      sourceEnds.push(end)
+    }
+    sourceOffset = end
+  }
+
+  const matches: { start: number; end: number }[] = []
   let index = lower.indexOf(needle)
   while (index !== -1) {
-    if (index > start) parts.push({ text: text.slice(start, index), match: false })
-    parts.push({ text: text.slice(index, index + needle.length), match: true })
-    start = index + needle.length
-    index = lower.indexOf(needle, start)
+    const start = sourceStarts[index]
+    const end = sourceEnds[index + needle.length - 1]
+    const previous = matches.at(-1)
+    // Distinct folded matches can cover the same expanded source character.
+    // Merge those ranges so rendering never duplicates the original text.
+    if (previous && start < previous.end) previous.end = Math.max(previous.end, end)
+    else matches.push({ start, end })
+    index = lower.indexOf(needle, index + needle.length)
+  }
+
+  const parts: { text: string; match: boolean }[] = []
+  let start = 0
+  for (const match of matches) {
+    if (match.start > start) parts.push({ text: text.slice(start, match.start), match: false })
+    parts.push({ text: text.slice(match.start, match.end), match: true })
+    start = match.end
   }
   if (start < text.length) parts.push({ text: text.slice(start), match: false })
   return parts
