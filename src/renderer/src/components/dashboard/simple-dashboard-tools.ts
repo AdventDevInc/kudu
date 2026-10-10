@@ -12,6 +12,7 @@ interface GoalTool {
 const tools: Record<DashboardGoal, GoalTool[]> = {
   space: [
     { path: '/cleaner', titleKey: 'sidebar:cleaner' },
+    { path: '/downloads', titleKey: 'downloads:pageTitle' },
     { path: '/large-files', titleKey: 'largeFiles:pageTitle' },
     { path: '/duplicates', titleKey: 'duplicates:pageTitle' },
     { path: '/disk', titleKey: 'disk:pageTitle' },

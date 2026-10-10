@@ -222,6 +222,12 @@ const navGroups: NavGroup[] = [
         children: [
           { icon: HardDrive, labelKey: 'disk:pageTitle', label: 'Storage Overview', path: '/disk' },
           {
+            icon: FileUp,
+            labelKey: 'downloads:pageTitle',
+            label: 'Downloads Review',
+            path: '/downloads'
+          },
+          {
             icon: CopyCheck,
             labelKey: 'duplicates:pageTitle',
             label: 'Duplicate Finder',

@@ -299,6 +299,11 @@ export const IPC = {
 
   DIAGNOSTICS: 'performance:diagnostics',
 
+  // Downloads Review
+  DOWNLOADS_SCAN: 'downloads:scan',
+  DOWNLOADS_TRASH: 'downloads:trash',
+  DOWNLOADS_REVEAL: 'downloads:reveal',
+
   // Platform
   PLATFORM_INFO: 'platform:info',
 

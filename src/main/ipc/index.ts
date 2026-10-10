@@ -1,3 +1,4 @@
+import { registerDownloadsReviewIpc } from './downloads-review.ipc'
 import { registerStorageHistoryIpc } from './storage-history.ipc'
 import { isPortable } from '../services/portable'
 import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron'
@@ -82,6 +83,7 @@ import { findCleanerBlockers } from '../services/cleaner-blockers'
 export type WindowGetter = () => BrowserWindow | null
 
 export function registerCleanerIpc(getWindow: WindowGetter): void {
+  registerDownloadsReviewIpc()
   registerRecoveryIpc()
   registerCleanupReceiptsIpc()
   registerSystemCleanerIpc(getWindow)

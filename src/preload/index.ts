@@ -1,3 +1,4 @@
+import type { DownloadsScanResult, DownloadsTrashResult } from '../shared/downloads-review'
 import type { UninstallOptions } from '../shared/uninstall-policy'
 import type {
   DiagnosticCapabilities,
@@ -713,6 +714,13 @@ const api = {
       ipcRenderer.removeListener(IPC.LARGE_FILES_PROGRESS, handler)
     }
   },
+
+  // Downloads Review
+  downloadsScan: (): Promise<DownloadsScanResult> => ipcRenderer.invoke(IPC.DOWNLOADS_SCAN),
+  downloadsTrash: (scanId: string, ids: string[]): Promise<DownloadsTrashResult> =>
+    ipcRenderer.invoke(IPC.DOWNLOADS_TRASH, scanId, ids),
+  downloadsReveal: (scanId: string, id: string): Promise<void> =>
+    ipcRenderer.invoke(IPC.DOWNLOADS_REVEAL, scanId, id),
 
   // Empty Folder Cleaner
   emptyFoldersSelectDir: (): Promise<string | null> =>
