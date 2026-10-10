@@ -98,6 +98,19 @@ async function getRules(): Promise<SpaceRule[]> {
       }
     })
   }
+  // The platform exposes Safari only on macOS. Match the browser cleaner's
+  // cache-only target, preserving cookies, history, bookmarks and profile data.
+  if (browsers.safari) {
+    const cache = browsers.safari.cache
+    rules.push({
+      id: 'browser:safari',
+      name: 'Safari',
+      category: CleanerType.Browser,
+      scan: async () => [
+        await scanDirectory(cache, CleanerType.Browser, 'Safari - Cache', BROWSER_CACHE_RECENCY)
+      ]
+    })
+  }
   return rules
 }
 let scanning: Promise<AppSpaceReport> | null = null

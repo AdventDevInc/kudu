@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AppSpaceReview, ScanResult } from '../../shared/types'
+import type { AppSpaceReport, AppSpaceReview, ScanResult } from '../../shared/types'
 const mocks = vi.hoisted(() => ({
   handlers: new Map<string, (...args: unknown[]) => unknown>(),
   scan: vi.fn(),
+  scanDirectory: vi.fn(),
+  safari: null as { cache: string } | null,
   inventory: vi.fn(),
   cache: vi.fn(),
   remove: vi.fn()
@@ -22,6 +24,7 @@ vi.mock('../platform', () => ({
       ],
       gamingPaths: () => [],
       browserPaths: () => ({
+        safari: mocks.safari,
         firefox: { cache: '' },
         librewolf: { cache: '' },
         waterfox: { cache: '' },
@@ -31,7 +34,10 @@ vi.mock('../platform', () => ({
   })
 }))
 vi.mock('../services/program-uninstaller', () => ({ getInstalledProgramsFull: mocks.inventory }))
-vi.mock('../services/file-utils', () => ({ scanAppRule: mocks.scan, scanDirectory: vi.fn() }))
+vi.mock('../services/file-utils', () => ({
+  scanAppRule: mocks.scan,
+  scanDirectory: mocks.scanDirectory
+}))
 vi.mock('../services/scan-cache', () => ({
   cacheItems: mocks.cache,
   removeCachedItems: mocks.remove
@@ -63,6 +69,7 @@ const result = (id: string): ScanResult => ({
 })
 beforeEach(() => {
   vi.clearAllMocks()
+  mocks.safari = null
   registerAppSpaceIpc()
   mocks.inventory.mockResolvedValue([])
   mocks.scan.mockResolvedValue(result('fresh'))
@@ -75,6 +82,60 @@ describe('App Space IPC safety', () => {
     expect(mocks.scan.mock.calls[0][0].id).toBe('slack')
     expect(mocks.cache).not.toHaveBeenCalled()
     expect(mocks.remove).not.toHaveBeenCalled()
+  })
+  it('includes the macOS Safari cache in overview and a fresh browser cleanup review only', async () => {
+    const cache = '/Users/Preview/Library/Caches/com.apple.Safari'
+    mocks.safari = { cache }
+    const safariResult: ScanResult = {
+      category: 'browser',
+      subcategory: 'Safari - Cache',
+      itemCount: 1,
+      totalSize: 512,
+      items: [
+        {
+          id: 'safari-old',
+          path: `${cache}/WebKitCache/file`,
+          size: 512,
+          category: 'browser',
+          subcategory: 'Safari - Cache',
+          lastModified: 0,
+          selected: true
+        }
+      ]
+    }
+    mocks.scanDirectory.mockResolvedValueOnce(safariResult).mockResolvedValueOnce({
+      ...safariResult,
+      items: [{ ...safariResult.items[0], id: 'safari-fresh' }]
+    })
+    mocks.inventory.mockResolvedValue([
+      { id: 'safari', displayName: 'Safari', publisher: 'Apple', estimatedSize: 1024 }
+    ])
+    const report = (await invoke(IPC.APP_SPACE_SCAN)) as AppSpaceReport
+    const safari = report.entries.find((entry) => entry.name === 'Safari')!
+    expect(safari.programId).toBe('safari')
+    expect(safari.installedBytes).toBe(1024)
+    expect(safari.cacheBytes).toBe(512)
+    expect(safari.rules).toEqual([{ id: 'browser:safari', name: 'Safari', category: 'browser' }])
+    expect(mocks.scanDirectory).toHaveBeenCalledExactlyOnceWith(
+      cache,
+      'browser',
+      'Safari - Cache',
+      { deepRecencyCheck: true }
+    )
+    expect(mocks.cache).not.toHaveBeenCalled()
+    const review = (await invoke(IPC.APP_SPACE_REVIEW, ['browser:safari'], null)) as AppSpaceReview
+    expect(review.results[0].category).toBe('browser')
+    expect(review.results[0].items[0].id).toBe('safari-fresh')
+    expect(mocks.scanDirectory).toHaveBeenCalledTimes(2)
+    expect(mocks.scanDirectory.mock.calls.every(([path]) => path === cache)).toBe(true)
+    await invoke(IPC.APP_SPACE_RETAIN, review.token, review.token)
+    expect(mocks.cache).toHaveBeenCalledExactlyOnceWith(review.results[0].items)
+  })
+  it('does not expose a Safari rule when the platform has no Safari configuration', async () => {
+    await expect(invoke(IPC.APP_SPACE_REVIEW, ['browser:safari'], null)).rejects.toThrow(
+      'Unknown cleanup rule'
+    )
+    expect(mocks.scanDirectory).not.toHaveBeenCalled()
   })
   it('rejects renderer-supplied paths and unsupported managed rule IDs before scanning', async () => {
     await expect(invoke(IPC.APP_SPACE_REVIEW, ['C:/Users/Private'])).rejects.toThrow(
