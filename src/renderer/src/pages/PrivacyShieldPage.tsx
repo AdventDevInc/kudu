@@ -210,7 +210,7 @@ export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
             className="rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
             style={{
               background: tab === value ? 'var(--accent-muted-bg)' : 'var(--card-bg)',
-              color: tab === value ? 'var(--accent)' : 'var(--text-secondary)',
+              color: tab === value ? 'var(--nav-active-fg)' : 'var(--text-secondary)',
               border: '1px solid var(--border-default)'
             }}
           >

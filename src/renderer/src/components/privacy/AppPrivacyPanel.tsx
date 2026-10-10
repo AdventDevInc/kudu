@@ -86,7 +86,8 @@ export function AppPrivacyPanel() {
       {error && (
         <p
           role="alert"
-          className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600"
+          className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm"
+          style={{ color: 'var(--warning)' }}
         >
           {t(report ? 'appPrivacy.refreshFailed' : 'appPrivacy.failed')}
         </p>
@@ -116,7 +117,8 @@ export function AppPrivacyPanel() {
           {partial && (
             <p
               role="status"
-              className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-600"
+              className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm"
+              style={{ color: 'var(--warning)' }}
             >
               {t('appPrivacy.partial')}
             </p>
@@ -132,7 +134,11 @@ export function AppPrivacyPanel() {
               return (
                 <div key={cap} className="rounded-2xl p-4" style={card}>
                   <div className="mb-3 flex items-center gap-2">
-                    <Icon className="h-5 w-5 text-violet-400" aria-hidden="true" />
+                    <Icon
+                      className="h-5 w-5"
+                      style={{ color: 'var(--brand-solid)' }}
+                      aria-hidden="true"
+                    />
                     <h3 className="text-sm font-semibold">{t(`appPrivacy.capability.${cap}`)}</h3>
                   </div>
                   <div className="mb-1 text-2xl font-bold">
@@ -161,11 +167,14 @@ export function AppPrivacyPanel() {
                     </p>
                   )}
                   {summary?.truncated && (
-                    <p className="mt-2 text-xs text-amber-600">{t('appPrivacy.truncated')}</p>
+                    <p className="mt-2 text-xs" style={{ color: 'var(--warning)' }}>
+                      {t('appPrivacy.truncated')}
+                    </p>
                   )}
                   <button
                     type="button"
-                    className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-violet-400"
+                    className="mt-4 flex items-center gap-1.5 text-xs font-semibold"
+                    style={{ color: 'var(--brand-solid)' }}
                     onClick={async () => {
                       setSettingsError(false)
                       try {
@@ -183,7 +192,7 @@ export function AppPrivacyPanel() {
             })}
           </div>
           {settingsError && (
-            <p role="alert" className="mb-4 text-sm text-amber-600">
+            <p role="alert" className="mb-4 text-sm" style={{ color: 'var(--warning)' }}>
               {t('appPrivacy.settingsFailed')}
             </p>
           )}
@@ -269,7 +278,11 @@ export function AppPrivacyPanel() {
                     className="flex flex-wrap items-start gap-3 border-b p-4 last:border-b-0"
                     style={{ borderColor: 'var(--border-default)' }}
                   >
-                    <Icon className="mt-1 h-4 w-4 shrink-0 text-violet-400" aria-hidden="true" />
+                    <Icon
+                      className="mt-1 h-4 w-4 shrink-0"
+                      style={{ color: 'var(--brand-solid)' }}
+                      aria-hidden="true"
+                    />
                     <div className="min-w-0 flex-1 basis-48">
                       <p className="break-words text-sm font-semibold">{row.name}</p>
                       <p className="mt-1 break-all text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -295,7 +308,9 @@ export function AppPrivacyPanel() {
                         </p>
                       )}
                       {row.usage === 'unfinished' && (
-                        <p className="mt-1 text-amber-600">{t('appPrivacy.unfinished')}</p>
+                        <p className="mt-1" style={{ color: 'var(--warning)' }}>
+                          {t('appPrivacy.unfinished')}
+                        </p>
                       )}
                     </div>
                   </li>
