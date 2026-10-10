@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Pause, Play } from 'lucide-react'
 import { toast } from 'sonner'
@@ -8,10 +8,12 @@ import { SystemInfoHeader } from '@/components/perf/SystemInfoHeader'
 import { TimeSeriesChart } from '@/components/perf/TimeSeriesChart'
 import { AlertBanner } from '@/components/perf/AlertBanner'
 import { DiskHealthPanel } from '@/components/perf/DiskHealthPanel'
-import { ProcessTable } from '@/components/perf/ProcessTable'
+import { AppMemoryPanel } from '@/components/perf/AppMemoryPanel'
+import { MemoryContext } from '@/components/perf/MemoryContext'
 import { usePerfStore } from '@/stores/perf-store'
 import { formatBytes, formatSpeed } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { createPerfSession } from '@/lib/perf-session'
 
 export function PerformanceMonitorPage() {
   const { t } = useTranslation('performance')
@@ -30,55 +32,63 @@ export function PerformanceMonitorPage() {
   const reset = usePerfStore((s) => s.reset)
 
   const [paused, setPaused] = useState(false)
+  const [starting, setStarting] = useState(true)
+  const [startError, setStartError] = useState(false)
 
-  // Start monitoring on mount
+  const session = useRef<ReturnType<typeof createPerfSession> | null>(null)
+
   useEffect(() => {
-    let snapshotUnsub: (() => void) | undefined
-    let processUnsub: (() => void) | undefined
-
-    const start = async () => {
-      try {
-        const [info, disks] = await Promise.all([
-          window.kudu.perfGetSystemInfo(),
-          window.kudu.perfGetDiskHealth()
-        ])
-        setSystemInfo(info)
-        setDiskHealth(disks)
-
-        snapshotUnsub = window.kudu.onPerfSnapshot((data) => {
-          pushSnapshot(data)
-        })
-
-        processUnsub = window.kudu.onPerfProcessList((data) => {
-          setProcessList(data.processes, data.totalCount)
-        })
-
-        await window.kudu.perfStartMonitoring()
-        setMonitoring(true)
-      } catch {
-        toast.error(t('failedToStartToast'))
-      }
-    }
-
-    start()
-
+    let disposed = false
+    const current = createPerfSession(window.kudu, {
+      info: setSystemInfo,
+      disks: setDiskHealth,
+      snapshot: pushSnapshot,
+      processes: setProcessList
+    })
+    session.current = current
+    current
+      .start()
+      .then((active) => {
+        if (active) setMonitoring(true)
+      })
+      .catch(() => {
+        if (!disposed) {
+          setStartError(true)
+          toast.error(t('failedToStartToast'))
+        }
+      })
+      .finally(() => {
+        if (!disposed) setStarting(false)
+      })
     return () => {
-      snapshotUnsub?.()
-      processUnsub?.()
-      window.kudu.perfStopMonitoring().catch(() => {})
+      disposed = true
+      current.dispose()
+      session.current = null
       reset()
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const togglePause = useCallback(async () => {
-    if (paused) {
-      await window.kudu.perfStartMonitoring()
-      setPaused(false)
-    } else {
-      await window.kudu.perfStopMonitoring()
-      setPaused(true)
+    const current = session.current
+    if (!current || starting) return
+    setStarting(true)
+    try {
+      if (paused || startError) {
+        if (!(await current.start())) return
+        setPaused(false)
+        setStartError(false)
+        setMonitoring(true)
+      } else {
+        if (!(await current.pause())) return
+        setPaused(true)
+        setMonitoring(false)
+      }
+    } catch {
+      if (session.current === current) toast.error(t('failedToStartToast'))
+    } finally {
+      if (session.current === current) setStarting(false)
     }
-  }, [paused])
+  }, [paused, startError, starting, setMonitoring, t])
 
   const timeRangeOptions: Array<{ value: '60s' | '5m' | '15m'; label: string }> = [
     { value: '60s', label: '1m' },
@@ -118,6 +128,7 @@ export function PerformanceMonitorPage() {
             {/* Pause/Resume */}
             <button
               onClick={togglePause}
+              disabled={starting}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors"
               style={{
                 background: paused ? 'rgba(34,197,94,0.1)' : 'var(--bg-subtle-2)',
@@ -126,7 +137,7 @@ export function PerformanceMonitorPage() {
               }}
             >
               {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-              {paused ? t('resume') : t('pause')}
+              {startError ? t('apps.retry') : paused ? t('resume') : t('pause')}
             </button>
           </>
         }
@@ -162,7 +173,7 @@ export function PerformanceMonitorPage() {
           value={
             snapshot
               ? formatSpeed(snapshot.disk.readBytesPerSec + snapshot.disk.writeBytesPerSec)
-              : '?'
+              : t('noDataPlaceholder')
           }
           detail={
             snapshot
@@ -179,7 +190,7 @@ export function PerformanceMonitorPage() {
           value={
             snapshot
               ? formatSpeed(snapshot.network.rxBytesPerSec + snapshot.network.txBytesPerSec)
-              : '?'
+              : t('noDataPlaceholder')
           }
           detail={
             snapshot
@@ -188,6 +199,8 @@ export function PerformanceMonitorPage() {
           }
         />
       </div>
+
+      <MemoryContext />
 
       {/* Charts */}
       <div className="pulse-performance-charts">
@@ -218,7 +231,11 @@ export function PerformanceMonitorPage() {
       <DiskHealthPanel disks={diskHealth} />
 
       {/* Process Table */}
-      <ProcessTable />
+      <AppMemoryPanel
+        starting={starting}
+        startError={startError}
+        paused={!isMonitoring && !starting}
+      />
     </div>
   )
 }

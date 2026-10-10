@@ -1,5 +1,13 @@
 import { create } from 'zustand'
-import type { PerfSystemInfo, PerfSnapshot, PerfProcess, DiskSmartInfo } from '@shared/types'
+import type {
+  PerfSystemInfo,
+  PerfSnapshot,
+  PerfProcess,
+  PerfProcessList,
+  PerfWindowsMemory,
+  DiskSmartInfo
+} from '@shared/types'
+import { groupApps, type PerfApp } from '@shared/perf-apps'
 
 const MAX_HISTORY = 900 // 15 minutes at 1s intervals
 const CHART_THROTTLE_MS = 2000 // Only update chart-facing history every 2s
@@ -19,6 +27,11 @@ interface PerfState {
   _lastHistoryFlush: number
   processList: PerfProcess[]
   processCount: number
+  apps: PerfApp[]
+  _appTrendInterrupted: boolean
+  processTimestamp: number | null
+  processError: boolean
+  windowsMemory: PerfWindowsMemory | null | undefined
   isMonitoring: boolean
   timeRange: '60s' | '5m' | '15m'
   processFilter: string
@@ -28,7 +41,7 @@ interface PerfState {
 
   setSystemInfo: (info: PerfSystemInfo) => void
   pushSnapshot: (snap: PerfSnapshot) => void
-  setProcessList: (processes: PerfProcess[], totalCount: number) => void
+  setProcessList: (data: PerfProcessList) => void
   setMonitoring: (on: boolean) => void
   setTimeRange: (range: '60s' | '5m' | '15m') => void
   setProcessFilter: (filter: string) => void
@@ -59,6 +72,11 @@ export const usePerfStore = create<PerfState>((set, get) => ({
   _lastHistoryFlush: 0,
   processList: [],
   processCount: 0,
+  apps: [],
+  _appTrendInterrupted: true,
+  processTimestamp: null,
+  processError: false,
+  windowsMemory: undefined,
   isMonitoring: false,
   timeRange: '60s',
   processFilter: '',
@@ -96,10 +114,23 @@ export const usePerfStore = create<PerfState>((set, get) => ({
     }
   },
 
-  setProcessList: (processes, totalCount) =>
-    set({ processList: processes, processCount: totalCount }),
+  setProcessList: (data) => {
+    if (data.error) {
+      set({ processError: true, windowsMemory: null })
+      return
+    }
+    set({
+      processList: data.processes,
+      processCount: data.totalCount,
+      apps: groupApps(data.processes, data.timestamp, get()._appTrendInterrupted ? [] : get().apps),
+      _appTrendInterrupted: false,
+      processTimestamp: data.timestamp,
+      processError: false,
+      windowsMemory: data.windowsMemory
+    })
+  },
 
-  setMonitoring: (on) => set({ isMonitoring: on }),
+  setMonitoring: (on) => set({ isMonitoring: on, ...(!on ? { _appTrendInterrupted: true } : {}) }),
 
   setTimeRange: (range) => set({ timeRange: range }),
 
@@ -126,6 +157,11 @@ export const usePerfStore = create<PerfState>((set, get) => ({
       _lastHistoryFlush: 0,
       processList: [],
       processCount: 0,
+      apps: [],
+      _appTrendInterrupted: true,
+      processTimestamp: null,
+      processError: false,
+      windowsMemory: undefined,
       isMonitoring: false,
       processFilter: '',
       diskHealth: []

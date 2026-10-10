@@ -110,7 +110,7 @@ export function registerPerfMonitorIpc(getWindow: () => Electron.BrowserWindow |
     service.stopMonitoring()
   })
 
-  ipcMain.handle(IPC.PERF_KILL_PROCESS, async (_event, pid: number) => {
+  ipcMain.handle(IPC.PERF_KILL_PROCESS, async (_event, pid: number, birthToken: string) => {
     // Validate pid is a positive integer and not a critical system process
     if (!Number.isInteger(pid) || pid <= 0) {
       return { success: false, error: 'Invalid process ID' }
@@ -124,11 +124,22 @@ export function registerPerfMonitorIpc(getWindow: () => Electron.BrowserWindow |
       return { success: false, error: 'Cannot kill own process' }
     }
     // Look up the process name and block protected system processes
-    const processName = await service.getProcessName(pid)
-    if (processName && PROTECTED_PROCESS_NAMES.has(processName.toLowerCase())) {
-      return { success: false, error: `Cannot kill protected system process (${processName})` }
+    const identity = await service.getProcessIdentity(pid)
+    if (
+      typeof birthToken !== 'string' ||
+      !birthToken ||
+      !identity ||
+      identity.birthToken !== birthToken
+    ) {
+      return {
+        success: false,
+        error: 'Process changed or cannot be verified. Refresh and try again.'
+      }
     }
-    return service.killProcess(pid)
+    if (PROTECTED_PROCESS_NAMES.has(identity.name.toLowerCase())) {
+      return { success: false, error: `Cannot kill protected system process (${identity.name})` }
+    }
+    return service.killProcess(pid, birthToken)
   })
 
   ipcMain.handle(IPC.PERF_DISK_HEALTH, () => service.getDiskHealth())
