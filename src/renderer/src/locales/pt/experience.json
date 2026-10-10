@@ -173,7 +173,8 @@
     "drivers": "Reveja atualizações de drivers e pacotes antigos num só lugar. Verifique as alterações propostas antes de as aplicar.",
     "storageHistory": "Veja o que está a crescer. Guarde instantâneos locais de pastas e compare onde o armazenamento mudou.",
     "recovery": "Um caminho claro de volta. Reveja alterações suportadas e os detalhes do restauro antes de desfazer qualquer coisa.",
-    "diagnostics": "Transforme um momento de lentidão em evidência. Registe localmente, inspecione os dados e escolha se pretende pedir análise Cloud AI."
+    "diagnostics": "Transforme um momento de lentidão em evidência. Registe localmente, inspecione os dados e escolha se pretende pedir análise Cloud AI.",
+    "appSpace": "Veja os tamanhos informados dos aplicativos juntamente com o cache e os logs mensuráveis e revisáveis."
   },
   "home": {
     "eyebrow": "O SEU SISTEMA, NUM RELANCE",

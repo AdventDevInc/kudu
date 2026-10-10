@@ -173,7 +173,8 @@
     "drivers": "Zkontrolujte aktualizace ovladačů i starší balíčky na jednom místě. Před použitím zkontrolujte navržené změny.",
     "storageHistory": "Podívejte se, co narůstá. Ukládejte místní snímky složek a porovnávejte, kde se úložiště změnilo.",
     "recovery": "Jasná cesta zpět. Před vrácením změn zkontrolujte podporované změny a podrobnosti obnovení.",
-    "diagnostics": "Proměňte pomalý okamžik v důkaz. Nahrávejte místně, prohlédněte si data a vyberte, zda požádat o analýzu Cloud AI."
+    "diagnostics": "Proměňte pomalý okamžik v důkaz. Nahrávejte místně, prohlédněte si data a vyberte, zda požádat o analýzu Cloud AI.",
+    "appSpace": "Zobrazte nahlášené velikosti aplikací spolu se změřenou, zkontrolovatelnou mezipamětí a protokoly."
   },
   "home": {
     "eyebrow": "VÁŠ SYSTÉM NA PRVNÍ POHLED",

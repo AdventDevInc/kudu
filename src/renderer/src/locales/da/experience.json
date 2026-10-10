@@ -173,7 +173,8 @@
     "drivers": "Gennemgå driveropdateringer og ældre pakker ét sted. Kontrollér de foreslåede ændringer, før du anvender dem.",
     "storageHistory": "Se, hvad der vokser. Gem lokale mappesnapshots, og sammenlign, hvor lagerpladsen har ændret sig.",
     "recovery": "En tydelig vej tilbage. Gennemgå understøttede ændringer og gendannelsesoplysninger, før du fortryder noget.",
-    "diagnostics": "Gør et langsomt øjeblik til dokumentation. Optag lokalt, undersøg dataene, og vælg, om du vil anmode om Cloud AI-analyse."
+    "diagnostics": "Gør et langsomt øjeblik til dokumentation. Optag lokalt, undersøg dataene, og vælg, om du vil anmode om Cloud AI-analyse.",
+    "appSpace": "Se rapporterede appstørrelser sammen med målt, gennemgåeligt cache og logfiler."
   },
   "home": {
     "eyebrow": "DIT SYSTEM, MED ET BLIK",

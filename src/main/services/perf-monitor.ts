@@ -6,13 +6,15 @@ import { IPC } from '../../shared/channels'
 import type {
   PerfSystemInfo,
   PerfSnapshot,
-  PerfProcess,
   PerfProcessList,
   PerfKillResult,
   DiskSmartInfo,
   StartupItem
 } from '../../shared/types'
 import { psUtf8 } from './exec-utf8'
+import { collectWindowsMemory } from './perf-memory'
+import { mapPerfProcesses } from './perf-processes'
+import { PosixProcessSampler, getPosixProcessIdentity } from './perf-posix-processes'
 
 const execFileAsync = promisify(execFile)
 
@@ -29,6 +31,8 @@ export class PerfMonitorService {
   private cachedNetworkStats = { rxBytesPerSec: 0, txBytesPerSec: 0 }
   private lastNetworkPoll = 0
   private readonly NETWORK_POLL_INTERVAL_MS = 5000
+  private generation = 0
+  private posixProcesses = new PosixProcessSampler()
 
   async getSystemInfo(): Promise<PerfSystemInfo> {
     if (this.cachedSystemInfo) return this.cachedSystemInfo
@@ -86,6 +90,7 @@ export class PerfMonitorService {
   }
 
   stopMonitoring(): void {
+    this.generation++
     if (this.fastTimer) {
       clearInterval(this.fastTimer)
       this.fastTimer = null
@@ -97,21 +102,50 @@ export class PerfMonitorService {
     this.sender = null
   }
 
-  async getProcessName(pid: number): Promise<string | null> {
+  async getProcessIdentity(pid: number): Promise<{ name: string; birthToken: string } | null> {
     try {
-      const data = await si.processes()
-      const proc = data.list.find((p) => p.pid === pid)
-      return proc?.name ?? null
+      if (!Number.isInteger(pid) || pid <= 0) return null
+      if (process.platform === 'win32') {
+        // Bypass systeminformation's process cache before a destructive action.
+        const { stdout } = await execFileAsync(
+          'powershell.exe',
+          [
+            '-NoProfile',
+            '-NonInteractive',
+            '-Command',
+            psUtf8(
+              `Get-CimInstance Win32_Process -Filter "ProcessId = ${pid}" | Select-Object @{n="name";e={$_.Name}},@{n="birthToken";e={$_.CreationDate.ToString("yyyy-MM-dd HH:mm:ss")}} | ConvertTo-Json -Compress`
+            )
+          ],
+          { timeout: 5000, windowsHide: true, maxBuffer: 64 * 1024 }
+        )
+        const identity = JSON.parse(stdout.trim())
+        return typeof identity?.name === 'string' && typeof identity?.birthToken === 'string'
+          ? identity
+          : null
+      }
+      return getPosixProcessIdentity(pid)
     } catch {
       return null
     }
   }
 
-  async killProcess(pid: number): Promise<PerfKillResult> {
+  async killProcess(pid: number, expectedBirthToken?: string): Promise<PerfKillResult> {
     try {
       process.kill(pid)
       return { success: true }
     } catch {
+      // A failed first attempt may mean the selected process has exited. Never
+      // let the command fallback target a replacement process with the same PID.
+      if (expectedBirthToken) {
+        const identity = await this.getProcessIdentity(pid)
+        if (!identity || identity.birthToken !== expectedBirthToken) {
+          return {
+            success: false,
+            error: 'Process changed or cannot be verified. Refresh and try again.'
+          }
+        }
+      }
       // Fallback to platform-specific kill command
       try {
         if (process.platform === 'win32') {
@@ -243,6 +277,8 @@ export class PerfMonitorService {
     }
     if (this.snapshotRunning) return
     this.snapshotRunning = true
+    const sender = this.sender
+    const generation = this.generation
 
     try {
       // Only poll si.networkStats() every 5s — it costs ~320ms per call.
@@ -297,6 +333,7 @@ export class PerfMonitorService {
           usedBytes: usedMem,
           totalBytes: totalMem,
           cachedBytes: cachedMem,
+          availableBytes: isWindows ? os.freemem() : mem!.available,
           percent: (usedMem / totalMem) * 100
         },
         disk: {
@@ -307,8 +344,8 @@ export class PerfMonitorService {
         uptime: si.time().uptime
       }
 
-      if (!this.sender.isDestroyed()) {
-        this.sender.send(IPC.PERF_SNAPSHOT, snapshot)
+      if (generation === this.generation && !sender.isDestroyed()) {
+        sender.send(IPC.PERF_SNAPSHOT, snapshot)
       }
     } catch {
       // Silently skip failed ticks
@@ -324,44 +361,43 @@ export class PerfMonitorService {
     }
     if (this.processesRunning) return
     this.processesRunning = true
+    const sender = this.sender
+    const generation = this.generation
 
     try {
-      const [data, mem] = await Promise.all([si.processes(), si.mem()])
-      const totalMem = mem.total
-
-      // Sort by CPU + memory and take top 100
-      const sorted = data.list.sort((a, b) => b.cpu + b.memRss - (a.cpu + a.memRss)).slice(0, 100)
-
-      const processes: PerfProcess[] = sorted.map((p) => {
-        const exeName = (p.name || '').toLowerCase()
-        const startupName = this.startupExeMap.get(
-          exeName.endsWith('.exe') ? exeName : `${exeName}.exe`
-        )
-
-        return {
-          pid: p.pid,
-          name: p.name,
-          cpuPercent: p.cpu,
-          memBytes: p.memRss,
-          memPercent: totalMem > 0 ? (p.memRss / totalMem) * 100 : 0,
-          user: p.user || '',
-          started: p.started || '',
-          isStartupItem: !!startupName,
-          startupItemName: startupName
-        }
-      })
+      const windows = process.platform === 'win32'
+      const [inventory, windowsMemory] = await Promise.all([
+        windows
+          ? si.processes().then((data) => ({
+              processes: mapPerfProcesses(data.list, os.totalmem(), true, this.startupExeMap),
+              totalCount: data.all
+            }))
+          : this.posixProcesses.collect(os.totalmem()),
+        windows ? collectWindowsMemory() : Promise.resolve(undefined)
+      ])
+      // systeminformation can swallow provider failures into a resolved empty list.
+      // A running Kudu host always has processes; do not erase a good sample.
+      if (!inventory.processes.length) throw new Error('Process inventory unavailable')
 
       const result: PerfProcessList = {
         timestamp: Date.now(),
-        processes,
-        totalCount: data.all
+        processes: inventory.processes,
+        totalCount: inventory.totalCount,
+        windowsMemory
       }
 
-      if (!this.sender.isDestroyed()) {
-        this.sender.send(IPC.PERF_PROCESS_LIST, result)
+      if (generation === this.generation && !sender.isDestroyed()) {
+        sender.send(IPC.PERF_PROCESS_LIST, result)
       }
     } catch {
-      // Silently skip failed ticks
+      if (generation === this.generation && !sender.isDestroyed()) {
+        sender.send(IPC.PERF_PROCESS_LIST, {
+          timestamp: Date.now(),
+          processes: [],
+          totalCount: 0,
+          error: true
+        } satisfies PerfProcessList)
+      }
     } finally {
       this.processesRunning = false
     }

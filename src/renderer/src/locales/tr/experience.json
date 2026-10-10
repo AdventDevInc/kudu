@@ -173,7 +173,8 @@
     "drivers": "Sürücü güncellemelerini ve eski paketleri tek bir yerde gözden geçirin. Uygulamadan önce önerilen değişiklikleri kontrol edin.",
     "storageHistory": "Neyin büyüdüğünü görün. Yerel klasör anlık görüntülerini kaydedin ve depolamanın nerede değiştiğini karşılaştırın.",
     "recovery": "Geri dönüş için açık bir yol. Herhangi bir şeyi geri almadan önce desteklenen değişiklikleri ve geri yükleme ayrıntılarını gözden geçirin.",
-    "diagnostics": "Yavaş bir anı kanıta dönüştürün. Yerel olarak kaydedin, verileri inceleyin ve Cloud AI analizi isteyip istemeyeceğinizi seçin."
+    "diagnostics": "Yavaş bir anı kanıta dönüştürün. Yerel olarak kaydedin, verileri inceleyin ve Cloud AI analizi isteyip istemeyeceğinizi seçin.",
+    "appSpace": "Bildirilen uygulama boyutlarını, ölçülen ve incelenebilir önbellek ile günlüklerle birlikte görün."
   },
   "home": {
     "eyebrow": "SİSTEMİNİZ, TEK BAKIŞTA",

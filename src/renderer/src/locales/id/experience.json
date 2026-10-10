@@ -173,7 +173,8 @@
     "drivers": "Tinjau pembaruan driver dan paket lama di satu tempat. Periksa perubahan yang diusulkan sebelum menerapkannya.",
     "storageHistory": "Lihat apa yang bertambah. Simpan snapshot folder lokal dan bandingkan di mana penyimpanan telah berubah.",
     "recovery": "Cara yang jelas untuk kembali. Tinjau perubahan yang didukung dan detail pemulihan sebelum membatalkan apa pun.",
-    "diagnostics": "Ubah momen lambat menjadi bukti. Rekam secara lokal, periksa datanya, dan pilih apakah akan meminta analisis Cloud AI."
+    "diagnostics": "Ubah momen lambat menjadi bukti. Rekam secara lokal, periksa datanya, dan pilih apakah akan meminta analisis Cloud AI.",
+    "appSpace": "Lihat ukuran aplikasi yang dilaporkan beserta cache dan log yang terukur serta dapat ditinjau."
   },
   "home": {
     "eyebrow": "SISTEM ANDA, SEKILAS",

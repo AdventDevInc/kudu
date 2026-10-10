@@ -1,6 +1,7 @@
 // Dedicated browser-only QA entry. This module is never imported by the Electron entry.
 import { defaultSettings, useSettingsStore } from '../stores/settings-store'
 import { featureReads } from './feature-fixtures'
+import { perfFixture } from './perf-fixtures'
 import type { ScanHistoryEntry, StartupItem, PerfSnapshot } from '@shared/types'
 
 const GB = 1024 ** 3
@@ -142,8 +143,101 @@ const reads: Record<string, (...args: any[]) => unknown> = {
   }),
   downloadsTrash: (_scanId: string, ids: string[]) => ({ trashedIds: ids, skippedIds: [] }),
   downloadsReveal: () => undefined,
+  appSpaceRetain: () => undefined,
+  appSpaceScan: () => ({
+    scannedAt: Date.now(),
+    inventoryAvailable: true,
+    unavailableRules: 0,
+    entries: empty
+      ? []
+      : [
+          {
+            id: 'program:discord',
+            name: 'Discord',
+            publisher: 'Discord Inc.',
+            installedBytes: 0.55 * GB,
+            programId: 'discord',
+            cacheBytes: 2.4 * GB,
+            cacheItems: 4280,
+            rules: [{ id: 'app:discord', name: 'Discord', category: 'app' }]
+          },
+          {
+            id: 'program:chrome',
+            name: 'Google Chrome',
+            publisher: 'Google LLC',
+            installedBytes: 0.8 * GB,
+            programId: 'chrome',
+            cacheBytes: 1.6 * GB,
+            cacheItems: 8900,
+            rules: [{ id: 'browser:chrome', name: 'Chrome', category: 'browser' }]
+          },
+          {
+            id: 'program:slack',
+            name: 'Slack',
+            publisher: 'Slack Technologies',
+            installedBytes: 0.45 * GB,
+            programId: 'slack',
+            cacheBytes: 0.7 * GB,
+            cacheItems: 2400,
+            rules: [{ id: 'app:slack', name: 'Slack', category: 'app' }]
+          },
+          {
+            id: 'rule:npm',
+            name: 'npm Cache',
+            publisher: '',
+            installedBytes: null,
+            programId: null,
+            cacheBytes: 0.4 * GB,
+            cacheItems: 950,
+            rules: [{ id: 'app:npm', name: 'npm Cache', category: 'app' }]
+          },
+          {
+            id: 'program:steam',
+            name: 'Steam',
+            publisher: 'Valve Corporation',
+            installedBytes: 2.2 * GB,
+            programId: 'steam',
+            cacheBytes: 0,
+            cacheItems: 0,
+            rules: []
+          },
+          {
+            id: 'program:unknown',
+            name: 'A locally installed tool',
+            publisher: '',
+            installedBytes: null,
+            programId: 'unknown',
+            cacheBytes: 0,
+            cacheItems: 0,
+            rules: []
+          }
+        ]
+  }),
+  appSpaceReview: (ids: string[]) => ({
+    token: 'preview-handoff',
+    results: [
+      {
+        category: ids[0].startsWith('browser:') ? 'browser' : 'app',
+        subcategory: ids[0].startsWith('browser:') ? 'Chrome - Default Cache' : 'Discord',
+        totalSize: 2.4 * GB,
+        itemCount: 1,
+        items: [
+          {
+            id: 'app-space-preview',
+            path: 'C:\\Users\\Preview\\AppData\\Roaming\\discord\\Cache\\Cache_Data',
+            size: 2.4 * GB,
+            category: ids[0].startsWith('browser:') ? 'browser' : 'app',
+            subcategory: 'Discord',
+            lastModified: now - 86400000,
+            selected: true
+          }
+        ]
+      }
+    ]
+  }),
   platformInfo: () => ({
-    platform: 'win32',
+    platform:
+      new URLSearchParams(location.search).get('state') === 'unsupported' ? 'linux' : 'win32',
     features: {
       registry: true,
       debloater: true,
@@ -362,10 +456,24 @@ const reads: Record<string, (...args: any[]) => unknown> = {
   perfStartMonitoring: () => {
     if (monitoring) clearInterval(monitoring)
     if (!empty) for (let i = 0; i <= 90; i++) emit('onPerfSnapshot', snapshot(i))
-    monitoring = setInterval(
-      () => emit('onPerfSnapshot', { ...snapshot(quickCount++ % 90), timestamp: Date.now() }),
-      1000
-    )
+    const state = new URLSearchParams(location.search).get('state')
+    const emitProcesses = (sample: number, timestamp = Date.now()) => {
+      if (state === 'loading') return
+      const data = perfFixture(timestamp, sample)
+      if (empty) {
+        data.processes = []
+        data.totalCount = 0
+      }
+      if (state === 'error') data.error = true
+      if (state === 'unsupported') data.windowsMemory = undefined
+      emit('onPerfProcessList', data)
+    }
+    for (let i = 0; i <= 9; i++) emitProcesses(i, Date.now() - (9 - i) * 10_000)
+    let ticks = 0
+    monitoring = setInterval(() => {
+      emit('onPerfSnapshot', { ...snapshot(quickCount++ % 90), timestamp: Date.now() })
+      if (++ticks % 10 === 0) emitProcesses(9 + ticks / 10)
+    }, 1000)
   },
   perfStopMonitoring: () => {
     clearInterval(monitoring)

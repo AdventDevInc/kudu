@@ -173,7 +173,8 @@
     "drivers": "Granska drivrutinsuppdateringar och äldre paket på ett ställe. Kontrollera de föreslagna ändringarna innan du tillämpar dem.",
     "storageHistory": "Se vad som växer. Spara lokala ögonblicksbilder av mappar och jämför var lagringen har förändrats.",
     "recovery": "En tydlig väg tillbaka. Granska ändringar som stöds och återställningsdetaljer innan du ångrar något.",
-    "diagnostics": "Förvandla en långsam stund till underlag. Spela in lokalt, inspektera data och välj om du vill begära Cloud AI-analys."
+    "diagnostics": "Förvandla en långsam stund till underlag. Spela in lokalt, inspektera data och välj om du vill begära Cloud AI-analys.",
+    "appSpace": "Se rapporterade appstorlekar tillsammans med uppmätt, granskningsbar cache och loggar."
   },
   "home": {
     "eyebrow": "DITT SYSTEM, I KORTHET",

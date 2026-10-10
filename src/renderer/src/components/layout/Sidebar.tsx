@@ -220,6 +220,7 @@ const navGroups: NavGroup[] = [
         label: 'Storage',
         path: '/disk',
         children: [
+          { icon: Package, labelKey: 'appSpace:pageTitle', label: 'App Space', path: '/app-space' },
           { icon: HardDrive, labelKey: 'disk:pageTitle', label: 'Storage Overview', path: '/disk' },
           {
             icon: FileUp,

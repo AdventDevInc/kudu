@@ -173,7 +173,8 @@
     "drivers": "Przejrzyj aktualizacje sterowników i starsze pakiety w jednym miejscu. Sprawdź proponowane zmiany przed ich zastosowaniem.",
     "storageHistory": "Zobacz, co rośnie. Zapisuj lokalne migawki folderów i porównuj, gdzie zmieniła się pamięć masowa.",
     "recovery": "Jasna droga powrotu. Przejrzyj obsługiwane zmiany i szczegóły przywracania, zanim cokolwiek cofniesz.",
-    "diagnostics": "Zamień chwilowe spowolnienie w konkretne dane. Rejestruj lokalnie, analizuj dane i zdecyduj, czy poprosić o analizę Cloud AI."
+    "diagnostics": "Zamień chwilowe spowolnienie w konkretne dane. Rejestruj lokalnie, analizuj dane i zdecyduj, czy poprosić o analizę Cloud AI.",
+    "appSpace": "Zobacz zgłoszone rozmiary aplikacji obok zmierzonej, możliwej do sprawdzenia pamięci podręcznej i dzienników."
   },
   "home": {
     "eyebrow": "TWÓJ SYSTEM W SKRÓCIE",

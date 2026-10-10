@@ -45,7 +45,7 @@ export function ProcessTable() {
     if (!killTarget) return
     setKilling(true)
     try {
-      const result = await window.kudu.perfKillProcess(killTarget.pid)
+      const result = await window.kudu.perfKillProcess(killTarget.pid, killTarget.birthToken || '')
       if (result.success) {
         toast.success(t('endProcessSuccessToast', { name: killTarget.name, pid: killTarget.pid }))
       } else {
@@ -57,7 +57,7 @@ export function ProcessTable() {
       setKilling(false)
       setKillTarget(null)
     }
-  }, [killTarget])
+  }, [killTarget, t])
 
   const SortHeader = ({
     column,
@@ -188,7 +188,9 @@ export function ProcessTable() {
             <div style={{ width: '10%' }} className="flex justify-end">
               <button
                 onClick={() => setKillTarget(p)}
-                className="rounded-lg px-2 py-1 text-[10px] font-medium opacity-0 transition-all group-hover:opacity-100"
+                disabled={!p.birthToken || killing}
+                title={!p.birthToken ? t('apps.identityUnavailable') : undefined}
+                className="rounded-lg px-2 py-1 text-[10px] font-medium transition-all disabled:opacity-40"
                 style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}
               >
                 {t('endButton')}

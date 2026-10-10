@@ -34,6 +34,8 @@ function saveExcluded(excluded: Set<string>): void {
 }
 
 interface ScanState {
+  appSpaceHandoffToken: string | null
+  setAppSpaceHandoffToken: (token: string | null) => void
   status: ScanStatus
   results: ScanResult[]
   selectedItems: Set<string>
@@ -61,6 +63,8 @@ interface ScanState {
 }
 
 export const useScanStore = create<ScanState>((set, get) => ({
+  appSpaceHandoffToken: null,
+  setAppSpaceHandoffToken: (token) => set({ appSpaceHandoffToken: token }),
   status: ScanStatus.Idle,
   results: [],
   selectedItems: new Set<string>(),
@@ -78,7 +82,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
         if (item.selected !== false && !excluded.has(r.subcategory)) selected.add(item.id)
       })
     )
-    set({ results, selectedItems: selected })
+    set({ results, selectedItems: selected, appSpaceHandoffToken: null })
   },
   addResults: (newResults) =>
     set((s) => {
@@ -191,6 +195,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
   },
   reset: () =>
     set({
+      appSpaceHandoffToken: null,
       status: ScanStatus.Idle,
       results: [],
       selectedItems: new Set(),

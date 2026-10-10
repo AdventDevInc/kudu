@@ -173,7 +173,8 @@
     "drivers": "Revise actualizaciones de controladores y paquetes antiguos en un solo lugar. Compruebe los cambios propuestos antes de aplicarlos.",
     "storageHistory": "Vea qué está creciendo. Guarde instantáneas locales de carpetas y compare dónde ha cambiado el almacenamiento.",
     "recovery": "Una forma clara de volver atrás. Revise los cambios compatibles y los detalles de restauración antes de deshacer nada.",
-    "diagnostics": "Convierta un momento de lentitud en evidencia. Registre localmente, inspeccione los datos y elija si desea solicitar análisis de Cloud AI."
+    "diagnostics": "Convierta un momento de lentitud en evidencia. Registre localmente, inspeccione los datos y elija si desea solicitar análisis de Cloud AI.",
+    "appSpace": "Vea los tamaños informados de las aplicaciones junto con la caché y los registros medidos y revisables."
   },
   "home": {
     "eyebrow": "SU SISTEMA, DE UN VISTAZO",

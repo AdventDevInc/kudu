@@ -185,6 +185,15 @@ const api = {
     ipcRenderer.send(IPC.WINDOW_SET_CHROME_THEME, theme),
 
   // System cleaner
+  appSpaceScan: (): Promise<import('../shared/types').AppSpaceReport> =>
+    ipcRenderer.invoke(IPC.APP_SPACE_SCAN),
+  appSpaceRetain: (reviewToken: string, retainedToken: string | null): Promise<void> =>
+    ipcRenderer.invoke(IPC.APP_SPACE_RETAIN, reviewToken, retainedToken),
+  appSpaceReview: (
+    ids: string[],
+    currentToken: string | null
+  ): Promise<import('../shared/types').AppSpaceReview> =>
+    ipcRenderer.invoke(IPC.APP_SPACE_REVIEW, ids, currentToken),
   systemScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.SYSTEM_SCAN),
   systemClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.SYSTEM_CLEAN, itemIds),
@@ -562,8 +571,8 @@ const api = {
   perfGetSystemInfo: (): Promise<PerfSystemInfo> => ipcRenderer.invoke(IPC.PERF_GET_SYSTEM_INFO),
   perfStartMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_START_MONITORING),
   perfStopMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_STOP_MONITORING),
-  perfKillProcess: (pid: number): Promise<PerfKillResult> =>
-    ipcRenderer.invoke(IPC.PERF_KILL_PROCESS, pid),
+  perfKillProcess: (pid: number, birthToken: string): Promise<PerfKillResult> =>
+    ipcRenderer.invoke(IPC.PERF_KILL_PROCESS, pid, birthToken),
   perfGetDiskHealth: (): Promise<DiskSmartInfo[]> => ipcRenderer.invoke(IPC.PERF_DISK_HEALTH),
   onPerfSnapshot: (callback: (data: PerfSnapshot) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: PerfSnapshot) => callback(data)

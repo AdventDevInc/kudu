@@ -41,6 +41,7 @@ export interface PageExperience {
 
 // Each tool describes its own workflow. These are instructions, never progress or scan results.
 export const pageExperiences: Record<string, PageExperience> = {
+  '/app-space': { key: 'appSpace', icon: AppWindow, family: 'storage' },
   '/storage-history': {
     key: 'storageHistory',
     icon: FolderClock,

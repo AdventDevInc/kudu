@@ -173,7 +173,8 @@
     "drivers": "Tarkista ohjainpäivitykset ja vanhemmat paketit yhdessä paikassa. Tarkista ehdotetut muutokset ennen niiden käyttöönottoa.",
     "storageHistory": "Näe, mikä kasvaa. Tallenna paikallisia kansiotilannevedoksia ja vertaa, missä tallennustila on muuttunut.",
     "recovery": "Selkeä tie takaisin. Tarkista tuetut muutokset ja palautuksen tiedot ennen minkään kumoamista.",
-    "diagnostics": "Muuta hidas hetki todisteiksi. Tallenna paikallisesti, tutki tiedot ja valitse, haluatko pyytää Cloud AI -analyysin."
+    "diagnostics": "Muuta hidas hetki todisteiksi. Tallenna paikallisesti, tutki tiedot ja valitse, haluatko pyytää Cloud AI -analyysin.",
+    "appSpace": "Näe ilmoitetut sovelluskoot mitatun, tarkistettavissa olevan välimuistin ja lokien rinnalla."
   },
   "home": {
     "eyebrow": "JÄRJESTELMÄSI YHDELLÄ SILMÄYKSELLÄ",
