@@ -76,11 +76,31 @@ describe('monitor process collection lifecycle', () => {
     expect(snapshots.at(-1)![1].temperatures).toBeUndefined()
   })
 
-  it('discards temperature collection completing after stop and restart', async () => {
+  it('polls temperatures after restarting even when the old query never settles', async () => {
+    mocks.temperatures.mockReturnValueOnce(new Promise(() => {}))
+    await service.startMonitoring(sender() as unknown as Electron.WebContents)
+    await vi.advanceTimersByTimeAsync(10000)
+    expect(mocks.temperatures).toHaveBeenCalledTimes(1)
+    service.stopMonitoring()
+    const target = sender()
+    await service.startMonitoring(target as unknown as Electron.WebContents)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(mocks.temperatures).toHaveBeenCalledTimes(2)
+    const snapshots = target.send.mock.calls.filter(([channel]) => channel === IPC.PERF_SNAPSHOT)
+    expect(snapshots.at(-1)![1].temperatures.cpuCelsius).toBe(55)
+  })
+
+  it('discards old temperature results without releasing the restarted query guard', async () => {
     let resolve!: (value: unknown) => void
+    let resolveRestarted!: (value: unknown) => void
     mocks.temperatures.mockReturnValueOnce(
       new Promise((done) => {
         resolve = done
+      })
+    )
+    mocks.temperatures.mockReturnValueOnce(
+      new Promise((done) => {
+        resolveRestarted = done
       })
     )
     await service.startMonitoring(sender() as unknown as Electron.WebContents)
@@ -88,18 +108,20 @@ describe('monitor process collection lifecycle', () => {
     const target = sender()
     await service.startMonitoring(target as unknown as Electron.WebContents)
     resolve({ sampledAt: Date.now(), cpuCelsius: 99, cpuMaxCelsius: 99, gpus: [] })
+    await vi.advanceTimersByTimeAsync(10000)
+    expect(mocks.temperatures).toHaveBeenCalledTimes(2)
+    const snapshots = target.send.mock.calls.filter(([channel]) => channel === IPC.PERF_SNAPSHOT)
+    expect(snapshots.every(([, sample]) => sample.temperatures === undefined)).toBe(true)
+    resolveRestarted({ sampledAt: Date.now(), cpuCelsius: 55, cpuMaxCelsius: 60, gpus: [] })
     await vi.advanceTimersByTimeAsync(1000)
-    expect(target.send).toHaveBeenCalledWith(
-      IPC.PERF_SNAPSHOT,
-      expect.objectContaining({ temperatures: undefined })
-    )
-    await vi.advanceTimersByTimeAsync(5000)
     expect(target.send).toHaveBeenCalledWith(
       IPC.PERF_SNAPSHOT,
       expect.objectContaining({
         temperatures: expect.objectContaining({ cpuCelsius: 55 })
       })
     )
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(mocks.temperatures).toHaveBeenCalledTimes(3)
   })
   it('refuses a command fallback if the PID changed after the first termination attempt', async () => {
     vi.spyOn(process, 'kill').mockImplementation(() => {

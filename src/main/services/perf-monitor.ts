@@ -24,7 +24,7 @@ export class PerfMonitorService {
   private fastTimer: ReturnType<typeof setInterval> | null = null
   private slowTimer: ReturnType<typeof setInterval> | null = null
   private temperatureTimer: ReturnType<typeof setInterval> | null = null
-  private temperaturesRunning = false
+  private temperatureGeneration: number | null = null
   private cachedTemperatures: PerfTemperatures | undefined
   private sender: Electron.WebContents | null = null
   private cachedSystemInfo: PerfSystemInfo | null = null
@@ -284,16 +284,18 @@ export class PerfMonitorService {
   }
 
   private async collectTemperatureSample(): Promise<void> {
-    if (this.temperaturesRunning || !this.sender || this.sender.isDestroyed()) return
-    this.temperaturesRunning = true
+    if (this.temperatureGeneration === this.generation || !this.sender || this.sender.isDestroyed())
+      return
     const generation = this.generation
+    this.temperatureGeneration = generation
     try {
       const temperatures = await collectTemperatures()
       if (generation === this.generation) this.cachedTemperatures = temperatures
     } catch {
       if (generation === this.generation) this.cachedTemperatures = undefined
     } finally {
-      this.temperaturesRunning = false
+      // A stopped session may finish after the next session has begun polling.
+      if (this.temperatureGeneration === generation) this.temperatureGeneration = null
     }
   }
 
