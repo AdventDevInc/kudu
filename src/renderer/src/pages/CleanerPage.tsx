@@ -616,6 +616,7 @@ export function CleanerPage() {
         totalSpaceSaved: totalCleaned,
         categories: categoryBreakdown.map((d) => ({
           name: d.name,
+          type: d.type,
           itemsFound: d.found,
           itemsCleaned: d.cleaned,
           spaceSaved: d.space

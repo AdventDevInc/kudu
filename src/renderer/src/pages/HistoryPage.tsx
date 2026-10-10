@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { CleanupReceipts } from '@/components/cleaner/CleanupReceipts'
+import { ShareCleanup } from '@/components/cleaner/ShareCleanup'
+import { shareHistory } from '@/lib/cleanup-share'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -291,6 +293,7 @@ export function HistoryPage() {
         description={t('pageDescription')}
         action={
           <div className="flex items-center gap-2.5">
+            <ShareCleanup data={shareHistory(entries)} />
             {/* View mode toggle */}
             <div
               className="flex rounded-xl overflow-hidden"
@@ -1024,6 +1027,11 @@ function ScanDetailPopup({ entry, onClose }: { entry: ScanHistoryEntry; onClose:
         </div>
 
         {/* Stats grid */}
+        {entry.type === 'cleaner' && (
+          <div className="mb-4">
+            <ShareCleanup data={shareHistory([entry])} />
+          </div>
+        )}
         <div className="mb-5 grid grid-cols-4 gap-2.5">
           <DetailStat
             label={t('detail.statFound')}

@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { ShareCleanup } from './ShareCleanup'
+import { shareCleanup } from '@/lib/cleanup-share'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
@@ -204,6 +206,9 @@ export function CleanSummary({ summary, onRelaunchAsAdmin, platform }: CleanSumm
         <Link to="/history?view=receipts" className="mb-4 block text-sm underline">
           {t('history:receipts.title')}
         </Link>
+        <div className="mb-4">
+          <ShareCleanup data={shareCleanup(summary)} />
+        </div>
         {/* Metric cards */}
         <div className="grid grid-cols-3 gap-3 mb-5">
           <MetricCard
