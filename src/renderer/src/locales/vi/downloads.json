@@ -49,7 +49,7 @@
   "move": "Chuyển vào Bin / Trash",
   "confirmTitle_one": "Chuyển {{count}} tệp vào Bin / Trash?",
   "confirmTitle_other": "Chuyển {{count}} tệp vào Bin / Trash?",
-  "confirmDescription": "Hãy kiểm tra rằng bạn không còn cần các tệp tải xuống này nữa. Bạn có thể khôi phục chúng từ Recycle Bin hoặc Trash của hệ thống cho đến khi thùng được làm trống. Các tệp đã thay đổi hoặc bị loại trừ sẽ bị bỏ qua.",
+  "confirmDescription": "Hãy kiểm tra rằng bạn không còn cần các tệp tải xuống này nữa. Việc khôi phục chúng từ Thùng rác sẽ đưa chúng vào một thư mục khôi phục của Kudu bên trong thư mục Tải xuống; sau đó hãy chuyển chúng trở lại thư mục Tải xuống. Các tệp đã thay đổi hoặc bị loại trừ sẽ được bỏ qua.",
   "outcome_one": "Đã chuyển {{count}} tệp vào Bin / Trash.",
   "outcome_other": "Đã chuyển {{count}} tệp vào Bin / Trash.",
   "skipped_one": "{{count}} tệp không thể di chuyển hoặc đã thay đổi kể từ khi quét. Hãy quét lại để xem lại.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} tệp không thể di chuyển hoặc đã thay đổi kể từ khi quét. Hãy quét lại để xem lại chúng.",
   "skipped_two": "{{count}} tệp không thể di chuyển hoặc đã thay đổi kể từ khi quét. Hãy quét lại để xem lại chúng.",
   "skipped_few": "{{count}} tệp không thể di chuyển hoặc đã thay đổi kể từ khi quét. Hãy quét lại để xem lại chúng.",
-  "skipped_many": "{{count}} tệp không thể di chuyển hoặc đã thay đổi kể từ khi quét. Hãy quét lại để xem lại chúng."
+  "skipped_many": "{{count}} tệp không thể di chuyển hoặc đã thay đổi kể từ khi quét. Hãy quét lại để xem lại chúng.",
+  "recoveryTitle": "Một số tệp đã được giữ lại để khôi phục",
+  "recoveryDescription": "Kudu không thể đưa các tệp này trở lại thư mục Tải xuống một cách an toàn. Chúng vẫn nằm ở các đường dẫn bên dưới; hãy chuyển chúng trở lại theo cách thủ công khi vị trí đích đã trống.",
+  "restoreHint": "Việc khôi phục từ Thùng rác sẽ đưa các tệp vào một thư mục khôi phục của Kudu bên trong thư mục Tải xuống. Sau đó hãy chuyển chúng trở lại thư mục Tải xuống."
 }

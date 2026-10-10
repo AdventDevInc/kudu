@@ -49,7 +49,7 @@
   "move": "Áthelyezés a Lomtárba / Kukába",
   "confirmTitle_one": "{{count}} fájl áthelyezése a Lomtárba / Kukába?",
   "confirmTitle_other": "{{count}} fájl áthelyezése a Lomtárba / Kukába?",
-  "confirmDescription": "Ellenőrizze, hogy ezekre a letöltésekre már nincs szüksége. A rendszer Lomtárából vagy Kukájából visszaállíthatók, amíg azt ki nem ürítik. A megváltozott vagy kizárt fájlok ki lesznek hagyva.",
+  "confirmDescription": "Ellenőrizze, hogy már nincs-e szüksége ezekre a letöltésekre. A Lomtárból / Kukából való visszaállításkor a rendszer a fájlokat a Letöltések mappán belüli Kudu helyreállítási mappába helyezi vissza; ezután helyezze át őket újra a Letöltések mappába. A módosított vagy kizárt fájlok ki lesznek hagyva.",
   "outcome_one": "{{count}} fájl áthelyezve a Lomtárba / Kukába.",
   "outcome_other": "{{count}} fájl áthelyezve a Lomtárba / Kukába.",
   "skipped_one": "{{count}} fájlt nem sikerült áthelyezni, vagy a vizsgálat óta megváltozott. Vizsgálja meg újra az áttekintéshez.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} fájlt nem sikerült áthelyezni, vagy a vizsgálat óta megváltozott. Vizsgálja meg újra az áttekintéshez.",
   "skipped_two": "{{count}} fájlt nem sikerült áthelyezni, vagy a vizsgálat óta megváltozott. Vizsgálja meg újra az áttekintéshez.",
   "skipped_few": "{{count}} fájlt nem sikerült áthelyezni, vagy a vizsgálat óta megváltozott. Vizsgálja meg újra az áttekintéshez.",
-  "skipped_many": "{{count}} fájlt nem sikerült áthelyezni, vagy a vizsgálat óta megváltozott. Vizsgálja meg újra az áttekintéshez."
+  "skipped_many": "{{count}} fájlt nem sikerült áthelyezni, vagy a vizsgálat óta megváltozott. Vizsgálja meg újra az áttekintéshez.",
+  "recoveryTitle": "Néhány fájl meg lett őrizve helyreállításhoz",
+  "recoveryDescription": "A Kudu nem tudta biztonságosan visszahelyezni ezeket a fájlokat a Letöltések mappába. Az alábbi elérési utakon maradnak; helyezze vissza őket manuálisan, amikor a célhely ismét szabad.",
+  "restoreHint": "A Lomtárból / Kukából való visszaállításkor a rendszer a fájlokat a Letöltések mappán belüli Kudu helyreállítási mappába helyezi vissza. Ezután helyezze át őket újra a Letöltések mappába."
 }

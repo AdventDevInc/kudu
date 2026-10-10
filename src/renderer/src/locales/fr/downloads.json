@@ -49,7 +49,7 @@
   "move": "Déplacer vers la Corbeille",
   "confirmTitle_one": "Déplacer {{count}} fichier vers la Corbeille ?",
   "confirmTitle_other": "Déplacer {{count}} fichiers vers la Corbeille ?",
-  "confirmDescription": "Vérifiez que vous n’avez plus besoin de ces téléchargements. Vous pouvez les restaurer depuis la Corbeille de votre système jusqu’à ce qu’elle soit vidée. Les fichiers modifiés ou exclus seront ignorés.",
+  "confirmDescription": "Vérifiez que vous n’avez plus besoin de ces téléchargements. Leur restauration depuis la Corbeille les replace dans un dossier de récupération Kudu situé dans Téléchargements ; replacez-les ensuite dans Téléchargements. Les fichiers modifiés ou exclus seront ignorés.",
   "outcome_one": "{{count}} fichier déplacé vers la Corbeille.",
   "outcome_other": "{{count}} fichiers déplacés vers la Corbeille.",
   "skipped_one": "{{count}} fichier n’a pas pu être déplacé ou a changé depuis l’analyse. Analysez à nouveau pour le vérifier.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} fichier n’a pas pu être déplacé ou a changé depuis l’analyse. Analysez à nouveau pour le vérifier.",
   "skipped_two": "{{count}} fichiers n’ont pas pu être déplacés ou ont changé depuis l’analyse. Analysez à nouveau pour les vérifier.",
   "skipped_few": "{{count}} fichiers n’ont pas pu être déplacés ou ont changé depuis l’analyse. Analysez à nouveau pour les vérifier.",
-  "skipped_many": "{{count}} fichiers n’ont pas pu être déplacés ou ont changé depuis l’analyse. Analysez à nouveau pour les vérifier."
+  "skipped_many": "{{count}} fichiers n’ont pas pu être déplacés ou ont changé depuis l’analyse. Analysez à nouveau pour les vérifier.",
+  "recoveryTitle": "Certains fichiers ont été conservés pour récupération",
+  "recoveryDescription": "Kudu n’a pas pu replacer ces fichiers dans Téléchargements en toute sécurité. Ils restent aux emplacements ci-dessous ; replacez-les manuellement lorsque la destination sera libre.",
+  "restoreHint": "La restauration depuis la Corbeille replace les fichiers dans un dossier de récupération Kudu situé dans Téléchargements. Replacez-les ensuite dans Téléchargements."
 }

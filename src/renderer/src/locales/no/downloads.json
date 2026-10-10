@@ -49,7 +49,7 @@
   "move": "Flytt til papirkurven",
   "confirmTitle_one": "Flytte {{count}} fil til papirkurven?",
   "confirmTitle_other": "Flytte {{count}} filer til papirkurven?",
-  "confirmDescription": "Kontroller at du ikke lenger trenger disse nedlastingene. Du kan gjenopprette dem fra systemets papirkurv til den tømmes. Endrede eller ekskluderte filer blir hoppet over.",
+  "confirmDescription": "Kontroller at du ikke lenger trenger disse nedlastingene. Når du gjenoppretter dem fra Papirkurv, blir de lagt tilbake i en Kudu-gjenopprettingsmappe i Nedlastinger. Flytt dem tilbake til Nedlastinger etterpå. Endrede eller ekskluderte filer blir hoppet over.",
   "outcome_one": "{{count}} fil flyttet til papirkurven.",
   "outcome_other": "{{count}} filer flyttet til papirkurven.",
   "skipped_one": "{{count}} fil kunne ikke flyttes eller ble endret siden skanningen. Skann på nytt for å gå gjennom den.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} filer kunne ikke flyttes eller ble endret siden skanningen. Skann på nytt for å gå gjennom dem.",
   "skipped_two": "{{count}} filer kunne ikke flyttes eller ble endret siden skanningen. Skann på nytt for å gå gjennom dem.",
   "skipped_few": "{{count}} filer kunne ikke flyttes eller ble endret siden skanningen. Skann på nytt for å gå gjennom dem.",
-  "skipped_many": "{{count}} filer kunne ikke flyttes eller ble endret siden skanningen. Skann på nytt for å gå gjennom dem."
+  "skipped_many": "{{count}} filer kunne ikke flyttes eller ble endret siden skanningen. Skann på nytt for å gå gjennom dem.",
+  "recoveryTitle": "Noen filer ble bevart for gjenoppretting",
+  "recoveryDescription": "Kudu kunne ikke legge disse filene trygt tilbake i Nedlastinger. De ligger fortsatt på stiene nedenfor. Flytt dem tilbake manuelt når målmappen er ledig.",
+  "restoreHint": "Når du gjenoppretter fra Papirkurv, blir filene lagt tilbake i en Kudu-gjenopprettingsmappe i Nedlastinger. Flytt dem tilbake til Nedlastinger etterpå."
 }

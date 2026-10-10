@@ -49,7 +49,7 @@
   "move": "Siirrä Roskakoriin",
   "confirmTitle_one": "Siirretäänkö {{count}} tiedosto Roskakoriin?",
   "confirmTitle_other": "Siirretäänkö {{count}} tiedostoa Roskakoriin?",
-  "confirmDescription": "Varmista, ettet enää tarvitse näitä latauksia. Voit palauttaa ne järjestelmän Roskakorista, kunnes se tyhjennetään. Muuttuneet tai poissuljetut tiedostot ohitetaan.",
+  "confirmDescription": "Varmista, ettet enää tarvitse näitä latauksia. Niiden palauttaminen Roskakorista palauttaa ne Kudu-palautuskansioon Lataukset-kansion sisällä; siirrä ne sen jälkeen takaisin Lataukset-kansioon. Muutettuja tai pois jätettyjä tiedostoja ei käsitellä.",
   "outcome_one": "{{count}} tiedosto siirrettiin Roskakoriin.",
   "outcome_other": "{{count}} tiedostoa siirrettiin Roskakoriin.",
   "skipped_one": "{{count}} tiedostoa ei voitu siirtää tai se on muuttunut tarkistuksen jälkeen. Tarkista se uudelleen.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} tiedostoa ei voitu siirtää tai ne ovat muuttuneet tarkistuksen jälkeen. Tarkista ne uudelleen.",
   "skipped_two": "{{count}} tiedostoa ei voitu siirtää tai ne ovat muuttuneet tarkistuksen jälkeen. Tarkista ne uudelleen.",
   "skipped_few": "{{count}} tiedostoa ei voitu siirtää tai ne ovat muuttuneet tarkistuksen jälkeen. Tarkista ne uudelleen.",
-  "skipped_many": "{{count}} tiedostoa ei voitu siirtää tai ne ovat muuttuneet tarkistuksen jälkeen. Tarkista ne uudelleen."
+  "skipped_many": "{{count}} tiedostoa ei voitu siirtää tai ne ovat muuttuneet tarkistuksen jälkeen. Tarkista ne uudelleen.",
+  "recoveryTitle": "Jotkin tiedostot säilytettiin palautusta varten",
+  "recoveryDescription": "Kudu ei voinut turvallisesti palauttaa näitä tiedostoja takaisin Lataukset-kansioon. Ne ovat edelleen alla näkyvissä sijainneissa; siirrä ne takaisin manuaalisesti, kun kohde on vapaa.",
+  "restoreHint": "Palauttaminen Roskakorista palauttaa tiedostot Kudu-palautuskansioon Lataukset-kansion sisällä. Siirrä ne sen jälkeen takaisin Lataukset-kansioon."
 }

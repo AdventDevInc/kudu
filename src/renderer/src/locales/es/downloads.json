@@ -49,7 +49,7 @@
   "move": "Mover a la Papelera de reciclaje / Papelera",
   "confirmTitle_one": "¿Mover {{count}} archivo a la Papelera de reciclaje / Papelera?",
   "confirmTitle_other": "¿Mover {{count}} archivos a la Papelera de reciclaje / Papelera?",
-  "confirmDescription": "Compruebe que ya no necesita estas descargas. Puede restaurarlas desde la Papelera de reciclaje o la Papelera de su sistema hasta que se vacíe. Los archivos modificados o excluidos se omitirán.",
+  "confirmDescription": "Compruebe que ya no necesita estas descargas. Al restaurarlas desde la Papelera / Basura, se devolverán a una carpeta de recuperación de Kudu dentro de Descargas; después, muévalas de nuevo a Descargas. Los archivos modificados o excluidos se omitirán.",
   "outcome_one": "{{count}} archivo movido a la Papelera de reciclaje / Papelera.",
   "outcome_other": "{{count}} archivos movidos a la Papelera de reciclaje / Papelera.",
   "skipped_one": "{{count}} archivo no se pudo mover o cambió desde el análisis. Analice de nuevo para revisarlo.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} archivos no se pudieron mover o cambiaron desde el análisis. Analice de nuevo para revisarlos.",
   "skipped_two": "{{count}} archivos no se pudieron mover o cambiaron desde el análisis. Analice de nuevo para revisarlos.",
   "skipped_few": "{{count}} archivos no se pudieron mover o cambiaron desde el análisis. Analice de nuevo para revisarlos.",
-  "skipped_many": "{{count}} archivos no se pudieron mover o cambiaron desde el análisis. Analice de nuevo para revisarlos."
+  "skipped_many": "{{count}} archivos no se pudieron mover o cambiaron desde el análisis. Analice de nuevo para revisarlos.",
+  "recoveryTitle": "Se conservaron algunos archivos para su recuperación",
+  "recoveryDescription": "Kudu no pudo volver a colocar estos archivos en Descargas de forma segura. Permanecen en las rutas indicadas a continuación; vuelva a moverlos manualmente cuando el destino esté libre.",
+  "restoreHint": "Al restaurar desde la Papelera / Basura, los archivos se devolverán a una carpeta de recuperación de Kudu dentro de Descargas. Después, muévalos de nuevo a Descargas."
 }

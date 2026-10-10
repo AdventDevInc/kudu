@@ -49,7 +49,7 @@
   "move": "Přesunout do koše",
   "confirmTitle_one": "Přesunout {{count}} soubor do koše?",
   "confirmTitle_other": "Přesunout {{count}} souborů do koše?",
-  "confirmDescription": "Zkontrolujte, že tyto stažené soubory už nepotřebujete. Dokud nebude koš vyprázdněn, můžete je obnovit ze systémového koše. Změněné nebo vyloučené soubory budou přeskočeny.",
+  "confirmDescription": "Zkontrolujte, že tyto stažené soubory již nepotřebujete. Obnovením z Koše / Trash se vrátí do složky pro obnovení Kudu ve složce Stažené; poté je přesuňte zpět do složky Stažené. Změněné nebo vyloučené soubory budou přeskočeny.",
   "outcome_one": "{{count}} soubor byl přesunut do koše.",
   "outcome_other": "{{count}} souborů bylo přesunuto do koše.",
   "skipped_one": "{{count}} soubor nebylo možné přesunout nebo se od skenování změnil. Spusťte skenování znovu a zkontrolujte jej.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} souborů nebylo možné přesunout nebo se od skenování změnilo. Spusťte skenování znovu a zkontrolujte je.",
   "skipped_two": "{{count}} souborů nebylo možné přesunout nebo se od skenování změnilo. Spusťte skenování znovu a zkontrolujte je.",
   "skipped_few": "{{count}} soubory nebylo možné přesunout nebo se od skenování změnily. Spusťte skenování znovu a zkontrolujte je.",
-  "skipped_many": "{{count}} souboru nebylo možné přesunout nebo se od skenování změnilo. Spusťte skenování znovu a zkontrolujte je."
+  "skipped_many": "{{count}} souboru nebylo možné přesunout nebo se od skenování změnilo. Spusťte skenování znovu a zkontrolujte je.",
+  "recoveryTitle": "Některé soubory byly zachovány pro obnovení",
+  "recoveryDescription": "Kudu nemohl tyto soubory bezpečně vrátit do složky Stažené. Zůstávají v níže uvedených umístěních; jakmile bude cílové umístění volné, přesuňte je zpět ručně.",
+  "restoreHint": "Obnovením z Koše / Trash se soubory vrátí do složky pro obnovení Kudu ve složce Stažené. Poté je přesuňte zpět do složky Stažené."
 }

@@ -49,7 +49,7 @@
   "move": "Flyt til Papirkurv",
   "confirmTitle_one": "Flyt {{count}} fil til Papirkurv?",
   "confirmTitle_other": "Flyt {{count}} filer til Papirkurv?",
-  "confirmDescription": "Kontrollér, at du ikke længere har brug for disse downloads. Du kan gendanne dem fra systemets Papirkurv, indtil den tømmes. Ændrede eller udeladte filer springes over.",
+  "confirmDescription": "Kontrollér, at du ikke længere har brug for disse downloads. Gendannelse fra Papirkurv / Bin flytter dem tilbage til en Kudu-gendannelsesmappe i Downloads; flyt dem derefter tilbage til Downloads. Ændrede eller udeladte filer springes over.",
   "outcome_one": "{{count}} fil flyttet til Papirkurv.",
   "outcome_other": "{{count}} filer flyttet til Papirkurv.",
   "skipped_one": "{{count}} fil kunne ikke flyttes eller er blevet ændret siden scanningen. Scan igen for at gennemgå den.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} filer kunne ikke flyttes eller er blevet ændret siden scanningen. Scan igen for at gennemgå dem.",
   "skipped_two": "{{count}} filer kunne ikke flyttes eller er blevet ændret siden scanningen. Scan igen for at gennemgå dem.",
   "skipped_few": "{{count}} filer kunne ikke flyttes eller er blevet ændret siden scanningen. Scan igen for at gennemgå dem.",
-  "skipped_many": "{{count}} filer kunne ikke flyttes eller er blevet ændret siden scanningen. Scan igen for at gennemgå dem."
+  "skipped_many": "{{count}} filer kunne ikke flyttes eller er blevet ændret siden scanningen. Scan igen for at gennemgå dem.",
+  "recoveryTitle": "Nogle filer blev bevaret til gendannelse",
+  "recoveryDescription": "Kudu kunne ikke sikkert lægge disse filer tilbage i Downloads. De forbliver på stierne nedenfor; flyt dem tilbage manuelt, når destinationen er ledig.",
+  "restoreHint": "Gendannelse fra Papirkurv / Bin flytter filer tilbage til en Kudu-gendannelsesmappe i Downloads. Flyt dem derefter tilbage til Downloads."
 }

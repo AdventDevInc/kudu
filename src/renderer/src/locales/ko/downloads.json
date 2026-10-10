@@ -49,7 +49,7 @@
   "move": "휴지통 / Trash로 이동",
   "confirmTitle_one": "{{count}}개 파일을 휴지통 / Trash로 이동할까요?",
   "confirmTitle_other": "{{count}}개 파일을 휴지통 / Trash로 이동할까요?",
-  "confirmDescription": "이 다운로드 파일이 더 이상 필요하지 않은지 확인하세요. 시스템의 Recycle Bin 또는 Trash를 비우기 전까지는 복원할 수 있습니다. 변경되었거나 제외된 파일은 건너뜁니다.",
+  "confirmDescription": "이 다운로드 파일이 더 이상 필요하지 않은지 확인하세요. Bin / Trash에서 복원하면 Downloads 내부의 Kudu 복구 폴더로 돌아가며, 이후 다시 Downloads로 옮겨야 합니다. 변경되었거나 제외된 파일은 건너뜁니다.",
   "outcome_one": "{{count}}개 파일을 휴지통 / Trash로 이동했습니다.",
   "outcome_other": "{{count}}개 파일을 휴지통 / Trash로 이동했습니다.",
   "skipped_one": "{{count}}개 파일은 이동할 수 없거나 검사 이후 변경되었습니다. 다시 검사하여 검토하세요.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}}개 파일은 이동할 수 없거나 검사 이후 변경되었습니다. 다시 검사하여 검토하세요.",
   "skipped_two": "{{count}}개 파일은 이동할 수 없거나 검사 이후 변경되었습니다. 다시 검사하여 검토하세요.",
   "skipped_few": "{{count}}개 파일은 이동할 수 없거나 검사 이후 변경되었습니다. 다시 검사하여 검토하세요.",
-  "skipped_many": "{{count}}개 파일은 이동할 수 없거나 검사 이후 변경되었습니다. 다시 검사하여 검토하세요."
+  "skipped_many": "{{count}}개 파일은 이동할 수 없거나 검사 이후 변경되었습니다. 다시 검사하여 검토하세요.",
+  "recoveryTitle": "일부 파일이 복구를 위해 보존되었습니다",
+  "recoveryDescription": "Kudu에서 이 파일들을 Downloads로 안전하게 되돌릴 수 없었습니다. 파일은 아래 경로에 그대로 남아 있으므로, 대상 위치를 사용할 수 있게 되면 수동으로 다시 옮기세요.",
+  "restoreHint": "Bin / Trash에서 복원하면 파일이 Downloads 내부의 Kudu 복구 폴더로 돌아갑니다. 이후 다시 Downloads로 옮기세요."
 }

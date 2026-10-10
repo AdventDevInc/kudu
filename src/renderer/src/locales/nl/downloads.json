@@ -49,7 +49,7 @@
   "move": "Naar Prullenbak verplaatsen",
   "confirmTitle_one": "{{count}} bestand naar de Prullenbak verplaatsen?",
   "confirmTitle_other": "{{count}} bestanden naar de Prullenbak verplaatsen?",
-  "confirmDescription": "Controleer of u deze downloads niet meer nodig hebt. U kunt ze terugzetten vanuit de Prullenbak van uw systeem totdat deze wordt geleegd. Gewijzigde of uitgesloten bestanden worden overgeslagen.",
+  "confirmDescription": "Controleer of u deze downloads niet meer nodig hebt. Als u ze herstelt vanuit Prullenbak / Trash, worden ze teruggezet naar een Kudu-herstelmap in Downloads; verplaats ze daarna terug naar Downloads. Gewijzigde of uitgesloten bestanden worden overgeslagen.",
   "outcome_one": "{{count}} bestand naar de Prullenbak verplaatst.",
   "outcome_other": "{{count}} bestanden naar de Prullenbak verplaatst.",
   "skipped_one": "{{count}} bestand kon niet worden verplaatst of is sinds de scan gewijzigd. Scan opnieuw om het te controleren.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} bestanden konden niet worden verplaatst of zijn sinds de scan gewijzigd. Scan opnieuw om ze te controleren.",
   "skipped_two": "{{count}} bestanden konden niet worden verplaatst of zijn sinds de scan gewijzigd. Scan opnieuw om ze te controleren.",
   "skipped_few": "{{count}} bestanden konden niet worden verplaatst of zijn sinds de scan gewijzigd. Scan opnieuw om ze te controleren.",
-  "skipped_many": "{{count}} bestanden konden niet worden verplaatst of zijn sinds de scan gewijzigd. Scan opnieuw om ze te controleren."
+  "skipped_many": "{{count}} bestanden konden niet worden verplaatst of zijn sinds de scan gewijzigd. Scan opnieuw om ze te controleren.",
+  "recoveryTitle": "Sommige bestanden zijn bewaard voor herstel",
+  "recoveryDescription": "Kudu kon deze bestanden niet veilig terugzetten in Downloads. Ze blijven op de onderstaande paden staan; verplaats ze handmatig terug wanneer de bestemming vrij is.",
+  "restoreHint": "Herstellen vanuit Prullenbak / Trash zet bestanden terug naar een Kudu-herstelmap in Downloads. Verplaats ze daarna terug naar Downloads."
 }

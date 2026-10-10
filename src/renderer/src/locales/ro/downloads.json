@@ -49,7 +49,7 @@
   "move": "Mutați în Coșul de reciclare / Coș",
   "confirmTitle_one": "Mutați {{count}} fișier în Coșul de reciclare / Coș?",
   "confirmTitle_other": "Mutați {{count}} de fișiere în Coșul de reciclare / Coș?",
-  "confirmDescription": "Verificați dacă nu mai aveți nevoie de aceste descărcări. Le puteți restaura din Coșul de reciclare sau Coș al sistemului până când acesta este golit. Fișierele modificate sau excluse vor fi omise.",
+  "confirmDescription": "Verificați că nu mai aveți nevoie de aceste descărcări. Restaurarea lor din Coș / Trash le readuce într-un dosar de recuperare Kudu din Descărcări; mutați-le apoi înapoi în Descărcări. Fișierele modificate sau excluse vor fi omise.",
   "outcome_one": "{{count}} fișier mutat în Coșul de reciclare / Coș.",
   "outcome_other": "{{count}} de fișiere mutate în Coșul de reciclare / Coș.",
   "skipped_one": "{{count}} fișier nu a putut fi mutat sau s-a modificat de la scanare. Scanați din nou pentru a-l revizui.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} fișiere nu au putut fi mutate sau s-au modificat de la scanare. Scanați din nou pentru a le revizui.",
   "skipped_two": "{{count}} fișiere nu au putut fi mutate sau s-au modificat de la scanare. Scanați din nou pentru a le revizui.",
   "skipped_few": "{{count}} fișiere nu au putut fi mutate sau s-au modificat de la scanare. Scanați din nou pentru a le revizui.",
-  "skipped_many": "{{count}} fișiere nu au putut fi mutate sau s-au modificat de la scanare. Scanați din nou pentru a le revizui."
+  "skipped_many": "{{count}} fișiere nu au putut fi mutate sau s-au modificat de la scanare. Scanați din nou pentru a le revizui.",
+  "recoveryTitle": "Unele fișiere au fost păstrate pentru recuperare",
+  "recoveryDescription": "Kudu nu a putut readuce în siguranță aceste fișiere în Descărcări. Ele rămân la căile de mai jos; mutați-le înapoi manual când destinația este liberă.",
+  "restoreHint": "Restaurarea din Coș / Trash readuce fișierele într-un dosar de recuperare Kudu din Descărcări. Mutați-le apoi înapoi în Descărcări."
 }

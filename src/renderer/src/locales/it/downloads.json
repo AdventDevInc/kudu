@@ -49,7 +49,7 @@
   "move": "Sposta nel Cestino",
   "confirmTitle_one": "Spostare {{count}} file nel Cestino?",
   "confirmTitle_other": "Spostare {{count}} file nel Cestino?",
-  "confirmDescription": "Verifica di non avere più bisogno di questi download. Puoi ripristinarli dal Cestino del sistema finché non viene svuotato. I file modificati o esclusi verranno ignorati.",
+  "confirmDescription": "Verifica di non aver più bisogno di questi download. Il ripristino dal Cestino li riporta in una cartella di recupero di Kudu all'interno di Download; successivamente spostali di nuovo in Download. I file modificati o esclusi verranno ignorati.",
   "outcome_one": "{{count}} file spostato nel Cestino.",
   "outcome_other": "{{count}} file spostati nel Cestino.",
   "skipped_one": "{{count}} file non può essere spostato oppure è cambiato dopo la scansione. Esegui di nuovo la scansione per controllarlo.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} file non possono essere spostati oppure sono cambiati dopo la scansione. Esegui di nuovo la scansione per controllarli.",
   "skipped_two": "{{count}} file non possono essere spostati oppure sono cambiati dopo la scansione. Esegui di nuovo la scansione per controllarli.",
   "skipped_few": "{{count}} file non possono essere spostati oppure sono cambiati dopo la scansione. Esegui di nuovo la scansione per controllarli.",
-  "skipped_many": "{{count}} file non possono essere spostati oppure sono cambiati dopo la scansione. Esegui di nuovo la scansione per controllarli."
+  "skipped_many": "{{count}} file non possono essere spostati oppure sono cambiati dopo la scansione. Esegui di nuovo la scansione per controllarli.",
+  "recoveryTitle": "Alcuni file sono stati conservati per il recupero",
+  "recoveryDescription": "Kudu non ha potuto riposizionare questi file in Download in modo sicuro. Rimangono nei percorsi indicati di seguito; riportali manualmente in Download quando la destinazione sarà libera.",
+  "restoreHint": "Il ripristino dal Cestino riporta i file in una cartella di recupero di Kudu all'interno di Download. Successivamente spostali di nuovo in Download."
 }

@@ -49,7 +49,7 @@
   "move": "移至資源回收筒 / 垃圾桶",
   "confirmTitle_one": "要將 {{count}} 個檔案移至資源回收筒 / 垃圾桶嗎？",
   "confirmTitle_other": "要將 {{count}} 個檔案移至資源回收筒 / 垃圾桶嗎？",
-  "confirmDescription": "請確認您已不再需要這些下載項目。在系統的資源回收筒或垃圾桶清空之前，您都可以將它們還原。已變更或已排除的檔案將會略過。",
+  "confirmDescription": "請確認您已不再需要這些下載項目。從資源回收筒 / 垃圾桶還原後，系統會將它們放回 Downloads 內的 Kudu 復原資料夾；之後請再將它們移回 Downloads。已變更或已排除的檔案將會略過。",
   "outcome_one": "已將 {{count}} 個檔案移至資源回收筒 / 垃圾桶。",
   "outcome_other": "已將 {{count}} 個檔案移至資源回收筒 / 垃圾桶。",
   "skipped_one": "{{count}} 個檔案無法移動，或自掃描後已變更。請再次掃描以檢視。",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} 個檔案無法移動，或自掃描後已變更。請再次掃描以檢視。",
   "skipped_two": "{{count}} 個檔案無法移動，或自掃描後已變更。請再次掃描以檢視。",
   "skipped_few": "{{count}} 個檔案無法移動，或自掃描後已變更。請再次掃描以檢視。",
-  "skipped_many": "{{count}} 個檔案無法移動，或自掃描後已變更。請再次掃描以檢視。"
+  "skipped_many": "{{count}} 個檔案無法移動，或自掃描後已變更。請再次掃描以檢視。",
+  "recoveryTitle": "部分檔案已保留以供復原",
+  "recoveryDescription": "Kudu 無法安全地將這些檔案放回 Downloads。它們仍保留在下方路徑；當目的地可用時，請手動將它們移回。",
+  "restoreHint": "從資源回收筒 / 垃圾桶還原後，檔案會回到 Downloads 內的 Kudu 復原資料夾。之後請再將它們移回 Downloads。"
 }

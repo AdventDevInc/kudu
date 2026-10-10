@@ -49,7 +49,7 @@
   "move": "Przenieś do Kosza",
   "confirmTitle_one": "Przenieść {{count}} plik do Kosza?",
   "confirmTitle_other": "Przenieść {{count}} pliku do Kosza?",
-  "confirmDescription": "Sprawdź, czy te pobrane pliki nie są już potrzebne. Możesz je przywrócić z Kosza systemowego, dopóki nie zostanie opróżniony. Zmienione lub wykluczone pliki zostaną pominięte.",
+  "confirmDescription": "Sprawdź, czy te pobrane pliki nie są już potrzebne. Przywrócenie ich z Kosza spowoduje umieszczenie ich w folderze odzyskiwania Kudu w folderze Pobrane; następnie przenieś je z powrotem do folderu Pobrane. Zmienione lub wykluczone pliki zostaną pominięte.",
   "outcome_one": "Przeniesiono {{count}} plik do Kosza.",
   "outcome_other": "Przeniesiono {{count}} pliku do Kosza.",
   "skipped_one": "Nie udało się przenieść {{count}} pliku lub został on zmieniony od czasu skanowania. Zeskanuj ponownie, aby go przejrzeć.",
@@ -74,5 +74,8 @@
   "skipped_zero": "Nie udało się przenieść {{count}} plików lub zostały one zmienione od czasu skanowania. Zeskanuj ponownie, aby je przejrzeć.",
   "skipped_two": "Nie udało się przenieść {{count}} plików lub zostały one zmienione od czasu skanowania. Zeskanuj ponownie, aby je przejrzeć.",
   "skipped_few": "Nie udało się przenieść {{count}} plików lub zostały one zmienione od czasu skanowania. Zeskanuj ponownie, aby je przejrzeć.",
-  "skipped_many": "Nie udało się przenieść {{count}} plików lub zostały one zmienione od czasu skanowania. Zeskanuj ponownie, aby je przejrzeć."
+  "skipped_many": "Nie udało się przenieść {{count}} plików lub zostały one zmienione od czasu skanowania. Zeskanuj ponownie, aby je przejrzeć.",
+  "recoveryTitle": "Niektóre pliki zostały zachowane do odzyskania",
+  "recoveryDescription": "Kudu nie mógł bezpiecznie przywrócić tych plików do folderu Pobrane. Pozostają one w poniższych lokalizacjach; przenieś je z powrotem ręcznie, gdy miejsce docelowe będzie wolne.",
+  "restoreHint": "Przywrócenie z Kosza spowoduje umieszczenie plików w folderze odzyskiwania Kudu w folderze Pobrane. Następnie przenieś je z powrotem do folderu Pobrane."
 }

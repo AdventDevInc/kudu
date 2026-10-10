@@ -49,7 +49,7 @@
   "move": "In den Papierkorb verschieben",
   "confirmTitle_one": "{{count}} Datei in den Papierkorb verschieben?",
   "confirmTitle_other": "{{count}} Dateien in den Papierkorb verschieben?",
-  "confirmDescription": "Prüfen Sie, ob Sie diese Downloads nicht mehr benötigen. Sie können sie aus dem Papierkorb Ihres Systems wiederherstellen, bis dieser geleert wird. Geänderte oder ausgeschlossene Dateien werden übersprungen.",
+  "confirmDescription": "Prüfen Sie, ob Sie diese Downloads nicht mehr benötigen. Beim Wiederherstellen aus dem Papierkorb werden sie in einen Kudu-Wiederherstellungsordner innerhalb von Downloads zurückgelegt; verschieben Sie sie anschließend zurück nach Downloads. Geänderte oder ausgeschlossene Dateien werden übersprungen.",
   "outcome_one": "{{count}} Datei in den Papierkorb verschoben.",
   "outcome_other": "{{count}} Dateien in den Papierkorb verschoben.",
   "skipped_one": "{{count}} Datei konnte nicht verschoben werden oder wurde seit dem Scan geändert. Scannen Sie erneut, um sie zu überprüfen.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} Dateien konnten nicht verschoben werden oder wurden seit dem Scan geändert. Scannen Sie erneut, um sie zu überprüfen.",
   "skipped_two": "{{count}} Dateien konnten nicht verschoben werden oder wurden seit dem Scan geändert. Scannen Sie erneut, um sie zu überprüfen.",
   "skipped_few": "{{count}} Dateien konnten nicht verschoben werden oder wurden seit dem Scan geändert. Scannen Sie erneut, um sie zu überprüfen.",
-  "skipped_many": "{{count}} Dateien konnten nicht verschoben werden oder wurden seit dem Scan geändert. Scannen Sie erneut, um sie zu überprüfen."
+  "skipped_many": "{{count}} Dateien konnten nicht verschoben werden oder wurden seit dem Scan geändert. Scannen Sie erneut, um sie zu überprüfen.",
+  "recoveryTitle": "Einige Dateien wurden zur Wiederherstellung aufbewahrt",
+  "recoveryDescription": "Kudu konnte diese Dateien nicht sicher in Downloads zurücklegen. Sie verbleiben an den unten angegebenen Pfaden; verschieben Sie sie manuell zurück, wenn das Ziel frei ist.",
+  "restoreHint": "Beim Wiederherstellen aus dem Papierkorb werden Dateien in einen Kudu-Wiederherstellungsordner innerhalb von Downloads zurückgelegt. Verschieben Sie sie anschließend zurück nach Downloads."
 }

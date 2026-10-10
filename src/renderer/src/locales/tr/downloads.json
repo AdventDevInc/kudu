@@ -49,7 +49,7 @@
   "move": "Kutusu / Çöp Kutusu'na taşı",
   "confirmTitle_one": "{{count}} dosya Kutusu / Çöp Kutusu'na taşınsın mı?",
   "confirmTitle_other": "{{count}} dosya Kutusu / Çöp Kutusu'na taşınsın mı?",
-  "confirmDescription": "Artık bu indirilenlere ihtiyacınız olmadığından emin olun. Sisteminizin Geri Dönüşüm Kutusu veya Çöp Kutusu boşaltılana kadar bunları geri yükleyebilirsiniz. Değişen veya hariç tutulan dosyalar atlanır.",
+  "confirmDescription": "Bu indirmelere artık ihtiyacınız olmadığını doğrulayın. Bunları Çöp Kutusu / Çöp'ten geri yüklemek, dosyaları İndirilenler içindeki bir Kudu kurtarma klasörüne geri getirir; ardından bunları tekrar İndirilenler'e taşıyın. Değiştirilen veya hariç tutulan dosyalar atlanacaktır.",
   "outcome_one": "{{count}} dosya Kutusu / Çöp Kutusu'na taşındı.",
   "outcome_other": "{{count}} dosya Kutusu / Çöp Kutusu'na taşındı.",
   "skipped_one": "{{count}} dosya taşınamadı veya taramadan sonra değişti. İncelemek için yeniden tarayın.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} dosya taşınamadı veya taramadan sonra değişti. İncelemek için yeniden tarayın.",
   "skipped_two": "{{count}} dosya taşınamadı veya taramadan sonra değişti. İncelemek için yeniden tarayın.",
   "skipped_few": "{{count}} dosya taşınamadı veya taramadan sonra değişti. İncelemek için yeniden tarayın.",
-  "skipped_many": "{{count}} dosya taşınamadı veya taramadan sonra değişti. İncelemek için yeniden tarayın."
+  "skipped_many": "{{count}} dosya taşınamadı veya taramadan sonra değişti. İncelemek için yeniden tarayın.",
+  "recoveryTitle": "Bazı dosyalar kurtarma için korundu",
+  "recoveryDescription": "Kudu bu dosyaları güvenli bir şekilde yeniden İndirilenler'e yerleştiremedi. Aşağıdaki yollarda kalmaya devam ediyorlar; hedef konum boş olduğunda bunları el ile geri taşıyın.",
+  "restoreHint": "Çöp Kutusu / Çöp'ten geri yüklemek, dosyaları İndirilenler içindeki bir Kudu kurtarma klasörüne geri getirir. Ardından bunları tekrar İndirilenler'e taşıyın."
 }

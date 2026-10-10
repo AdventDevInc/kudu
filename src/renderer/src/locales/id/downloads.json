@@ -49,7 +49,7 @@
   "move": "Pindahkan ke Bin / Trash",
   "confirmTitle_one": "Pindahkan {{count}} file ke Bin / Trash?",
   "confirmTitle_other": "Pindahkan {{count}} file ke Bin / Trash?",
-  "confirmDescription": "Pastikan Anda tidak lagi memerlukan unduhan ini. Anda dapat memulihkannya dari Recycle Bin atau Trash sistem Anda sampai dikosongkan. File yang berubah atau dikecualikan akan dilewati.",
+  "confirmDescription": "Periksa bahwa Anda memang tidak lagi memerlukan unduhan ini. Memulihkannya dari Bin / Trash akan mengembalikannya ke folder pemulihan Kudu di dalam Downloads; setelah itu pindahkan kembali ke Downloads. File yang diubah atau dikecualikan akan dilewati.",
   "outcome_one": "{{count}} file dipindahkan ke Bin / Trash.",
   "outcome_other": "{{count}} file dipindahkan ke Bin / Trash.",
   "skipped_one": "{{count}} file tidak dapat dipindahkan atau telah berubah sejak pemindaian. Pindai lagi untuk meninjaunya.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} file tidak dapat dipindahkan atau telah berubah sejak pemindaian. Pindai lagi untuk meninjaunya.",
   "skipped_two": "{{count}} file tidak dapat dipindahkan atau telah berubah sejak pemindaian. Pindai lagi untuk meninjaunya.",
   "skipped_few": "{{count}} file tidak dapat dipindahkan atau telah berubah sejak pemindaian. Pindai lagi untuk meninjaunya.",
-  "skipped_many": "{{count}} file tidak dapat dipindahkan atau telah berubah sejak pemindaian. Pindai lagi untuk meninjaunya."
+  "skipped_many": "{{count}} file tidak dapat dipindahkan atau telah berubah sejak pemindaian. Pindai lagi untuk meninjaunya.",
+  "recoveryTitle": "Beberapa file dipertahankan untuk pemulihan",
+  "recoveryDescription": "Kudu tidak dapat dengan aman mengembalikan file-file ini ke Downloads. File-file tersebut tetap berada di jalur di bawah ini; pindahkan kembali secara manual saat lokasi tujuan sudah tersedia.",
+  "restoreHint": "Memulihkan dari Bin / Trash akan mengembalikan file ke folder pemulihan Kudu di dalam Downloads. Setelah itu, pindahkan kembali ke Downloads."
 }

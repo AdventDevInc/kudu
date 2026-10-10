@@ -49,7 +49,7 @@
   "move": "Mover para a Reciclagem / Lixo",
   "confirmTitle_one": "Mover {{count}} ficheiro para a Reciclagem / Lixo?",
   "confirmTitle_other": "Mover {{count}} ficheiros para a Reciclagem / Lixo?",
-  "confirmDescription": "Verifique se já não precisa destas transferências. Pode restaurá-las a partir da Reciclagem ou do Lixo do seu sistema até estes serem esvaziados. Os ficheiros alterados ou excluídos serão ignorados.",
+  "confirmDescription": "Verifique se já não precisa destas transferências. Ao restaurá-las da Reciclagem / Lixo, elas serão devolvidas para uma pasta de recuperação do Kudu dentro de Transferências; depois, mova-as novamente para Transferências. Os ficheiros alterados ou excluídos serão ignorados.",
   "outcome_one": "{{count}} ficheiro movido para a Reciclagem / Lixo.",
   "outcome_other": "{{count}} ficheiros movidos para a Reciclagem / Lixo.",
   "skipped_one": "{{count}} ficheiro não pôde ser movido ou foi alterado desde a análise. Analise novamente para o rever.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} ficheiro não pôde ser movido ou foi alterado desde a análise. Analise novamente para o rever.",
   "skipped_two": "{{count}} ficheiros não puderam ser movidos ou foram alterados desde a análise. Analise novamente para os rever.",
   "skipped_few": "{{count}} ficheiros não puderam ser movidos ou foram alterados desde a análise. Analise novamente para os rever.",
-  "skipped_many": "{{count}} ficheiros não puderam ser movidos ou foram alterados desde a análise. Analise novamente para os rever."
+  "skipped_many": "{{count}} ficheiros não puderam ser movidos ou foram alterados desde a análise. Analise novamente para os rever.",
+  "recoveryTitle": "Alguns ficheiros foram preservados para recuperação",
+  "recoveryDescription": "O Kudu não conseguiu repor estes ficheiros em Transferências com segurança. Eles permanecem nos caminhos abaixo; mova-os manualmente de volta para Transferências quando o destino estiver livre.",
+  "restoreHint": "Ao restaurar da Reciclagem / Lixo, os ficheiros serão devolvidos para uma pasta de recuperação do Kudu dentro de Transferências. Depois, mova-os novamente para Transferências."
 }

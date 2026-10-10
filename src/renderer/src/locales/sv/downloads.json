@@ -49,7 +49,7 @@
   "move": "Flytta till Papperskorgen",
   "confirmTitle_one": "Flytta {{count}} fil till Papperskorgen?",
   "confirmTitle_other": "Flytta {{count}} filer till Papperskorgen?",
-  "confirmDescription": "Kontrollera att du inte längre behöver dessa hämtade filer. Du kan återställa dem från systemets Papperskorg tills den töms. Ändrade eller undantagna filer hoppas över.",
+  "confirmDescription": "Kontrollera att du inte längre behöver dessa hämtade filer. När de återställs från Papperskorgen returneras de till en Kudu-återställningsmapp i Hämtade filer; flytta tillbaka dem till Hämtade filer efteråt. Ändrade eller undantagna filer hoppas över.",
   "outcome_one": "{{count}} fil flyttades till Papperskorgen.",
   "outcome_other": "{{count}} filer flyttades till Papperskorgen.",
   "skipped_one": "{{count}} fil kunde inte flyttas eller har ändrats sedan skanningen. Skanna igen för att granska den.",
@@ -74,5 +74,8 @@
   "skipped_zero": "{{count}} filer kunde inte flyttas eller har ändrats sedan skanningen. Skanna igen för att granska dem.",
   "skipped_two": "{{count}} filer kunde inte flyttas eller har ändrats sedan skanningen. Skanna igen för att granska dem.",
   "skipped_few": "{{count}} filer kunde inte flyttas eller har ändrats sedan skanningen. Skanna igen för att granska dem.",
-  "skipped_many": "{{count}} filer kunde inte flyttas eller har ändrats sedan skanningen. Skanna igen för att granska dem."
+  "skipped_many": "{{count}} filer kunde inte flyttas eller har ändrats sedan skanningen. Skanna igen för att granska dem.",
+  "recoveryTitle": "Vissa filer bevarades för återställning",
+  "recoveryDescription": "Kudu kunde inte säkert lägga tillbaka dessa filer i Hämtade filer. De finns kvar på sökvägarna nedan; flytta tillbaka dem manuellt när målmappen är ledig.",
+  "restoreHint": "När filer återställs från Papperskorgen returneras de till en Kudu-återställningsmapp i Hämtade filer. Flytta tillbaka dem till Hämtade filer efteråt."
 }
