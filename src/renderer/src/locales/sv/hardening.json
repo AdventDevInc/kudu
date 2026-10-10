@@ -219,5 +219,67 @@
     "statusStartPending": "Start väntar",
     "statusStopPending": "Stopp väntar",
     "statusUnknown": "Okänd"
+  },
+  "appPrivacy": {
+    "views": "Sekretessvyer",
+    "tab": {
+      "settings": "Systemsekretess",
+      "apps": "Appåtkomst"
+    },
+    "title": "Granskning av appåtkomst",
+    "description": "Granska Windows-poster för åtkomst till kamera, mikrofon och plats.",
+    "refresh": "Uppdatera",
+    "failed": "Det gick inte att läsa poster för appåtkomst. Försök att uppdatera.",
+    "refreshFailed": "Uppdateringen misslyckades. Den föregående genomsökningen visas fortfarande.",
+    "loading": "Läser poster för appåtkomst...",
+    "unsupported": "Granskning av appåtkomst är tillgänglig i Windows.",
+    "account": "Konto: {{account}} | Genomsökt {{time}}",
+    "unknownAccount": "Okänt processkonto",
+    "partial": "Vissa poster kunde inte läsas eller så nåddes genomsökningsgränsen. Antalen avser endast de poster som visas.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Plats"
+    },
+    "entries": "registrerade poster",
+    "recentCount": "{{count}} med registrerad användning under de senaste 30 dagarna",
+    "deviceConsent": "Enhetsinställning",
+    "userConsent": "Kontoinställning",
+    "desktopConsent": "Skrivbordsinställning",
+    "consent": {
+      "allow": "Tillåt registrerat",
+      "deny": "Neka registrerat",
+      "prompt": "Fråga registrerat",
+      "unknown": "Okänt"
+    },
+    "status": {
+      "missing": "Inga kontoposter hittades.",
+      "partial": "Vissa data kunde inte läsas.",
+      "unavailable": "Poster är inte tillgängliga."
+    },
+    "truncated": "Genomsökningsgränsen nåddes (1 000 poster per funktion).",
+    "settings": "Inställningar för {{capability}}",
+    "settingsFailed": "Windows-inställningar kunde inte öppnas. Öppna Sekretess och säkerhet i Windows-inställningar manuellt.",
+    "limitationsTitle": "Vad dessa poster kan visa",
+    "limitations": "Detta är registrerade inställningar och åtkomsthistorik, inte en fullständig förteckning över installerade appar eller bevis på faktisk behörighet. Enhetsbegränsningar, organisationsprinciper och andra kontroller kan åsidosätta registrerat medgivande. Windows kan utelämna skrivbordsappar eller behålla poster efter att en app har tagits bort. Kontroller för skrivbordsappar varierar beroende på Windows-version och åtkomstmetod; hantera tillgängliga kontroller i Windows-inställningar. Namn hämtas från registrerade sökvägar eller paketidentiteter och verifierar inte en utgivare. En ofullständig post bevisar inte att en app för närvarande använder en sensor.",
+    "accountHelp": "Den här genomsökningen läser det konto som kör Kudu. Om du startade Kudu med administratörsuppgifter från ett annat konto tillhör dessa poster det kontot. Inställningarna kan i stället visa det interaktiva kontot.",
+    "search": "Sök appnamn eller registrerade identiteter",
+    "filter": "Filtrera funktion",
+    "all": "Alla funktioner",
+    "recent": "Använd under de senaste 30 dagarna",
+    "showing": "Visar {{shown}} av {{total}} matchande poster",
+    "noMatches": "Inga poster matchar dina filter.",
+    "noRecords": "Inga åtkomstposter är tillgängliga. Det betyder inte att appar saknar åtkomst.",
+    "kind": {
+      "desktop": "Skrivbordshistorik",
+      "packaged": "Paketidentitet"
+    },
+    "recordedConsent": "Postinställning: {{consent}}",
+    "lastAccess": "Senast registrerade start: {{time}}",
+    "lastEnd": "Registrerat slut: {{time}}",
+    "noTime": "Ingen giltig åtkomsttid registrerad",
+    "unfinished": "Inget slut registrerat; kan vara inaktuell",
+    "more": "Visa mer",
+    "local": "Den här granskningen stannar på den här datorn. Den ändrar inte behörigheter och rensar inte åtkomsthistoriken."
   }
 }

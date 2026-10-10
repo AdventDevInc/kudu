@@ -219,5 +219,67 @@
     "statusStartPending": "Indítás függőben",
     "statusStopPending": "Leállítás függőben",
     "statusUnknown": "Ismeretlen"
+  },
+  "appPrivacy": {
+    "views": "Adatvédelmi nézetek",
+    "tab": {
+      "settings": "Rendszeradatvédelem",
+      "apps": "Alkalmazás-hozzáférés"
+    },
+    "title": "Alkalmazás-hozzáférési ellenőrzés",
+    "description": "A kamera-, mikrofon- és helyhozzáférés Windows által rögzített bejegyzéseinek áttekintése.",
+    "refresh": "Frissítés",
+    "failed": "Nem sikerült beolvasni az alkalmazás-hozzáférési bejegyzéseket. Próbálja meg frissíteni.",
+    "refreshFailed": "A frissítés nem sikerült. Az előző vizsgálat továbbra is látható.",
+    "loading": "Alkalmazás-hozzáférési bejegyzések beolvasása...",
+    "unsupported": "Az alkalmazás-hozzáférési ellenőrzés Windows rendszeren érhető el.",
+    "account": "Fiók: {{account}} | Vizsgálat ideje: {{time}}",
+    "unknownAccount": "Ismeretlen folyamatfiók",
+    "partial": "Egyes bejegyzéseket nem sikerült beolvasni, vagy a vizsgálati korlát elérte a maximumot. A darabszámok csak a megjelenített bejegyzéseket tükrözik.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Hely"
+    },
+    "entries": "rögzített bejegyzés",
+    "recentCount": "{{count}} rögzített használattal az elmúlt 30 napban",
+    "deviceConsent": "Eszközbeállítás",
+    "userConsent": "Fiókbeállítás",
+    "desktopConsent": "Asztali beállítás",
+    "consent": {
+      "allow": "Engedélyezés rögzítve",
+      "deny": "Tiltás rögzítve",
+      "prompt": "Rákérdezés rögzítve",
+      "unknown": "Ismeretlen"
+    },
+    "status": {
+      "missing": "Nem találhatók fiókbejegyzések.",
+      "partial": "Egyes adatok nem voltak beolvashatók.",
+      "unavailable": "A bejegyzések nem érhetők el."
+    },
+    "truncated": "A vizsgálati korlát elérve (képességenként 1000 bejegyzés).",
+    "settings": "{{capability}} beállításai",
+    "settingsFailed": "A Windows Beállítások nem nyithatók meg. Nyissa meg kézzel az Adatvédelem és biztonság részt a Windows Beállításokban.",
+    "limitationsTitle": "Mit mutatnak ezek a bejegyzések",
+    "limitations": "Ezek rögzített beállítások és hozzáférési előzmények, nem a telepített alkalmazások teljes listája, és nem bizonyítják a tényleges engedélyt. Az eszközkorlátozások, a szervezeti házirendek és más vezérlők felülbírálhatják a rögzített hozzájárulást. Előfordulhat, hogy a Windows kihagyja az asztali alkalmazásokat, vagy egy alkalmazás eltávolítása után is megőrzi a bejegyzéseket. Az asztali alkalmazások vezérlői a Windows verziójától és a hozzáférés módjától függően eltérhetnek; a rendelkezésre álló vezérlőket a Windows Beállításokban kezelheti. A nevek rögzített elérési utakból vagy csomagazonosítókból származnak, és nem igazolják a közzétevőt. A befejezetlen bejegyzés nem bizonyítja, hogy egy alkalmazás jelenleg is használ érzékelőt.",
+    "accountHelp": "Ez a vizsgálat a Kudu futtatásához használt fiókot olvassa be. Ha a Kudu alkalmazást egy másik fiók rendszergazdai hitelesítő adataival indította el, ezek a bejegyzések ahhoz a fiókhoz tartoznak. A beállítások ehelyett az interaktív fiókot jeleníthetik meg.",
+    "search": "Alkalmazásnevek vagy rögzített azonosítók keresése",
+    "filter": "Képesség szűrése",
+    "all": "Minden képesség",
+    "recent": "Használva az elmúlt 30 napban",
+    "showing": "{{shown}} / {{total}} egyező bejegyzés megjelenítve",
+    "noMatches": "Nincs a szűrőknek megfelelő bejegyzés.",
+    "noRecords": "Nem érhetők el hozzáférési bejegyzések. Ez nem jelenti azt, hogy az alkalmazásoknak nincs hozzáférésük.",
+    "kind": {
+      "desktop": "Asztali előzmények",
+      "packaged": "Csomagazonosító"
+    },
+    "recordedConsent": "Bejegyzés beállítása: {{consent}}",
+    "lastAccess": "Utolsó rögzített indítás: {{time}}",
+    "lastEnd": "Rögzített befejezés: {{time}}",
+    "noTime": "Nincs rögzített érvényes hozzáférési idő",
+    "unfinished": "Nincs rögzített befejezés; lehet, hogy elavult",
+    "more": "Továbbiak megjelenítése",
+    "local": "Ez az ellenőrzés ezen a PC-n marad. Nem módosítja az engedélyeket, és nem törli a hozzáférési előzményeket."
   }
 }

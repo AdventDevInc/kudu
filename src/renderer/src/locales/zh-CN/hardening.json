@@ -219,5 +219,67 @@
     "statusStartPending": "正在启动",
     "statusStopPending": "正在停止",
     "statusUnknown": "未知"
+  },
+  "appPrivacy": {
+    "views": "隐私视图",
+    "tab": {
+      "settings": "系统隐私",
+      "apps": "应用访问"
+    },
+    "title": "应用访问审核",
+    "description": "查看 Windows 中有关相机、麦克风和位置访问的记录。",
+    "refresh": "刷新",
+    "failed": "无法读取应用访问记录。请尝试刷新。",
+    "refreshFailed": "刷新失败。当前仍显示上一次扫描结果。",
+    "loading": "正在读取应用访问记录...",
+    "unsupported": "应用访问审核功能仅适用于 Windows。",
+    "account": "账户：{{account}} | 扫描时间：{{time}}",
+    "unknownAccount": "未知进程账户",
+    "partial": "部分记录无法读取，或已达到扫描上限。计数仅反映当前显示的记录。",
+    "capability": {
+      "webcam": "相机",
+      "microphone": "麦克风",
+      "location": "位置"
+    },
+    "entries": "条已记录的条目",
+    "recentCount": "最近 30 天内有记录使用的条目：{{count}}",
+    "deviceConsent": "设备设置",
+    "userConsent": "账户设置",
+    "desktopConsent": "桌面应用设置",
+    "consent": {
+      "allow": "已记录为允许",
+      "deny": "已记录为拒绝",
+      "prompt": "已记录为提示",
+      "unknown": "未知"
+    },
+    "status": {
+      "missing": "未找到账户记录。",
+      "partial": "部分数据无法读取。",
+      "unavailable": "记录不可用。"
+    },
+    "truncated": "已达到扫描上限（每项功能最多 1,000 条记录）。",
+    "settings": "{{capability}}设置",
+    "settingsFailed": "无法打开 Windows 设置。请手动在 Windows 设置中打开“隐私和安全性”。",
+    "limitationsTitle": "这些记录可以告诉您什么",
+    "limitations": "这些是已记录的设置和访问历史，并非已安装应用的完整清单，也不能证明权限实际生效。设备限制、组织策略和其他控制可能会覆盖已记录的同意设置。Windows 可能会省略桌面应用，或在应用被移除后仍保留记录。桌面应用控制因 Windows 版本和访问方式而异；请在 Windows 设置中管理可用的控制项。名称来自记录的路径或包标识，不用于验证发布者。未完成的记录并不能证明某个应用当前正在使用传感器。",
+    "accountHelp": "此扫描会读取运行 Kudu 的账户。如果您使用其他账户的管理员凭据启动 Kudu，这些记录将属于该账户。设置中显示的可能仍是当前交互账户。",
+    "search": "搜索应用名称或已记录的标识",
+    "filter": "筛选功能",
+    "all": "所有功能",
+    "recent": "最近 30 天内使用过",
+    "showing": "显示 {{shown}} / {{total}} 条匹配记录",
+    "noMatches": "没有记录符合您的筛选条件。",
+    "noRecords": "没有可用的访问记录。这并不表示应用没有访问权限。",
+    "kind": {
+      "desktop": "桌面应用历史",
+      "packaged": "包标识"
+    },
+    "recordedConsent": "条目设置：{{consent}}",
+    "lastAccess": "上次记录的开始时间：{{time}}",
+    "lastEnd": "记录的结束时间：{{time}}",
+    "noTime": "未记录有效的访问时间",
+    "unfinished": "未记录结束时间；可能为过期记录",
+    "more": "显示更多",
+    "local": "此审核仅保留在此 PC 上。它不会更改权限，也不会清除访问历史。"
   }
 }

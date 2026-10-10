@@ -219,5 +219,67 @@
     "statusStartPending": "Menunggu Mula",
     "statusStopPending": "Menunggu Henti",
     "statusUnknown": "Tidak Diketahui"
+  },
+  "appPrivacy": {
+    "views": "Paparan privasi",
+    "tab": {
+      "settings": "Privasi sistem",
+      "apps": "Akses aplikasi"
+    },
+    "title": "Audit akses aplikasi",
+    "description": "Semak rekod Windows untuk akses kamera, mikrofon dan lokasi.",
+    "refresh": "Muat semula",
+    "failed": "Tidak dapat membaca rekod akses aplikasi. Cuba muat semula.",
+    "refreshFailed": "Muat semula gagal. Imbasan sebelumnya masih dipaparkan.",
+    "loading": "Membaca rekod akses aplikasi...",
+    "unsupported": "Pengauditan akses aplikasi tersedia pada Windows.",
+    "account": "Akaun: {{account}} | Diimbas {{time}}",
+    "unknownAccount": "Akaun proses tidak diketahui",
+    "partial": "Sesetengah rekod tidak dapat dibaca atau had imbasan telah dicapai. Kiraan hanya mencerminkan rekod yang dipaparkan.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Lokasi"
+    },
+    "entries": "entri direkodkan",
+    "recentCount": "{{count}} dengan penggunaan direkodkan dalam 30 hari yang lalu",
+    "deviceConsent": "Tetapan peranti",
+    "userConsent": "Tetapan akaun",
+    "desktopConsent": "Tetapan desktop",
+    "consent": {
+      "allow": "Benarkan direkodkan",
+      "deny": "Tolak direkodkan",
+      "prompt": "Gesaan direkodkan",
+      "unknown": "Tidak diketahui"
+    },
+    "status": {
+      "missing": "Tiada rekod akaun ditemui.",
+      "partial": "Sesetengah data tidak dapat dibaca.",
+      "unavailable": "Rekod tidak tersedia."
+    },
+    "truncated": "Had imbasan dicapai (1,000 entri bagi setiap keupayaan).",
+    "settings": "Tetapan {{capability}}",
+    "settingsFailed": "Windows Settings tidak dapat dibuka. Buka Privacy & security dalam Windows Settings secara manual.",
+    "limitationsTitle": "Perkara yang boleh diberitahu oleh rekod ini",
+    "limitations": "Ini ialah tetapan direkodkan dan sejarah akses, bukan inventori lengkap aplikasi yang dipasang atau bukti kebenaran yang berkesan. Sekatan peranti, dasar organisasi dan kawalan lain boleh mengatasi persetujuan yang direkodkan. Windows mungkin mengabaikan aplikasi desktop atau mengekalkan rekod selepas aplikasi dibuang. Kawalan aplikasi desktop berbeza mengikut versi Windows dan kaedah akses; urus kawalan yang tersedia dalam Windows Settings. Nama datang daripada laluan direkodkan atau identiti pakej dan tidak mengesahkan penerbit. Rekod yang belum selesai tidak membuktikan bahawa aplikasi sedang menggunakan sensor pada masa ini.",
+    "accountHelp": "Imbasan ini membaca akaun yang menjalankan Kudu. Jika anda melancarkan Kudu dengan kelayakan pentadbir akaun lain, rekod ini adalah milik akaun tersebut. Tetapan mungkin memaparkan akaun interaktif sebaliknya.",
+    "search": "Cari nama aplikasi atau identiti direkodkan",
+    "filter": "Tapis keupayaan",
+    "all": "Semua keupayaan",
+    "recent": "Digunakan dalam 30 hari yang lalu",
+    "showing": "Memaparkan {{shown}} daripada {{total}} rekod yang sepadan",
+    "noMatches": "Tiada rekod sepadan dengan penapis anda.",
+    "noRecords": "Tiada rekod akses tersedia. Ini tidak bermaksud aplikasi tidak mempunyai akses.",
+    "kind": {
+      "desktop": "Sejarah desktop",
+      "packaged": "Identiti pakej"
+    },
+    "recordedConsent": "Tetapan entri: {{consent}}",
+    "lastAccess": "Mula direkodkan terakhir: {{time}}",
+    "lastEnd": "Tamat direkodkan: {{time}}",
+    "noTime": "Tiada masa akses sah direkodkan",
+    "unfinished": "Tiada tamat direkodkan; mungkin lapuk",
+    "more": "Tunjukkan lagi",
+    "local": "Audit ini kekal pada PC ini. Ia tidak mengubah kebenaran atau mengosongkan sejarah akses."
   }
 }

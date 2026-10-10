@@ -219,5 +219,67 @@
     "statusStartPending": "Start ausstehend",
     "statusStopPending": "Stopp ausstehend",
     "statusUnknown": "Unbekannt"
+  },
+  "appPrivacy": {
+    "views": "Datenschutzansichten",
+    "tab": {
+      "settings": "Systemdatenschutz",
+      "apps": "App-Zugriff"
+    },
+    "title": "Prüfung des App-Zugriffs",
+    "description": "Überprüfen Sie Windows-Einträge für den Zugriff auf Kamera, Mikrofon und Standort.",
+    "refresh": "Aktualisieren",
+    "failed": "Die App-Zugriffseinträge konnten nicht gelesen werden. Versuchen Sie, die Ansicht zu aktualisieren.",
+    "refreshFailed": "Aktualisierung fehlgeschlagen. Der vorherige Scan wird weiterhin angezeigt.",
+    "loading": "App-Zugriffseinträge werden gelesen...",
+    "unsupported": "Die Prüfung des App-Zugriffs ist unter Windows verfügbar.",
+    "account": "Konto: {{account}} | Gescannt {{time}}",
+    "unknownAccount": "Unbekanntes Prozesskonto",
+    "partial": "Einige Einträge konnten nicht gelesen werden oder das Scan-Limit wurde erreicht. Die Anzahl bezieht sich nur auf die angezeigten Einträge.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Standort"
+    },
+    "entries": "erfasste Einträge",
+    "recentCount": "{{count}} mit erfasster Nutzung in den letzten 30 Tagen",
+    "deviceConsent": "Geräteeinstellung",
+    "userConsent": "Kontoeinstellung",
+    "desktopConsent": "Desktop-Einstellung",
+    "consent": {
+      "allow": "Zulassen erfasst",
+      "deny": "Ablehnen erfasst",
+      "prompt": "Nachfrage erfasst",
+      "unknown": "Unbekannt"
+    },
+    "status": {
+      "missing": "Keine Kontoeinträge gefunden.",
+      "partial": "Einige Daten konnten nicht gelesen werden.",
+      "unavailable": "Einträge nicht verfügbar."
+    },
+    "truncated": "Scan-Limit erreicht (1.000 Einträge pro Funktion).",
+    "settings": "{{capability}}-Einstellungen",
+    "settingsFailed": "Windows-Einstellungen konnten nicht geöffnet werden. Öffnen Sie Datenschutz & Sicherheit manuell in den Windows-Einstellungen.",
+    "limitationsTitle": "Was diese Einträge aussagen können",
+    "limitations": "Dies sind erfasste Einstellungen und Zugriffsverläufe, keine vollständige Übersicht installierter Apps und kein Nachweis einer tatsächlich wirksamen Berechtigung. Gerätebeschränkungen, Organisationsrichtlinien und andere Kontrollen können die erfasste Zustimmung außer Kraft setzen. Windows kann Desktop-Apps auslassen oder Einträge beibehalten, nachdem eine App entfernt wurde. Die Steuerung für Desktop-Apps variiert je nach Windows-Version und Zugriffsmethode; verwalten Sie verfügbare Optionen in den Windows-Einstellungen. Namen stammen aus erfassten Pfaden oder Paketidentitäten und bestätigen keinen Herausgeber. Ein unvollständiger Eintrag beweist nicht, dass eine App derzeit einen Sensor verwendet.",
+    "accountHelp": "Dieser Scan liest das Konto aus, unter dem Kudu ausgeführt wird. Wenn Sie Kudu mit Administratoranmeldeinformationen eines anderen Kontos gestartet haben, gehören diese Einträge zu diesem Konto. In den Einstellungen wird stattdessen möglicherweise das interaktive Konto angezeigt.",
+    "search": "App-Namen oder erfasste Identitäten suchen",
+    "filter": "Funktion filtern",
+    "all": "Alle Funktionen",
+    "recent": "In den letzten 30 Tagen verwendet",
+    "showing": "{{shown}} von {{total}} passenden Einträgen werden angezeigt",
+    "noMatches": "Keine Einträge entsprechen Ihren Filtern.",
+    "noRecords": "Es sind keine Zugriffseinträge verfügbar. Das bedeutet nicht, dass Apps keinen Zugriff haben.",
+    "kind": {
+      "desktop": "Desktop-Verlauf",
+      "packaged": "Paketidentität"
+    },
+    "recordedConsent": "Eintragseinstellung: {{consent}}",
+    "lastAccess": "Letzter erfasster Start: {{time}}",
+    "lastEnd": "Erfasstes Ende: {{time}}",
+    "noTime": "Keine gültige Zugriffszeit erfasst",
+    "unfinished": "Kein Ende erfasst; möglicherweise veraltet",
+    "more": "Mehr anzeigen",
+    "local": "Diese Prüfung bleibt auf diesem PC. Sie ändert keine Berechtigungen und löscht keinen Zugriffsverlauf."
   }
 }

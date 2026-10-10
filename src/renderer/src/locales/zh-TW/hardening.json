@@ -219,5 +219,67 @@
     "statusStartPending": "啟動擱置中",
     "statusStopPending": "停止擱置中",
     "statusUnknown": "未知"
+  },
+  "appPrivacy": {
+    "views": "隱私檢視",
+    "tab": {
+      "settings": "系統隱私",
+      "apps": "應用程式存取"
+    },
+    "title": "應用程式存取稽核",
+    "description": "檢閱 Windows 中相機、麥克風與位置存取的記錄。",
+    "refresh": "重新整理",
+    "failed": "無法讀取應用程式存取記錄。請嘗試重新整理。",
+    "refreshFailed": "重新整理失敗。仍顯示先前的掃描結果。",
+    "loading": "正在讀取應用程式存取記錄...",
+    "unsupported": "應用程式存取稽核僅適用於 Windows。",
+    "account": "帳戶：{{account}} | 掃描時間 {{time}}",
+    "unknownAccount": "未知的處理程序帳戶",
+    "partial": "部分記錄無法讀取，或已達到掃描上限。計數僅反映目前顯示的記錄。",
+    "capability": {
+      "webcam": "相機",
+      "microphone": "麥克風",
+      "location": "位置"
+    },
+    "entries": "已記錄的項目",
+    "recentCount": "最近 30 天內有使用記錄的項目：{{count}}",
+    "deviceConsent": "裝置設定",
+    "userConsent": "帳戶設定",
+    "desktopConsent": "桌面應用程式設定",
+    "consent": {
+      "allow": "已記錄為允許",
+      "deny": "已記錄為拒絕",
+      "prompt": "已記錄為提示",
+      "unknown": "未知"
+    },
+    "status": {
+      "missing": "找不到帳戶記錄。",
+      "partial": "部分資料無法讀取。",
+      "unavailable": "記錄無法使用。"
+    },
+    "truncated": "已達掃描上限（每項功能 1,000 筆項目）。",
+    "settings": "{{capability}}設定",
+    "settingsFailed": "無法開啟 Windows 設定。請手動在 Windows 設定中開啟 [隱私權與安全性]。",
+    "limitationsTitle": "這些記錄可提供的資訊",
+    "limitations": "這些是已記錄的設定與存取歷程，不是已安裝應用程式的完整清單，也不能證明權限實際生效。裝置限制、組織原則及其他控制項可能會覆寫已記錄的同意設定。Windows 可能會略過桌面應用程式，或在應用程式移除後仍保留記錄。桌面應用程式控制項會因 Windows 版本與存取方式而異；請在 Windows 設定中管理可用的控制項。名稱來自已記錄的路徑或套件身分識別，並不會驗證發行者。未完成的記錄不代表應用程式目前正在使用感測器。",
+    "accountHelp": "此掃描會讀取執行 Kudu 的帳戶。如果您是使用另一個帳戶的系統管理員認證啟動 Kudu，這些記錄將屬於該帳戶。設定則可能顯示互動式登入帳戶。",
+    "search": "搜尋應用程式名稱或已記錄的身分識別",
+    "filter": "篩選功能",
+    "all": "所有功能",
+    "recent": "最近 30 天內使用過",
+    "showing": "顯示 {{shown}} / {{total}} 筆相符記錄",
+    "noMatches": "沒有符合篩選條件的記錄。",
+    "noRecords": "沒有可用的存取記錄。這不代表應用程式沒有存取權。",
+    "kind": {
+      "desktop": "桌面應用程式歷程",
+      "packaged": "套件身分識別"
+    },
+    "recordedConsent": "項目設定：{{consent}}",
+    "lastAccess": "上次記錄的開始時間：{{time}}",
+    "lastEnd": "記錄的結束時間：{{time}}",
+    "noTime": "未記錄有效的存取時間",
+    "unfinished": "未記錄結束時間；可能為過期資料",
+    "more": "顯示更多",
+    "local": "此稽核僅保留在這台 PC 上。不會變更權限，也不會清除存取歷程。"
   }
 }

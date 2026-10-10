@@ -219,5 +219,67 @@
     "statusStartPending": "Start Pending",
     "statusStopPending": "Stop Pending",
     "statusUnknown": "Unknown"
+  },
+  "appPrivacy": {
+    "views": "Privacy views",
+    "tab": {
+      "settings": "System privacy",
+      "apps": "App access"
+    },
+    "title": "App access audit",
+    "description": "Review Windows records for camera, microphone, and location access.",
+    "refresh": "Refresh",
+    "failed": "Could not read app access records. Try refreshing.",
+    "refreshFailed": "Refresh failed. The previous scan is still shown.",
+    "loading": "Reading app access records...",
+    "unsupported": "App access auditing is available on Windows.",
+    "account": "Account: {{account}} | Scanned {{time}}",
+    "unknownAccount": "Unknown process account",
+    "partial": "Some records could not be read or the scan limit was reached. Counts reflect only the records shown.",
+    "capability": {
+      "webcam": "Camera",
+      "microphone": "Microphone",
+      "location": "Location"
+    },
+    "entries": "recorded entries",
+    "recentCount": "{{count}} with recorded use in the last 30 days",
+    "deviceConsent": "Device setting",
+    "userConsent": "Account setting",
+    "desktopConsent": "Desktop setting",
+    "consent": {
+      "allow": "Allow recorded",
+      "deny": "Deny recorded",
+      "prompt": "Prompt recorded",
+      "unknown": "Unknown"
+    },
+    "status": {
+      "missing": "No account records found.",
+      "partial": "Some data could not be read.",
+      "unavailable": "Records unavailable."
+    },
+    "truncated": "Scan limit reached (1,000 entries per capability).",
+    "settings": "{{capability}} settings",
+    "settingsFailed": "Windows Settings could not be opened. Open Privacy & security in Windows Settings manually.",
+    "limitationsTitle": "What these records can tell you",
+    "limitations": "These are recorded settings and access history, not a complete inventory of installed apps or proof of effective permission. Device restrictions, organization policies, and other controls can override recorded consent. Windows may omit desktop apps or retain records after an app is removed. Desktop app controls vary by Windows version and access method; manage available controls in Windows Settings. Names come from recorded paths or package identities and do not verify a publisher. An unfinished record does not prove an app is currently using a sensor.",
+    "accountHelp": "This scan reads the account running Kudu. If you launched Kudu with another account's administrator credentials, these records belong to that account. Settings may show the interactive account instead.",
+    "search": "Search app names or recorded identities",
+    "filter": "Filter capability",
+    "all": "All capabilities",
+    "recent": "Used in the last 30 days",
+    "showing": "Showing {{shown}} of {{total}} matching records",
+    "noMatches": "No records match your filters.",
+    "noRecords": "No access records are available. This does not mean apps have no access.",
+    "kind": {
+      "desktop": "Desktop history",
+      "packaged": "Package identity"
+    },
+    "recordedConsent": "Entry setting: {{consent}}",
+    "lastAccess": "Last recorded start: {{time}}",
+    "lastEnd": "Recorded end: {{time}}",
+    "noTime": "No valid access time recorded",
+    "unfinished": "No end recorded; may be stale",
+    "more": "Show more",
+    "local": "This audit stays on this PC. It does not change permissions or clear access history."
   }
 }

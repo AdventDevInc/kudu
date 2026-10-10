@@ -219,5 +219,67 @@
     "statusStartPending": "Start afventer",
     "statusStopPending": "Stop afventer",
     "statusUnknown": "Ukendt"
+  },
+  "appPrivacy": {
+    "views": "Privatlivsvisninger",
+    "tab": {
+      "settings": "Systemets privatliv",
+      "apps": "Appadgang"
+    },
+    "title": "Revision af appadgang",
+    "description": "Gennemgå Windows-poster for adgang til kamera, mikrofon og placering.",
+    "refresh": "Opdater",
+    "failed": "Kunne ikke læse poster for appadgang. Prøv at opdatere.",
+    "refreshFailed": "Opdatering mislykkedes. Den forrige scanning vises stadig.",
+    "loading": "Læser poster for appadgang...",
+    "unsupported": "Revision af appadgang er tilgængelig på Windows.",
+    "account": "Konto: {{account}} | Scannet {{time}}",
+    "unknownAccount": "Ukendt proceskonto",
+    "partial": "Nogle poster kunne ikke læses, eller scanningsgrænsen blev nået. Antallene afspejler kun de viste poster.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Placering"
+    },
+    "entries": "registrerede poster",
+    "recentCount": "{{count}} med registreret brug inden for de seneste 30 dage",
+    "deviceConsent": "Enhedsindstilling",
+    "userConsent": "Kontoinstilling",
+    "desktopConsent": "Skrivebordsindstilling",
+    "consent": {
+      "allow": "Tilladelse registreret",
+      "deny": "Afvisning registreret",
+      "prompt": "Prompt registreret",
+      "unknown": "Ukendt"
+    },
+    "status": {
+      "missing": "Ingen kontoposter fundet.",
+      "partial": "Nogle data kunne ikke læses.",
+      "unavailable": "Poster er ikke tilgængelige."
+    },
+    "truncated": "Scanningsgrænse nået (1.000 poster pr. funktion).",
+    "settings": "Indstillinger for {{capability}}",
+    "settingsFailed": "Windows-indstillinger kunne ikke åbnes. Åbn Privatliv og sikkerhed i Windows-indstillinger manuelt.",
+    "limitationsTitle": "Hvad disse poster kan fortælle dig",
+    "limitations": "Dette er registrerede indstillinger og adgangshistorik, ikke en komplet oversigt over installerede apps eller bevis for effektiv tilladelse. Enhedsbegrænsninger, organisationspolitikker og andre kontroller kan tilsidesætte registreret samtykke. Windows kan udelade skrivebordsapps eller bevare poster, efter at en app er fjernet. Kontroller for skrivebordsapps varierer efter Windows-version og adgangsmetode; administrer de tilgængelige kontroller i Windows-indstillinger. Navne kommer fra registrerede stier eller pakkeidentiteter og bekræfter ikke en udgiver. En ufuldstændig post beviser ikke, at en app bruger en sensor i øjeblikket.",
+    "accountHelp": "Denne scanning læser den konto, der kører Kudu. Hvis du startede Kudu med en anden kontos administratorlegitimationsoplysninger, tilhører disse poster den konto. Indstillinger kan i stedet vise den interaktive konto.",
+    "search": "Søg efter appnavne eller registrerede identiteter",
+    "filter": "Filtrer funktion",
+    "all": "Alle funktioner",
+    "recent": "Brugt inden for de seneste 30 dage",
+    "showing": "Viser {{shown}} af {{total}} matchende poster",
+    "noMatches": "Ingen poster matcher dine filtre.",
+    "noRecords": "Ingen adgangsposter er tilgængelige. Det betyder ikke, at apps ikke har adgang.",
+    "kind": {
+      "desktop": "Skrivebordshistorik",
+      "packaged": "Pakkeidentitet"
+    },
+    "recordedConsent": "Postindstilling: {{consent}}",
+    "lastAccess": "Seneste registrerede start: {{time}}",
+    "lastEnd": "Registreret afslutning: {{time}}",
+    "noTime": "Ingen gyldig adgangstid registreret",
+    "unfinished": "Ingen afslutning registreret; kan være forældet",
+    "more": "Vis mere",
+    "local": "Denne revision forbliver på denne PC. Den ændrer ikke tilladelser eller rydder adgangshistorik."
   }
 }
