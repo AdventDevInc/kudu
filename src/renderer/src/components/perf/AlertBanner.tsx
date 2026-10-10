@@ -23,14 +23,6 @@ export const AlertBanner = memo(function AlertBanner({ snapshot, history }: Aler
     alerts.push({ id: 'cpu-high', message: t('cpuHighAlert') })
   }
 
-  // Memory > 85%
-  if (snapshot.memory.percent > 85) {
-    alerts.push({
-      id: 'mem-high',
-      message: t('memoryHighAlert', { percent: snapshot.memory.percent.toFixed(0) })
-    })
-  }
-
   const visible = alerts.filter((a) => !dismissed.includes(a.id))
   if (visible.length === 0) return null
 

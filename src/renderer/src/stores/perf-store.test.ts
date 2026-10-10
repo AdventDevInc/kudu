@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { usePerfStore } from './perf-store'
-import type { PerfSnapshot } from '@shared/types'
+import type { PerfSnapshot, PerfProcess } from '@shared/types'
 
 function makeSnapshot(timestamp: number): PerfSnapshot {
   return {
@@ -92,5 +92,58 @@ describe('perf-store', () => {
     expect(state.systemInfo).not.toBeNull() // Preserved
     expect(state.history).toEqual([])
     expect(state.isMonitoring).toBe(false)
+  })
+})
+
+const process: PerfProcess = {
+  pid: 9,
+  name: 'app',
+  cpuPercent: 1,
+  memBytes: 1024,
+  memPercent: 1,
+  user: '',
+  started: '2026-01-01'
+}
+describe('app monitoring store', () => {
+  beforeEach(() => usePerfStore.getState().reset())
+  it('retains the displayed history while paused but starts a new trend on resume', () => {
+    const update = (timestamp: number) =>
+      usePerfStore.getState().setProcessList({ timestamp, processes: [process], totalCount: 1 })
+    update(1000)
+    update(11_000)
+    usePerfStore.getState().setMonitoring(false)
+    expect(usePerfStore.getState().apps[0].history).toHaveLength(2)
+    usePerfStore.getState().setMonitoring(true)
+    update(21_000)
+    expect(usePerfStore.getState().apps[0].history).toHaveLength(1)
+  })
+  it('preserves last known values and timestamp on failure, with explicit error state', () => {
+    usePerfStore.getState().setProcessList({ timestamp: 1000, processes: [process], totalCount: 1 })
+    usePerfStore
+      .getState()
+      .setProcessList({ timestamp: 20_000, processes: [], totalCount: 0, error: true })
+    expect(usePerfStore.getState()).toMatchObject({
+      processError: true,
+      processTimestamp: 1000,
+      processCount: 1,
+      processList: [process],
+      windowsMemory: null
+    })
+    usePerfStore.getState().setProcessList({ timestamp: 30_000, processes: [], totalCount: 0 })
+    expect(usePerfStore.getState()).toMatchObject({
+      processError: false,
+      processTimestamp: 30_000,
+      apps: []
+    })
+  })
+  it('clears app histories and counters when monitoring page is left', () => {
+    usePerfStore.getState().setProcessList({ timestamp: 1000, processes: [process], totalCount: 1 })
+    usePerfStore.getState().reset()
+    expect(usePerfStore.getState()).toMatchObject({
+      apps: [],
+      processTimestamp: null,
+      processError: false,
+      windowsMemory: undefined
+    })
   })
 })

@@ -561,8 +561,8 @@ const api = {
   perfGetSystemInfo: (): Promise<PerfSystemInfo> => ipcRenderer.invoke(IPC.PERF_GET_SYSTEM_INFO),
   perfStartMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_START_MONITORING),
   perfStopMonitoring: (): Promise<void> => ipcRenderer.invoke(IPC.PERF_STOP_MONITORING),
-  perfKillProcess: (pid: number): Promise<PerfKillResult> =>
-    ipcRenderer.invoke(IPC.PERF_KILL_PROCESS, pid),
+  perfKillProcess: (pid: number, birthToken: string): Promise<PerfKillResult> =>
+    ipcRenderer.invoke(IPC.PERF_KILL_PROCESS, pid, birthToken),
   perfGetDiskHealth: (): Promise<DiskSmartInfo[]> => ipcRenderer.invoke(IPC.PERF_DISK_HEALTH),
   onPerfSnapshot: (callback: (data: PerfSnapshot) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, data: PerfSnapshot) => callback(data)

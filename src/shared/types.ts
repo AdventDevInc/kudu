@@ -634,7 +634,13 @@ export interface PerfQuickStats {
 export interface PerfSnapshot {
   timestamp: number
   cpu: { overall: number; perCore: number[] }
-  memory: { usedBytes: number; totalBytes: number; cachedBytes: number; percent: number }
+  memory: {
+    usedBytes: number
+    totalBytes: number
+    cachedBytes: number
+    percent: number
+    availableBytes?: number
+  }
   disk: { readBytesPerSec: number; writeBytesPerSec: number }
   network: { rxBytesPerSec: number; txBytesPerSec: number }
   uptime: number
@@ -642,6 +648,12 @@ export interface PerfSnapshot {
 
 export interface PerfProcess {
   pid: number
+  parentPid?: number
+  /** Executable identity supplied by the OS; never includes command-line arguments. */
+  path?: string
+  appKey?: string
+  /** Stable OS creation identity; started may only be an estimated display time. */
+  birthToken?: string
   name: string
   cpuPercent: number
   memBytes: number
@@ -656,6 +668,16 @@ export interface PerfProcessList {
   timestamp: number
   processes: PerfProcess[]
   totalCount: number
+  error?: boolean
+  windowsMemory?: PerfWindowsMemory | null
+}
+
+export interface PerfWindowsMemory {
+  timestamp: number
+  committedBytes: number
+  commitLimitBytes: number
+  pagesInputPerSec: number
+  pagesOutputPerSec: number
 }
 
 export interface PerfKillResult {

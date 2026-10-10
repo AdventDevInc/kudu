@@ -1,6 +1,7 @@
 // Dedicated browser-only QA entry. This module is never imported by the Electron entry.
 import { defaultSettings, useSettingsStore } from '../stores/settings-store'
 import { featureReads } from './feature-fixtures'
+import { perfFixture } from './perf-fixtures'
 import type { ScanHistoryEntry, StartupItem, PerfSnapshot } from '@shared/types'
 
 const GB = 1024 ** 3
@@ -82,7 +83,8 @@ const drive = {
 }
 const reads: Record<string, (...args: any[]) => unknown> = {
   platformInfo: () => ({
-    platform: 'win32',
+    platform:
+      new URLSearchParams(location.search).get('state') === 'unsupported' ? 'linux' : 'win32',
     features: {
       registry: true,
       debloater: true,
@@ -301,10 +303,24 @@ const reads: Record<string, (...args: any[]) => unknown> = {
   perfStartMonitoring: () => {
     if (monitoring) clearInterval(monitoring)
     if (!empty) for (let i = 0; i <= 90; i++) emit('onPerfSnapshot', snapshot(i))
-    monitoring = setInterval(
-      () => emit('onPerfSnapshot', { ...snapshot(quickCount++ % 90), timestamp: Date.now() }),
-      1000
-    )
+    const state = new URLSearchParams(location.search).get('state')
+    const emitProcesses = (sample: number, timestamp = Date.now()) => {
+      if (state === 'loading') return
+      const data = perfFixture(timestamp, sample)
+      if (empty) {
+        data.processes = []
+        data.totalCount = 0
+      }
+      if (state === 'error') data.error = true
+      if (state === 'unsupported') data.windowsMemory = undefined
+      emit('onPerfProcessList', data)
+    }
+    for (let i = 0; i <= 9; i++) emitProcesses(i, Date.now() - (9 - i) * 10_000)
+    let ticks = 0
+    monitoring = setInterval(() => {
+      emit('onPerfSnapshot', { ...snapshot(quickCount++ % 90), timestamp: Date.now() })
+      if (++ticks % 10 === 0) emitProcesses(9 + ticks / 10)
+    }, 1000)
   },
   perfStopMonitoring: () => {
     clearInterval(monitoring)
