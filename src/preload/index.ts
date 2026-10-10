@@ -1,3 +1,4 @@
+import type { AppPrivacyCapability, AppPrivacyReport } from '../shared/app-privacy'
 import type { UninstallOptions } from '../shared/uninstall-policy'
 import type {
   DiagnosticCapabilities,
@@ -473,6 +474,9 @@ const api = {
   },
 
   // Privacy Shield
+  appPrivacyScan: (): Promise<AppPrivacyReport> => ipcRenderer.invoke(IPC.APP_PRIVACY_SCAN),
+  appPrivacyOpenSettings: (capability: AppPrivacyCapability): Promise<void> =>
+    ipcRenderer.invoke(IPC.APP_PRIVACY_SETTINGS, capability),
   privacyScan: (): Promise<PrivacyShieldState> => ipcRenderer.invoke(IPC.PRIVACY_SCAN),
   privacyApply: (ids: string[]): Promise<PrivacyApplyResult> =>
     ipcRenderer.invoke(IPC.PRIVACY_APPLY, ids),

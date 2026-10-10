@@ -219,5 +219,67 @@
     "statusStartPending": "Start in behandeling",
     "statusStopPending": "Stoppen in behandeling",
     "statusUnknown": "Onbekend"
+  },
+  "appPrivacy": {
+    "views": "Privacyweergaven",
+    "tab": {
+      "settings": "Systeemprivacy",
+      "apps": "Toegang van apps"
+    },
+    "title": "Controle van app-toegang",
+    "description": "Controleer Windows-registraties voor toegang tot camera, microfoon en locatie.",
+    "refresh": "Vernieuwen",
+    "failed": "Kan registraties van app-toegang niet lezen. Probeer te vernieuwen.",
+    "refreshFailed": "Vernieuwen mislukt. De vorige scan wordt nog steeds weergegeven.",
+    "loading": "Registraties van app-toegang worden gelezen...",
+    "unsupported": "Controle van app-toegang is beschikbaar op Windows.",
+    "account": "Account: {{account}} | Gescand {{time}}",
+    "unknownAccount": "Onbekend procesaccount",
+    "partial": "Sommige registraties konden niet worden gelezen of de scanlimiet is bereikt. Aantallen hebben alleen betrekking op de weergegeven registraties.",
+    "capability": {
+      "webcam": "Camera",
+      "microphone": "Microfoon",
+      "location": "Locatie"
+    },
+    "entries": "geregistreerde items",
+    "recentCount": "{{count}} met geregistreerd gebruik in de afgelopen 30 dagen",
+    "deviceConsent": "Apparaatinstelling",
+    "userConsent": "Accountinstelling",
+    "desktopConsent": "Bureaubladinstelling",
+    "consent": {
+      "allow": "Toestaan geregistreerd",
+      "deny": "Weigeren geregistreerd",
+      "prompt": "Vragen geregistreerd",
+      "unknown": "Onbekend"
+    },
+    "status": {
+      "missing": "Geen accountregistraties gevonden.",
+      "partial": "Sommige gegevens konden niet worden gelezen.",
+      "unavailable": "Registraties niet beschikbaar."
+    },
+    "truncated": "Scanlimiet bereikt (1.000 items per mogelijkheid).",
+    "settings": "Instellingen voor {{capability}}",
+    "settingsFailed": "Windows-instellingen konden niet worden geopend. Open Privacy en beveiliging handmatig in Windows-instellingen.",
+    "limitationsTitle": "Wat deze registraties u kunnen vertellen",
+    "limitations": "Dit zijn geregistreerde instellingen en toegangsgeschiedenis, geen volledige inventaris van geïnstalleerde apps of bewijs van een daadwerkelijk geldige machtiging. Apparaatbeperkingen, organisatiebeleid en andere instellingen kunnen geregistreerde toestemming overrulen. Windows kan bureaublad-apps weglaten of registraties behouden nadat een app is verwijderd. Besturingselementen voor bureaublad-apps verschillen per Windows-versie en toegangsmethode; beheer beschikbare opties in Windows-instellingen. Namen zijn afkomstig van geregistreerde paden of pakketidentiteiten en verifiëren geen uitgever. Een onvolledige registratie bewijst niet dat een app momenteel een sensor gebruikt.",
+    "accountHelp": "Deze scan leest het account waarmee Kudu wordt uitgevoerd. Als u Kudu hebt gestart met beheerdersreferenties van een ander account, behoren deze registraties tot dat account. Instellingen kunnen in plaats daarvan het interactieve account tonen.",
+    "search": "Zoek appnamen of geregistreerde identiteiten",
+    "filter": "Mogelijkheid filteren",
+    "all": "Alle mogelijkheden",
+    "recent": "Gebruikt in de afgelopen 30 dagen",
+    "showing": "{{shown}} van {{total}} overeenkomende registraties weergegeven",
+    "noMatches": "Geen registraties komen overeen met uw filters.",
+    "noRecords": "Er zijn geen toegangsregistraties beschikbaar. Dit betekent niet dat apps geen toegang hebben.",
+    "kind": {
+      "desktop": "Bureaubladgeschiedenis",
+      "packaged": "Pakketidentiteit"
+    },
+    "recordedConsent": "Iteminstelling: {{consent}}",
+    "lastAccess": "Laatst geregistreerde start: {{time}}",
+    "lastEnd": "Geregistreerd einde: {{time}}",
+    "noTime": "Geen geldige toegangstijd geregistreerd",
+    "unfinished": "Geen einde geregistreerd; mogelijk verouderd",
+    "more": "Meer weergeven",
+    "local": "Deze controle blijft op deze pc. Er worden geen machtigingen gewijzigd en de toegangsgeschiedenis wordt niet gewist."
   }
 }

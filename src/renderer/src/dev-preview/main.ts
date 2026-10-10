@@ -239,6 +239,40 @@ const reads: Record<string, (...args: any[]) => unknown> = {
     disabledCount: 0,
     safeToDisableCount: 0
   }),
+  appPrivacyScan: () => {
+    const scenario = new URLSearchParams(location.search).get('appPrivacy')
+    if (scenario === 'error') throw new Error('Preview scan failure')
+    return {
+      supported: true,
+      scannedAt: new Date(now).toISOString(),
+      account: 'PREVIEW\\Alex',
+      capabilities: ['webcam', 'microphone', 'location'].map((capability) => ({
+        capability,
+        status: scenario === 'partial' && capability === 'location' ? 'partial' : 'available',
+        userConsent: 'allow',
+        deviceConsent: 'unknown',
+        desktopConsent: 'allow',
+        truncated: scenario === 'partial' && capability === 'location'
+      })),
+      records: empty
+        ? []
+        : Array.from({ length: 76 }, (_, i) => ({
+            id: 'privacy-' + i,
+            capability: ['webcam', 'microphone', 'location'][i % 3],
+            kind: i % 4 ? 'desktop' : 'packaged',
+            name: ['Teams.exe', 'Discord.exe', 'Microsoft.WindowsCamera', 'Chrome.exe'][i % 4],
+            identity:
+              i % 4
+                ? 'C:\\Users\\Alex\\AppData\\Local\\Example-' + i + '\\app.exe'
+                : 'Microsoft.WindowsCamera_' + i + '_8wekyb3d8bbwe',
+            consent: i % 4 ? 'unknown' : 'allow',
+            lastAccess: i % 5 ? new Date(now - i * 86400000).toISOString() : null,
+            lastEnd: null,
+            usage: i === 1 ? 'unfinished' : 'unknown'
+          }))
+    }
+  },
+  appPrivacyOpenSettings: () => undefined,
   privacyScan: () => ({
     settings: empty
       ? []

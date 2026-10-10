@@ -181,6 +181,9 @@ export const IPC = {
   MALWARE_YARA_COMPILE_PROGRESS: 'malware:yara:compile-progress',
   MALWARE_SCAN_COVERAGE: 'malware:scan-coverage',
 
+  APP_PRIVACY_SCAN: 'privacy:app-access:scan',
+  APP_PRIVACY_SETTINGS: 'privacy:app-access:settings',
+
   // Privacy Shield
   PRIVACY_SCAN: 'privacy:scan',
   PRIVACY_APPLY: 'privacy:apply',

@@ -219,5 +219,67 @@
     "statusStartPending": "Čeká na spuštění",
     "statusStopPending": "Čeká na zastavení",
     "statusUnknown": "Neznámý"
+  },
+  "appPrivacy": {
+    "views": "Zobrazení soukromí",
+    "tab": {
+      "settings": "Soukromí systému",
+      "apps": "Přístup aplikací"
+    },
+    "title": "Audit přístupu aplikací",
+    "description": "Zkontrolujte záznamy Windows o přístupu ke kameře, mikrofonu a poloze.",
+    "refresh": "Obnovit",
+    "failed": "Záznamy o přístupu aplikací se nepodařilo načíst. Zkuste je obnovit.",
+    "refreshFailed": "Obnovení se nezdařilo. Stále se zobrazuje předchozí kontrola.",
+    "loading": "Načítání záznamů o přístupu aplikací...",
+    "unsupported": "Audit přístupu aplikací je k dispozici ve Windows.",
+    "account": "Účet: {{account}} | Zkontrolováno {{time}}",
+    "unknownAccount": "Neznámý účet procesu",
+    "partial": "Některé záznamy se nepodařilo načíst nebo byl dosažen limit kontroly. Počty odpovídají pouze zobrazeným záznamům.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Poloha"
+    },
+    "entries": "zaznamenaných položek",
+    "recentCount": "{{count}} se zaznamenaným použitím za posledních 30 dní",
+    "deviceConsent": "Nastavení zařízení",
+    "userConsent": "Nastavení účtu",
+    "desktopConsent": "Nastavení desktopových aplikací",
+    "consent": {
+      "allow": "Zaznamenáno povoleno",
+      "deny": "Zaznamenáno zakázáno",
+      "prompt": "Zaznamenána výzva",
+      "unknown": "Neznámé"
+    },
+    "status": {
+      "missing": "Nebyly nalezeny žádné záznamy účtu.",
+      "partial": "Některá data se nepodařilo načíst.",
+      "unavailable": "Záznamy nejsou k dispozici."
+    },
+    "truncated": "Byl dosažen limit kontroly (1 000 položek na oprávnění).",
+    "settings": "Nastavení {{capability}}",
+    "settingsFailed": "Windows Settings se nepodařilo otevřít. Otevřete Soukromí a zabezpečení ve Windows Settings ručně.",
+    "limitationsTitle": "Co vám tyto záznamy mohou říct",
+    "limitations": "Jde o zaznamenaná nastavení a historii přístupu, nikoli o úplný přehled nainstalovaných aplikací ani důkaz skutečně účinného oprávnění. Omezení zařízení, zásady organizace a další ovládací prvky mohou zaznamenaný souhlas přepsat. Windows může vynechat desktopové aplikace nebo ponechat záznamy i po odebrání aplikace. Ovládací prvky pro desktopové aplikace se liší podle verze Windows a způsobu přístupu; dostupné možnosti spravujte ve Windows Settings. Názvy vycházejí ze zaznamenaných cest nebo identit balíčků a neověřují vydavatele. Nedokončený záznam nedokazuje, že aplikace právě používá senzor.",
+    "accountHelp": "Tato kontrola čte účet, pod kterým je spuštěn Kudu. Pokud jste Kudu spustili pomocí přihlašovacích údajů správce jiného účtu, tyto záznamy patří tomuto účtu. Nastavení může místo toho zobrazovat interaktivní účet.",
+    "search": "Hledat názvy aplikací nebo zaznamenané identity",
+    "filter": "Filtrovat oprávnění",
+    "all": "Všechna oprávnění",
+    "recent": "Použito za posledních 30 dní",
+    "showing": "Zobrazuje se {{shown}} z {{total}} odpovídajících záznamů",
+    "noMatches": "Žádné záznamy neodpovídají vašim filtrům.",
+    "noRecords": "Nejsou k dispozici žádné záznamy o přístupu. To neznamená, že aplikace nemají přístup.",
+    "kind": {
+      "desktop": "Historie desktopových aplikací",
+      "packaged": "Identita balíčku"
+    },
+    "recordedConsent": "Nastavení položky: {{consent}}",
+    "lastAccess": "Poslední zaznamenané spuštění: {{time}}",
+    "lastEnd": "Zaznamenaný konec: {{time}}",
+    "noTime": "Není zaznamenán žádný platný čas přístupu",
+    "unfinished": "Není zaznamenán konec; záznam může být neaktuální",
+    "more": "Zobrazit více",
+    "local": "Tento audit zůstává v tomto počítači. Nemění oprávnění ani nemaže historii přístupu."
   }
 }

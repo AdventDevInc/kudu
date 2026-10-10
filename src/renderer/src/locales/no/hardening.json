@@ -219,5 +219,67 @@
     "statusStartPending": "Venter på start",
     "statusStopPending": "Venter på stopp",
     "statusUnknown": "Ukjent"
+  },
+  "appPrivacy": {
+    "views": "Personvernvisninger",
+    "tab": {
+      "settings": "Systempersonvern",
+      "apps": "Apptilgang"
+    },
+    "title": "Revisjon av apptilgang",
+    "description": "Se gjennom Windows-oppføringer for tilgang til kamera, mikrofon og posisjon.",
+    "refresh": "Oppdater",
+    "failed": "Kunne ikke lese oppføringer for apptilgang. Prøv å oppdatere.",
+    "refreshFailed": "Oppdatering mislyktes. Den forrige skanningen vises fortsatt.",
+    "loading": "Leser oppføringer for apptilgang...",
+    "unsupported": "Revisjon av apptilgang er tilgjengelig på Windows.",
+    "account": "Konto: {{account}} | Skannet {{time}}",
+    "unknownAccount": "Ukjent prosesskonto",
+    "partial": "Noen oppføringer kunne ikke leses, eller skannegrensen ble nådd. Antallene gjenspeiler bare oppføringene som vises.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Posisjon"
+    },
+    "entries": "registrerte oppføringer",
+    "recentCount": "{{count}} med registrert bruk de siste 30 dagene",
+    "deviceConsent": "Enhetsinnstilling",
+    "userConsent": "Kontoinnstilling",
+    "desktopConsent": "Skrivebordsinnstilling",
+    "consent": {
+      "allow": "Tillatelse registrert",
+      "deny": "Avslag registrert",
+      "prompt": "Spørsmål registrert",
+      "unknown": "Ukjent"
+    },
+    "status": {
+      "missing": "Ingen kontooppføringer funnet.",
+      "partial": "Noen data kunne ikke leses.",
+      "unavailable": "Oppføringer er ikke tilgjengelige."
+    },
+    "truncated": "Skanningsgrense nådd (1 000 oppføringer per funksjon).",
+    "settings": "Innstillinger for {{capability}}",
+    "settingsFailed": "Windows-innstillinger kunne ikke åpnes. Åpne Personvern og sikkerhet i Windows-innstillinger manuelt.",
+    "limitationsTitle": "Hva disse oppføringene kan fortelle deg",
+    "limitations": "Dette er registrerte innstillinger og tilgangshistorikk, ikke en fullstendig oversikt over installerte apper eller bevis på faktisk tillatelse. Enhetsbegrensninger, organisasjonspolicyer og andre kontroller kan overstyre registrert samtykke. Windows kan utelate skrivebordsapper eller beholde oppføringer etter at en app er fjernet. Kontroller for skrivebordsapper varierer etter Windows-versjon og tilgangsmetode; administrer tilgjengelige kontroller i Windows-innstillinger. Navn hentes fra registrerte baner eller pakkeidentiteter og bekrefter ikke en utgiver. En ufullført oppføring beviser ikke at en app bruker en sensor akkurat nå.",
+    "accountHelp": "Denne skanningen leser kontoen som kjører Kudu. Hvis du startet Kudu med administratorlegitimasjonen til en annen konto, tilhører disse oppføringene den kontoen. Innstillingene kan i stedet vise den interaktive kontoen.",
+    "search": "Søk etter appnavn eller registrerte identiteter",
+    "filter": "Filtrer funksjon",
+    "all": "Alle funksjoner",
+    "recent": "Brukt de siste 30 dagene",
+    "showing": "Viser {{shown}} av {{total}} samsvarende oppføringer",
+    "noMatches": "Ingen oppføringer samsvarer med filtrene dine.",
+    "noRecords": "Ingen tilgangsoppføringer er tilgjengelige. Dette betyr ikke at apper ikke har tilgang.",
+    "kind": {
+      "desktop": "Skrivebordshistorikk",
+      "packaged": "Pakkeidentitet"
+    },
+    "recordedConsent": "Oppføringsinnstilling: {{consent}}",
+    "lastAccess": "Sist registrerte start: {{time}}",
+    "lastEnd": "Registrert slutt: {{time}}",
+    "noTime": "Ingen gyldig tilgangstid registrert",
+    "unfinished": "Ingen slutt registrert; kan være utdatert",
+    "more": "Vis mer",
+    "local": "Denne revisjonen forblir på denne PC-en. Den endrer ikke tillatelser eller tømmer tilgangshistorikk."
   }
 }

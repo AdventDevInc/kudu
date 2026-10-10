@@ -219,5 +219,67 @@
     "statusStartPending": "Oczekiwanie na uruchomienie",
     "statusStopPending": "Oczekiwanie na zatrzymanie",
     "statusUnknown": "Nieznany"
+  },
+  "appPrivacy": {
+    "views": "Widoki prywatności",
+    "tab": {
+      "settings": "Prywatność systemu",
+      "apps": "Dostęp aplikacji"
+    },
+    "title": "Inspekcja dostępu aplikacji",
+    "description": "Przejrzyj rejestry Windows dotyczące dostępu do kamery, mikrofonu i lokalizacji.",
+    "refresh": "Odśwież",
+    "failed": "Nie można odczytać rejestrów dostępu aplikacji. Spróbuj odświeżyć.",
+    "refreshFailed": "Odświeżanie nie powiodło się. Nadal wyświetlany jest poprzedni skan.",
+    "loading": "Odczytywanie rejestrów dostępu aplikacji...",
+    "unsupported": "Inspekcja dostępu aplikacji jest dostępna w systemie Windows.",
+    "account": "Konto: {{account}} | Skanowano: {{time}}",
+    "unknownAccount": "Nieznane konto procesu",
+    "partial": "Nie można było odczytać części rejestrów lub osiągnięto limit skanowania. Liczniki odzwierciedlają tylko wyświetlone rejestry.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Lokalizacja"
+    },
+    "entries": "zarejestrowanych wpisów",
+    "recentCount": "{{count}} z zarejestrowanym użyciem w ciągu ostatnich 30 dni",
+    "deviceConsent": "Ustawienie urządzenia",
+    "userConsent": "Ustawienie konta",
+    "desktopConsent": "Ustawienie aplikacji klasycznych",
+    "consent": {
+      "allow": "Zarejestrowano zezwolenie",
+      "deny": "Zarejestrowano odmowę",
+      "prompt": "Zarejestrowano monit",
+      "unknown": "Nieznane"
+    },
+    "status": {
+      "missing": "Nie znaleziono rejestrów konta.",
+      "partial": "Nie można było odczytać części danych.",
+      "unavailable": "Rejestry są niedostępne."
+    },
+    "truncated": "Osiągnięto limit skanowania (1000 wpisów na funkcję).",
+    "settings": "Ustawienia: {{capability}}",
+    "settingsFailed": "Nie można było otworzyć aplikacji Ustawienia Windows. Otwórz ręcznie sekcję Prywatność i zabezpieczenia w Ustawieniach Windows.",
+    "limitationsTitle": "Co mogą powiedzieć te rejestry",
+    "limitations": "Są to zarejestrowane ustawienia i historia dostępu, a nie pełna lista zainstalowanych aplikacji ani dowód skutecznie przyznanego uprawnienia. Ograniczenia urządzenia, zasady organizacji i inne mechanizmy kontroli mogą zastępować zarejestrowaną zgodę. Windows może pomijać aplikacje klasyczne lub zachowywać rejestry po usunięciu aplikacji. Mechanizmy kontroli aplikacji klasycznych różnią się w zależności od wersji Windows i metody dostępu; zarządzaj dostępnymi ustawieniami w Ustawieniach Windows. Nazwy pochodzą z zarejestrowanych ścieżek lub tożsamości pakietów i nie potwierdzają wydawcy. Nieukończony wpis nie dowodzi, że aplikacja obecnie używa czujnika.",
+    "accountHelp": "Ten skan odczytuje konto, na którym działa Kudu. Jeśli uruchomiono Kudu przy użyciu poświadczeń administratora innego konta, te rejestry należą do tego konta. Ustawienia mogą zamiast tego pokazywać konto interakcyjne.",
+    "search": "Szukaj nazw aplikacji lub zarejestrowanych tożsamości",
+    "filter": "Filtruj funkcję",
+    "all": "Wszystkie funkcje",
+    "recent": "Użyte w ciągu ostatnich 30 dni",
+    "showing": "Wyświetlanie {{shown}} z {{total}} pasujących rejestrów",
+    "noMatches": "Żadne rejestry nie pasują do filtrów.",
+    "noRecords": "Brak dostępnych rejestrów dostępu. Nie oznacza to, że aplikacje nie mają dostępu.",
+    "kind": {
+      "desktop": "Historia aplikacji klasycznych",
+      "packaged": "Tożsamość pakietu"
+    },
+    "recordedConsent": "Ustawienie wpisu: {{consent}}",
+    "lastAccess": "Ostatni zarejestrowany początek: {{time}}",
+    "lastEnd": "Zarejestrowane zakończenie: {{time}}",
+    "noTime": "Nie zarejestrowano prawidłowego czasu dostępu",
+    "unfinished": "Nie zarejestrowano zakończenia; wpis może być nieaktualny",
+    "more": "Pokaż więcej",
+    "local": "Ta inspekcja pozostaje na tym komputerze. Nie zmienia uprawnień ani nie czyści historii dostępu."
   }
 }

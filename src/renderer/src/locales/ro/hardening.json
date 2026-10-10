@@ -219,5 +219,67 @@
     "statusStartPending": "Pornire în așteptare",
     "statusStopPending": "Oprire în așteptare",
     "statusUnknown": "Necunoscut"
+  },
+  "appPrivacy": {
+    "views": "Vizualizări de confidențialitate",
+    "tab": {
+      "settings": "Confidențialitatea sistemului",
+      "apps": "Accesul aplicațiilor"
+    },
+    "title": "Audit al accesului aplicațiilor",
+    "description": "Examinați înregistrările Windows pentru accesul la cameră, microfon și locație.",
+    "refresh": "Reîmprospătează",
+    "failed": "Nu s-au putut citi înregistrările de acces ale aplicațiilor. Încercați să reîmprospătați.",
+    "refreshFailed": "Reîmprospătarea a eșuat. Este afișată în continuare scanarea anterioară.",
+    "loading": "Se citesc înregistrările de acces ale aplicațiilor...",
+    "unsupported": "Auditarea accesului aplicațiilor este disponibilă pe Windows.",
+    "account": "Cont: {{account}} | Scanat {{time}}",
+    "unknownAccount": "Cont de proces necunoscut",
+    "partial": "Unele înregistrări nu au putut fi citite sau a fost atinsă limita de scanare. Numărătoarea reflectă doar înregistrările afișate.",
+    "capability": {
+      "webcam": "Cameră",
+      "microphone": "Microfon",
+      "location": "Locație"
+    },
+    "entries": "înregistrări consemnate",
+    "recentCount": "{{count}} cu utilizare consemnată în ultimele 30 de zile",
+    "deviceConsent": "Setare dispozitiv",
+    "userConsent": "Setare cont",
+    "desktopConsent": "Setare desktop",
+    "consent": {
+      "allow": "Permitere consemnată",
+      "deny": "Refuz consemnat",
+      "prompt": "Solicitare consemnată",
+      "unknown": "Necunoscut"
+    },
+    "status": {
+      "missing": "Nu au fost găsite înregistrări pentru cont.",
+      "partial": "Unele date nu au putut fi citite.",
+      "unavailable": "Înregistrările nu sunt disponibile."
+    },
+    "truncated": "A fost atinsă limita de scanare (1.000 de înregistrări per capacitate).",
+    "settings": "Setări pentru {{capability}}",
+    "settingsFailed": "Windows Settings nu a putut fi deschis. Deschideți manual Privacy & security în Windows Settings.",
+    "limitationsTitle": "Ce vă pot spune aceste înregistrări",
+    "limitations": "Acestea sunt setări înregistrate și istoricul accesului, nu un inventar complet al aplicațiilor instalate și nici o dovadă a permisiunii efective. Restricțiile dispozitivului, politicile organizației și alte controale pot înlocui consimțământul înregistrat. Windows poate omite aplicațiile desktop sau poate păstra înregistrări după eliminarea unei aplicații. Controalele pentru aplicațiile desktop variază în funcție de versiunea Windows și de metoda de acces; gestionați controalele disponibile în Windows Settings. Numele provin din căi înregistrate sau identități de pachet și nu verifică un editor. O înregistrare neterminată nu dovedește că o aplicație utilizează în prezent un senzor.",
+    "accountHelp": "Această scanare citește contul care rulează Kudu. Dacă ați lansat Kudu cu acreditările de administrator ale altui cont, aceste înregistrări aparțin acelui cont. În schimb, setările pot afișa contul interactiv.",
+    "search": "Căutați nume de aplicații sau identități înregistrate",
+    "filter": "Filtrați capacitatea",
+    "all": "Toate capacitățile",
+    "recent": "Utilizate în ultimele 30 de zile",
+    "showing": "Se afișează {{shown}} din {{total}} înregistrări corespunzătoare",
+    "noMatches": "Nicio înregistrare nu corespunde filtrelor dvs.",
+    "noRecords": "Nu sunt disponibile înregistrări de acces. Acest lucru nu înseamnă că aplicațiile nu au acces.",
+    "kind": {
+      "desktop": "Istoric desktop",
+      "packaged": "Identitate de pachet"
+    },
+    "recordedConsent": "Setare înregistrare: {{consent}}",
+    "lastAccess": "Ultima pornire înregistrată: {{time}}",
+    "lastEnd": "Încheiere înregistrată: {{time}}",
+    "noTime": "Nu a fost înregistrată o oră de acces validă",
+    "unfinished": "Nu a fost înregistrată o încheiere; poate fi depășită",
+    "more": "Afișează mai multe",
+    "local": "Acest audit rămâne pe acest PC. Nu modifică permisiunile și nu șterge istoricul de acces."
   }
 }

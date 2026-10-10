@@ -219,5 +219,67 @@
     "statusStartPending": "Início pendente",
     "statusStopPending": "Paragem pendente",
     "statusUnknown": "Desconhecido"
+  },
+  "appPrivacy": {
+    "views": "Vistas de privacidade",
+    "tab": {
+      "settings": "Privacidade do sistema",
+      "apps": "Acesso das aplicações"
+    },
+    "title": "Auditoria de acesso das aplicações",
+    "description": "Reveja os registos do Windows para acesso à câmara, microfone e localização.",
+    "refresh": "Atualizar",
+    "failed": "Não foi possível ler os registos de acesso das aplicações. Tente atualizar.",
+    "refreshFailed": "A atualização falhou. A análise anterior continua a ser apresentada.",
+    "loading": "A ler os registos de acesso das aplicações...",
+    "unsupported": "A auditoria de acesso das aplicações está disponível no Windows.",
+    "account": "Conta: {{account}} | Analisado em {{time}}",
+    "unknownAccount": "Conta de processo desconhecida",
+    "partial": "Não foi possível ler alguns registos ou foi atingido o limite da análise. As contagens refletem apenas os registos apresentados.",
+    "capability": {
+      "webcam": "Câmara",
+      "microphone": "Microfone",
+      "location": "Localização"
+    },
+    "entries": "entradas registadas",
+    "recentCount": "{{count}} com utilização registada nos últimos 30 dias",
+    "deviceConsent": "Definição do dispositivo",
+    "userConsent": "Definição da conta",
+    "desktopConsent": "Definição do ambiente de trabalho",
+    "consent": {
+      "allow": "Permissão registada",
+      "deny": "Negação registada",
+      "prompt": "Pedido registado",
+      "unknown": "Desconhecido"
+    },
+    "status": {
+      "missing": "Não foram encontrados registos da conta.",
+      "partial": "Não foi possível ler alguns dados.",
+      "unavailable": "Registos indisponíveis."
+    },
+    "truncated": "Limite da análise atingido (1.000 entradas por capacidade).",
+    "settings": "Definições de {{capability}}",
+    "settingsFailed": "Não foi possível abrir as Definições do Windows. Abra Privacidade e segurança nas Definições do Windows manualmente.",
+    "limitationsTitle": "O que estes registos lhe podem indicar",
+    "limitations": "Estes são registos de definições e histórico de acesso, não um inventário completo das aplicações instaladas nem prova de permissão efetiva. Restrições do dispositivo, políticas da organização e outros controlos podem sobrepor-se ao consentimento registado. O Windows pode omitir aplicações de ambiente de trabalho ou manter registos depois de uma aplicação ser removida. Os controlos para aplicações de ambiente de trabalho variam consoante a versão do Windows e o método de acesso; gira os controlos disponíveis nas Definições do Windows. Os nomes provêm de caminhos registados ou identidades de pacote e não verificam um fornecedor. Um registo incompleto não prova que uma aplicação esteja atualmente a utilizar um sensor.",
+    "accountHelp": "Esta análise lê a conta que está a executar o Kudu. Se iniciou o Kudu com credenciais de administrador de outra conta, estes registos pertencem a essa conta. As definições podem apresentar, em vez disso, a conta interativa.",
+    "search": "Pesquisar nomes de aplicações ou identidades registadas",
+    "filter": "Filtrar capacidade",
+    "all": "Todas as capacidades",
+    "recent": "Utilizado nos últimos 30 dias",
+    "showing": "A mostrar {{shown}} de {{total}} registos correspondentes",
+    "noMatches": "Nenhum registo corresponde aos seus filtros.",
+    "noRecords": "Não existem registos de acesso disponíveis. Isto não significa que as aplicações não tenham acesso.",
+    "kind": {
+      "desktop": "Histórico do ambiente de trabalho",
+      "packaged": "Identidade do pacote"
+    },
+    "recordedConsent": "Definição da entrada: {{consent}}",
+    "lastAccess": "Último início registado: {{time}}",
+    "lastEnd": "Fim registado: {{time}}",
+    "noTime": "Não foi registada uma hora de acesso válida",
+    "unfinished": "Sem fim registado; pode estar desatualizado",
+    "more": "Mostrar mais",
+    "local": "Esta auditoria permanece neste PC. Não altera permissões nem limpa o histórico de acesso."
   }
 }

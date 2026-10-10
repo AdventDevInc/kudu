@@ -219,5 +219,67 @@
     "statusStartPending": "Đang chờ khởi động",
     "statusStopPending": "Đang chờ dừng",
     "statusUnknown": "Không xác định"
+  },
+  "appPrivacy": {
+    "views": "Chế độ xem quyền riêng tư",
+    "tab": {
+      "settings": "Quyền riêng tư hệ thống",
+      "apps": "Quyền truy cập ứng dụng"
+    },
+    "title": "Kiểm tra quyền truy cập ứng dụng",
+    "description": "Xem lại bản ghi Windows về quyền truy cập camera, micrô và vị trí.",
+    "refresh": "Làm mới",
+    "failed": "Không thể đọc bản ghi quyền truy cập ứng dụng. Hãy thử làm mới.",
+    "refreshFailed": "Làm mới thất bại. Kết quả quét trước đó vẫn đang được hiển thị.",
+    "loading": "Đang đọc bản ghi quyền truy cập ứng dụng...",
+    "unsupported": "Tính năng kiểm tra quyền truy cập ứng dụng khả dụng trên Windows.",
+    "account": "Tài khoản: {{account}} | Đã quét {{time}}",
+    "unknownAccount": "Tài khoản tiến trình không xác định",
+    "partial": "Không thể đọc một số bản ghi hoặc đã đạt đến giới hạn quét. Số lượng chỉ phản ánh các bản ghi đang hiển thị.",
+    "capability": {
+      "webcam": "Camera",
+      "microphone": "Micrô",
+      "location": "Vị trí"
+    },
+    "entries": "mục đã ghi nhận",
+    "recentCount": "{{count}} có ghi nhận sử dụng trong 30 ngày qua",
+    "deviceConsent": "Cài đặt thiết bị",
+    "userConsent": "Cài đặt tài khoản",
+    "desktopConsent": "Cài đặt ứng dụng trên máy tính",
+    "consent": {
+      "allow": "Đã ghi nhận cho phép",
+      "deny": "Đã ghi nhận từ chối",
+      "prompt": "Đã ghi nhận nhắc hỏi",
+      "unknown": "Không xác định"
+    },
+    "status": {
+      "missing": "Không tìm thấy bản ghi tài khoản.",
+      "partial": "Không thể đọc một phần dữ liệu.",
+      "unavailable": "Bản ghi không khả dụng."
+    },
+    "truncated": "Đã đạt đến giới hạn quét (1.000 mục cho mỗi khả năng).",
+    "settings": "Cài đặt {{capability}}",
+    "settingsFailed": "Không thể mở Windows Settings. Hãy mở Quyền riêng tư & bảo mật trong Windows Settings theo cách thủ công.",
+    "limitationsTitle": "Những gì các bản ghi này có thể cho bạn biết",
+    "limitations": "Đây là các cài đặt và lịch sử truy cập đã được ghi nhận, không phải danh sách đầy đủ các ứng dụng đã cài đặt hoặc bằng chứng về quyền thực tế đang có hiệu lực. Các hạn chế của thiết bị, chính sách tổ chức và các cơ chế kiểm soát khác có thể ghi đè trạng thái cho phép đã được ghi nhận. Windows có thể bỏ sót các ứng dụng trên máy tính hoặc vẫn giữ bản ghi sau khi ứng dụng đã bị gỡ bỏ. Các biện pháp kiểm soát đối với ứng dụng trên máy tính khác nhau tùy theo phiên bản Windows và phương thức truy cập; hãy quản lý các tùy chọn khả dụng trong Windows Settings. Tên được lấy từ đường dẫn đã ghi nhận hoặc danh tính gói và không xác minh nhà phát hành. Một bản ghi chưa hoàn tất không chứng minh rằng ứng dụng hiện đang sử dụng cảm biến.",
+    "accountHelp": "Quá trình quét này đọc tài khoản đang chạy Kudu. Nếu bạn khởi chạy Kudu bằng thông tin xác thực quản trị viên của tài khoản khác, các bản ghi này thuộc về tài khoản đó. Thay vào đó, phần cài đặt có thể hiển thị tài khoản tương tác.",
+    "search": "Tìm kiếm tên ứng dụng hoặc danh tính đã ghi nhận",
+    "filter": "Lọc theo khả năng",
+    "all": "Tất cả khả năng",
+    "recent": "Đã sử dụng trong 30 ngày qua",
+    "showing": "Đang hiển thị {{shown}} trên {{total}} bản ghi khớp",
+    "noMatches": "Không có bản ghi nào khớp với bộ lọc của bạn.",
+    "noRecords": "Không có bản ghi truy cập nào khả dụng. Điều này không có nghĩa là ứng dụng không có quyền truy cập.",
+    "kind": {
+      "desktop": "Lịch sử ứng dụng trên máy tính",
+      "packaged": "Danh tính gói"
+    },
+    "recordedConsent": "Cài đặt mục: {{consent}}",
+    "lastAccess": "Lần bắt đầu được ghi nhận gần nhất: {{time}}",
+    "lastEnd": "Thời điểm kết thúc được ghi nhận: {{time}}",
+    "noTime": "Không có thời gian truy cập hợp lệ được ghi nhận",
+    "unfinished": "Chưa ghi nhận thời điểm kết thúc; có thể là bản ghi cũ",
+    "more": "Hiển thị thêm",
+    "local": "Quá trình kiểm tra này chỉ diễn ra trên PC này. Nó không thay đổi quyền hoặc xóa lịch sử truy cập."
   }
 }

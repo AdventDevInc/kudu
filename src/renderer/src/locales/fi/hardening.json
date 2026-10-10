@@ -219,5 +219,67 @@
     "statusStartPending": "Käynnistys odottaa",
     "statusStopPending": "Pysäytys odottaa",
     "statusUnknown": "Tuntematon"
+  },
+  "appPrivacy": {
+    "views": "Tietosuojanäkymät",
+    "tab": {
+      "settings": "Järjestelmän tietosuoja",
+      "apps": "Sovellusten käyttöoikeudet"
+    },
+    "title": "Sovellusten käyttöoikeuksien tarkistus",
+    "description": "Tarkista Windowsin tiedot kameran, mikrofonin ja sijainnin käytöstä.",
+    "refresh": "Päivitä",
+    "failed": "Sovellusten käyttöoikeustietoja ei voitu lukea. Yritä päivittää.",
+    "refreshFailed": "Päivitys epäonnistui. Edellinen tarkistus näytetään edelleen.",
+    "loading": "Luetaan sovellusten käyttöoikeustietoja...",
+    "unsupported": "Sovellusten käyttöoikeuksien tarkistus on käytettävissä Windowsissa.",
+    "account": "Tili: {{account}} | Tarkistettu {{time}}",
+    "unknownAccount": "Tuntematon prosessin tili",
+    "partial": "Kaikkia tietoja ei voitu lukea tai tarkistuksen raja saavutettiin. Määrät koskevat vain näytettyjä tietoja.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofoni",
+      "location": "Sijainti"
+    },
+    "entries": "kirjattua merkintää",
+    "recentCount": "{{count}} kirjattua käyttöä viimeisten 30 päivän aikana",
+    "deviceConsent": "Laitteen asetus",
+    "userConsent": "Tilin asetus",
+    "desktopConsent": "Työpöytäsovelluksen asetus",
+    "consent": {
+      "allow": "Salli kirjattu",
+      "deny": "Estä kirjattu",
+      "prompt": "Kysy kirjattu",
+      "unknown": "Tuntematon"
+    },
+    "status": {
+      "missing": "Tilin tietoja ei löytynyt.",
+      "partial": "Osaa tiedoista ei voitu lukea.",
+      "unavailable": "Tiedot eivät ole käytettävissä."
+    },
+    "truncated": "Tarkistuksen raja saavutettu (1 000 merkintää käyttöoikeutta kohden).",
+    "settings": "{{capability}}-asetukset",
+    "settingsFailed": "Windowsin asetuksia ei voitu avata. Avaa Tietosuoja ja suojaus Windowsin asetuksissa manuaalisesti.",
+    "limitationsTitle": "Mitä nämä tiedot voivat kertoa",
+    "limitations": "Nämä ovat kirjattuja asetuksia ja käyttöhistoriaa, eivät täydellinen luettelo asennetuista sovelluksista tai todiste voimassa olevasta käyttöoikeudesta. Laiterajoitukset, organisaation käytännöt ja muut hallintakeinot voivat ohittaa kirjatun suostumuksen. Windows voi jättää työpöytäsovelluksia pois tai säilyttää tietoja sovelluksen poistamisen jälkeen. Työpöytäsovellusten hallinta vaihtelee Windows-version ja käyttötavan mukaan; hallitse käytettävissä olevia asetuksia Windowsin asetuksissa. Nimet perustuvat kirjattuihin polkuihin tai pakettitunnuksiin eivätkä vahvista julkaisijaa. Keskeneräinen merkintä ei todista, että sovellus käyttää parhaillaan anturia.",
+    "accountHelp": "Tämä tarkistus lukee sen tilin tiedot, jolla Kudu on käynnissä. Jos käynnistit Kudun toisen tilin järjestelmänvalvojan tunnuksilla, nämä tiedot kuuluvat kyseiselle tilille. Asetuksissa voidaan silti näyttää interaktiivinen tili.",
+    "search": "Hae sovellusten nimiä tai kirjattuja tunnisteita",
+    "filter": "Suodata käyttöoikeus",
+    "all": "Kaikki käyttöoikeudet",
+    "recent": "Käytetty viimeisten 30 päivän aikana",
+    "showing": "Näytetään {{shown}} / {{total}} vastaavasta merkinnästä",
+    "noMatches": "Yksikään merkintä ei vastaa suodattimia.",
+    "noRecords": "Käyttöoikeustietoja ei ole saatavilla. Tämä ei tarkoita, ettei sovelluksilla olisi käyttöoikeuksia.",
+    "kind": {
+      "desktop": "Työpöytähistoria",
+      "packaged": "Pakettitunnus"
+    },
+    "recordedConsent": "Merkinnän asetus: {{consent}}",
+    "lastAccess": "Viimeisin kirjattu aloitus: {{time}}",
+    "lastEnd": "Kirjattu päättyminen: {{time}}",
+    "noTime": "Kelvollista käyttöaikaa ei ole kirjattu",
+    "unfinished": "Päättymistä ei ole kirjattu; tieto voi olla vanhentunut",
+    "more": "Näytä lisää",
+    "local": "Tämä tarkistus pysyy tällä tietokoneella. Se ei muuta käyttöoikeuksia eikä tyhjennä käyttöhistoriaa."
   }
 }
