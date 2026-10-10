@@ -2,6 +2,7 @@
 import { defaultSettings, useSettingsStore } from '../stores/settings-store'
 import { featureReads } from './feature-fixtures'
 import { perfFixture } from './perf-fixtures'
+import { driverReads } from './driver-fixtures'
 import type { ScanHistoryEntry, StartupItem, PerfSnapshot } from '@shared/types'
 
 const GB = 1024 ** 3
@@ -506,13 +507,7 @@ const reads: Record<string, (...args: any[]) => unknown> = {
     packageManagerName: 'winget',
     managers: [{ name: 'winget', available: true, updateCount: empty ? 0 : 2 }]
   }),
-  driverUpdateScan: () => ({
-    updates: [],
-    totalAvailable: 0,
-    scanDuration: 100,
-    updatesDisabled: false
-  }),
-  driverScan: () => ({ drivers: [], totalStale: 0, totalStaleSize: 0 }),
+  ...driverReads(empty),
   gameModeStatus: () => ({ active: false, activatedAt: null, pendingRestore: false }),
   gameModeGetStatus: () => ({ active: false, activatedAt: null, pendingRestore: false }),
   malwareAllowlistList: () => [],

@@ -57,7 +57,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const recomputeStats = useStatsStore((s) => s.recompute)
 
   const isScanning = scanning || updateScanning
-  const isBusy = isScanning || applying
+  const isBusy = isScanning || applying || pendingIgnoreIds.size > 0
 
   // Listen for progress events
   useEffect(() => {
@@ -77,9 +77,12 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const handleScan = useCallback(async () => {
     const scanStart = Date.now()
     const store = useDriverStore.getState()
+    if (store.scanning || store.updateScanning || store.applying || store.pendingIgnoreIds.size > 0)
+      return
     store.setScanning(true)
     store.setUpdateScanning(true)
     store.setPackages([])
+    store.setTotalStaleSize(0)
     store.setUpdates([])
     store.setIgnoredUpdates([])
     store.setCleanResult(null)
@@ -173,6 +176,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   const handleApply = useCallback(async () => {
     setShowConfirm(false)
     const store = useDriverStore.getState()
+    if (store.scanning || store.updateScanning || store.applying || store.pendingIgnoreIds.size > 0)
+      return
     store.setApplying(true)
     store.setCleanResult(null)
     store.setInstallResult(null)
@@ -270,11 +275,15 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         s.setPackages(staleResult.value.packages)
         s.setTotalStaleSize(staleResult.value.totalStaleSize)
         useDriverStore.getState().selectAllStale()
+      } else {
+        s.setError(t('driverManager.scanFailedError'))
       }
       if (updateResult.status === 'fulfilled') {
         s.setUpdates(updateResult.value.updates)
         s.setIgnoredUpdates(updateResult.value.ignoredUpdates ?? [])
         s.setUpdatesDisabled(updateResult.value.updatesDisabled)
+      } else {
+        s.setUpdateError(t('driverManager.updateScanFailedError'))
       }
       s.setScanning(false)
       s.setUpdateScanning(false)
@@ -346,7 +355,17 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
   )
 
   const selectedUpdateCount = updates.filter((u) => u.selected).length
+  const selectedStaleSize = stalePackages.reduce(
+    (size, pkg) => size + (pkg.selected ? pkg.size : 0),
+    0
+  )
   const totalSelected = selectedStaleCount + selectedUpdateCount
+  const actionLabel =
+    selectedUpdateCount > 0 && selectedStaleCount > 0
+      ? t('driverManager.updateAndCleanButton', { count: totalSelected })
+      : selectedUpdateCount > 0
+        ? t('driverManager.installSelected', { count: selectedUpdateCount })
+        : t('driverManager.cleanSelected', { count: selectedStaleCount })
   const allStaleSelected = stalePackages.length > 0 && stalePackages.every((p) => p.selected)
   const allUpdatesSelected = updates.length > 0 && updates.every((u) => u.selected)
 
@@ -370,7 +389,15 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* Actions */}
-      <div className="mb-5 flex items-center gap-2.5">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+            {t('driverManager.overviewTitle')}
+          </h2>
+          <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+            {t('driverManager.overviewDescription')}
+          </p>
+        </div>
         <button
           onClick={handleScan}
           disabled={isBusy}
@@ -378,28 +405,73 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           style={{ background: 'var(--bg-hover)', border: '1px solid var(--border-medium)' }}
         >
           <Search className={`h-4 w-4 ${isScanning ? 'animate-pulse' : ''}`} strokeWidth={1.8} />
-          {isScanning ? t('driverManager.scanningButton') : t('driverManager.scanDriversButton')}
-        </button>
-        <button
-          onClick={() => setShowConfirm(true)}
-          disabled={totalSelected === 0 || isBusy}
-          className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-30"
-          style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff' }}
-        >
-          {applying ? (
-            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
-          ) : (
-            <Sparkles className="h-4 w-4" strokeWidth={2} />
-          )}
-          {applying
-            ? installing
-              ? t('driverManager.installingButton')
-              : cleaning
-                ? t('driverManager.cleaningButton')
-                : t('driverManager.applyingButton')
-            : t('driverManager.updateAndCleanButton', { count: totalSelected })}
+          {isScanning
+            ? t('driverManager.scanningButton')
+            : hasScanned
+              ? t('driverManager.rescanButton')
+              : t('driverManager.scanDriversButton')}
         </button>
       </div>
+
+      {(hasScanned || updates.length > 0) && !isScanning && (
+        <div className="mb-5 grid gap-3 sm:grid-cols-3">
+          {[
+            {
+              icon: ArrowUpCircle,
+              label: t('driverManager.updatesSummary'),
+              value: updateError
+                ? '—'
+                : updatesDisabled
+                  ? t('driverManager.notChecked')
+                  : updates.length,
+              hint: t('driverManager.updatesSource')
+            },
+            {
+              icon: Trash2,
+              label: t('driverManager.cleanupSummary'),
+              value: error
+                ? '—'
+                : !hasScanned
+                  ? t('driverManager.notChecked')
+                  : stalePackages.length,
+              hint: t('driverManager.cleanupHint')
+            },
+            {
+              icon: Shield,
+              label: t('driverManager.spaceSummary'),
+              value: error
+                ? '—'
+                : !hasScanned
+                  ? t('driverManager.notChecked')
+                  : formatBytes(totalStaleSize),
+              hint: t('driverManager.spaceHint')
+            }
+          ].map(({ icon: Icon, label, value, hint }) => (
+            <div
+              key={label}
+              className="rounded-2xl p-4"
+              style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)' }}
+            >
+              <div
+                className="flex items-center gap-2 text-[12px]"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {label}
+              </div>
+              <p
+                className="mt-3 text-[24px] font-semibold tracking-tight"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {value}
+              </p>
+              <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                {hint}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Info banner */}
       <div
@@ -416,20 +488,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       </div>
 
       {/* Errors */}
-      {error && (
-        <ErrorAlert
-          message={error}
-          onDismiss={() => useDriverStore.getState().setError(null)}
-          className="mb-5"
-        />
-      )}
-      {updateError && (
-        <ErrorAlert
-          message={updateError}
-          onDismiss={() => useDriverStore.getState().setUpdateError(null)}
-          className="mb-5"
-        />
-      )}
+      {error && <ErrorAlert message={error} className="mb-5" />}
+      {updateError && <ErrorAlert message={updateError} className="mb-5" />}
 
       {/* Scan progress */}
       {scanning && scanProgress && (
@@ -492,11 +552,13 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           </p>
         </div>
       )}
-      {updateScanning && !updateProgress && !scanning && (
+      {(updateScanning || installing) && !updateProgress && (
         <ScanProgress
           status="scanning"
           progress={0}
-          currentPath={t('driverManager.queryingWindowsUpdate')}
+          currentPath={t(
+            installing ? 'driverManager.preparingInstall' : 'driverManager.queryingWindowsUpdate'
+          )}
           className="mb-5"
         />
       )}
@@ -505,9 +567,17 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       {installResult && (
         <div
           className="mb-5 flex items-center gap-3 rounded-2xl p-4"
-          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
+          style={{
+            background:
+              installResult.failed > 0 ? 'var(--accent-muted-bg)' : 'rgba(34,197,94,0.06)',
+            border: '1px solid var(--border-subtle)'
+          }}
         >
-          <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
+          {installResult.failed > 0 ? (
+            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
+          ) : (
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-green-500" strokeWidth={1.8} />
+          )}
           <div className="text-[13px] text-zinc-200">
             <p>
               {installResult.installed !== 1
@@ -525,35 +595,68 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             {installResult.rebootRequired && (
               <p className="mt-1 text-[12px] text-amber-400">{t('driverManager.rebootRequired')}</p>
             )}
+            {installResult.errors.length > 0 && (
+              <details className="mt-2 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+                <summary className="cursor-pointer">{t('driverManager.failureDetails')}</summary>
+                <ul className="mt-2 space-y-1">
+                  {installResult.errors.map((failure, index) => (
+                    <li key={index}>
+                      {failure.deviceName}: {failure.reason}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
           </div>
         </div>
       )}
       {cleanResult && (
         <div
           className="mb-5 flex items-center gap-3 rounded-2xl p-4"
-          style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)' }}
+          style={{
+            background: cleanResult.failed > 0 ? 'var(--accent-muted-bg)' : 'rgba(34,197,94,0.06)',
+            border: '1px solid var(--border-subtle)'
+          }}
         >
-          <CheckCircle2 className="h-5 w-5 text-green-500" strokeWidth={1.8} />
-          <p className="text-[13px] text-zinc-200">
-            {cleanResult.removed !== 1
-              ? t('driverManager.removedStalePackagesPlural', { count: cleanResult.removed })
-              : t('driverManager.removedStalePackages', { count: cleanResult.removed })}
-            {cleanResult.spaceRecovered > 0 && (
-              <span className="text-green-400">
-                {' '}
-                —{' '}
-                {t('driverManager.spaceRecovered', {
-                  size: formatBytes(cleanResult.spaceRecovered)
-                })}
-              </span>
+          {cleanResult.failed > 0 ? (
+            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
+          ) : (
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-green-500" strokeWidth={1.8} />
+          )}
+          <div className="text-[13px] text-zinc-200">
+            <p>
+              {cleanResult.removed !== 1
+                ? t('driverManager.removedStalePackagesPlural', { count: cleanResult.removed })
+                : t('driverManager.removedStalePackages', { count: cleanResult.removed })}
+              {cleanResult.spaceRecovered > 0 && (
+                <span className="text-green-400">
+                  {' '}
+                  —{' '}
+                  {t('driverManager.spaceRecovered', {
+                    size: formatBytes(cleanResult.spaceRecovered)
+                  })}
+                </span>
+              )}
+              {cleanResult.failed > 0 && (
+                <span className="text-red-400">
+                  {' '}
+                  {t('driverManager.failedCount', { count: cleanResult.failed })}
+                </span>
+              )}
+            </p>
+            {cleanResult.errors.length > 0 && (
+              <details className="mt-2 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+                <summary className="cursor-pointer">{t('driverManager.failureDetails')}</summary>
+                <ul className="mt-2 space-y-1">
+                  {cleanResult.errors.map((failure, index) => (
+                    <li key={index}>
+                      {failure.publishedName}: {failure.reason}
+                    </li>
+                  ))}
+                </ul>
+              </details>
             )}
-            {cleanResult.failed > 0 && (
-              <span className="text-red-400">
-                {' '}
-                {t('driverManager.failedCount', { count: cleanResult.failed })}
-              </span>
-            )}
-          </p>
+          </div>
         </div>
       )}
 
@@ -576,7 +679,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* Empty state */}
-      {!hasScanned && !isScanning && (
+      {!hasScanned && updates.length === 0 && !isScanning && (
         <EmptyState
           icon={Cpu}
           title={t('driverManager.emptyStateTitle')}
@@ -602,6 +705,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
       {hasScanned &&
         !isScanning &&
         !updatesDisabled &&
+        !error &&
+        !updateError &&
         updates.length === 0 &&
         stalePackages.length === 0 && (
           <div
@@ -610,10 +715,18 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           >
             <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" strokeWidth={1.5} />
             <p className="text-[15px] font-medium text-zinc-200">
-              {t('driverManager.allUpToDateTitle')}
+              {t(
+                ignoredUpdates.length > 0
+                  ? 'driverManager.noOfferedUpdatesTitle'
+                  : 'driverManager.allUpToDateTitle'
+              )}
             </p>
             <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
-              {t('driverManager.allUpToDateDescription')}
+              {t(
+                ignoredUpdates.length > 0
+                  ? 'driverManager.noOfferedUpdatesDescription'
+                  : 'driverManager.allUpToDateDescription'
+              )}
             </p>
           </div>
         )}
@@ -630,6 +743,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             </div>
             <div className="flex items-center gap-2">
               <button
+                disabled={isBusy}
                 onClick={() =>
                   allUpdatesSelected
                     ? useDriverStore.getState().deselectAllUpdates()
@@ -643,11 +757,18 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             </div>
           </div>
 
+          <p className="mb-3 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+            {t('driverManager.updatesDescription')}
+          </p>
+
           <div className="grid grid-cols-1 gap-2">
             {updates.map((upd) => (
               <div
                 key={upd.id}
-                onClick={() => useDriverStore.getState().toggleUpdate(upd.id)}
+                onClick={(event) => {
+                  if (!isBusy && !(event.target instanceof HTMLInputElement))
+                    useDriverStore.getState().toggleUpdate(upd.id)
+                }}
                 className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors cursor-pointer"
                 style={{
                   background: upd.selected ? 'rgba(59,130,246,0.04)' : 'var(--bg-subtle)',
@@ -658,8 +779,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                   <input
                     type="checkbox"
                     checked={upd.selected}
-                    readOnly
-                    className="pointer-events-none accent-blue-500 cursor-pointer"
+                    onChange={() => useDriverStore.getState().toggleUpdate(upd.id)}
+                    disabled={isBusy}
+                    aria-label={t('driverManager.selectUpdate', { name: upd.deviceName })}
+                    className="accent-blue-500 cursor-pointer"
                   />
                 </div>
                 <div
@@ -717,6 +840,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                   style={{ border: '1px solid var(--border-medium)' }}
                 >
                   <EyeOff className="h-3.5 w-3.5" strokeWidth={1.8} />
+                  <span>{t('driverManager.ignoreShort')}</span>
                 </button>
               </div>
             ))}
@@ -729,6 +853,8 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         <div className="mb-6">
           <button
             onClick={() => setShowIgnored(!showIgnored)}
+            aria-expanded={showIgnored}
+            aria-controls="ignored-driver-updates"
             className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
           >
             {showIgnored ? (
@@ -741,7 +867,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
           </button>
 
           {showIgnored && (
-            <div className="grid grid-cols-1 gap-1.5">
+            <div id="ignored-driver-updates" className="grid grid-cols-1 gap-1.5">
               {ignoredUpdates.map((upd) => (
                 <div
                   key={upd.id}
@@ -808,6 +934,7 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             </div>
             <div className="flex items-center gap-2">
               <button
+                disabled={isBusy}
                 onClick={() =>
                   allStaleSelected
                     ? useDriverStore.getState().deselectAllStale()
@@ -821,11 +948,14 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
             </div>
           </div>
 
+          <p className="mb-3 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+            {t('driverManager.cleanupDescription')}
+          </p>
+
           <div className="grid grid-cols-1 gap-2">
             {stalePackages.map((pkg) => (
-              <div
+              <label
                 key={pkg.id}
-                onClick={() => useDriverStore.getState().togglePackage(pkg.id)}
                 className="flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors cursor-pointer"
                 style={{
                   background: pkg.selected ? 'rgba(245,158,11,0.04)' : 'var(--bg-subtle)',
@@ -836,8 +966,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                   <input
                     type="checkbox"
                     checked={pkg.selected}
-                    readOnly
-                    className="pointer-events-none accent-amber-500 cursor-pointer"
+                    onChange={() => useDriverStore.getState().togglePackage(pkg.id)}
+                    disabled={isBusy}
+                    aria-label={t('driverManager.selectPackage', { name: pkg.originalName })}
+                    className="accent-amber-500 cursor-pointer"
                   />
                 </div>
                 <div
@@ -878,8 +1010,62 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
                     {pkg.publishedName}
                   </div>
                 </div>
-              </div>
+              </label>
             ))}
+          </div>
+        </div>
+      )}
+
+      {(totalSelected > 0 || applying) && (
+        <div
+          className="sticky bottom-0 z-20 mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 shadow-lg"
+          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-medium)' }}
+        >
+          <div aria-live="polite">
+            <p className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {t('driverManager.selectionTitle', { count: totalSelected })}
+            </p>
+            <p className="mt-1 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+              {t('driverManager.selectionSummary', {
+                updates: t('driverManager.selectedUpdates', { count: selectedUpdateCount }),
+                packages: t('driverManager.selectedPackages', { count: selectedStaleCount }),
+                size: formatBytes(selectedStaleSize)
+              })}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              disabled={isBusy}
+              onClick={() => {
+                useDriverStore.getState().deselectAllUpdates()
+                useDriverStore.getState().deselectAllStale()
+              }}
+              className="rounded-lg px-3 py-2 text-[12px] disabled:opacity-40"
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              {t('driverManager.clearSelection')}
+            </button>
+            <button
+              onClick={() => setShowConfirm(true)}
+              disabled={totalSelected === 0 || isBusy}
+              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold disabled:opacity-40"
+              style={{ background: 'var(--accent)', color: 'var(--text-on-accent)' }}
+            >
+              {applying ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              {applying
+                ? t(
+                    installing
+                      ? 'driverManager.installingButton'
+                      : cleaning
+                        ? 'driverManager.cleaningButton'
+                        : 'driverManager.applyingButton'
+                  )
+                : actionLabel}
+            </button>
           </div>
         </div>
       )}
@@ -888,10 +1074,10 @@ export function DriverManagerPage({ embedded }: { embedded?: boolean }) {
         open={showConfirm}
         onConfirm={handleApply}
         onCancel={() => setShowConfirm(false)}
-        title={t('driverManager.confirmTitle')}
+        title={t('driverManager.reviewChangesTitle')}
         description={confirmDesc}
-        confirmLabel={t('driverManager.confirmLabel')}
-        variant="danger"
+        confirmLabel={actionLabel}
+        variant="warning"
       />
     </div>
   )
