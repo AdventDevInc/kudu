@@ -15,6 +15,8 @@ export interface PlatformInfo {
 
 export interface ScanHistoryCategory {
   name: string
+  /** Stable cleaner category ID for privacy-safe sharing; absent in older history. */
+  type?: string
   itemsFound: number
   itemsCleaned: number
   spaceSaved: number
