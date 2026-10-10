@@ -31,6 +31,25 @@ describe('atomic Downloads claims', () => {
     await unlink(path)
   }
 
+  it('rejects a hard link created during the atomic claim and preserves both names', async () => {
+    const expected = await lstat(original, { bigint: true })
+    const retained = join(root, 'retained.exe')
+    const trash = vi.fn(consume)
+    const operations = {
+      link,
+      rename: async (source: string, destination: string) => {
+        await link(source, retained)
+        await rename(source, destination)
+      }
+    }
+    const batch = new DownloadsClaimBatch(root, async () => true, trash, undefined, operations)
+    expect(await batch.move(original, expected)).toEqual({ trashed: false })
+    await batch.finish()
+    expect(trash).not.toHaveBeenCalled()
+    expect(await readFile(original, 'utf8')).toBe('selected file')
+    expect(await readFile(retained, 'utf8')).toBe('selected file')
+  })
+
   it('claims the chosen inode and leaves a replacement at its old name untouched during trash', async () => {
     const expected = await lstat(original, { bigint: true })
     let staged = ''

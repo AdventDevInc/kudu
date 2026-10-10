@@ -6,12 +6,13 @@ import { validateStorageRoot } from './storage-scan'
 
 export type DownloadIdentity = Pick<
   BigIntStats,
-  'dev' | 'ino' | 'size' | 'mtimeNs' | 'ctimeNs' | 'birthtimeNs'
+  'dev' | 'ino' | 'size' | 'mtimeNs' | 'ctimeNs' | 'birthtimeNs' | 'nlink'
 >
 export const sameDownloadIdentity = (a: DownloadIdentity, b: DownloadIdentity): boolean =>
   a.dev === b.dev &&
   a.ino === b.ino &&
   a.size === b.size &&
+  a.nlink === b.nlink &&
   a.mtimeNs === b.mtimeNs &&
   a.ctimeNs === b.ctimeNs &&
   a.birthtimeNs === b.birthtimeNs
@@ -19,6 +20,7 @@ const stableIdentity = (a: DownloadIdentity, b: DownloadIdentity): boolean =>
   a.dev === b.dev &&
   a.ino === b.ino &&
   a.size === b.size &&
+  a.nlink === b.nlink &&
   a.mtimeNs === b.mtimeNs &&
   a.birthtimeNs === b.birthtimeNs
 
@@ -76,7 +78,12 @@ export class DownloadsClaimBatch {
     )
     try {
       const original = await file.stat({ bigint: true })
-      if (!original.isFile() || original.ino === 0n || !sameDownloadIdentity(original, expected))
+      if (
+        !original.isFile() ||
+        original.ino === 0n ||
+        original.nlink !== 1n ||
+        !sameDownloadIdentity(original, expected)
+      )
         return { trashed: false }
       const directory = await this.stageDirectory()
       const destination = join(directory, basename(path))

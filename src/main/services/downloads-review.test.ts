@@ -137,15 +137,32 @@ describe('DownloadsReview filesystem safety', () => {
     await review.openLocation(result.scanId, result.files[0].id)
     expect(reveal).toHaveBeenCalledExactlyOnceWith(join(redirected, 'setup.exe'))
   })
-  it('moves only the selected hard link, never its other name', async () => {
+  it('skips hard links inside and outside Downloads without counting their bytes', async () => {
     await writeFile(join(root, 'one.zip'), 'data')
     await link(join(root, 'one.zip'), join(root, 'two.zip'))
+    await writeFile(join(root, 'external.zip'), 'external')
+    await link(join(root, 'external.zip'), join(fixture, 'retained.zip'))
+    await writeFile(join(root, 'ordinary.zip'), 'ordinary')
     const result = await review.scan()
-    const selected = result.files.find((file) => file.name === 'one.zip')!
-    await review.trashSelected(result.scanId, [selected.id])
-    expect(trash).toHaveBeenCalledOnce()
-    expect(basename(trash.mock.calls[0][0])).toBe('one.zip')
+    expect(result.files.map((file) => file.name)).toEqual(['ordinary.zip'])
+    expect(result.files.reduce((bytes, file) => bytes + file.size, 0)).toBe(8)
+    expect(result.skipped).toBe(3)
+    expect(trash).not.toHaveBeenCalled()
     expect(await readFile(join(root, 'two.zip'), 'utf8')).toBe('data')
+  })
+  it('skips a file that gains a hard link after scanning for both reveal and trash', async () => {
+    await writeFile(join(root, 'setup.exe'), 'data')
+    const result = await review.scan()
+    const id = result.files[0].id
+    await link(join(root, 'setup.exe'), join(fixture, 'retained.exe'))
+    await expect(review.openLocation(result.scanId, id)).rejects.toThrow('changed')
+    expect(await review.trashSelected(result.scanId, [id])).toEqual({
+      trashedIds: [],
+      skippedIds: [id]
+    })
+    expect(trash).not.toHaveBeenCalled()
+    expect(reveal).not.toHaveBeenCalled()
+    expect(await readFile(join(root, 'setup.exe'), 'utf8')).toBe('data')
   })
   it('serializes scan and trash and safely reports failed native trash', async () => {
     await writeFile(join(root, 'setup.exe'), 'data')

@@ -95,6 +95,7 @@ export class DownloadsReview {
           if (
             !info.isFile() ||
             info.isSymbolicLink() ||
+            info.nlink !== 1n ||
             info.dev !== rootIdentity.dev ||
             !samePath(await realpath(path), path)
           ) {
@@ -136,6 +137,7 @@ export class DownloadsReview {
     const info = await lstat(file.path, { bigint: true })
     return info.isFile() &&
       !info.isSymbolicLink() &&
+      info.nlink === 1n &&
       sameDownloadIdentity(info, file.identity) &&
       samePath(await realpath(file.path), file.path)
       ? file.path
