@@ -173,7 +173,8 @@
     "drivers": "Prüfen Sie Treiber-Updates und ältere Pakete an einem Ort. Sehen Sie sich die vorgeschlagenen Änderungen an, bevor Sie sie anwenden.",
     "storageHistory": "Sehen Sie, was wächst. Speichern Sie lokale Ordner-Snapshots und vergleichen Sie, wo sich der Speicher verändert hat.",
     "recovery": "Ein klarer Weg zurück. Prüfen Sie unterstützte Änderungen und Wiederherstellungsdetails, bevor Sie etwas rückgängig machen.",
-    "diagnostics": "Machen Sie aus einem langsamen Moment verwertbare Hinweise. Zeichnen Sie lokal auf, prüfen Sie die Daten und entscheiden Sie, ob Sie eine Cloud AI-Analyse anfordern möchten."
+    "diagnostics": "Machen Sie aus einem langsamen Moment verwertbare Hinweise. Zeichnen Sie lokal auf, prüfen Sie die Daten und entscheiden Sie, ob Sie eine Cloud AI-Analyse anfordern möchten.",
+    "appSpace": "Sehen Sie gemeldete App-Größen zusammen mit gemessenem, überprüfbarem Cache und Protokollen."
   },
   "home": {
     "eyebrow": "IHR SYSTEM AUF EINEN BLICK",

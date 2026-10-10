@@ -1,3 +1,4 @@
+import { AppSpacePage } from './pages/AppSpacePage'
 import { StorageHistoryPage } from './pages/StorageHistoryPage'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -166,6 +167,7 @@ export function App() {
             <Route path="/storage-history" element={<StorageHistoryPage />} />
             <Route path="/disk" element={<DiskAnalyzerPage />} />
             <Route path="/duplicates" element={<DuplicateFinderPage />} />
+            <Route path="/app-space" element={<AppSpacePage />} />
             <Route path="/large-files" element={<LargeFileFinderPage />} />
             <Route path="/empty-folders" element={<EmptyFolderCleanerPage />} />
             <Route path="/file-shredder" element={<FileShredderPage />} />
@@ -229,6 +231,7 @@ const ROUTE_TITLES: Record<string, { key: string }> = {
   '/storage-history': { key: 'disk:storage.title' },
   '/disk': { key: 'disk:pageTitle' },
   '/duplicates': { key: 'duplicates:pageTitle' },
+  '/app-space': { key: 'appSpace:pageTitle' },
   '/large-files': { key: 'largeFiles:pageTitle' },
   '/empty-folders': { key: 'emptyFolders:pageTitle' },
   '/file-shredder': { key: 'fileShredder:pageTitle' },

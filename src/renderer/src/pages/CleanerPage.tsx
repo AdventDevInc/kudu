@@ -1,7 +1,8 @@
+import { AI_TOOLS_VIEW, AI_TOOLS_GROUP } from '@shared/app-space-handoff'
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Copy,
   X,
@@ -53,8 +54,6 @@ interface CategoryDef {
   descriptionKey: string
 }
 
-const AI_TOOLS_VIEW = 'aiTools' as const
-const AI_TOOLS_GROUP = 'AI Tools'
 type CategoryType = CleanerType | typeof AI_TOOLS_VIEW
 
 const categories: CategoryDef[] = [
@@ -247,9 +246,19 @@ export function CleanerPage() {
   const scannableCategories = protectRecycleBin
     ? scannerCategories.filter((c) => c.type !== CleanerType.RecycleBin)
     : scannerCategories
-  const [activeCategory, setActiveCategory] = useState<CategoryType>(CleanerType.System)
+  const location = useLocation()
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(() => {
+    const requested = location.state?.appSpaceCategory
+    return [AI_TOOLS_VIEW, CleanerType.App, CleanerType.Gaming, CleanerType.Browser].includes(
+      requested
+    )
+      ? requested
+      : CleanerType.System
+  })
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchScope, setSearchScope] = useState<'category' | 'all'>('category')
+  const [searchScope, setSearchScope] = useState<'category' | 'all'>(
+    location.state?.appSpaceAll === true ? 'all' : 'category'
+  )
   const [selectedOnly, setSelectedOnly] = useState(false)
   const [visibleLimits, setVisibleLimits] = useState<Record<string, number>>({})
   const [collapsedMatches, setCollapsedMatches] = useState<Set<string>>(new Set())

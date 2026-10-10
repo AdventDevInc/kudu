@@ -173,7 +173,8 @@
     "drivers": "Se gjennom driveroppdateringer og eldre pakker på ett sted. Kontroller de foreslåtte endringene før du bruker dem.",
     "storageHistory": "Se hva som vokser. Lagre lokale mappeøyeblikksbilder og sammenlign hvor lagringen har endret seg.",
     "recovery": "En tydelig vei tilbake. Se gjennom støttede endringer og gjenopprettingsdetaljene før du angrer noe.",
-    "diagnostics": "Gjør et tregt øyeblikk om til dokumentasjon. Ta opp lokalt, undersøk dataene, og velg om du vil be om Cloud AI-analyse."
+    "diagnostics": "Gjør et tregt øyeblikk om til dokumentasjon. Ta opp lokalt, undersøk dataene, og velg om du vil be om Cloud AI-analyse.",
+    "appSpace": "Se rapporterte appstørrelser sammen med målt, gjennomgåbar cache og logger."
   },
   "home": {
     "eyebrow": "SYSTEMET DITT, I ET NØTTESKALL",

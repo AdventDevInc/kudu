@@ -1,3 +1,4 @@
+import { registerAppSpaceIpc } from './app-space.ipc'
 import { registerAppPrivacyIpc } from './app-privacy.ipc'
 import { registerStorageHistoryIpc } from './storage-history.ipc'
 import { isPortable } from '../services/portable'
@@ -83,6 +84,7 @@ import { findCleanerBlockers } from '../services/cleaner-blockers'
 export type WindowGetter = () => BrowserWindow | null
 
 export function registerCleanerIpc(getWindow: WindowGetter): void {
+  registerAppSpaceIpc()
   registerAppPrivacyIpc()
   registerRecoveryIpc()
   registerCleanupReceiptsIpc()

@@ -38,6 +38,18 @@ describe('scan-store', () => {
     useScanStore.getState().reset()
   })
 
+  it('tracks an opaque App Space token only while its results remain in the plan', () => {
+    const store = useScanStore.getState()
+    store.setResults([makeResult('app', 'Cursor', [{ id: 'cursor', size: 12 }])])
+    store.setAppSpaceHandoffToken('token')
+    store.addResults([makeResult('browser', 'Chrome', [{ id: 'chrome', size: 3 }])])
+    expect(useScanStore.getState().appSpaceHandoffToken).toBe('token')
+    store.setResults([])
+    expect(useScanStore.getState().appSpaceHandoffToken).toBeNull()
+    store.setAppSpaceHandoffToken('other')
+    store.reset()
+    expect(useScanStore.getState().appSpaceHandoffToken).toBeNull()
+  })
   it('starts in idle state with empty results', () => {
     const state = useScanStore.getState()
     expect(state.status).toBe(ScanStatus.Idle)

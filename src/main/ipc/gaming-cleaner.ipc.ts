@@ -163,7 +163,7 @@ async function buildAppIdMap(steamAppsDir: string): Promise<Map<string, string>>
 // Per-game Steam shader caches
 // ---------------------------------------------------------------------------
 
-async function scanSteamShaderCaches(category: string): Promise<ScanResult[]> {
+export async function scanSteamShaderCaches(category: string): Promise<ScanResult[]> {
   const results: ScanResult[] = []
   const libraries = await getSteamLibraryPaths()
 
@@ -223,7 +223,7 @@ async function scanSteamShaderCaches(category: string): Promise<ScanResult[]> {
 // Per-game redistributables
 // ---------------------------------------------------------------------------
 
-async function scanSteamRedistributables(category: string): Promise<ScanResult[]> {
+export async function scanSteamRedistributables(category: string): Promise<ScanResult[]> {
   const results: ScanResult[] = []
   const libraries = await getSteamLibraryPaths()
 
