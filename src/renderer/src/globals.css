@@ -844,6 +844,18 @@ summary,
   background: var(--border-strong);
   content: '';
 }
+.sidebar-submenu-heading {
+  padding: 10px 9px 4px;
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+.sidebar-submenu-heading:first-child {
+  padding-top: 4px;
+}
 .sidebar-submenu-item {
   display: grid;
   width: 100%;
