@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -58,6 +58,7 @@ interface SubItemDef {
   path: string
   badge?: boolean
   cloudTier?: 'basic' | 'pro'
+  section?: 'storageOverview' | 'storageFileCleanup' | 'storageDiskCare'
 }
 
 interface NavItemDef {
@@ -220,13 +221,26 @@ const navGroups: NavGroup[] = [
         label: 'Storage',
         path: '/disk',
         children: [
+          {
+            icon: HardDrive,
+            labelKey: 'disk:pageTitle',
+            label: 'Storage Overview',
+            path: '/disk',
+            section: 'storageOverview'
+          },
           { icon: Package, labelKey: 'appSpace:pageTitle', label: 'App Space', path: '/app-space' },
-          { icon: HardDrive, labelKey: 'disk:pageTitle', label: 'Storage Overview', path: '/disk' },
+          {
+            icon: History,
+            labelKey: 'disk:storage.title',
+            label: 'Storage History',
+            path: '/storage-history'
+          },
           {
             icon: FileUp,
             labelKey: 'downloads:pageTitle',
             label: 'Downloads Review',
-            path: '/downloads'
+            path: '/downloads',
+            section: 'storageFileCleanup'
           },
           {
             icon: CopyCheck,
@@ -256,19 +270,14 @@ const navGroups: NavGroup[] = [
             icon: Wrench,
             labelKey: 'disk:repairTitle',
             label: 'Windows Repair',
-            path: '/disk-repair'
+            path: '/disk-repair',
+            section: 'storageDiskCare'
           },
           {
             icon: Eraser,
             labelKey: 'disk:maintenanceTitle',
             label: 'Disk Maintenance',
             path: '/disk-maintenance'
-          },
-          {
-            icon: History,
-            labelKey: 'disk:storage.title',
-            label: 'Storage History',
-            path: '/storage-history'
           }
         ]
       },
@@ -679,26 +688,30 @@ function NavItem({
               ? t(child.labelKey, { defaultValue: child.label ?? '' })
               : (child.label ?? '')
             return (
-              <button
-                key={child.path}
-                type="button"
-                onClick={() => navigate(child.path)}
-                aria-current={isChildActive ? 'page' : undefined}
-                title={childLabel}
-                className="sidebar-submenu-item"
-                style={{
-                  background: isChildActive ? 'var(--brand-surface)' : 'transparent',
-                  color: isChildActive ? 'var(--brand-solid)' : 'var(--text-secondary)'
-                }}
-              >
-                <child.icon aria-hidden="true" strokeWidth={isChildActive ? 2.1 : 1.7} />
-                <span>{childLabel}</span>
-                {(badgeCounts?.[child.path] ?? 0) > 0 && (
-                  <b aria-label={`${badgeCounts![child.path]} items`}>{badgeCounts![child.path]}</b>
-                )}
-                {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
-                {child.badge && <b>NEW</b>}
-              </button>
+              <Fragment key={child.path}>
+                {child.section && <SubmenuSection section={child.section} />}
+                <button
+                  type="button"
+                  onClick={() => navigate(child.path)}
+                  aria-current={isChildActive ? 'page' : undefined}
+                  title={childLabel}
+                  className="sidebar-submenu-item"
+                  style={{
+                    background: isChildActive ? 'var(--brand-surface)' : 'transparent',
+                    color: isChildActive ? 'var(--brand-solid)' : 'var(--text-secondary)'
+                  }}
+                >
+                  <child.icon aria-hidden="true" strokeWidth={isChildActive ? 2.1 : 1.7} />
+                  <span>{childLabel}</span>
+                  {(badgeCounts?.[child.path] ?? 0) > 0 && (
+                    <b aria-label={`${badgeCounts![child.path]} items`}>
+                      {badgeCounts![child.path]}
+                    </b>
+                  )}
+                  {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
+                  {child.badge && <b>NEW</b>}
+                </button>
+              </Fragment>
             )
           })}
         </div>
@@ -719,6 +732,15 @@ function NavItem({
           }}
         />
       )}
+    </div>
+  )
+}
+
+function SubmenuSection({ section }: { section: NonNullable<SubItemDef['section']> }) {
+  const { t } = useTranslation('sidebar')
+  return (
+    <div className="sidebar-submenu-heading" role="presentation">
+      {t(section)}
     </div>
   )
 }
@@ -747,8 +769,9 @@ function FlyoutMenu({
     const rect = buttonRef.current.getBoundingClientRect()
     // If near the bottom of the screen, open upward
     const spaceBelow = window.innerHeight - rect.top
-    const menuHeight = items.length * 36 + 12 // approx
-    const top = spaceBelow < menuHeight + 20 ? rect.bottom - menuHeight : rect.top
+    const sectionHeight = items.filter((item) => item.section).length * 30
+    const menuHeight = Math.min(items.length * 36 + sectionHeight + 12, window.innerHeight - 24)
+    const top = Math.max(12, spaceBelow < menuHeight + 20 ? rect.bottom - menuHeight : rect.top)
     setPos({ top, left: rect.right + 6 })
   }, [buttonRef, items.length])
 
@@ -796,8 +819,9 @@ function FlyoutMenu({
     >
       <div
         role="menu"
-        className="glass-card w-56 rounded-xl py-1.5"
+        className="glass-card w-56 overflow-y-auto rounded-xl py-1.5"
         style={{
+          maxHeight: 'calc(100vh - 24px)',
           background: 'var(--flyout-bg)',
           boxShadow: '0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 var(--glass-inset)'
         }}
@@ -808,53 +832,55 @@ function FlyoutMenu({
             ? t(child.labelKey, { defaultValue: child.label ?? '' })
             : (child.label ?? '')
           return (
-            <button
-              key={child.path}
-              role="menuitem"
-              onClick={() => onSelect(child.path)}
-              className={cn(
-                'flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[12.5px] font-medium transition-all duration-150',
-                'hover:bg-white/[0.04]'
-              )}
-              style={{
-                background: isChildActive ? 'var(--brand-surface)' : undefined,
-                color: isChildActive ? 'var(--brand-solid)' : 'var(--text-secondary)'
-              }}
-            >
-              <child.icon
-                className="h-[14px] w-[14px] shrink-0"
-                style={{ color: isChildActive ? 'var(--brand-solid)' : 'var(--text-muted)' }}
-                strokeWidth={isChildActive ? 2 : 1.7}
-                aria-hidden="true"
-              />
-              <span className="flex-1">{childLabel}</span>
-              {(badgeCounts?.[child.path] ?? 0) > 0 && (
-                <span
-                  className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none"
-                  style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                    color: '#0a0600',
-                    boxShadow: '0 0 6px rgba(245,158,11,0.3)'
-                  }}
+            <Fragment key={child.path}>
+              {child.section && <SubmenuSection section={child.section} />}
+              <button
+                role="menuitem"
+                onClick={() => onSelect(child.path)}
+                className={cn(
+                  'flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[12.5px] font-medium transition-all duration-150',
+                  'hover:bg-white/[0.04]'
+                )}
+                style={{
+                  background: isChildActive ? 'var(--brand-surface)' : undefined,
+                  color: isChildActive ? 'var(--brand-solid)' : 'var(--text-secondary)'
+                }}
+              >
+                <child.icon
+                  className="h-[14px] w-[14px] shrink-0"
+                  style={{ color: isChildActive ? 'var(--brand-solid)' : 'var(--text-muted)' }}
+                  strokeWidth={isChildActive ? 2 : 1.7}
                   aria-hidden="true"
-                >
-                  {badgeCounts![child.path]}
-                </span>
-              )}
-              {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
-              {child.badge && (
-                <span
-                  className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[8px] font-bold leading-none"
-                  style={{
-                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                    color: '#0a0600',
-                    boxShadow: '0 0 6px rgba(245,158,11,0.3)'
-                  }}
-                >
-                  NEW
-                </span>
-              )}
-            </button>
+                />
+                <span className="flex-1">{childLabel}</span>
+                {(badgeCounts?.[child.path] ?? 0) > 0 && (
+                  <span
+                    className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none"
+                    style={{
+                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                      color: '#0a0600',
+                      boxShadow: '0 0 6px rgba(245,158,11,0.3)'
+                    }}
+                    aria-hidden="true"
+                  >
+                    {badgeCounts![child.path]}
+                  </span>
+                )}
+                {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
+                {child.badge && (
+                  <span
+                    className="flex h-[16px] min-w-[16px] items-center justify-center rounded-full px-1 text-[8px] font-bold leading-none"
+                    style={{
+                      background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                      color: '#0a0600',
+                      boxShadow: '0 0 6px rgba(245,158,11,0.3)'
+                    }}
+                  >
+                    NEW
+                  </span>
+                )}
+              </button>
+            </Fragment>
           )
         })}
       </div>
