@@ -40,6 +40,14 @@
   "diskStatusBad": "Dårlig",
   "diskStatusUnknown": "Ukjent",
   "temperature": "Temperatur",
+  "temperatures": {
+    "title": "Systemtemperaturer",
+    "cpuMax": "CPU-maksimum",
+    "gpu": "GPU",
+    "refresh": "Sensorer oppdateres hvert 5. sekund",
+    "unavailable": "Utilgjengelig",
+    "sensorHint": "Målingene avhenger av støtte for sensorer i maskinvaren og operativsystemet. På Windows krever CPU-målinger at Libre Hardware Monitor eller Open Hardware Monitor kjører med WMI-sensorer aktivert. Disktemperaturer vises under Diskhelse."
+  },
   "powerOnHours": "Driftstimer",
   "remainingLife": "Gjenværende levetid",
   "readErrors": "Lesefeil",

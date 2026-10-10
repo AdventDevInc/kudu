@@ -40,6 +40,14 @@
   "diskStatusBad": "Kötü",
   "diskStatusUnknown": "Bilinmiyor",
   "temperature": "Sıcaklık",
+  "temperatures": {
+    "title": "Sistem sıcaklıkları",
+    "cpuMax": "CPU en yüksek",
+    "gpu": "GPU",
+    "refresh": "Sensörler her 5 saniyede bir yenilenir",
+    "unavailable": "Kullanılamıyor",
+    "sensorHint": "Okumalar, donanım ve işletim sisteminin sensör desteğine bağlıdır. Windows'ta CPU okumaları için WMI sensörleri etkinleştirilmiş şekilde çalışan Libre Hardware Monitor veya Open Hardware Monitor gerekir. Sürücü sıcaklıkları Disk Sağlığı altında görünür."
+  },
   "powerOnHours": "Çalışma Saatleri",
   "remainingLife": "Kalan Ömür",
   "readErrors": "Okuma Hataları",

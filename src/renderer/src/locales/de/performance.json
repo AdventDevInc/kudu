@@ -40,6 +40,14 @@
   "diskStatusBad": "Schlecht",
   "diskStatusUnknown": "Unbekannt",
   "temperature": "Temperatur",
+  "temperatures": {
+    "title": "Systemtemperaturen",
+    "cpuMax": "CPU-Maximum",
+    "gpu": "GPU",
+    "refresh": "Sensoren werden alle 5 Sekunden aktualisiert",
+    "unavailable": "Nicht verfügbar",
+    "sensorHint": "Die Messwerte hängen von der Unterstützung der Sensoren durch die Hardware und das Betriebssystem ab. Unter Windows erfordern CPU-Messwerte, dass Libre Hardware Monitor oder Open Hardware Monitor mit aktivierten WMI-Sensoren ausgeführt wird. Laufwerkstemperaturen werden unter Datenträgerzustand angezeigt."
+  },
   "powerOnHours": "Betriebsstunden",
   "remainingLife": "Verbleibende Lebensdauer",
   "readErrors": "Lesefehler",

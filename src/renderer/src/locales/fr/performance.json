@@ -40,6 +40,14 @@
   "diskStatusBad": "Mauvais",
   "diskStatusUnknown": "Inconnu",
   "temperature": "Température",
+  "temperatures": {
+    "title": "Températures du système",
+    "cpuMax": "Maximum du CPU",
+    "gpu": "GPU",
+    "refresh": "Actualisation des capteurs toutes les 5 secondes",
+    "unavailable": "Indisponible",
+    "sensorHint": "Les relevés dépendent de la prise en charge des capteurs par le matériel et le système d’exploitation. Sous Windows, les relevés du CPU nécessitent que Libre Hardware Monitor ou Open Hardware Monitor soit en cours d’exécution avec les capteurs WMI activés. Les températures des disques apparaissent dans Santé du disque."
+  },
   "powerOnHours": "Heures de fonctionnement",
   "remainingLife": "Durée de vie restante",
   "readErrors": "Erreurs de lecture",

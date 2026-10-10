@@ -40,6 +40,14 @@
   "diskStatusBad": "Mau",
   "diskStatusUnknown": "Desconhecido",
   "temperature": "Temperatura",
+  "temperatures": {
+    "title": "Temperaturas do sistema",
+    "cpuMax": "Máximo da CPU",
+    "gpu": "GPU",
+    "refresh": "Os sensores são atualizados a cada 5 segundos",
+    "unavailable": "Indisponível",
+    "sensorHint": "As leituras dependem do suporte a sensores do hardware e do sistema operativo. No Windows, as leituras da CPU requerem o Libre Hardware Monitor ou o Open Hardware Monitor em execução com os sensores WMI ativados. As temperaturas das unidades aparecem em Estado do Disco."
+  },
   "powerOnHours": "Horas de funcionamento",
   "remainingLife": "Vida útil restante",
   "readErrors": "Erros de leitura",

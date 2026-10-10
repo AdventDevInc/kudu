@@ -40,6 +40,14 @@
   "diskStatusBad": "Неисправен",
   "diskStatusUnknown": "Неизвестно",
   "temperature": "Температура",
+  "temperatures": {
+    "title": "Температуры системы",
+    "cpuMax": "Максимум CPU",
+    "gpu": "GPU",
+    "refresh": "Датчики обновляются каждые 5 секунд",
+    "unavailable": "Недоступно",
+    "sensorHint": "Показания зависят от поддержки датчиков оборудованием и операционной системой. В Windows для отображения показаний CPU требуется запущенный Libre Hardware Monitor или Open Hardware Monitor с включёнными датчиками WMI. Температуры накопителей отображаются в разделе «Состояние дисков»."
+  },
   "powerOnHours": "Часы работы",
   "remainingLife": "Оставшийся ресурс",
   "readErrors": "Ошибки чтения",

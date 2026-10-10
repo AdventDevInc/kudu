@@ -40,6 +40,14 @@
   "diskStatusBad": "Slecht",
   "diskStatusUnknown": "Onbekend",
   "temperature": "Temperatuur",
+  "temperatures": {
+    "title": "Systeemtemperaturen",
+    "cpuMax": "CPU-maximum",
+    "gpu": "GPU",
+    "refresh": "Sensoren worden elke 5 seconden vernieuwd",
+    "unavailable": "Niet beschikbaar",
+    "sensorHint": "Meetwaarden zijn afhankelijk van de ondersteuning voor sensoren door de hardware en het besturingssysteem. Op Windows vereisen CPU-metingen dat Libre Hardware Monitor of Open Hardware Monitor wordt uitgevoerd met WMI-sensoren ingeschakeld. Schijftemperaturen worden weergegeven onder Schijfstatus."
+  },
   "powerOnHours": "Ingeschakelde uren",
   "remainingLife": "Resterende levensduur",
   "readErrors": "Leesfouten",

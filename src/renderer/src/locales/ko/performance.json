@@ -40,6 +40,14 @@
   "diskStatusBad": "불량",
   "diskStatusUnknown": "알 수 없음",
   "temperature": "온도",
+  "temperatures": {
+    "title": "시스템 온도",
+    "cpuMax": "CPU 최대값",
+    "gpu": "GPU",
+    "refresh": "센서는 5초마다 새로 고쳐집니다",
+    "unavailable": "사용할 수 없음",
+    "sensorHint": "측정값은 하드웨어 및 운영 체제의 센서 지원 여부에 따라 달라집니다. Windows에서는 WMI 센서가 활성화된 상태로 Libre Hardware Monitor 또는 Open Hardware Monitor가 실행 중이어야 CPU 측정값을 확인할 수 있습니다. 드라이브 온도는 디스크 상태에서 표시됩니다."
+  },
   "powerOnHours": "전원 켜짐 시간",
   "remainingLife": "남은 수명",
   "readErrors": "읽기 오류",
