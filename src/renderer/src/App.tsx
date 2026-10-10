@@ -1,3 +1,4 @@
+import { DownloadsReviewPage } from './pages/DownloadsReviewPage'
 import { AppSpacePage } from './pages/AppSpacePage'
 import { StorageHistoryPage } from './pages/StorageHistoryPage'
 import { useEffect, useState } from 'react'
@@ -169,6 +170,7 @@ export function App() {
             <Route path="/duplicates" element={<DuplicateFinderPage />} />
             <Route path="/app-space" element={<AppSpacePage />} />
             <Route path="/large-files" element={<LargeFileFinderPage />} />
+            <Route path="/downloads" element={<DownloadsReviewPage />} />
             <Route path="/empty-folders" element={<EmptyFolderCleanerPage />} />
             <Route path="/file-shredder" element={<FileShredderPage />} />
             <Route path="/disk-repair" element={<DiskRepairPage />} />
@@ -233,6 +235,7 @@ const ROUTE_TITLES: Record<string, { key: string }> = {
   '/duplicates': { key: 'duplicates:pageTitle' },
   '/app-space': { key: 'appSpace:pageTitle' },
   '/large-files': { key: 'largeFiles:pageTitle' },
+  '/downloads': { key: 'downloads:pageTitle' },
   '/empty-folders': { key: 'emptyFolders:pageTitle' },
   '/file-shredder': { key: 'fileShredder:pageTitle' },
   '/disk-repair': { key: 'disk:repairTitle' },

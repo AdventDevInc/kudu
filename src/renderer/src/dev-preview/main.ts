@@ -82,6 +82,67 @@ const drive = {
   isSystem: true
 }
 const reads: Record<string, (...args: any[]) => unknown> = {
+  downloadsScan: () => ({
+    scanId: 'preview-downloads',
+    directory: 'C:\\Users\\Preview\\Downloads',
+    skipped: 7,
+    limited: false,
+    files: empty
+      ? []
+      : [
+          {
+            id: 'download-1',
+            name: 'Windows_11_23H2_English_x64.iso',
+            size: 5.4 * GB,
+            modified: now - 210 * 86400000,
+            kind: 'diskImage'
+          },
+          {
+            id: 'download-2',
+            name: 'Photos-backup-2025.zip',
+            size: 2.1 * GB,
+            modified: now - 182 * 86400000,
+            kind: 'archive'
+          },
+          {
+            id: 'download-3',
+            name: 'NVIDIA-566.36-desktop-driver.exe',
+            size: 820 * 1024 ** 2,
+            modified: now - 123 * 86400000,
+            kind: 'installer'
+          },
+          {
+            id: 'download-4',
+            name: 'VSCodeUserSetup-x64-1.94.2.exe',
+            size: 110 * 1024 ** 2,
+            modified: now - 68 * 86400000,
+            kind: 'installer'
+          },
+          {
+            id: 'download-5',
+            name: 'October-project-delivery.zip',
+            size: 64 * 1024 ** 2,
+            modified: now - 45 * 86400000,
+            kind: 'archive'
+          },
+          {
+            id: 'download-6',
+            name: 'Signed-contract.pdf',
+            size: 3 * 1024 ** 2,
+            modified: now - 92 * 86400000,
+            kind: 'other'
+          },
+          {
+            id: 'download-7',
+            name: 'Latest-invoice.pdf',
+            size: 1 * 1024 ** 2,
+            modified: now - 2 * 86400000,
+            kind: 'other'
+          }
+        ]
+  }),
+  downloadsTrash: (_scanId: string, ids: string[]) => ({ trashedIds: ids, skippedIds: [] }),
+  downloadsReveal: () => undefined,
   appSpaceRetain: () => undefined,
   appSpaceScan: () => ({
     scannedAt: Date.now(),

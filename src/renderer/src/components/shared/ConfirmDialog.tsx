@@ -112,7 +112,11 @@ export function ConfirmDialog({
             </div>
           )}
           <div>
-            <h3 id="confirm-dialog-title" className="text-[16px] font-semibold text-white">
+            <h3
+              id="confirm-dialog-title"
+              className="text-[16px] font-semibold"
+              style={{ color: 'var(--text-primary)' }}
+            >
               {title}
             </h3>
             <p
