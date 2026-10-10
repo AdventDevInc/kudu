@@ -219,5 +219,67 @@
     "statusStartPending": "Başlatma Bekleniyor",
     "statusStopPending": "Durdurma Bekleniyor",
     "statusUnknown": "Bilinmiyor"
+  },
+  "appPrivacy": {
+    "views": "Gizlilik görünümleri",
+    "tab": {
+      "settings": "Sistem gizliliği",
+      "apps": "Uygulama erişimi"
+    },
+    "title": "Uygulama erişimi denetimi",
+    "description": "Kamera, mikrofon ve konum erişimi için Windows kayıtlarını inceleyin.",
+    "refresh": "Yenile",
+    "failed": "Uygulama erişim kayıtları okunamadı. Yenilemeyi deneyin.",
+    "refreshFailed": "Yenileme başarısız oldu. Önceki tarama hâlâ gösteriliyor.",
+    "loading": "Uygulama erişim kayıtları okunuyor...",
+    "unsupported": "Uygulama erişimi denetimi Windows üzerinde kullanılabilir.",
+    "account": "Hesap: {{account}} | Tarama zamanı: {{time}}",
+    "unknownAccount": "Bilinmeyen işlem hesabı",
+    "partial": "Bazı kayıtlar okunamadı veya tarama sınırına ulaşıldı. Sayılar yalnızca gösterilen kayıtları yansıtır.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Konum"
+    },
+    "entries": "kaydedilmiş giriş",
+    "recentCount": "Son 30 gün içinde kaydedilmiş kullanım bulunan: {{count}}",
+    "deviceConsent": "Cihaz ayarı",
+    "userConsent": "Hesap ayarı",
+    "desktopConsent": "Masaüstü ayarı",
+    "consent": {
+      "allow": "İzin verildi olarak kaydedildi",
+      "deny": "Reddedildi olarak kaydedildi",
+      "prompt": "İstem olarak kaydedildi",
+      "unknown": "Bilinmiyor"
+    },
+    "status": {
+      "missing": "Hesap kaydı bulunamadı.",
+      "partial": "Bazı veriler okunamadı.",
+      "unavailable": "Kayıtlar kullanılamıyor."
+    },
+    "truncated": "Tarama sınırına ulaşıldı (özellik başına 1.000 giriş).",
+    "settings": "{{capability}} ayarları",
+    "settingsFailed": "Windows Ayarları açılamadı. Gizlilik ve güvenlik bölümünü Windows Ayarları'ndan el ile açın.",
+    "limitationsTitle": "Bu kayıtlar size neler söyleyebilir",
+    "limitations": "Bunlar, kaydedilmiş ayarlar ve erişim geçmişidir; yüklü uygulamaların tam bir envanteri veya iznin fiilen geçerli olduğunun kanıtı değildir. Cihaz kısıtlamaları, kuruluş ilkeleri ve diğer denetimler kaydedilmiş onayı geçersiz kılabilir. Windows masaüstü uygulamalarını atlayabilir veya bir uygulama kaldırıldıktan sonra kayıtları tutmaya devam edebilir. Masaüstü uygulaması denetimleri Windows sürümüne ve erişim yöntemine göre değişir; kullanılabilir denetimleri Windows Ayarları'ndan yönetin. Adlar, kaydedilmiş yollardan veya paket kimliklerinden alınır ve bir yayımcıyı doğrulamaz. Tamamlanmamış bir kayıt, bir uygulamanın şu anda bir sensörü kullandığını kanıtlamaz.",
+    "accountHelp": "Bu tarama, Kudu'yu çalıştıran hesabı okur. Kudu'yu başka bir hesabın yönetici kimlik bilgileriyle başlattıysanız, bu kayıtlar o hesaba aittir. Ayarlar bunun yerine etkileşimli hesabı gösterebilir.",
+    "search": "Uygulama adlarını veya kaydedilmiş kimlikleri arayın",
+    "filter": "Özelliğe göre filtrele",
+    "all": "Tüm özellikler",
+    "recent": "Son 30 gün içinde kullanıldı",
+    "showing": "Eşleşen {{total}} kaydın {{shown}} tanesi gösteriliyor",
+    "noMatches": "Filtrelerinizle eşleşen kayıt yok.",
+    "noRecords": "Kullanılabilir erişim kaydı yok. Bu, uygulamaların erişimi olmadığı anlamına gelmez.",
+    "kind": {
+      "desktop": "Masaüstü geçmişi",
+      "packaged": "Paket kimliği"
+    },
+    "recordedConsent": "Giriş ayarı: {{consent}}",
+    "lastAccess": "Son kaydedilen başlangıç: {{time}}",
+    "lastEnd": "Kaydedilen bitiş: {{time}}",
+    "noTime": "Geçerli erişim zamanı kaydedilmedi",
+    "unfinished": "Bitiş kaydedilmedi; güncel olmayabilir",
+    "more": "Daha fazla göster",
+    "local": "Bu denetim bu bilgisayarda kalır. İzinleri değiştirmez veya erişim geçmişini temizlemez."
   }
 }
