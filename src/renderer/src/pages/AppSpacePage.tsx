@@ -1,3 +1,4 @@
+import { getAppSpaceCleanerView } from '@shared/app-space-handoff'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -78,8 +79,14 @@ export function AppSpacePage() {
     store.setStatus(ScanStatus.Scanning)
     setReviewing(true)
     setError('')
+    let reviewToken: string | null = null
     try {
-      const results = await window.kudu.appSpaceReview(entry.rules.map((rule) => rule.id))
+      const review = await window.kudu.appSpaceReview(
+        entry.rules.map((rule) => rule.id),
+        store.appSpaceHandoffToken
+      )
+      reviewToken = review.token
+      const results = review.results
       const current = useScanStore.getState()
       if (
         !mounted.current ||
@@ -93,25 +100,20 @@ export function AppSpacePage() {
       }
       store.reset()
       store.setResults(results)
+      store.setAppSpaceHandoffToken(reviewToken)
       store.setStatus(ScanStatus.Complete)
-      navigate('/cleaner', {
-        state: {
-          appSpaceCategory: results[0].category,
-          appSpaceAll: new Set(results.map((result) => result.category)).size > 1
-        }
-      })
+      navigate('/cleaner', { state: getAppSpaceCleanerView(results) })
     } catch {
       if (mounted.current) setError(t('reviewError'))
     } finally {
       const current = useScanStore.getState()
       if (current.status === ScanStatus.Scanning && current.results === previousResults)
         current.setStatus(previousStatus)
-      // Acknowledge only the settled current plan, including a previous plan after cancellation.
-      await window.kudu
-        .appSpaceRetain(
-          useScanStore.getState().results.flatMap((result) => result.items.map((item) => item.id))
-        )
-        .catch(() => {})
+      // The scalar token keeps acknowledgements independent of the number of files.
+      if (reviewToken)
+        await window.kudu
+          .appSpaceRetain(reviewToken, useScanStore.getState().appSpaceHandoffToken)
+          .catch((error) => console.error('Could not acknowledge app-space review', error))
       if (mounted.current) setReviewing(false)
     }
   }

@@ -1,3 +1,4 @@
+import { AI_TOOLS_VIEW, AI_TOOLS_GROUP } from '@shared/app-space-handoff'
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -53,8 +54,6 @@ interface CategoryDef {
   descriptionKey: string
 }
 
-const AI_TOOLS_VIEW = 'aiTools' as const
-const AI_TOOLS_GROUP = 'AI Tools'
 type CategoryType = CleanerType | typeof AI_TOOLS_VIEW
 
 const categories: CategoryDef[] = [
@@ -250,7 +249,9 @@ export function CleanerPage() {
   const location = useLocation()
   const [activeCategory, setActiveCategory] = useState<CategoryType>(() => {
     const requested = location.state?.appSpaceCategory
-    return [CleanerType.App, CleanerType.Gaming, CleanerType.Browser].includes(requested)
+    return [AI_TOOLS_VIEW, CleanerType.App, CleanerType.Gaming, CleanerType.Browser].includes(
+      requested
+    )
       ? requested
       : CleanerType.System
   })

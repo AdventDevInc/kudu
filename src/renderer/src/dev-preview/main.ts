@@ -151,25 +151,28 @@ const reads: Record<string, (...args: any[]) => unknown> = {
           }
         ]
   }),
-  appSpaceReview: (ids: string[]) => [
-    {
-      category: ids[0].startsWith('browser:') ? 'browser' : 'app',
-      subcategory: ids[0].startsWith('browser:') ? 'Chrome - Default Cache' : 'Discord',
-      totalSize: 2.4 * GB,
-      itemCount: 1,
-      items: [
-        {
-          id: 'app-space-preview',
-          path: 'C:\\Users\\Preview\\AppData\\Roaming\\discord\\Cache\\Cache_Data',
-          size: 2.4 * GB,
-          category: ids[0].startsWith('browser:') ? 'browser' : 'app',
-          subcategory: 'Discord',
-          lastModified: now - 86400000,
-          selected: true
-        }
-      ]
-    }
-  ],
+  appSpaceReview: (ids: string[]) => ({
+    token: 'preview-handoff',
+    results: [
+      {
+        category: ids[0].startsWith('browser:') ? 'browser' : 'app',
+        subcategory: ids[0].startsWith('browser:') ? 'Chrome - Default Cache' : 'Discord',
+        totalSize: 2.4 * GB,
+        itemCount: 1,
+        items: [
+          {
+            id: 'app-space-preview',
+            path: 'C:\\Users\\Preview\\AppData\\Roaming\\discord\\Cache\\Cache_Data',
+            size: 2.4 * GB,
+            category: ids[0].startsWith('browser:') ? 'browser' : 'app',
+            subcategory: 'Discord',
+            lastModified: now - 86400000,
+            selected: true
+          }
+        ]
+      }
+    ]
+  }),
   platformInfo: () => ({
     platform: 'win32',
     features: {

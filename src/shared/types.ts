@@ -1601,3 +1601,8 @@ export interface AppSpaceReport {
   unavailableRules: number
   inventoryAvailable: boolean
 }
+
+export interface AppSpaceReview {
+  token: string
+  results: ScanResult[]
+}

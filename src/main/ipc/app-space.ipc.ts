@@ -1,9 +1,10 @@
+import { AppSpaceHandoffs } from '../services/app-space-handoffs'
 import { ipcMain } from 'electron'
 import { readdir } from 'fs/promises'
 import { join } from 'path'
 import { IPC } from '../../shared/channels'
 import { CleanerType } from '../../shared/enums'
-import type { AppSpaceReport, ScanResult } from '../../shared/types'
+import type { AppSpaceReport, AppSpaceReview, ScanResult } from '../../shared/types'
 import { getPlatform } from '../platform'
 import { getInstalledProgramsFull } from '../services/program-uninstaller'
 import { scanAppRule, scanDirectory } from '../services/file-utils'
@@ -100,8 +101,9 @@ async function getRules(): Promise<SpaceRule[]> {
   return rules
 }
 let scanning: Promise<AppSpaceReport> | null = null
-const handoffIds = new Set<string>()
 export function registerAppSpaceIpc(): void {
+  const handoffs = new AppSpaceHandoffs(removeCachedItems)
+  let reviewing = false
   ipcMain.handle(IPC.APP_SPACE_SCAN, () => {
     if (scanning) return scanning
     scanning = (async () => {
@@ -130,40 +132,42 @@ export function registerAppSpaceIpc(): void {
     })
     return scanning
   })
-  ipcMain.handle(IPC.APP_SPACE_REVIEW, async (_event, ids: unknown): Promise<ScanResult[]> => {
-    if (
-      !Array.isArray(ids) ||
-      ids.length > 50 ||
-      !ids.every((id) => typeof id === 'string' && id.length < 200)
-    )
-      throw new Error('Invalid rule IDs')
-    const wanted = new Set(ids)
-    const rules = (await getRules()).filter((rule) => wanted.has(rule.id))
-    if (rules.length !== wanted.size) throw new Error('Unknown cleanup rule')
-    const measurements: AppSpaceMeasurement[] = []
-    for (const rule of rules)
-      for (const result of await rule.scan()) measurements.push({ ...rule, result })
-    const results = uniqueAppSpaceMeasurements(measurements)
-      .map((measurement) => measurement.result)
-      .filter((result) => result.items.length)
-    if (results.length) {
-      for (const result of results) {
-        for (const item of result.items) handoffIds.add(item.id)
-        cacheItems(result.items)
+  ipcMain.handle(
+    IPC.APP_SPACE_REVIEW,
+    async (_event, ids: unknown, currentToken: unknown): Promise<AppSpaceReview> => {
+      if (
+        !Array.isArray(ids) ||
+        ids.length > 50 ||
+        !ids.every((id) => typeof id === 'string' && id.length < 200)
+      )
+        throw new Error('Invalid rule IDs')
+      const wanted = new Set(ids)
+      const rules = (await getRules()).filter((rule) => wanted.has(rule.id))
+      if (rules.length !== wanted.size) throw new Error('Unknown cleanup rule')
+      if (reviewing) throw new Error('App-space review already in progress')
+      handoffs.begin(currentToken)
+      reviewing = true
+      try {
+        const measurements: AppSpaceMeasurement[] = []
+        for (const rule of rules)
+          for (const result of await rule.scan()) measurements.push({ ...rule, result })
+        const results = uniqueAppSpaceMeasurements(measurements)
+          .map((measurement) => measurement.result)
+          .filter((result) => result.items.length)
+        const token = handoffs.create(
+          results.flatMap((result) => result.items.map((item) => item.id))
+        )
+        for (const result of results) cacheItems(result.items)
+        return { token, results }
+      } finally {
+        reviewing = false
       }
     }
-    return results
-  })
-  ipcMain.handle(IPC.APP_SPACE_RETAIN, (_event, ids: unknown): void => {
-    if (
-      !Array.isArray(ids) ||
-      ids.length > 250000 ||
-      !ids.every((id) => typeof id === 'string' && id.length < 200)
-    )
-      throw new Error('Invalid retained IDs')
-    const retained = new Set(ids)
-    const retired = [...handoffIds].filter((id) => !retained.has(id))
-    removeCachedItems(retired)
-    for (const id of retired) handoffIds.delete(id)
-  })
+  )
+  ipcMain.handle(
+    IPC.APP_SPACE_RETAIN,
+    (_event, reviewToken: unknown, retainedToken: unknown): void => {
+      handoffs.settle(reviewToken, retainedToken)
+    }
+  )
 }
