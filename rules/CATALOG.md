@@ -8,8 +8,8 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 168 |
-| 🪟 Windows rules | 157 |
+| Unique app rules | 177 |
+| 🪟 Windows rules | 166 |
 | 🍎 macOS rules | 95 |
 | 🐧 Linux rules | 93 |
 
@@ -35,9 +35,15 @@
 | Cursor IDE | ✅ | ✅ | ✅ |
 | Cursor IDE Partitions | ✅ | ❌ | ❌ |
 | GitHub Copilot Logs | ✅ | ❌ | ❌ |
+| Granola | ✅ | ❌ | ❌ |
+| Granola Performance Caches | ✅ | ❌ | ❌ |
+| Pinokio | ✅ | ❌ | ❌ |
+| Pinokio Performance Caches | ✅ | ❌ | ❌ |
 | T3 Code | ✅ | ❌ | ❌ |
 | T3 Code Logs | ✅ | ❌ | ❌ |
+| T3 Code Partition Performance Caches | ✅ | ❌ | ❌ |
 | T3 Code Partitions | ✅ | ❌ | ❌ |
+| T3 Code Performance Caches | ✅ | ❌ | ❌ |
 | Windsurf IDE | ✅ | ✅ | ✅ |
 
 ## Applications
@@ -131,6 +137,7 @@
 | ShurePlus MOTIV | ✅ | ❌ | ❌ |
 | Signal Desktop | ✅ | ✅ | ✅ |
 | Slack | ✅ | ✅ | ✅ |
+| Spark Desktop Performance Caches | ✅ | ❌ | ❌ |
 | Spotify | ✅ | ✅ | ✅ |
 | Spotify Store Browser Cache | ✅ | ❌ | ❌ |
 | Spotify Store Shared Caches | ✅ | ❌ | ❌ |
@@ -158,6 +165,8 @@
 | WhatsApp Desktop | ✅ | ✅ | ✅ |
 | Windows Package Manager Logs | ✅ | ❌ | ❌ |
 | Wine | ❌ | ❌ | ✅ |
+| WSL Cleaner | ✅ | ❌ | ❌ |
+| WSL Cleaner Performance Caches | ✅ | ❌ | ❌ |
 | Yarn Cache | ✅ | ✅ | ✅ |
 | Zed Editor | ✅ | ✅ | ✅ |
 | Zen Browser | ✅ | ✅ | ✅ |
