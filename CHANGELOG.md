@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/adventdevinc/kudu/compare/v3.7.0...v3.8.0) (2026-10-10)
+
+
+### Features
+
+* **cleaner:** add shareable cleanup result cards ([#528](https://github.com/adventdevinc/kudu/issues/528)) ([758352b](https://github.com/adventdevinc/kudu/commit/758352bc2148937c23a64927ea08fc2ea39c2153))
+* **performance:** add CPU and GPU temperature monitoring ([#530](https://github.com/adventdevinc/kudu/issues/530)) ([76a4221](https://github.com/adventdevinc/kudu/commit/76a42211134227b8f4f957f35d060fb75e8aabdd))
 # [3.7.0](https://github.com/adventdevinc/kudu/compare/v3.6.1...v3.7.0) (2026-10-10)
 
 
