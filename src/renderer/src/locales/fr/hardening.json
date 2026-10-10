@@ -219,5 +219,67 @@
     "statusStartPending": "Démarrage en attente",
     "statusStopPending": "Arrêt en attente",
     "statusUnknown": "Inconnu"
+  },
+  "appPrivacy": {
+    "views": "Vues de confidentialité",
+    "tab": {
+      "settings": "Confidentialité du système",
+      "apps": "Accès des applications"
+    },
+    "title": "Audit des accès des applications",
+    "description": "Examinez les enregistrements Windows des accès à la caméra, au microphone et à la localisation.",
+    "refresh": "Actualiser",
+    "failed": "Impossible de lire les enregistrements d’accès des applications. Essayez d’actualiser.",
+    "refreshFailed": "L’actualisation a échoué. L’analyse précédente est toujours affichée.",
+    "loading": "Lecture des enregistrements d’accès des applications...",
+    "unsupported": "L’audit des accès des applications est disponible sur Windows.",
+    "account": "Compte : {{account}} | Analyse effectuée {{time}}",
+    "unknownAccount": "Compte de processus inconnu",
+    "partial": "Certains enregistrements n’ont pas pu être lus ou la limite d’analyse a été atteinte. Les nombres reflètent uniquement les enregistrements affichés.",
+    "capability": {
+      "webcam": "Caméra",
+      "microphone": "Microphone",
+      "location": "Localisation"
+    },
+    "entries": "entrées enregistrées",
+    "recentCount": "{{count}} avec une utilisation enregistrée au cours des 30 derniers jours",
+    "deviceConsent": "Paramètre de l’appareil",
+    "userConsent": "Paramètre du compte",
+    "desktopConsent": "Paramètre du bureau",
+    "consent": {
+      "allow": "Autorisation enregistrée",
+      "deny": "Refus enregistré",
+      "prompt": "Demande enregistrée",
+      "unknown": "Inconnu"
+    },
+    "status": {
+      "missing": "Aucun enregistrement de compte trouvé.",
+      "partial": "Certaines données n’ont pas pu être lues.",
+      "unavailable": "Enregistrements indisponibles."
+    },
+    "truncated": "Limite d’analyse atteinte (1 000 entrées par capacité).",
+    "settings": "Paramètres de {{capability}}",
+    "settingsFailed": "Impossible d’ouvrir les Paramètres Windows. Ouvrez manuellement Confidentialité et sécurité dans les Paramètres Windows.",
+    "limitationsTitle": "Ce que ces enregistrements peuvent vous indiquer",
+    "limitations": "Il s’agit de paramètres enregistrés et d’un historique d’accès, et non d’un inventaire complet des applications installées ni d’une preuve d’autorisation effective. Les restrictions de l’appareil, les stratégies de l’organisation et d’autres contrôles peuvent remplacer le consentement enregistré. Windows peut omettre des applications de bureau ou conserver des enregistrements après la suppression d’une application. Les contrôles des applications de bureau varient selon la version de Windows et la méthode d’accès ; gérez les contrôles disponibles dans les Paramètres Windows. Les noms proviennent de chemins enregistrés ou d’identités de package et ne vérifient pas un éditeur. Un enregistrement inachevé ne prouve pas qu’une application utilise actuellement un capteur.",
+    "accountHelp": "Cette analyse lit le compte qui exécute Kudu. Si vous avez lancé Kudu avec les informations d’identification d’administrateur d’un autre compte, ces enregistrements appartiennent à ce compte. Les paramètres peuvent afficher le compte interactif à la place.",
+    "search": "Rechercher des noms d’application ou des identités enregistrées",
+    "filter": "Filtrer la capacité",
+    "all": "Toutes les capacités",
+    "recent": "Utilisé au cours des 30 derniers jours",
+    "showing": "Affichage de {{shown}} sur {{total}} enregistrements correspondants",
+    "noMatches": "Aucun enregistrement ne correspond à vos filtres.",
+    "noRecords": "Aucun enregistrement d’accès n’est disponible. Cela ne signifie pas que les applications n’ont aucun accès.",
+    "kind": {
+      "desktop": "Historique du bureau",
+      "packaged": "Identité du package"
+    },
+    "recordedConsent": "Paramètre de l’entrée : {{consent}}",
+    "lastAccess": "Dernier début enregistré : {{time}}",
+    "lastEnd": "Fin enregistrée : {{time}}",
+    "noTime": "Aucune heure d’accès valide enregistrée",
+    "unfinished": "Aucune fin enregistrée ; peut être obsolète",
+    "more": "Afficher plus",
+    "local": "Cet audit reste sur ce PC. Il ne modifie pas les autorisations et n’efface pas l’historique d’accès."
   }
 }

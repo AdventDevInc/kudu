@@ -219,5 +219,67 @@
     "statusStartPending": "Menunggu Mulai",
     "statusStopPending": "Menunggu Berhenti",
     "statusUnknown": "Tidak diketahui"
+  },
+  "appPrivacy": {
+    "views": "Tampilan privasi",
+    "tab": {
+      "settings": "Privasi sistem",
+      "apps": "Akses aplikasi"
+    },
+    "title": "Audit akses aplikasi",
+    "description": "Tinjau catatan Windows untuk akses kamera, mikrofon, dan lokasi.",
+    "refresh": "Segarkan",
+    "failed": "Tidak dapat membaca catatan akses aplikasi. Coba segarkan.",
+    "refreshFailed": "Penyegaran gagal. Hasil pemindaian sebelumnya masih ditampilkan.",
+    "loading": "Membaca catatan akses aplikasi...",
+    "unsupported": "Audit akses aplikasi tersedia di Windows.",
+    "account": "Akun: {{account}} | Dipindai {{time}}",
+    "unknownAccount": "Akun proses tidak diketahui",
+    "partial": "Beberapa catatan tidak dapat dibaca atau batas pemindaian telah tercapai. Jumlah hanya mencerminkan catatan yang ditampilkan.",
+    "capability": {
+      "webcam": "Kamera",
+      "microphone": "Mikrofon",
+      "location": "Lokasi"
+    },
+    "entries": "entri yang tercatat",
+    "recentCount": "{{count}} dengan penggunaan yang tercatat dalam 30 hari terakhir",
+    "deviceConsent": "Pengaturan perangkat",
+    "userConsent": "Pengaturan akun",
+    "desktopConsent": "Pengaturan desktop",
+    "consent": {
+      "allow": "Izinkan tercatat",
+      "deny": "Tolak tercatat",
+      "prompt": "Minta konfirmasi tercatat",
+      "unknown": "Tidak diketahui"
+    },
+    "status": {
+      "missing": "Tidak ditemukan catatan akun.",
+      "partial": "Beberapa data tidak dapat dibaca.",
+      "unavailable": "Catatan tidak tersedia."
+    },
+    "truncated": "Batas pemindaian tercapai (1.000 entri per kapabilitas).",
+    "settings": "Pengaturan {{capability}}",
+    "settingsFailed": "Windows Settings tidak dapat dibuka. Buka Privasi & keamanan di Windows Settings secara manual.",
+    "limitationsTitle": "Apa yang dapat ditunjukkan oleh catatan ini",
+    "limitations": "Ini adalah pengaturan yang tercatat dan riwayat akses, bukan inventaris lengkap aplikasi yang terpasang atau bukti izin yang benar-benar berlaku. Pembatasan perangkat, kebijakan organisasi, dan kontrol lainnya dapat menggantikan persetujuan yang tercatat. Windows mungkin mengabaikan aplikasi desktop atau menyimpan catatan setelah aplikasi dihapus. Kontrol aplikasi desktop berbeda-beda menurut versi Windows dan metode akses; kelola kontrol yang tersedia di Windows Settings. Nama berasal dari jalur yang tercatat atau identitas paket dan tidak memverifikasi penerbit. Catatan yang belum selesai tidak membuktikan bahwa aplikasi sedang menggunakan sensor saat ini.",
+    "accountHelp": "Pemindaian ini membaca akun yang menjalankan Kudu. Jika Anda menjalankan Kudu dengan kredensial administrator dari akun lain, catatan ini milik akun tersebut. Pengaturan mungkin menampilkan akun interaktif sebagai gantinya.",
+    "search": "Cari nama aplikasi atau identitas yang tercatat",
+    "filter": "Filter kapabilitas",
+    "all": "Semua kapabilitas",
+    "recent": "Digunakan dalam 30 hari terakhir",
+    "showing": "Menampilkan {{shown}} dari {{total}} catatan yang cocok",
+    "noMatches": "Tidak ada catatan yang cocok dengan filter Anda.",
+    "noRecords": "Tidak ada catatan akses yang tersedia. Ini tidak berarti aplikasi tidak memiliki akses.",
+    "kind": {
+      "desktop": "Riwayat desktop",
+      "packaged": "Identitas paket"
+    },
+    "recordedConsent": "Pengaturan entri: {{consent}}",
+    "lastAccess": "Mulai terakhir yang tercatat: {{time}}",
+    "lastEnd": "Selesai tercatat: {{time}}",
+    "noTime": "Tidak ada waktu akses valid yang tercatat",
+    "unfinished": "Tidak ada akhir yang tercatat; mungkin sudah usang",
+    "more": "Tampilkan lebih banyak",
+    "local": "Audit ini tetap berada di PC ini. Audit ini tidak mengubah izin atau menghapus riwayat akses."
   }
 }

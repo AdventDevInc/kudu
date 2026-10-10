@@ -219,5 +219,67 @@
     "statusStartPending": "시작 대기 중",
     "statusStopPending": "중지 대기 중",
     "statusUnknown": "알 수 없음"
+  },
+  "appPrivacy": {
+    "views": "개인 정보 보기",
+    "tab": {
+      "settings": "시스템 개인 정보",
+      "apps": "앱 액세스"
+    },
+    "title": "앱 액세스 감사",
+    "description": "카메라, 마이크 및 위치 액세스에 대한 Windows 기록을 검토합니다.",
+    "refresh": "새로 고침",
+    "failed": "앱 액세스 기록을 읽을 수 없습니다. 새로 고침을 시도하세요.",
+    "refreshFailed": "새로 고침에 실패했습니다. 이전 검사 결과가 계속 표시됩니다.",
+    "loading": "앱 액세스 기록을 읽는 중...",
+    "unsupported": "앱 액세스 감사는 Windows에서 사용할 수 있습니다.",
+    "account": "계정: {{account}} | 검사 {{time}}",
+    "unknownAccount": "알 수 없는 프로세스 계정",
+    "partial": "일부 기록을 읽을 수 없거나 검사 한도에 도달했습니다. 개수는 표시된 기록만 반영합니다.",
+    "capability": {
+      "webcam": "카메라",
+      "microphone": "마이크",
+      "location": "위치"
+    },
+    "entries": "기록된 항목",
+    "recentCount": "지난 30일 내 기록된 사용 {{count}}건",
+    "deviceConsent": "장치 설정",
+    "userConsent": "계정 설정",
+    "desktopConsent": "데스크톱 설정",
+    "consent": {
+      "allow": "허용 기록됨",
+      "deny": "거부 기록됨",
+      "prompt": "확인 기록됨",
+      "unknown": "알 수 없음"
+    },
+    "status": {
+      "missing": "계정 기록을 찾을 수 없습니다.",
+      "partial": "일부 데이터를 읽을 수 없습니다.",
+      "unavailable": "기록을 사용할 수 없습니다."
+    },
+    "truncated": "검사 한도에 도달했습니다(기능별 1,000개 항목).",
+    "settings": "{{capability}} 설정",
+    "settingsFailed": "Windows 설정을 열 수 없습니다. Windows 설정에서 개인 정보 및 보안을 수동으로 여세요.",
+    "limitationsTitle": "이 기록으로 확인할 수 있는 내용",
+    "limitations": "이 정보는 기록된 설정 및 액세스 기록이며, 설치된 앱의 전체 목록이나 실제 권한의 증거는 아닙니다. 장치 제한, 조직 정책 및 기타 제어는 기록된 동의보다 우선할 수 있습니다. Windows는 데스크톱 앱을 생략하거나 앱이 제거된 후에도 기록을 유지할 수 있습니다. 데스크톱 앱 제어는 Windows 버전 및 액세스 방식에 따라 다르며, 사용 가능한 제어는 Windows 설정에서 관리하세요. 이름은 기록된 경로나 패키지 ID에서 가져오며 게시자를 확인하지는 않습니다. 완료되지 않은 기록이 있다고 해서 앱이 현재 센서를 사용 중이라는 뜻은 아닙니다.",
+    "accountHelp": "이 검사는 Kudu를 실행 중인 계정을 읽습니다. 다른 계정의 관리자 자격 증명으로 Kudu를 실행한 경우, 이 기록은 해당 계정에 속합니다. 대신 설정에는 대화형 계정이 표시될 수 있습니다.",
+    "search": "앱 이름 또는 기록된 ID 검색",
+    "filter": "기능 필터",
+    "all": "모든 기능",
+    "recent": "지난 30일 내 사용됨",
+    "showing": "일치하는 기록 {{total}}개 중 {{shown}}개 표시",
+    "noMatches": "필터와 일치하는 기록이 없습니다.",
+    "noRecords": "사용 가능한 액세스 기록이 없습니다. 그렇다고 해서 앱에 액세스 권한이 없다는 뜻은 아닙니다.",
+    "kind": {
+      "desktop": "데스크톱 기록",
+      "packaged": "패키지 ID"
+    },
+    "recordedConsent": "항목 설정: {{consent}}",
+    "lastAccess": "마지막 기록된 시작: {{time}}",
+    "lastEnd": "기록된 종료: {{time}}",
+    "noTime": "유효한 액세스 시간이 기록되지 않음",
+    "unfinished": "종료 기록 없음, 오래된 정보일 수 있음",
+    "more": "더 보기",
+    "local": "이 감사는 이 PC에만 유지됩니다. 권한을 변경하거나 액세스 기록을 지우지 않습니다."
   }
 }

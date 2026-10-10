@@ -219,5 +219,67 @@
     "statusStartPending": "Avvio in sospeso",
     "statusStopPending": "Arresto in sospeso",
     "statusUnknown": "Sconosciuto"
+  },
+  "appPrivacy": {
+    "views": "Viste privacy",
+    "tab": {
+      "settings": "Privacy del sistema",
+      "apps": "Accesso delle app"
+    },
+    "title": "Verifica dell'accesso delle app",
+    "description": "Esamina i record di Windows relativi all'accesso a fotocamera, microfono e posizione.",
+    "refresh": "Aggiorna",
+    "failed": "Impossibile leggere i record di accesso delle app. Prova ad aggiornare.",
+    "refreshFailed": "Aggiornamento non riuscito. È ancora visualizzata la scansione precedente.",
+    "loading": "Lettura dei record di accesso delle app in corso...",
+    "unsupported": "La verifica dell'accesso delle app è disponibile in Windows.",
+    "account": "Account: {{account}} | Scansionato {{time}}",
+    "unknownAccount": "Account del processo sconosciuto",
+    "partial": "Non è stato possibile leggere alcuni record oppure è stato raggiunto il limite di scansione. I conteggi riflettono solo i record mostrati.",
+    "capability": {
+      "webcam": "Fotocamera",
+      "microphone": "Microfono",
+      "location": "Posizione"
+    },
+    "entries": "voci registrate",
+    "recentCount": "{{count}} con utilizzo registrato negli ultimi 30 giorni",
+    "deviceConsent": "Impostazione del dispositivo",
+    "userConsent": "Impostazione dell'account",
+    "desktopConsent": "Impostazione desktop",
+    "consent": {
+      "allow": "Consenso registrato",
+      "deny": "Rifiuto registrato",
+      "prompt": "Richiesta registrata",
+      "unknown": "Sconosciuto"
+    },
+    "status": {
+      "missing": "Nessun record dell'account trovato.",
+      "partial": "Non è stato possibile leggere alcuni dati.",
+      "unavailable": "Record non disponibili."
+    },
+    "truncated": "Limite di scansione raggiunto (1.000 voci per funzionalità).",
+    "settings": "Impostazioni di {{capability}}",
+    "settingsFailed": "Impossibile aprire Impostazioni di Windows. Apri manualmente Privacy e sicurezza in Impostazioni di Windows.",
+    "limitationsTitle": "Cosa possono indicare questi record",
+    "limitations": "Si tratta di impostazioni registrate e cronologia degli accessi, non di un inventario completo delle app installate né di una prova dell'effettiva autorizzazione. Restrizioni del dispositivo, criteri dell'organizzazione e altri controlli possono prevalere sul consenso registrato. Windows potrebbe omettere le app desktop o conservare i record dopo la rimozione di un'app. I controlli per le app desktop variano in base alla versione di Windows e al metodo di accesso; gestisci i controlli disponibili in Impostazioni di Windows. I nomi provengono da percorsi registrati o identità dei pacchetti e non verificano l'autore. Un record incompleto non dimostra che un'app stia attualmente usando un sensore.",
+    "accountHelp": "Questa scansione legge l'account con cui è in esecuzione Kudu. Se hai avviato Kudu con le credenziali di amministratore di un altro account, questi record appartengono a quell'account. Le impostazioni potrebbero invece mostrare l'account interattivo.",
+    "search": "Cerca nomi delle app o identità registrate",
+    "filter": "Filtra funzionalità",
+    "all": "Tutte le funzionalità",
+    "recent": "Usate negli ultimi 30 giorni",
+    "showing": "Visualizzazione di {{shown}} record corrispondenti su {{total}}",
+    "noMatches": "Nessun record corrisponde ai filtri selezionati.",
+    "noRecords": "Nessun record di accesso disponibile. Questo non significa che le app non abbiano accesso.",
+    "kind": {
+      "desktop": "Cronologia desktop",
+      "packaged": "Identità del pacchetto"
+    },
+    "recordedConsent": "Impostazione della voce: {{consent}}",
+    "lastAccess": "Ultimo avvio registrato: {{time}}",
+    "lastEnd": "Fine registrata: {{time}}",
+    "noTime": "Nessun orario di accesso valido registrato",
+    "unfinished": "Nessuna fine registrata; potrebbe non essere aggiornato",
+    "more": "Mostra altro",
+    "local": "Questa verifica resta su questo PC. Non modifica le autorizzazioni né cancella la cronologia degli accessi."
   }
 }

@@ -219,5 +219,67 @@
     "statusStartPending": "Inicio pendiente",
     "statusStopPending": "Detención pendiente",
     "statusUnknown": "Desconocido"
+  },
+  "appPrivacy": {
+    "views": "Vistas de privacidad",
+    "tab": {
+      "settings": "Privacidad del sistema",
+      "apps": "Acceso de aplicaciones"
+    },
+    "title": "Auditoría de acceso de aplicaciones",
+    "description": "Revise los registros de Windows sobre el acceso a la cámara, el micrófono y la ubicación.",
+    "refresh": "Actualizar",
+    "failed": "No se pudieron leer los registros de acceso de las aplicaciones. Intente actualizar.",
+    "refreshFailed": "La actualización falló. Se sigue mostrando el análisis anterior.",
+    "loading": "Leyendo los registros de acceso de las aplicaciones...",
+    "unsupported": "La auditoría de acceso de aplicaciones está disponible en Windows.",
+    "account": "Cuenta: {{account}} | Analizado {{time}}",
+    "unknownAccount": "Cuenta de proceso desconocida",
+    "partial": "No se pudieron leer algunos registros o se alcanzó el límite del análisis. Los recuentos reflejan solo los registros mostrados.",
+    "capability": {
+      "webcam": "Cámara",
+      "microphone": "Micrófono",
+      "location": "Ubicación"
+    },
+    "entries": "entradas registradas",
+    "recentCount": "{{count}} con uso registrado en los últimos 30 días",
+    "deviceConsent": "Configuración del dispositivo",
+    "userConsent": "Configuración de la cuenta",
+    "desktopConsent": "Configuración del escritorio",
+    "consent": {
+      "allow": "Permitir registrado",
+      "deny": "Denegar registrado",
+      "prompt": "Solicitud registrada",
+      "unknown": "Desconocido"
+    },
+    "status": {
+      "missing": "No se encontraron registros de la cuenta.",
+      "partial": "No se pudieron leer algunos datos.",
+      "unavailable": "Registros no disponibles."
+    },
+    "truncated": "Se alcanzó el límite del análisis (1.000 entradas por capacidad).",
+    "settings": "Configuración de {{capability}}",
+    "settingsFailed": "No se pudo abrir Configuración de Windows. Abra Privacidad y seguridad en Configuración de Windows manualmente.",
+    "limitationsTitle": "Qué pueden indicarle estos registros",
+    "limitations": "Estos son ajustes registrados e historial de acceso, no un inventario completo de las aplicaciones instaladas ni una prueba de permiso efectivo. Las restricciones del dispositivo, las directivas de la organización y otros controles pueden anular el consentimiento registrado. Windows puede omitir aplicaciones de escritorio o conservar registros después de que se quite una aplicación. Los controles de aplicaciones de escritorio varían según la versión de Windows y el método de acceso; administre los controles disponibles en Configuración de Windows. Los nombres provienen de rutas registradas o identidades de paquete y no verifican un editor. Un registro incompleto no demuestra que una aplicación esté usando actualmente un sensor.",
+    "accountHelp": "Este análisis lee la cuenta que ejecuta Kudu. Si inició Kudu con credenciales de administrador de otra cuenta, estos registros pertenecen a esa cuenta. En su lugar, la configuración puede mostrar la cuenta interactiva.",
+    "search": "Buscar nombres de aplicaciones o identidades registradas",
+    "filter": "Filtrar capacidad",
+    "all": "Todas las capacidades",
+    "recent": "Usado en los últimos 30 días",
+    "showing": "Mostrando {{shown}} de {{total}} registros coincidentes",
+    "noMatches": "Ningún registro coincide con sus filtros.",
+    "noRecords": "No hay registros de acceso disponibles. Esto no significa que las aplicaciones no tengan acceso.",
+    "kind": {
+      "desktop": "Historial de escritorio",
+      "packaged": "Identidad de paquete"
+    },
+    "recordedConsent": "Configuración de la entrada: {{consent}}",
+    "lastAccess": "Último inicio registrado: {{time}}",
+    "lastEnd": "Fin registrado: {{time}}",
+    "noTime": "No se registró una hora de acceso válida",
+    "unfinished": "No se registró el fin; puede estar desactualizado",
+    "more": "Mostrar más",
+    "local": "Esta auditoría permanece en este PC. No cambia los permisos ni borra el historial de acceso."
   }
 }
