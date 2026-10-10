@@ -40,6 +40,14 @@
   "diskStatusBad": "Buruk",
   "diskStatusUnknown": "Tidak diketahui",
   "temperature": "Suhu",
+  "temperatures": {
+    "title": "Suhu sistem",
+    "cpuMax": "Maksimum CPU",
+    "gpu": "GPU",
+    "refresh": "Sensor dimuat semula setiap 5 saat",
+    "unavailable": "Tidak tersedia",
+    "sensorHint": "Bacaan bergantung pada perkakasan dan sokongan sensor sistem pengendalian. Pada Windows, bacaan CPU memerlukan Libre Hardware Monitor atau Open Hardware Monitor berjalan dengan sensor WMI didayakan. Suhu pemacu dipaparkan di bawah Kesihatan Cakera."
+  },
   "powerOnHours": "Jam Dihidupkan",
   "remainingLife": "Jangka Hayat Baki",
   "readErrors": "Ralat Bacaan",

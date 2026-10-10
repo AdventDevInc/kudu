@@ -40,6 +40,14 @@
   "diskStatusBad": "Zły",
   "diskStatusUnknown": "Nieznany",
   "temperature": "Temperatura",
+  "temperatures": {
+    "title": "Temperatury systemu",
+    "cpuMax": "Maksimum CPU",
+    "gpu": "GPU",
+    "refresh": "Czujniki odświeżają się co 5 sekund",
+    "unavailable": "Niedostępne",
+    "sensorHint": "Odczyty zależą od sprzętu i obsługi czujników przez system operacyjny. W systemie Windows odczyty CPU wymagają uruchomionego programu Libre Hardware Monitor lub Open Hardware Monitor z włączonymi czujnikami WMI. Temperatury dysków są wyświetlane w sekcji Kondycja dysku."
+  },
   "powerOnHours": "Godziny pracy",
   "remainingLife": "Pozostała żywotność",
   "readErrors": "Błędy odczytu",

@@ -40,6 +40,14 @@
   "diskStatusBad": "Špatný",
   "diskStatusUnknown": "Neznámý",
   "temperature": "Teplota",
+  "temperatures": {
+    "title": "Teploty systému",
+    "cpuMax": "Maximum CPU",
+    "gpu": "GPU",
+    "refresh": "Senzory se obnovují každých 5 sekund",
+    "unavailable": "Není k dispozici",
+    "sensorHint": "Naměřené hodnoty závisí na podpoře senzorů hardwaru a operačního systému. Ve Windows vyžadují údaje CPU spuštěný Libre Hardware Monitor nebo Open Hardware Monitor s povolenými senzory WMI. Teploty disků se zobrazují v části Stav disku."
+  },
   "powerOnHours": "Hodiny provozu",
   "remainingLife": "Zbývající životnost",
   "readErrors": "Chyby čtení",

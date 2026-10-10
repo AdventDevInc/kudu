@@ -67,6 +67,15 @@ const emit = (name: string, data: unknown) =>
 let quickCount = 0
 let monitoring: ReturnType<typeof setInterval> | undefined
 const snapshot = (i: number): PerfSnapshot => ({
+  temperatures: {
+    sampledAt: Date.now(),
+    cpuCelsius: 48 + (i % 5),
+    cpuMaxCelsius: 56 + (i % 5),
+    gpus: [
+      { name: 'NVIDIA GeForce RTX 4090', celsius: 42 + (i % 3) },
+      { name: 'Intel UHD Graphics', celsius: null }
+    ]
+  },
   timestamp: Date.now() - (90 - i) * 1000,
   cpu: { overall: 12 + Math.round(Math.abs(Math.sin(i * 0.9)) * 22), perCore: Array(12).fill(12) },
   memory: { usedBytes: 8.4 * GB, totalBytes: 32 * GB, cachedBytes: 2 * GB, percent: 26 },

@@ -40,6 +40,14 @@
   "diskStatusBad": "खराब",
   "diskStatusUnknown": "अज्ञात",
   "temperature": "तापमान",
+  "temperatures": {
+    "title": "सिस्टम तापमान",
+    "cpuMax": "CPU अधिकतम",
+    "gpu": "GPU",
+    "refresh": "सेंसर हर 5 सेकंड में रीफ़्रेश होते हैं",
+    "unavailable": "उपलब्ध नहीं",
+    "sensorHint": "रीडिंग हार्डवेयर और ऑपरेटिंग सिस्टम के सेंसर समर्थन पर निर्भर करती हैं। Windows पर, CPU रीडिंग के लिए Libre Hardware Monitor या Open Hardware Monitor का WMI सेंसर सक्षम करके चलना आवश्यक है। ड्राइव तापमान Disk Health के अंतर्गत दिखाई देते हैं।"
+  },
   "powerOnHours": "पावर-ऑन घंटे",
   "remainingLife": "शेष आयु",
   "readErrors": "पठन त्रुटियाँ",

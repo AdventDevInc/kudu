@@ -6,6 +6,7 @@ import { IPC } from '../../shared/channels'
 import type {
   PerfSystemInfo,
   PerfSnapshot,
+  PerfTemperatures,
   PerfProcessList,
   PerfKillResult,
   DiskSmartInfo,
@@ -13,6 +14,7 @@ import type {
 } from '../../shared/types'
 import { psUtf8 } from './exec-utf8'
 import { collectWindowsMemory } from './perf-memory'
+import { collectTemperatures } from './perf-temperatures'
 import { mapPerfProcesses } from './perf-processes'
 import { PosixProcessSampler, getPosixProcessIdentity } from './perf-posix-processes'
 
@@ -21,6 +23,9 @@ const execFileAsync = promisify(execFile)
 export class PerfMonitorService {
   private fastTimer: ReturnType<typeof setInterval> | null = null
   private slowTimer: ReturnType<typeof setInterval> | null = null
+  private temperatureTimer: ReturnType<typeof setInterval> | null = null
+  private temperatureGeneration: number | null = null
+  private cachedTemperatures: PerfTemperatures | undefined
   private sender: Electron.WebContents | null = null
   private cachedSystemInfo: PerfSystemInfo | null = null
   private startupExeMap: Map<string, string> = new Map()
@@ -87,10 +92,18 @@ export class PerfMonitorService {
     // Slow interval: process list every 10s (si.processes() is expensive)
     this.slowTimer = setInterval(() => this.collectProcesses(), 10000)
     this.collectProcesses()
+    // Sensor providers can be slow. Keep them off the one-second snapshot path.
+    this.temperatureTimer = setInterval(() => this.collectTemperatureSample(), 5000)
+    this.collectTemperatureSample()
   }
 
   stopMonitoring(): void {
     this.generation++
+    if (this.temperatureTimer) {
+      clearInterval(this.temperatureTimer)
+      this.temperatureTimer = null
+    }
+    this.cachedTemperatures = undefined
     if (this.fastTimer) {
       clearInterval(this.fastTimer)
       this.fastTimer = null
@@ -270,6 +283,22 @@ export class PerfMonitorService {
     return map
   }
 
+  private async collectTemperatureSample(): Promise<void> {
+    if (this.temperatureGeneration === this.generation || !this.sender || this.sender.isDestroyed())
+      return
+    const generation = this.generation
+    this.temperatureGeneration = generation
+    try {
+      const temperatures = await collectTemperatures()
+      if (generation === this.generation) this.cachedTemperatures = temperatures
+    } catch {
+      if (generation === this.generation) this.cachedTemperatures = undefined
+    } finally {
+      // A stopped session may finish after the next session has begun polling.
+      if (this.temperatureGeneration === generation) this.temperatureGeneration = null
+    }
+  }
+
   private async collectSnapshot(): Promise<void> {
     if (!this.sender || this.sender.isDestroyed()) {
       this.stopMonitoring()
@@ -341,7 +370,11 @@ export class PerfMonitorService {
           writeBytesPerSec: disk?.wIO_sec ?? 0
         },
         network: this.cachedNetworkStats,
-        uptime: si.time().uptime
+        uptime: si.time().uptime,
+        temperatures:
+          this.cachedTemperatures && now - this.cachedTemperatures.sampledAt <= 15000
+            ? this.cachedTemperatures
+            : undefined
       }
 
       if (generation === this.generation && !sender.isDestroyed()) {

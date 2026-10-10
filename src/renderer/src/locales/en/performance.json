@@ -40,6 +40,14 @@
   "diskStatusBad": "Bad",
   "diskStatusUnknown": "Unknown",
   "temperature": "Temperature",
+  "temperatures": {
+    "title": "System temperatures",
+    "cpuMax": "CPU maximum",
+    "gpu": "GPU",
+    "refresh": "Sensors refresh every 5 seconds",
+    "unavailable": "Unavailable",
+    "sensorHint": "Readings depend on hardware and operating system sensor support. On Windows, CPU readings require Libre Hardware Monitor or Open Hardware Monitor running with WMI sensors enabled. Drive temperatures appear under Disk Health."
+  },
   "powerOnHours": "Power-On Hours",
   "remainingLife": "Remaining Life",
   "readErrors": "Read Errors",

@@ -40,6 +40,14 @@
   "diskStatusBad": "異常",
   "diskStatusUnknown": "不明",
   "temperature": "温度",
+  "temperatures": {
+    "title": "システム温度",
+    "cpuMax": "CPU 最大",
+    "gpu": "GPU",
+    "refresh": "センサーは 5 秒ごとに更新されます",
+    "unavailable": "利用不可",
+    "sensorHint": "測定値は、ハードウェアおよびオペレーティング システムのセンサー サポートに依存します。Windows では、CPU の測定値を表示するには、WMI センサーを有効にした Libre Hardware Monitor または Open Hardware Monitor を実行する必要があります。ドライブ温度は「ディスクの正常性」に表示されます。"
+  },
   "powerOnHours": "通電時間",
   "remainingLife": "残り寿命",
   "readErrors": "読み取りエラー",

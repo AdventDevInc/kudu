@@ -40,6 +40,14 @@
   "diskStatusBad": "Defectă",
   "diskStatusUnknown": "Necunoscută",
   "temperature": "Temperatură",
+  "temperatures": {
+    "title": "Temperaturi sistem",
+    "cpuMax": "CPU maxim",
+    "gpu": "GPU",
+    "refresh": "Senzorii se actualizează la fiecare 5 secunde",
+    "unavailable": "Indisponibil",
+    "sensorHint": "Valorile depind de suportul pentru senzori al componentelor hardware și al sistemului de operare. În Windows, valorile CPU necesită ca Libre Hardware Monitor sau Open Hardware Monitor să ruleze cu senzorii WMI activați. Temperaturile unităților apar la Starea discului."
+  },
   "powerOnHours": "Ore de funcționare",
   "remainingLife": "Durată de viață rămasă",
   "readErrors": "Erori de citire",

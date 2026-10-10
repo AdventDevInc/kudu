@@ -40,6 +40,14 @@
   "diskStatusBad": "Huono",
   "diskStatusUnknown": "Tuntematon",
   "temperature": "Lämpötila",
+  "temperatures": {
+    "title": "Järjestelmän lämpötilat",
+    "cpuMax": "CPU:n enimmäislämpötila",
+    "gpu": "GPU",
+    "refresh": "Anturit päivittyvät 5 sekunnin välein",
+    "unavailable": "Ei käytettävissä",
+    "sensorHint": "Lukemat riippuvat laitteiston ja käyttöjärjestelmän anturituesta. Windowsissa CPU-lukemat edellyttävät, että Libre Hardware Monitor tai Open Hardware Monitor on käynnissä ja WMI-anturit ovat käytössä. Asemien lämpötilat näkyvät kohdassa Levyn kunto."
+  },
   "powerOnHours": "Käyttötunnit",
   "remainingLife": "Jäljellä oleva käyttöikä",
   "readErrors": "Lukuvirheet",

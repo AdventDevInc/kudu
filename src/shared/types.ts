@@ -633,6 +633,13 @@ export interface PerfQuickStats {
   memPercent: number
 }
 
+export interface PerfTemperatures {
+  sampledAt: number
+  cpuCelsius: number | null
+  cpuMaxCelsius: number | null
+  gpus: Array<{ name: string; celsius: number | null }>
+}
+
 export interface PerfSnapshot {
   timestamp: number
   cpu: { overall: number; perCore: number[] }
@@ -646,6 +653,7 @@ export interface PerfSnapshot {
   disk: { readBytesPerSec: number; writeBytesPerSec: number }
   network: { rxBytesPerSec: number; txBytesPerSec: number }
   uptime: number
+  temperatures?: PerfTemperatures
 }
 
 export interface PerfProcess {

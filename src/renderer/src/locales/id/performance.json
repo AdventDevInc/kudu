@@ -40,6 +40,14 @@
   "diskStatusBad": "Buruk",
   "diskStatusUnknown": "Tidak diketahui",
   "temperature": "Suhu",
+  "temperatures": {
+    "title": "Suhu sistem",
+    "cpuMax": "Maksimum CPU",
+    "gpu": "GPU",
+    "refresh": "Sensor diperbarui setiap 5 detik",
+    "unavailable": "Tidak tersedia",
+    "sensorHint": "Pembacaan bergantung pada dukungan sensor perangkat keras dan sistem operasi. Di Windows, pembacaan CPU memerlukan Libre Hardware Monitor atau Open Hardware Monitor yang berjalan dengan sensor WMI diaktifkan. Suhu drive ditampilkan di Kesehatan Disk."
+  },
   "powerOnHours": "Jam Menyala",
   "remainingLife": "Sisa Umur",
   "readErrors": "Kesalahan Baca",

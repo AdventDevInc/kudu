@@ -40,6 +40,14 @@
   "diskStatusBad": "ผิดปกติ",
   "diskStatusUnknown": "ไม่ทราบ",
   "temperature": "อุณหภูมิ",
+  "temperatures": {
+    "title": "อุณหภูมิของระบบ",
+    "cpuMax": "ค่าสูงสุดของ CPU",
+    "gpu": "GPU",
+    "refresh": "รีเฟรชเซ็นเซอร์ทุก 5 วินาที",
+    "unavailable": "ไม่พร้อมใช้งาน",
+    "sensorHint": "ค่าที่อ่านได้ขึ้นอยู่กับการรองรับเซ็นเซอร์ของฮาร์ดแวร์และระบบปฏิบัติการ บน Windows การอ่านค่า CPU ต้องใช้ Libre Hardware Monitor หรือ Open Hardware Monitor ที่กำลังทำงานอยู่โดยเปิดใช้งานเซ็นเซอร์ WMI ไว้ อุณหภูมิของไดรฟ์จะแสดงอยู่ใน Disk Health"
+  },
   "powerOnHours": "ชั่วโมงการเปิดใช้งาน",
   "remainingLife": "อายุการใช้งานคงเหลือ",
   "readErrors": "ข้อผิดพลาดในการอ่าน",

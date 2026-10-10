@@ -40,6 +40,14 @@
   "diskStatusBad": "Rossz",
   "diskStatusUnknown": "Ismeretlen",
   "temperature": "Hőmérséklet",
+  "temperatures": {
+    "title": "Rendszerhőmérsékletek",
+    "cpuMax": "CPU maximum",
+    "gpu": "GPU",
+    "refresh": "Az érzékelők 5 másodpercenként frissülnek",
+    "unavailable": "Nem érhető el",
+    "sensorHint": "Az értékek a hardver és az operációs rendszer érzékelőtámogatásától függenek. Windows rendszeren a CPU-értékekhez a Libre Hardware Monitor vagy az Open Hardware Monitor futtatása szükséges, engedélyezett WMI-érzékelőkkel. A meghajtók hőmérsékletei a Lemez állapota alatt jelennek meg."
+  },
   "powerOnHours": "Bekapcsolási órák",
   "remainingLife": "Hátralévő élettartam",
   "readErrors": "Olvasási hibák",

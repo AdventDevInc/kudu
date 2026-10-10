@@ -40,6 +40,14 @@
   "diskStatusBad": "故障",
   "diskStatusUnknown": "未知",
   "temperature": "温度",
+  "temperatures": {
+    "title": "系统温度",
+    "cpuMax": "CPU 最高温度",
+    "gpu": "GPU",
+    "refresh": "传感器每 5 秒刷新一次",
+    "unavailable": "不可用",
+    "sensorHint": "读数取决于硬件和操作系统对传感器的支持情况。在 Windows 上，CPU 读数需要运行 Libre Hardware Monitor 或 Open Hardware Monitor，并启用 WMI 传感器。驱动器温度显示在“磁盘健康”下。"
+  },
   "powerOnHours": "通电时长",
   "remainingLife": "剩余寿命",
   "readErrors": "读取错误",

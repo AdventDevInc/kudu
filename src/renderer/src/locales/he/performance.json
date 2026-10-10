@@ -40,6 +40,14 @@
   "diskStatusBad": "פגום",
   "diskStatusUnknown": "לא ידוע",
   "temperature": "טמפרטורה",
+  "temperatures": {
+    "title": "טמפרטורות המערכת",
+    "cpuMax": "מקסימום CPU",
+    "gpu": "GPU",
+    "refresh": "החיישנים מתרעננים כל 5 שניות",
+    "unavailable": "לא זמין",
+    "sensorHint": "הקריאות תלויות בתמיכת החומרה ומערכת ההפעלה בחיישנים. ב-Windows, קריאות CPU דורשות ש-Libre Hardware Monitor או Open Hardware Monitor יפעלו עם חיישני WMI מופעלים. טמפרטורות הכוננים מופיעות תחת תקינות הדיסק."
+  },
   "powerOnHours": "שעות פעולה",
   "remainingLife": "אורך חיים שנותר",
   "readErrors": "שגיאות קריאה",

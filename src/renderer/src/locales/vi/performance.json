@@ -40,6 +40,14 @@
   "diskStatusBad": "Kém",
   "diskStatusUnknown": "Không xác định",
   "temperature": "Nhiệt độ",
+  "temperatures": {
+    "title": "Nhiệt độ hệ thống",
+    "cpuMax": "CPU tối đa",
+    "gpu": "GPU",
+    "refresh": "Cảm biến làm mới mỗi 5 giây",
+    "unavailable": "Không khả dụng",
+    "sensorHint": "Các số liệu phụ thuộc vào phần cứng và khả năng hỗ trợ cảm biến của hệ điều hành. Trên Windows, số liệu CPU yêu cầu Libre Hardware Monitor hoặc Open Hardware Monitor đang chạy với cảm biến WMI được bật. Nhiệt độ ổ đĩa hiển thị trong Tình trạng đĩa."
+  },
   "powerOnHours": "Số giờ hoạt động",
   "remainingLife": "Tuổi thọ còn lại",
   "readErrors": "Lỗi đọc",

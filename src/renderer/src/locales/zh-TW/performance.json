@@ -40,6 +40,14 @@
   "diskStatusBad": "不良",
   "diskStatusUnknown": "未知",
   "temperature": "溫度",
+  "temperatures": {
+    "title": "系統溫度",
+    "cpuMax": "CPU 最高溫度",
+    "gpu": "GPU",
+    "refresh": "感測器每 5 秒重新整理一次",
+    "unavailable": "無法使用",
+    "sensorHint": "讀數取決於硬體與作業系統對感測器的支援。在 Windows 上，CPU 讀數需要執行 Libre Hardware Monitor 或 Open Hardware Monitor，並啟用 WMI 感測器。磁碟機溫度會顯示在磁碟健康狀態下。"
+  },
   "powerOnHours": "通電時數",
   "remainingLife": "剩餘壽命",
   "readErrors": "讀取錯誤",

@@ -40,6 +40,14 @@
   "diskStatusBad": "سيئ",
   "diskStatusUnknown": "غير معروف",
   "temperature": "درجة الحرارة",
+  "temperatures": {
+    "title": "درجات حرارة النظام",
+    "cpuMax": "الحد الأقصى لـ CPU",
+    "gpu": "GPU",
+    "refresh": "يتم تحديث المستشعرات كل 5 ثوانٍ",
+    "unavailable": "غير متاح",
+    "sensorHint": "تعتمد القراءات على دعم المستشعرات في الأجهزة ونظام التشغيل. على Windows، تتطلب قراءات CPU تشغيل Libre Hardware Monitor أو Open Hardware Monitor مع تمكين مستشعرات WMI. تظهر درجات حرارة محركات الأقراص ضمن صحة القرص."
+  },
   "powerOnHours": "ساعات التشغيل",
   "remainingLife": "العمر المتبقي",
   "readErrors": "أخطاء القراءة",
