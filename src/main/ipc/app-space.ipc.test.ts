@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AppCacheDef } from '../platform/types'
 import type { AppSpaceReport, AppSpaceReview, ScanResult } from '../../shared/types'
 const mocks = vi.hoisted(() => ({
   handlers: new Map<string, (...args: unknown[]) => unknown>(),
   scan: vi.fn(),
   scanDirectory: vi.fn(),
+  shaders: vi.fn(),
+  redistributables: vi.fn(),
+  launchers: [] as AppCacheDef[],
+  gpu: [] as AppCacheDef[],
   safari: null as { cache: string } | null,
   inventory: vi.fn(),
   cache: vi.fn(),
@@ -22,7 +27,8 @@ vi.mock('../platform', () => ({
         { id: 'slack', name: 'Slack', paths: ['trusted-cache'] },
         { id: 'native', name: 'Native Tool', paths: ['native'], cleanupAction: 'uv-prune' }
       ],
-      gamingPaths: () => [],
+      gamingPaths: () => mocks.launchers,
+      gpuCachePaths: () => mocks.gpu,
       browserPaths: () => ({
         safari: mocks.safari,
         firefox: { cache: '' },
@@ -32,6 +38,10 @@ vi.mock('../platform', () => ({
       })
     }
   })
+}))
+vi.mock('./gaming-cleaner.ipc', () => ({
+  scanSteamShaderCaches: mocks.shaders,
+  scanSteamRedistributables: mocks.redistributables
 }))
 vi.mock('../services/program-uninstaller', () => ({ getInstalledProgramsFull: mocks.inventory }))
 vi.mock('../services/file-utils', () => ({
@@ -70,6 +80,10 @@ const result = (id: string): ScanResult => ({
 beforeEach(() => {
   vi.clearAllMocks()
   mocks.safari = null
+  mocks.launchers = []
+  mocks.gpu = []
+  mocks.shaders.mockResolvedValue([])
+  mocks.redistributables.mockResolvedValue([])
   registerAppSpaceIpc()
   mocks.inventory.mockResolvedValue([])
   mocks.scan.mockResolvedValue(result('fresh'))
@@ -82,6 +96,134 @@ describe('App Space IPC safety', () => {
     expect(mocks.scan.mock.calls[0][0].id).toBe('slack')
     expect(mocks.cache).not.toHaveBeenCalled()
     expect(mocks.remove).not.toHaveBeenCalled()
+  })
+  it('includes GPU and Steam per-game sources with truthful owners and preserves opt-in shader resets', async () => {
+    mocks.gpu = [
+      { id: 'nvidia', name: 'NVIDIA Shader Cache', paths: ['gpu-cache'], cacheReset: true }
+    ]
+    const shader = (id: string, game: string, path: string): ScanResult => ({
+      category: 'gaming',
+      subcategory: `${game} - Shader Cache`,
+      group: 'Optional cache resets - next launch may be slower',
+      itemCount: 1,
+      totalSize: 128,
+      items: [
+        {
+          id,
+          path,
+          size: 128,
+          category: 'gaming',
+          subcategory: `${game} - Shader Cache`,
+          lastModified: 0,
+          selected: false,
+          cacheReset: true
+        }
+      ]
+    })
+    const firstGame = shader('shader-old', 'First Game', 'steam/shadercache/100')
+    const secondGame = shader('second-old', 'Second Game', 'steam/shadercache/200')
+    const gpu = shader('gpu-old', 'NVIDIA', 'gpu-cache/settled')
+    mocks.scan.mockImplementation((definition: { id: string }) =>
+      Promise.resolve(definition.id === 'nvidia' ? gpu : result('slack'))
+    )
+    mocks.shaders.mockResolvedValueOnce([firstGame, secondGame]).mockResolvedValueOnce([
+      { ...firstGame, items: [{ ...firstGame.items[0], id: 'shader-fresh' }] },
+      { ...secondGame, items: [{ ...secondGame.items[0], id: 'second-fresh' }] }
+    ])
+    const redist: ScanResult = {
+      ...result('redist-old'),
+      category: 'gaming',
+      subcategory: 'First Game - Redistributables',
+      group: 'Redistributables',
+      items: [
+        {
+          ...result('redist-old').items[0],
+          path: 'steam/common/First Game/_CommonRedist',
+          category: 'gaming'
+        }
+      ]
+    }
+    mocks.redistributables
+      .mockResolvedValueOnce([redist])
+      .mockResolvedValueOnce([{ ...redist, items: [{ ...redist.items[0], id: 'redist-fresh' }] }])
+    mocks.inventory.mockResolvedValue([
+      { id: 'steam', displayName: 'Steam', publisher: 'Valve', estimatedSize: 1024 }
+    ])
+    const report = (await invoke(IPC.APP_SPACE_SCAN)) as AppSpaceReport
+    expect(report.entries.find((entry) => entry.programId === 'steam')?.cacheBytes).toBe(0)
+    expect(
+      report.entries.find((entry) => entry.name === 'Steam per-game shader caches')?.cacheBytes
+    ).toBe(256)
+    expect(
+      report.entries.find((entry) => entry.name === 'Steam game redistributable installers')
+        ?.cacheBytes
+    ).toBe(150)
+    expect(report.entries.find((entry) => entry.name === 'NVIDIA Shader Cache')?.cacheBytes).toBe(
+      128
+    )
+    expect(mocks.scan).toHaveBeenCalledWith(mocks.gpu[0], 'gaming', {
+      directoryItems: true,
+      group: 'GPU Shader Caches'
+    })
+    expect(mocks.cache).not.toHaveBeenCalled()
+    const review = (await invoke(
+      IPC.APP_SPACE_REVIEW,
+      ['gaming:steam:per-game-shaders', 'gaming:steam:game-redistributables'],
+      null
+    )) as AppSpaceReview
+    expect(review.results.flatMap((entry) => entry.items.map((item) => item.id))).toEqual([
+      'shader-fresh',
+      'second-fresh',
+      'redist-fresh'
+    ])
+    expect(
+      review.results
+        .slice(0, 2)
+        .every(
+          (entry) =>
+            entry.group === 'Optional cache resets - next launch may be slower' &&
+            entry.items.every((item) => item.cacheReset === true && item.selected === false)
+        )
+    ).toBe(true)
+    expect(review.results[2].subcategory).toBe('First Game - Redistributables')
+    expect(mocks.shaders).toHaveBeenCalledTimes(2)
+    expect(mocks.redistributables).toHaveBeenCalledTimes(2)
+  })
+  it('matches launcher scan options and deduplicates overlapping gaming sources in overview and fresh review', async () => {
+    mocks.launchers = [{ id: 'steam', name: 'Steam Launcher', paths: ['steam/shadercache'] }]
+    mocks.gpu = [{ id: 'shared', name: 'Shared Shader Cache', paths: ['steam/shadercache/100'] }]
+    const source = (id: string, path: string): ScanResult => ({
+      ...result(id),
+      category: 'gaming',
+      items: [{ ...result(id).items[0], path, category: 'gaming' }]
+    })
+    mocks.scan.mockImplementation((definition: { id: string }) =>
+      Promise.resolve(
+        definition.id === 'steam'
+          ? source('launcher', 'steam/shadercache')
+          : definition.id === 'shared'
+            ? source('gpu', 'steam/shadercache/100')
+            : result('slack')
+      )
+    )
+    mocks.shaders.mockResolvedValue([source('game', 'steam/shadercache/100')])
+    const report = (await invoke(IPC.APP_SPACE_SCAN)) as AppSpaceReport
+    expect(
+      report.entries
+        .filter((entry) => entry.rules.some((rule) => rule.category === 'gaming'))
+        .reduce((sum, entry) => sum + entry.cacheBytes, 0)
+    ).toBe(150)
+    expect(mocks.scan).toHaveBeenCalledWith(mocks.launchers[0], 'gaming', {
+      directoryItems: true,
+      group: 'Launcher Caches'
+    })
+    const review = (await invoke(
+      IPC.APP_SPACE_REVIEW,
+      ['gaming:steam', 'gaming:gpu:shared', 'gaming:steam:per-game-shaders'],
+      null
+    )) as AppSpaceReview
+    expect(review.results.flatMap((entry) => entry.items)).toHaveLength(1)
+    expect(review.results.reduce((sum, entry) => sum + entry.totalSize, 0)).toBe(150)
   })
   it('includes the macOS Safari cache in overview and a fresh browser cleanup review only', async () => {
     const cache = '/Users/Preview/Library/Caches/com.apple.Safari'

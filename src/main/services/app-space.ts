@@ -13,7 +13,8 @@ const aliases: Record<string, string[]> = {
   'VS Code': ['Microsoft Visual Studio Code', 'Microsoft Visual Studio Code (User)'],
   Chrome: ['Google Chrome'],
   Edge: ['Microsoft Edge'],
-  Firefox: ['Mozilla Firefox']
+  Firefox: ['Mozilla Firefox'],
+  'Steam Launcher': ['Steam']
 }
 const pathKey = (path: string): string => {
   const value = normalize(resolve(path))

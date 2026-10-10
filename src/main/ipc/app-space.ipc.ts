@@ -1,3 +1,4 @@
+import { scanSteamShaderCaches, scanSteamRedistributables } from './gaming-cleaner.ipc'
 import { AppSpaceHandoffs } from '../services/app-space-handoffs'
 import { ipcMain } from 'electron'
 import { readdir } from 'fs/promises'
@@ -29,21 +30,48 @@ interface SpaceRule {
 async function getRules(): Promise<SpaceRule[]> {
   const paths = getPlatform().paths
   const rules: SpaceRule[] = []
-  for (const [category, definitions] of [
-    [CleanerType.App, paths.appPaths()],
-    [CleanerType.Gaming, paths.gamingPaths()]
+  for (const [category, prefix, definitions, options] of [
+    [CleanerType.App, 'app', paths.appPaths(), {}],
+    [
+      CleanerType.Gaming,
+      'gaming',
+      paths.gamingPaths(),
+      { directoryItems: true, group: 'Launcher Caches' }
+    ],
+    [
+      CleanerType.Gaming,
+      'gaming:gpu',
+      paths.gpuCachePaths(),
+      { directoryItems: true, group: 'GPU Shader Caches' }
+    ]
   ] as const) {
     for (const definition of definitions) {
       // Native command estimates can have side effects and unknown sizes; use file-based rules only.
       if (definition.cleanupAction) continue
       rules.push({
-        id: `${category}:${definition.id}`,
+        id: `${prefix}:${definition.id}`,
         name: definition.name,
         category,
-        scan: async () => [await scanAppRule(definition, category)]
+        scan: async () => [await scanAppRule(definition, category, options)]
       })
     }
   }
+  // Aggregate source rows say exactly what is reviewed; never attribute all
+  // game files to the Steam installation or an individual game's app inventory.
+  rules.push(
+    {
+      id: 'gaming:steam:per-game-shaders',
+      name: 'Steam per-game shader caches',
+      category: CleanerType.Gaming,
+      scan: () => scanSteamShaderCaches(CleanerType.Gaming)
+    },
+    {
+      id: 'gaming:steam:game-redistributables',
+      name: 'Steam game redistributable installers',
+      category: CleanerType.Gaming,
+      scan: () => scanSteamRedistributables(CleanerType.Gaming)
+    }
+  )
   const browsers = paths.browserPaths()
   for (const browser of chromiumBrowsers(browsers)) {
     rules.push({

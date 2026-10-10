@@ -47,6 +47,28 @@ const measure = (
   }
 })
 describe('App Space attribution', () => {
+  it('attaches the Windows Steam Launcher cache to the unique Steam inventory entry', () => {
+    const entries = buildAppSpaceEntries(
+      [program('steam', 'Steam', 500), program('game', 'SteamWorld Dig')],
+      [measure('gaming:steam', 'Steam Launcher', [[join('cache', 'steam'), 120]])]
+    )
+    const steam = entries.find((entry) => entry.programId === 'steam')!
+    expect(steam.cacheBytes).toBe(120)
+    expect(steam.installedBytes).toBe(500)
+    expect(steam.rules.map((rule) => rule.id)).toEqual(['gaming:steam'])
+    expect(entries.find((entry) => entry.programId === 'game')?.cacheBytes).toBe(0)
+    expect(entries.some((entry) => entry.id === 'rule:Steam Launcher')).toBe(false)
+  })
+  it('keeps the Steam Launcher cache separate when inventory attribution is ambiguous', () => {
+    const entries = buildAppSpaceEntries(
+      [program('a', 'Steam'), program('b', 'Steam Launcher')],
+      [measure('gaming:steam', 'Steam Launcher', [[join('cache', 'steam'), 120]])]
+    )
+    expect(entries.find((entry) => entry.id === 'rule:Steam Launcher')?.cacheBytes).toBe(120)
+    expect(entries.filter((entry) => entry.programId).every((entry) => !entry.cacheBytes)).toBe(
+      true
+    )
+  })
   it('matches only exact unique product identities, never loose names', () => {
     const entries = buildAppSpaceEntries(
       [program('a', 'Discord Canary'), program('b', 'Discord')],
