@@ -173,7 +173,8 @@
     "drivers": "Tekintse át egy helyen az illesztőprogram-frissítéseket és a régebbi csomagokat. Alkalmazás előtt ellenőrizze a javasolt módosításokat.",
     "storageHistory": "Nézze meg, mi növekszik. Mentsen helyi mappapillanatképeket, és hasonlítsa össze, hol változott a tárhelyhasználat.",
     "recovery": "Egyértelmű út visszafelé. Mielőtt bármit visszavonna, tekintse át a támogatott módosításokat és a visszaállítás részleteit.",
-    "diagnostics": "Alakítsa a lassú pillanatokat bizonyítékká. Rögzítsen helyben, vizsgálja meg az adatokat, és döntse el, kér-e Cloud AI elemzést."
+    "diagnostics": "Alakítsa a lassú pillanatokat bizonyítékká. Rögzítsen helyben, vizsgálja meg az adatokat, és döntse el, kér-e Cloud AI elemzést.",
+    "appSpace": "Tekintse meg a jelentett alkalmazásméreteket a mért, áttekinthető gyorsítótár és naplók mellett."
   },
   "home": {
     "eyebrow": "RENDSZERE, EGY PILLANTÁSRA",

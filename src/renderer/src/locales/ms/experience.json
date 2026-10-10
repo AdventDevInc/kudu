@@ -173,7 +173,8 @@
     "drivers": "Semak kemas kini driver dan pakej lama di satu tempat. Semak perubahan yang dicadangkan sebelum menggunakannya.",
     "storageHistory": "Lihat perkara yang semakin bertambah. Simpan petikan folder setempat dan bandingkan tempat storan telah berubah.",
     "recovery": "Cara yang jelas untuk kembali. Semak perubahan yang disokong dan butiran pemulihan sebelum membatalkan apa-apa.",
-    "diagnostics": "Tukarkan saat perlahan kepada bukti. Rakam secara setempat, periksa data dan pilih sama ada untuk meminta analisis Cloud AI."
+    "diagnostics": "Tukarkan saat perlahan kepada bukti. Rakam secara setempat, periksa data dan pilih sama ada untuk meminta analisis Cloud AI.",
+    "appSpace": "Lihat saiz aplikasi yang dilaporkan bersama cache dan log yang diukur serta boleh disemak."
   },
   "home": {
     "eyebrow": "SISTEM ANDA, SEPINTAS LALU",

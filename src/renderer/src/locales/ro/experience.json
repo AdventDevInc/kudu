@@ -173,7 +173,8 @@
     "drivers": "Examinați actualizările de drivere și pachetele mai vechi într-un singur loc. Verificați modificările propuse înainte de a le aplica.",
     "storageHistory": "Vedeți ce crește. Salvați instantanee locale ale folderelor și comparați unde s-a modificat spațiul de stocare.",
     "recovery": "O cale clară de întoarcere. Examinați modificările acceptate și detaliile restaurării înainte de a anula ceva.",
-    "diagnostics": "Transformați un moment de încetinire în dovezi. Înregistrați local, inspectați datele și alegeți dacă solicitați analiza Cloud AI."
+    "diagnostics": "Transformați un moment de încetinire în dovezi. Înregistrați local, inspectați datele și alegeți dacă solicitați analiza Cloud AI.",
+    "appSpace": "Vedeți dimensiunile raportate ale aplicațiilor alături de memoria cache și jurnalele măsurate, care pot fi revizuite."
   },
   "home": {
     "eyebrow": "SISTEMUL DVS., DINTR-O PRIVIRE",
