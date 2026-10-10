@@ -16,6 +16,8 @@ export interface DownloadsScanResult {
 export interface DownloadsTrashResult {
   trashedIds: string[]
   skippedIds: string[]
+  /** Claimed files preserved when safely restoring their original path was impossible. */
+  recoveryPaths?: string[]
 }
 export function downloadKind(name: string): DownloadKind {
   if (/\.(exe|msi|msix|msixbundle|appx|appxbundle|pkg|deb|rpm|appimage)$/i.test(name))

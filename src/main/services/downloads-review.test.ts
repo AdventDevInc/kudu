@@ -1,5 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdtemp, mkdir, writeFile, rm, rename, link, symlink, realpath } from 'fs/promises'
+import {
+  mkdtemp,
+  mkdir,
+  writeFile,
+  rm,
+  rename,
+  link,
+  symlink,
+  realpath,
+  unlink,
+  readFile
+} from 'fs/promises'
+import { basename, dirname } from 'path'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { DownloadsReview } from './downloads-review'
@@ -13,7 +25,9 @@ describe('DownloadsReview filesystem safety', () => {
     await mkdir(root)
     configured = root
     exclusions = []
-    trash = vi.fn(async () => {})
+    trash = vi.fn(async (path: string) => {
+      await unlink(path)
+    })
     reveal = vi.fn()
     review = new DownloadsReview(
       () => configured,
@@ -64,7 +78,9 @@ describe('DownloadsReview filesystem safety', () => {
     ])
     expect(result.trashedIds).toEqual([id])
     expect(result.skippedIds).toHaveLength(2)
-    expect(trash).toHaveBeenCalledExactlyOnceWith(join(root, 'setup.exe'))
+    expect(trash).toHaveBeenCalledOnce()
+    expect(basename(trash.mock.calls[0][0])).toBe('setup.exe')
+    expect(dirname(trash.mock.calls[0][0])).not.toBe(root)
   })
   it('skips content modifications, replacements and exclusions added after scanning', async () => {
     for (const name of ['changed.zip', 'replaced.zip', 'excluded.zip'])
@@ -127,16 +143,20 @@ describe('DownloadsReview filesystem safety', () => {
     const result = await review.scan()
     const selected = result.files.find((file) => file.name === 'one.zip')!
     await review.trashSelected(result.scanId, [selected.id])
-    expect(trash).toHaveBeenCalledExactlyOnceWith(join(root, 'one.zip'))
+    expect(trash).toHaveBeenCalledOnce()
+    expect(basename(trash.mock.calls[0][0])).toBe('one.zip')
+    expect(await readFile(join(root, 'two.zip'), 'utf8')).toBe('data')
   })
   it('serializes scan and trash and safely reports failed native trash', async () => {
     await writeFile(join(root, 'setup.exe'), 'data')
     const result = await review.scan()
     let release!: () => void
     trash.mockImplementationOnce(
-      () =>
+      (path: string) =>
         new Promise<void>((resolve) => {
-          release = resolve
+          release = () => {
+            void unlink(path).then(resolve)
+          }
         })
     )
     const moving = review.trashSelected(result.scanId, [result.files[0].id])
@@ -145,6 +165,7 @@ describe('DownloadsReview filesystem safety', () => {
     await expect(review.trashSelected(result.scanId, [result.files[0].id])).rejects.toThrow('busy')
     release()
     await moving
+    await writeFile(join(root, 'setup.exe'), 'new data')
     const fresh = await review.scan()
     trash.mockRejectedValueOnce(new Error('locked'))
     expect((await review.trashSelected(fresh.scanId, [fresh.files[0].id])).skippedIds).toHaveLength(

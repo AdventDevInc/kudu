@@ -1,21 +1,15 @@
 import { randomUUID } from 'crypto'
 import { lstat, opendir, realpath } from 'fs/promises'
-import type { BigIntStats } from 'fs'
 import { join, resolve } from 'path'
 import { downloadKind } from '../../shared/downloads-review'
 import type { DownloadsScanResult, DownloadsTrashResult } from '../../shared/downloads-review'
 import { validateStorageRoot } from './storage-scan'
 import { isExcludedResolved } from './file-utils'
 import { mountPoints, isMountPoint } from './mount-points'
+import { DownloadsClaimBatch, sameDownloadIdentity } from './downloads-claim'
+import type { DownloadIdentity } from './downloads-claim'
 
-type Identity = Pick<BigIntStats, 'dev' | 'ino' | 'size' | 'mtimeNs' | 'ctimeNs' | 'birthtimeNs'>
-const same = (a: Identity, b: Identity) =>
-  a.dev === b.dev &&
-  a.ino === b.ino &&
-  a.size === b.size &&
-  a.mtimeNs === b.mtimeNs &&
-  a.ctimeNs === b.ctimeNs &&
-  a.birthtimeNs === b.birthtimeNs
+type Identity = DownloadIdentity
 const samePath = (a: string, b: string) =>
   process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b
 const incomplete = /(^\.|\.(crdownload|part|partial|download|tmp|temp)$)/i
@@ -142,7 +136,7 @@ export class DownloadsReview {
     const info = await lstat(file.path, { bigint: true })
     return info.isFile() &&
       !info.isSymbolicLink() &&
-      same(info, file.identity) &&
+      sameDownloadIdentity(info, file.identity) &&
       samePath(await realpath(file.path), file.path)
       ? file.path
       : null
@@ -159,6 +153,22 @@ export class DownloadsReview {
       throw new Error('Invalid selection')
     this.busy = true
     const result: DownloadsTrashResult = { trashedIds: [], skippedIds: [] }
+    const session = this.session
+    const claim = session
+      ? new DownloadsClaimBatch(
+          session.root,
+          () => this.rootUnchanged(session.root, session.rootIdentity),
+          this.trash,
+          async (original, claimed) => {
+            const exclusions = await this.exclusions()
+            return (
+              !(await isExcludedResolved(original, exclusions)) &&
+              !(await isExcludedResolved(claimed, exclusions)) &&
+              !(await isMountPoint(claimed))
+            )
+          }
+        )
+      : null
     try {
       for (const id of new Set(ids)) {
         try {
@@ -167,7 +177,17 @@ export class DownloadsReview {
             result.skippedIds.push(id)
             continue
           }
-          await this.trash(path)
+          const expected = session?.files.get(id)?.identity
+          if (!claim || !expected) {
+            result.skippedIds.push(id)
+            continue
+          }
+          const moved = await claim.move(path, expected)
+          if (!moved.trashed) {
+            result.skippedIds.push(id)
+            if (moved.recoveryPath) (result.recoveryPaths ??= []).push(moved.recoveryPath)
+            continue
+          }
           this.session?.files.delete(id)
           result.trashedIds.push(id)
         } catch {
@@ -176,6 +196,7 @@ export class DownloadsReview {
       }
       return result
     } finally {
+      await claim?.finish()
       this.busy = false
     }
   }

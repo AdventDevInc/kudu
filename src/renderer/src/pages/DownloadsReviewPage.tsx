@@ -227,6 +227,29 @@ export function DownloadsReviewPage() {
           <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
             {t('binSpace')}
           </p>
+          {store.outcome.trashedIds.length > 0 && (
+            <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+              {t('restoreHint')}
+            </p>
+          )}
+          {!!store.outcome.recoveryPaths?.length && (
+            <div
+              className="mt-3 rounded-lg border p-3"
+              style={{ borderColor: 'var(--border-default)' }}
+            >
+              <p className="font-medium">{t('recoveryTitle')}</p>
+              <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>
+                {t('recoveryDescription')}
+              </p>
+              <ul className="mt-2 space-y-1">
+                {store.outcome.recoveryPaths.map((path) => (
+                  <li key={path} className="break-all select-text font-mono text-xs">
+                    {path}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
       {store.result?.limited && (
