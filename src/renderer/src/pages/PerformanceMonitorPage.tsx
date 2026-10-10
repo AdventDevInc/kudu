@@ -10,6 +10,7 @@ import { AlertBanner } from '@/components/perf/AlertBanner'
 import { DiskHealthPanel } from '@/components/perf/DiskHealthPanel'
 import { AppMemoryPanel } from '@/components/perf/AppMemoryPanel'
 import { MemoryContext } from '@/components/perf/MemoryContext'
+import { TemperaturePanel } from '@/components/perf/TemperaturePanel'
 import { usePerfStore } from '@/stores/perf-store'
 import { formatBytes, formatSpeed } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -201,6 +202,8 @@ export function PerformanceMonitorPage() {
       </div>
 
       <MemoryContext />
+
+      <TemperaturePanel temperatures={snapshot?.temperatures} />
 
       {/* Charts */}
       <div className="pulse-performance-charts">

@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IPC } from '../../shared/channels'
 
-const mocks = vi.hoisted(() => ({ processes: vi.fn(), memory: vi.fn() }))
+const mocks = vi.hoisted(() => ({ processes: vi.fn(), memory: vi.fn(), temperatures: vi.fn() }))
+vi.mock('./perf-temperatures', () => ({ collectTemperatures: mocks.temperatures }))
 vi.mock('systeminformation', () => ({
   processes: mocks.processes,
   currentLoad: async () => ({ currentLoad: 2, cpus: [{ load: 2 }] }),
@@ -45,11 +46,60 @@ describe('monitor process collection lifecycle', () => {
     service = new PerfMonitorService()
     mocks.processes.mockResolvedValue(data)
     mocks.memory.mockResolvedValue(null)
+    mocks.temperatures.mockResolvedValue({
+      sampledAt: Date.now(),
+      cpuCelsius: 55,
+      cpuMaxCelsius: 60,
+      gpus: []
+    })
   })
   afterEach(() => {
     service.stopMonitoring()
     vi.restoreAllMocks()
     vi.useRealTimers()
+  })
+  it('polls sensors every five seconds without blocking snapshots and expires hung readings', async () => {
+    const target = sender()
+    await service.startMonitoring(target as unknown as Electron.WebContents)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(target.send).toHaveBeenCalledWith(
+      IPC.PERF_SNAPSHOT,
+      expect.objectContaining({
+        temperatures: expect.objectContaining({ cpuCelsius: 55 })
+      })
+    )
+    mocks.temperatures.mockReturnValue(new Promise(() => {}))
+    await vi.advanceTimersByTimeAsync(20000)
+    expect(mocks.temperatures).toHaveBeenCalledTimes(2)
+    const snapshots = target.send.mock.calls.filter(([channel]) => channel === IPC.PERF_SNAPSHOT)
+    expect(snapshots.length).toBeGreaterThan(15)
+    expect(snapshots.at(-1)![1].temperatures).toBeUndefined()
+  })
+
+  it('discards temperature collection completing after stop and restart', async () => {
+    let resolve!: (value: unknown) => void
+    mocks.temperatures.mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done
+      })
+    )
+    await service.startMonitoring(sender() as unknown as Electron.WebContents)
+    service.stopMonitoring()
+    const target = sender()
+    await service.startMonitoring(target as unknown as Electron.WebContents)
+    resolve({ sampledAt: Date.now(), cpuCelsius: 99, cpuMaxCelsius: 99, gpus: [] })
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(target.send).toHaveBeenCalledWith(
+      IPC.PERF_SNAPSHOT,
+      expect.objectContaining({ temperatures: undefined })
+    )
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(target.send).toHaveBeenCalledWith(
+      IPC.PERF_SNAPSHOT,
+      expect.objectContaining({
+        temperatures: expect.objectContaining({ cpuCelsius: 55 })
+      })
+    )
   })
   it('refuses a command fallback if the PID changed after the first termination attempt', async () => {
     vi.spyOn(process, 'kill').mockImplementation(() => {
