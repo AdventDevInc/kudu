@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { AppPrivacyPanel } from '@/components/privacy/AppPrivacyPanel'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ShieldCheck,
@@ -186,6 +187,43 @@ function ScoreRing({ score, size = 80 }: { score: number; size?: number }) {
 }
 
 export function PrivacyShieldPage({ embedded }: { embedded?: boolean }) {
+  const { t } = useTranslation('hardening')
+  const isWindows = usePlatform().platform === 'win32'
+  const [tab, setTab] = useState<'settings' | 'apps'>('settings')
+  if (!isWindows) return <PrivacySettingsPanel embedded={embedded} />
+  return (
+    <div className={embedded ? '' : 'animate-fade-in'}>
+      {!embedded && (
+        <PageHeader
+          title={t('privacy.pageTitle')}
+          description={t('privacy.pageDescription')}
+          showWorkflow={tab === 'settings'}
+        />
+      )}
+      <div className="mb-5 flex gap-2" role="group" aria-label={t('appPrivacy.views')}>
+        {(['settings', 'apps'] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={tab === value}
+            onClick={() => setTab(value)}
+            className="rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
+            style={{
+              background: tab === value ? 'var(--accent-muted-bg)' : 'var(--card-bg)',
+              color: tab === value ? 'var(--accent)' : 'var(--text-secondary)',
+              border: '1px solid var(--border-default)'
+            }}
+          >
+            {t(`appPrivacy.tab.${value}`)}
+          </button>
+        ))}
+      </div>
+      {tab === 'apps' ? <AppPrivacyPanel /> : <PrivacySettingsPanel embedded />}
+    </div>
+  )
+}
+
+function PrivacySettingsPanel({ embedded }: { embedded?: boolean }) {
   const { t } = useTranslation('hardening')
   // On macOS/Linux elevation happens per-action via a password prompt, so
   // "run as administrator" advice is meaningless there.
