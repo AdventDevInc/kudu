@@ -1,3 +1,19 @@
+# [3.7.0](https://github.com/adventdevinc/kudu/compare/v3.6.1...v3.7.0) (2026-10-10)
+
+
+### Bug Fixes
+
+* **sidebar:** prevent menu item text from wrapping ([#520](https://github.com/adventdevinc/kudu/issues/520)) ([5b71b90](https://github.com/adventdevinc/kudu/commit/5b71b90a156e21771878bc7d06072ddc37904915))
+
+
+### Features
+
+* **cleaner:** expand safe Windows app cache coverage ([#525](https://github.com/adventdevinc/kudu/issues/525)) ([527fab7](https://github.com/adventdevinc/kudu/commit/527fab7ba33a56e6bee501c6ece91ea65fe06c22))
+* **cleaner:** search scan results and manage filtered selections ([#522](https://github.com/adventdevinc/kudu/issues/522)) ([ff77090](https://github.com/adventdevinc/kudu/commit/ff77090cf6e7e720cd5cfe0fe4ea537d779dc7b0))
+* **performance:** add app memory insights and Windows memory context ([#527](https://github.com/adventdevinc/kudu/issues/527)) ([b04dd40](https://github.com/adventdevinc/kudu/commit/b04dd406ebdd42311152142ff235fa55fa29dca2))
+* **privacy:** audit Windows app access records ([#526](https://github.com/adventdevinc/kudu/issues/526)) ([565f84c](https://github.com/adventdevinc/kudu/commit/565f84ccc5244ffe5087f93d3a7b3d12b66752b7))
+* **storage:** add app space breakdown and cleanup review ([#523](https://github.com/adventdevinc/kudu/issues/523)) ([e3c54e8](https://github.com/adventdevinc/kudu/commit/e3c54e8f583c8db0bf89e48cdbde81d930b5ff50))
+* **storage:** add old downloads and installers review ([#524](https://github.com/adventdevinc/kudu/issues/524)) ([3322972](https://github.com/adventdevinc/kudu/commit/3322972fccae50f289a09626a42d22f407351bdb))
 ## [3.6.1](https://github.com/adventdevinc/kudu/compare/v3.5.0...v3.6.1) (2026-10-06)
 
 
