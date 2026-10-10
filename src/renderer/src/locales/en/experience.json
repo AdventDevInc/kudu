@@ -170,7 +170,8 @@
     "drivers": "Review driver updates and older packages in one place. Check the proposed changes before applying them.",
     "storageHistory": "See what is growing. Save local folder snapshots and compare where storage has changed.",
     "recovery": "A clear way back. Review supported changes and the restore details before undoing anything.",
-    "diagnostics": "Turn a slow moment into evidence. Record locally, inspect the data, and choose whether to request Cloud AI analysis."
+    "diagnostics": "Turn a slow moment into evidence. Record locally, inspect the data, and choose whether to request Cloud AI analysis.",
+    "appSpace": "See reported app sizes alongside measured, reviewable cache and logs."
   },
   "home": {
     "eyebrow": "YOUR SYSTEM, AT A GLANCE",

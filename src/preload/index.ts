@@ -183,6 +183,11 @@ const api = {
     ipcRenderer.send(IPC.WINDOW_SET_CHROME_THEME, theme),
 
   // System cleaner
+  appSpaceScan: (): Promise<import('../shared/types').AppSpaceReport> =>
+    ipcRenderer.invoke(IPC.APP_SPACE_SCAN),
+  appSpaceRetain: (ids: string[]): Promise<void> => ipcRenderer.invoke(IPC.APP_SPACE_RETAIN, ids),
+  appSpaceReview: (ids: string[]): Promise<ScanResult[]> =>
+    ipcRenderer.invoke(IPC.APP_SPACE_REVIEW, ids),
   systemScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.SYSTEM_SCAN),
   systemClean: (itemIds: string[]): Promise<CleanResult> =>
     ipcRenderer.invoke(IPC.SYSTEM_CLEAN, itemIds),

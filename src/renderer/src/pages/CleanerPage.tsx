@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Copy,
   X,
@@ -247,9 +247,17 @@ export function CleanerPage() {
   const scannableCategories = protectRecycleBin
     ? scannerCategories.filter((c) => c.type !== CleanerType.RecycleBin)
     : scannerCategories
-  const [activeCategory, setActiveCategory] = useState<CategoryType>(CleanerType.System)
+  const location = useLocation()
+  const [activeCategory, setActiveCategory] = useState<CategoryType>(() => {
+    const requested = location.state?.appSpaceCategory
+    return [CleanerType.App, CleanerType.Gaming, CleanerType.Browser].includes(requested)
+      ? requested
+      : CleanerType.System
+  })
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchScope, setSearchScope] = useState<'category' | 'all'>('category')
+  const [searchScope, setSearchScope] = useState<'category' | 'all'>(
+    location.state?.appSpaceAll === true ? 'all' : 'category'
+  )
   const [selectedOnly, setSelectedOnly] = useState(false)
   const [visibleLimits, setVisibleLimits] = useState<Record<string, number>>({})
   const [collapsedMatches, setCollapsedMatches] = useState<Set<string>>(new Set())

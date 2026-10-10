@@ -1584,3 +1584,20 @@ export interface ContextMenuApplyProgress {
   total: number
   currentLabel: string
 }
+
+export interface AppSpaceEntry {
+  id: string
+  name: string
+  publisher: string
+  installedBytes: number | null
+  programId: string | null
+  cacheBytes: number
+  cacheItems: number
+  rules: Array<{ id: string; name: string; category: string }>
+}
+export interface AppSpaceReport {
+  entries: AppSpaceEntry[]
+  scannedAt: number
+  unavailableRules: number
+  inventoryAvailable: boolean
+}

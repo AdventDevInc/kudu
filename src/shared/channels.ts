@@ -1,4 +1,7 @@
 export const IPC = {
+  APP_SPACE_SCAN: 'app-space:scan',
+  APP_SPACE_REVIEW: 'app-space:review',
+  APP_SPACE_RETAIN: 'app-space:retain',
   SCHEDULE_AUTHORIZE: 'schedule:authorize',
   SCHEDULE_RUNTIME: 'schedule:runtime',
   SCHEDULE_RUN_NOW: 'schedule:run-now',
