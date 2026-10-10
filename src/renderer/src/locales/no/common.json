@@ -1,6 +1,6 @@
 {
   "share": {
-    "button": "Del opprydding",
+    "button": "Del oppryddingen",
     "title": "Oppryddingen din er verdt å dele.",
     "description": "Gjør den til din egen. Forhåndsvisningen er nøyaktig slik det eksporterte bildet vil se ut.",
     "close": "Lukk forhåndsvisning for deling",
@@ -25,10 +25,10 @@
     "share": "Del…",
     "copied": "Kopiert til utklippstavlen",
     "exportError": "Kunne ikke eksportere bildet. Prøv Lagre PNG i stedet for å dele eller kopiere.",
-    "copyError": "Kunne ikke kopiere bildeteksten. Kontroller tillatelsene for utklippstavlen.",
+    "copyError": "Kunne ikke kopiere bildeteksten. Kontroller tillatelser for utklippstavlen.",
     "caption": "Jeg frigjorde {{space}} og ryddet {{items}} elementer med Kudu. Gratis og åpen kildekode. Del resultatene dine og hjelp Kudu å vokse for oss alle. https://usekudu.com",
     "communityTitle": "Hjelp Kudu å vokse, for oss alle.",
-    "communityDescription": "Når du deler oppryddingen din, hjelper du flere med å oppdage Kudu og styrker fellesskapet bak et gratis renseverktøy med åpen kildekode. Hver deling utgjør en forskjell.",
+    "communityDescription": "Når du deler oppryddingen din, hjelper du flere med å oppdage Kudu og styrker fellesskapet bak et gratis renseverktøy med åpen kildekode. Hver deling gjør en forskjell.",
     "platforms": "Del til en plattform",
     "openPlatform": "Del på {{platform}} (åpnes i nettleseren)",
     "postTitle": "Jeg frigjorde {{space}} med Kudu, et gratis renseverktøy med åpen kildekode",

@@ -6,7 +6,7 @@
     "close": "Chiudi anteprima di condivisione",
     "theme": "Stile",
     "dark": "Mezzanotte",
-    "light": "Luce del giorno",
+    "light": "Luce diurna",
     "format": "Formato",
     "landscape": "Orizzontale · 1080 × 675",
     "square": "Quadrato · 1080 × 1080",
@@ -33,7 +33,7 @@
     "openPlatform": "Condividi su {{platform}} (si apre nel browser)",
     "postTitle": "Ho recuperato {{space}} con Kudu, un pulitore gratuito e open source",
     "discord": "Copia per Discord",
-    "discordCopied": "Scheda e didascalia copiate. Incollale nella tua chat o nel tuo canale Discord.",
+    "discordCopied": "Scheda e didascalia copiate. Incollale nella chat o nel canale Discord.",
     "destinations": "I pulsanti delle piattaforme aprono una bozza o una schermata di condivisione. Incolla la scheda usando Copia immagine, oppure allega il PNG salvato, quindi pubblica quando sei pronto.",
     "categories": {
       "system": "Cache di sistema",

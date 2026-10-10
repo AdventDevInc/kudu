@@ -36,15 +36,15 @@
     "discordCopied": "Cardul și descrierea au fost copiate. Lipește-le în chatul sau canalul tău Discord.",
     "destinations": "Butoanele platformelor deschid o schiță sau ecranul de partajare. Lipește cardul folosind Copiază imaginea sau atașează PNG-ul salvat, apoi publică atunci când ești gata.",
     "categories": {
-      "system": "Cache de sistem",
-      "browser": "Cache de browser",
-      "app": "Cache de aplicații",
-      "gaming": "Cache pentru jocuri",
+      "system": "Cache-uri de sistem",
+      "browser": "Cache-uri de browser",
+      "app": "Cache-uri ale aplicațiilor",
+      "gaming": "Cache-uri pentru jocuri",
       "recycleBin": "Coș de reciclare",
-      "uninstallLeftovers": "Resturi după dezinstalare",
+      "uninstallLeftovers": "Fișiere rămase după dezinstalare",
       "shortcut": "Comenzi rapide nefuncționale",
       "database": "Baze de date",
-      "environment": "Cache de dezvoltare",
+      "environment": "Cache-uri pentru dezvoltatori",
       "privacyTraces": "Urme de confidențialitate",
       "other": "Alte categorii"
     }
