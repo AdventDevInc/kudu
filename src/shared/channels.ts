@@ -1,4 +1,10 @@
 export const IPC = {
+  CUSTOM_FOLDERS_LIST: 'custom-folders:list',
+  CUSTOM_FOLDERS_PICK: 'custom-folders:pick',
+  CUSTOM_FOLDERS_ADD: 'custom-folders:add',
+  CUSTOM_FOLDERS_REMOVE: 'custom-folders:remove',
+  CUSTOM_FOLDERS_SCAN: 'custom-folders:scan',
+  CUSTOM_FOLDERS_TRASH: 'custom-folders:trash',
   APP_SPACE_SCAN: 'app-space:scan',
   APP_SPACE_REVIEW: 'app-space:review',
   APP_SPACE_RETAIN: 'app-space:retain',

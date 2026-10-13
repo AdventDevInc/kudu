@@ -38,13 +38,14 @@ export class DownloadsClaimBatch {
     private readonly trash: (path: string) => Promise<void>,
     private readonly allowed: (original: string, claimed: string) => Promise<boolean> = async () =>
       true,
-    private readonly operations = { rename, link }
+    private readonly operations = { rename, link },
+    private readonly recoveryPrefix = 'Kudu Downloads Recovery-'
   ) {}
 
   private async stageDirectory(): Promise<string> {
     if (!(await this.rootUnchanged())) throw new Error('Downloads changed')
     if (!this.directory) {
-      this.directory = await mkdtemp(join(this.root, 'Kudu Downloads Recovery-'))
+      this.directory = await mkdtemp(join(this.root, this.recoveryPrefix))
       this.directoryIdentity = await lstat(this.directory, { bigint: true })
     }
     await this.checkDirectory()

@@ -4,6 +4,7 @@ import { featureReads } from './feature-fixtures'
 import { perfFixture } from './perf-fixtures'
 import { driverReads } from './driver-fixtures'
 import type { ScanHistoryEntry, StartupItem, PerfSnapshot } from '@shared/types'
+import type { CustomFolder } from '@shared/custom-folders'
 
 const GB = 1024 ** 3
 const now = Date.now()
@@ -91,7 +92,41 @@ const drive = {
   usedSpace: 328 * GB,
   isSystem: true
 }
+let customFolders: CustomFolder[] = empty
+  ? []
+  : [
+      {
+        id: 'preview-custom-folder',
+        name: 'Portable app cache',
+        path: 'Q:\\PortableApps\\ExampleApp\\cache'
+      }
+    ]
 const reads: Record<string, (...args: any[]) => unknown> = {
+  customFoldersList: () => customFolders,
+  customFoldersPick: () => 'Q:\\PortableApps\\ExampleApp\\cache',
+  customFoldersAdd: (name: string, path: string) => {
+    customFolders.push({ id: crypto.randomUUID(), name, path })
+    return [...customFolders]
+  },
+  customFoldersRemove: (id: string) => {
+    customFolders = customFolders.filter((folder) => folder.id !== id)
+    return customFolders
+  },
+  customFoldersScan: (id: string) => ({
+    scanId: 'preview-custom-folders',
+    folder: customFolders.find((folder) => folder.id === id),
+    files: empty
+      ? []
+      : Array.from({ length: 65 }, (_, index) => ({
+          id: `custom-file-${index}`,
+          path: index === 0 ? 'logs/session.log' : `thumbnails/cached-image-${index}.bin`,
+          size: 1024 * (index + 1),
+          modified: now - 86400000 * (index + 1)
+        })),
+    skipped: 2,
+    limited: false
+  }),
+  customFoldersTrash: (_scanId: string, ids: string[]) => ({ trashedIds: ids, skippedIds: [] }),
   downloadsScan: () => ({
     scanId: 'preview-downloads',
     directory: 'C:\\Users\\Preview\\Downloads',

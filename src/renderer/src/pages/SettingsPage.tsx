@@ -19,6 +19,7 @@ import { useSettingsStore } from '@/stores/settings-store'
 import { usePlatform } from '@/hooks/usePlatform'
 import { LANGUAGES } from '@/lib/languages'
 import i18next from 'i18next'
+import { CustomFoldersPanel } from '@/components/cleaner/CustomFoldersPanel'
 
 export function SettingsPage() {
   const { t } = useTranslation('settings')
@@ -96,6 +97,7 @@ export function SettingsPage() {
           'sectionCloudDashboard',
           'sectionBackups',
           'sectionCleaningPreferences',
+          'sectionCustomFolders',
           'sectionExclusions'
         ].map((key) => (
           <button
@@ -342,6 +344,10 @@ export function SettingsPage() {
               <option value={1440}>{t('skipRecent24Hours')}</option>
             </select>
           </Row>
+        </Section>
+
+        <Section id="sectionCustomFolders" title={t('sectionCustomFolders')}>
+          <CustomFoldersPanel />
         </Section>
 
         <Section id="sectionExclusions" title={t('sectionExclusions')}>

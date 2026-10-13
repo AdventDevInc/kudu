@@ -52,6 +52,8 @@ Issues, pull requests, and feature suggestions are welcome. See [CONTRIBUTING.md
 
 Cleaning rules are plain JSON — no code required to add support for a new app. Start with the [Cleaner Rules Guide](rules/RULES.md).
 
+For your own cache folders, including portable apps on another local drive, use **Settings → Custom cleaning folders**. See the [custom-folder guide](CUSTOM-FOLDERS.md) for preview, selection, and Trash recovery instructions.
+
 ## Support
 
 Kudu's desktop tools are free for everyone. If it saves you time, consider [sponsoring development](https://usekudu.com/sponsors) or starring the repo.

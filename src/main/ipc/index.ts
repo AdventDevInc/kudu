@@ -1,4 +1,5 @@
 import { registerDownloadsReviewIpc } from './downloads-review.ipc'
+import { registerCustomFoldersIpc } from './custom-folders.ipc'
 import { registerAppSpaceIpc } from './app-space.ipc'
 import { registerAppPrivacyIpc } from './app-privacy.ipc'
 import { registerStorageHistoryIpc } from './storage-history.ipc'
@@ -85,6 +86,7 @@ import { findCleanerBlockers } from '../services/cleaner-blockers'
 export type WindowGetter = () => BrowserWindow | null
 
 export function registerCleanerIpc(getWindow: WindowGetter): void {
+  registerCustomFoldersIpc(getWindow)
   registerDownloadsReviewIpc()
   registerAppSpaceIpc()
   registerAppPrivacyIpc()

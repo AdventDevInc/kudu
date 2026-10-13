@@ -1,4 +1,9 @@
 import type { DownloadsScanResult, DownloadsTrashResult } from '../shared/downloads-review'
+import type {
+  CustomFolder,
+  CustomFolderScan,
+  CustomFolderTrashResult
+} from '../shared/custom-folders'
 import type { AppPrivacyCapability, AppPrivacyReport } from '../shared/app-privacy'
 import type { UninstallOptions } from '../shared/uninstall-policy'
 import type {
@@ -104,6 +109,16 @@ import type {
 } from '../shared/types'
 
 const api = {
+  customFoldersPick: (): Promise<string | null> => ipcRenderer.invoke(IPC.CUSTOM_FOLDERS_PICK),
+  customFoldersList: (): Promise<CustomFolder[]> => ipcRenderer.invoke(IPC.CUSTOM_FOLDERS_LIST),
+  customFoldersAdd: (name: string, path: string): Promise<CustomFolder[]> =>
+    ipcRenderer.invoke(IPC.CUSTOM_FOLDERS_ADD, name, path),
+  customFoldersRemove: (id: string): Promise<CustomFolder[]> =>
+    ipcRenderer.invoke(IPC.CUSTOM_FOLDERS_REMOVE, id),
+  customFoldersScan: (id: string): Promise<CustomFolderScan> =>
+    ipcRenderer.invoke(IPC.CUSTOM_FOLDERS_SCAN, id),
+  customFoldersTrash: (scanId: string, ids: string[]): Promise<CustomFolderTrashResult> =>
+    ipcRenderer.invoke(IPC.CUSTOM_FOLDERS_TRASH, scanId, ids),
   storageHistoryList: (
     scopeId?: string,
     offset = 0

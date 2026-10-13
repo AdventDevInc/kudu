@@ -2,6 +2,8 @@
 
 Kudu's cleaning targets are defined as JSON files in this directory. Adding support for a new app, game launcher, or cache location is as simple as editing a JSON file — no TypeScript or Electron knowledge required.
 
+This is a **source-code contribution guide**. These files are bundled at build time, so editing JSON beside an installed executable does not add a cleaning target. For personal folders, including portable-app caches on another local drive, use **Settings → Custom cleaning folders** and follow the [Custom cleaning folders guide](../CUSTOM-FOLDERS.md).
+
 Browse the [full cleaner directory](https://usekudu.com/cleaners) to see what's already covered and what's missing.
 
 ## Directory Layout
@@ -79,7 +81,7 @@ Add your app to `apps.json` for each platform where it exists. Example for a hyp
 
 ### 3. Template Variables
 
-Paths use template variables instead of hardcoded locations. The loader resolves these at runtime.
+Built-in rules should use template variables instead of machine-specific hardcoded locations. The loader resolves these at runtime. Literal absolute paths are also accepted by the resolver (for example, `Q:/PortableApps/ExampleApp/cache`), but personal paths belong in Custom cleaning folders rather than shared source rules. No additional drive-letter template variable is needed.
 
 **Windows (`win32/`):**
 | Variable | Resolves to |
