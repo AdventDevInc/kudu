@@ -12,7 +12,6 @@ import {
   RefreshCw,
   Package,
   ArrowRight,
-  Sparkles,
   XCircle,
   Filter,
   EyeOff,
@@ -187,7 +186,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         useUpdaterStore.getState().ignoredApps.length === 0 &&
         !result.managers.some((m) => m.error)
       ) {
-        toast.success(t('softwareUpdater.toastAllUpToDate'))
+        toast.info(t('softwareUpdater.toastAllUpToDate'))
       } else if (visibleCount > 0) {
         toast.info(
           visibleCount !== 1
@@ -881,14 +880,15 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         </div>
       )}
 
-      {/* All up to date */}
+      {/* No updates reported by the package managers checked */}
       {hasChecked &&
         !loading &&
         apps.length === 0 &&
         ignoredApps.length === 0 &&
+        failedManagers.length === 0 &&
         packageManagerAvailable && (
           <EmptyState
-            icon={Sparkles}
+            icon={Package}
             title={t('softwareUpdater.allUpToDateTitle')}
             description={t('softwareUpdater.allUpToDateDescription')}
           />
@@ -950,11 +950,12 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
         </div>
       )}
 
-      {/* Up to date apps */}
+      {/* Installed apps without a package-manager update */}
       {hasChecked && !loading && packageManagerAvailable && upToDate.length > 0 && (
         <div className="mb-6">
           <button
             onClick={() => setShowUpToDate(!showUpToDate)}
+            aria-expanded={showUpToDate}
             className="mb-3 flex items-center gap-2 text-[13px] font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
           >
             {showUpToDate ? (
@@ -962,9 +963,12 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
             ) : (
               <ChevronRight className="h-4 w-4" strokeWidth={2} />
             )}
-            <CheckCircle2 className="h-4 w-4 text-green-500" strokeWidth={1.8} />
+            <Package className="h-4 w-4" strokeWidth={1.8} />
             {t('softwareUpdater.upToDateSection', { count: upToDate.length })}
           </button>
+          <p className="mb-3 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+            {t('softwareUpdater.noUpdatesHint')}
+          </p>
 
           {showUpToDate && (
             <div className="grid grid-cols-1 gap-1.5">
@@ -1150,9 +1154,9 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
     >
       <div
         className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-        style={{ background: 'rgba(34,197,94,0.08)' }}
+        style={{ background: 'var(--bg-hover)' }}
       >
-        <CheckCircle2 className="h-4 w-4 text-green-500" strokeWidth={1.8} />
+        <Package className="h-4 w-4" style={{ color: 'var(--text-muted)' }} strokeWidth={1.8} />
       </div>
       <div className="flex-1 min-w-0">
         <span className="text-[12px] font-medium text-zinc-400 truncate block">{app.name}</span>
@@ -1164,9 +1168,9 @@ function UpToDateRow({ app }: { app: UpToDateApp }) {
       <span
         className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-medium"
         style={{
-          background: 'rgba(34,197,94,0.06)',
-          color: '#4ade80',
-          border: '1px solid rgba(34,197,94,0.1)'
+          background: 'var(--bg-hover)',
+          color: 'var(--text-muted)',
+          border: '1px solid var(--border-subtle)'
         }}
       >
         {t('softwareUpdater.latestBadge')}
