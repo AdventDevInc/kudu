@@ -415,12 +415,12 @@ export function Sidebar() {
       setOpenSubmenu('/settings')
   }, [location.pathname])
 
-  // Compute parent badge counts from visible children only
-  const effectiveBadgeCounts = { ...badgeCounts }
+  // Keep group totals separate: a parent can share its path with a child.
+  const parentBadgeCounts = { ...badgeCounts }
   for (const group of filteredNavGroups) {
     for (const item of group.items) {
       if (item.children && item.children.length > 0) {
-        effectiveBadgeCounts[item.path] = item.children.reduce(
+        parentBadgeCounts[item.path] = item.children.reduce(
           (sum, child) => sum + (badgeCounts[child.path] ?? 0),
           0
         )
@@ -479,8 +479,8 @@ export function Sidebar() {
                 <NavItem
                   key={item.path}
                   item={item}
-                  badgeCount={effectiveBadgeCounts[item.path]}
-                  badgeCounts={effectiveBadgeCounts}
+                  badgeCount={parentBadgeCounts[item.path]}
+                  badgeCounts={badgeCounts}
                   isActive={isPathActive(item)}
                   submenuOpen={openSubmenu === item.path}
                   {...submenuProps}
@@ -523,7 +523,7 @@ export function Sidebar() {
         submenuProps={submenuProps}
         openSubmenu={openSubmenu}
         isPathActive={isPathActive}
-        badgeCounts={effectiveBadgeCounts}
+        badgeCounts={badgeCounts}
       />
     </div>
   )
