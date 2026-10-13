@@ -13,8 +13,13 @@ import {
 } from 'fs/promises'
 import { dirname, join, parse } from 'path'
 import { homedir, tmpdir } from 'os'
-import { assertCustomFolderPath, CustomFolders } from './custom-folders'
+import { assertCustomFolderPath, CustomFolders, isBroadUnixCustomFolder } from './custom-folders'
 import { mountPoints } from './mount-points'
+import { assertLocalCustomFilesystem } from './custom-folder-filesystem'
+
+vi.mock('./custom-folder-filesystem', () => ({
+  assertLocalCustomFilesystem: vi.fn(async () => {})
+}))
 
 vi.mock('./mount-points', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./mount-points')>()),
@@ -31,6 +36,7 @@ describe('Custom folders', () => {
     await mkdir(root, { recursive: true })
     exclusions = []
     vi.mocked(mountPoints).mockResolvedValue(new Set())
+    vi.mocked(assertLocalCustomFilesystem).mockResolvedValue(undefined)
     trash = vi.fn(async (path: string) => {
       await unlink(path)
     })
@@ -63,6 +69,41 @@ describe('Custom folders', () => {
       for (const path of ['//server/share/cache', '\\cache', '/cache', 'Q:cache'])
         expect(() => assertCustomFolderPath(path)).toThrow()
     }
+  })
+
+  it('blocks broad Unix system/temp roots while allowing specific cache descendants', () => {
+    for (const path of [
+      '/var',
+      '/var/tmp',
+      '/tmp',
+      '/opt',
+      '/mnt',
+      '/media',
+      '/run',
+      '/srv',
+      '/private/var',
+      '/private/tmp'
+    ]) {
+      expect(isBroadUnixCustomFolder(path)).toBe(true)
+      expect(isBroadUnixCustomFolder(path + '/')).toBe(true)
+      expect(isBroadUnixCustomFolder(path + '/example/cache')).toBe(false)
+      if (process.platform !== 'win32') expect(() => assertCustomFolderPath(path)).toThrow()
+    }
+  })
+
+  it('rechecks locality when adding, scanning and cleaning a saved target', async () => {
+    vi.mocked(assertLocalCustomFilesystem).mockRejectedValue(new Error('Network filesystem'))
+    await expect(folders.add('Remote', root)).rejects.toThrow('Network')
+    expect(await folders.list()).toEqual([])
+    vi.mocked(assertLocalCustomFilesystem).mockResolvedValue(undefined)
+    const [target] = await folders.add('Cache', root)
+    await writeFile(join(root, 'one.log'), 'data')
+    const scan = await folders.scan(target.id)
+    vi.mocked(assertLocalCustomFilesystem).mockRejectedValue(new Error('Network filesystem'))
+    await expect(folders.trashSelected(scan.scanId, [scan.files[0].id])).rejects.toThrow('Network')
+    await expect(folders.scan(target.id)).rejects.toThrow('Network')
+    expect(trash).not.toHaveBeenCalled()
+    expect(await readFile(join(root, 'one.log'), 'utf8')).toBe('data')
   })
 
   it('persists canonical targets across restarts and removes targets without deleting files', async () => {

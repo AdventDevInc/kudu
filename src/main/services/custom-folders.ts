@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto'
 import { lstat, mkdir, opendir, readFile, realpath, rename, writeFile } from 'fs/promises'
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'path'
+import { dirname, isAbsolute, join, posix, relative, resolve, sep } from 'path'
 import { homedir } from 'os'
 import type { BigIntStats } from 'fs'
 import type {
@@ -13,6 +13,7 @@ import type { DownloadIdentity } from './downloads-claim'
 import { isExcludedResolved } from './file-utils'
 import { mountPoints } from './mount-points'
 import { validateStorageRoot } from './storage-scan'
+import { assertLocalCustomFilesystem } from './custom-folder-filesystem'
 
 const key = (path: string): string =>
   process.platform === 'win32' ? resolve(path).toLowerCase() : resolve(path)
@@ -20,6 +21,28 @@ const within = (path: string, root: string): boolean =>
   key(path) === key(root) || key(path).startsWith(key(root) + sep)
 const sameDirectory = (a: BigIntStats, b: BigIntStats): boolean =>
   a.dev === b.dev && a.ino === b.ino && a.birthtimeNs === b.birthtimeNs
+
+const BROAD_UNIX_ROOTS = new Set([
+  '/home',
+  '/Users',
+  '/var',
+  '/var/tmp',
+  '/var/cache',
+  '/var/log',
+  '/tmp',
+  '/opt',
+  '/mnt',
+  '/media',
+  '/run',
+  '/srv',
+  '/Volumes',
+  '/private',
+  '/private/var',
+  '/private/var/tmp',
+  '/private/tmp'
+])
+export const isBroadUnixCustomFolder = (path: string): boolean =>
+  BROAD_UNIX_ROOTS.has(posix.normalize(path).replace(/\/$/, ''))
 
 /** Exact local folders only. Broad user/system roots are never custom cleanup targets. */
 export function assertCustomFolderPath(path: string, home = homedir()): void {
@@ -33,6 +56,8 @@ export function assertCustomFolderPath(path: string, home = homedir()): void {
   )
     throw new Error('Choose an exact local folder path without wildcards.')
   const resolved = resolve(path)
+  if (process.platform !== 'win32' && isBroadUnixCustomFolder(resolved))
+    throw new Error('Choose a specific cache folder, not a shared system or temporary root.')
   if (dirname(resolved) === resolved || within(home, resolved))
     throw new Error('Choose a specific cache folder, not a drive or home folder.')
   const userRoots = [
@@ -146,6 +171,7 @@ export class CustomFolders {
       // Validate before realpath, so a chosen junction cannot silently become a target.
       const root = await realpath(await validateStorageRoot(path))
       assertCustomFolderPath(root)
+      await assertLocalCustomFilesystem(root)
       const folders = await this.list()
       if (folders.length >= 100) throw new Error('You can save up to 100 custom folders.')
       if (folders.some((folder) => within(root, folder.path) || within(folder.path, root)))
@@ -192,6 +218,7 @@ export class CustomFolders {
       const folder = (await this.list()).find((folder) => folder.id === id)
       if (!folder) throw new Error('Custom folder no longer exists.')
       assertCustomFolderPath(folder.path)
+      await assertLocalCustomFilesystem(folder.path)
       await validateStorageRoot(folder.path)
       if (key(await realpath(folder.path)) !== key(folder.path))
         throw new Error('Folder changed. Add it again.')
@@ -301,6 +328,7 @@ export class CustomFolders {
         throw new Error('Invalid selection.')
       const session = this.session
       if (!session || session.id !== scanId) throw new Error('This preview expired. Scan again.')
+      await assertLocalCustomFilesystem(session.folder.path)
       const result: CustomFolderTrashResult = { trashedIds: [], skippedIds: [] }
       const claims = new Map<string, DownloadsClaimBatch>()
       try {

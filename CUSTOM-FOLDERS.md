@@ -23,8 +23,8 @@ Custom folders are **manual only**. They are separate from built-in Cleaner cate
 
 ## Limits and safeguards
 
-- Use exact local absolute paths. Wildcards, template variables, relative paths, and network/UNC paths are not supported.
-- Drive roots, home folders, broad standard user folders, system trees, and Kudu recovery folders are blocked. Choose a specific folder beneath an allowed location.
+- Use exact local absolute paths. Wildcards, template variables, relative paths, network/UNC paths, mapped network drives, and network-mounted folders are not supported. Kudu checks the backing drive or filesystem when adding, scanning, and cleaning a target; unavailable or unknown locality information blocks the operation.
+- Drive roots, home folders, broad standard user folders, system trees, and Kudu recovery folders are blocked. Broad shared Unix roots such as `/var`, `/var/tmp`, `/tmp`, `/opt`, and `/mnt` are also blocked; choose a specific cache descendant beneath an allowed location.
 - Up to 100 targets can be saved. Targets cannot overlap one another.
 - Settings exclusions apply both during scanning and immediately before cleanup.
 - Symbolic links, junctions, hard-linked files, and mounted filesystems beneath a target are skipped. Empty directories and the target folder itself are left in place.
