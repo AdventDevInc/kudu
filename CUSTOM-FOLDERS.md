@@ -2,6 +2,8 @@
 
 Custom cleaning folders let you review disposable files in an exact folder on any local drive, including caches used by portable apps. You do not need to edit Kudu's built-in JSON rules or rebuild the app.
 
+The panel's labels follow Kudu's selected display language. Your folder names and filesystem paths are not translated.
+
 ## Add and clean a folder
 
 1. Open **Settings → Custom cleaning folders**.
