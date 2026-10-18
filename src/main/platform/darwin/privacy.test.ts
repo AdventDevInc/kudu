@@ -247,6 +247,30 @@ describe('darwin privacy checks run unprivileged', () => {
       expect(await find('macos-remote-login').check()).toBe(false)
     })
 
+    it('matches the exact service label among other overrides', async () => {
+      mockExec((cmd) => {
+        if (cmd === '/bin/launchctl') {
+          return {
+            stdout:
+              '"comXopensshXsshd" => enabled\n"com.openssh.sshd.extra" => enabled\n\t"com.openssh.sshd" => disabled'
+          }
+        }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-remote-login').check()).toBe(true)
+      expect(calledCommands()).not.toContain('/usr/bin/nc')
+    })
+
+    it('probes the port when the override has an unrecognized state', async () => {
+      mockExec((cmd) => {
+        if (cmd === '/bin/launchctl') return { stdout: '"com.openssh.sshd" => disabledUnknown' }
+        if (cmd === '/usr/bin/nc') return { stdout: '' }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find('macos-remote-login').check()).toBe(false)
+      expect(calledCommands()).toContain('/usr/bin/nc')
+    })
+
     it('falls back to probing port 22 when launchctl gives no answer', async () => {
       mockExec((cmd, args) => {
         if (cmd === '/bin/launchctl') return { stdout: 'disabled services = {\n}\n' }

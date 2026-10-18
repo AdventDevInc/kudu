@@ -72,7 +72,8 @@ describe('cleanup share privacy projection', () => {
       const svg = cleanupCardSvg(shareCleanup(summary), 'dark', format, true, () => '<script>&"')
       expect(svg).toContain(format === 'square' ? 'height="1080"' : 'height="675"')
       expect(svg).toContain('&lt;script&gt;&amp;&quot;')
-      expect(svg).not.toMatch(/Private|secret|locked|<script>/)
+      expect(svg).not.toMatch(/Private|secret|locked/)
+      expect(svg).not.toContain('<script>')
     }
   })
   it('never renders breakdown rows when disabled', () => {

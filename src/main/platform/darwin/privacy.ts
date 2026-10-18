@@ -209,9 +209,11 @@ async function isLaunchdServiceEnabled(label: string, fallbackPort: number): Pro
     })
     // Newer macOS prints `=> enabled|disabled`; older prints `=> true|false`
     // (true = disabled, since this is the *disabled* table).
-    const escaped = label.replace(/\./g, '\\.')
-    const match = stdout.match(new RegExp(`"${escaped}"\\s*=>\\s*(enabled|disabled|true|false)`))
-    if (match) return match[1] === 'enabled' || match[1] === 'false'
+    for (const match of stdout.matchAll(
+      /^\s*"([^"\r\n]+)"\s*=>\s*(enabled|disabled|true|false)\b/gm
+    )) {
+      if (match[1] === label) return match[2] === 'enabled' || match[2] === 'false'
+    }
   } catch {
     /* fall through to port probe */
   }
