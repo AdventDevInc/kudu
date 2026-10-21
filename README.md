@@ -40,11 +40,13 @@ Download the latest release for your platform from [GitHub Releases](https://git
 
 | Platform | Formats                                    |
 | -------- | ------------------------------------------ |
-| Windows  | `.exe` installer, portable ZIP or EXE      |
+| Windows  | `.exe` installer, portable ZIP or EXE (x64, ARM64) |
 | macOS    | `.dmg` (Intel and Apple Silicon)           |
 | Linux    | `.AppImage` or `.deb` (x64, arm64)         |
 
 The installer is recommended for automatic updates and scheduled scans on startup. Portable builds keep settings in AppData and are updated manually.
+
+Windows ARM64 builds target Windows 11 on ARM. See [ARM64 build and validation details](docs/windows-arm64.md).
 
 ## Contributing
 
