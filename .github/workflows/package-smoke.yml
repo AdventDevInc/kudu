@@ -47,6 +47,9 @@ jobs:
             # This override applies only to this unpublished test package.
             args: --win --x64 -c.win.requestedExecutionLevel=asInvoker
             executable: dist/win-unpacked/Kudu.exe
+          - os: windows-11-arm
+            args: --win --arm64 -c.win.requestedExecutionLevel=asInvoker
+            executable: dist/win-arm64-unpacked/Kudu.exe
           - os: ubuntu-24.04-arm
             args: --linux --arm64
             executable: dist/linux-arm64-unpacked/kudu

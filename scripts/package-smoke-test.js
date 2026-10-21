@@ -10,6 +10,11 @@ if (process.argv[2] === '--native') {
   // This branch runs inside the packaged Electron binary, using only modules
   // shipped in app.asar. It never resolves natives from the source checkout.
   assert(process.versions.electron, 'Native smoke test must use the packaged Electron runtime')
+  assert.equal(
+    process.arch,
+    process.argv[4],
+    'Packaged runtime must match the test host architecture'
+  )
   const archive = process.argv[3]
   const packagedRequire = createRequire(path.join(archive, 'package.json'))
   for (const file of [
@@ -79,7 +84,9 @@ async function runPackagedSmoke() {
   }
   try {
     console.log(
-      run([__filename, '--native', path.join(resources, 'app.asar')], { ELECTRON_RUN_AS_NODE: '1' })
+      run([__filename, '--native', path.join(resources, 'app.asar'), process.arch], {
+        ELECTRON_RUN_AS_NODE: '1'
+      })
     )
     const flags =
       process.platform === 'linux'
