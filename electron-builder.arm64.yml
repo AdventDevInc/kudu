@@ -1,0 +1,23 @@
+# Native Windows ARM64 builds keep their own installer and update channel.
+# Preserve the existing x64 filenames and latest.yml for installed clients.
+extends: ./electron-builder.yml
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - arm64
+    - target: portable
+      arch:
+        - arm64
+
+nsis:
+  artifactName: Kudu-Setup-${version}-arm64.${ext}
+
+portable:
+  artifactName: Kudu-Portable-${version}-arm64.${ext}
+
+publish:
+  provider: github
+  releaseType: release
+  channel: latest-arm64

@@ -77,6 +77,8 @@ jobs:
         include:
           - os: windows-latest
             build-args: --win
+          - os: windows-11-arm
+            build-args: --win --config electron-builder.arm64.yml
           - os: macos-latest
             build-args: --mac
           # Explicit targets prevent the config's target.arch lists from adding

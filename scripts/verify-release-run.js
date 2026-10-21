@@ -13,9 +13,13 @@ function verifyReleaseRun(run, jobs, repo, tag, tagCommit) {
   )
   for (const name of [
     'Prepare Draft Release',
-    ...['windows-latest', 'macos-latest', 'ubuntu-latest', 'ubuntu-24.04-arm'].map(
-      (runner) => `Build and Sign (${runner})`
-    )
+    ...[
+      'windows-latest',
+      'windows-11-arm',
+      'macos-latest',
+      'ubuntu-latest',
+      'ubuntu-24.04-arm'
+    ].map((runner) => `Build and Sign (${runner})`)
   ]) {
     const matches = jobs.filter((job) => job.name === name)
     assert.equal(matches.length, 1, `Expected exactly one job: ${name}`)

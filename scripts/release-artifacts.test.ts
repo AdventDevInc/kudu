@@ -26,6 +26,7 @@ async function fixture() {
   const names = expectedAssetNames(tag)
   const targets = {
     'latest.yml': ['Kudu-Setup-2.9.0.exe'],
+    'latest-arm64.yml': ['Kudu-Setup-2.9.0-arm64.exe'],
     'latest-mac.yml': [
       'Kudu-2.9.0-x64.dmg',
       'Kudu-2.9.0-x64.zip',
@@ -62,8 +63,22 @@ async function editManifest(directory: string, name: string, edit: (manifest: an
 describe('release artifact verification', () => {
   it('accepts a complete release with all architecture manifests', async () => {
     const assets = await verifyReleaseArtifacts(await fixture(), tag)
-    expect(assets).toHaveLength(20)
+    expect(assets).toHaveLength(25)
   })
+
+  it.each(['latest.yml', 'latest-arm64.yml'])(
+    'rejects Windows update metadata targeting the other architecture: %s',
+    async (name) => {
+      const directory = await fixture()
+      await editManifest(directory, name, (manifest) => {
+        manifest.files[0].url =
+          name === 'latest.yml' ? 'Kudu-Setup-2.9.0-arm64.exe' : 'Kudu-Setup-2.9.0.exe'
+      })
+      await expect(verifyReleaseArtifacts(directory, tag)).rejects.toThrow(
+        'unexpected update target'
+      )
+    }
+  )
 
   it('rejects a missing installer before publishing', async () => {
     const directory = await fixture()

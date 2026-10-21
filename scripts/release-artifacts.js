@@ -13,6 +13,7 @@ function releaseVersion(tag) {
 function manifestTargets(version) {
   return {
     'latest.yml': [`Kudu-Setup-${version}.exe`],
+    'latest-arm64.yml': [`Kudu-Setup-${version}-arm64.exe`],
     'latest-mac.yml': ['x64', 'arm64'].flatMap((arch) => [
       `Kudu-${version}-${arch}.dmg`,
       `Kudu-${version}-${arch}.zip`
@@ -31,6 +32,8 @@ function expectedAssetNames(tag) {
     ...installers,
     `Kudu-Portable-${version}.exe`,
     `Kudu-Portable-${version}-x64.zip`,
+    `Kudu-Portable-${version}-arm64.exe`,
+    `Kudu-Portable-${version}-arm64.zip`,
     ...installers.filter((name) => /\.(exe|dmg|zip)$/.test(name)).map((name) => `${name}.blockmap`),
     ...Object.keys(manifests)
   ]

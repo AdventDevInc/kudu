@@ -18,9 +18,13 @@ function fixture() {
     },
     jobs: [
       'Prepare Draft Release',
-      ...['windows-latest', 'macos-latest', 'ubuntu-latest', 'ubuntu-24.04-arm'].map(
-        (runner) => `Build and Sign (${runner})`
-      )
+      ...[
+        'windows-latest',
+        'windows-11-arm',
+        'macos-latest',
+        'ubuntu-latest',
+        'ubuntu-24.04-arm'
+      ].map((runner) => `Build and Sign (${runner})`)
     ].map((name) => ({ name, conclusion: 'success' }))
   }
 }

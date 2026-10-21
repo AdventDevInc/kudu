@@ -8,6 +8,7 @@ on:
       - 'package-lock.json'
       - '.nvmrc'
       - 'electron-builder.yml'
+      - 'electron-builder.arm64.yml'
       - 'electron.vite.config.ts'
       - 'tsconfig*.json'
       - 'src/**'
@@ -45,13 +46,13 @@ jobs:
           - os: windows-latest
             # The smoke executable must start unattended without a UAC prompt.
             # This override applies only to this unpublished test package.
-            args: --win --x64 -c.win.requestedExecutionLevel=asInvoker
+            args: --win --x64 -c.win.requestedExecutionLevel=asInvoker -c.nsis.runAfterFinish=false -c.nsis.createDesktopShortcut=false -c.nsis.createStartMenuShortcut=false -c.appId=com.kudu.package-smoke
             executable: dist/win-unpacked/Kudu.exe
           - os: windows-11-arm
-            args: --win --arm64 -c.win.requestedExecutionLevel=asInvoker
+            args: --win --config electron-builder.arm64.yml -c.win.requestedExecutionLevel=asInvoker -c.nsis.runAfterFinish=false -c.nsis.createDesktopShortcut=false -c.nsis.createStartMenuShortcut=false -c.appId=com.kudu.package-smoke
             executable: dist/win-arm64-unpacked/Kudu.exe
           - os: ubuntu-24.04-arm
-            args: --linux --arm64
+            args: --dir --linux --arm64
             executable: dist/linux-arm64-unpacked/kudu
     steps:
       - name: Checkout
@@ -72,7 +73,11 @@ jobs:
         shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder --dir --publish never ${{ matrix.args }}
+        run: npx electron-builder --publish never ${{ matrix.args }}
       - name: Verify packaged resources, native modules, and CLI
         run: node scripts/package-smoke-test.js "${{ matrix.executable }}"
+        timeout-minutes: 5
+      - name: Verify Windows installer, update channel, and portable ZIP
+        if: runner.os == 'Windows'
+        run: node scripts/windows-package-smoke-test.js
         timeout-minutes: 5
