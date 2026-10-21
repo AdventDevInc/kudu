@@ -141,6 +141,7 @@
     "consentAnalysis": "Chọn có chia sẻ hay không"
   },
   "routes": {
+    "downloads": "Xem lại các tệp tải xuống bị lãng quên và chọn những gì cần giữ lại.",
     "cleaner": "Giải phóng dung lượng cho những gì quan trọng. Quét dữ liệu rác, so sánh các danh mục, rồi xem lại những gì cần xóa.",
     "registry": "Tìm các mục registry đã lỗi thời và xem lại các bản sửa lỗi được đề xuất trước khi thực hiện thay đổi.",
     "contextMenu": "Menu nhấp chuột phải gọn gàng hơn. Xem lại các tiện ích mở rộng shell, rồi tắt những mục bạn không cần.",

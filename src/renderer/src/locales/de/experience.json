@@ -141,6 +141,7 @@
     "consentAnalysis": "Auswählen, ob geteilt werden soll"
   },
   "routes": {
+    "downloads": "Überprüfen Sie vergessene Downloads und wählen Sie aus, was Sie behalten möchten.",
     "cleaner": "Schaffen Sie Platz für das, was wichtig ist. Suchen Sie nach Datenmüll, vergleichen Sie Kategorien und prüfen Sie dann, was entfernt werden soll.",
     "registry": "Finden Sie veraltete Registrierungseinträge und prüfen Sie die vorgeschlagenen Korrekturen, bevor Sie Änderungen vornehmen.",
     "contextMenu": "Ein einfacheres Rechtsklick-Menü. Prüfen Sie Shell-Erweiterungen und deaktivieren Sie dann Einträge, die Sie nicht benötigen.",

@@ -141,6 +141,7 @@
     "consentAnalysis": "Paylaşıp paylaşmayacağınızı seçin"
   },
   "routes": {
+    "downloads": "Unutulmuş indirilenleri inceleyin ve hangilerini tutacağınıza karar verin.",
     "cleaner": "Önemli olanlar için yer açın. Dağınıklığı tarayın, kategorileri karşılaştırın, ardından nelerin kaldırılacağını gözden geçirin.",
     "registry": "Güncelliğini yitirmiş kayıt defteri girdilerini bulun ve değişiklik yapmadan önce önerilen düzeltmeleri gözden geçirin.",
     "contextMenu": "Daha sade bir sağ tıklama menüsü. Kabuk uzantılarını gözden geçirin, ardından ihtiyacınız olmayan girdileri devre dışı bırakın.",

@@ -141,6 +141,7 @@
     "consentAnalysis": "Alegeți dacă doriți să partajați"
   },
   "routes": {
+    "downloads": "Revizuiți descărcările uitate și alegeți ce să păstrați.",
     "cleaner": "Faceți loc pentru ce contează. Scanați pentru dezordine, comparați categoriile, apoi examinați ce să eliminați.",
     "registry": "Găsiți intrările de registry învechite și examinați remedierile propuse înainte de a face modificări.",
     "contextMenu": "Un meniu de clic dreapta mai simplu. Examinați extensiile shell, apoi dezactivați intrările de care nu aveți nevoie.",

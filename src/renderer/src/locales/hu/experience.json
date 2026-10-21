@@ -141,6 +141,7 @@
     "consentAnalysis": "Válassza ki, szeretné-e megosztani"
   },
   "routes": {
+    "downloads": "Tekintse át az elfelejtett letöltéseket, és válassza ki, mit szeretne megtartani.",
     "cleaner": "Szabadítson fel helyet annak, ami fontos. Keressen felesleges fájlokat, hasonlítsa össze a kategóriákat, majd tekintse át, mit szeretne eltávolítani.",
     "registry": "Keresse meg az elavult rendszerleíró bejegyzéseket, és a módosítások előtt tekintse át a javasolt javításokat.",
     "contextMenu": "Egyszerűbb jobb gombos menü. Tekintse át a rendszerhéj-bővítményeket, majd tiltsa le a nem szükséges bejegyzéseket.",

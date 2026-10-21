@@ -141,6 +141,7 @@
     "consentAnalysis": "Pilih sama ada untuk berkongsi"
   },
   "routes": {
+    "downloads": "Semak muat turun yang terlupa dan pilih yang hendak disimpan.",
     "cleaner": "Kosongkan ruang untuk perkara yang penting. Imbas kekusutan, bandingkan kategori, kemudian semak perkara yang hendak dibuang.",
     "registry": "Cari entri registry yang lapuk dan semak pembaikan yang dicadangkan sebelum membuat perubahan.",
     "contextMenu": "Menu klik kanan yang lebih ringkas. Semak sambungan shell, kemudian nyahdayakan entri yang anda tidak perlukan.",

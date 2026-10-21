@@ -141,6 +141,7 @@
     "consentAnalysis": "Valitse, haluatko jakaa"
   },
   "routes": {
+    "downloads": "Tarkista unohtuneet lataukset ja valitse, mitä säilytetään.",
     "cleaner": "Vapauta tilaa tärkeille asioille. Etsi turhat tiedostot, vertaa luokkia ja tarkista sitten, mitä poistetaan.",
     "registry": "Etsi vanhentuneet rekisterimerkinnät ja tarkista ehdotetut korjaukset ennen muutosten tekemistä.",
     "contextMenu": "Yksinkertaisempi hiiren kakkospainikkeen valikko. Tarkista shell-laajennukset ja poista käytöstä kohteet, joita et tarvitse.",

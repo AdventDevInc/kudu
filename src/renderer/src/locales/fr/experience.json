@@ -141,6 +141,7 @@
     "consentAnalysis": "Choisir si vous souhaitez partager"
   },
   "routes": {
+    "downloads": "Vérifiez les téléchargements oubliés et choisissez ceux à conserver.",
     "cleaner": "Libérez de l’espace pour l’essentiel. Recherchez les éléments inutiles, comparez les catégories, puis examinez ce qu’il faut supprimer.",
     "registry": "Recherchez les entrées de registre obsolètes et examinez les corrections proposées avant d’apporter des modifications.",
     "contextMenu": "Un menu clic droit plus simple. Examinez les extensions de l’interpréteur de commandes, puis désactivez les entrées dont vous n’avez pas besoin.",

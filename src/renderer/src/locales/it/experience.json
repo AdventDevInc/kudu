@@ -141,6 +141,7 @@
     "consentAnalysis": "Scegli se condividere"
   },
   "routes": {
+    "downloads": "Controlla i download dimenticati e scegli cosa conservare.",
     "cleaner": "Libera spazio per ciò che conta. Analizza gli elementi superflui, confronta le categorie e poi rivedi cosa rimuovere.",
     "registry": "Trova le voci del registro obsolete e rivedi le correzioni proposte prima di apportare modifiche.",
     "contextMenu": "Un menu del clic destro più semplice. Rivedi le estensioni della shell, poi disabilita le voci che non ti servono.",

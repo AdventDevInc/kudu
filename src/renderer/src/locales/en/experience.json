@@ -138,6 +138,7 @@
     "consentAnalysis": "Choose whether to share"
   },
   "routes": {
+    "downloads": "Review forgotten downloads and choose what to keep.",
     "cleaner": "Make space for what matters. Scan for clutter, compare categories, then review what to remove.",
     "registry": "Find outdated registry entries and review the proposed fixes before making changes.",
     "contextMenu": "A simpler right-click menu. Review shell extensions, then disable entries you don't need.",

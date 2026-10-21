@@ -141,6 +141,7 @@
     "consentAnalysis": "Elegir si desea compartir"
   },
   "routes": {
+    "downloads": "Revise las descargas olvidadas y elija qué conservar.",
     "cleaner": "Libere espacio para lo que importa. Busque desorden, compare categorías y luego revise qué quitar.",
     "registry": "Encuentre entradas del registro obsoletas y revise las correcciones propuestas antes de realizar cambios.",
     "contextMenu": "Un menú contextual más sencillo. Revise las extensiones del shell y luego deshabilite las entradas que no necesite.",

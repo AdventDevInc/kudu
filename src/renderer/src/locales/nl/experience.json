@@ -141,6 +141,7 @@
     "consentAnalysis": "Kies of u wilt delen"
   },
   "routes": {
+    "downloads": "Controleer vergeten downloads en kies wat u wilt behouden.",
     "cleaner": "Maak ruimte vrij voor wat belangrijk is. Scan op rommel, vergelijk categorieën en bekijk daarna wat u wilt verwijderen.",
     "registry": "Zoek verouderde registervermeldingen en bekijk de voorgestelde oplossingen voordat u wijzigingen aanbrengt.",
     "contextMenu": "Een eenvoudiger rechtermuisknopmenu. Bekijk shell-extensies en schakel daarna items uit die u niet nodig hebt.",

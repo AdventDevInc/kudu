@@ -141,6 +141,7 @@
     "consentAnalysis": "Välj om du vill dela"
   },
   "routes": {
+    "downloads": "Granska bortglömda hämtade filer och välj vad du vill behålla.",
     "cleaner": "Frigör utrymme för det som är viktigt. Sök efter skräpfiler, jämför kategorier och granska sedan vad som ska tas bort.",
     "registry": "Hitta föråldrade registerposter och granska de föreslagna åtgärderna innan du gör ändringar.",
     "contextMenu": "En enklare högerklicksmeny. Granska shell-tillägg och inaktivera sedan poster du inte behöver.",

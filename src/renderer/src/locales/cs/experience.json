@@ -141,6 +141,7 @@
     "consentAnalysis": "Vybrat, zda sdílet"
   },
   "routes": {
+    "downloads": "Zkontrolujte zapomenuté stažené soubory a vyberte, co si ponechat.",
     "cleaner": "Uvolněte místo pro to, na čem záleží. Vyhledejte nepořádek, porovnejte kategorie a potom zkontrolujte, co odstranit.",
     "registry": "Najděte zastaralé položky registru a před provedením změn zkontrolujte navržené opravy.",
     "contextMenu": "Jednodušší nabídka po kliknutí pravým tlačítkem. Zkontrolujte rozšíření prostředí a potom zakažte položky, které nepotřebujete.",

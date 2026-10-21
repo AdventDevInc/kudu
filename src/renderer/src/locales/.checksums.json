@@ -1318,6 +1318,7 @@
       "routes.debloater": "519ca2f12ec2ffd0f77f430dbcd97690d19d3141b29036347f7a490d7fb254e0",
       "routes.diagnostics": "0a0854720bf6407e40e418fe7c0444e6ab8aec401fdda7eebdaa6b639fcaf153",
       "routes.disk": "65d302acde4369e83e1c8fd4c3a1f674fca7df44b3aecc84039cc2469612094a",
+      "routes.downloads": "4acb9c68628131891560f7227b4ee6c9ff6526b9c27d13920fc9eca8282bd6ef",
       "routes.drivers": "080e1a3989ad457810087320dec17c742e2bad52ae142d1cb5a50a1b089800cf",
       "routes.duplicates": "e79359bed12c64d1e52a4af1e8222430dd19b12fed07d73441ccd7c7563de8b3",
       "routes.emptyFolders": "d358712d640f96d3ed14923b742db98dab813492a56dd27155bb984a307e266a",

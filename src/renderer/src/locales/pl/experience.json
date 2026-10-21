@@ -141,6 +141,7 @@
     "consentAnalysis": "Wybierz, czy udostępnić"
   },
   "routes": {
+    "downloads": "Przejrzyj zapomniane pobrane pliki i wybierz, co zachować.",
     "cleaner": "Zwolnij miejsce na to, co ważne. Skanuj w poszukiwaniu zbędnych plików, porównaj kategorie, a następnie przejrzyj, co usunąć.",
     "registry": "Znajdź nieaktualne wpisy rejestru i przejrzyj proponowane poprawki przed wprowadzeniem zmian.",
     "contextMenu": "Prostsze menu po kliknięciu prawym przyciskiem. Przejrzyj rozszerzenia powłoki, a następnie wyłącz niepotrzebne wpisy.",

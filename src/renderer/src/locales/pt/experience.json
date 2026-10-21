@@ -141,6 +141,7 @@
     "consentAnalysis": "Escolher se pretende partilhar"
   },
   "routes": {
+    "downloads": "Reveja transferências esquecidas e escolha o que pretende manter.",
     "cleaner": "Libere espaço para o que importa. Analise a desordem, compare categorias e reveja depois o que remover.",
     "registry": "Encontre entradas de registo desatualizadas e reveja as correções propostas antes de fazer alterações.",
     "contextMenu": "Um menu de clique direito mais simples. Reveja extensões da shell e desative as entradas de que não precisa.",

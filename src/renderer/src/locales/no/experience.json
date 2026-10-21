@@ -141,6 +141,7 @@
     "consentAnalysis": "Velg om du vil dele"
   },
   "routes": {
+    "downloads": "Gå gjennom glemte nedlastinger og velg hva du vil beholde.",
     "cleaner": "Frigjør plass til det som betyr noe. Skann etter rot, sammenlign kategorier, og se deretter gjennom hva som skal fjernes.",
     "registry": "Finn utdaterte registeroppføringer og se gjennom de foreslåtte reparasjonene før du gjør endringer.",
     "contextMenu": "En enklere høyreklikkmeny. Se gjennom shell-utvidelser, og deaktiver oppføringer du ikke trenger.",
