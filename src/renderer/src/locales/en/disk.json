@@ -184,7 +184,7 @@
       "removed": "Removed path",
       "changed": "Changed"
     },
-    "loading": "Loading storage history?",
+    "loading": "Loading storage history…",
     "emptyTitle": "See how your storage changes",
     "emptyDescription": "Choose a folder, capture a baseline, then take another snapshot to see what grew. Your files stay untouched.",
     "settings": "Automatic snapshots & alerts"

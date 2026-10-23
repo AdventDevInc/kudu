@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Delete the Cloud copy first. This local recording holds the only reference needed to remove it.",
   "confirmCloud": "Delete this recording and report from Kudu Cloud? Your local copy remains. An analysis already sent to the provider cannot be recalled, but its result will not be saved back to Cloud.",
   "confirmDelete": "Confirm deletion",
-  "recordingElapsed": "Recording ? {{seconds}}s",
+  "recordingElapsed": "Recording • {{seconds}}s",
   "operationFailed": "Something went wrong.",
   "checkingAccess": "Checking Cloud access…",
   "emptyHint": "Record while the slowdown happens. You can review the measurements before sharing them.",

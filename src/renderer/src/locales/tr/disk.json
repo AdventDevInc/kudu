@@ -14,7 +14,7 @@
   "failedToAnalyzeDescMakeAccessible": "Sürücünün erişilebilir olduğundan emin olun",
   "failedToAnalyzeErrorWindows": "{{drive}}: sürücüsü çözümlenemedi. Sürücünün erişilebilir olduğundan emin olun.",
   "failedToAnalyzeErrorOther": "{{drive}} sürücüsü çözümlenemedi. Sürücünün erişilebilir olduğundan emin olun.",
-  "failedToScanFileTypesWindows": "{{drive}}:. üzerinde dosya türleri taranamadı.",
+  "failedToScanFileTypesWindows": "{{drive}}: üzerinde dosya türleri taranamadı.",
   "failedToScanFileTypesOther": "{{drive}} üzerinde dosya türleri taranamadı.",
   "folderTableHeaderName": "Ad",
   "folderTableHeaderSize": "Boyut",
@@ -156,7 +156,7 @@
     "deleteScopeConfirm": "Otomatik anlık görüntüler durdurulsun ve bu klasörün yerel anlık görüntü geçmişi silinsin mi? Gerçek klasör ve dosyalar değiştirilmeyecektir.",
     "deleteConfirm": "Bu yerel anlık görüntü silinsin mi? Bunu kullanan karşılaştırmalar artık kullanılamayacak. Gerçek dosyalar etkilenmez.",
     "daily": "Kudu çalışırken günlük olarak al",
-    "dailyHint": "Her on dakikada bir denetler. AC gücünü, iki dakikalık boşta kalma süresini ve Game Mode'un bitmesini bekler. Klasör başına günde en fazla bir günlük deneme yapılır; çevrimdışı denemeler kaydedilir. Uyarılar klasör başına günde bir kezle sınırlıdır ve tamamlama bildirimlerine uyar.",
+    "dailyHint": "Her on dakikada bir denetler. AC gücünü, iki dakikalık boşta kalma süresini ve Oyun Modu'nun bitmesini bekler. Klasör başına günde en fazla bir günlük deneme yapılır; çevrimdışı denemeler kaydedilir. Uyarılar klasör başına günde bir kezle sınırlıdır ve tamamlama bildirimlerine uyar.",
     "growthAlert": "Büyüme uyarısı (önceki anlık görüntüden beri GiB; boş bırakılırsa devre dışı)",
     "freeAlert": "Birim boş alan uyarısı (%; boş bırakılırsa devre dışı)",
     "save": "İzleme ayarlarını kaydet",
@@ -184,7 +184,7 @@
       "removed": "Kaldırılan yol",
       "changed": "Değiştirildi"
     },
-    "loading": "Depolama geçmişi yükleniyor?",
+    "loading": "Depolama geçmişi yükleniyor...",
     "emptyTitle": "Depolamanızın nasıl değiştiğini görün",
     "emptyDescription": "Bir klasör seçin, temel bir anlık görüntü alın, ardından neyin büyüdüğünü görmek için başka bir anlık görüntü daha alın. Dosyalarınıza dokunulmaz.",
     "settings": "Otomatik anlık görüntüler ve uyarılar"

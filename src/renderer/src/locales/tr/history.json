@@ -32,7 +32,7 @@
     "remove": "Kaydı kaldır",
     "removeDescription": "Bu kurtarma kaydı yerel geçmişten kaldırılsın mı? Bu işlem ayarlarınızı değiştirmez veya kayıt defteri yedeklerini silmez. Kudu artık bu değişikliği sizin için geri yükleyemez.",
     "unreadable": "Bu kurtarma kaydı okunamadı. Başka bir kullanıcı hesabı tarafından yazılmış veya diskte bozulmuş olabilir.",
-    "loading": "Kurtarma geçmişi yükleniyor?",
+    "loading": "Kurtarma geçmişi yükleniyor...",
     "emptyTitle": "Kurtarma geçmişiniz burada başlar",
     "source": {
       "privacy": "Gizlilik Kalkanı",
@@ -109,7 +109,7 @@
     "retryConfirm": "Temizliği yeniden dene",
     "clearTitle": "Temizlik makbuzları temizlensin mi?",
     "clearDescription": "Bu işlem, kaydedilmiş makbuzları ve yeniden deneme bilgilerini kalıcı olarak kaldırır. Tarama geçmişi ve ayrı silme günlüğü değişmez.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Temizlik kayıtları yükleniyor..."
   },
   "pageTitle": "Tarama Geçmişi",
   "pageDescription": "Geçmiş taramaların ve temizliklerin ayrıntılı sonuçlarını görüntüleyin",

@@ -45,7 +45,7 @@
         "count_one": "{{count}} koruma aracı",
         "count_other": "{{count}} koruma aracı",
         "heading": "Biraz daha iç rahatlığı.",
-        "guidance": "Önce bir malware taramasıyla başlayın, ardından gizlilik ayarlarını ve diğer koruma araçlarını gözden geçirin."
+        "guidance": "Önce bir kötü amaçlı yazılım taramasıyla başlayın, ardından gizlilik ayarlarını ve diğer koruma araçlarını gözden geçirin."
       }
     }
   },
@@ -154,7 +154,7 @@
     "repair": "Odaklı bir denetimle Windows dosya ve disk sorunlarını inceleyin. Her araç neyi onardığını açıklar.",
     "maintenance": "Her sürücüye uygun bakımı uygulayın. Bir görevi çalıştırmadan önce sürücü türünü ve kullanılabilir bakımı gözden geçirin.",
     "network": "Kaydedilmiş ağ verilerini gözden geçirin. Gerektiğinde önbellekleri temizleyin veya eski bağlantıları tek tek kaldırın.",
-    "malware": "Malware ve şüpheli dosyaları kontrol edin. Bulguları gözden geçirin ve her algılama için nasıl işlem yapılacağını seçin.",
+    "malware": "Kötü amaçlı yazılımları ve şüpheli dosyaları kontrol edin. Bulguları gözden geçirin ve her algılama için nasıl işlem yapılacağını seçin.",
     "threatMonitor": "Bağlantıları ve güvenlik etkinliğini takip edin. Bir uyarıyı inceleyerek kaynağını ve bağlamını anlayın.",
     "cve": "Güvenlik açığı bulgularını bir plana dönüştürün. Daha yüksek önem derecesine sahip sorunları gözden geçirin ve etkilenen yazılımları güncelleyin.",
     "gameMode": "Oyun için yer açın. Optimizasyonları gözden geçirin ve hazır olduğunuzda etkinleştirin.",
@@ -186,7 +186,7 @@
     "cleanDescription": "Geçici dosyaları ve önbellekleri tarayın. Temizlemeden önce sonuçları gözden geçirin.",
     "cleanAction": "Temizleyiciyi aç",
     "protectTitle": "Tehditleri kontrol et",
-    "protectDescription": "Bir malware taraması çalıştırın ve dikkat gerektiren dosyaları gözden geçirin.",
+    "protectDescription": "Bir kötü amaçlı yazılım taraması çalıştırın ve dikkat gerektiren dosyaları gözden geçirin.",
     "protectAction": "Koruma aracını aç",
     "automateTitle": "Bakımı bir rutine dönüştürün",
     "automateDescription": "Kudu'nun bilgisayarınızı ne zaman denetleyip temizleyeceğini seçin.",
@@ -229,12 +229,12 @@
     "totalFiles": "Temizlenen dosyalar",
     "totalScans": "Tamamlanan görevler",
     "game": "Oynamaya hazır mısınız?",
-    "gameDescription": "Game Mode profilinizi gözden geçirin ve hazır olduğunuzda etkinleştirin.",
-    "gameAction": "Game Mode'u aç",
+    "gameDescription": "Oyun Modu profilinizi gözden geçirin ve hazır olduğunuzda etkinleştirin.",
+    "gameAction": "Oyun Modu'nu aç",
     "quick": "Tek tıklamayla bakım",
     "quickDetail": "Otomatik bir temizlik mi tercih ediyorsunuz? Önce onayı gözden geçirin.",
-    "quickAction": "Hızlı temizle",
-    "fullAction": "Tam bakım",
+    "quickAction": "Hızlı Temizle",
+    "fullAction": "Tam Bakım",
     "careComplete": "Bakım tamamlandı",
     "careRunning": "Bakım sürüyor",
     "careResults": "{{size}} geri kazanıldı · {{count}} dosya temizlendi",
