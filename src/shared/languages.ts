@@ -41,7 +41,7 @@ export const LANGUAGES = [
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code']
 
-export const RTL_LANGUAGES: readonly string[] = ['ar', 'he']
+export const RTL_LANGUAGES: readonly string[] = ['ar', 'he', 'fa']
 
 const CODES: readonly string[] = LANGUAGES.map((l) => l.code)
 
