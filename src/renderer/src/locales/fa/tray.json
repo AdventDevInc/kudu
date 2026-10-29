@@ -1,0 +1,10 @@
+{
+  "trayTooltip": "Kudu",
+  "openKudu": "باز کردن Kudu",
+  "quit": "خروج",
+  "scheduledTaskNotificationTitle": "Kudu - وظیفه زمان‌بندی‌شده",
+  "scheduledTaskNotificationBody": "در حال اجرای «{{name}}»...",
+  "scanCompleteNotificationTitle": "Kudu - اسکن کامل شد",
+  "scanCompleteNotificationBody": "{{itemCount}} مورد ({{sizeMB}} مگابایت) برای پاک‌سازی پیدا شد.",
+  "scheduledScanName": "اسکن زمان‌بندی‌شده"
+}

@@ -17,6 +17,7 @@ export const LANGUAGES = [
   { code: 'zh-CN', name: 'Chinese (Simplified)', nativeName: '简体中文' },
   { code: 'zh-TW', name: 'Chinese (Traditional)', nativeName: '繁體中文' },
   { code: 'ru', name: 'Russian', nativeName: 'Русский' },
+  { code: 'fa', name: 'Persian', nativeName: 'فارسی' },
   { code: 'ar', name: 'Arabic', nativeName: 'العربية' },
   { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
   { code: 'tr', name: 'Turkish', nativeName: 'Türkçe' },

@@ -1,0 +1,77 @@
+{
+  "pageTitle": "پاک‌سازی منوی راست‌کلیک",
+  "pageDescription": "مواردی را مدیریت کنید که برنامه‌های نصب‌شده، مثل 7-Zip، OneDrive و Notepad++، به منوی راست‌کلیک اضافه کرده‌اند. می‌توانید آن‌ها را غیرفعال کنید، دوباره فعال کنید یا حذف کنید.",
+  "pageHeaderUnavailableTitle": "پاک‌کننده‌ی منوی راست‌کلیک",
+  "pageHeaderUnavailableDescription": "این ابزار فقط در ویندوز قابل استفاده است.",
+  "notAvailableTitle": "این قابلیت فقط برای ویندوز است",
+  "notAvailableDescription": "مدیریت منوی راست‌کلیک از رجیستری ویندوز استفاده می‌کند و در macOS یا Linux در دسترس نیست.",
+
+  "scanButton": "اسکن",
+  "cancelButton": "لغو",
+  "rescanButton": "اسکن دوباره",
+  "scanningLabel": "در حال اسکن موارد منوی راست‌کلیک…",
+
+  "emptyStateTitle": "منوی راست‌کلیک را اسکن کنید",
+  "emptyStateDescription": "مواردی را پیدا کنید که برنامه‌های نصب‌شده به منوی راست‌کلیک اضافه کرده‌اند و انتخاب کنید کدام‌یک باقی بمانند.",
+  "noResultsTitle": "موردی پیدا نشد",
+  "noResultsDescription": "فیلترها را تغییر دهید یا روی «اسکن دوباره» کلیک کنید.",
+
+  "win11NoticeTitle": "نکته‌ای دربارهٔ ویندوز ۱۱",
+  "win11NoticeBody": "در ویندوز ۱۱، گزینه‌های قدیمی منوی راست‌کلیک در بخش «نمایش گزینه‌های بیشتر» قرار دارند. برای باز کردن این بخش می‌توانید کلیدهای Shift+F10 را هم فشار دهید.",
+  "win11NoticeDismiss": "متوجه شدم",
+
+  "filterSearchPlaceholder": "جست‌وجو بر اساس نام، فرمان یا فایل DLL…",
+  "filterScopeAll": "همهٔ بخش‌ها",
+  "filterSourceAll": "همهٔ منابع",
+  "filterStatusAll": "همه",
+  "filterStatusEnabled": "فعال",
+  "filterStatusDisabled": "غیرفعال",
+
+  "scopeAllFiles": "همهٔ فایل‌ها",
+  "scopeDirectory": "پوشه‌ها",
+  "scopeDirectoryBackground": "فضای خالی داخل پوشه‌ها",
+  "scopeFolder": "منوی خود پوشه",
+  "scopeDrive": "درایوها",
+  "scopeAllFilesystemObjects": "همهٔ موارد سیستم فایل",
+  "scopeProgID": "نوع فایل",
+
+  "kindVerb": "گزینهٔ منو",
+  "kindHandler": "پردازشگر",
+
+  "statusEnabled": "فعال",
+  "statusDisabled": "غیرفعال",
+  "protectedBadge": "محافظت‌شده",
+  "protectedTooltip": "این مورد بخشی از ویندوز یا یک برنامهٔ ضروری است و نمی‌توان آن را تغییر داد.",
+  "adminBadge": "مدیر سیستم",
+  "adminTooltip": "برای تغییر این مورد، دسترسی مدیر سیستم لازم است.",
+
+  "actionDisable": "غیرفعال‌کردن",
+  "actionEnable": "فعال‌کردن",
+  "actionDelete": "حذف",
+  "selectedCount": "{{count}} مورد انتخاب شده",
+  "disableSelected": "غیرفعال‌کردن موارد انتخاب‌شده",
+  "enableSelected": "فعال‌کردن موارد انتخاب‌شده",
+  "deleteSelected": "حذف موارد انتخاب‌شده",
+
+  "confirmDeleteTitle": "موارد منوی راست‌کلیک حذف شوند؟",
+  "confirmDeleteDescription": "{{count}} مورد برای همیشه حذف می‌شود. برای برگرداندن آن، باید نسخهٔ پشتیبان رجیستری را وارد کنید یا برنامه‌ای را که این مورد را اضافه کرده است دوباره نصب کنید.",
+  "confirmDeleteDescriptionPlural": "{{count}} مورد برای همیشه حذف می‌شوند. برای برگرداندن آن‌ها، باید نسخهٔ پشتیبان رجیستری را وارد کنید یا برنامه‌هایی را که این موارد را اضافه کرده‌اند دوباره نصب کنید.",
+  "confirmDeleteLabel": "حذف",
+  "createRestorePointFirst": "ابتدا یک نقطهٔ بازیابی سیستم ایجاد کنید",
+
+  "applyingTitle": "در حال اعمال تغییرات…",
+  "applyDoneSuccess": "{{count}} مورد به‌روزرسانی شد.",
+  "applyDoneSuccessPlural": "{{count}} مورد به‌روزرسانی شدند.",
+  "applyDoneFailureCount": "{{count}} مورد ناموفق بود",
+  "applyShowFailures": "نمایش جزئیات",
+  "applyHideFailures": "پنهان‌کردن جزئیات",
+
+  "toastScanFailed": "اسکن ناموفق بود",
+  "toastScanFailedDescription": "خواندن فهرست موارد منوی راست‌کلیک ممکن نشد.",
+  "toastApplyFailed": "انجام عملیات ناموفق بود",
+  "toastApplyFailedDescription": "اعمال تغییرات درخواستی ممکن نشد.",
+
+  "groupHeading": "{{source}} — {{count}}",
+  "elevationPrompt": "برای تغییر بعضی از موارد انتخاب‌شده، دسترسی مدیر سیستم لازم است. برنامه را با این دسترسی دوباره اجرا می‌کنید؟",
+  "elevationRelaunch": "اجرای دوباره با دسترسی مدیر سیستم"
+}

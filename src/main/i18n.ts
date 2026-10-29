@@ -9,6 +9,7 @@ import el from '../renderer/src/locales/el/tray.json'
 import es from '../renderer/src/locales/es/tray.json'
 import fi from '../renderer/src/locales/fi/tray.json'
 import fr from '../renderer/src/locales/fr/tray.json'
+import fa from '../renderer/src/locales/fa/tray.json'
 import he from '../renderer/src/locales/he/tray.json'
 import hi from '../renderer/src/locales/hi/tray.json'
 import hu from '../renderer/src/locales/hu/tray.json'
@@ -41,6 +42,7 @@ const resources: Record<string, Record<string, string>> = {
   es,
   fi,
   fr,
+  fa,
   he,
   hi,
   hu,
