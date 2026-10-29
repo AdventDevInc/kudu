@@ -32,7 +32,7 @@ Kudu reclaims disk space, removes malware, and protects your privacy — without
 
 It covers system, browser, app, and game cache cleaning; registry and startup management; a disk analyzer; a malware scanner; privacy controls; a software updater; performance monitoring; scheduled scans; and a scriptable [CLI](CLI.md). See the [website](https://usekudu.com) for the full feature list and the [cleaner directory](https://usekudu.com/cleaners) for every supported app.
 
-Available in 30 languages.
+Available in 31 languages.
 
 ## Install
 
