@@ -32,7 +32,7 @@
     "remove": "Vermelding verwijderen",
     "removeDescription": "Deze herstelvermelding uit de lokale geschiedenis verwijderen? Dit wijzigt uw instellingen niet en verwijdert geen registerback-ups. Kudu kan deze wijziging dan niet langer voor u herstellen.",
     "unreadable": "Deze herstelvermelding kon niet worden gelezen. Mogelijk is deze geschreven door een andere gebruikersaccount of beschadigd op de schijf.",
-    "loading": "Herstelgeschiedenis laden?",
+    "loading": "Herstelgeschiedenis laden…",
     "emptyTitle": "Uw herstelgeschiedenis begint hier",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Opschoning opnieuw proberen",
     "clearTitle": "Opschoningsbewijzen wissen?",
     "clearDescription": "Hiermee worden opgeslagen bewijzen en hun informatie voor opnieuw proberen permanent verwijderd. Scangeschiedenis en het afzonderlijke verwijderingslogboek blijven ongewijzigd.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Opschoningsrapporten laden…"
   },
   "pageTitle": "Scangeschiedenis",
   "pageDescription": "Bekijk gedetailleerde resultaten van eerdere scans en opschoonacties",

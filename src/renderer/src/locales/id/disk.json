@@ -184,7 +184,7 @@
       "removed": "Jalur dihapus",
       "changed": "Diubah"
     },
-    "loading": "Memuat riwayat penyimpanan?",
+    "loading": "Memuat riwayat penyimpanan…",
     "emptyTitle": "Lihat bagaimana penyimpanan Anda berubah",
     "emptyDescription": "Pilih folder, ambil data dasar, lalu ambil snapshot lain untuk melihat apa yang bertambah. File Anda tetap tidak tersentuh.",
     "settings": "Snapshot otomatis & peringatan"

@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "\"{{name}}\" wordt uitgevoerd...",
   "scanCompleteNotificationTitle": "Kudu - Scan voltooid",
   "scanCompleteNotificationBody": "{{itemCount}} items ({{sizeMB}} MB) gevonden die kunnen worden opgeschoond.",
-  "scheduledScanName": "Geplande scan"
+  "scheduledScanName": "Geplande scan",
+  "rendererStartupFailureTitle": "Kudu kon niet starten",
+  "rendererStartupFailureMessage": "Kudu kon de interface niet starten en moet worden afgesloten. Voeg het hieronder vermelde logbestand toe wanneer je dit probleem meldt."
 }

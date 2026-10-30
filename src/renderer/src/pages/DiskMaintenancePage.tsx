@@ -16,6 +16,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
+import { DiskActivity } from '@/components/shared/DiskActivity'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
 import {
   useDiskMaintenanceStore,
@@ -111,6 +112,7 @@ export function DiskMaintenancePage() {
   }, [])
 
   async function refresh(): Promise<void> {
+    if (useDiskMaintenanceStore.getState().loading) return
     store.setLoading(true)
     store.setError(null)
     try {
@@ -118,6 +120,8 @@ export function DiskMaintenancePage() {
       store.setDrives(list)
     } catch (err) {
       console.error('Failed to list trim drives:', err)
+      store.setDrives([])
+      store.clearSelection()
       store.setError(err instanceof Error ? err.message : t('trimListFailed'))
     } finally {
       store.setLoading(false)
@@ -136,9 +140,16 @@ export function DiskMaintenancePage() {
   )
 
   async function handleRun(): Promise<void> {
-    if (selectableSelected.length === 0) return
+    if (
+      selectableSelected.length === 0 ||
+      useDiskMaintenanceStore.getState().batchRunning ||
+      useDiskMaintenanceStore.getState().loading
+    )
+      return
     setConfirmOpen(false)
     store.setBatchRunning(true)
+    store.clearProgress()
+    setShowLog(null)
     for (const id of selectableSelected) {
       store.setRunState(id, 'running')
     }
@@ -175,6 +186,12 @@ export function DiskMaintenancePage() {
         store.setRunState(id, 'failed')
       }
     } finally {
+      // A partial/malformed IPC response must not leave any row spinning forever.
+      for (const id of selectableSelected) {
+        if (useDiskMaintenanceStore.getState().runStates[id] === 'running') {
+          store.setRunState(id, 'failed')
+        }
+      }
       store.setBatchRunning(false)
       store.clearSelection()
     }
@@ -202,7 +219,10 @@ export function DiskMaintenancePage() {
               border: '1px solid var(--border-default)'
             }}
           >
-            <RefreshCw className={loading ? 'h-4 w-4 animate-spin' : 'h-4 w-4'} strokeWidth={2} />
+            <RefreshCw
+              className={loading ? 'h-4 w-4 animate-spin motion-reduce:animate-none' : 'h-4 w-4'}
+              strokeWidth={2}
+            />
             {t('refresh')}
           </button>
         }
@@ -252,7 +272,7 @@ export function DiskMaintenancePage() {
           </span>
           <button
             onClick={() => setConfirmOpen(true)}
-            disabled={selectableSelected.length === 0 || batchRunning}
+            disabled={selectableSelected.length === 0 || batchRunning || loading || !!error}
             className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
             style={{
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -261,7 +281,8 @@ export function DiskMaintenancePage() {
           >
             {batchRunning ? (
               <>
-                <RefreshCw className="h-4 w-4 animate-spin" /> {t('trimRunning')}
+                <RefreshCw className="h-4 w-4 animate-spin motion-reduce:animate-none" />{' '}
+                {t('trimRunning')}
               </>
             ) : (
               <>
@@ -273,14 +294,9 @@ export function DiskMaintenancePage() {
         </div>
       </div>
 
-      {loading && drives.length === 0 ? (
-        <div
-          className="rounded-2xl px-5 py-8 text-center text-[13px]"
-          style={{ background: 'var(--card-bg)', color: 'var(--text-muted)' }}
-        >
-          {t('trimLoading')}
-        </div>
-      ) : filtered.length === 0 ? (
+      {loading ? (
+        <DiskActivity label={t('trimLoading')} />
+      ) : error ? null : filtered.length === 0 ? (
         <EmptyState
           icon={HardDrive}
           title={t('trimEmptyTitle')}
@@ -295,6 +311,9 @@ export function DiskMaintenancePage() {
               selected={selected.has(drive.id)}
               runState={runStates[drive.id] ?? 'idle'}
               progressMessage={progress[drive.id]?.message}
+              progressPercent={
+                progress[drive.id]?.phase === 'running' ? progress[drive.id]?.percent : undefined
+              }
               onToggle={() => store.toggleSelect(drive.id)}
               showLog={showLog === drive.id}
               onToggleLog={() => setShowLog(showLog === drive.id ? null : drive.id)}
@@ -324,6 +343,7 @@ interface DriveRowProps {
   drive: TrimDriveInfo
   selected: boolean
   runState: 'idle' | 'running' | 'done' | 'failed'
+  progressPercent?: number
   progressMessage?: string
   onToggle: () => void
   showLog: boolean
@@ -336,6 +356,7 @@ function DriveRow({
   selected,
   runState,
   progressMessage,
+  progressPercent,
   onToggle,
   showLog,
   onToggleLog,
@@ -408,15 +429,12 @@ function DriveRow({
       </div>
 
       {runState === 'running' && (
-        <div
-          className="mt-3 flex items-center gap-3 rounded-xl px-3 py-2"
-          style={{ background: 'var(--bg-subtle)' }}
-        >
-          <RefreshCw className="h-3.5 w-3.5 animate-spin text-amber-400" strokeWidth={2} />
-          <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-            {progressMessage ?? t('trimRunningMessage')}
-          </p>
-        </div>
+        <DiskActivity
+          className="mt-3"
+          label={t('trimRunning')}
+          message={progressMessage ?? t('trimRunningMessage')}
+          percent={progressPercent}
+        />
       )}
 
       {result && runState !== 'running' && (

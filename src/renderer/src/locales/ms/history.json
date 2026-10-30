@@ -32,7 +32,7 @@
     "remove": "Alih keluar entri",
     "removeDescription": "Alih keluar rekod pemulihan ini daripada sejarah setempat? Ini tidak mengubah tetapan anda atau memadam sandaran registry. Kudu tidak lagi dapat memulihkan perubahan ini untuk anda.",
     "unreadable": "Rekod pemulihan ini tidak dapat dibaca. Ia mungkin ditulis oleh akaun pengguna lain atau rosak pada cakera.",
-    "loading": "Memuatkan sejarah pemulihan?",
+    "loading": "Memuatkan sejarah pemulihan…",
     "emptyTitle": "Sejarah pemulihan anda bermula di sini",
     "source": {
       "privacy": "Perisai Privasi",
@@ -109,7 +109,7 @@
     "retryConfirm": "Cuba semula pembersihan",
     "clearTitle": "Kosongkan resit pembersihan?",
     "clearDescription": "Ini akan mengalih keluar resit yang disimpan dan maklumat percubaan semulanya secara kekal. Sejarah imbasan dan log pemadaman berasingan tidak berubah.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Memuatkan resit pembersihan…"
   },
   "pageTitle": "Sejarah Imbasan",
   "pageDescription": "Lihat hasil terperinci daripada imbasan dan pembersihan yang lalu",

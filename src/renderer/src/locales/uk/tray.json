@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Виконується \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Сканування завершено",
   "scanCompleteNotificationBody": "Знайдено {{itemCount}} елементів ({{sizeMB}} МБ), які можна очистити.",
-  "scheduledScanName": "Заплановане сканування"
+  "scheduledScanName": "Заплановане сканування",
+  "rendererStartupFailureTitle": "Не вдалося запустити Kudu",
+  "rendererStartupFailureMessage": "Kudu не вдалося запустити інтерфейс, і програма має закритися. Повідомляючи про цю проблему, додайте вказаний нижче файл журналу."
 }

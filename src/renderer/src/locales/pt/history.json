@@ -32,7 +32,7 @@
     "remove": "Remover entrada",
     "removeDescription": "Remover este registo de recuperação do histórico local? Isto não altera as suas definições nem elimina cópias de segurança do registo. O Kudu deixará de poder restaurar esta alteração por si.",
     "unreadable": "Não foi possível ler este registo de recuperação. Pode ter sido escrito por outra conta de utilizador ou estar danificado no disco.",
-    "loading": "A carregar histórico de recuperação?",
+    "loading": "A carregar o histórico de recuperação…",
     "emptyTitle": "O seu histórico de recuperação começa aqui",
     "source": {
       "privacy": "Escudo de Privacidade",
@@ -109,7 +109,7 @@
     "retryConfirm": "Repetir limpeza",
     "clearTitle": "Limpar recibos de limpeza?",
     "clearDescription": "Isto remove permanentemente os recibos guardados e as respetivas informações de nova tentativa. O histórico de análises e o registo de eliminação separado permanecem inalterados.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "A carregar os registos de limpeza…"
   },
   "pageTitle": "Histórico de verificações",
   "pageDescription": "Veja resultados detalhados de verificações e limpezas anteriores",

@@ -32,7 +32,7 @@
     "remove": "Hapus entri",
     "removeDescription": "Hapus catatan pemulihan ini dari riwayat lokal? Ini tidak mengubah pengaturan Anda atau menghapus cadangan registry. Kudu tidak akan lagi dapat memulihkan perubahan ini untuk Anda.",
     "unreadable": "Catatan pemulihan ini tidak dapat dibaca. Catatan ini mungkin ditulis oleh akun pengguna lain atau rusak di disk.",
-    "loading": "Memuat riwayat pemulihan?",
+    "loading": "Memuat riwayat pemulihan…",
     "emptyTitle": "Riwayat pemulihan Anda dimulai di sini",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Coba lagi pembersihan",
     "clearTitle": "Hapus tanda terima pembersihan?",
     "clearDescription": "Ini akan menghapus secara permanen tanda terima yang disimpan dan informasi percobaan ulangnya. Riwayat pemindaian dan log penghapusan terpisah tidak berubah.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Memuat tanda terima pembersihan…"
   },
   "pageTitle": "Riwayat Pemindaian",
   "pageDescription": "Lihat hasil terperinci dari pemindaian dan pembersihan sebelumnya",

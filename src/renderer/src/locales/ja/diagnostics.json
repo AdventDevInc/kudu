@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "先に Cloud 上のコピーを削除してください。このローカル記録には、それを削除するために必要な唯一の参照が保持されています。",
   "confirmCloud": "この記録とレポートを Kudu Cloud から削除しますか？ ローカル コピーは残ります。すでにプロバイダーに送信された分析は取り消せませんが、その結果が Cloud に保存し直されることはありません。",
   "confirmDelete": "削除の確認",
-  "recordingElapsed": "記録中 ? {{seconds}} 秒",
+  "recordingElapsed": "録画中 • {{seconds}}秒",
   "operationFailed": "問題が発生しました。",
   "checkingAccess": "Cloud アクセスを確認しています…",
   "emptyHint": "動作が遅くなっている間に記録してください。共有する前に測定データを確認できます。",

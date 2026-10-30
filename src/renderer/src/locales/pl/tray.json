@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Uruchamianie „{{name}}”...",
   "scanCompleteNotificationTitle": "Kudu - Skanowanie zakończone",
   "scanCompleteNotificationBody": "Znaleziono {{itemCount}} elementów ({{sizeMB}} MB), które można wyczyścić.",
-  "scheduledScanName": "Zaplanowane skanowanie"
+  "scheduledScanName": "Zaplanowane skanowanie",
+  "rendererStartupFailureTitle": "Nie udało się uruchomić Kudu",
+  "rendererStartupFailureMessage": "Kudu nie mógł uruchomić interfejsu i musi zostać zamknięty. Zgłaszając ten problem, dołącz plik dziennika wskazany poniżej."
 }

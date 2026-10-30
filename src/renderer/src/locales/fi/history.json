@@ -32,7 +32,7 @@
     "remove": "Poista merkintä",
     "removeDescription": "Poistetaanko tämä palautustietue paikallisesta historiasta? Tämä ei muuta asetuksiasi eikä poista rekisterin varmuuskopioita. Kudu ei voi enää palauttaa tätä muutosta puolestasi.",
     "unreadable": "Tätä palautustietuetta ei voitu lukea. Sen on voinut kirjoittaa toinen käyttäjätili tai se on voinut vioittua levyllä.",
-    "loading": "Ladataanko palautushistoriaa?",
+    "loading": "Ladataan palautushistoriaa…",
     "emptyTitle": "Palautushistoriasi alkaa tästä",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Yritä puhdistus uudelleen",
     "clearTitle": "Poistetaanko puhdistuksen kuitit?",
     "clearDescription": "Tämä poistaa tallennetut kuitit ja niiden uusintayritystiedot pysyvästi. Tarkistushistoria ja erillinen poistamisloki eivät muutu.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Ladataan puhdistuksen kuitteja…"
   },
   "pageTitle": "Skannaushistoria",
   "pageDescription": "Tarkastele aiempien skannausten ja puhdistusten yksityiskohtaisia tuloksia",

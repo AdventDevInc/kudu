@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorAlert } from '@/components/shared/ErrorAlert'
-import { ScanProgress } from '@/components/shared/ScanProgress'
+import { DiskActivity } from '@/components/shared/DiskActivity'
 import { cn, formatBytes } from '@/lib/utils'
 import { useDiskStore } from '@/stores/disk-store'
 import { usePlatform } from '@/hooks/usePlatform'
@@ -149,6 +149,7 @@ export function DiskAnalyzerPage() {
   const { platform } = usePlatform()
   const isWin = platform === 'win32'
   const drives = useDiskStore((s) => s.drives)
+  const drivesLoading = useDiskStore((s) => s.drivesLoading)
   const selectedDrive = useDiskStore((s) => s.selectedDrive)
   const data = useDiskStore((s) => s.data)
   const analyzing = useDiskStore((s) => s.analyzing)
@@ -161,25 +162,17 @@ export function DiskAnalyzerPage() {
 
   useEffect(() => {
     if (drives.length === 0) {
-      window.kudu
-        ?.diskDrives?.()
-        .then(store.setDrives)
-        .catch((err) => {
-          console.error('Failed to load drives:', err)
-        })
+      store.loadDrives().catch((err) => {
+        console.error('Failed to load drives:', err)
+        store.setError(err instanceof Error ? err.message : t('failedToAnalyzeDescMakeAccessible'))
+      })
     }
   }, [])
 
   const handleAnalyze = async () => {
-    store.setAnalyzing(true)
-    store.setData(null)
-    store.setBreadcrumb([])
-    store.setError(null)
-    store.setFileTypes([])
+    if (useDiskStore.getState().analyzing || useDiskStore.getState().fileTypesLoading) return
     try {
-      const result = await window.kudu.diskAnalyze(selectedDrive)
-      store.setData(result)
-      store.setBreadcrumb([result])
+      await store.analyze()
     } catch (err) {
       console.error('Disk analysis failed:', err)
       toast.error(
@@ -194,15 +187,12 @@ export function DiskAnalyzerPage() {
           : t('failedToAnalyzeErrorOther', { drive: selectedDrive })
       )
     }
-    store.setAnalyzing(false)
   }
 
   const handleFileTypeScan = async () => {
-    store.setFileTypesLoading(true)
-    store.setError(null)
+    if (useDiskStore.getState().analyzing || useDiskStore.getState().fileTypesLoading) return
     try {
-      const result = await window.kudu.diskFileTypes(selectedDrive)
-      store.setFileTypes(result)
+      await store.scanFileTypes()
     } catch (err) {
       console.error('File type scan failed:', err)
       store.setError(
@@ -211,7 +201,6 @@ export function DiskAnalyzerPage() {
           : t('failedToScanFileTypesOther', { drive: selectedDrive })
       )
     }
-    store.setFileTypesLoading(false)
   }
 
   // Auto-scan file types when switching to that view if not already loaded
@@ -219,7 +208,7 @@ export function DiskAnalyzerPage() {
     if (viewMode === 'filetypes' && fileTypes.length === 0 && !fileTypesLoading && data) {
       handleFileTypeScan()
     }
-  }, [viewMode])
+  }, [viewMode, data])
 
   const currentNode = breadcrumb[breadcrumb.length - 1] ?? data
   const treemapData = useMemo(() => {
@@ -246,6 +235,8 @@ export function DiskAnalyzerPage() {
         action={
           <div className="flex items-center gap-2.5">
             <select
+              disabled={drivesLoading || analyzing || fileTypesLoading}
+              aria-label={t('emptyStateDescription')}
               value={selectedDrive}
               onChange={(e) => store.setSelectedDrive(e.target.value)}
               className="rounded-xl px-4 py-2.5 text-[13px] text-zinc-400 outline-none"
@@ -270,7 +261,7 @@ export function DiskAnalyzerPage() {
             </select>
             <button
               onClick={handleAnalyze}
-              disabled={analyzing}
+              disabled={drivesLoading || analyzing || fileTypesLoading}
               className="pulse-primary-action pulse-scan-action flex items-center gap-2 rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all disabled:opacity-40"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -278,7 +269,7 @@ export function DiskAnalyzerPage() {
               }}
             >
               {analyzing ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
+                <RefreshCw className="h-4 w-4 animate-spin motion-reduce:animate-none" />
               ) : (
                 <HardDrive className="h-4 w-4" strokeWidth={2} />
               )}
@@ -292,14 +283,25 @@ export function DiskAnalyzerPage() {
         <ErrorAlert message={error} onDismiss={() => store.setError(null)} className="mb-5" />
       )}
 
+      {drivesLoading && <DiskActivity label={t('trimLoading')} className="mb-5" />}
+
       {analyzing && (
-        <ScanProgress
-          status="scanning"
-          progress={0}
-          currentPath={
+        <DiskActivity
+          label={
             isWin
               ? t('analyzingProgressWindows', { drive: selectedDrive })
               : t('analyzingProgressOther', { drive: selectedDrive })
+          }
+          className="mb-5"
+        />
+      )}
+
+      {fileTypesLoading && (
+        <DiskActivity
+          label={
+            isWin
+              ? t('scanningFileTypesWindows', { drive: selectedDrive })
+              : t('scanningFileTypesOther', { drive: selectedDrive })
           }
           className="mb-5"
         />
@@ -338,7 +340,7 @@ export function DiskAnalyzerPage() {
         </button>
       </div>
 
-      {!data && !analyzing && !error && (
+      {!data && !analyzing && !drivesLoading && !error && (
         <EmptyState
           icon={HardDrive}
           title={t('emptyStateTitle')}
@@ -502,20 +504,7 @@ export function DiskAnalyzerPage() {
 
           {viewMode === 'filetypes' && (
             <>
-              {fileTypesLoading && (
-                <ScanProgress
-                  status="scanning"
-                  progress={0}
-                  currentPath={
-                    isWin
-                      ? t('scanningFileTypesWindows', { drive: selectedDrive })
-                      : t('scanningFileTypesOther', { drive: selectedDrive })
-                  }
-                  className="mb-5"
-                />
-              )}
-
-              {!fileTypesLoading && fileTypes.length === 0 && (
+              {!fileTypesLoading && !error && fileTypes.length === 0 && (
                 <EmptyState
                   icon={FileType2}
                   title={t('fileTypesEmptyTitle')}

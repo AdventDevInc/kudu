@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const send = vi.fn()
+const isDestroyed = vi.fn(() => false)
+const isCrashed = vi.fn(() => false)
+const healthySend = vi.fn()
 const checkForUpdatesMock = vi.fn()
 const onMock = vi.fn()
 const markerExists = vi.hoisted(() => vi.fn().mockReturnValue(false))
@@ -18,7 +21,13 @@ afterEach(() => {
 vi.mock('electron', () => ({
   app: { isPackaged: true },
   BrowserWindow: {
-    getAllWindows: () => [{ isDestroyed: () => false, webContents: { send } }]
+    getAllWindows: () => [
+      { isDestroyed: () => false, webContents: { send, isDestroyed, isCrashed } },
+      {
+        isDestroyed: () => false,
+        webContents: { send: healthySend, isDestroyed: () => false, isCrashed: () => false }
+      }
+    ]
   }
 }))
 
@@ -49,6 +58,9 @@ describe('checkForUpdates UX', () => {
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
+    send.mockReset()
+    isDestroyed.mockReturnValue(false)
+    isCrashed.mockReturnValue(false)
     checkForUpdatesMock.mockResolvedValue(undefined)
     markerExists.mockReturnValue(false)
     vi.stubEnv('APPIMAGE', '')
@@ -112,4 +124,24 @@ describe('checkForUpdates UX', () => {
     await checkForUpdates()
     expect(checkForUpdatesMock).toHaveBeenCalled()
   })
+
+  it.each(['destroyed', 'crashed', 'disposed during send'])(
+    'keeps updater status and delivers to healthy windows when a renderer is %s',
+    async (failure) => {
+      if (failure === 'destroyed') isDestroyed.mockReturnValue(true)
+      if (failure === 'crashed') isCrashed.mockReturnValue(true)
+      if (failure === 'disposed during send') {
+        send.mockImplementation(() => {
+          throw new Error('Render frame was disposed before WebFrameMain could be accessed')
+        })
+      }
+      const updater = await import('./auto-updater')
+      updater.initAutoUpdater()
+      const notify = onMock.mock.calls.find(([event]) => event === 'update-not-available')![1]
+      expect(() => notify()).not.toThrow()
+      expect(updater.getUpdateStatus()).toEqual({ state: 'not-available' })
+      expect(healthySend).toHaveBeenCalledWith('updater:status', { state: 'not-available' })
+      if (failure !== 'disposed during send') expect(send).not.toHaveBeenCalled()
+    }
+  )
 })

@@ -32,7 +32,7 @@
     "remove": "Supprimer l’entrée",
     "removeDescription": "Supprimer cet enregistrement de récupération de l’historique local ? Cela ne modifie pas vos paramètres et ne supprime pas les sauvegardes du registre. Kudu ne pourra plus restaurer cette modification pour vous.",
     "unreadable": "Impossible de lire cet enregistrement de récupération. Il a peut-être été écrit par un autre compte utilisateur ou endommagé sur le disque.",
-    "loading": "Chargement de l’historique de récupération ?",
+    "loading": "Chargement de l’historique de récupération…",
     "emptyTitle": "Votre historique de récupération commence ici",
     "source": {
       "privacy": "Bouclier de confidentialité",
@@ -109,7 +109,7 @@
     "retryConfirm": "Réessayer le nettoyage",
     "clearTitle": "Effacer les reçus de nettoyage ?",
     "clearDescription": "Cela supprime définitivement les reçus enregistrés et leurs informations de nouvelle tentative. L’historique des analyses et le journal de suppression séparé restent inchangés.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Chargement des reçus de nettoyage…"
   },
   "pageTitle": "Historique des analyses",
   "pageDescription": "Consultez les résultats détaillés des analyses et nettoyages précédents",

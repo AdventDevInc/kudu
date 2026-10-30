@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Ta bort Cloud-kopian först. Den här lokala inspelningen innehåller den enda referens som behövs för att ta bort den.",
   "confirmCloud": "Ta bort den här inspelningen och rapporten från Kudu Cloud? Din lokala kopia finns kvar. En analys som redan har skickats till leverantören kan inte återkallas, men resultatet sparas inte tillbaka till Cloud.",
   "confirmDelete": "Bekräfta borttagning",
-  "recordingElapsed": "Inspelning ? {{seconds}}s",
+  "recordingElapsed": "Spelar in • {{seconds}}s",
   "operationFailed": "Något gick fel.",
   "checkingAccess": "Kontrollerar Cloud-åtkomst…",
   "emptyHint": "Spela in medan avmattningen inträffar. Du kan granska mätningarna innan du delar dem.",

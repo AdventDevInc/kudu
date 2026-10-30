@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "A executar \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Verificação Concluída",
   "scanCompleteNotificationBody": "Foram encontrados {{itemCount}} itens ({{sizeMB}} MB) que podem ser limpos.",
-  "scheduledScanName": "Verificação Agendada"
+  "scheduledScanName": "Verificação Agendada",
+  "rendererStartupFailureTitle": "Não foi possível iniciar o Kudu",
+  "rendererStartupFailureMessage": "O Kudu não conseguiu iniciar sua interface e precisa ser fechado. Inclua o arquivo de log indicado abaixo ao relatar este problema."
 }

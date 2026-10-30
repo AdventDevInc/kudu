@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "در حال اجرای «{{name}}»...",
   "scanCompleteNotificationTitle": "Kudu - اسکن کامل شد",
   "scanCompleteNotificationBody": "{{itemCount}} مورد ({{sizeMB}} مگابایت) برای پاک‌سازی پیدا شد.",
-  "scheduledScanName": "اسکن زمان‌بندی‌شده"
+  "scheduledScanName": "اسکن زمان‌بندی‌شده",
+  "rendererStartupFailureTitle": "Kudu راه‌اندازی نشد",
+  "rendererStartupFailureMessage": "Kudu نتوانست رابط خود را راه‌اندازی کند و باید بسته شود. هنگام گزارش این مشکل، لطفاً فایل گزارش نشان‌داده‌شده در زیر را پیوست کنید."
 }
