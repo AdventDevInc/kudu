@@ -9,6 +9,10 @@ import type {
 
 interface DiskState {
   drives: DriveInfo[]
+  drivesLoading: boolean
+  loadDrives: () => Promise<void>
+  analyze: () => Promise<void>
+  scanFileTypes: () => Promise<void>
   selectedDrive: string
   data: DiskNode | null
   analyzing: boolean
@@ -42,8 +46,42 @@ interface DiskState {
   reset: () => void
 }
 
-export const useDiskStore = create<DiskState>((set) => ({
+export const useDiskStore = create<DiskState>((set, get) => ({
   drives: [],
+  drivesLoading: false,
+  loadDrives: async () => {
+    if (get().drivesLoading) return
+    set({ drivesLoading: true, error: null })
+    try {
+      const drives = await window.kudu.diskDrives()
+      const selectedDrive = drives.some((d) => d.letter === get().selectedDrive)
+        ? get().selectedDrive
+        : (drives.find((d) => d.isSystem)?.letter ?? drives[0]?.letter ?? get().selectedDrive)
+      set({ drives, selectedDrive })
+    } finally {
+      set({ drivesLoading: false })
+    }
+  },
+  analyze: async () => {
+    if (get().analyzing || get().fileTypesLoading || get().drivesLoading) return
+    set({ analyzing: true, data: null, breadcrumb: [], error: null, fileTypes: [] })
+    try {
+      const data = await window.kudu.diskAnalyze(get().selectedDrive)
+      set({ data, breadcrumb: [data] })
+    } finally {
+      set({ analyzing: false })
+    }
+  },
+  scanFileTypes: async () => {
+    if (get().analyzing || get().fileTypesLoading || get().drivesLoading) return
+    set({ fileTypesLoading: true, error: null, fileTypes: [] })
+    try {
+      const fileTypes = await window.kudu.diskFileTypes(get().selectedDrive)
+      set({ fileTypes })
+    } finally {
+      set({ fileTypesLoading: false })
+    }
+  },
   selectedDrive: 'C',
   data: null,
   analyzing: false,
@@ -58,7 +96,10 @@ export const useDiskStore = create<DiskState>((set) => ({
   chkdskResult: null,
 
   setDrives: (drives) => set({ drives }),
-  setSelectedDrive: (selectedDrive) => set({ selectedDrive }),
+  setSelectedDrive: (selectedDrive) => {
+    if (get().analyzing || get().fileTypesLoading || get().drivesLoading) return
+    set({ selectedDrive, data: null, breadcrumb: [], fileTypes: [], error: null })
+  },
   setData: (data) => set({ data }),
   setAnalyzing: (analyzing) => set({ analyzing }),
   setBreadcrumb: (breadcrumb) => set({ breadcrumb }),

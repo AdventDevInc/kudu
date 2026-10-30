@@ -56,9 +56,23 @@ export const useDiskMaintenanceStore = create<DiskMaintenanceState>((set) => ({
   setSelected: (ids) => set({ selected: new Set(ids) }),
   clearSelection: () => set({ selected: new Set() }),
 
-  setRunState: (id, state) => set((s) => ({ runStates: { ...s.runStates, [id]: state } })),
+  setRunState: (id, state) =>
+    set((s) => {
+      const results = { ...s.results }
+      const progress = { ...s.progress }
+      if (state === 'running') {
+        delete results[id]
+        delete progress[id]
+      }
+      return { runStates: { ...s.runStates, [id]: state }, results, progress }
+    }),
   setResult: (id, result) => set((s) => ({ results: { ...s.results, [id]: result } })),
-  setProgress: (data) => set((s) => ({ progress: { ...s.progress, [data.driveId]: data } })),
+  setProgress: (data) =>
+    set((s) =>
+      s.batchRunning && s.runStates[data.driveId] === 'running'
+        ? { progress: { ...s.progress, [data.driveId]: data } }
+        : {}
+    ),
   clearProgress: () => set({ progress: {} }),
   setBatchRunning: (batchRunning) => set({ batchRunning }),
 
