@@ -88,6 +88,25 @@ afterEach(() => {
 })
 
 describe('scanDirectory recency guard', () => {
+  it('rechecks the age of allowlisted logs before cleaning them', async () => {
+    const log = file('ollama/server.log', 3 * 24 * 60)
+    const scan = await scanAppRule({
+      id: 'ollama-logs',
+      name: 'Ollama Logs',
+      paths: [join(testDir, 'ollama')],
+      fileMatch: { names: ['server.log'], minAgeDays: 1 }
+    }, 'app')
+    expect(paths(scan)).toEqual([log])
+    state.items = scan.items
+
+    file('ollama/server.log', 0)
+    const cleaned = await cleanItems(scan.items.map((item) => item.id))
+
+    expect(cleaned.filesDeleted).toBe(0)
+    expect(cleaned.errors).toContainEqual({ path: log, reason: 'recently-modified' })
+    expect(existsSync(log)).toBe(true)
+  })
+
   it('protects recent and excluded descendants with the default options', async () => {
     const recent = file('old/live', 1)
     const excluded = file('old/keep', 180)

@@ -211,6 +211,15 @@ Use `"dbFiles": "$chromium"` to reference the `sharedDbFileSets` instead of repe
 
 ## Safety Guidelines
 
+### AI and developer tool storage
+
+- Hugging Face cleanup covers only the optional Xet transfer cache, with a seven-day retention window and `cacheReset: true`. The Hub cache contains the models and datasets used for offline loading and must not be included in ordinary cleanup. See [Hugging Face cache documentation](https://huggingface.co/docs/huggingface_hub/guides/manage-cache).
+- LM Studio's legacy `~/.cache/lm-studio` directory is an application home, not a disposable cache. Never target it wholesale: it can contain models, conversations, and settings. Server logs are scoped to `server-logs` in the legacy or current `~/.lmstudio` home. Custom home locations are not discovered by these rules. See [LM Studio home resolution](https://github.com/lmstudio-ai/lmstudio-js/blob/main/packages/lms-common-server/src/findLMStudioHome.ts).
+- Insomnia's `responses` directory holds saved response bodies referenced by its database. Preserve it alongside collections, environments, and credentials; only target separate runtime caches and diagnostic logs. See [Insomnia response storage](https://github.com/Kong/insomnia/blob/develop/packages/insomnia/src/main/network/libcurl-promise.ts).
+- Windows Ollama logs use an exact `fileMatch` allowlist under `%LOCALAPPDATA%/Ollama`, retaining files modified within one day. File-match retention is rechecked before deletion. macOS uses `~/.ollama/logs`; Linux has no app-file rule because standard installations log to the system journal or stdout. See [Ollama troubleshooting](https://docs.ollama.com/troubleshooting).
+
+### General rules
+
 - **Only clean cache, temp, and log data.** Never target user documents, settings, passwords, bookmarks, or session tokens.
 - **Mark system paths as `needsAdmin: true`** if they require elevated privileges.
 - **Use retention windows for active apps and services.** Prefer `minAgeDays` for logs, updater artifacts, and caches whose containing directories may stay active.

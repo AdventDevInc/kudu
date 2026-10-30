@@ -1124,7 +1124,8 @@ export async function scanMatchingFiles(
             category,
             subcategory,
             lastModified: stats.mtimeMs,
-            selected: true
+            selected: true,
+            recencyCutoff: cutoff
           })
           totalSize += stats.size
         } catch {

@@ -11,7 +11,7 @@
 | Unique app rules | 182 |
 | 🪟 Windows rules | 171 |
 | 🍎 macOS rules | 100 |
-| 🐧 Linux rules | 98 |
+| 🐧 Linux rules | 97 |
 
 ## AI Tools
 
@@ -38,9 +38,9 @@
 | Google Antigravity | ✅ | ✅ | ✅ |
 | Granola | ✅ | ❌ | ❌ |
 | Granola Performance Caches | ✅ | ❌ | ❌ |
-| Hugging Face Cache | ✅ | ✅ | ✅ |
+| Hugging Face Xet Cache | ✅ | ✅ | ✅ |
 | LM Studio | ✅ | ✅ | ✅ |
-| Ollama Logs | ✅ | ✅ | ✅ |
+| Ollama Logs | ✅ | ✅ | ❌ |
 | Pinokio | ✅ | ❌ | ❌ |
 | Pinokio Performance Caches | ✅ | ❌ | ❌ |
 | T3 Code | ✅ | ❌ | ❌ |
