@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import {
-  Github,
+  CodeXml,
   Bug,
   ExternalLink,
   RefreshCw,
@@ -157,7 +157,7 @@ export function AboutPage() {
         )}
         <div className="mt-6 flex items-center gap-2.5">
           <LinkButton
-            icon={Github}
+            icon={CodeXml}
             label={t('github')}
             href="https://github.com/adventdevinc/kudu"
           />
@@ -206,7 +206,7 @@ function LinkButton({
   label,
   href
 }: {
-  icon: typeof Github
+  icon: typeof Bug
   label: string
   href: string
 }) {
