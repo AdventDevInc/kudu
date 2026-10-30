@@ -137,7 +137,7 @@ export function ThreatMonitorPage() {
   const totalThreats = flaggedConnections.length + flaggedDns.length
 
   return (
-    <div className="p-8">
+    <div className="p-8 select-text">
       <PageHeader title={t('pageTitle')} description={t('pageDescription')} />
 
       {/* Status bar */}
@@ -242,6 +242,32 @@ function CloudAction({ label, onClick }: { label: string; onClick: () => void })
   )
 }
 
+function ThreatSearchLink({ value, className }: { value: string; className?: string }) {
+  return (
+    <a
+      href={`https://www.google.com/search?q=${encodeURIComponent(value)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      draggable={false}
+      title={`Google: ${value}`}
+      className={`select-text cursor-pointer underline decoration-dotted underline-offset-4 hover:decoration-solid focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className ?? ''}`}
+      onClick={(event) => {
+        // Finishing a text selection must not launch a browser search.
+        const selection = window.getSelection()
+        if (
+          selection &&
+          !selection.isCollapsed &&
+          selection.containsNode(event.currentTarget, true)
+        ) {
+          event.preventDefault()
+        }
+      }}
+    >
+      {value}
+    </a>
+  )
+}
+
 function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
   const { t } = useTranslation('threatMonitor')
   return (
@@ -250,7 +276,7 @@ function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
       style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.1)' }}
     >
       <div className="min-w-0 flex-1">
-        <span className="font-medium text-zinc-200">{conn.remoteAddress}</span>
+        <ThreatSearchLink value={conn.remoteAddress} className="font-medium text-zinc-200" />
         <span className="text-zinc-500">:{conn.remotePort}</span>
         {conn.pid != null && (
           <span className="ml-3 text-zinc-600">{t('connectionPid', { pid: conn.pid })}</span>
@@ -266,9 +292,7 @@ function ConnectionRow({ conn }: { conn: FlaggedConnection }) {
         >
           {conn.matchType}
         </span>
-        <span className="text-zinc-600" title={conn.matchedRule}>
-          {conn.matchedRule}
-        </span>
+        <ThreatSearchLink value={conn.matchedRule} className="text-zinc-600" />
         <span className="whitespace-nowrap text-zinc-600">{formatTime(conn.detectedAt)}</span>
       </div>
     </div>
@@ -282,15 +306,13 @@ function DnsRow({ entry }: { entry: FlaggedDnsEntry }) {
       style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.1)' }}
     >
       <div className="min-w-0 flex-1">
-        <span className="font-medium text-zinc-200">{entry.domain}</span>
+        <ThreatSearchLink value={entry.domain} className="font-medium text-zinc-200" />
         {entry.resolvedAddress && (
-          <span className="ml-3 text-zinc-500">{entry.resolvedAddress}</span>
+          <ThreatSearchLink value={entry.resolvedAddress} className="ml-3 text-zinc-500" />
         )}
       </div>
       <div className="flex items-center gap-3 text-[12px]">
-        <span className="text-zinc-600" title={entry.matchedRule}>
-          {entry.matchedRule}
-        </span>
+        <ThreatSearchLink value={entry.matchedRule} className="text-zinc-600" />
         <span className="whitespace-nowrap text-zinc-600">{formatTime(entry.detectedAt)}</span>
       </div>
     </div>
