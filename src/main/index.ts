@@ -31,6 +31,7 @@ import {
 } from './services/scheduler'
 import { initAutoUpdater } from './services/auto-updater'
 import { attachRendererDiagnostics } from './services/renderer-diagnostics'
+import { attachCopyContextMenu } from './services/copy-context-menu'
 import { cloudAgent } from './services/cloud-agent'
 import {
   shouldDisableGpu,
@@ -514,6 +515,7 @@ function initGui(): void {
       (process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAtLogin)
 
     attachRendererDiagnostics(mainWindow)
+    attachCopyContextMenu(mainWindow)
 
     mainWindow.on('ready-to-show', () => {
       // If launched at startup with minimize-to-tray, stay hidden — only when a
