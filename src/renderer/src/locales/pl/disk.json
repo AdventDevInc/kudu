@@ -188,5 +188,11 @@
     "emptyTitle": "Zobacz, jak zmienia się magazyn",
     "emptyDescription": "Wybierz folder, utwórz punkt odniesienia, a następnie wykonaj kolejną migawkę, aby zobaczyć, co urosło. Twoje pliki pozostaną nienaruszone.",
     "settings": "Automatyczne migawki i alerty"
-  }
+  },
+  "repairWindowsOnlyTitle": "Tylko dla systemu Windows",
+  "repairWindowsOnlyDescription": "Narzędzia do naprawy dysku są dostępne tylko w systemie Windows.",
+  "upOneLevel": "Jeden poziom w górę",
+  "upButton": "W górę",
+  "driveEncrypted": "Zaszyfrowano",
+  "driveTotalSize": "Łącznie {{size}}"
 }

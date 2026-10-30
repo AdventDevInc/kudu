@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Monitor, Moon, Sun } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Sidebar } from './Sidebar'
 import { AdminBanner } from './AdminBanner'
 import { useSettingsStore } from '@/stores/settings-store'
@@ -64,15 +65,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 type ThemeMode = 'system' | 'light' | 'dark'
 
 function AppearanceMenu() {
+  const { t } = useTranslation('common')
   const theme = useSettingsStore((s) => s.settings.theme)
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const options: { id: ThemeMode; label: string; description: string; icon: typeof Sun }[] = [
-    { id: 'system', label: 'System', description: 'Follow your computer', icon: Monitor },
-    { id: 'light', label: 'Light', description: 'Warm daylight', icon: Sun },
-    { id: 'dark', label: 'Dark', description: 'Low-light comfort', icon: Moon }
-  ]
+  const options: { id: ThemeMode; label: string; description: string; icon: typeof Sun }[] =
+    useMemo(
+      () => [
+        {
+          id: 'system',
+          label: t('themeSystem', 'System'),
+          description: t('themeSystemDesc', 'Follow your computer'),
+          icon: Monitor
+        },
+        {
+          id: 'light',
+          label: t('themeLight', 'Light'),
+          description: t('themeLightDesc', 'Warm daylight'),
+          icon: Sun
+        },
+        {
+          id: 'dark',
+          label: t('themeDark', 'Dark'),
+          description: t('themeDarkDesc', 'Low-light comfort'),
+          icon: Moon
+        }
+      ],
+      [t]
+    )
   const active = options.find((option) => option.id === theme) ?? options[0]
   const ActiveIcon = active.icon
 
@@ -91,26 +112,32 @@ function AppearanceMenu() {
     setOpen(false)
   }
 
+  const appearanceLabel = t('themeAppearance', 'Appearance')
+  const appearanceTitle = t('themeAppearanceTitle', {
+    theme: active.label,
+    defaultValue: `Appearance: ${active.label}`
+  })
+
   return (
     <div className="relative" ref={menuRef}>
       <button
         type="button"
         className="titlebar-icon-button"
-        aria-label={`Appearance: ${active.label}`}
+        aria-label={appearanceTitle}
         aria-expanded={open}
         aria-haspopup="menu"
-        title={`Appearance: ${active.label}`}
+        title={appearanceTitle}
         onClick={() => setOpen((value) => !value)}
       >
         <ActiveIcon className="h-3.5 w-3.5" strokeWidth={1.8} />
       </button>
       {open && (
-        <div className="appearance-menu animate-scale-in" role="menu" aria-label="Appearance">
+        <div className="appearance-menu animate-scale-in" role="menu" aria-label={appearanceLabel}>
           <div
             className="px-3 pb-2 pt-2.5 text-[9px] font-bold uppercase tracking-[0.16em]"
             style={{ color: 'var(--text-dim)' }}
           >
-            Appearance
+            {appearanceLabel}
           </div>
           {options.map((option) => {
             const Icon = option.icon

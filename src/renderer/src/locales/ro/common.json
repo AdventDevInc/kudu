@@ -64,5 +64,14 @@
   "hoursAgo": "acum {{hours}} h",
   "daysAgo": "acum {{days}} z",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Aspect",
+  "themeAppearanceTitle": "Aspect: {{theme}}",
+  "themeSystem": "Sistem",
+  "themeSystemDesc": "Urmează computerul",
+  "themeLight": "Luminos",
+  "themeLightDesc": "Lumină caldă de zi",
+  "themeDark": "Întunecat",
+  "themeDarkDesc": "Confort în lumină slabă",
+  "dismissError": "Închide eroarea"
 }

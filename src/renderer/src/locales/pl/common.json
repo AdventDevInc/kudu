@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} godz. temu",
   "daysAgo": "{{days}} dni temu",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Wygląd",
+  "themeAppearanceTitle": "Wygląd: {{theme}}",
+  "themeSystem": "System",
+  "themeSystemDesc": "Zgodnie z ustawieniami komputera",
+  "themeLight": "Jasny",
+  "themeLightDesc": "Ciepłe światło dzienne",
+  "themeDark": "Ciemny",
+  "themeDarkDesc": "Komfort przy słabym świetle",
+  "dismissError": "Zamknij błąd"
 }

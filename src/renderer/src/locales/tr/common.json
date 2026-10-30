@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} sa önce",
   "daysAgo": "{{days}} gün önce",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Görünüm",
+  "themeAppearanceTitle": "Görünüm: {{theme}}",
+  "themeSystem": "Sistem",
+  "themeSystemDesc": "Bilgisayarınızı takip etsin",
+  "themeLight": "Açık",
+  "themeLightDesc": "Sıcak gün ışığı",
+  "themeDark": "Koyu",
+  "themeDarkDesc": "Düşük ışık konforu",
+  "dismissError": "Hatayı kapat"
 }

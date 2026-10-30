@@ -188,5 +188,11 @@
     "emptyTitle": "Lihat bagaimana penyimpanan Anda berubah",
     "emptyDescription": "Pilih folder, ambil data dasar, lalu ambil snapshot lain untuk melihat apa yang bertambah. File Anda tetap tidak tersentuh.",
     "settings": "Snapshot otomatis & peringatan"
-  }
+  },
+  "repairWindowsOnlyTitle": "Hanya Windows",
+  "repairWindowsOnlyDescription": "Alat perbaikan disk hanya tersedia di Windows.",
+  "upOneLevel": "Naik satu tingkat folder",
+  "upButton": "Naik",
+  "driveEncrypted": "Terenkripsi",
+  "driveTotalSize": "Total {{size}}"
 }

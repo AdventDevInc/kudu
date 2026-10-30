@@ -188,5 +188,11 @@
     "emptyTitle": "देखें कि आपका स्टोरेज कैसे बदलता है",
     "emptyDescription": "एक फ़ोल्डर चुनें, आधाररेखा कैप्चर करें, फिर यह देखने के लिए एक और स्नैपशॉट लें कि क्या बढ़ा। आपकी फ़ाइलें अप्रभावित रहेंगी।",
     "settings": "स्वचालित स्नैपशॉट और अलर्ट"
-  }
+  },
+  "repairWindowsOnlyTitle": "केवल Windows",
+  "repairWindowsOnlyDescription": "डिस्क मरम्मत उपकरण केवल Windows पर उपलब्ध हैं।",
+  "upOneLevel": "एक फ़ोल्डर स्तर ऊपर",
+  "upButton": "ऊपर",
+  "driveEncrypted": "एन्क्रिप्टेड",
+  "driveTotalSize": "कुल {{size}}"
 }
