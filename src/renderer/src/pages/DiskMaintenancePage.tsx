@@ -382,7 +382,7 @@ function DriveRow({
                 className="h-3 w-3"
                 strokeWidth={2}
                 style={{ color: 'var(--text-muted)' }}
-                aria-label="Encrypted"
+                aria-label={t('driveEncrypted', 'Encrypted')}
               />
             )}
           </div>
@@ -392,7 +392,12 @@ function DriveRow({
           >
             <span>{drive.filesystem ?? '—'}</span>
             <span>·</span>
-            <span>{formatBytes(drive.totalSize, 0)} total</span>
+            <span>
+              {t('driveTotalSize', {
+                size: formatBytes(drive.totalSize, 0),
+                defaultValue: `${formatBytes(drive.totalSize, 0)} total`
+              })}
+            </span>
             <span>·</span>
             <span>
               {t('trimLastTrimmed')}: {formatRelativeTime(drive.lastTrimAt, t('trimNeverRecorded'))}

@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}j yang lalu",
   "daysAgo": "{{days}}h yang lalu",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Tampilan",
+  "themeAppearanceTitle": "Tampilan: {{theme}}",
+  "themeSystem": "Sistem",
+  "themeSystemDesc": "Ikuti komputer Anda",
+  "themeLight": "Terang",
+  "themeLightDesc": "Cahaya siang yang hangat",
+  "themeDark": "Gelap",
+  "themeDarkDesc": "Nyaman di cahaya redup",
+  "dismissError": "Tutup kesalahan"
 }

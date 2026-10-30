@@ -188,5 +188,11 @@
     "emptyTitle": "Veja como o seu armazenamento muda",
     "emptyDescription": "Escolha uma pasta, capture uma linha de base e, em seguida, tire outro instantâneo para ver o que cresceu. Os seus ficheiros permanecem intocados.",
     "settings": "Instantâneos automáticos e alertas"
-  }
+  },
+  "repairWindowsOnlyTitle": "Apenas Windows",
+  "repairWindowsOnlyDescription": "As ferramentas de reparação de disco estão disponíveis apenas no Windows.",
+  "upOneLevel": "Subir um nível de pasta",
+  "upButton": "Subir",
+  "driveEncrypted": "Encriptado",
+  "driveTotalSize": "{{size}} no total"
 }

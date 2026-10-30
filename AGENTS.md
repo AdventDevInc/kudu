@@ -16,12 +16,12 @@ Breaking changes must include `!` after the type/scope.
 
 ## Before Committing
 
-- Run `npm run check` — typecheck, lint, format check, rule validation, tests. This is exactly what CI runs.
-- If only formatting fails, `npm run format` fixes it. `npm run lint:fix` handles auto-fixable lint issues.
+- Run `npm run check` — typecheck, lint, rule validation, tests. This is exactly what CI runs.
+- `npm run lint:fix` handles auto-fixable lint issues. Formatting is optional: use `npm run format` or `npm run format:check` when useful.
 
 ## Code Style
 
-- Prettier and ESLint are the source of truth (`.prettierrc`, `eslint.config.mjs`). Don't hand-format.
+- ESLint is the source of truth for linting (`eslint.config.mjs`). Prettier (`.prettierrc`) is available for optional formatting and does not gate CI or commits.
 - Follow existing patterns in the codebase.
 - Keep PRs focused — one logical change per branch.
 - PRs are squash-merged; the PR title must be a Conventional Commit since it becomes the commit message.

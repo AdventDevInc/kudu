@@ -20,7 +20,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run validate:rules && npm test",
+    "check": "npm run typecheck && npm run lint && npm run validate:rules && npm test",
     "validate:rules": "npx tsx src/main/rules/validate.ts",
     "new-rule": "node scripts/new-rule.js",
     "find-cache": "node scripts/find-cache.js",

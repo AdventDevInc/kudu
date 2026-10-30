@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}घं पहले",
   "daysAgo": "{{days}}दि पहले",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "दिखावट",
+  "themeAppearanceTitle": "दिखावट: {{theme}}",
+  "themeSystem": "सिस्टम",
+  "themeSystemDesc": "अपने कंप्यूटर का पालन करें",
+  "themeLight": "हल्का",
+  "themeLightDesc": "दिन का हल्का प्रकाश",
+  "themeDark": "गहरा",
+  "themeDarkDesc": "कम रोशनी में आरामदायक",
+  "dismissError": "त्रुटि खारिज करें"
 }

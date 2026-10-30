@@ -188,5 +188,11 @@
     "emptyTitle": "Vea cómo cambia su almacenamiento",
     "emptyDescription": "Elija una carpeta, capture una línea base y luego tome otra instantánea para ver qué ha crecido. Sus archivos no se modificarán.",
     "settings": "Instantáneas automáticas y alertas"
-  }
+  },
+  "repairWindowsOnlyTitle": "Solo Windows",
+  "repairWindowsOnlyDescription": "Las herramientas de reparación de disco solo están disponibles en Windows.",
+  "upOneLevel": "Subir un nivel de carpeta",
+  "upButton": "Subir",
+  "driveEncrypted": "Cifrado",
+  "driveTotalSize": "{{size}} en total"
 }

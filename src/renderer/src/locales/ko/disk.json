@@ -188,5 +188,11 @@
     "emptyTitle": "저장소 변화 확인",
     "emptyDescription": "폴더를 선택하고 기준 스냅샷을 캡처한 다음, 다른 스냅샷을 찍어 무엇이 증가했는지 확인하세요. 파일은 변경되지 않습니다.",
     "settings": "자동 스냅샷 및 알림"
-  }
+  },
+  "repairWindowsOnlyTitle": "Windows 전용",
+  "repairWindowsOnlyDescription": "디스크 복구 도구는 Windows에서만 사용할 수 있습니다.",
+  "upOneLevel": "한 폴더 위로",
+  "upButton": "위로",
+  "driveEncrypted": "암호화됨",
+  "driveTotalSize": "총 {{size}}"
 }

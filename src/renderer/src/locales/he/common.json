@@ -64,5 +64,14 @@
   "hoursAgo": "לפני {{hours}} שע׳",
   "daysAgo": "לפני {{days}} ימים",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "מראה",
+  "themeAppearanceTitle": "מראה: {{theme}}",
+  "themeSystem": "מערכת",
+  "themeSystemDesc": "התאמה למחשב שלך",
+  "themeLight": "בהיר",
+  "themeLightDesc": "אור יום חמים",
+  "themeDark": "כהה",
+  "themeDarkDesc": "נוחות בתאורה חלשה",
+  "dismissError": "התעלם משגיאה"
 }

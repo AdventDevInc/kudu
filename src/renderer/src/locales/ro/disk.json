@@ -188,5 +188,11 @@
     "emptyTitle": "Vedeți cum se modifică stocarea",
     "emptyDescription": "Alegeți un folder, capturați o bază de referință, apoi realizați un alt instantaneu pentru a vedea ce a crescut. Fișierele dvs. rămân neatinse.",
     "settings": "Instantanee automate și alerte"
-  }
+  },
+  "repairWindowsOnlyTitle": "Doar pentru Windows",
+  "repairWindowsOnlyDescription": "Instrumentele de reparare a discului sunt disponibile doar pe Windows.",
+  "upOneLevel": "Un nivel mai sus",
+  "upButton": "Sus",
+  "driveEncrypted": "Criptat",
+  "driveTotalSize": "Total {{size}}"
 }

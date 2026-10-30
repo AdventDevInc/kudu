@@ -188,5 +188,11 @@
     "emptyTitle": "Lihat bagaimana storan anda berubah",
     "emptyDescription": "Pilih folder, tangkap garis dasar, kemudian ambil satu lagi syot kilat untuk melihat apa yang bertambah. Fail anda kekal tidak disentuh.",
     "settings": "Syot kilat automatik & amaran"
-  }
+  },
+  "repairWindowsOnlyTitle": "Windows Sahaja",
+  "repairWindowsOnlyDescription": "Alat pembaikan cakera hanya tersedia pada Windows.",
+  "upOneLevel": "Naik satu tingkat folder",
+  "upButton": "Naik",
+  "driveEncrypted": "Tersulit",
+  "driveTotalSize": "Jumlah {{size}}"
 }

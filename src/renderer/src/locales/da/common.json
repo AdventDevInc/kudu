@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}t siden",
   "daysAgo": "{{days}}d siden",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Udseende",
+  "themeAppearanceTitle": "Udseende: {{theme}}",
+  "themeSystem": "System",
+  "themeSystemDesc": "Følg computeren",
+  "themeLight": "Lyst",
+  "themeLightDesc": "Varmt dagslys",
+  "themeDark": "Mørkt",
+  "themeDarkDesc": "Behageligt i svagt lys",
+  "dismissError": "Afvis fejl"
 }

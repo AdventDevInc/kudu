@@ -64,5 +64,14 @@
   "hoursAgo": "před {{hours}} h",
   "daysAgo": "před {{days}} d",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Vzhled",
+  "themeAppearanceTitle": "Vzhled: {{theme}}",
+  "themeSystem": "Systém",
+  "themeSystemDesc": "Podle počítače",
+  "themeLight": "Světlý",
+  "themeLightDesc": "Teplé denní světlo",
+  "themeDark": "Tmavý",
+  "themeDarkDesc": "Pohodlí při slabém osvětlení",
+  "dismissError": "Zavřít chybu"
 }

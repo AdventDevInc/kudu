@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} 小時前",
   "daysAgo": "{{days}} 天前",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "外觀",
+  "themeAppearanceTitle": "外觀：{{theme}}",
+  "themeSystem": "依照系統",
+  "themeSystemDesc": "依照電腦設定",
+  "themeLight": "淺色",
+  "themeLightDesc": "溫暖日光",
+  "themeDark": "深色",
+  "themeDarkDesc": "低光舒適",
+  "dismissError": "關閉錯誤"
 }

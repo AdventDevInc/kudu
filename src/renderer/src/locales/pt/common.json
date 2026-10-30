@@ -64,5 +64,14 @@
   "hoursAgo": "há {{hours}} h",
   "daysAgo": "há {{days}} d",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Aparência",
+  "themeAppearanceTitle": "Aparência: {{theme}}",
+  "themeSystem": "Sistema",
+  "themeSystemDesc": "Seguir o seu computador",
+  "themeLight": "Claro",
+  "themeLightDesc": "Luz do dia quente",
+  "themeDark": "Escuro",
+  "themeDarkDesc": "Conforto com pouca luz",
+  "dismissError": "Dispensar erro"
 }
