@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 177 |
-| 🪟 Windows rules | 166 |
-| 🍎 macOS rules | 95 |
-| 🐧 Linux rules | 93 |
+| Unique app rules | 182 |
+| 🪟 Windows rules | 171 |
+| 🍎 macOS rules | 100 |
+| 🐧 Linux rules | 98 |
 
 ## AI Tools
 
@@ -35,8 +35,12 @@
 | Cursor IDE | ✅ | ✅ | ✅ |
 | Cursor IDE Partitions | ✅ | ❌ | ❌ |
 | GitHub Copilot Logs | ✅ | ❌ | ❌ |
+| Google Antigravity | ✅ | ✅ | ✅ |
 | Granola | ✅ | ❌ | ❌ |
 | Granola Performance Caches | ✅ | ❌ | ❌ |
+| Hugging Face Cache | ✅ | ✅ | ✅ |
+| LM Studio | ✅ | ✅ | ✅ |
+| Ollama Logs | ✅ | ✅ | ✅ |
 | Pinokio | ✅ | ❌ | ❌ |
 | Pinokio Performance Caches | ✅ | ❌ | ❌ |
 | T3 Code | ✅ | ❌ | ❌ |
@@ -96,6 +100,7 @@
 | Homebrew Cache | ❌ | ✅ | ✅ |
 | Hyper Terminal | ✅ | ✅ | ✅ |
 | Inkscape | ✅ | ✅ | ✅ |
+| Insomnia | ✅ | ✅ | ✅ |
 | Java Runtime Cache | ✅ | ✅ | ✅ |
 | JetBrains IDE Logs | ✅ | ❌ | ❌ |
 | JetBrains IDEs | ✅ | ✅ | ✅ |
