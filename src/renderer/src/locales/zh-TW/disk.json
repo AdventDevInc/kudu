@@ -188,5 +188,11 @@
     "emptyTitle": "查看儲存空間如何變化",
     "emptyDescription": "選擇資料夾、擷取基準快照，然後再擷取另一個快照，即可查看哪些內容增加了。您的檔案不會被變更。",
     "settings": "自動快照與提醒"
-  }
+  },
+  "repairWindowsOnlyTitle": "僅限 Windows",
+  "repairWindowsOnlyDescription": "磁碟修復工具僅適用於 Windows。",
+  "upOneLevel": "上一層資料夾",
+  "upButton": "返回上一層",
+  "driveEncrypted": "已加密",
+  "driveTotalSize": "總計 {{size}}"
 }

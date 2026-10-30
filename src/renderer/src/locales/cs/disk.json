@@ -188,5 +188,11 @@
     "emptyTitle": "Podívejte se, jak se vaše úložiště mění",
     "emptyDescription": "Vyberte složku, pořiďte výchozí snímek a potom další snímek, abyste viděli, co narostlo. Vaše soubory zůstanou nedotčené.",
     "settings": "Automatické snímky a upozornění"
-  }
+  },
+  "repairWindowsOnlyTitle": "Pouze Windows",
+  "repairWindowsOnlyDescription": "Nástroje pro opravu disku jsou k dispozici pouze v systému Windows.",
+  "upOneLevel": "O úroveň výš",
+  "upButton": "Nahoru",
+  "driveEncrypted": "Šifrováno",
+  "driveTotalSize": "Celkem {{size}}"
 }

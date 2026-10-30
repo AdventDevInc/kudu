@@ -361,10 +361,10 @@ export function DiskAnalyzerPage() {
                       borderColor: 'var(--border-medium)',
                       color: 'var(--text-secondary)'
                     }}
-                    aria-label="Up one folder level"
+                    aria-label={t('upOneLevel', 'Up one folder level')}
                   >
                     <ArrowUp className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span>Up</span>
+                    <span>{t('upButton', 'Up')}</span>
                   </button>
                 )}
                 <div

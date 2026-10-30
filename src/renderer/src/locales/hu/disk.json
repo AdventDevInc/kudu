@@ -188,5 +188,11 @@
     "emptyTitle": "Nézze meg, hogyan változik a tárhelye",
     "emptyDescription": "Válasszon egy mappát, készítsen egy alapállapotot, majd készítsen egy újabb pillanatképet, hogy lássa, mi nőtt meg. A fájljai érintetlenek maradnak.",
     "settings": "Automatikus pillanatképek és riasztások"
-  }
+  },
+  "repairWindowsOnlyTitle": "Csak Windows",
+  "repairWindowsOnlyDescription": "A lemezjavító eszközök csak Windows rendszeren érhetők el.",
+  "upOneLevel": "Egy mappaszinttel feljebb",
+  "upButton": "Fel",
+  "driveEncrypted": "Titkosított",
+  "driveTotalSize": "Összesen {{size}}"
 }

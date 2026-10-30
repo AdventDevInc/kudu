@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} 小时前",
   "daysAgo": "{{days}} 天前",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "外观",
+  "themeAppearanceTitle": "外观：{{theme}}",
+  "themeSystem": "跟随系统",
+  "themeSystemDesc": "跟随电脑设置",
+  "themeLight": "浅色",
+  "themeLightDesc": "温暖日光",
+  "themeDark": "深色",
+  "themeDarkDesc": "弱光舒适",
+  "dismissError": "忽略错误"
 }

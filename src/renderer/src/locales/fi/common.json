@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} h sitten",
   "daysAgo": "{{days}} pv sitten",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Ulkoasu",
+  "themeAppearanceTitle": "Ulkoasu: {{theme}}",
+  "themeSystem": "Järjestelmä",
+  "themeSystemDesc": "Seuraa tietokonetta",
+  "themeLight": "Vaalea",
+  "themeLightDesc": "Lämmin päivänvalo",
+  "themeDark": "Tumma",
+  "themeDarkDesc": "Miellyttävä hämärässä",
+  "dismissError": "Hylkää virhe"
 }

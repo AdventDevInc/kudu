@@ -188,5 +188,11 @@
     "emptyTitle": "ראה כיצד האחסון שלך משתנה",
     "emptyDescription": "בחר תיקייה, צלם קו בסיס ולאחר מכן צלם תמונת מצב נוספת כדי לראות מה גדל. הקבצים שלך נשארים ללא שינוי.",
     "settings": "תמונות מצב אוטומטיות והתראות"
-  }
+  },
+  "repairWindowsOnlyTitle": "עבור Windows בלבד",
+  "repairWindowsOnlyDescription": "כלי תיקון דיסק זמינים רק ב-Windows.",
+  "upOneLevel": "תיקייה אחת למעלה",
+  "upButton": "למעלה",
+  "driveEncrypted": "מוצפן",
+  "driveTotalSize": "סה״כ {{size}}"
 }

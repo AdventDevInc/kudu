@@ -188,5 +188,11 @@
     "emptyTitle": "Voyez comment votre stockage évolue",
     "emptyDescription": "Choisissez un dossier, capturez une base de référence, puis prenez un autre instantané pour voir ce qui a augmenté. Vos fichiers restent intacts.",
     "settings": "Instantanés automatiques et alertes"
-  }
+  },
+  "repairWindowsOnlyTitle": "Windows uniquement",
+  "repairWindowsOnlyDescription": "Les outils de réparation de disque sont uniquement disponibles sur Windows.",
+  "upOneLevel": "Dossier parent",
+  "upButton": "Haut",
+  "driveEncrypted": "Chiffré",
+  "driveTotalSize": "{{size}} au total"
 }
