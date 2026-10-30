@@ -1,3 +1,21 @@
+# [3.11.0](https://github.com/adventdevinc/kudu/compare/v3.10.0...v3.11.0) (2026-10-30)
+
+
+### Bug Fixes
+
+* **disk:** show honest loading feedback for disk operations ([#566](https://github.com/adventdevinc/kudu/issues/566)) ([cc94511](https://github.com/adventdevinc/kudu/commit/cc94511fd8ae911bc45c2dcf9095a685882fd55f))
+* **release:** use a compatible Angular changelog preset ([#568](https://github.com/adventdevinc/kudu/issues/568)) ([6997a6b](https://github.com/adventdevinc/kudu/commit/6997a6b9006146dafd4cef00c0dab364abeb1104))
+* **startup:** report renderer startup failures with native diagnostics ([#567](https://github.com/adventdevinc/kudu/issues/567)) ([444654a](https://github.com/adventdevinc/kudu/commit/444654ac9896cd8d0c417fc20af6ac7cffdfe5c3))
+* **threat-monitor:** enable search links and text copying ([#564](https://github.com/adventdevinc/kudu/issues/564)) ([798a12f](https://github.com/adventdevinc/kudu/commit/798a12f57c7af0d4142eb8983d5665ad69d133ac))
+
+
+### Features
+
+* **i18n:** add Persian language support ([#560](https://github.com/adventdevinc/kudu/issues/560)) ([5afc7e2](https://github.com/adventdevinc/kudu/commit/5afc7e263ee976f2b7a50c8b67aff9e67aa83178))
+* **i18n:** improve Turkish translations and fix locale encoding issues for v3.10.0 ([#551](https://github.com/adventdevinc/kudu/issues/551)) ([d73b9c3](https://github.com/adventdevinc/kudu/commit/d73b9c3e24400bcf814f9a541476bb8444bde612))
+* **i18n:** localize hardcoded malware scanner and UI strings ([#561](https://github.com/adventdevinc/kudu/issues/561)) ([6d01d57](https://github.com/adventdevinc/kudu/commit/6d01d577f94e77db3400a394f69cf5fc3188d681))
+* **rules:** add Antigravity, Hugging Face, LM Studio, Ollama, and Insomnia cleaner rules ([#569](https://github.com/adventdevinc/kudu/issues/569)) ([61caf9f](https://github.com/adventdevinc/kudu/commit/61caf9f0901f498296ff791ef3844bcfb5eb32e8))
+* **windows:** add native ARM64 release support ([#548](https://github.com/adventdevinc/kudu/issues/548)) ([69faec3](https://github.com/adventdevinc/kudu/commit/69faec34a31999fe23ea822430af0b8b9c19c09a))
 # [3.10.0](https://github.com/adventdevinc/kudu/compare/v3.9.0...v3.10.0) (2026-10-21)
 
 
