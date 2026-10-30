@@ -70,29 +70,30 @@ function AppearanceMenu() {
   const updateSettings = useSettingsStore((s) => s.updateSettings)
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const options: { id: ThemeMode; label: string; description: string; icon: typeof Sun }[] = useMemo(
-    () => [
-      {
-        id: 'system',
-        label: t('themeSystem', 'System'),
-        description: t('themeSystemDesc', 'Follow your computer'),
-        icon: Monitor
-      },
-      {
-        id: 'light',
-        label: t('themeLight', 'Light'),
-        description: t('themeLightDesc', 'Warm daylight'),
-        icon: Sun
-      },
-      {
-        id: 'dark',
-        label: t('themeDark', 'Dark'),
-        description: t('themeDarkDesc', 'Low-light comfort'),
-        icon: Moon
-      }
-    ],
-    [t]
-  )
+  const options: { id: ThemeMode; label: string; description: string; icon: typeof Sun }[] =
+    useMemo(
+      () => [
+        {
+          id: 'system',
+          label: t('themeSystem', 'System'),
+          description: t('themeSystemDesc', 'Follow your computer'),
+          icon: Monitor
+        },
+        {
+          id: 'light',
+          label: t('themeLight', 'Light'),
+          description: t('themeLightDesc', 'Warm daylight'),
+          icon: Sun
+        },
+        {
+          id: 'dark',
+          label: t('themeDark', 'Dark'),
+          description: t('themeDarkDesc', 'Low-light comfort'),
+          icon: Moon
+        }
+      ],
+      [t]
+    )
   const active = options.find((option) => option.id === theme) ?? options[0]
   const ActiveIcon = active.icon
 
