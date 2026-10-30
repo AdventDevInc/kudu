@@ -32,7 +32,7 @@
     "remove": "Eintrag entfernen",
     "removeDescription": "Diesen Wiederherstellungseintrag aus dem lokalen Verlauf entfernen? Dadurch werden Ihre Einstellungen nicht geändert und Registrierungs-Sicherungen nicht gelöscht. Kudu kann diese Änderung dann nicht mehr für Sie wiederherstellen.",
     "unreadable": "Dieser Wiederherstellungseintrag konnte nicht gelesen werden. Er wurde möglicherweise von einem anderen Benutzerkonto geschrieben oder auf dem Datenträger beschädigt.",
-    "loading": "Wiederherstellungsverlauf wird geladen?",
+    "loading": "Wiederherstellungsverlauf wird geladen…",
     "emptyTitle": "Ihr Wiederherstellungsverlauf beginnt hier",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Bereinigung wiederholen",
     "clearTitle": "Bereinigungsbelege löschen?",
     "clearDescription": "Dadurch werden gespeicherte Belege und ihre Wiederholungsinformationen dauerhaft entfernt. Der Scanverlauf und das separate Löschprotokoll bleiben unverändert.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Bereinigungsprotokolle werden geladen…"
   },
   "pageTitle": "Scanverlauf",
   "pageDescription": "Detaillierte Ergebnisse früherer Scans und Bereinigungen anzeigen",

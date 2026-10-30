@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Verwijder eerst de Cloud-kopie. Deze lokale opname bevat de enige verwijzing die nodig is om die te verwijderen.",
   "confirmCloud": "Deze opname en dit rapport uit Kudu Cloud verwijderen? Uw lokale kopie blijft behouden. Een analyse die al naar de provider is verzonden, kan niet worden teruggehaald, maar het resultaat wordt niet meer terug opgeslagen in de Cloud.",
   "confirmDelete": "Verwijderen bevestigen",
-  "recordingElapsed": "Opname ? {{seconds}}s",
+  "recordingElapsed": "Opname • {{seconds}}s",
   "operationFailed": "Er is iets misgegaan.",
   "checkingAccess": "Cloud-toegang controleren…",
   "emptyHint": "Neem op terwijl de vertraging optreedt. U kunt de metingen controleren voordat u ze deelt.",

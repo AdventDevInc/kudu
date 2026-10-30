@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Löschen Sie zuerst die Cloud-Kopie. Diese lokale Aufzeichnung enthält die einzige Referenz, die zum Entfernen benötigt wird.",
   "confirmCloud": "Diese Aufzeichnung und den Bericht aus Kudu Cloud löschen? Ihre lokale Kopie bleibt erhalten. Eine bereits an den Anbieter gesendete Analyse kann nicht zurückgerufen werden, aber ihr Ergebnis wird nicht mehr in der Cloud gespeichert.",
   "confirmDelete": "Löschen bestätigen",
-  "recordingElapsed": "Aufzeichnung ? {{seconds}}s",
+  "recordingElapsed": "Aufnahme • {{seconds}}s",
   "operationFailed": "Es ist ein Fehler aufgetreten.",
   "checkingAccess": "Cloud-Zugriff wird geprüft…",
   "emptyHint": "Zeichnen Sie auf, während die Verlangsamung auftritt. Sie können die Messwerte prüfen, bevor Sie sie teilen.",

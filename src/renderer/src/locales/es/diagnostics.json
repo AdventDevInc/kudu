@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Elimine primero la copia de Cloud. Esta grabación local contiene la única referencia necesaria para eliminarla.",
   "confirmCloud": "¿Eliminar esta grabación y su informe de Kudu Cloud? Su copia local permanecerá. Un análisis ya enviado al proveedor no puede retirarse, pero su resultado no volverá a guardarse en Cloud.",
   "confirmDelete": "Confirmar eliminación",
-  "recordingElapsed": "Grabando ? {{seconds}}s",
+  "recordingElapsed": "Grabando • {{seconds}} s",
   "operationFailed": "Algo salió mal.",
   "checkingAccess": "Comprobando acceso a Cloud…",
   "emptyHint": "Grabe mientras se produce la ralentización. Puede revisar las mediciones antes de compartirlas.",

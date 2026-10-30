@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Poista Cloud-kopio ensin. Tämä paikallinen tallenne sisältää ainoan viittauksen, jota sen poistamiseen tarvitaan.",
   "confirmCloud": "Poistetaanko tämä tallenne ja raportti Kudu Cloudista? Paikallinen kopiosi säilyy. Palveluntarjoajalle jo lähetettyä analyysiä ei voi perua, mutta sen tulosta ei tallenneta takaisin Cloudiin.",
   "confirmDelete": "Vahvista poistaminen",
-  "recordingElapsed": "Tallennus ? {{seconds}}s",
+  "recordingElapsed": "Tallennus • {{seconds}} s",
   "operationFailed": "Jokin meni pieleen.",
   "checkingAccess": "Tarkistetaan Cloud-käyttöoikeutta…",
   "emptyHint": "Tallenna hidastelun aikana. Voit tarkistaa mittaukset ennen niiden jakamista.",

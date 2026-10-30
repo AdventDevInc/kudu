@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Padam salinan Cloud dahulu. Rakaman setempat ini memegang satu-satunya rujukan yang diperlukan untuk membuangnya.",
   "confirmCloud": "Padam rakaman dan laporan ini daripada Kudu Cloud? Salinan setempat anda kekal. Analisis yang sudah dihantar kepada penyedia tidak boleh ditarik balik, tetapi hasilnya tidak akan disimpan semula ke Cloud.",
   "confirmDelete": "Sahkan pemadaman",
-  "recordingElapsed": "Merakam ? {{seconds}}s",
+  "recordingElapsed": "Merakam • {{seconds}}s",
   "operationFailed": "Sesuatu telah berlaku.",
   "checkingAccess": "Menyemak akses Cloud…",
   "emptyHint": "Rakam semasa kelambatan berlaku. Anda boleh menyemak ukuran sebelum berkongsinya.",

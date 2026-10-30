@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Supprimez d’abord la copie Cloud. Cet enregistrement local contient la seule référence nécessaire pour la supprimer.",
   "confirmCloud": "Supprimer cet enregistrement et ce rapport de Kudu Cloud ? Votre copie locale reste disponible. Une analyse déjà envoyée au fournisseur ne peut pas être rappelée, mais son résultat ne sera pas réenregistré dans le Cloud.",
   "confirmDelete": "Confirmer la suppression",
-  "recordingElapsed": "Enregistrement ? {{seconds}}s",
+  "recordingElapsed": "Enregistrement • {{seconds}} s",
   "operationFailed": "Une erreur s’est produite.",
   "checkingAccess": "Vérification de l’accès Cloud…",
   "emptyHint": "Enregistrez pendant que le ralentissement se produit. Vous pouvez examiner les mesures avant de les partager.",

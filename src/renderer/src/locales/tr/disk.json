@@ -184,7 +184,7 @@
       "removed": "Kaldırılan yol",
       "changed": "Değiştirildi"
     },
-    "loading": "Depolama geçmişi yükleniyor...",
+    "loading": "Depolama geçmişi yükleniyor…",
     "emptyTitle": "Depolamanızın nasıl değiştiğini görün",
     "emptyDescription": "Bir klasör seçin, temel bir anlık görüntü alın, ardından neyin büyüdüğünü görmek için başka bir anlık görüntü daha alın. Dosyalarınıza dokunulmaz.",
     "settings": "Otomatik anlık görüntüler ve uyarılar"

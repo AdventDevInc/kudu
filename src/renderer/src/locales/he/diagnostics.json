@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "מחקו תחילה את עותק ה-Cloud. התיעוד המקומי הזה מחזיק את ההפניה היחידה הנדרשת להסרתו.",
   "confirmCloud": "למחוק את התיעוד הזה ואת הדוח מ-Kudu Cloud? העותק המקומי שלכם יישאר. לא ניתן להחזיר לאחור ניתוח שכבר נשלח לספק, אך התוצאה שלו לא תישמר בחזרה ל-Cloud.",
   "confirmDelete": "אישור מחיקה",
-  "recordingElapsed": "תיעוד ? {{seconds}}ש׳",
+  "recordingElapsed": "מקליט • {{seconds}}ש׳",
   "operationFailed": "משהו השתבש.",
   "checkingAccess": "בודק גישת Cloud…",
   "emptyHint": "תעדו בזמן שההאטה מתרחשת. תוכלו לעיין במדידות לפני שתשתפו אותן.",

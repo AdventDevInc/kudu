@@ -32,7 +32,7 @@
     "remove": "Elimină înregistrarea",
     "removeDescription": "Eliminați această înregistrare de recuperare din istoricul local? Aceasta nu vă modifică setările și nu șterge copiile de rezervă din registry. Kudu nu va mai putea restaura această modificare pentru dvs.",
     "unreadable": "Această înregistrare de recuperare nu a putut fi citită. Este posibil să fi fost scrisă de un alt cont de utilizator sau să fie deteriorată pe disc.",
-    "loading": "Se încarcă istoricul de recuperare?",
+    "loading": "Se încarcă istoricul de recuperare…",
     "emptyTitle": "Istoricul dvs. de recuperare începe aici",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Reîncearcă curățarea",
     "clearTitle": "Ștergeți chitanțele de curățare?",
     "clearDescription": "Aceasta elimină definitiv chitanțele salvate și informațiile lor de reîncercare. Istoricul scanărilor și jurnalul separat de ștergere rămân neschimbate.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Se încarcă chitanțele de curățare…"
   },
   "pageTitle": "Istoric scanări",
   "pageDescription": "Vizualizați rezultatele detaliate ale scanărilor și curățării anterioare",

@@ -32,7 +32,7 @@
     "remove": "Usuń wpis",
     "removeDescription": "Usunąć ten rekord odzyskiwania z historii lokalnej? Nie zmieni to ustawień ani nie usunie kopii zapasowych rejestru. Kudu nie będzie już mógł przywrócić tej zmiany.",
     "unreadable": "Nie można było odczytać tego rekordu odzyskiwania. Mógł zostać zapisany przez inne konto użytkownika lub uszkodzony na dysku.",
-    "loading": "Wczytywanie historii odzyskiwania?",
+    "loading": "Ładowanie historii odzyskiwania…",
     "emptyTitle": "Tutaj zaczyna się historia odzyskiwania",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Ponów czyszczenie",
     "clearTitle": "Wyczyścić potwierdzenia czyszczenia?",
     "clearDescription": "To trwale usunie zapisane potwierdzenia i informacje o ponowieniach. Historia skanowania i oddzielny dziennik usunięć pozostaną bez zmian.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Ładowanie potwierdzeń czyszczenia…"
   },
   "pageTitle": "Historia skanowań",
   "pageDescription": "Wyświetl szczegółowe wyniki poprzednich skanowań i czyszczeń",

@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Ștergeți mai întâi copia din Cloud. Această înregistrare locală păstrează singura referință necesară pentru a o elimina.",
   "confirmCloud": "Ștergeți această înregistrare și raportul din Kudu Cloud? Copia locală rămâne. O analiză deja trimisă furnizorului nu poate fi retrasă, dar rezultatul ei nu va mai fi salvat înapoi în Cloud.",
   "confirmDelete": "Confirmați ștergerea",
-  "recordingElapsed": "Înregistrare ? {{seconds}}s",
+  "recordingElapsed": "Înregistrare • {{seconds}}s",
   "operationFailed": "Ceva nu a funcționat corect.",
   "checkingAccess": "Se verifică accesul Cloud…",
   "emptyHint": "Înregistrați în timp ce apare încetinirea. Puteți revizui măsurătorile înainte de a le partaja.",

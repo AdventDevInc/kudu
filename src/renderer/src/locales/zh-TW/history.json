@@ -32,7 +32,7 @@
     "remove": "移除項目",
     "removeDescription": "要從本機歷程中移除此復原記錄嗎？這不會變更您的設定，也不會刪除登錄備份。Kudu 將無法再為您還原此變更。",
     "unreadable": "無法讀取此復原記錄。它可能是由其他使用者帳戶寫入，或磁碟上的資料已損毀。",
-    "loading": "正在載入復原歷程？",
+    "loading": "正在載入復原記錄…",
     "emptyTitle": "您的復原歷程從這裡開始",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "重試清理",
     "clearTitle": "要清除清理收據嗎？",
     "clearDescription": "這會永久移除已儲存的收據及其重試資訊。掃描記錄與獨立的刪除記錄不會變更。",
-    "loading": "Loading cleanup receipts?"
+    "loading": "正在載入清理記錄…"
   },
   "pageTitle": "掃描記錄",
   "pageDescription": "檢視過去掃描與清理的詳細結果",

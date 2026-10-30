@@ -32,7 +32,7 @@
     "remove": "Bejegyzés eltávolítása",
     "removeDescription": "Eltávolítja ezt a helyreállítási bejegyzést a helyi előzményekből? Ez nem módosítja a beállításait, és nem törli a rendszerleíróadatbázis biztonsági mentéseit. A Kudu ezután már nem tudja visszaállítani ezt a módosítást.",
     "unreadable": "Ez a helyreállítási bejegyzés nem olvasható. Lehet, hogy egy másik felhasználói fiók hozta létre, vagy a lemezen megsérült.",
-    "loading": "Helyreállítási előzmények betöltése?",
+    "loading": "Helyreállítási előzmények betöltése…",
     "emptyTitle": "Itt kezdődnek a helyreállítási előzményei",
     "source": {
       "privacy": "Adatvédelmi pajzs",
@@ -109,7 +109,7 @@
     "retryConfirm": "Tisztítás újrapróbálása",
     "clearTitle": "Törli a tisztítási bizonylatokat?",
     "clearDescription": "Ez véglegesen eltávolítja a mentett bizonylatokat és azok újrapróbálási adatait. A vizsgálati előzmények és a külön törlési napló nem változnak.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Tisztítási nyugták betöltése…"
   },
   "pageTitle": "Vizsgálati előzmények",
   "pageDescription": "Korábbi vizsgálatok és tisztítások részletes eredményeinek megtekintése",

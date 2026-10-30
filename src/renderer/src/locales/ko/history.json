@@ -32,7 +32,7 @@
     "remove": "항목 제거",
     "removeDescription": "이 복구 기록을 로컬 기록에서 제거하시겠습니까? 이 작업은 설정을 변경하거나 레지스트리 백업을 삭제하지 않습니다. Kudu는 더 이상 이 변경 사항을 복원할 수 없습니다.",
     "unreadable": "이 복구 기록을 읽을 수 없습니다. 다른 사용자 계정에서 작성되었거나 디스크에서 손상되었을 수 있습니다.",
-    "loading": "복구 기록을 불러오는 중?",
+    "loading": "복구 기록을 불러오는 중…",
     "emptyTitle": "복구 기록이 여기서 시작됩니다",
     "source": {
       "privacy": "개인 정보 보호",
@@ -109,7 +109,7 @@
     "retryConfirm": "정리 다시 시도",
     "clearTitle": "정리 영수증을 지우시겠습니까?",
     "clearDescription": "저장된 영수증과 해당 재시도 정보가 영구적으로 제거됩니다. 검사 기록과 별도의 삭제 로그는 변경되지 않습니다.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "정리 영수증을 불러오는 중…"
   },
   "pageTitle": "검사 기록",
   "pageDescription": "이전 검사 및 정리의 상세 결과를 확인합니다",

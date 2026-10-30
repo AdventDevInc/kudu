@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Először törölje a Cloud-példányt. Ez a helyi rögzítés tartalmazza az egyetlen szükséges hivatkozást annak eltávolításához.",
   "confirmCloud": "Törli ezt a rögzítést és jelentést a Kudu Cloudból? A helyi példány megmarad. A szolgáltatóhoz már elküldött elemzés nem vonható vissza, de az eredménye nem kerül visszamentésre a Cloudba.",
   "confirmDelete": "Törlés megerősítése",
-  "recordingElapsed": "Rögzítés ? {{seconds}} mp",
+  "recordingElapsed": "Felvétel • {{seconds}} mp",
   "operationFailed": "Hiba történt.",
   "checkingAccess": "Cloud-hozzáférés ellenőrzése…",
   "emptyHint": "Akkor rögzítsen, amikor a lassulás jelentkezik. A méréseket megosztás előtt áttekintheti.",

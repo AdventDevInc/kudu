@@ -32,7 +32,7 @@
     "remove": "Odstranit záznam",
     "removeDescription": "Odstranit tento záznam obnovení z místní historie? Tím se nezmění vaše nastavení ani nesmažou zálohy registru. Kudu už pro vás tuto změnu nebude moci obnovit.",
     "unreadable": "Tento záznam obnovení se nepodařilo přečíst. Mohl být zapsán jiným uživatelským účtem nebo poškozen na disku.",
-    "loading": "Načítá se historie obnovení?",
+    "loading": "Načítání historie obnovení…",
     "emptyTitle": "Zde začíná vaše historie obnovení",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Opakovat čištění",
     "clearTitle": "Vymazat potvrzení o čištění?",
     "clearDescription": "Tímto trvale odstraníte uložená potvrzení a jejich informace o opakování. Historie skenování a samostatný protokol odstranění zůstanou beze změny.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Načítání potvrzení o čištění…"
   },
   "pageTitle": "Historie kontrol",
   "pageDescription": "Zobrazte podrobné výsledky předchozích kontrol a čištění",

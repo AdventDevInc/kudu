@@ -184,7 +184,7 @@
       "removed": "Fjernet bane",
       "changed": "Endret"
     },
-    "loading": "Laster inn lagringshistorikk?",
+    "loading": "Laster inn lagringshistorikk …",
     "emptyTitle": "Se hvordan lagringen endrer seg",
     "emptyDescription": "Velg en mappe, ta et grunnlag, og ta deretter et nytt øyeblikksbilde for å se hva som har vokst. Filene dine forblir urørt.",
     "settings": "Automatiske øyeblikksbilder og varsler"

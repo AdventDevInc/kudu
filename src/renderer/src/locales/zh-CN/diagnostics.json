@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "请先删除 Cloud 副本。此本地录制保存着删除它所需的唯一引用。",
   "confirmCloud": "从 Kudu Cloud 删除此录制和报告？您的本地副本将保留。已发送给提供商的分析无法撤回，但其结果将不会再保存回 Cloud。",
   "confirmDelete": "确认删除",
-  "recordingElapsed": "录制中 ? {{seconds}} 秒",
+  "recordingElapsed": "录制中 • {{seconds}}秒",
   "operationFailed": "出现了一些问题。",
   "checkingAccess": "正在检查 Cloud 访问权限…",
   "emptyHint": "请在变慢发生时进行录制。您可以在共享前查看测量数据。",
