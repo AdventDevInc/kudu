@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} u geleden",
   "daysAgo": "{{days}} d geleden",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Weergave",
+  "themeAppearanceTitle": "Weergave: {{theme}}",
+  "themeSystem": "Systeem",
+  "themeSystemDesc": "Computerinstellingen volgen",
+  "themeLight": "Licht",
+  "themeLightDesc": "Warm daglicht",
+  "themeDark": "Donker",
+  "themeDarkDesc": "Comfort bij weinig licht",
+  "dismissError": "Fout sluiten"
 }

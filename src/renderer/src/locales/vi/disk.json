@@ -188,5 +188,11 @@
     "emptyTitle": "Xem dung lượng của bạn thay đổi như thế nào",
     "emptyDescription": "Chọn một thư mục, chụp một mốc ban đầu, rồi chụp thêm một ảnh nữa để xem phần nào đã tăng. Các tệp của bạn sẽ không bị tác động.",
     "settings": "Ảnh chụp tự động và cảnh báo"
-  }
+  },
+  "repairWindowsOnlyTitle": "Chỉ dành cho Windows",
+  "repairWindowsOnlyDescription": "Công cụ sửa chữa ổ đĩa chỉ khả dụng trên Windows.",
+  "upOneLevel": "Lên một cấp thư mục",
+  "upButton": "Lên",
+  "driveEncrypted": "Đã mã hóa",
+  "driveTotalSize": "Tổng cộng {{size}}"
 }

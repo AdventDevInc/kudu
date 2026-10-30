@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} órája",
   "daysAgo": "{{days}} napja",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Megjelenés",
+  "themeAppearanceTitle": "Megjelenés: {{theme}}",
+  "themeSystem": "Rendszer",
+  "themeSystemDesc": "Számítógép beállításainak követése",
+  "themeLight": "Világos",
+  "themeLightDesc": "Meleg nappali fény",
+  "themeDark": "Sötét",
+  "themeDarkDesc": "Kényelem gyenge fényviszonyok között",
+  "dismissError": "Hiba bezárása"
 }

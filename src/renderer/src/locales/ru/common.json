@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} ч назад",
   "daysAgo": "{{days}} дн назад",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Внешний вид",
+  "themeAppearanceTitle": "Внешний вид: {{theme}}",
+  "themeSystem": "Системная",
+  "themeSystemDesc": "Как на компьютере",
+  "themeLight": "Светлая",
+  "themeLightDesc": "Теплый дневной свет",
+  "themeDark": "Темная",
+  "themeDarkDesc": "Комфорт при слабом освещении",
+  "dismissError": "Закрыть ошибку"
 }

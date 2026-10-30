@@ -188,5 +188,11 @@
     "emptyTitle": "Se hur din lagring förändras",
     "emptyDescription": "Välj en mapp, ta en baslinje och ta sedan en ny ögonblicksbild för att se vad som har vuxit. Dina filer lämnas orörda.",
     "settings": "Automatiska ögonblicksbilder och aviseringar"
-  }
+  },
+  "repairWindowsOnlyTitle": "Endast Windows",
+  "repairWindowsOnlyDescription": "Verktyg för diskreparation är endast tillgängliga i Windows.",
+  "upOneLevel": "Upp en mappnivå",
+  "upButton": "Upp",
+  "driveEncrypted": "Krypterad",
+  "driveTotalSize": "Totalt {{size}}"
 }

@@ -121,8 +121,11 @@ export function DiskRepairPage() {
         <PageHeader title={t('repairTitle')} description={t('repairDescription')} />
         <EmptyState
           icon={Wrench}
-          title="Windows Only"
-          description="Disk repair tools are only available on Windows."
+          title={t('repairWindowsOnlyTitle', 'Windows Only')}
+          description={t(
+            'repairWindowsOnlyDescription',
+            'Disk repair tools are only available on Windows.'
+          )}
         />
       </div>
     )

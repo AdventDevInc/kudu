@@ -188,5 +188,11 @@
     "emptyTitle": "Sehen Sie, wie sich Ihr Speicher verändert",
     "emptyDescription": "Wählen Sie einen Ordner aus, erfassen Sie eine Basislinie und erstellen Sie dann einen weiteren Snapshot, um zu sehen, was gewachsen ist. Ihre Dateien bleiben unberührt.",
     "settings": "Automatische Snapshots und Warnungen"
-  }
+  },
+  "repairWindowsOnlyTitle": "Nur für Windows",
+  "repairWindowsOnlyDescription": "Datenträger-Reparaturwerkzeuge sind nur unter Windows verfügbar.",
+  "upOneLevel": "Eine Ordnerebene nach oben",
+  "upButton": "Nach oben",
+  "driveEncrypted": "Verschlüsselt",
+  "driveTotalSize": "{{size}} gesamt"
 }

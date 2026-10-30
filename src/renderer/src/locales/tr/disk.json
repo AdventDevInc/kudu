@@ -188,5 +188,11 @@
     "emptyTitle": "Depolamanızın nasıl değiştiğini görün",
     "emptyDescription": "Bir klasör seçin, temel bir anlık görüntü alın, ardından neyin büyüdüğünü görmek için başka bir anlık görüntü daha alın. Dosyalarınıza dokunulmaz.",
     "settings": "Otomatik anlık görüntüler ve uyarılar"
-  }
+  },
+  "repairWindowsOnlyTitle": "Yalnızca Windows",
+  "repairWindowsOnlyDescription": "Disk onarım araçları yalnızca Windows'ta kullanılabilir.",
+  "upOneLevel": "Bir klasör yukarı",
+  "upButton": "Yukarı",
+  "driveEncrypted": "Şifreli",
+  "driveTotalSize": "Toplam {{size}}"
 }

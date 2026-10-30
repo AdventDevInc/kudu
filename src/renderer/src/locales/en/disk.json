@@ -188,5 +188,11 @@
     "emptyTitle": "See how your storage changes",
     "emptyDescription": "Choose a folder, capture a baseline, then take another snapshot to see what grew. Your files stay untouched.",
     "settings": "Automatic snapshots & alerts"
-  }
+  },
+  "repairWindowsOnlyTitle": "Windows Only",
+  "repairWindowsOnlyDescription": "Disk repair tools are only available on Windows.",
+  "upOneLevel": "Up one folder level",
+  "upButton": "Up",
+  "driveEncrypted": "Encrypted",
+  "driveTotalSize": "{{size}} total"
 }

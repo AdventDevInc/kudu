@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} giờ trước",
   "daysAgo": "{{days}} ngày trước",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Giao diện",
+  "themeAppearanceTitle": "Giao diện: {{theme}}",
+  "themeSystem": "Hệ thống",
+  "themeSystemDesc": "Theo máy tính của bạn",
+  "themeLight": "Sáng",
+  "themeLightDesc": "Ánh sáng ban ngày ấm áp",
+  "themeDark": "Tối",
+  "themeDarkDesc": "Dễ chịu trong điều kiện thiếu sáng",
+  "dismissError": "Bỏ qua lỗi"
 }

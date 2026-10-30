@@ -64,5 +64,14 @@
   "hoursAgo": "منذ {{hours}} س",
   "daysAgo": "منذ {{days}} ي",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "المظهر",
+  "themeAppearanceTitle": "المظهر: {{theme}}",
+  "themeSystem": "النظام",
+  "themeSystemDesc": "مطابقة إعدادات الكمبيوتر",
+  "themeLight": "فاتح",
+  "themeLightDesc": "ضوء نهار دافئ",
+  "themeDark": "داكن",
+  "themeDarkDesc": "مريح في الإضاءة المنخفضة",
+  "dismissError": "تجاهل الخطأ"
 }

@@ -188,5 +188,11 @@
     "emptyTitle": "Se hvordan lagringen endrer seg",
     "emptyDescription": "Velg en mappe, ta et grunnlag, og ta deretter et nytt øyeblikksbilde for å se hva som har vokst. Filene dine forblir urørt.",
     "settings": "Automatiske øyeblikksbilder og varsler"
-  }
+  },
+  "repairWindowsOnlyTitle": "Kun Windows",
+  "repairWindowsOnlyDescription": "Verktøy for diskreparasjon er bare tilgjengelige på Windows.",
+  "upOneLevel": "Opp ett mappenivå",
+  "upButton": "Opp",
+  "driveEncrypted": "Kryptert",
+  "driveTotalSize": "Totalt {{size}}"
 }

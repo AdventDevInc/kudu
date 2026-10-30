@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}시간 전",
   "daysAgo": "{{days}}일 전",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "모양",
+  "themeAppearanceTitle": "모양: {{theme}}",
+  "themeSystem": "시스템",
+  "themeSystemDesc": "컴퓨터 설정 따름",
+  "themeLight": "라이트",
+  "themeLightDesc": "따뜻한 주광색",
+  "themeDark": "다크",
+  "themeDarkDesc": "어두운 환경 편의",
+  "dismissError": "오류 닫기"
 }

@@ -188,5 +188,11 @@
     "emptyTitle": "Näe, miten tallennustilasi muuttuu",
     "emptyDescription": "Valitse kansio, tallenna lähtötilanne ja ota sitten toinen tilannekuva nähdäksesi, mikä on kasvanut. Tiedostoihisi ei kosketa.",
     "settings": "Automaattiset tilannekuvat ja hälytykset"
-  }
+  },
+  "repairWindowsOnlyTitle": "Vain Windows",
+  "repairWindowsOnlyDescription": "Levynkorjaustyökalut ovat saatavilla vain Windowsissa.",
+  "upOneLevel": "Yksi kansiotaso ylöspäin",
+  "upButton": "Ylös",
+  "driveEncrypted": "Salattu",
+  "driveTotalSize": "Yhteensä {{size}}"
 }
