@@ -184,7 +184,7 @@
       "removed": "Borttagen sökväg",
       "changed": "Ändrad"
     },
-    "loading": "Läser in lagringshistorik?",
+    "loading": "Läser in lagringshistorik…",
     "emptyTitle": "Se hur din lagring förändras",
     "emptyDescription": "Välj en mapp, ta en baslinje och ta sedan en ny ögonblicksbild för att se vad som har vuxit. Dina filer lämnas orörda.",
     "settings": "Automatiska ögonblicksbilder och aviseringar"

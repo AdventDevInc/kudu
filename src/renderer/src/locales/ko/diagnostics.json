@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "먼저 Cloud 사본을 삭제하세요. 이 로컬 기록에는 이를 제거하는 데 필요한 유일한 참조가 들어 있습니다.",
   "confirmCloud": "이 기록과 보고서를 Kudu Cloud에서 삭제하시겠습니까? 로컬 사본은 유지됩니다. 공급자에게 이미 전송된 분석은 회수할 수 없지만, 그 결과는 Cloud에 다시 저장되지 않습니다.",
   "confirmDelete": "삭제 확인",
-  "recordingElapsed": "기록 중 ? {{seconds}}초",
+  "recordingElapsed": "녹화 중 • {{seconds}}초",
   "operationFailed": "문제가 발생했습니다.",
   "checkingAccess": "Cloud 액세스 확인 중…",
   "emptyHint": "성능 저하가 발생하는 동안 기록하세요. 공유하기 전에 측정값을 검토할 수 있습니다.",

@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Hapus salinan Cloud terlebih dahulu. Rekaman lokal ini menyimpan satu-satunya referensi yang diperlukan untuk menghapusnya.",
   "confirmCloud": "Hapus rekaman dan laporan ini dari Kudu Cloud? Salinan lokal Anda tetap ada. Analisis yang sudah dikirim ke penyedia tidak dapat ditarik kembali, tetapi hasilnya tidak akan disimpan kembali ke Cloud.",
   "confirmDelete": "Konfirmasi penghapusan",
-  "recordingElapsed": "Merekam ? {{seconds}}d",
+  "recordingElapsed": "Merekam • {{seconds}}d",
   "operationFailed": "Terjadi kesalahan.",
   "checkingAccess": "Memeriksa akses Cloud…",
   "emptyHint": "Rekam saat perlambatan terjadi. Anda dapat meninjau pengukuran sebelum membagikannya.",

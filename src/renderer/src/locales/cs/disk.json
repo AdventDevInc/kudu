@@ -184,7 +184,7 @@
       "removed": "Odebraná cesta",
       "changed": "Změněno"
     },
-    "loading": "Načítá se historie úložiště?",
+    "loading": "Načítání historie úložiště…",
     "emptyTitle": "Podívejte se, jak se vaše úložiště mění",
     "emptyDescription": "Vyberte složku, pořiďte výchozí snímek a potom další snímek, abyste viděli, co narostlo. Vaše soubory zůstanou nedotčené.",
     "settings": "Automatické snímky a upozornění"

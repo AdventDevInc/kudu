@@ -32,7 +32,7 @@
     "remove": "Ta bort post",
     "removeDescription": "Ta bort den här återställningsposten från lokal historik? Detta ändrar inte dina inställningar och tar inte bort säkerhetskopior av registret. Kudu kommer inte längre att kunna återställa den här ändringen åt dig.",
     "unreadable": "Den här återställningsposten kunde inte läsas. Den kan ha skrivits av ett annat användarkonto eller skadats på disken.",
-    "loading": "Läser in återställningshistorik?",
+    "loading": "Läser in återställningshistorik…",
     "emptyTitle": "Din återställningshistorik börjar här",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Försök igen med rensning",
     "clearTitle": "Rensa rensningskvitton?",
     "clearDescription": "Detta tar permanent bort sparade kvitton och deras information om nya försök. Genomsökningshistorik och den separata borttagningsloggen påverkas inte.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Läser in rensningskvitton…"
   },
   "pageTitle": "Skanningshistorik",
   "pageDescription": "Visa detaljerade resultat från tidigare skanningar och rensningar",

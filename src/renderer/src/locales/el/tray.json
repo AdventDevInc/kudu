@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Εκτέλεση του \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Η σάρωση ολοκληρώθηκε",
   "scanCompleteNotificationBody": "Βρέθηκαν {{itemCount}} στοιχεία ({{sizeMB}} MB) που μπορούν να καθαριστούν.",
-  "scheduledScanName": "Προγραμματισμένη σάρωση"
+  "scheduledScanName": "Προγραμματισμένη σάρωση",
+  "rendererStartupFailureTitle": "Δεν ήταν δυνατή η εκκίνηση του Kudu",
+  "rendererStartupFailureMessage": "Το Kudu δεν μπόρεσε να ξεκινήσει το περιβάλλον του και πρέπει να κλείσει. Συμπεριλάβετε το αρχείο καταγραφής που εμφανίζεται παρακάτω κατά την αναφορά του προβλήματος."
 }

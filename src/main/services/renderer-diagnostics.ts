@@ -1,4 +1,7 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog } from 'electron'
+import { release } from 'os'
+import { join } from 'path'
+import { t } from '../i18n'
 import { logError, logInfo } from './logger'
 
 /**
@@ -15,11 +18,56 @@ import { logError, logInfo } from './logger'
  * reports come with diagnostic data attached. In packaged builds we also pop
  * DevTools detached on a crash so the user can grab the console output.
  */
-export function attachRendererDiagnostics(win: BrowserWindow): void {
+export function attachRendererDiagnostics(
+  win: BrowserWindow,
+  preferences: Electron.WebPreferences
+): void {
   const wc = win.webContents
+  let loaded = false
+  let failureReported = false
+
+  // A hidden, frameless window cannot explain why its renderer never started.
+  // Use an unparented native dialog: it also works before ready-to-show and
+  // does not need a working renderer (including for the dialog itself).
+  function reportStartupFailure(cause: string): void {
+    if (!app.isPackaged || failureReported || win.isDestroyed() || wc.isDestroyed()) return
+    failureReported = true
+    const detail = [
+      cause,
+      `Kudu=${app.getVersion()} Electron=${process.versions.electron}`,
+      `OS=${process.platform} ${release()} arch=${process.arch}`,
+      `sandbox=${preferences.sandbox} contextIsolation=${preferences.contextIsolation} nodeIntegration=${preferences.nodeIntegration}`,
+      `log=${join(app.getPath('userData'), 'logs', 'kudu.log')}`
+    ].join('\n')
+    logError(`Renderer startup failure:\n${detail}`)
+    void dialog
+      .showMessageBox({
+        type: 'error',
+        title: t('rendererStartupFailureTitle'),
+        message: t('rendererStartupFailureMessage'),
+        detail,
+        buttons: [t('quit')],
+        defaultId: 0,
+        cancelId: 0,
+        noLink: true
+      })
+      .catch((error: unknown) => logError('Could not show renderer startup failure dialog:', error))
+      // app.quit bypasses the minimize-to-tray close interceptor in index.ts.
+      .finally(() => app.quit())
+  }
 
   wc.on('render-process-gone', (_event, details) => {
-    logError(`Renderer process gone: reason=${details.reason} exitCode=${details.exitCode}`)
+    // Windows NTSTATUS values may arrive as signed integers. Keep both forms
+    // so 0xC000042C (STATUS_ELEVATION_REQUIRED, #549) is recognizable in reports.
+    const cause = `Renderer process gone: reason=${details.reason} exitCode=${details.exitCode} (0x${(details.exitCode >>> 0).toString(16).toUpperCase().padStart(8, '0')})`
+    logError(cause)
+    if (
+      details.reason === 'launch-failed' ||
+      (!loaded && details.reason !== 'clean-exit' && details.reason !== 'killed')
+    ) {
+      reportStartupFailure(cause)
+      return
+    }
     if (app.isPackaged && !wc.isDestroyed() && !wc.isDevToolsOpened()) {
       try {
         wc.openDevTools({ mode: 'detach' })
@@ -35,6 +83,9 @@ export function attachRendererDiagnostics(win: BrowserWindow): void {
     logError(
       `Renderer load failed: code=${errorCode} desc=${errorDescription} url=${validatedURL} mainFrame=${isMainFrame}`
     )
+    if (isMainFrame && !loaded) {
+      reportStartupFailure(`Renderer load failed: code=${errorCode} desc=${errorDescription}`)
+    }
   })
 
   wc.on('preload-error', (_event, preloadPath, error) => {
@@ -42,6 +93,7 @@ export function attachRendererDiagnostics(win: BrowserWindow): void {
   })
 
   wc.on('did-finish-load', () => {
+    loaded = true
     logInfo('Renderer finished loading')
   })
 

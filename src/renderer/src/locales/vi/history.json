@@ -32,7 +32,7 @@
     "remove": "Xóa mục",
     "removeDescription": "Xóa bản ghi khôi phục này khỏi lịch sử cục bộ? Thao tác này không thay đổi cài đặt của bạn hoặc xóa bản sao lưu sổ đăng ký. Kudu sẽ không còn có thể khôi phục thay đổi này cho bạn nữa.",
     "unreadable": "Không thể đọc bản ghi khôi phục này. Bản ghi có thể đã được tạo bởi tài khoản người dùng khác hoặc bị hỏng trên đĩa.",
-    "loading": "Đang tải lịch sử khôi phục?",
+    "loading": "Đang tải lịch sử khôi phục…",
     "emptyTitle": "Lịch sử khôi phục của bạn bắt đầu từ đây",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Thử lại dọn dẹp",
     "clearTitle": "Xóa biên nhận dọn dẹp?",
     "clearDescription": "Thao tác này sẽ xóa vĩnh viễn các biên nhận đã lưu và thông tin thử lại của chúng. Lịch sử quét và nhật ký xóa riêng biệt sẽ không thay đổi.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Đang tải biên nhận dọn dẹp…"
   },
   "pageTitle": "Lịch sử quét",
   "pageDescription": "Xem kết quả chi tiết từ các lần quét và dọn dẹp trước đó",

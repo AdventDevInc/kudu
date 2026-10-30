@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "正在執行「{{name}}」...",
   "scanCompleteNotificationTitle": "Kudu - 掃描完成",
   "scanCompleteNotificationBody": "找到 {{itemCount}} 個可清理的項目（{{sizeMB}} MB）。",
-  "scheduledScanName": "排程掃描"
+  "scheduledScanName": "排程掃描",
+  "rendererStartupFailureTitle": "Kudu 無法啟動",
+  "rendererStartupFailureMessage": "Kudu 無法啟動介面，需要關閉。回報此問題時，請附上下方所示的記錄檔。"
 }

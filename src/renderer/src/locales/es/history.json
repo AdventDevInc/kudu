@@ -32,7 +32,7 @@
     "remove": "Eliminar entrada",
     "removeDescription": "¿Eliminar este registro de recuperación del historial local? Esto no cambia sus ajustes ni elimina las copias de seguridad del registro. Kudu ya no podrá restaurar este cambio por usted.",
     "unreadable": "No se pudo leer este registro de recuperación. Es posible que haya sido escrito por otra cuenta de usuario o que esté dañado en el disco.",
-    "loading": "¿Cargando historial de recuperación?",
+    "loading": "Cargando historial de recuperación…",
     "emptyTitle": "Su historial de recuperación comienza aquí",
     "source": {
       "privacy": "Privacy Shield",
@@ -109,7 +109,7 @@
     "retryConfirm": "Reintentar limpieza",
     "clearTitle": "¿Borrar los comprobantes de limpieza?",
     "clearDescription": "Esto elimina permanentemente los comprobantes guardados y su información de reintento. El historial de análisis y el registro de eliminación independiente no cambian.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Cargando recibos de limpieza…"
   },
   "pageTitle": "Historial de análisis",
   "pageDescription": "Ver resultados detallados de análisis y limpiezas anteriores",

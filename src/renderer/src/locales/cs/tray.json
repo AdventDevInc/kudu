@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Spouští se „{{name}}“…",
   "scanCompleteNotificationTitle": "Kudu – Kontrola dokončena",
   "scanCompleteNotificationBody": "Bylo nalezeno {{itemCount}} položek ({{sizeMB}} MB), které lze vyčistit.",
-  "scheduledScanName": "Naplánovaná kontrola"
+  "scheduledScanName": "Naplánovaná kontrola",
+  "rendererStartupFailureTitle": "Kudu se nepodařilo spustit",
+  "rendererStartupFailureMessage": "Kudu nemohl spustit své rozhraní a musí se zavřít. Při hlášení tohoto problému přiložte soubor protokolu uvedený níže."
 }

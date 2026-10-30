@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Kjører \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Skanning fullført",
   "scanCompleteNotificationBody": "Fant {{itemCount}} elementer ({{sizeMB}} MB) som kan ryddes.",
-  "scheduledScanName": "Planlagt skanning"
+  "scheduledScanName": "Planlagt skanning",
+  "rendererStartupFailureTitle": "Kudu kunne ikke starte",
+  "rendererStartupFailureMessage": "Kudu kunne ikke starte grensesnittet og må lukkes. Legg ved loggfilen som vises nedenfor når du rapporterer dette problemet."
 }

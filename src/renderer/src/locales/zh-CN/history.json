@@ -32,7 +32,7 @@
     "remove": "删除条目",
     "removeDescription": "要从本地历史记录中删除此恢复记录吗？这不会更改您的设置，也不会删除注册表备份。Kudu 将无法再为您恢复此更改。",
     "unreadable": "无法读取此恢复记录。它可能由其他用户账户写入，或已在磁盘上损坏。",
-    "loading": "正在加载恢复历史？",
+    "loading": "正在加载恢复历史记录…",
     "emptyTitle": "您的恢复历史将从这里开始",
     "source": {
       "privacy": "隐私防护",
@@ -109,7 +109,7 @@
     "retryConfirm": "重试清理",
     "clearTitle": "清除清理回执？",
     "clearDescription": "这将永久删除已保存的回执及其重试信息。扫描历史和单独的删除日志不会更改。",
-    "loading": "Loading cleanup receipts?"
+    "loading": "正在加载清理收据…"
   },
   "pageTitle": "扫描历史",
   "pageDescription": "查看过去扫描和清理的详细结果",

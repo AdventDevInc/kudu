@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Nejprve odstraňte kopii v Cloudu. Tento místní záznam obsahuje jediný odkaz potřebný k jejímu odstranění.",
   "confirmCloud": "Odstranit tento záznam a sestavu z Kudu Cloud? Vaše místní kopie zůstane zachována. Analýzu již odeslanou poskytovateli nelze vzít zpět, ale její výsledek se zpět do Cloudu neuloží.",
   "confirmDelete": "Potvrdit odstranění",
-  "recordingElapsed": "Záznam ? {{seconds}} s",
+  "recordingElapsed": "Nahrávání • {{seconds}} s",
   "operationFailed": "Něco se pokazilo.",
   "checkingAccess": "Kontroluje se přístup do Cloudu…",
   "emptyHint": "Pořizujte záznam v době, kdy ke zpomalení dochází. Před sdílením můžete měření zkontrolovat.",

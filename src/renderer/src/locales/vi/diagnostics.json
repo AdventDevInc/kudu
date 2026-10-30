@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Hãy xóa bản sao trên Cloud trước. Bản ghi cục bộ này giữ tham chiếu duy nhất cần thiết để xóa nó.",
   "confirmCloud": "Xóa bản ghi này và báo cáo của nó khỏi Kudu Cloud? Bản sao cục bộ của bạn vẫn được giữ lại. Một phân tích đã gửi đến nhà cung cấp thì không thể thu hồi, nhưng kết quả của nó sẽ không được lưu trở lại Cloud.",
   "confirmDelete": "Xác nhận xóa",
-  "recordingElapsed": "Đang ghi ? {{seconds}}s",
+  "recordingElapsed": "Đang ghi • {{seconds}} giây",
   "operationFailed": "Đã xảy ra lỗi.",
   "checkingAccess": "Đang kiểm tra quyền truy cập Cloud…",
   "emptyHint": "Hãy ghi lại khi tình trạng chậm xảy ra. Bạn có thể xem lại các phép đo trước khi chia sẻ chúng.",

@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "正在运行“{{name}}”...",
   "scanCompleteNotificationTitle": "Kudu - 扫描完成",
   "scanCompleteNotificationBody": "发现 {{itemCount}} 个可清理项（{{sizeMB}} MB）。",
-  "scheduledScanName": "计划扫描"
+  "scheduledScanName": "计划扫描",
+  "rendererStartupFailureTitle": "Kudu 无法启动",
+  "rendererStartupFailureMessage": "Kudu 无法启动界面，需要关闭。报告此问题时，请附上下面所示的日志文件。"
 }

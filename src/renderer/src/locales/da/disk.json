@@ -184,7 +184,7 @@
       "removed": "Fjernet sti",
       "changed": "Ændret"
     },
-    "loading": "Indlæser lagerhistorik?",
+    "loading": "Indlæser lagerhistorik…",
     "emptyTitle": "Se, hvordan dit lager ændrer sig",
     "emptyDescription": "Vælg en mappe, opret et basisøjebliksbillede, og tag derefter et nyt øjebliksbillede for at se, hvad der er vokset. Dine filer forbliver urørte.",
     "settings": "Automatiske øjebliksbilleder og advarsler"

@@ -462,6 +462,17 @@ function initGui(): void {
 
     const icon = nativeImage.createFromPath(getIconPath())
 
+    const webPreferences: Electron.WebPreferences = {
+      preload: join(__dirname, '../preload/index.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      // Chromium's renderer sandbox uses Linux namespaces that fail
+      // when running as root (e.g. after pkexec relaunch).  The
+      // --no-sandbox switch only covers the browser/GPU processes;
+      // this flag must also be false to prevent a blank grey window.
+      sandbox: !isRoot
+    }
+
     mainWindow = new BrowserWindow({
       width,
       height,
@@ -484,16 +495,7 @@ function initGui(): void {
       backgroundColor: process.platform === 'win32' ? '#00000000' : '#101713',
       icon,
       show: false,
-      webPreferences: {
-        preload: join(__dirname, '../preload/index.js'),
-        contextIsolation: true,
-        nodeIntegration: false,
-        // Chromium's renderer sandbox uses Linux namespaces that fail
-        // when running as root (e.g. after pkexec relaunch).  The
-        // --no-sandbox switch only covers the browser/GPU processes;
-        // this flag must also be false to prevent a blank grey window.
-        sandbox: !isRoot
-      }
+      webPreferences
     })
 
     if (process.platform === 'win32') {
@@ -514,7 +516,7 @@ function initGui(): void {
       process.argv.includes('--startup') ||
       (process.platform === 'darwin' && app.getLoginItemSettings().wasOpenedAtLogin)
 
-    attachRendererDiagnostics(mainWindow)
+    attachRendererDiagnostics(mainWindow, webPreferences)
     attachCopyContextMenu(mainWindow)
 
     mainWindow.on('ready-to-show', () => {

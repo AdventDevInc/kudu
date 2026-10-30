@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Menjalankan \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Pemindaian Selesai",
   "scanCompleteNotificationBody": "Ditemukan {{itemCount}} item ({{sizeMB}} MB) yang dapat dibersihkan.",
-  "scheduledScanName": "Pemindaian Terjadwal"
+  "scheduledScanName": "Pemindaian Terjadwal",
+  "rendererStartupFailureTitle": "Kudu tidak dapat dimulai",
+  "rendererStartupFailureMessage": "Kudu tidak dapat memulai antarmukanya dan harus ditutup. Harap sertakan berkas log yang ditampilkan di bawah saat melaporkan masalah ini."
 }
