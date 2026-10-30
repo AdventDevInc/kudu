@@ -4,6 +4,8 @@ Thanks for your interest in contributing! Kudu is a community-driven project and
 
 ## Getting Started
 
+**Choose a local, non-synced checkout location**, such as `~/Projects/kudu`. On macOS, avoid Desktop and Documents when iCloud's "Desktop & Documents Folders" sync is enabled. Repeated dev-server reloads were reported from a synced Desktop checkout and stopped after moving it outside the synced folders ([#553](https://github.com/AdventDevInc/kudu/issues/553)). The exact source of the file events has not been confirmed; other sync providers have not been tested.
+
 1. Fork the repository
 2. Clone your fork and create a branch:
    ```bash
@@ -11,7 +13,7 @@ Thanks for your interest in contributing! Kudu is a community-driven project and
    cd kudu
    git checkout -b my-feature
    ```
-3. Install dependencies (Node 22 — see `.nvmrc`):
+3. Install dependencies (use the Node version in `.nvmrc`):
    ```bash
    npm install
    ```
@@ -19,6 +21,16 @@ Thanks for your interest in contributing! Kudu is a community-driven project and
    ```bash
    npm run dev
    ```
+
+### Troubleshooting repeated dev-server reloads
+
+If `npm run dev` repeatedly reloads the app from an iCloud-synced Desktop or Documents checkout:
+
+1. Stop the dev server with `Ctrl+C`.
+2. Move the checkout outside the synced folders, for example to `~/Projects/kudu` (ensure that location is not synced).
+3. Open a terminal in the new checkout location and restart with `npm run dev`.
+
+A clean `git status` and unchanged file modification times do not rule out watcher events: the report observed events for `src/renderer/src/locales/**/*.json` despite both.
 
 ## Project Structure
 
