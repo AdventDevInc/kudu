@@ -2992,7 +2992,9 @@
       "scheduledScanName": "182b3fdb6696f30803ea999be9972133991629df61ec3e7d0445d688a826fae6",
       "scheduledTaskNotificationBody": "a75b172042ea6b2be55cb335ed5a0c4a1de3c14f76cd77f1241ddb270c61188f",
       "scheduledTaskNotificationTitle": "b7552d9805ab172ce52c8b5350b28d98024286ae4d9454de81e5e6fbc0b98411",
-      "trayTooltip": "0894ecfd3c2ab13ef9190e4c10fadaed58d955cfab825070d8936649b7eafb03"
+      "trayTooltip": "0894ecfd3c2ab13ef9190e4c10fadaed58d955cfab825070d8936649b7eafb03",
+      "rendererStartupFailureTitle": "bccec67eb1e2b185fe4bb954a2a109473604bf91386833a36f10bb255427e837",
+      "rendererStartupFailureMessage": "9336d682e6b497c0a448792aca40441485edf4e55f6a3851bd4cf62eaf38be84"
     },
     "uninstaller": {
       "batchResultFailedSucceeded": "49ac0a2ffecf59b88d586abb7b98f0e4510a498120578db99c3a0222a0dbf001",

@@ -21,7 +21,7 @@ function broadcast(s: UpdateStatus): void {
     return
   }
   for (const win of BrowserWindow.getAllWindows()) {
-    if (win.isDestroyed()) continue
+    if (win.isDestroyed() || win.webContents.isDestroyed() || win.webContents.isCrashed()) continue
     // isDestroyed() returns false while the render frame is mid-teardown,
     // so .send() still throws "Render frame was disposed before WebFrameMain
     // could be accessed". Swallow it — there's no recipient anyway, and the

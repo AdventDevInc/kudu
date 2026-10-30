@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "\"{{name}}\" 실행 중...",
   "scanCompleteNotificationTitle": "Kudu - 검사 완료",
   "scanCompleteNotificationBody": "정리할 수 있는 항목 {{itemCount}}개({{sizeMB}} MB)를 찾았습니다.",
-  "scheduledScanName": "예약된 검사"
+  "scheduledScanName": "예약된 검사",
+  "rendererStartupFailureTitle": "Kudu를 시작할 수 없습니다",
+  "rendererStartupFailureMessage": "Kudu가 인터페이스를 시작하지 못해 종료해야 합니다. 이 문제를 보고할 때 아래에 표시된 로그 파일을 첨부해 주세요."
 }
