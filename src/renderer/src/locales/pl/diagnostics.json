@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Najpierw usuń kopię z Cloud. To lokalne nagranie zawiera jedyne odwołanie potrzebne do jej usunięcia.",
   "confirmCloud": "Usunąć to nagranie i raport z Kudu Cloud? Twoja kopia lokalna pozostanie. Analizy już wysłanej do dostawcy nie można wycofać, ale jej wynik nie zostanie ponownie zapisany w Cloud.",
   "confirmDelete": "Potwierdź usunięcie",
-  "recordingElapsed": "Nagrywanie ? {{seconds}}s",
+  "recordingElapsed": "Nagrywanie • {{seconds}} s",
   "operationFailed": "Coś poszło nie tak.",
   "checkingAccess": "Sprawdzanie dostępu do Cloud…",
   "emptyHint": "Nagrywaj, gdy występuje spowolnienie. Przed udostępnieniem możesz przejrzeć pomiary.",

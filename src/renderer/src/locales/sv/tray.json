@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Kör \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Genomsökning slutförd",
   "scanCompleteNotificationBody": "Hittade {{itemCount}} objekt ({{sizeMB}} MB) som kan rensas.",
-  "scheduledScanName": "Schemalagd genomsökning"
+  "scheduledScanName": "Schemalagd genomsökning",
+  "rendererStartupFailureTitle": "Kudu kunde inte starta",
+  "rendererStartupFailureMessage": "Kudu kunde inte starta sitt gränssnitt och måste stängas. Bifoga loggfilen som visas nedan när du rapporterar problemet."
 }

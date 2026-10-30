@@ -184,7 +184,7 @@
       "removed": "Eltávolított útvonal",
       "changed": "Módosult"
     },
-    "loading": "Tárhelyelőzmények betöltése?",
+    "loading": "Tárhelyelőzmények betöltése…",
     "emptyTitle": "Nézze meg, hogyan változik a tárhelye",
     "emptyDescription": "Válasszon egy mappát, készítsen egy alapállapotot, majd készítsen egy újabb pillanatképet, hogy lássa, mi nőtt meg. A fájljai érintetlenek maradnak.",
     "settings": "Automatikus pillanatképek és riasztások"

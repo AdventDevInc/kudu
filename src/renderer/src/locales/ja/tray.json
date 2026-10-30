@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "\"{{name}}\" を実行しています...",
   "scanCompleteNotificationTitle": "Kudu - スキャン完了",
   "scanCompleteNotificationBody": "クリーンアップ可能な項目が {{itemCount}} 件（{{sizeMB}} MB）見つかりました。",
-  "scheduledScanName": "スケジュールされたスキャン"
+  "scheduledScanName": "スケジュールされたスキャン",
+  "rendererStartupFailureTitle": "Kudu を起動できませんでした",
+  "rendererStartupFailureMessage": "Kudu のインターフェースを起動できなかったため、終了する必要があります。この問題を報告する際は、以下に示すログファイルを添付してください。"
 }

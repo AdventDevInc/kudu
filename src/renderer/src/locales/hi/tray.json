@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "\"{{name}}\" चल रहा है...",
   "scanCompleteNotificationTitle": "Kudu - स्कैन पूर्ण",
   "scanCompleteNotificationBody": "साफ़ किए जा सकने वाले {{itemCount}} आइटम ({{sizeMB}} MB) मिले।",
-  "scheduledScanName": "निर्धारित स्कैन"
+  "scheduledScanName": "निर्धारित स्कैन",
+  "rendererStartupFailureTitle": "Kudu शुरू नहीं हो सका",
+  "rendererStartupFailureMessage": "Kudu अपना इंटरफ़ेस शुरू नहीं कर सका और उसे बंद करना होगा। इस समस्या की रिपोर्ट करते समय कृपया नीचे दिखाई गई लॉग फ़ाइल शामिल करें।"
 }

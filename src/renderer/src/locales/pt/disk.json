@@ -184,7 +184,7 @@
       "removed": "Caminho removido",
       "changed": "Alterado"
     },
-    "loading": "A carregar o histórico de armazenamento?",
+    "loading": "A carregar o histórico de armazenamento…",
     "emptyTitle": "Veja como o seu armazenamento muda",
     "emptyDescription": "Escolha uma pasta, capture uma linha de base e, em seguida, tire outro instantâneo para ver o que cresceu. Os seus ficheiros permanecem intocados.",
     "settings": "Instantâneos automáticos e alertas"

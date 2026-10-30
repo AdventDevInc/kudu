@@ -184,7 +184,7 @@
       "removed": "Entfernter Pfad",
       "changed": "Geändert"
     },
-    "loading": "Speicherverlauf wird geladen?",
+    "loading": "Speicherverlauf wird geladen…",
     "emptyTitle": "Sehen Sie, wie sich Ihr Speicher verändert",
     "emptyDescription": "Wählen Sie einen Ordner aus, erfassen Sie eine Basislinie und erstellen Sie dann einen weiteren Snapshot, um zu sehen, was gewachsen ist. Ihre Dateien bleiben unberührt.",
     "settings": "Automatische Snapshots und Warnungen"

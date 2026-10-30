@@ -184,7 +184,7 @@
       "removed": "Percorso rimosso",
       "changed": "Modificato"
     },
-    "loading": "Caricamento della Cronologia archiviazione?",
+    "loading": "Caricamento della cronologia di archiviazione…",
     "emptyTitle": "Scopri come cambia il tuo spazio di archiviazione",
     "emptyDescription": "Scegli una cartella, acquisisci una base iniziale, quindi acquisisci un'altra istantanea per vedere cosa è cresciuto. I tuoi file non verranno toccati.",
     "settings": "Istantanee automatiche e avvisi"

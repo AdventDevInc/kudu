@@ -184,7 +184,7 @@
       "removed": "Ruta eliminada",
       "changed": "Modificada"
     },
-    "loading": "¿Cargando historial de almacenamiento?",
+    "loading": "Cargando historial de almacenamiento…",
     "emptyTitle": "Vea cómo cambia su almacenamiento",
     "emptyDescription": "Elija una carpeta, capture una línea base y luego tome otra instantánea para ver qué ha crecido. Sus archivos no se modificarán.",
     "settings": "Instantáneas automáticas y alertas"

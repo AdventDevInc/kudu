@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Se rulează „{{name}}”...",
   "scanCompleteNotificationTitle": "Kudu - Scanare finalizată",
   "scanCompleteNotificationBody": "Au fost găsite {{itemCount}} elemente ({{sizeMB}} MB) care pot fi curățate.",
-  "scheduledScanName": "Scanare programată"
+  "scheduledScanName": "Scanare programată",
+  "rendererStartupFailureTitle": "Kudu nu a putut porni",
+  "rendererStartupFailureMessage": "Kudu nu a putut porni interfața și trebuie să se închidă. Includeți fișierul jurnal indicat mai jos când raportați această problemă."
 }

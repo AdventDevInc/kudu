@@ -32,7 +32,7 @@
     "remove": "Fjern oppføring",
     "removeDescription": "Fjerne denne gjenopprettingsoppføringen fra lokal historikk? Dette endrer ikke innstillingene dine eller sletter sikkerhetskopier av registeret. Kudu vil ikke lenger kunne gjenopprette denne endringen for deg.",
     "unreadable": "Denne gjenopprettingsoppføringen kunne ikke leses. Den kan ha blitt skrevet av en annen brukerkonto eller være skadet på disken.",
-    "loading": "Laster inn gjenopprettingshistorikk?",
+    "loading": "Laster inn gjenopprettingshistorikk …",
     "emptyTitle": "Gjenopprettingshistorikken din starter her",
     "source": {
       "privacy": "Personvernskjold",
@@ -109,7 +109,7 @@
     "retryConfirm": "Prøv opprydding på nytt",
     "clearTitle": "Tøm oppryddingskvitteringer?",
     "clearDescription": "Dette fjerner lagrede kvitteringer og informasjon om nye forsøk permanent. Skanningshistorikk og den separate sletteloggen forblir uendret.",
-    "loading": "Loading cleanup receipts?"
+    "loading": "Laster inn oppryddingskvitteringer …"
   },
   "pageTitle": "Skannelogg",
   "pageDescription": "Vis detaljerte resultater fra tidligere skanninger og oppryddinger",

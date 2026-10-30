@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Đang chạy \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Quét hoàn tất",
   "scanCompleteNotificationBody": "Đã tìm thấy {{itemCount}} mục ({{sizeMB}} MB) có thể dọn dẹp.",
-  "scheduledScanName": "Quét theo lịch"
+  "scheduledScanName": "Quét theo lịch",
+  "rendererStartupFailureTitle": "Không thể khởi động Kudu",
+  "rendererStartupFailureMessage": "Kudu không thể khởi động giao diện và cần đóng lại. Vui lòng đính kèm tệp nhật ký được hiển thị bên dưới khi báo cáo sự cố này."
 }

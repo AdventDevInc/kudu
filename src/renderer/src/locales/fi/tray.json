@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "Suoritetaan \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - Tarkistus valmis",
   "scanCompleteNotificationBody": "Löytyi {{itemCount}} kohdetta ({{sizeMB}} MB), jotka voidaan puhdistaa.",
-  "scheduledScanName": "Ajastettu tarkistus"
+  "scheduledScanName": "Ajastettu tarkistus",
+  "rendererStartupFailureTitle": "Kudu ei käynnistynyt",
+  "rendererStartupFailureMessage": "Kudu ei voinut käynnistää käyttöliittymäänsä, ja se on suljettava. Liitä alla mainittu lokitiedosto mukaan, kun ilmoitat tästä ongelmasta."
 }

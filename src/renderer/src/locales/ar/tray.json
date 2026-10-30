@@ -6,5 +6,7 @@
   "scheduledTaskNotificationBody": "جارٍ تشغيل \"{{name}}\"...",
   "scanCompleteNotificationTitle": "Kudu - اكتمل الفحص",
   "scanCompleteNotificationBody": "تم العثور على {{itemCount}} عنصرًا ({{sizeMB}} ميجابايت) يمكن تنظيفها.",
-  "scheduledScanName": "فحص مجدول"
+  "scheduledScanName": "فحص مجدول",
+  "rendererStartupFailureTitle": "تعذر بدء Kudu",
+  "rendererStartupFailureMessage": "تعذر على Kudu بدء واجهته ويجب إغلاقه. يرجى إرفاق ملف السجل الموضح أدناه عند الإبلاغ عن هذه المشكلة."
 }

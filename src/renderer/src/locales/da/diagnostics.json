@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Slet først Cloud-kopien. Denne lokale registrering indeholder den eneste reference, der er nødvendig for at fjerne den.",
   "confirmCloud": "Slet denne registrering og rapport fra Kudu Cloud? Din lokale kopi forbliver. En analyse, der allerede er sendt til udbyderen, kan ikke trækkes tilbage, men resultatet gemmes ikke tilbage til Cloud.",
   "confirmDelete": "Bekræft sletning",
-  "recordingElapsed": "Registrering ? {{seconds}}s",
+  "recordingElapsed": "Optager • {{seconds}}s",
   "operationFailed": "Noget gik galt.",
   "checkingAccess": "Kontrollerer Cloud-adgang…",
   "emptyHint": "Registrer, mens langsomheden opstår. Du kan gennemgå målingerne, før du deler dem.",

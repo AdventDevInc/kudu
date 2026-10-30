@@ -80,7 +80,7 @@
   "deleteLocalBlocked": "Önce Cloud kopyasını silin. Bu yerel kayıt, onu kaldırmak için gereken tek başvuruyu içerir.",
   "confirmCloud": "Bu kayıt ve rapor Kudu Cloud'dan silinsin mi? Yerel kopyanız kalır. Sağlayıcıya zaten gönderilmiş bir analiz geri alınamaz, ancak sonucu tekrar Cloud'a kaydedilmez.",
   "confirmDelete": "Silmeyi onayla",
-  "recordingElapsed": "Kayıt • {{seconds}} sn",
+  "recordingElapsed": "Kaydediliyor • {{seconds}} sn",
   "operationFailed": "Bir şeyler yanlış gitti.",
   "checkingAccess": "Cloud erişimi denetleniyor…",
   "emptyHint": "Yavaşlama olurken kayıt alın. Ölçümleri paylaşmadan önce inceleyebilirsiniz.",

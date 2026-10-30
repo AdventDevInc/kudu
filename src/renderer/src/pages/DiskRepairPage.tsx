@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { useDiskStore } from '@/stores/disk-store'
 import { usePlatform } from '@/hooks/usePlatform'
+import { DiskActivity } from '@/components/shared/DiskActivity'
 import { EmptyState } from '@/components/shared/EmptyState'
 
 export function DiskRepairPage() {
@@ -31,16 +32,23 @@ export function DiskRepairPage() {
   // Listen for disk repair progress events
   useEffect(() => {
     if (!window.kudu?.onDiskRepairProgress) return
-    return window.kudu.onDiskRepairProgress((data) => store.setRepairProgress(data))
+    return window.kudu.onDiskRepairProgress((data) => {
+      const current = useDiskStore.getState()
+      if (current.repairRunning && current.repairProgress?.tool === data.tool) {
+        store.setRepairProgress(data)
+      }
+    })
   }, [])
 
   const handleRunSfc = async () => {
+    if (useDiskStore.getState().repairRunning) return
+    setShowRepairLog(null)
     store.setRepairRunning(true)
     store.setSfcResult(null)
     store.setRepairProgress({
       tool: 'sfc',
       phase: 'running',
-      percent: 0,
+      percent: -1,
       message: t('startingSfc')
     })
     try {
@@ -56,18 +64,21 @@ export function DiskRepairPage() {
     } catch (err) {
       console.error('SFC failed:', err)
       toast.error(t('sfcFailedToast'))
+    } finally {
+      store.setRepairRunning(false)
+      store.setRepairProgress(null)
     }
-    store.setRepairRunning(false)
-    store.setRepairProgress(null)
   }
 
   const handleRunDism = async () => {
+    if (useDiskStore.getState().repairRunning) return
+    setShowRepairLog(null)
     store.setRepairRunning(true)
     store.setDismResult(null)
     store.setRepairProgress({
       tool: 'dism',
       phase: 'running',
-      percent: 0,
+      percent: -1,
       message: t('startingDism')
     })
     try {
@@ -83,18 +94,21 @@ export function DiskRepairPage() {
     } catch (err) {
       console.error('DISM failed:', err)
       toast.error(t('dismFailedToast'))
+    } finally {
+      store.setRepairRunning(false)
+      store.setRepairProgress(null)
     }
-    store.setRepairRunning(false)
-    store.setRepairProgress(null)
   }
 
   const handleRunChkdsk = async () => {
+    if (useDiskStore.getState().repairRunning) return
+    setShowRepairLog(null)
     store.setRepairRunning(true)
     store.setChkdskResult(null)
     store.setRepairProgress({
       tool: 'chkdsk',
       phase: 'running',
-      percent: 0,
+      percent: -1,
       message: t('startingChkdsk')
     })
     try {
@@ -110,9 +124,10 @@ export function DiskRepairPage() {
     } catch (err) {
       console.error('CHKDSK failed:', err)
       toast.error(t('chkdskFailedToast'))
+    } finally {
+      store.setRepairRunning(false)
+      store.setRepairProgress(null)
     }
-    store.setRepairRunning(false)
-    store.setRepairProgress(null)
   }
 
   if (!isWin) {
@@ -153,39 +168,18 @@ export function DiskRepairPage() {
 
       {/* Progress bar */}
       {repairRunning && repairProgress && (
-        <div
-          className="mb-5 rounded-2xl px-5 py-4"
-          style={{ background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <RefreshCw className="h-4 w-4 animate-spin text-amber-400" strokeWidth={2} />
-            <span className="text-[13px] font-medium text-zinc-200">
-              {repairProgress.tool === 'sfc'
-                ? t('repairProgressSfc')
-                : repairProgress.tool === 'dism'
-                  ? t('repairProgressDism')
-                  : t('repairProgressChkdsk')}
-            </span>
-            <span
-              className="ml-auto font-mono text-[12px]"
-              style={{ color: 'var(--text-secondary)' }}
-            >
-              {repairProgress.percent}%
-            </span>
-          </div>
-          <div className="h-2 rounded-full" style={{ background: 'var(--bg-subtle-2)' }}>
-            <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{
-                width: `${repairProgress.percent}%`,
-                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
-              }}
-            />
-          </div>
-          <p className="mt-2 text-[12px]" style={{ color: 'var(--text-muted)' }}>
-            {repairProgress.message}
-          </p>
-        </div>
+        <DiskActivity
+          className="mb-5"
+          label={
+            repairProgress.tool === 'sfc'
+              ? t('repairProgressSfc')
+              : repairProgress.tool === 'dism'
+                ? t('repairProgressDism')
+                : t('repairProgressChkdsk')
+          }
+          message={repairProgress.message}
+          percent={repairProgress.phase === 'running' ? repairProgress.percent : undefined}
+        />
       )}
 
       {/* Tool cards */}
@@ -227,7 +221,8 @@ export function DiskRepairPage() {
             >
               {repairRunning && repairProgress?.tool === 'dism' ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> {t('dismRunning')}
+                  <RefreshCw className="h-4 w-4 animate-spin motion-reduce:animate-none" />{' '}
+                  {t('dismRunning')}
                 </>
               ) : (
                 <>
@@ -316,7 +311,8 @@ export function DiskRepairPage() {
             >
               {repairRunning && repairProgress?.tool === 'sfc' ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> {t('sfcRunning')}
+                  <RefreshCw className="h-4 w-4 animate-spin motion-reduce:animate-none" />{' '}
+                  {t('sfcRunning')}
                 </>
               ) : (
                 <>
@@ -405,7 +401,8 @@ export function DiskRepairPage() {
             >
               {repairRunning && repairProgress?.tool === 'chkdsk' ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> {t('chkdskRunning')}
+                  <RefreshCw className="h-4 w-4 animate-spin motion-reduce:animate-none" />{' '}
+                  {t('chkdskRunning')}
                 </>
               ) : (
                 <>

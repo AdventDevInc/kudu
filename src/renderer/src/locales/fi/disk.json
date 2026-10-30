@@ -184,7 +184,7 @@
       "removed": "Poistettu polku",
       "changed": "Muuttunut"
     },
-    "loading": "Ladataanko tallennushistoriaa?",
+    "loading": "Ladataan tallennushistoriaa…",
     "emptyTitle": "Näe, miten tallennustilasi muuttuu",
     "emptyDescription": "Valitse kansio, tallenna lähtötilanne ja ota sitten toinen tilannekuva nähdäksesi, mikä on kasvanut. Tiedostoihisi ei kosketa.",
     "settings": "Automaattiset tilannekuvat ja hälytykset"
