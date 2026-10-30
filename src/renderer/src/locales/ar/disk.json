@@ -188,5 +188,11 @@
     "emptyTitle": "اطّلع على كيفية تغيّر مساحة التخزين لديك",
     "emptyDescription": "اختر مجلدًا، والتقط خط أساس، ثم التقط لقطة أخرى لمعرفة ما الذي نما. ستبقى ملفاتك دون تغيير.",
     "settings": "اللقطات التلقائية والتنبيهات"
-  }
+  },
+  "repairWindowsOnlyTitle": "خاص بنظام Windows فقط",
+  "repairWindowsOnlyDescription": "أدوات إصلاح القرص متاحة فقط على نظام Windows.",
+  "upOneLevel": "مستوى مجلد واحد للأعلى",
+  "upButton": "أعلى",
+  "driveEncrypted": "مشفر",
+  "driveTotalSize": "الإجمالي {{size}}"
 }

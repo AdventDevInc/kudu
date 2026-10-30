@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}h ago",
   "daysAgo": "{{days}}d ago",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Appearance",
+  "themeAppearanceTitle": "Appearance: {{theme}}",
+  "themeSystem": "System",
+  "themeSystemDesc": "Follow your computer",
+  "themeLight": "Light",
+  "themeLightDesc": "Warm daylight",
+  "themeDark": "Dark",
+  "themeDarkDesc": "Low-light comfort",
+  "dismissError": "Dismiss error"
 }

@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}時間前",
   "daysAgo": "{{days}}日前",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "外観",
+  "themeAppearanceTitle": "外観: {{theme}}",
+  "themeSystem": "システム",
+  "themeSystemDesc": "コンピューターに合わせる",
+  "themeLight": "ライト",
+  "themeLightDesc": "温かみのある昼光",
+  "themeDark": "ダーク",
+  "themeDarkDesc": "目に優しい低輝度",
+  "dismissError": "エラーを閉じる"
 }

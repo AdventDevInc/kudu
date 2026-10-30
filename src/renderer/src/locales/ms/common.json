@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}}j lalu",
   "daysAgo": "{{days}}h lalu",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "Rupa Bentuk",
+  "themeAppearanceTitle": "Rupa Bentuk: {{theme}}",
+  "themeSystem": "Sistem",
+  "themeSystemDesc": "Ikut komputer anda",
+  "themeLight": "Cerah",
+  "themeLightDesc": "Cahaya siang yang hangat",
+  "themeDark": "Gelap",
+  "themeDarkDesc": "Selesa dalam cahaya malap",
+  "dismissError": "Tolak ralat"
 }

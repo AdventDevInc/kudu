@@ -188,5 +188,11 @@
     "emptyTitle": "Scopri come cambia il tuo spazio di archiviazione",
     "emptyDescription": "Scegli una cartella, acquisisci una base iniziale, quindi acquisisci un'altra istantanea per vedere cosa è cresciuto. I tuoi file non verranno toccati.",
     "settings": "Istantanee automatiche e avvisi"
-  }
+  },
+  "repairWindowsOnlyTitle": "Solo Windows",
+  "repairWindowsOnlyDescription": "Gli strumenti di ripristino del disco sono disponibili solo su Windows.",
+  "upOneLevel": "Sali di un livello di cartella",
+  "upButton": "Su",
+  "driveEncrypted": "Crittografato",
+  "driveTotalSize": "{{size}} totale"
 }

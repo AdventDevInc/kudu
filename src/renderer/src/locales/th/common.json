@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} ชม. ที่แล้ว",
   "daysAgo": "{{days}} วันที่แล้ว",
   "zeroBytes": "0 B",
-  "zeroSpeed": "0 B/s"
+  "zeroSpeed": "0 B/s",
+  "themeAppearance": "รูปลักษณ์",
+  "themeAppearanceTitle": "รูปลักษณ์: {{theme}}",
+  "themeSystem": "ระบบ",
+  "themeSystemDesc": "ตามคอมพิวเตอร์ของคุณ",
+  "themeLight": "สว่าง",
+  "themeLightDesc": "แสงกลางวันที่อบอุ่น",
+  "themeDark": "มืด",
+  "themeDarkDesc": "สบายตาในที่แสงน้อย",
+  "dismissError": "ปิดข้อผิดพลาด"
 }

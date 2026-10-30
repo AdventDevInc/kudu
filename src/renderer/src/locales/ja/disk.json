@@ -188,5 +188,11 @@
     "emptyTitle": "ストレージの変化を確認",
     "emptyDescription": "フォルダーを選択し、ベースラインを取得してから、もう一度スナップショットを取得すると、何が増えたかを確認できます。ファイルは変更されません。",
     "settings": "自動スナップショットとアラート"
-  }
+  },
+  "repairWindowsOnlyTitle": "Windows のみ",
+  "repairWindowsOnlyDescription": "ディスク修復ツールは Windows でのみ利用できます。",
+  "upOneLevel": "1 つ上のフォルダーへ",
+  "upButton": "上へ",
+  "driveEncrypted": "暗号化済み",
+  "driveTotalSize": "合計 {{size}}"
 }

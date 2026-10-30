@@ -64,5 +64,14 @@
   "hoursAgo": "{{hours}} ساعت پیش",
   "daysAgo": "{{days}} روز پیش",
   "zeroBytes": "۰ بایت",
-  "zeroSpeed": "۰ بایت بر ثانیه"
+  "zeroSpeed": "۰ بایت بر ثانیه",
+  "themeAppearance": "ظاهر",
+  "themeAppearanceTitle": "ظاهر: {{theme}}",
+  "themeSystem": "سیستم",
+  "themeSystemDesc": "پیروی از تنظیمات رایانه",
+  "themeLight": "روشن",
+  "themeLightDesc": "نور روز گرم",
+  "themeDark": "تیره",
+  "themeDarkDesc": "راحتی در نور کم",
+  "dismissError": "رد خطا"
 }
