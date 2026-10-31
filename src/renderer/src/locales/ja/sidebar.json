@@ -27,5 +27,7 @@
   "settings": "環境設定",
   "breachMonitor": "侵害モニター",
   "gameMode": "ゲーム モード",
-  "firewallAudit": "ファイアウォール監査"
+  "firewallAudit": "ファイアウォール監査",
+  "mainNavigation": "メインナビゲーション",
+  "badgeNew": "新着"
 }

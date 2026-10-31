@@ -27,5 +27,7 @@
   "settings": "Beállítások",
   "breachMonitor": "Adatszivárgás-figyelő",
   "gameMode": "Játékmód",
-  "firewallAudit": "Tűzfalaudit"
+  "firewallAudit": "Tűzfalaudit",
+  "mainNavigation": "Fő navigáció",
+  "badgeNew": "ÚJ"
 }

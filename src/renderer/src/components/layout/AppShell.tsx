@@ -9,6 +9,7 @@ import { usePlatform } from '@/hooks/usePlatform'
 import logoSrc from '@/assets/logo.png'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation('common')
   const location = useLocation()
   const { platform } = usePlatform()
   const handleSkip = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
@@ -23,10 +24,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell h-screen overflow-hidden" data-platform={platform}>
       <a href="#" className="skip-nav" onClick={handleSkip}>
-        Skip to main content
+        {t('skipToMainContent', 'Skip to main content')}
       </a>
 
-      <header className="app-titlebar drag-region" aria-label="Kudu window titlebar">
+      <header
+        className="app-titlebar drag-region"
+        aria-label={t('windowTitlebar', 'Kudu window titlebar')}
+      >
         <div className="app-brand">
           <img src={logoSrc} alt="" className="h-6 w-6 rounded-full" />
           <div>

@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Tidak dapat menerapkan perubahan yang diminta.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Sesetengah entri yang dipilih memerlukan keistimewaan pentadbir. Lancarkan semula sebagai pentadbir?",
-  "elevationRelaunch": "Lancarkan semula sebagai pentadbir"
+  "elevationRelaunch": "Lancarkan semula sebagai pentadbir",
+  "toggleAll": "Togol semua"
 }

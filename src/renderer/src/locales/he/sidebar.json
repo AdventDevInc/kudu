@@ -27,5 +27,7 @@
   "settings": "העדפות",
   "breachMonitor": "ניטור פרצות",
   "gameMode": "מצב משחק",
-  "firewallAudit": "ביקורת חומת אש"
+  "firewallAudit": "ביקורת חומת אש",
+  "mainNavigation": "ניווט ראשי",
+  "badgeNew": "חדש"
 }

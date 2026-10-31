@@ -118,5 +118,7 @@
   "customFolderShowMore": "50 और दिखाएँ",
   "customFolderConfirmTitle": "चयनित फ़ाइलों को Trash में ले जाएँ?",
   "customFolderConfirmDescription": "इस फ़ोल्डर से {{count}} चयनित फ़ाइलों ({{size}}) को OS Trash में ले जाएँ। पहले उन फ़ाइलों का उपयोग करने वाला ऐप बंद करें। स्कैन के बाद बदली गई फ़ाइलें छोड़ दी जाएँगी।",
-  "customFolderTrashSummary": "{{count}} फ़ाइलें Trash में ले जाई गईं · {{skipped}} छोड़ी गईं। छोड़ी गई फ़ाइलों की समीक्षा के लिए फिर से स्कैन करें।"
+  "customFolderTrashSummary": "{{count}} फ़ाइलें Trash में ले जाई गईं · {{skipped}} छोड़ी गईं। छोड़ी गई फ़ाइलों की समीक्षा के लिए फिर से स्कैन करें।",
+  "themeLabel": "थीम",
+  "themeDesc": "सिस्टम के स्वरूप का पालन करें या मोड चुनें"
 }

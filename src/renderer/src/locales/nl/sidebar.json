@@ -27,5 +27,7 @@
   "settings": "Voorkeuren",
   "breachMonitor": "Datalekmonitor",
   "gameMode": "Spelmodus",
-  "firewallAudit": "Firewall-audit"
+  "firewallAudit": "Firewall-audit",
+  "mainNavigation": "Hoofdnavigatie",
+  "badgeNew": "NIEUW"
 }

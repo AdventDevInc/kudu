@@ -73,5 +73,10 @@
   "themeLightDesc": "Varmt dagsljus",
   "themeDark": "Mörkt",
   "themeDarkDesc": "Bekvämt i svagt ljus",
-  "dismissError": "Avvisa fel"
+  "dismissError": "Avvisa fel",
+  "close": "Stäng",
+  "dismiss": "Avvisa",
+  "skipToMainContent": "Hoppa till huvudinnehåll",
+  "windowTitlebar": "Kudu fönstertitellist",
+  "checkingCloudConnection": "Kontrollerar anslutning till Kudu Cloud…"
 }

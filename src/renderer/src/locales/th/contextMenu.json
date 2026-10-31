@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "ไม่สามารถนำการเปลี่ยนแปลงที่ร้องขอไปใช้ได้",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "บางรายการที่เลือกต้องใช้สิทธิ์ผู้ดูแลระบบ ต้องการเปิดใหม่ในโหมดผู้ดูแลระบบหรือไม่?",
-  "elevationRelaunch": "เปิดใหม่ในโหมดผู้ดูแลระบบ"
+  "elevationRelaunch": "เปิดใหม่ในโหมดผู้ดูแลระบบ",
+  "toggleAll": "สลับทั้งหมด"
 }

@@ -73,5 +73,10 @@
   "themeLightDesc": "Lumină caldă de zi",
   "themeDark": "Întunecat",
   "themeDarkDesc": "Confort în lumină slabă",
-  "dismissError": "Închide eroarea"
+  "dismissError": "Închide eroarea",
+  "close": "Închide",
+  "dismiss": "Închide",
+  "skipToMainContent": "Sari la conținutul principal",
+  "windowTitlebar": "Bara de titlu a ferestrei Kudu",
+  "checkingCloudConnection": "Se verifică conexiunea Kudu Cloud…"
 }

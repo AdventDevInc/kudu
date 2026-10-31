@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Impossibile applicare le modifiche richieste.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Alcune voci selezionate richiedono privilegi di amministratore. Riavviare come amministratore?",
-  "elevationRelaunch": "Riavvia come amministratore"
+  "elevationRelaunch": "Riavvia come amministratore",
+  "toggleAll": "Attiva/disattiva tutto"
 }

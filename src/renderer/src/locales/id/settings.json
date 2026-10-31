@@ -118,5 +118,7 @@
   "customFolderShowMore": "Tampilkan 50 lagi",
   "customFolderConfirmTitle": "Pindahkan file yang dipilih ke Trash?",
   "customFolderConfirmDescription": "Pindahkan {{count}} file yang dipilih ({{size}}) dari folder ini ke Trash OS. Tutup terlebih dahulu aplikasi yang menggunakan file ini. File yang berubah sejak pemindaian akan dilewati.",
-  "customFolderTrashSummary": "{{count}} file dipindahkan ke Trash · {{skipped}} dilewati. Pindai ulang untuk meninjau file yang dilewati."
+  "customFolderTrashSummary": "{{count}} file dipindahkan ke Trash · {{skipped}} dilewati. Pindai ulang untuk meninjau file yang dilewati.",
+  "themeLabel": "Tema",
+  "themeDesc": "Ikuti tampilan sistem atau pilih mode"
 }

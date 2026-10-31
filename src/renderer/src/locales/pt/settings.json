@@ -118,5 +118,7 @@
   "customFolderShowMore": "Mostrar mais 50",
   "customFolderConfirmTitle": "Mover os ficheiros selecionados para o Lixo?",
   "customFolderConfirmDescription": "Mova {{count}} ficheiros selecionados ({{size}}) desta pasta para o Lixo do sistema operativo. Feche primeiro a aplicação que utiliza estes ficheiros. Os ficheiros alterados desde a análise serão ignorados.",
-  "customFolderTrashSummary": "{{count}} ficheiros movidos para o Lixo · {{skipped}} ignorados. Analise novamente para rever os ficheiros ignorados."
+  "customFolderTrashSummary": "{{count}} ficheiros movidos para o Lixo · {{skipped}} ignorados. Analise novamente para rever os ficheiros ignorados.",
+  "themeLabel": "Tema",
+  "themeDesc": "Seguir a aparência do sistema ou escolher um modo"
 }

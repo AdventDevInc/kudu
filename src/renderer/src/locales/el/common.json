@@ -73,5 +73,10 @@
   "themeLightDesc": "Ζεστό φως ημέρας",
   "themeDark": "Σκοτεινό",
   "themeDarkDesc": "Άνεση σε χαμηλό φωτισμό",
-  "dismissError": "Παράβλεψη σφάλματος"
+  "dismissError": "Παράβλεψη σφάλματος",
+  "close": "Κλείσιμο",
+  "dismiss": "Απόρριψη",
+  "skipToMainContent": "Μετάβαση στο κύριο περιεχόμενο",
+  "windowTitlebar": "Γραμμή τίτλου παραθύρου Kudu",
+  "checkingCloudConnection": "Έλεγχος σύνδεσης Kudu Cloud…"
 }

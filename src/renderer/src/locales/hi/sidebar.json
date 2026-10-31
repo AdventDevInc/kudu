@@ -27,5 +27,7 @@
   "settings": "प्राथमिकताएँ",
   "breachMonitor": "उल्लंघन मॉनिटर",
   "gameMode": "गेम मोड",
-  "firewallAudit": "फ़ायरवॉल ऑडिट"
+  "firewallAudit": "फ़ायरवॉल ऑडिट",
+  "mainNavigation": "मुख्य नेविगेशन",
+  "badgeNew": "नया"
 }

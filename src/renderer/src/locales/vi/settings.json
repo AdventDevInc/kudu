@@ -118,5 +118,7 @@
   "customFolderShowMore": "Hiển thị thêm 50 mục",
   "customFolderConfirmTitle": "Chuyển các tệp đã chọn vào Thùng rác?",
   "customFolderConfirmDescription": "Chuyển {{count}} tệp đã chọn ({{size}}) từ thư mục này vào Thùng rác của hệ điều hành. Hãy đóng ứng dụng đang sử dụng các tệp này trước. Các tệp đã thay đổi kể từ lần quét sẽ bị bỏ qua.",
-  "customFolderTrashSummary": "Đã chuyển {{count}} tệp vào Thùng rác · đã bỏ qua {{skipped}} mục. Quét lại để xem các tệp bị bỏ qua."
+  "customFolderTrashSummary": "Đã chuyển {{count}} tệp vào Thùng rác · đã bỏ qua {{skipped}} mục. Quét lại để xem các tệp bị bỏ qua.",
+  "themeLabel": "Chủ đề",
+  "themeDesc": "Theo giao diện hệ thống hoặc chọn chế độ"
 }

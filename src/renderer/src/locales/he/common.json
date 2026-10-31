@@ -73,5 +73,10 @@
   "themeLightDesc": "אור יום חמים",
   "themeDark": "כהה",
   "themeDarkDesc": "נוחות בתאורה חלשה",
-  "dismissError": "התעלם משגיאה"
+  "dismissError": "התעלם משגיאה",
+  "close": "סגור",
+  "dismiss": "התעלם",
+  "skipToMainContent": "דלג לתוכן הראשי",
+  "windowTitlebar": "שורת כותרת של Kudu",
+  "checkingCloudConnection": "בודק חיבור ל-Kudu Cloud…"
 }

@@ -73,5 +73,10 @@
   "themeLightDesc": "نور روز گرم",
   "themeDark": "تیره",
   "themeDarkDesc": "راحتی در نور کم",
-  "dismissError": "رد خطا"
+  "dismissError": "رد خطا",
+  "close": "بستن",
+  "dismiss": "رد کردن",
+  "skipToMainContent": "پرش به محتوای اصلی",
+  "windowTitlebar": "نوار عنوان پنجره Kudu",
+  "checkingCloudConnection": "در حال بررسی اتصال به Kudu Cloud…"
 }

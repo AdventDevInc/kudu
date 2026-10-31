@@ -27,5 +27,7 @@
   "settings": "تنظیمات",
   "breachMonitor": "پایش نشت اطلاعات",
   "gameMode": "حالت بازی",
-  "firewallAudit": "بررسی فایروال"
+  "firewallAudit": "بررسی فایروال",
+  "mainNavigation": "ناوبری اصلی",
+  "badgeNew": "جدید"
 }

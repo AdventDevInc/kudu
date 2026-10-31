@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "İstenen değişiklikler uygulanamadı.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Seçilen bazı girdiler yönetici ayrıcalıkları gerektiriyor. Yönetici olarak yeniden başlatılsın mı?",
-  "elevationRelaunch": "Yönetici olarak yeniden başlat"
+  "elevationRelaunch": "Yönetici olarak yeniden başlat",
+  "toggleAll": "Tümünü aç/kapat"
 }

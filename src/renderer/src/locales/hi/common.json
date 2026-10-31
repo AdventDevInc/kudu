@@ -73,5 +73,10 @@
   "themeLightDesc": "दिन का हल्का प्रकाश",
   "themeDark": "गहरा",
   "themeDarkDesc": "कम रोशनी में आरामदायक",
-  "dismissError": "त्रुटि खारिज करें"
+  "dismissError": "त्रुटि खारिज करें",
+  "close": "बंद करें",
+  "dismiss": "खारिज करें",
+  "skipToMainContent": "मुख्य सामग्री पर जाएं",
+  "windowTitlebar": "Kudu विंडो शीर्षक पट्टी",
+  "checkingCloudConnection": "Kudu Cloud कनेक्शन की जाँच की जा रही है…"
 }

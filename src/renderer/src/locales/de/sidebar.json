@@ -27,5 +27,7 @@
   "settings": "Einstellungen",
   "breachMonitor": "Überwachung von Datenlecks",
   "gameMode": "Spielmodus",
-  "firewallAudit": "Firewall-Überprüfung"
+  "firewallAudit": "Firewall-Überprüfung",
+  "mainNavigation": "Hauptnavigation",
+  "badgeNew": "NEU"
 }

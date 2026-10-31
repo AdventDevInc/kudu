@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "अनुरोधित परिवर्तन लागू नहीं किए जा सके।",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "कुछ चयनित प्रविष्टियों के लिए व्यवस्थापक विशेषाधिकार आवश्यक हैं। एडमिन के रूप में पुनः लॉन्च करें?",
-  "elevationRelaunch": "एडमिन के रूप में पुनः लॉन्च करें"
+  "elevationRelaunch": "एडमिन के रूप में पुनः लॉन्च करें",
+  "toggleAll": "सभी टॉगल करें"
 }

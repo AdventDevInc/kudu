@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Nu s-au putut aplica modificările solicitate.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Unele intrări selectate necesită privilegii de administrator. Relansați ca administrator?",
-  "elevationRelaunch": "Relansează ca administrator"
+  "elevationRelaunch": "Relansează ca administrator",
+  "toggleAll": "Comutare toate"
 }

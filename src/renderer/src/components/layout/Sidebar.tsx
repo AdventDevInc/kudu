@@ -709,7 +709,7 @@ function NavItem({
                     </b>
                   )}
                   {child.cloudTier && <CloudTierBadge tier={child.cloudTier} />}
-                  {child.badge && <b>NEW</b>}
+                  {child.badge && <b>{t('badgeNew')}</b>}
                 </button>
               </Fragment>
             )
@@ -876,7 +876,7 @@ function FlyoutMenu({
                       boxShadow: '0 0 6px rgba(245,158,11,0.3)'
                     }}
                   >
-                    NEW
+                    {t('badgeNew')}
                   </span>
                 )}
               </button>

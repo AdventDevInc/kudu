@@ -118,5 +118,7 @@
   "customFolderShowMore": "Mostrar 50 más",
   "customFolderConfirmTitle": "¿Mover los archivos seleccionados a la Papelera?",
   "customFolderConfirmDescription": "Mueva {{count}} archivos seleccionados ({{size}}) de esta carpeta a la Papelera del sistema operativo. Cierre primero la aplicación que usa estos archivos. Los archivos modificados desde el análisis se omitirán.",
-  "customFolderTrashSummary": "{{count}} archivos movidos a la Papelera · {{skipped}} omitidos. Vuelva a analizar para revisar los archivos omitidos."
+  "customFolderTrashSummary": "{{count}} archivos movidos a la Papelera · {{skipped}} omitidos. Vuelva a analizar para revisar los archivos omitidos.",
+  "themeLabel": "Tema",
+  "themeDesc": "Sigue la apariencia del sistema o elige un modo"
 }

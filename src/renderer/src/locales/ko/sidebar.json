@@ -27,5 +27,7 @@
   "settings": "기본 설정",
   "breachMonitor": "유출 모니터",
   "gameMode": "게임 모드",
-  "firewallAudit": "방화벽 감사"
+  "firewallAudit": "방화벽 감사",
+  "mainNavigation": "기본 탐색",
+  "badgeNew": "신규"
 }

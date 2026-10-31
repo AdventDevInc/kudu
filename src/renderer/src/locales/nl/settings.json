@@ -118,5 +118,7 @@
   "customFolderShowMore": "Nog 50 weergeven",
   "customFolderConfirmTitle": "Geselecteerde bestanden naar de Prullenbak verplaatsen?",
   "customFolderConfirmDescription": "Verplaats {{count}} geselecteerde bestanden ({{size}}) uit deze map naar de Prullenbak van het besturingssysteem. Sluit eerst de app die deze bestanden gebruikt. Bestanden die sinds de scan zijn gewijzigd, worden overgeslagen.",
-  "customFolderTrashSummary": "{{count}} bestanden naar de Prullenbak verplaatst · {{skipped}} overgeslagen. Scan opnieuw om de overgeslagen bestanden te controleren."
+  "customFolderTrashSummary": "{{count}} bestanden naar de Prullenbak verplaatst · {{skipped}} overgeslagen. Scan opnieuw om de overgeslagen bestanden te controleren.",
+  "themeLabel": "Thema",
+  "themeDesc": "Volg het systeemontwerp of kies een modus"
 }

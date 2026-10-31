@@ -118,5 +118,7 @@
   "customFolderShowMore": "הצגת 50 נוספים",
   "customFolderConfirmTitle": "להעביר את הקבצים שנבחרו לאשפה?",
   "customFolderConfirmDescription": "העבירו {{count}} קבצים שנבחרו ({{size}}) מתיקייה זו לאשפת מערכת ההפעלה. סגרו תחילה את היישום שמשתמש בקבצים אלה. קבצים שהשתנו מאז הסריקה ידולגו.",
-  "customFolderTrashSummary": "{{count}} קבצים הועברו לאשפה · {{skipped}} דולגו. סרקו מחדש כדי לעיין בקבצים שדולגו."
+  "customFolderTrashSummary": "{{count}} קבצים הועברו לאשפה · {{skipped}} דולגו. סרקו מחדש כדי לעיין בקבצים שדולגו.",
+  "themeLabel": "ערכת נושא",
+  "themeDesc": "התאמה למראה המערכת או בחירת מצב"
 }

@@ -73,5 +73,10 @@
   "themeLightDesc": "Cahaya siang yang hangat",
   "themeDark": "Gelap",
   "themeDarkDesc": "Selesa dalam cahaya malap",
-  "dismissError": "Tolak ralat"
+  "dismissError": "Tolak ralat",
+  "close": "Tutup",
+  "dismiss": "Tolak",
+  "skipToMainContent": "Langkau ke kandungan utama",
+  "windowTitlebar": "Bar tajuk tetingkap Kudu",
+  "checkingCloudConnection": "Memeriksa sambungan Kudu Cloud…"
 }

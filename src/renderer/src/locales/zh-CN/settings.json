@@ -118,5 +118,7 @@
   "customFolderShowMore": "再显示 50 个",
   "customFolderConfirmTitle": "要将所选文件移至回收站吗？",
   "customFolderConfirmDescription": "将此文件夹中选中的 {{count}} 个文件（{{size}}）移至操作系统回收站。请先关闭正在使用这些文件的应用。自扫描后已更改的文件将被跳过。",
-  "customFolderTrashSummary": "{{count}} 个文件已移至回收站 · 已跳过 {{skipped}} 个。请重新扫描以查看被跳过的文件。"
+  "customFolderTrashSummary": "{{count}} 个文件已移至回收站 · 已跳过 {{skipped}} 个。请重新扫描以查看被跳过的文件。",
+  "themeLabel": "主题",
+  "themeDesc": "跟随系统外观或选择模式"
 }

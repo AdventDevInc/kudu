@@ -27,5 +27,7 @@
   "settings": "التفضيلات",
   "breachMonitor": "مراقبة الاختراقات",
   "gameMode": "وضع الألعاب",
-  "firewallAudit": "تدقيق جدار الحماية"
+  "firewallAudit": "تدقيق جدار الحماية",
+  "mainNavigation": "التنقل الرئيسي",
+  "badgeNew": "جديد"
 }

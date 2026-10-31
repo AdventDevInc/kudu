@@ -118,5 +118,7 @@
   "customFolderShowMore": "Afficher 50 de plus",
   "customFolderConfirmTitle": "Déplacer les fichiers sélectionnés vers la Corbeille ?",
   "customFolderConfirmDescription": "Déplacez {{count}} fichiers sélectionnés ({{size}}) de ce dossier vers la Corbeille du système d’exploitation. Fermez d’abord l’application qui utilise ces fichiers. Les fichiers modifiés depuis l’analyse seront ignorés.",
-  "customFolderTrashSummary": "{{count}} fichiers déplacés vers la Corbeille · {{skipped}} ignorés. Relancez l’analyse pour examiner les fichiers ignorés."
+  "customFolderTrashSummary": "{{count}} fichiers déplacés vers la Corbeille · {{skipped}} ignorés. Relancez l’analyse pour examiner les fichiers ignorés.",
+  "themeLabel": "Thème",
+  "themeDesc": "Suivre l'apparence du système ou choisir un mode"
 }

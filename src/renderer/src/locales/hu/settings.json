@@ -118,5 +118,7 @@
   "customFolderShowMore": "Még 50 megjelenítése",
   "customFolderConfirmTitle": "Áthelyezi a kijelölt fájlokat a Kukába?",
   "customFolderConfirmDescription": "A rendszer a kijelölt {{count}} fájlt ({{size}}) ebből a mappából az operációs rendszer Kukájába helyezi. Először zárja be az alkalmazást, amely ezeket a fájlokat használja. A vizsgálat óta megváltozott fájlok ki lesznek hagyva.",
-  "customFolderTrashSummary": "{{count}} fájl áthelyezve a Kukába · {{skipped}} kihagyva. A kihagyott fájlok ellenőrzéséhez vizsgálja át újra."
+  "customFolderTrashSummary": "{{count}} fájl áthelyezve a Kukába · {{skipped}} kihagyva. A kihagyott fájlok ellenőrzéséhez vizsgálja át újra.",
+  "themeLabel": "Téma",
+  "themeDesc": "A rendszer megjelenésének követése vagy mód kiválasztása"
 }

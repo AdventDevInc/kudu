@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Kunne ikke utføre de forespurte endringene.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Noen av de valgte oppføringene krever administratorrettigheter. Vil du starte på nytt som administrator?",
-  "elevationRelaunch": "Start på nytt som administrator"
+  "elevationRelaunch": "Start på nytt som administrator",
+  "toggleAll": "Veksle alle"
 }

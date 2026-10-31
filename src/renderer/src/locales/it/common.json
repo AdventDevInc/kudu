@@ -73,5 +73,10 @@
   "themeLightDesc": "Luce del giorno calda",
   "themeDark": "Scuro",
   "themeDarkDesc": "Comfort a bassa luminosità",
-  "dismissError": "Chiudi errore"
+  "dismissError": "Chiudi errore",
+  "close": "Chiudi",
+  "dismiss": "Ignora",
+  "skipToMainContent": "Salta al contenuto principale",
+  "windowTitlebar": "Barra del titolo di Kudu",
+  "checkingCloudConnection": "Verifica della connessione a Kudu Cloud…"
 }

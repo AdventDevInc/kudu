@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Pyydettyjä muutoksia ei voitu ottaa käyttöön.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Jotkin valituista kohteista edellyttävät järjestelmänvalvojan oikeuksia. Käynnistetäänkö uudelleen järjestelmänvalvojana?",
-  "elevationRelaunch": "Käynnistä uudelleen järjestelmänvalvojana"
+  "elevationRelaunch": "Käynnistä uudelleen järjestelmänvalvojana",
+  "toggleAll": "Vaihda kaikki"
 }

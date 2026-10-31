@@ -73,5 +73,10 @@
   "themeLightDesc": "Warm daylight",
   "themeDark": "Dark",
   "themeDarkDesc": "Low-light comfort",
-  "dismissError": "Dismiss error"
+  "dismissError": "Dismiss error",
+  "close": "Close",
+  "dismiss": "Dismiss",
+  "skipToMainContent": "Skip to main content",
+  "windowTitlebar": "Kudu window titlebar",
+  "checkingCloudConnection": "Checking Kudu Cloud connection…"
 }

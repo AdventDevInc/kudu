@@ -27,5 +27,7 @@
   "settings": "偏好設定",
   "breachMonitor": "外洩監控",
   "gameMode": "遊戲模式",
-  "firewallAudit": "防火牆稽核"
+  "firewallAudit": "防火牆稽核",
+  "mainNavigation": "主導覽",
+  "badgeNew": "最新"
 }

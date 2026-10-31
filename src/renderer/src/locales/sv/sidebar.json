@@ -27,5 +27,7 @@
   "settings": "Inställningar",
   "breachMonitor": "Intrångsövervakning",
   "gameMode": "Spelläge",
-  "firewallAudit": "Granskning av brandvägg"
+  "firewallAudit": "Granskning av brandvägg",
+  "mainNavigation": "Huvudnavigering",
+  "badgeNew": "NYTT"
 }

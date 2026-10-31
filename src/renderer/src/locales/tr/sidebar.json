@@ -27,5 +27,7 @@
   "settings": "Tercihler",
   "breachMonitor": "İhlal İzleyicisi",
   "gameMode": "Oyun Modu",
-  "firewallAudit": "Güvenlik Duvarı Denetimi"
+  "firewallAudit": "Güvenlik Duvarı Denetimi",
+  "mainNavigation": "Ana gezinme",
+  "badgeNew": "YENİ"
 }

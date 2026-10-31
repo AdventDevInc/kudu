@@ -73,5 +73,10 @@
   "themeLightDesc": "Varmt dagslys",
   "themeDark": "Mørkt",
   "themeDarkDesc": "Komfortabelt i svakt lys",
-  "dismissError": "Lukk feil"
+  "dismissError": "Lukk feil",
+  "close": "Lukk",
+  "dismiss": "Avvis",
+  "skipToMainContent": "Hopp til hovedinnhold",
+  "windowTitlebar": "Kudu vindustittellinje",
+  "checkingCloudConnection": "Sjekker Kudu Cloud-tilkobling…"
 }

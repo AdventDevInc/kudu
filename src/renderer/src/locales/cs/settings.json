@@ -118,5 +118,7 @@
   "customFolderShowMore": "Zobrazit dalších 50",
   "customFolderConfirmTitle": "Přesunout vybrané soubory do Koše?",
   "customFolderConfirmDescription": "Přesuňte {{count}} vybraných souborů ({{size}}) z této složky do Koše systému. Nejprve zavřete aplikaci, která tyto soubory používá. Soubory změněné od prohledání budou přeskočeny.",
-  "customFolderTrashSummary": "{{count}} souborů přesunuto do Koše · {{skipped}} přeskočeno. Přeskočené soubory zkontrolujte po opětovném prohledání."
+  "customFolderTrashSummary": "{{count}} souborů přesunuto do Koše · {{skipped}} přeskočeno. Přeskočené soubory zkontrolujte po opětovném prohledání.",
+  "themeLabel": "Motiv",
+  "themeDesc": "Přizpůsobit vzhledu systému nebo zvolit režim"
 }

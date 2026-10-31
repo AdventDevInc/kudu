@@ -118,5 +118,7 @@
   "customFolderShowMore": "50 weitere anzeigen",
   "customFolderConfirmTitle": "Ausgewählte Dateien in den Papierkorb verschieben?",
   "customFolderConfirmDescription": "Verschieben Sie {{count}} ausgewählte Dateien ({{size}}) aus diesem Ordner in den Papierkorb des Betriebssystems. Schließen Sie zuerst die App, die diese Dateien verwendet. Seit dem Scan geänderte Dateien werden übersprungen.",
-  "customFolderTrashSummary": "{{count}} Dateien in den Papierkorb verschoben · {{skipped}} übersprungen. Scannen Sie erneut, um die übersprungenen Dateien zu prüfen."
+  "customFolderTrashSummary": "{{count}} Dateien in den Papierkorb verschoben · {{skipped}} übersprungen. Scannen Sie erneut, um die übersprungenen Dateien zu prüfen.",
+  "themeLabel": "Design",
+  "themeDesc": "Dem Systemdesign folgen oder einen Modus wählen"
 }

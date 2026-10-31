@@ -27,5 +27,7 @@
   "settings": "Předvolby",
   "breachMonitor": "Monitor úniků",
   "gameMode": "Herní režim",
-  "firewallAudit": "Audit brány firewall"
+  "firewallAudit": "Audit brány firewall",
+  "mainNavigation": "Hlavní navigace",
+  "badgeNew": "NOVÉ"
 }

@@ -73,5 +73,10 @@
   "themeLightDesc": "Warm daglicht",
   "themeDark": "Donker",
   "themeDarkDesc": "Comfort bij weinig licht",
-  "dismissError": "Fout sluiten"
+  "dismissError": "Fout sluiten",
+  "close": "Sluiten",
+  "dismiss": "Sluiten",
+  "skipToMainContent": "Naar hoofdinhoud gaan",
+  "windowTitlebar": "Kudu venstertitelbalk",
+  "checkingCloudConnection": "Kudu Cloud-verbinding controleren…"
 }

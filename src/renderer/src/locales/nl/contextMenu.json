@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Kan de gevraagde wijzigingen niet toepassen.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Voor sommige geselecteerde items zijn beheerdersrechten vereist. Opnieuw starten als admin?",
-  "elevationRelaunch": "Opnieuw starten als admin"
+  "elevationRelaunch": "Opnieuw starten als admin",
+  "toggleAll": "Alles wisselen"
 }

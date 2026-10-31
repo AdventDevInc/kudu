@@ -118,5 +118,7 @@
   "customFolderShowMore": "Mostra altri 50",
   "customFolderConfirmTitle": "Spostare i file selezionati nel Cestino?",
   "customFolderConfirmDescription": "Sposta {{count}} file selezionati ({{size}}) da questa cartella nel Cestino del sistema operativo. Chiudi prima l'app che utilizza questi file. I file modificati dopo la scansione verranno ignorati.",
-  "customFolderTrashSummary": "{{count}} file spostati nel Cestino · {{skipped}} ignorati. Esegui di nuovo la scansione per controllare i file ignorati."
+  "customFolderTrashSummary": "{{count}} file spostati nel Cestino · {{skipped}} ignorati. Esegui di nuovo la scansione per controllare i file ignorati.",
+  "themeLabel": "Tema",
+  "themeDesc": "Segui l'aspetto del sistema o scegli una modalità"
 }

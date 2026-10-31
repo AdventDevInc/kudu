@@ -27,5 +27,7 @@
   "settings": "Asetukset",
   "breachMonitor": "Tietomurtovalvonta",
   "gameMode": "Pelitila",
-  "firewallAudit": "Palomuurin tarkistus"
+  "firewallAudit": "Palomuurin tarkistus",
+  "mainNavigation": "Päänavigointi",
+  "badgeNew": "UUSI"
 }

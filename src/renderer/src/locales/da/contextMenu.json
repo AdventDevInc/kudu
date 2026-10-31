@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Kunne ikke anvende de ønskede ændringer.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Nogle valgte poster kræver administratorrettigheder. Vil du genstarte som administrator?",
-  "elevationRelaunch": "Genstart som administrator"
+  "elevationRelaunch": "Genstart som administrator",
+  "toggleAll": "Slå alle til/fra"
 }

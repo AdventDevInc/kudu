@@ -73,5 +73,10 @@
   "themeLightDesc": "따뜻한 주광색",
   "themeDark": "다크",
   "themeDarkDesc": "어두운 환경 편의",
-  "dismissError": "오류 닫기"
+  "dismissError": "오류 닫기",
+  "close": "닫기",
+  "dismiss": "닫기",
+  "skipToMainContent": "본문으로 건너뛰기",
+  "windowTitlebar": "Kudu 창 제목 표시줄",
+  "checkingCloudConnection": "Kudu Cloud 연결 확인 중…"
 }
