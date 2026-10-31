@@ -86,17 +86,18 @@ describe.each(platforms)('%s media and design cleaner rules', (platform) => {
     // Logs and crash dumps
     const oldLog = await file(join(supportBase, 'logs', 'davinci.log'), 10)
     const oldDump = await file(join(supportBase, 'CrashDumps', 'crash.dmp'), 10)
-    await file(join(supportBase, 'logs', 'active.log'), 0) // recent log
+    const recentLog = await file(join(supportBase, 'logs', 'active.log'), 0) // recent log
 
     const result = await scanAppRule(app, 'app')
     const scannedPaths = result.items.map((i) => i.path).sort()
     expect(scannedPaths).toContain(oldLog)
     expect(scannedPaths).toContain(oldDump)
+    expect(scannedPaths).not.toContain(recentLog)
     expect(scannedPaths.some((p) => p.includes('Project.db'))).toBe(false)
   })
 
   if (platform !== 'linux') {
-    it('scans CapCut cache and logs while preserving project drafts', async () => {
+    it('scans CapCut logs while preserving caches and project drafts', async () => {
       const app = await rule(platform, 'capcut')
       const capcutBase =
         platform === 'win32'
@@ -104,7 +105,7 @@ describe.each(platforms)('%s media and design cleaner rules', (platform) => {
           : join(variables.APP_SUPPORT, 'CapCut')
 
       // Protected draft project
-      await file(join(capcutBase, 'Projects', 'draft_001', 'draft_content.json'))
+      await file(join(capcutBase, 'Projects', 'com.lveditor.draft', 'draft_001', 'draft_content.json'))
 
       // Cache and log files
       const oldCache =
@@ -112,11 +113,12 @@ describe.each(platforms)('%s media and design cleaner rules', (platform) => {
           ? await file(join(capcutBase, 'Cache', 'proxy_01.mp4'), 10)
           : await file(join(variables.CACHES, 'CapCut', 'cache_data.bin'), 10)
       const oldLog = await file(join(capcutBase, 'Log', 'app.log'), 10)
-      await file(join(capcutBase, 'Log', 'recent.log'), 0) // recent
+      const recentLog = await file(join(capcutBase, 'Log', 'recent.log'), 0) // recent
 
       const result = await scanAppRule(app, 'app')
       const scannedPaths = result.items.map((i) => i.path).sort()
-      expect(scannedPaths).toContain(oldCache)
+      expect(scannedPaths).not.toContain(oldCache)
+      expect(scannedPaths).not.toContain(recentLog)
       expect(scannedPaths).toContain(oldLog)
       expect(scannedPaths.some((p) => p.includes('draft_content.json'))).toBe(false)
     })
@@ -128,6 +130,7 @@ describe.each(platforms)('%s media and design cleaner rules', (platform) => {
           ? await file(join(variables.LOCALAPPDATA, 'Adobe', 'CameraRaw', 'Cache2', 'entry.dat'), 10)
           : await file(join(variables.CACHES, 'Adobe', 'CameraRaw', 'Cache2', 'entry.dat'), 10)
 
+      expect(rawApp.cacheReset).toBe(true)
       const rawResult = await scanAppRule(rawApp, 'app')
       expect(rawResult.items.map((i) => i.path)).toContain(rawCache)
 
@@ -148,4 +151,19 @@ describe.each(platforms)('%s media and design cleaner rules', (platform) => {
       expect(logResult.items.map((i) => i.path)).not.toContain(recentLog)
     })
   }
+})
+
+
+describe('Linux Figma cache boundaries', () => {
+  it('preserves recent cache and persistent Electron state', async () => {
+    const app = await rule('linux', 'figma')
+    const base = join(variables.CONFIG, 'figma-linux')
+    const oldCache = await file(join(base, 'Cache', 'Cache_Data', 'old.bin'), 10)
+    const recentCache = await file(join(base, 'GPUCache', 'recent.bin'), 2)
+    const persistent = await file(join(base, 'Local Storage', 'leveldb', 'state.ldb'))
+    const result = await scanAppRule(app, 'app')
+    expect(result.items.map((item) => item.path)).toEqual([oldCache])
+    expect(result.items.map((item) => item.path)).not.toContain(recentCache)
+    expect(result.items.map((item) => item.path)).not.toContain(persistent)
+  })
 })
