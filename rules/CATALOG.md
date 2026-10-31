@@ -8,10 +8,10 @@
 
 | Metric | Count |
 |--------|-------|
-| Unique app rules | 182 |
-| 🪟 Windows rules | 171 |
-| 🍎 macOS rules | 100 |
-| 🐧 Linux rules | 97 |
+| Unique app rules | 186 |
+| 🪟 Windows rules | 175 |
+| 🍎 macOS rules | 104 |
+| 🐧 Linux rules | 99 |
 
 ## AI Tools
 
@@ -55,6 +55,8 @@
 | App | 🪟 | 🍎 | 🐧 |
 |-----|:---:|:---:|:---:|
 | 1Password | ✅ | ✅ | ✅ |
+| Adobe Application Logs | ✅ | ✅ | ❌ |
+| Adobe Camera Raw Cache | ✅ | ✅ | ❌ |
 | Adobe Creative Cloud | ✅ | ✅ | ❌ |
 | AMD Installer Files | ✅ | ❌ | ❌ |
 | Android Studio | ✅ | ✅ | ✅ |
@@ -65,6 +67,7 @@
 | Bramblewatch | ✅ | ❌ | ❌ |
 | Bun Cache | ✅ | ✅ | ✅ |
 | Buzz Node Tools Cache | ✅ | ❌ | ❌ |
+| CapCut Desktop | ✅ | ✅ | ❌ |
 | Cargo/Rust Cache | ✅ | ✅ | ✅ |
 | ccache | ❌ | ✅ | ✅ |
 | Chocolatey Logs | ✅ | ❌ | ❌ |
@@ -72,6 +75,7 @@
 | Composer Cache | ✅ | ✅ | ✅ |
 | Conda Package Cache | ✅ | ✅ | ✅ |
 | CurseForge | ✅ | ❌ | ❌ |
+| DaVinci Resolve | ✅ | ✅ | ✅ |
 | Deno Cache | ✅ | ✅ | ✅ |
 | Discord | ✅ | ✅ | ✅ |
 | Discord Canary | ✅ | ✅ | ✅ |
@@ -82,7 +86,7 @@
 | Electron Runtime Cache | ✅ | ✅ | ✅ |
 | electron-builder Cache | ✅ | ✅ | ✅ |
 | ffmpeg-static Cache | ✅ | ❌ | ❌ |
-| Figma | ✅ | ✅ | ❌ |
+| Figma | ✅ | ✅ | ✅ |
 | FileZilla | ✅ | ✅ | ✅ |
 | Firefox Crash History | ✅ | ❌ | ❌ |
 | fontconfig | ✅ | ❌ | ❌ |
