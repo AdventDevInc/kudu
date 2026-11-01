@@ -73,5 +73,10 @@
   "themeLightDesc": "Warmes Tageslicht",
   "themeDark": "Dunkel",
   "themeDarkDesc": "Komfort bei wenig Licht",
-  "dismissError": "Fehler schließen"
+  "dismissError": "Fehler schließen",
+  "close": "Schließen",
+  "dismiss": "Verwerfen",
+  "skipToMainContent": "Zum Hauptinhalt springen",
+  "windowTitlebar": "Kudu-Titelleiste",
+  "checkingCloudConnection": "Kudu Cloud-Verbindung wird überprüft…"
 }

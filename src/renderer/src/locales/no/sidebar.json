@@ -27,5 +27,7 @@
   "settings": "Innstillinger",
   "breachMonitor": "Overvåking av datainnbrudd",
   "gameMode": "Spillmodus",
-  "firewallAudit": "Revisjon av brannmur"
+  "firewallAudit": "Revisjon av brannmur",
+  "mainNavigation": "Hovednavigasjon",
+  "badgeNew": "NY"
 }

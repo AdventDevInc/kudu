@@ -73,5 +73,10 @@
   "themeLightDesc": "ضوء نهار دافئ",
   "themeDark": "داكن",
   "themeDarkDesc": "مريح في الإضاءة المنخفضة",
-  "dismissError": "تجاهل الخطأ"
+  "dismissError": "تجاهل الخطأ",
+  "close": "إغلاق",
+  "dismiss": "تجاهل",
+  "skipToMainContent": "الانتقال إلى المحتوى الرئيسي",
+  "windowTitlebar": "شريط عنوان نافذة Kudu",
+  "checkingCloudConnection": "جارٍ التحقق من الاتصال بـ Kudu Cloud…"
 }

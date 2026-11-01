@@ -27,5 +27,7 @@
   "settings": "Preferensi",
   "breachMonitor": "Pemantau Kebocoran",
   "gameMode": "Mode Game",
-  "firewallAudit": "Audit Firewall"
+  "firewallAudit": "Audit Firewall",
+  "mainNavigation": "Navigasi utama",
+  "badgeNew": "BARU"
 }

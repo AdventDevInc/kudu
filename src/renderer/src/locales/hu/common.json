@@ -73,5 +73,10 @@
   "themeLightDesc": "Meleg nappali fény",
   "themeDark": "Sötét",
   "themeDarkDesc": "Kényelem gyenge fényviszonyok között",
-  "dismissError": "Hiba bezárása"
+  "dismissError": "Hiba bezárása",
+  "close": "Bezárás",
+  "dismiss": "Elvetés",
+  "skipToMainContent": "Ugrás a fő tartalomra",
+  "windowTitlebar": "Kudu ablak címsora",
+  "checkingCloudConnection": "Kudu Cloud kapcsolat ellenőrzése…"
 }

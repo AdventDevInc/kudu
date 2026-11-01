@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "לא ניתן היה להחיל את השינויים המבוקשים.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "חלק מהערכים שנבחרו דורשים הרשאות מנהל מערכת. להפעיל מחדש כמנהל?",
-  "elevationRelaunch": "הפעלה מחדש כמנהל"
+  "elevationRelaunch": "הפעלה מחדש כמנהל",
+  "toggleAll": "החלף הכל"
 }

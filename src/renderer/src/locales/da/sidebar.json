@@ -27,5 +27,7 @@
   "settings": "Indstillinger",
   "breachMonitor": "Brudovervågning",
   "gameMode": "Spiltilstand",
-  "firewallAudit": "Firewallkontrol"
+  "firewallAudit": "Firewallkontrol",
+  "mainNavigation": "Hovednavigation",
+  "badgeNew": "NY"
 }

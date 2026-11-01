@@ -591,10 +591,11 @@ function ThemeSelector({
   value: 'dark' | 'light' | 'system'
   onChange: (v: 'dark' | 'light' | 'system') => void
 }) {
+  const { t } = useTranslation('common')
   const options: { id: 'dark' | 'light' | 'system'; icon: typeof Sun; label: string }[] = [
-    { id: 'system', icon: Monitor, label: 'System' },
-    { id: 'light', icon: Sun, label: 'Light' },
-    { id: 'dark', icon: Moon, label: 'Dark' }
+    { id: 'system', icon: Monitor, label: t('themeSystem', 'System') },
+    { id: 'light', icon: Sun, label: t('themeLight', 'Light') },
+    { id: 'dark', icon: Moon, label: t('themeDark', 'Dark') }
   ]
   return (
     <div

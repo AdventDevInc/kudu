@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Tidak dapat menerapkan perubahan yang diminta.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Beberapa entri yang dipilih memerlukan hak administrator. Luncurkan ulang sebagai admin?",
-  "elevationRelaunch": "Luncurkan ulang sebagai admin"
+  "elevationRelaunch": "Luncurkan ulang sebagai admin",
+  "toggleAll": "Alihkan semua"
 }

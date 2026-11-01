@@ -27,5 +27,7 @@
   "settings": "首选项",
   "breachMonitor": "泄露监控",
   "gameMode": "游戏模式",
-  "firewallAudit": "防火墙审核"
+  "firewallAudit": "防火墙审核",
+  "mainNavigation": "主导航",
+  "badgeNew": "最新"
 }

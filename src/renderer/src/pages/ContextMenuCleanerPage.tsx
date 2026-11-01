@@ -533,7 +533,7 @@ function ContextMenuCleanerPageContent() {
                       }
                       className="toggle-switch relative h-6 w-11 rounded-full transition-colors"
                       style={{ background: allSelected ? pill.text : 'var(--bg-active)' }}
-                      aria-label="toggle all"
+                      aria-label={t('toggleAll')}
                     >
                       <div
                         className="absolute top-0.5 h-5 w-5 rounded-full transition-all"

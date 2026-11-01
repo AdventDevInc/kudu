@@ -73,5 +73,10 @@
   "themeLightDesc": "Cahaya siang yang hangat",
   "themeDark": "Gelap",
   "themeDarkDesc": "Nyaman di cahaya redup",
-  "dismissError": "Tutup kesalahan"
+  "dismissError": "Tutup kesalahan",
+  "close": "Tutup",
+  "dismiss": "Tutup",
+  "skipToMainContent": "Lompat ke konten utama",
+  "windowTitlebar": "Bilah judul jendela Kudu",
+  "checkingCloudConnection": "Memeriksa koneksi Kudu Cloud…"
 }

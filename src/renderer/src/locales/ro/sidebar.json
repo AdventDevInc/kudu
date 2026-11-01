@@ -27,5 +27,7 @@
   "settings": "Preferințe",
   "breachMonitor": "Monitorizare breșe",
   "gameMode": "Mod joc",
-  "firewallAudit": "Audit firewall"
+  "firewallAudit": "Audit firewall",
+  "mainNavigation": "Navigare principală",
+  "badgeNew": "NOU"
 }

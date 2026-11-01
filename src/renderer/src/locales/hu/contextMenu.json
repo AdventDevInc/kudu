@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Nem sikerült alkalmazni a kért módosításokat.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Néhány kijelölt bejegyzéshez rendszergazdai jogosultság szükséges. Újraindítja rendszergazdaként?",
-  "elevationRelaunch": "Újraindítás rendszergazdaként"
+  "elevationRelaunch": "Újraindítás rendszergazdaként",
+  "toggleAll": "Összes átváltása"
 }

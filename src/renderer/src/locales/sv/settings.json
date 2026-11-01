@@ -118,5 +118,7 @@
   "customFolderShowMore": "Visa 50 till",
   "customFolderConfirmTitle": "Flytta valda filer till Papperskorgen?",
   "customFolderConfirmDescription": "Flytta {{count}} valda filer ({{size}}) från den här mappen till operativsystemets Papperskorg. Stäng först appen som använder dessa filer. Filer som har ändrats sedan skanningen kommer att hoppas över.",
-  "customFolderTrashSummary": "{{count}} filer flyttades till Papperskorgen · {{skipped}} hoppades över. Skanna igen för att granska överhoppade filer."
+  "customFolderTrashSummary": "{{count}} filer flyttades till Papperskorgen · {{skipped}} hoppades över. Skanna igen för att granska överhoppade filer.",
+  "themeLabel": "Tema",
+  "themeDesc": "Följ systemets utseende eller välj ett läge"
 }

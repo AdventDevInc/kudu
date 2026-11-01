@@ -69,8 +69,8 @@
   "skipRecent24Hours": "24 saat",
   "sectionExclusions": "Hariç Tutulanlar",
   "noExclusionsConfigured": "Yapılandırılmış hariç tutma yok",
-  "exclusionPlaceholderWindows": "C:\\hariç\\tutulacak\\yol veya *.uzantı",
-  "exclusionPlaceholderOther": "/hariç/tutulacak/yol veya *.uzantı",
+  "exclusionPlaceholderWindows": "C:\\ornek\\klasor\\yolu veya *.uzantı",
+  "exclusionPlaceholderOther": "/ornek/klasor/yolu veya *.uzantı",
   "addButton": "Ekle",
   "sectionAbout": "Hakkında",
   "appVersion": "Kudu v{{version}}",
@@ -118,5 +118,7 @@
   "customFolderShowMore": "50 tane daha göster",
   "customFolderConfirmTitle": "Seçilen dosyalar Çöp Kutusu'na taşınsın mı?",
   "customFolderConfirmDescription": "Bu klasörden seçilen {{count}} dosyayı ({{size}}) işletim sisteminin Çöp Kutusu'na taşıyın. Önce bu dosyaları kullanan uygulamayı kapatın. Tarama sonrasında değişen dosyalar atlanacaktır.",
-  "customFolderTrashSummary": "{{count}} dosya Çöp Kutusu'na taşındı · {{skipped}} atlandı. Atlanan dosyaları gözden geçirmek için yeniden tarayın."
+  "customFolderTrashSummary": "{{count}} dosya Çöp Kutusu'na taşındı · {{skipped}} atlandı. Atlanan dosyaları gözden geçirmek için yeniden tarayın.",
+  "themeLabel": "Tema",
+  "themeDesc": "Sistem görünümünüzü takip edin veya bir mod seçin"
 }

@@ -73,5 +73,10 @@
   "themeLightDesc": "Sıcak gün ışığı",
   "themeDark": "Koyu",
   "themeDarkDesc": "Düşük ışık konforu",
-  "dismissError": "Hatayı kapat"
+  "dismissError": "Hatayı kapat",
+  "close": "Kapat",
+  "dismiss": "Kapat",
+  "skipToMainContent": "Ana içeriğe atla",
+  "windowTitlebar": "Kudu pencere başlık çubuğu",
+  "checkingCloudConnection": "Kudu Cloud bağlantısı denetleniyor…"
 }

@@ -118,5 +118,7 @@
   "customFolderShowMore": "さらに 50 件表示",
   "customFolderConfirmTitle": "選択したファイルをゴミ箱に移動しますか?",
   "customFolderConfirmDescription": "このフォルダーから選択した {{count}} 個のファイル ({{size}}) を OS のゴミ箱に移動します。先にこれらのファイルを使用しているアプリを閉じてください。スキャン後に変更されたファイルはスキップされます。",
-  "customFolderTrashSummary": "{{count}} 個のファイルをゴミ箱に移動しました · {{skipped}} 件をスキップしました。スキップされたファイルを確認するには再スキャンしてください。"
+  "customFolderTrashSummary": "{{count}} 個のファイルをゴミ箱に移動しました · {{skipped}} 件をスキップしました。スキップされたファイルを確認するには再スキャンしてください。",
+  "themeLabel": "テーマ",
+  "themeDesc": "システムの外観に従うか、モードを選択します"
 }

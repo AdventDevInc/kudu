@@ -73,5 +73,10 @@
   "themeLightDesc": "Ciepłe światło dzienne",
   "themeDark": "Ciemny",
   "themeDarkDesc": "Komfort przy słabym świetle",
-  "dismissError": "Zamknij błąd"
+  "dismissError": "Zamknij błąd",
+  "close": "Zamknij",
+  "dismiss": "Odrzuć",
+  "skipToMainContent": "Przejdź do głównej treści",
+  "windowTitlebar": "Pasek tytułu okna Kudu",
+  "checkingCloudConnection": "Sprawdzanie połączenia z Kudu Cloud…"
 }

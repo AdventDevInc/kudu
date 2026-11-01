@@ -73,5 +73,10 @@
   "themeLightDesc": "Lämmin päivänvalo",
   "themeDark": "Tumma",
   "themeDarkDesc": "Miellyttävä hämärässä",
-  "dismissError": "Hylkää virhe"
+  "dismissError": "Hylkää virhe",
+  "close": "Sulje",
+  "dismiss": "Hylkää",
+  "skipToMainContent": "Siirry pääsisältöön",
+  "windowTitlebar": "Kudu-ikkunan otsikkopalkki",
+  "checkingCloudConnection": "Tarkistetaan Kudu Cloud -yhteyttä…"
 }

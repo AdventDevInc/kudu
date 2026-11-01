@@ -118,5 +118,7 @@
   "customFolderShowMore": "Näytä 50 lisää",
   "customFolderConfirmTitle": "Siirretäänkö valitut tiedostot Roskakoriin?",
   "customFolderConfirmDescription": "Siirrä {{count}} valittua tiedostoa ({{size}}) tästä kansiosta käyttöjärjestelmän Roskakoriin. Sulje ensin sovellus, joka käyttää näitä tiedostoja. Skannauksen jälkeen muuttuneet tiedostot ohitetaan.",
-  "customFolderTrashSummary": "{{count}} tiedostoa siirretty Roskakoriin · {{skipped}} ohitettu. Tarkista ohitetut tiedostot skannaamalla uudelleen."
+  "customFolderTrashSummary": "{{count}} tiedostoa siirretty Roskakoriin · {{skipped}} ohitettu. Tarkista ohitetut tiedostot skannaamalla uudelleen.",
+  "themeLabel": "Teema",
+  "themeDesc": "Seuraa järjestelmän ulkoasua tai valitse tila"
 }

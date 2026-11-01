@@ -73,5 +73,10 @@
   "themeLightDesc": "แสงกลางวันที่อบอุ่น",
   "themeDark": "มืด",
   "themeDarkDesc": "สบายตาในที่แสงน้อย",
-  "dismissError": "ปิดข้อผิดพลาด"
+  "dismissError": "ปิดข้อผิดพลาด",
+  "close": "ปิด",
+  "dismiss": "ปิด",
+  "skipToMainContent": "ข้ามไปยังเนื้อหาหลัก",
+  "windowTitlebar": "แถบชื่อหน้าต่าง Kudu",
+  "checkingCloudConnection": "กำลังตรวจสอบการเชื่อมต่อ Kudu Cloud…"
 }

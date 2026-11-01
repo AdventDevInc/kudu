@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "無法套用要求的變更。",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "部分所選項目需要系統管理員權限。要以系統管理員身分重新啟動嗎？",
-  "elevationRelaunch": "以系統管理員身分重新啟動"
+  "elevationRelaunch": "以系統管理員身分重新啟動",
+  "toggleAll": "切換全部"
 }

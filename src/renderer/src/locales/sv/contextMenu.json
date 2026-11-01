@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Det gick inte att tillämpa de begärda ändringarna.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Vissa valda poster kräver administratörsbehörighet. Vill du starta om som admin?",
-  "elevationRelaunch": "Starta om som admin"
+  "elevationRelaunch": "Starta om som admin",
+  "toggleAll": "Växla alla"
 }

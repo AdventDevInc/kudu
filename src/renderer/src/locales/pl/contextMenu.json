@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Nie można zastosować żądanych zmian.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Niektóre wybrane wpisy wymagają uprawnień administratora. Uruchomić ponownie jako administrator?",
-  "elevationRelaunch": "Uruchom ponownie jako administrator"
+  "elevationRelaunch": "Uruchom ponownie jako administrator",
+  "toggleAll": "Przełącz wszystko"
 }

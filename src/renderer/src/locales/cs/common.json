@@ -73,5 +73,10 @@
   "themeLightDesc": "Teplé denní světlo",
   "themeDark": "Tmavý",
   "themeDarkDesc": "Pohodlí při slabém osvětlení",
-  "dismissError": "Zavřít chybu"
+  "dismissError": "Zavřít chybu",
+  "close": "Zavřít",
+  "dismiss": "Zavřít",
+  "skipToMainContent": "Přejít k hlavnímu obsahu",
+  "windowTitlebar": "Záhlaví okna Kudu",
+  "checkingCloudConnection": "Kontrola připojení ke Kudu Cloud…"
 }

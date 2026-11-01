@@ -27,5 +27,7 @@
   "settings": "Параметры",
   "breachMonitor": "Монитор утечек",
   "gameMode": "Игровой режим",
-  "firewallAudit": "Аудит брандмауэра"
+  "firewallAudit": "Аудит брандмауэра",
+  "mainNavigation": "Главная навигация",
+  "badgeNew": "НОВОЕ"
 }

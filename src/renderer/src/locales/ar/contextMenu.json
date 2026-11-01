@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "تعذر تطبيق التغييرات المطلوبة.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "تتطلب بعض الإدخالات المحددة امتيازات المسؤول. هل تريد إعادة التشغيل كمسؤول؟",
-  "elevationRelaunch": "إعادة التشغيل كمسؤول"
+  "elevationRelaunch": "إعادة التشغيل كمسؤول",
+  "toggleAll": "تبديل الكل"
 }

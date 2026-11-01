@@ -118,5 +118,7 @@
   "customFolderShowMore": "Pokaż 50 więcej",
   "customFolderConfirmTitle": "Przenieść zaznaczone pliki do Kosza?",
   "customFolderConfirmDescription": "Przenieś {{count}} zaznaczonych plików ({{size}}) z tego folderu do Kosza systemowego. Najpierw zamknij aplikację, która używa tych plików. Pliki zmienione od czasu skanowania zostaną pominięte.",
-  "customFolderTrashSummary": "Przeniesiono do Kosza: {{count}} plików · pominięto {{skipped}}. Przeskanuj ponownie, aby przejrzeć pominięte pliki."
+  "customFolderTrashSummary": "Przeniesiono do Kosza: {{count}} plików · pominięto {{skipped}}. Przeskanuj ponownie, aby przejrzeć pominięte pliki.",
+  "themeLabel": "Motyw",
+  "themeDesc": "Dopasuj do wyglądu systemu lub wybierz tryb"
 }

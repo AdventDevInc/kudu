@@ -27,5 +27,7 @@
   "settings": "Preferencias",
   "breachMonitor": "Monitor de filtraciones",
   "gameMode": "Modo de juego",
-  "firewallAudit": "Auditoría del firewall"
+  "firewallAudit": "Auditoría del firewall",
+  "mainNavigation": "Navegación principal",
+  "badgeNew": "NUEVO"
 }

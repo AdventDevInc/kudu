@@ -73,5 +73,10 @@
   "themeLightDesc": "Тепле денне світло",
   "themeDark": "Темна",
   "themeDarkDesc": "Комфорт при слабкому освітленні",
-  "dismissError": "Закрити помилку"
+  "dismissError": "Закрити помилку",
+  "close": "Закрити",
+  "dismiss": "Закрити",
+  "skipToMainContent": "Перейти до основного вмісту",
+  "windowTitlebar": "Заголовок вікна Kudu",
+  "checkingCloudConnection": "Перевірка з'єднання з Kudu Cloud…"
 }

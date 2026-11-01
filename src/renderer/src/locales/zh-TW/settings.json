@@ -118,5 +118,7 @@
   "customFolderShowMore": "再顯示 50 個",
   "customFolderConfirmTitle": "要將選取的檔案移至垃圾桶嗎？",
   "customFolderConfirmDescription": "將此資料夾中已選取的 {{count}} 個檔案（{{size}}）移至作業系統垃圾桶。請先關閉正在使用這些檔案的應用程式。自掃描後已變更的檔案將會略過。",
-  "customFolderTrashSummary": "{{count}} 個檔案已移至垃圾桶 · 已略過 {{skipped}} 個。請重新掃描以檢視已略過的檔案。"
+  "customFolderTrashSummary": "{{count}} 個檔案已移至垃圾桶 · 已略過 {{skipped}} 個。請重新掃描以檢視已略過的檔案。",
+  "themeLabel": "外觀主題",
+  "themeDesc": "依據系統外觀或自訂模式"
 }

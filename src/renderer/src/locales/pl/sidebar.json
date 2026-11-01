@@ -27,5 +27,7 @@
   "settings": "Preferencje",
   "breachMonitor": "Monitor wycieków",
   "gameMode": "Tryb gry",
-  "firewallAudit": "Inspekcja zapory"
+  "firewallAudit": "Inspekcja zapory",
+  "mainNavigation": "Nawigacja główna",
+  "badgeNew": "NOWE"
 }

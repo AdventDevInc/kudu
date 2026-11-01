@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Požadované změny se nepodařilo použít.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Některé vybrané položky vyžadují oprávnění správce. Chcete aplikaci znovu spustit jako správce?",
-  "elevationRelaunch": "Spustit znovu jako správce"
+  "elevationRelaunch": "Spustit znovu jako správce",
+  "toggleAll": "Přepnout vše"
 }

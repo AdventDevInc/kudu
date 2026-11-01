@@ -73,5 +73,10 @@
   "themeLightDesc": "溫暖日光",
   "themeDark": "深色",
   "themeDarkDesc": "低光舒適",
-  "dismissError": "關閉錯誤"
+  "dismissError": "關閉錯誤",
+  "close": "關閉",
+  "dismiss": "關閉",
+  "skipToMainContent": "跳至主要內容",
+  "windowTitlebar": "Kudu 視窗標題列",
+  "checkingCloudConnection": "正在檢查 Kudu Cloud 連線…"
 }

@@ -118,5 +118,7 @@
   "customFolderShowMore": "Tunjukkan 50 lagi",
   "customFolderConfirmTitle": "Pindahkan fail yang dipilih ke Tong Sampah?",
   "customFolderConfirmDescription": "Pindahkan {{count}} fail yang dipilih ({{size}}) daripada folder ini ke Tong Sampah OS. Tutup aplikasi yang menggunakan fail ini terlebih dahulu. Fail yang berubah sejak imbasan akan dilangkau.",
-  "customFolderTrashSummary": "{{count}} fail dipindahkan ke Tong Sampah · {{skipped}} dilangkau. Imbas semula untuk menyemak fail yang dilangkau."
+  "customFolderTrashSummary": "{{count}} fail dipindahkan ke Tong Sampah · {{skipped}} dilangkau. Imbas semula untuk menyemak fail yang dilangkau.",
+  "themeLabel": "Tema",
+  "themeDesc": "Ikuti rupa sistem atau pilih mod"
 }

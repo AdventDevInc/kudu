@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Không thể áp dụng các thay đổi được yêu cầu.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Một số mục đã chọn yêu cầu quyền quản trị viên. Khởi chạy lại với quyền quản trị viên?",
-  "elevationRelaunch": "Khởi chạy lại với quyền quản trị viên"
+  "elevationRelaunch": "Khởi chạy lại với quyền quản trị viên",
+  "toggleAll": "Bật/tắt tất cả"
 }

@@ -188,7 +188,7 @@ export function BreachMonitorPage() {
           style={{ color: 'var(--text-muted)' }}
         >
           <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
-          Checking Kudu Cloud connection…
+          {t('common:checkingCloudConnection')}
         </div>
       </div>
     )

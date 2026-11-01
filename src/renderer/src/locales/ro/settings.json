@@ -118,5 +118,7 @@
   "customFolderShowMore": "Afișați încă 50",
   "customFolderConfirmTitle": "Mutați fișierele selectate în Coșul de gunoi?",
   "customFolderConfirmDescription": "Mutați {{count}} fișiere selectate ({{size}}) din acest folder în Coșul de gunoi al sistemului de operare. Închideți mai întâi aplicația care utilizează aceste fișiere. Fișierele modificate de la scanare vor fi omise.",
-  "customFolderTrashSummary": "{{count}} fișiere mutate în Coșul de gunoi · {{skipped}} omise. Scanați din nou pentru a examina fișierele omise."
+  "customFolderTrashSummary": "{{count}} fișiere mutate în Coșul de gunoi · {{skipped}} omise. Scanați din nou pentru a examina fișierele omise.",
+  "themeLabel": "Temă",
+  "themeDesc": "Urmează aspectul sistemului sau alege un mod"
 }

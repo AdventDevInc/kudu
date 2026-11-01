@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "No se pudieron aplicar los cambios solicitados.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Algunas entradas seleccionadas requieren privilegios de administrador. ¿Desea reiniciar como administrador?",
-  "elevationRelaunch": "Reiniciar como administrador"
+  "elevationRelaunch": "Reiniciar como administrador",
+  "toggleAll": "Alternar todo"
 }

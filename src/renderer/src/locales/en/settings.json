@@ -118,5 +118,7 @@
   "customFolderShowMore": "Show 50 more",
   "customFolderConfirmTitle": "Move selected files to Trash?",
   "customFolderConfirmDescription": "Move {{count}} selected files ({{size}}) from this folder to the OS Trash. Close the app that uses these files first. Files changed since the scan will be skipped.",
-  "customFolderTrashSummary": "{{count}} files moved to Trash · {{skipped}} skipped. Rescan to review skipped files."
+  "customFolderTrashSummary": "{{count}} files moved to Trash · {{skipped}} skipped. Rescan to review skipped files.",
+  "themeLabel": "Theme",
+  "themeDesc": "Follow your system appearance or choose a mode"
 }

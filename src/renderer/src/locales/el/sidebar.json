@@ -27,5 +27,7 @@
   "settings": "Προτιμήσεις",
   "breachMonitor": "Παρακολούθηση παραβιάσεων",
   "gameMode": "Λειτουργία παιχνιδιού",
-  "firewallAudit": "Έλεγχος τείχους προστασίας"
+  "firewallAudit": "Έλεγχος τείχους προστασίας",
+  "mainNavigation": "Κύρια πλοήγηση",
+  "badgeNew": "ΝΕΟ"
 }

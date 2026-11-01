@@ -73,5 +73,10 @@
   "themeLightDesc": "温かみのある昼光",
   "themeDark": "ダーク",
   "themeDarkDesc": "目に優しい低輝度",
-  "dismissError": "エラーを閉じる"
+  "dismissError": "エラーを閉じる",
+  "close": "閉じる",
+  "dismiss": "閉じる",
+  "skipToMainContent": "メインコンテンツへスキップ",
+  "windowTitlebar": "Kudu ウィンドウタイトルバー",
+  "checkingCloudConnection": "Kudu Cloud への接続を確認中…"
 }

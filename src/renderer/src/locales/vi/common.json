@@ -73,5 +73,10 @@
   "themeLightDesc": "Ánh sáng ban ngày ấm áp",
   "themeDark": "Tối",
   "themeDarkDesc": "Dễ chịu trong điều kiện thiếu sáng",
-  "dismissError": "Bỏ qua lỗi"
+  "dismissError": "Bỏ qua lỗi",
+  "close": "Đóng",
+  "dismiss": "Bỏ qua",
+  "skipToMainContent": "Chuyển đến nội dung chính",
+  "windowTitlebar": "Thanh tiêu đề cửa sổ Kudu",
+  "checkingCloudConnection": "Đang kiểm tra kết nối Kudu Cloud…"
 }

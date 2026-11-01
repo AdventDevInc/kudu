@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "要求された変更を適用できませんでした。",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "選択した項目の一部には管理者権限が必要です。管理者として再起動しますか？",
-  "elevationRelaunch": "管理者として再起動"
+  "elevationRelaunch": "管理者として再起動",
+  "toggleAll": "すべて切り替え"
 }

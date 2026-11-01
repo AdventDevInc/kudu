@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "Die angeforderten Änderungen konnten nicht angewendet werden.",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "Für einige ausgewählte Einträge sind Administratorrechte erforderlich. Als Administrator neu starten?",
-  "elevationRelaunch": "Als Administrator neu starten"
+  "elevationRelaunch": "Als Administrator neu starten",
+  "toggleAll": "Alle umschalten"
 }

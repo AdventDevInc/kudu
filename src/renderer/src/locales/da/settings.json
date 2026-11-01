@@ -118,5 +118,7 @@
   "customFolderShowMore": "Vis 50 mere",
   "customFolderConfirmTitle": "Flyt valgte filer til Papirkurv?",
   "customFolderConfirmDescription": "Flyt {{count}} valgte filer ({{size}}) fra denne mappe til operativsystemets Papirkurv. Luk først appen, der bruger disse filer. Filer, der er ændret siden scanningen, springes over.",
-  "customFolderTrashSummary": "{{count}} filer flyttet til Papirkurv · {{skipped}} sprunget over. Scan igen for at gennemgå de filer, der blev sprunget over."
+  "customFolderTrashSummary": "{{count}} filer flyttet til Papirkurv · {{skipped}} sprunget over. Scan igen for at gennemgå de filer, der blev sprunget over.",
+  "themeLabel": "Tema",
+  "themeDesc": "Følg systemets udseende eller vælg en tilstand"
 }

@@ -61,5 +61,6 @@
   "toastApplyFailedDescription": "无法应用所请求的更改。",
   "groupHeading": "{{source}} — {{count}}",
   "elevationPrompt": "部分所选项目需要管理员权限。是否以管理员身份重新启动？",
-  "elevationRelaunch": "以管理员身份重新启动"
+  "elevationRelaunch": "以管理员身份重新启动",
+  "toggleAll": "切换全部"
 }

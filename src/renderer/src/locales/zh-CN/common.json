@@ -73,5 +73,10 @@
   "themeLightDesc": "温暖日光",
   "themeDark": "深色",
   "themeDarkDesc": "弱光舒适",
-  "dismissError": "忽略错误"
+  "dismissError": "忽略错误",
+  "close": "关闭",
+  "dismiss": "忽略",
+  "skipToMainContent": "跳转至主要内容",
+  "windowTitlebar": "Kudu 窗口标题栏",
+  "checkingCloudConnection": "正在检查 Kudu Cloud 连接…"
 }
