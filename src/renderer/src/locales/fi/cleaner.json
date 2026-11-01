@@ -108,5 +108,12 @@
   "pathCopyFailed": "Polun kopiointi epäonnistui",
   "showMoreItems": "Näytä {{count}} lisää ({{remaining}} jäljellä)",
   "confirmHiddenSelection": "Tämä sisältää {{count}} valittua kohdetta nykyisen näkymän ulkopuolelta.",
-  "toggleGroupDetails": "Näytä tai piilota kohteen {{name}} tiedot"
+  "toggleGroupDetails": "Näytä tai piilota kohteen {{name}} tiedot",
+  "browserCloseTitle": "Suljetaanko selaimet ennen puhdistusta?",
+  "browserCloseDescription": "Tallenna keskeneräinen työ ensin. Valitut selaimet suljetaan. Poista valinta niistä, jotka haluat pitää auki; osa välimuistitiedostoista voidaan ohittaa, kun ne ovat käynnissä.",
+  "browserCloseContinue": "Jatka puhdistusta",
+  "browserDetectionFailed": "Käynnissä olevia sovelluksia ei voitu tarkistaa. Yritä uudelleen.",
+  "browserCloseFailed": "Sovellusten sulkemista ei voitu pyytää. Yritä uudelleen.",
+  "appsCloseTitle": "Suljetaanko sovellukset ennen puhdistusta?",
+  "appsCloseDescription": "Tallenna työsi ensin. Valitut selaimet suljetaan, ja muita valittuja sovelluksia pyydetään sulkeutumaan normaalisti. Poista valinta niistä, jotka haluat pitää auki. Sovellusten sulkeutuminen voi kestää hetken; edelleen käytössä olevat tiedostot voidaan ohittaa."
 }

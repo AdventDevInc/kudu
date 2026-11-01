@@ -108,5 +108,12 @@
   "pathCopyFailed": "Nie można skopiować ścieżki",
   "showMoreItems": "Pokaż jeszcze {{count}} (pozostało: {{remaining}})",
   "confirmHiddenSelection": "Obejmuje to {{count}} zaznaczonych elementów poza bieżącym widokiem.",
-  "toggleGroupDetails": "Pokaż lub ukryj elementy {{name}}"
+  "toggleGroupDetails": "Pokaż lub ukryj elementy {{name}}",
+  "browserCloseTitle": "Zamknąć przeglądarki przed czyszczeniem?",
+  "browserCloseDescription": "Najpierw zapisz swoją pracę. Wybrane przeglądarki zostaną zamknięte. Odznacz te, które chcesz pozostawić otwarte; niektóre pliki pamięci podręcznej mogą zostać pominięte, gdy są uruchomione.",
+  "browserCloseContinue": "Kontynuuj czyszczenie",
+  "browserDetectionFailed": "Nie można sprawdzić uruchomionych aplikacji. Spróbuj ponownie.",
+  "browserCloseFailed": "Nie można wysłać żądania zamknięcia aplikacji. Spróbuj ponownie.",
+  "appsCloseTitle": "Zamknąć aplikacje przed czyszczeniem?",
+  "appsCloseDescription": "Najpierw zapisz swoją pracę. Wybrane przeglądarki zostaną zamknięte, a inne wybrane aplikacje otrzymają polecenie normalnego zamknięcia. Odznacz te, które chcesz pozostawić otwarte. Zamknięcie aplikacji może chwilę potrwać; pliki, które są nadal używane, mogą zostać pominięte."
 }

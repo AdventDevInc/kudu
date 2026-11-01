@@ -108,5 +108,12 @@
   "pathCopyFailed": "Impossible de copier le chemin",
   "showMoreItems": "Afficher {{count}} de plus ({{remaining}} restants)",
   "confirmHiddenSelection": "Cela inclut {{count}} éléments sélectionnés en dehors de la vue actuelle.",
-  "toggleGroupDetails": "Afficher ou masquer les éléments de {{name}}"
+  "toggleGroupDetails": "Afficher ou masquer les éléments de {{name}}",
+  "browserCloseTitle": "Fermer les navigateurs avant le nettoyage ?",
+  "browserCloseDescription": "Enregistrez d’abord tout travail en cours. Les navigateurs sélectionnés seront fermés. Décochez ceux que vous souhaitez laisser ouverts ; certains fichiers de cache pourront être ignorés pendant leur exécution.",
+  "browserCloseContinue": "Continuer le nettoyage",
+  "browserDetectionFailed": "Impossible de vérifier les applications en cours d’exécution. Veuillez réessayer.",
+  "browserCloseFailed": "Impossible de demander aux applications de se fermer. Veuillez réessayer.",
+  "appsCloseTitle": "Fermer les applications avant le nettoyage ?",
+  "appsCloseDescription": "Enregistrez d’abord votre travail. Les navigateurs sélectionnés seront fermés, et il sera demandé aux autres applications sélectionnées de se fermer normalement. Décochez celles que vous souhaitez laisser ouvertes. Les applications peuvent avoir besoin d’un moment pour se fermer ; les fichiers encore utilisés pourront être ignorés."
 }

@@ -108,5 +108,12 @@
   "pathCopyFailed": "Tidak dapat menyalin laluan",
   "showMoreItems": "Tunjukkan {{count}} lagi ({{remaining}} berbaki)",
   "confirmHiddenSelection": "Ini termasuk {{count}} item yang dipilih di luar paparan semasa.",
-  "toggleGroupDetails": "Tunjukkan atau sembunyikan item {{name}}"
+  "toggleGroupDetails": "Tunjukkan atau sembunyikan item {{name}}",
+  "browserCloseTitle": "Tutup pelayar sebelum pembersihan?",
+  "browserCloseDescription": "Simpan sebarang kerja terlebih dahulu. Pelayar yang dipilih akan ditutup. Nyahtanda mana-mana yang anda mahu kekalkan terbuka; sesetengah fail cache mungkin dilangkau semasa ia masih berjalan.",
+  "browserCloseContinue": "Teruskan pembersihan",
+  "browserDetectionFailed": "Tidak dapat menyemak aplikasi yang sedang berjalan. Sila cuba lagi.",
+  "browserCloseFailed": "Tidak dapat meminta aplikasi ditutup. Sila cuba lagi.",
+  "appsCloseTitle": "Tutup aplikasi sebelum pembersihan?",
+  "appsCloseDescription": "Simpan kerja anda terlebih dahulu. Pelayar yang dipilih akan ditutup, dan aplikasi lain yang dipilih akan diminta untuk ditutup seperti biasa. Nyahtanda mana-mana yang anda mahu kekalkan terbuka. Aplikasi mungkin memerlukan sedikit masa untuk keluar; fail yang masih digunakan mungkin dilangkau."
 }

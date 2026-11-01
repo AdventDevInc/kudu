@@ -108,5 +108,12 @@
   "pathCopyFailed": "Tidak dapat menyalin jalur",
   "showMoreItems": "Tampilkan {{count}} lagi ({{remaining}} tersisa)",
   "confirmHiddenSelection": "Ini mencakup {{count}} item yang dipilih di luar tampilan saat ini.",
-  "toggleGroupDetails": "Tampilkan atau sembunyikan item {{name}}"
+  "toggleGroupDetails": "Tampilkan atau sembunyikan item {{name}}",
+  "browserCloseTitle": "Tutup browser sebelum membersihkan?",
+  "browserCloseDescription": "Simpan pekerjaan Anda terlebih dahulu. Browser yang dipilih akan ditutup. Hapus centang pada browser yang ingin tetap dibuka; beberapa file cache mungkin dilewati saat browser masih berjalan.",
+  "browserCloseContinue": "Lanjutkan pembersihan",
+  "browserDetectionFailed": "Tidak dapat memeriksa aplikasi yang sedang berjalan. Silakan coba lagi.",
+  "browserCloseFailed": "Tidak dapat meminta aplikasi untuk ditutup. Silakan coba lagi.",
+  "appsCloseTitle": "Tutup aplikasi sebelum membersihkan?",
+  "appsCloseDescription": "Simpan pekerjaan Anda terlebih dahulu. Browser yang dipilih akan ditutup, dan aplikasi lain yang dipilih akan diminta untuk ditutup secara normal. Hapus centang pada aplikasi yang ingin tetap dibuka. Aplikasi mungkin memerlukan beberapa saat untuk keluar; file yang masih digunakan mungkin dilewati."
 }

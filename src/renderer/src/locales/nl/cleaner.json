@@ -108,5 +108,12 @@
   "pathCopyFailed": "Kan pad niet kopiëren",
   "showMoreItems": "Nog {{count}} weergeven ({{remaining}} resterend)",
   "confirmHiddenSelection": "Dit omvat {{count}} geselecteerde items buiten de huidige weergave.",
-  "toggleGroupDetails": "{{name}}-items weergeven of verbergen"
+  "toggleGroupDetails": "{{name}}-items weergeven of verbergen",
+  "browserCloseTitle": "Browsers sluiten voordat u opschoont?",
+  "browserCloseDescription": "Sla eerst al uw werk op. Geselecteerde browsers worden gesloten. Schakel het vinkje uit bij browsers die u open wilt houden; sommige cachebestanden kunnen worden overgeslagen terwijl ze actief zijn.",
+  "browserCloseContinue": "Doorgaan met opschonen",
+  "browserDetectionFailed": "Kan actieve apps niet controleren. Probeer het opnieuw.",
+  "browserCloseFailed": "Kan apps niet vragen om te sluiten. Probeer het opnieuw.",
+  "appsCloseTitle": "Apps sluiten voordat u opschoont?",
+  "appsCloseDescription": "Sla eerst uw werk op. Geselecteerde browsers worden gesloten en andere geselecteerde apps worden gevraagd normaal te sluiten. Schakel het vinkje uit bij apps die u open wilt houden. Apps hebben mogelijk even nodig om af te sluiten; bestanden die nog in gebruik zijn, kunnen worden overgeslagen."
 }

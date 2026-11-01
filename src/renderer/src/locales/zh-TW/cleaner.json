@@ -108,5 +108,12 @@
   "pathCopyFailed": "無法複製路徑",
   "showMoreItems": "顯示另外 {{count}} 項（剩餘 {{remaining}} 項）",
   "confirmHiddenSelection": "這包含目前檢視外已選取的 {{count}} 個項目。",
-  "toggleGroupDetails": "顯示或隱藏 {{name}} 項目"
+  "toggleGroupDetails": "顯示或隱藏 {{name}} 項目",
+  "browserCloseTitle": "清理前要關閉瀏覽器嗎？",
+  "browserCloseDescription": "請先儲存所有作業。系統將關閉所選的瀏覽器。取消勾選任何您想保持開啟的瀏覽器；當它們仍在執行時，部分快取檔案可能會被略過。",
+  "browserCloseContinue": "繼續清理",
+  "browserDetectionFailed": "無法檢查正在執行的應用程式。請再試一次。",
+  "browserCloseFailed": "無法要求應用程式關閉。請再試一次。",
+  "appsCloseTitle": "清理前要關閉應用程式嗎？",
+  "appsCloseDescription": "請先儲存您的作業。所選的瀏覽器將會關閉，其他所選的應用程式則會被要求正常關閉。取消勾選任何您想保持開啟的應用程式。應用程式可能需要一些時間才能結束；仍在使用中的檔案可能會被略過。"
 }

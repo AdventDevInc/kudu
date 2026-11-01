@@ -108,5 +108,12 @@
   "pathCopyFailed": "Yol kopyalanamadı",
   "showMoreItems": "{{count}} öğe daha göster ({{remaining}} kaldı)",
   "confirmHiddenSelection": "Buna geçerli görünümün dışındaki {{count}} seçili öğe dahildir.",
-  "toggleGroupDetails": "{{name}} öğelerini göster veya gizle"
+  "toggleGroupDetails": "{{name}} öğelerini göster veya gizle",
+  "browserCloseTitle": "Temizlemeden önce tarayıcılar kapatılsın mı?",
+  "browserCloseDescription": "Önce açık çalışmalarınızı kaydedin. Seçili tarayıcılar kapatılacaktır. Açık kalmasını istediklerinizin işaretini kaldırın; çalışırken bazı önbellek dosyaları atlanabilir.",
+  "browserCloseContinue": "Temizlemeye devam et",
+  "browserDetectionFailed": "Çalışan uygulamalar denetlenemedi. Lütfen tekrar deneyin.",
+  "browserCloseFailed": "Uygulamaların kapatılması istenemedi. Lütfen tekrar deneyin.",
+  "appsCloseTitle": "Temizlemeden önce uygulamalar kapatılsın mı?",
+  "appsCloseDescription": "Önce çalışmalarınızı kaydedin. Seçili tarayıcılar kapatılacak, seçili diğer uygulamalardan ise normal şekilde kapanmaları istenecektir. Açık kalmasını istediklerinizin işaretini kaldırın. Uygulamaların kapanması biraz zaman alabilir; hâlâ kullanımda olan dosyalar atlanabilir."
 }

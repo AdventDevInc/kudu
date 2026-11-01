@@ -108,5 +108,12 @@
   "pathCopyFailed": "경로를 복사할 수 없습니다",
   "showMoreItems": "{{count}}개 더 보기 ({{remaining}}개 남음)",
   "confirmHiddenSelection": "여기에는 현재 보기 밖에서 선택한 {{count}}개 항목이 포함됩니다.",
-  "toggleGroupDetails": "{{name}} 항목 표시 또는 숨기기"
+  "toggleGroupDetails": "{{name}} 항목 표시 또는 숨기기",
+  "browserCloseTitle": "정리 전에 브라우저를 닫으시겠습니까?",
+  "browserCloseDescription": "먼저 작업 내용을 저장하세요. 선택한 브라우저가 닫힙니다. 계속 열어 둘 항목은 선택 해제하세요. 실행 중인 동안에는 일부 캐시 파일이 건너뛰어질 수 있습니다.",
+  "browserCloseContinue": "정리 계속",
+  "browserDetectionFailed": "실행 중인 앱을 확인할 수 없습니다. 다시 시도하세요.",
+  "browserCloseFailed": "앱에 종료를 요청할 수 없습니다. 다시 시도하세요.",
+  "appsCloseTitle": "정리 전에 앱을 닫으시겠습니까?",
+  "appsCloseDescription": "먼저 작업 내용을 저장하세요. 선택한 브라우저는 닫히며, 그 외 선택한 앱에는 일반적으로 종료하도록 요청합니다. 계속 열어 둘 항목은 선택 해제하세요. 앱이 종료되는 데 잠시 시간이 걸릴 수 있으며, 아직 사용 중인 파일은 건너뛰어질 수 있습니다."
 }
