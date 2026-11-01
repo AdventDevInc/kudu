@@ -370,7 +370,8 @@ export interface PlatformMalware {
 
 export interface PlatformBrowser {
   /** Kill running browser processes before cache cleaning */
-  closeBrowsers(): Promise<void>
+  runningBrowsers(): Promise<string[]>
+  closeBrowsers(selected?: string[]): Promise<void>
 }
 
 // ─── Allowed Malware Paths ──────────────────────────────────

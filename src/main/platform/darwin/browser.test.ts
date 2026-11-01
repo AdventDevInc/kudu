@@ -67,3 +67,25 @@ describe('darwin browser', () => {
     })
   })
 })
+
+describe('darwin browser selection', () => {
+  beforeEach(() => {
+    execFileMock.mockReset()
+  })
+  it('closes only explicitly selected allowlisted browsers', async () => {
+    execFileMock.mockResolvedValue({ stdout: '' })
+    await createDarwinBrowser().closeBrowsers(['Google Chrome', 'untrusted-process'])
+    expect(execFileMock).toHaveBeenCalledTimes(1)
+    expect(execFileMock.mock.calls[0][1]).toContain('Google Chrome')
+  })
+  it('keeps every browser open when all are unchecked', async () => {
+    await createDarwinBrowser().closeBrowsers([])
+    expect(execFileMock).not.toHaveBeenCalled()
+  })
+  it('detects running browsers by exact process name', async () => {
+    execFileMock.mockResolvedValue({
+      stdout: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\nSafari'
+    })
+    expect(await createDarwinBrowser().runningBrowsers()).toContain('Google Chrome')
+  })
+})

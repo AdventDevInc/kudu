@@ -75,7 +75,9 @@ export const IPC = {
 
   // Cleaner shared
   CLEANER_OPEN_LOCATION: 'cleaner:open-location',
+  CLEANER_CLOSE_APPS: 'cleaner:close-apps',
   CLEANER_BLOCKERS: 'cleaner:blockers',
+  BROWSER_RUNNING: 'browser:running',
   CLEANER_PREPARE_CLEAN: 'cleaner:prepare-clean',
 
   // Registry

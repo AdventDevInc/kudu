@@ -98,3 +98,23 @@ describe('linux browser', () => {
     })
   })
 })
+
+describe('linux browser selection', () => {
+  beforeEach(() => {
+    mockExecFile.mockReset()
+  })
+  it('closes only explicitly selected allowlisted browsers', async () => {
+    mockExecFile.mockResolvedValue({ stdout: '' })
+    await createLinuxBrowser().closeBrowsers(['firefox', 'untrusted-process'])
+    expect(mockExecFile).toHaveBeenCalledTimes(1)
+    expect(mockExecFile.mock.calls[0][1]).toContain('firefox')
+  })
+  it('keeps every browser open when all are unchecked', async () => {
+    await createLinuxBrowser().closeBrowsers([])
+    expect(mockExecFile).not.toHaveBeenCalled()
+  })
+  it('detects running browsers by exact process name', async () => {
+    mockExecFile.mockResolvedValue({ stdout: 'firefox\nnot-firefox' })
+    expect(await createLinuxBrowser().runningBrowsers()).toContain('firefox')
+  })
+})

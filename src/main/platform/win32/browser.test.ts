@@ -74,3 +74,23 @@ describe('win32 browser', () => {
     })
   })
 })
+
+describe('win32 browser selection', () => {
+  beforeEach(() => {
+    execFileMock.mockReset()
+  })
+  it('closes only explicitly selected allowlisted browsers', async () => {
+    execFileMock.mockResolvedValue({ stdout: '' })
+    await createWin32Browser().closeBrowsers(['chrome.exe', 'untrusted-process'])
+    expect(execFileMock).toHaveBeenCalledTimes(1)
+    expect(execFileMock.mock.calls[0][1]).toContain('chrome.exe')
+  })
+  it('keeps every browser open when all are unchecked', async () => {
+    await createWin32Browser().closeBrowsers([])
+    expect(execFileMock).not.toHaveBeenCalled()
+  })
+  it('detects running browsers by exact process name', async () => {
+    execFileMock.mockResolvedValue({ stdout: '"chrome.exe","123"\n"msedge.exe","456"' })
+    expect(await createWin32Browser().runningBrowsers()).toContain('chrome.exe')
+  })
+})

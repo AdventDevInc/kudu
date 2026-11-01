@@ -108,5 +108,12 @@
   "pathCopyFailed": "Could not copy path",
   "showMoreItems": "Show {{count}} more ({{remaining}} remaining)",
   "confirmHiddenSelection": "This includes {{count}} selected items outside the current view.",
-  "toggleGroupDetails": "Show or hide {{name}} items"
+  "toggleGroupDetails": "Show or hide {{name}} items",
+  "browserCloseTitle": "Close browsers before cleaning?",
+  "browserCloseDescription": "Save any work first. Selected browsers will be closed. Untick any you want to keep open; some cache files may be skipped while they are running.",
+  "browserCloseContinue": "Continue cleaning",
+  "browserDetectionFailed": "Could not check running apps. Please try again.",
+  "browserCloseFailed": "Could not request apps to close. Please try again.",
+  "appsCloseTitle": "Close apps before cleaning?",
+  "appsCloseDescription": "Save your work first. Selected browsers will close, and other selected apps will be asked to close normally. Untick any you want to keep open. Apps may need a moment to exit; files still in use may be skipped."
 }

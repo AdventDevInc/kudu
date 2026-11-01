@@ -37,7 +37,7 @@ const mockBrowserPaths = vi.fn()
 vi.mock('../platform', () => ({
   getPlatform: () => ({
     paths: { browserPaths: () => mockBrowserPaths() },
-    browser: { closeBrowsers: () => mockCloseBrowsers() }
+    browser: { closeBrowsers: (selected?: string[]) => mockCloseBrowsers(selected) }
   })
 }))
 
@@ -455,5 +455,31 @@ describe('CLEANER_PREPARE_CLEAN handler', () => {
 
     await expect(handler()).resolves.toBe(false)
     expect(mockCloseBrowsers).not.toHaveBeenCalled()
+  })
+})
+
+describe('explicit browser choices', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+  it('does not auto-close browsers again after an interactive prompt', async () => {
+    mockGetSettings.mockReturnValue({ cleaner: { closeBrowsersBeforeClean: true } })
+    registerBrowserCleanerIpc(() => null)
+    await getHandler('cleaner:browser:clean')({}, ['id-1'], true)
+    expect(mockCloseBrowsers).not.toHaveBeenCalled()
+  })
+  it('honours an explicit choice independently of the automatic setting', async () => {
+    mockGetSettings.mockReturnValue({ cleaner: { closeBrowsersBeforeClean: false } })
+    registerBrowserCleanerIpc(() => null)
+    await getHandler('cleaner:prepare-clean')({}, ['chrome.exe'])
+    expect(mockCloseBrowsers).toHaveBeenCalledWith(['chrome.exe'])
+  })
+  it('preserves an empty selection and rejects malformed choices', async () => {
+    registerBrowserCleanerIpc(() => null)
+    await getHandler('cleaner:prepare-clean')({}, [])
+    expect(mockCloseBrowsers).toHaveBeenCalledWith([])
+    await expect(getHandler('cleaner:prepare-clean')({}, 'chrome.exe')).rejects.toThrow(
+      'Invalid browser selection'
+    )
   })
 })
