@@ -108,5 +108,12 @@
   "pathCopyFailed": "Pfad konnte nicht kopiert werden",
   "showMoreItems": "{{count}} weitere anzeigen ({{remaining}} verbleibend)",
   "confirmHiddenSelection": "Dies umfasst {{count}} ausgewählte Elemente außerhalb der aktuellen Ansicht.",
-  "toggleGroupDetails": "{{name}}-Elemente anzeigen oder ausblenden"
+  "toggleGroupDetails": "{{name}}-Elemente anzeigen oder ausblenden",
+  "browserCloseTitle": "Browser vor der Bereinigung schließen?",
+  "browserCloseDescription": "Speichern Sie zuerst alle Arbeiten. Ausgewählte Browser werden geschlossen. Deaktivieren Sie die Auswahl bei allen, die geöffnet bleiben sollen; einige Cache-Dateien werden möglicherweise übersprungen, solange sie ausgeführt werden.",
+  "browserCloseContinue": "Bereinigung fortsetzen",
+  "browserDetectionFailed": "Ausgeführte Apps konnten nicht überprüft werden. Bitte versuchen Sie es erneut.",
+  "browserCloseFailed": "Apps konnten nicht zum Schließen aufgefordert werden. Bitte versuchen Sie es erneut.",
+  "appsCloseTitle": "Apps vor der Bereinigung schließen?",
+  "appsCloseDescription": "Speichern Sie zuerst Ihre Arbeit. Ausgewählte Browser werden geschlossen, und andere ausgewählte Apps werden aufgefordert, sich normal zu schließen. Deaktivieren Sie die Auswahl bei allen, die geöffnet bleiben sollen. Apps benötigen möglicherweise einen Moment zum Beenden; Dateien, die noch verwendet werden, werden möglicherweise übersprungen."
 }

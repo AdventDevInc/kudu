@@ -108,5 +108,12 @@
   "pathCopyFailed": "Az elérési út másolása nem sikerült",
   "showMoreItems": "{{count}} további megjelenítése (még {{remaining}} maradt)",
   "confirmHiddenSelection": "Ez {{count}} kijelölt elemet is tartalmaz a jelenlegi nézeten kívül.",
-  "toggleGroupDetails": "{{name}} elemeinek megjelenítése vagy elrejtése"
+  "toggleGroupDetails": "{{name}} elemeinek megjelenítése vagy elrejtése",
+  "browserCloseTitle": "Böngészők bezárása a tisztítás előtt?",
+  "browserCloseDescription": "Először mentse a munkáját. A kijelölt böngészők be lesznek zárva. Vegye ki a jelölést azoknál, amelyeket nyitva szeretne hagyni; futás közben egyes gyorsítótárfájlok kimaradhatnak.",
+  "browserCloseContinue": "Tisztítás folytatása",
+  "browserDetectionFailed": "A futó alkalmazások ellenőrzése nem sikerült. Próbálja újra.",
+  "browserCloseFailed": "Nem sikerült kérni az alkalmazások bezárását. Próbálja újra.",
+  "appsCloseTitle": "Alkalmazások bezárása a tisztítás előtt?",
+  "appsCloseDescription": "Először mentse a munkáját. A kijelölt böngészők bezáródnak, a többi kijelölt alkalmazást pedig a rendszer megkéri a szokásos bezárásra. Vegye ki a jelölést azoknál, amelyeket nyitva szeretne hagyni. Az alkalmazások bezárása eltarthat egy kis ideig; a még használatban lévő fájlok kimaradhatnak."
 }

@@ -108,5 +108,12 @@
   "pathCopyFailed": "Det gick inte att kopiera sökvägen",
   "showMoreItems": "Visa {{count}} till ({{remaining}} återstår)",
   "confirmHiddenSelection": "Detta inkluderar {{count}} markerade objekt utanför den aktuella vyn.",
-  "toggleGroupDetails": "Visa eller dölj objekt för {{name}}"
+  "toggleGroupDetails": "Visa eller dölj objekt för {{name}}",
+  "browserCloseTitle": "Stäng webbläsare före rensning?",
+  "browserCloseDescription": "Spara allt arbete först. Valda webbläsare kommer att stängas. Avmarkera de du vill hålla öppna; vissa cachefiler kan hoppas över medan de körs.",
+  "browserCloseContinue": "Fortsätt rensningen",
+  "browserDetectionFailed": "Det gick inte att kontrollera appar som körs. Försök igen.",
+  "browserCloseFailed": "Det gick inte att begära att apparna stängs. Försök igen.",
+  "appsCloseTitle": "Stäng appar före rensning?",
+  "appsCloseDescription": "Spara ditt arbete först. Valda webbläsare kommer att stängas, och andra valda appar kommer att uppmanas att stängas på normalt sätt. Avmarkera de du vill hålla öppna. Appar kan behöva en stund för att avslutas; filer som fortfarande används kan hoppas över."
 }

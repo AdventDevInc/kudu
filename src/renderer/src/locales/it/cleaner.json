@@ -108,5 +108,12 @@
   "pathCopyFailed": "Impossibile copiare il percorso",
   "showMoreItems": "Mostra altri {{count}} (ne restano {{remaining}})",
   "confirmHiddenSelection": "Sono inclusi {{count}} elementi selezionati al di fuori della vista corrente.",
-  "toggleGroupDetails": "Mostra o nascondi gli elementi di {{name}}"
+  "toggleGroupDetails": "Mostra o nascondi gli elementi di {{name}}",
+  "browserCloseTitle": "Chiudere i browser prima della pulizia?",
+  "browserCloseDescription": "Salvare prima eventuali lavori in corso. I browser selezionati verranno chiusi. Deselezionare quelli che si desidera lasciare aperti; alcuni file della cache potrebbero essere ignorati mentre sono in esecuzione.",
+  "browserCloseContinue": "Continua la pulizia",
+  "browserDetectionFailed": "Impossibile controllare le app in esecuzione. Riprovare.",
+  "browserCloseFailed": "Impossibile richiedere la chiusura delle app. Riprovare.",
+  "appsCloseTitle": "Chiudere le app prima della pulizia?",
+  "appsCloseDescription": "Salvare prima il proprio lavoro. I browser selezionati verranno chiusi e alle altre app selezionate verrà richiesto di chiudersi normalmente. Deselezionare quelle che si desidera lasciare aperte. Le app potrebbero richiedere qualche istante per chiudersi; i file ancora in uso potrebbero essere ignorati."
 }

@@ -122,40 +122,50 @@ export function registerBrowserCleanerIpc(getWindow: WindowGetter): void {
     return results
   })
 
+  ipcMain.handle(IPC.BROWSER_RUNNING, () => getPlatform().browser.runningBrowsers())
+
   // The full cleaner runs categories in a fixed order, with System before
   // Browser. Close browsers once up front so they cannot keep selected files
   // locked in any category (including when no Browser items are selected).
-  ipcMain.handle(IPC.CLEANER_PREPARE_CLEAN, async (): Promise<boolean> => {
-    if (!getSettings().cleaner.closeBrowsersBeforeClean) return false
-    await getPlatform().browser.closeBrowsers()
-    return true
-  })
-
-  ipcMain.handle(IPC.BROWSER_CLEAN, async (_event, itemIds: string[]): Promise<CleanResult> => {
-    const valid = validateStringArray(itemIds, 250_000, 100)
-    if (!valid)
-      return {
-        totalCleaned: 0,
-        filesDeleted: 0,
-        filesSkipped: 0,
-        errors: [],
-        needsElevation: false
-      }
-    const settings = getSettings()
-    if (settings.cleaner.closeBrowsersBeforeClean) {
-      await getPlatform().browser.closeBrowsers()
+  ipcMain.handle(
+    IPC.CLEANER_PREPARE_CLEAN,
+    async (_event, selected?: unknown): Promise<boolean> => {
+      if (selected !== undefined && !validateStringArray(selected, 30, 100))
+        throw new Error('Invalid browser selection')
+      if (selected === undefined && !getSettings().cleaner.closeBrowsersBeforeClean) return false
+      await getPlatform().browser.closeBrowsers(selected as string[] | undefined)
+      return true
     }
-    return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
-      const win = getWindow()
-      if (win && !win.isDestroyed())
-        win.webContents.send(IPC.SCAN_PROGRESS, {
-          phase: 'cleaning',
-          category: CleanerType.Browser,
-          currentPath,
-          progress: (processed / total) * 100,
-          itemsFound: total,
-          sizeFound: cleanedSize
-        })
-    })
-  })
+  )
+
+  ipcMain.handle(
+    IPC.BROWSER_CLEAN,
+    async (_event, itemIds: string[], browsersPrepared?: boolean): Promise<CleanResult> => {
+      const valid = validateStringArray(itemIds, 250_000, 100)
+      if (!valid)
+        return {
+          totalCleaned: 0,
+          filesDeleted: 0,
+          filesSkipped: 0,
+          errors: [],
+          needsElevation: false
+        }
+      const settings = getSettings()
+      if (browsersPrepared !== true && settings.cleaner.closeBrowsersBeforeClean) {
+        await getPlatform().browser.closeBrowsers()
+      }
+      return cleanItems(valid, (processed, total, currentPath, cleanedSize) => {
+        const win = getWindow()
+        if (win && !win.isDestroyed())
+          win.webContents.send(IPC.SCAN_PROGRESS, {
+            phase: 'cleaning',
+            category: CleanerType.Browser,
+            currentPath,
+            progress: (processed / total) * 100,
+            itemsFound: total,
+            sizeFound: cleanedSize
+          })
+      })
+    }
+  )
 }

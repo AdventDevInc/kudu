@@ -108,5 +108,12 @@
   "pathCopyFailed": "Cestu se nepodařilo zkopírovat",
   "showMoreItems": "Zobrazit ještě {{count}} (zbývá {{remaining}})",
   "confirmHiddenSelection": "To zahrnuje {{count}} vybraných položek mimo aktuální zobrazení.",
-  "toggleGroupDetails": "Zobrazit nebo skrýt položky {{name}}"
+  "toggleGroupDetails": "Zobrazit nebo skrýt položky {{name}}",
+  "browserCloseTitle": "Zavřít prohlížeče před čištěním?",
+  "browserCloseDescription": "Nejprve uložte svou práci. Vybrané prohlížeče budou zavřeny. Zrušte zaškrtnutí u těch, které chcete ponechat otevřené; některé soubory mezipaměti mohou být během jejich běhu přeskočeny.",
+  "browserCloseContinue": "Pokračovat v čištění",
+  "browserDetectionFailed": "Nepodařilo se zkontrolovat spuštěné aplikace. Zkuste to prosím znovu.",
+  "browserCloseFailed": "Nepodařilo se odeslat aplikacím požadavek na zavření. Zkuste to prosím znovu.",
+  "appsCloseTitle": "Zavřít aplikace před čištěním?",
+  "appsCloseDescription": "Nejprve uložte svou práci. Vybrané prohlížeče budou zavřeny a ostatní vybrané aplikace budou standardně vyzvány k ukončení. Zrušte zaškrtnutí u těch, které chcete ponechat otevřené. Ukončení aplikací může chvíli trvat; soubory, které se stále používají, mohou být přeskočeny."
 }

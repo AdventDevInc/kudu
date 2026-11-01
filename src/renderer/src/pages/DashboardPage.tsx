@@ -1,3 +1,4 @@
+import { useCleanAppPrompt } from '@/hooks/useCleanAppPrompt'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -75,7 +76,7 @@ const CLEANER_SCAN_FNS: {
   {
     type: CleanerType.Browser,
     scan: () => window.kudu.browserScan(),
-    clean: (ids) => window.kudu.browserClean(ids)
+    clean: (ids) => window.kudu.browserClean(ids, true)
   },
   {
     type: CleanerType.App,
@@ -352,33 +353,47 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
 
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
 
-  const runCleaners = useCallback(async (): Promise<{ space: number; files: number }> => {
+  const { prepareApps, appCloseDialog } = useCleanAppPrompt()
+
+  const runCleaners = useCallback(async (): Promise<{ space: number; files: number } | null> => {
     const excluded = scanStore.excludedSubcategories
     let totalSpace = 0
     let totalFiles = 0
 
+    // Scan first so the prompt can identify lock owners across every category.
+    const batches: Array<{
+      type: CleanerType
+      ids: string[]
+      clean: (ids: string[]) => Promise<CleanResult>
+    }> = []
     for (const { type, scan, clean } of CLEANER_SCAN_FNS) {
       if (type === CleanerType.RecycleBin && protectRecycleBin) continue
       try {
         setPhaseLabel(t('phaseLabelScanningType', { type }))
         const results = await scan()
-        const selectedIds = results
+        const ids = results
           .filter((r) => !excluded.has(r.subcategory))
           .flatMap((r) => r.items.map((i) => i.id))
-        if (selectedIds.length > 0) {
-          setPhaseLabel(t('phaseLabelCleaningType', { type }))
-          const cleaned = await cleanInBatches(selectedIds, clean)
-          const res = cleaned.result
-          totalSpace += res.totalCleaned || 0
-          totalFiles += res.filesDeleted || 0
-          if (cleaned.error) toast.error(t('toastFailedToCleanType', { type }))
-        }
+        if (ids.length) batches.push({ type, ids, clean })
+      } catch {
+        toast.error(t('toastFailedToCleanType', { type }))
+      }
+    }
+    if (!batches.length) return { space: 0, files: 0 }
+    if (!(await prepareApps(batches.flatMap((batch) => batch.ids)))) return null
+    for (const { type, ids, clean } of batches) {
+      try {
+        setPhaseLabel(t('phaseLabelCleaningType', { type }))
+        const cleaned = await cleanInBatches(ids, clean)
+        totalSpace += cleaned.result.totalCleaned || 0
+        totalFiles += cleaned.result.filesDeleted || 0
+        if (cleaned.error) toast.error(t('toastFailedToCleanType', { type }))
       } catch {
         toast.error(t('toastFailedToCleanType', { type }))
       }
     }
     return { space: totalSpace, files: totalFiles }
-  }, [scanStore.excludedSubcategories, protectRecycleBin, t])
+  }, [scanStore.excludedSubcategories, protectRecycleBin, t, prepareApps])
 
   const runRegistry = useCallback(async (): Promise<number> => {
     try {
@@ -507,7 +522,12 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
 
     setPhase('cleaning')
     setStepProgress({ current: 1, total: 2 })
-    const { space, files } = await runCleaners()
+    const cleanerResult = await runCleaners()
+    if (!cleanerResult) {
+      setPhase('idle')
+      return
+    }
+    const { space, files } = cleanerResult
     setStepProgress({ current: 2, total: 2 })
     const regFixed = features.registry ? await runRegistry() : 0
 
@@ -565,7 +585,12 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
 
     setPhase('cleaning')
     setStepProgress({ current: ++step, total: totalSteps })
-    const { space, files } = await runCleaners()
+    const cleanerResult = await runCleaners()
+    if (!cleanerResult) {
+      setPhase('idle')
+      return
+    }
+    const { space, files } = cleanerResult
     let regFixed = 0
     if (features.registry) {
       setStepProgress({ current: ++step, total: totalSteps })
@@ -1163,6 +1188,7 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
         </div>
       )}
 
+      {appCloseDialog}
       <ConfirmDialog
         open={showQuickConfirm}
         onConfirm={() => {

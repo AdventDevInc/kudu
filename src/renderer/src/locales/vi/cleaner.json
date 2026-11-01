@@ -108,5 +108,12 @@
   "pathCopyFailed": "Không thể sao chép đường dẫn",
   "showMoreItems": "Hiển thị thêm {{count}} mục (còn lại {{remaining}})",
   "confirmHiddenSelection": "Nội dung này bao gồm {{count}} mục đã chọn ngoài chế độ xem hiện tại.",
-  "toggleGroupDetails": "Hiển thị hoặc ẩn các mục {{name}}"
+  "toggleGroupDetails": "Hiển thị hoặc ẩn các mục {{name}}",
+  "browserCloseTitle": "Đóng trình duyệt trước khi dọn dẹp?",
+  "browserCloseDescription": "Hãy lưu mọi công việc trước. Các trình duyệt đã chọn sẽ được đóng. Bỏ chọn bất kỳ trình duyệt nào bạn muốn giữ mở; một số tệp bộ nhớ đệm có thể bị bỏ qua khi chúng vẫn đang chạy.",
+  "browserCloseContinue": "Tiếp tục dọn dẹp",
+  "browserDetectionFailed": "Không thể kiểm tra các ứng dụng đang chạy. Vui lòng thử lại.",
+  "browserCloseFailed": "Không thể gửi yêu cầu đóng ứng dụng. Vui lòng thử lại.",
+  "appsCloseTitle": "Đóng ứng dụng trước khi dọn dẹp?",
+  "appsCloseDescription": "Hãy lưu công việc của bạn trước. Các trình duyệt đã chọn sẽ được đóng, và các ứng dụng đã chọn khác sẽ được yêu cầu đóng theo cách thông thường. Bỏ chọn bất kỳ ứng dụng nào bạn muốn giữ mở. Ứng dụng có thể cần một lúc để thoát; các tệp vẫn đang được sử dụng có thể bị bỏ qua."
 }

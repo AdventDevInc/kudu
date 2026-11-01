@@ -215,8 +215,8 @@ const api = {
 
   // Browser cleaner
   browserScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.BROWSER_SCAN),
-  browserClean: (itemIds: string[]): Promise<CleanResult> =>
-    ipcRenderer.invoke(IPC.BROWSER_CLEAN, itemIds),
+  browserClean: (itemIds: string[], browsersPrepared = false): Promise<CleanResult> =>
+    ipcRenderer.invoke(IPC.BROWSER_CLEAN, itemIds, browsersPrepared),
 
   // App cleaner
   appScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.APP_SCAN),
@@ -250,9 +250,13 @@ const api = {
   // Cleaner: open location
   cleanerOpenLocation: (filePath: string): Promise<void> =>
     ipcRenderer.invoke(IPC.CLEANER_OPEN_LOCATION, filePath),
+  cleanerCloseApps: (pids: number[]): Promise<void> =>
+    ipcRenderer.invoke(IPC.CLEANER_CLOSE_APPS, pids),
   cleanerBlockers: (itemIds: string[]): Promise<CleanerBlocker[]> =>
     ipcRenderer.invoke(IPC.CLEANER_BLOCKERS, itemIds),
-  cleanerPrepareClean: (): Promise<boolean> => ipcRenderer.invoke(IPC.CLEANER_PREPARE_CLEAN),
+  runningBrowsers: (): Promise<string[]> => ipcRenderer.invoke(IPC.BROWSER_RUNNING),
+  cleanerPrepareClean: (selected?: string[]): Promise<boolean> =>
+    ipcRenderer.invoke(IPC.CLEANER_PREPARE_CLEAN, selected),
 
   // Environment cleaner
   environmentScan: (): Promise<ScanResult[]> => ipcRenderer.invoke(IPC.ENVIRONMENT_SCAN),

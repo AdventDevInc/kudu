@@ -108,5 +108,12 @@
   "pathCopyFailed": "No se pudo copiar la ruta",
   "showMoreItems": "Mostrar {{count}} más (quedan {{remaining}})",
   "confirmHiddenSelection": "Esto incluye {{count}} elementos seleccionados fuera de la vista actual.",
-  "toggleGroupDetails": "Mostrar u ocultar los elementos de {{name}}"
+  "toggleGroupDetails": "Mostrar u ocultar los elementos de {{name}}",
+  "browserCloseTitle": "¿Cerrar los navegadores antes de limpiar?",
+  "browserCloseDescription": "Guarde cualquier trabajo primero. Los navegadores seleccionados se cerrarán. Desmarque los que desee mantener abiertos; es posible que algunos archivos de caché se omitan mientras estén en ejecución.",
+  "browserCloseContinue": "Continuar con la limpieza",
+  "browserDetectionFailed": "No se pudieron comprobar las aplicaciones en ejecución. Inténtelo de nuevo.",
+  "browserCloseFailed": "No se pudo solicitar a las aplicaciones que se cerraran. Inténtelo de nuevo.",
+  "appsCloseTitle": "¿Cerrar las aplicaciones antes de limpiar?",
+  "appsCloseDescription": "Guarde su trabajo primero. Los navegadores seleccionados se cerrarán y se solicitará a las demás aplicaciones seleccionadas que se cierren con normalidad. Desmarque las que desee mantener abiertas. Es posible que las aplicaciones necesiten un momento para cerrarse; los archivos que aún estén en uso pueden omitirse."
 }

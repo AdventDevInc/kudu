@@ -108,5 +108,12 @@
   "pathCopyFailed": "パスをコピーできませんでした",
   "showMoreItems": "さらに {{count}} 件表示 (残り {{remaining}} 件)",
   "confirmHiddenSelection": "現在の表示外にある選択済み項目 {{count}} 件が含まれます。",
-  "toggleGroupDetails": "{{name}} 項目の表示/非表示"
+  "toggleGroupDetails": "{{name}} 項目の表示/非表示",
+  "browserCloseTitle": "クリーニングの前にブラウザーを閉じますか？",
+  "browserCloseDescription": "先に作業内容を保存してください。選択したブラウザーは閉じられます。開いたままにするものはチェックを外してください。実行中のブラウザーがある場合、一部のキャッシュ ファイルはスキップされることがあります。",
+  "browserCloseContinue": "クリーニングを続行",
+  "browserDetectionFailed": "実行中のアプリを確認できませんでした。もう一度お試しください。",
+  "browserCloseFailed": "アプリに終了を要求できませんでした。もう一度お試しください。",
+  "appsCloseTitle": "クリーニングの前にアプリを閉じますか？",
+  "appsCloseDescription": "先に作業内容を保存してください。選択したブラウザーは閉じられ、選択したその他のアプリには通常どおり終了するよう要求されます。開いたままにするものはチェックを外してください。アプリの終了には少し時間がかかる場合があり、使用中のファイルはスキップされることがあります。"
 }

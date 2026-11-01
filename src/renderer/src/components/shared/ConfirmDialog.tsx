@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { AlertTriangle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +11,7 @@ interface ConfirmDialogProps {
   description: string
   confirmLabel?: string
   variant?: 'default' | 'danger' | 'warning'
+  children?: ReactNode
   details?: string
 }
 
@@ -22,7 +23,8 @@ export function ConfirmDialog({
   description,
   confirmLabel,
   variant = 'default',
-  details
+  details,
+  children
 }: ConfirmDialogProps) {
   const { t } = useTranslation('common')
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -141,6 +143,7 @@ export function ConfirmDialog({
           </div>
         </div>
 
+        {children}
         <div className="flex justify-end gap-2.5">
           <button
             onClick={onCancel}

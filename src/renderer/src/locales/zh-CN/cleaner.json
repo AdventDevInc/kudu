@@ -108,5 +108,12 @@
   "pathCopyFailed": "无法复制路径",
   "showMoreItems": "显示另外 {{count}} 项（剩余 {{remaining}} 项）",
   "confirmHiddenSelection": "这包括当前视图之外已选中的 {{count}} 项。",
-  "toggleGroupDetails": "显示或隐藏 {{name}} 项目"
+  "toggleGroupDetails": "显示或隐藏 {{name}} 项目",
+  "browserCloseTitle": "清理前关闭浏览器？",
+  "browserCloseDescription": "请先保存所有工作。将关闭所选浏览器。取消勾选您想保持打开的浏览器；在其运行期间，某些缓存文件可能会被跳过。",
+  "browserCloseContinue": "继续清理",
+  "browserDetectionFailed": "无法检查正在运行的应用。请重试。",
+  "browserCloseFailed": "无法请求应用关闭。请重试。",
+  "appsCloseTitle": "清理前关闭应用？",
+  "appsCloseDescription": "请先保存您的工作。所选浏览器将会关闭，其他所选应用将被请求正常关闭。取消勾选您想保持打开的应用。应用可能需要一点时间退出；仍在使用中的文件可能会被跳过。"
 }

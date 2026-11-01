@@ -81,7 +81,7 @@ import {
   updateCheckInterval
 } from '../services/auto-updater'
 import { buildLinuxElevationCommand, getLinuxRelaunchExecutable } from '../platform/linux/elevation'
-import { findCleanerBlockers } from '../services/cleaner-blockers'
+import { findCleanerBlockers, closeCleanerApps } from '../services/cleaner-blockers'
 
 export type WindowGetter = () => BrowserWindow | null
 
@@ -142,6 +142,8 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   ipcMain.handle(IPC.CLEANER_BLOCKERS, (_event, itemIds: unknown) => {
     return findCleanerBlockers(itemIds)
   })
+
+  ipcMain.handle(IPC.CLEANER_CLOSE_APPS, (_event, pids: unknown) => closeCleanerApps(pids))
 
   // Platform info
   const isWin = process.platform === 'win32'

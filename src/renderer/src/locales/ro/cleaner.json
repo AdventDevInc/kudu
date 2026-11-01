@@ -108,5 +108,12 @@
   "pathCopyFailed": "Calea nu a putut fi copiată",
   "showMoreItems": "Afișați încă {{count}} ({{remaining}} rămase)",
   "confirmHiddenSelection": "Aceasta include {{count}} elemente selectate din afara vizualizării curente.",
-  "toggleGroupDetails": "Afișați sau ascundeți elementele {{name}}"
+  "toggleGroupDetails": "Afișați sau ascundeți elementele {{name}}",
+  "browserCloseTitle": "Închideți browserele înainte de curățare?",
+  "browserCloseDescription": "Salvați mai întâi orice lucrare. Browserele selectate vor fi închise. Debifați orice browser pe care doriți să îl păstrați deschis; unele fișiere din cache pot fi omise cât timp acestea rulează.",
+  "browserCloseContinue": "Continuați curățarea",
+  "browserDetectionFailed": "Nu s-au putut verifica aplicațiile care rulează. Încercați din nou.",
+  "browserCloseFailed": "Nu s-a putut solicita închiderea aplicațiilor. Încercați din nou.",
+  "appsCloseTitle": "Închideți aplicațiile înainte de curățare?",
+  "appsCloseDescription": "Salvați-vă mai întâi lucrul. Browserele selectate se vor închide, iar celorlalte aplicații selectate li se va solicita să se închidă în mod normal. Debifați orice aplicație pe care doriți să o păstrați deschisă. Aplicațiile pot avea nevoie de un moment pentru a se închide; fișierele încă utilizate pot fi omise."
 }

@@ -108,5 +108,12 @@
   "pathCopyFailed": "Não foi possível copiar o caminho",
   "showMoreItems": "Mostrar mais {{count}} ({{remaining}} restantes)",
   "confirmHiddenSelection": "Isto inclui {{count}} itens selecionados fora da vista atual.",
-  "toggleGroupDetails": "Mostrar ou ocultar itens de {{name}}"
+  "toggleGroupDetails": "Mostrar ou ocultar itens de {{name}}",
+  "browserCloseTitle": "Fechar os navegadores antes da limpeza?",
+  "browserCloseDescription": "Guarde primeiro qualquer trabalho em curso. Os navegadores selecionados serão fechados. Desmarque os que pretende manter abertos; alguns ficheiros de cache poderão ser ignorados enquanto estiverem em execução.",
+  "browserCloseContinue": "Continuar a limpeza",
+  "browserDetectionFailed": "Não foi possível verificar as aplicações em execução. Tente novamente.",
+  "browserCloseFailed": "Não foi possível pedir às aplicações para fecharem. Tente novamente.",
+  "appsCloseTitle": "Fechar as aplicações antes da limpeza?",
+  "appsCloseDescription": "Guarde primeiro o seu trabalho. Os navegadores selecionados serão fechados e será pedido às outras aplicações selecionadas que fechem normalmente. Desmarque as que pretende manter abertas. As aplicações poderão precisar de um momento para encerrar; os ficheiros ainda em utilização poderão ser ignorados."
 }

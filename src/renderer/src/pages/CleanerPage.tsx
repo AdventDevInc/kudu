@@ -1,3 +1,4 @@
+import { useCleanAppPrompt } from '@/hooks/useCleanAppPrompt'
 import { AI_TOOLS_VIEW, AI_TOOLS_GROUP } from '@shared/app-space-handoff'
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -239,9 +240,6 @@ export function CleanerPage() {
   const recomputeStats = useStatsStore((s) => s.recompute)
   const historyStore = useHistoryStore()
   const createRestorePointEnabled = useSettingsStore((s) => s.settings.cleaner.createRestorePoint)
-  const closeBrowsersBeforeClean = useSettingsStore(
-    (s) => s.settings.cleaner.closeBrowsersBeforeClean
-  )
   const protectRecycleBin = useSettingsStore((s) => s.settings.cleaner.protectRecycleBin)
   const scannableCategories = protectRecycleBin
     ? scannerCategories.filter((c) => c.type !== CleanerType.RecycleBin)
@@ -441,21 +439,16 @@ export function CleanerPage() {
     [platform]
   )
 
+  const { prepareApps, appCloseDialog } = useCleanAppPrompt()
   const handleClean = useCallback(async () => {
-    const shouldCloseDetectedBrowsers =
-      closeBrowsersBeforeClean && confirmBlockers.some((blocker) => blocker.isBrowser)
     setShowConfirm(false)
     setConfirmBlockers([])
     store.setStatus(ScanStatus.Cleaning)
     cleanStartRef.current = Date.now()
     try {
-      if (shouldCloseDetectedBrowsers) {
-        try {
-          await window.kudu.cleanerPrepareClean()
-        } catch {
-          // Browser closing is best-effort; individual cleaners still report
-          // any files that remain locked.
-        }
+      if (!(await prepareApps(scopedClean?.ids ?? store.getSelectedIds()))) {
+        store.setStatus(ScanStatus.Complete)
+        return
       }
 
       // Create a system restore point before cleaning if enabled
@@ -481,7 +474,7 @@ export function CleanerPage() {
       const selectedIdSet = new Set(selectedIds)
       const cleanFns: Partial<Record<CleanerType, (ids: string[]) => Promise<any>>> = {
         [CleanerType.System]: (ids) => window.kudu.systemClean(ids),
-        [CleanerType.Browser]: (ids) => window.kudu.browserClean(ids),
+        [CleanerType.Browser]: (ids) => window.kudu.browserClean(ids, true),
         [CleanerType.App]: (ids) => window.kudu.appClean(ids),
         [CleanerType.Gaming]: (ids) => window.kudu.gamingClean(ids),
         [CleanerType.RecycleBin]: () => window.kudu.recycleBinClean(),
@@ -640,14 +633,7 @@ export function CleanerPage() {
       store.setStatus(ScanStatus.Error)
     }
     store.setProgress(null)
-  }, [
-    store.results,
-    createRestorePointEnabled,
-    protectRecycleBin,
-    closeBrowsersBeforeClean,
-    confirmBlockers,
-    scopedClean
-  ])
+  }, [store.results, createRestorePointEnabled, protectRecycleBin, prepareApps, scopedClean])
 
   const categoryResults = (type: CategoryType) => {
     if (type === AI_TOOLS_VIEW) {
@@ -1009,9 +995,7 @@ export function CleanerPage() {
                   </p>
                   {!checkingBlockers && (
                     <p className="mt-0.5 text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                      {closeBrowsersBeforeClean && blockers.every((blocker) => blocker.isBrowser)
-                        ? t('blockersAutoCloseDescription')
-                        : t('blockersDescription')}
+                      {t('blockersDescription')}
                     </p>
                   )}
                 </div>
@@ -1658,6 +1642,7 @@ export function CleanerPage() {
         </div>
       </div>
 
+      {appCloseDialog}
       <ConfirmDialog
         open={showConfirm}
         onConfirm={handleClean}

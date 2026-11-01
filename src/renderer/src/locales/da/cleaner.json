@@ -108,5 +108,12 @@
   "pathCopyFailed": "Kunne ikke kopiere sti",
   "showMoreItems": "Vis {{count}} mere ({{remaining}} tilbage)",
   "confirmHiddenSelection": "Dette omfatter {{count}} valgte elementer uden for den aktuelle visning.",
-  "toggleGroupDetails": "Vis eller skjul {{name}}-elementer"
+  "toggleGroupDetails": "Vis eller skjul {{name}}-elementer",
+  "browserCloseTitle": "Luk browsere før oprydning?",
+  "browserCloseDescription": "Gem først alt arbejde. De valgte browsere bliver lukket. Fjern markeringen for dem, du vil holde åbne; nogle cachefiler kan blive sprunget over, mens de kører.",
+  "browserCloseContinue": "Fortsæt oprydning",
+  "browserDetectionFailed": "Kunne ikke kontrollere kørende apps. Prøv igen.",
+  "browserCloseFailed": "Kunne ikke anmode apps om at lukke. Prøv igen.",
+  "appsCloseTitle": "Luk apps før oprydning?",
+  "appsCloseDescription": "Gem først dit arbejde. De valgte browsere lukkes, og andre valgte apps bliver bedt om at lukke normalt. Fjern markeringen for dem, du vil holde åbne. Apps kan have brug for et øjeblik til at afslutte; filer, der stadig er i brug, kan blive sprunget over."
 }

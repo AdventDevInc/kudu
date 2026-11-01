@@ -5,6 +5,10 @@ import type { CleanerBlocker, ScanItem } from '../../shared/types'
 import { getCachedItems } from './scan-cache'
 import { execTracked, psUtf8 } from './exec-utf8'
 
+// Only processes observed by the lock preflight can be asked to close. Identity
+// is revalidated in the OS before sending a normal window-close request.
+const closeCandidates = new Map<number, { path: string; started: string; observed: number }>()
+
 const MAX_CANDIDATE_FILES = 512
 const MAX_GROUPS = 64
 const MAX_DIRECTORY_DEPTH = 6
@@ -126,6 +130,7 @@ $out = @([KuduRestartManager]::Find($paths) | ForEach-Object {
     name = [string]$_.strAppName
     processName = if ($process) { [string]$process.ProcessName } else { '' }
     executablePath = if ($process) { [string]$process.Path } else { '' }
+    started = if ($process) { [string]$process.StartTime.ToUniversalTime().Ticks } else { '' }
   }
 })
 ConvertTo-Json -InputObject $out -Compress`
@@ -297,7 +302,27 @@ export async function findWindowsFileBlockers(paths: string[]): Promise<CleanerB
       ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
       { windowsHide: true, timeout: 15_000 }
     )
-    return parseRestartManagerBlockers(stdout)
+    const blockers = parseRestartManagerBlockers(stdout)
+    const identities = JSON.parse(stdout.trim().replace(/^\uFEFF/, ''))
+    for (const entry of Array.isArray(identities) ? identities : [identities]) {
+      if (
+        blockers.some((blocker) => blocker.pid === entry.pid) &&
+        typeof entry.executablePath === 'string' &&
+        entry.executablePath &&
+        typeof entry.started === 'string' &&
+        /^\d+$/.test(entry.started)
+      ) {
+        closeCandidates.set(entry.pid, {
+          path: entry.executablePath,
+          started: entry.started,
+          observed: Date.now()
+        })
+      }
+    }
+    for (const [pid, identity] of closeCandidates) {
+      if (Date.now() - identity.observed > 300_000) closeCandidates.delete(pid)
+    }
+    return blockers
   } catch {
     // This is advisory. A failed preflight must never prevent cleaning.
     return []
@@ -317,4 +342,35 @@ export async function findCleanerBlockers(itemIds: unknown): Promise<CleanerBloc
   const items = getCachedItems(ids)
   const files = await collectBlockerCandidateFiles(items)
   return findWindowsFileBlockers(files)
+}
+
+/** Send normal close requests only; never force-terminate a lock owner. */
+export async function closeCleanerApps(selectedPids: unknown): Promise<void> {
+  if (
+    !Array.isArray(selectedPids) ||
+    selectedPids.length > 100 ||
+    !selectedPids.every((pid) => Number.isInteger(pid) && pid > 0)
+  )
+    throw new Error('Invalid application selection')
+  if (process.platform !== 'win32') return
+  for (const pid of new Set(selectedPids as number[])) {
+    const identity = closeCandidates.get(pid)
+    if (!identity || Date.now() - identity.observed > 300_000) continue
+    closeCandidates.delete(pid)
+    const path = identity.path.replace(/'/g, "''")
+    // Slack and other Electron apps may hold locks in a helper process. Ask
+    // windows belonging to the same executable to close as well.
+    const script = `
+$p = Get-Process -Id ${pid} -ErrorAction SilentlyContinue
+if ($p -and $p.Path -eq '${path}' -and [string]$p.StartTime.ToUniversalTime().Ticks -eq '${identity.started}') {
+  Get-Process | Where-Object {
+    $_.Path -eq '${path}' -and $_.SessionId -eq $p.SessionId -and $_.MainWindowHandle -ne 0
+  } | ForEach-Object { [void]$_.CloseMainWindow() }
+}`
+    await execTracked(
+      'powershell.exe',
+      ['-NoProfile', '-NonInteractive', '-Command', psUtf8(script)],
+      { windowsHide: true, timeout: 5000 }
+    )
+  }
 }
