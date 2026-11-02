@@ -11,7 +11,7 @@
   "gaugeDiskIo": "E/S disque",
   "gaugeNetwork": "Réseau",
   "cpuThreadsDetail": "{{count}} threads",
-  "diskIoDetail": "L : {{read}} / É : {{write}}",
+  "diskIoDetail": "Lecture : {{read}} / Écriture : {{write}}",
   "chartCpuUsage": "Utilisation du CPU",
   "chartMemoryUsage": "Utilisation de la mémoire",
   "chartDiskIo": "E/S disque",
