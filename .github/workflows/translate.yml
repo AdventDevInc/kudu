@@ -26,6 +26,8 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+    outputs:
+      updated: ${{ steps.commit.outputs.updated }}
     env:
       HAS_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
 
@@ -57,6 +59,7 @@ jobs:
         run: node scripts/translate.js
 
       - name: Commit & push translations
+        id: commit
         if: env.HAS_OPENAI_API_KEY == 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -67,4 +70,29 @@ jobs:
           else
             git commit -m "chore: auto-update translations"
             git push
+            echo "updated=true" >> "$GITHUB_OUTPUT"
           fi
+
+  validate-translations:
+    name: Start checks for translated head
+    needs: translate
+    # Only PR updates need this handoff. Forks never reach this job.
+    if: github.event_name == 'pull_request' && needs.translate.outputs.updated == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      # GITHUB_TOKEN PR synchronize events require approval. Explicit dispatches
+      # can run automatically, with check suites attached to the updated head.
+      # No checkout or PR-controlled code runs with this job's actions permission.
+      - name: Dispatch checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_BRANCH"
+          gh workflow run package-smoke.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_BRANCH"
+          gh workflow run pr-title.yml --repo "$GITHUB_REPOSITORY" --ref "$HEAD_BRANCH" -f pr_number="$PR_NUMBER"

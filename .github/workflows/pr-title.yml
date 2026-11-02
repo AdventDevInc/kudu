@@ -6,6 +6,12 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Same-repository PR whose updated head is being validated
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -37,6 +43,21 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Lint PR title
+        if: github.event_name == 'pull_request'
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: echo "$PR_TITLE" | npx commitlint --verbose
+
+      - name: Lint dispatched PR title
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || exit 1
+          gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json title,headRefName,headRefOid,isCrossRepository > pr-title.json
+          # Do not publish a passing title check for another PR/ref or an old head.
+          jq -e --arg ref "$GITHUB_REF_NAME" --arg sha "$GITHUB_SHA" \
+            '.isCrossRepository == false and .headRefName == $ref and .headRefOid == $sha' pr-title.json
+          jq -r '.title' pr-title.json | npx commitlint --verbose
