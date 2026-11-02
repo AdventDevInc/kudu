@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Proteggi tutto",
     "adminBadge": "Admin",
     "adminWarning": "Alcune impostazioni richiedono privilegi di amministratore per essere modificate. Esegui Kudu come amministratore per una protezione completa.",
+    "macosAdminWarning": "macOS richiede una password di amministratore quando un'impostazione lo richiede. Applica l'impostazione e conferma la finestra di dialogo della password; su Mac non è presente alcun banner Esegui come amministratore. Se un'impostazione continua a non riuscire, controlla i dettagli dell'errore: anche le autorizzazioni di privacy di macOS o un profilo di gestione potrebbero limitare le modifiche.",
     "scanFailed": "Analisi della privacy non riuscita",
     "applyFailed": "Impossibile applicare le impostazioni sulla privacy",
     "applyFailedDescription": "Prova a eseguire come amministratore",

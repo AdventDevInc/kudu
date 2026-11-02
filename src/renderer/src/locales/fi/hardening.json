@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Suojaa kaikki",
     "adminBadge": "Järjestelmänvalvoja",
     "adminWarning": "Joidenkin asetusten muuttaminen vaatii järjestelmänvalvojan oikeudet. Suorita Kudu järjestelmänvalvojana saadaksesi täyden suojauksen.",
+    "macosAdminWarning": "macOS pyytää järjestelmänvalvojan salasanaa, kun asetus sitä edellyttää. Ota asetus käyttöön ja hyväksy salasanakehote; Macissa ei ole Suorita järjestelmänvalvojana -ilmoitusta. Jos asetuksen käyttöönotto silti epäonnistuu, tarkista virheen tiedot: myös macOS:n tietosuojaoikeudet tai hallintaprofiili voivat rajoittaa muutoksia.",
     "scanFailed": "Tietosuojatarkistus epäonnistui",
     "applyFailed": "Tietosuoja-asetusten käyttöönotto epäonnistui",
     "applyFailedDescription": "Yritä suorittaa järjestelmänvalvojana",

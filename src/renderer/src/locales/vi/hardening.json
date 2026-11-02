@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Bảo vệ tất cả",
     "adminBadge": "Quản trị viên",
     "adminWarning": "Một số cài đặt yêu cầu quyền quản trị viên để thay đổi. Hãy chạy Kudu với quyền quản trị viên để được bảo vệ đầy đủ.",
+    "macosAdminWarning": "macOS sẽ yêu cầu mật khẩu quản trị viên khi một cài đặt cần đến quyền này. Hãy áp dụng cài đặt và chấp thuận hộp thoại nhập mật khẩu; trên Mac không có biểu ngữ Chạy với tư cách quản trị viên. Nếu một cài đặt vẫn không thành công, hãy kiểm tra chi tiết lỗi: quyền riêng tư của macOS hoặc hồ sơ quản lý cũng có thể hạn chế các thay đổi.",
     "scanFailed": "Quét quyền riêng tư thất bại",
     "applyFailed": "Không thể áp dụng cài đặt quyền riêng tư",
     "applyFailedDescription": "Hãy thử chạy với quyền quản trị viên",

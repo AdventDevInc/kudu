@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Proteger todo",
     "adminBadge": "Admin",
     "adminWarning": "Algunas configuraciones requieren privilegios de administrador para modificarse. Ejecute Kudu como administrador para obtener protección completa.",
+    "macosAdminWarning": "macOS solicita una contraseña de administrador cuando una configuración la requiere. Aplique la configuración y apruebe el cuadro de diálogo de contraseña; no hay ningún aviso de Ejecutar como administrador en Mac. Si una configuración sigue fallando, consulte los detalles del error: los permisos de privacidad de macOS o un perfil de administración también pueden restringir los cambios.",
     "scanFailed": "Error en el análisis de privacidad",
     "applyFailed": "No se pudo aplicar la configuración de privacidad",
     "applyFailedDescription": "Intente ejecutar como administrador",

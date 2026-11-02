@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Tout protéger",
     "adminBadge": "Admin",
     "adminWarning": "Certains paramètres nécessitent des privilèges administrateur pour être modifiés. Exécutez Kudu en tant qu’administrateur pour une protection complète.",
+    "macosAdminWarning": "macOS demande un mot de passe administrateur lorsqu’un paramètre l’exige. Appliquez le paramètre et approuvez la boîte de dialogue du mot de passe ; il n’existe pas de bannière Exécuter en tant qu’administrateur sur Mac. Si un paramètre échoue toujours, consultez les détails de l’erreur : les autorisations de confidentialité de macOS ou un profil de gestion peuvent également restreindre les modifications.",
     "scanFailed": "Échec de l’analyse de confidentialité",
     "applyFailed": "Échec de l’application des paramètres de confidentialité",
     "applyFailedDescription": "Essayez d’exécuter en tant qu’administrateur",

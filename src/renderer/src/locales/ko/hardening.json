@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "모두 보호",
     "adminBadge": "관리자",
     "adminWarning": "일부 설정은 변경하려면 관리자 권한이 필요합니다. 전체 보호를 위해 Kudu를 관리자 권한으로 실행하세요.",
+    "macosAdminWarning": "macOS에서는 설정에 관리자 권한이 필요할 때 관리자 암호를 요청합니다. 설정을 적용한 다음 암호 대화 상자를 승인하세요. Mac에는 '관리자 권한으로 실행' 배너가 없습니다. 설정이 계속 실패하면 오류 세부 정보를 확인하세요. macOS 개인정보 보호 권한 또는 관리 프로파일로 인해 변경이 제한될 수도 있습니다.",
     "scanFailed": "개인 정보 검사 실패",
     "applyFailed": "개인 정보 설정을 적용하지 못했습니다",
     "applyFailedDescription": "관리자 권한으로 실행해 보세요",

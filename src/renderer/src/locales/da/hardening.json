@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Beskyt alle",
     "adminBadge": "Admin",
     "adminWarning": "Nogle indstillinger kræver administratorrettigheder for at kunne ændres. Kør Kudu som administrator for fuld beskyttelse.",
+    "macosAdminWarning": "macOS beder om en administratoradgangskode, når en indstilling kræver det. Anvend indstillingen, og godkend adgangskodedialogen; der findes ikke noget \"Kør som administrator\"-banner på Mac. Hvis en indstilling stadig mislykkes, skal du kontrollere fejloplysningerne: macOS' tilladelser til anonymitet og sikkerhed eller en administrationsprofil kan også begrænse ændringer.",
     "scanFailed": "Privatlivsscanning mislykkedes",
     "applyFailed": "Kunne ikke anvende privatlivsindstillinger",
     "applyFailedDescription": "Prøv at køre som administrator",

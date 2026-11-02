@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Protejați tot",
     "adminBadge": "Admin",
     "adminWarning": "Unele setări necesită privilegii de administrator pentru a fi modificate. Rulați Kudu ca administrator pentru protecție completă.",
+    "macosAdminWarning": "macOS solicită o parolă de administrator atunci când o setare are nevoie de aceasta. Aplicați setarea și aprobați dialogul pentru parolă; pe Mac nu există un banner Rulare ca administrator. Dacă o setare tot nu reușește să se aplice, verificați detaliile erorii: permisiunile de confidențialitate din macOS sau un profil de administrare pot, de asemenea, să restricționeze modificările.",
     "scanFailed": "Scanarea confidențialității a eșuat",
     "applyFailed": "Aplicarea setărilor de confidențialitate a eșuat",
     "applyFailedDescription": "Încercați să rulați ca administrator",

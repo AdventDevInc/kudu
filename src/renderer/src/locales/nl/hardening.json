@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Alles beschermen",
     "adminBadge": "Admin",
     "adminWarning": "Voor sommige instellingen zijn beheerdersrechten vereist om ze te wijzigen. Voer Kudu uit als administrator voor volledige bescherming.",
+    "macosAdminWarning": "macOS vraagt om een beheerderswachtwoord wanneer een instelling dit vereist. Pas de instelling toe en keur het wachtwoordvenster goed; op Mac is er geen banner 'Als administrator uitvoeren'. Als een instelling nog steeds mislukt, controleer dan de foutdetails: macOS-privacymachtigingen of een beheerprofiel kunnen wijzigingen ook beperken.",
     "scanFailed": "Privacyscan mislukt",
     "applyFailed": "Toepassen van privacy-instellingen mislukt",
     "applyFailedDescription": "Probeer uit te voeren als administrator",
