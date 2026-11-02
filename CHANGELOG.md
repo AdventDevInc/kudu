@@ -1,3 +1,18 @@
+# [3.12.0](https://github.com/adventdevinc/kudu/compare/v3.11.0...v3.12.0) (2026-11-02)
+
+
+### Bug Fixes
+
+* **ci:** dispatch checks after automated translation updates ([#579](https://github.com/adventdevinc/kudu/issues/579)) ([21720c0](https://github.com/adventdevinc/kudu/commit/21720c0cdbca1e4d68b39bd46726a395579536d2))
+* **i18n:** localize settings theme selector and malware threat details ([#575](https://github.com/adventdevinc/kudu/issues/575)) ([58ad0d9](https://github.com/adventdevinc/kudu/commit/58ad0d95ce68b38cf790bb2197f96bc720c170f9))
+* **privacy:** clarify macOS administrator prompts in Privacy Shield ([#578](https://github.com/adventdevinc/kudu/issues/578)) ([b38e395](https://github.com/adventdevinc/kudu/commit/b38e39573b7d4c0913717bfa67126c4d5aa26bcd))
+* **release:** restore compatible Angular changelog preset ([be7c27d](https://github.com/adventdevinc/kudu/commit/be7c27da294c3739d760143be176e49f8da09319))
+
+
+### Features
+
+* **cleaner:** prompt to close browsers and blocking apps ([#576](https://github.com/adventdevinc/kudu/issues/576)) ([942af64](https://github.com/adventdevinc/kudu/commit/942af64c976d97b23941cbd616106cc01ae7ed37))
+* **rules:** add CapCut, DaVinci Resolve, Adobe logs, Camera Raw, and Figma Linux cleaner rules ([#573](https://github.com/adventdevinc/kudu/issues/573)) ([6f3a659](https://github.com/adventdevinc/kudu/commit/6f3a659fc831e501814e9f1bf40c4f100c62aa0d))
 # [3.11.0](https://github.com/adventdevinc/kudu/compare/v3.10.0...v3.11.0) (2026-10-30)
 
 
