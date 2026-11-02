@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Chránit vše",
     "adminBadge": "Správce",
     "adminWarning": "Některá nastavení vyžadují ke změně oprávnění správce. Pro plnou ochranu spusťte Kudu jako správce.",
+    "macosAdminWarning": "macOS vyžaduje heslo správce, když je to pro určité nastavení potřeba. Použijte nastavení a potvrďte dialog s heslem; na Macu se nezobrazuje žádný pruh Spustit jako správce. Pokud se nastavení stále nepodaří použít, zkontrolujte podrobnosti chyby: změny mohou omezovat také oprávnění k soukromí v macOS nebo profil správy.",
     "scanFailed": "Kontrola soukromí selhala",
     "applyFailed": "Nepodařilo se použít nastavení soukromí",
     "applyFailedDescription": "Zkuste spustit jako správce",

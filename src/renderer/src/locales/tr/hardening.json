@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Tümünü Koru",
     "adminBadge": "Yönetici",
     "adminWarning": "Bazı ayarların değiştirilmesi için yönetici ayrıcalıkları gerekir. Tam koruma için Kudu'yu yönetici olarak çalıştırın.",
+    "macosAdminWarning": "macOS, bir ayar bunu gerektirdiğinde yönetici parolası ister. Ayarı uygulayın ve parola iletişim kutusunu onaylayın; Mac'te Yönetici olarak çalıştır başlığı yoktur. Bir ayar yine de başarısız olursa hata ayrıntılarını denetleyin: macOS gizlilik izinleri veya bir yönetim profili de değişiklikleri kısıtlayabilir.",
     "scanFailed": "Gizlilik taraması başarısız oldu",
     "applyFailed": "Gizlilik ayarları uygulanamadı",
     "applyFailedDescription": "Yönetici olarak çalıştırmayı deneyin",

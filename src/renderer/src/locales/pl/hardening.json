@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Chroń wszystko",
     "adminBadge": "Administrator",
     "adminWarning": "Niektóre ustawienia wymagają uprawnień administratora do modyfikacji. Uruchom Kudu jako administrator, aby uzyskać pełną ochronę.",
+    "macosAdminWarning": "macOS prosi o hasło administratora, gdy ustawienie tego wymaga. Zastosuj ustawienie i zatwierdź okno dialogowe hasła; na Macu nie ma banera Uruchom jako administrator. Jeśli ustawienie nadal się nie powiedzie, sprawdź szczegóły błędu: uprawnienia prywatności macOS lub profil zarządzania mogą również ograniczać zmiany.",
     "scanFailed": "Skanowanie prywatności nie powiodło się",
     "applyFailed": "Nie udało się zastosować ustawień prywatności",
     "applyFailedDescription": "Spróbuj uruchomić jako administrator",

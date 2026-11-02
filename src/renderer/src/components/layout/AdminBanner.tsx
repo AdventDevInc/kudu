@@ -14,14 +14,23 @@ export function AdminBanner() {
   const autoRelaunchTried = useRef(false)
 
   useEffect(() => {
-    window.kudu.elevationCheck().then((elevated) => {
-      if (elevated) return
-      setVisible(true)
-      if (!loaded || !preferElevatedLaunch || autoRelaunchTried.current) return
-      autoRelaunchTried.current = true
-      window.kudu.elevationRelaunch()
-    })
-  }, [loaded, preferElevatedLaunch])
+    // macOS authorizes individual operations; never relaunch Electron as root,
+    // even when an elevated-launch preference was saved on another platform.
+    if (platform === 'darwin') return
+    // The platform context initially defaults to Windows while loading.
+    window.kudu
+      .platformInfo()
+      .then(async (info) => {
+        if (info.platform === 'darwin') return
+        const elevated = await window.kudu.elevationCheck()
+        if (elevated) return
+        setVisible(true)
+        if (!loaded || !preferElevatedLaunch || autoRelaunchTried.current) return
+        autoRelaunchTried.current = true
+        window.kudu.elevationRelaunch()
+      })
+      .catch(() => {})
+  }, [loaded, preferElevatedLaunch, platform])
 
   // On macOS the relaunch-as-admin flow doesn't work properly — hide the banner entirely
   if (platform === 'darwin') return null

@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Protect All",
     "adminBadge": "Admin",
     "adminWarning": "Some settings require administrator privileges to modify. Run Kudu as administrator for full protection.",
+    "macosAdminWarning": "macOS asks for an administrator password when a setting needs it. Apply the setting and approve the password dialog; there is no Run as administrator banner on Mac. If a setting still fails, check the error details: macOS privacy permissions or a management profile may also restrict changes.",
     "scanFailed": "Privacy scan failed",
     "applyFailed": "Failed to apply privacy settings",
     "applyFailedDescription": "Try running as administrator",

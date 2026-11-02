@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Összes védelme",
     "adminBadge": "Rendszergazda",
     "adminWarning": "Egyes beállítások módosításához rendszergazdai jogosultság szükséges. A teljes védelemhez futtassa a Kudu alkalmazást rendszergazdaként.",
+    "macosAdminWarning": "A macOS rendszergazdai jelszót kér, amikor egy beállításhoz erre szükség van. Alkalmazza a beállítást, és hagyja jóvá a jelszókérő párbeszédpanelt; Mac rendszeren nincs „Futtatás rendszergazdaként” jelzés. Ha egy beállítás továbbra sem alkalmazható, ellenőrizze a hiba részleteit: a macOS adatvédelmi engedélyei vagy egy felügyeleti profil szintén korlátozhatja a módosításokat.",
     "scanFailed": "Az adatvédelmi vizsgálat sikertelen",
     "applyFailed": "Nem sikerült alkalmazni az adatvédelmi beállításokat",
     "applyFailedDescription": "Próbálja meg rendszergazdaként futtatni",

@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Lindungi Semua",
     "adminBadge": "Pentadbir",
     "adminWarning": "Sesetengah tetapan memerlukan keistimewaan pentadbir untuk diubah suai. Jalankan Kudu sebagai pentadbir untuk perlindungan penuh.",
+    "macosAdminWarning": "macOS meminta kata laluan pentadbir apabila sesuatu tetapan memerlukannya. Gunakan tetapan tersebut dan sahkan dialog kata laluan; tiada sepanduk Jalankan sebagai pentadbir pada Mac. Jika sesuatu tetapan masih gagal, semak butiran ralat: kebenaran privasi macOS atau profil pengurusan juga mungkin mengehadkan perubahan.",
     "scanFailed": "Imbasan privasi gagal",
     "applyFailed": "Gagal menerapkan tetapan privasi",
     "applyFailedDescription": "Cuba jalankan sebagai pentadbir",

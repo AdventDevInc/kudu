@@ -68,6 +68,32 @@ function shellEscape(arg: string): string {
 const ELEVATION_PROMPT =
   'Kudu needs your administrator password to apply system hardening settings.'
 
+// Authentication is interactive: leave time to read the prompt and find an
+// administrator's credentials rather than killing it after only 30 seconds.
+async function runAuthorization(script: string, commandBudget = 10_000): Promise<string> {
+  try {
+    const { stdout } = await execFileAsync('/usr/bin/osascript', ['-e', script], {
+      timeout: 120_000 + commandBudget
+    })
+    return stdout
+  } catch (error) {
+    const details = errorText(error)
+    if (/\(-128\)/.test(details)) {
+      throw new Error(
+        'Administrator authorization was cancelled. Try the setting again and approve the macOS password dialog with administrator credentials.',
+        { cause: error }
+      )
+    }
+    if ((error as { killed?: boolean })?.killed) {
+      throw new Error(
+        'The administrator authorization or command timed out. Check the setting status, then try again and respond to the macOS password dialog.',
+        { cause: error }
+      )
+    }
+    throw error
+  }
+}
+
 async function elevatedExec(cmd: string, args: string[]): Promise<string> {
   if (isRoot()) {
     const { stdout } = await execFileAsync(cmd, args, { timeout: 10_000 })
@@ -75,8 +101,7 @@ async function elevatedExec(cmd: string, args: string[]): Promise<string> {
   }
   const escaped = [cmd, ...args].map(shellEscape).join(' ')
   const script = `do shell script ${JSON.stringify(escaped)} with prompt ${JSON.stringify(ELEVATION_PROMPT)} with administrator privileges`
-  const { stdout } = await execFileAsync('/usr/bin/osascript', ['-e', script], { timeout: 30_000 })
-  return stdout
+  return runAuthorization(script)
 }
 
 /**
@@ -94,7 +119,7 @@ async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): 
   const parts = commands.map(({ cmd, args }) => [cmd, ...args].map(shellEscape).join(' '))
   const combined = parts.join(' && ')
   const script = `do shell script ${JSON.stringify(combined)} with prompt ${JSON.stringify(ELEVATION_PROMPT)} with administrator privileges`
-  await execFileAsync('/usr/bin/osascript', ['-e', script], { timeout: 30_000 })
+  await runAuthorization(script, commands.length * 10_000)
 }
 
 // A symlinked config file is usually maintained by configuration management;
@@ -523,14 +548,10 @@ async function elevatedGroups(groups: Command[][]): Promise<(string | undefined)
     .join('; ')
   let stdout: string
   try {
-    ;({ stdout } = await execFileAsync(
-      '/usr/bin/osascript',
-      [
-        '-e',
-        `do shell script ${JSON.stringify(script)} with prompt ${JSON.stringify(ELEVATION_PROMPT)} with administrator privileges`
-      ],
-      { timeout: 30_000 + groups.length * 10_000 }
-    ))
+    stdout = await runAuthorization(
+      `do shell script ${JSON.stringify(script)} with prompt ${JSON.stringify(ELEVATION_PROMPT)} with administrator privileges`,
+      groups.length * 10_000
+    )
   } catch (error) {
     // Cancelled or refused password: nothing ran
     const reason = error instanceof Error ? error.message : 'Unknown error'

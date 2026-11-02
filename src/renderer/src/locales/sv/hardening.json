@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Skydda alla",
     "adminBadge": "Admin",
     "adminWarning": "Vissa inställningar kräver administratörsbehörighet för att kunna ändras. Kör Kudu som administratör för fullständigt skydd.",
+    "macosAdminWarning": "macOS ber om ett administratörslösenord när en inställning kräver det. Tillämpa inställningen och godkänn lösenordsdialogrutan; det finns ingen \"Kör som administratör\"-banner på Mac. Om en inställning fortfarande misslyckas, kontrollera feldetaljerna: integritetsbehörigheter i macOS eller en hanteringsprofil kan också begränsa ändringar.",
     "scanFailed": "Sekretesskanningen misslyckades",
     "applyFailed": "Det gick inte att tillämpa sekretessinställningarna",
     "applyFailedDescription": "Försök att köra som administratör",

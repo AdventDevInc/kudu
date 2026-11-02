@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Lindungi Semua",
     "adminBadge": "Admin",
     "adminWarning": "Beberapa pengaturan memerlukan hak administrator untuk diubah. Jalankan Kudu sebagai administrator untuk perlindungan penuh.",
+    "macosAdminWarning": "macOS meminta kata sandi administrator saat suatu pengaturan memerlukannya. Terapkan pengaturan tersebut dan setujui dialog kata sandi; tidak ada banner Jalankan sebagai administrator di Mac. Jika suatu pengaturan masih gagal, periksa detail kesalahannya: izin privasi macOS atau profil pengelolaan juga dapat membatasi perubahan.",
     "scanFailed": "Pemindaian privasi gagal",
     "applyFailed": "Gagal menerapkan pengaturan privasi",
     "applyFailedDescription": "Coba jalankan sebagai administrator",

@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Alle schützen",
     "adminBadge": "Admin",
     "adminWarning": "Einige Einstellungen erfordern Administratorrechte, um geändert zu werden. Führen Sie Kudu als Administrator aus, um vollständigen Schutz zu erhalten.",
+    "macosAdminWarning": "macOS fordert ein Administratorpasswort an, wenn eine Einstellung es erfordert. Wenden Sie die Einstellung an und bestätigen Sie den Passwortdialog; auf dem Mac gibt es kein Banner „Als Administrator ausführen“. Wenn eine Einstellung weiterhin fehlschlägt, prüfen Sie die Fehlerdetails: macOS-Datenschutzberechtigungen oder ein Verwaltungsprofil können Änderungen ebenfalls einschränken.",
     "scanFailed": "Datenschutzscan fehlgeschlagen",
     "applyFailed": "Datenschutzeinstellungen konnten nicht angewendet werden",
     "applyFailedDescription": "Versuchen Sie, das Programm als Administrator auszuführen",

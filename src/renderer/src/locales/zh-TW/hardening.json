@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "全部保護",
     "adminBadge": "管理員",
     "adminWarning": "部分設定需要系統管理員權限才能修改。請以系統管理員身分執行 Kudu 以獲得完整保護。",
+    "macosAdminWarning": "macOS 在需要時會要求輸入系統管理員密碼。請套用設定並核准密碼對話方塊；Mac 上不會顯示「以系統管理員身分執行」橫幅。如果設定仍然失敗，請檢查錯誤詳細資料：macOS 的隱私權限或管理描述檔也可能限制變更。",
     "scanFailed": "隱私掃描失敗",
     "applyFailed": "無法套用隱私設定",
     "applyFailedDescription": "請嘗試以系統管理員身分執行",

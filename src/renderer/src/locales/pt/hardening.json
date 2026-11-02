@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "Proteger Tudo",
     "adminBadge": "Admin",
     "adminWarning": "Algumas definições exigem privilégios de administrador para serem modificadas. Execute o Kudu como administrador para proteção total.",
+    "macosAdminWarning": "O macOS solicita uma palavra-passe de administrador quando uma definição precisa dela. Aplique a definição e confirme a caixa de diálogo da palavra-passe; não existe um aviso Executar como administrador no Mac. Se uma definição continuar a falhar, verifique os detalhes do erro: as permissões de privacidade do macOS ou um perfil de gestão também podem restringir alterações.",
     "scanFailed": "A análise de privacidade falhou",
     "applyFailed": "Falha ao aplicar definições de privacidade",
     "applyFailedDescription": "Tente executar como administrador",

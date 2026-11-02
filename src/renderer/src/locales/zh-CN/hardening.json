@@ -36,6 +36,7 @@
     "protectAllCategoryButton": "全部保护",
     "adminBadge": "管理员",
     "adminWarning": "某些设置需要管理员权限才能修改。请以管理员身份运行 Kudu 以获得完整保护。",
+    "macosAdminWarning": "当某项设置需要时，macOS 会要求输入管理员密码。请应用该设置并在密码对话框中批准；Mac 上没有“以管理员身份运行”的提示横幅。如果某项设置仍然失败，请检查错误详细信息：macOS 隐私权限或管理配置文件也可能限制更改。",
     "scanFailed": "隐私扫描失败",
     "applyFailed": "应用隐私设置失败",
     "applyFailedDescription": "请尝试以管理员身份运行",
