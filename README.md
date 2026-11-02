@@ -58,6 +58,8 @@ For your own cache folders, including portable apps on another local drive, use 
 
 ## Support
 
+For Privacy Shield administrator prompts and permission errors on Mac, see the [macOS permissions guide](docs/macos-permissions.md).
+
 Kudu's desktop tools are free for everyone. If it saves you time, consider [sponsoring development](https://usekudu.com/sponsors) or starring the repo.
 
 ## Disclaimer

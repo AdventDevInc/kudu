@@ -227,7 +227,8 @@ function PrivacySettingsPanel({ embedded }: { embedded?: boolean }) {
   const { t } = useTranslation('hardening')
   // On macOS/Linux elevation happens per-action via a password prompt, so
   // "run as administrator" advice is meaningless there.
-  const isWindows = usePlatform().platform === 'win32'
+  const { platform } = usePlatform()
+  const isWindows = platform === 'win32'
   const state = usePrivacyStore((s) => s.state)
   const status = usePrivacyStore((s) => s.status)
   const applyResult = usePrivacyStore((s) => s.applyResult)
@@ -941,7 +942,7 @@ function PrivacySettingsPanel({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* Admin warning */}
-      {isWindows && state && unprotectedCount > 0 && (
+      {(isWindows || platform === 'darwin') && state && unprotectedCount > 0 && (
         <div
           className="mt-4 flex items-start gap-3 rounded-2xl px-5 py-3"
           style={{
@@ -951,7 +952,7 @@ function PrivacySettingsPanel({ embedded }: { embedded?: boolean }) {
         >
           <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500 mt-0.5" strokeWidth={1.8} />
           <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-            {t('privacy.adminWarning')}
+            {t(platform === 'darwin' ? 'privacy.macosAdminWarning' : 'privacy.adminWarning')}
           </p>
         </div>
       )}

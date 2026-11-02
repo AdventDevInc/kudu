@@ -291,6 +291,23 @@ describe('darwin privacy checks run unprivileged', () => {
       expect(script).toContain('systemsetup -f -setremotelogin off')
       expect(script).toContain('launchctl disable system/com.openssh.sshd')
       expect(script).toContain('launchctl bootout system/com.openssh.sshd')
+      expect(elevated[2].timeout).toBeGreaterThanOrEqual(120_000)
+    })
+
+    it('explains how to retry a cancelled administrator prompt', async () => {
+      mockExec((cmd) =>
+        cmd === '/usr/bin/osascript' ? new Error('User canceled. (-128)') : { stdout: '' }
+      )
+      await expect(find('macos-remote-login').apply()).rejects.toThrow(
+        /Try the setting again and approve the macOS password dialog/
+      )
+    })
+
+    it('preserves the actual command error when authorization was not cancelled', async () => {
+      mockExec((cmd) =>
+        cmd === '/usr/bin/osascript' ? new Error('Operation not permitted') : { stdout: '' }
+      )
+      await expect(find('macos-remote-login').apply()).rejects.toThrow('Operation not permitted')
     })
   })
 
@@ -1313,6 +1330,9 @@ describe('darwin privacy revert', () => {
       const result = await privacy.revertSettings!(['macos-stealth-mode', 'macos-guest-account'])
 
       expect(result.failed).toBe(2)
+      expect(
+        result.errors.every((error) => error.reason.includes('authorization was cancelled'))
+      ).toBe(true)
       expect(mac.firewall.stealth).toBe(true)
       expect(Object.keys(storedSettings())).toEqual(
         expect.arrayContaining(['macos-stealth-mode', 'macos-guest-account'])
