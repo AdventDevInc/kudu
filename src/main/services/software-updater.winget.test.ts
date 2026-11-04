@@ -22,9 +22,10 @@ vi.mock('child_process', async () => {
   return { execFile }
 })
 const mockExistsSync = vi.fn(() => false)
+const mockReaddirSync = vi.fn(() => [])
 vi.mock('fs', () => ({
   existsSync: (...args: unknown[]) => mockExistsSync(...args),
-  readdirSync: () => []
+  readdirSync: (...args: unknown[]) => mockReaddirSync(...args)
 }))
 vi.mock('./elevation', () => ({ isAdmin: () => false }))
 vi.mock('./settings-store', () => ({
@@ -126,6 +127,24 @@ describe('checkForUpdates (winget)', () => {
     expect(calls.some((f) => /WindowsApps[\\/]winget\.exe$/.test(f))).toBe(true)
 
     mockExistsSync.mockReturnValue(false)
+    vi.unstubAllEnvs()
+  })
+
+  it('keeps the startup error when every winget probe fails', async () => {
+    scriptWinget({ '--version': { error: { code: 'EACCES', message: 'Access denied' } } })
+
+    const result = await checkForUpdates()
+    expect(result.packageManagerAvailable).toBe(false)
+    expect(result.managers[0].error).toContain('Access denied')
+  })
+
+  it('looks in native Program Files from a 32-bit process', async () => {
+    scriptWinget({})
+    vi.stubEnv('ProgramW6432', 'C:\\NativeProgramFiles')
+    mockExistsSync.mockReturnValue(false)
+    await checkForUpdates()
+    // Directory discovery must use the native package location, not Program Files (x86).
+    expect(mockReaddirSync).toHaveBeenCalledWith(expect.stringContaining('NativeProgramFiles'))
     vi.unstubAllEnvs()
   })
 

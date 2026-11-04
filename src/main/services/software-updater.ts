@@ -384,7 +384,7 @@ function wingetPathCandidates(): string[] {
   if (localAppData) {
     candidates.push(join(localAppData, 'Microsoft', 'WindowsApps', 'winget.exe'))
   }
-  const programFiles = process.env.ProgramFiles || 'C:\\Program Files'
+  const programFiles = process.env.ProgramW6432 || process.env.ProgramFiles || 'C:\\Program Files'
   const windowsApps = join(programFiles, 'WindowsApps')
   try {
     // Highest version first so a stale side-by-side package is not picked.
@@ -404,6 +404,7 @@ function wingetPathCandidates(): string[] {
 
 /** Resolved winget executable, cached once a probe succeeds. */
 let wingetExe: string | null = null
+let wingetProbeError: string | undefined
 
 /**
  * Find a working winget executable: PATH first, then the known install
@@ -411,21 +412,25 @@ let wingetExe: string | null = null
  */
 export async function resolveWinget(): Promise<string | null> {
   if (wingetExe) return wingetExe
+  const failures: string[] = []
   for (const candidate of ['winget', ...wingetPathCandidates()]) {
     try {
       await execFileAsync(candidate, ['--version'], { timeout: 10_000, windowsHide: true })
       wingetExe = candidate
+      wingetProbeError = undefined
       return candidate
-    } catch {
-      // Try the next location
+    } catch (err) {
+      failures.push(`${candidate}: ${describeExecError(err, 'failed to start')}`)
     }
   }
+  wingetProbeError = failures.join('; ')
   return null
 }
 
 /** Exported for tests: forget the cached winget location. */
 export function resetWingetCache(): void {
   wingetExe = null
+  wingetProbeError = undefined
 }
 
 /**
@@ -453,7 +458,11 @@ const WINGET_CHECK_TIMEOUT = 3 * 60 * 1000
 async function checkForUpdatesWinget(): Promise<UpdateCheckResult> {
   const winget = await resolveWinget()
   if (!winget) {
-    return emptyResult(false, 'winget', 'winget was not found or did not start')
+    return emptyResult(
+      false,
+      'winget',
+      `winget was not found or did not start: ${wingetProbeError ?? 'unknown error'}`
+    )
   }
 
   let stdout: string

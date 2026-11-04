@@ -616,7 +616,7 @@ export function SoftwareUpdaterPage({ embedded }: { embedded?: boolean }) {
       )}
 
       {/* Managers that were reachable but failed to report — partial results */}
-      {hasChecked && packageManagerAvailable && failedManagers.length > 0 && (
+      {hasChecked && failedManagers.length > 0 && (
         <div
           className="mb-5 flex items-start gap-3 rounded-2xl px-5 py-4"
           style={{
