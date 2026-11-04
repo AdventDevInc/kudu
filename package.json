@@ -86,7 +86,7 @@
     "react-dom": "^19.3.1",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.72.0",
+    "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
   },
@@ -101,15 +101,15 @@
     "better-sqlite3": "^13.0.3",
     "clsx": "^2.1.1",
     "electron-updater": "^6.8.11",
-    "framer-motion": "^14.6.0",
+    "framer-motion": "^14.7.1",
     "i18next": "^26.5.11",
-    "lucide-react": "^1.61.0",
+    "lucide-react": "^1.63.0",
     "pusher-js": "^8.6.0",
     "react-i18next": "^17.1.9",
     "react-router-dom": "^7.18.4",
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
-    "systeminformation": "^5.33.16",
+    "systeminformation": "^5.33.18",
     "tailwind-merge": "^3.7.0",
     "zustand": "^5.0.16"
   }
