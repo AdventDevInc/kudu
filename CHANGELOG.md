@@ -1,3 +1,12 @@
+# [3.13.0](https://github.com/adventdevinc/kudu/compare/v3.12.0...v3.13.0) (2026-11-07)
+
+
+### Bug Fixes
+
+* **macos:** recognize on/off firewall status ([#588](https://github.com/adventdevinc/kudu/issues/588)) ([f68eb2e](https://github.com/adventdevinc/kudu/commit/f68eb2eaac19dd6fb5d6438db68bba27705a8c01))
+* **perf:** collect disk throughput on Windows ([#589](https://github.com/adventdevinc/kudu/issues/589)) ([94eb712](https://github.com/adventdevinc/kudu/commit/94eb7124303b72344e457b2f410bc7108c7ef5bc))
+* **release:** use compatible changelog angular preset ([2bb07cc](https://github.com/adventdevinc/kudu/commit/2bb07ccbf9155d4524ab689dec78d5026fff4a52))
+* **updater:** improve winget discovery and expose startup failures ([#586](https://github.com/adventdevinc/kudu/issues/586)) ([c2731d8](https://github.com/adventdevinc/kudu/commit/c2731d835018d12d31a7772d573b177ba2ffca1e))
 # [3.12.0](https://github.com/adventdevinc/kudu/compare/v3.11.0...v3.12.0) (2026-11-02)
 
 
