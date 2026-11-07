@@ -3,6 +3,9 @@ import { IPC } from '../../shared/channels'
 
 const mocks = vi.hoisted(() => ({ processes: vi.fn(), memory: vi.fn(), temperatures: vi.fn() }))
 vi.mock('./perf-temperatures', () => ({ collectTemperatures: mocks.temperatures }))
+vi.mock('./perf-disk', () => ({
+  collectDiskThroughput: async () => ({ readBytesPerSec: 1024, writeBytesPerSec: 2048 })
+}))
 vi.mock('systeminformation', () => ({
   processes: mocks.processes,
   currentLoad: async () => ({ currentLoad: 2, cpus: [{ load: 2 }] }),
@@ -65,6 +68,7 @@ describe('monitor process collection lifecycle', () => {
     expect(target.send).toHaveBeenCalledWith(
       IPC.PERF_SNAPSHOT,
       expect.objectContaining({
+        disk: { readBytesPerSec: 1024, writeBytesPerSec: 2048 },
         temperatures: expect.objectContaining({ cpuCelsius: 55 })
       })
     )

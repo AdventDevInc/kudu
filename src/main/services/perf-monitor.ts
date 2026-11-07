@@ -14,6 +14,7 @@ import type {
 } from '../../shared/types'
 import { psUtf8 } from './exec-utf8'
 import { collectWindowsMemory } from './perf-memory'
+import { collectDiskThroughput } from './perf-disk'
 import { collectTemperatures } from './perf-temperatures'
 import { mapPerfProcesses } from './perf-processes'
 import { PosixProcessSampler, getPosixProcessIdentity } from './perf-posix-processes'
@@ -322,7 +323,7 @@ export class PerfMonitorService {
 
       const [load, disk, net, mem] = await Promise.all([
         si.currentLoad(),
-        si.disksIO(),
+        collectDiskThroughput(),
         needsNetworkPoll ? si.networkStats() : Promise.resolve(null),
         isWindows ? Promise.resolve(null) : si.mem()
       ])
@@ -365,10 +366,7 @@ export class PerfMonitorService {
           availableBytes: isWindows ? os.freemem() : mem!.available,
           percent: (usedMem / totalMem) * 100
         },
-        disk: {
-          readBytesPerSec: disk?.rIO_sec ?? 0,
-          writeBytesPerSec: disk?.wIO_sec ?? 0
-        },
+        disk,
         network: this.cachedNetworkStats,
         uptime: si.time().uptime,
         temperatures:
