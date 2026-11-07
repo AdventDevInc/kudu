@@ -1948,7 +1948,7 @@ const DARWIN_NETWORK_SETTINGS: DarwinPrivacySetting[] = [
     async check() {
       try {
         const out = await socketfilterfwGet('--getglobalstate')
-        return out.toLowerCase().includes('enabled')
+        return parseOnOff(out)
       } catch {
         return false
       }
@@ -1968,7 +1968,7 @@ const DARWIN_NETWORK_SETTINGS: DarwinPrivacySetting[] = [
     async check() {
       try {
         const out = await socketfilterfwGet('--getstealthmode')
-        return out.toLowerCase().includes('enabled')
+        return parseOnOff(out)
       } catch {
         return false
       }

@@ -217,6 +217,35 @@ describe('darwin privacy checks run unprivileged', () => {
 
   const calledCommands = () => execFileMock.mock.calls.map((c) => c[0] as string)
 
+  describe.each([
+    ['macos-stealth-mode', '--getstealthmode', 'Firewall stealth mode is'],
+    ['macos-firewall', '--getglobalstate', 'Firewall is']
+  ])('%s firewall status', (id, flag, prefix) => {
+    it.each([
+      ['on', true],
+      ['off', false],
+      ['enabled', true],
+      ['disabled', false],
+      ['ENABLED', true],
+      ['unknown', false]
+    ])('interprets %s without elevation', async (state, expected) => {
+      mockExec((cmd, args) => {
+        if (cmd === '/usr/libexec/ApplicationFirewall/socketfilterfw' && args[0] === flag) {
+          return { stdout: `${prefix} ${state}\n` }
+        }
+        return new Error(`unexpected ${cmd}`)
+      })
+      expect(await find(id).check()).toBe(expected)
+      expect(calledCommands()).toEqual(['/usr/libexec/ApplicationFirewall/socketfilterfw'])
+    })
+
+    it('reports unprotected when the status command fails', async () => {
+      mockExec(() => new Error('command failed'))
+      expect(await find(id).check()).toBe(false)
+      expect(calledCommands()).not.toContain('/usr/bin/osascript')
+    })
+  })
+
   describe('macos-remote-login', () => {
     it('reads launchd override table instead of systemsetup', async () => {
       mockExec((cmd, args) => {
