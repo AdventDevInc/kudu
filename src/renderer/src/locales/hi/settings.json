@@ -102,6 +102,8 @@
   "customFolderBrowse": "ब्राउज़ करें",
   "customFolderAdd": "फ़ोल्डर सहेजें",
   "customFoldersEmpty": "अभी तक कोई कस्टम फ़ोल्डर सहेजा नहीं गया है।",
+  "customFoldersEmptyDescription": "स्कैन और साफ़ करने के लिए एक कस्टम cache, temp, या log फ़ोल्डर जोड़ें।",
+  "customFolderAddAction": "फ़ोल्डर जोड़ें",
   "customFolderScan": "स्कैन करें और समीक्षा करें",
   "customFolderRemove": "लक्ष्य हटाएँ",
   "customFolderRemoveNamed": "कस्टम फ़ोल्डरों से {{name}} हटाएँ",

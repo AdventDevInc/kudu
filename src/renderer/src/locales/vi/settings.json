@@ -102,6 +102,8 @@
   "customFolderBrowse": "Duyệt",
   "customFolderAdd": "Lưu thư mục",
   "customFoldersEmpty": "Chưa có thư mục tùy chỉnh nào được lưu.",
+  "customFoldersEmptyDescription": "Thêm thư mục bộ nhớ đệm, tạm thời hoặc nhật ký tùy chỉnh để quét và dọn dẹp.",
+  "customFolderAddAction": "Thêm thư mục",
   "customFolderScan": "Quét và xem lại",
   "customFolderRemove": "Xóa mục tiêu",
   "customFolderRemoveNamed": "Xóa {{name}} khỏi thư mục tùy chỉnh",

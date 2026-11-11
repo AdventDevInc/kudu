@@ -102,6 +102,8 @@
   "customFolderBrowse": "Обзор",
   "customFolderAdd": "Сохранить папку",
   "customFoldersEmpty": "Пользовательские папки ещё не сохранены.",
+  "customFoldersEmptyDescription": "Добавьте пользовательскую папку кэша, временных файлов или журналов для сканирования и очистки.",
+  "customFolderAddAction": "Добавить папку",
   "customFolderScan": "Сканировать и просмотреть",
   "customFolderRemove": "Удалить цель",
   "customFolderRemoveNamed": "Удалить {{name}} из пользовательских папок",

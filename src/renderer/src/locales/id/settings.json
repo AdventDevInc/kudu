@@ -102,6 +102,8 @@
   "customFolderBrowse": "Telusuri",
   "customFolderAdd": "Simpan folder",
   "customFoldersEmpty": "Belum ada folder kustom yang disimpan.",
+  "customFoldersEmptyDescription": "Tambahkan folder cache, temp, atau log kustom untuk dipindai dan dibersihkan.",
+  "customFolderAddAction": "Tambahkan folder",
   "customFolderScan": "Pindai dan tinjau",
   "customFolderRemove": "Hapus target",
   "customFolderRemoveNamed": "Hapus {{name}} dari folder kustom",

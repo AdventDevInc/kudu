@@ -102,6 +102,8 @@
   "customFolderBrowse": "Gennemse",
   "customFolderAdd": "Gem mappe",
   "customFoldersEmpty": "Ingen brugerdefinerede mapper gemt endnu.",
+  "customFoldersEmptyDescription": "Tilføj en brugerdefineret cache-, temp- eller logmappe til scanning og rengøring.",
+  "customFolderAddAction": "Tilføj mappe",
   "customFolderScan": "Scan og gennemgå",
   "customFolderRemove": "Fjern mål",
   "customFolderRemoveNamed": "Fjern {{name}} fra brugerdefinerede mapper",

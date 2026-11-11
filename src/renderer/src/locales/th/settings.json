@@ -102,6 +102,8 @@
   "customFolderBrowse": "เรียกดู",
   "customFolderAdd": "บันทึกโฟลเดอร์",
   "customFoldersEmpty": "ยังไม่มีการบันทึกโฟลเดอร์แบบกำหนดเอง",
+  "customFoldersEmptyDescription": "เพิ่มโฟลเดอร์แคช ไฟล์ชั่วคราว หรือบันทึกแบบกำหนดเองเพื่อสแกนและล้างข้อมูล",
+  "customFolderAddAction": "เพิ่มโฟลเดอร์",
   "customFolderScan": "สแกนและตรวจสอบ",
   "customFolderRemove": "เอาเป้าหมายออก",
   "customFolderRemoveNamed": "เอา {{name}} ออกจากโฟลเดอร์แบบกำหนดเอง",

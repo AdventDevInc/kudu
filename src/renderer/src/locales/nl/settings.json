@@ -102,6 +102,8 @@
   "customFolderBrowse": "Bladeren",
   "customFolderAdd": "Map opslaan",
   "customFoldersEmpty": "Nog geen aangepaste mappen opgeslagen.",
+  "customFoldersEmptyDescription": "Voeg een aangepaste map voor cache, tijdelijke bestanden of logbestanden toe om te scannen en op te schonen.",
+  "customFolderAddAction": "Map toevoegen",
   "customFolderScan": "Scannen en controleren",
   "customFolderRemove": "Doel verwijderen",
   "customFolderRemoveNamed": "{{name}} uit aangepaste mappen verwijderen",

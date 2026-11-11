@@ -102,6 +102,8 @@
   "customFolderBrowse": "Browse",
   "customFolderAdd": "Save folder",
   "customFoldersEmpty": "No custom folders saved yet.",
+  "customFoldersEmptyDescription": "Add a custom cache, temp, or log folder to scan and clean.",
+  "customFolderAddAction": "Add folder",
   "customFolderScan": "Scan and review",
   "customFolderRemove": "Remove target",
   "customFolderRemoveNamed": "Remove {{name}} from custom folders",

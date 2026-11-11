@@ -102,6 +102,8 @@
   "customFolderBrowse": "Parcourir",
   "customFolderAdd": "Enregistrer le dossier",
   "customFoldersEmpty": "Aucun dossier personnalisé enregistré pour le moment.",
+  "customFoldersEmptyDescription": "Ajoutez un dossier personnalisé de cache, de fichiers temporaires ou de journaux à analyser et à nettoyer.",
+  "customFolderAddAction": "Ajouter un dossier",
   "customFolderScan": "Analyser et examiner",
   "customFolderRemove": "Supprimer la cible",
   "customFolderRemoveNamed": "Supprimer {{name}} des dossiers personnalisés",

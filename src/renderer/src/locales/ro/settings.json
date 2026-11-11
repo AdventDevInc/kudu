@@ -102,6 +102,8 @@
   "customFolderBrowse": "Răsfoire",
   "customFolderAdd": "Salvați folderul",
   "customFoldersEmpty": "Nu există încă foldere personalizate salvate.",
+  "customFoldersEmptyDescription": "Adăugați un folder personalizat de cache, temporar sau jurnal pentru a-l scana și curăța.",
+  "customFolderAddAction": "Adăugați folder",
   "customFolderScan": "Scanați și examinați",
   "customFolderRemove": "Eliminați ținta",
   "customFolderRemoveNamed": "Eliminați {{name}} din folderele personalizate",

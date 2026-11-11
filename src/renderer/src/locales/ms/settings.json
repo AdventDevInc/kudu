@@ -102,6 +102,8 @@
   "customFolderBrowse": "Semak Imbas",
   "customFolderAdd": "Simpan folder",
   "customFoldersEmpty": "Belum ada folder tersuai disimpan.",
+  "customFoldersEmptyDescription": "Tambahkan folder cache, sementara atau log tersuai untuk diimbas dan dibersihkan.",
+  "customFolderAddAction": "Tambah folder",
   "customFolderScan": "Imbas dan semak",
   "customFolderRemove": "Alih keluar sasaran",
   "customFolderRemoveNamed": "Alih keluar {{name}} daripada folder tersuai",
