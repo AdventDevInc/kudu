@@ -102,6 +102,8 @@
   "customFolderBrowse": "Tallózás",
   "customFolderAdd": "Mappa mentése",
   "customFoldersEmpty": "Még nincsenek mentett egyéni mappák.",
+  "customFoldersEmptyDescription": "Adjon hozzá egyéni gyorsítótár-, ideiglenes vagy naplófájlmappát az átvizsgáláshoz és tisztításhoz.",
+  "customFolderAddAction": "Mappa hozzáadása",
   "customFolderScan": "Vizsgálat és ellenőrzés",
   "customFolderRemove": "Cél eltávolítása",
   "customFolderRemoveNamed": "{{name}} eltávolítása az egyéni mappák közül",

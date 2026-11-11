@@ -102,6 +102,8 @@
   "customFolderBrowse": "Gözat",
   "customFolderAdd": "Klasörü kaydet",
   "customFoldersEmpty": "Henüz kaydedilmiş özel klasör yok.",
+  "customFoldersEmptyDescription": "Taranıp temizlenmesi için özel bir önbellek, geçici veya günlük klasörü ekleyin.",
+  "customFolderAddAction": "Klasör ekle",
   "customFolderScan": "Tara ve gözden geçir",
   "customFolderRemove": "Hedefi kaldır",
   "customFolderRemoveNamed": "{{name}} klasörünü özel klasörlerden kaldır",

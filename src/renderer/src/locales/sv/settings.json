@@ -102,6 +102,8 @@
   "customFolderBrowse": "Bläddra",
   "customFolderAdd": "Spara mapp",
   "customFoldersEmpty": "Inga anpassade mappar har sparats ännu.",
+  "customFoldersEmptyDescription": "Lägg till en anpassad cache-, temp- eller loggmapp för att skanna och rensa.",
+  "customFolderAddAction": "Lägg till mapp",
   "customFolderScan": "Skanna och granska",
   "customFolderRemove": "Ta bort mål",
   "customFolderRemoveNamed": "Ta bort {{name}} från anpassade mappar",

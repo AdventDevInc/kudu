@@ -102,6 +102,8 @@
   "customFolderBrowse": "Procurar",
   "customFolderAdd": "Guardar pasta",
   "customFoldersEmpty": "Ainda não existem pastas personalizadas guardadas.",
+  "customFoldersEmptyDescription": "Adicione uma pasta personalizada de cache, temporária ou de logs para analisar e limpar.",
+  "customFolderAddAction": "Adicionar pasta",
   "customFolderScan": "Analisar e rever",
   "customFolderRemove": "Remover destino",
   "customFolderRemoveNamed": "Remover {{name}} das pastas personalizadas",

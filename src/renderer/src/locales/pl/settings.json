@@ -102,6 +102,8 @@
   "customFolderBrowse": "Przeglądaj",
   "customFolderAdd": "Zapisz folder",
   "customFoldersEmpty": "Nie zapisano jeszcze żadnych niestandardowych folderów.",
+  "customFoldersEmptyDescription": "Dodaj niestandardowy folder pamięci podręcznej, folder tymczasowy lub folder dzienników do skanowania i czyszczenia.",
+  "customFolderAddAction": "Dodaj folder",
   "customFolderScan": "Przeskanuj i przejrzyj",
   "customFolderRemove": "Usuń lokalizację",
   "customFolderRemoveNamed": "Usuń {{name}} z niestandardowych folderów",

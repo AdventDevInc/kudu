@@ -102,6 +102,8 @@
   "customFolderBrowse": "Αναζήτηση",
   "customFolderAdd": "Αποθήκευση φακέλου",
   "customFoldersEmpty": "Δεν έχουν αποθηκευτεί ακόμη προσαρμοσμένοι φάκελοι.",
+  "customFoldersEmptyDescription": "Προσθέστε έναν προσαρμοσμένο φάκελο cache, προσωρινών αρχείων ή καταγραφών για σάρωση και καθαρισμό.",
+  "customFolderAddAction": "Προσθήκη φακέλου",
   "customFolderScan": "Σάρωση και έλεγχος",
   "customFolderRemove": "Κατάργηση προορισμού",
   "customFolderRemoveNamed": "Κατάργηση του {{name}} από τους προσαρμοσμένους φακέλους",

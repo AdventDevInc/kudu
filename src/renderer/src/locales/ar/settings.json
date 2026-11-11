@@ -102,6 +102,8 @@
   "customFolderBrowse": "استعراض",
   "customFolderAdd": "حفظ المجلد",
   "customFoldersEmpty": "لم يتم حفظ أي مجلدات مخصصة بعد.",
+  "customFoldersEmptyDescription": "أضف مجلدًا مخصصًا لذاكرة التخزين المؤقت أو الملفات المؤقتة أو السجلات لفحصه وتنظيفه.",
+  "customFolderAddAction": "إضافة مجلد",
   "customFolderScan": "فحص ومراجعة",
   "customFolderRemove": "إزالة الهدف",
   "customFolderRemoveNamed": "إزالة {{name}} من المجلدات المخصصة",

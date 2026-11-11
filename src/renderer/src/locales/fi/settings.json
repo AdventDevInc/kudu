@@ -102,6 +102,8 @@
   "customFolderBrowse": "Selaa",
   "customFolderAdd": "Tallenna kansio",
   "customFoldersEmpty": "Mukautettuja kansioita ei ole vielä tallennettu.",
+  "customFoldersEmptyDescription": "Lisää mukautettu välimuisti-, väliaikaistiedosto- tai lokikansio tarkistettavaksi ja puhdistettavaksi.",
+  "customFolderAddAction": "Lisää kansio",
   "customFolderScan": "Tarkista ja esikatsele",
   "customFolderRemove": "Poista kohde",
   "customFolderRemoveNamed": "Poista {{name}} mukautetuista kansioista",

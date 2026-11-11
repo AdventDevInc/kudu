@@ -102,6 +102,8 @@
   "customFolderBrowse": "Sfoglia",
   "customFolderAdd": "Salva cartella",
   "customFoldersEmpty": "Nessuna cartella personalizzata salvata.",
+  "customFoldersEmptyDescription": "Aggiungi una cartella personalizzata di cache, temporanei o log da analizzare e pulire.",
+  "customFolderAddAction": "Aggiungi cartella",
   "customFolderScan": "Esegui scansione e controlla",
   "customFolderRemove": "Rimuovi destinazione",
   "customFolderRemoveNamed": "Rimuovi {{name}} dalle cartelle personalizzate",

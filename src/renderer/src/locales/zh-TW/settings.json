@@ -102,6 +102,8 @@
   "customFolderBrowse": "瀏覽",
   "customFolderAdd": "儲存資料夾",
   "customFoldersEmpty": "尚未儲存任何自訂資料夾。",
+  "customFoldersEmptyDescription": "新增自訂的快取、暫存或記錄資料夾以進行掃描和清理。",
+  "customFolderAddAction": "新增資料夾",
   "customFolderScan": "掃描並檢視",
   "customFolderRemove": "移除目標",
   "customFolderRemoveNamed": "從自訂資料夾中移除 {{name}}",

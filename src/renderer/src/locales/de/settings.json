@@ -102,6 +102,8 @@
   "customFolderBrowse": "Durchsuchen",
   "customFolderAdd": "Ordner speichern",
   "customFoldersEmpty": "Noch keine benutzerdefinierten Ordner gespeichert.",
+  "customFoldersEmptyDescription": "Fügen Sie einen benutzerdefinierten Cache-, Temp- oder Protokollordner zum Scannen und Bereinigen hinzu.",
+  "customFolderAddAction": "Ordner hinzufügen",
   "customFolderScan": "Scannen und prüfen",
   "customFolderRemove": "Ziel entfernen",
   "customFolderRemoveNamed": "{{name}} aus den benutzerdefinierten Ordnern entfernen",

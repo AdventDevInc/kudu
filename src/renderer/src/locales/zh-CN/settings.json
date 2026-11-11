@@ -102,6 +102,8 @@
   "customFolderBrowse": "浏览",
   "customFolderAdd": "保存文件夹",
   "customFoldersEmpty": "尚未保存任何自定义文件夹。",
+  "customFoldersEmptyDescription": "添加自定义缓存、临时文件或日志文件夹以进行扫描和清理。",
+  "customFolderAddAction": "添加文件夹",
   "customFolderScan": "扫描并查看",
   "customFolderRemove": "移除目标",
   "customFolderRemoveNamed": "从自定义文件夹中移除 {{name}}",

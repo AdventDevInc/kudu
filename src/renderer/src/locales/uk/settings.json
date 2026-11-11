@@ -102,6 +102,8 @@
   "customFolderBrowse": "Огляд",
   "customFolderAdd": "Зберегти папку",
   "customFoldersEmpty": "Користувацькі папки ще не збережено.",
+  "customFoldersEmptyDescription": "Додайте власну папку кешу, тимчасових файлів або журналів для сканування та очищення.",
+  "customFolderAddAction": "Додати папку",
   "customFolderScan": "Сканувати й переглянути",
   "customFolderRemove": "Видалити ціль",
   "customFolderRemoveNamed": "Видалити {{name}} з користувацьких папок",

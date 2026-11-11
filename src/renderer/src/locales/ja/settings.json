@@ -102,6 +102,8 @@
   "customFolderBrowse": "参照",
   "customFolderAdd": "フォルダーを保存",
   "customFoldersEmpty": "保存されたカスタム フォルダーはまだありません。",
+  "customFoldersEmptyDescription": "スキャンしてクリーンアップするカスタムのキャッシュ、Temp、またはログ フォルダーを追加します。",
+  "customFolderAddAction": "フォルダーを追加",
   "customFolderScan": "スキャンして確認",
   "customFolderRemove": "対象を削除",
   "customFolderRemoveNamed": "カスタム フォルダーから {{name}} を削除",

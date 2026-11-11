@@ -102,6 +102,8 @@
   "customFolderBrowse": "Procházet",
   "customFolderAdd": "Uložit složku",
   "customFoldersEmpty": "Zatím nejsou uloženy žádné vlastní složky.",
+  "customFoldersEmptyDescription": "Přidejte vlastní složku mezipaměti, dočasných souborů nebo protokolů ke skenování a vyčištění.",
+  "customFolderAddAction": "Přidat složku",
   "customFolderScan": "Prohledat a zkontrolovat",
   "customFolderRemove": "Odebrat cíl",
   "customFolderRemoveNamed": "Odebrat {{name}} z vlastních složek",

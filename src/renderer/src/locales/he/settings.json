@@ -102,6 +102,8 @@
   "customFolderBrowse": "עיון",
   "customFolderAdd": "שמירת תיקייה",
   "customFoldersEmpty": "עדיין לא נשמרו תיקיות מותאמות אישית.",
+  "customFoldersEmptyDescription": "הוסף תיקיית מטמון, קבצים זמניים או יומנים מותאמת אישית לסריקה ולניקוי.",
+  "customFolderAddAction": "הוסף תיקייה",
   "customFolderScan": "סריקה ועיון",
   "customFolderRemove": "הסרת יעד",
   "customFolderRemoveNamed": "הסרת {{name}} מהתיקיות המותאמות אישית",

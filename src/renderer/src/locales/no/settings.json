@@ -102,6 +102,8 @@
   "customFolderBrowse": "Bla gjennom",
   "customFolderAdd": "Lagre mappe",
   "customFoldersEmpty": "Ingen egendefinerte mapper er lagret ennå.",
+  "customFoldersEmptyDescription": "Legg til en egendefinert mappe for hurtigbuffer, midlertidige filer eller logger for å skanne og rydde.",
+  "customFolderAddAction": "Legg til mappe",
   "customFolderScan": "Skann og gjennomgå",
   "customFolderRemove": "Fjern mål",
   "customFolderRemoveNamed": "Fjern {{name}} fra egendefinerte mapper",

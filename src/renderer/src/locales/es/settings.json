@@ -102,6 +102,8 @@
   "customFolderBrowse": "Examinar",
   "customFolderAdd": "Guardar carpeta",
   "customFoldersEmpty": "Aún no hay carpetas personalizadas guardadas.",
+  "customFoldersEmptyDescription": "Agregue una carpeta personalizada de caché, temporales o registros para analizarla y limpiarla.",
+  "customFolderAddAction": "Agregar carpeta",
   "customFolderScan": "Analizar y revisar",
   "customFolderRemove": "Quitar destino",
   "customFolderRemoveNamed": "Quitar {{name}} de las carpetas personalizadas",

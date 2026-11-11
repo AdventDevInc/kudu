@@ -102,6 +102,8 @@
   "customFolderBrowse": "찾아보기",
   "customFolderAdd": "폴더 저장",
   "customFoldersEmpty": "아직 저장된 사용자 지정 폴더가 없습니다.",
+  "customFoldersEmptyDescription": "검사하고 정리할 사용자 지정 캐시, 임시 또는 로그 폴더를 추가하세요.",
+  "customFolderAddAction": "폴더 추가",
   "customFolderScan": "스캔 및 검토",
   "customFolderRemove": "대상 제거",
   "customFolderRemoveNamed": "사용자 지정 폴더에서 {{name}} 제거",
