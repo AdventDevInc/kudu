@@ -20,6 +20,8 @@ export function CustomFoldersPanel() {
   const { t } = useTranslation('settings')
   const [folders, setFolders] = useState<CustomFolder[]>([])
   const [name, setName] = useState('')
+  const [adding, setAdding] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
   const [path, setPath] = useState('')
   const [result, setResult] = useState<CustomFolderScan | null>(null)
   const [selected, setSelected] = useState(new Set<string>())
@@ -30,6 +32,10 @@ export function CustomFoldersPanel() {
   const [notice, setNotice] = useState('')
   const [recoveryPaths, setRecoveryPaths] = useState<string[]>([])
   const [confirm, setConfirm] = useState(false)
+
+  useEffect(() => {
+    if (adding) nameInputRef.current?.focus()
+  }, [adding])
 
   useEffect(() => {
     let active = true
@@ -84,70 +90,94 @@ export function CustomFoldersPanel() {
       >
         {t('customFoldersWarning')}
       </p>
-      <form
-        className="space-y-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          void run(async () => {
-            setFolders(await window.kudu.customFoldersAdd(name, path))
-            setName('')
-            setPath('')
-            resetPreview()
-          })
-        }}
-      >
-        <label className="block">
-          <span className="mb-1 block">{t('customFolderName')}</span>
-          <input
-            required
-            maxLength={100}
-            disabled={busy}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={t('customFolderNamePlaceholder')}
-            className="w-full rounded-lg px-3 py-2"
-            style={fieldStyle}
-          />
-        </label>
-        <label className="block">
-          <span className="mb-1 block">{t('customFolderPath')}</span>
-          <input
-            required
-            disabled={busy}
-            value={path}
-            onChange={(event) => setPath(event.target.value)}
-            placeholder={t('customFolderPathPlaceholder')}
-            className="w-full rounded-lg px-3 py-2"
-            style={fieldStyle}
-          />
-        </label>
-        <div className="flex flex-wrap gap-2">
+      {!busy && !error && folders.length === 0 && !adding && (
+        <div
+          className="flex flex-col items-center gap-3 rounded-xl border p-6 text-center"
+          style={{ borderColor: 'var(--border-default)' }}
+        >
+          <FolderOpen className="h-8 w-8" aria-hidden="true" />
+          <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+            {t('customFoldersEmpty')}
+          </p>
+          <p>{t('customFoldersEmptyDescription')}</p>
           <button
             type="button"
-            disabled={busy}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg px-3 py-2"
             style={buttonStyle}
-            onClick={() =>
-              void run(async () => {
-                const picked = await window.kudu.customFoldersPick()
-                if (picked) setPath(picked)
-              })
-            }
+            onClick={() => setAdding(true)}
           >
-            <FolderOpen className="h-4 w-4" />
-            {t('customFolderBrowse')}
-          </button>
-          <button
-            disabled={busy || !name.trim() || !path.trim()}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 disabled:opacity-50"
-            style={buttonStyle}
-          >
-            <Plus className="h-4 w-4" />
-            {t('customFolderAdd')}
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            {t('customFolderAddAction')}
           </button>
         </div>
-      </form>
-      {folders.length === 0 && <p className="text-xs">{t('customFoldersEmpty')}</p>}
+      )}
+      {(folders.length > 0 || adding) && (
+        <form
+          className="space-y-3"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void run(async () => {
+              setFolders(await window.kudu.customFoldersAdd(name, path))
+              setName('')
+              setPath('')
+              setAdding(false)
+              resetPreview()
+            })
+          }}
+        >
+          <label className="block">
+            <span className="mb-1 block">{t('customFolderName')}</span>
+            <input
+              ref={nameInputRef}
+              required
+              maxLength={100}
+              disabled={busy}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t('customFolderNamePlaceholder')}
+              className="w-full rounded-lg px-3 py-2"
+              style={fieldStyle}
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block">{t('customFolderPath')}</span>
+            <input
+              required
+              disabled={busy}
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+              placeholder={t('customFolderPathPlaceholder')}
+              className="w-full rounded-lg px-3 py-2"
+              style={fieldStyle}
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 disabled:opacity-50"
+              style={buttonStyle}
+              onClick={() =>
+                void run(async () => {
+                  const picked = await window.kudu.customFoldersPick()
+                  if (picked) setPath(picked)
+                })
+              }
+            >
+              <FolderOpen className="h-4 w-4" />
+              {t('customFolderBrowse')}
+            </button>
+            <button
+              disabled={busy || !name.trim() || !path.trim()}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 disabled:opacity-50"
+              style={buttonStyle}
+            >
+              <Plus className="h-4 w-4" />
+              {t('customFolderAdd')}
+            </button>
+          </div>
+        </form>
+      )}
       <ul className="space-y-2">
         {folders.map((folder) => (
           <li
