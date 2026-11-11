@@ -25,6 +25,7 @@ import {
   CopyCheck,
   FileUp,
   FolderX,
+  FolderOpen,
   ShieldAlert as ShieldAlertIcon,
   Wrench,
   Eraser,
@@ -90,6 +91,12 @@ const navGroups: NavGroup[] = [
             labelKey: 'cleaner:pageTitle',
             label: 'System Cleaner',
             path: '/cleaner'
+          },
+          {
+            icon: FolderOpen,
+            labelKey: 'settings:sectionCustomFolders',
+            label: 'Custom cleaning folders',
+            path: '/custom-folders'
           },
           { icon: Database, labelKey: 'registry:pageTitle', label: 'Registry', path: '/registry' },
           { icon: Zap, labelKey: 'startup:pageTitle', label: 'Startup', path: '/startup' },

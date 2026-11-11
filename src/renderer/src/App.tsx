@@ -10,6 +10,7 @@ import { useScheduledScan } from './hooks/useScheduledScan'
 import { AppShell } from './components/layout/AppShell'
 import { DashboardPage } from './pages/DashboardPage'
 import { CleanerPage } from './pages/CleanerPage'
+import { CustomFoldersPage } from './pages/CustomFoldersPage'
 import { RegistryPage } from './pages/RegistryPage'
 import { ContextMenuCleanerPage } from './pages/ContextMenuCleanerPage'
 import { StartupPage } from './pages/StartupPage'
@@ -162,6 +163,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/cleaner" element={<CleanerPage />} />
+            <Route path="/custom-folders" element={<CustomFoldersPage />} />
             <Route path="/registry" element={<RegistryPage />} />
             <Route path="/context-menu" element={<ContextMenuCleanerPage />} />
             <Route path="/startup" element={<StartupPage />} />
@@ -227,6 +229,7 @@ export function App() {
 const ROUTE_TITLES: Record<string, { key: string }> = {
   '/': { key: 'dashboard' },
   '/cleaner': { key: 'cleaner:pageTitle' },
+  '/custom-folders': { key: 'settings:sectionCustomFolders' },
   '/registry': { key: 'registry:pageTitle' },
   '/context-menu': { key: 'contextMenu:pageTitle' },
   '/startup': { key: 'startup:pageTitle' },
