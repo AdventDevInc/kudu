@@ -1,3 +1,5 @@
+import type { MacAuditSummary, MacToolAction, MacToolReport, MacPathPlan } from '../shared/mac-tools'
+import type { AppLaunchPolicy, WeekendAppLaunch } from '../shared/app-launch'
 import type { DownloadsScanResult, DownloadsTrashResult } from '../shared/downloads-review'
 import type {
   CustomFolder,
@@ -319,6 +321,18 @@ const api = {
       ipcRenderer.removeListener(IPC.DEBLOATER_REMOVE_PROGRESS, handler)
     }
   },
+
+  macToolsRead: (tool: string): Promise<MacToolReport> => ipcRenderer.invoke(IPC.MAC_TOOLS_READ, tool),
+  macToolsApply: (action: MacToolAction): Promise<void> => ipcRenderer.invoke(IPC.MAC_TOOLS_APPLY, action),
+  macPathRead: (file: string): Promise<MacPathPlan> => ipcRenderer.invoke(IPC.MAC_PATH_READ, file),
+  macPathApply: (input: { file: string; hash: string; orders: number[][] }): Promise<MacPathPlan> => ipcRenderer.invoke(IPC.MAC_PATH_APPLY, input),
+  macPathRestore: (file: string): Promise<MacPathPlan> => ipcRenderer.invoke(IPC.MAC_PATH_RESTORE, file),
+  macAuditCreate: (language: string): Promise<MacAuditSummary> => ipcRenderer.invoke(IPC.MAC_AUDIT_CREATE, language),
+  macAuditExport: (id: string): Promise<string | null> => ipcRenderer.invoke(IPC.MAC_AUDIT_EXPORT, id),
+  weekendAppsList: (): Promise<WeekendAppLaunch[]> => ipcRenderer.invoke(IPC.WEEKEND_APPS_LIST),
+  weekendAppsAdd: (policy: AppLaunchPolicy): Promise<boolean> => ipcRenderer.invoke(IPC.WEEKEND_APPS_ADD, policy),
+  weekendAppsUpdate: (id: string, policy: AppLaunchPolicy): Promise<void> => ipcRenderer.invoke(IPC.WEEKEND_APPS_UPDATE, id, policy),
+  weekendAppsRemove: (id: string): Promise<void> => ipcRenderer.invoke(IPC.WEEKEND_APPS_REMOVE, id),
 
   // Startup manager
   startupList: (): Promise<StartupItem[]> => ipcRenderer.invoke(IPC.STARTUP_LIST),

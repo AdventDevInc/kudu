@@ -94,6 +94,17 @@ export const IPC = {
   CONTEXT_MENU_APPLY_PROGRESS: 'cleaner:context-menu:apply:progress',
 
   // Startup
+  MAC_TOOLS_READ: 'mac-tools:read',
+  MAC_TOOLS_APPLY: 'mac-tools:apply',
+  MAC_PATH_READ: 'mac-tools:path:read',
+  MAC_PATH_APPLY: 'mac-tools:path:apply',
+  MAC_PATH_RESTORE: 'mac-tools:path:restore',
+  MAC_AUDIT_CREATE: 'mac-tools:audit:create',
+  MAC_AUDIT_EXPORT: 'mac-tools:audit:export',
+  WEEKEND_APPS_UPDATE: 'startup:weekend:update',
+  WEEKEND_APPS_LIST: 'startup:weekend:list',
+  WEEKEND_APPS_ADD: 'startup:weekend:add',
+  WEEKEND_APPS_REMOVE: 'startup:weekend:remove',
   STARTUP_LIST: 'startup:list',
   STARTUP_TOGGLE: 'startup:toggle',
   STARTUP_DELETE: 'startup:delete',

@@ -56,6 +56,33 @@ Cleaning rules are plain JSON — no code required to add support for a new app.
 
 For your own cache folders, including portable apps on another local drive, use **Settings → Custom cleaning folders**. See the [custom-folder guide](CUSTOM-FOLDERS.md) for preview, selection, and Trash recovery instructions.
 
+## Scheduled application opening on macOS
+
+In **Startup**, choose allowed weekdays and either **Once a week on an allowed day**
+or **Once on each selected day**, then use **Choose an application…**.
+Existing schedules have their own weekday controls and **Save days** button.
+Checks run at login and every five minutes during the session, including while
+Kudu is closed. Missed days are skipped. Existing weekend schedules retain their
+Saturday/Sunday weekly behavior until edited.
+Turn off the application's existing **Open at Login** option to apply this rhythm.
+
+The implementation uses native launchd scheduling and an original standalone runner.
+Architecture references include [launchr's user-agent management](https://github.com/scoult/launchr)
+and [Outset's login execution tracking](https://github.com/macadmins/outset).
+
+## Mac tools in Settings
+
+**Settings → Mac tools** provides seven tabs for Spotlight indexing, application
+associations, PATH correction, battery diagnostics, energy profiles, animations,
+and a global HTML audit with storage charts.
+
+PATH changes have a reviewable preview, ordering controls and a backup. Only
+literal assignments in regular user-owned shell configuration files are edited.
+Heredocs, multiline strings and dynamic shell expressions require manual review.
+Energy and animation profiles preserve the original settings for restoration and
+detect later changes made outside Kudu. Battery readings depend on the sensors
+exposed by the Mac. The audit is generated and exported locally.
+
 ## Support
 
 For Privacy Shield administrator prompts and permission errors on Mac, see the [macOS permissions guide](docs/macos-permissions.md).

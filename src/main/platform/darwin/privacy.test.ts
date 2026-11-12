@@ -72,7 +72,7 @@ vi.mock('electron', () => ({
   app: { isPackaged: true, getPath: () => USER_DATA }
 }))
 
-const { createDarwinPrivacy } = await import('./privacy')
+const { createDarwinPrivacy, readUserDefault } = await import('./privacy')
 
 describe('darwin privacy', () => {
   const privacy = createDarwinPrivacy()
@@ -1494,5 +1494,18 @@ describe('darwin privacy revert', () => {
       pref('int', '1')
     )
     expect(storedSettings()).toEqual({})
+  })
+})
+
+describe('Golden Gate defaults absence', () => {
+  it('recognizes missing keys but still surfaces authorization and I/O failures', async () => {
+    execFileMock.mockRejectedValueOnce(
+      new Error("Error: Could not find key 'launchanim' in domain 'com.apple.dock'.")
+    )
+    expect(await readUserDefault('com.apple.dock', 'launchanim', false)).toBeNull()
+    execFileMock.mockRejectedValueOnce(new Error('Operation not permitted'))
+    await expect(readUserDefault('com.apple.dock', 'launchanim', false)).rejects.toThrow(
+      'Operation not permitted'
+    )
   })
 })
