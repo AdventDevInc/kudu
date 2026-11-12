@@ -1,3 +1,4 @@
+import type { ICloudServiceStatus, DeviceBackupScan, DeviceBackupRemoval } from '../shared/icloud-cleanup'
 import type { MacAuditSummary, MacToolAction, MacToolReport, MacPathPlan } from '../shared/mac-tools'
 import type { AppLaunchPolicy, WeekendAppLaunch } from '../shared/app-launch'
 import type { DownloadsScanResult, DownloadsTrashResult } from '../shared/downloads-review'
@@ -322,6 +323,10 @@ const api = {
     }
   },
 
+  icloudServices: (): Promise<ICloudServiceStatus[]> => ipcRenderer.invoke(IPC.ICLOUD_SERVICES),
+  icloudOpen: (target: 'settings' | 'drive' | 'backups' | 'trash' | 'app' | 'guide' | 'recovery', id?: string): Promise<void> => ipcRenderer.invoke(IPC.ICLOUD_OPEN, target, id),
+  deviceBackupsScan: (): Promise<DeviceBackupScan> => ipcRenderer.invoke(IPC.DEVICE_BACKUPS_SCAN),
+  deviceBackupsRemove: (scanId: string, ids: string[], confirmation: string, devicesDisconnected: boolean): Promise<DeviceBackupRemoval> => ipcRenderer.invoke(IPC.DEVICE_BACKUPS_REMOVE, scanId, ids, confirmation, devicesDisconnected),
   macToolsRead: (tool: string): Promise<MacToolReport> => ipcRenderer.invoke(IPC.MAC_TOOLS_READ, tool),
   macToolsApply: (action: MacToolAction): Promise<void> => ipcRenderer.invoke(IPC.MAC_TOOLS_APPLY, action),
   macPathRead: (file: string): Promise<MacPathPlan> => ipcRenderer.invoke(IPC.MAC_PATH_READ, file),

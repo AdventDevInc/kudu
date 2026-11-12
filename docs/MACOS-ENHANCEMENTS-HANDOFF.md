@@ -73,6 +73,58 @@ Animation profiles cover the Dock reveal duration and delay, minimization effect
 
 The audit includes system information, storage, applications, startup items, network interfaces, firewall, FileVault, XProtect and battery data. It reuses Kudu's existing collectors. Each section records whether collection completed. Storage charts use inline HTML and CSS. Dynamic data is escaped and the exported document has a restrictive Content Security Policy.
 
+## iCloud management and local device backups
+
+**Clean up → iCloud & device backups** adds three tabs.
+
+| Tab | Behavior |
+| --- | --- |
+| iCloud services | A searchable catalog covering the requested Apple and third-party apps, with native application and iCloud Settings entry points |
+| iCloud backups | Opens Apple Account storage management and explains device backup removal and its effect on automatic backups |
+| Local backups | Scans MobileSync backup metadata and allocated size, then moves explicitly selected eligible backups to Trash |
+
+Mail/iCloud Mail share one service entry. Cartes/Maps/Plans share one entry.
+The catalog has 32 service IDs covering the supplied names. Application presence
+is checked in standard application directories. iCloud activation and cloud
+storage usage are verified in Apple or application settings.
+
+Apple's account and application interfaces handle the cloud data deletion and
+final confirmation. CloudKit access is scoped by app entitlements. The UI states
+that synced deletion can affect all devices and that recovery depends on the
+service/account. It also explains permanent-loss risks after recovery windows or
+Trash emptying. Native cloud management is the integration boundary for this
+contribution.
+
+Local backup removal uses opaque scan IDs and backup IDs, with a ten-minute
+scan lifetime. Eligible backups have regular Info, Manifest and Status plist
+files, a finished SnapshotState, a stable tree and files older than one minute.
+The service validates identities again, claims the directory privately and
+rechecks it before calling the native Trash API. A failed operation preserves
+the claim and reports its path. A private restore destination is retained for
+successfully trashed backups. User instructions explain moving restored backup
+identifier folders back into MobileSync/Backup.
+
+### Additional contribution files
+
+| File | Change |
+| --- | --- |
+| `src/shared/icloud-cleanup.ts` | Service catalog and backup scan/removal types |
+| `src/main/services/device-backups.ts` | Scoped backup inventory, identity validation, directory claim and native Trash delegation |
+| `src/main/services/device-backups.test.ts` | Backup selection, stale scans, typed confirmation, incomplete/recent backups, changed roots and retained failures |
+| `src/main/ipc/icloud-cleanup.ipc.ts` | macOS-only management destinations and local backup operations |
+| `src/main/ipc/icloud-cleanup.ipc.test.ts` | Destination allowlist, catalog and backup IPC tests |
+| `src/renderer/src/pages/ICloudCleanupPage.tsx` | Service catalog, cloud backup guide, local backup selection and confirmation |
+| `src/renderer/src/components/shared/ConfirmDialog.tsx` | Optional disabled confirmation state, used until the required acknowledgments are complete |
+| `src/renderer/src/components/layout/Sidebar.tsx` | macOS-only navigation entry under Clean up |
+| `src/renderer/src/App.tsx` | Page route and translated route title |
+
+Also merge the iCloud IPC channels, preload methods, registration call and
+English/French Settings translations in the already listed integration files.
+
+References for these flows are [Apple's storage management instructions](https://support.apple.com/108922),
+[iCloud file recovery](https://support.apple.com/guide/icloud/mmae56ea1ca5/icloud)
+and [CloudKit container access](https://developer.apple.com/documentation/cloudkit/ckcontainer).
+
 ## File manifest
 
 All paths below are relative to the Kudu repository root.
@@ -191,13 +243,15 @@ The implementation session completed the following checks.
 | --- | --- |
 | TypeScript checks | Passed |
 | Production build | Passed |
-| Complete test suite | 3,859 passed, 3 skipped, across 223 passing test files |
+| Complete test suite | 3,870 passed, 3 skipped, across 225 passing test files |
 | Lint | Completed without errors, with existing repository warnings |
 | Cleaner rule validation | All rule files valid |
 | Native schedule lifecycle | Temporary agent registration and removal verified |
-| Native UI | Weekday controls and seven Settings tabs verified in French |
+| Native UI | Weekday controls, seven Settings tabs and the three iCloud tabs verified in French |
 | Read-only device checks | Spotlight status, battery data, energy settings, PATH preview and defaults reading verified |
 | HTML export | Nine-section report generated and saved, with charts and escaped content |
+
+Local device backup analysis was checked in the native UI with no recognized backups present. Backup removal was exercised with generated fixture backups. The control tool denied access to System Settings, so the destination screen requires manual verification.
 
 Maintenance/profile mutations were exercised through simulated system commands. The device checks above describe the native operations performed during QA.
 

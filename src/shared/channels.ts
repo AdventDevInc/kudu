@@ -94,6 +94,10 @@ export const IPC = {
   CONTEXT_MENU_APPLY_PROGRESS: 'cleaner:context-menu:apply:progress',
 
   // Startup
+  ICLOUD_SERVICES: 'icloud:services',
+  ICLOUD_OPEN: 'icloud:open',
+  DEVICE_BACKUPS_SCAN: 'icloud:device-backups:scan',
+  DEVICE_BACKUPS_REMOVE: 'icloud:device-backups:remove',
   MAC_TOOLS_READ: 'mac-tools:read',
   MAC_TOOLS_APPLY: 'mac-tools:apply',
   MAC_PATH_READ: 'mac-tools:path:read',

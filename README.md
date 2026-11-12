@@ -83,6 +83,24 @@ Energy and animation profiles preserve the original settings for restoration and
 detect later changes made outside Kudu. Battery readings depend on the sensors
 exposed by the Mac. The audit is generated and exported locally.
 
+## iCloud and device backup management on macOS
+
+**Clean up → iCloud & device backups** groups the requested iCloud services,
+opens their native Apple/application management screens, and explains the impact
+of deleting synced data. The catalog distinguishes installed applications from
+their account-dependent iCloud activation. Mail/iCloud Mail and Maps/Cartes
+share their respective service entries.
+
+The iCloud backups tab opens Apple Account storage management with removal
+instructions. Cloud backup removal is confirmed in Apple's screen and can turn
+off backups for that device. Recovery periods depend on the service and account.
+
+The local backups tab scans this account's MobileSync backups and can move
+selected complete, stable backups to Trash. It requires a current scan, typed
+confirmation and an acknowledgment that devices are disconnected. Changed,
+recent, incomplete, linked and replaced backups are rejected. A failed Trash
+operation retains the claimed backup and reports its location for manual review.
+
 ## Support
 
 For Privacy Shield administrator prompts and permission errors on Mac, see the [macOS permissions guide](docs/macos-permissions.md).

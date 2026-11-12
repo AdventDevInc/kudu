@@ -1,3 +1,4 @@
+import { ICloudCleanupPage } from './pages/ICloudCleanupPage'
 import { DownloadsReviewPage } from './pages/DownloadsReviewPage'
 import { AppSpacePage } from './pages/AppSpacePage'
 import { StorageHistoryPage } from './pages/StorageHistoryPage'
@@ -163,6 +164,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/cleaner" element={<CleanerPage />} />
+            <Route path="/icloud" element={<ICloudCleanupPage />} />
             <Route path="/custom-folders" element={<CustomFoldersPage />} />
             <Route path="/registry" element={<RegistryPage />} />
             <Route path="/context-menu" element={<ContextMenuCleanerPage />} />
@@ -229,6 +231,7 @@ export function App() {
 const ROUTE_TITLES: Record<string, { key: string }> = {
   '/': { key: 'dashboard' },
   '/cleaner': { key: 'cleaner:pageTitle' },
+  '/icloud': { key: 'settings:icloud.title' },
   '/custom-folders': { key: 'settings:sectionCustomFolders' },
   '/registry': { key: 'registry:pageTitle' },
   '/context-menu': { key: 'contextMenu:pageTitle' },
