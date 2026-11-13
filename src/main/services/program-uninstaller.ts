@@ -481,22 +481,23 @@ export async function scanLeftoversForProgram(program: InstalledProgram): Promis
   if (eligibleInstall) {
     try {
       // Reject junctions and linked ancestors that redirect cleanup elsewhere.
-      if ((await realpath(location)).toLowerCase() !== location.toLowerCase()) return []
-      const s = await stat(location)
-      if (s.isDirectory()) {
-        const folderName = basename(program.installLocation)
-        if (!isSafeFolder(folderName)) {
-          const size = await getDirectorySize(program.installLocation, 3)
-          if (size >= 1024) {
-            items.push({
-              id: randomUUID(),
-              path: program.installLocation,
-              size,
-              category: 'uninstall-leftovers',
-              subcategory: 'Install Location',
-              lastModified: s.mtimeMs,
-              selected: true
-            })
+      if ((await realpath(location)).toLowerCase() === location.toLowerCase()) {
+        const s = await stat(location)
+        if (s.isDirectory()) {
+          const folderName = basename(program.installLocation)
+          if (!isSafeFolder(folderName)) {
+            const size = await getDirectorySize(program.installLocation, 3)
+            if (size >= 1024) {
+              items.push({
+                id: randomUUID(),
+                path: program.installLocation,
+                size,
+                category: 'uninstall-leftovers',
+                subcategory: 'Install Location',
+                lastModified: s.mtimeMs,
+                selected: true
+              })
+            }
           }
         }
       }
