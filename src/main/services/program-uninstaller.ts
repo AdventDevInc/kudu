@@ -1,5 +1,5 @@
-import { readdir, stat } from 'fs/promises'
-import { join, basename, extname } from 'path'
+import { readdir, stat, realpath } from 'fs/promises'
+import { join, basename, extname, win32 } from 'path'
 import { execFile, spawn } from 'child_process'
 import { promisify } from 'util'
 import { createHash, randomUUID } from 'crypto'
@@ -460,23 +460,44 @@ export async function scanLeftoversForProgram(program: InstalledProgram): Promis
   const items: ScanItem[] = []
 
   // Check if the install location still exists
-  if (program.installLocation) {
+  const installRoots = getPlatform()
+    .paths.uninstallLeftoverDirs()
+    .filter((target) => target.id.startsWith('programfiles'))
+    .map((target) => target.path)
+  // Registry metadata is untrusted. Only an exact app directory directly in a
+  // known Program Files root is eligible, never a drive or a custom data tree.
+  const location = win32.normalize(program.installLocation)
+  const appName = program.displayName
+    .replace(/\s+[\d.]+\s*$/, '')
+    .trim()
+    .toLowerCase()
+  const eligibleInstall =
+    win32.isAbsolute(location) &&
+    !location.startsWith('\\\\') &&
+    win32.basename(location).toLowerCase() === appName &&
+    installRoots.some(
+      (root) => win32.dirname(location).toLowerCase() === win32.normalize(root).toLowerCase()
+    )
+  if (eligibleInstall) {
     try {
-      const s = await stat(program.installLocation)
-      if (s.isDirectory()) {
-        const folderName = basename(program.installLocation)
-        if (!isSafeFolder(folderName)) {
-          const size = await getDirectorySize(program.installLocation, 3)
-          if (size >= 1024) {
-            items.push({
-              id: randomUUID(),
-              path: program.installLocation,
-              size,
-              category: 'uninstall-leftovers',
-              subcategory: 'Install Location',
-              lastModified: s.mtimeMs,
-              selected: true
-            })
+      // Reject junctions and linked ancestors that redirect cleanup elsewhere.
+      if ((await realpath(location)).toLowerCase() === location.toLowerCase()) {
+        const s = await stat(location)
+        if (s.isDirectory()) {
+          const folderName = basename(program.installLocation)
+          if (!isSafeFolder(folderName)) {
+            const size = await getDirectorySize(program.installLocation, 3)
+            if (size >= 1024) {
+              items.push({
+                id: randomUUID(),
+                path: program.installLocation,
+                size,
+                category: 'uninstall-leftovers',
+                subcategory: 'Install Location',
+                lastModified: s.mtimeMs,
+                selected: true
+              })
+            }
           }
         }
       }
@@ -500,6 +521,7 @@ export async function scanLeftoversForProgram(program: InstalledProgram): Promis
 
       let entryStat: Awaited<ReturnType<typeof stat>>
       try {
+        if ((await realpath(fullPath)).toLowerCase() !== fullPath.toLowerCase()) continue
         entryStat = await stat(fullPath)
       } catch {
         continue
