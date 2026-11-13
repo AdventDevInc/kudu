@@ -49,9 +49,11 @@ vi.mock('./exec-utf8', () => ({
 
 const mockReaddir = vi.fn()
 const mockStat = vi.fn()
+const mockRealpath = vi.fn(async (path: string) => path)
 vi.mock('fs/promises', () => ({
   readdir: (...args: unknown[]) => mockReaddir(...args),
-  stat: (...args: unknown[]) => mockStat(...args)
+  stat: (...args: unknown[]) => mockStat(...args),
+  realpath: (path: string) => mockRealpath(path)
 }))
 
 const mockGetDirectorySize = vi.fn().mockResolvedValue(0)
@@ -697,16 +699,42 @@ describe('scanLeftoversForProgram', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetPlatform.mockReturnValue({
-      paths: { uninstallLeftoverDirs: () => [] },
+      paths: {
+        uninstallLeftoverDirs: () => [
+          { id: 'programfiles', name: 'Program Files', path: 'C:\\Program Files' }
+        ]
+      },
       commands: { getInstalledApps: vi.fn().mockResolvedValue([]) }
     })
     mockGetDirectorySize.mockResolvedValue(0)
+    mockRealpath.mockImplementation(async (path: string) => path)
+    mockReaddir.mockResolvedValue([])
   })
 
   it('returns empty array when no install location and no leftover dirs', async () => {
     const p = makeProgram({ installLocation: '' })
     const result = await scanLeftoversForProgram(p)
     expect(result).toEqual([])
+  })
+
+  it.each(['D:', 'D:\\', 'D:/', 'D:\\Data', 'C:\\Users\\User', 'relative', '\\\\server\\share'])(
+    'rejects unsafe install location %s',
+    async (installLocation) => {
+      mockStat.mockResolvedValue({ isDirectory: () => true, mtimeMs: 1000 })
+      mockGetDirectorySize.mockResolvedValue(4096)
+      expect(await scanLeftoversForProgram(makeProgram({ installLocation }))).toEqual([])
+      expect(mockGetDirectorySize).not.toHaveBeenCalled()
+    }
+  )
+
+  it('rejects an install directory redirected by a junction', async () => {
+    mockRealpath.mockResolvedValue('D:\\')
+    expect(
+      await scanLeftoversForProgram(
+        makeProgram({ displayName: 'TestApp', installLocation: 'C:\\Program Files\\TestApp' })
+      )
+    ).toEqual([])
+    expect(mockGetDirectorySize).not.toHaveBeenCalled()
   })
 
   it('detects leftover install location that still exists', async () => {

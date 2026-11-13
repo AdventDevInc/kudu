@@ -4,6 +4,7 @@ import { createReceipt } from './cleanup-receipts'
 import { constants, existsSync } from 'fs'
 import type { Dirent, Stats } from 'fs'
 import { dirname, join, resolve, sep } from 'path'
+import { isDeletionRoot } from './deletion-path-policy'
 import { randomUUID, randomBytes } from 'crypto'
 import type {
   ScanItem,
@@ -390,6 +391,9 @@ async function secureOverwrite(filePath: string): Promise<void> {
 }
 
 export async function safeDelete(filePath: string): Promise<DeleteResult> {
+  if (isDeletionRoot(filePath)) {
+    return { path: filePath, success: false, reason: 'protected-path' }
+  }
   const settings = getSettings()
   if (settings.cleaner.secureDelete) {
     try {
