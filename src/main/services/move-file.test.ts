@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { mkdtemp, readFile, rm, stat, symlink, utimes, writeFile } from 'fs/promises'
+import { mkdtemp, readFile, rename, rm, stat, symlink, utimes, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -7,11 +7,16 @@ import { join } from 'path'
 // rename() only fails with EXDEV when the two paths are on different mounts,
 // which a test can't set up portably. Make it fail on demand instead.
 const renameFailure = vi.hoisted(() => ({ code: null as string | null }))
+const copyHooks = vi.hoisted(() => ({ afterCopy: null as (() => Promise<void>) | null }))
 
 vi.mock('fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof import('fs/promises')>()
   return {
     ...actual,
+    copyFile: async (...args: Parameters<typeof actual.copyFile>) => {
+      await actual.copyFile(...args)
+      await copyHooks.afterCopy?.()
+    },
     rename: async (src: string, dest: string) => {
       if (renameFailure.code) {
         const err = new Error(`${renameFailure.code}: simulated`) as NodeJS.ErrnoException
@@ -30,6 +35,7 @@ describe('moveFile', () => {
 
   beforeEach(async () => {
     renameFailure.code = null
+    copyHooks.afterCopy = null
     dir = await mkdtemp(join(tmpdir(), 'kudu-move-file-'))
   })
 
@@ -74,6 +80,41 @@ describe('moveFile', () => {
 
     expect(await readFile(src, 'utf8')).toBe('quarantined')
     expect(await readFile(dest, 'utf8')).toBe('newer file')
+  })
+
+  it('preserves a replacement source and removes the stale copy', async () => {
+    const src = join(dir, 'a.bin')
+    const dest = join(dir, 'b.bin')
+    const replacement = join(dir, 'replacement.bin')
+    await writeFile(src, 'original detection')
+    await writeFile(replacement, 'replacement user data')
+    renameFailure.code = 'EXDEV'
+    copyHooks.afterCopy = async () => {
+      // Use the real rename to replace the source after its contents were copied.
+      renameFailure.code = null
+      await rename(src, join(dir, 'old.bin'))
+      await rename(replacement, src)
+    }
+
+    await expect(moveFile(src, dest)).rejects.toThrow(/source changed/)
+
+    expect(await readFile(src, 'utf8')).toBe('replacement user data')
+    expect(existsSync(dest)).toBe(false)
+  })
+
+  it('preserves edits to the source made during the copy', async () => {
+    const src = join(dir, 'a.bin')
+    const dest = join(dir, 'b.bin')
+    await writeFile(src, 'original')
+    renameFailure.code = 'EXDEV'
+    copyHooks.afterCopy = async () => {
+      await writeFile(src, 'new user data written during copying')
+    }
+
+    await expect(moveFile(src, dest)).rejects.toThrow(/source changed/)
+
+    expect(await readFile(src, 'utf8')).toBe('new user data written during copying')
+    expect(existsSync(dest)).toBe(false)
   })
 
   it('rethrows other rename errors without copying', async () => {

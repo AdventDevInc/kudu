@@ -29,6 +29,19 @@ export async function moveFile(src: string, dest: string): Promise<void> {
   try {
     await chmod(dest, info.mode)
     await utimes(dest, info.atime, info.mtime)
+    // A cross-device copy is not atomic. Do not unlink a replacement file or
+    // discard edits made while the copy was in progress.
+    const current = await lstat(src)
+    if (
+      !current.isFile() ||
+      current.dev !== info.dev ||
+      current.ino !== info.ino ||
+      current.size !== info.size ||
+      current.mtimeMs !== info.mtimeMs ||
+      current.ctimeMs !== info.ctimeMs
+    ) {
+      throw new Error(`Cannot move ${src}: source changed while copying; retry the operation`)
+    }
     await rm(src)
   } catch (err) {
     await rm(dest, { force: true })
