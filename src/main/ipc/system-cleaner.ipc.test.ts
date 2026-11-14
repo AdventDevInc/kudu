@@ -39,6 +39,7 @@ vi.mock('../platform', () => ({
       systemCleanTargets: () => [
         { path: configuredUserTempPath, subcategory: 'User Temp Files', deepRecencyCheck: true },
         { path: ordinaryPath, subcategory: 'Ordinary Cache' },
+        { path: 'C:/Windows.old', subcategory: 'Previous Windows Installation' },
         {
           path: updateOrchestratorPath,
           subcategory: 'Update Orchestrator Logs',
@@ -87,7 +88,7 @@ describe('system temp scanning', () => {
       deepRecencyCheck: false
     })
     expect(mockScanDirectory).toHaveBeenNthCalledWith(
-      3,
+      4,
       updateOrchestratorPath,
       'system',
       'Update Orchestrator Logs',
@@ -95,4 +96,20 @@ describe('system temp scanning', () => {
     )
     expect(mockScanMultipleDirectories).not.toHaveBeenCalled()
   })
+})
+
+it('marks Windows rollback unselected and supplies the rollback warning', async () => {
+  mockScanDirectory.mockImplementation(async (_path, category, subcategory) => ({
+    category,
+    subcategory,
+    items: [{ id: subcategory, selected: true }],
+    totalSize: 10,
+    itemCount: 1
+  }))
+  registerSystemCleanerIpc(() => null)
+  const results = (await getHandler('cleaner:system:scan')()) as any[]
+  const rollback = results.find((r) => r.subcategory === 'Previous Windows Installation')
+  expect(rollback.descriptionKey).toBe('windowsRollbackWarning')
+  expect(rollback.items[0].selected).toBe(false)
+  expect(results.find((r) => r.subcategory === 'Ordinary Cache').items[0].selected).toBe(true)
 })

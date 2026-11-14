@@ -1,3 +1,4 @@
+import { isWindowsRollback } from '@shared/rollback-policy'
 import { create } from 'zustand'
 import type { ScanResult, ProgressData, ScanItem, CleanError } from '@shared/types'
 import { ScanStatus, CleanerType } from '@shared/enums'
@@ -150,7 +151,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
       const next = new Set(s.selectedItems)
       const excluded = new Set(s.excludedSubcategories)
       s.results
-        .filter((r) => r.category === category)
+        .filter((r) => r.category === category && !isWindowsRollback(r))
         .forEach((r) => {
           r.items.forEach((item) => next.add(item.id))
           excluded.delete(r.subcategory)

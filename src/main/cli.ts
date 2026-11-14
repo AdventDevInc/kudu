@@ -1,3 +1,4 @@
+import { isWindowsRollback } from '../shared/rollback-policy'
 import { applyCacheResetPolicy } from './services/cache-reset-policy'
 import { scanManagedCleanup } from './services/managed-cleanup'
 import { flushCliOutput } from './services/cli-output'
@@ -245,6 +246,10 @@ async function scanSystem(): Promise<ScanResult[]> {
         result.itemCount = result.items.length
       }
       applyCacheResetPolicy(result, target.cacheReset)
+      if (isWindowsRollback(target)) {
+        result.descriptionKey = 'windowsRollbackWarning'
+        for (const item of result.items) item.selected = false
+      }
       if (result.items.length > 0) {
         cacheItems(result.items)
         results.push(result)
@@ -2152,6 +2157,7 @@ async function runLegacyScanClean(
         r.items
           .filter(
             (i) =>
+              !isWindowsRollback(i) &&
               (!i.cleanupAction || ctx.includeMaintenance === true) &&
               (!i.cacheReset || ctx.includeCacheResets === true)
           )

@@ -1,3 +1,4 @@
+import { isWindowsRollback } from '@shared/rollback-policy'
 import { useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { useScanStore } from '@/stores/scan-store'
@@ -170,7 +171,9 @@ export async function runSchedule(payload: ScheduleRunPayload): Promise<void> {
           // in the cleaner and need explicit flags in the CLI, so an unattended
           // run must never pick them up just because they were scanned.
           const allIds = results.flatMap((r) =>
-            r.items.filter((i) => !i.cacheReset && !i.cleanupAction).map((i) => i.id)
+            r.items
+              .filter((i) => !i.cacheReset && !i.cleanupAction && !isWindowsRollback(i))
+              .map((i) => i.id)
           )
           if (payload.autoApply && allIds.length > 0) {
             try {

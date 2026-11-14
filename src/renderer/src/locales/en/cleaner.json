@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Deleting Windows.old permanently removes the previous Windows installation and the ability to roll back to it. Select this group only if you no longer need Windows rollback.",
   "maintenanceSizeUnknown": "Savings vary",
   "maintenanceOptional": "Optional maintenance",
   "maintenanceComponentsNote": "Removes older Windows component versions immediately. May take a while; savings are not included in totals.",

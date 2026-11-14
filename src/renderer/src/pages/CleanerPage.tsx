@@ -1,3 +1,4 @@
+import { isWindowsRollback } from '@shared/rollback-policy'
 import { useCleanAppPrompt } from '@/hooks/useCleanAppPrompt'
 import { AI_TOOLS_VIEW, AI_TOOLS_GROUP } from '@shared/app-space-handoff'
 import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
@@ -686,7 +687,7 @@ export function CleanerPage() {
   const viewKey = JSON.stringify([activeCategory, searchScope, searchQuery, selectedOnly])
   // Privacy traces remain a deliberate group-by-group opt-in.
   const bulkSelectableIds = visibleResults
-    .filter((result) => result.category !== CleanerType.PrivacyTraces)
+    .filter((result) => result.category !== CleanerType.PrivacyTraces && !isWindowsRollback(result))
     .flatMap((result) => result.items.map((item) => item.id))
   const highlight = (text: string) =>
     splitSearchHighlight(text, searchQuery).map((part, index) =>
