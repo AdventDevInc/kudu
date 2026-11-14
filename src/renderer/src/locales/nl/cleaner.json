@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Als u Windows.old verwijdert, worden de vorige Windows-installatie en de mogelijkheid om daarnaar terug te gaan permanent verwijderd. Selecteer deze groep alleen als u Windows-terugzetting niet langer nodig hebt.",
   "maintenanceSizeUnknown": "Besparing varieert",
   "maintenanceOptional": "Optioneel onderhoud",
   "maintenanceComponentsNote": "Verwijdert oudere Windows-componentversies onmiddellijk. Kan enige tijd duren; besparingen zijn niet inbegrepen in de totalen.",

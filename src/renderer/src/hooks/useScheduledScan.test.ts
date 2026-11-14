@@ -170,3 +170,17 @@ it('files a vulnerability-only workflow under the CVE scan type', async () => {
   expect(api.cveFetch).toHaveBeenCalledTimes(1)
   expect(mocks.history).toHaveBeenCalledWith(expect.objectContaining({ type: 'cve-scan' }))
 })
+
+it('never cleans Windows rollback even in an explicitly scoped automatic run', async () => {
+  api.systemScan.mockResolvedValue([
+    {
+      ...result('Previous Windows Installation', 'old'),
+      items: [{ id: 'old', size: 10, subcategory: 'Previous Windows Installation', selected: true }]
+    }
+  ])
+  await runSchedule({
+    ...payload,
+    cleanerSubcategories: { 'cleaner:system': ['Previous Windows Installation'] }
+  })
+  expect(api.systemClean).not.toHaveBeenCalled()
+})

@@ -1,3 +1,4 @@
+import { isWindowsRollback } from '../../shared/rollback-policy'
 import { app, BrowserWindow, Notification } from 'electron'
 import { IPC } from '../../shared/channels'
 import * as si from 'systeminformation'
@@ -2279,7 +2280,7 @@ class CloudAgentService {
           try {
             let r
             const recency = { deepRecencyCheck: t.deepRecencyCheck === true }
-            if (t.cleanupAction || t.cacheReset) {
+            if (t.cleanupAction || t.cacheReset || isWindowsRollback(t)) {
               continue // Native maintenance requires an explicit local selection.
             } else if (t.childSubdir) {
               const childPaths = await resolveChildSubdirs([t.path], t.childSubdir)

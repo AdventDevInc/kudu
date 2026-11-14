@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Om du tar bort Windows.old tas den tidigare Windows-installationen och möjligheten att återgå till den bort permanent. Välj endast den här gruppen om du inte längre behöver återställning till tidigare Windows-version.",
   "maintenanceSizeUnknown": "Besparingen varierar",
   "maintenanceOptional": "Valfritt underhåll",
   "maintenanceComponentsNote": "Tar bort äldre Windows-komponentversioner omedelbart. Kan ta en stund; besparingen ingår inte i totalen.",

@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Excluir Windows.old remove permanentemente a instalação anterior do Windows e a capacidade de reverter para ela. Selecione este grupo apenas se já não precisar da reversão do Windows.",
   "maintenanceSizeUnknown": "A economia varia",
   "maintenanceOptional": "Manutenção opcional",
   "maintenanceComponentsNote": "Remove imediatamente versões antigas de componentes do Windows. Pode demorar algum tempo; a economia não está incluída nos totais.",

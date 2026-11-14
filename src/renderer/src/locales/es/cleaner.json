@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Eliminar Windows.old quita permanentemente la instalación anterior de Windows y la posibilidad de volver a ella. Seleccione este grupo solo si ya no necesita la reversión de Windows.",
   "maintenanceSizeUnknown": "El ahorro varía",
   "maintenanceOptional": "Mantenimiento opcional",
   "maintenanceComponentsNote": "Elimina de inmediato las versiones antiguas de componentes de Windows. Puede tardar un poco; el ahorro no se incluye en los totales.",

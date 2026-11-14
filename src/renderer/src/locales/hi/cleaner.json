@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Windows.old को हटाने से पिछला Windows इंस्टॉलेशन और उस पर वापस रोल बैक करने की क्षमता स्थायी रूप से हट जाती है। इस समूह का चयन केवल तभी करें जब आपको अब Windows रोल बैक की आवश्यकता न हो।",
   "maintenanceSizeUnknown": "बचत अलग-अलग हो सकती है",
   "maintenanceOptional": "वैकल्पिक रखरखाव",
   "maintenanceComponentsNote": "पुराने Windows component versions को तुरंत हटाता है। इसमें कुछ समय लग सकता है; बचत को कुल में शामिल नहीं किया जाता।",

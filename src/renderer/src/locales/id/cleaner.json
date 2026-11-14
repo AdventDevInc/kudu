@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Menghapus Windows.old akan menghapus instalasi Windows sebelumnya secara permanen beserta kemampuan untuk melakukan rollback ke instalasi tersebut. Pilih grup ini hanya jika Anda tidak lagi memerlukan rollback Windows.",
   "maintenanceSizeUnknown": "Penghematan bervariasi",
   "maintenanceOptional": "Pemeliharaan opsional",
   "maintenanceComponentsNote": "Menghapus versi komponen Windows yang lebih lama secara langsung. Mungkin memerlukan waktu; penghematan tidak disertakan dalam total.",

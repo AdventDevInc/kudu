@@ -1,3 +1,4 @@
+import { isWindowsRollback } from '../../shared/rollback-policy'
 import { applyCacheResetPolicy } from '../services/cache-reset-policy'
 import { scanManagedCleanup } from '../services/managed-cleanup'
 import { ipcMain } from 'electron'
@@ -80,6 +81,10 @@ export function registerSystemCleanerIpc(getWindow: WindowGetter): void {
         }
 
         applyCacheResetPolicy(result, target.cacheReset)
+        if (isWindowsRollback(target)) {
+          result.descriptionKey = 'windowsRollbackWarning'
+          for (const item of result.items) item.selected = false
+        }
         if (result.items.length > 0) {
           cacheItems(result.items)
           results.push(result)

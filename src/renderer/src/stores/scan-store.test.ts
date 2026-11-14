@@ -247,3 +247,16 @@ describe('search-scoped selection', () => {
     expect(useScanStore.getState().getSelectedIds()).toEqual(['match'])
   })
 })
+
+it('requires a group opt-in for rollback after bulk selection and every rescan', () => {
+  const rollback = makeResult('system', 'Previous Windows Installation', [{ id: 'old', size: 10 }])
+  rollback.items[0].selected = false
+  const store = useScanStore.getState()
+  store.setResults([rollback])
+  store.selectAll('system')
+  expect(useScanStore.getState().selectedItems.has('old')).toBe(false)
+  store.toggleSubcategory(rollback)
+  expect(useScanStore.getState().selectedItems.has('old')).toBe(true)
+  store.setResults([rollback])
+  expect(useScanStore.getState().selectedItems.has('old')).toBe(false)
+})

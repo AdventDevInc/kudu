@@ -1,3 +1,4 @@
+import { dashboardCleanIds } from '@/lib/dashboard-cleaner'
 import { useCleanAppPrompt } from '@/hooks/useCleanAppPrompt'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -371,9 +372,7 @@ function AdvancedDashboard({ onBusyChange }: { onBusyChange: (busy: boolean) => 
       try {
         setPhaseLabel(t('phaseLabelScanningType', { type }))
         const results = await scan()
-        const ids = results
-          .filter((r) => !excluded.has(r.subcategory))
-          .flatMap((r) => r.items.map((i) => i.id))
+        const ids = dashboardCleanIds(results, excluded)
         if (ids.length) batches.push({ type, ids, clean })
       } catch {
         toast.error(t('toastFailedToCleanType', { type }))

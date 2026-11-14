@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "删除 Windows.old 将永久移除之前的 Windows 安装以及回退到该版本的能力。仅当您不再需要 Windows 回退时，才选择此组。",
   "maintenanceSizeUnknown": "节省空间因情况而异",
   "maintenanceOptional": "可选维护",
   "maintenanceComponentsNote": "立即删除较旧的 Windows 组件版本。可能需要一些时间；节省的空间不计入总计。",

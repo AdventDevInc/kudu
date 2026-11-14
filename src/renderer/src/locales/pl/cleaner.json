@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Usunięcie folderu Windows.old trwale usuwa poprzednią instalację Windows oraz możliwość przywrócenia do niej systemu. Wybierz tę grupę tylko wtedy, gdy nie potrzebujesz już możliwości wycofania zmian w Windows.",
   "maintenanceSizeUnknown": "Oszczędności mogą się różnić",
   "maintenanceOptional": "Konserwacja opcjonalna",
   "maintenanceComponentsNote": "Natychmiast usuwa starsze wersje składników Windows. Może to chwilę potrwać; oszczędności nie są uwzględniane w sumach.",
