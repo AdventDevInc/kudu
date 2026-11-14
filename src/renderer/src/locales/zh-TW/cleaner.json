@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "刪除 Windows.old 會永久移除先前的 Windows 安裝，以及回復到該版本的能力。只有在您不再需要 Windows 回復功能時，才選取此群組。",
   "maintenanceSizeUnknown": "可釋放空間因情況而異",
   "maintenanceOptional": "選用維護",
   "maintenanceComponentsNote": "立即移除較舊的 Windows 元件版本。可能需要一些時間；可釋放空間不會計入總計。",

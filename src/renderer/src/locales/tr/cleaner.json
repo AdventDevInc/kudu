@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Windows.old klasörünü silmek, önceki Windows kurulumunu ve ona geri dönme olanağını kalıcı olarak kaldırır. Bu grubu yalnızca artık Windows geri alma işlemine ihtiyacınız yoksa seçin.",
   "maintenanceSizeUnknown": "Kazanım değişebilir",
   "maintenanceOptional": "İsteğe bağlı bakım",
   "maintenanceComponentsNote": "Eski Windows bileşen sürümlerini hemen kaldırır. Biraz zaman alabilir; kazanım toplam tutarlara dahil edilmez.",

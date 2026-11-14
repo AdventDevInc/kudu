@@ -228,7 +228,8 @@
       "toggleGroupDetails": "00ff3b78d08cb7deab6e194301823ea49d9ad7c50fceb1d2170adbb62f1cb8d1",
       "totalRecoverable": "f47ed4bd196d66d392a42c586bebfeff7afa2ed5e6e034a79ca9599e678a080c",
       "traceEntryCount": "fb7cd066d305cf057af50f89a24c5f9f4724cd1d4462914cdbbd8ca308f351fe",
-      "traceEntryCountPlural": "81e53883aa0e6c69f224e59c021f41b4632a0dd5597c4d3453116f42a92e98b4"
+      "traceEntryCountPlural": "81e53883aa0e6c69f224e59c021f41b4632a0dd5597c4d3453116f42a92e98b4",
+      "windowsRollbackWarning": "5e51d823e0aa6a35cbd9f74ae91f100eb391d1cdf043c3af0d6b5b4c43d47327"
     },
     "cloud": {
       "alreadyHaveAccount": "c4661fce5581f78abd1f597cc22af3c8769b3b1bffc457b847f55f6e3b7d9998",

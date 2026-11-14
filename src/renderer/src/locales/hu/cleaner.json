@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "A Windows.old törlése véglegesen eltávolítja az előző Windows-telepítést, valamint a visszaállás lehetőségét. Csak akkor válassza ezt a csoportot, ha már nincs szüksége a Windows visszaállítására.",
   "maintenanceSizeUnknown": "A megtakarítás mértéke változó",
   "maintenanceOptional": "Opcionális karbantartás",
   "maintenanceComponentsNote": "Azonnal eltávolítja a régebbi Windows-összetevőverziókat. Ez eltarthat egy ideig; a megtakarítás nem szerepel az összesítésben.",

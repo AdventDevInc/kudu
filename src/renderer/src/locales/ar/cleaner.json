@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "يؤدي حذف Windows.old إلى إزالة تثبيت Windows السابق نهائيًا وإلغاء إمكانية الرجوع إليه. حدِّد هذه المجموعة فقط إذا لم تعد بحاجة إلى التراجع عن Windows.",
   "maintenanceSizeUnknown": "تختلف المساحة الموفَّرة",
   "maintenanceOptional": "صيانة اختيارية",
   "maintenanceComponentsNote": "يزيل إصدارات مكونات Windows الأقدم فورًا. قد يستغرق ذلك بعض الوقت؛ ولا تُحتسب المساحة الموفَّرة ضمن الإجماليات.",

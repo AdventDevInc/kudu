@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Sletning af Windows.old fjerner permanent den tidligere Windows-installation og muligheden for at rulle tilbage til den. Vælg kun denne gruppe, hvis du ikke længere har brug for Windows-tilbagerulning.",
   "maintenanceSizeUnknown": "Besparelsen varierer",
   "maintenanceOptional": "Valgfri vedligeholdelse",
   "maintenanceComponentsNote": "Fjerner ældre Windows-komponentversioner med det samme. Det kan tage lidt tid; besparelsen er ikke medregnet i totalerne.",

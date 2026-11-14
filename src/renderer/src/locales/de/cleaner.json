@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Das Löschen von Windows.old entfernt die vorherige Windows-Installation und die Möglichkeit, zu ihr zurückzukehren, dauerhaft. Wählen Sie diese Gruppe nur aus, wenn Sie die Windows-Rollback-Funktion nicht mehr benötigen.",
   "maintenanceSizeUnknown": "Einsparungen variieren",
   "maintenanceOptional": "Optionale Wartung",
   "maintenanceComponentsNote": "Entfernt ältere Windows-Komponentenversionen sofort. Dies kann eine Weile dauern; die Einsparungen sind in den Gesamtwerten nicht enthalten.",

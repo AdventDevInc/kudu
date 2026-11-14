@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Odstraněním složky Windows.old trvale odstraníte předchozí instalaci Windows a možnost vrátit se k ní. Tuto skupinu vyberte pouze v případě, že již nepotřebujete návrat k předchozí verzi Windows.",
   "maintenanceSizeUnknown": "Úspora se liší",
   "maintenanceOptional": "Volitelná údržba",
   "maintenanceComponentsNote": "Okamžitě odstraní starší verze součástí Windows. Může to chvíli trvat; úspora není zahrnuta do celkových hodnot.",

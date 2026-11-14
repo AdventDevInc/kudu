@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Windows.old를 삭제하면 이전 Windows 설치와 해당 설치로 롤백할 수 있는 기능이 영구적으로 제거됩니다. 더 이상 Windows 롤백이 필요하지 않은 경우에만 이 그룹을 선택하세요.",
   "maintenanceSizeUnknown": "절감되는 용량은 항목에 따라 다릅니다",
   "maintenanceOptional": "선택적 유지 관리",
   "maintenanceComponentsNote": "이전 Windows 구성 요소 버전을 즉시 제거합니다. 시간이 다소 걸릴 수 있으며, 절감 용량은 총계에 포함되지 않습니다.",

@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Ștergerea Windows.old elimină definitiv instalarea anterioară de Windows și posibilitatea de a reveni la aceasta. Selectați acest grup numai dacă nu mai aveți nevoie de revenirea la versiunea anterioară de Windows.",
   "maintenanceSizeUnknown": "Spațiul economisit variază",
   "maintenanceOptional": "Întreținere opțională",
   "maintenanceComponentsNote": "Elimină imediat versiunile mai vechi ale componentelor Windows. Poate dura ceva timp; spațiul economisit nu este inclus în totaluri.",

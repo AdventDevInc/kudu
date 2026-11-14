@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "מחיקת Windows.old מסירה לצמיתות את התקנת Windows הקודמת ואת היכולת לחזור אליה. בחר קבוצה זו רק אם אינך זקוק עוד לאפשרות החזרה לאחור של Windows.",
   "maintenanceSizeUnknown": "החיסכון משתנה",
   "maintenanceOptional": "תחזוקה אופציונלית",
   "maintenanceComponentsNote": "מסיר מיד גרסאות ישנות יותר של רכיבי Windows. הפעולה עשויה להימשך זמן מה; החיסכון אינו נכלל בסיכומים.",

@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "La suppression de Windows.old supprime définitivement l’installation précédente de Windows ainsi que la possibilité d’y revenir. Sélectionnez ce groupe uniquement si vous n’avez plus besoin de la restauration de Windows.",
   "maintenanceSizeUnknown": "L’espace récupéré varie",
   "maintenanceOptional": "Maintenance facultative",
   "maintenanceComponentsNote": "Supprime immédiatement les anciennes versions des composants Windows. Cela peut prendre un certain temps ; l’espace récupéré n’est pas inclus dans les totaux.",

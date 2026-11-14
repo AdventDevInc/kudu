@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Việc xóa Windows.old sẽ xóa vĩnh viễn bản cài đặt Windows trước đó và khả năng quay lại bản đó. Chỉ chọn nhóm này nếu bạn không còn cần khôi phục về phiên bản Windows trước.",
   "maintenanceSizeUnknown": "Dung lượng giải phóng có thể khác nhau",
   "maintenanceOptional": "Bảo trì tùy chọn",
   "maintenanceComponentsNote": "Xóa ngay các phiên bản thành phần Windows cũ hơn. Có thể mất một lúc; dung lượng giải phóng không được tính vào tổng.",

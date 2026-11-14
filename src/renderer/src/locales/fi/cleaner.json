@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Windows.old-kansion poistaminen poistaa pysyvästi aiemman Windows-asennuksen ja mahdollisuuden palauttaa siihen. Valitse tämä ryhmä vain, jos et enää tarvitse Windowsin palautusmahdollisuutta.",
   "maintenanceSizeUnknown": "Säästetty tila vaihtelee",
   "maintenanceOptional": "Valinnainen ylläpito",
   "maintenanceComponentsNote": "Poistaa vanhemmat Windows-komponenttiversiot heti. Tämä voi kestää jonkin aikaa; säästettyä tilaa ei sisällytetä kokonaismääriin.",

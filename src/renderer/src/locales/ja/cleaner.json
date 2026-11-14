@@ -1,4 +1,5 @@
 {
+  "windowsRollbackWarning": "Windows.old を削除すると、以前の Windows インストールと、そこにロールバックする機能が完全に削除されます。Windows のロールバックが不要になった場合にのみ、このグループを選択してください。",
   "maintenanceSizeUnknown": "削減容量は状況により異なります",
   "maintenanceOptional": "オプションのメンテナンス",
   "maintenanceComponentsNote": "古い Windows コンポーネント バージョンを直ちに削除します。時間がかかる場合があり、削減容量は合計に含まれません。",
