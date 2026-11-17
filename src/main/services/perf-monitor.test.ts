@@ -1,12 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IPC } from '../../shared/channels'
 
-const mocks = vi.hoisted(() => ({ processes: vi.fn(), memory: vi.fn(), temperatures: vi.fn() }))
+const mocks = vi.hoisted(() => ({
+  processes: vi.fn(),
+  memory: vi.fn(),
+  temperatures: vi.fn(),
+  diskLayout: vi.fn()
+}))
 vi.mock('./perf-temperatures', () => ({ collectTemperatures: mocks.temperatures }))
 vi.mock('./perf-disk', () => ({
   collectDiskThroughput: async () => ({ readBytesPerSec: 1024, writeBytesPerSec: 2048 })
 }))
 vi.mock('systeminformation', () => ({
+  diskLayout: mocks.diskLayout,
   processes: mocks.processes,
   currentLoad: async () => ({ currentLoad: 2, cpus: [{ load: 2 }] }),
   disksIO: async () => ({ rIO_sec: 0, wIO_sec: 0 }),
@@ -28,6 +34,39 @@ vi.mock('./perf-posix-processes', () => ({
   getPosixProcessIdentity: vi.fn()
 }))
 import { PerfMonitorService } from './perf-monitor'
+
+describe('disk power-on hours', () => {
+  it.each([
+    [{ power_on_time: { hours: 1234 } }, 1234],
+    [{ nvme_smart_health_information_log: { power_on_hours: 5678 } }, 5678],
+    [{ power_on_time: { hours: 0 } }, 0],
+    [{ power_on_time: { hours: -1 } }, null],
+    [{ power_on_time: { hours: '123' } }, null],
+    [{ power_on_time: { hours: Infinity } }, null],
+    [undefined, null]
+  ])(
+    'uses valid SMART hours when storage counters are unavailable (%j)',
+    async (smartData, expected) => {
+      const service = new PerfMonitorService()
+      vi.spyOn(service as any, 'getStorageReliability').mockResolvedValue(new Map())
+      mocks.diskLayout.mockResolvedValue([{ device: 'disk0', smartData }])
+      expect((await service.getDiskHealth())[0].powerOnHours).toBe(expected)
+      vi.restoreAllMocks()
+    }
+  )
+
+  it('prefers storage counter hours, including zero', async () => {
+    const service = new PerfMonitorService()
+    vi.spyOn(service as any, 'getStorageReliability').mockResolvedValue(
+      new Map([['0', { powerOnHours: 0 }]])
+    )
+    mocks.diskLayout.mockResolvedValue([
+      { device: 'disk0', smartData: { power_on_time: { hours: 1234 } } }
+    ])
+    expect((await service.getDiskHealth())[0].powerOnHours).toBe(0)
+    vi.restoreAllMocks()
+  })
+})
 
 describe('monitor process collection lifecycle', () => {
   let service: PerfMonitorService

@@ -21,6 +21,10 @@ import { PosixProcessSampler, getPosixProcessIdentity } from './perf-posix-proce
 
 const execFileAsync = promisify(execFile)
 
+function validPowerOnHours(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null
+}
+
 export class PerfMonitorService {
   private fastTimer: ReturnType<typeof setInterval> | null = null
   private slowTimer: ReturnType<typeof setInterval> | null = null
@@ -216,7 +220,10 @@ export class PerfMonitorService {
           sizeBytes: d.size,
           temperature: rel?.temperature ?? d.temperature ?? null,
           healthStatus: smartStatus as DiskSmartInfo['healthStatus'],
-          powerOnHours: rel?.powerOnHours ?? null,
+          powerOnHours:
+            rel?.powerOnHours ??
+            validPowerOnHours(d.smartData?.power_on_time?.hours) ??
+            validPowerOnHours(d.smartData?.nvme_smart_health_information_log?.power_on_hours),
           remainingLife: rel?.wear !== null && rel?.wear !== undefined ? 100 - rel.wear : null,
           readErrors: rel?.readErrors ?? null,
           writeErrors: rel?.writeErrors ?? null,
