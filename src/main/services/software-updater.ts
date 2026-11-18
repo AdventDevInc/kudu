@@ -215,6 +215,44 @@ const WINGET_COLUMN_NAMES = ['name', 'id', 'version', 'available', 'source'] as 
 type WingetColumnName = (typeof WINGET_COLUMN_NAMES)[number]
 
 /**
+ * Some translations use multi-word headers — Korean has `장치 ID` for Id and
+ * `사용 가능` for Available — so not every header token starts a column.
+ * Treating `ID` as its own column cut every package id down to the width of
+ * `장치 ` ("CitroLabs.EgoLite" became "Citro"), and winget then rejected the
+ * upgrade with "package not found".
+ *
+ * Only a token one space after the previous one can be such a word break. A
+ * real column sits that close only when the header is its widest cell, and
+ * then the values line up exactly under it — so the rows settle it: a real
+ * column start has a value beginning there, while a word break inside a
+ * header either cuts through the values or sits past their end.
+ */
+function dropInHeaderWordBreaks(tokens: WingetColumn[], body: string[]): WingetColumn[] {
+  // Rows come first; the summary ("7 upgrades available.") and the prose
+  // after it are not cells, so stop there unless that leaves nothing.
+  const filled = body.filter((line) => line.trim())
+  const summaryIdx = filled.findIndex((line) => /^\d+\s/.test(line))
+  const leading = summaryIdx === -1 ? filled : filled.slice(0, summaryIdx)
+  const voters = leading.length > 0 ? leading : filled.filter((line) => !/^\d+\s/.test(line))
+  if (voters.length === 0) return tokens
+
+  return tokens.filter((token, i) => {
+    if (i === 0) return true
+    const prev = tokens[i - 1]
+    if (token.start - (prev.start + displayWidth(prev.label)) !== 1) return true
+    let starts = 0
+    let cuts = 0
+    for (const line of voters) {
+      const before = sliceByDisplayColumns(line, token.start - 1, token.start)
+      const at = sliceByDisplayColumns(line, token.start, token.start + 1)
+      if (before.trim()) cuts++
+      else if (at.trim()) starts++
+    }
+    return starts > cuts
+  })
+}
+
+/**
  * Locate the table in `winget upgrade` / `winget list` output without relying
  * on the language of the column headers. The header is the line immediately
  * above the first dashes-only separator, and columns start wherever a header
@@ -236,10 +274,11 @@ export function locateWingetTable(stdout: string, minColumns: number): WingetTab
   if (separatorIdx === -1) return null
 
   const header = lines[separatorIdx - 1]
-  const columns: WingetColumn[] = []
+  const tokens: WingetColumn[] = []
   for (const m of header.matchAll(/\S+/g)) {
-    columns.push({ label: m[0], start: displayWidth(header.slice(0, m.index ?? 0)) })
+    tokens.push({ label: m[0], start: displayWidth(header.slice(0, m.index ?? 0)) })
   }
+  const columns = dropInHeaderWordBreaks(tokens, lines.slice(separatorIdx + 1))
   if (columns.length < minColumns) return null
 
   const idStart = columns[1].start
