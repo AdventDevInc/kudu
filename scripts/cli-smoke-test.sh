@@ -9,12 +9,11 @@ set -uo pipefail
 PASS=0
 FAIL=0
 
-# On Linux CI there is no display server, and Electron's SUID sandbox
-# helper is not configured.  We must pass Chromium flags directly on
-# the command line — the app sets them via app.commandLine.appendSwitch
-# but that runs too late for the native ozone platform selection.
+# On Linux CI the SUID sandbox helper is not configured. Deliberately omit
+# Ozone/GPU flags: Kudu must select headless mode itself without a display.
 if [[ "${OSTYPE:-}" == linux* ]]; then
-  ELECTRON="npx electron . --no-sandbox --disable-gpu --ozone-platform=headless --cli"
+  unset DISPLAY WAYLAND_DISPLAY WAYLAND_SOCKET
+  ELECTRON="npx electron . --no-sandbox --cli"
 else
   ELECTRON="npx electron . --cli"
 fi
