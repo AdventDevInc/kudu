@@ -98,6 +98,7 @@ const navGroups: NavGroup[] = [
             label: 'Custom cleaning folders',
             path: '/custom-folders'
           },
+          { icon: Cloud, labelKey: 'settings:icloud.title', label: 'iCloud & device backups', path: '/icloud' },
           { icon: Database, labelKey: 'registry:pageTitle', label: 'Registry', path: '/registry' },
           { icon: Zap, labelKey: 'startup:pageTitle', label: 'Startup', path: '/startup' },
           { icon: Wifi, labelKey: 'network:pageTitle', label: 'Network', path: '/network' },
@@ -369,7 +370,7 @@ export function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const badgeCounts = useBadgeCounts()
-  const { features } = usePlatform()
+  const { features, platform } = usePlatform()
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null)
 
   // Schedules promo card: auto-hides once the user has any schedule (even a paused
@@ -397,6 +398,7 @@ export function Sidebar() {
       .map((item) => {
         if (!item.children) return item
         const filtered = item.children.filter((child) => {
+          if (child.path === '/icloud' && platform !== 'darwin') return false
           if (child.path === '/game-mode' && !features.gameMode) return false
           if (child.path === '/registry' && !features.registry) return false
           if (child.path === '/debloater' && !features.debloater) return false

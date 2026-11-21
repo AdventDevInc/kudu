@@ -1,3 +1,6 @@
+import { registerICloudCleanupIpc } from './icloud-cleanup.ipc'
+import { registerMacToolsIpc } from './mac-tools.ipc'
+import { registerWeekendAppLaunchesIpc } from './weekend-app-launches.ipc'
 import { registerDownloadsReviewIpc } from './downloads-review.ipc'
 import { registerCustomFoldersIpc } from './custom-folders.ipc'
 import { registerAppSpaceIpc } from './app-space.ipc'
@@ -104,6 +107,9 @@ export function registerCleanerIpc(getWindow: WindowGetter): void {
   registerRegistryCleanerIpc(getWindow)
   registerContextMenuCleanerIpc(getWindow)
   registerStartupManagerIpc()
+  registerWeekendAppLaunchesIpc()
+  registerMacToolsIpc()
+  registerICloudCleanupIpc()
   registerDebloaterIpc(getWindow)
   registerStorageHistoryIpc(getWindow)
   registerDiskAnalyzerIpc(getWindow)

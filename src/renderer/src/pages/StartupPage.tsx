@@ -1,3 +1,4 @@
+import { WeekendAppLaunches } from '@/components/shared/WeekendAppLaunches'
 import { useState, useEffect, useCallback, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -641,6 +642,8 @@ export function StartupPage() {
           </div>
         }
       />
+
+      <WeekendAppLaunches />
 
       {/* Boot Trace Impact Analysis */}
       <BootTracePanel trace={bootTrace} loading={traceLoading} />

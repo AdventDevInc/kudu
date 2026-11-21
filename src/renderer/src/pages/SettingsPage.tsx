@@ -1,3 +1,4 @@
+import { MacToolsPanel } from '@/components/shared/MacToolsPanel'
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -111,7 +112,15 @@ export function SettingsPage() {
             {t(key)}
           </button>
         ))}
+        {platform === 'darwin' && (
+          <button onClick={() => {
+            const section = document.getElementById('macTools')
+            section?.scrollIntoView({ block: 'start' })
+            section?.focus({ preventScroll: true })
+          }}>{t('mac.title')}</button>
+        )}
       </nav>
+      {platform === 'darwin' && <MacToolsPanel />}
       <div className="settings-grid">
         <Section id="sectionGeneral" title={t('sectionGeneral')}>
           <Row

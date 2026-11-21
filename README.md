@@ -56,6 +56,51 @@ Cleaning rules are plain JSON — no code required to add support for a new app.
 
 For your own cache folders, including portable apps on another local drive, use **Settings → Custom cleaning folders**. See the [custom-folder guide](CUSTOM-FOLDERS.md) for preview, selection, and Trash recovery instructions.
 
+## Scheduled application opening on macOS
+
+In **Startup**, choose allowed weekdays and either **Once a week on an allowed day**
+or **Once on each selected day**, then use **Choose an application…**.
+Existing schedules have their own weekday controls and **Save days** button.
+Checks run at login and every five minutes during the session, including while
+Kudu is closed. Missed days are skipped. Existing weekend schedules retain their
+Saturday/Sunday weekly behavior until edited.
+Turn off the application's existing **Open at Login** option to apply this rhythm.
+
+The implementation uses native launchd scheduling and an original standalone runner.
+Architecture references include [launchr's user-agent management](https://github.com/scoult/launchr)
+and [Outset's login execution tracking](https://github.com/macadmins/outset).
+
+## Mac tools in Settings
+
+**Settings → Mac tools** provides seven tabs for Spotlight indexing, application
+associations, PATH correction, battery diagnostics, energy profiles, animations,
+and a global HTML audit with storage charts.
+
+PATH changes have a reviewable preview, ordering controls and a backup. Only
+literal assignments in regular user-owned shell configuration files are edited.
+Heredocs, multiline strings and dynamic shell expressions require manual review.
+Energy and animation profiles preserve the original settings for restoration and
+detect later changes made outside Kudu. Battery readings depend on the sensors
+exposed by the Mac. The audit is generated and exported locally.
+
+## iCloud and device backup management on macOS
+
+**Clean up → iCloud & device backups** groups the requested iCloud services,
+opens their native Apple/application management screens, and explains the impact
+of deleting synced data. The catalog distinguishes installed applications from
+their account-dependent iCloud activation. Mail/iCloud Mail and Maps/Cartes
+share their respective service entries.
+
+The iCloud backups tab opens Apple Account storage management with removal
+instructions. Cloud backup removal is confirmed in Apple's screen and can turn
+off backups for that device. Recovery periods depend on the service and account.
+
+The local backups tab scans this account's MobileSync backups and can move
+selected complete, stable backups to Trash. It requires a current scan, typed
+confirmation and an acknowledgment that devices are disconnected. Changed,
+recent, incomplete, linked and replaced backups are rejected. A failed Trash
+operation retains the claimed backup and reports its location for manual review.
+
 ## Support
 
 For Privacy Shield administrator prompts and permission errors on Mac, see the [macOS permissions guide](docs/macos-permissions.md).
