@@ -255,6 +255,7 @@ export function CleanerPage() {
       : CleanerType.System
   })
   const [searchQuery, setSearchQuery] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [searchScope, setSearchScope] = useState<'category' | 'all'>(
     location.state?.appSpaceAll === true ? 'all' : 'category'
   )
@@ -817,6 +818,30 @@ export function CleanerPage() {
       <div className="cleaner-workspace flex gap-5">
         {/* Category sidebar */}
         <div className="cleaner-categories w-56 shrink-0 space-y-1.5">
+          {hasResults && (
+            <button
+              type="button"
+              aria-pressed={searchScope === 'all'}
+              disabled={isScanning || isCleaning || preparingClean}
+              onClick={() => {
+                setSearchScope('all')
+                searchInputRef.current?.focus()
+              }}
+              className="relative flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all disabled:opacity-40"
+              style={{
+                background: searchScope === 'all' ? 'var(--accent-muted-bg)' : 'transparent',
+                color: searchScope === 'all' ? 'var(--warning)' : 'var(--text-muted)'
+              }}
+            >
+              <Search className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} />
+              <div className="min-w-0 flex-1">
+                <span className="text-[13px] font-medium">{t('searchResults')}</span>
+                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  {t('allCleanupCategories')}
+                </p>
+              </div>
+            </button>
+          )}
           {categories.map((cat) => {
             const count = categoryItemCount(cat.type)
             const isActive = searchScope === 'category' && activeCategory === cat.type
@@ -1073,6 +1098,7 @@ export function CleanerPage() {
                 >
                   <Search className="h-4 w-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
                   <input
+                    ref={searchInputRef}
                     type="search"
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
