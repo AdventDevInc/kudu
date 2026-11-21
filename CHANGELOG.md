@@ -1,3 +1,19 @@
+# [3.14.0](https://github.com/adventdevinc/kudu/compare/v3.13.0...v3.14.0) (2026-11-21)
+
+
+### Bug Fixes
+
+* **cleaner:** require opt-in for Windows.old rollback cleanup ([#607](https://github.com/adventdevinc/kudu/issues/607)) ([6103a59](https://github.com/adventdevinc/kudu/commit/6103a59b10e909e2e16def26e2848aa7a8ffd101))
+* **cli:** support headless Linux execution without DISPLAY ([#614](https://github.com/adventdevinc/kudu/issues/614)) ([#615](https://github.com/adventdevinc/kudu/issues/615)) ([7fb999f](https://github.com/adventdevinc/kudu/commit/7fb999fc1f564a9039cc879dc6213bf7c56a7d4e))
+* **malware:** quarantine and restore files across filesystems ([#600](https://github.com/adventdevinc/kudu/issues/600)) ([0d84fe2](https://github.com/adventdevinc/kudu/commit/0d84fe2bf96fc01538acecf9ddd6f16580ca9f0e))
+* **performance:** use SMART power-on hours when counters are unavailable ([#608](https://github.com/adventdevinc/kudu/issues/608)) ([946da72](https://github.com/adventdevinc/kudu/commit/946da72bf6b0a746dcbcb8e8a6b13bb8bde3a2ea))
+* **uninstaller:** block drive-root deletion from install metadata ([#606](https://github.com/adventdevinc/kudu/issues/606)) ([a21934c](https://github.com/adventdevinc/kudu/commit/a21934c2bd313f23efbd9b563eb8622b2799f517))
+* **updater:** keep full winget ids when localised headers contain spaces ([#613](https://github.com/adventdevinc/kudu/issues/613)) ([0d5e19b](https://github.com/adventdevinc/kudu/commit/0d5e19bae0cbfb1fd2ad024926230314a792cab6))
+
+
+### Features
+
+* **cleaner:** add custom cleaning folders to sidebar ([#596](https://github.com/adventdevinc/kudu/issues/596)) ([74ff127](https://github.com/adventdevinc/kudu/commit/74ff127b50cbc545d7c80c82fa261b093c9d602d))
 # [3.13.0](https://github.com/adventdevinc/kudu/compare/v3.12.0...v3.13.0) (2026-11-07)
 
 
