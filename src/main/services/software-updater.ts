@@ -228,6 +228,15 @@ type WingetColumnName = (typeof WINGET_COLUMN_NAMES)[number]
  * header either cuts through the values or sits past their end.
  */
 function dropInHeaderWordBreaks(tokens: WingetColumn[], body: string[]): WingetColumn[] {
+  // Known English labels already identify columns unambiguously, even when
+  // a tightly spaced optional column has no values in the rows.
+  if (
+    tokens.every((token) =>
+      WINGET_COLUMN_NAMES.includes(token.label.toLowerCase() as WingetColumnName)
+    )
+  )
+    return tokens
+
   // Rows come first; the summary ("7 upgrades available.") and the prose
   // after it are not cells, so stop there unless that leaves nothing.
   const filled = body.filter((line) => line.trim())

@@ -319,6 +319,19 @@ describe('parseWingetUpgradeOutput', () => {
     expect(parseWingetUpgradeOutput(output).map((a) => a.id)).toEqual(['Some.App'])
   })
 
+  it('preserves tight English columns with blank source cells', () => {
+    const output = [
+      'Name  Id        Version  Available Source',
+      '----------------------------------------',
+      'App   Some.App  1.0      2.0',
+      '1 upgrades available.'
+    ].join('\n')
+
+    expect(parseWingetUpgradeOutput(output)).toMatchObject([
+      { id: 'Some.App', currentVersion: '1.0', availableVersion: '2.0', source: 'winget' }
+    ])
+  })
+
   it('keeps full ids when a localised header contains spaces (Korean)', () => {
     // Korean winget (1.29) labels the Id column "장치 ID" and the Available
     // column "사용 가능" — two header tokens for one column each.
