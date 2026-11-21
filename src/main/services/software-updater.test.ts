@@ -318,6 +318,78 @@ describe('parseWingetUpgradeOutput', () => {
 
     expect(parseWingetUpgradeOutput(output).map((a) => a.id)).toEqual(['Some.App'])
   })
+
+  it('preserves tight English columns with blank source cells', () => {
+    const output = [
+      'Name  Id        Version  Available Source',
+      '----------------------------------------',
+      'App   Some.App  1.0      2.0',
+      '1 upgrades available.'
+    ].join('\n')
+
+    expect(parseWingetUpgradeOutput(output)).toMatchObject([
+      { id: 'Some.App', currentVersion: '1.0', availableVersion: '2.0', source: 'winget' }
+    ])
+  })
+
+  it('keeps full ids when a localised header contains spaces (Korean)', () => {
+    // Korean winget (1.29) labels the Id column "장치 ID" and the Available
+    // column "사용 가능" — two header tokens for one column each.
+    const COLUMN_STARTS = [0, 34, 60, 73, 86]
+    const row = (cells: string[]): string =>
+      cells
+        .reduce(
+          (line, text, i) =>
+            line.padEnd(COLUMN_STARTS[i] - displayWidth(line) + line.length) + text,
+          ''
+        )
+        .trimEnd()
+
+    const output = [
+      row(['이름', '장치 ID', '버전', '사용 가능', '원본']),
+      '-'.repeat(92),
+      row(['Example App', 'Contoso.ExampleApp', '0.6.3.14', '0.6.3.17', 'winget']),
+      row(['Sample CLI', 'Fabrikam.cli', '2.104.0', '2.105.0', 'winget']),
+      row([
+        'Sample Tool Suite 2.0 (64-bit)',
+        'Contoso.SampleToolSuite',
+        '7.1.2.34',
+        '7.1.2.35',
+        'winget'
+      ]),
+      row(['Tool', 'Tool.Tool', '23.1.5', '23.1.6', 'winget']),
+      row(['샘플 메신저', 'Fabrikam.Messenger', '26.9.2.5342', '26.10.0.5364', 'winget']),
+      '5 업그레이드를 사용할 수 있습니다.'
+    ].join('\r\n')
+
+    const apps = parseWingetUpgradeOutput(output)
+    expect(apps.map((a) => a.id)).toEqual([
+      'Contoso.ExampleApp',
+      'Fabrikam.cli',
+      'Contoso.SampleToolSuite',
+      'Tool.Tool',
+      'Fabrikam.Messenger'
+    ])
+    expect(apps[4]).toMatchObject({
+      name: '샘플 메신저',
+      currentVersion: '26.9.2.5342',
+      availableVersion: '26.10.0.5364',
+      source: 'winget'
+    })
+  })
+
+  it('handles a spaced header when every value is shorter than the header', () => {
+    const output = [
+      '이름 장치 ID 버전 사용 가능 원본',
+      '--------------------------------',
+      'App  A.B     1.0  2.0       winget',
+      '1 업그레이드를 사용할 수 있습니다.'
+    ].join('\r\n')
+
+    expect(parseWingetUpgradeOutput(output)).toMatchObject([
+      { id: 'A.B', currentVersion: '1.0', availableVersion: '2.0', source: 'winget' }
+    ])
+  })
 })
 
 // ─── parseWingetListOutput ──────────────────────────────────
