@@ -49,8 +49,8 @@ import { relaunchForHeadlessLinux } from './services/headless-linux'
 // Chromium selects its native Ozone display platform during early C++
 // initialization. If running in CLI or daemon mode on Linux without
 // an active display server, --ozone-platform=headless must be present on
-// process.argv. If omitted by the caller/package, relaunch ourselves
-// with the required native flags before continuing (issue #614).
+// process.argv. If omitted by the caller/package, replace this process
+// with the required native flags before backend initialization (issue #614).
 relaunchForHeadlessLinux()
 
 // ─── Disable hardware acceleration ──────────────────────────
@@ -64,9 +64,8 @@ app.disableHardwareAcceleration()
 // ─── Headless mode flags ─────────────────────────────────────
 // When running without a GUI (daemon or CLI), disable sandbox
 // so Electron works on headless Linux servers without X11/Wayland.
-// IMPORTANT: Clear DISPLAY before Chromium initializes — otherwise the
-// native layer picks the X11 ozone backend before app.commandLine
-// switches are processed, and crashes if no X server is running.
+// Native Ozone selection happens before this script; the Linux bootstrap
+// above supplies the real argv flags. Appending the switch alone is too late.
 if (process.argv.includes('--daemon') || process.argv.includes('--cli')) {
   delete process.env.DISPLAY
   delete process.env.WAYLAND_DISPLAY

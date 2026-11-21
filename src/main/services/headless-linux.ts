@@ -1,5 +1,3 @@
-import { spawnSync } from 'child_process'
-
 /**
  * Flags required by Chromium's native Ozone abstraction layer to run
  * without an X11 or Wayland display server on Linux.
@@ -23,17 +21,18 @@ export const LINUX_HEADLESS_FLAGS = [
  */
 export function shouldRelaunchForHeadlessLinux(
   platform: NodeJS.Platform = process.platform,
-  argv: readonly string[] = process.argv,
-  env: NodeJS.ProcessEnv = process.env
+  argv: readonly string[] = process.argv
 ): boolean {
   if (platform !== 'linux') return false
-  if (env.KUDU_HEADLESS_REEXEC === '1') return false
 
   const isHeadlessMode = argv.includes('--cli') || argv.includes('--daemon')
   if (!isHeadlessMode) return false
 
-  const hasOzonePlatform = argv.some((arg) => arg.startsWith('--ozone-platform='))
-  return !hasOzonePlatform
+  return !hasOzonePlatform(argv)
+}
+
+function hasOzonePlatform(argv: readonly string[]): boolean {
+  return argv.some((arg) => arg === '--ozone-platform' || arg.startsWith('--ozone-platform='))
 }
 
 /**
@@ -41,46 +40,30 @@ export function shouldRelaunchForHeadlessLinux(
  * prepending missing native flags while preserving all existing CLI arguments.
  */
 export function getHeadlessLinuxArgs(argv: readonly string[] = process.argv): string[] {
-  const flagsToAdd: string[] = []
-  if (!argv.some((arg) => arg.startsWith('--ozone-platform='))) {
-    flagsToAdd.push('--ozone-platform=headless')
-  }
-  if (!argv.includes('--no-sandbox')) {
-    flagsToAdd.push('--no-sandbox')
-  }
-  if (!argv.includes('--disable-gpu')) {
-    flagsToAdd.push('--disable-gpu')
-  }
+  const flagsToAdd = LINUX_HEADLESS_FLAGS.filter((flag) =>
+    flag.startsWith('--ozone-platform=') ? !hasOzonePlatform(argv) : !argv.includes(flag)
+  )
 
   return [...flagsToAdd, ...argv.slice(1)]
 }
 
 /**
  * If running on Linux in CLI or daemon mode without `--ozone-platform` on argv,
- * synchronously relaunch the process with native headless flags and exit with
- * the child's exit status.
+ * replace the process before Chromium initializes the selected display backend.
+ * execve (provided by Electron's embedded Node 24) keeps the PID, standard I/O,
+ * exit status and signal semantics intact. A spawnSync supervisor would block
+ * signal handling and could leave an orphaned daemon when only its PID is stopped.
  */
 export function relaunchForHeadlessLinux(): void {
   if (!shouldRelaunchForHeadlessLinux()) return
 
-  const args = getHeadlessLinuxArgs()
-  const result = spawnSync(process.execPath, args, {
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      KUDU_HEADLESS_REEXEC: '1'
-    }
-  })
-
-  if (result.error) {
-    console.error('Failed to spawn headless Kudu process:', result.error)
+  try {
+    if (!process.execve) throw new Error('This Electron runtime does not support process.execve')
+    // execve needs argv[0], unlike child_process.spawn. Preserve the app path
+    // for unpackaged launches and every user argument, including data-dir overrides.
+    process.execve(process.execPath, [process.execPath, ...getHeadlessLinuxArgs()], process.env)
+  } catch (error) {
+    console.error('Failed to relaunch headless Kudu process:', error)
     process.exit(1)
   }
-
-  if (result.signal) {
-    const code = result.signal === 'SIGINT' ? 130 : result.signal === 'SIGTERM' ? 143 : 1
-    process.exit(code)
-  }
-
-  process.exit(result.status ?? 0)
 }

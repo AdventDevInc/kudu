@@ -63,7 +63,12 @@ async function runPackagedSmoke() {
   delete env.ELECTRON_RUN_AS_NODE
   delete env.ELECTRON_NO_ASAR
   delete env.NODE_PATH
-  const run = (args, overrides = {}) => {
+  if (process.platform === 'linux') {
+    delete env.DISPLAY
+    delete env.WAYLAND_DISPLAY
+    delete env.WAYLAND_SOCKET
+  }
+  const run = (args, overrides = {}, expectedStatus = 0) => {
     const result = spawnSync(executable, args, {
       // Windows helpers can briefly outlive Electron and retain their cwd.
       // Keep that cwd outside the disposable user-data directory.
@@ -77,7 +82,7 @@ async function runPackagedSmoke() {
     assert.ifError(result.error)
     assert.equal(
       result.status,
-      0,
+      expectedStatus,
       `Packaged command failed: ${args.join(' ')}\n${result.stdout}\n${result.stderr}`
     )
     return result.stdout.trim()
@@ -88,16 +93,26 @@ async function runPackagedSmoke() {
         ELECTRON_RUN_AS_NODE: '1'
       })
     )
-    const flags =
-      process.platform === 'linux'
-        ? ['--no-sandbox', '--disable-gpu', '--ozone-platform=headless']
-        : []
+    // Linux CI lacks a configured sandbox helper. Omit Ozone/GPU flags so
+    // this exercises Kudu's automatic headless bootstrap in packaged builds.
+    const flags = process.platform === 'linux' ? ['--no-sandbox'] : []
     // Keep all CLI state in a disposable directory, including on developer machines.
     const cli = (...args) => run([...flags, `--kudu-data-dir=${temporary}`, '--cli', ...args])
     assert.match(cli('--version'), /Kudu v\d+\.\d+\.\d+/)
     assert.match(cli('--help'), /usage/i)
     JSON.parse(cli('config', '--json', 'get'))
     JSON.parse(cli('history', '--json', 'list'))
+    const invalid = run(
+      [...flags, `--kudu-data-dir=${temporary}`, '--cli', '--json', 'bogus-command-12345'],
+      {},
+      6
+    )
+    assert.equal(typeof JSON.parse(invalid).error, 'string')
+    // A deliberately invalid key exits before starting cloud/network activity.
+    assert.match(
+      run([...flags, `--kudu-data-dir=${temporary}`, '--daemon', '--api-key', 'x'], {}, 1),
+      /API key must be between 10 and 200 characters/
+    )
     console.log('Packaged CLI smoke tests passed')
   } finally {
     // Only the directory returned by mkdtempSync is ever removed.

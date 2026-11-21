@@ -6,20 +6,16 @@ import {
   relaunchForHeadlessLinux
 } from './headless-linux'
 
-const mockSpawnSync = vi.hoisted(() => vi.fn())
-vi.mock('child_process', () => ({
-  spawnSync: mockSpawnSync
-}))
-
 describe('headless Linux support (#614)', () => {
   const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')!
-  const originalArgv = [...process.argv]
-  const mockExit = vi.fn() as unknown as (code?: number) => never
+  const originalExecve = Object.getOwnPropertyDescriptor(process, 'execve')
+  const originalArgv = process.argv
+  const mockExecve = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubEnv('KUDU_HEADLESS_REEXEC', '')
-    vi.spyOn(process, 'exit').mockImplementation(mockExit)
+    Object.defineProperty(process, 'execve', { value: mockExecve, configurable: true })
+    vi.spyOn(process, 'exit').mockImplementation((() => {}) as () => never)
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
@@ -27,96 +23,43 @@ describe('headless Linux support (#614)', () => {
     vi.unstubAllEnvs()
     vi.restoreAllMocks()
     Object.defineProperty(process, 'platform', originalPlatform)
-    process.argv = [...originalArgv]
+    if (originalExecve) Object.defineProperty(process, 'execve', originalExecve)
+    else delete process.execve
+    process.argv = originalArgv
   })
 
   describe('shouldRelaunchForHeadlessLinux', () => {
-    it('returns false on non-Linux platforms', () => {
+    it('leaves Windows, macOS, and Linux GUI launches alone', () => {
       expect(shouldRelaunchForHeadlessLinux('win32', ['kudu', '--cli'])).toBe(false)
-      expect(shouldRelaunchForHeadlessLinux('darwin', ['kudu', '--cli'])).toBe(false)
-    })
-
-    it('returns false on Linux when not running in headless mode (GUI launch)', () => {
+      expect(shouldRelaunchForHeadlessLinux('darwin', ['kudu', '--daemon'])).toBe(false)
       expect(shouldRelaunchForHeadlessLinux('linux', ['kudu'])).toBe(false)
       expect(shouldRelaunchForHeadlessLinux('linux', ['kudu', '--minimized'])).toBe(false)
     })
 
-    it('returns false on Linux when already marked as re-executed', () => {
+    it.each(['--cli', '--daemon'])('relaunches Linux %s without an Ozone flag', (mode) => {
+      expect(shouldRelaunchForHeadlessLinux('linux', ['/opt/Kudu/kudu', mode])).toBe(true)
+    })
+
+    it.each(['headless', 'wayland', 'x11'])('preserves an explicit %s backend', (backend) => {
       expect(
-        shouldRelaunchForHeadlessLinux('linux', ['kudu', '--cli'], {
-          KUDU_HEADLESS_REEXEC: '1'
-        })
+        shouldRelaunchForHeadlessLinux('linux', ['kudu', `--ozone-platform=${backend}`, '--cli'])
+      ).toBe(false)
+      expect(
+        shouldRelaunchForHeadlessLinux('linux', ['kudu', '--ozone-platform', backend, '--daemon'])
       ).toBe(false)
     })
 
-    it('returns false on Linux when --ozone-platform is already present', () => {
-      expect(
-        shouldRelaunchForHeadlessLinux('linux', [
-          'kudu',
-          '--ozone-platform=headless',
-          '--cli',
-          'scan'
-        ])
-      ).toBe(false)
-      expect(
-        shouldRelaunchForHeadlessLinux('linux', [
-          'kudu',
-          '--ozone-platform=wayland',
-          '--cli',
-          'scan'
-        ])
-      ).toBe(false)
-    })
-
-    it('returns true on Linux when running --cli without --ozone-platform', () => {
-      expect(
-        shouldRelaunchForHeadlessLinux('linux', [
-          '/opt/Kudu/kudu',
-          '--cli',
-          'scan',
-          '--system',
-          '--json'
-        ])
-      ).toBe(true)
-    })
-
-    it('returns true on Linux when running --daemon without --ozone-platform', () => {
-      expect(shouldRelaunchForHeadlessLinux('linux', ['/opt/Kudu/kudu', '--daemon'])).toBe(true)
+    it('does not let an inherited recursion marker bypass headless setup', () => {
+      vi.stubEnv('KUDU_HEADLESS_REEXEC', '1')
+      expect(shouldRelaunchForHeadlessLinux('linux', ['kudu', '--cli'])).toBe(true)
     })
   })
 
   describe('getHeadlessLinuxArgs', () => {
-    it('prepends all headless flags when none are present', () => {
-      const argv = ['/opt/Kudu/kudu', '--cli', 'scan', '--json']
-      const args = getHeadlessLinuxArgs(argv)
-
-      expect(args).toEqual([
-        '--ozone-platform=headless',
-        '--no-sandbox',
-        '--disable-gpu',
-        '--cli',
-        'scan',
-        '--json'
-      ])
-    })
-
-    it('does not duplicate existing flags like --no-sandbox or --disable-gpu', () => {
-      const argv = ['/opt/Kudu/kudu', '--no-sandbox', '--disable-gpu', '--cli', 'clean']
-      const args = getHeadlessLinuxArgs(argv)
-
-      expect(args).toEqual([
-        '--ozone-platform=headless',
-        '--no-sandbox',
-        '--disable-gpu',
-        '--cli',
-        'clean'
-      ])
-    })
-
-    it('preserves existing flags and custom arguments in order', () => {
+    it('prepends native flags and preserves all packaged CLI arguments', () => {
       const argv = [
-        'kudu',
-        '--kudu-data-dir=/tmp/test',
+        '/opt/Kudu/kudu',
+        '--kudu-data-dir=/tmp/kudu data',
         '--cli',
         'scan',
         '--system',
@@ -124,115 +67,81 @@ describe('headless Linux support (#614)', () => {
         '--app',
         '--json'
       ]
-      const args = getHeadlessLinuxArgs(argv)
+      expect(getHeadlessLinuxArgs(argv)).toEqual([...LINUX_HEADLESS_FLAGS, ...argv.slice(1)])
+    })
 
-      expect(args).toEqual([
-        '--ozone-platform=headless',
-        '--no-sandbox',
-        '--disable-gpu',
-        '--kudu-data-dir=/tmp/test',
-        '--cli',
-        'scan',
-        '--system',
-        '--browser',
-        '--app',
-        '--json'
-      ])
+    it('preserves the application path in development launches', () => {
+      const argv = ['/usr/bin/electron', '/home/user/Kudu project', '--cli', '--help']
+      expect(getHeadlessLinuxArgs(argv)).toEqual([...LINUX_HEADLESS_FLAGS, ...argv.slice(1)])
+    })
+
+    it('does not duplicate flags or mutate argv', () => {
+      const argv = Object.freeze(['kudu', '--no-sandbox', '--disable-gpu', '--cli', 'clean'])
+      const args = getHeadlessLinuxArgs(argv)
+      expect(args).toEqual(['--ozone-platform=headless', ...argv.slice(1)])
+      expect(shouldRelaunchForHeadlessLinux('linux', ['kudu', ...args])).toBe(false)
+    })
+
+    it('leaves existing Ozone switches unchanged in either form', () => {
+      for (const flags of [['--ozone-platform=x11'], ['--ozone-platform', 'wayland']]) {
+        expect(getHeadlessLinuxArgs(['kudu', ...flags, '--cli'])).toEqual([
+          '--no-sandbox',
+          '--disable-gpu',
+          ...flags,
+          '--cli'
+        ])
+      }
     })
   })
 
   describe('relaunchForHeadlessLinux', () => {
-    it('does nothing when shouldRelaunchForHeadlessLinux returns false', () => {
-      Object.defineProperty(process, 'platform', { value: 'win32', configurable: true })
-      process.argv = ['kudu', '--cli', 'scan']
+    beforeEach(() => {
+      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
+      process.argv = ['/opt/Kudu/kudu', '--cli', 'scan', '--json']
+    })
 
+    it('replaces the current process with argv[0], user arguments and the environment intact', () => {
       relaunchForHeadlessLinux()
-
-      expect(mockSpawnSync).not.toHaveBeenCalled()
+      expect(mockExecve).toHaveBeenCalledExactlyOnceWith(
+        process.execPath,
+        [process.execPath, ...LINUX_HEADLESS_FLAGS, '--cli', 'scan', '--json'],
+        process.env
+      )
       expect(process.exit).not.toHaveBeenCalled()
     })
 
-    it('spawns child process with headless flags and exits with child status', () => {
-      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-      process.argv = ['/opt/Kudu/kudu', '--cli', 'scan', '--json']
-      mockSpawnSync.mockReturnValue({
-        status: 0,
-        signal: null,
-        error: null
-      })
-
+    it('does not re-execute a GUI launch or an already configured CLI', () => {
+      process.argv = ['kudu']
       relaunchForHeadlessLinux()
-
-      expect(mockSpawnSync).toHaveBeenCalledWith(
-        process.execPath,
-        ['--ozone-platform=headless', '--no-sandbox', '--disable-gpu', '--cli', 'scan', '--json'],
-        expect.objectContaining({
-          stdio: 'inherit',
-          env: expect.objectContaining({
-            KUDU_HEADLESS_REEXEC: '1'
-          })
-        })
-      )
-      expect(process.exit).toHaveBeenCalledWith(0)
+      process.argv = ['kudu', '--ozone-platform=headless', '--cli']
+      relaunchForHeadlessLinux()
+      expect(mockExecve).not.toHaveBeenCalled()
     })
 
-    it('propagates child process non-zero exit code', () => {
-      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-      process.argv = ['/opt/Kudu/kudu', '--cli', 'scan']
-      mockSpawnSync.mockReturnValue({
-        status: 2,
-        signal: null,
-        error: null
-      })
-
+    it('does nothing on Windows even when execve is unavailable', () => {
+      Object.defineProperty(process, 'platform', { value: 'win32', configurable: true })
+      Object.defineProperty(process, 'execve', { value: undefined, configurable: true })
       relaunchForHeadlessLinux()
-
-      expect(process.exit).toHaveBeenCalledWith(2)
+      expect(process.exit).not.toHaveBeenCalled()
     })
 
-    it('exits with 130 on SIGINT signal', () => {
-      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-      process.argv = ['/opt/Kudu/kudu', '--cli', 'scan']
-      mockSpawnSync.mockReturnValue({
-        status: null,
-        signal: 'SIGINT',
-        error: null
-      })
-
+    it('fails clearly if the runtime lacks execve', () => {
+      Object.defineProperty(process, 'execve', { value: undefined, configurable: true })
       relaunchForHeadlessLinux()
-
-      expect(process.exit).toHaveBeenCalledWith(130)
-    })
-
-    it('exits with 143 on SIGTERM signal', () => {
-      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-      process.argv = ['/opt/Kudu/kudu', '--cli', 'scan']
-      mockSpawnSync.mockReturnValue({
-        status: null,
-        signal: 'SIGTERM',
-        error: null
-      })
-
-      relaunchForHeadlessLinux()
-
-      expect(process.exit).toHaveBeenCalledWith(143)
-    })
-
-    it('handles spawn error gracefully and exits with code 1', () => {
-      Object.defineProperty(process, 'platform', { value: 'linux', configurable: true })
-      process.argv = ['/opt/Kudu/kudu', '--cli', 'scan']
-      mockSpawnSync.mockReturnValue({
-        status: null,
-        signal: null,
-        error: new Error('spawn EACCES')
-      })
-
-      relaunchForHeadlessLinux()
-
       expect(console.error).toHaveBeenCalledWith(
-        'Failed to spawn headless Kudu process:',
+        'Failed to relaunch headless Kudu process:',
         expect.any(Error)
       )
+      expect(process.exit).toHaveBeenCalledWith(1)
+    })
+
+    it('exits on a replacement error', () => {
+      const error = new Error('execve EACCES')
+      mockExecve.mockImplementationOnce(() => {
+        throw error
+      })
+      relaunchForHeadlessLinux()
+      expect(console.error).toHaveBeenCalledWith('Failed to relaunch headless Kudu process:', error)
       expect(process.exit).toHaveBeenCalledWith(1)
     })
   })
