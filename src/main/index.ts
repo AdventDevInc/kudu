@@ -43,6 +43,15 @@ import { runDaemon } from './daemon'
 import { createWindowsTrayIcon } from './tray-icon'
 import { isAdmin } from './services/elevation'
 import { skipPortableStartup } from './services/portable'
+import { relaunchForHeadlessLinux } from './services/headless-linux'
+
+// ─── Headless Linux ozone platform selection ─────────────────
+// Chromium selects its native Ozone display platform during early C++
+// initialization. If running in CLI or daemon mode on Linux without
+// an active display server, --ozone-platform=headless must be present on
+// process.argv. If omitted by the caller/package, relaunch ourselves
+// with the required native flags before continuing (issue #614).
+relaunchForHeadlessLinux()
 
 // ─── Disable hardware acceleration ──────────────────────────
 // Must be called before app.whenReady().  On machines with incompatible
@@ -62,6 +71,7 @@ if (process.argv.includes('--daemon') || process.argv.includes('--cli')) {
   delete process.env.DISPLAY
   delete process.env.WAYLAND_DISPLAY
   app.commandLine.appendSwitch('no-sandbox')
+  app.commandLine.appendSwitch('disable-gpu')
   app.commandLine.appendSwitch('ozone-platform', 'headless')
 }
 
