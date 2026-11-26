@@ -106,7 +106,7 @@
     "lucide-react": "^1.63.0",
     "pusher-js": "^8.6.0",
     "react-i18next": "^18.0.2",
-    "react-router-dom": "^7.18.5",
+    "react-router-dom": "^7.18.6",
     "recharts": "^3.10.1",
     "sonner": "^2.0.8",
     "systeminformation": "^5.33.18",
