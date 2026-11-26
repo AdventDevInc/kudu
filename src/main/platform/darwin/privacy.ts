@@ -109,7 +109,10 @@ async function elevatedExec(cmd: string, args: string[]): Promise<string> {
  * with `&&` so the batch stops on the first failure. This avoids showing
  * multiple macOS password dialogs when an apply needs more than one step.
  */
-async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): Promise<void> {
+export async function elevatedBatch(
+  commands: Array<{ cmd: string; args: string[] }>,
+  prompt: string = ELEVATION_PROMPT
+): Promise<void> {
   if (isRoot()) {
     for (const { cmd, args } of commands) {
       await execFileAsync(cmd, args, { timeout: 10_000 })
@@ -118,7 +121,7 @@ async function elevatedBatch(commands: Array<{ cmd: string; args: string[] }>): 
   }
   const parts = commands.map(({ cmd, args }) => [cmd, ...args].map(shellEscape).join(' '))
   const combined = parts.join(' && ')
-  const script = `do shell script ${JSON.stringify(combined)} with prompt ${JSON.stringify(ELEVATION_PROMPT)} with administrator privileges`
+  const script = `do shell script ${JSON.stringify(combined)} with prompt ${JSON.stringify(prompt)} with administrator privileges`
   await runAuthorization(script, commands.length * 10_000)
 }
 
@@ -727,7 +730,7 @@ async function revertSettings(
 // ─── Revert: state parts ────────────────────────────────────
 
 type DefaultsType = 'bool' | 'int' | 'float' | 'string'
-type DefaultsValue = { type: DefaultsType; value: string } | null
+export type DefaultsValue = { type: DefaultsType; value: string } | null
 
 const OFF: DefaultsValue = { type: 'bool', value: '0' }
 const ON: DefaultsValue = { type: 'bool', value: '1' }
@@ -740,7 +743,7 @@ const DEFAULTS_FORMATS: Record<DefaultsType, (value: string) => boolean> = {
   string: (v) => v.length <= 4096 && ![...v].some((c) => c < ' ' || c === '\x7f')
 }
 
-function isDefaultsValue(value: unknown): value is DefaultsValue {
+export function isDefaultsValue(value: unknown): value is DefaultsValue {
   if (value === null) return true
   const v = value as { type?: unknown; value?: unknown }
   return (
@@ -767,7 +770,7 @@ const DEFAULTS_TYPE_NAMES = new Map<string, DefaultsType>([
   ['string', 'string']
 ])
 
-async function readUserDefault(
+export async function readUserDefault(
   domain: string,
   key: string,
   currentHost: boolean
@@ -784,7 +787,12 @@ async function readUserDefault(
   } catch (error) {
     // "The domain/default pair of (…) does not exist" — anything else is not
     // proof of absence, so it fails the capture rather than recording "unset"
-    if (/does not exist/i.test(errorText(error))) return null
+    const message = errorText(error)
+    if (
+      /does not exist/i.test(message) ||
+      message.includes(`Could not find key '${key}' in domain '`)
+    )
+      return null
     throw error
   }
   const type = DEFAULTS_TYPE_NAMES.get(typeName)

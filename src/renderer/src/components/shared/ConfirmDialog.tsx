@@ -10,6 +10,7 @@ interface ConfirmDialogProps {
   title: string
   description: string
   confirmLabel?: string
+  confirmDisabled?: boolean
   variant?: 'default' | 'danger' | 'warning'
   children?: ReactNode
   details?: string
@@ -22,6 +23,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel,
+  confirmDisabled = false,
   variant = 'default',
   details,
   children
@@ -160,7 +162,8 @@ export function ConfirmDialog({
           </button>
           <button
             onClick={onConfirm}
-            className="rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all duration-200"
+            disabled={confirmDisabled}
+            className="rounded-xl px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 disabled:opacity-50"
             style={{
               background:
                 variant === 'danger'
