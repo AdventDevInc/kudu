@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { useEffect, useState, useMemo } from 'react'
 import { CleanupReceipts } from '@/components/cleaner/CleanupReceipts'
 import { ShareCleanup } from '@/components/cleaner/ShareCleanup'
@@ -1809,7 +1810,7 @@ function RecentScanRow({ entry }: { entry: ScanHistoryEntry }) {
 
 function formatDuration(
   ms: number,
-  t?: (key: string, opts?: Record<string, unknown>) => string
+  t?: TFunction<'history'>
 ): string {
   if (ms < 1000) return t ? t('duration.lessThanOneSecond') : '<1s'
   const seconds = Math.floor(ms / 1000)

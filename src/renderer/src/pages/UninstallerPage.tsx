@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { useState, useCallback, useEffect, useRef, useMemo, Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -47,7 +48,7 @@ function formatDate(raw: string): string {
 
 function formatLastUsed(
   ts: number,
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'uninstaller'>
 ): string {
   if (ts <= 0) return t('usageUnknown')
   const days = Math.floor((Date.now() - ts) / (24 * 60 * 60 * 1000))

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { useEffect, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -395,7 +396,7 @@ function VulnerabilityCard({
   expanded: boolean
   onToggle: () => void
   onNavigateUpdater: () => void
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'cveScanner'>
 }) {
   const config = severityConfig[vuln.severity] || severityConfig.critical
 

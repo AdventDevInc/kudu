@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { ScheduleOptions, ScheduleScope } from '@/components/schedules/ScheduleOptions'
 import {
   scheduleDefinition,
@@ -1304,7 +1305,7 @@ function IconBtn({
 
 function formatFrequency(
   entry: ScheduleEntry,
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'schedules'>
 ): string {
   const time = `${String(entry.hour).padStart(2, '0')}:${String(entry.minute ?? 0).padStart(2, '0')}`
   switch (entry.frequency) {
@@ -1322,7 +1323,7 @@ function formatFrequency(
 
 function formatNextRun(
   date: Date,
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'schedules'>
 ): string {
   const now = new Date()
   const diffMs = date.getTime() - now.getTime()
@@ -1347,7 +1348,7 @@ function formatNextRun(
 
 function formatLastRun(
   iso: string,
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'schedules'>
 ): string {
   const date = new Date(iso)
   const now = new Date()

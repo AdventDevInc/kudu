@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { useEffect, useCallback, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -657,7 +658,7 @@ function BreachRow({
   breach: FlatBreach
   showEmail: boolean
   onAcknowledge: () => void
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'breachMonitor'>
 }) {
   const isNew = !breach.acknowledgedAt
   const isSensitive = breach.isSensitive

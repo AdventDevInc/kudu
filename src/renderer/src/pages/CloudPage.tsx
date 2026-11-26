@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -659,7 +660,7 @@ function LinkedCloudSettings({
   onUnlink,
   onSave
 }: {
-  t: (key: string, opts?: Record<string, unknown>) => string
+  t: TFunction<'cloud'>
   settings: KuduSettings
   cloudStatus: {
     status: string
