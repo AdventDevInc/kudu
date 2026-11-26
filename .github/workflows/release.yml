@@ -200,6 +200,19 @@ jobs:
           # Keep platform directories separate so duplicate filenames fail
           # verification instead of silently overwriting another architecture.
           merge-multiple: false
+      # Older ARM runs inherited the x64 targets as well. Preserve the canonical
+      # x64 job's ZIP while recovering those runs; all other duplicates still fail.
+      - name: Remove redundant x64 portable ZIP from recovered ARM builds
+        if: ${{ inputs.artifact_run_id != '' }}
+        shell: bash
+        run: |
+          version="${RELEASE_TAG#v}"
+          redundant="release-artifacts/release-windows-11-arm/Kudu-Portable-${version}-x64.zip"
+          if [ -f "$redundant" ]; then
+            test -s "release-artifacts/release-windows-latest/Kudu-Portable-${version}-x64.zip"
+            test -s "release-artifacts/release-windows-11-arm/Kudu-Portable-${version}-arm64.zip"
+            rm -- "$redundant"
+          fi
       - name: Verify artifacts and manifests, upload, then publish
         env:
           GH_TOKEN: ${{ github.token }}
