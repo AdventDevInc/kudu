@@ -49,7 +49,7 @@ jobs:
             args: --win --x64 -c.win.requestedExecutionLevel=asInvoker -c.nsis.runAfterFinish=false -c.nsis.createDesktopShortcut=false -c.nsis.createStartMenuShortcut=false -c.appId=com.kudu.package-smoke
             executable: dist/win-unpacked/Kudu.exe
           - os: windows-11-arm
-            args: --win --config electron-builder.arm64.yml -c.win.requestedExecutionLevel=asInvoker -c.nsis.runAfterFinish=false -c.nsis.createDesktopShortcut=false -c.nsis.createStartMenuShortcut=false -c.appId=com.kudu.package-smoke
+            args: --win nsis portable --arm64 --config electron-builder.arm64.yml -c.win.requestedExecutionLevel=asInvoker -c.nsis.runAfterFinish=false -c.nsis.createDesktopShortcut=false -c.nsis.createStartMenuShortcut=false -c.appId=com.kudu.package-smoke
             executable: dist/win-arm64-unpacked/Kudu.exe
           - os: ubuntu-24.04-arm
             args: --dir --linux --arm64
