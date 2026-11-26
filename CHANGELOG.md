@@ -1,3 +1,10 @@
+# [3.15.0](https://github.com/adventdevinc/kudu/compare/v3.14.0...v3.15.0) (2026-11-26)
+
+
+### Bug Fixes
+
+* **build:** support updated TypeScript and i18next types ([1418ca0](https://github.com/adventdevinc/kudu/commit/1418ca04d16c146b9d1c8bf4d1ee37d7bb7e47cc))
+* **release:** pin compatible changelog angular preset ([446ce72](https://github.com/adventdevinc/kudu/commit/446ce729485d102c97bc45d304856f679e8f7a28))
 # [3.14.0](https://github.com/adventdevinc/kudu/compare/v3.13.0...v3.14.0) (2026-11-21)
 
 
